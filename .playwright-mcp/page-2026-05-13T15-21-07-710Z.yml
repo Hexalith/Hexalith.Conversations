@@ -1,0 +1,421 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - generic [ref=e5]:
+        - heading "Hexalith.Conversations UX Design Directions" [level=1] [ref=e6]
+        - paragraph [ref=e7]: Six visual approaches for a governed case-file administration surface.
+      - navigation "Design directions" [ref=e8]:
+        - link "01 Case File" [ref=e9] [cursor=pointer]:
+          - /url: "#d1"
+        - link "02 Split Lens" [ref=e10] [cursor=pointer]:
+          - /url: "#d2"
+        - link "03 Trust Matrix" [ref=e11] [cursor=pointer]:
+          - /url: "#d3"
+        - link "04 Evidence Reader" [ref=e12] [cursor=pointer]:
+          - /url: "#d4"
+        - link "05 Operations Desk" [ref=e13] [cursor=pointer]:
+          - /url: "#d5"
+        - link "06 Triage Rail" [ref=e14] [cursor=pointer]:
+          - /url: "#d6"
+        - button "Compare" [ref=e15] [cursor=pointer]
+  - main [ref=e16]:
+    - region "Evaluation Focus" [ref=e17]:
+      - generic [ref=e18]:
+        - heading "Evaluation Focus" [level=2] [ref=e19]
+        - paragraph [ref=e20]: "All directions preserve the same product stance: FrontComposer and Fluent UI conventions first, with custom treatment only where trust depends on it. The differences are layout priority, information density, and where verification lives in the operator's path."
+      - generic "Evaluation criteria" [ref=e22]:
+        - generic [ref=e23]:
+          - strong [ref=e24]: "Layout:"
+          - text: How quickly can an operator find, open, and verify?
+        - generic [ref=e25]:
+          - strong [ref=e26]: "Trust:"
+          - text: Are stale, redacted, denied, and degraded states impossible to miss?
+        - generic [ref=e27]:
+          - strong [ref=e28]: "Density:"
+          - text: Does the screen support repeated operational review?
+        - generic [ref=e29]:
+          - strong [ref=e30]: "Fit:"
+          - text: Does it feel like Hexalith, not a chat app or a cloud sprawl?
+    - generic [ref=e31]:
+      - article [ref=e32]:
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - heading "01. Case File Console" [level=2] [ref=e35]
+            - paragraph [ref=e36]: "A classic admin layout: left navigation, persistent record header, trust posture strip, evidence timeline, and supporting panels. This is the most FrontComposer-aligned baseline."
+          - generic [ref=e37]:
+            - generic [ref=e38]: Balanced density
+            - generic [ref=e39]: Fast to build
+            - generic [ref=e40]: V1-ready
+        - generic [ref=e41]:
+          - generic [ref=e42]:
+            - generic [ref=e43]: Hexalith.Conversations
+            - generic [ref=e44]: Search conversation, party, project, folder, timestamp
+            - generic [ref=e45]: Jerome - Platform Owner
+          - generic [ref=e46]:
+            - complementary [ref=e47]:
+              - generic [ref=e48]: Find Records
+              - generic [ref=e49]: Governance
+              - generic [ref=e50]: Verification
+              - generic [ref=e51]: Projection Health
+              - generic [ref=e52]: Conformance
+            - generic [ref=e53]:
+              - generic [ref=e54]:
+                - generic [ref=e55]:
+                  - heading "Conversation CONV-2026-0512-0148" [level=3] [ref=e56]
+                  - paragraph [ref=e57]: Tenant verified - Project Apollo - Folder /AI Reviews - Temporal cursor 2026-05-12T14:32:18Z
+                - generic [ref=e58]:
+                  - button "Copy Citation" [ref=e59]
+                  - button "Open Audit Trail" [ref=e60]
+                  - button "Redact blocked" [ref=e61]
+              - generic [ref=e62]:
+                - generic [ref=e63]: Current projection
+                - generic [ref=e64]: Audit-ready
+                - generic [ref=e65]: 2 redactions
+                - generic [ref=e66]: 1 participant degraded
+                - generic [ref=e67]: Cite-ready
+              - generic [ref=e68]:
+                - generic [ref=e69]:
+                  - generic [ref=e70]:
+                    - generic [ref=e71]:
+                      - text: 14:20:03 UTC
+                      - text: Human party
+                    - generic [ref=e72]:
+                      - heading "Request submitted" [level=4] [ref=e73]
+                      - paragraph [ref=e74]: Operator asked the AI assistant to compare invoice exceptions against project policy. Attachment reference preserved through Folders.
+                    - generic [ref=e75]: Cite
+                  - generic [ref=e76]:
+                    - generic [ref=e77]:
+                      - text: 14:22:41 UTC
+                      - text: LLM party
+                    - generic [ref=e78]:
+                      - heading "AI response generated" [level=4] [ref=e79]
+                      - paragraph [ref=e80]: Summary returned with two policy references. One account identifier is redacted in projected content.
+                    - generic [ref=e81]: Redacted
+                  - generic [ref=e82]:
+                    - generic [ref=e83]:
+                      - text: 14:31:09 UTC
+                      - text: Governance
+                    - generic [ref=e84]:
+                      - heading "Redaction applied" [level=4] [ref=e85]
+                      - paragraph [ref=e86]: Rationale recorded. Event history preserved; display projection changed.
+                    - generic [ref=e87]: Audited
+                - complementary [ref=e88]:
+                  - generic [ref=e89]:
+                    - heading "Trust Posture" [level=4] [ref=e90]
+                    - paragraph [ref=e91]: Reliable for citation. Participant directory returned one degraded label; stable Party ID remains available.
+                  - generic [ref=e92]:
+                    - heading "Command Gate" [level=4] [ref=e93]
+                    - paragraph [ref=e94]: Redaction unavailable because current user lacks governance-write permission.
+                  - generic [ref=e95]:
+                    - heading "Freshness" [level=4] [ref=e96]
+                    - paragraph [ref=e97]: Generated 18 seconds ago. Last applied event position 18422.
+                  - generic [ref=e98]:
+                    - heading "Attachments" [level=4] [ref=e99]
+                    - paragraph [ref=e100]: 3 references available. Binary content remains owned by Folders.
+      - article [ref=e101]:
+        - generic [ref=e102]:
+          - generic [ref=e103]:
+            - heading "02. Split Investigation Lens" [level=2] [ref=e104]
+            - paragraph [ref=e105]: Find stays visible beside Read. Best when operators frequently compare search candidates and need trust previews before opening the governed record.
+          - generic [ref=e106]:
+            - generic [ref=e107]: Find + Read together
+            - generic [ref=e108]: Strong search posture
+            - generic [ref=e109]: Operator-friendly
+        - generic [ref=e110]:
+          - generic [ref=e111]:
+            - generic [ref=e112]: Conversations Admin
+            - generic [ref=e113]: external:INV-8829 party:pty-482 since:2026-05-01
+            - generic [ref=e114]: "Tenant: Northwind EU"
+          - generic [ref=e115]:
+            - complementary [ref=e116]:
+              - generic [ref=e118]:
+                - heading "Find" [level=3] [ref=e119]
+                - paragraph [ref=e120]: Permission-filtered results only
+              - generic [ref=e121]:
+                - generic [ref=e122]: 8 results
+                - generic [ref=e123]: 2 stale
+              - generic [ref=e124]:
+                - generic [ref=e125]:
+                  - strong [ref=e126]: CONV-0148
+                  - paragraph [ref=e127]: Project Apollo - current - 2 redactions
+                  - generic [ref=e128]: Open safely
+                - generic [ref=e129]:
+                  - strong [ref=e130]: CONV-0122
+                  - paragraph [ref=e131]: Folder Review - projection lag 8m
+                  - generic [ref=e132]: Stale
+                - generic [ref=e133]:
+                  - strong [ref=e134]: Record hidden
+                  - paragraph [ref=e135]: Search scope does not permit additional disclosure.
+                  - generic [ref=e136]: Restricted
+            - generic [ref=e137]:
+              - generic [ref=e138]:
+                - generic [ref=e139]:
+                  - heading "CONV-0148 - Invoice Exception Review" [level=3] [ref=e140]
+                  - paragraph [ref=e141]: Opened from search result with verified tenant scope.
+                - generic [ref=e142]:
+                  - button "Copy Evidence" [ref=e143]
+                  - button "Compare Result" [ref=e144]
+              - generic [ref=e145]:
+                - generic [ref=e146]: Current
+                - generic [ref=e147]: Citation anchors
+                - generic [ref=e148]: Redacted
+                - generic [ref=e149]: Audit linked
+              - generic [ref=e150]:
+                - generic [ref=e151]:
+                  - generic [ref=e152]: 14:20
+                  - generic [ref=e153]:
+                    - heading "Human request" [level=4] [ref=e154]
+                    - paragraph [ref=e155]: Question anchored to file F-381 and project P-019. No raw attachment content displayed.
+                  - generic [ref=e156]: Anchor A1
+                - generic [ref=e157]:
+                  - generic [ref=e158]: 14:22
+                  - generic [ref=e159]:
+                    - heading "AI answer" [level=4] [ref=e160]
+                    - paragraph [ref=e161]: Generated answer includes policy comparison and an attributed uncertainty marker.
+                  - generic [ref=e162]: Cite
+                - generic [ref=e163]:
+                  - generic [ref=e164]: 14:31
+                  - generic [ref=e165]:
+                    - heading "Governance update" [level=4] [ref=e166]
+                    - paragraph [ref=e167]: Redaction reason visible beside affected evidence rather than buried in diagnostics.
+                  - generic [ref=e168]: R2
+      - article [ref=e169]:
+        - generic [ref=e170]:
+          - generic [ref=e171]:
+            - heading "03. Trust Matrix Dashboard" [level=2] [ref=e172]
+            - paragraph [ref=e173]: Trust posture becomes the entry point. The record is framed by status categories before the operator reads any evidence.
+          - generic [ref=e174]:
+            - generic [ref=e175]: Governance first
+            - generic [ref=e176]: High status clarity
+            - generic [ref=e177]: Heavier chrome
+        - generic [ref=e179]:
+          - generic [ref=e180]:
+            - generic [ref=e181]: Governance Workbench
+            - generic [ref=e182]: Conversation CONV-0148
+            - generic [ref=e183]: Evidence mode
+          - generic [ref=e184]:
+            - generic [ref=e185]:
+              - generic [ref=e186]: Authorization
+              - paragraph [ref=e187]: Tenant and role verified
+            - generic [ref=e188]:
+              - generic [ref=e189]: Freshness
+              - paragraph [ref=e190]: Projection current
+            - generic [ref=e191]:
+              - generic [ref=e192]: Redaction
+              - paragraph [ref=e193]: 2 projected changes
+            - generic [ref=e194]:
+              - generic [ref=e195]: Identity
+              - paragraph [ref=e196]: 1 degraded label
+            - generic [ref=e197]:
+              - generic [ref=e198]: Evidence
+              - paragraph [ref=e199]: 5 copyable anchors
+          - generic [ref=e200]:
+            - generic [ref=e201]:
+              - generic [ref=e202]:
+                - generic [ref=e203]:
+                  - heading "Trust Summary Before Reliance" [level=3] [ref=e204]
+                  - paragraph [ref=e205]: Use this record only with the visible redaction and identity caveats.
+                - button "Use Citation" [ref=e206]
+              - table "Evidence timeline" [ref=e207]:
+                - rowgroup [ref=e208]:
+                  - row "Time Material Fact Trust Action" [ref=e209]:
+                    - columnheader "Time" [ref=e210]
+                    - columnheader "Material Fact" [ref=e211]
+                    - columnheader "Trust" [ref=e212]
+                    - columnheader "Action" [ref=e213]
+                - rowgroup [ref=e214]:
+                  - row "14:20 Request submitted with folder reference. Reliable Copy" [ref=e215]:
+                    - cell "14:20" [ref=e216]
+                    - cell "Request submitted with folder reference." [ref=e217]
+                    - cell "Reliable" [ref=e218]:
+                      - generic [ref=e219]: Reliable
+                    - cell "Copy" [ref=e220]
+                  - row "14:22 AI response generated with policy comparison. Redacted Inspect" [ref=e221]:
+                    - cell "14:22" [ref=e222]
+                    - cell "AI response generated with policy comparison." [ref=e223]
+                    - cell "Redacted" [ref=e224]:
+                      - generic [ref=e225]: Redacted
+                    - cell "Inspect" [ref=e226]
+                  - row "14:31 Governance redaction recorded. Audited Open audit" [ref=e227]:
+                    - cell "14:31" [ref=e228]
+                    - cell "Governance redaction recorded." [ref=e229]
+                    - cell "Audited" [ref=e230]:
+                      - generic [ref=e231]: Audited
+                    - cell "Open audit" [ref=e232]
+            - complementary [ref=e233]:
+              - heading "Decision Support" [level=4] [ref=e234]
+              - list [ref=e235]:
+                - listitem [ref=e236]: Record is cite-ready with caveats.
+                - listitem [ref=e237]: Action-ready for read-only commands.
+                - listitem [ref=e238]: Governance writes unavailable for this user.
+                - listitem [ref=e239]: Diagnostics available after trust review.
+      - article [ref=e240]:
+        - generic [ref=e241]:
+          - generic [ref=e242]:
+            - heading "04. Evidence Reader" [level=2] [ref=e243]
+            - paragraph [ref=e244]: A document-review posture with a quiet right rail. Best for long conversations where sustained reading and citation quality matter most.
+          - generic [ref=e245]:
+            - generic [ref=e246]: Timeline depth
+            - generic [ref=e247]: Low visual noise
+            - generic [ref=e248]: Review-focused
+        - generic [ref=e250]:
+          - generic [ref=e251]:
+            - generic [ref=e252]:
+              - heading "Invoice Exception Review" [level=3] [ref=e253]
+              - paragraph [ref=e254]: CONV-0148 - Northwind EU - temporal cursor 2026-05-12T14:32:18Z
+            - generic [ref=e255]:
+              - generic [ref=e256]: Current
+              - generic [ref=e257]: Audit-ready
+              - generic [ref=e258]: Redacted content visible as marker
+            - generic [ref=e259]:
+              - heading "14:20:03 - Human request" [level=4] [ref=e260]
+              - paragraph [ref=e261]: Asked the assistant to compare invoice exceptions against the active project policy. The attachment is referenced by stable file ID.
+              - generic [ref=e262]: "Citation: CONV-0148#E1"
+            - generic [ref=e263]:
+              - heading "14:22:41 - AI response" [level=4] [ref=e264]
+              - paragraph [ref=e265]: Returned a policy comparison and flagged uncertainty around one exception category. One account reference is shown through the redaction-safe projection.
+              - generic [ref=e266]: Redaction R2 applied
+            - generic [ref=e267]:
+              - heading "14:31:09 - Governance event" [level=4] [ref=e268]
+              - paragraph [ref=e269]: Redaction rationale recorded by an authorized operator. Event history remains immutable; display projection changed.
+              - generic [ref=e270]: Audit event paired
+          - complementary [ref=e271]:
+            - generic [ref=e272]:
+              - heading "Command Gate" [level=4] [ref=e273]
+              - paragraph [ref=e274]: Copy citation is available. Redaction command is blocked by policy.
+            - generic [ref=e275]:
+              - heading "Participants" [level=4] [ref=e276]
+              - paragraph [ref=e277]: 3 resolved, 1 degraded. Stable Party IDs remain intact.
+            - generic [ref=e278]:
+              - heading "Freshness" [level=4] [ref=e279]
+              - paragraph [ref=e280]: Current at event position 18422.
+            - generic [ref=e281]:
+              - heading "Diagnostics" [level=4] [ref=e282]
+              - paragraph [ref=e283]: Projection details and subscriber health are available after evidence review.
+      - article [ref=e284]:
+        - generic [ref=e285]:
+          - generic [ref=e286]:
+            - heading "05. Operations Desk" [level=2] [ref=e287]
+            - paragraph [ref=e288]: A denser operational dashboard for platform administrators who need case review, projection health, and conformance signals in one view.
+          - generic [ref=e289]:
+            - generic [ref=e290]: Dense
+            - generic [ref=e291]: Admin cockpit
+            - generic [ref=e292]: More complex
+        - generic [ref=e294]:
+          - generic [ref=e295]:
+            - generic [ref=e296]: Hexalith Operations
+            - generic [ref=e297]: "Scope: Northwind EU / Conversations / Active investigations"
+            - generic [ref=e298]: "Projection health: nominal"
+          - generic [ref=e299]:
+            - generic [ref=e300]:
+              - generic [ref=e301]:
+                - generic [ref=e302]:
+                  - heading "Active Governed Record" [level=3] [ref=e303]
+                  - paragraph [ref=e304]: CONV-0148 - opened from investigation queue
+                - generic [ref=e305]:
+                  - button "Copy Citation" [ref=e306]
+                  - button "Open Evidence" [ref=e307]
+              - generic [ref=e308]:
+                - generic [ref=e309]:
+                  - generic [ref=e310]: 14:20
+                  - generic [ref=e311]:
+                    - heading "Request" [level=4] [ref=e312]
+                    - paragraph [ref=e313]: Stable references and audit metadata available.
+                  - generic [ref=e314]: OK
+                - generic [ref=e315]:
+                  - generic [ref=e316]: 14:22
+                  - generic [ref=e317]:
+                    - heading "AI response" [level=4] [ref=e318]
+                    - paragraph [ref=e319]: Projected content includes redaction marker and citation anchor.
+                  - generic [ref=e320]: R2
+            - generic [ref=e321]:
+              - heading "Governance Queue" [level=4] [ref=e322]
+              - table [ref=e323]:
+                - rowgroup [ref=e324]:
+                  - row "CONV-0148 Ready" [ref=e325]:
+                    - cell "CONV-0148" [ref=e326]
+                    - cell "Ready" [ref=e327]:
+                      - generic [ref=e328]: Ready
+                  - row "CONV-0122 Stale" [ref=e329]:
+                    - cell "CONV-0122" [ref=e330]
+                    - cell "Stale" [ref=e331]:
+                      - generic [ref=e332]: Stale
+                  - row "CONV-0119 Denied" [ref=e333]:
+                    - cell "CONV-0119" [ref=e334]
+                    - cell "Denied" [ref=e335]:
+                      - generic [ref=e336]: Denied
+            - generic [ref=e337]:
+              - heading "Projection Health" [level=4] [ref=e338]
+              - paragraph [ref=e339]: Timeline, audit, and redaction projections are current. Participant hydration is degraded for one Party source.
+            - generic [ref=e340]:
+              - heading "Release Evidence" [level=4] [ref=e341]
+              - paragraph [ref=e342]: Conformance suite passed tenant isolation and redaction replay checks in latest signed artifact.
+      - article [ref=e343]:
+        - generic [ref=e344]:
+          - generic [ref=e345]:
+            - heading "06. Triage Rail Workbench" [level=2] [ref=e346]
+            - paragraph [ref=e347]: A compact command-center pattern with icon rail, scoped queue, central record, and decision rail. Useful if operators move through many records quickly.
+          - generic [ref=e348]:
+            - generic [ref=e349]: Queue workflow
+            - generic [ref=e350]: Fast switching
+            - generic [ref=e351]: Power-user
+        - generic [ref=e353]:
+          - complementary "Primary navigation" [ref=e354]:
+            - generic [ref=e355]: F
+            - generic [ref=e356]: R
+            - generic [ref=e357]: V
+            - generic [ref=e358]: A
+            - generic [ref=e359]: H
+          - generic [ref=e360]:
+            - generic [ref=e361]:
+              - generic [ref=e362]: Investigation Workbench
+              - generic [ref=e363]: "Queue: action required"
+              - generic [ref=e364]: Keyboard-first
+            - generic [ref=e365]:
+              - generic [ref=e366]:
+                - heading "Queue" [level=4] [ref=e367]
+                - generic [ref=e368]:
+                  - strong [ref=e369]: CONV-0148
+                  - paragraph [ref=e370]: Ready with caveats
+                  - generic [ref=e371]: Cite
+                - generic [ref=e372]:
+                  - strong [ref=e373]: CONV-0122
+                  - paragraph [ref=e374]: Projection rebuilding
+                  - generic [ref=e375]: Stop
+                - generic [ref=e376]:
+                  - strong [ref=e377]: CONV-0117
+                  - paragraph [ref=e378]: Action blocked
+                  - generic [ref=e379]: Escalate
+              - generic [ref=e380]:
+                - generic [ref=e381]:
+                  - heading "CONV-0148" [level=3] [ref=e382]
+                  - paragraph [ref=e383]: Evidence timeline with inline trust markers
+                - generic [ref=e384]:
+                  - generic [ref=e385]:
+                    - generic [ref=e386]: 14:20
+                    - generic [ref=e387]:
+                      - heading "Human request" [level=4] [ref=e388]
+                      - paragraph [ref=e389]: Project policy comparison started.
+                    - generic [ref=e390]: E1
+                  - generic [ref=e391]:
+                    - generic [ref=e392]: 14:22
+                    - generic [ref=e393]:
+                      - heading "AI answer" [level=4] [ref=e394]
+                      - paragraph [ref=e395]: Response available with redaction marker.
+                    - generic [ref=e396]: R2
+                  - generic [ref=e397]:
+                    - generic [ref=e398]: 14:31
+                    - generic [ref=e399]:
+                      - heading "Audit event" [level=4] [ref=e400]
+                      - paragraph [ref=e401]: Governance rationale recorded.
+                    - generic [ref=e402]: A3
+              - complementary [ref=e403]:
+                - heading "Decision Rail" [level=4] [ref=e404]
+                - generic [ref=e405]:
+                  - generic [ref=e406]: Answer available
+                  - generic [ref=e407]: Confidence caveat
+                  - generic [ref=e408]: "Next action: cite"
+                - paragraph [ref=e409]: Operator can leave with a citation. Governance mutation is blocked by current permission.
+                - generic [ref=e410]:
+                  - button "Copy" [ref=e411]
+                  - button "Redact" [ref=e412]
