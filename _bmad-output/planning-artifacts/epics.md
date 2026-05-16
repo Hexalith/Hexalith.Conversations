@@ -419,6 +419,56 @@ Platform owners can publish compatibility policy, run release-gating conformance
 Operators and product owners can observe tenant-safe operational health, conformance outcomes, privileged access attempts, and release-scope/lifecycle commitments without leaking protected conversation data.
 **FRs covered:** FR95-FR104
 
+## Implementation Readiness Gates
+
+### Pre-Kickoff Decisions Required
+
+Dependent implementation stories must not begin until these decisions are recorded or explicitly waived:
+
+- EventStore envelope stability and evolution ownership.
+- .NET client versus raw HTTP fallback policy.
+- Whether any module consumes Conversations events in v1.
+- Whether `MarkSensitiveData` and `RedactMessageContent` are CORE.
+- Foundation Gate blocking semantics are approved and enforced as story closure rules.
+- Architect and second-engineer availability for trust/freshness and governance decisions.
+- Named second-adopter candidate or review milestone.
+
+### Foundation Gate Closure Rules
+
+CORE implementation stories may start only when their direct ADR prerequisites are recorded or explicitly waived. They may not close until the matching Foundation Gate evidence is passing in CI or has an approved named waiver.
+
+Minimum closure dependencies:
+
+- Story 1.5 cannot close until Story 5.5 tenant isolation conformance is passing or explicitly waived.
+- Story 1.6 cannot close until Story 5.6 idempotent command conformance is passing or explicitly waived.
+- Story 1.11 cannot close until Story 5.9 event schema evolution proof is passing or explicitly waived.
+- Story 2.4 and its split redaction stories cannot close until Story 5.7 redaction replay conformance is passing or explicitly waived.
+- Story 2.5 cannot close until audit-write fail-closed behavior is verified by the governance/audit gate or explicitly waived.
+- Story 4.5 cannot close until the adopter conformance pack and CORE adopter fixture are passing or explicitly waived.
+
+Any waiver must name owner, approver, expiry, compensating control, buyer impact, and review date.
+
+### ADR-Gated Story Stop Conditions
+
+Dependent stories must stop before implementation when these decisions are missing:
+
+- Temporal evidence anchor: blocks Story 3.4 and point-in-time evidence link behavior.
+- Command availability metadata: blocks UI command gates and any client-side command eligibility rendering.
+- Projection freshness blocking semantics: blocks Stories 1.7, 1.8, 3.1, 3.2, 4.2, 4.4, and 6.2.
+- EventStore envelope ownership and evolution: blocks Story 1.11 and Story 5.9.
+- Raw HTTP fallback approval: blocks raw HTTP fallback scope in Story 4.2.
+- Numeric capacity/performance thresholds or buyer-accepted unknowns: blocks GA release-gate closure and performance evidence stories.
+
+### Shared Trust/Freshness Vocabulary Gate
+
+Trust-bearing API responses, admin UI, .NET client errors, diagnostics, and conformance output must use one approved trust/freshness vocabulary and metadata shape before implementation diverges across surfaces.
+
+First affected stories: 1.7, 1.8, 3.1, 3.2, 3.4, 4.2, 4.4, and 6.2.
+
+### UX Safety Gate Ownership
+
+The backlog must assign implementation and verification ownership for Leak Sentinel, accessibility-tree leakage checks, clipboard safety checks, responsive duplicate checks, command reauthorization fixtures, permission-safe DTO tests, and FrontComposer generated-versus-custom component boundary checks.
+
 ## Epic 1: Tenant-Safe Conversation Record
 
 Adopter teams can create, append to, retrieve, list, and replay tenant-scoped conversation records with stable identity, participant attribution, business references, idempotent command behavior, projection freshness, event publication, and version-safe contracts.
@@ -429,7 +479,7 @@ As an adopter developer,
 I want a buildable Hexalith.Conversations module scaffold from the selected starter template,
 So that future conversation features can be implemented inside the approved Hexalith architecture without reworking project boundaries.
 
-**Requirements Covered:** FR1-FR41 foundation; Architecture starter-template requirement.
+**Requirements Covered:** Architecture starter-template requirement; supports FR1-FR41 foundation only. Behavioral FR1-FR41 implementation coverage is delivered by Stories 1.2-1.11.
 
 **Acceptance Criteria:**
 
@@ -523,13 +573,13 @@ So that every conversation begins as a replayable, authorized, EventStore-backed
 **Then** tests prove emitted event shape, replayed state, rejection behavior, schema version handling, and absence of forbidden Party/provider/file payload data
 **And** tests do not require Dapr, Aspire, tenant seed data, provider credentials, or initialized nested submodules.
 
-### Story 1.4: Append Messages and Participants with Attribution Metadata
+### Story 1.4: Add Conversation Participants with Stable Party Attribution
 
 As an adopter system,
-I want to add participants and append ordered messages to an existing conversation,
-So that the conversation record can preserve who contributed what, when, and under which tenant context.
+I want to add human users, AI agents, and LLMs as conversation participants,
+So that participant membership is attributable through stable Party identities without storing Party personal data.
 
-**Requirements Covered:** FR4, FR5, FR13-FR22.
+**Requirements Covered:** FR5, FR13-FR18.
 
 **Acceptance Criteria:**
 
@@ -538,25 +588,70 @@ So that the conversation record can preserve who contributed what, when, and und
 **Then** the aggregate emits a participant-added event for a stable Party ID and participant role/type such as human, AI agent, or LLM
 **And** the event does not store mutable Party personal data, contact values, names, or upstream person/organization details.
 
+**Given** a participant command targets a closed, archived, unsupported, malformed, missing, or incompatible conversation state
+**When** the command is handled
+**Then** the system returns a typed documented rejection outcome
+**And** no successful participant-added event is emitted.
+
+**Given** aggregate tests replay participant events
+**When** the conversation state is rehydrated
+**Then** the state reconstructs participant membership and attribution metadata deterministically
+**And** tests prove human, AI agent, and LLM participants can be represented without treating provider IDs as source-of-truth identity.
+
+### Story 1.4.1: Append Ordered Messages with Author Attribution
+
+As an adopter system,
+I want to append ordered messages to an existing active conversation,
+So that the conversation record preserves who contributed what, when, and under which tenant context.
+
+**Requirements Covered:** FR4, FR6, FR7, FR13-FR18.
+
+**Acceptance Criteria:**
+
 **Given** an existing active conversation with participants
 **When** a valid append-message command is handled
 **Then** the aggregate emits an ordered message-appended event with stable author attribution, tenant scope, timestamp, message identity, schema version, and allowed metadata
 **And** provider correlation identifiers are preserved only as metadata, not as durable conversation identity.
 
-**Given** the command includes file or upstream business references
-**When** the message or conversation reference is recorded
-**Then** the event stores only stable reference IDs and reference types
-**And** file binaries, raw upstream records, and provider-owned payloads are not persisted in Conversations events.
-
-**Given** a participant or message command targets a closed, archived, unsupported, malformed, missing, or incompatible conversation state
+**Given** a message command targets a closed, archived, unsupported, malformed, missing, or incompatible conversation state
 **When** the command is handled
 **Then** the system returns a typed documented rejection outcome
-**And** no successful participant-added or message-appended event is emitted.
+**And** no successful message-appended event is emitted.
 
-**Given** aggregate tests replay participant and message events
+**Given** aggregate tests replay message events
 **When** the conversation state is rehydrated
-**Then** the state reconstructs participant membership, ordered message timeline metadata, provider correlation metadata, and business references deterministically
+**Then** the state reconstructs ordered message timeline metadata, author attribution, and provider correlation metadata deterministically
 **And** tests prove multi-provider attribution can be preserved without treating provider IDs as source-of-truth identity.
+
+### Story 1.4.2: Attach File and Upstream Business References
+
+As an adopter system,
+I want to associate messages and conversations with file, project, folder, provider, and external business references,
+So that downstream discovery and governance can use stable references without storing upstream records or file binaries.
+
+**Requirements Covered:** FR15-FR22.
+
+**Acceptance Criteria:**
+
+**Given** a command includes file or upstream business references
+**When** the message or conversation reference is recorded
+**Then** the event stores only stable reference IDs and reference types
+**And** file binaries, raw upstream records, Party personal data, and provider-owned payloads are not persisted in Conversations events.
+
+**Given** external business identifiers or provider correlation identifiers are supplied
+**When** the reference metadata is recorded
+**Then** external identifiers remain tenant-scoped discovery keys and provider identifiers remain correlation metadata
+**And** neither replaces the internal `ConversationId`, message identity, Party identity, or upstream stable reference identity.
+
+**Given** a reference command targets unsupported, malformed, missing, cross-tenant, or incompatible reference metadata
+**When** the command is handled
+**Then** the system returns a typed documented rejection outcome
+**And** no successful reference event is emitted.
+
+**Given** aggregate and projection tests replay reference events
+**When** conversation state and read models are rehydrated
+**Then** the system reconstructs business references, file references, provider correlation metadata, and external identifiers deterministically
+**And** tests prove upstream records and file binaries are never stored in Conversations events.
 
 ### Story 1.5: Enforce Tenant Access and Typed Fail-Closed Rejections
 
@@ -903,8 +998,8 @@ So that downstream projections, UI, exports, and evidence workflows can treat se
 ### Story 2.4: Redact Message Content with Audit Attribution
 
 As an authorized governance operator,
-I want to redact message content with actor, rationale, and policy attribution,
-So that protected content is removed from display and derived surfaces while auditability remains intact.
+I want to record redaction intent as an audited domain event,
+So that protected content can be removed from governed surfaces while auditability remains intact.
 
 **Requirements Covered:** FR44-FR47, FR51.
 
@@ -929,6 +1024,80 @@ So that protected content is removed from display and derived surfaces while aud
 **When** the redaction succeeds
 **Then** paired audit evidence records actor, timestamp, tenant, conversation, target reference, policy basis, rationale, and redaction category
 **And** the audit record is citeable without exposing the redacted content.
+
+**Given** redaction command tests run
+**When** authorized redactions, duplicate commands, invalid targets, unsupported versions, stale tenant projection, and audit unavailable scenarios are exercised
+**Then** tests prove command/event behavior, audit pairing, typed rejection semantics, and absence of original redacted content from domain events.
+
+### Story 2.4.1: Apply Redaction to Projections and Read Models
+
+As a compliance operator,
+I want projections, read models, temporal views, and search materializations to apply redaction state consistently,
+So that protected content does not reappear during normal reads, rebuilds, or point-in-time reconstruction.
+
+**Requirements Covered:** FR44-FR46, FR50, FR58-FR61.
+
+**Acceptance Criteria:**
+
+**Given** a redaction event exists
+**When** projections, read models, search materializations, temporal views, evidence views, caches, and rebuild paths update or replay
+**Then** redacted content is replaced with authorized redaction placeholders or safe unavailable states
+**And** original protected values do not appear in projected or reconstructed state.
+
+**Given** an authorized operator reads a redacted conversation or temporal reconstruction
+**When** projection freshness, redaction state, governance state, and audit trail are returned
+**Then** the response includes safe redaction attribution and citeable audit handles where policy allows
+**And** it does not expose the original redacted content.
+
+**Given** projection redaction tests run
+**When** normal projection update, full rebuild, point-in-time reconstruction, cache refresh, stale projection, and tenant-isolated read scenarios are exercised
+**Then** tests prove redaction determinism, tenant isolation, projection freshness signaling, and no redacted-value reintroduction.
+
+### Story 2.4.2: Verify UI, Accessibility, Clipboard, and Citation Redaction Safety
+
+As a compliance operator using visual, keyboard, screen-reader, and clipboard workflows,
+I want redacted content to stay absent from every client-observable surface,
+So that investigation workflows remain safe across DOM, ARIA, tooltips, titles, screenshots, citation copy, and responsive duplicates.
+
+**Requirements Covered:** FR44-FR46, FR59, FR62, FR63; NFR21, NFR69-NFR77.
+
+**Acceptance Criteria:**
+
+**Given** redacted content is present in an authorized investigation workspace
+**When** visible UI, hidden DOM, ARIA labels, live regions, tooltips, browser title, breadcrumbs, screenshots, responsive duplicates, and clipboard output are rendered or copied
+**Then** only approved placeholders, policy labels, citation handles, and safe redaction attribution are exposed
+**And** original redacted values remain absent from every client-observable surface.
+
+**Given** citation copy or temporal evidence links are used for redacted content
+**When** the operator copies or opens citation material
+**Then** the citation remains stable and audit-citeable
+**And** it includes no original redacted value, Party personal data, provider payload, or unauthorized tenant metadata.
+
+**Given** UI redaction safety tests run
+**When** desktop, tablet, mobile, keyboard-only, screen-reader, browser zoom, high-contrast, clipboard, tooltip, denied, stale, and responsive duplicate cases are exercised
+**Then** tests prove WCAG 2.1 AA-compatible redaction communication and Leak Sentinel absence checks across client surfaces.
+
+### Story 2.4.3: Verify Operational, Export, Log, Trace, and Error Redaction Safety
+
+As an SRE or release owner,
+I want redaction safety verified across exports, logs, traces, errors, diagnostics, caches, and future derived indexes,
+So that operational and release evidence cannot leak protected content.
+
+**Requirements Covered:** FR44-FR47, FR89 validation support; NFR19, NFR21, NFR55-NFR62.
+
+**Scope Note:** Future derived indexes remain ADR-gated unless promoted into active release scope.
+
+**Acceptance Criteria:**
+
+**Given** redacted content exists
+**When** exports, logs, traces, errors, diagnostics, conformance evidence, observability signals, caches, screenshots, and future derived indexes are produced or rebuilt
+**Then** redacted content is absent from all operational and evidence surfaces
+**And** diagnostics remain useful through safe reason classes, audit handles, policy identifiers, and bounded correlation metadata.
+
+**Given** future derived indexes or exports are in scope
+**When** redaction propagation, rebuild, delete/re-index, or evidence export runs
+**Then** behavior follows the active ADR and release scope
+**And** missing ADR coverage blocks implementation rather than allowing implicit indexing or export semantics.
 
 **Given** redaction replay tests run
 **When** projection rebuild, temporal reconstruction, cache refresh, export generation, accessibility rendering, clipboard copy, duplicate command, and log/trace/error scenarios are exercised
@@ -1283,7 +1452,11 @@ As a compliance operator using different devices or assistive technology,
 I want the investigation workspace to preserve trust ordering and safety across viewports,
 So that I can find, read, cite, and stop safely without pointer-only or desktop-only assumptions.
 
-**Requirements Covered:** FR56-FR69 support; UX-DR39-UX-DR52; NFR69-NFR77.
+**Requirements Covered:** FR56-FR69 verification support; UX-DR39-UX-DR52; NFR69-NFR77.
+
+**Scope Note:** This story verifies responsive, accessibility, and disclosure-surface safety for the investigation workspace. Primary feature implementation remains in Stories 3.1-3.7.
+
+**Assignment Rule:** Story 3.8 must not be assigned as a single ordinary feature implementation story. Either assign it as an epic-level verification checklist or split it into responsive layout safety, accessibility tree and keyboard flow safety, and leakage/clipboard/browser/telemetry safety stories.
 
 **Acceptance Criteria:**
 
@@ -1305,6 +1478,11 @@ So that I can find, read, cite, and stop safely without pointer-only or desktop-
 **Given** responsive and accessibility tests run
 **When** fully trusted, redacted, stale, missing citation, unresolved participant, blocked command, cross-tenant attempt, permission downgrade, partial timeline, no accessible matches, unauthorized-existing, nonexistent, high-contrast, reduced-motion, and browser zoom scenarios are exercised
 **Then** tests prove WCAG 2.1 AA expectations, Leak Sentinel coverage, responsive duplicate safety, clipboard safety, focus safety, and viewport-specific telemetry redaction.
+
+**Given** Leak Sentinel and canonical disclosure fixtures are prepared
+**When** desktop, tablet, mobile, screen-reader, clipboard, tooltip, browser-title, telemetry, loading, empty, denied, redacted, stale, and responsive-duplicate states are exercised
+**Then** forbidden strings and structured forbidden values are absent from rendered DOM text, attributes, ARIA properties, page title, clipboard output, telemetry envelopes, screenshots, and accessibility snapshots where available
+**And** the evidence is traceable from the conformance manifest or release evidence bundle.
 
 ## Epic 4: Adopter Integration and Developer Readiness
 
@@ -1616,42 +1794,77 @@ So that accepted risks are explicit, owned, time-bound, and visible to buyers wh
 **When** active waiver, expired waiver, missing approver, missing compensating control, blocker waiver, buyer-facing waiver, and waiver review scenarios are exercised
 **Then** tests prove governance traceability, release decision clarity, and content-safe evidence output.
 
-### Story 5.5: Verify Tenant Isolation, Idempotency, and Redaction Replay
+### Story 5.5: Verify Tenant Isolation Conformance
 
 As a platform owner,
-I want release-gating conformance for tenant isolation, idempotency, and redaction replay,
-So that the highest-risk invariants are proven before release.
+I want release-gating tenant isolation conformance,
+So that cross-tenant access is impossible by construction and tested adversarially before release.
 
-**Requirements Covered:** FR87-FR89.
+**Requirements Covered:** FR87.
 
 **Acceptance Criteria:**
 
 **Given** the conformance suite runs tenant isolation tests
 **When** positive and adversarial cases execute
-**Then** it covers authorized access, cross-tenant ID guessing, stale tenant projection, unavailable tenant projection, disabled/deleted tenant, mixed-tenant rebuild attempts, poisoned projection events, and malformed metadata
+**Then** it covers authorized access, cross-tenant ID guessing, stale tenant projection, unavailable tenant projection, disabled or deleted tenants, mixed-tenant rebuild attempts, poisoned projection events, malformed metadata, query enumeration, diagnostics, export, and admin or tool access
 **And** any tenant isolation failure is an automatic release blocker unless explicitly waived through the named process.
 
+**Given** tenant isolation evidence is generated
+**When** conformance results are written to the release manifest
+**Then** evidence identifies covered scenarios, pass criteria, blocking failures, waiver status, environment metadata, and content-safe diagnostics
+**And** it does not expose conversation content, inaccessible tenant identity, Party personal data, provider payloads, or cross-tenant business references.
+
+### Story 5.6: Verify Idempotent Command Conformance
+
+As a platform owner,
+I want release-gating idempotent command conformance,
+So that duplicate or retried commands produce stable outcomes without duplicate business effects.
+
+**Requirements Covered:** FR88.
+
+**Acceptance Criteria:**
+
 **Given** the conformance suite runs idempotency tests
-**When** duplicate equivalent commands, duplicate non-equivalent commands, reordered delivery, unknown client outcome retry, and tenant-mismatched key reuse execute
-**Then** it proves stable outcomes, conflict rejection, no duplicate business effects, and no projection divergence.
+**When** duplicate equivalent commands, duplicate non-equivalent commands, reordered delivery, unknown client outcome retry, replayed delivery, and tenant-mismatched key reuse execute
+**Then** it proves stable outcomes, conflict rejection, no duplicate business effects, no projection divergence, and content-safe diagnostics.
+
+**Given** idempotency evidence is generated
+**When** conformance results are written to the release manifest
+**Then** evidence maps command behavior to the approved idempotency semantics, failure categories, retry guidance, and release-gate status
+**And** duplicate handling never depends on revealing protected tenant, Party, provider, or conversation data.
+
+### Story 5.7: Verify Redaction Replay Conformance
+
+As a platform owner,
+I want release-gating redaction replay conformance,
+So that redacted content never reappears through projections, logs, traces, errors, exports, accessibility output, clipboard payloads, caches, or derived indexes.
+
+**Requirements Covered:** FR89.
+
+**Acceptance Criteria:**
 
 **Given** the conformance suite runs redaction replay tests
-**When** projections, logs, traces, errors, exports, accessibility output, clipboard payloads, caches, and derived indexes are checked
+**When** projections, temporal views, logs, traces, errors, exports, accessibility output, clipboard payloads, caches, screenshots, telemetry, and derived indexes are checked
 **Then** redacted content does not reappear
 **And** audit evidence remains citeable without exposing redacted values.
 
-### Story 5.6: Prove Provider Portability and Event Schema Evolution
+**Given** redaction replay evidence is generated
+**When** conformance results are written to the release manifest
+**Then** evidence identifies covered disclosure surfaces, redaction policy basis, replay scope, pass/fail status, waiver status, and content-safe diagnostics
+**And** it distinguishes redaction non-disclosure failures from infrastructure or test execution failures.
+
+### Story 5.8: Prove Provider Portability
 
 As a platform owner,
-I want conformance proof for provider portability and event schema evolution,
-So that conversation history remains recoverable without provider-owned session authority and safe across contract evolution.
+I want provider portability proof,
+So that conversation history remains recoverable without provider-owned session authority.
 
-**Requirements Covered:** FR90, FR91.
+**Requirements Covered:** FR90.
 
 **Acceptance Criteria:**
 
 **Given** provider portability verification runs
-**When** provider-owned correlation identifiers are stripped, changed, unavailable, or migrated
+**When** provider-owned correlation identifiers are stripped, changed, unavailable, migrated, duplicated, or inconsistent
 **Then** conversation history remains recoverable from Conversations identity, stable references, and EventStore history
 **And** provider IDs remain correlation metadata rather than durable source-of-truth identity.
 
@@ -1659,12 +1872,31 @@ So that conversation history remains recoverable without provider-owned session 
 **When** persistence semantics, pub/sub semantics, projection rebuild behavior, and observability evidence are evaluated
 **Then** tenant isolation, idempotency, ordering tolerance, auditability, and replay determinism remain invariant across provider configuration differences.
 
+**Given** provider portability evidence is generated
+**When** conformance results are written to the release manifest
+**Then** evidence maps portability outcomes to release-gate status and identifies unsupported provider assumptions as findings or waivers.
+
+### Story 5.9: Prove Event Schema Evolution
+
+As a platform owner,
+I want event schema evolution proof,
+So that persisted and published conversation events can evolve safely across supported contract versions.
+
+**Requirements Covered:** FR91.
+
+**Acceptance Criteria:**
+
 **Given** event schema evolution verification runs
 **When** old event versions, mixed-version streams, unsupported versions, and at least one worked additive-change example are processed
 **Then** supported versions replay through documented compatibility behavior
 **And** unsupported versions fail with typed documented errors.
 
-### Story 5.7: Validate Commands, Queries, Events, Errors, and Version Discovery
+**Given** release evidence is generated
+**When** schema evolution checks complete
+**Then** evidence maps compatibility outcomes to the conformance manifest
+**And** unsupported or missing-version behavior is flagged as a release-gate failure unless explicitly waived.
+
+### Story 5.10: Validate Commands, Queries, Events, Errors, and Version Discovery
 
 As a release owner,
 I want executable contract tests for all adopter-facing surfaces,
@@ -1689,7 +1921,7 @@ So that command, query, event, error, and version-discovery contracts are releas
 **Then** failures identify affected contract surface, version, requirement mapping, expected behavior, actual behavior, and remediation path
 **And** diagnostics remain content-safe.
 
-### Story 5.8: Separate Module-Level Evidence from Platform Controls
+### Story 5.11: Separate Module-Level Evidence from Platform Controls
 
 As a buyer evaluator,
 I want release evidence to distinguish Conversations controls from inherited Hexalith platform controls,
@@ -1893,7 +2125,11 @@ As an SRE,
 I want telemetry redaction and cardinality gates for Conversations operations,
 So that observability remains useful without creating privacy, cost, or incident-noise risks.
 
-**Requirements Covered:** FR95-FR99; NFR55-NFR61.
+**Requirements Covered:** FR95-FR99 validation support; NFR55-NFR61.
+
+**Scope Note:** This story validates telemetry redaction and cardinality behavior across operational signals. Primary observability implementation remains in Stories 6.1-6.3 unless explicitly reassigned.
+
+**Assignment Rule:** Story 6.8 must not be assigned as a single ordinary feature implementation story unless one owner can complete both validation domains. Otherwise split it into Story 6.8 Validate Operational Telemetry Redaction and Story 6.9 Validate Operational Telemetry Cardinality Gates.
 
 **Acceptance Criteria:**
 
