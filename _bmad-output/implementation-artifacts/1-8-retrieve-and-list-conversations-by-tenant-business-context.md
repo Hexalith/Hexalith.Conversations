@@ -17,14 +17,16 @@ so that applications and operators can find the right conversation records witho
 3. Given a caller is unauthorized, tenant binding is invalid, or a requested conversation is nonexistent or cross-tenant, when retrieve or list is evaluated, then the response is content-safe and does not reveal titles, participant names, snippets, timestamps, counts, ordering gaps, business references, provider metadata, or existence of protected records, and the result maps to documented tenant-isolation or hidden/not-found semantics.
 4. Given projections are stale, rebuilding, unavailable, or hidden by tenant isolation, when retrieve or list results are returned, then freshness state and safe next-action metadata are included where authorized, and the read boundary does not silently present stale or incomplete data as current.
 5. Given retrieve/list tests run, when authorized reads, filtered lists, cross-tenant ID guessing, inaccessible records, stale projections, unavailable projections, and provider-session loss scenarios are exercised, then tests prove correct filtering, freshness signaling, content-safe denial, and conversation recoverability without provider-owned session authority.
+6. Given any retrieve or list request, when the read boundary evaluates it, then local tenant access is accepted before any conversation projection lookup, existence check, count query, filter evaluation against stored data, pagination cursor resolution, participant index lookup, provider-session correlation lookup, or freshness metadata read can occur.
 
 ## Tasks / Subtasks
 
-- [ ] Confirm prerequisite slices are present before implementing runtime behavior. (AC: 1-5)
+- [ ] Confirm prerequisite slices are present before implementing runtime behavior. (AC: 1-6)
   - [ ] Verify Story 1.2 contract types exist for identities, projections/read DTOs, trust/freshness states, typed errors, and schema/version metadata; if absent, implement or complete Story 1.2 first rather than defining parallel DTOs in this story.
   - [ ] Verify Story 1.5 tenant access service/projection exists and fails closed before projection reads; if absent, do not invent permissive authorization or rely on JWT tenant claims alone.
   - [ ] Verify Story 1.7 projection read models and freshness metadata exist; if absent, do not create an alternate transcript/read store in this story.
   - [ ] Verify Story 1.4, 1.4.1, and 1.4.2 event/read-model inputs exist for participants, ordered message metadata, file references, provider correlation metadata, and business references; if not, keep corresponding response fields as contract-safe placeholders only.
+  - [ ] Record the dependency decision in implementation notes: each prerequisite is either available through its approved contract/abstraction, completed first, or represented by a safe placeholder/unavailable result. Missing prerequisites must not be replaced by new DTO families, new tenant access implementations, new projection stores, or direct EventStore reads in this story.
 
 - [ ] Add or extend public retrieve/list contracts in `src/Hexalith.Conversations.Contracts`. (AC: 1-4)
   - [ ] Define query request contracts such as `GetConversationQuery` and `ListConversationsQuery` or align with the established local naming if Story 1.2 created different names.
@@ -32,7 +34,7 @@ so that applications and operators can find the right conversation records witho
   - [ ] Ensure every query contract includes tenant binding, caller context/correlation metadata where already established, supported schema/contract version, and no EventStore stream, snapshot, sequence, envelope, projection topology, or raw storage fields.
   - [ ] Keep external business identifiers as tenant-scoped search/correlation keys. Do not allow them to replace `ConversationId`, `ProjectId`, `FolderId`, `FileId`, `PartyId`, or message identity.
 
-- [ ] Implement the server read/query boundary in `src/Hexalith.Conversations.Server`. (AC: 1-4)
+- [ ] Implement the server read/query boundary in `src/Hexalith.Conversations.Server`. (AC: 1-4, 6)
   - [ ] Add query handlers under `Server/Queries` or the existing local query folder that perform tenant access checks before any projection lookup.
   - [ ] Add read APIs under `Server/Api` or the established endpoint folder only after handlers exist; REST paths should stay plural, lowercase, and versioned, for example `/api/v1/conversations/{conversationId}` and `/api/v1/conversations`.
   - [ ] Query the Story 1.7 projection/read-model service only after authorization succeeds. Projection reads must surface `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, or `Redacted` freshness states through shared contracts.
@@ -42,21 +44,26 @@ so that applications and operators can find the right conversation records witho
 - [ ] Implement tenant-scoped filtering and pagination semantics. (AC: 2, 3)
   - [ ] Apply tenant scope before filters, counts, ordering, pagination cursors, or recent-activity selection are calculated.
   - [ ] Support filters only over projection fields approved by Story 1.7: external business identifier, project reference, folder reference, lifecycle state, date range, recent activity, and participant reference.
+  - [ ] Define filter semantics in the public contract or tests before implementation: exact-match behavior, case/culture handling, null/empty handling, invalid combinations, deterministic ordering, bounded page size, and whether date range applies to created time, lifecycle transition time, last message activity, or another approved projected timestamp.
   - [ ] Make pagination metadata permission-safe: no total counts, ordering gaps, next-page existence, or cursor details may imply inaccessible records unless policy explicitly allows that disclosure.
+  - [ ] Treat pagination tokens, if introduced, as opaque, tenant-scoped, caller-context-bound, and invalidated or safely denied when authorization, visibility, projection freshness, or filter context changes between page requests.
   - [ ] Keep list results as summaries with trust/freshness preview fields, not transcript snippets as the primary selection mechanism.
 
-- [ ] Preserve non-disclosure and provider-session independence. (AC: 1, 3, 5)
+- [ ] Preserve non-disclosure and provider-session independence. (AC: 1, 3, 5, 6)
   - [ ] Map unauthorized, nonexistent, cross-tenant, hidden-by-isolation, stale-tenant-projection, and unavailable-projection cases to documented content-safe results.
+  - [ ] Use the same external response shape for unauthorized, nonexistent, cross-tenant, inaccessible, and hidden-by-isolation detail reads unless an existing approved policy explicitly permits disclosure. Internal diagnostics may differ only behind non-public telemetry/log boundaries that do not expose protected record existence.
   - [ ] Ensure denial responses do not reveal titles, participant display names, snippets, timestamps, message counts, attachment counts, business references, provider metadata, tenant identifiers, or whether the protected record exists.
   - [ ] Prove retrieval by `ConversationId` and business-context listing work without provider session authority. Provider IDs may participate only as bounded correlation metadata when authorized.
+  - [ ] Prove provider session IDs cannot authorize access, select tenant scope, widen list results, bypass business-context filters, or resolve a conversation before tenant access has succeeded.
   - [ ] Do not hydrate Party display/status data in this story unless Story 1.9 has already established the adapter. Stable `PartyId` references and safe unresolved/unavailable placeholders are sufficient for this story.
 
-- [ ] Add focused query, contract, and boundary tests. (AC: 1-5)
+- [ ] Add focused query, contract, and boundary tests. (AC: 1-6)
   - [ ] Add contract tests under `tests/Hexalith.Conversations.Contracts.Tests` proving query/result DTOs serialize cleanly, include freshness and version metadata, keep identifiers distinct, and expose no EventStore terms.
-  - [ ] Add server/query tests under `tests/Hexalith.Conversations.Server.Tests` proving tenant access is called before projection reads and denied requests do not touch projection storage.
+  - [ ] Add server/query tests under `tests/Hexalith.Conversations.Server.Tests` proving tenant access is called before projection reads, existence checks, filter evaluation against stored data, provider-session correlation, and cursor resolution; denied requests must not touch projection storage.
   - [ ] Add list-filter tests for external identifier, project, folder, lifecycle, date range, recent activity, participant reference, pagination cursor, and mixed-tenant projection poison data.
-  - [ ] Add denial tests for missing tenant, malformed tenant, disabled/unknown tenant, stale tenant projection, unavailable tenant projection, cross-tenant ID guessing, nonexistent conversation, inaccessible business context, stale projection, rebuilding projection, unavailable projection, and provider-session loss.
-  - [ ] Add boundary tests that inspect `.csproj` XML and serialized response shapes so EventStore, Dapr, Tenants, Parties, and storage internals do not leak into `Contracts` or public API responses.
+  - [ ] Add denial tests for missing tenant, malformed tenant, disabled/unknown tenant, stale tenant projection, unavailable tenant projection, cross-tenant ID guessing, nonexistent conversation, inaccessible business context, stale projection, rebuilding projection, unavailable projection, hidden/redacted records, and provider-session loss.
+  - [ ] Add response-shape equivalence tests for unauthorized, nonexistent, cross-tenant, inaccessible, and hidden detail reads, and pagination leakage tests for filtered-out records at page boundaries.
+  - [ ] Add boundary tests that inspect `.csproj` XML, serialized response shapes, validation errors, route/openapi metadata if generated, exception-to-client mapping, and public contract property names so EventStore, Dapr, Tenants, Parties, actor/pubsub, stream, storage, projection implementation, and provider-authority details do not leak into `Contracts` or public API responses.
 
 - [ ] Validate the implementation scope. (AC: 5)
   - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
@@ -86,6 +93,28 @@ Projection freshness blocking semantics are decided. The canonical freshness voc
 Party hydration degraded states are decided. Command-time participant validation fails closed, while authorized reads may degrade display hydration to safe unresolved/unavailable state. This story can return stable Party IDs and participant metadata already present in projections; Story 1.9 owns current display/status hydration from Parties and upstream sources. [Source: `_bmad-output/implementation-artifacts/readiness-gate-decisions-2026-05-17.md#Party hydration degraded states`; `_bmad-output/planning-artifacts/epics.md#Story 1.9: Resolve Parties and Upstream References at Read Time`]
 
 The EventStore envelope decision is decided. Conversations owns domain schemas and public contract versioning, while EventStore envelope details remain inherited infrastructure and must not appear in adopter APIs or query responses. [Source: `_bmad-output/implementation-artifacts/readiness-gate-decisions-2026-05-17.md#EventStore envelope stability and evolution ownership`]
+
+### Pre-Dev Party-Mode Review Decisions
+
+The 2026-05-18 party-mode review clarified Story 1.8 without changing product scope:
+
+- Dependency gates are explicit. Story 1.8 may compose approved contracts, tenant-access abstractions, and projection/read abstractions from predecessor stories, or return safe placeholder/unavailable results when those predecessor contracts intentionally expose placeholder fields. It must not create substitute tenant authorization, projection storage, query-owned transcript tables, or parallel identity/freshness/error DTO families.
+- Authorization ordering is a hard boundary. Tenant access must succeed before any projection lookup, existence check, stored-data filter evaluation, count, cursor resolution, provider-session correlation lookup, participant index lookup, or freshness metadata read. Tests should use spies/fakes that fail on any pre-authorization read.
+- Non-disclosure is same-shape by default. Unauthorized, nonexistent, cross-tenant, inaccessible, and hidden-by-isolation detail reads should collapse to the same external safe result shape unless a later approved policy allows disclosure. List responses and pagination metadata must be accessible-result-relative only.
+- Freshness states are externally observable only after authorization permits them. `Stale`, `Rebuilding`, `Unavailable`, and `Redacted` must not confirm protected record existence to unauthorized callers; unknown freshness or visibility states fail closed.
+- Provider session data is correlation-only. Provider session IDs, thread IDs, storage partition names, route names, and EventStore stream names cannot authorize, select tenant scope, widen list results, or appear in adopter-facing public contracts.
+- Participant filtering is opaque-reference filtering only. Story 1.8 may filter by participant references already present in approved projections, but Party display/status hydration, personal-data lookup, email/name matching, and current Party policy decisions remain Story 1.9 scope.
+
+### Response and Filtering Matrix
+
+| Scenario | External detail result | List behavior | Freshness/disclosure rule |
+| --- | --- | --- | --- |
+| Authorized and current | Conversation details contract | Accessible summaries only | `Current` may expose approved public fields. |
+| Authorized and stale/rebuilding/unavailable | Safe typed result with approved next-action metadata | Safe empty or degraded result per contract | Do not present stale/incomplete data as current. |
+| Authorized and redacted/hidden by policy | Safe redacted or hidden result | Omit or safe redacted summary per approved contract | No snippets, counts, participant names, or protected metadata. |
+| Unauthorized, invalid tenant, cross-tenant, inaccessible, or nonexistent | Same content-safe shape by default | No accessible matches | Do not reveal existence, timestamps, counts, ordering gaps, business references, provider metadata, or freshness of protected records. |
+
+Filter behavior must be deterministic and contract-defined before implementation: allowed fields, exact/case/culture matching, null/empty handling, invalid combinations, date/recent-activity source field, bounded page size, token opacity, and token invalidation after authorization, visibility, projection freshness, or filter-context changes.
 
 ### Current Repository State and Previous Story Intelligence
 
@@ -206,3 +235,15 @@ Run focused contract/server tests first, then the full solution test command. Va
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
+- 2026-05-18: Party-mode review applied dependency gate, authorization-ordering, non-disclosure, pagination, provider-session, and boundary-test clarifications.
+
+## Party-Mode Review
+
+- ISO date and time: 2026-05-18T20:42:20Z
+- Selected story key: 1-8-retrieve-and-list-conversations-by-tenant-business-context
+- Command/skill invocation used: `/bmad-party-mode 1-8-retrieve-and-list-conversations-by-tenant-business-context; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary: Reviewers agreed Story 1.8 had the right read-boundary intent but needed sharper pre-dev constraints around dependency gates, fail-closed tenant authorization before any read-side access, same-shape non-disclosure for unauthorized/nonexistent/cross-tenant outcomes, freshness-state existence leakage, provider-session independence, filter semantics, pagination leakage, and public boundary tests.
+- Changes applied: Added AC 6 for authorization-before-read ordering; added prerequisite decision recording; clarified filter semantics, cursor safety, provider-session negative tests, same-shape denial behavior, response-shape equivalence tests, boundary leak surfaces, pre-dev party-mode decisions, and a response/filtering matrix.
+- Findings deferred: Human product/architecture decisions remain for whether unauthorized and nonexistent outcomes use `Forbidden`, `NotFound`, or another safe contract state; whether stale authorized reads may return data; whether `Redacted` means metadata-only visibility or whole-record suppression; exact lifecycle/recent-activity semantics across providers; external business identifier uniqueness scope; approximate count policy; timing-leak thresholds; cursor invalidation policy; Party display hydration; and projection rebuild/remediation behavior.
+- Final recommendation: ready-for-dev
