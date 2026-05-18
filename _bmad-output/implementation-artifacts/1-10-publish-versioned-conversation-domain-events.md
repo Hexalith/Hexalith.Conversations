@@ -6,16 +6,16 @@ Status: ready-for-dev
 
 ## Story
 
-As a downstream Hexalith system,
-I want to consume tenant-aware conversation domain events with explicit schema metadata,
-so that projections and integrations can react to meaningful conversation changes without depending on internal EventStore mechanics.
+As an internal Hexalith projection or future downstream integration,
+I want to consume internally published, tenant-aware v1 conversation domain events with explicit schema metadata,
+so that projections and integrations can react to meaningful conversation changes without depending on internal EventStore mechanics or creating named cross-module adopter obligations in v1.
 
 ## Acceptance Criteria
 
 1. Given a meaningful conversation state change occurs, when the command succeeds and EventStore persists the domain event, then Conversations publishes tenant-aware domain events for supported changes such as conversation-created, participant-added, message-appended, reference-attached, metadata-updated, and lifecycle-changed, and published contracts use Conversations language rather than EventStore envelope or stream internals.
 2. Given a published event is emitted, when downstream consumers inspect it, then the event includes schema version, event type, tenant scope, conversation identity, correlation/causation metadata, and stable references needed by the active contract, and it excludes Party personal data, raw provider payloads, file binaries, raw upstream records, redacted content, and cross-tenant metadata.
 3. Given publication is delivered through Dapr/EventStore publication paths, when duplicate, replayed, or reordered delivery occurs, then downstream handlers can identify event type/version and process idempotently according to documented semantics, and projection notifications are treated as hints rather than source-of-truth state.
-4. Given an event, command, or projection schema version is unsupported, when publication or consumption is validated, then unsupported versions fail with typed documented errors or compatibility diagnostics, and no consumer is required to understand internal aggregate snapshots, stream names, or SignalR group implementation details.
+4. Given an event, command, or projection schema version is unsupported, when publication or consumption is validated, then unsupported versions fail with typed documented errors or compatibility diagnostics that include only bounded identifiers such as event type, schema version, tenant scope, conversation identity, and correlation/causation IDs, and no consumer is required to understand internal aggregate snapshots, stream names, EventStore positions, raw payload fragments, or SignalR group implementation details.
 5. Given publication tests run, when successful events, rejected commands, duplicate delivery, unsupported versions, tenant mismatch, and content leakage cases are exercised, then tests prove correct event shape, no publication on rejected commands, bounded metadata, tenant isolation, schema metadata, and absence of forbidden payloads.
 
 ## Tasks / Subtasks
@@ -27,30 +27,40 @@ so that projections and integrations can react to meaningful conversation change
   - [ ] Confirm `_bmad-output/implementation-artifacts/readiness-gates.md` still records `v1 Conversations event consumers` and `EventStore envelope stability and evolution ownership` as `decided`; stop for ADR/update if either gate regresses.
 
 - [ ] Define or complete the public Conversations event publication contract surface. (AC: 1, 2, 4)
-  - [ ] Add or extend `src/Hexalith.Conversations.Contracts/Events` with versioned, serialization-friendly event contracts such as `ConversationCreatedV1`, `ParticipantAddedV1`, `MessageAppendedV1`, `ReferenceAttachedV1`, `MetadataUpdatedV1`, and `ConversationLifecycleChangedV1`, or use the exact established equivalents already present.
-  - [ ] Add shared publication metadata such as `schemaVersion`, `eventType`, `tenantId`, `conversationId`, `correlationId`, `causationId`, contract timestamp, stable event/deduplication identity, and stable reference IDs required by the active contract.
+  - [ ] Add or extend `src/Hexalith.Conversations.Contracts/Events` with versioned, serialization-friendly event contracts named `ConversationCreatedV1`, `ParticipantAddedV1`, `MessageAppendedV1`, `ReferenceAttachedV1`, `MetadataUpdatedV1`, and `ConversationLifecycleChangedV1`, unless an already committed ADR or contract file has established the exact v1 replacement names before implementation starts.
+  - [ ] Add shared publication metadata such as `schemaVersion`, `eventType`, `tenantId`, `conversationId`, `eventId`, `occurredAt`, `correlationId`, `causationId`, stable event/deduplication identity, optional per-conversation sequence or revision when available, and stable reference IDs required by the active contract.
   - [ ] Keep public event contracts infrastructure-free: no EventStore envelope types, Dapr types, stream names, sequence storage concepts, snapshot details, SignalR group names, ASP.NET Core types, or upstream client DTOs.
   - [ ] Add typed unsupported-version diagnostics or errors for event, command, and projection schema validation, reusing Story 1.2 error vocabulary if present.
+  - [ ] Model `MetadataUpdatedV1` as an allowlisted, sanitized metadata delta; do not publish arbitrary metadata keys/values or user-provided labels.
+  - [ ] Model `ReferenceAttachedV1` with stable reference IDs, reference type, and approved URI-safe handles only; exclude document bodies, provider-specific metadata, embeddings, blobs, authorization headers, and upstream payload fragments.
+  - [ ] Model `ConversationLifecycleChangedV1` with bounded lifecycle states and previous/current state values or existing established equivalents; avoid free-form lifecycle strings unless already established by earlier contracts.
 
 - [ ] Add the server-side publication mapping boundary under `src/Hexalith.Conversations.Server/Publication`. (AC: 1-4)
   - [ ] Map persisted Conversations domain events into public Conversations publication contracts only after the command succeeds and EventStore persistence has completed.
   - [ ] Treat the Hexalith.EventStore envelope as inherited infrastructure; do not modify it or expose it. Conversations owns the domain event schema and public contract versioning.
   - [ ] Isolate EventStore/Dapr-specific references inside `Server/EventStore` or `Server/Publication`; do not leak those references into `Contracts`, domain aggregate logic, projections, read models, or client contracts.
-  - [ ] Ensure rejected commands, no-op idempotent replays, failed tenant checks, failed Party validation, and incompatible payload/version checks do not publish successful state-change events.
+  - [ ] Ensure rejected commands, no-op idempotent replays, idempotency conflicts, failed persistence, failed tenant checks, failed Party validation, tenant mismatch, and incompatible payload/version checks do not publish successful state-change events.
   - [ ] If EventStore already publishes the persisted event to Dapr, implement only the Conversations-safe mapping/metadata and tests needed to prove the public shape; do not add a second publisher that duplicates delivery.
+  - [ ] If command handlers or persisted internal events are still absent on this branch, add only the minimal deterministic internal event fixtures or adapter seams needed to prove publication mapping; do not broaden this story into full command persistence.
 
 - [ ] Document and implement idempotent consumer semantics for duplicate/replayed/reordered delivery. (AC: 3)
   - [ ] Provide a stable event identity or deduplication key that consumers can use without knowing stream names, aggregate snapshots, or EventStore storage topology.
+  - [ ] Define the default idempotency identity as `(tenantId, conversationId, eventId, schemaVersion)` unless an already established project convention provides a stricter equivalent.
+  - [ ] State that consumers must deduplicate by stable event identity and may use per-conversation sequence or revision only when provided; do not promise strict ordering when no sequence/revision is available.
   - [ ] Preserve correlation and causation metadata from command handling and idempotency flows so downstream diagnostics can trace publication without payload disclosure.
   - [ ] Document that pub/sub and projection notifications are hints: consumers must treat EventStore history as authoritative and must tolerate at-least-once delivery.
   - [ ] Reject or quarantine tenant-mismatched or unsupported-version messages before any projection or downstream mutation.
+  - [ ] Document that persistence success is not rolled back by transport publication failure; publication failures are retried or surfaced by the EventStore/outbox or typed publication boundary diagnostics, not by re-emitting duplicate successful domain changes.
 
 - [ ] Add focused contract, publication, and boundary tests. (AC: 1-5)
   - [ ] Add contract serialization tests under `tests/Hexalith.Conversations.Contracts.Tests/Events` proving JSON names, schema version, event type, tenant scope, conversation identity, correlation/causation metadata, and stable references are present.
-  - [ ] Add property/payload scanning tests proving published event contracts exclude Party display names, contact data, identifiers, person/organization details, raw provider prompts/responses, file binaries, raw upstream records, redacted content, tokens, claims, EventStore stream names, snapshots, envelopes, SignalR groups, and projection internals.
-  - [ ] Add server publication tests under `tests/Hexalith.Conversations.Server.Tests/Publication` for successful event mapping, rejected-command no-publication, duplicate/replayed event identity stability, reordered delivery handling, unsupported-version diagnostics, and tenant-mismatch rejection/quarantine.
+  - [ ] Add source/XML/contract-boundary tests proving public event names, namespaces, required metadata, and forbidden dependencies directly; do not rely only on compiled assembly reflection that can pass vacuously against marker projects.
+  - [ ] Add property/payload scanning tests proving published event contracts exclude Party display names, emails, phone numbers, contact data, identifiers, person/organization details, raw provider prompts/responses, provider conversation/session IDs unless abstracted and approved, file binaries, document bodies, embeddings, raw upstream records, upstream error bodies, redacted content, tokens, claims, EventStore stream names, positions, snapshots, envelopes, Dapr topic/runtime details, SignalR groups, and projection internals.
+  - [ ] Add server publication tests under `tests/Hexalith.Conversations.Server.Tests/Publication` for successful event mapping, rejected-command no-publication, no-op/idempotency-conflict no-publication, failed-persistence no-publication, duplicate/replayed event identity stability, reordered delivery handling, unsupported-version diagnostics, no duplicate publication when EventStore owns the publish path, and tenant-mismatch rejection/quarantine.
+  - [ ] Add unsupported-version negative tests for missing, malformed, future, and unsupported major versions; diagnostics must not echo unsafe payload content.
+  - [ ] Add a local fake consumer/projection test proving duplicate/replayed/reordered events with the same identity do not corrupt tenant-scoped state or create duplicate effects.
   - [ ] Update `.csproj` XML boundary tests so `Contracts` stays infrastructure-free and EventStore/Dapr references, if required, stay only in approved server publication/write-adapter boundaries.
-  - [ ] Use fake EventStore/Dapr publication adapters for normal unit tests; do not require Aspire runtime, live Dapr sidecars, Redis, tenant seed data, provider credentials, external cloud resources, or nested submodule initialization.
+  - [ ] Use deterministic fakes such as fake EventStore append outcomes, fake Dapr/EventStore publishers that capture topic/payload/metadata, fake clocks, and fake ID providers for normal unit tests; do not require Aspire runtime, live Dapr sidecars, Redis, tenant seed data, provider credentials, external cloud resources, wall-clock-sensitive assertions, or nested submodule initialization.
 
 - [ ] Validate the implementation scope. (AC: 5)
   - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
@@ -67,6 +77,24 @@ Story 1.10 creates or completes the Conversations-safe event publication contrac
 Publication must happen after a successful command result and durable EventStore persistence. Rejections, failed tenant access, failed participant validation, idempotency conflicts, incompatible duplicate payloads, unsupported versions, and no-op outcomes must not publish successful state-change events. [Source: `_bmad-output/planning-artifacts/epics.md#Story 1.6: Add Idempotent Command Handling`; `_bmad-output/planning-artifacts/architecture.md#Integration Points`]
 
 Story 1.11 owns replay/schema-versioning proof and projection rebuild behavior. Story 5.8 and Story 5.9 own provider portability and event schema evolution release evidence. This story may add local tests and compatibility diagnostics needed for publication, but it must not broaden into conformance manifest signing or full replay/upcaster proof. [Source: `_bmad-output/planning-artifacts/epics.md#Story 1.11: Prove Replay, Schema Versioning, and Projection Rebuild Behavior`; `_bmad-output/planning-artifacts/epics.md#Story 5.9: Prove Event Schema Evolution`]
+
+### Publication Boundary Decision
+
+Conversations owns the public v1 event contract types and the mapping from persisted Conversations facts into those public contracts. Hexalith.EventStore owns durable persistence, outbox/retry behavior, substrate envelopes, and transport publication plumbing. Server code may reference EventStore or Dapr details only inside `src/Hexalith.Conversations.Server/Publication` or `src/Hexalith.Conversations.Server/EventStore`; `Contracts`, domain aggregate logic, projections, read models, and client contracts must not depend on those infrastructure types.
+
+If EventStore already publishes the persisted event to Dapr, this story must not add a competing publisher. It should prove the Conversations-safe contract shape, metadata, and mapping boundary around the existing publication path. If EventStore does not yet publish the exact public Conversations contract, Conversations may add a post-persistence mapping seam, but it still must avoid exposing EventStore envelopes or stream mechanics as the public payload.
+
+### Required Public Metadata and Identity
+
+Each public v1 event contract must include or inherit a common metadata shape with `schemaVersion`, `eventType`, `tenantId`, `conversationId`, `eventId`, `occurredAt`, `correlationId`, and `causationId`. A per-conversation sequence or revision may be included when the branch already has a stable source for it; if not present, the contract must not promise strict ordering.
+
+Consumers should treat `(tenantId, conversationId, eventId, schemaVersion)` as the default idempotency identity unless an already committed project convention provides a stricter equivalent. Duplicate, replayed, or reordered deliveries must not create duplicate effects or corrupt tenant-scoped state. Projection notifications remain hints; EventStore history remains authoritative.
+
+### Publication and Diagnostic Matrix
+
+Successful state changes publish exactly one corresponding public event after durable persistence: conversation created, participant added, message appended, reference attached, metadata updated, or lifecycle changed. Rejected commands, failed tenant access, failed Party validation, unsupported command or event versions, incompatible idempotency payloads, idempotency conflicts, no-op duplicate replays, tenant mismatches, and failed persistence do not publish successful state-change events.
+
+Unsupported-version and tenant-mismatch diagnostics must be typed and bounded. They may include event type, schema version, tenant scope, conversation identity, event identity, and correlation/causation IDs. They must not echo Party personal data, raw provider payloads, upstream error bodies, file content, redacted content, authorization state, tokens, claims, EventStore envelopes, stream names, storage positions, Dapr internals, or SignalR details.
 
 ### Architecture Compliance
 
@@ -190,3 +218,15 @@ Validation must stay local and deterministic by default. Unit tests should use f
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
+- 2026-05-18: Party-mode review clarifications applied for publication ownership, public metadata, idempotency identity, bounded diagnostics, privacy/test coverage, and scope deferrals.
+
+## Party-Mode Review
+
+- Date: 2026-05-18T22:05:22Z
+- Selected story key: 1-10-publish-versioned-conversation-domain-events
+- Command/skill invocation used: `/bmad-party-mode 1-10-publish-versioned-conversation-domain-events; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary: Reviewers found the story directionally sound but under-specified around publication authority, exact event metadata, dedupe identity, failure behavior after persistence, v1 adopter scope, tenant mismatch placement, unsupported-version diagnostics, payload deny-lists, and local deterministic test proof. All findings were story-readiness clarifications rather than requests for new product scope.
+- Changes applied: Clarified v1 internal/publication-ready scope; pinned public event names unless already established by ADR/contract; added required public metadata and idempotency tuple; defined EventStore vs Conversations publication ownership; added no-publication cases for failed persistence, no-op duplicates, idempotency conflicts, tenant mismatches, and unsupported versions; bounded unsupported-version diagnostics; added metadata/reference/lifecycle payload guardrails; strengthened privacy scans, source/XML boundary tests, fake consumer idempotency tests, and deterministic fixture requirements.
+- Findings deferred: Exact wire topic names, named downstream consumers, provider portability proof, release conformance/signing, full replay/upcaster proof, schema evolution release evidence, governance audit events, SignalR client behavior, FrontComposer UI, and raw HTTP adopter examples remain deferred to later stories or ADRs.
+- Final recommendation: ready-for-dev
