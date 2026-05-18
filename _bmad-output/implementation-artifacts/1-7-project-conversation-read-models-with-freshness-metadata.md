@@ -17,38 +17,47 @@ so that consumers can read conversation state without confusing stale, rebuildin
 3. Given projection metadata is missing, contradictory, stale, or unavailable, when a read boundary or UI-facing contract formats the result, then it downgrades trust to unknown, stale, rebuilding, unavailable, or hidden rather than presenting the read model as current, and governed actions depending on current projection state are blocked or marked unavailable.
 4. Given projection handlers materialize conversation timelines, when messages, participants, file references, provider correlation metadata, and business references are projected, then the read model contains only tenant-authorized, content-safe fields and stable IDs, and it does not persist Party personal data, raw upstream records, file binaries, raw provider payloads, or EventStore internals.
 5. Given projection tests run, when ordered replay, duplicate delivery, projection deletion/rebuild, stale metadata, unavailable store, and mixed-tenant poison events are exercised, then tests prove deterministic read-model reconstruction, freshness-state behavior, duplicate tolerance, and fail-closed tenant isolation.
+6. Given any summary, detail, list, count, pagination, diagnostic, telemetry, or command-availability surface observes an unauthorized, cross-tenant, non-existent, forbidden, or redacted conversation, when it returns a result, then the shape and metadata do not disclose existence through counts, gaps, timestamps, cursors, business references, provider metadata, freshness transitions, telemetry dimensions, or error details.
+7. Given a full rebuild, partial rebuild, concurrent rebuild/read, gap, contradictory metadata, out-of-order event, mixed-tenant poison event, or projection-store failure occurs, when projection state is evaluated, then the story-defined decision matrix maps it deterministically to `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, or `Redacted`, and only `Current` enables trust-bearing decisions.
 
 ## Tasks / Subtasks
 
 - [ ] Confirm freshness and prerequisite gates before implementation. (AC: 1-5)
   - [ ] Link the existing readiness decision for Projection freshness blocking semantics and use only the approved vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
   - [ ] Treat `Current` as the only state accepted for trust-bearing decisions unless a later ADR explicitly permits a narrower degraded behavior.
+  - [ ] Define the story-local freshness decision matrix before coding: `Current` requires tenant-authorized, complete, non-contradictory, successfully generated projection metadata; stale thresholds, gaps, rebuild activity, projection-store failures, tenant denial, and redacted content must map to the approved non-current states.
   - [ ] Verify the branch contains or intentionally stubs the event/contract outputs from Stories 1.2, 1.3, 1.4, append-message/reference work, 1.5, and 1.6. If required event contracts or domain events are absent, add the smallest contract/domain fixtures needed for this story and record the dependency in tests; do not invent conflicting public names.
+  - [ ] Inspect the actual branch state before adding projection abstractions. Prefer existing contracts, handlers, and tests; when prerequisites are missing, add only narrow Story 1.7 fixtures or internal input abstractions and document that dependency in tests.
 
 - [ ] Add or complete projection and freshness contracts in `src/Hexalith.Conversations.Contracts`. (AC: 2, 3, 4)
   - [ ] Add `Projections/ConversationSummaryProjectionV1.cs` and `Projections/ConversationDetailProjectionV1.cs`, or extend the Story 1.2 projection shells if already present.
   - [ ] Add a shared `ProjectionFreshnessV1` or equivalent contract with projection version/cursor, last applied event position or equivalent source cursor, last applied event timestamp, projection generated timestamp, optional lag duration, stale flag, freshness state, and safe reason code.
-  - [ ] Keep public projection contracts in Conversations language. Do not expose EventStore envelopes, stream names, snapshots, expected revisions, raw projection topology, raw event payloads, or EventStore client types.
+  - [ ] Keep public projection contracts in Conversations language. Do not expose EventStore envelopes, stream names, snapshots, expected revisions, raw projection topology, raw event payloads, EventStore stream IDs, subscription names, checkpoint names, raw sequence tokens, provider payload fragments, or EventStore client types.
+  - [ ] Use UTC `DateTimeOffset` semantics for all public freshness timestamps and define which metadata is safe for public read contracts versus internal diagnostics only.
   - [ ] Represent timeline, participant, message, business reference, provider correlation, and file-reference data as stable IDs and content-safe metadata only. Do not include Party display names or upstream records in persisted projection contracts.
 
 - [ ] Implement projection materialization under `src/Hexalith.Conversations.Server/Projections`. (AC: 1, 4, 5)
   - [ ] Add projection handler(s) for conversation-created, participant-added, message-appended, reference-attached, metadata-updated, and lifecycle events available on the branch.
   - [ ] Build summary and detail read models as derived, rebuildable state. Projection state must not become write-side authority and must be disposable/reconstructable from EventStore history.
   - [ ] Make handlers idempotent for duplicate/replayed events and deterministic for ordered replay. For out-of-order delivery, either buffer/reject/mark rebuilding according to the documented behavior; never silently produce a confident current read model from contradictory event order.
+  - [ ] Define the idempotency and ordering basis used by handlers, including duplicate event IDs, replay after rebuild, detected gaps, and expected final read model equivalence after projection deletion/rebuild.
   - [ ] Store tenant scope on every projection record and reject or quarantine mixed-tenant poison events before mutation.
+  - [ ] Choose and document one deterministic poison-event behavior for this story: reject, quarantine, or mark rebuilding/unavailable. Never project poison data into another tenant and never mark poisoned state `Current`.
   - [ ] Do not add transcript tables, authoritative message stores, provider session stores, Memories/RAG indexes, export artifacts, UI state caches, or durable hydrated Party data in this story.
 
 - [ ] Add the tenant-safe read boundary for projection results. (AC: 2, 3, 4)
   - [ ] Add query/read service behavior only as needed to return projection contracts with freshness metadata.
   - [ ] Check tenant access before projection read through the local tenant access boundary from Story 1.5. If Story 1.5 is not yet implemented on the branch, keep the read boundary fail-closed behind an interface/test fake rather than trusting request claims directly.
-  - [ ] Return `Forbidden` or hidden-by-tenant-isolation semantics without revealing whether a protected conversation exists, including through counts, timestamps, business references, provider metadata, or pagination gaps.
+  - [ ] Return `Forbidden` or hidden-by-tenant-isolation semantics without revealing whether a protected conversation exists, including through counts, result shape, timestamps, business references, provider metadata, cursors, pagination gaps, diagnostics, telemetry, or timing-sensitive metadata.
+  - [ ] Treat missing tenant context, empty tenant ID, malformed tenant ID, mismatched tenant context, unknown tenant state, and cross-tenant query attempts as fail-closed. Tests must prove there is no fallback to unscoped reads.
   - [ ] Map missing, stale, rebuilding, unavailable, contradictory, or poisoned projection metadata to safe freshness states and block command availability metadata for actions requiring current projection state.
 
 - [ ] Add deterministic rebuild and freshness behavior tests. (AC: 1-5)
-  - [ ] Add tests under `tests/Hexalith.Conversations.Server.Tests/Projections` for ordered replay, duplicate event delivery, replayed event delivery, projection deletion/rebuild, out-of-order event behavior, stale metadata, unavailable projection store, contradictory metadata, and mixed-tenant poison events.
-  - [ ] Add contract tests under `tests/Hexalith.Conversations.Contracts.Tests` proving projection contracts serialize with `System.Text.Json` web defaults, dates round-trip as ISO 8601-compatible `DateTimeOffset` values, and JSON property names do not expose EventStore or internal topology terms.
-  - [ ] Add payload/property inspection tests proving read models do not persist Party personal data, file binaries, raw upstream records, provider prompt/response payloads, access tokens, claims, raw authorization state, or raw EventStore details.
+  - [ ] Add tests under `tests/Hexalith.Conversations.Server.Tests/Projections` for ordered replay, duplicate event delivery, replayed event delivery, gap detection, projection deletion/rebuild equivalence, concurrent rebuild/read behavior, out-of-order event behavior, stale metadata, missing metadata, unavailable projection store, contradictory metadata, projection-store failure, and mixed-tenant poison events.
+  - [ ] Add contract tests under `tests/Hexalith.Conversations.Contracts.Tests` proving projection contracts serialize with `System.Text.Json` web defaults, dates round-trip as ISO 8601-compatible `DateTimeOffset` values, unknown fields do not grant trust, missing freshness fields fail closed, and JSON property names do not expose EventStore or internal topology terms.
+  - [ ] Add payload/property inspection tests proving read models do not persist Party personal data, names, emails, external user IDs, raw provider subjects, avatars, profile blobs, file binaries, raw upstream records, provider prompt/response payloads, access tokens, claims, raw authorization state, or raw EventStore details.
   - [ ] Add boundary tests that inspect `.csproj` XML as well as compiled assembly references so forbidden dependencies cannot be hidden by unused marker assemblies.
+  - [ ] Keep projection tests local and hermetic with in-memory/local fakes that can inject duplicate, gap, poison, rebuild, and store-failure conditions. Do not require Aspire, Dapr sidecars, EventStore server runtime, tenant seed data, cloud credentials, or nested submodule initialization.
 
 - [ ] Document projection behavior and validation evidence. (AC: 1-5)
   - [ ] Add or update developer-facing docs explaining that read models are derived from EventStore history, include freshness metadata, and are not authoritative write state.
@@ -84,6 +93,10 @@ Tenant access fails closed before projection read. Do not trust JWT/request clai
 
 Every trust-bearing read includes projection freshness metadata. Absence must not imply authorization, freshness, successful hydration, or safety. Missing or contradictory metadata must produce degraded freshness/trust state and block governed decisions that require current state. [Source: `_bmad-output/planning-artifacts/architecture.md#Format Patterns`; `_bmad-output/planning-artifacts/prd.md#Projection Freshness`]
 
+The public freshness contract is a domain trust contract, not a storage topology leak. It may expose stable read-model version, safe cursor or position equivalents, UTC event/projection timestamps, lag duration, freshness state, stale flag, and a safe reason code. Raw EventStore stream IDs, subscription names, checkpoint identifiers, revision tokens, provider payload fragments, and internal sequence tokens are internal diagnostics only unless an ADR later approves a public equivalent.
+
+Story 1.7's default decision matrix is fail-closed: `Current` means tenant-authorized, complete, non-contradictory projection metadata generated successfully from accepted events; `Stale` means metadata is complete but older than the configured/default freshness threshold; `Rebuilding` means projection rebuild, gap repair, or ordered replay catch-up is active or required; `Unavailable` means the projection store or metadata source cannot be trusted; `Forbidden` means tenant access denies or hides the record; and `Redacted` means policy permits the record shape but suppresses content. Only `Current` supports trust-bearing decisions.
+
 ### Projection Contract Guidance
 
 Minimum freshness shape for v1 should include the following fields or clearly documented equivalents: projection version or contract version, source cursor/event position equivalent, last applied event timestamp, projection generated timestamp, stale indicator, lag duration where available, freshness state, and a safe reason code. PRD NFR45 names `lastAppliedEventPosition`, `lastAppliedEventTimestamp`, `projectionGeneratedAt`, `isStale`, and `lagDuration` as the preferred shape. [Source: `_bmad-output/planning-artifacts/prd.md#Projection Freshness`; `_bmad-output/planning-artifacts/epics.md#Story 1.7: Project Conversation Read Models with Freshness Metadata`]
@@ -99,6 +112,8 @@ Keep Central Package Management intact. NuGet documentation confirms project fil
 Projection records may persist stable IDs and content-safe metadata from conversation events. They must not persist hydrated Party display names, contact values, person or organization details, raw upstream records, raw provider prompt/response payloads, file binaries, access tokens, claims, raw tenant authorization state, raw upstream problem details, or redacted content. Party and upstream display hydration belongs to Story 1.9 read-time adapters. [Source: `_bmad-output/project-context.md#Critical Don't-Miss Rules`; `_bmad-output/implementation-artifacts/readiness-gate-decisions-2026-05-17.md#Party hydration degraded states`; `_bmad-output/planning-artifacts/prd.md#Data Schemas & Wire Formats`]
 
 Projection reads must avoid cross-tenant existence leakage through result counts, facets, ordering, pagination gaps, timestamps, errors, autocomplete, telemetry, URLs, or diagnostics. Unauthorized, nonexistent, and cross-tenant records remain indistinguishable to non-privileged callers unless a later policy explicitly allows disclosure. [Source: `_bmad-output/planning-artifacts/architecture.md#Disclosure Surface Inventory`; `_bmad-output/planning-artifacts/prd.md#Tenant Access And Isolation`]
+
+The same non-disclosure rule applies to summary lists, details, counts, cursors, pagination tokens, command-availability hints, telemetry dimensions, and diagnostics. Forbidden, redacted, cross-tenant, and non-existent records must not be distinguishable through response shape or freshness metadata.
 
 ### File and Test Placement
 
@@ -168,3 +183,15 @@ Stop for architecture clarification before coding if implementation needs to sto
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
+- 2026-05-18: Party-mode review applied freshness decision matrix, tenant non-disclosure, rebuild/poison-event, boundary-test, and privacy clarifications.
+
+## Party-Mode Review
+
+- ISO date and time: 2026-05-18T18:14:00Z
+- Selected story key: 1-7-project-conversation-read-models-with-freshness-metadata
+- Command/skill invocation used: `/bmad-party-mode 1-7-project-conversation-read-models-with-freshness-metadata; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary: Reviewers agreed Story 1.7 was directionally sound but needed sharper pre-dev instructions for public freshness semantics, fail-closed tenant reads before lookup, same-shape non-disclosure across list/detail/count/pagination/telemetry, deterministic rebuild/out-of-order/poison-event behavior, public contract boundaries, and hermetic test evidence.
+- Changes applied: Added acceptance criteria and tasks for freshness decision matrix, UTC/public-vs-internal metadata, branch-reality inspection, tenant fail-closed cases, non-disclosing list/detail/pagination/telemetry behavior, deterministic rebuild and poison-event handling, contract-shape tests, `.csproj` boundary tests, privacy scans, and local failure-injection projection tests.
+- Findings deferred: Exact projection storage/indexing engine, stale SLO configuration beyond the default deterministic threshold, cache headers/ETags, provider display hydration, schema evolution/upcasting, export/evidence bundles, admin UI behavior, and provider mapping remain outside Story 1.7 unless a later ADR or story brings them into scope.
+- Final recommendation: ready-for-dev
