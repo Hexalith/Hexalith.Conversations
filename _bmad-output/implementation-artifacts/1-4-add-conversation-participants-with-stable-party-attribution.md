@@ -32,30 +32,33 @@ so that participant membership is attributable through stable Party identities w
   - [ ] Keep Contracts infrastructure-free and do not reference Parties client DTOs, provider DTOs, EventStore envelopes, server abstractions, Dapr, HTTP, UI, or persistence packages from participant command/event contracts.
   - [ ] Keep provider identifiers as optional correlation metadata only; never make provider session IDs, model names, UI labels, thread names, or external business identifiers the participant source of truth.
   - [ ] Treat stable `PartyId` as the only durable participant attribution authority; provider/user/model identifiers may be transient validation inputs only and must never become replay authority.
+  - [ ] Document the public rejection/result names for duplicate participant, unsupported participant type, provider-only identity, Party validation unavailable, and tenant-context mismatch so adopters do not infer behavior from raw upstream errors or EventStore failures.
 
 - [ ] Implement deterministic aggregate participant behavior in `src/Hexalith.Conversations`. (AC: 1-3, 5)
   - [ ] Add or update `Conversations/ConversationAggregate.cs` with an add-participant command method that accepts validated command intent only.
   - [ ] Add or update `Conversations/ConversationState.cs` to maintain participant membership keyed by stable Party ID plus approved role/type dimensions; by default, a duplicate is the same conversation, stable Party ID, and participant role/type unless the implemented contract explicitly forbids multiple roles for one Party.
   - [ ] Apply `ParticipantAdded` events through deterministic replay logic; no wall-clock reads, HTTP calls, tenant lookups, Parties calls, UI shaping, EventStore calls, or logging from aggregate code.
-  - [ ] Reject closed, archived, unsupported, malformed, missing, incompatible, or duplicate participant states with typed domain results and no emitted success event.
+  - [ ] Reject closed, archived, unsupported, malformed, missing, incompatible, or duplicate participant states with typed domain results and no emitted success event; duplicate membership rejection is a domain state rule here, not the retry-safe idempotency contract owned by Story 1.6.
   - [ ] Preserve existing conversation identity, lifecycle, creator attribution, business references, provider correlation metadata, and event replay behavior introduced by prior stories.
   - [ ] Prove aggregate replay reconstructs participant state from `ParticipantAdded` events alone without calling Parties, providers, Tenants, read models, EventStore infrastructure, or command-time validators.
 
 - [ ] Add application-boundary participant validation only where the existing command pipeline already exists. (AC: 3-4)
   - [ ] If Story 1.3 already introduced command handlers, add `Server/CommandHandlers/AddParticipantCommandHandler.cs` or equivalent in the established pattern.
-  - [ ] Validate command shape, schema version, tenant binding, conversation identity, actor Party ID, target Party ID, and participant type before aggregate invocation.
+  - [ ] Validate command shape, schema version, tenant binding, conversation identity, actor Party ID, target Party ID, and participant type before aggregate invocation, then call the aggregate only after command-time Party proof has succeeded.
   - [ ] Introduce or reuse a Conversations-owned adapter boundary such as `Server/Hydration/IParticipantDirectory` for command-time Party validation; keep it application-boundary only and do not reference it from Contracts, aggregate, or domain code.
   - [ ] Make Parties validation unavailable, unknown, disabled, malformed, inaccessible, negative, indeterminate, or tenant-context-mismatched outcomes fail closed with content-safe typed errors.
   - [ ] Treat "cross-tenant unsafe" as any participant addition where Party ownership or visibility for the command tenant cannot be proven by the application boundary.
   - [ ] Do not implement full tenant access enforcement here unless it already exists from a prior story; Story 1.5 owns the comprehensive fail-closed tenant access gate.
+  - [ ] If the existing command pipeline has no tenant access service yet, preserve a single explicit guard seam for Story 1.5 instead of scattering tenant checks through participant validation, aggregate code, or transport code.
 
 - [ ] Add focused tests for participant contracts, aggregate behavior, and boundary hygiene. (AC: 1-5)
   - [ ] Add contract tests proving `AddParticipantCommand` and `ParticipantAdded` serialize/deserialize with `System.Text.Json`, preserve required fields, and omit forbidden Party personal-data/provider payload fields by property-name inspection and representative JSON payload inspection.
   - [ ] Add pure aggregate tests for successful human, AI agent, and LLM participant addition; deterministic replay; duplicate/conflicting participant rejection; closed/archived/incompatible state rejection; unsupported participant type rejection; provider-only identity rejection; and no event emission on rejection.
   - [ ] Add application-boundary tests for Party validation success and fail-closed unavailable/unknown/inaccessible/timeout/error/not-found/tenant-mismatch cases if the command handler exists in scope, with typed rejection assertions instead of generic failure assertions.
-  - [ ] Keep aggregate tests pure and event-based; use a mocked or fake `IParticipantDirectory` only in command-handler/application-boundary tests.
+  - [ ] Keep aggregate tests pure and event-based; use a mocked or fake `IParticipantDirectory` only in command-handler/application-boundary tests, and include a proof that replay does not invoke the directory or any validation adapter.
   - [ ] Add or extend boundary tests that inspect `.csproj` XML directly for forbidden references, not only `Assembly.GetReferencedAssemblies()`, because marker assemblies can make reflection-only checks pass vacuously.
   - [ ] Ensure test fixtures are synthetic and tenant-safe; do not use real Party names, contact values, provider payloads, prompt content, or cross-tenant identifiers as fixture data.
+  - [ ] Inspect serialized events, aggregate snapshots if introduced, logs/diagnostic messages, `ToString()` output, and rejection payloads for forbidden personal-data/provider sentinels, not only the primary event JSON.
 
 - [ ] Update developer documentation and validation. (AC: 1-5)
   - [ ] Update `README.md` or the existing contract guidance with participant attribution rules: stable Party IDs are durable, Party personal data is read-time hydration only, and provider IDs are correlation metadata only.
@@ -70,6 +73,8 @@ so that participant membership is attributable through stable Party identities w
 Story 1.4 owns participant membership and stable Party attribution for conversations. It should not implement append-message authoring, file references, tenant access enforcement, idempotent command storage, read projections, publication, FrontComposer UI, conformance evidence, governance commands, or Party display hydration beyond the command-time validation adapter boundary needed to fail closed on writes. Story 1.4.1 in the epics owns append-message author attribution; Story 1.5 owns comprehensive tenant access enforcement; Story 1.6 owns idempotent command handling; Story 1.7 owns read-model freshness. [Source: `_bmad-output/planning-artifacts/epics.md#Story 1.4: Add Conversation Participants with Stable Party Attribution`; `_bmad-output/planning-artifacts/architecture.md#Implementation Guardrails`]
 
 The 2026-05-18 party-mode review clarified that Story 1.4 remains ready only if implementation avoids three silent decisions: it must not design full tenant authorization beyond fail-closed participant validation, it must not design retry-safe idempotent duplicate-command semantics, and it must not design read-side Party hydration or provider identity reconciliation. Those decisions remain deferred to Stories 1.5, 1.6, 1.7, or a later explicit provider-mapping story.
+
+The 2026-05-18 advanced-elicitation pass tightened the same boundary without expanding scope: the implementation should expose explicit typed outcomes for participant-state and validation failures, keep one tenant-access seam for Story 1.5, treat duplicate participant membership as a domain rule rather than idempotency, and prove privacy across events, snapshots if any, diagnostics, and public rejection payloads.
 
 At story creation time, `sprint-status.yaml` has Stories 1.2 and 1.3 as `ready-for-dev`, and this story moves Story 1.4 from `backlog` to `ready-for-dev`. The source tree still contains scaffold/marker files only under `src/Hexalith.Conversations.Contracts`, `src/Hexalith.Conversations`, and `src/Hexalith.Conversations.Server`. Treat this story as dependent on the contract and aggregate foundations being implemented before participant behavior starts; if they are not present on the branch, do not pretend the participant behavior can be cleanly layered. [Source: `_bmad-output/implementation-artifacts/sprint-status.yaml`; local source inspection on 2026-05-18]
 
@@ -184,6 +189,7 @@ NuGet Central Package Management requires versions in `Directory.Packages.props`
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review applied boundary, privacy, duplicate, fail-closed validation, and replay-test clarifications.
+- 2026-05-18: Advanced elicitation applied typed-outcome, validation-order, tenant-seam, duplicate-domain-rule, replay, and privacy proof clarifications.
 
 ## Party-Mode Review
 
@@ -207,4 +213,37 @@ NuGet Central Package Management requires versions in `Directory.Packages.props`
   - Idempotent duplicate-command handling remains Story 1.6.
   - Read-model freshness, Party display hydration, and participant display names remain Story 1.7 or later.
   - Provider-specific identity reconciliation and model registry semantics remain out of scope unless represented as validated Party mappings in a later story.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- ISO date and time: 2026-05-18T23:04:05Z
+- Selected story key: `1-4-add-conversation-participants-with-stable-party-attribution`
+- Command/skill invocation used: `/bmad-advanced-elicitation 1-4-add-conversation-participants-with-stable-party-attribution`
+- Batch 1 method names:
+  - Red Team vs Blue Team
+  - Security Audit Personas
+  - Failure Mode Analysis
+  - Self-Consistency Validation
+  - Critique and Refine
+- Reshuffled Batch 2 method names:
+  - First Principles Analysis
+  - Pre-mortem Analysis
+  - Architecture Decision Records
+  - Socratic Questioning
+  - User Persona Focus Group
+- Findings summary:
+  - The story was already ready for development, but its implementer needed sharper separation between domain duplicate membership, Story 1.6 idempotency, command-time Party proof, and later Story 1.5 tenant authorization.
+  - Privacy proof needed to cover secondary leakage surfaces such as snapshots if introduced, diagnostics, `ToString()` methods, rejection payloads, and test fixtures, not only the durable event JSON.
+  - Adopter experience is safer when typed rejection/result names are documented up front for duplicate, unsupported participant type, provider-only identity, Party validation unavailable, and tenant-context mismatch outcomes.
+- Changes applied:
+  - Added explicit typed rejection/result documentation expectations.
+  - Clarified validation order and aggregate invocation only after command-time Party proof succeeds.
+  - Clarified duplicate participant membership as a domain state rule, not retry-safe idempotency.
+  - Added a single tenant-access seam expectation for Story 1.5.
+  - Expanded replay and privacy tests to prove validation adapters are not invoked and secondary leakage surfaces stay clean.
+- Findings deferred:
+  - Full tenant access policy, role matrix, and freshness behavior remain Story 1.5 or later.
+  - Retry-safe command idempotency, same-command deduplication, and conflict fingerprinting remain Story 1.6.
+  - Read-time display hydration, degraded participant display states, and provider mapping remain Story 1.7 or later explicit provider-mapping work.
 - Final recommendation: ready-for-dev
