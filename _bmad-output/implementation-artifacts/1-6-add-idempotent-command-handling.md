@@ -12,37 +12,51 @@ so that retries, client timeouts, and at-least-once delivery do not create dupli
 
 ## Acceptance Criteria
 
-1. Given a create, append-message, add-participant, attach-reference, update-metadata, or close/archive command includes an idempotency key, when the same tenant, conversation scope, command type, idempotency key, and equivalent payload are submitted more than once, then the system returns the same logical outcome without emitting duplicate successful domain events, and the response is stable enough for adopter retry handling.
-2. Given an idempotency key is reused with a different payload or incompatible command context, when the command is evaluated, then the system returns a typed idempotency-conflict rejection, and no conversation state mutation or publication occurs.
-3. Given a command outcome is unknown to the caller because of timeout, retry, duplicate delivery, or publication lag, when the caller resubmits the same idempotent command, then the system resolves the stored or replayed command outcome consistently, and the result does not depend on provider-owned session IDs.
+1. Given a create, append-message, add-participant, attach-reference, update-metadata, or close/archive command includes an idempotency key, when the same tenant, conversation scope, command type, idempotency key, and equivalent payload are submitted more than once, then the system returns the same externally visible logical outcome without emitting duplicate successful domain events. The stable outcome includes result category, durable conversation/message/participant/reference identity when relevant, typed rejection code when relevant, retryability, and safe correlation/audit handle semantics; it does not require byte-for-byte transport equality or raw EventStore status disclosure.
+2. Given an idempotency key is reused with a different payload or incompatible command context, when the command is evaluated, then the system compares the ADR-approved normalized fingerprint for tenant ID, command type, aggregate or allocation scope, idempotency key, schema/contract version, canonical payload, and relevant command context, returns a typed idempotency-conflict rejection, and no conversation state mutation or publication occurs.
+3. Given a command outcome is unknown to the caller because of timeout, retry, duplicate delivery, pending command status, or publication lag, when the caller resubmits the same idempotent command, then the system resolves the terminal stored or replayed command outcome when available, otherwise returns the ADR-approved typed retryable uncertainty outcome without emitting a second successful domain event, and the result does not depend on provider-owned session IDs.
 4. Given duplicate or reordered command delivery occurs, when aggregate state, idempotency records, and projections are evaluated, then projections remain deterministic and no duplicate business effects appear in read models, and content-safe diagnostics distinguish duplicate, conflict, unsupported-version, and infrastructure uncertainty.
-5. Given idempotency tests run, when duplicate equivalent commands, duplicate non-equivalent commands, reordered delivery, unknown client outcome retry, and tenant-mismatched key reuse are exercised, then tests prove stable outcomes, conflict rejection, tenant scoping, no duplicate events, no projection divergence, and no cross-tenant leakage.
+5. Given idempotency tests run, when duplicate equivalent commands, duplicate non-equivalent commands, concurrent same-key submissions, reordered delivery, duplicate event delivery, unknown client outcome retry, terminal close/archive replay, and tenant-mismatched key reuse are exercised, then tests prove stable outcomes, conflict rejection, tenant scoping, no duplicate events, no projection divergence, no terminal-state regression, and no cross-tenant leakage.
+6. Given a caller lacks tenant access or presents a tenant-mismatched context, when the command is evaluated, then tenant access validation fails closed before aggregate lookup, idempotency lookup, command-status lookup, duplicate outcome replay, conflict disclosure, or projection access, and the response does not distinguish between a missing aggregate, existing idempotency record, conflicting key, or hidden conversation.
 
 Evidence Note: This story must produce minimum local evidence for story closure. Release-gate idempotency evidence is carried forward into Story 5.6 for manifest aggregation and signing.
 
+### Pre-Dev Party-Mode Review Decisions
+
+The 2026-05-18 party-mode review clarified Story 1.6 without adding product scope:
+
+- The idempotency ADR is an in-story gate: behavior code must not proceed until the command idempotency ADR is accepted and linked from `docs/adrs/index.md`.
+- Public Contracts must expose Conversations-domain result and error categories only. EventStore command-status records, stream identifiers, state-store keys, expected revisions, sequence numbers, and raw status internals stay behind the server adapter boundary.
+- The canonical idempotency fingerprint must be built from stable Conversations command contracts and explicit command context, not raw JSON byte order, provider session IDs, server-generated timestamps, transport headers, EventStore envelopes, or mutable Party display data.
+- Tenant access is authoritative before idempotency outcome disclosure. Wrong-tenant, unauthorized, stale, missing, or unavailable tenant access paths must not reveal key existence, stored outcomes, conflicts, or hidden conversation existence.
+- Unknown or pending command status is retry-safe but not self-mutating: the handler may resolve a terminal stored/replayed outcome, otherwise it must return the ADR-approved typed retryable uncertainty result and avoid appending a duplicate successful event.
+- Projection duplicate/reorder proof is bounded to the conversation projections touched by the story's command types and remains local evidence for Story 5.6; this story does not implement the signed release manifest or a generic projection framework rewrite.
+- Concurrency proof is required for same-tenant, same-key, equivalent-payload submissions so only one business mutation succeeds and all callers receive stable logical outcomes.
+
 ## Tasks / Subtasks
 
-- [ ] Resolve the idempotency decision before behavior code. (AC: 1-5)
-  - [ ] Create or update `docs/adrs/0001-idempotency-contract.md` from the existing ADR template if it is still missing.
+- [ ] Resolve the idempotency decision before behavior code. (AC: 1-6)
+  - [ ] Create or update the command idempotency ADR from the existing ADR template, using `docs/adrs/0001-idempotency-contract.md` if it is still the next available ADR file.
   - [ ] Record the approved idempotency key source, key scope, equivalent-payload canonicalization rule, stored outcome semantics, conflict behavior, TTL/retention expectations, and retry behavior after unknown outcomes.
   - [ ] Update `docs/adrs/index.md` so the Idempotency contract topic no longer remains only "Proposed" once the decision is accepted.
+  - [ ] Do not implement behavior code until the ADR has accepted the fingerprint, stable outcome, conflict, tenant-disclosure, unknown/pending, and retention semantics.
   - [ ] Stop and request an explicit architecture decision if the implementation would need EventStore envelope changes, provider IDs as identity, cross-tenant deduplication, or a durable store outside the approved write path.
 
-- [ ] Add Conversations-owned idempotency primitives without exposing EventStore internals. (AC: 1-3, 5)
+- [ ] Add Conversations-owned idempotency primitives without exposing EventStore internals. (AC: 1-3, 5-6)
   - [ ] Add domain/application primitives under `src/Hexalith.Conversations/Idempotency` for idempotency scope, payload fingerprint, stored outcome, and conflict/no-match decisions.
   - [ ] Scope each idempotency record by tenant ID, conversation scope or create-conversation allocation scope, command type, idempotency key, and schema/contract version.
   - [ ] Canonicalize the payload using Conversations command contracts and stable IDs only; exclude provider-owned session IDs as authority, timestamps generated by the server, EventStore envelopes, stream names, sequence numbers, raw payload bytes, and mutable Party display data.
   - [ ] Treat equivalent duplicate success and equivalent duplicate rejection as stable replayable outcomes; treat same key plus non-equivalent payload/context as `idempotency_conflict`.
   - [ ] Do not put EventStore SDK types, Dapr state APIs, or persistence exceptions into public Contracts or domain aggregate code.
 
-- [ ] Reuse the EventStore command-status/idempotency surface through a Conversations adapter where it fits. (AC: 1-4)
+- [ ] Reuse the EventStore command-status/idempotency surface through a Conversations adapter where it fits. (AC: 1-4, 6)
   - [ ] Investigate `Hexalith.EventStore` command status support before adding storage: `CommandEnvelope.MessageId`, `CommandStatusRecord`, `ICommandStatusStore`, `CommandStatusConstants`, `DaprCommandStatusStore`, and `InMemoryCommandStatusStore`.
   - [ ] Prefer a server-side adapter under `src/Hexalith.Conversations.Server/CommandHandlers` or `src/Hexalith.Conversations.Server/EventStore` over a new unrelated repository abstraction.
   - [ ] Keep any EventStore-specific code inside the approved server write-adapter boundary. Domain code may depend on Conversations idempotency abstractions only.
   - [ ] If EventStore command status is correlation-message based and cannot represent Conversations equivalence/conflict needs, wrap it with a Conversations-owned idempotency record rather than changing EventStore or leaking its model outward.
   - [ ] Preserve payload secrecy in logs and `ToString()` behavior. Diagnostics may include safe reason category, command type, tenant-scoped correlation handle, and retryability only.
 
-- [ ] Wire idempotency into the write command flow after tenant access passes and before aggregate mutation. (AC: 1-4)
+- [ ] Wire idempotency into the write command flow after tenant access passes and before aggregate mutation. (AC: 1-4, 6)
   - [ ] Ensure tenant authorization from Story 1.5 still happens before aggregate load, command dispatch, EventStore read/write, idempotency outcome disclosure, or projection access.
   - [ ] For an equivalent duplicate with a terminal stored outcome, return the same logical command result without invoking `ConversationAggregate` or appending duplicate success events.
   - [ ] For an in-flight or unknown outcome, return a documented retryable/uncertain result or resolve from EventStore state according to ADR-001/ADR-002; do not silently retry in a way that can emit duplicate business effects.
@@ -55,7 +69,8 @@ Evidence Note: This story must produce minimum local evidence for story closure.
   - [ ] Confirm duplicate command replay does not publish extra successful domain events. If publication failure leaves an uncertain terminal state, surface content-safe uncertainty instead of inventing a duplicate event.
   - [ ] Add diagnostics that distinguish duplicate, idempotency conflict, unsupported schema/version, tenant mismatch, stale/missing tenant projection, and infrastructure uncertainty without leaking target tenant, Party data, raw payload, provider payload, or inaccessible conversation existence.
 
-- [ ] Add focused automated tests and local evidence. (AC: 1-5)
+- [ ] Add focused automated tests and local evidence. (AC: 1-6)
+  - [ ] Cover a shared command matrix for create, append-message, add-participant, attach-reference, update-metadata, close, and archive across duplicate equivalent payload, non-equivalent payload, same key with different command type, same key with different conversation/allocation scope, different tenant, unknown/pending outcome, and concurrent duplicate submission.
   - [ ] Add unit tests for idempotency scope and canonical payload equivalence: identical payload, property-order differences if applicable, optional-null/default equivalence per ADR, different payload, different command type, different tenant, different conversation, and different schema version.
   - [ ] Add domain/application tests proving duplicate equivalent commands return stable success/no-op/rejection outcomes and do not call aggregate mutation twice.
   - [ ] Add conflict tests proving key reuse with a different payload/context returns `idempotency_conflict`, mutates nothing, publishes nothing, and produces content-safe diagnostics.
@@ -219,3 +234,28 @@ Validation must not require Aspire runtime launch, Dapr sidecars, tenant seed da
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
+- 2026-05-18: Party-mode review applied ADR gate, fingerprint, tenant-disclosure, unknown-outcome, concurrency, and projection-test clarifications.
+
+## Party-Mode Review
+
+- Date/time: 2026-05-18T14:22:21Z
+- Selected story key: 1-6-add-idempotent-command-handling
+- Command/skill invocation used: `/bmad-party-mode 1-6-add-idempotent-command-handling; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary:
+  - The story was directionally sound but needed sharper executable semantics before development around ADR dependency, stable outcome shape, fingerprint/conflict comparison, tenant-first disclosure rules, unknown/pending command outcomes, concurrency, and projection duplicate/reorder proof.
+  - All reviewers recommended a story update before `bmad-dev-story`; the required changes were low-risk clarifications rather than new product scope.
+- Changes applied:
+  - Clarified stable externally visible idempotent outcomes without requiring byte-for-byte transport equality or exposing EventStore status internals.
+  - Clarified ADR-approved fingerprint inputs and prohibited raw JSON, provider IDs, server timestamps, transport fields, EventStore envelopes, and mutable Party display data as authority.
+  - Added an explicit tenant-access acceptance criterion requiring fail-closed authorization before idempotency lookup, command-status lookup, duplicate replay, conflict disclosure, or projection access.
+  - Clarified pending/unknown command outcome behavior as retry-safe and non-mutating until the ADR-approved typed uncertainty result or terminal replayed outcome is available.
+  - Added concurrent duplicate submission and terminal close/archive replay to the test evidence expectations.
+  - Bounded projection duplicate/reorder proof to affected conversation projections and local evidence for Story 5.6.
+  - Clarified that the idempotency ADR is an in-story gate and behavior code must not proceed until the ADR is accepted and indexed.
+- Findings deferred:
+  - Release-gate idempotency evidence aggregation and signing remain deferred to Story 5.6.
+  - Cross-service or global idempotency infrastructure remains out of scope.
+  - Long-term idempotency retention/cleanup details must be accepted in the ADR, but broader operational automation can be deferred unless required for correctness.
+  - Provider-message identity remains non-authoritative and out of scope for durable idempotency identity.
+- Final recommendation: ready-for-dev
