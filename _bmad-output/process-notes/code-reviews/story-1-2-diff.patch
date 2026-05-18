@@ -1,0 +1,2381 @@
+diff --git a/README.md b/README.md
+index e456abc..1aa6b43 100644
+--- a/README.md
++++ b/README.md
+@@ -4,6 +4,50 @@ Hexalith.Conversations is a tenant-scoped conversations module scaffold for the
+ 
+ This initial scaffold is intentionally non-operative. It establishes project boundaries, central package management, smoke tests, and ADR tracking for future stories without implementing conversation persistence, tenant authorization, provider integrations, workers, read models, governance commands, or FrontComposer runtime behavior.
+ 
++## Contract Package Guidance
++
++The supported v1 integration path is a .NET client that shares `Hexalith.Conversations.Contracts` with adopter applications. Adopters should create commands and interpret results, projections, and typed errors through these shared contracts; raw EventStore knowledge is not required for normal integration.
++
++Identity has a strict taxonomy:
++
++- `ConversationId` is the Conversations-owned durable identity and is always interpreted with `TenantId`.
++- `TenantId`, `PartyId`, `ProjectId`, `FolderId`, `FileId`, and `MessageId` are stable references to owning modules or Conversations records.
++- `BusinessReference` is an adopter-owned external reference and never replaces `ConversationId`.
++- `ProviderCorrelationMetadata` stores opaque provider/thread correlation data only; it is not tenant authority, actor attribution, idempotency, or aggregate identity.
++- UI labels and thread names are display/correlation metadata only.
++- Correlation IDs, causation IDs, and idempotency keys describe operations, not conversation identity.
++
++Example command shape:
++
++```csharp
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++
++ConversationCommandMetadata metadata = new(
++    SchemaVersion.Current,
++    new TenantId("tenant-001"),
++    new PartyId("party-actor"),
++    "correlation-001",
++    causationId: null,
++    idempotencyKey: "idempotency-001");
++
++CreateConversationCommand command = new(
++    metadata,
++    new BusinessReference("crm", "case-123"),
++    label: "Case 123");
++```
++
++Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
++
++Read contracts use the approved freshness vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`. Future behavior stories decide when non-current states are acceptable; this package only defines the public vocabulary.
++
++Future implementation stories should keep the current readiness decisions and ADR tracker visible:
++
++- `_bmad-output/implementation-artifacts/readiness-gate-decisions-2026-05-17.md`
++- `_bmad-output/implementation-artifacts/readiness-gates.md`
++- `docs/adrs/index.md`
++
+ ## Local Validation
+ 
+ Use the repository-pinned .NET SDK from `global.json`:
+diff --git a/_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md b/_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md
+index c7d20d7..c6cb35b 100644
+--- a/_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md
++++ b/_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md
+@@ -1,6 +1,6 @@
+ # Story 1.2: Define Conversation Identity, Command, Event, and Error Contracts
+ 
+-Status: ready-for-dev
++Status: review
+ 
+ <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
+ 
+@@ -20,57 +20,57 @@ so that I can integrate without learning EventStore internals or depending on un
+ 
+ ## Tasks / Subtasks
+ 
+-- [ ] Add stable identity and reference contracts in `src/Hexalith.Conversations.Contracts`. (AC: 1, 3, 5)
+-  - [ ] Create `Identifiers/ConversationId.cs`, `TenantId.cs`, `PartyId.cs`, `ProjectId.cs`, `FolderId.cs`, `FileId.cs`, `MessageId.cs`, and `BusinessReference.cs` as serialization-friendly public value contracts.
+-  - [ ] Add provider correlation metadata as opaque metadata, not identity: e.g. `ProviderCorrelationMetadata` with provider name/type, provider session or response identifiers, metadata schema version, and a bounded key/value extension bag.
+-  - [ ] Validate that `ConversationId` is tenant-scoped by contract usage and documentation, while provider IDs, UI labels, external identifiers, upstream message identifiers, thread names, correlation IDs, causation IDs, idempotency keys, and actor references stay separate metadata/reference fields.
+-  - [ ] Add README identity guidance with an ID taxonomy that distinguishes internal conversation identity, tenant binding, Party actor attribution, upstream stable references, provider/thread correlation metadata, UI labels, external business references, and forbidden raw identifiers.
+-  - [ ] Keep all identifier contracts in the Contracts assembly; do not reference `Hexalith.Tenants`, `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `Hexalith.EventStore`, or server-only packages from Contracts.
+-
+-- [ ] Add command envelope and initial command contracts. (AC: 2, 5)
+-  - [ ] Create `Commands/ConversationCommandMetadata.cs` with schema version, tenant binding, caller/actor Party ID, correlation ID, optional causation ID, and idempotency key support.
+-  - [ ] Create command shapes for `CreateConversationCommand`, `AppendMessageCommand`, `AddParticipantCommand`, `AttachFileReferenceCommand`, `UpdateConversationMetadataCommand`, `CloseConversationCommand`, and `ArchiveConversationCommand`.
+-  - [ ] Ensure every mutating command carries tenant scope, actor attribution, schema version, correlation/causation metadata, and idempotency metadata where applicable.
+-  - [ ] Make command payloads carry stable IDs and allowed metadata only; they must not carry tokens, claims, raw provider payloads, tenant authorization state, Party personal data, file binaries, raw upstream records, or EventStore envelopes.
+-  - [ ] Keep these as public contract DTOs only. Do not implement validators, handlers, aggregate methods, authorization, persistence, projection updates, EventStore dispatch, repositories, stores, runtime service interfaces, or command pipeline abstractions in this story.
+-
+-- [ ] Add event contract primitives and initial event contracts. (AC: 3, 5)
+-  - [ ] Create `Events/ConversationEventMetadata.cs` with schema version, event type, tenant scope, conversation identity, actor Party ID where applicable, correlation/causation metadata, and committed timestamp metadata expected by public contracts.
+-  - [ ] Create event contracts for `ConversationCreated`, `MessageAppended`, `ParticipantAdded`, `FileReferenceAttached`, `ConversationMetadataUpdated`, `ConversationClosed`, and `ConversationArchived`.
+-  - [ ] Use past-tense Conversations domain names and stable references only. Events must not store Party display names, contact values, person/organization details, provider-owned session IDs as authority, raw prompt/provider payloads, raw upstream records, file binaries, or raw upstream problem details.
+-  - [ ] Represent provider extension data as versioned opaque metadata and keep it tenant-scoped. Do not expose EventStore stream names, sequence numbers, snapshots, checkpoints, expected revisions, SignalR groups, projection names, or internal projection topology.
+-
+-- [ ] Add result, projection, trust/freshness, version, and error contracts needed by adopter-facing semantics. (AC: 2, 4, 5)
+-  - [ ] Create `Results` contracts for command acceptance and stable outcomes, including assigned `ConversationId` for create, accepted command identity/correlation handle, and read-model visibility caveat where relevant.
+-  - [ ] Create minimal projection/read contract shells under `Projections` that expose Conversations vocabulary and freshness/trust state without implementing projection storage, projection state machines, cursoring, rebuild lifecycle, EventStore sequencing, subscription state, tenant materialization behavior, or dispatch behavior.
+-  - [ ] Create `TrustStates` contracts using the approved vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
+-  - [ ] Create `Versioning` contracts for active contract/schema version and unsupported-version reporting, with one explicit JSON representation rule for schema version values so command, event, result, error, and projection shells do not drift independently.
+-  - [ ] Create `Errors/ConversationErrorCode.cs` and a content-safe problem/result contract that covers at minimum `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `aggregate_not_found`, `schema_version_unsupported`, and `command_validation_failed`.
+-  - [ ] Ensure error contracts include machine-readable code/category, retryability where meaningful, correlation/audit handle, optional documentation pointer, and safe field diagnostics, without leaking inaccessible tenant IDs, Party personal data, conversation existence, redacted content, provider identity/payloads, infrastructure/storage details, raw exception text, validation internals, or cross-tenant business references.
+-  - [ ] Keep localized/user-facing display copy out of scope; any safe human-readable text is developer guidance only and must not be the primary machine contract.
+-
+-- [ ] Add focused contract tests and serialization checks. (AC: 1-5)
+-  - [ ] Add tests in `tests/Hexalith.Conversations.Contracts.Tests` proving every public identifier, command, event, result, error, projection shell, trust/freshness, and versioning contract serializes and deserializes with `System.Text.Json` defaults used by web APIs, preserves required fields, and remains nullable-clean.
+-  - [ ] Add representative stable JSON fixture tests for one valid command, event, error, result, projection shell, trust/freshness state, and version metadata contract to catch accidental casing, null emission, enum/value representation, and property-name drift.
+-  - [ ] Add tests proving command and event contracts include tenant scope, schema version, correlation/causation metadata, actor Party attribution where required, and idempotency fields where applicable.
+-  - [ ] Add reflection and serialized-JSON inspection tests proving forbidden personal/provider/file/upstream payload fields are absent from every public exported contract type, including type names, namespaces, public property names, and JSON property names.
+-  - [ ] Extend or replace existing boundary tests so Contracts package references, project references, framework references, and forbidden namespace imports/usings are inspected from `.csproj` XML and source files, not only from `Assembly.GetReferencedAssemblies()`, because marker assemblies may not retain unused references.
+-  - [ ] Add tests proving public contract names and serialized shapes do not expose EventStore or runtime terms such as envelope, EventStore, stream, snapshot, sequence, expected revision, checkpoint, SignalR group, projection topology, projection name, tenant projection internals, handler, dispatcher, repository, store, or EventStore aggregate identity.
+-  - [ ] Add tests proving identifier/default/null cases cannot silently produce ambiguous empty contract values where the public shape requires a stable identity or metadata value.
+-  - [ ] Add fail-closed error fixture tests proving unauthorized, nonexistent, cross-tenant, hidden-by-isolation, stale, unavailable, audit-unavailable, and unsupported-version outputs remain content-safe and non-disclosing.
+-
+-- [ ] Update developer documentation for the contract package. (AC: 4, 5)
+-  - [ ] Add or update `README.md` contract-package guidance that names the supported `.NET client + shared contract package` integration path and explains that raw EventStore knowledge is not required.
+-  - [ ] Document the stable distinction between `ConversationId`, tenant ID, Party ID, external business references, provider correlation metadata, labels, and thread names.
+-  - [ ] Document typed error semantics and hygiene rules, including non-disclosure for cross-tenant and hidden-by-isolation outcomes.
+-  - [ ] Show README examples that use only the client/shared-contract path and do not imply HTTP fallback, EventStore usage, Dapr, UI generation, workers, handlers, persistence, projection execution, or runtime service ownership.
+-  - [ ] Link to readiness decisions and ADR tracker entries that future stories must resolve before behavior implementation, without accepting new ADR decisions in this story.
+-
+-- [ ] Validate and keep the implementation scoped. (AC: 5)
+-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` or, if restore/build artifacts are stale, run `dotnet restore`, `dotnet build`, and `dotnet test` against `Hexalith.Conversations.slnx`.
+-  - [ ] Do not run recursive submodule initialization. Root-level submodule reads are allowed only where already available.
+-  - [ ] Do not add EventStore, Dapr, ASP.NET Core, FrontComposer, Tenants, Parties, Projects, or Folders dependencies to `Hexalith.Conversations.Contracts`.
+-  - [ ] Do not implement domain behavior, command handlers, aggregate state transitions, EventStore adapters, tenant projection, Party validation, projection stores, UI, workers, or conformance evidence in this story.
++- [x] Add stable identity and reference contracts in `src/Hexalith.Conversations.Contracts`. (AC: 1, 3, 5)
++  - [x] Create `Identifiers/ConversationId.cs`, `TenantId.cs`, `PartyId.cs`, `ProjectId.cs`, `FolderId.cs`, `FileId.cs`, `MessageId.cs`, and `BusinessReference.cs` as serialization-friendly public value contracts.
++  - [x] Add provider correlation metadata as opaque metadata, not identity: e.g. `ProviderCorrelationMetadata` with provider name/type, provider session or response identifiers, metadata schema version, and a bounded key/value extension bag.
++  - [x] Validate that `ConversationId` is tenant-scoped by contract usage and documentation, while provider IDs, UI labels, external identifiers, upstream message identifiers, thread names, correlation IDs, causation IDs, idempotency keys, and actor references stay separate metadata/reference fields.
++  - [x] Add README identity guidance with an ID taxonomy that distinguishes internal conversation identity, tenant binding, Party actor attribution, upstream stable references, provider/thread correlation metadata, UI labels, external business references, and forbidden raw identifiers.
++  - [x] Keep all identifier contracts in the Contracts assembly; do not reference `Hexalith.Tenants`, `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `Hexalith.EventStore`, or server-only packages from Contracts.
++
++- [x] Add command envelope and initial command contracts. (AC: 2, 5)
++  - [x] Create `Commands/ConversationCommandMetadata.cs` with schema version, tenant binding, caller/actor Party ID, correlation ID, optional causation ID, and idempotency key support.
++  - [x] Create command shapes for `CreateConversationCommand`, `AppendMessageCommand`, `AddParticipantCommand`, `AttachFileReferenceCommand`, `UpdateConversationMetadataCommand`, `CloseConversationCommand`, and `ArchiveConversationCommand`.
++  - [x] Ensure every mutating command carries tenant scope, actor attribution, schema version, correlation/causation metadata, and idempotency metadata where applicable.
++  - [x] Make command payloads carry stable IDs and allowed metadata only; they must not carry tokens, claims, raw provider payloads, tenant authorization state, Party personal data, file binaries, raw upstream records, or EventStore envelopes.
++  - [x] Keep these as public contract DTOs only. Do not implement validators, handlers, aggregate methods, authorization, persistence, projection updates, EventStore dispatch, repositories, stores, runtime service interfaces, or command pipeline abstractions in this story.
++
++- [x] Add event contract primitives and initial event contracts. (AC: 3, 5)
++  - [x] Create `Events/ConversationEventMetadata.cs` with schema version, event type, tenant scope, conversation identity, actor Party ID where applicable, correlation/causation metadata, and committed timestamp metadata expected by public contracts.
++  - [x] Create event contracts for `ConversationCreated`, `MessageAppended`, `ParticipantAdded`, `FileReferenceAttached`, `ConversationMetadataUpdated`, `ConversationClosed`, and `ConversationArchived`.
++  - [x] Use past-tense Conversations domain names and stable references only. Events must not store Party display names, contact values, person/organization details, provider-owned session IDs as authority, raw prompt/provider payloads, raw upstream records, file binaries, or raw upstream problem details.
++  - [x] Represent provider extension data as versioned opaque metadata and keep it tenant-scoped. Do not expose EventStore stream names, sequence numbers, snapshots, checkpoints, expected revisions, SignalR groups, projection names, or internal projection topology.
++
++- [x] Add result, projection, trust/freshness, version, and error contracts needed by adopter-facing semantics. (AC: 2, 4, 5)
++  - [x] Create `Results` contracts for command acceptance and stable outcomes, including assigned `ConversationId` for create, accepted command identity/correlation handle, and read-model visibility caveat where relevant.
++  - [x] Create minimal projection/read contract shells under `Projections` that expose Conversations vocabulary and freshness/trust state without implementing projection storage, projection state machines, cursoring, rebuild lifecycle, EventStore sequencing, subscription state, tenant materialization behavior, or dispatch behavior.
++  - [x] Create `TrustStates` contracts using the approved vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
++  - [x] Create `Versioning` contracts for active contract/schema version and unsupported-version reporting, with one explicit JSON representation rule for schema version values so command, event, result, error, and projection shells do not drift independently.
++  - [x] Create `Errors/ConversationErrorCode.cs` and a content-safe problem/result contract that covers at minimum `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `aggregate_not_found`, `schema_version_unsupported`, and `command_validation_failed`.
++  - [x] Ensure error contracts include machine-readable code/category, retryability where meaningful, correlation/audit handle, optional documentation pointer, and safe field diagnostics, without leaking inaccessible tenant IDs, Party personal data, conversation existence, redacted content, provider identity/payloads, infrastructure/storage details, raw exception text, validation internals, or cross-tenant business references.
++  - [x] Keep localized/user-facing display copy out of scope; any safe human-readable text is developer guidance only and must not be the primary machine contract.
++
++- [x] Add focused contract tests and serialization checks. (AC: 1-5)
++  - [x] Add tests in `tests/Hexalith.Conversations.Contracts.Tests` proving every public identifier, command, event, result, error, projection shell, trust/freshness, and versioning contract serializes and deserializes with `System.Text.Json` defaults used by web APIs, preserves required fields, and remains nullable-clean.
++  - [x] Add representative stable JSON fixture tests for one valid command, event, error, result, projection shell, trust/freshness state, and version metadata contract to catch accidental casing, null emission, enum/value representation, and property-name drift.
++  - [x] Add tests proving command and event contracts include tenant scope, schema version, correlation/causation metadata, actor Party attribution where required, and idempotency fields where applicable.
++  - [x] Add reflection and serialized-JSON inspection tests proving forbidden personal/provider/file/upstream payload fields are absent from every public exported contract type, including type names, namespaces, public property names, and JSON property names.
++  - [x] Extend or replace existing boundary tests so Contracts package references, project references, framework references, and forbidden namespace imports/usings are inspected from `.csproj` XML and source files, not only from `Assembly.GetReferencedAssemblies()`, because marker assemblies may not retain unused references.
++  - [x] Add tests proving public contract names and serialized shapes do not expose EventStore or runtime terms such as envelope, EventStore, stream, snapshot, sequence, expected revision, checkpoint, SignalR group, projection topology, projection name, tenant projection internals, handler, dispatcher, repository, store, or EventStore aggregate identity.
++  - [x] Add tests proving identifier/default/null cases cannot silently produce ambiguous empty contract values where the public shape requires a stable identity or metadata value.
++  - [x] Add fail-closed error fixture tests proving unauthorized, nonexistent, cross-tenant, hidden-by-isolation, stale, unavailable, audit-unavailable, and unsupported-version outputs remain content-safe and non-disclosing.
++
++- [x] Update developer documentation for the contract package. (AC: 4, 5)
++  - [x] Add or update `README.md` contract-package guidance that names the supported `.NET client + shared contract package` integration path and explains that raw EventStore knowledge is not required.
++  - [x] Document the stable distinction between `ConversationId`, tenant ID, Party ID, external business references, provider correlation metadata, labels, and thread names.
++  - [x] Document typed error semantics and hygiene rules, including non-disclosure for cross-tenant and hidden-by-isolation outcomes.
++  - [x] Show README examples that use only the client/shared-contract path and do not imply HTTP fallback, EventStore usage, Dapr, UI generation, workers, handlers, persistence, projection execution, or runtime service ownership.
++  - [x] Link to readiness decisions and ADR tracker entries that future stories must resolve before behavior implementation, without accepting new ADR decisions in this story.
++
++- [x] Validate and keep the implementation scoped. (AC: 5)
++  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` or, if restore/build artifacts are stale, run `dotnet restore`, `dotnet build`, and `dotnet test` against `Hexalith.Conversations.slnx`.
++  - [x] Do not run recursive submodule initialization. Root-level submodule reads are allowed only where already available.
++  - [x] Do not add EventStore, Dapr, ASP.NET Core, FrontComposer, Tenants, Parties, Projects, or Folders dependencies to `Hexalith.Conversations.Contracts`.
++  - [x] Do not implement domain behavior, command handlers, aggregate state transitions, EventStore adapters, tenant projection, Party validation, projection stores, UI, workers, or conformance evidence in this story.
+ 
+ ## Dev Notes
+ 
+@@ -177,13 +177,27 @@ Run the solution tests after implementing contract files. If `--no-restore` fail
+ 
+ ### Agent Model Used
+ 
+-{{agent_model_name_version}}
++GPT-5 Codex
+ 
+ ### Debug Log References
+ 
++- `dotnet build .\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj --no-restore` - passed.
++- `dotnet test .\tests\Hexalith.Conversations.Contracts.Tests\Hexalith.Conversations.Contracts.Tests.csproj --no-restore` - passed, 12 tests.
++- `dotnet test .\Hexalith.Conversations.slnx --no-restore` - passed, 26 tests across 5 test projects.
++
++### Implementation Plan
++
++- Keep Story 1.2 contract-only: public DTO/value records, version/trust/error vocabularies, README guidance, and tests only.
++- Use stable Conversations-owned identity and upstream reference contracts without taking dependencies on sibling runtime modules.
++- Guard public JSON and source boundaries with serialization fixture, reflection, `.csproj`, and source-import tests.
++
+ ### Completion Notes List
+ 
+ - Ultimate context engine analysis completed - comprehensive developer guide created.
++- Added stable identifier/reference contracts, opaque provider correlation metadata, schema-version contracts, and trust/freshness vocabulary.
++- Added command, event, result, projection, and content-safe error contracts without handlers, validators, persistence, projection execution, UI, or server/runtime abstractions.
++- Added contract serialization fixtures, metadata coverage tests, forbidden public-surface tests, identifier validation tests, fail-closed error tests, and direct project/source boundary checks.
++- Updated README contract-package guidance for the supported `.NET client + shared contract package` integration path, identity taxonomy, safe error semantics, freshness states, readiness decisions, and ADR tracker.
+ 
+ ## Party-Mode Review
+ 
+@@ -211,7 +225,55 @@ Run the solution tests after implementing contract files. If `--no-restore` fail
+ 
+ ### File List
+ 
++- `README.md`
++- `_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md`
++- `_bmad-output/implementation-artifacts/sprint-status.yaml`
++- `src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs`
++- `src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs`
++- `src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs`
++- `src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs`
++- `src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs`
++- `src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs`
++- `src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs`
++- `src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs`
++- `src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs`
++- `src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs`
++- `src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs`
++- `src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs`
++- `src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs`
++- `src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs`
++- `src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs`
++- `src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs`
++- `src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs`
++- `tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs`
++
+ ## Change Log
+ 
++- 2026-05-18: Implemented public contract identities, commands, events, results, projections, trust states, versioning, safe errors, README guidance, and contract guardrail tests; moved story to review.
+ - 2026-05-18: Party-mode review applied story hardening for identity taxonomy, contract-only boundaries, safe errors, serialization fixtures, and forbidden-surface tests.
+ - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
+diff --git a/_bmad-output/implementation-artifacts/sprint-status.yaml b/_bmad-output/implementation-artifacts/sprint-status.yaml
+index c7cecd8..7b20e2c 100644
+--- a/_bmad-output/implementation-artifacts/sprint-status.yaml
++++ b/_bmad-output/implementation-artifacts/sprint-status.yaml
+@@ -1,5 +1,5 @@
+ # generated: 2026-05-17T14:17:58.2822735+02:00
+-# last_updated: 2026-05-18T12:56:59+02:00
++# last_updated: 2026-05-18T13:13:44+02:00
+ # project: Hexalith.Conversations
+ # project_key: NOKEY
+ # tracking_system: file-system
+@@ -35,7 +35,7 @@
+ # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+ 
+ generated: 2026-05-17T14:17:58.2822735+02:00
+-last_updated: 2026-05-18T12:56:59+02:00
++last_updated: 2026-05-18T13:13:44+02:00
+ project: Hexalith.Conversations
+ project_key: NOKEY
+ tracking_system: file-system
+@@ -44,7 +44,7 @@ story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
+ development_status:
+   epic-1: in-progress
+   1-1-set-up-initial-project-from-starter-template: done
+-  1-2-define-conversation-identity-command-event-and-error-contracts: ready-for-dev
++  1-2-define-conversation-identity-command-event-and-error-contracts: review
+   1-3-create-tenant-safe-conversation-aggregate: ready-for-dev
+   1-4-add-conversation-participants-with-stable-party-attribution: ready-for-dev
+   1-5-enforce-tenant-access-and-typed-fail-closed-rejections: ready-for-dev
+diff --git a/_bmad-output/process-notes/predev-preflight-2026-05-18T110547Z.json b/_bmad-output/process-notes/predev-preflight-2026-05-18T110547Z.json
+new file mode 100644
+index 0000000..708f7ce
+--- /dev/null
++++ b/_bmad-output/process-notes/predev-preflight-2026-05-18T110547Z.json
+@@ -0,0 +1,74 @@
++{
++  "schema_version": 1,
++  "produced_by": "jobs/preflight-predev-hardening.py",
++  "timestamp": "2026-05-18T11:05:47Z",
++  "repo": "D:\\Hexalith.Conversations",
++  "result": "fail",
++  "bootstrap_actions": [],
++  "checks": [
++    {
++      "id": 1,
++      "name": "sprint-status.yaml parses as YAML",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
++      "result": "pass",
++      "details": "PARSE OK",
++      "file_size_bytes": 5870,
++      "line_count": 112,
++      "top_level_keys": [
++        "development_status",
++        "generated",
++        "last_updated",
++        "project",
++        "project_key",
++        "story_location",
++        "tracking_system"
++      ],
++      "development_status_count": 68
++    },
++    {
++      "id": 2,
++      "name": "artifacts root exists",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts",
++      "result": "pass",
++      "details": "directory exists"
++    },
++    {
++      "id": 3,
++      "name": "lessons ledger readable",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\process-notes\\story-creation-lessons.md",
++      "result": "pass",
++      "details": "file readable"
++    },
++    {
++      "id": 4,
++      "name": "status-artifact consistency",
++      "story_keys_checked": 56,
++      "result": "pass",
++      "details": "no drift across 56 story keys"
++    },
++    {
++      "id": 5,
++      "name": "working tree cleanliness",
++      "command": [
++        "git",
++        "status",
++        "--porcelain",
++        "--",
++        ".",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/preflight-latest.json"
++      ],
++      "exit_code": 0,
++      "stdout": " M _bmad-output/implementation-artifacts/sprint-status.yaml\n",
++      "stderr": "",
++      "dirty_path_count": 1,
++      "result": "fail",
++      "details": "1 dirty path(s)"
++    }
++  ],
++  "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."
++}
+\ No newline at end of file
+diff --git a/_bmad-output/process-notes/predev-preflight-2026-05-18T121900Z.json b/_bmad-output/process-notes/predev-preflight-2026-05-18T121900Z.json
+new file mode 100644
+index 0000000..7a314ba
+--- /dev/null
++++ b/_bmad-output/process-notes/predev-preflight-2026-05-18T121900Z.json
+@@ -0,0 +1,74 @@
++{
++  "schema_version": 1,
++  "produced_by": "jobs/preflight-predev-hardening.py",
++  "timestamp": "2026-05-18T12:19:00Z",
++  "repo": "D:\\Hexalith.Conversations",
++  "result": "fail",
++  "bootstrap_actions": [],
++  "checks": [
++    {
++      "id": 1,
++      "name": "sprint-status.yaml parses as YAML",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
++      "result": "pass",
++      "details": "PARSE OK",
++      "file_size_bytes": 5862,
++      "line_count": 112,
++      "top_level_keys": [
++        "development_status",
++        "generated",
++        "last_updated",
++        "project",
++        "project_key",
++        "story_location",
++        "tracking_system"
++      ],
++      "development_status_count": 68
++    },
++    {
++      "id": 2,
++      "name": "artifacts root exists",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts",
++      "result": "pass",
++      "details": "directory exists"
++    },
++    {
++      "id": 3,
++      "name": "lessons ledger readable",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\process-notes\\story-creation-lessons.md",
++      "result": "pass",
++      "details": "file readable"
++    },
++    {
++      "id": 4,
++      "name": "status-artifact consistency",
++      "story_keys_checked": 56,
++      "result": "pass",
++      "details": "no drift across 56 story keys"
++    },
++    {
++      "id": 5,
++      "name": "working tree cleanliness",
++      "command": [
++        "git",
++        "status",
++        "--porcelain",
++        "--",
++        ".",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/preflight-latest.json"
++      ],
++      "exit_code": 0,
++      "stdout": " M README.md\n M _bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n M tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs\n?? src/Hexalith.Conversations.Contracts/Commands/\n?? src/Hexalith.Conversations.Contracts/Errors/\n?? src/Hexalith.Conversations.Contracts/Events/\n?? src/Hexalith.Conversations.Contracts/Identifiers/\n?? src/Hexalith.Conversations.Contracts/Projections/\n?? src/Hexalith.Conversations.Contracts/Results/\n?? src/Hexalith.Conversations.Contracts/TrustStates/\n?? src/Hexalith.Conversations.Contracts/Versioning/\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs\n",
++      "stderr": "",
++      "dirty_path_count": 17,
++      "result": "fail",
++      "details": "17 dirty path(s)"
++    }
++  ],
++  "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."
++}
+\ No newline at end of file
+diff --git a/_bmad-output/process-notes/predev-preflight-2026-05-18T140200Z.json b/_bmad-output/process-notes/predev-preflight-2026-05-18T140200Z.json
+new file mode 100644
+index 0000000..2adfa97
+--- /dev/null
++++ b/_bmad-output/process-notes/predev-preflight-2026-05-18T140200Z.json
+@@ -0,0 +1,74 @@
++{
++  "schema_version": 1,
++  "produced_by": "jobs/preflight-predev-hardening.py",
++  "timestamp": "2026-05-18T14:02:00Z",
++  "repo": "D:\\Hexalith.Conversations",
++  "result": "fail",
++  "bootstrap_actions": [],
++  "checks": [
++    {
++      "id": 1,
++      "name": "sprint-status.yaml parses as YAML",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
++      "result": "pass",
++      "details": "PARSE OK",
++      "file_size_bytes": 5862,
++      "line_count": 112,
++      "top_level_keys": [
++        "development_status",
++        "generated",
++        "last_updated",
++        "project",
++        "project_key",
++        "story_location",
++        "tracking_system"
++      ],
++      "development_status_count": 68
++    },
++    {
++      "id": 2,
++      "name": "artifacts root exists",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts",
++      "result": "pass",
++      "details": "directory exists"
++    },
++    {
++      "id": 3,
++      "name": "lessons ledger readable",
++      "path": "D:\\Hexalith.Conversations\\_bmad-output\\process-notes\\story-creation-lessons.md",
++      "result": "pass",
++      "details": "file readable"
++    },
++    {
++      "id": 4,
++      "name": "status-artifact consistency",
++      "story_keys_checked": 56,
++      "result": "pass",
++      "details": "no drift across 56 story keys"
++    },
++    {
++      "id": 5,
++      "name": "working tree cleanliness",
++      "command": [
++        "git",
++        "status",
++        "--porcelain",
++        "--",
++        ".",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/predev-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/code-review-preflight-latest.json",
++        ":(exclude)_bmad-output/process-notes/preflight-*.json",
++        ":(exclude)_bmad-output/process-notes/preflight-latest.json"
++      ],
++      "exit_code": 0,
++      "stdout": " M README.md\n M _bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n M tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs\n?? src/Hexalith.Conversations.Contracts/Commands/\n?? src/Hexalith.Conversations.Contracts/Errors/\n?? src/Hexalith.Conversations.Contracts/Events/\n?? src/Hexalith.Conversations.Contracts/Identifiers/\n?? src/Hexalith.Conversations.Contracts/Projections/\n?? src/Hexalith.Conversations.Contracts/Results/\n?? src/Hexalith.Conversations.Contracts/TrustStates/\n?? src/Hexalith.Conversations.Contracts/Versioning/\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs\n",
++      "stderr": "",
++      "dirty_path_count": 17,
++      "result": "fail",
++      "details": "17 dirty path(s)"
++    }
++  ],
++  "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."
++}
+\ No newline at end of file
+diff --git a/_bmad-output/process-notes/predev-preflight-latest.json b/_bmad-output/process-notes/predev-preflight-latest.json
+index 69ae153..2adfa97 100644
+--- a/_bmad-output/process-notes/predev-preflight-latest.json
++++ b/_bmad-output/process-notes/predev-preflight-latest.json
+@@ -1,7 +1,7 @@
+ {
+   "schema_version": 1,
+   "produced_by": "jobs/preflight-predev-hardening.py",
+-  "timestamp": "2026-05-18T11:01:50Z",
++  "timestamp": "2026-05-18T14:02:00Z",
+   "repo": "D:\\Hexalith.Conversations",
+   "result": "fail",
+   "bootstrap_actions": [],
+@@ -12,7 +12,7 @@
+       "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
+       "result": "pass",
+       "details": "PARSE OK",
+-      "file_size_bytes": 5861,
++      "file_size_bytes": 5862,
+       "line_count": 112,
+       "top_level_keys": [
+         "development_status",
+@@ -63,11 +63,11 @@
+         ":(exclude)_bmad-output/process-notes/preflight-latest.json"
+       ],
+       "exit_code": 0,
+-      "stdout": " M _bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n?? _bmad-output/implementation-artifacts/1-10-publish-versioned-conversation-domain-events.md\n",
++      "stdout": " M README.md\n M _bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n M tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs\n?? src/Hexalith.Conversations.Contracts/Commands/\n?? src/Hexalith.Conversations.Contracts/Errors/\n?? src/Hexalith.Conversations.Contracts/Events/\n?? src/Hexalith.Conversations.Contracts/Identifiers/\n?? src/Hexalith.Conversations.Contracts/Projections/\n?? src/Hexalith.Conversations.Contracts/Results/\n?? src/Hexalith.Conversations.Contracts/TrustStates/\n?? src/Hexalith.Conversations.Contracts/Versioning/\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs\n",
+       "stderr": "",
+-      "dirty_path_count": 3,
++      "dirty_path_count": 17,
+       "result": "fail",
+-      "details": "3 dirty path(s)"
++      "details": "17 dirty path(s)"
+     }
+   ],
+   "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs
+new file mode 100644
+index 0000000..cf66f3a
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs
+@@ -0,0 +1,19 @@
++// <copyright file="AddParticipantCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests that a stable Party reference be added as a conversation participant.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="participantPartyId">The stable Party reference to add.</param>
++public sealed record AddParticipantCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    PartyId ParticipantPartyId);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs
+new file mode 100644
+index 0000000..c658d37
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs
+@@ -0,0 +1,25 @@
++// <copyright file="AppendMessageCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests that a message be appended to a conversation.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="messageId">The stable message identity.</param>
++/// <param name="authorPartyId">The stable Party reference for the message author.</param>
++/// <param name="text">The message text supplied by the caller.</param>
++/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
++public sealed record AppendMessageCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    MessageId MessageId,
++    PartyId AuthorPartyId,
++    string Text,
++    ProviderCorrelationMetadata? ProviderCorrelation = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs
+new file mode 100644
+index 0000000..2c56caa
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs
+@@ -0,0 +1,19 @@
++// <copyright file="ArchiveConversationCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests that a closed conversation be archived.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="reasonCode">An optional safe reason code.</param>
++public sealed record ArchiveConversationCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    string? ReasonCode = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs
+new file mode 100644
+index 0000000..382c6d2
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs
+@@ -0,0 +1,23 @@
++// <copyright file="AttachFileReferenceCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests that a stable upstream file reference be attached to a conversation.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="fileId">The stable upstream file reference.</param>
++/// <param name="folderId">An optional stable upstream folder reference.</param>
++/// <param name="messageId">An optional stable message reference associated with the file.</param>
++public sealed record AttachFileReferenceCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    FileId FileId,
++    FolderId? FolderId = null,
++    MessageId? MessageId = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs
+new file mode 100644
+index 0000000..dec207a
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs
+@@ -0,0 +1,19 @@
++// <copyright file="CloseConversationCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests that a conversation be closed.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="reasonCode">An optional safe reason code.</param>
++public sealed record CloseConversationCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    string? ReasonCode = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs b/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs
+new file mode 100644
+index 0000000..b7bac34
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs
+@@ -0,0 +1,26 @@
++// <copyright file="ConversationCommandMetadata.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Carries tenant, actor, version, correlation, causation, and idempotency metadata for public commands.
++/// </summary>
++/// <param name="schemaVersion">The command schema version.</param>
++/// <param name="tenantId">The tenant binding for the command.</param>
++/// <param name="actorPartyId">The stable actor Party reference.</param>
++/// <param name="correlationId">The caller correlation identifier.</param>
++/// <param name="causationId">The optional causal operation identifier.</param>
++/// <param name="idempotencyKey">The optional caller idempotency key.</param>
++public sealed record ConversationCommandMetadata(
++    SchemaVersion SchemaVersion,
++    TenantId TenantId,
++    PartyId ActorPartyId,
++    string CorrelationId,
++    string? CausationId = null,
++    string? IdempotencyKey = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs
+new file mode 100644
+index 0000000..1cf1b93
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs
+@@ -0,0 +1,25 @@
++// <copyright file="CreateConversationCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests creation of a tenant-scoped conversation.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="projectId">An optional stable project reference.</param>
++/// <param name="folderId">An optional stable folder reference.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
++public sealed record CreateConversationCommand(
++    ConversationCommandMetadata Metadata,
++    BusinessReference? BusinessReference = null,
++    ProjectId? ProjectId = null,
++    FolderId? FolderId = null,
++    string? Label = null,
++    ProviderCorrelationMetadata? ProviderCorrelation = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs
+new file mode 100644
+index 0000000..cd72d00
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs
+@@ -0,0 +1,23 @@
++// <copyright file="UpdateConversationMetadataCommand.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Commands;
++
++/// <summary>
++/// Requests a safe metadata update for a conversation.
++/// </summary>
++/// <param name="metadata">The command metadata.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="attributes">Optional safe adopter metadata.</param>
++public sealed record UpdateConversationMetadataCommand(
++    ConversationCommandMetadata Metadata,
++    ConversationId ConversationId,
++    string? Label = null,
++    BusinessReference? BusinessReference = null,
++    IReadOnlyDictionary<string, string>? Attributes = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs
+new file mode 100644
+index 0000000..9dfa7c3
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs
+@@ -0,0 +1,31 @@
++// <copyright file="ConversationError.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Errors;
++
++/// <summary>
++/// Describes a content-safe machine-readable Conversations failure.
++/// </summary>
++/// <param name="schemaVersion">The error schema version.</param>
++/// <param name="code">The stable machine-readable error code.</param>
++/// <param name="category">The broad machine-readable error category.</param>
++/// <param name="isRetryable">A value indicating whether retry is meaningful.</param>
++/// <param name="correlationId">The safe correlation identifier.</param>
++/// <param name="auditHandle">An optional safe audit handle.</param>
++/// <param name="documentation">An optional documentation pointer.</param>
++/// <param name="safeFieldDiagnostics">Optional non-disclosing field diagnostics.</param>
++/// <param name="developerGuidance">Optional safe developer guidance.</param>
++public sealed record ConversationError(
++    SchemaVersion SchemaVersion,
++    string Code,
++    string Category,
++    bool IsRetryable,
++    string CorrelationId,
++    string? AuditHandle = null,
++    Uri? Documentation = null,
++    IReadOnlyDictionary<string, string>? SafeFieldDiagnostics = null,
++    string? DeveloperGuidance = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
+new file mode 100644
+index 0000000..f308f9a
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
+@@ -0,0 +1,57 @@
++// <copyright file="ConversationErrorCode.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Errors;
++
++/// <summary>
++/// Defines stable machine-readable Conversations error codes.
++/// </summary>
++public static class ConversationErrorCode
++{
++    /// <summary>
++    /// The tenant binding is missing.
++    /// </summary>
++    public const string TenantBindingMissing = "tenant_binding_missing";
++
++    /// <summary>
++    /// Tenant isolation prevented the operation.
++    /// </summary>
++    public const string TenantIsolationViolation = "tenant_isolation_violation";
++
++    /// <summary>
++    /// Tenant projection state is stale.
++    /// </summary>
++    public const string TenantProjectionStale = "tenant_projection_stale";
++
++    /// <summary>
++    /// The audit sink is unavailable.
++    /// </summary>
++    public const string AuditSinkUnavailable = "audit_sink_unavailable";
++
++    /// <summary>
++    /// Required audit pairing is missing.
++    /// </summary>
++    public const string AuditPairingRequired = "audit_pairing_required";
++
++    /// <summary>
++    /// The idempotency key conflicts with a prior request.
++    /// </summary>
++    public const string IdempotencyConflict = "idempotency_conflict";
++
++    /// <summary>
++    /// The aggregate is hidden or unavailable to the caller.
++    /// </summary>
++    public const string AggregateNotFound = "aggregate_not_found";
++
++    /// <summary>
++    /// The requested schema version is unsupported.
++    /// </summary>
++    public const string SchemaVersionUnsupported = "schema_version_unsupported";
++
++    /// <summary>
++    /// Command validation failed.
++    /// </summary>
++    public const string CommandValidationFailed = "command_validation_failed";
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs
+new file mode 100644
+index 0000000..802329b
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs
+@@ -0,0 +1,12 @@
++// <copyright file="ConversationErrorResult.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Errors;
++
++/// <summary>
++/// Wraps one or more content-safe Conversations errors.
++/// </summary>
++/// <param name="errors">The content-safe machine-readable errors.</param>
++public sealed record ConversationErrorResult(IReadOnlyList<ConversationError> Errors);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs
+new file mode 100644
+index 0000000..c791d5a
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs
+@@ -0,0 +1,15 @@
++// <copyright file="ConversationArchived.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a conversation was archived.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="reasonCode">An optional safe reason code.</param>
++public sealed record ConversationArchived(
++    ConversationEventMetadata Metadata,
++    string? ReasonCode = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs
+new file mode 100644
+index 0000000..a079f96
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs
+@@ -0,0 +1,15 @@
++// <copyright file="ConversationClosed.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a conversation was closed.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="reasonCode">An optional safe reason code.</param>
++public sealed record ConversationClosed(
++    ConversationEventMetadata Metadata,
++    string? ReasonCode = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs
+new file mode 100644
+index 0000000..d9cde3f
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs
+@@ -0,0 +1,25 @@
++// <copyright file="ConversationCreated.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a conversation was created.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="projectId">An optional stable project reference.</param>
++/// <param name="folderId">An optional stable folder reference.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
++public sealed record ConversationCreated(
++    ConversationEventMetadata Metadata,
++    BusinessReference? BusinessReference = null,
++    ProjectId? ProjectId = null,
++    FolderId? FolderId = null,
++    string? Label = null,
++    ProviderCorrelationMetadata? ProviderCorrelation = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs
+new file mode 100644
+index 0000000..c435210
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs
+@@ -0,0 +1,30 @@
++// <copyright file="ConversationEventMetadata.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Carries public event metadata without exposing persistence substrate mechanics.
++/// </summary>
++/// <param name="schemaVersion">The event schema version.</param>
++/// <param name="eventType">The public Conversations event type.</param>
++/// <param name="tenantId">The tenant binding.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="actorPartyId">The optional stable actor Party reference.</param>
++/// <param name="correlationId">The correlation identifier.</param>
++/// <param name="causationId">The optional causation identifier.</param>
++/// <param name="committedAt">The committed timestamp for the public contract.</param>
++public sealed record ConversationEventMetadata(
++    SchemaVersion SchemaVersion,
++    string EventType,
++    TenantId TenantId,
++    ConversationId ConversationId,
++    PartyId? ActorPartyId,
++    string CorrelationId,
++    string? CausationId,
++    DateTimeOffset CommittedAt);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs
+new file mode 100644
+index 0000000..fb179e0
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs
+@@ -0,0 +1,21 @@
++// <copyright file="ConversationMetadataUpdated.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that safe conversation metadata changed.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="attributes">Optional safe adopter metadata.</param>
++public sealed record ConversationMetadataUpdated(
++    ConversationEventMetadata Metadata,
++    string? Label = null,
++    BusinessReference? BusinessReference = null,
++    IReadOnlyDictionary<string, string>? Attributes = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs b/src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs
+new file mode 100644
+index 0000000..bcf01ed
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs
+@@ -0,0 +1,21 @@
++// <copyright file="FileReferenceAttached.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a stable upstream file reference was attached.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="fileId">The stable upstream file reference.</param>
++/// <param name="folderId">An optional stable upstream folder reference.</param>
++/// <param name="messageId">An optional stable message reference associated with the file.</param>
++public sealed record FileReferenceAttached(
++    ConversationEventMetadata Metadata,
++    FileId FileId,
++    FolderId? FolderId = null,
++    MessageId? MessageId = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs b/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs
+new file mode 100644
+index 0000000..2d9f89a
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs
+@@ -0,0 +1,23 @@
++// <copyright file="MessageAppended.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a message was appended to a conversation.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="messageId">The stable message identity.</param>
++/// <param name="authorPartyId">The stable Party reference for the author.</param>
++/// <param name="text">The message text supplied by the caller.</param>
++/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
++public sealed record MessageAppended(
++    ConversationEventMetadata Metadata,
++    MessageId MessageId,
++    PartyId AuthorPartyId,
++    string Text,
++    ProviderCorrelationMetadata? ProviderCorrelation = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs b/src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs
+new file mode 100644
+index 0000000..69dfc90
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs
+@@ -0,0 +1,17 @@
++// <copyright file="ParticipantAdded.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Records that a participant Party reference was added to a conversation.
++/// </summary>
++/// <param name="metadata">The public event metadata.</param>
++/// <param name="participantPartyId">The stable Party reference added as participant.</param>
++public sealed record ParticipantAdded(
++    ConversationEventMetadata Metadata,
++    PartyId ParticipantPartyId);
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs b/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs
+new file mode 100644
+index 0000000..7c5c064
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs
+@@ -0,0 +1,35 @@
++// <copyright file="BusinessReference.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// Carries an adopter-owned external business reference without making it conversation identity.
++/// </summary>
++public sealed record BusinessReference
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="BusinessReference"/> class.
++    /// </summary>
++    /// <param name="system">The owning business system or namespace.</param>
++    /// <param name="value">The business reference value in the owning system.</param>
++    public BusinessReference(string system, string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(system);
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        System = system;
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the owning business system or namespace.
++    /// </summary>
++    public string System { get; init; }
++
++    /// <summary>
++    /// Gets the business reference value in the owning system.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs
+new file mode 100644
+index 0000000..b50dd57
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs
+@@ -0,0 +1,28 @@
++// <copyright file="ConversationId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// Identifies a Conversations-owned conversation within a tenant scope.
++/// </summary>
++public sealed record ConversationId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="ConversationId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque durable conversation identifier.</param>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++    public ConversationId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque durable conversation identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs
+new file mode 100644
+index 0000000..725a809
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="FileId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// References an upstream file identity without carrying file bytes.
++/// </summary>
++public sealed record FileId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="FileId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable file identifier.</param>
++    public FileId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable file identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs
+new file mode 100644
+index 0000000..2b0619b
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="FolderId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// References an upstream folder identity without copying folder state.
++/// </summary>
++public sealed record FolderId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="FolderId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable folder identifier.</param>
++    public FolderId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable folder identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs
+new file mode 100644
+index 0000000..d3d9610
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="MessageId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// Identifies a message within a tenant-scoped conversation.
++/// </summary>
++public sealed record MessageId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="MessageId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable message identifier.</param>
++    public MessageId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable message identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs
+new file mode 100644
+index 0000000..a492581
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="PartyId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// References an upstream Party identity without carrying personal profile data.
++/// </summary>
++public sealed record PartyId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="PartyId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable Party identifier.</param>
++    public PartyId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable Party identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs
+new file mode 100644
+index 0000000..bf1ba24
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="ProjectId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// References an upstream project identity without copying project state.
++/// </summary>
++public sealed record ProjectId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="ProjectId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable project identifier.</param>
++    public ProjectId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable project identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs
+new file mode 100644
+index 0000000..41c48f1
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs
+@@ -0,0 +1,25 @@
++// <copyright file="ProviderCorrelationMetadata.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// Stores opaque provider correlation metadata that is never authoritative identity.
++/// </summary>
++/// <param name="providerName">The provider name as safe correlation metadata.</param>
++/// <param name="providerType">The provider category as safe correlation metadata.</param>
++/// <param name="metadataSchemaVersion">The schema version for the provider metadata extension.</param>
++/// <param name="providerSessionReference">An optional provider session reference used only for correlation.</param>
++/// <param name="providerResponseReference">An optional provider response reference used only for correlation.</param>
++/// <param name="extensionData">A bounded opaque extension bag with safe string values.</param>
++public sealed record ProviderCorrelationMetadata(
++    string ProviderName,
++    string ProviderType,
++    SchemaVersion MetadataSchemaVersion,
++    string? ProviderSessionReference = null,
++    string? ProviderResponseReference = null,
++    IReadOnlyDictionary<string, string>? ExtensionData = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs
+new file mode 100644
+index 0000000..e4ebba9
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs
+@@ -0,0 +1,27 @@
++// <copyright file="TenantId.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Identifiers;
++
++/// <summary>
++/// References an upstream tenant identity without copying tenant lifecycle or authorization state.
++/// </summary>
++public sealed record TenantId
++{
++    /// <summary>
++    /// Initializes a new instance of the <see cref="TenantId"/> class.
++    /// </summary>
++    /// <param name="value">The opaque stable tenant identifier.</param>
++    public TenantId(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the opaque stable tenant identifier.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs b/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs
+new file mode 100644
+index 0000000..0f19889
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs
+@@ -0,0 +1,27 @@
++// <copyright file="ConversationMessageProjection.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Projections;
++
++/// <summary>
++/// Minimal adopter-facing conversation message read contract.
++/// </summary>
++/// <param name="tenantId">The tenant binding.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="messageId">The stable message identity.</param>
++/// <param name="authorPartyId">The stable Party reference for the author.</param>
++/// <param name="text">The message text visible to the caller.</param>
++/// <param name="createdAt">The public message creation timestamp.</param>
++/// <param name="freshness">The freshness and trust state.</param>
++public sealed record ConversationMessageProjection(
++    TenantId TenantId,
++    ConversationId ConversationId,
++    MessageId MessageId,
++    PartyId AuthorPartyId,
++    string Text,
++    DateTimeOffset CreatedAt,
++    ProjectionFreshness Freshness);
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs b/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs
+new file mode 100644
+index 0000000..d6163c9
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs
+@@ -0,0 +1,25 @@
++// <copyright file="ConversationSummaryProjection.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Projections;
++
++/// <summary>
++/// Minimal adopter-facing conversation summary contract.
++/// </summary>
++/// <param name="tenantId">The tenant binding.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="freshness">The freshness and trust state.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="participantPartyIds">Stable participant Party references.</param>
++public sealed record ConversationSummaryProjection(
++    TenantId TenantId,
++    ConversationId ConversationId,
++    ProjectionFreshness Freshness,
++    string? Label = null,
++    BusinessReference? BusinessReference = null,
++    IReadOnlyList<PartyId>? ParticipantPartyIds = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs b/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs
+new file mode 100644
+index 0000000..65a3ae6
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs
+@@ -0,0 +1,22 @@
++// <copyright file="ProjectionFreshness.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.TrustStates;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Projections;
++
++/// <summary>
++/// Describes the freshness and trust state of a public read contract.
++/// </summary>
++/// <param name="state">The public trust state.</param>
++/// <param name="observedAt">The time at which the read state was observed.</param>
++/// <param name="schemaVersion">The projection contract schema version.</param>
++/// <param name="guidance">Optional safe developer guidance.</param>
++public sealed record ProjectionFreshness(
++    ProjectionTrustState State,
++    DateTimeOffset ObservedAt,
++    SchemaVersion SchemaVersion,
++    string? Guidance = null);
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs
+new file mode 100644
+index 0000000..1b65720
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs
+@@ -0,0 +1,28 @@
++// <copyright file="ConversationCommandAcceptedResult.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Results;
++
++/// <summary>
++/// Reports stable acceptance metadata for a command.
++/// </summary>
++/// <param name="schemaVersion">The result schema version.</param>
++/// <param name="tenantId">The tenant binding.</param>
++/// <param name="conversationId">The tenant-scoped conversation identity.</param>
++/// <param name="commandType">The accepted public command type.</param>
++/// <param name="correlationId">The accepted correlation identifier.</param>
++/// <param name="idempotencyKey">The accepted idempotency key, when provided.</param>
++/// <param name="visibility">The read-model visibility caveat.</param>
++public sealed record ConversationCommandAcceptedResult(
++    SchemaVersion SchemaVersion,
++    TenantId TenantId,
++    ConversationId ConversationId,
++    string CommandType,
++    string CorrelationId,
++    string? IdempotencyKey,
++    ReadModelVisibility Visibility);
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs b/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs
+new file mode 100644
+index 0000000..9911da7
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs
+@@ -0,0 +1,26 @@
++// <copyright file="ConversationCreatedResult.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Results;
++
++/// <summary>
++/// Reports the assigned tenant-scoped conversation identity for create operations.
++/// </summary>
++/// <param name="schemaVersion">The result schema version.</param>
++/// <param name="tenantId">The tenant binding.</param>
++/// <param name="conversationId">The assigned tenant-scoped conversation identity.</param>
++/// <param name="correlationId">The accepted correlation identifier.</param>
++/// <param name="idempotencyKey">The accepted idempotency key, when provided.</param>
++/// <param name="visibility">The read-model visibility caveat.</param>
++public sealed record ConversationCreatedResult(
++    SchemaVersion SchemaVersion,
++    TenantId TenantId,
++    ConversationId ConversationId,
++    string CorrelationId,
++    string? IdempotencyKey,
++    ReadModelVisibility Visibility);
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs b/src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs
+new file mode 100644
+index 0000000..ac645f7
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs
+@@ -0,0 +1,17 @@
++// <copyright file="ReadModelVisibility.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.TrustStates;
++
++namespace Hexalith.Conversations.Contracts.Results;
++
++/// <summary>
++/// Describes the expected read-model visibility caveat for an accepted command.
++/// </summary>
++/// <param name="state">The expected trust state after command acceptance.</param>
++/// <param name="guidance">Optional safe developer guidance.</param>
++public sealed record ReadModelVisibility(
++    ProjectionTrustState State,
++    string? Guidance = null);
+diff --git a/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs b/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs
+new file mode 100644
+index 0000000..a900b95
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs
+@@ -0,0 +1,57 @@
++// <copyright file="ProjectionTrustState.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.TrustStates;
++
++/// <summary>
++/// Represents the public trust and freshness vocabulary for read contracts.
++/// </summary>
++public sealed record ProjectionTrustState
++{
++    /// <summary>
++    /// Gets the current trust state.
++    /// </summary>
++    public static ProjectionTrustState Current { get; } = new(nameof(Current));
++
++    /// <summary>
++    /// Gets the stale trust state.
++    /// </summary>
++    public static ProjectionTrustState Stale { get; } = new(nameof(Stale));
++
++    /// <summary>
++    /// Gets the rebuilding trust state.
++    /// </summary>
++    public static ProjectionTrustState Rebuilding { get; } = new(nameof(Rebuilding));
++
++    /// <summary>
++    /// Gets the unavailable trust state.
++    /// </summary>
++    public static ProjectionTrustState Unavailable { get; } = new(nameof(Unavailable));
++
++    /// <summary>
++    /// Gets the forbidden trust state.
++    /// </summary>
++    public static ProjectionTrustState Forbidden { get; } = new(nameof(Forbidden));
++
++    /// <summary>
++    /// Gets the redacted trust state.
++    /// </summary>
++    public static ProjectionTrustState Redacted { get; } = new(nameof(Redacted));
++
++    /// <summary>
++    /// Initializes a new instance of the <see cref="ProjectionTrustState"/> class.
++    /// </summary>
++    /// <param name="value">The trust state value.</param>
++    public ProjectionTrustState(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the trust state value.
++    /// </summary>
++    public string Value { get; init; }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs b/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs
+new file mode 100644
+index 0000000..fd05ea3
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs
+@@ -0,0 +1,28 @@
++// <copyright file="ContractVersionInfo.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Versioning;
++
++/// <summary>
++/// Describes active contract and schema versions exposed to adopters.
++/// </summary>
++/// <param name="contractName">The public contract family name.</param>
++/// <param name="activeSchemaVersion">The active schema version.</param>
++/// <param name="minimumSupportedSchemaVersion">The minimum supported schema version.</param>
++public sealed record ContractVersionInfo(
++    string ContractName,
++    SchemaVersion ActiveSchemaVersion,
++    SchemaVersion MinimumSupportedSchemaVersion);
++
++/// <summary>
++/// Reports an unsupported schema version without exposing runtime details.
++/// </summary>
++/// <param name="requestedSchemaVersion">The requested unsupported schema version.</param>
++/// <param name="activeSchemaVersion">The active schema version.</param>
++/// <param name="minimumSupportedSchemaVersion">The minimum supported schema version.</param>
++public sealed record UnsupportedSchemaVersion(
++    SchemaVersion RequestedSchemaVersion,
++    SchemaVersion ActiveSchemaVersion,
++    SchemaVersion MinimumSupportedSchemaVersion);
+diff --git a/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs b/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs
+new file mode 100644
+index 0000000..5be73b6
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs
+@@ -0,0 +1,32 @@
++// <copyright file="SchemaVersion.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.Contracts.Versioning;
++
++/// <summary>
++/// Represents an explicit positive integer schema version.
++/// </summary>
++public sealed record SchemaVersion
++{
++    /// <summary>
++    /// Gets the current v1 contract schema version.
++    /// </summary>
++    public static SchemaVersion Current { get; } = new(1);
++
++    /// <summary>
++    /// Initializes a new instance of the <see cref="SchemaVersion"/> class.
++    /// </summary>
++    /// <param name="value">The positive schema version number.</param>
++    public SchemaVersion(int value)
++    {
++        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the positive schema version number.
++    /// </summary>
++    public int Value { get; init; }
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs
+new file mode 100644
+index 0000000..41fc30a
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs
+@@ -0,0 +1,92 @@
++// <copyright file="ContractMetadataTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Reflection;
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Events;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++/// <summary>
++/// Verifies tenant, version, actor, correlation, causation, and idempotency metadata presence.
++/// </summary>
++public sealed class ContractMetadataTest
++{
++    /// <summary>
++    /// Ensures mutating commands carry the required envelope metadata.
++    /// </summary>
++    [Fact]
++    public void CommandContractsShouldCarryRequiredMetadata()
++    {
++        Type[] commandTypes =
++        [
++            typeof(CreateConversationCommand),
++            typeof(AppendMessageCommand),
++            typeof(AddParticipantCommand),
++            typeof(AttachFileReferenceCommand),
++            typeof(UpdateConversationMetadataCommand),
++            typeof(CloseConversationCommand),
++            typeof(ArchiveConversationCommand),
++        ];
++
++        foreach (Type commandType in commandTypes)
++        {
++            commandType.GetProperty(nameof(CreateConversationCommand.Metadata)).ShouldNotBeNull(commandType.Name);
++        }
++
++        PropertyInfo[] metadataProperties = typeof(ConversationCommandMetadata).GetProperties();
++        metadataProperties.Select(p => p.Name).ShouldBe(
++            [
++                "SchemaVersion",
++                "TenantId",
++                "ActorPartyId",
++                "CorrelationId",
++                "CausationId",
++                "IdempotencyKey",
++            ],
++            ignoreOrder: true);
++    }
++
++    /// <summary>
++    /// Ensures event contracts carry required public event metadata without substrate details.
++    /// </summary>
++    [Fact]
++    public void EventContractsShouldCarryRequiredMetadata()
++    {
++        Type[] eventTypes =
++        [
++            typeof(ConversationCreated),
++            typeof(MessageAppended),
++            typeof(ParticipantAdded),
++            typeof(FileReferenceAttached),
++            typeof(ConversationMetadataUpdated),
++            typeof(ConversationClosed),
++            typeof(ConversationArchived),
++        ];
++
++        foreach (Type eventType in eventTypes)
++        {
++            eventType.GetProperty(nameof(ConversationCreated.Metadata)).ShouldNotBeNull(eventType.Name);
++        }
++
++        typeof(ConversationEventMetadata).GetProperties().Select(p => p.Name).ShouldBe(
++            [
++                "SchemaVersion",
++                "EventType",
++                "TenantId",
++                "ConversationId",
++                "ActorPartyId",
++                "CorrelationId",
++                "CausationId",
++                "CommittedAt",
++            ],
++            ignoreOrder: true);
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+new file mode 100644
+index 0000000..c3b0c56
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+@@ -0,0 +1,123 @@
++// <copyright file="ContractSamples.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Projections;
++using Hexalith.Conversations.Contracts.Results;
++using Hexalith.Conversations.Contracts.TrustStates;
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++internal static class ContractSamples
++{
++    internal static readonly SchemaVersion Version = new(1);
++    internal static readonly TenantId Tenant = new("tenant-001");
++    internal static readonly ConversationId Conversation = new("conversation-001");
++    internal static readonly PartyId Actor = new("party-actor");
++    internal static readonly PartyId Participant = new("party-participant");
++    internal static readonly MessageId Message = new("message-001");
++    internal static readonly ProjectId Project = new("project-001");
++    internal static readonly FolderId Folder = new("folder-001");
++    internal static readonly FileId File = new("file-001");
++    internal static readonly BusinessReference Business = new("crm", "case-123");
++
++    internal static readonly ProviderCorrelationMetadata ProviderCorrelation = new(
++        "provider-a",
++        "assistant",
++        Version,
++        "session-reference",
++        "response-reference",
++        new Dictionary<string, string>
++        {
++            ["region"] = "eu",
++        });
++
++    internal static readonly ConversationCommandMetadata CommandMetadata = new(
++        Version,
++        Tenant,
++        Actor,
++        "correlation-001",
++        "causation-001",
++        "idempotency-001");
++
++    internal static readonly ConversationEventMetadata EventMetadata = new(
++        Version,
++        "ConversationCreated",
++        Tenant,
++        Conversation,
++        Actor,
++        "correlation-001",
++        "causation-001",
++        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero));
++
++    internal static readonly ProjectionFreshness Freshness = new(
++        ProjectionTrustState.Current,
++        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
++        Version,
++        "Visible after accepted writes are projected.");
++
++    internal static readonly ReadModelVisibility Visibility = new(
++        ProjectionTrustState.Stale,
++        "Read models may lag immediately after command acceptance.");
++
++    internal static IReadOnlyList<object> AllContracts =>
++    [
++        Version,
++        new ContractVersionInfo("Conversations", Version, Version),
++        new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
++        Tenant,
++        Conversation,
++        Actor,
++        Project,
++        Folder,
++        File,
++        Message,
++        Business,
++        ProviderCorrelation,
++        CommandMetadata,
++        new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
++        new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
++        new AddParticipantCommand(CommandMetadata, Conversation, Participant),
++        new AttachFileReferenceCommand(CommandMetadata, Conversation, File, Folder, Message),
++        new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
++        new CloseConversationCommand(CommandMetadata, Conversation, "resolved"),
++        new ArchiveConversationCommand(CommandMetadata, Conversation, "retained"),
++        EventMetadata,
++        new ConversationCreated(EventMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
++        new MessageAppended(EventMetadata, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
++        new ParticipantAdded(EventMetadata, Participant),
++        new FileReferenceAttached(EventMetadata, File, Folder, Message),
++        new ConversationMetadataUpdated(EventMetadata, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
++        new ConversationClosed(EventMetadata, "resolved"),
++        new ConversationArchived(EventMetadata, "retained"),
++        ProjectionTrustState.Current,
++        Freshness,
++        new ConversationSummaryProjection(Tenant, Conversation, Freshness, "Case 123", Business, [Actor, Participant]),
++        new ConversationMessageProjection(Tenant, Conversation, Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, Freshness),
++        Visibility,
++        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, "AppendMessageCommand", "correlation-001", "idempotency-001", Visibility),
++        new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
++        SafeError(ConversationErrorCode.TenantIsolationViolation),
++        new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
++    ];
++
++    internal static ConversationError SafeError(string code) => new(
++        Version,
++        code,
++        "authorization",
++        false,
++        "correlation-001",
++        "audit-001",
++        new Uri("https://docs.hexalith.local/conversations/errors"),
++        new Dictionary<string, string>
++        {
++            ["target"] = "hidden",
++        },
++        "The requested operation was not accepted.");
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs
+new file mode 100644
+index 0000000..c6af4a0
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs
+@@ -0,0 +1,124 @@
++// <copyright file="ContractSerializationTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json;
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Projections;
++using Hexalith.Conversations.Contracts.Results;
++using Hexalith.Conversations.Contracts.TrustStates;
++using Hexalith.Conversations.Contracts.Versioning;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++/// <summary>
++/// Verifies JSON compatibility for public contract DTOs.
++/// </summary>
++public sealed class ContractSerializationTest
++{
++    private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
++
++    /// <summary>
++    /// Ensures every public sample contract survives System.Text.Json web-default round-trip serialization.
++    /// </summary>
++    [Fact]
++    public void PublicContractsShouldRoundTripWithSystemTextJsonWebDefaults()
++    {
++        foreach (object sample in ContractSamples.AllContracts)
++        {
++            string json = JsonSerializer.Serialize(sample, sample.GetType(), WebOptions);
++            object? deserialized = JsonSerializer.Deserialize(json, sample.GetType(), WebOptions);
++
++            deserialized.ShouldNotBeNull(sample.GetType().FullName);
++        }
++    }
++
++    /// <summary>
++    /// Verifies stable representative wire shapes.
++    /// </summary>
++    [Fact]
++    public void RepresentativeFixturesShouldKeepStableCamelCaseJsonShapes()
++    {
++        AssertJsonEquivalent(
++            """
++            {"metadata":{"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
++            """,
++            new CreateConversationCommand(
++                ContractSamples.CommandMetadata,
++                ContractSamples.Business,
++                ContractSamples.Project,
++                ContractSamples.Folder,
++                "Case 123",
++                ContractSamples.ProviderCorrelation));
++
++        AssertJsonEquivalent(
++            """
++            {"metadata":{"schemaVersion":{"value":1},"eventType":"ConversationCreated","tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","committedAt":"2026-05-18T11:00:00+00:00"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
++            """,
++            new ConversationCreated(
++                ContractSamples.EventMetadata,
++                ContractSamples.Business,
++                ContractSamples.Project,
++                ContractSamples.Folder,
++                "Case 123",
++                ContractSamples.ProviderCorrelation));
++
++        AssertJsonEquivalent(
++            """
++            {"schemaVersion":{"value":1},"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
++            """,
++            ContractSamples.SafeError(ConversationErrorCode.TenantIsolationViolation));
++
++        AssertJsonEquivalent(
++            """
++            {"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":{"value":"Stale"},"guidance":"Read models may lag immediately after command acceptance."}}
++            """,
++            new ConversationCreatedResult(
++                ContractSamples.Version,
++                ContractSamples.Tenant,
++                ContractSamples.Conversation,
++                "correlation-001",
++                "idempotency-001",
++                ContractSamples.Visibility));
++
++        AssertJsonEquivalent(
++            """
++            {"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"freshness":{"state":{"value":"Current"},"observedAt":"2026-05-18T11:00:00+00:00","schemaVersion":{"value":1},"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":[{"value":"party-actor"},{"value":"party-participant"}]}
++            """,
++            new ConversationSummaryProjection(
++                ContractSamples.Tenant,
++                ContractSamples.Conversation,
++                ContractSamples.Freshness,
++                "Case 123",
++                ContractSamples.Business,
++                [ContractSamples.Actor, ContractSamples.Participant]));
++
++        AssertJsonEquivalent(
++            """
++            {"value":"Current"}
++            """,
++            ProjectionTrustState.Current);
++
++        AssertJsonEquivalent(
++            """
++            {"value":1}
++            """,
++            SchemaVersion.Current);
++    }
++
++    private static void AssertJsonEquivalent(string expected, object value)
++    {
++        using JsonDocument expectedDocument = JsonDocument.Parse(expected);
++        using JsonDocument actualDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
++
++        actualDocument.RootElement.ToString().ShouldBe(expectedDocument.RootElement.ToString());
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
+index b0e6f70..cac256e 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
+@@ -8,6 +8,7 @@ using Hexalith.Conversations.Contracts;
+ using Shouldly;
+ 
+ using Xunit;
++using System.Xml.Linq;
+ 
+ namespace Hexalith.Conversations.Contracts.Tests;
+ 
+@@ -20,7 +21,11 @@ public sealed class ContractsAssemblyBoundaryTest
+     [
+         "Dapr",
+         "Hexalith.EventStore",
++        "Hexalith.Folders",
+         "Hexalith.FrontComposer",
++        "Hexalith.Parties",
++        "Hexalith.Projects",
++        "Hexalith.Tenants",
+         "Microsoft.AspNetCore",
+         "System.Net.Http",
+     ];
+@@ -42,4 +47,67 @@ public sealed class ContractsAssemblyBoundaryTest
+             references.ShouldNotContain(name => name.StartsWith(forbiddenPrefix, StringComparison.Ordinal));
+         }
+     }
++
++    /// <summary>
++    /// Ensures the contracts project file does not declare forbidden package or project references.
++    /// </summary>
++    [Fact]
++    public void ContractsProjectFileShouldNotDeclareForbiddenReferences()
++    {
++        string projectPath = Path.GetFullPath(Path.Combine(
++            AppContext.BaseDirectory,
++            "..",
++            "..",
++            "..",
++            "..",
++            "..",
++            "src",
++            "Hexalith.Conversations.Contracts",
++            "Hexalith.Conversations.Contracts.csproj"));
++
++        XDocument project = XDocument.Load(projectPath);
++        string[] references = project
++            .Descendants()
++            .Where(element => element.Name.LocalName is "PackageReference" or "ProjectReference" or "FrameworkReference")
++            .Select(element => element.Attribute("Include")?.Value ?? string.Empty)
++            .ToArray();
++
++        foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
++        {
++            references.ShouldNotContain(reference => reference.Contains(forbiddenPrefix, StringComparison.Ordinal));
++        }
++    }
++
++    /// <summary>
++    /// Ensures production contract source files do not import forbidden infrastructure namespaces.
++    /// </summary>
++    [Fact]
++    public void ContractsSourceFilesShouldNotImportForbiddenNamespaces()
++    {
++        string sourceRoot = Path.GetFullPath(Path.Combine(
++            AppContext.BaseDirectory,
++            "..",
++            "..",
++            "..",
++            "..",
++            "..",
++            "src",
++            "Hexalith.Conversations.Contracts"));
++
++        string[] sourceFiles = Directory
++            .GetFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
++            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
++                && !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
++            .ToArray();
++
++        foreach (string sourceFile in sourceFiles)
++        {
++            string source = File.ReadAllText(sourceFile);
++
++            foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
++            {
++                source.ShouldNotContain($"using {forbiddenPrefix}", Case.Insensitive, sourceFile);
++            }
++        }
++    }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs
+new file mode 100644
+index 0000000..be3dcee
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs
+@@ -0,0 +1,122 @@
++// <copyright file="ForbiddenPublicSurfaceTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Reflection;
++using System.Text.Json;
++
++using Hexalith.Conversations.Contracts;
++using Hexalith.Conversations.Contracts.Errors;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++/// <summary>
++/// Verifies public contracts do not expose infrastructure, personal-data, or unsafe provider details.
++/// </summary>
++public sealed class ForbiddenPublicSurfaceTest
++{
++    private static readonly string[] ForbiddenTerms =
++    [
++        "EventStore",
++        "Envelope",
++        "Snapshot",
++        "Stream",
++        "Sequence",
++        "ExpectedRevision",
++        "Checkpoint",
++        "SignalR",
++        "GroupName",
++        "ProjectionTopology",
++        "ProjectionName",
++        "Handler",
++        "Dispatcher",
++        "Repository",
++        "Token",
++        "Claim",
++        "Binary",
++        "Payload",
++        "Raw",
++        "Email",
++        "Phone",
++        "Avatar",
++        "DisplayName",
++        "Contact",
++        "Person",
++        "Organization",
++        "Exception",
++    ];
++
++    /// <summary>
++    /// Ensures type and property names avoid forbidden public vocabulary.
++    /// </summary>
++    [Fact]
++    public void PublicTypeAndPropertyNamesShouldAvoidForbiddenTerms()
++    {
++        Type[] exportedTypes = typeof(ContractsAssemblyMarker).Assembly.GetExportedTypes();
++
++        foreach (Type type in exportedTypes)
++        {
++            AssertNoForbiddenTerms(type.FullName ?? type.Name);
++
++            foreach (PropertyInfo property in type.GetProperties(BindingFlags.Instance | BindingFlags.Public))
++            {
++                AssertNoForbiddenTerms(property.Name);
++            }
++        }
++    }
++
++    /// <summary>
++    /// Ensures serialized JSON property names avoid forbidden vocabulary.
++    /// </summary>
++    [Fact]
++    public void SerializedJsonShouldAvoidForbiddenTerms()
++    {
++        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
++
++        foreach (object sample in ContractSamples.AllContracts)
++        {
++            string json = JsonSerializer.Serialize(sample, sample.GetType(), options);
++            AssertNoForbiddenTerms(json);
++        }
++    }
++
++    /// <summary>
++    /// Ensures content-safe fail-closed errors do not disclose inaccessible target facts.
++    /// </summary>
++    [Fact]
++    public void FailClosedErrorsShouldRemainContentSafe()
++    {
++        string[] failClosedCodes =
++        [
++            ConversationErrorCode.TenantIsolationViolation,
++            ConversationErrorCode.AggregateNotFound,
++            ConversationErrorCode.TenantProjectionStale,
++            ConversationErrorCode.AuditSinkUnavailable,
++            ConversationErrorCode.SchemaVersionUnsupported,
++        ];
++
++        foreach (string code in failClosedCodes)
++        {
++            string json = JsonSerializer.Serialize(ContractSamples.SafeError(code), new JsonSerializerOptions(JsonSerializerDefaults.Web));
++
++            json.ShouldNotContain("other-tenant", Case.Insensitive);
++            json.ShouldNotContain("exists", Case.Insensitive);
++            json.ShouldNotContain("redacted content", Case.Insensitive);
++            json.ShouldNotContain("provider-a", Case.Insensitive);
++            json.ShouldNotContain("storage", Case.Insensitive);
++        }
++    }
++
++    private static void AssertNoForbiddenTerms(string value)
++    {
++        foreach (string term in ForbiddenTerms)
++        {
++            value.ShouldNotContain(term, Case.Insensitive);
++        }
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs
+new file mode 100644
+index 0000000..2967390
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs
+@@ -0,0 +1,48 @@
++// <copyright file="IdentifierValidationTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.TrustStates;
++using Hexalith.Conversations.Contracts.Versioning;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++/// <summary>
++/// Verifies required public value contracts reject ambiguous empty values.
++/// </summary>
++public sealed class IdentifierValidationTest
++{
++    /// <summary>
++    /// Ensures identifier constructors reject empty values.
++    /// </summary>
++    [Fact]
++    public void StableIdentityContractsShouldRejectEmptyValues()
++    {
++        Should.Throw<ArgumentException>(() => new ConversationId(string.Empty));
++        Should.Throw<ArgumentException>(() => new TenantId(" "));
++        Should.Throw<ArgumentException>(() => new PartyId(string.Empty));
++        Should.Throw<ArgumentException>(() => new ProjectId(string.Empty));
++        Should.Throw<ArgumentException>(() => new FolderId(string.Empty));
++        Should.Throw<ArgumentException>(() => new FileId(string.Empty));
++        Should.Throw<ArgumentException>(() => new MessageId(string.Empty));
++        Should.Throw<ArgumentException>(() => new BusinessReference("crm", string.Empty));
++        Should.Throw<ArgumentException>(() => new ProjectionTrustState(string.Empty));
++        Should.Throw<ArgumentOutOfRangeException>(() => new SchemaVersion(0));
++    }
++
++    /// <summary>
++    /// Ensures provider correlation metadata remains separate from conversation identity.
++    /// </summary>
++    [Fact]
++    public void ProviderCorrelationShouldNotReplaceConversationIdentity()
++    {
++        ContractSamples.ProviderCorrelation.ProviderSessionReference.ShouldNotBe(ContractSamples.Conversation.Value);
++        ContractSamples.ProviderCorrelation.ProviderResponseReference.ShouldNotBe(ContractSamples.Conversation.Value);
++    }
++}
