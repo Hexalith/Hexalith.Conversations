@@ -12,6 +12,7 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// Carries public event metadata without exposing persistence substrate mechanics.
 /// </summary>
 /// <param name="schemaVersion">The event schema version.</param>
+/// <param name="eventId">The public event identity chosen by the producer.</param>
 /// <param name="eventType">The public Conversations event type.</param>
 /// <param name="tenantId">The tenant binding.</param>
 /// <param name="conversationId">The tenant-scoped conversation identity.</param>
@@ -21,10 +22,38 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// <param name="committedAt">The committed timestamp for the public contract.</param>
 public sealed record ConversationEventMetadata(
     SchemaVersion SchemaVersion,
-    string EventType,
+    string EventId,
+    ConversationEventType EventType,
     TenantId TenantId,
     ConversationId ConversationId,
-    PartyId? ActorPartyId,
     string CorrelationId,
-    string? CausationId,
-    DateTimeOffset CommittedAt);
+    DateTimeOffset CommittedAt,
+    PartyId? ActorPartyId = null,
+    string? CausationId = null)
+{
+    /// <summary>
+    /// Gets the public event identity chosen by the producer.
+    /// </summary>
+    public string EventId { get; } = ValidateRequired(EventId);
+
+    /// <summary>
+    /// Gets the correlation identifier.
+    /// </summary>
+    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
+
+    /// <summary>
+    /// Gets the committed timestamp for the public contract.
+    /// </summary>
+    public DateTimeOffset CommittedAt { get; } = ValidateTimestamp(CommittedAt);
+
+    private static string ValidateRequired(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
+
+    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
+        => value <= DateTimeOffset.MinValue
+            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
+            : value;
+}

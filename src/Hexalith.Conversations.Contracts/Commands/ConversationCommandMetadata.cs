@@ -23,4 +23,16 @@ public sealed record ConversationCommandMetadata(
     PartyId ActorPartyId,
     string CorrelationId,
     string? CausationId = null,
-    string? IdempotencyKey = null);
+    string? IdempotencyKey = null)
+{
+    /// <summary>
+    /// Gets the caller correlation identifier.
+    /// </summary>
+    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
+
+    private static string ValidateRequired(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
+}

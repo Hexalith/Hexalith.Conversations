@@ -3,55 +3,102 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
+using Hexalith.Conversations.Contracts.Serialization;
+
 namespace Hexalith.Conversations.Contracts.Errors;
 
 /// <summary>
 /// Defines stable machine-readable Conversations error codes.
 /// </summary>
-public static class ConversationErrorCode
+[JsonConverter(typeof(ConversationErrorCodeJsonConverter))]
+public sealed record ConversationErrorCode
 {
     /// <summary>
-    /// The tenant binding is missing.
+    /// Gets the tenant binding missing code.
     /// </summary>
-    public const string TenantBindingMissing = "tenant_binding_missing";
+    public static ConversationErrorCode TenantBindingMissing { get; } = new("tenant_binding_missing");
 
     /// <summary>
-    /// Tenant isolation prevented the operation.
+    /// Gets the tenant isolation violation code.
     /// </summary>
-    public const string TenantIsolationViolation = "tenant_isolation_violation";
+    public static ConversationErrorCode TenantIsolationViolation { get; } = new("tenant_isolation_violation");
 
     /// <summary>
-    /// Tenant projection state is stale.
+    /// Gets the tenant projection stale code.
     /// </summary>
-    public const string TenantProjectionStale = "tenant_projection_stale";
+    public static ConversationErrorCode TenantProjectionStale { get; } = new("tenant_projection_stale");
 
     /// <summary>
-    /// The audit sink is unavailable.
+    /// Gets the audit sink unavailable code.
     /// </summary>
-    public const string AuditSinkUnavailable = "audit_sink_unavailable";
+    public static ConversationErrorCode AuditSinkUnavailable { get; } = new("audit_sink_unavailable");
 
     /// <summary>
-    /// Required audit pairing is missing.
+    /// Gets the audit pairing required code.
     /// </summary>
-    public const string AuditPairingRequired = "audit_pairing_required";
+    public static ConversationErrorCode AuditPairingRequired { get; } = new("audit_pairing_required");
 
     /// <summary>
-    /// The idempotency key conflicts with a prior request.
+    /// Gets the idempotency conflict code.
     /// </summary>
-    public const string IdempotencyConflict = "idempotency_conflict";
+    public static ConversationErrorCode IdempotencyConflict { get; } = new("idempotency_conflict");
 
     /// <summary>
-    /// The aggregate is hidden or unavailable to the caller.
+    /// Gets the hidden or unavailable aggregate code.
     /// </summary>
-    public const string AggregateNotFound = "aggregate_not_found";
+    public static ConversationErrorCode AggregateNotFound { get; } = new("aggregate_not_found");
 
     /// <summary>
-    /// The requested schema version is unsupported.
+    /// Gets the unsupported schema version code.
     /// </summary>
-    public const string SchemaVersionUnsupported = "schema_version_unsupported";
+    public static ConversationErrorCode SchemaVersionUnsupported { get; } = new("schema_version_unsupported");
 
     /// <summary>
-    /// Command validation failed.
+    /// Gets the command validation failed code.
     /// </summary>
-    public const string CommandValidationFailed = "command_validation_failed";
+    public static ConversationErrorCode CommandValidationFailed { get; } = new("command_validation_failed");
+
+    private static readonly IReadOnlyDictionary<string, ConversationErrorCode> KnownCodes =
+        new[]
+        {
+            TenantBindingMissing,
+            TenantIsolationViolation,
+            TenantProjectionStale,
+            AuditSinkUnavailable,
+            AuditPairingRequired,
+            IdempotencyConflict,
+            AggregateNotFound,
+            SchemaVersionUnsupported,
+            CommandValidationFailed,
+        }.ToDictionary(code => code.Value, StringComparer.Ordinal);
+
+    private ConversationErrorCode(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        Value = value;
+    }
+
+    /// <summary>
+    /// Gets the machine-readable code value.
+    /// </summary>
+    public string Value { get; }
+
+    /// <summary>
+    /// Resolves a supported error code.
+    /// </summary>
+    /// <param name="value">The machine-readable error code value.</param>
+    /// <returns>The matching supported error code.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
+    public static ConversationErrorCode Parse(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return KnownCodes.TryGetValue(value, out ConversationErrorCode? code)
+            ? code
+            : throw new ArgumentException($"Unsupported conversation error code '{value}'.", nameof(value));
+    }
+
+    /// <inheritdoc />
+    public override string ToString() => Value;
 }

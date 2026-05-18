@@ -5,6 +5,7 @@
 
 using System.Reflection;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 
 using Hexalith.Conversations.Contracts;
 using Hexalith.Conversations.Contracts.Errors;
@@ -36,6 +37,10 @@ public sealed class ForbiddenPublicSurfaceTest
         "Handler",
         "Dispatcher",
         "Repository",
+        "Store",
+        "Subscription",
+        "AggregateIdentity",
+        "RawUpstream",
         "Token",
         "Claim",
         "Binary",
@@ -81,7 +86,10 @@ public sealed class ForbiddenPublicSurfaceTest
         foreach (object sample in ContractSamples.AllContracts)
         {
             string json = JsonSerializer.Serialize(sample, sample.GetType(), options);
-            AssertNoForbiddenTerms(json);
+            foreach (string propertyName in GetJsonPropertyNames(json))
+            {
+                AssertNoForbiddenTerms(propertyName);
+            }
         }
     }
 
@@ -91,16 +99,7 @@ public sealed class ForbiddenPublicSurfaceTest
     [Fact]
     public void FailClosedErrorsShouldRemainContentSafe()
     {
-        string[] failClosedCodes =
-        [
-            ConversationErrorCode.TenantIsolationViolation,
-            ConversationErrorCode.AggregateNotFound,
-            ConversationErrorCode.TenantProjectionStale,
-            ConversationErrorCode.AuditSinkUnavailable,
-            ConversationErrorCode.SchemaVersionUnsupported,
-        ];
-
-        foreach (string code in failClosedCodes)
+        foreach (ConversationErrorCode code in ContractSamples.AllErrorCodes)
         {
             string json = JsonSerializer.Serialize(ContractSamples.SafeError(code), new JsonSerializerOptions(JsonSerializerDefaults.Web));
 
@@ -110,13 +109,60 @@ public sealed class ForbiddenPublicSurfaceTest
             json.ShouldNotContain("provider-a", Case.Insensitive);
             json.ShouldNotContain("storage", Case.Insensitive);
         }
+
+        Should.Throw<ArgumentException>(() => new ConversationError(
+            ContractSamples.Version,
+            ConversationErrorCode.TenantIsolationViolation,
+            ConversationErrorCategory.Authorization,
+            false,
+            "correlation-001",
+            SafeFieldDiagnostics: new Dictionary<string, string>
+            {
+                ["target"] = "other-tenant exists",
+            }));
     }
 
     private static void AssertNoForbiddenTerms(string value)
     {
         foreach (string term in ForbiddenTerms)
         {
-            value.ShouldNotContain(term, Case.Insensitive);
+            Regex.IsMatch(value, $@"(^|[^A-Za-z0-9]){Regex.Escape(term)}([^A-Za-z0-9]|$)", RegexOptions.IgnoreCase)
+                .ShouldBeFalse($"Forbidden public term '{term}' found in '{value}'.");
+        }
+    }
+
+    private static IEnumerable<string> GetJsonPropertyNames(string json)
+    {
+        using JsonDocument document = JsonDocument.Parse(json);
+        foreach (string name in GetJsonPropertyNames(document.RootElement))
+        {
+            yield return name;
+        }
+    }
+
+    private static IEnumerable<string> GetJsonPropertyNames(JsonElement element)
+    {
+        if (element.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty property in element.EnumerateObject())
+            {
+                yield return property.Name;
+
+                foreach (string childName in GetJsonPropertyNames(property.Value))
+                {
+                    yield return childName;
+                }
+            }
+        }
+        else if (element.ValueKind == JsonValueKind.Array)
+        {
+            foreach (JsonElement child in element.EnumerateArray())
+            {
+                foreach (string childName in GetJsonPropertyNames(child))
+                {
+                    yield return childName;
+                }
+            }
         }
     }
 }

@@ -3,25 +3,28 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
+using Hexalith.Conversations.Contracts.Serialization;
+
 namespace Hexalith.Conversations.Contracts.Identifiers;
 
 /// <summary>
 /// References an upstream Party identity without carrying personal profile data.
 /// </summary>
-public sealed record PartyId
+/// <param name="value">The opaque stable Party identifier.</param>
+/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
+[JsonConverter(typeof(PartyIdJsonConverter))]
+public sealed record PartyId(string Value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="PartyId"/> class.
-    /// </summary>
-    /// <param name="value">The opaque stable Party identifier.</param>
-    public PartyId(string value)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        Value = value;
-    }
-
     /// <summary>
     /// Gets the opaque stable Party identifier.
     /// </summary>
-    public string Value { get; init; }
+    public string Value { get; } = Validate(Value);
+
+    private static string Validate(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
 }

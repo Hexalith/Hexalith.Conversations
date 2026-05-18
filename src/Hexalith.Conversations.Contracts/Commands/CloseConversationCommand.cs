@@ -16,4 +16,20 @@ namespace Hexalith.Conversations.Contracts.Commands;
 public sealed record CloseConversationCommand(
     ConversationCommandMetadata Metadata,
     ConversationId ConversationId,
-    string? ReasonCode = null);
+    string? ReasonCode = null)
+{
+    /// <summary>
+    /// Gets the optional safe reason code.
+    /// </summary>
+    public string? ReasonCode { get; } = ValidateOptional(ReasonCode);
+
+    private static string? ValidateOptional(string? value)
+    {
+        if (value is not null)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        }
+
+        return value;
+    }
+}

@@ -22,4 +22,21 @@ public sealed record ProviderCorrelationMetadata(
     SchemaVersion MetadataSchemaVersion,
     string? ProviderSessionReference = null,
     string? ProviderResponseReference = null,
-    IReadOnlyDictionary<string, string>? ExtensionData = null);
+    IReadOnlyDictionary<string, string>? ExtensionData = null)
+{
+    /// <summary>
+    /// Gets the provider name as safe correlation metadata.
+    /// </summary>
+    public string ProviderName { get; } = ValidateRequired(ProviderName);
+
+    /// <summary>
+    /// Gets the provider category as safe correlation metadata.
+    /// </summary>
+    public string ProviderType { get; } = ValidateRequired(ProviderType);
+
+    private static string ValidateRequired(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
+}

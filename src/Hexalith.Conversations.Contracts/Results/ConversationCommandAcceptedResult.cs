@@ -22,7 +22,7 @@ public sealed record ConversationCommandAcceptedResult(
     SchemaVersion SchemaVersion,
     TenantId TenantId,
     ConversationId ConversationId,
-    string CommandType,
+    ConversationCommandType CommandType,
     string CorrelationId,
     string? IdempotencyKey,
     ReadModelVisibility Visibility);

@@ -48,13 +48,14 @@ internal static class ContractSamples
 
     internal static readonly ConversationEventMetadata EventMetadata = new(
         Version,
-        "ConversationCreated",
+        "event-001",
+        ConversationEventType.ConversationCreated,
         Tenant,
         Conversation,
-        Actor,
         "correlation-001",
-        "causation-001",
-        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero));
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
 
     internal static readonly ProjectionFreshness Freshness = new(
         ProjectionTrustState.Current,
@@ -101,17 +102,17 @@ internal static class ContractSamples
         new ConversationSummaryProjection(Tenant, Conversation, Freshness, "Case 123", Business, [Actor, Participant]),
         new ConversationMessageProjection(Tenant, Conversation, Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, Freshness),
         Visibility,
-        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, "AppendMessageCommand", "correlation-001", "idempotency-001", Visibility),
-        new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
+        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, ConversationCommandType.AppendMessageCommand, "correlation-001", "idempotency-001", Visibility),
+        new ConversationCreatedResult(Version, ConversationCommandType.CreateConversationCommand, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
         SafeError(ConversationErrorCode.TenantIsolationViolation),
         new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
     ];
 
-    internal static ConversationError SafeError(string code) => new(
+    internal static ConversationError SafeError(ConversationErrorCode code) => new(
         Version,
         code,
-        "authorization",
-        false,
+        ErrorCategoryFor(code),
+        IsRetryable(code),
         "correlation-001",
         "audit-001",
         new Uri("https://docs.hexalith.local/conversations/errors"),
@@ -120,4 +121,37 @@ internal static class ContractSamples
             ["target"] = "hidden",
         },
         "The requested operation was not accepted.");
+
+    internal static IReadOnlyList<ConversationErrorCode> AllErrorCodes =>
+    [
+        ConversationErrorCode.TenantBindingMissing,
+        ConversationErrorCode.TenantIsolationViolation,
+        ConversationErrorCode.TenantProjectionStale,
+        ConversationErrorCode.AuditSinkUnavailable,
+        ConversationErrorCode.AuditPairingRequired,
+        ConversationErrorCode.IdempotencyConflict,
+        ConversationErrorCode.AggregateNotFound,
+        ConversationErrorCode.SchemaVersionUnsupported,
+        ConversationErrorCode.CommandValidationFailed,
+    ];
+
+    private static ConversationErrorCategory ErrorCategoryFor(ConversationErrorCode code)
+        => code switch
+        {
+            _ when code == ConversationErrorCode.TenantBindingMissing => ConversationErrorCategory.Validation,
+            _ when code == ConversationErrorCode.TenantIsolationViolation => ConversationErrorCategory.Authorization,
+            _ when code == ConversationErrorCode.TenantProjectionStale => ConversationErrorCategory.Freshness,
+            _ when code == ConversationErrorCode.AuditSinkUnavailable => ConversationErrorCategory.Audit,
+            _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
+            _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
+            _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
+            _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
+            _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
+            _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unsupported error code."),
+        };
+
+    private static bool IsRetryable(ConversationErrorCode code)
+        => code == ConversationErrorCode.TenantProjectionStale
+            || code == ConversationErrorCode.AuditSinkUnavailable
+            || code == ConversationErrorCode.IdempotencyConflict;
 }

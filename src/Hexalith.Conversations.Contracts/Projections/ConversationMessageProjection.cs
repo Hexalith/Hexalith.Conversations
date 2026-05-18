@@ -24,4 +24,15 @@ public sealed record ConversationMessageProjection(
     PartyId AuthorPartyId,
     string Text,
     DateTimeOffset CreatedAt,
-    ProjectionFreshness Freshness);
+    ProjectionFreshness Freshness)
+{
+    /// <summary>
+    /// Gets the public message creation timestamp.
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; } = ValidateTimestamp(CreatedAt);
+
+    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
+        => value <= DateTimeOffset.MinValue
+            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
+            : value;
+}

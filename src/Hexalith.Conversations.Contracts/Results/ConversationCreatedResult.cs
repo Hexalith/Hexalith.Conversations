@@ -12,6 +12,7 @@ namespace Hexalith.Conversations.Contracts.Results;
 /// Reports the assigned tenant-scoped conversation identity for create operations.
 /// </summary>
 /// <param name="schemaVersion">The result schema version.</param>
+/// <param name="commandType">The accepted public command type.</param>
 /// <param name="tenantId">The tenant binding.</param>
 /// <param name="conversationId">The assigned tenant-scoped conversation identity.</param>
 /// <param name="correlationId">The accepted correlation identifier.</param>
@@ -19,6 +20,7 @@ namespace Hexalith.Conversations.Contracts.Results;
 /// <param name="visibility">The read-model visibility caveat.</param>
 public sealed record ConversationCreatedResult(
     SchemaVersion SchemaVersion,
+    ConversationCommandType CommandType,
     TenantId TenantId,
     ConversationId ConversationId,
     string CorrelationId,

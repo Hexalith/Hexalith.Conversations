@@ -13,7 +13,7 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// <param name="metadata">The public event metadata.</param>
 /// <param name="messageId">The stable message identity.</param>
 /// <param name="authorPartyId">The stable Party reference for the author.</param>
-/// <param name="text">The message text supplied by the caller.</param>
+/// <param name="text">The message text supplied by the caller. TODO Story 1.4.1 defines length caps, encoding, and inline-vs-reference policy.</param>
 /// <param name="providerCorrelation">Optional provider correlation metadata.</param>
 public sealed record MessageAppended(
     ConversationEventMetadata Metadata,

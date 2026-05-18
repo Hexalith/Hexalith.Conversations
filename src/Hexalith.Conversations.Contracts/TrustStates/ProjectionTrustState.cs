@@ -3,11 +3,16 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
+using Hexalith.Conversations.Contracts.Serialization;
+
 namespace Hexalith.Conversations.Contracts.TrustStates;
 
 /// <summary>
 /// Represents the public trust and freshness vocabulary for read contracts.
 /// </summary>
+[JsonConverter(typeof(ProjectionTrustStateJsonConverter))]
 public sealed record ProjectionTrustState
 {
     /// <summary>
@@ -40,11 +45,22 @@ public sealed record ProjectionTrustState
     /// </summary>
     public static ProjectionTrustState Redacted { get; } = new(nameof(Redacted));
 
+    private static readonly IReadOnlyDictionary<string, ProjectionTrustState> KnownStates =
+        new Dictionary<string, ProjectionTrustState>(StringComparer.Ordinal)
+        {
+            [nameof(Current)] = Current,
+            [nameof(Stale)] = Stale,
+            [nameof(Rebuilding)] = Rebuilding,
+            [nameof(Unavailable)] = Unavailable,
+            [nameof(Forbidden)] = Forbidden,
+            [nameof(Redacted)] = Redacted,
+        };
+
     /// <summary>
     /// Initializes a new instance of the <see cref="ProjectionTrustState"/> class.
     /// </summary>
     /// <param name="value">The trust state value.</param>
-    public ProjectionTrustState(string value)
+    private ProjectionTrustState(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         Value = value;
@@ -53,5 +69,19 @@ public sealed record ProjectionTrustState
     /// <summary>
     /// Gets the trust state value.
     /// </summary>
-    public string Value { get; init; }
+    public string Value { get; }
+
+    /// <summary>
+    /// Resolves a public trust state value.
+    /// </summary>
+    /// <param name="value">The trust state value.</param>
+    /// <returns>The matching public trust state.</returns>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
+    public static ProjectionTrustState Parse(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return KnownStates.TryGetValue(value, out ProjectionTrustState? state)
+            ? state
+            : throw new ArgumentException($"Unsupported projection trust state '{value}'.", nameof(value));
+    }
 }

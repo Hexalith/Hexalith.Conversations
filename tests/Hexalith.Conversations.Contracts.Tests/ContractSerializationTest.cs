@@ -4,6 +4,7 @@
 // </copyright>
 
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
@@ -38,6 +39,7 @@ public sealed class ContractSerializationTest
             object? deserialized = JsonSerializer.Deserialize(json, sample.GetType(), WebOptions);
 
             deserialized.ShouldNotBeNull(sample.GetType().FullName);
+            AssertJsonEquivalent(json, deserialized);
         }
     }
 
@@ -49,7 +51,7 @@ public sealed class ContractSerializationTest
     {
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
             """,
             new CreateConversationCommand(
                 ContractSamples.CommandMetadata,
@@ -61,7 +63,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":{"value":1},"eventType":"ConversationCreated","tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","committedAt":"2026-05-18T11:00:00+00:00"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
+            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party-actor","causationId":"causation-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
             """,
             new ConversationCreated(
                 ContractSamples.EventMetadata,
@@ -73,16 +75,17 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"schemaVersion":{"value":1},"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
+            {"schemaVersion":1,"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
             """,
             ContractSamples.SafeError(ConversationErrorCode.TenantIsolationViolation));
 
         AssertJsonEquivalent(
             """
-            {"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":{"value":"Stale"},"guidance":"Read models may lag immediately after command acceptance."}}
+            {"schemaVersion":1,"commandType":"CreateConversationCommand","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":"Stale","guidance":"Read models may lag immediately after command acceptance."}}
             """,
             new ConversationCreatedResult(
                 ContractSamples.Version,
+                ConversationCommandType.CreateConversationCommand,
                 ContractSamples.Tenant,
                 ContractSamples.Conversation,
                 "correlation-001",
@@ -91,7 +94,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"freshness":{"state":{"value":"Current"},"observedAt":"2026-05-18T11:00:00+00:00","schemaVersion":{"value":1},"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":[{"value":"party-actor"},{"value":"party-participant"}]}
+            {"tenantId":"tenant-001","conversationId":"conversation-001","freshness":{"state":"Current","observedAt":"2026-05-18T11:00:00+00:00","projectionContractSchemaVersion":1,"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":["party-actor","party-participant"]}
             """,
             new ConversationSummaryProjection(
                 ContractSamples.Tenant,
@@ -103,22 +106,76 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"value":"Current"}
+            "Current"
             """,
             ProjectionTrustState.Current);
 
         AssertJsonEquivalent(
             """
-            {"value":1}
+            1
             """,
             SchemaVersion.Current);
+
+        AssertJsonEquivalent(
+            """
+            {"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-null","causationId":null,"idempotencyKey":null}
+            """,
+            new ConversationCommandMetadata(
+                ContractSamples.Version,
+                ContractSamples.Tenant,
+                ContractSamples.Actor,
+                "correlation-null"));
+    }
+
+    /// <summary>
+    /// Ensures every released contract shape has at least one serialization fixture in the sample catalog.
+    /// </summary>
+    [Fact]
+    public void ReleasedContractShapesShouldHaveSerializationFixtureCoverage()
+    {
+        Type[] expectedTypes =
+        [
+            typeof(CreateConversationCommand),
+            typeof(AppendMessageCommand),
+            typeof(AddParticipantCommand),
+            typeof(AttachFileReferenceCommand),
+            typeof(UpdateConversationMetadataCommand),
+            typeof(CloseConversationCommand),
+            typeof(ArchiveConversationCommand),
+            typeof(ConversationCreated),
+            typeof(MessageAppended),
+            typeof(ParticipantAdded),
+            typeof(FileReferenceAttached),
+            typeof(ConversationMetadataUpdated),
+            typeof(ConversationClosed),
+            typeof(ConversationArchived),
+            typeof(ConversationCommandAcceptedResult),
+            typeof(ConversationCreatedResult),
+            typeof(ConversationError),
+            typeof(ConversationErrorResult),
+            typeof(ContractVersionInfo),
+            typeof(UnsupportedSchemaVersion),
+            typeof(ConversationSummaryProjection),
+            typeof(ConversationMessageProjection),
+            typeof(ProjectionFreshness),
+            typeof(ReadModelVisibility),
+            typeof(ProjectionTrustState),
+            typeof(SchemaVersion),
+        ];
+
+        Type[] sampleTypes = ContractSamples.AllContracts.Select(sample => sample.GetType()).ToArray();
+
+        foreach (Type expectedType in expectedTypes)
+        {
+            sampleTypes.ShouldContain(expectedType, $"Missing serialization fixture for {expectedType.Name}.");
+        }
     }
 
     private static void AssertJsonEquivalent(string expected, object value)
     {
-        using JsonDocument expectedDocument = JsonDocument.Parse(expected);
-        using JsonDocument actualDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
+        JsonNode? expectedNode = JsonNode.Parse(expected);
+        JsonNode? actualNode = JsonNode.Parse(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
 
-        actualDocument.RootElement.ToString().ShouldBe(expectedDocument.RootElement.ToString());
+        JsonNode.DeepEquals(actualNode, expectedNode).ShouldBeTrue(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
     }
 }

@@ -3,25 +3,28 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
+using Hexalith.Conversations.Contracts.Serialization;
+
 namespace Hexalith.Conversations.Contracts.Identifiers;
 
 /// <summary>
 /// References an upstream folder identity without copying folder state.
 /// </summary>
-public sealed record FolderId
+/// <param name="value">The opaque stable folder identifier.</param>
+/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
+[JsonConverter(typeof(FolderIdJsonConverter))]
+public sealed record FolderId(string Value)
 {
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FolderId"/> class.
-    /// </summary>
-    /// <param name="value">The opaque stable folder identifier.</param>
-    public FolderId(string value)
-    {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
-        Value = value;
-    }
-
     /// <summary>
     /// Gets the opaque stable folder identifier.
     /// </summary>
-    public string Value { get; init; }
+    public string Value { get; } = Validate(Value);
+
+    private static string Validate(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
 }

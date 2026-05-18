@@ -17,6 +17,8 @@ Identity has a strict taxonomy:
 - UI labels and thread names are display/correlation metadata only.
 - Correlation IDs, causation IDs, and idempotency keys describe operations, not conversation identity.
 
+Single-value public contracts serialize as primitives in JSON: identifiers such as `TenantId` and `ConversationId` use strings, `SchemaVersion` uses an integer, and trust/error/type vocabularies use closed-set strings. Compound contracts such as `BusinessReference` and `ProviderCorrelationMetadata` remain JSON objects because they carry multiple fields.
+
 Example command shape:
 
 ```csharp
@@ -38,9 +40,11 @@ CreateConversationCommand command = new(
     label: "Case 123");
 ```
 
-Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
+Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_binding_missing`, `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
 
 Read contracts use the approved freshness vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`. Future behavior stories decide when non-current states are acceptable; this package only defines the public vocabulary.
+
+Create flows return `ConversationCreatedResult` with `CommandType` set to `CreateConversationCommand`. `ConversationCommandAcceptedResult.ConversationId` remains non-null because accepted non-create commands target an existing tenant-scoped conversation.
 
 Future implementation stories should keep the current readiness decisions and ADR tracker visible:
 

@@ -3,12 +3,19 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
+using Hexalith.Conversations.Contracts.Serialization;
+
 namespace Hexalith.Conversations.Contracts.Versioning;
 
 /// <summary>
 /// Represents an explicit positive integer schema version.
 /// </summary>
-public sealed record SchemaVersion
+/// <param name="value">The positive schema version number.</param>
+/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="value"/> is less than one.</exception>
+[JsonConverter(typeof(SchemaVersionJsonConverter))]
+public sealed record SchemaVersion(int Value)
 {
     /// <summary>
     /// Gets the current v1 contract schema version.
@@ -16,17 +23,13 @@ public sealed record SchemaVersion
     public static SchemaVersion Current { get; } = new(1);
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SchemaVersion"/> class.
-    /// </summary>
-    /// <param name="value">The positive schema version number.</param>
-    public SchemaVersion(int value)
-    {
-        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
-        Value = value;
-    }
-
-    /// <summary>
     /// Gets the positive schema version number.
     /// </summary>
-    public int Value { get; init; }
+    public int Value { get; } = Validate(Value);
+
+    private static int Validate(int value)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+        return value;
+    }
 }

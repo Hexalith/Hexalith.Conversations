@@ -13,10 +13,21 @@ namespace Hexalith.Conversations.Contracts.Projections;
 /// </summary>
 /// <param name="state">The public trust state.</param>
 /// <param name="observedAt">The time at which the read state was observed.</param>
-/// <param name="schemaVersion">The projection contract schema version.</param>
+/// <param name="projectionContractSchemaVersion">The projection contract schema version.</param>
 /// <param name="guidance">Optional safe developer guidance.</param>
 public sealed record ProjectionFreshness(
     ProjectionTrustState State,
     DateTimeOffset ObservedAt,
-    SchemaVersion SchemaVersion,
-    string? Guidance = null);
+    SchemaVersion ProjectionContractSchemaVersion,
+    string? Guidance = null)
+{
+    /// <summary>
+    /// Gets the time at which the read state was observed.
+    /// </summary>
+    public DateTimeOffset ObservedAt { get; } = ValidateTimestamp(ObservedAt);
+
+    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
+        => value <= DateTimeOffset.MinValue
+            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
+            : value;
+}

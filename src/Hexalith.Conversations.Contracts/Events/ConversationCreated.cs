@@ -22,4 +22,10 @@ public sealed record ConversationCreated(
     ProjectId? ProjectId = null,
     FolderId? FolderId = null,
     string? Label = null,
-    ProviderCorrelationMetadata? ProviderCorrelation = null);
+    ProviderCorrelationMetadata? ProviderCorrelation = null)
+{
+    /// <summary>
+    /// Gets the public creation timestamp from metadata.
+    /// </summary>
+    public DateTimeOffset CreatedAt => Metadata.CommittedAt;
+}

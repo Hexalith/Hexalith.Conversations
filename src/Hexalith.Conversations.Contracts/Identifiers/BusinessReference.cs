@@ -15,6 +15,7 @@ public sealed record BusinessReference
     /// </summary>
     /// <param name="system">The owning business system or namespace.</param>
     /// <param name="value">The business reference value in the owning system.</param>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="system"/> or <paramref name="value"/> is empty.</exception>
     public BusinessReference(string system, string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(system);
@@ -26,10 +27,10 @@ public sealed record BusinessReference
     /// <summary>
     /// Gets the owning business system or namespace.
     /// </summary>
-    public string System { get; init; }
+    public string System { get; }
 
     /// <summary>
     /// Gets the business reference value in the owning system.
     /// </summary>
-    public string Value { get; init; }
+    public string Value { get; }
 }

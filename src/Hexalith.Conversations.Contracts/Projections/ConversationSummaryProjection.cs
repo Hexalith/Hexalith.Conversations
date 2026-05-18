@@ -22,4 +22,10 @@ public sealed record ConversationSummaryProjection(
     ProjectionFreshness Freshness,
     string? Label = null,
     BusinessReference? BusinessReference = null,
-    IReadOnlyList<PartyId>? ParticipantPartyIds = null);
+    IReadOnlyList<PartyId> ParticipantPartyIds = null!)
+{
+    /// <summary>
+    /// Gets stable participant Party references.
+    /// </summary>
+    public IReadOnlyList<PartyId> ParticipantPartyIds { get; } = ParticipantPartyIds ?? Array.Empty<PartyId>();
+}

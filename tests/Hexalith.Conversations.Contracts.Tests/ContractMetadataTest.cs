@@ -7,6 +7,9 @@ using System.Reflection;
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.Versioning;
 
 using Shouldly;
 
@@ -38,7 +41,8 @@ public sealed class ContractMetadataTest
 
         foreach (Type commandType in commandTypes)
         {
-            commandType.GetProperty(nameof(CreateConversationCommand.Metadata)).ShouldNotBeNull(commandType.Name);
+            commandType.GetProperty(nameof(CreateConversationCommand.Metadata))
+                .ShouldNotBeNull($"{commandType.Name}.{nameof(CreateConversationCommand.Metadata)}");
         }
 
         PropertyInfo[] metadataProperties = typeof(ConversationCommandMetadata).GetProperties();
@@ -52,6 +56,13 @@ public sealed class ContractMetadataTest
                 "IdempotencyKey",
             ],
             ignoreOrder: true);
+
+        AssertPropertyType<ConversationCommandMetadata, SchemaVersion>(nameof(ConversationCommandMetadata.SchemaVersion));
+        AssertPropertyType<ConversationCommandMetadata, TenantId>(nameof(ConversationCommandMetadata.TenantId));
+        AssertPropertyType<ConversationCommandMetadata, PartyId>(nameof(ConversationCommandMetadata.ActorPartyId));
+        AssertPropertyType<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.CorrelationId));
+        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.CausationId));
+        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.IdempotencyKey));
     }
 
     /// <summary>
@@ -73,20 +84,45 @@ public sealed class ContractMetadataTest
 
         foreach (Type eventType in eventTypes)
         {
-            eventType.GetProperty(nameof(ConversationCreated.Metadata)).ShouldNotBeNull(eventType.Name);
+            eventType.GetProperty(nameof(ConversationCreated.Metadata))
+                .ShouldNotBeNull($"{eventType.Name}.{nameof(ConversationCreated.Metadata)}");
         }
 
         typeof(ConversationEventMetadata).GetProperties().Select(p => p.Name).ShouldBe(
             [
                 "SchemaVersion",
+                "EventId",
                 "EventType",
                 "TenantId",
                 "ConversationId",
-                "ActorPartyId",
                 "CorrelationId",
-                "CausationId",
                 "CommittedAt",
+                "ActorPartyId",
+                "CausationId",
             ],
             ignoreOrder: true);
+
+        AssertPropertyType<ConversationEventMetadata, SchemaVersion>(nameof(ConversationEventMetadata.SchemaVersion));
+        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.EventId));
+        AssertPropertyType<ConversationEventMetadata, ConversationEventType>(nameof(ConversationEventMetadata.EventType));
+        AssertPropertyType<ConversationEventMetadata, TenantId>(nameof(ConversationEventMetadata.TenantId));
+        AssertPropertyType<ConversationEventMetadata, ConversationId>(nameof(ConversationEventMetadata.ConversationId));
+        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CorrelationId));
+        AssertPropertyType<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.CommittedAt));
+        AssertPropertyType<ConversationEventMetadata, PartyId?>(nameof(ConversationEventMetadata.ActorPartyId));
+        AssertPropertyType<ConversationEventMetadata, string?>(nameof(ConversationEventMetadata.CausationId));
+
+        AssertPropertyType<ConversationCommandAcceptedResult, ConversationCommandType>(
+            nameof(ConversationCommandAcceptedResult.CommandType));
+        AssertPropertyType<ConversationCreatedResult, ConversationCommandType>(
+            nameof(ConversationCreatedResult.CommandType));
+    }
+
+    private static void AssertPropertyType<TContract, TProperty>(string propertyName)
+    {
+        PropertyInfo? property = typeof(TContract).GetProperty(propertyName);
+
+        property.ShouldNotBeNull($"{typeof(TContract).Name}.{propertyName}");
+        property.PropertyType.ShouldBe(typeof(TProperty), $"{typeof(TContract).Name}.{propertyName}");
     }
 }

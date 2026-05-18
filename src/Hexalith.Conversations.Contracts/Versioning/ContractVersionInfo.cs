@@ -14,7 +14,23 @@ namespace Hexalith.Conversations.Contracts.Versioning;
 public sealed record ContractVersionInfo(
     string ContractName,
     SchemaVersion ActiveSchemaVersion,
-    SchemaVersion MinimumSupportedSchemaVersion);
+    SchemaVersion MinimumSupportedSchemaVersion)
+{
+    /// <summary>
+    /// Gets the active schema version.
+    /// </summary>
+    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
+
+    /// <summary>
+    /// Gets the minimum supported schema version.
+    /// </summary>
+    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
+
+    private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
+        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
+            ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
+            : minimumSupportedSchemaVersion;
+}
 
 /// <summary>
 /// Reports an unsupported schema version without exposing runtime details.
@@ -25,4 +41,20 @@ public sealed record ContractVersionInfo(
 public sealed record UnsupportedSchemaVersion(
     SchemaVersion RequestedSchemaVersion,
     SchemaVersion ActiveSchemaVersion,
-    SchemaVersion MinimumSupportedSchemaVersion);
+    SchemaVersion MinimumSupportedSchemaVersion)
+{
+    /// <summary>
+    /// Gets the active schema version.
+    /// </summary>
+    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
+
+    /// <summary>
+    /// Gets the minimum supported schema version.
+    /// </summary>
+    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
+
+    private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
+        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
+            ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
+            : minimumSupportedSchemaVersion;
+}
