@@ -1,0 +1,28 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitmodules" />
+    <File Path="AGENTS.md" />
+    <File Path="CLAUDE.md" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+    <File Path="global.json" />
+    <File Path="LICENSE" />
+    <File Path="README.md" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj" />
+    <Project Path="src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj" />
+    <Project Path="src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
+    <Project Path="src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" />
+    <Project Path="src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj" />
+    <Project Path="src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj" />
+    <Project Path="src/Hexalith.Conversations/Hexalith.Conversations.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj" />
+  </Folder>
+</Solution>

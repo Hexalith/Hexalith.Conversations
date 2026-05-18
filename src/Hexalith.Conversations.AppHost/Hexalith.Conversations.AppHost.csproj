@@ -1,0 +1,11 @@
+<Project Sdk="Aspire.AppHost.Sdk/13.2.2">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>true</IsPublishable>
+    <UserSecretsId>hexalith-conversations</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" IsAspireProjectResource="false" />
+  </ItemGroup>
+</Project>

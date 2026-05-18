@@ -8,6 +8,13 @@ inputDocuments:
   - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/prd.md"
   - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/architecture.md"
   - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/ux-design-specification.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/ux-requirement-map.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-15.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-15-readiness-follow-up.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-16.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-16-readiness-gates-and-story-controls.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-17.md"
+  - "D:/Hexalith.Conversations/_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-17-readiness-assessment-follow-up.md"
 ---
 
 # Hexalith.Conversations - Epic Breakdown
@@ -230,6 +237,10 @@ NFR77: User-facing degraded-mode and compliance-blocker messages must avoid ambi
 - Produce machine-readable architecture/release evidence including test results, conformance versions, ADR coverage, schema versions, replay checksum, projection rebuild proof, tenant denial matrix, redaction verification, and known degradation modes.
 - Make the first implementation slice prove buyer trust by persisting one chatbot exchange, enforcing tenant access, projecting tenant-safe state with freshness metadata, hydrating Parties at read time, replaying from EventStore, demonstrating append-only audit/redaction, returning typed results/errors, proving idempotency, adding at least one negative tenant-isolation test, and producing release-evidence placeholder or manifest entry.
 - Every implementation story that introduces durable state, cache, export, memory write, cross-boundary contract, or privileged execution path must name its owning decision, failure semantics, and conformance evidence.
+- Apply the approved sprint-change proposal corrections before implementation kickoff: Story 1.1 is scaffold support only, Story 1.4 is split into participants/messages/references, Story 2.4 is split into redaction command/projection/client-safety/operations-safety slices, and conformance proof obligations are independently closable.
+- Enforce two-level evidence rules: CORE implementation stories close on minimum local evidence in the same story or epic, while Epic 5 owns release-gate aggregation, signed evidence, manifest rows, and waiver governance.
+- Treat Story 3.8 and Story 6.8 as verification/support bundles unless they are split before assignment; do not assign them as ordinary single-owner implementation stories when the validation domains require separate ownership.
+- Finalize shared trust/freshness vocabulary and UX safety-gate ownership before dependent API, Admin UI, client, diagnostics, telemetry, or conformance stories proceed.
 
 ### UX Design Requirements
 
@@ -423,30 +434,38 @@ Operators and product owners can observe tenant-safe operational health, conform
 
 ### Pre-Kickoff Decisions Required
 
-Dependent implementation stories must not begin until these decisions are recorded or explicitly waived:
+Dependent implementation stories must not begin until each applicable decision has a row in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`. A waived gate must name owner, approver, expiry, compensating control, buyer impact, and review date.
 
 - EventStore envelope stability and evolution ownership.
 - .NET client versus raw HTTP fallback policy.
 - Whether any module consumes Conversations events in v1.
 - Whether `MarkSensitiveData` and `RedactMessageContent` are CORE.
-- Foundation Gate blocking semantics are approved and enforced as story closure rules.
+- Two-level evidence semantics are approved and enforced: implementation stories close on minimum local evidence, while Epic 5 owns release-gate aggregation, signed artifacts, manifest rows, and waiver governance.
 - Architect and second-engineer availability for trust/freshness and governance decisions.
 - Named second-adopter candidate or review milestone.
 
-### Foundation Gate Closure Rules
+### Two-Level Evidence Rules
 
-CORE implementation stories may start only when their direct ADR prerequisites are recorded or explicitly waived. They may not close until the matching Foundation Gate evidence is passing in CI or has an approved named waiver.
+Implementation stories close on minimum local evidence in the same story or same epic. Release-gate evidence closes later through Epic 5 release packaging, signed conformance artifacts, manifest rows, and waiver governance.
 
-Minimum closure dependencies:
+Minimum local evidence for story closure:
 
-- Story 1.5 cannot close until Story 5.5 tenant isolation conformance is passing or explicitly waived.
-- Story 1.6 cannot close until Story 5.6 idempotent command conformance is passing or explicitly waived.
-- Story 1.11 cannot close until Story 5.9 event schema evolution proof is passing or explicitly waived.
-- Story 2.4 and its split redaction stories cannot close until Story 5.7 redaction replay conformance is passing or explicitly waived.
-- Story 2.5 cannot close until audit-write fail-closed behavior is verified by the governance/audit gate or explicitly waived.
-- Story 4.5 cannot close until the adopter conformance pack and CORE adopter fixture are passing or explicitly waived.
+- Story 1.5 closes when tenant access and fail-closed behavior pass local automated tests for the scenarios named in the story acceptance criteria.
+- Story 1.6 closes when idempotent command behavior passes local automated tests for duplicate, reordered, conflicting, unknown-outcome, and tenant-mismatched submissions.
+- Story 1.11 closes when replay, projection rebuild, unsupported-version handling, and at least one schema-version compatibility path pass local automated tests or ADR-approved fixtures.
+- Story 2.4 and Stories 2.4.1-2.4.3 close when the relevant redaction command, projection, client-surface, and operational-surface evidence passes in their own story scope.
+- Story 2.5 closes when governance mutations fail closed on audit-write unavailability and paired audit evidence tests pass in the story scope.
+- Story 4.5 closes when the adopter-facing conformance package and CORE fixture run locally or in CI and produce machine-readable safe results.
 
-Any waiver must name owner, approver, expiry, compensating control, buyer impact, and review date.
+Release manifest carry-forward:
+
+- Story 5.5 consumes Story 1.5 local evidence and adds release-gating tenant isolation manifest coverage.
+- Story 5.6 consumes Story 1.6 local evidence and adds release-gating idempotency manifest coverage.
+- Story 5.7 consumes Story 2.4 local evidence and adds release-gating redaction replay manifest coverage.
+- Story 5.9 consumes Story 1.11 local evidence and adds release-gating event schema evolution manifest coverage.
+- Story 5.10 consumes Story 4.5 local evidence and adds release-gating contract validation and CORE fixture manifest coverage.
+
+Waivers apply to release-gate evidence, not ordinary story closure, unless the affected story explicitly cannot meet its own minimum local evidence. Any waiver must name owner, approver, expiry, compensating control, buyer impact, and review date.
 
 ### ADR-Gated Story Stop Conditions
 
@@ -481,6 +500,8 @@ So that future conversation features can be implemented inside the approved Hexa
 
 **Requirements Covered:** Architecture starter-template requirement; supports FR1-FR41 foundation only. Behavioral FR1-FR41 implementation coverage is delivered by Stories 1.2-1.11.
 
+**Scope Control:** Story 1.1 may create buildable projects, smoke tests, ADR folders/templates, and readiness tracker links only. It must not decide ADRs, implement conversation persistence, tenant authorization, provider integration, FrontComposer runtime behavior, projections, workers, governance commands, or partial domain behavior.
+
 **Acceptance Criteria:**
 
 **Given** the Hexalith.Conversations repository
@@ -502,6 +523,11 @@ So that future conversation features can be implemented inside the approved Hexa
 **When** placeholder files or test fixtures are added
 **Then** they remain non-operative and fail closed at runtime
 **And** they do not smuggle partial conversation persistence, tenant authorization, provider, UI, or worker behavior ahead of later stories.
+
+**Given** pre-kickoff ADRs are required before dependent implementation
+**When** the scaffold documentation is created
+**Then** the repository contains the approved ADR folder, ADR template, and decision tracker links for idempotency, tenant projection freshness, audit pairing, schema evolution, redaction replay, Party hydration, FrontComposer trust boundaries, and retention/deletion lifecycle
+**And** dependent stories can link to recorded or explicitly waived decisions before implementation starts.
 
 ### Story 1.2: Define Conversation Identity, Command, Event, and Error Contracts
 
@@ -688,6 +714,8 @@ So that cross-tenant access, enumeration, and stale authorization cannot leak or
 **Then** tests cover missing tenant, malformed tenant, stale projection, unavailable projection store, disabled tenant, non-member caller, insufficient role, cross-tenant ID guessing, mixed-tenant command metadata, and projection poisoning
 **And** failures are verified before aggregate or projection access.
 
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate tenant isolation evidence is carried forward into Story 5.5 for manifest aggregation and signing.
+
 ### Story 1.6: Add Idempotent Command Handling
 
 As an adopter system,
@@ -722,6 +750,8 @@ So that retries, client timeouts, and at-least-once delivery do not create dupli
 **When** duplicate equivalent commands, duplicate non-equivalent commands, reordered delivery, unknown client outcome retry, and tenant-mismatched key reuse are exercised
 **Then** tests prove stable outcomes, conflict rejection, tenant scoping, no duplicate events, no projection divergence, and no cross-tenant leakage.
 
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate idempotency evidence is carried forward into Story 5.6 for manifest aggregation and signing.
+
 ### Story 1.7: Project Conversation Read Models with Freshness Metadata
 
 As an adopter system,
@@ -729,6 +759,12 @@ I want tenant-safe conversation read models with explicit freshness metadata,
 So that consumers can read conversation state without confusing stale, rebuilding, unavailable, or hidden data for current truth.
 
 **Requirements Covered:** FR33-FR37.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Shared trust/freshness vocabulary is approved before read boundary, UI-facing contract, or diagnostic implementation starts.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -763,6 +799,12 @@ I want to retrieve and list conversations within an authorized tenant scope,
 So that applications and operators can find the right conversation records without leaking inaccessible records or relying on provider session state.
 
 **Requirements Covered:** FR8-FR12, FR21, FR22, FR28-FR30, FR36, FR37.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Shared trust/freshness vocabulary is approved before retrieve/list contracts expose freshness, hidden, stale, rebuilding, unavailable, or degraded states.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -866,6 +908,14 @@ So that the first conversation substrate is trustworthy before governance and co
 
 **Requirements Covered:** FR12, FR33-FR37, FR40, FR41.
 
+**Scope Note:** This story proves the Epic 1 foundation hooks for replay, rebuild, and schema-version handling. Release-gating provider portability and event schema evolution evidence remain owned by Stories 5.8 and 5.9.
+
+**Ready for Dev Preconditions:**
+
+- EventStore envelope ownership and evolution are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Projection freshness blocking semantics are decided or waived before rebuild and replay freshness behavior is implemented.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
+
 **Acceptance Criteria:**
 
 **Given** a tenant-scoped conversation event stream exists
@@ -892,6 +942,8 @@ So that the first conversation substrate is trustworthy before governance and co
 **When** projection deletion, duplicate events, mixed-version streams, unsupported versions, stale derived state, tenant mismatch, and provider correlation changes are exercised
 **Then** tests prove deterministic replay, rebuild equivalence, version-aware behavior, provider portability, tenant isolation, and safe diagnostics
 **And** the output can feed the release-evidence placeholder or manifest entry for Epic 1.
+
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate event schema evolution evidence is carried forward into Story 5.9 for manifest aggregation and signing.
 
 ## Epic 2: Governed Retention, Redaction, and Audit
 
@@ -1003,17 +1055,14 @@ So that protected content can be removed from governed surfaces while auditabili
 
 **Requirements Covered:** FR44-FR47, FR51.
 
+**Scope Note:** This story covers redaction command, domain event, typed rejection, and paired audit behavior only. Projection/read-model behavior is covered by Story 2.4.1, client-visible disclosure safety by Story 2.4.2, and operational/export/log/trace safety by Story 2.4.3.
+
 **Acceptance Criteria:**
 
 **Given** an authorized operator submits a redact-message command with tenant scope, conversation identity, message or content target reference, redaction category, policy reference, rationale, actor attribution, schema version, and correlation metadata
 **When** tenant, role, policy, target, and audit-precondition checks pass
 **Then** the aggregate emits an append-only redaction event or approved tombstone event
 **And** the event records redaction metadata without storing original redacted content, Party personal data, provider payloads, or file binaries.
-
-**Given** a redaction event exists
-**When** projections, read models, search materializations, evidence views, caches, exports, accessibility output, clipboard payloads, logs, traces, errors, and future derived indexes rebuild or update
-**Then** redacted content is replaced with authorized redaction placeholders or safe unavailable states
-**And** original protected values do not appear in any projected or client-observable surface.
 
 **Given** a redaction target is missing, already redacted, cross-tenant, unauthorized, unsupported-version, or blocked by policy
 **When** the command is handled
@@ -1028,6 +1077,8 @@ So that protected content can be removed from governed surfaces while auditabili
 **Given** redaction command tests run
 **When** authorized redactions, duplicate commands, invalid targets, unsupported versions, stale tenant projection, and audit unavailable scenarios are exercised
 **Then** tests prove command/event behavior, audit pairing, typed rejection semantics, and absence of original redacted content from domain events.
+
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate redaction replay evidence is carried forward into Story 5.7 for manifest aggregation and signing.
 
 ### Story 2.4.1: Apply Redaction to Projections and Read Models
 
@@ -1053,13 +1104,15 @@ So that protected content does not reappear during normal reads, rebuilds, or po
 **When** normal projection update, full rebuild, point-in-time reconstruction, cache refresh, stale projection, and tenant-isolated read scenarios are exercised
 **Then** tests prove redaction determinism, tenant isolation, projection freshness signaling, and no redacted-value reintroduction.
 
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate redaction replay evidence is carried forward into Story 5.7 for manifest aggregation and signing.
+
 ### Story 2.4.2: Verify UI, Accessibility, Clipboard, and Citation Redaction Safety
 
 As a compliance operator using visual, keyboard, screen-reader, and clipboard workflows,
 I want redacted content to stay absent from every client-observable surface,
 So that investigation workflows remain safe across DOM, ARIA, tooltips, titles, screenshots, citation copy, and responsive duplicates.
 
-**Requirements Covered:** FR44-FR46, FR59, FR62, FR63; NFR21, NFR69-NFR77.
+**Requirements Covered:** FR44-FR46, FR59, FR62, FR63; UX-DR6, UX-DR7, UX-DR10, UX-DR35, UX-DR44-UX-DR52; NFR21, NFR69-NFR77.
 
 **Acceptance Criteria:**
 
@@ -1077,6 +1130,8 @@ So that investigation workflows remain safe across DOM, ARIA, tooltips, titles, 
 **When** desktop, tablet, mobile, keyboard-only, screen-reader, browser zoom, high-contrast, clipboard, tooltip, denied, stale, and responsive duplicate cases are exercised
 **Then** tests prove WCAG 2.1 AA-compatible redaction communication and Leak Sentinel absence checks across client surfaces.
 
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate redaction replay evidence is carried forward into Story 5.7 for manifest aggregation and signing.
+
 ### Story 2.4.3: Verify Operational, Export, Log, Trace, and Error Redaction Safety
 
 As an SRE or release owner,
@@ -1085,7 +1140,7 @@ So that operational and release evidence cannot leak protected content.
 
 **Requirements Covered:** FR44-FR47, FR89 validation support; NFR19, NFR21, NFR55-NFR62.
 
-**Scope Note:** Future derived indexes remain ADR-gated unless promoted into active release scope.
+**Scope Note:** v1 verification covers only operational and evidence surfaces active in v1. Future derived indexes, export workflows, and evidence-bundle behavior remain ADR-gated and out of implementation scope unless promoted into the active release scope by an approved ADR or sprint change proposal. Tests may assert that missing ADR coverage blocks implementation; they must not implement implicit index, export, or evidence-bundle semantics.
 
 **Acceptance Criteria:**
 
@@ -1102,6 +1157,8 @@ So that operational and release evidence cannot leak protected content.
 **Given** redaction replay tests run
 **When** projection rebuild, temporal reconstruction, cache refresh, export generation, accessibility rendering, clipboard copy, duplicate command, and log/trace/error scenarios are exercised
 **Then** tests prove redacted content does not reappear, audit evidence remains available, and replay is deterministic under tenant isolation.
+
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate redaction replay evidence is carried forward into Story 5.7 for manifest aggregation and signing.
 
 ### Story 2.5: Enforce Audit Pairing and Audit-Unavailable Fail-Closed Behavior
 
@@ -1249,7 +1306,13 @@ As a compliance operator,
 I want to search for tenant-scoped conversations by external identifiers and business context,
 So that I can find relevant governed records without leaking inaccessible records.
 
-**Requirements Covered:** FR56, FR57.
+**Requirements Covered:** FR56, FR57; UX-DR11, UX-DR21, UX-DR30, UX-DR31.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Shared trust/freshness vocabulary is approved before result trust previews, freshness filters, or safe empty states are implemented.
+- UX safety gate ownership is recorded before responsive, timing, metadata, or count-leakage verification begins.
 
 **Acceptance Criteria:**
 
@@ -1278,7 +1341,13 @@ As a compliance operator,
 I want to open a governed conversation record with trust posture before timeline content,
 So that I can decide whether the evidence is safe to rely on.
 
-**Requirements Covered:** FR58.
+**Requirements Covered:** FR58; UX-DR1-UX-DR5, UX-DR12, UX-DR13, UX-DR18, UX-DR19, UX-DR22, UX-DR24, UX-DR25, UX-DR29, UX-DR32.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics and shared trust/freshness vocabulary are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Command availability metadata is decided or waived before command eligibility appears in the governed record view.
+- UX safety gate ownership is recorded before trust-critical component, disclosure-surface, accessibility, or Leak Sentinel work begins.
 
 **Acceptance Criteria:**
 
@@ -1307,7 +1376,7 @@ As a compliance operator,
 I want inline redaction attribution and audit trail access,
 So that I can understand why evidence changed and who authorized governance actions.
 
-**Requirements Covered:** FR59, FR60.
+**Requirements Covered:** FR59, FR60; UX-DR6-UX-DR8, UX-DR12, UX-DR15-UX-DR17, UX-DR20, UX-DR26, UX-DR33.
 
 **Acceptance Criteria:**
 
@@ -1336,7 +1405,13 @@ As a compliance operator,
 I want citation-ready references and stable temporal links,
 So that I can cite conversation and audit evidence without exporting unsafe content.
 
-**Requirements Covered:** FR62, FR63.
+**Requirements Covered:** FR62, FR63; UX-DR7, UX-DR10, UX-DR26, UX-DR35.
+
+**Ready for Dev Preconditions:**
+
+- Temporal evidence anchor is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Command availability metadata is decided or waived before citation or temporal-link behavior depends on command eligibility.
+- UX safety gate ownership is recorded before clipboard, URL, browser-title, accessibility-tree, or responsive persistence verification begins.
 
 **Acceptance Criteria:**
 
@@ -1365,7 +1440,7 @@ As a compliance operator,
 I want read-only investigation workflows and clearly gated privileged actions,
 So that investigation cannot accidentally mutate conversation state.
 
-**Requirements Covered:** FR64, FR65.
+**Requirements Covered:** FR64, FR65; UX-DR3, UX-DR9, UX-DR14, UX-DR20, UX-DR33, UX-DR34, UX-DR36-UX-DR38.
 
 **Acceptance Criteria:**
 
@@ -1394,7 +1469,7 @@ As a compliance operator,
 I want to run governance verification for conversations, tenants, suites, or time windows,
 So that I can distinguish product invariant failures from infrastructure execution failures.
 
-**Requirements Covered:** FR66-FR68.
+**Requirements Covered:** FR66-FR68; UX-DR23, UX-DR26, UX-DR27, UX-DR38.
 
 **Acceptance Criteria:**
 
@@ -1423,7 +1498,7 @@ As a buyer evaluator,
 I want a seeded acceptance demo for governed conversation evidence,
 So that I can validate the module's trust story without requiring production data.
 
-**Requirements Covered:** FR69.
+**Requirements Covered:** FR69; UX-DR28, UX-DR37, UX-DR38, UX-DR52.
 
 **Acceptance Criteria:**
 
@@ -1446,17 +1521,22 @@ So that I can validate the module's trust story without requiring production dat
 **When** seeded data setup, guided flow, citation copy, time travel, redaction, tenant denial, stale projection, and evidence summary scenarios are exercised
 **Then** tests prove repeatable demo behavior, safe fixture handling, no production dependency, and acceptance-readiness.
 
-### Story 3.8: Verify Responsive and Accessible Investigation Experience
+### Story 3.8A: Verify Responsive Layout and Mobile Safe Triage
 
-As a compliance operator using different devices or assistive technology,
-I want the investigation workspace to preserve trust ordering and safety across viewports,
-So that I can find, read, cite, and stop safely without pointer-only or desktop-only assumptions.
+As a compliance operator using different viewport sizes,
+I want the investigation workspace to preserve trust ordering and safe read behavior across layouts,
+So that I can find, read, cite, and stop safely without desktop-only assumptions.
 
-**Requirements Covered:** FR56-FR69 verification support; UX-DR39-UX-DR52; NFR69-NFR77.
+**Requirements Covered:** FR56-FR69 verification support; UX-DR39-UX-DR43, UX-DR51, UX-DR52; NFR69-NFR72, NFR75, NFR77.
 
-**Scope Note:** This story verifies responsive, accessibility, and disclosure-surface safety for the investigation workspace. Primary feature implementation remains in Stories 3.1-3.7.
+**Scope Note:** This story verifies responsive layout and mobile safe-triage behavior for the investigation workspace. Primary feature implementation remains in Stories 3.1-3.7. Accessibility-tree depth is covered by Story 3.8B; disclosure leakage, clipboard, browser, and telemetry safety are covered by Story 3.8C.
 
-**Assignment Rule:** Story 3.8 must not be assigned as a single ordinary feature implementation story. Either assign it as an epic-level verification checklist or split it into responsive layout safety, accessibility tree and keyboard flow safety, and leakage/clipboard/browser/telemetry safety stories.
+**Ready for Dev Preconditions:**
+
+- Story 3.8 assignment plan is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- The story file names owner, fixture set, evidence output, pass/fail gate, and review date before implementation starts.
+- UX safety gate ownership is recorded for responsive duplicate checks, command reauthorization fixtures, permission-safe DTO tests, and FrontComposer generated-versus-custom component boundary checks.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -1470,19 +1550,78 @@ So that I can find, read, cite, and stop safely without pointer-only or desktop-
 **Then** every surface uses permission-safe DTOs before rendering
 **And** CSS hiding, viewport-only hiding, and visually hidden text are not used as authorization controls.
 
+**Given** responsive fixtures exercise fully trusted, redacted, stale, missing citation, unresolved participant, blocked command, cross-tenant attempt, permission downgrade, partial timeline, unauthorized-existing, nonexistent, high-contrast, reduced-motion, and browser zoom states
+**When** desktop, tablet, mobile, and wide desktop evidence is generated
+**Then** tests prove trust-order preservation, responsive duplicate safety, mobile safe triage, and viewport-specific safe telemetry labels
+**And** the evidence output is traceable from the conformance manifest or release evidence bundle.
+
+### Story 3.8B: Verify Accessibility Tree, Keyboard, and Screen-Reader Safety
+
+As a compliance operator using keyboard navigation or assistive technology,
+I want investigation trust, citation, redaction, and command-gate states to be exposed safely,
+So that accessible workflows preserve the same evidence ordering and non-disclosure guarantees as visual workflows.
+
+**Requirements Covered:** FR56-FR69 verification support; UX-DR44-UX-DR50, UX-DR52; NFR69-NFR77.
+
+**Scope Note:** This story verifies focus order, screen-reader announcements, accessible names/descriptions, and keyboard-only flows. Responsive layout is covered by Story 3.8A; disclosure leakage, clipboard, browser, and telemetry safety are covered by Story 3.8C.
+
+**Ready for Dev Preconditions:**
+
+- Story 3.8 assignment plan is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- The story file names owner, fixture set, evidence output, pass/fail gate, and review date before implementation starts.
+- UX safety gate ownership is recorded for accessibility-tree leakage checks, keyboard-only walkthroughs, screen-reader verification, redaction announcement safety, and command-gate announcement safety.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
+
+**Acceptance Criteria:**
+
 **Given** a keyboard-only or screen-reader user completes Find -> Read -> Trust
 **When** they navigate search, trust summary, timeline, citation, audit drawer, redaction placeholder, and command gate flows
 **Then** focus order and announcements expose tenant scope, trust posture, evidence completeness, blocked-action reasons, and safe next actions before sensitive content
 **And** redacted or unauthorized content is absent from accessible names, descriptions, live regions, headings, table summaries, focus announcements, and clipboard output.
 
-**Given** responsive and accessibility tests run
-**When** fully trusted, redacted, stale, missing citation, unresolved participant, blocked command, cross-tenant attempt, permission downgrade, partial timeline, no accessible matches, unauthorized-existing, nonexistent, high-contrast, reduced-motion, and browser zoom scenarios are exercised
-**Then** tests prove WCAG 2.1 AA expectations, Leak Sentinel coverage, responsive duplicate safety, clipboard safety, focus safety, and viewport-specific telemetry redaction.
+**Given** accessibility verification runs
+**When** no accessible matches, denied, redacted, stale, unresolved participant, blocked command, high-contrast, reduced-motion, browser zoom, and permission downgrade scenarios are exercised
+**Then** automated checks plus manual keyboard-only and screen-reader evidence prove WCAG 2.1 AA expectations and safe state announcements
+**And** failures identify the affected component, disclosure surface, scenario, expected safe output, actual output, and remediation owner.
+
+**Given** accessible evidence is captured
+**When** snapshots, transcripts, focus traces, or assistive-technology notes are stored
+**Then** the evidence itself remains content-safe and tenant-safe
+**And** it links to the fixture set, pass/fail gate, and conformance manifest or release evidence bundle.
+
+### Story 3.8C: Verify Leakage, Clipboard, Browser, and Telemetry Disclosure Safety
+
+As a compliance operator and release owner,
+I want forbidden values absent from every investigation disclosure surface,
+So that protected content, tenant boundaries, and governance state remain safe across rendered UI, browser surfaces, clipboard output, telemetry, and evidence artifacts.
+
+**Requirements Covered:** FR56-FR69 verification support; UX-DR12, UX-DR35, UX-DR44-UX-DR52; NFR19-NFR21, NFR55-NFR61, NFR69-NFR77.
+
+**Scope Note:** This story verifies Leak Sentinel, clipboard, browser-title, tooltip, screenshot, telemetry, loading/empty/denied, and responsive-duplicate disclosure safety. Responsive layout is covered by Story 3.8A; accessibility-tree navigation is covered by Story 3.8B.
+
+**Ready for Dev Preconditions:**
+
+- Story 3.8 assignment plan is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- The story file names owner, fixture set, evidence output, pass/fail gate, and review date before implementation starts.
+- UX safety gate ownership is recorded for Leak Sentinel, clipboard safety checks, browser-title checks, screenshot checks, telemetry redaction checks, permission-safe DTO tests, and responsive duplicate checks.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
+
+**Acceptance Criteria:**
 
 **Given** Leak Sentinel and canonical disclosure fixtures are prepared
 **When** desktop, tablet, mobile, screen-reader, clipboard, tooltip, browser-title, telemetry, loading, empty, denied, redacted, stale, and responsive-duplicate states are exercised
 **Then** forbidden strings and structured forbidden values are absent from rendered DOM text, attributes, ARIA properties, page title, clipboard output, telemetry envelopes, screenshots, and accessibility snapshots where available
 **And** the evidence is traceable from the conformance manifest or release evidence bundle.
+
+**Given** command availability, tenant isolation, redaction, and projection freshness states change
+**When** browser titles, route metadata, tooltips, toasts, empty states, loading states, telemetry events, and evidence screenshots are emitted
+**Then** each surface uses permission-safe DTOs and approved bounded identifiers only
+**And** unauthorized, nonexistent, cross-tenant, redacted, hidden, stale, and unavailable states do not leak target tenant, Party, conversation, provider, file, business-reference, prompt, or content values.
+
+**Given** disclosure safety tests fail
+**When** the evidence is reported
+**Then** failures identify the exact surface, forbidden value class, fixture, owner, and blocking/non-blocking classification
+**And** the story cannot close until the unsafe output is fixed or an approved waiver records owner, approver, expiry, compensating control, buyer impact, and review date.
 
 ## Epic 4: Adopter Integration and Developer Readiness
 
@@ -1524,6 +1663,14 @@ I want a supported .NET client for the core create, append, and read workflow,
 So that I can integrate Conversations without hand-coding raw HTTP or EventStore details.
 
 **Requirements Covered:** FR71, FR72, FR74.
+
+**Scope Note:** The supported v1 integration path is the .NET client. Raw HTTP fallback examples are omitted unless buyer approval is recorded or diagnostics explicitly require them.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Raw HTTP fallback approval is recorded before any raw HTTP fallback examples, parity tests, or fallback documentation are implemented.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -1583,6 +1730,12 @@ So that I can know whether my environment is ready before relying on Conversatio
 
 **Requirements Covered:** FR77, FR79.
 
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Shared trust/freshness vocabulary is approved before CORE preconditions or onboarding diagnostics expose freshness, degraded, unavailable, hidden, or unknown states.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
+
 **Acceptance Criteria:**
 
 **Given** an adopter prepares an integration
@@ -1632,6 +1785,8 @@ So that I can prove my integration respects Conversations contracts before deplo
 **Given** conformance tests run in CI
 **When** supported, unsupported, stale, cross-tenant, duplicate command, projection lag, and sanitized error scenarios are exercised
 **Then** tests prove adopter-readiness, traceable failures, safe output, and no dependency on nested submodule initialization.
+
+**Evidence Note:** This story must produce minimum local evidence for story closure. Release-gate contract validation and CORE fixture evidence are carried forward into Story 5.10 for manifest aggregation and signing.
 
 ### Story 4.6: Capture Caller Metadata for Attribution, Audit, and Composition
 
@@ -1695,6 +1850,8 @@ So that I can use Conversations correctly without reverse-engineering architectu
 ## Epic 5: Conformance, Compatibility, and Release Evidence
 
 Platform owners can publish compatibility policy, run release-gating conformance, manage waivers, trace tests to requirements, prove portability/schema evolution, and distinguish module evidence from platform evidence.
+
+**Story Generation Guardrail:** Epic 5 stories must preserve release-owner and platform-owner value framing. Do not rewrite them as generic technical tasks such as "write tests"; generated story files must keep the actor, evidence outcome, decision consequence, and requirement traceability.
 
 ### Story 5.1: Publish Contract Compatibility and Deprecation Policy
 
@@ -1770,6 +1927,11 @@ So that every release-gate test maps to requirements and acceptance criteria.
 **Then** validation fails with actionable diagnostics
 **And** release evidence remains navigable by non-developer approvers.
 
+**Given** a manifest entry represents a release gate or evidence obligation
+**When** the entry is authored or validated
+**Then** it includes requirement ID, gate status, evidence artifact, owner, lifecycle stage, release decision status, and waiver reference when applicable
+**And** decorative evidence without requirement traceability or release-decision meaning is rejected.
+
 ### Story 5.4: Support Named Waivers for Release-Gate Exceptions
 
 As a release approver,
@@ -1782,7 +1944,7 @@ So that accepted risks are explicit, owned, time-bound, and visible to buyers wh
 
 **Given** a release gate is not green
 **When** a waiver is requested
-**Then** the waiver records owner, approver, affected requirement or gate, risk, compensating control, expiry date, buyer acceptance status where customer-facing, evidence links, and review date
+**Then** the waiver records owner, approver, affected requirement or gate, affected stories, risk, compensating control, expiry date, buyer impact, buyer acceptance status where customer-facing, evidence links, and review date
 **And** automatic release blockers cannot be waived without explicit named approval.
 
 **Given** a waiver is active, expired, rejected, or superseded
@@ -1874,7 +2036,13 @@ So that conversation history remains recoverable without provider-owned session 
 
 **Given** provider portability evidence is generated
 **When** conformance results are written to the release manifest
-**Then** evidence maps portability outcomes to release-gate status and identifies unsupported provider assumptions as findings or waivers.
+**Then** evidence maps portability outcomes to release-gate status, blocking versus waiverable classification, evidence retention location, approving ADR or waiver reference, and affected requirements
+**And** unsupported provider assumptions are recorded as findings or named waivers with owner, expiry, compensating control, and buyer impact.
+
+**Given** provider portability release-gate automation runs
+**When** unit, integration, contract, security, performance or load, and operational evidence classes are applicable to the release scope
+**Then** the minimum automated evidence set is recorded in the manifest
+**And** missing required evidence blocks gate closure unless an approved named waiver exists.
 
 ### Story 5.9: Prove Event Schema Evolution
 
@@ -1883,6 +2051,12 @@ I want event schema evolution proof,
 So that persisted and published conversation events can evolve safely across supported contract versions.
 
 **Requirements Covered:** FR91.
+
+**Ready for Dev Preconditions:**
+
+- EventStore envelope ownership and evolution are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- The approving ADR or waiver reference is available before schema evolution release-gate automation is accepted as complete.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -1893,8 +2067,13 @@ So that persisted and published conversation events can evolve safely across sup
 
 **Given** release evidence is generated
 **When** schema evolution checks complete
-**Then** evidence maps compatibility outcomes to the conformance manifest
+**Then** evidence maps compatibility outcomes to the conformance manifest with blocking versus waiverable classification, evidence retention location, approving ADR or waiver reference, and affected requirements
 **And** unsupported or missing-version behavior is flagged as a release-gate failure unless explicitly waived.
+
+**Given** schema evolution release-gate automation runs
+**When** unit, integration, contract, replay, projection rebuild, security, and performance or load evidence classes are applicable to the release scope
+**Then** the minimum automated evidence set is recorded in the manifest
+**And** missing required evidence blocks gate closure unless an approved named waiver exists.
 
 ### Story 5.10: Validate Commands, Queries, Events, Errors, and Version Discovery
 
@@ -1911,10 +2090,20 @@ So that command, query, event, error, and version-discovery contracts are releas
 **Then** each surface matches the published contract package and documentation
 **And** no test requires adopter knowledge of EventStore internals.
 
+**Given** consumer-driven contract tests run
+**When** redaction command/event/audit behavior and .NET client compatibility are validated for Stories 2.4 and 4.2
+**Then** commands, emitted events, typed errors, audit handles, freshness metadata, idempotency outcomes, and compatibility status remain stable for adopters
+**And** test failures identify whether the break is command, event, audit, client, versioning, or documentation behavior.
+
 **Given** adopter-style CORE fixtures are used
 **When** create, append, read, freshness, tenant denial, idempotency, and typed error paths are exercised
 **Then** tests prove realistic adopter behavior and safe precondition handling
 **And** fixture data is synthetic and tenant-safe.
+
+**Given** project conformance invariants are validated
+**When** EventStore authority, Tenants fail-closed access, Parties-owned personal data, and FrontComposer generated-first boundaries are checked
+**Then** each invariant has traceable automated evidence or an approved waiver in the manifest
+**And** boundary drift is treated as a release-gate failure rather than a documentation issue.
 
 **Given** contract validation fails
 **When** differences are reported
@@ -1950,6 +2139,8 @@ So that acceptance decisions are clear and not overstated.
 
 Operators and product owners can observe tenant-safe operational health, conformance outcomes, privileged access attempts, and release-scope/lifecycle commitments without leaking protected conversation data.
 
+**Story Generation Guardrail:** Epic 6 stories must preserve operator, SRE, product-owner, and release-lifecycle value framing. Do not rewrite them as generic technical tasks such as "add metrics"; generated story files must keep the actor, operational outcome, decision consequence, and requirement traceability.
+
 ### Story 6.1: Observe Command Rejections and Tenant Isolation Denials Safely
 
 As an operator,
@@ -1981,6 +2172,12 @@ I want to observe projection freshness and publication health safely,
 So that I can respond to stale reads, rebuilds, and subscriber issues without inspecting protected content.
 
 **Requirements Covered:** FR96, FR97.
+
+**Ready for Dev Preconditions:**
+
+- Projection freshness blocking semantics and shared trust/freshness vocabulary are recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Telemetry redaction/cardinality ownership is recorded before projection freshness, publication health, or subscriber diagnostics signals are finalized.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
@@ -2070,6 +2267,11 @@ So that accepted scope, known gaps, and compensating controls are visible and re
 **When** accepted, rejected, expired, missing buyer acknowledgement, blocker waiver, compensating control, and review-due scenarios are exercised
 **Then** tests prove traceability, reviewability, safe evidence output, and no silent acceptance of release-blocking unknowns.
 
+**Given** a partial acceptance record references a waiver, unknown-accepted item, or deferred substrate capability
+**When** product owners review acceptance status
+**Then** the record links directly to waiver entries, conformance manifest rows, affected stories, and release-scope consequence statements
+**And** missing links block acceptance evidence from being marked complete.
+
 ### Story 6.6: Track Second-Adopter Status and Downgrade-Rule Milestones
 
 As a product owner,
@@ -2119,30 +2321,67 @@ So that I understand what Conversations owns and what remains with adjacent syst
 **Then** docs remain aligned with PRD, architecture, conformance manifest, and public developer guidance
 **And** stale or contradictory ownership claims are flagged.
 
-### Story 6.8: Validate Operational Telemetry Redaction and Cardinality
+### Story 6.8A: Validate Operational Telemetry Redaction
 
 As an SRE,
-I want telemetry redaction and cardinality gates for Conversations operations,
-So that observability remains useful without creating privacy, cost, or incident-noise risks.
+I want Conversations operational telemetry to redact unsafe values,
+So that incidents can be diagnosed without exposing conversation content, tenant boundaries, provider payloads, or protected identifiers.
 
 **Requirements Covered:** FR95-FR99 validation support; NFR55-NFR61.
 
-**Scope Note:** This story validates telemetry redaction and cardinality behavior across operational signals. Primary observability implementation remains in Stories 6.1-6.3 unless explicitly reassigned.
+**Scope Note:** This story validates telemetry redaction across operational signals. Telemetry cardinality and bounded dimensions are covered by Story 6.8B. Primary observability implementation remains in Stories 6.1-6.3 unless explicitly reassigned.
 
-**Assignment Rule:** Story 6.8 must not be assigned as a single ordinary feature implementation story unless one owner can complete both validation domains. Otherwise split it into Story 6.8 Validate Operational Telemetry Redaction and Story 6.9 Validate Operational Telemetry Cardinality Gates.
+**Ready for Dev Preconditions:**
+
+- Story 6.8 assignment plan is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Approved telemetry redaction rules, fixture set, evidence output, pass/fail gate, owner, and review date are recorded before validation starts.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
 
 **Acceptance Criteria:**
 
 **Given** metrics, logs, traces, diagnostics, dashboards, and evidence summaries are emitted
-**When** telemetry validation runs
-**Then** dimensions are bounded and approved, and they exclude conversation content, user free text, raw business record identifiers, prompt/content fragments, unbounded error strings, provider payloads, redacted content, and unauthorized identifiers
-**And** tenant ID appears only when approved by privacy or governance policy.
+**When** telemetry redaction validation runs
+**Then** outputs exclude conversation content, user free text, raw business record identifiers, prompt/content fragments, unbounded error strings, provider payloads, redacted content, unauthorized identifiers, inaccessible conversation existence, and cross-tenant Party details
+**And** tenant ID appears only when approved by privacy or governance policy for that surface.
 
 **Given** an operational signal needs correlation
 **When** correlation metadata is included
-**Then** it uses approved bounded identifiers or handles suitable for incident workflows
+**Then** it uses approved bounded identifiers, audit handles, release evidence handles, or incident-safe correlation handles
 **And** it does not include raw conversation IDs, Party IDs, provider IDs, file IDs, or business references unless explicitly approved for that surface.
 
-**Given** telemetry gate tests run
-**When** normal operations, high-cardinality inputs, redaction events, cross-tenant denials, provider errors, malformed metadata, and privileged access scenarios are exercised
-**Then** tests prove bounded cardinality, redaction of unsafe values, useful incident diagnostics, and failure on unsafe telemetry output.
+**Given** telemetry redaction tests run
+**When** normal operations, redaction events, cross-tenant denials, provider errors, malformed metadata, privileged access, stale projection, and audit unavailable scenarios are exercised
+**Then** tests prove unsafe values are redacted from telemetry and evidence summaries
+**And** failures identify the surface, forbidden value class, fixture, owner, and blocking/non-blocking classification.
+
+### Story 6.8B: Validate Operational Telemetry Cardinality Gates
+
+As an SRE,
+I want Conversations telemetry dimensions to stay bounded and approved,
+So that observability remains useful without creating cardinality cost, alert noise, or privacy risk.
+
+**Requirements Covered:** FR95-FR99 validation support; NFR55-NFR61.
+
+**Scope Note:** This story validates telemetry dimension cardinality and approval gates. Unsafe-value redaction is covered by Story 6.8A. Primary observability implementation remains in Stories 6.1-6.3 unless explicitly reassigned.
+
+**Ready for Dev Preconditions:**
+
+- Story 6.8 assignment plan is recorded in `_bmad-output/implementation-artifacts/readiness-gates.md` with state `decided` or `waived`.
+- Approved telemetry dimensions, maximum cardinality expectations, fixture set, evidence output, pass/fail gate, owner, and review date are recorded before validation starts.
+- Any waiver names owner, approver, expiry, compensating control, buyer impact, and review date.
+
+**Acceptance Criteria:**
+
+**Given** metrics, logs, traces, diagnostics, dashboards, alerts, and evidence summaries are emitted
+**When** telemetry cardinality validation runs
+**Then** dimensions are bounded and approved
+**And** raw conversation IDs, Party IDs, provider IDs, file IDs, business references, prompt fragments, content fragments, raw error strings, and unbounded external identifiers are rejected as telemetry dimensions unless explicitly approved for a named surface.
+
+**Given** high-cardinality and malformed operational inputs are processed
+**When** telemetry is emitted for normal operations, duplicate commands, projection lag, rebuild states, subscriber failures, redaction events, cross-tenant denials, provider errors, privileged access, and configuration gaps
+**Then** tests prove bounded cardinality, stable dimension names, approved value sets, useful incident diagnostics, and failure on unsafe or unapproved dimensions.
+
+**Given** dashboards, alert rules, or release evidence consume telemetry dimensions
+**When** dimension approvals change or a new operational signal is added
+**Then** the evidence records owner, approved dimension set, pass/fail gate, affected stories, and review date
+**And** the story cannot close if telemetry creates uncontrolled cardinality, content leakage risk, or incident-noise amplification without an approved waiver.

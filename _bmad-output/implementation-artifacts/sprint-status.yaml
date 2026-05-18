@@ -1,0 +1,112 @@
+# generated: 2026-05-17T14:17:58.2822735+02:00
+# last_updated: 2026-05-18T10:45:00.0000000+02:00
+# project: Hexalith.Conversations
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog -> in-progress: Automatically when first story is created (via create-story)
+#   - in-progress -> done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-05-17T14:17:58.2822735+02:00
+last_updated: 2026-05-18T10:45:00.0000000+02:00
+project: Hexalith.Conversations
+project_key: NOKEY
+tracking_system: file-system
+story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
+
+development_status:
+  epic-1: in-progress
+  1-1-set-up-initial-project-from-starter-template: review
+  1-2-define-conversation-identity-command-event-and-error-contracts: backlog
+  1-3-create-tenant-safe-conversation-aggregate: backlog
+  1-4-add-conversation-participants-with-stable-party-attribution: backlog
+  1-5-enforce-tenant-access-and-typed-fail-closed-rejections: backlog
+  1-6-add-idempotent-command-handling: backlog
+  1-7-project-conversation-read-models-with-freshness-metadata: backlog
+  1-8-retrieve-and-list-conversations-by-tenant-business-context: backlog
+  1-9-resolve-parties-and-upstream-references-at-read-time: backlog
+  1-10-publish-versioned-conversation-domain-events: backlog
+  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-define-governance-policy-and-audit-contracts: backlog
+  2-2-set-conversation-retention-policy-with-rationale: backlog
+  2-3-mark-conversation-content-as-sensitive: backlog
+  2-4-redact-message-content-with-audit-attribution: backlog
+  2-5-enforce-audit-pairing-and-audit-unavailable-fail-closed-behavior: backlog
+  2-6-reconstruct-point-in-time-governance-state: backlog
+  2-7-govern-audit-record-access-retention-and-redaction: backlog
+  2-8-record-and-review-privileged-operational-justification: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-find-tenant-scoped-conversations-safely: backlog
+  3-2-read-governed-conversation-evidence: backlog
+  3-3-inspect-redaction-attribution-and-governance-audit-trail: backlog
+  3-4-copy-citations-and-open-stable-temporal-evidence-links: backlog
+  3-5-preserve-read-only-compliance-workflows-and-safe-command-gates: backlog
+  3-6-run-governance-verification-and-return-structured-results: backlog
+  3-7-provide-self-serve-buyer-acceptance-demo: backlog
+  3-8a-verify-responsive-layout-and-mobile-safe-triage: backlog
+  3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: backlog
+  3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-publish-conversations-contract-package-and-compatibility-metadata: backlog
+  4-2-provide-supported-net-client-happy-path: backlog
+  4-3-expose-typed-sanitized-errors-and-remediation-guidance: backlog
+  4-4-define-core-preconditions-and-onboarding-diagnostics: backlog
+  4-5-provide-adopter-facing-conformance-tests-and-core-fixture: backlog
+  4-6-capture-caller-metadata-for-attribution-audit-and-composition: backlog
+  4-7-publish-developer-integration-guide-and-api-examples: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-publish-contract-compatibility-and-deprecation-policy: backlog
+  5-2-generate-signed-release-conformance-artifact: backlog
+  5-3-maintain-versioned-conformance-manifest-with-traceability: backlog
+  5-4-support-named-waivers-for-release-gate-exceptions: backlog
+  5-5-verify-tenant-isolation-conformance: backlog
+  5-6-verify-idempotent-command-conformance: backlog
+  5-7-verify-redaction-replay-conformance: backlog
+  5-8-prove-provider-portability: backlog
+  5-9-prove-event-schema-evolution: backlog
+  5-10-validate-commands-queries-events-errors-and-version-discovery: backlog
+  5-11-separate-module-level-evidence-from-platform-controls: backlog
+  epic-5-retrospective: optional
+  epic-6: backlog
+  6-1-observe-command-rejections-and-tenant-isolation-denials-safely: backlog
+  6-2-observe-projection-lag-rebuild-availability-and-publication-failures: backlog
+  6-3-surface-conformance-and-verification-status-for-incidents-and-ci: backlog
+  6-4-classify-release-scope-and-deferred-capability-consequences: backlog
+  6-5-support-buyer-partial-acceptance-and-waiver-review: backlog
+  6-6-track-second-adopter-status-and-downgrade-rule-milestones: backlog
+  6-7-publish-responsibility-boundary-documentation: backlog
+  6-8a-validate-operational-telemetry-redaction: backlog
+  6-8b-validate-operational-telemetry-cardinality-gates: backlog
+  epic-6-retrospective: optional
