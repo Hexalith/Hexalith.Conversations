@@ -286,6 +286,8 @@ Aspire AppHost for local orchestration, ServiceDefaults for observability/resili
 
 Local SDK is `10.0.300-preview.0.26177.108`. Installed templates default to `net10.0`; Aspire templates locally expose Aspire `13.0`, while current public Aspire documentation shows newer Aspire `13.3`. Package versions should be pinned through Central Package Management after an explicit architecture/package decision, not embedded in project files.
 
+Hexalith.Conversations adopts SDK `10.0.300` with `rollForward=latestPatch` as its baseline (Story 1.1 code review, 2026-05-18). This deviates from the sibling `10.0.103` historical pin and is the formally approved baseline for this module.
+
 **Sources:**
 
 - [.NET SDK templates](https://learn.microsoft.com/en-us/dotnet/core/tools/dotnet-new-sdk-templates)

@@ -1,6 +1,6 @@
 # Story 1.1: Set Up Initial Project from Starter Template
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -21,7 +21,7 @@ so that future conversation features can be implemented inside the approved Hexa
 ## Tasks / Subtasks
 
 - [x] Create the root .NET scaffold and solution entry point. (AC: 1, 3)
-  - [x] Add `global.json` aligned with sibling Hexalith module SDK policy: `10.0.103` with `rollForward` set to `latestPatch`; if the local SDK is missing, stop and record the tooling mismatch instead of silently changing target frameworks.
+  - [x] Add `global.json` aligned with the approved Hexalith.Conversations SDK policy: `10.0.300` with `rollForward` set to `latestPatch` (amended 2026-05-18 from the original `10.0.103` sibling pin after code review; the local SDK was `10.0.300` and the project formally adopts that baseline). If the local SDK is missing, stop and record the tooling mismatch instead of silently changing target frameworks.
   - [x] Add root `Directory.Build.props` adapted from sibling Hexalith modules, with `TargetFramework` `net10.0`, nullable enabled, implicit usings enabled, warnings as errors, deterministic builds, and Conversations-specific package metadata.
   - [x] Add root `Directory.Packages.props` with `ManagePackageVersionsCentrally=true`; seed versions from sibling module conventions only where a scaffold project actually references the package.
   - [x] Create `Hexalith.Conversations.slnx` and include root solution items such as `AGENTS.md`, `CLAUDE.md`, `.gitmodules`, `Directory.Build.props`, `Directory.Packages.props`, `global.json`, `LICENSE`, and any new `README.md`.
@@ -88,7 +88,7 @@ Architecture-provided initialization commands create:
 
 [Source: `_bmad-output/planning-artifacts/architecture.md#Selected Starter: Composite Hexalith .NET/Aspire Scaffold`]
 
-Local sibling modules pin SDK `10.0.103` and use `net10.0`. Architecture notes that local templates may expose a newer or preview .NET 10 SDK and Aspire template set. Prefer the repository/sibling SDK policy for committed files; verify local tooling before generating projects, and do not silently downgrade to `net9.0` or change package versions inline to make local tooling pass. [Source: `Hexalith.Folders/global.json`; `_bmad-output/project-context.md#Technology Stack & Versions`; `_bmad-output/planning-artifacts/architecture.md#Version Note`]
+Local sibling modules historically pin SDK `10.0.103` and use `net10.0`. The Conversations module formally adopts SDK `10.0.300` with `net10.0` as its baseline (amended 2026-05-18 from the original `10.0.103` after code-review decision; the architecture Version Note also describes the local SDK as `10.0.300-preview…`). Verify local tooling before generating projects, and do not silently downgrade to `net9.0` or change package versions inline to make local tooling pass. [Source: `Hexalith.Folders/global.json`; `_bmad-output/project-context.md#Technology Stack & Versions`; `_bmad-output/planning-artifacts/architecture.md#Version Note`]
 
 Latest official documentation confirms that .NET 10 defaults `dotnet new sln` to SLNX format, while NuGet Central Package Management requires package versions in `Directory.Packages.props` and `PackageReference` entries without `Version` in project files. Aspire templates provide separate AppHost and ServiceDefaults project templates for adding Aspire orchestration to an existing solution. [Source: Microsoft Learn `dotnet new sln` SLNX default, 2026-05-18 lookup; Microsoft Learn NuGet Central Package Management, 2026-05-18 lookup; Microsoft Learn Aspire templates, 2026-05-18 lookup]
 
@@ -225,6 +225,19 @@ GPT-5 Codex
 - `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
 
+### Review Findings
+
+- [x] [Review][Patch] SDK pin formally adopted as `10.0.300` (decision: amend spec/architecture). Story Dev Notes and `architecture.md#Version Note` updated 2026-05-18.
+- [x] [Review][Patch] `Hexalith.Conversations.Server.csproj` switched to `Microsoft.NET.Sdk.Web` with a fail-closed `Program.cs` that throws on startup (decision: align with architecture's webapi shape).
+- [x] [Review][Patch] `FindRepositoryRoot` now uses `Hexalith.Conversations.slnx` as the root sentinel instead of `_bmad-output/` [`tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs:104-120`].
+- [x] [Review][Patch] `ProjectPackageReferencesShouldNotDeclareInlineVersions` now asserts the project files list is non-empty and that at least one `<PackageReference>` was inspected [`tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs:69-97`].
+- [x] [Review][Patch] `ReadmeShouldDocumentSmokeValidationSafety` now asserts all 7 spec-required phrases [`tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs:96-110`].
+- [x] [Review][Defer] Boundary tests rely on `Assembly.GetReferencedAssemblies()` on empty marker assemblies — compiler retains only used references, so forbidden `<PackageReference>` additions can slip through [`tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs`, `Client.Tests/ClientBoundaryTest.cs`, `Server.Tests/ServerBoundaryTest.cs`, `Tests/DomainBoundaryTest.cs`] — deferred, pre-existing scaffold-only constraint; revisit when stories 1.2+ introduce content.
+- [x] [Review][Defer] No `Hexalith.Conversations.slnx` vs disk parity check — adding/removing a csproj on disk without updating the slnx (or vice versa) is undetected [`tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`] — deferred, coverage enhancement.
+- [x] [Review][Defer] `Directory.Build.props` sibling-module root probes silently set empty paths when sibling folders are absent [`Directory.Build.props:11-13`] — deferred, only material when sibling references are actually wired in later stories.
+
 ## Change Log
 
 - 2026-05-18: Implemented Story 1.1 scaffold and moved story to review.
+- 2026-05-18: Code review captured findings (2 decision-needed, 3 patch, 3 deferred).
+- 2026-05-18: Code review patches applied — SDK 10.0.300 formalized; Server switched to `Microsoft.NET.Sdk.Web` with fail-closed `Program.cs`; smoke-test sentinel decoupled from `_bmad-output/`; non-vacuous PackageReference assertion added; README phrase coverage extended to all seven spec phrases. Build clean (0/0), 8 tests pass. Story moved to done.

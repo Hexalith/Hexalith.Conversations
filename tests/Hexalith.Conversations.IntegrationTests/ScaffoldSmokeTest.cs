@@ -75,15 +75,24 @@ public sealed class ScaffoldSmokeTest
             .Concat(Directory.GetFiles(Path.Combine(root, "tests"), "*.csproj", SearchOption.AllDirectories))
             .ToArray();
 
+        projectFiles.ShouldNotBeEmpty("expected at least one csproj under src/ or tests/ to inspect");
+
+        int totalPackageReferences = 0;
         foreach (string projectFile in projectFiles)
         {
             XDocument project = XDocument.Load(projectFile);
-            IEnumerable<XElement> referencesWithVersions = project
-                .Descendants("PackageReference")
+            XElement[] packageReferences = [.. project.Descendants("PackageReference")];
+            totalPackageReferences += packageReferences.Length;
+
+            IEnumerable<XElement> referencesWithVersions = packageReferences
                 .Where(reference => reference.Attribute("Version") is not null || reference.Element("Version") is not null);
 
             referencesWithVersions.ShouldBeEmpty(Path.GetRelativePath(root, projectFile));
         }
+
+        totalPackageReferences.ShouldBeGreaterThan(
+            0,
+            "no PackageReference entries were inspected across any csproj — the inline-version check would pass vacuously");
     }
 
     /// <summary>
@@ -99,6 +108,9 @@ public sealed class ScaffoldSmokeTest
         readme.ShouldContain("Dapr sidecars", Case.Insensitive);
         readme.ShouldContain("nested submodule initialization", Case.Insensitive);
         readme.ShouldContain("provider credentials", Case.Insensitive);
+        readme.ShouldContain("tenant seed data", Case.Insensitive);
+        readme.ShouldContain("production secrets", Case.Insensitive);
+        readme.ShouldContain("external cloud resources", Case.Insensitive);
     }
 
     private static string FindRepositoryRoot()
@@ -108,7 +120,7 @@ public sealed class ScaffoldSmokeTest
         while (directory is not null)
         {
             if (File.Exists(Path.Combine(directory.FullName, "Directory.Packages.props"))
-                && Directory.Exists(Path.Combine(directory.FullName, "_bmad-output")))
+                && File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
             {
                 return directory.FullName;
             }
