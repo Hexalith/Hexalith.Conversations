@@ -1,6 +1,6 @@
 # Story 1.3: Create Tenant-Safe Conversation Aggregate
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -21,42 +21,42 @@ so that every conversation begins as a replayable, authorization-boundary-safe, 
 
 ## Tasks / Subtasks
 
-- [ ] Add the create-conversation domain command and aggregate entry point. (AC: 1, 3, 4)
-  - [ ] Add a domain-level `CreateConversation` command that consumes the public contract from Story 1.2 rather than defining a second public command shape.
-  - [ ] Before implementation, verify the Story 1.2 public create command, metadata, result, and rejection contracts are available; if they are not available, stop the dev-story as blocked instead of creating shadow DTOs, aliases, or temporary public contracts.
-  - [ ] Implement `ConversationAggregate : EventStoreAggregate<ConversationState>` with a static `Handle(CreateConversation command, ConversationState? state)` pattern aligned with the local EventStore sample aggregate.
-  - [ ] Return `DomainResult.Success(...)` with exactly one Conversations-domain `ConversationCreated` event for a valid new conversation.
-  - [ ] Return a typed rejection result for malformed command metadata, unsupported schema version, missing tenant binding, missing actor Party ID, missing/invalid conversation identity, create against already-created aggregate state, or forbidden provider/external identity substitution.
+- [x] Add the create-conversation domain command and aggregate entry point. (AC: 1, 3, 4)
+  - [x] Add a domain-level `CreateConversation` command that consumes the public contract from Story 1.2 rather than defining a second public command shape.
+  - [x] Before implementation, verify the Story 1.2 public create command, metadata, result, and rejection contracts are available; if they are not available, stop the dev-story as blocked instead of creating shadow DTOs, aliases, or temporary public contracts.
+  - [x] Implement `ConversationAggregate : EventStoreAggregate<ConversationState>` with a static `Handle(CreateConversation command, ConversationState? state)` pattern aligned with the local EventStore sample aggregate.
+  - [x] Return `DomainResult.Success(...)` with exactly one Conversations-domain `ConversationCreated` event for a valid new conversation.
+  - [x] Return a typed rejection result for malformed command metadata, unsupported schema version, missing tenant binding, missing actor Party ID, missing/invalid conversation identity, create against already-created aggregate state, or forbidden provider/external identity substitution.
 
-- [ ] Model deterministic conversation state replay. (AC: 2)
-  - [ ] Add `ConversationState` with tenant ID, conversation ID, lifecycle state, creator Party ID, created timestamp, business references, provider correlation metadata, and schema/version information needed by replay.
-  - [ ] Add `Apply(ConversationCreated e)` so replaying the same ordered event history produces the same state.
-  - [ ] Ensure the aggregate and replay path copy timestamps only from command metadata or persisted event data; do not call wall-clock APIs inside aggregate handling or state application.
-  - [ ] Add any required no-op rejection/tombstone apply method only if EventStore replay requires it; keep rejection handling deterministic and side-effect free.
-  - [ ] Do not add message list, participant membership, file attachment behavior, projections, publication, or read-time Party hydration in this story.
+- [x] Model deterministic conversation state replay. (AC: 2)
+  - [x] Add `ConversationState` with tenant ID, conversation ID, lifecycle state, creator Party ID, created timestamp, business references, provider correlation metadata, and schema/version information needed by replay.
+  - [x] Add `Apply(ConversationCreated e)` so replaying the same ordered event history produces the same state.
+  - [x] Ensure the aggregate and replay path copy timestamps only from command metadata or persisted event data; do not call wall-clock APIs inside aggregate handling or state application.
+  - [x] Add any required no-op rejection/tombstone apply method only if EventStore replay requires it; keep rejection handling deterministic and side-effect free.
+  - [x] Do not add message list, participant membership, file attachment behavior, projections, publication, or read-time Party hydration in this story.
 
-- [ ] Preserve tenant-safe and content-safe event semantics. (AC: 1, 3, 4)
-  - [ ] Keep durable event payloads to stable IDs and approved metadata: tenant ID, conversation ID, creator/actor Party ID, schema version, correlation/causation/idempotency metadata, business references, provider correlation metadata, and created timestamp.
-  - [ ] Ensure event and state types never contain Party display names, contact details, person/organization details, raw Parties/Tenants problem details, provider prompt/response payloads, raw upstream records, file metadata/content, EventStore stream/envelope/snapshot fields, access tokens, claims, or authorization state.
-  - [ ] Keep `ConversationId` the internal aggregate identity; provider IDs, labels, thread names, and external business IDs remain correlation or reference metadata only.
-  - [ ] Reject any attempt to use provider IDs, external IDs, labels, or thread names as `ConversationId`, tenant authority, actor authority, or Party identity authority.
+- [x] Preserve tenant-safe and content-safe event semantics. (AC: 1, 3, 4)
+  - [x] Keep durable event payloads to stable IDs and approved metadata: tenant ID, conversation ID, creator/actor Party ID, schema version, correlation/causation/idempotency metadata, business references, provider correlation metadata, and created timestamp.
+  - [x] Ensure event and state types never contain Party display names, contact details, person/organization details, raw Parties/Tenants problem details, provider prompt/response payloads, raw upstream records, file metadata/content, EventStore stream/envelope/snapshot fields, access tokens, claims, or authorization state.
+  - [x] Keep `ConversationId` the internal aggregate identity; provider IDs, labels, thread names, and external business IDs remain correlation or reference metadata only.
+  - [x] Reject any attempt to use provider IDs, external IDs, labels, or thread names as `ConversationId`, tenant authority, actor authority, or Party identity authority.
 
-- [ ] Add the narrow application/domain dispatch boundary. (AC: 1, 3, 5)
-  - [ ] Add only the minimal handler/mapper needed to translate the Story 1.2 create command contract into the domain command and dispatch through the aggregate pattern.
-  - [ ] Validate required metadata structurally at the boundary before aggregate dispatch: null command, missing tenant, missing actor Party ID, missing conversation identity, malformed metadata, unsupported schema version, and tenant/actor/identity mismatch all fail closed with typed rejection and no success event.
-  - [ ] Do not implement tenant membership authorization, local Tenants projection, REST endpoints, Dapr actors, EventStore actor persistence, idempotency storage, publication, FrontComposer UI, or conformance manifest generation here. Those are owned by later stories.
+- [x] Add the narrow application/domain dispatch boundary. (AC: 1, 3, 5)
+  - [x] Add only the minimal handler/mapper needed to translate the Story 1.2 create command contract into the domain command and dispatch through the aggregate pattern.
+  - [x] Validate required metadata structurally at the boundary before aggregate dispatch: null command, missing tenant, missing actor Party ID, missing conversation identity, malformed metadata, unsupported schema version, and tenant/actor/identity mismatch all fail closed with typed rejection and no success event.
+  - [x] Do not implement tenant membership authorization, local Tenants projection, REST endpoints, Dapr actors, EventStore actor persistence, idempotency storage, publication, FrontComposer UI, or conformance manifest generation here. Those are owned by later stories.
 
-- [ ] Add aggregate-focused tests and safety scans. (AC: 1-5)
-  - [ ] Add tests in `tests/Hexalith.Conversations.Tests` for successful create, deterministic rehydrate, duplicate create rejection, unsupported schema version rejection, missing tenant rejection, missing actor rejection, missing identity rejection, and provider/external identity separation.
-  - [ ] Add tests for accepted command/event schema version values and missing, malformed, unsupported, future, or legacy schema version rejection.
-  - [ ] Add payload/property inspection tests proving create events and state do not expose Party display names, emails, phone numbers, provider authority IDs, provider payloads, file metadata/content, raw upstream records, EventStore stream/envelope/snapshot terms, access tokens, claims, or authorization state.
-  - [ ] Add boundary tests that inspect `.csproj` XML for expected EventStore domain references and forbidden Server/UI/Tenants/Parties/HTTP/Dapr/Aspire/provider-SDK dependencies where assembly references could be optimized away.
-  - [ ] Use xUnit v3 and Shouldly; reuse `Hexalith.Conversations.Testing` factories when useful.
+- [x] Add aggregate-focused tests and safety scans. (AC: 1-5)
+  - [x] Add tests in `tests/Hexalith.Conversations.Tests` for successful create, deterministic rehydrate, duplicate create rejection, unsupported schema version rejection, missing tenant rejection, missing actor rejection, missing identity rejection, and provider/external identity separation.
+  - [x] Add tests for accepted command/event schema version values and missing, malformed, unsupported, future, or legacy schema version rejection.
+  - [x] Add payload/property inspection tests proving create events and state do not expose Party display names, emails, phone numbers, provider authority IDs, provider payloads, file metadata/content, raw upstream records, EventStore stream/envelope/snapshot terms, access tokens, claims, or authorization state.
+  - [x] Add boundary tests that inspect `.csproj` XML for expected EventStore domain references and forbidden Server/UI/Tenants/Parties/HTTP/Dapr/Aspire/provider-SDK dependencies where assembly references could be optimized away.
+  - [x] Use xUnit v3 and Shouldly; reuse `Hexalith.Conversations.Testing` factories when useful.
 
-- [ ] Validate the implementation scope. (AC: 5)
-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
-  - [ ] Do not run recursive submodule initialization. Root-level sibling module reads are enough if EventStore samples or contracts need inspection.
-  - [ ] Leave `sprint-status.yaml` untouched during dev-story unless the dev workflow owns the status transition.
+- [x] Validate the implementation scope. (AC: 5)
+  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
+  - [x] Do not run recursive submodule initialization. Root-level sibling module reads are enough if EventStore samples or contracts need inspection.
+  - [x] Leave `sprint-status.yaml` untouched during dev-story unless the dev workflow owns the status transition.
 
 ## Dev Notes
 
@@ -148,15 +148,42 @@ Validation must stay local and deterministic. Aggregate tests should be pure com
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
+
+- `dotnet test .\tests\Hexalith.Conversations.Tests\Hexalith.Conversations.Tests.csproj --no-restore` failed before implementation with missing aggregate/state/validation namespaces as expected.
+- `dotnet test .\tests\Hexalith.Conversations.Tests\Hexalith.Conversations.Tests.csproj --no-restore` passed after implementation: 22 / 22.
+- `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed after integration-boundary update: 93 / 93 across current test projects.
 
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Verified Story 1.2 create command, metadata, event metadata, schema version, ID, result, and rejection contracts existed before implementation.
+- Added `CreateConversation` domain command, `ConversationAggregate`, deterministic `ConversationState`, Conversations-domain `ConversationCreated` event, and content-safe `ConversationRejected` rejection event.
+- Added narrow `CreateConversationBoundary` mapper/validator path with fail-closed typed rejections for null/malformed command data, unsupported schema versions, duplicate creation, missing identity, invalid event identity, invalid created timestamp, and provider/external identity substitution.
+- Preserved story scope: no tenant membership authorization, tenant projection, Dapr actors, REST endpoints, EventStore actor persistence, idempotency storage, publication, UI, messages, participants, attachments, projections, or read-time Party hydration were added.
+- Added aggregate, replay, validation, payload-safety, and project-boundary tests; updated scaffold integration expectations for the new approved EventStore domain references.
 
 ### File List
+
+- `_bmad-output/implementation-artifacts/1-3-create-tenant-safe-conversation-aggregate.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/Hexalith.Conversations/Hexalith.Conversations.csproj`
+- `src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs`
+- `src/Hexalith.Conversations/Commands/CreateConversation.cs`
+- `src/Hexalith.Conversations/Events/ConversationCreated.cs`
+- `src/Hexalith.Conversations/Events/ConversationRejected.cs`
+- `src/Hexalith.Conversations/State/ConversationLifecycleState.cs`
+- `src/Hexalith.Conversations/State/ConversationState.cs`
+- `src/Hexalith.Conversations/Validation/CreateConversationBoundary.cs`
+- `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs`
+- `tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj`
+- `tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateCreateTest.cs`
+- `tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs`
+- `tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs`
+- `tests/Hexalith.Conversations.Tests/Validation/CreateConversationBoundaryTest.cs`
+- `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`
 
 ## Party-Mode Review
 
@@ -171,5 +198,6 @@ Validation must stay local and deterministic. Aggregate tests should be pure com
 
 ## Change Log
 
+- 2026-05-18: Implemented tenant-safe conversation aggregate creation, deterministic replay state, typed rejection validation, narrow boundary dispatch, and aggregate/project safety tests; moved story to review.
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review completed; low-risk clarifications applied and deferred decisions recorded.

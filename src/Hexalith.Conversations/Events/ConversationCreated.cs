@@ -1,0 +1,35 @@
+// <copyright file="ConversationCreated.cs" company="ITANEO">
+// Copyright (c) ITANEO. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+
+using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.EventStore.Contracts.Events;
+
+namespace Hexalith.Conversations.Events;
+
+/// <summary>
+/// Records the creation of a tenant-scoped conversation.
+/// </summary>
+/// <param name="metadata">The Conversations event metadata.</param>
+/// <param name="businessReference">An optional adopter-owned business reference.</param>
+/// <param name="projectId">An optional stable project reference.</param>
+/// <param name="folderId">An optional stable folder reference.</param>
+/// <param name="label">An optional UI label that is not identity.</param>
+/// <param name="idempotencyKey">The caller idempotency key copied from command metadata, when supplied.</param>
+/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
+public sealed record ConversationCreated(
+    ConversationEventMetadata Metadata,
+    BusinessReference? BusinessReference = null,
+    ProjectId? ProjectId = null,
+    FolderId? FolderId = null,
+    string? Label = null,
+    string? IdempotencyKey = null,
+    ProviderCorrelationMetadata? ProviderCorrelation = null) : IEventPayload
+{
+    /// <summary>
+    /// Gets the deterministic creation timestamp copied from event metadata.
+    /// </summary>
+    public DateTimeOffset CreatedAt => Metadata.CommittedAt;
+}
