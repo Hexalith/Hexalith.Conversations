@@ -22,12 +22,35 @@ public sealed record ProjectionFreshness(
     string? Guidance = null)
 {
     /// <summary>
+    /// Gets the public trust state.
+    /// </summary>
+    public ProjectionTrustState State { get; } = RequireNonNull(State, nameof(State));
+
+    /// <summary>
+    /// Gets the projection contract schema version.
+    /// </summary>
+    public SchemaVersion ProjectionContractSchemaVersion { get; } = RequireNonNull(ProjectionContractSchemaVersion, nameof(ProjectionContractSchemaVersion));
+
+    /// <summary>
     /// Gets the time at which the read state was observed.
     /// </summary>
     public DateTimeOffset ObservedAt { get; } = ValidateTimestamp(ObservedAt);
 
+    private static T RequireNonNull<T>(T value, string paramName) where T : class
+        => value ?? throw new ArgumentNullException(paramName);
+
     private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
-        => value <= DateTimeOffset.MinValue
-            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
-            : value;
+    {
+        if (value <= DateTimeOffset.MinValue)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.");
+        }
+
+        if (value.Year < 2000 || value.Year > 9999)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must fall within the plausible business range (year 2000-9999).");
+        }
+
+        return value;
+    }
 }

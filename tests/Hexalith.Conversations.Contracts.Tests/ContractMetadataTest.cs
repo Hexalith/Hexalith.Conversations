@@ -57,12 +57,12 @@ public sealed class ContractMetadataTest
             ],
             ignoreOrder: true);
 
-        AssertPropertyType<ConversationCommandMetadata, SchemaVersion>(nameof(ConversationCommandMetadata.SchemaVersion));
-        AssertPropertyType<ConversationCommandMetadata, TenantId>(nameof(ConversationCommandMetadata.TenantId));
-        AssertPropertyType<ConversationCommandMetadata, PartyId>(nameof(ConversationCommandMetadata.ActorPartyId));
-        AssertPropertyType<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.CorrelationId));
-        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.CausationId));
-        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.IdempotencyKey));
+        AssertNonNullableProperty<ConversationCommandMetadata, SchemaVersion>(nameof(ConversationCommandMetadata.SchemaVersion));
+        AssertNonNullableProperty<ConversationCommandMetadata, TenantId>(nameof(ConversationCommandMetadata.TenantId));
+        AssertNonNullableProperty<ConversationCommandMetadata, PartyId>(nameof(ConversationCommandMetadata.ActorPartyId));
+        AssertNonNullableProperty<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.CorrelationId));
+        AssertNullableReferenceProperty<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.CausationId));
+        AssertNullableReferenceProperty<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.IdempotencyKey));
     }
 
     /// <summary>
@@ -102,27 +102,45 @@ public sealed class ContractMetadataTest
             ],
             ignoreOrder: true);
 
-        AssertPropertyType<ConversationEventMetadata, SchemaVersion>(nameof(ConversationEventMetadata.SchemaVersion));
-        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.EventId));
-        AssertPropertyType<ConversationEventMetadata, ConversationEventType>(nameof(ConversationEventMetadata.EventType));
-        AssertPropertyType<ConversationEventMetadata, TenantId>(nameof(ConversationEventMetadata.TenantId));
-        AssertPropertyType<ConversationEventMetadata, ConversationId>(nameof(ConversationEventMetadata.ConversationId));
-        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CorrelationId));
-        AssertPropertyType<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.CommittedAt));
-        AssertPropertyType<ConversationEventMetadata, PartyId?>(nameof(ConversationEventMetadata.ActorPartyId));
-        AssertPropertyType<ConversationEventMetadata, string?>(nameof(ConversationEventMetadata.CausationId));
+        AssertNonNullableProperty<ConversationEventMetadata, SchemaVersion>(nameof(ConversationEventMetadata.SchemaVersion));
+        AssertNonNullableProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.EventId));
+        AssertNonNullableProperty<ConversationEventMetadata, ConversationEventType>(nameof(ConversationEventMetadata.EventType));
+        AssertNonNullableProperty<ConversationEventMetadata, TenantId>(nameof(ConversationEventMetadata.TenantId));
+        AssertNonNullableProperty<ConversationEventMetadata, ConversationId>(nameof(ConversationEventMetadata.ConversationId));
+        AssertNonNullableProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CorrelationId));
+        AssertNonNullableProperty<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.CommittedAt));
+        AssertNonNullableProperty<ConversationEventMetadata, PartyId>(nameof(ConversationEventMetadata.ActorPartyId));
+        AssertNullableReferenceProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CausationId));
 
-        AssertPropertyType<ConversationCommandAcceptedResult, ConversationCommandType>(
+        AssertNonNullableProperty<ConversationCommandAcceptedResult, ConversationCommandType>(
             nameof(ConversationCommandAcceptedResult.CommandType));
-        AssertPropertyType<ConversationCreatedResult, ConversationCommandType>(
+        AssertNonNullableProperty<ConversationCreatedResult, ConversationCommandType>(
             nameof(ConversationCreatedResult.CommandType));
     }
 
-    private static void AssertPropertyType<TContract, TProperty>(string propertyName)
+    private static void AssertNonNullableProperty<TContract, TProperty>(string propertyName)
     {
-        PropertyInfo? property = typeof(TContract).GetProperty(propertyName);
+        PropertyInfo property = typeof(TContract).GetProperty(propertyName)
+            ?? throw new Xunit.Sdk.XunitException($"{typeof(TContract).Name}.{propertyName} not found.");
 
-        property.ShouldNotBeNull($"{typeof(TContract).Name}.{propertyName}");
-        property.PropertyType.ShouldBe(typeof(TProperty), $"{typeof(TContract).Name}.{propertyName}");
+        property.PropertyType.ShouldBe(typeof(TProperty), $"{typeof(TContract).Name}.{propertyName} property type.");
+
+        if (!typeof(TProperty).IsValueType)
+        {
+            NullabilityInfo nullability = new NullabilityInfoContext().Create(property);
+            nullability.ReadState.ShouldBe(NullabilityState.NotNull, $"{typeof(TContract).Name}.{propertyName} must be declared non-nullable.");
+        }
+    }
+
+    private static void AssertNullableReferenceProperty<TContract, TProperty>(string propertyName)
+        where TProperty : class
+    {
+        PropertyInfo property = typeof(TContract).GetProperty(propertyName)
+            ?? throw new Xunit.Sdk.XunitException($"{typeof(TContract).Name}.{propertyName} not found.");
+
+        property.PropertyType.ShouldBe(typeof(TProperty), $"{typeof(TContract).Name}.{propertyName} property type.");
+
+        NullabilityInfo nullability = new NullabilityInfoContext().Create(property);
+        nullability.ReadState.ShouldBe(NullabilityState.Nullable, $"{typeof(TContract).Name}.{propertyName} must be declared nullable.");
     }
 }

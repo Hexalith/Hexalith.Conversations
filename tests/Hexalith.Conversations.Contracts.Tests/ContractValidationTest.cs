@@ -8,6 +8,8 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 
 using Shouldly;
@@ -39,6 +41,20 @@ public sealed class ContractValidationTest
     }
 
     /// <summary>
+    /// Ensures <see cref="UnsupportedSchemaVersion"/> rejects payloads whose requested version
+    /// is actually supported (inside the [minimum, active] inclusive range).
+    /// </summary>
+    [Theory]
+    [InlineData(1, 1, 1)]
+    [InlineData(2, 1, 3)]
+    [InlineData(3, 1, 3)]
+    public void UnsupportedSchemaVersionShouldRejectInRangeRequest(int requested, int min, int active)
+        => Should.Throw<ArgumentOutOfRangeException>(() => new UnsupportedSchemaVersion(
+            new SchemaVersion(requested),
+            new SchemaVersion(active),
+            new SchemaVersion(min)));
+
+    /// <summary>
     /// Ensures error result wrappers contain at least one non-null error.
     /// </summary>
     [Fact]
@@ -49,14 +65,38 @@ public sealed class ContractValidationTest
     }
 
     /// <summary>
-    /// Ensures public timestamps reject the default minimum value.
+    /// Ensures the error result snapshots its input so post-construction list mutation is invisible.
     /// </summary>
     [Fact]
-    public void TimestampContractsShouldRejectDefaultMinimumValue()
+    public void ErrorResultShouldSnapshotInputList()
     {
+        ConversationError original = ContractSamples.SafeError(ConversationErrorCode.IdempotencyConflict);
+        ConversationError replacement = ContractSamples.SafeError(ConversationErrorCode.TenantBindingMissing);
+
+        List<ConversationError> input = [original];
+        ConversationErrorResult result = new(input);
+
+        input[0] = replacement;
+
+        result.Errors.ShouldHaveSingleItem();
+        result.Errors[0].ShouldBe(original);
+    }
+
+    /// <summary>
+    /// Ensures public timestamps reject the default minimum value and out-of-range years.
+    /// </summary>
+    [Theory]
+    [InlineData(0, 1, 1)] // MinValue
+    [InlineData(1999, 12, 31)] // below business floor
+    public void TimestampContractsShouldRejectImplausibleValues(int year, int month, int day)
+    {
+        DateTimeOffset stamp = year == 0
+            ? DateTimeOffset.MinValue
+            : new DateTimeOffset(year, month, day, 0, 0, 0, TimeSpan.Zero);
+
         Should.Throw<ArgumentOutOfRangeException>(() => new ProjectionFreshness(
             ContractSamples.Freshness.State,
-            DateTimeOffset.MinValue,
+            stamp,
             ContractSamples.Version));
 
         Should.Throw<ArgumentOutOfRangeException>(() => new ConversationEventMetadata(
@@ -66,7 +106,8 @@ public sealed class ContractValidationTest
             ContractSamples.Tenant,
             ContractSamples.Conversation,
             "correlation-001",
-            DateTimeOffset.MinValue));
+            stamp,
+            ContractSamples.Actor));
 
         Should.Throw<ArgumentOutOfRangeException>(() => new ConversationMessageProjection(
             ContractSamples.Tenant,
@@ -74,29 +115,41 @@ public sealed class ContractValidationTest
             ContractSamples.Message,
             ContractSamples.Actor,
             "Hello",
-            DateTimeOffset.MinValue,
+            stamp,
             ContractSamples.Freshness));
     }
 
     /// <summary>
-    /// Ensures required metadata strings cannot be empty.
+    /// Ensures required metadata strings cannot be empty across every whitespace variant.
     /// </summary>
-    [Fact]
-    public void RequiredMetadataStringsShouldRejectWhitespace()
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    [InlineData("")]
+    public void RequiredMetadataStringsShouldRejectWhitespace(string value)
     {
         Should.Throw<ArgumentException>(() => new ConversationCommandMetadata(
             ContractSamples.Version,
             ContractSamples.Tenant,
             ContractSamples.Actor,
-            " "));
+            value));
 
         Should.Throw<ArgumentException>(() => new ConversationError(
             ContractSamples.Version,
             ConversationErrorCode.CommandValidationFailed,
             ConversationErrorCategory.Validation,
             false,
-            "\t"));
+            value));
+    }
 
+    /// <summary>
+    /// Ensures empty event identifiers are rejected at event metadata construction.
+    /// </summary>
+    [Fact]
+    public void EventIdentifierShouldRejectEmpty()
+    {
         Should.Throw<ArgumentException>(() => new ConversationEventMetadata(
             ContractSamples.Version,
             string.Empty,
@@ -104,24 +157,53 @@ public sealed class ContractValidationTest
             ContractSamples.Tenant,
             ContractSamples.Conversation,
             "correlation-001",
-            ContractSamples.EventMetadata.CommittedAt));
+            ContractSamples.EventMetadata.CommittedAt,
+            ContractSamples.Actor));
     }
 
     /// <summary>
-    /// Ensures optional reason codes are either absent or meaningful.
+    /// Ensures non-nullable identifier parameters reject null at envelope construction.
     /// </summary>
     [Fact]
-    public void OptionalReasonCodesShouldRejectWhitespaceWhenProvided()
+    public void EnvelopeRecordsShouldRejectNullIdentifiers()
+    {
+        Should.Throw<ArgumentNullException>(() => new ConversationCommandMetadata(
+            ContractSamples.Version,
+            null!,
+            ContractSamples.Actor,
+            "correlation-001"));
+
+        Should.Throw<ArgumentNullException>(() => new ConversationEventMetadata(
+            ContractSamples.Version,
+            "event-001",
+            ConversationEventType.ConversationCreated,
+            null!,
+            ContractSamples.Conversation,
+            "correlation-001",
+            ContractSamples.EventMetadata.CommittedAt,
+            ContractSamples.Actor));
+    }
+
+    /// <summary>
+    /// Ensures optional reason codes are either absent or meaningful across every whitespace variant.
+    /// </summary>
+    [Theory]
+    [InlineData(" ")]
+    [InlineData("\t")]
+    [InlineData("\n")]
+    [InlineData("\r\n")]
+    [InlineData("")]
+    public void OptionalReasonCodesShouldRejectWhitespaceWhenProvided(string value)
     {
         Should.Throw<ArgumentException>(() => new CloseConversationCommand(
             ContractSamples.CommandMetadata,
             ContractSamples.Conversation,
-            " "));
+            value));
 
         Should.Throw<ArgumentException>(() => new ArchiveConversationCommand(
             ContractSamples.CommandMetadata,
             ContractSamples.Conversation,
-            "\n"));
+            value));
     }
 
     /// <summary>
@@ -142,6 +224,31 @@ public sealed class ContractValidationTest
     }
 
     /// <summary>
+    /// Ensures provider correlation extension data rejects empty keys and null values.
+    /// </summary>
+    [Fact]
+    public void ProviderCorrelationMetadataShouldRejectMalformedExtensionData()
+    {
+        Should.Throw<ArgumentException>(() => new ProviderCorrelationMetadata(
+            "provider-a",
+            "assistant",
+            ContractSamples.Version,
+            ExtensionData: new Dictionary<string, string>
+            {
+                [" "] = "value",
+            }));
+
+        Should.Throw<ArgumentException>(() => new ProviderCorrelationMetadata(
+            "provider-a",
+            "assistant",
+            ContractSamples.Version,
+            ExtensionData: new Dictionary<string, string?>
+            {
+                ["region"] = null,
+            }! as IReadOnlyDictionary<string, string>));
+    }
+
+    /// <summary>
     /// Ensures participant lists are adopter-friendly when no participants are present.
     /// </summary>
     [Fact]
@@ -153,5 +260,31 @@ public sealed class ContractValidationTest
             ContractSamples.Freshness);
 
         projection.ParticipantPartyIds.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// Ensures conversation summary rejects participant lists containing null elements.
+    /// </summary>
+    [Fact]
+    public void ConversationSummaryProjectionShouldRejectNullParticipantElements()
+    {
+        Should.Throw<ArgumentException>(() => new ConversationSummaryProjection(
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            ContractSamples.Freshness,
+            ParticipantPartyIds: [null!]));
+    }
+
+    /// <summary>
+    /// Closed-vocabulary types reject unknown values at <c>Parse</c>.
+    /// </summary>
+    [Fact]
+    public void ClosedVocabularyParseShouldRejectUnknownValues()
+    {
+        Should.Throw<ArgumentException>(() => ConversationErrorCode.Parse("bogus_code"));
+        Should.Throw<ArgumentException>(() => ConversationErrorCategory.Parse("bogus"));
+        Should.Throw<ArgumentException>(() => ConversationEventType.Parse("BogusEvent"));
+        Should.Throw<ArgumentException>(() => ConversationCommandType.Parse("BogusCommand"));
+        Should.Throw<ArgumentException>(() => ProjectionTrustState.Parse("Bogus"));
     }
 }

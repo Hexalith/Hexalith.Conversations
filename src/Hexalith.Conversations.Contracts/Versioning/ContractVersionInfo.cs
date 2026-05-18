@@ -17,19 +17,18 @@ public sealed record ContractVersionInfo(
     SchemaVersion MinimumSupportedSchemaVersion)
 {
     /// <summary>
-    /// Gets the active schema version.
-    /// </summary>
-    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
-
-    /// <summary>
     /// Gets the minimum supported schema version.
     /// </summary>
     public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
 
     private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
-        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
+    {
+        ArgumentNullException.ThrowIfNull(activeSchemaVersion);
+        ArgumentNullException.ThrowIfNull(minimumSupportedSchemaVersion);
+        return minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
             ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
             : minimumSupportedSchemaVersion;
+    }
 }
 
 /// <summary>
@@ -44,17 +43,26 @@ public sealed record UnsupportedSchemaVersion(
     SchemaVersion MinimumSupportedSchemaVersion)
 {
     /// <summary>
-    /// Gets the active schema version.
-    /// </summary>
-    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
-
-    /// <summary>
     /// Gets the minimum supported schema version.
     /// </summary>
-    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
+    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateInvariant(RequestedSchemaVersion, ActiveSchemaVersion, MinimumSupportedSchemaVersion);
 
-    private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
-        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
-            ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
-            : minimumSupportedSchemaVersion;
+    private static SchemaVersion ValidateInvariant(SchemaVersion requestedSchemaVersion, SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
+    {
+        ArgumentNullException.ThrowIfNull(requestedSchemaVersion);
+        ArgumentNullException.ThrowIfNull(activeSchemaVersion);
+        ArgumentNullException.ThrowIfNull(minimumSupportedSchemaVersion);
+
+        if (minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value)
+        {
+            throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.");
+        }
+
+        if (requestedSchemaVersion.Value >= minimumSupportedSchemaVersion.Value && requestedSchemaVersion.Value <= activeSchemaVersion.Value)
+        {
+            throw new ArgumentOutOfRangeException(nameof(requestedSchemaVersion), "Requested schema version must fall outside the [minimum, active] supported range.");
+        }
+
+        return minimumSupportedSchemaVersion;
+    }
 }

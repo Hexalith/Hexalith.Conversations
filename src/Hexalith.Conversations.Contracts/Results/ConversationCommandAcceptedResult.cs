@@ -25,4 +25,39 @@ public sealed record ConversationCommandAcceptedResult(
     ConversationCommandType CommandType,
     string CorrelationId,
     string? IdempotencyKey,
-    ReadModelVisibility Visibility);
+    ReadModelVisibility Visibility)
+{
+    /// <summary>
+    /// Gets the result schema version.
+    /// </summary>
+    public SchemaVersion SchemaVersion { get; } = RequireNonNull(SchemaVersion, nameof(SchemaVersion));
+
+    /// <summary>
+    /// Gets the tenant binding.
+    /// </summary>
+    public TenantId TenantId { get; } = RequireNonNull(TenantId, nameof(TenantId));
+
+    /// <summary>
+    /// Gets the tenant-scoped conversation identity.
+    /// </summary>
+    public ConversationId ConversationId { get; } = RequireNonNull(ConversationId, nameof(ConversationId));
+
+    /// <summary>
+    /// Gets the accepted public command type.
+    /// </summary>
+    public ConversationCommandType CommandType { get; } = RequireNonNull(CommandType, nameof(CommandType));
+
+    /// <summary>
+    /// Gets the accepted correlation identifier.
+    /// </summary>
+    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
+
+    private static string ValidateRequired(string value)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        return value;
+    }
+
+    private static T RequireNonNull<T>(T value, string paramName) where T : class
+        => value ?? throw new ArgumentNullException(paramName);
+}

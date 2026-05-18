@@ -15,12 +15,39 @@ namespace Hexalith.Conversations.Contracts.Results;
 [JsonConverter(typeof(ConversationCommandTypeJsonConverter))]
 public sealed record ConversationCommandType
 {
+    /// <summary>
+    /// Gets the command type for creating a new conversation.
+    /// </summary>
     public static ConversationCommandType CreateConversationCommand { get; } = new(nameof(CreateConversationCommand));
+
+    /// <summary>
+    /// Gets the command type for appending a message to a conversation.
+    /// </summary>
     public static ConversationCommandType AppendMessageCommand { get; } = new(nameof(AppendMessageCommand));
+
+    /// <summary>
+    /// Gets the command type for adding a participant to a conversation.
+    /// </summary>
     public static ConversationCommandType AddParticipantCommand { get; } = new(nameof(AddParticipantCommand));
+
+    /// <summary>
+    /// Gets the command type for attaching a file reference to a conversation.
+    /// </summary>
     public static ConversationCommandType AttachFileReferenceCommand { get; } = new(nameof(AttachFileReferenceCommand));
+
+    /// <summary>
+    /// Gets the command type for updating conversation metadata.
+    /// </summary>
     public static ConversationCommandType UpdateConversationMetadataCommand { get; } = new(nameof(UpdateConversationMetadataCommand));
+
+    /// <summary>
+    /// Gets the command type for closing a conversation.
+    /// </summary>
     public static ConversationCommandType CloseConversationCommand { get; } = new(nameof(CloseConversationCommand));
+
+    /// <summary>
+    /// Gets the command type for archiving a conversation.
+    /// </summary>
     public static ConversationCommandType ArchiveConversationCommand { get; } = new(nameof(ArchiveConversationCommand));
 
     private static readonly IReadOnlyDictionary<string, ConversationCommandType> KnownTypes =
@@ -47,11 +74,11 @@ public sealed record ConversationCommandType
     public string Value { get; }
 
     /// <summary>
-    /// Resolves a supported public command type.
+    /// Resolves a supported public command type. Matching is case-sensitive on canonical PascalCase values.
     /// </summary>
     /// <param name="value">The public command type value.</param>
     /// <returns>The matching command type.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or not a canonical supported value.</exception>
     public static ConversationCommandType Parse(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);

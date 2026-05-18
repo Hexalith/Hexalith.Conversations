@@ -10,6 +10,12 @@ namespace Hexalith.Conversations.Contracts.Errors;
 /// <summary>
 /// Describes a content-safe machine-readable Conversations failure.
 /// </summary>
+/// <remarks>
+/// The blocklist on free-text fields (<see cref="CorrelationId"/>, <see cref="AuditHandle"/>,
+/// <see cref="DeveloperGuidance"/>, and <see cref="SafeFieldDiagnostics"/> entries) is best-effort
+/// only. The primary non-disclosure mechanism is the closed-vocabulary <see cref="Code"/> and
+/// <see cref="Category"/>.
+/// </remarks>
 /// <param name="schemaVersion">The error schema version.</param>
 /// <param name="code">The stable machine-readable error code.</param>
 /// <param name="category">The broad machine-readable error category.</param>
@@ -30,61 +36,94 @@ public sealed record ConversationError(
     IReadOnlyDictionary<string, string>? SafeFieldDiagnostics = null,
     string? DeveloperGuidance = null)
 {
+    private static readonly string[] UnsafeTerms =
+    [
+        "other-tenant",
+        "redacted content",
+        "provider-a",
+        "EventStore",
+        "envelope",
+        "stream",
+        "snapshot",
+        "sequence",
+        "expected revision",
+        "checkpoint",
+        "SignalR",
+        "projection topology",
+        "handler",
+        "dispatcher",
+        "repository",
+        "store",
+        "aggregate identity",
+        "raw upstream",
+    ];
+
     /// <summary>
     /// Gets the safe correlation identifier.
     /// </summary>
-    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
+    public string CorrelationId { get; } = EnsureSafeRequiredText(CorrelationId, nameof(CorrelationId));
 
     /// <summary>
-    /// Gets optional non-disclosing field diagnostics.
+    /// Gets the optional safe audit handle.
     /// </summary>
-    public IReadOnlyDictionary<string, string>? SafeFieldDiagnostics { get; } = ValidateSafeDiagnostics(SafeFieldDiagnostics);
+    public string? AuditHandle { get; } = EnsureSafeOptionalText(AuditHandle, nameof(AuditHandle));
 
     /// <summary>
-    /// Gets optional safe developer guidance.
+    /// Gets the optional non-disclosing field diagnostics.
     /// </summary>
-    public string? DeveloperGuidance { get; } = ValidateSafeText(DeveloperGuidance, nameof(DeveloperGuidance));
+    public IReadOnlyDictionary<string, string>? SafeFieldDiagnostics { get; } = EnsureSafeDiagnostics(SafeFieldDiagnostics);
 
-    private static string ValidateRequired(string value)
+    /// <summary>
+    /// Gets the optional safe developer guidance.
+    /// </summary>
+    public string? DeveloperGuidance { get; } = EnsureSafeOptionalText(DeveloperGuidance, nameof(DeveloperGuidance));
+
+    private static string EnsureSafeRequiredText(string value, string parameterName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+        EnsureContentSafe(value, parameterName);
         return value;
     }
 
-    private static IReadOnlyDictionary<string, string>? ValidateSafeDiagnostics(IReadOnlyDictionary<string, string>? diagnostics)
-    {
-        if (diagnostics is null)
-        {
-            return null;
-        }
-
-        foreach (KeyValuePair<string, string> diagnostic in diagnostics)
-        {
-            ValidateSafeText(diagnostic.Key, nameof(SafeFieldDiagnostics));
-            ValidateSafeText(diagnostic.Value, nameof(SafeFieldDiagnostics));
-        }
-
-        return diagnostics;
-    }
-
-    private static string? ValidateSafeText(string? value, string parameterName)
+    private static string? EnsureSafeOptionalText(string? value, string parameterName)
     {
         if (value is null)
         {
             return null;
         }
 
-        string[] unsafeTerms =
-        [
-            "other-tenant",
-            "exists",
-            "redacted content",
-            "provider-a",
-            "storage",
-        ];
+        EnsureContentSafe(value, parameterName);
+        return value;
+    }
 
-        return unsafeTerms.Any(term => value.Contains(term, StringComparison.OrdinalIgnoreCase))
-            ? throw new ArgumentException("Error details must remain content-safe.", parameterName)
-            : value;
+    private static IReadOnlyDictionary<string, string>? EnsureSafeDiagnostics(IReadOnlyDictionary<string, string>? diagnostics)
+    {
+        if (diagnostics is null)
+        {
+            return null;
+        }
+
+        Dictionary<string, string> validated = new(diagnostics.Count, StringComparer.Ordinal);
+        foreach (KeyValuePair<string, string> diagnostic in diagnostics)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(diagnostic.Key, $"{nameof(SafeFieldDiagnostics)}.Key");
+            ArgumentNullException.ThrowIfNull(diagnostic.Value, $"{nameof(SafeFieldDiagnostics)}.Value");
+            EnsureContentSafe(diagnostic.Key, $"{nameof(SafeFieldDiagnostics)}.Key");
+            EnsureContentSafe(diagnostic.Value, $"{nameof(SafeFieldDiagnostics)}.Value");
+            validated.Add(diagnostic.Key, diagnostic.Value);
+        }
+
+        return validated;
+    }
+
+    private static void EnsureContentSafe(string value, string parameterName)
+    {
+        foreach (string term in UnsafeTerms)
+        {
+            if (value.Contains(term, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException($"Error details must remain content-safe; the value contained the forbidden term fragment '{term}'.", parameterName);
+            }
+        }
     }
 }

@@ -10,10 +10,14 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// <summary>
 /// Records that a message was appended to a conversation.
 /// </summary>
+/// <remarks>
+/// Story 1.4.1 will define the length cap, encoding contract, and inline-vs-reference policy
+/// for <see cref="Text"/>. Until then this contract carries the message body inline as a string.
+/// </remarks>
 /// <param name="metadata">The public event metadata.</param>
 /// <param name="messageId">The stable message identity.</param>
 /// <param name="authorPartyId">The stable Party reference for the author.</param>
-/// <param name="text">The message text supplied by the caller. TODO Story 1.4.1 defines length caps, encoding, and inline-vs-reference policy.</param>
+/// <param name="text">The message text supplied by the caller.</param>
 /// <param name="providerCorrelation">Optional provider correlation metadata.</param>
 public sealed record MessageAppended(
     ConversationEventMetadata Metadata,

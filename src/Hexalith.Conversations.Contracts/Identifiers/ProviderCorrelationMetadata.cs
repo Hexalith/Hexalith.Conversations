@@ -27,16 +27,52 @@ public sealed record ProviderCorrelationMetadata(
     /// <summary>
     /// Gets the provider name as safe correlation metadata.
     /// </summary>
-    public string ProviderName { get; } = ValidateRequired(ProviderName);
+    public string ProviderName { get; } = ValidateRequired(ProviderName, nameof(ProviderName));
 
     /// <summary>
     /// Gets the provider category as safe correlation metadata.
     /// </summary>
-    public string ProviderType { get; } = ValidateRequired(ProviderType);
+    public string ProviderType { get; } = ValidateRequired(ProviderType, nameof(ProviderType));
 
-    private static string ValidateRequired(string value)
+    /// <summary>
+    /// Gets the schema version for the provider metadata extension.
+    /// </summary>
+    public SchemaVersion MetadataSchemaVersion { get; } = RequireNonNull(MetadataSchemaVersion, nameof(MetadataSchemaVersion));
+
+    /// <summary>
+    /// Gets the bounded opaque extension bag.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? ExtensionData { get; } = ValidateExtensionData(ExtensionData);
+
+    private static string ValidateRequired(string value, string parameterName)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value);
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
         return value;
+    }
+
+    private static T RequireNonNull<T>(T value, string paramName) where T : class
+        => value ?? throw new ArgumentNullException(paramName);
+
+    private static IReadOnlyDictionary<string, string>? ValidateExtensionData(IReadOnlyDictionary<string, string>? extensionData)
+    {
+        if (extensionData is null)
+        {
+            return null;
+        }
+
+        foreach (KeyValuePair<string, string> entry in extensionData)
+        {
+            if (string.IsNullOrWhiteSpace(entry.Key))
+            {
+                throw new ArgumentException("Extension data keys must be non-empty.", nameof(extensionData));
+            }
+
+            if (entry.Value is null)
+            {
+                throw new ArgumentException($"Extension data value for key '{entry.Key}' must not be null.", nameof(extensionData));
+            }
+        }
+
+        return extensionData;
     }
 }

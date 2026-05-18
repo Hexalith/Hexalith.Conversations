@@ -20,8 +20,17 @@ public sealed record ConversationErrorResult(IReadOnlyList<ConversationError> Er
     {
         ArgumentNullException.ThrowIfNull(errors);
 
-        return errors.Count == 0 || errors.Any(error => error is null)
-            ? throw new ArgumentException("At least one non-null error is required.", nameof(errors))
-            : errors;
+        if (errors.Count == 0)
+        {
+            throw new ArgumentException("At least one non-null error is required.", nameof(errors));
+        }
+
+        ConversationError[] snapshot = errors.ToArray();
+        if (snapshot.Any(error => error is null))
+        {
+            throw new ArgumentException("At least one non-null error is required.", nameof(errors));
+        }
+
+        return snapshot;
     }
 }

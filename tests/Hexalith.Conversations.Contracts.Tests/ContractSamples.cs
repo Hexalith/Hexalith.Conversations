@@ -57,6 +57,16 @@ internal static class ContractSamples
         Actor,
         "causation-001");
 
+    internal static readonly ConversationEventMetadata EventMetadataWithoutCausation = new(
+        Version,
+        "event-002",
+        ConversationEventType.ConversationCreated,
+        Tenant,
+        Conversation,
+        "correlation-002",
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Actor);
+
     internal static readonly ProjectionFreshness Freshness = new(
         ProjectionTrustState.Current,
         new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
@@ -72,6 +82,10 @@ internal static class ContractSamples
         Version,
         new ContractVersionInfo("Conversations", Version, Version),
         new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
+        ConversationCommandType.CreateConversationCommand,
+        ConversationEventType.ConversationCreated,
+        ConversationErrorCode.TenantIsolationViolation,
+        ConversationErrorCategory.Authorization,
         Tenant,
         Conversation,
         Actor,
@@ -103,7 +117,7 @@ internal static class ContractSamples
         new ConversationMessageProjection(Tenant, Conversation, Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, Freshness),
         Visibility,
         new ConversationCommandAcceptedResult(Version, Tenant, Conversation, ConversationCommandType.AppendMessageCommand, "correlation-001", "idempotency-001", Visibility),
-        new ConversationCreatedResult(Version, ConversationCommandType.CreateConversationCommand, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
+        new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility, ConversationCommandType.CreateConversationCommand),
         SafeError(ConversationErrorCode.TenantIsolationViolation),
         new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
     ];

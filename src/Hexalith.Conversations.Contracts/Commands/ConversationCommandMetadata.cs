@@ -26,6 +26,21 @@ public sealed record ConversationCommandMetadata(
     string? IdempotencyKey = null)
 {
     /// <summary>
+    /// Gets the command schema version.
+    /// </summary>
+    public SchemaVersion SchemaVersion { get; } = RequireNonNull(SchemaVersion, nameof(SchemaVersion));
+
+    /// <summary>
+    /// Gets the tenant binding for the command.
+    /// </summary>
+    public TenantId TenantId { get; } = RequireNonNull(TenantId, nameof(TenantId));
+
+    /// <summary>
+    /// Gets the stable actor Party reference.
+    /// </summary>
+    public PartyId ActorPartyId { get; } = RequireNonNull(ActorPartyId, nameof(ActorPartyId));
+
+    /// <summary>
     /// Gets the caller correlation identifier.
     /// </summary>
     public string CorrelationId { get; } = ValidateRequired(CorrelationId);
@@ -35,4 +50,7 @@ public sealed record ConversationCommandMetadata(
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return value;
     }
+
+    private static T RequireNonNull<T>(T value, string paramName) where T : class
+        => value ?? throw new ArgumentNullException(paramName);
 }

@@ -15,10 +15,17 @@ internal abstract class ConversationIntValueJsonConverter<T> : JsonConverter<T>
     {
         if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int value))
         {
-            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON integer.");
+            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON integer (no fractional, exponent, or string values).");
         }
 
-        return Create(value);
+        try
+        {
+            return Create(value);
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            throw new JsonException($"{typeToConvert.Name} payload is out of range: {ex.Message}", ex);
+        }
     }
 
     public sealed override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)

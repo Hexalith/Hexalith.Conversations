@@ -2,6 +2,12 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-2-define-conversation-identity-command-event-and-error-contracts — Round 2 (2026-05-18)
+
+- `with`-clone on identifier records is silently broken because `init` was removed in favor of validating ctors. The trade-off was accepted in the prior round's "init-able defeats ctor guard" patch. Adopters porting from earlier shapes will hit unhelpful compile errors. Document the lock-down in README or add a test that asserts `with`-clone is intentionally unsupported. Files: `src/Hexalith.Conversations.Contracts/Identifiers/*.cs`.
+- `ProviderCorrelationMetadata.ExtensionData` is still unbounded despite README "bounded" wording — already deferred in the Round 1 list; flagged again because no progress this round. Owner: governance epic / Story 1.10. File: `src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs`.
+- `ConversationCreated.CreatedAt` is a computed pass-through over `Metadata.CommittedAt`. A producer emitting `committedAt: T1, createdAt: T2` deserializes silently to `CreatedAt = T1` because no setter exists. No test pins this aliasing. Owner: Story 1.4.1 / Story 1.10 publication shape. File: `src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs`.
+
 ## Deferred from: code review of 1-2-define-conversation-identity-command-event-and-error-contracts (2026-05-18)
 
 - Bound extension/attribute/diagnostic dictionaries. `ProviderCorrelationMetadata.ExtensionData`, `UpdateConversationMetadataCommand.Attributes`, `ConversationMetadataUpdated.Attributes`, `ConversationError.SafeFieldDiagnostics` are all free-form `IReadOnlyDictionary<string,string>?` with no size cap, no allowed-key list, no forbidden-key enforcement. README/story claim they are "bounded" — the contract does not deliver. Owner: governance epic / Story 1.10 / Epic 2 retention policy.

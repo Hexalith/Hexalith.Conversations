@@ -15,12 +15,39 @@ namespace Hexalith.Conversations.Contracts.Events;
 [JsonConverter(typeof(ConversationEventTypeJsonConverter))]
 public sealed record ConversationEventType
 {
+    /// <summary>
+    /// Gets the event type for a conversation creation.
+    /// </summary>
     public static ConversationEventType ConversationCreated { get; } = new(nameof(ConversationCreated));
+
+    /// <summary>
+    /// Gets the event type for a message appended to a conversation.
+    /// </summary>
     public static ConversationEventType MessageAppended { get; } = new(nameof(MessageAppended));
+
+    /// <summary>
+    /// Gets the event type for a participant added to a conversation.
+    /// </summary>
     public static ConversationEventType ParticipantAdded { get; } = new(nameof(ParticipantAdded));
+
+    /// <summary>
+    /// Gets the event type for a file reference attached to a conversation.
+    /// </summary>
     public static ConversationEventType FileReferenceAttached { get; } = new(nameof(FileReferenceAttached));
+
+    /// <summary>
+    /// Gets the event type for conversation metadata updates.
+    /// </summary>
     public static ConversationEventType ConversationMetadataUpdated { get; } = new(nameof(ConversationMetadataUpdated));
+
+    /// <summary>
+    /// Gets the event type for a conversation closure.
+    /// </summary>
     public static ConversationEventType ConversationClosed { get; } = new(nameof(ConversationClosed));
+
+    /// <summary>
+    /// Gets the event type for a conversation archival.
+    /// </summary>
     public static ConversationEventType ConversationArchived { get; } = new(nameof(ConversationArchived));
 
     private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
@@ -47,11 +74,11 @@ public sealed record ConversationEventType
     public string Value { get; }
 
     /// <summary>
-    /// Resolves a supported public event type.
+    /// Resolves a supported public event type. Matching is case-sensitive on canonical PascalCase values.
     /// </summary>
     /// <param name="value">The public event type value.</param>
     /// <returns>The matching event type.</returns>
-    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
+    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or not a canonical supported value.</exception>
     public static ConversationEventType Parse(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);

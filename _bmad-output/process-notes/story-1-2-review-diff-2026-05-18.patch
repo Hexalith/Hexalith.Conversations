@@ -1,0 +1,2296 @@
+diff --git a/README.md b/README.md
+index 1aa6b43..ddc34d6 100644
+--- a/README.md
++++ b/README.md
+@@ -17,6 +17,8 @@ Identity has a strict taxonomy:
+ - UI labels and thread names are display/correlation metadata only.
+ - Correlation IDs, causation IDs, and idempotency keys describe operations, not conversation identity.
+ 
++Single-value public contracts serialize as primitives in JSON: identifiers such as `TenantId` and `ConversationId` use strings, `SchemaVersion` uses an integer, and trust/error/type vocabularies use closed-set strings. Compound contracts such as `BusinessReference` and `ProviderCorrelationMetadata` remain JSON objects because they carry multiple fields.
++
+ Example command shape:
+ 
+ ```csharp
+@@ -38,10 +40,12 @@ CreateConversationCommand command = new(
+     label: "Case 123");
+ ```
+ 
+-Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
++Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_binding_missing`, `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
+ 
+ Read contracts use the approved freshness vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`. Future behavior stories decide when non-current states are acceptable; this package only defines the public vocabulary.
+ 
++Create flows return `ConversationCreatedResult` with `CommandType` set to `CreateConversationCommand`. `ConversationCommandAcceptedResult.ConversationId` remains non-null because accepted non-create commands target an existing tenant-scoped conversation.
++
+ Future implementation stories should keep the current readiness decisions and ADR tracker visible:
+ 
+ - `_bmad-output/implementation-artifacts/readiness-gate-decisions-2026-05-17.md`
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs
+index 2c56caa..f328a4d 100644
+--- a/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs
++++ b/src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs
+@@ -16,4 +16,20 @@ namespace Hexalith.Conversations.Contracts.Commands;
+ public sealed record ArchiveConversationCommand(
+     ConversationCommandMetadata Metadata,
+     ConversationId ConversationId,
+-    string? ReasonCode = null);
++    string? ReasonCode = null)
++{
++    /// <summary>
++    /// Gets the optional safe reason code.
++    /// </summary>
++    public string? ReasonCode { get; } = ValidateOptional(ReasonCode);
++
++    private static string? ValidateOptional(string? value)
++    {
++        if (value is not null)
++        {
++            ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        }
++
++        return value;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs b/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs
+index dec207a..4d276ec 100644
+--- a/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs
++++ b/src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs
+@@ -16,4 +16,20 @@ namespace Hexalith.Conversations.Contracts.Commands;
+ public sealed record CloseConversationCommand(
+     ConversationCommandMetadata Metadata,
+     ConversationId ConversationId,
+-    string? ReasonCode = null);
++    string? ReasonCode = null)
++{
++    /// <summary>
++    /// Gets the optional safe reason code.
++    /// </summary>
++    public string? ReasonCode { get; } = ValidateOptional(ReasonCode);
++
++    private static string? ValidateOptional(string? value)
++    {
++        if (value is not null)
++        {
++            ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        }
++
++        return value;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs b/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs
+index b7bac34..6df2fdd 100644
+--- a/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs
++++ b/src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs
+@@ -23,4 +23,16 @@ public sealed record ConversationCommandMetadata(
+     PartyId ActorPartyId,
+     string CorrelationId,
+     string? CausationId = null,
+-    string? IdempotencyKey = null);
++    string? IdempotencyKey = null)
++{
++    /// <summary>
++    /// Gets the caller correlation identifier.
++    /// </summary>
++    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
++
++    private static string ValidateRequired(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return value;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs
+index 9dfa7c3..d0f0460 100644
+--- a/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs
+@@ -21,11 +21,70 @@ namespace Hexalith.Conversations.Contracts.Errors;
+ /// <param name="developerGuidance">Optional safe developer guidance.</param>
+ public sealed record ConversationError(
+     SchemaVersion SchemaVersion,
+-    string Code,
+-    string Category,
++    ConversationErrorCode Code,
++    ConversationErrorCategory Category,
+     bool IsRetryable,
+     string CorrelationId,
+     string? AuditHandle = null,
+     Uri? Documentation = null,
+     IReadOnlyDictionary<string, string>? SafeFieldDiagnostics = null,
+-    string? DeveloperGuidance = null);
++    string? DeveloperGuidance = null)
++{
++    /// <summary>
++    /// Gets the safe correlation identifier.
++    /// </summary>
++    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
++
++    /// <summary>
++    /// Gets optional non-disclosing field diagnostics.
++    /// </summary>
++    public IReadOnlyDictionary<string, string>? SafeFieldDiagnostics { get; } = ValidateSafeDiagnostics(SafeFieldDiagnostics);
++
++    /// <summary>
++    /// Gets optional safe developer guidance.
++    /// </summary>
++    public string? DeveloperGuidance { get; } = ValidateSafeText(DeveloperGuidance, nameof(DeveloperGuidance));
++
++    private static string ValidateRequired(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return value;
++    }
++
++    private static IReadOnlyDictionary<string, string>? ValidateSafeDiagnostics(IReadOnlyDictionary<string, string>? diagnostics)
++    {
++        if (diagnostics is null)
++        {
++            return null;
++        }
++
++        foreach (KeyValuePair<string, string> diagnostic in diagnostics)
++        {
++            ValidateSafeText(diagnostic.Key, nameof(SafeFieldDiagnostics));
++            ValidateSafeText(diagnostic.Value, nameof(SafeFieldDiagnostics));
++        }
++
++        return diagnostics;
++    }
++
++    private static string? ValidateSafeText(string? value, string parameterName)
++    {
++        if (value is null)
++        {
++            return null;
++        }
++
++        string[] unsafeTerms =
++        [
++            "other-tenant",
++            "exists",
++            "redacted content",
++            "provider-a",
++            "storage",
++        ];
++
++        return unsafeTerms.Any(term => value.Contains(term, StringComparison.OrdinalIgnoreCase))
++            ? throw new ArgumentException("Error details must remain content-safe.", parameterName)
++            : value;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCategory.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCategory.cs
+new file mode 100644
+index 0000000..481bbed
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCategory.cs
+@@ -0,0 +1,92 @@
++// <copyright file="ConversationErrorCategory.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
++namespace Hexalith.Conversations.Contracts.Errors;
++
++/// <summary>
++/// Defines stable broad machine-readable Conversations error categories.
++/// </summary>
++[JsonConverter(typeof(ConversationErrorCategoryJsonConverter))]
++public sealed record ConversationErrorCategory
++{
++    /// <summary>
++    /// Gets the validation category.
++    /// </summary>
++    public static ConversationErrorCategory Validation { get; } = new("validation");
++
++    /// <summary>
++    /// Gets the authorization category.
++    /// </summary>
++    public static ConversationErrorCategory Authorization { get; } = new("authorization");
++
++    /// <summary>
++    /// Gets the conflict category.
++    /// </summary>
++    public static ConversationErrorCategory Conflict { get; } = new("conflict");
++
++    /// <summary>
++    /// Gets the freshness category.
++    /// </summary>
++    public static ConversationErrorCategory Freshness { get; } = new("freshness");
++
++    /// <summary>
++    /// Gets the audit category.
++    /// </summary>
++    public static ConversationErrorCategory Audit { get; } = new("audit");
++
++    /// <summary>
++    /// Gets the versioning category.
++    /// </summary>
++    public static ConversationErrorCategory Versioning { get; } = new("versioning");
++
++    /// <summary>
++    /// Gets the hidden target category.
++    /// </summary>
++    public static ConversationErrorCategory Hidden { get; } = new("hidden");
++
++    private static readonly IReadOnlyDictionary<string, ConversationErrorCategory> KnownCategories =
++        new[]
++        {
++            Validation,
++            Authorization,
++            Conflict,
++            Freshness,
++            Audit,
++            Versioning,
++            Hidden,
++        }.ToDictionary(category => category.Value, StringComparer.Ordinal);
++
++    private ConversationErrorCategory(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the machine-readable category value.
++    /// </summary>
++    public string Value { get; }
++
++    /// <summary>
++    /// Resolves a supported error category.
++    /// </summary>
++    /// <param name="value">The machine-readable category value.</param>
++    /// <returns>The matching supported error category.</returns>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
++    public static ConversationErrorCategory Parse(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return KnownCategories.TryGetValue(value, out ConversationErrorCategory? category)
++            ? category
++            : throw new ArgumentException($"Unsupported conversation error category '{value}'.", nameof(value));
++    }
++
++    /// <inheritdoc />
++    public override string ToString() => Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
+index f308f9a..31c44f0 100644
+--- a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
+@@ -3,55 +3,102 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Errors;
+ 
+ /// <summary>
+ /// Defines stable machine-readable Conversations error codes.
+ /// </summary>
+-public static class ConversationErrorCode
++[JsonConverter(typeof(ConversationErrorCodeJsonConverter))]
++public sealed record ConversationErrorCode
+ {
+     /// <summary>
+-    /// The tenant binding is missing.
++    /// Gets the tenant binding missing code.
+     /// </summary>
+-    public const string TenantBindingMissing = "tenant_binding_missing";
++    public static ConversationErrorCode TenantBindingMissing { get; } = new("tenant_binding_missing");
+ 
+     /// <summary>
+-    /// Tenant isolation prevented the operation.
++    /// Gets the tenant isolation violation code.
+     /// </summary>
+-    public const string TenantIsolationViolation = "tenant_isolation_violation";
++    public static ConversationErrorCode TenantIsolationViolation { get; } = new("tenant_isolation_violation");
+ 
+     /// <summary>
+-    /// Tenant projection state is stale.
++    /// Gets the tenant projection stale code.
+     /// </summary>
+-    public const string TenantProjectionStale = "tenant_projection_stale";
++    public static ConversationErrorCode TenantProjectionStale { get; } = new("tenant_projection_stale");
+ 
+     /// <summary>
+-    /// The audit sink is unavailable.
++    /// Gets the audit sink unavailable code.
+     /// </summary>
+-    public const string AuditSinkUnavailable = "audit_sink_unavailable";
++    public static ConversationErrorCode AuditSinkUnavailable { get; } = new("audit_sink_unavailable");
+ 
+     /// <summary>
+-    /// Required audit pairing is missing.
++    /// Gets the audit pairing required code.
+     /// </summary>
+-    public const string AuditPairingRequired = "audit_pairing_required";
++    public static ConversationErrorCode AuditPairingRequired { get; } = new("audit_pairing_required");
+ 
+     /// <summary>
+-    /// The idempotency key conflicts with a prior request.
++    /// Gets the idempotency conflict code.
+     /// </summary>
+-    public const string IdempotencyConflict = "idempotency_conflict";
++    public static ConversationErrorCode IdempotencyConflict { get; } = new("idempotency_conflict");
+ 
+     /// <summary>
+-    /// The aggregate is hidden or unavailable to the caller.
++    /// Gets the hidden or unavailable aggregate code.
+     /// </summary>
+-    public const string AggregateNotFound = "aggregate_not_found";
++    public static ConversationErrorCode AggregateNotFound { get; } = new("aggregate_not_found");
+ 
+     /// <summary>
+-    /// The requested schema version is unsupported.
++    /// Gets the unsupported schema version code.
+     /// </summary>
+-    public const string SchemaVersionUnsupported = "schema_version_unsupported";
++    public static ConversationErrorCode SchemaVersionUnsupported { get; } = new("schema_version_unsupported");
+ 
+     /// <summary>
+-    /// Command validation failed.
++    /// Gets the command validation failed code.
+     /// </summary>
+-    public const string CommandValidationFailed = "command_validation_failed";
++    public static ConversationErrorCode CommandValidationFailed { get; } = new("command_validation_failed");
++
++    private static readonly IReadOnlyDictionary<string, ConversationErrorCode> KnownCodes =
++        new[]
++        {
++            TenantBindingMissing,
++            TenantIsolationViolation,
++            TenantProjectionStale,
++            AuditSinkUnavailable,
++            AuditPairingRequired,
++            IdempotencyConflict,
++            AggregateNotFound,
++            SchemaVersionUnsupported,
++            CommandValidationFailed,
++        }.ToDictionary(code => code.Value, StringComparer.Ordinal);
++
++    private ConversationErrorCode(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the machine-readable code value.
++    /// </summary>
++    public string Value { get; }
++
++    /// <summary>
++    /// Resolves a supported error code.
++    /// </summary>
++    /// <param name="value">The machine-readable error code value.</param>
++    /// <returns>The matching supported error code.</returns>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
++    public static ConversationErrorCode Parse(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return KnownCodes.TryGetValue(value, out ConversationErrorCode? code)
++            ? code
++            : throw new ArgumentException($"Unsupported conversation error code '{value}'.", nameof(value));
++    }
++
++    /// <inheritdoc />
++    public override string ToString() => Value;
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs
+index 802329b..84f0414 100644
+--- a/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs
++++ b/src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs
+@@ -9,4 +9,19 @@ namespace Hexalith.Conversations.Contracts.Errors;
+ /// Wraps one or more content-safe Conversations errors.
+ /// </summary>
+ /// <param name="errors">The content-safe machine-readable errors.</param>
+-public sealed record ConversationErrorResult(IReadOnlyList<ConversationError> Errors);
++public sealed record ConversationErrorResult(IReadOnlyList<ConversationError> Errors)
++{
++    /// <summary>
++    /// Gets the content-safe machine-readable errors.
++    /// </summary>
++    public IReadOnlyList<ConversationError> Errors { get; } = Validate(Errors);
++
++    private static IReadOnlyList<ConversationError> Validate(IReadOnlyList<ConversationError> errors)
++    {
++        ArgumentNullException.ThrowIfNull(errors);
++
++        return errors.Count == 0 || errors.Any(error => error is null)
++            ? throw new ArgumentException("At least one non-null error is required.", nameof(errors))
++            : errors;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs
+index d9cde3f..6f677c1 100644
+--- a/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs
+@@ -22,4 +22,10 @@ public sealed record ConversationCreated(
+     ProjectId? ProjectId = null,
+     FolderId? FolderId = null,
+     string? Label = null,
+-    ProviderCorrelationMetadata? ProviderCorrelation = null);
++    ProviderCorrelationMetadata? ProviderCorrelation = null)
++{
++    /// <summary>
++    /// Gets the public creation timestamp from metadata.
++    /// </summary>
++    public DateTimeOffset CreatedAt => Metadata.CommittedAt;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs
+index c435210..fce6416 100644
+--- a/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs
+@@ -12,6 +12,7 @@ namespace Hexalith.Conversations.Contracts.Events;
+ /// Carries public event metadata without exposing persistence substrate mechanics.
+ /// </summary>
+ /// <param name="schemaVersion">The event schema version.</param>
++/// <param name="eventId">The public event identity chosen by the producer.</param>
+ /// <param name="eventType">The public Conversations event type.</param>
+ /// <param name="tenantId">The tenant binding.</param>
+ /// <param name="conversationId">The tenant-scoped conversation identity.</param>
+@@ -21,10 +22,38 @@ namespace Hexalith.Conversations.Contracts.Events;
+ /// <param name="committedAt">The committed timestamp for the public contract.</param>
+ public sealed record ConversationEventMetadata(
+     SchemaVersion SchemaVersion,
+-    string EventType,
++    string EventId,
++    ConversationEventType EventType,
+     TenantId TenantId,
+     ConversationId ConversationId,
+-    PartyId? ActorPartyId,
+     string CorrelationId,
+-    string? CausationId,
+-    DateTimeOffset CommittedAt);
++    DateTimeOffset CommittedAt,
++    PartyId? ActorPartyId = null,
++    string? CausationId = null)
++{
++    /// <summary>
++    /// Gets the public event identity chosen by the producer.
++    /// </summary>
++    public string EventId { get; } = ValidateRequired(EventId);
++
++    /// <summary>
++    /// Gets the correlation identifier.
++    /// </summary>
++    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
++
++    /// <summary>
++    /// Gets the committed timestamp for the public contract.
++    /// </summary>
++    public DateTimeOffset CommittedAt { get; } = ValidateTimestamp(CommittedAt);
++
++    private static string ValidateRequired(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return value;
++    }
++
++    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
++        => value <= DateTimeOffset.MinValue
++            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
++            : value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs b/src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs
+new file mode 100644
+index 0000000..128238f
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs
+@@ -0,0 +1,65 @@
++// <copyright file="ConversationEventType.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
++namespace Hexalith.Conversations.Contracts.Events;
++
++/// <summary>
++/// Defines the supported public event type vocabulary.
++/// </summary>
++[JsonConverter(typeof(ConversationEventTypeJsonConverter))]
++public sealed record ConversationEventType
++{
++    public static ConversationEventType ConversationCreated { get; } = new(nameof(ConversationCreated));
++    public static ConversationEventType MessageAppended { get; } = new(nameof(MessageAppended));
++    public static ConversationEventType ParticipantAdded { get; } = new(nameof(ParticipantAdded));
++    public static ConversationEventType FileReferenceAttached { get; } = new(nameof(FileReferenceAttached));
++    public static ConversationEventType ConversationMetadataUpdated { get; } = new(nameof(ConversationMetadataUpdated));
++    public static ConversationEventType ConversationClosed { get; } = new(nameof(ConversationClosed));
++    public static ConversationEventType ConversationArchived { get; } = new(nameof(ConversationArchived));
++
++    private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
++        new[]
++        {
++            ConversationCreated,
++            MessageAppended,
++            ParticipantAdded,
++            FileReferenceAttached,
++            ConversationMetadataUpdated,
++            ConversationClosed,
++            ConversationArchived,
++        }.ToDictionary(type => type.Value, StringComparer.Ordinal);
++
++    private ConversationEventType(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the public event type value.
++    /// </summary>
++    public string Value { get; }
++
++    /// <summary>
++    /// Resolves a supported public event type.
++    /// </summary>
++    /// <param name="value">The public event type value.</param>
++    /// <returns>The matching event type.</returns>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
++    public static ConversationEventType Parse(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return KnownTypes.TryGetValue(value, out ConversationEventType? type)
++            ? type
++            : throw new ArgumentException($"Unsupported conversation event type '{value}'.", nameof(value));
++    }
++
++    /// <inheritdoc />
++    public override string ToString() => Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs b/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs
+index 2d9f89a..0f83b1e 100644
+--- a/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs
++++ b/src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs
+@@ -13,7 +13,7 @@ namespace Hexalith.Conversations.Contracts.Events;
+ /// <param name="metadata">The public event metadata.</param>
+ /// <param name="messageId">The stable message identity.</param>
+ /// <param name="authorPartyId">The stable Party reference for the author.</param>
+-/// <param name="text">The message text supplied by the caller.</param>
++/// <param name="text">The message text supplied by the caller. TODO Story 1.4.1 defines length caps, encoding, and inline-vs-reference policy.</param>
+ /// <param name="providerCorrelation">Optional provider correlation metadata.</param>
+ public sealed record MessageAppended(
+     ConversationEventMetadata Metadata,
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs b/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs
+index 7c5c064..200021c 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs
+@@ -15,6 +15,7 @@ public sealed record BusinessReference
+     /// </summary>
+     /// <param name="system">The owning business system or namespace.</param>
+     /// <param name="value">The business reference value in the owning system.</param>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="system"/> or <paramref name="value"/> is empty.</exception>
+     public BusinessReference(string system, string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(system);
+@@ -26,10 +27,10 @@ public sealed record BusinessReference
+     /// <summary>
+     /// Gets the owning business system or namespace.
+     /// </summary>
+-    public string System { get; init; }
++    public string System { get; }
+ 
+     /// <summary>
+     /// Gets the business reference value in the owning system.
+     /// </summary>
+-    public string Value { get; init; }
++    public string Value { get; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs
+index b50dd57..4582d6a 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs
+@@ -3,26 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// Identifies a Conversations-owned conversation within a tenant scope.
+ /// </summary>
+-public sealed record ConversationId
++/// <param name="value">The opaque durable conversation identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(ConversationIdJsonConverter))]
++public sealed record ConversationId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="ConversationId"/> class.
++    /// Gets the opaque durable conversation identifier.
+     /// </summary>
+-    /// <param name="value">The opaque durable conversation identifier.</param>
+-    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
+-    public ConversationId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque durable conversation identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs
+index 725a809..b1a1b77 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// References an upstream file identity without carrying file bytes.
+ /// </summary>
+-public sealed record FileId
++/// <param name="value">The opaque stable file identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(FileIdJsonConverter))]
++public sealed record FileId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="FileId"/> class.
++    /// Gets the opaque stable file identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable file identifier.</param>
+-    public FileId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable file identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs
+index 2b0619b..2e3c4a3 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// References an upstream folder identity without copying folder state.
+ /// </summary>
+-public sealed record FolderId
++/// <param name="value">The opaque stable folder identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(FolderIdJsonConverter))]
++public sealed record FolderId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="FolderId"/> class.
++    /// Gets the opaque stable folder identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable folder identifier.</param>
+-    public FolderId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable folder identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs
+index d3d9610..b2cc186 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// Identifies a message within a tenant-scoped conversation.
+ /// </summary>
+-public sealed record MessageId
++/// <param name="value">The opaque stable message identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(MessageIdJsonConverter))]
++public sealed record MessageId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="MessageId"/> class.
++    /// Gets the opaque stable message identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable message identifier.</param>
+-    public MessageId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable message identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs
+index a492581..b9dce0b 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// References an upstream Party identity without carrying personal profile data.
+ /// </summary>
+-public sealed record PartyId
++/// <param name="value">The opaque stable Party identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(PartyIdJsonConverter))]
++public sealed record PartyId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="PartyId"/> class.
++    /// Gets the opaque stable Party identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable Party identifier.</param>
+-    public PartyId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable Party identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs
+index bf1ba24..4e63056 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// References an upstream project identity without copying project state.
+ /// </summary>
+-public sealed record ProjectId
++/// <param name="value">The opaque stable project identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(ProjectIdJsonConverter))]
++public sealed record ProjectId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="ProjectId"/> class.
++    /// Gets the opaque stable project identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable project identifier.</param>
+-    public ProjectId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable project identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs b/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs
+index 41c48f1..284e116 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs
+@@ -22,4 +22,21 @@ public sealed record ProviderCorrelationMetadata(
+     SchemaVersion MetadataSchemaVersion,
+     string? ProviderSessionReference = null,
+     string? ProviderResponseReference = null,
+-    IReadOnlyDictionary<string, string>? ExtensionData = null);
++    IReadOnlyDictionary<string, string>? ExtensionData = null)
++{
++    /// <summary>
++    /// Gets the provider name as safe correlation metadata.
++    /// </summary>
++    public string ProviderName { get; } = ValidateRequired(ProviderName);
++
++    /// <summary>
++    /// Gets the provider category as safe correlation metadata.
++    /// </summary>
++    public string ProviderType { get; } = ValidateRequired(ProviderType);
++
++    private static string ValidateRequired(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return value;
++    }
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs b/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs
+index e4ebba9..83e7a9f 100644
+--- a/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs
++++ b/src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs
+@@ -3,25 +3,28 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Identifiers;
+ 
+ /// <summary>
+ /// References an upstream tenant identity without copying tenant lifecycle or authorization state.
+ /// </summary>
+-public sealed record TenantId
++/// <param name="value">The opaque stable tenant identifier.</param>
++/// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty.</exception>
++[JsonConverter(typeof(TenantIdJsonConverter))]
++public sealed record TenantId(string Value)
+ {
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="TenantId"/> class.
++    /// Gets the opaque stable tenant identifier.
+     /// </summary>
+-    /// <param name="value">The opaque stable tenant identifier.</param>
+-    public TenantId(string value)
++    public string Value { get; } = Validate(Value);
++
++    private static string Validate(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the opaque stable tenant identifier.
+-    /// </summary>
+-    public string Value { get; init; }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs b/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs
+index 0f19889..3d48bb3 100644
+--- a/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs
++++ b/src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs
+@@ -24,4 +24,15 @@ public sealed record ConversationMessageProjection(
+     PartyId AuthorPartyId,
+     string Text,
+     DateTimeOffset CreatedAt,
+-    ProjectionFreshness Freshness);
++    ProjectionFreshness Freshness)
++{
++    /// <summary>
++    /// Gets the public message creation timestamp.
++    /// </summary>
++    public DateTimeOffset CreatedAt { get; } = ValidateTimestamp(CreatedAt);
++
++    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
++        => value <= DateTimeOffset.MinValue
++            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
++            : value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs b/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs
+index d6163c9..33568b9 100644
+--- a/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs
++++ b/src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs
+@@ -22,4 +22,10 @@ public sealed record ConversationSummaryProjection(
+     ProjectionFreshness Freshness,
+     string? Label = null,
+     BusinessReference? BusinessReference = null,
+-    IReadOnlyList<PartyId>? ParticipantPartyIds = null);
++    IReadOnlyList<PartyId> ParticipantPartyIds = null!)
++{
++    /// <summary>
++    /// Gets stable participant Party references.
++    /// </summary>
++    public IReadOnlyList<PartyId> ParticipantPartyIds { get; } = ParticipantPartyIds ?? Array.Empty<PartyId>();
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs b/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs
+index 65a3ae6..06c0bc7 100644
+--- a/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs
++++ b/src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs
+@@ -13,10 +13,21 @@ namespace Hexalith.Conversations.Contracts.Projections;
+ /// </summary>
+ /// <param name="state">The public trust state.</param>
+ /// <param name="observedAt">The time at which the read state was observed.</param>
+-/// <param name="schemaVersion">The projection contract schema version.</param>
++/// <param name="projectionContractSchemaVersion">The projection contract schema version.</param>
+ /// <param name="guidance">Optional safe developer guidance.</param>
+ public sealed record ProjectionFreshness(
+     ProjectionTrustState State,
+     DateTimeOffset ObservedAt,
+-    SchemaVersion SchemaVersion,
+-    string? Guidance = null);
++    SchemaVersion ProjectionContractSchemaVersion,
++    string? Guidance = null)
++{
++    /// <summary>
++    /// Gets the time at which the read state was observed.
++    /// </summary>
++    public DateTimeOffset ObservedAt { get; } = ValidateTimestamp(ObservedAt);
++
++    private static DateTimeOffset ValidateTimestamp(DateTimeOffset value)
++        => value <= DateTimeOffset.MinValue
++            ? throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.")
++            : value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs
+index 1b65720..1010f97 100644
+--- a/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs
++++ b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs
+@@ -22,7 +22,7 @@ public sealed record ConversationCommandAcceptedResult(
+     SchemaVersion SchemaVersion,
+     TenantId TenantId,
+     ConversationId ConversationId,
+-    string CommandType,
++    ConversationCommandType CommandType,
+     string CorrelationId,
+     string? IdempotencyKey,
+     ReadModelVisibility Visibility);
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ConversationCommandType.cs b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandType.cs
+new file mode 100644
+index 0000000..e79f9ef
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Results/ConversationCommandType.cs
+@@ -0,0 +1,65 @@
++// <copyright file="ConversationCommandType.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
++namespace Hexalith.Conversations.Contracts.Results;
++
++/// <summary>
++/// Defines the supported public command type vocabulary for result contracts.
++/// </summary>
++[JsonConverter(typeof(ConversationCommandTypeJsonConverter))]
++public sealed record ConversationCommandType
++{
++    public static ConversationCommandType CreateConversationCommand { get; } = new(nameof(CreateConversationCommand));
++    public static ConversationCommandType AppendMessageCommand { get; } = new(nameof(AppendMessageCommand));
++    public static ConversationCommandType AddParticipantCommand { get; } = new(nameof(AddParticipantCommand));
++    public static ConversationCommandType AttachFileReferenceCommand { get; } = new(nameof(AttachFileReferenceCommand));
++    public static ConversationCommandType UpdateConversationMetadataCommand { get; } = new(nameof(UpdateConversationMetadataCommand));
++    public static ConversationCommandType CloseConversationCommand { get; } = new(nameof(CloseConversationCommand));
++    public static ConversationCommandType ArchiveConversationCommand { get; } = new(nameof(ArchiveConversationCommand));
++
++    private static readonly IReadOnlyDictionary<string, ConversationCommandType> KnownTypes =
++        new[]
++        {
++            CreateConversationCommand,
++            AppendMessageCommand,
++            AddParticipantCommand,
++            AttachFileReferenceCommand,
++            UpdateConversationMetadataCommand,
++            CloseConversationCommand,
++            ArchiveConversationCommand,
++        }.ToDictionary(type => type.Value, StringComparer.Ordinal);
++
++    private ConversationCommandType(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        Value = value;
++    }
++
++    /// <summary>
++    /// Gets the public command type value.
++    /// </summary>
++    public string Value { get; }
++
++    /// <summary>
++    /// Resolves a supported public command type.
++    /// </summary>
++    /// <param name="value">The public command type value.</param>
++    /// <returns>The matching command type.</returns>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
++    public static ConversationCommandType Parse(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return KnownTypes.TryGetValue(value, out ConversationCommandType? type)
++            ? type
++            : throw new ArgumentException($"Unsupported conversation command type '{value}'.", nameof(value));
++    }
++
++    /// <inheritdoc />
++    public override string ToString() => Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs b/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs
+index 9911da7..4d8ef00 100644
+--- a/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs
++++ b/src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs
+@@ -12,6 +12,7 @@ namespace Hexalith.Conversations.Contracts.Results;
+ /// Reports the assigned tenant-scoped conversation identity for create operations.
+ /// </summary>
+ /// <param name="schemaVersion">The result schema version.</param>
++/// <param name="commandType">The accepted public command type.</param>
+ /// <param name="tenantId">The tenant binding.</param>
+ /// <param name="conversationId">The assigned tenant-scoped conversation identity.</param>
+ /// <param name="correlationId">The accepted correlation identifier.</param>
+@@ -19,6 +20,7 @@ namespace Hexalith.Conversations.Contracts.Results;
+ /// <param name="visibility">The read-model visibility caveat.</param>
+ public sealed record ConversationCreatedResult(
+     SchemaVersion SchemaVersion,
++    ConversationCommandType CommandType,
+     TenantId TenantId,
+     ConversationId ConversationId,
+     string CorrelationId,
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs b/src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs
+new file mode 100644
+index 0000000..6f402e5
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs
+@@ -0,0 +1,38 @@
++// <copyright file="ClosedVocabularyJsonConverters.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Results;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal sealed class ConversationErrorCodeJsonConverter : ConversationStringValueJsonConverter<ConversationErrorCode>
++{
++    protected override ConversationErrorCode Create(string value) => ConversationErrorCode.Parse(value);
++
++    protected override string GetValue(ConversationErrorCode value) => value.Value;
++}
++
++internal sealed class ConversationErrorCategoryJsonConverter : ConversationStringValueJsonConverter<ConversationErrorCategory>
++{
++    protected override ConversationErrorCategory Create(string value) => ConversationErrorCategory.Parse(value);
++
++    protected override string GetValue(ConversationErrorCategory value) => value.Value;
++}
++
++internal sealed class ConversationCommandTypeJsonConverter : ConversationStringValueJsonConverter<ConversationCommandType>
++{
++    protected override ConversationCommandType Create(string value) => ConversationCommandType.Parse(value);
++
++    protected override string GetValue(ConversationCommandType value) => value.Value;
++}
++
++internal sealed class ConversationEventTypeJsonConverter : ConversationStringValueJsonConverter<ConversationEventType>
++{
++    protected override ConversationEventType Create(string value) => ConversationEventType.Parse(value);
++
++    protected override string GetValue(ConversationEventType value) => value.Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/ConversationIntValueJsonConverter.cs b/src/Hexalith.Conversations.Contracts/Serialization/ConversationIntValueJsonConverter.cs
+new file mode 100644
+index 0000000..5931d57
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/ConversationIntValueJsonConverter.cs
+@@ -0,0 +1,30 @@
++// <copyright file="ConversationIntValueJsonConverter.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json;
++using System.Text.Json.Serialization;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal abstract class ConversationIntValueJsonConverter<T> : JsonConverter<T>
++    where T : notnull
++{
++    public sealed override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
++    {
++        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int value))
++        {
++            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON integer.");
++        }
++
++        return Create(value);
++    }
++
++    public sealed override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
++        => writer.WriteNumberValue(GetValue(value));
++
++    protected abstract T Create(int value);
++
++    protected abstract int GetValue(T value);
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/ConversationStringValueJsonConverter.cs b/src/Hexalith.Conversations.Contracts/Serialization/ConversationStringValueJsonConverter.cs
+new file mode 100644
+index 0000000..e91d1b9
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/ConversationStringValueJsonConverter.cs
+@@ -0,0 +1,30 @@
++// <copyright file="ConversationStringValueJsonConverter.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Text.Json;
++using System.Text.Json.Serialization;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal abstract class ConversationStringValueJsonConverter<T> : JsonConverter<T>
++    where T : notnull
++{
++    public sealed override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
++    {
++        if (reader.TokenType != JsonTokenType.String)
++        {
++            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON string.");
++        }
++
++        return Create(reader.GetString() ?? throw new JsonException($"{typeToConvert.Name} cannot be null."));
++    }
++
++    public sealed override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
++        => writer.WriteStringValue(GetValue(value));
++
++    protected abstract T Create(string value);
++
++    protected abstract string GetValue(T value);
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/IdentifierJsonConverters.cs b/src/Hexalith.Conversations.Contracts/Serialization/IdentifierJsonConverters.cs
+new file mode 100644
+index 0000000..a894666
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/IdentifierJsonConverters.cs
+@@ -0,0 +1,57 @@
++// <copyright file="IdentifierJsonConverters.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal sealed class ConversationIdJsonConverter : ConversationStringValueJsonConverter<ConversationId>
++{
++    protected override ConversationId Create(string value) => new(value);
++
++    protected override string GetValue(ConversationId value) => value.Value;
++}
++
++internal sealed class TenantIdJsonConverter : ConversationStringValueJsonConverter<TenantId>
++{
++    protected override TenantId Create(string value) => new(value);
++
++    protected override string GetValue(TenantId value) => value.Value;
++}
++
++internal sealed class PartyIdJsonConverter : ConversationStringValueJsonConverter<PartyId>
++{
++    protected override PartyId Create(string value) => new(value);
++
++    protected override string GetValue(PartyId value) => value.Value;
++}
++
++internal sealed class ProjectIdJsonConverter : ConversationStringValueJsonConverter<ProjectId>
++{
++    protected override ProjectId Create(string value) => new(value);
++
++    protected override string GetValue(ProjectId value) => value.Value;
++}
++
++internal sealed class FolderIdJsonConverter : ConversationStringValueJsonConverter<FolderId>
++{
++    protected override FolderId Create(string value) => new(value);
++
++    protected override string GetValue(FolderId value) => value.Value;
++}
++
++internal sealed class FileIdJsonConverter : ConversationStringValueJsonConverter<FileId>
++{
++    protected override FileId Create(string value) => new(value);
++
++    protected override string GetValue(FileId value) => value.Value;
++}
++
++internal sealed class MessageIdJsonConverter : ConversationStringValueJsonConverter<MessageId>
++{
++    protected override MessageId Create(string value) => new(value);
++
++    protected override string GetValue(MessageId value) => value.Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/ProjectionTrustStateJsonConverter.cs b/src/Hexalith.Conversations.Contracts/Serialization/ProjectionTrustStateJsonConverter.cs
+new file mode 100644
+index 0000000..ffab355
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/ProjectionTrustStateJsonConverter.cs
+@@ -0,0 +1,15 @@
++// <copyright file="ProjectionTrustStateJsonConverter.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.TrustStates;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal sealed class ProjectionTrustStateJsonConverter : ConversationStringValueJsonConverter<ProjectionTrustState>
++{
++    protected override ProjectionTrustState Create(string value) => ProjectionTrustState.Parse(value);
++
++    protected override string GetValue(ProjectionTrustState value) => value.Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Serialization/SchemaVersionJsonConverter.cs b/src/Hexalith.Conversations.Contracts/Serialization/SchemaVersionJsonConverter.cs
+new file mode 100644
+index 0000000..a192e16
+--- /dev/null
++++ b/src/Hexalith.Conversations.Contracts/Serialization/SchemaVersionJsonConverter.cs
+@@ -0,0 +1,15 @@
++// <copyright file="SchemaVersionJsonConverter.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Versioning;
++
++namespace Hexalith.Conversations.Contracts.Serialization;
++
++internal sealed class SchemaVersionJsonConverter : ConversationIntValueJsonConverter<SchemaVersion>
++{
++    protected override SchemaVersion Create(int value) => new(value);
++
++    protected override int GetValue(SchemaVersion value) => value.Value;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs b/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs
+index a900b95..a510bc5 100644
+--- a/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs
++++ b/src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs
+@@ -3,11 +3,16 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.TrustStates;
+ 
+ /// <summary>
+ /// Represents the public trust and freshness vocabulary for read contracts.
+ /// </summary>
++[JsonConverter(typeof(ProjectionTrustStateJsonConverter))]
+ public sealed record ProjectionTrustState
+ {
+     /// <summary>
+@@ -40,11 +45,22 @@ public sealed record ProjectionTrustState
+     /// </summary>
+     public static ProjectionTrustState Redacted { get; } = new(nameof(Redacted));
+ 
++    private static readonly IReadOnlyDictionary<string, ProjectionTrustState> KnownStates =
++        new Dictionary<string, ProjectionTrustState>(StringComparer.Ordinal)
++        {
++            [nameof(Current)] = Current,
++            [nameof(Stale)] = Stale,
++            [nameof(Rebuilding)] = Rebuilding,
++            [nameof(Unavailable)] = Unavailable,
++            [nameof(Forbidden)] = Forbidden,
++            [nameof(Redacted)] = Redacted,
++        };
++
+     /// <summary>
+     /// Initializes a new instance of the <see cref="ProjectionTrustState"/> class.
+     /// </summary>
+     /// <param name="value">The trust state value.</param>
+-    public ProjectionTrustState(string value)
++    private ProjectionTrustState(string value)
+     {
+         ArgumentException.ThrowIfNullOrWhiteSpace(value);
+         Value = value;
+@@ -53,5 +69,19 @@ public sealed record ProjectionTrustState
+     /// <summary>
+     /// Gets the trust state value.
+     /// </summary>
+-    public string Value { get; init; }
++    public string Value { get; }
++
++    /// <summary>
++    /// Resolves a public trust state value.
++    /// </summary>
++    /// <param name="value">The trust state value.</param>
++    /// <returns>The matching public trust state.</returns>
++    /// <exception cref="ArgumentException">Thrown when <paramref name="value"/> is empty or unsupported.</exception>
++    public static ProjectionTrustState Parse(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return KnownStates.TryGetValue(value, out ProjectionTrustState? state)
++            ? state
++            : throw new ArgumentException($"Unsupported projection trust state '{value}'.", nameof(value));
++    }
+ }
+diff --git a/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs b/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs
+index fd05ea3..bb89e3c 100644
+--- a/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs
++++ b/src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs
+@@ -14,7 +14,23 @@ namespace Hexalith.Conversations.Contracts.Versioning;
+ public sealed record ContractVersionInfo(
+     string ContractName,
+     SchemaVersion ActiveSchemaVersion,
+-    SchemaVersion MinimumSupportedSchemaVersion);
++    SchemaVersion MinimumSupportedSchemaVersion)
++{
++    /// <summary>
++    /// Gets the active schema version.
++    /// </summary>
++    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
++
++    /// <summary>
++    /// Gets the minimum supported schema version.
++    /// </summary>
++    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
++
++    private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
++        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
++            ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
++            : minimumSupportedSchemaVersion;
++}
+ 
+ /// <summary>
+ /// Reports an unsupported schema version without exposing runtime details.
+@@ -25,4 +41,20 @@ public sealed record ContractVersionInfo(
+ public sealed record UnsupportedSchemaVersion(
+     SchemaVersion RequestedSchemaVersion,
+     SchemaVersion ActiveSchemaVersion,
+-    SchemaVersion MinimumSupportedSchemaVersion);
++    SchemaVersion MinimumSupportedSchemaVersion)
++{
++    /// <summary>
++    /// Gets the active schema version.
++    /// </summary>
++    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion;
++
++    /// <summary>
++    /// Gets the minimum supported schema version.
++    /// </summary>
++    public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
++
++    private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
++        => minimumSupportedSchemaVersion.Value > activeSchemaVersion.Value
++            ? throw new ArgumentOutOfRangeException(nameof(minimumSupportedSchemaVersion), "Minimum supported schema version cannot exceed the active schema version.")
++            : minimumSupportedSchemaVersion;
++}
+diff --git a/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs b/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs
+index 5be73b6..8f1e436 100644
+--- a/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs
++++ b/src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs
+@@ -3,12 +3,19 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json.Serialization;
++
++using Hexalith.Conversations.Contracts.Serialization;
++
+ namespace Hexalith.Conversations.Contracts.Versioning;
+ 
+ /// <summary>
+ /// Represents an explicit positive integer schema version.
+ /// </summary>
+-public sealed record SchemaVersion
++/// <param name="value">The positive schema version number.</param>
++/// <exception cref="ArgumentOutOfRangeException">Thrown when <paramref name="value"/> is less than one.</exception>
++[JsonConverter(typeof(SchemaVersionJsonConverter))]
++public sealed record SchemaVersion(int Value)
+ {
+     /// <summary>
+     /// Gets the current v1 contract schema version.
+@@ -16,17 +23,13 @@ public sealed record SchemaVersion
+     public static SchemaVersion Current { get; } = new(1);
+ 
+     /// <summary>
+-    /// Initializes a new instance of the <see cref="SchemaVersion"/> class.
++    /// Gets the positive schema version number.
+     /// </summary>
+-    /// <param name="value">The positive schema version number.</param>
+-    public SchemaVersion(int value)
++    public int Value { get; } = Validate(Value);
++
++    private static int Validate(int value)
+     {
+         ArgumentOutOfRangeException.ThrowIfLessThan(value, 1);
+-        Value = value;
++        return value;
+     }
+-
+-    /// <summary>
+-    /// Gets the positive schema version number.
+-    /// </summary>
+-    public int Value { get; init; }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs
+index 41fc30a..9438b1e 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs
+@@ -7,6 +7,9 @@ using System.Reflection;
+ 
+ using Hexalith.Conversations.Contracts.Commands;
+ using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Results;
++using Hexalith.Conversations.Contracts.Versioning;
+ 
+ using Shouldly;
+ 
+@@ -38,7 +41,8 @@ public sealed class ContractMetadataTest
+ 
+         foreach (Type commandType in commandTypes)
+         {
+-            commandType.GetProperty(nameof(CreateConversationCommand.Metadata)).ShouldNotBeNull(commandType.Name);
++            commandType.GetProperty(nameof(CreateConversationCommand.Metadata))
++                .ShouldNotBeNull($"{commandType.Name}.{nameof(CreateConversationCommand.Metadata)}");
+         }
+ 
+         PropertyInfo[] metadataProperties = typeof(ConversationCommandMetadata).GetProperties();
+@@ -52,6 +56,13 @@ public sealed class ContractMetadataTest
+                 "IdempotencyKey",
+             ],
+             ignoreOrder: true);
++
++        AssertPropertyType<ConversationCommandMetadata, SchemaVersion>(nameof(ConversationCommandMetadata.SchemaVersion));
++        AssertPropertyType<ConversationCommandMetadata, TenantId>(nameof(ConversationCommandMetadata.TenantId));
++        AssertPropertyType<ConversationCommandMetadata, PartyId>(nameof(ConversationCommandMetadata.ActorPartyId));
++        AssertPropertyType<ConversationCommandMetadata, string>(nameof(ConversationCommandMetadata.CorrelationId));
++        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.CausationId));
++        AssertPropertyType<ConversationCommandMetadata, string?>(nameof(ConversationCommandMetadata.IdempotencyKey));
+     }
+ 
+     /// <summary>
+@@ -73,20 +84,45 @@ public sealed class ContractMetadataTest
+ 
+         foreach (Type eventType in eventTypes)
+         {
+-            eventType.GetProperty(nameof(ConversationCreated.Metadata)).ShouldNotBeNull(eventType.Name);
++            eventType.GetProperty(nameof(ConversationCreated.Metadata))
++                .ShouldNotBeNull($"{eventType.Name}.{nameof(ConversationCreated.Metadata)}");
+         }
+ 
+         typeof(ConversationEventMetadata).GetProperties().Select(p => p.Name).ShouldBe(
+             [
+                 "SchemaVersion",
++                "EventId",
+                 "EventType",
+                 "TenantId",
+                 "ConversationId",
+-                "ActorPartyId",
+                 "CorrelationId",
+-                "CausationId",
+                 "CommittedAt",
++                "ActorPartyId",
++                "CausationId",
+             ],
+             ignoreOrder: true);
++
++        AssertPropertyType<ConversationEventMetadata, SchemaVersion>(nameof(ConversationEventMetadata.SchemaVersion));
++        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.EventId));
++        AssertPropertyType<ConversationEventMetadata, ConversationEventType>(nameof(ConversationEventMetadata.EventType));
++        AssertPropertyType<ConversationEventMetadata, TenantId>(nameof(ConversationEventMetadata.TenantId));
++        AssertPropertyType<ConversationEventMetadata, ConversationId>(nameof(ConversationEventMetadata.ConversationId));
++        AssertPropertyType<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CorrelationId));
++        AssertPropertyType<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.CommittedAt));
++        AssertPropertyType<ConversationEventMetadata, PartyId?>(nameof(ConversationEventMetadata.ActorPartyId));
++        AssertPropertyType<ConversationEventMetadata, string?>(nameof(ConversationEventMetadata.CausationId));
++
++        AssertPropertyType<ConversationCommandAcceptedResult, ConversationCommandType>(
++            nameof(ConversationCommandAcceptedResult.CommandType));
++        AssertPropertyType<ConversationCreatedResult, ConversationCommandType>(
++            nameof(ConversationCreatedResult.CommandType));
++    }
++
++    private static void AssertPropertyType<TContract, TProperty>(string propertyName)
++    {
++        PropertyInfo? property = typeof(TContract).GetProperty(propertyName);
++
++        property.ShouldNotBeNull($"{typeof(TContract).Name}.{propertyName}");
++        property.PropertyType.ShouldBe(typeof(TProperty), $"{typeof(TContract).Name}.{propertyName}");
+     }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+index c3b0c56..aca6869 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+@@ -48,13 +48,14 @@ internal static class ContractSamples
+ 
+     internal static readonly ConversationEventMetadata EventMetadata = new(
+         Version,
+-        "ConversationCreated",
++        "event-001",
++        ConversationEventType.ConversationCreated,
+         Tenant,
+         Conversation,
+-        Actor,
+         "correlation-001",
+-        "causation-001",
+-        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero));
++        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
++        Actor,
++        "causation-001");
+ 
+     internal static readonly ProjectionFreshness Freshness = new(
+         ProjectionTrustState.Current,
+@@ -101,17 +102,17 @@ internal static class ContractSamples
+         new ConversationSummaryProjection(Tenant, Conversation, Freshness, "Case 123", Business, [Actor, Participant]),
+         new ConversationMessageProjection(Tenant, Conversation, Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, Freshness),
+         Visibility,
+-        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, "AppendMessageCommand", "correlation-001", "idempotency-001", Visibility),
+-        new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
++        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, ConversationCommandType.AppendMessageCommand, "correlation-001", "idempotency-001", Visibility),
++        new ConversationCreatedResult(Version, ConversationCommandType.CreateConversationCommand, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
+         SafeError(ConversationErrorCode.TenantIsolationViolation),
+         new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
+     ];
+ 
+-    internal static ConversationError SafeError(string code) => new(
++    internal static ConversationError SafeError(ConversationErrorCode code) => new(
+         Version,
+         code,
+-        "authorization",
+-        false,
++        ErrorCategoryFor(code),
++        IsRetryable(code),
+         "correlation-001",
+         "audit-001",
+         new Uri("https://docs.hexalith.local/conversations/errors"),
+@@ -120,4 +121,37 @@ internal static class ContractSamples
+             ["target"] = "hidden",
+         },
+         "The requested operation was not accepted.");
++
++    internal static IReadOnlyList<ConversationErrorCode> AllErrorCodes =>
++    [
++        ConversationErrorCode.TenantBindingMissing,
++        ConversationErrorCode.TenantIsolationViolation,
++        ConversationErrorCode.TenantProjectionStale,
++        ConversationErrorCode.AuditSinkUnavailable,
++        ConversationErrorCode.AuditPairingRequired,
++        ConversationErrorCode.IdempotencyConflict,
++        ConversationErrorCode.AggregateNotFound,
++        ConversationErrorCode.SchemaVersionUnsupported,
++        ConversationErrorCode.CommandValidationFailed,
++    ];
++
++    private static ConversationErrorCategory ErrorCategoryFor(ConversationErrorCode code)
++        => code switch
++        {
++            _ when code == ConversationErrorCode.TenantBindingMissing => ConversationErrorCategory.Validation,
++            _ when code == ConversationErrorCode.TenantIsolationViolation => ConversationErrorCategory.Authorization,
++            _ when code == ConversationErrorCode.TenantProjectionStale => ConversationErrorCategory.Freshness,
++            _ when code == ConversationErrorCode.AuditSinkUnavailable => ConversationErrorCategory.Audit,
++            _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
++            _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
++            _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
++            _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
++            _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
++            _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unsupported error code."),
++        };
++
++    private static bool IsRetryable(ConversationErrorCode code)
++        => code == ConversationErrorCode.TenantProjectionStale
++            || code == ConversationErrorCode.AuditSinkUnavailable
++            || code == ConversationErrorCode.IdempotencyConflict;
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs
+index c6af4a0..617aa1b 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs
+@@ -4,6 +4,7 @@
+ // </copyright>
+ 
+ using System.Text.Json;
++using System.Text.Json.Nodes;
+ 
+ using Hexalith.Conversations.Contracts.Commands;
+ using Hexalith.Conversations.Contracts.Errors;
+@@ -38,6 +39,7 @@ public sealed class ContractSerializationTest
+             object? deserialized = JsonSerializer.Deserialize(json, sample.GetType(), WebOptions);
+ 
+             deserialized.ShouldNotBeNull(sample.GetType().FullName);
++            AssertJsonEquivalent(json, deserialized);
+         }
+     }
+ 
+@@ -49,7 +51,7 @@ public sealed class ContractSerializationTest
+     {
+         AssertJsonEquivalent(
+             """
+-            {"metadata":{"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
++            {"metadata":{"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
+             """,
+             new CreateConversationCommand(
+                 ContractSamples.CommandMetadata,
+@@ -61,7 +63,7 @@ public sealed class ContractSerializationTest
+ 
+         AssertJsonEquivalent(
+             """
+-            {"metadata":{"schemaVersion":{"value":1},"eventType":"ConversationCreated","tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"actorPartyId":{"value":"party-actor"},"correlationId":"correlation-001","causationId":"causation-001","committedAt":"2026-05-18T11:00:00+00:00"},"businessReference":{"system":"crm","value":"case-123"},"projectId":{"value":"project-001"},"folderId":{"value":"folder-001"},"label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":{"value":1},"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
++            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party-actor","causationId":"causation-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
+             """,
+             new ConversationCreated(
+                 ContractSamples.EventMetadata,
+@@ -73,16 +75,17 @@ public sealed class ContractSerializationTest
+ 
+         AssertJsonEquivalent(
+             """
+-            {"schemaVersion":{"value":1},"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
++            {"schemaVersion":1,"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
+             """,
+             ContractSamples.SafeError(ConversationErrorCode.TenantIsolationViolation));
+ 
+         AssertJsonEquivalent(
+             """
+-            {"schemaVersion":{"value":1},"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":{"value":"Stale"},"guidance":"Read models may lag immediately after command acceptance."}}
++            {"schemaVersion":1,"commandType":"CreateConversationCommand","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":"Stale","guidance":"Read models may lag immediately after command acceptance."}}
+             """,
+             new ConversationCreatedResult(
+                 ContractSamples.Version,
++                ConversationCommandType.CreateConversationCommand,
+                 ContractSamples.Tenant,
+                 ContractSamples.Conversation,
+                 "correlation-001",
+@@ -91,7 +94,7 @@ public sealed class ContractSerializationTest
+ 
+         AssertJsonEquivalent(
+             """
+-            {"tenantId":{"value":"tenant-001"},"conversationId":{"value":"conversation-001"},"freshness":{"state":{"value":"Current"},"observedAt":"2026-05-18T11:00:00+00:00","schemaVersion":{"value":1},"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":[{"value":"party-actor"},{"value":"party-participant"}]}
++            {"tenantId":"tenant-001","conversationId":"conversation-001","freshness":{"state":"Current","observedAt":"2026-05-18T11:00:00+00:00","projectionContractSchemaVersion":1,"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":["party-actor","party-participant"]}
+             """,
+             new ConversationSummaryProjection(
+                 ContractSamples.Tenant,
+@@ -103,22 +106,76 @@ public sealed class ContractSerializationTest
+ 
+         AssertJsonEquivalent(
+             """
+-            {"value":"Current"}
++            "Current"
+             """,
+             ProjectionTrustState.Current);
+ 
+         AssertJsonEquivalent(
+             """
+-            {"value":1}
++            1
+             """,
+             SchemaVersion.Current);
++
++        AssertJsonEquivalent(
++            """
++            {"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-null","causationId":null,"idempotencyKey":null}
++            """,
++            new ConversationCommandMetadata(
++                ContractSamples.Version,
++                ContractSamples.Tenant,
++                ContractSamples.Actor,
++                "correlation-null"));
++    }
++
++    /// <summary>
++    /// Ensures every released contract shape has at least one serialization fixture in the sample catalog.
++    /// </summary>
++    [Fact]
++    public void ReleasedContractShapesShouldHaveSerializationFixtureCoverage()
++    {
++        Type[] expectedTypes =
++        [
++            typeof(CreateConversationCommand),
++            typeof(AppendMessageCommand),
++            typeof(AddParticipantCommand),
++            typeof(AttachFileReferenceCommand),
++            typeof(UpdateConversationMetadataCommand),
++            typeof(CloseConversationCommand),
++            typeof(ArchiveConversationCommand),
++            typeof(ConversationCreated),
++            typeof(MessageAppended),
++            typeof(ParticipantAdded),
++            typeof(FileReferenceAttached),
++            typeof(ConversationMetadataUpdated),
++            typeof(ConversationClosed),
++            typeof(ConversationArchived),
++            typeof(ConversationCommandAcceptedResult),
++            typeof(ConversationCreatedResult),
++            typeof(ConversationError),
++            typeof(ConversationErrorResult),
++            typeof(ContractVersionInfo),
++            typeof(UnsupportedSchemaVersion),
++            typeof(ConversationSummaryProjection),
++            typeof(ConversationMessageProjection),
++            typeof(ProjectionFreshness),
++            typeof(ReadModelVisibility),
++            typeof(ProjectionTrustState),
++            typeof(SchemaVersion),
++        ];
++
++        Type[] sampleTypes = ContractSamples.AllContracts.Select(sample => sample.GetType()).ToArray();
++
++        foreach (Type expectedType in expectedTypes)
++        {
++            sampleTypes.ShouldContain(expectedType, $"Missing serialization fixture for {expectedType.Name}.");
++        }
+     }
+ 
+     private static void AssertJsonEquivalent(string expected, object value)
+     {
+-        using JsonDocument expectedDocument = JsonDocument.Parse(expected);
+-        using JsonDocument actualDocument = JsonDocument.Parse(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
++        JsonNode? expectedNode = JsonNode.Parse(expected);
++        JsonNode? actualNode = JsonNode.Parse(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
+ 
+-        actualDocument.RootElement.ToString().ShouldBe(expectedDocument.RootElement.ToString());
++        JsonNode.DeepEquals(actualNode, expectedNode).ShouldBeTrue(JsonSerializer.Serialize(value, value.GetType(), WebOptions));
+     }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs
+new file mode 100644
+index 0000000..9552d2b
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs
+@@ -0,0 +1,157 @@
++// <copyright file="ContractValidationTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Projections;
++using Hexalith.Conversations.Contracts.Versioning;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Contracts.Tests;
++
++/// <summary>
++/// Verifies contract-level validation for non-empty metadata and unambiguous ranges.
++/// </summary>
++public sealed class ContractValidationTest
++{
++    /// <summary>
++    /// Ensures version contracts reject impossible supported-version ranges.
++    /// </summary>
++    [Fact]
++    public void VersionContractsShouldRejectMinimumVersionAboveActiveVersion()
++    {
++        Should.Throw<ArgumentOutOfRangeException>(() => new ContractVersionInfo(
++            "Conversations",
++            new SchemaVersion(1),
++            new SchemaVersion(2)));
++
++        Should.Throw<ArgumentOutOfRangeException>(() => new UnsupportedSchemaVersion(
++            new SchemaVersion(3),
++            new SchemaVersion(1),
++            new SchemaVersion(2)));
++    }
++
++    /// <summary>
++    /// Ensures error result wrappers contain at least one non-null error.
++    /// </summary>
++    [Fact]
++    public void ErrorResultShouldRequireAtLeastOneNonNullError()
++    {
++        Should.Throw<ArgumentException>(() => new ConversationErrorResult([]));
++        Should.Throw<ArgumentException>(() => new ConversationErrorResult([null!]));
++    }
++
++    /// <summary>
++    /// Ensures public timestamps reject the default minimum value.
++    /// </summary>
++    [Fact]
++    public void TimestampContractsShouldRejectDefaultMinimumValue()
++    {
++        Should.Throw<ArgumentOutOfRangeException>(() => new ProjectionFreshness(
++            ContractSamples.Freshness.State,
++            DateTimeOffset.MinValue,
++            ContractSamples.Version));
++
++        Should.Throw<ArgumentOutOfRangeException>(() => new ConversationEventMetadata(
++            ContractSamples.Version,
++            "event-001",
++            ConversationEventType.ConversationCreated,
++            ContractSamples.Tenant,
++            ContractSamples.Conversation,
++            "correlation-001",
++            DateTimeOffset.MinValue));
++
++        Should.Throw<ArgumentOutOfRangeException>(() => new ConversationMessageProjection(
++            ContractSamples.Tenant,
++            ContractSamples.Conversation,
++            ContractSamples.Message,
++            ContractSamples.Actor,
++            "Hello",
++            DateTimeOffset.MinValue,
++            ContractSamples.Freshness));
++    }
++
++    /// <summary>
++    /// Ensures required metadata strings cannot be empty.
++    /// </summary>
++    [Fact]
++    public void RequiredMetadataStringsShouldRejectWhitespace()
++    {
++        Should.Throw<ArgumentException>(() => new ConversationCommandMetadata(
++            ContractSamples.Version,
++            ContractSamples.Tenant,
++            ContractSamples.Actor,
++            " "));
++
++        Should.Throw<ArgumentException>(() => new ConversationError(
++            ContractSamples.Version,
++            ConversationErrorCode.CommandValidationFailed,
++            ConversationErrorCategory.Validation,
++            false,
++            "\t"));
++
++        Should.Throw<ArgumentException>(() => new ConversationEventMetadata(
++            ContractSamples.Version,
++            string.Empty,
++            ConversationEventType.ConversationCreated,
++            ContractSamples.Tenant,
++            ContractSamples.Conversation,
++            "correlation-001",
++            ContractSamples.EventMetadata.CommittedAt));
++    }
++
++    /// <summary>
++    /// Ensures optional reason codes are either absent or meaningful.
++    /// </summary>
++    [Fact]
++    public void OptionalReasonCodesShouldRejectWhitespaceWhenProvided()
++    {
++        Should.Throw<ArgumentException>(() => new CloseConversationCommand(
++            ContractSamples.CommandMetadata,
++            ContractSamples.Conversation,
++            " "));
++
++        Should.Throw<ArgumentException>(() => new ArchiveConversationCommand(
++            ContractSamples.CommandMetadata,
++            ContractSamples.Conversation,
++            "\n"));
++    }
++
++    /// <summary>
++    /// Ensures provider metadata names remain meaningful correlation metadata.
++    /// </summary>
++    [Fact]
++    public void ProviderCorrelationMetadataShouldRequireProviderNameAndType()
++    {
++        Should.Throw<ArgumentException>(() => new ProviderCorrelationMetadata(
++            string.Empty,
++            "assistant",
++            ContractSamples.Version));
++
++        Should.Throw<ArgumentException>(() => new ProviderCorrelationMetadata(
++            "provider-a",
++            "\t",
++            ContractSamples.Version));
++    }
++
++    /// <summary>
++    /// Ensures participant lists are adopter-friendly when no participants are present.
++    /// </summary>
++    [Fact]
++    public void ConversationSummaryProjectionShouldDefaultParticipantListToEmpty()
++    {
++        ConversationSummaryProjection projection = new(
++            ContractSamples.Tenant,
++            ContractSamples.Conversation,
++            ContractSamples.Freshness);
++
++        projection.ParticipantPartyIds.ShouldBeEmpty();
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
+index cac256e..f7818a0 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs
+@@ -3,12 +3,14 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.RegularExpressions;
++using System.Xml.Linq;
++
+ using Hexalith.Conversations.Contracts;
+ 
+ using Shouldly;
+ 
+ using Xunit;
+-using System.Xml.Linq;
+ 
+ namespace Hexalith.Conversations.Contracts.Tests;
+ 
+@@ -54,16 +56,11 @@ public sealed class ContractsAssemblyBoundaryTest
+     [Fact]
+     public void ContractsProjectFileShouldNotDeclareForbiddenReferences()
+     {
+-        string projectPath = Path.GetFullPath(Path.Combine(
+-            AppContext.BaseDirectory,
+-            "..",
+-            "..",
+-            "..",
+-            "..",
+-            "..",
++        string projectPath = Path.Combine(
++            FindRepositoryRoot(),
+             "src",
+             "Hexalith.Conversations.Contracts",
+-            "Hexalith.Conversations.Contracts.csproj"));
++            "Hexalith.Conversations.Contracts.csproj");
+ 
+         XDocument project = XDocument.Load(projectPath);
+         string[] references = project
+@@ -84,15 +81,7 @@ public sealed class ContractsAssemblyBoundaryTest
+     [Fact]
+     public void ContractsSourceFilesShouldNotImportForbiddenNamespaces()
+     {
+-        string sourceRoot = Path.GetFullPath(Path.Combine(
+-            AppContext.BaseDirectory,
+-            "..",
+-            "..",
+-            "..",
+-            "..",
+-            "..",
+-            "src",
+-            "Hexalith.Conversations.Contracts"));
++        string sourceRoot = Path.Combine(FindRepositoryRoot(), "src", "Hexalith.Conversations.Contracts");
+ 
+         string[] sourceFiles = Directory
+             .GetFiles(sourceRoot, "*.cs", SearchOption.AllDirectories)
+@@ -103,11 +92,38 @@ public sealed class ContractsAssemblyBoundaryTest
+         foreach (string sourceFile in sourceFiles)
+         {
+             string source = File.ReadAllText(sourceFile);
++            string[] importedNamespaces = Regex
++                .Matches(
++                    source,
++                    @"^\s*(?:global\s+)?using\s+(?:static\s+)?(?<namespace>[A-Za-z_][A-Za-z0-9_.]*)\s*;",
++                    RegexOptions.Multiline)
++                .Select(match => match.Groups["namespace"].Value)
++                .ToArray();
+ 
+             foreach (string forbiddenPrefix in ForbiddenReferencePrefixes)
+             {
+-                source.ShouldNotContain($"using {forbiddenPrefix}", Case.Insensitive, sourceFile);
++                importedNamespaces.ShouldNotContain(
++                    importedNamespace => importedNamespace.StartsWith(forbiddenPrefix, StringComparison.Ordinal),
++                    sourceFile);
++            }
++        }
++    }
++
++    private static string FindRepositoryRoot()
++    {
++        DirectoryInfo? directory = new(AppContext.BaseDirectory);
++
++        while (directory is not null)
++        {
++            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
++                || Directory.Exists(Path.Combine(directory.FullName, ".git")))
++            {
++                return directory.FullName;
+             }
++
++            directory = directory.Parent;
+         }
++
++        throw new DirectoryNotFoundException("Could not find the repository root.");
+     }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs
+index be3dcee..e741bd4 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs
+@@ -5,6 +5,7 @@
+ 
+ using System.Reflection;
+ using System.Text.Json;
++using System.Text.RegularExpressions;
+ 
+ using Hexalith.Conversations.Contracts;
+ using Hexalith.Conversations.Contracts.Errors;
+@@ -36,6 +37,10 @@ public sealed class ForbiddenPublicSurfaceTest
+         "Handler",
+         "Dispatcher",
+         "Repository",
++        "Store",
++        "Subscription",
++        "AggregateIdentity",
++        "RawUpstream",
+         "Token",
+         "Claim",
+         "Binary",
+@@ -81,7 +86,10 @@ public sealed class ForbiddenPublicSurfaceTest
+         foreach (object sample in ContractSamples.AllContracts)
+         {
+             string json = JsonSerializer.Serialize(sample, sample.GetType(), options);
+-            AssertNoForbiddenTerms(json);
++            foreach (string propertyName in GetJsonPropertyNames(json))
++            {
++                AssertNoForbiddenTerms(propertyName);
++            }
+         }
+     }
+ 
+@@ -91,16 +99,7 @@ public sealed class ForbiddenPublicSurfaceTest
+     [Fact]
+     public void FailClosedErrorsShouldRemainContentSafe()
+     {
+-        string[] failClosedCodes =
+-        [
+-            ConversationErrorCode.TenantIsolationViolation,
+-            ConversationErrorCode.AggregateNotFound,
+-            ConversationErrorCode.TenantProjectionStale,
+-            ConversationErrorCode.AuditSinkUnavailable,
+-            ConversationErrorCode.SchemaVersionUnsupported,
+-        ];
+-
+-        foreach (string code in failClosedCodes)
++        foreach (ConversationErrorCode code in ContractSamples.AllErrorCodes)
+         {
+             string json = JsonSerializer.Serialize(ContractSamples.SafeError(code), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+ 
+@@ -110,13 +109,60 @@ public sealed class ForbiddenPublicSurfaceTest
+             json.ShouldNotContain("provider-a", Case.Insensitive);
+             json.ShouldNotContain("storage", Case.Insensitive);
+         }
++
++        Should.Throw<ArgumentException>(() => new ConversationError(
++            ContractSamples.Version,
++            ConversationErrorCode.TenantIsolationViolation,
++            ConversationErrorCategory.Authorization,
++            false,
++            "correlation-001",
++            SafeFieldDiagnostics: new Dictionary<string, string>
++            {
++                ["target"] = "other-tenant exists",
++            }));
+     }
+ 
+     private static void AssertNoForbiddenTerms(string value)
+     {
+         foreach (string term in ForbiddenTerms)
+         {
+-            value.ShouldNotContain(term, Case.Insensitive);
++            Regex.IsMatch(value, $@"(^|[^A-Za-z0-9]){Regex.Escape(term)}([^A-Za-z0-9]|$)", RegexOptions.IgnoreCase)
++                .ShouldBeFalse($"Forbidden public term '{term}' found in '{value}'.");
++        }
++    }
++
++    private static IEnumerable<string> GetJsonPropertyNames(string json)
++    {
++        using JsonDocument document = JsonDocument.Parse(json);
++        foreach (string name in GetJsonPropertyNames(document.RootElement))
++        {
++            yield return name;
++        }
++    }
++
++    private static IEnumerable<string> GetJsonPropertyNames(JsonElement element)
++    {
++        if (element.ValueKind == JsonValueKind.Object)
++        {
++            foreach (JsonProperty property in element.EnumerateObject())
++            {
++                yield return property.Name;
++
++                foreach (string childName in GetJsonPropertyNames(property.Value))
++                {
++                    yield return childName;
++                }
++            }
++        }
++        else if (element.ValueKind == JsonValueKind.Array)
++        {
++            foreach (JsonElement child in element.EnumerateArray())
++            {
++                foreach (string childName in GetJsonPropertyNames(child))
++                {
++                    yield return childName;
++                }
++            }
+         }
+     }
+ }
+diff --git a/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs b/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs
+index 2967390..6a4c067 100644
+--- a/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs
++++ b/tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs
+@@ -3,6 +3,8 @@
+ // Licensed under the MIT License.
+ // </copyright>
+ 
++using System.Text.Json;
++
+ using Hexalith.Conversations.Contracts.Identifiers;
+ using Hexalith.Conversations.Contracts.TrustStates;
+ using Hexalith.Conversations.Contracts.Versioning;
+@@ -24,16 +26,23 @@ public sealed class IdentifierValidationTest
+     [Fact]
+     public void StableIdentityContractsShouldRejectEmptyValues()
+     {
+-        Should.Throw<ArgumentException>(() => new ConversationId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new TenantId(" "));
+-        Should.Throw<ArgumentException>(() => new PartyId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new ProjectId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new FolderId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new FileId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new MessageId(string.Empty));
+-        Should.Throw<ArgumentException>(() => new BusinessReference("crm", string.Empty));
+-        Should.Throw<ArgumentException>(() => new ProjectionTrustState(string.Empty));
++        foreach (string? value in new[] { null, string.Empty, " ", "\t", "\n" })
++        {
++            Should.Throw<ArgumentException>(() => new ConversationId(value!));
++            Should.Throw<ArgumentException>(() => new TenantId(value!));
++            Should.Throw<ArgumentException>(() => new PartyId(value!));
++            Should.Throw<ArgumentException>(() => new ProjectId(value!));
++            Should.Throw<ArgumentException>(() => new FolderId(value!));
++            Should.Throw<ArgumentException>(() => new FileId(value!));
++            Should.Throw<ArgumentException>(() => new MessageId(value!));
++            Should.Throw<ArgumentException>(() => new BusinessReference("crm", value!));
++            Should.Throw<ArgumentException>(() => ProjectionTrustState.Parse(value!));
++        }
++
+         Should.Throw<ArgumentOutOfRangeException>(() => new SchemaVersion(0));
++        Should.Throw<ArgumentOutOfRangeException>(() => new SchemaVersion(-1));
++        Should.Throw<ArgumentOutOfRangeException>(() => new SchemaVersion(int.MinValue));
++        new SchemaVersion(int.MaxValue).Value.ShouldBe(int.MaxValue);
+     }
+ 
+     /// <summary>
+@@ -42,7 +51,59 @@ public sealed class IdentifierValidationTest
+     [Fact]
+     public void ProviderCorrelationShouldNotReplaceConversationIdentity()
+     {
+-        ContractSamples.ProviderCorrelation.ProviderSessionReference.ShouldNotBe(ContractSamples.Conversation.Value);
+-        ContractSamples.ProviderCorrelation.ProviderResponseReference.ShouldNotBe(ContractSamples.Conversation.Value);
++        typeof(ProviderCorrelationMetadata)
++            .GetProperty(nameof(ProviderCorrelationMetadata.ProviderSessionReference))!
++            .PropertyType
++            .ShouldNotBe(typeof(ConversationId));
++
++        typeof(ProviderCorrelationMetadata)
++            .GetProperty(nameof(ProviderCorrelationMetadata.ProviderResponseReference))!
++            .PropertyType
++            .ShouldNotBe(typeof(ConversationId));
++    }
++
++    /// <summary>
++    /// Ensures malformed JSON cannot bypass identifier validation.
++    /// </summary>
++    [Theory]
++    [InlineData("{}")]
++    [InlineData("\"\"")]
++    [InlineData("null")]
++    [InlineData("\"  \"")]
++    public void IdentifierJsonShouldRejectMalformedValues(string json)
++    {
++        if (json == "null")
++        {
++            JsonSerializer.Deserialize<ConversationId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<TenantId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<PartyId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<ProjectId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<FolderId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<FileId>(json).ShouldBeNull();
++            JsonSerializer.Deserialize<MessageId>(json).ShouldBeNull();
++            return;
++        }
++
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<ConversationId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<TenantId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<PartyId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<ProjectId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<FolderId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<FileId>(json));
++        Should.Throw<Exception>(() => JsonSerializer.Deserialize<MessageId>(json));
++    }
++
++    /// <summary>
++    /// Documents that flat primitive JSON uses the destination contract type as the type boundary.
++    /// </summary>
++    [Fact]
++    public void FlatIdentifierJsonShouldDependOnDestinationContractType()
++    {
++        string json = JsonSerializer.Serialize(new TenantId("tenant-001"));
++
++        ConversationId conversationId = JsonSerializer.Deserialize<ConversationId>(json)!;
++
++        conversationId.Value.ShouldBe("tenant-001");
++        conversationId.ShouldBeOfType<ConversationId>();
+     }
+ }

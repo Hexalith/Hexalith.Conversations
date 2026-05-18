@@ -94,32 +94,119 @@ public sealed class ForbiddenPublicSurfaceTest
     }
 
     /// <summary>
-    /// Ensures content-safe fail-closed errors do not disclose inaccessible target facts.
+    /// Ensures the word-boundary regex flags every forbidden term as a standalone name.
     /// </summary>
     [Fact]
-    public void FailClosedErrorsShouldRemainContentSafe()
+    public void ForbiddenSurfaceRegexShouldFlagStandaloneTerms()
     {
+        foreach (string term in ForbiddenTerms)
+        {
+            Should.Throw<Shouldly.ShouldAssertException>(() => AssertNoForbiddenTerms(term));
+            Should.Throw<Shouldly.ShouldAssertException>(() => AssertNoForbiddenTerms($"foo_{term.ToLowerInvariant()}_bar"));
+        }
+    }
+
+    /// <summary>
+    /// Ensures the word-boundary regex does not over-match legitimate compound English words.
+    /// </summary>
+    [Theory]
+    [InlineData("Upstream")]   // contains "Stream" without word boundary
+    [InlineData("Personal")]   // contains "Person" without word boundary
+    [InlineData("Stored")]     // contains "Store" without word boundary
+    [InlineData("Streaming")]  // contains "Stream" without word boundary
+    [InlineData("AggregateNotFound")]  // contains "Aggregate" but not "AggregateIdentity"
+    [InlineData("non-existent")]
+    [InlineData("PartyDirectory")]  // legitimate Conversations vocabulary
+    public void ForbiddenSurfaceRegexShouldNotFlagLegitimateCompounds(string sample)
+        => AssertNoForbiddenTerms(sample);
+
+    /// <summary>
+    /// Adversarially constructs <see cref="ConversationError"/> with each unsafe-term variant in
+    /// every protected free-text field and asserts the contract refuses to build.
+    /// </summary>
+    [Fact]
+    public void ConversationErrorShouldRejectUnsafeContentInEveryFreeTextField()
+    {
+        string[] unsafeSamples =
+        [
+            "EventStore envelope",
+            "stream id 5",
+            "snapshot at revision 42",
+            "tenant-other-tenant",
+            "provider-a session abc",
+            "data store unavailable",
+            "raw upstream payload",
+            "dispatcher unavailable",
+            "repository unreachable",
+            "checkpoint 12345",
+        ];
+
+        foreach (string unsafeSample in unsafeSamples)
+        {
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                "correlation-001",
+                DeveloperGuidance: unsafeSample));
+
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                "correlation-001",
+                AuditHandle: unsafeSample));
+
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                unsafeSample));
+
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                "correlation-001",
+                SafeFieldDiagnostics: new Dictionary<string, string>
+                {
+                    ["target"] = unsafeSample,
+                }));
+
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                "correlation-001",
+                SafeFieldDiagnostics: new Dictionary<string, string>
+                {
+                    [unsafeSample] = "value",
+                }));
+        }
+    }
+
+    /// <summary>
+    /// Curated <see cref="ContractSamples.SafeError"/> fixtures serialize without leaking unsafe terms.
+    /// </summary>
+    [Fact]
+    public void CuratedFailClosedFixturesShouldRemainContentSafeOnTheWire()
+    {
+        JsonSerializerOptions options = new(JsonSerializerDefaults.Web);
         foreach (ConversationErrorCode code in ContractSamples.AllErrorCodes)
         {
-            string json = JsonSerializer.Serialize(ContractSamples.SafeError(code), new JsonSerializerOptions(JsonSerializerDefaults.Web));
+            string json = JsonSerializer.Serialize(ContractSamples.SafeError(code), options);
 
             json.ShouldNotContain("other-tenant", Case.Insensitive);
-            json.ShouldNotContain("exists", Case.Insensitive);
             json.ShouldNotContain("redacted content", Case.Insensitive);
-            json.ShouldNotContain("provider-a", Case.Insensitive);
-            json.ShouldNotContain("storage", Case.Insensitive);
+            json.ShouldNotContain("EventStore", Case.Insensitive);
+            json.ShouldNotContain("raw upstream", Case.Insensitive);
+            json.ShouldNotContain("aggregate identity", Case.Insensitive);
         }
-
-        Should.Throw<ArgumentException>(() => new ConversationError(
-            ContractSamples.Version,
-            ConversationErrorCode.TenantIsolationViolation,
-            ConversationErrorCategory.Authorization,
-            false,
-            "correlation-001",
-            SafeFieldDiagnostics: new Dictionary<string, string>
-            {
-                ["target"] = "other-tenant exists",
-            }));
     }
 
     private static void AssertNoForbiddenTerms(string value)

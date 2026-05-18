@@ -3,12 +3,14 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.TrustStates;
@@ -29,6 +31,11 @@ public sealed class ContractSerializationTest
 
     /// <summary>
     /// Ensures every public sample contract survives System.Text.Json web-default round-trip serialization.
+    /// JSON equivalence between the source payload and re-serialized deserialized object catches converters
+    /// that drop fields, since a dropped field would produce asymmetric JSON. Record value-equality is
+    /// intentionally not asserted: records with <see cref="IReadOnlyDictionary{TKey,TValue}"/> or
+    /// <see cref="IReadOnlyList{T}"/> properties use reference equality on those properties and would
+    /// always report inequality after a JSON round-trip even when the round-trip is correct.
     /// </summary>
     [Fact]
     public void PublicContractsShouldRoundTripWithSystemTextJsonWebDefaults()
@@ -44,14 +51,14 @@ public sealed class ContractSerializationTest
     }
 
     /// <summary>
-    /// Verifies stable representative wire shapes.
+    /// Verifies stable representative wire shapes for each contract family.
     /// </summary>
     [Fact]
     public void RepresentativeFixturesShouldKeepStableCamelCaseJsonShapes()
     {
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
             """,
             new CreateConversationCommand(
                 ContractSamples.CommandMetadata,
@@ -63,7 +70,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party-actor","causationId":"causation-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project-001","folderId":"folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
+            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party:party-actor","causationId":"causation-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
             """,
             new ConversationCreated(
                 ContractSamples.EventMetadata,
@@ -81,20 +88,20 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"schemaVersion":1,"commandType":"CreateConversationCommand","tenantId":"tenant-001","conversationId":"conversation-001","correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":"Stale","guidance":"Read models may lag immediately after command acceptance."}}
+            {"schemaVersion":1,"tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","idempotencyKey":"idempotency-001","visibility":{"state":"Stale","guidance":"Read models may lag immediately after command acceptance."},"commandType":"CreateConversationCommand"}
             """,
             new ConversationCreatedResult(
                 ContractSamples.Version,
-                ConversationCommandType.CreateConversationCommand,
                 ContractSamples.Tenant,
                 ContractSamples.Conversation,
                 "correlation-001",
                 "idempotency-001",
-                ContractSamples.Visibility));
+                ContractSamples.Visibility,
+                ConversationCommandType.CreateConversationCommand));
 
         AssertJsonEquivalent(
             """
-            {"tenantId":"tenant-001","conversationId":"conversation-001","freshness":{"state":"Current","observedAt":"2026-05-18T11:00:00+00:00","projectionContractSchemaVersion":1,"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":["party-actor","party-participant"]}
+            {"tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","freshness":{"state":"Current","observedAt":"2026-05-18T11:00:00+00:00","projectionContractSchemaVersion":1,"guidance":"Visible after accepted writes are projected."},"label":"Case 123","businessReference":{"system":"crm","value":"case-123"},"participantPartyIds":["party:party-actor","party:party-participant"]}
             """,
             new ConversationSummaryProjection(
                 ContractSamples.Tenant,
@@ -118,7 +125,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"schemaVersion":1,"tenantId":"tenant-001","actorPartyId":"party-actor","correlationId":"correlation-null","causationId":null,"idempotencyKey":null}
+            {"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-null","causationId":null,"idempotencyKey":null}
             """,
             new ConversationCommandMetadata(
                 ContractSamples.Version,
@@ -128,47 +135,35 @@ public sealed class ContractSerializationTest
     }
 
     /// <summary>
-    /// Ensures every released contract shape has at least one serialization fixture in the sample catalog.
+    /// Ensures every exported public record under Hexalith.Conversations.Contracts has at least one
+    /// serialization fixture in <see cref="ContractSamples.AllContracts"/>. Discovers types via assembly
+    /// scan so new public records cannot ship without fixture coverage.
     /// </summary>
     [Fact]
-    public void ReleasedContractShapesShouldHaveSerializationFixtureCoverage()
+    public void EveryPublicContractRecordShouldHaveSerializationFixtureCoverage()
     {
-        Type[] expectedTypes =
-        [
-            typeof(CreateConversationCommand),
-            typeof(AppendMessageCommand),
-            typeof(AddParticipantCommand),
-            typeof(AttachFileReferenceCommand),
-            typeof(UpdateConversationMetadataCommand),
-            typeof(CloseConversationCommand),
-            typeof(ArchiveConversationCommand),
-            typeof(ConversationCreated),
-            typeof(MessageAppended),
-            typeof(ParticipantAdded),
-            typeof(FileReferenceAttached),
-            typeof(ConversationMetadataUpdated),
-            typeof(ConversationClosed),
-            typeof(ConversationArchived),
-            typeof(ConversationCommandAcceptedResult),
-            typeof(ConversationCreatedResult),
-            typeof(ConversationError),
-            typeof(ConversationErrorResult),
-            typeof(ContractVersionInfo),
-            typeof(UnsupportedSchemaVersion),
-            typeof(ConversationSummaryProjection),
-            typeof(ConversationMessageProjection),
-            typeof(ProjectionFreshness),
-            typeof(ReadModelVisibility),
-            typeof(ProjectionTrustState),
-            typeof(SchemaVersion),
-        ];
+        Assembly assembly = typeof(ConversationId).Assembly;
+        Type[] publicRecords = assembly.GetExportedTypes()
+            .Where(IsPublicContractRecord)
+            .ToArray();
 
         Type[] sampleTypes = ContractSamples.AllContracts.Select(sample => sample.GetType()).ToArray();
 
-        foreach (Type expectedType in expectedTypes)
+        foreach (Type publicRecord in publicRecords)
         {
-            sampleTypes.ShouldContain(expectedType, $"Missing serialization fixture for {expectedType.Name}.");
+            sampleTypes.ShouldContain(publicRecord, $"Missing serialization fixture for {publicRecord.Name}. Add it to ContractSamples.AllContracts.");
         }
+    }
+
+    private static bool IsPublicContractRecord(Type type)
+    {
+        if (!type.IsPublic || !type.IsClass || type.IsAbstract)
+        {
+            return false;
+        }
+
+        // C# records emit a synthesized Clone method named "<Clone>$".
+        return type.GetMethod("<Clone>$", BindingFlags.Public | BindingFlags.Instance | BindingFlags.NonPublic) is not null;
     }
 
     private static void AssertJsonEquivalent(string expected, object value)
