@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "produced_by": "jobs/preflight-predev-hardening.py",
-  "timestamp": "2026-05-18T14:02:00Z",
+  "timestamp": "2026-05-18T11:05:47Z",
   "repo": "D:\\Hexalith.Conversations",
   "result": "fail",
   "bootstrap_actions": [],
@@ -12,7 +12,7 @@
       "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
       "result": "pass",
       "details": "PARSE OK",
-      "file_size_bytes": 5862,
+      "file_size_bytes": 5870,
       "line_count": 112,
       "top_level_keys": [
         "development_status",
@@ -63,11 +63,11 @@
         ":(exclude)_bmad-output/process-notes/preflight-latest.json"
       ],
       "exit_code": 0,
-      "stdout": " M README.md\n M _bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n M tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs\n?? src/Hexalith.Conversations.Contracts/Commands/\n?? src/Hexalith.Conversations.Contracts/Errors/\n?? src/Hexalith.Conversations.Contracts/Events/\n?? src/Hexalith.Conversations.Contracts/Identifiers/\n?? src/Hexalith.Conversations.Contracts/Projections/\n?? src/Hexalith.Conversations.Contracts/Results/\n?? src/Hexalith.Conversations.Contracts/TrustStates/\n?? src/Hexalith.Conversations.Contracts/Versioning/\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs\n?? tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs\n",
+      "stdout": " M _bmad-output/implementation-artifacts/sprint-status.yaml\n",
       "stderr": "",
-      "dirty_path_count": 17,
+      "dirty_path_count": 1,
       "result": "fail",
-      "details": "17 dirty path(s)"
+      "details": "1 dirty path(s)"
     }
   ],
   "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."

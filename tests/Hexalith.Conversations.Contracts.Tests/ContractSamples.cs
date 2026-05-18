@@ -1,0 +1,123 @@
+// <copyright file="ContractSamples.cs" company="ITANEO">
+// Copyright (c) ITANEO. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+
+using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Errors;
+using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Contracts.Versioning;
+
+namespace Hexalith.Conversations.Contracts.Tests;
+
+internal static class ContractSamples
+{
+    internal static readonly SchemaVersion Version = new(1);
+    internal static readonly TenantId Tenant = new("tenant-001");
+    internal static readonly ConversationId Conversation = new("conversation-001");
+    internal static readonly PartyId Actor = new("party-actor");
+    internal static readonly PartyId Participant = new("party-participant");
+    internal static readonly MessageId Message = new("message-001");
+    internal static readonly ProjectId Project = new("project-001");
+    internal static readonly FolderId Folder = new("folder-001");
+    internal static readonly FileId File = new("file-001");
+    internal static readonly BusinessReference Business = new("crm", "case-123");
+
+    internal static readonly ProviderCorrelationMetadata ProviderCorrelation = new(
+        "provider-a",
+        "assistant",
+        Version,
+        "session-reference",
+        "response-reference",
+        new Dictionary<string, string>
+        {
+            ["region"] = "eu",
+        });
+
+    internal static readonly ConversationCommandMetadata CommandMetadata = new(
+        Version,
+        Tenant,
+        Actor,
+        "correlation-001",
+        "causation-001",
+        "idempotency-001");
+
+    internal static readonly ConversationEventMetadata EventMetadata = new(
+        Version,
+        "ConversationCreated",
+        Tenant,
+        Conversation,
+        Actor,
+        "correlation-001",
+        "causation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero));
+
+    internal static readonly ProjectionFreshness Freshness = new(
+        ProjectionTrustState.Current,
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Version,
+        "Visible after accepted writes are projected.");
+
+    internal static readonly ReadModelVisibility Visibility = new(
+        ProjectionTrustState.Stale,
+        "Read models may lag immediately after command acceptance.");
+
+    internal static IReadOnlyList<object> AllContracts =>
+    [
+        Version,
+        new ContractVersionInfo("Conversations", Version, Version),
+        new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
+        Tenant,
+        Conversation,
+        Actor,
+        Project,
+        Folder,
+        File,
+        Message,
+        Business,
+        ProviderCorrelation,
+        CommandMetadata,
+        new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
+        new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
+        new AddParticipantCommand(CommandMetadata, Conversation, Participant),
+        new AttachFileReferenceCommand(CommandMetadata, Conversation, File, Folder, Message),
+        new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
+        new CloseConversationCommand(CommandMetadata, Conversation, "resolved"),
+        new ArchiveConversationCommand(CommandMetadata, Conversation, "retained"),
+        EventMetadata,
+        new ConversationCreated(EventMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
+        new MessageAppended(EventMetadata, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
+        new ParticipantAdded(EventMetadata, Participant),
+        new FileReferenceAttached(EventMetadata, File, Folder, Message),
+        new ConversationMetadataUpdated(EventMetadata, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
+        new ConversationClosed(EventMetadata, "resolved"),
+        new ConversationArchived(EventMetadata, "retained"),
+        ProjectionTrustState.Current,
+        Freshness,
+        new ConversationSummaryProjection(Tenant, Conversation, Freshness, "Case 123", Business, [Actor, Participant]),
+        new ConversationMessageProjection(Tenant, Conversation, Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, Freshness),
+        Visibility,
+        new ConversationCommandAcceptedResult(Version, Tenant, Conversation, "AppendMessageCommand", "correlation-001", "idempotency-001", Visibility),
+        new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility),
+        SafeError(ConversationErrorCode.TenantIsolationViolation),
+        new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
+    ];
+
+    internal static ConversationError SafeError(string code) => new(
+        Version,
+        code,
+        "authorization",
+        false,
+        "correlation-001",
+        "audit-001",
+        new Uri("https://docs.hexalith.local/conversations/errors"),
+        new Dictionary<string, string>
+        {
+            ["target"] = "hidden",
+        },
+        "The requested operation was not accepted.");
+}

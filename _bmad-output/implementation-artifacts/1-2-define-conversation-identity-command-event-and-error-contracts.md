@@ -1,6 +1,6 @@
 # Story 1.2: Define Conversation Identity, Command, Event, and Error Contracts
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,57 +20,57 @@ so that I can integrate without learning EventStore internals or depending on un
 
 ## Tasks / Subtasks
 
-- [ ] Add stable identity and reference contracts in `src/Hexalith.Conversations.Contracts`. (AC: 1, 3, 5)
-  - [ ] Create `Identifiers/ConversationId.cs`, `TenantId.cs`, `PartyId.cs`, `ProjectId.cs`, `FolderId.cs`, `FileId.cs`, `MessageId.cs`, and `BusinessReference.cs` as serialization-friendly public value contracts.
-  - [ ] Add provider correlation metadata as opaque metadata, not identity: e.g. `ProviderCorrelationMetadata` with provider name/type, provider session or response identifiers, metadata schema version, and a bounded key/value extension bag.
-  - [ ] Validate that `ConversationId` is tenant-scoped by contract usage and documentation, while provider IDs, UI labels, external identifiers, upstream message identifiers, thread names, correlation IDs, causation IDs, idempotency keys, and actor references stay separate metadata/reference fields.
-  - [ ] Add README identity guidance with an ID taxonomy that distinguishes internal conversation identity, tenant binding, Party actor attribution, upstream stable references, provider/thread correlation metadata, UI labels, external business references, and forbidden raw identifiers.
-  - [ ] Keep all identifier contracts in the Contracts assembly; do not reference `Hexalith.Tenants`, `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `Hexalith.EventStore`, or server-only packages from Contracts.
+- [x] Add stable identity and reference contracts in `src/Hexalith.Conversations.Contracts`. (AC: 1, 3, 5)
+  - [x] Create `Identifiers/ConversationId.cs`, `TenantId.cs`, `PartyId.cs`, `ProjectId.cs`, `FolderId.cs`, `FileId.cs`, `MessageId.cs`, and `BusinessReference.cs` as serialization-friendly public value contracts.
+  - [x] Add provider correlation metadata as opaque metadata, not identity: e.g. `ProviderCorrelationMetadata` with provider name/type, provider session or response identifiers, metadata schema version, and a bounded key/value extension bag.
+  - [x] Validate that `ConversationId` is tenant-scoped by contract usage and documentation, while provider IDs, UI labels, external identifiers, upstream message identifiers, thread names, correlation IDs, causation IDs, idempotency keys, and actor references stay separate metadata/reference fields.
+  - [x] Add README identity guidance with an ID taxonomy that distinguishes internal conversation identity, tenant binding, Party actor attribution, upstream stable references, provider/thread correlation metadata, UI labels, external business references, and forbidden raw identifiers.
+  - [x] Keep all identifier contracts in the Contracts assembly; do not reference `Hexalith.Tenants`, `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `Hexalith.EventStore`, or server-only packages from Contracts.
 
-- [ ] Add command envelope and initial command contracts. (AC: 2, 5)
-  - [ ] Create `Commands/ConversationCommandMetadata.cs` with schema version, tenant binding, caller/actor Party ID, correlation ID, optional causation ID, and idempotency key support.
-  - [ ] Create command shapes for `CreateConversationCommand`, `AppendMessageCommand`, `AddParticipantCommand`, `AttachFileReferenceCommand`, `UpdateConversationMetadataCommand`, `CloseConversationCommand`, and `ArchiveConversationCommand`.
-  - [ ] Ensure every mutating command carries tenant scope, actor attribution, schema version, correlation/causation metadata, and idempotency metadata where applicable.
-  - [ ] Make command payloads carry stable IDs and allowed metadata only; they must not carry tokens, claims, raw provider payloads, tenant authorization state, Party personal data, file binaries, raw upstream records, or EventStore envelopes.
-  - [ ] Keep these as public contract DTOs only. Do not implement validators, handlers, aggregate methods, authorization, persistence, projection updates, EventStore dispatch, repositories, stores, runtime service interfaces, or command pipeline abstractions in this story.
+- [x] Add command envelope and initial command contracts. (AC: 2, 5)
+  - [x] Create `Commands/ConversationCommandMetadata.cs` with schema version, tenant binding, caller/actor Party ID, correlation ID, optional causation ID, and idempotency key support.
+  - [x] Create command shapes for `CreateConversationCommand`, `AppendMessageCommand`, `AddParticipantCommand`, `AttachFileReferenceCommand`, `UpdateConversationMetadataCommand`, `CloseConversationCommand`, and `ArchiveConversationCommand`.
+  - [x] Ensure every mutating command carries tenant scope, actor attribution, schema version, correlation/causation metadata, and idempotency metadata where applicable.
+  - [x] Make command payloads carry stable IDs and allowed metadata only; they must not carry tokens, claims, raw provider payloads, tenant authorization state, Party personal data, file binaries, raw upstream records, or EventStore envelopes.
+  - [x] Keep these as public contract DTOs only. Do not implement validators, handlers, aggregate methods, authorization, persistence, projection updates, EventStore dispatch, repositories, stores, runtime service interfaces, or command pipeline abstractions in this story.
 
-- [ ] Add event contract primitives and initial event contracts. (AC: 3, 5)
-  - [ ] Create `Events/ConversationEventMetadata.cs` with schema version, event type, tenant scope, conversation identity, actor Party ID where applicable, correlation/causation metadata, and committed timestamp metadata expected by public contracts.
-  - [ ] Create event contracts for `ConversationCreated`, `MessageAppended`, `ParticipantAdded`, `FileReferenceAttached`, `ConversationMetadataUpdated`, `ConversationClosed`, and `ConversationArchived`.
-  - [ ] Use past-tense Conversations domain names and stable references only. Events must not store Party display names, contact values, person/organization details, provider-owned session IDs as authority, raw prompt/provider payloads, raw upstream records, file binaries, or raw upstream problem details.
-  - [ ] Represent provider extension data as versioned opaque metadata and keep it tenant-scoped. Do not expose EventStore stream names, sequence numbers, snapshots, checkpoints, expected revisions, SignalR groups, projection names, or internal projection topology.
+- [x] Add event contract primitives and initial event contracts. (AC: 3, 5)
+  - [x] Create `Events/ConversationEventMetadata.cs` with schema version, event type, tenant scope, conversation identity, actor Party ID where applicable, correlation/causation metadata, and committed timestamp metadata expected by public contracts.
+  - [x] Create event contracts for `ConversationCreated`, `MessageAppended`, `ParticipantAdded`, `FileReferenceAttached`, `ConversationMetadataUpdated`, `ConversationClosed`, and `ConversationArchived`.
+  - [x] Use past-tense Conversations domain names and stable references only. Events must not store Party display names, contact values, person/organization details, provider-owned session IDs as authority, raw prompt/provider payloads, raw upstream records, file binaries, or raw upstream problem details.
+  - [x] Represent provider extension data as versioned opaque metadata and keep it tenant-scoped. Do not expose EventStore stream names, sequence numbers, snapshots, checkpoints, expected revisions, SignalR groups, projection names, or internal projection topology.
 
-- [ ] Add result, projection, trust/freshness, version, and error contracts needed by adopter-facing semantics. (AC: 2, 4, 5)
-  - [ ] Create `Results` contracts for command acceptance and stable outcomes, including assigned `ConversationId` for create, accepted command identity/correlation handle, and read-model visibility caveat where relevant.
-  - [ ] Create minimal projection/read contract shells under `Projections` that expose Conversations vocabulary and freshness/trust state without implementing projection storage, projection state machines, cursoring, rebuild lifecycle, EventStore sequencing, subscription state, tenant materialization behavior, or dispatch behavior.
-  - [ ] Create `TrustStates` contracts using the approved vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
-  - [ ] Create `Versioning` contracts for active contract/schema version and unsupported-version reporting, with one explicit JSON representation rule for schema version values so command, event, result, error, and projection shells do not drift independently.
-  - [ ] Create `Errors/ConversationErrorCode.cs` and a content-safe problem/result contract that covers at minimum `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `aggregate_not_found`, `schema_version_unsupported`, and `command_validation_failed`.
-  - [ ] Ensure error contracts include machine-readable code/category, retryability where meaningful, correlation/audit handle, optional documentation pointer, and safe field diagnostics, without leaking inaccessible tenant IDs, Party personal data, conversation existence, redacted content, provider identity/payloads, infrastructure/storage details, raw exception text, validation internals, or cross-tenant business references.
-  - [ ] Keep localized/user-facing display copy out of scope; any safe human-readable text is developer guidance only and must not be the primary machine contract.
+- [x] Add result, projection, trust/freshness, version, and error contracts needed by adopter-facing semantics. (AC: 2, 4, 5)
+  - [x] Create `Results` contracts for command acceptance and stable outcomes, including assigned `ConversationId` for create, accepted command identity/correlation handle, and read-model visibility caveat where relevant.
+  - [x] Create minimal projection/read contract shells under `Projections` that expose Conversations vocabulary and freshness/trust state without implementing projection storage, projection state machines, cursoring, rebuild lifecycle, EventStore sequencing, subscription state, tenant materialization behavior, or dispatch behavior.
+  - [x] Create `TrustStates` contracts using the approved vocabulary: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
+  - [x] Create `Versioning` contracts for active contract/schema version and unsupported-version reporting, with one explicit JSON representation rule for schema version values so command, event, result, error, and projection shells do not drift independently.
+  - [x] Create `Errors/ConversationErrorCode.cs` and a content-safe problem/result contract that covers at minimum `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `aggregate_not_found`, `schema_version_unsupported`, and `command_validation_failed`.
+  - [x] Ensure error contracts include machine-readable code/category, retryability where meaningful, correlation/audit handle, optional documentation pointer, and safe field diagnostics, without leaking inaccessible tenant IDs, Party personal data, conversation existence, redacted content, provider identity/payloads, infrastructure/storage details, raw exception text, validation internals, or cross-tenant business references.
+  - [x] Keep localized/user-facing display copy out of scope; any safe human-readable text is developer guidance only and must not be the primary machine contract.
 
-- [ ] Add focused contract tests and serialization checks. (AC: 1-5)
-  - [ ] Add tests in `tests/Hexalith.Conversations.Contracts.Tests` proving every public identifier, command, event, result, error, projection shell, trust/freshness, and versioning contract serializes and deserializes with `System.Text.Json` defaults used by web APIs, preserves required fields, and remains nullable-clean.
-  - [ ] Add representative stable JSON fixture tests for one valid command, event, error, result, projection shell, trust/freshness state, and version metadata contract to catch accidental casing, null emission, enum/value representation, and property-name drift.
-  - [ ] Add tests proving command and event contracts include tenant scope, schema version, correlation/causation metadata, actor Party attribution where required, and idempotency fields where applicable.
-  - [ ] Add reflection and serialized-JSON inspection tests proving forbidden personal/provider/file/upstream payload fields are absent from every public exported contract type, including type names, namespaces, public property names, and JSON property names.
-  - [ ] Extend or replace existing boundary tests so Contracts package references, project references, framework references, and forbidden namespace imports/usings are inspected from `.csproj` XML and source files, not only from `Assembly.GetReferencedAssemblies()`, because marker assemblies may not retain unused references.
-  - [ ] Add tests proving public contract names and serialized shapes do not expose EventStore or runtime terms such as envelope, EventStore, stream, snapshot, sequence, expected revision, checkpoint, SignalR group, projection topology, projection name, tenant projection internals, handler, dispatcher, repository, store, or EventStore aggregate identity.
-  - [ ] Add tests proving identifier/default/null cases cannot silently produce ambiguous empty contract values where the public shape requires a stable identity or metadata value.
-  - [ ] Add fail-closed error fixture tests proving unauthorized, nonexistent, cross-tenant, hidden-by-isolation, stale, unavailable, audit-unavailable, and unsupported-version outputs remain content-safe and non-disclosing.
+- [x] Add focused contract tests and serialization checks. (AC: 1-5)
+  - [x] Add tests in `tests/Hexalith.Conversations.Contracts.Tests` proving every public identifier, command, event, result, error, projection shell, trust/freshness, and versioning contract serializes and deserializes with `System.Text.Json` defaults used by web APIs, preserves required fields, and remains nullable-clean.
+  - [x] Add representative stable JSON fixture tests for one valid command, event, error, result, projection shell, trust/freshness state, and version metadata contract to catch accidental casing, null emission, enum/value representation, and property-name drift.
+  - [x] Add tests proving command and event contracts include tenant scope, schema version, correlation/causation metadata, actor Party attribution where required, and idempotency fields where applicable.
+  - [x] Add reflection and serialized-JSON inspection tests proving forbidden personal/provider/file/upstream payload fields are absent from every public exported contract type, including type names, namespaces, public property names, and JSON property names.
+  - [x] Extend or replace existing boundary tests so Contracts package references, project references, framework references, and forbidden namespace imports/usings are inspected from `.csproj` XML and source files, not only from `Assembly.GetReferencedAssemblies()`, because marker assemblies may not retain unused references.
+  - [x] Add tests proving public contract names and serialized shapes do not expose EventStore or runtime terms such as envelope, EventStore, stream, snapshot, sequence, expected revision, checkpoint, SignalR group, projection topology, projection name, tenant projection internals, handler, dispatcher, repository, store, or EventStore aggregate identity.
+  - [x] Add tests proving identifier/default/null cases cannot silently produce ambiguous empty contract values where the public shape requires a stable identity or metadata value.
+  - [x] Add fail-closed error fixture tests proving unauthorized, nonexistent, cross-tenant, hidden-by-isolation, stale, unavailable, audit-unavailable, and unsupported-version outputs remain content-safe and non-disclosing.
 
-- [ ] Update developer documentation for the contract package. (AC: 4, 5)
-  - [ ] Add or update `README.md` contract-package guidance that names the supported `.NET client + shared contract package` integration path and explains that raw EventStore knowledge is not required.
-  - [ ] Document the stable distinction between `ConversationId`, tenant ID, Party ID, external business references, provider correlation metadata, labels, and thread names.
-  - [ ] Document typed error semantics and hygiene rules, including non-disclosure for cross-tenant and hidden-by-isolation outcomes.
-  - [ ] Show README examples that use only the client/shared-contract path and do not imply HTTP fallback, EventStore usage, Dapr, UI generation, workers, handlers, persistence, projection execution, or runtime service ownership.
-  - [ ] Link to readiness decisions and ADR tracker entries that future stories must resolve before behavior implementation, without accepting new ADR decisions in this story.
+- [x] Update developer documentation for the contract package. (AC: 4, 5)
+  - [x] Add or update `README.md` contract-package guidance that names the supported `.NET client + shared contract package` integration path and explains that raw EventStore knowledge is not required.
+  - [x] Document the stable distinction between `ConversationId`, tenant ID, Party ID, external business references, provider correlation metadata, labels, and thread names.
+  - [x] Document typed error semantics and hygiene rules, including non-disclosure for cross-tenant and hidden-by-isolation outcomes.
+  - [x] Show README examples that use only the client/shared-contract path and do not imply HTTP fallback, EventStore usage, Dapr, UI generation, workers, handlers, persistence, projection execution, or runtime service ownership.
+  - [x] Link to readiness decisions and ADR tracker entries that future stories must resolve before behavior implementation, without accepting new ADR decisions in this story.
 
-- [ ] Validate and keep the implementation scoped. (AC: 5)
-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` or, if restore/build artifacts are stale, run `dotnet restore`, `dotnet build`, and `dotnet test` against `Hexalith.Conversations.slnx`.
-  - [ ] Do not run recursive submodule initialization. Root-level submodule reads are allowed only where already available.
-  - [ ] Do not add EventStore, Dapr, ASP.NET Core, FrontComposer, Tenants, Parties, Projects, or Folders dependencies to `Hexalith.Conversations.Contracts`.
-  - [ ] Do not implement domain behavior, command handlers, aggregate state transitions, EventStore adapters, tenant projection, Party validation, projection stores, UI, workers, or conformance evidence in this story.
+- [x] Validate and keep the implementation scoped. (AC: 5)
+  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` or, if restore/build artifacts are stale, run `dotnet restore`, `dotnet build`, and `dotnet test` against `Hexalith.Conversations.slnx`.
+  - [x] Do not run recursive submodule initialization. Root-level submodule reads are allowed only where already available.
+  - [x] Do not add EventStore, Dapr, ASP.NET Core, FrontComposer, Tenants, Parties, Projects, or Folders dependencies to `Hexalith.Conversations.Contracts`.
+  - [x] Do not implement domain behavior, command handlers, aggregate state transitions, EventStore adapters, tenant projection, Party validation, projection stores, UI, workers, or conformance evidence in this story.
 
 ## Dev Notes
 
@@ -177,13 +177,27 @@ Run the solution tests after implementing contract files. If `--no-restore` fail
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
+
+- `dotnet build .\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj --no-restore` - passed.
+- `dotnet test .\tests\Hexalith.Conversations.Contracts.Tests\Hexalith.Conversations.Contracts.Tests.csproj --no-restore` - passed, 12 tests.
+- `dotnet test .\Hexalith.Conversations.slnx --no-restore` - passed, 26 tests across 5 test projects.
+
+### Implementation Plan
+
+- Keep Story 1.2 contract-only: public DTO/value records, version/trust/error vocabularies, README guidance, and tests only.
+- Use stable Conversations-owned identity and upstream reference contracts without taking dependencies on sibling runtime modules.
+- Guard public JSON and source boundaries with serialization fixture, reflection, `.csproj`, and source-import tests.
 
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Added stable identifier/reference contracts, opaque provider correlation metadata, schema-version contracts, and trust/freshness vocabulary.
+- Added command, event, result, projection, and content-safe error contracts without handlers, validators, persistence, projection execution, UI, or server/runtime abstractions.
+- Added contract serialization fixtures, metadata coverage tests, forbidden public-surface tests, identifier validation tests, fail-closed error tests, and direct project/source boundary checks.
+- Updated README contract-package guidance for the supported `.NET client + shared contract package` integration path, identity taxonomy, safe error semantics, freshness states, readiness decisions, and ADR tracker.
 
 ## Party-Mode Review
 
@@ -211,7 +225,55 @@ Run the solution tests after implementing contract files. If `--no-restore` fail
 
 ### File List
 
+- `README.md`
+- `_bmad-output/implementation-artifacts/1-2-define-conversation-identity-command-event-and-error-contracts.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/ArchiveConversationCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/AttachFileReferenceCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/CloseConversationCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/ConversationCommandMetadata.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Commands/UpdateConversationMetadataCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Errors/ConversationError.cs`
+- `src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs`
+- `src/Hexalith.Conversations.Contracts/Errors/ConversationErrorResult.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationArchived.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationClosed.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationCreated.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationEventMetadata.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationMetadataUpdated.cs`
+- `src/Hexalith.Conversations.Contracts/Events/FileReferenceAttached.cs`
+- `src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/BusinessReference.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/ConversationId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/FileId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/FolderId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/MessageId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/PartyId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/ProjectId.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/ProviderCorrelationMetadata.cs`
+- `src/Hexalith.Conversations.Contracts/Identifiers/TenantId.cs`
+- `src/Hexalith.Conversations.Contracts/Projections/ConversationMessageProjection.cs`
+- `src/Hexalith.Conversations.Contracts/Projections/ConversationSummaryProjection.cs`
+- `src/Hexalith.Conversations.Contracts/Projections/ProjectionFreshness.cs`
+- `src/Hexalith.Conversations.Contracts/Results/ConversationCommandAcceptedResult.cs`
+- `src/Hexalith.Conversations.Contracts/Results/ConversationCreatedResult.cs`
+- `src/Hexalith.Conversations.Contracts/Results/ReadModelVisibility.cs`
+- `src/Hexalith.Conversations.Contracts/TrustStates/ProjectionTrustState.cs`
+- `src/Hexalith.Conversations.Contracts/Versioning/ContractVersionInfo.cs`
+- `src/Hexalith.Conversations.Contracts/Versioning/SchemaVersion.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractsAssemblyBoundaryTest.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/IdentifierValidationTest.cs`
+
 ## Change Log
 
+- 2026-05-18: Implemented public contract identities, commands, events, results, projections, trust states, versioning, safe errors, README guidance, and contract guardrail tests; moved story to review.
 - 2026-05-18: Party-mode review applied story hardening for identity taxonomy, contract-only boundaries, safe errors, serialization fixtures, and forbidden-surface tests.
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
