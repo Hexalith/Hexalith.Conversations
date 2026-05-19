@@ -2,6 +2,15 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-4-add-conversation-participants-with-stable-party-attribution (2026-05-19)
+
+- Future-story risk: `ConversationState.Apply(ConversationClosed)` / `Apply(ConversationArchived)` accept Contracts events directly; if a future close/archive story emits `*DomainEvent` wrappers (codebase convention), these overloads become dead code and Closed/Archived state silently regresses to `Open` after reload. Also: archive-then-close and close-on-archived sequences silently demote lifecycle without integrity check. Linked to the matching Decision item on the story. Re-evaluate when the close/archive command lands. File: `src/Hexalith.Conversations/State/ConversationState.cs:176-190`.
+- `AddParticipant` domain command wrapper at `src/Hexalith.Conversations/Commands/AddParticipant.cs` adds no safety over `Hexalith.Conversations.Contracts.Commands.AddParticipantCommand`; validators dereference `.PublicCommand.Metadata.…` immediately. Defer wrapper-vs-parsed-fields refactor to a contract-evolution pass; not blocking 1.4.
+- `ParticipantAddedDomainEvent` (and the same idiom elsewhere) redeclares positional record parameters as `get`-only properties with null-throwing initializers, which breaks `with`-cloning for those members. Pattern is repository-wide; bundle a project-wide decision with the next contract-evolution pass. File: `src/Hexalith.Conversations/Events/ParticipantAddedDomainEvent.cs:20-44`.
+- `ProviderCorrelationMetadata.ExtensionData` linear scan in `UsesProviderCorrelationAsIdentity` is unbounded; DoS amplification real only if attacker controls dictionary size. Aligned with the existing deferred work on bounding `ExtensionData` (Story 1.10 / governance epic). File: `src/Hexalith.Conversations/Validation/AddParticipantValidation.cs:241-247`.
+- `ParticipantType.Parse` and `ParticipantRole.Parse` reject leading/trailing whitespace by design. Document at the wire boundary so an adopter who relies on lenient parsing knows to normalize. File: `src/Hexalith.Conversations.Contracts/Participants/ParticipantType.cs:53-58`.
+- Blind Hunter hypothesis: `DomainResult.Rejection` may admit heterogeneous `IEventPayload` + `IRejectionEvent` arrays. Verification requires reading the `Hexalith.EventStore` package source. Defer; revisit during EventStore-side review.
+
 ## Deferred from: code review of 1-3-create-tenant-safe-conversation-aggregate (2026-05-19)
 
 - `IsBusinessTimestamp` accepts year 9999 / `DateTimeOffset.MaxValue`. Symmetric with `ConversationEventMetadata.ValidateTimestamp` which has the same upper bound. Spec does not require a tighter business window. Revisit when retention/redaction governance defines a temporal window. File: `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs:144-145`.

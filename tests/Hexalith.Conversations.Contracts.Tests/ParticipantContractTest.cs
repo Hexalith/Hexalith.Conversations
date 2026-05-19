@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
@@ -23,6 +24,38 @@ namespace Hexalith.Conversations.Contracts.Tests;
 public sealed class ParticipantContractTest
 {
     private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
+
+    private static readonly string[] ForbiddenDurableTerms =
+    [
+        "displayName",
+        "email",
+        "phone",
+        "personDetails",
+        "organizationDetails",
+        "contact",
+        "providerPayload",
+        "prompt",
+        "rawProblem",
+        "providerSessionReference",
+        "providerResponseReference",
+        "providerCorrelation",
+    ];
+
+    // Provider-correlation terms are legitimate on the command surface (commands carry provider
+    // correlation metadata) but MUST NOT appear in durable events. The command surface scan applies
+    // a stricter Party-personal-data + provider-payload subset.
+    private static readonly string[] ForbiddenCommandTerms =
+    [
+        "displayName",
+        "email",
+        "phone",
+        "personDetails",
+        "organizationDetails",
+        "contact",
+        "providerPayload",
+        "prompt",
+        "rawProblem",
+    ];
 
     /// <summary>
     /// AddParticipantCommand serializes stable Party identity, type, role, and command metadata.
@@ -65,7 +98,28 @@ public sealed class ParticipantContractTest
             """,
             added);
 
-        foreach (string forbidden in ForbiddenDurableTerms)
+        AssertNoForbiddenDurableTerms(json);
+    }
+
+    /// <summary>
+    /// Forbidden durable terms must also be absent from serialized command JSON, not only from the durable event,
+    /// so that command-time leakage cannot regress without contract test coverage. Note: this command intentionally
+    /// carries provider correlation, so the test excludes correlation-only forbidden terms that are legitimate
+    /// on the command surface but must remain absent from the durable event.
+    /// </summary>
+    [Fact]
+    public void AddParticipantCommandShouldNotContainPartyPersonalDataTerms()
+    {
+        AddParticipantCommand command = new(
+            ContractSamples.CommandMetadata,
+            ContractSamples.Conversation,
+            ContractSamples.Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member,
+            ProviderCorrelation: null);
+
+        string json = JsonSerializer.Serialize(command, WebOptions);
+        foreach (string forbidden in ForbiddenCommandTerms)
         {
             json.ShouldNotContain(forbidden, Case.Insensitive);
         }
@@ -86,21 +140,81 @@ public sealed class ParticipantContractTest
         Should.Throw<JsonException>(() => JsonSerializer.Deserialize<ParticipantRole>("\"DisplayName\"", WebOptions));
     }
 
-    private static readonly string[] ForbiddenDurableTerms =
-    [
-        "displayName",
-        "email",
-        "phone",
-        "personDetails",
-        "organizationDetails",
-        "contact",
-        "providerPayload",
-        "prompt",
-        "rawProblem",
-        "providerSessionReference",
-        "providerResponseReference",
-        "providerCorrelation",
-    ];
+    /// <summary>
+    /// The .NET property names for <see cref="ParticipantType.AiAgent"/> and <see cref="ParticipantType.Llm"/>
+    /// diverge from their canonical wire values (<c>"AIAgent"</c> and <c>"LLM"</c>). Adopters reflecting over
+    /// the property name MUST hit a typed rejection rather than silently producing an invalid value.
+    /// </summary>
+    [Theory]
+    [InlineData("AiAgent")]
+    [InlineData("Llm")]
+    [InlineData("aiagent")]
+    [InlineData("llm")]
+    [InlineData("AIAGENT")]
+    public void ParticipantTypeParseShouldRejectDivergentDotNetNameAndCaseVariants(string value)
+        => Should.Throw<ArgumentException>(() => ParticipantType.Parse(value));
+
+    /// <summary>
+    /// Every public static <see cref="ParticipantType"/> property must be reachable via <see cref="ParticipantType.Parse"/>.
+    /// Catches a future-static-value-added-but-not-registered-in-KnownTypes regression at contract-test time.
+    /// </summary>
+    [Fact]
+    public void EveryStaticParticipantTypeShouldBeParseable()
+    {
+        IEnumerable<ParticipantType> staticTypes = typeof(ParticipantType)
+            .GetProperties(BindingFlags.Public | BindingFlags.Static)
+            .Where(p => p.PropertyType == typeof(ParticipantType))
+            .Select(p => (ParticipantType)p.GetValue(null)!);
+
+        foreach (ParticipantType type in staticTypes)
+        {
+            ParticipantType.Parse(type.Value).ShouldBe(type);
+        }
+    }
+
+    /// <summary>
+    /// Every public static <see cref="ParticipantRole"/> property must be reachable via <see cref="ParticipantRole.Parse"/>.
+    /// </summary>
+    [Fact]
+    public void EveryStaticParticipantRoleShouldBeParseable()
+    {
+        IEnumerable<ParticipantRole> staticRoles = typeof(ParticipantRole)
+            .GetProperties(BindingFlags.Public | BindingFlags.Static)
+            .Where(p => p.PropertyType == typeof(ParticipantRole))
+            .Select(p => (ParticipantRole)p.GetValue(null)!);
+
+        foreach (ParticipantRole role in staticRoles)
+        {
+            ParticipantRole.Parse(role.Value).ShouldBe(role);
+        }
+    }
+
+    /// <summary>
+    /// <see cref="JsonNode.DeepEquals(JsonNode?, JsonNode?)"/> is value-equivalent across token kinds, so it
+    /// would accept <c>"1"</c> where a strict integer is expected. Pin the strict integer wire shape directly
+    /// for sensitive fields.
+    /// </summary>
+    [Fact]
+    public void ParticipantAddedJsonShouldContainStrictIntegerSchemaVersion()
+    {
+        ParticipantAdded added = new(
+            ContractSamples.ParticipantEventMetadata,
+            ContractSamples.Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member);
+
+        string json = JsonSerializer.Serialize(added, WebOptions);
+        json.ShouldContain("\"schemaVersion\":1");
+        json.ShouldNotContain("\"schemaVersion\":\"1\"");
+    }
+
+    private static void AssertNoForbiddenDurableTerms(string json)
+    {
+        foreach (string forbidden in ForbiddenDurableTerms)
+        {
+            json.ShouldNotContain(forbidden, Case.Insensitive);
+        }
+    }
 
     private static void AssertJsonEquivalent(string expected, object value)
     {

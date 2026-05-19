@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Reflection;
+
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
@@ -159,6 +161,56 @@ public sealed class ConversationAggregateParticipantTest
         rejection.ReasonCode.ShouldBe("provider_identity_not_authority");
     }
 
+    /// <summary>
+    /// A null <see cref="ParticipantType"/> or <see cref="ParticipantRole"/> on the public command surface
+    /// is rejected with the typed <see cref="ConversationErrorCode.UnsupportedParticipant"/> code at the
+    /// aggregate boundary. The closed-vocabulary JSON converters reject unknown wire values at a different
+    /// layer; this test pins the aggregate-side rejection that the spec subtask names directly.
+    /// </summary>
+    [Theory]
+    [InlineData("type")]
+    [InlineData("role")]
+    public void UnsupportedParticipantShapeShouldReturnTypedRejection(string missingField)
+    {
+        ConversationState state = CreatedState();
+        AddParticipantCommand publicCommand = missingField == "type"
+            ? BuildCommand(HumanParty).PublicCommand with { ParticipantType = null! }
+            : BuildCommand(HumanParty).PublicCommand with { ParticipantRole = null! };
+
+        AddParticipant domainCommand = new(publicCommand, AddedAt, $"event-add-{HumanParty.Value}");
+        DomainResult result = ConversationAggregate.Handle(domainCommand, state);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.UnsupportedParticipant);
+        rejection.ReasonCode.ShouldBe(missingField == "type"
+            ? "participant_type_unsupported"
+            : "participant_role_unsupported");
+    }
+
+    /// <summary>
+    /// Structural proof that the domain assembly has no reference to <c>IParticipantDirectory</c>: the
+    /// adapter lives in the Server hydration layer and replay MUST NOT reach for it. This protects against
+    /// a future change that wires a validation adapter into the aggregate via a service locator.
+    /// </summary>
+    [Fact]
+    public void DomainAssemblyShouldNotReferenceParticipantDirectoryAdapter()
+    {
+        Assembly domain = typeof(ConversationAggregate).Assembly;
+        IEnumerable<string> referencedAssemblyNames = domain
+            .GetReferencedAssemblies()
+            .Select(a => a.Name ?? string.Empty);
+
+        referencedAssemblyNames.ShouldNotContain("Hexalith.Conversations.Server");
+
+        Type[] domainTypes = domain.GetTypes();
+        domainTypes.ShouldNotContain(t => t.Name == "IParticipantDirectory");
+        domainTypes.ShouldNotContain(t => t.Name == "ParticipantDirectoryValidation");
+        domainTypes.ShouldNotContain(t => t.Name == "ParticipantDirectoryValidationStatus");
+    }
+
+    private static AddParticipant BuildCommand(PartyId party)
+        => AddDomainCommand(party, ParticipantType.Human);
+
     private static AddParticipant AddDomainCommand(PartyId party, ParticipantType type)
     {
         ConversationCommandMetadata metadata = new(
@@ -206,34 +258,14 @@ public sealed class ConversationAggregateParticipantTest
     private static ConversationState ClosedState()
     {
         ConversationState state = CreatedState();
-        state.Apply(new ConversationClosed(
-            new ConversationEventMetadata(
-                SchemaVersion.Current,
-                "event-close-alpha",
-                ConversationEventType.ConversationClosed,
-                Tenant,
-                Conversation,
-                "correlation-close",
-                AddedAt,
-                Actor),
-            "completed"));
+        state.ForceLifecycleForTests(ConversationLifecycleState.Closed);
         return state;
     }
 
     private static ConversationState ArchivedState()
     {
         ConversationState state = CreatedState();
-        state.Apply(new ConversationArchived(
-            new ConversationEventMetadata(
-                SchemaVersion.Current,
-                "event-archive-alpha",
-                ConversationEventType.ConversationArchived,
-                Tenant,
-                Conversation,
-                "correlation-archive",
-                AddedAt,
-                Actor),
-            "retained"));
+        state.ForceLifecycleForTests(ConversationLifecycleState.Archived);
         return state;
     }
 

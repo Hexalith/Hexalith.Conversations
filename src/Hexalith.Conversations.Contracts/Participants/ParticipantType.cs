@@ -12,21 +12,27 @@ namespace Hexalith.Conversations.Contracts.Participants;
 /// <summary>
 /// Defines the supported participant type vocabulary.
 /// </summary>
+/// <remarks>
+/// The canonical wire value can diverge from the .NET property name where C# PascalCase
+/// conventions and acronym preservation disagree. Adopters serializing or matching by string
+/// must use the canonical value listed under each property, NOT the .NET property name.
+/// <see cref="Parse(string)"/> is case-sensitive (ordinal) and rejects mismatched casing.
+/// </remarks>
 [JsonConverter(typeof(ParticipantTypeJsonConverter))]
 public sealed record ParticipantType
 {
     /// <summary>
-    /// Gets the human participant type.
+    /// Gets the human participant type. Canonical wire value: <c>"Human"</c>.
     /// </summary>
     public static ParticipantType Human { get; } = new("Human");
 
     /// <summary>
-    /// Gets the AI agent participant type.
+    /// Gets the AI agent participant type. Canonical wire value: <c>"AIAgent"</c> (NOT <c>"AiAgent"</c>).
     /// </summary>
     public static ParticipantType AiAgent { get; } = new("AIAgent");
 
     /// <summary>
-    /// Gets the LLM participant type.
+    /// Gets the LLM participant type. Canonical wire value: <c>"LLM"</c> (NOT <c>"Llm"</c>).
     /// </summary>
     public static ParticipantType Llm { get; } = new("LLM");
 

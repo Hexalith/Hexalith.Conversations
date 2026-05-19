@@ -41,6 +41,16 @@ JSON payloads lacking the expected prefix are rejected with `JsonException` at d
 
 Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationEventType`, `ConversationCommandType`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
 
+For `ParticipantType`, the canonical wire value diverges from the .NET property name for acronym-heavy entries. Use the wire value, not the property name, when serializing or matching by string:
+
+| .NET property             | Canonical wire value |
+| ------------------------- | -------------------- |
+| `ParticipantType.Human`   | `"Human"`            |
+| `ParticipantType.AiAgent` | `"AIAgent"`          |
+| `ParticipantType.Llm`     | `"LLM"`              |
+
+`ParticipantRole` property names and wire values match (`Member`, `Facilitator`, `Observer`).
+
 Compound contracts such as `BusinessReference` and `ProviderCorrelationMetadata` remain JSON objects because they carry multiple fields.
 
 Example command shape:

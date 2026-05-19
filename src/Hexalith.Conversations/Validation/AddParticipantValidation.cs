@@ -49,11 +49,15 @@ internal static class AddParticipantValidation
                 metadata.CausationId);
         }
 
+        // Aggregate-side tenant invariant violation: the persisted state's tenant binding does not match
+        // the command metadata's tenant. This is distinct from the application-boundary
+        // ParticipantDirectoryValidationStatus.TenantMismatch path (which uses TenantContextMismatch)
+        // so that the future Story 1.5 tenant-access gate has a single boundary-side seam to wrap.
         if (state.TenantId != metadata.TenantId)
         {
             return Reject(
                 ConversationErrorCode.TenantContextMismatch,
-                "tenant_context_mismatch",
+                "aggregate_tenant_invariant_violation",
                 metadata.SchemaVersion,
                 metadata.CorrelationId,
                 metadata.CausationId);
@@ -69,11 +73,26 @@ internal static class AddParticipantValidation
                 metadata.CausationId);
         }
 
+        // Non-Open lifecycle is collapsed to a single content-safe reason so callers cannot
+        // distinguish Closed from Archived (or any future lifecycle value) from a rejection.
         if (state.Lifecycle != ConversationLifecycleState.Open)
         {
             return Reject(
                 ConversationErrorCode.CommandValidationFailed,
-                $"conversation_{state.Lifecycle.ToString().ToLowerInvariant()}",
+                "conversation_not_open",
+                metadata.SchemaVersion,
+                metadata.CorrelationId,
+                metadata.CausationId);
+        }
+
+        // Provider-identity substitution runs before duplicate-membership so an attempt to use
+        // a provider correlation value as identity surfaces in the audit trail as the
+        // identity-substitution rejection, not silently as a duplicate.
+        if (UsesProviderCorrelationAsIdentity(publicCommand.ParticipantPartyId.Value, publicCommand.ProviderCorrelation))
+        {
+            return Reject(
+                ConversationErrorCode.ProviderOnlyIdentityForbidden,
+                "provider_identity_not_authority",
                 metadata.SchemaVersion,
                 metadata.CorrelationId,
                 metadata.CausationId);
@@ -89,11 +108,13 @@ internal static class AddParticipantValidation
                 metadata.CausationId);
         }
 
-        if (UsesProviderCorrelationAsIdentity(publicCommand.ParticipantPartyId.Value, publicCommand.ProviderCorrelation))
+        // addedAt monotonicity: the deterministic timestamp must be no earlier than the last event,
+        // preventing back-dated participant events from corrupting projection ordering.
+        if (state.LastEventAt is { } lastEventAt && command!.AddedAt < lastEventAt)
         {
             return Reject(
-                ConversationErrorCode.ProviderOnlyIdentityForbidden,
-                "provider_identity_not_authority",
+                ConversationErrorCode.CommandValidationFailed,
+                "participant_timestamp_not_monotonic",
                 metadata.SchemaVersion,
                 metadata.CorrelationId,
                 metadata.CausationId);
@@ -238,9 +259,12 @@ internal static class AddParticipantValidation
             return false;
         }
 
+        // Only the dictionary values are candidate identity values. Keys are vocabulary
+        // (e.g., "region", "thread") and matching them against a PartyId would produce
+        // false-positive rejections for any PartyId that happened to equal a key name.
         foreach (KeyValuePair<string, string> entry in provider.ExtensionData)
         {
-            if (EqualsOrdinal(value, entry.Key) || EqualsOrdinal(value, entry.Value))
+            if (EqualsOrdinal(value, entry.Value))
             {
                 return true;
             }

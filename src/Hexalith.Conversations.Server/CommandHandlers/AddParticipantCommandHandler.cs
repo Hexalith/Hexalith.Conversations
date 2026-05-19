@@ -45,20 +45,61 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
             return DomainResult.Rejection(new IRejectionEvent[] { shapeRejection });
         }
 
-        ParticipantDirectoryValidation validation = await _participantDirectory
-            .ValidateParticipantAsync(command!.Metadata.TenantId, command.ParticipantPartyId, cancellationToken)
-            .ConfigureAwait(false);
+        ParticipantDirectoryValidation? validation;
+        try
+        {
+            validation = await _participantDirectory
+                .ValidateParticipantAsync(command!.Metadata.TenantId, command.ParticipantPartyId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            // Honor caller cancellation explicitly; do not surface as a fail-closed rejection.
+            throw;
+        }
+        catch (Exception)
+        {
+            // Fail-closed for any directory failure (provider exception, transient infrastructure).
+            // The typed Conversations rejection keeps content safety guarantees regardless of the
+            // underlying provider error type.
+            return DomainResult.Rejection(new IRejectionEvent[]
+            {
+                ParticipantValidationUnavailableRejection(command!),
+            });
+        }
+
+        if (validation is null)
+        {
+            // A misbehaving directory implementation must still fail closed rather than NRE
+            // on the subsequent Status access.
+            return DomainResult.Rejection(new IRejectionEvent[]
+            {
+                ParticipantValidationUnavailableRejection(command!),
+            });
+        }
 
         if (validation.Status != ParticipantDirectoryValidationStatus.Valid)
         {
             return DomainResult.Rejection(new IRejectionEvent[]
             {
-                ToRejection(validation.Status, command),
+                ToRejection(validation.Status, command!),
             });
         }
 
-        return AddParticipantBoundary.DispatchValidated(command, addedAt, eventId, state);
+        // Honor cancellation requested while the directory call was in-flight before
+        // committing the aggregate dispatch.
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return AddParticipantBoundary.DispatchValidated(command!, addedAt, eventId, state);
     }
+
+    private static ConversationRejectedDomainEvent ParticipantValidationUnavailableRejection(AddParticipantCommand command)
+        => new(
+            ConversationErrorCode.ParticipantValidationUnavailable,
+            "participant_validation_unavailable",
+            command.Metadata.SchemaVersion,
+            command.Metadata.CorrelationId,
+            command.Metadata.CausationId);
 
     private static ConversationRejectedDomainEvent ToRejection(
         ParticipantDirectoryValidationStatus status,
@@ -70,10 +111,5 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
                 command.Metadata.SchemaVersion,
                 command.Metadata.CorrelationId,
                 command.Metadata.CausationId)
-            : new ConversationRejectedDomainEvent(
-                ConversationErrorCode.ParticipantValidationUnavailable,
-                $"participant_validation_{status.ToString().ToLowerInvariant()}",
-                command.Metadata.SchemaVersion,
-                command.Metadata.CorrelationId,
-                command.Metadata.CausationId);
+            : ParticipantValidationUnavailableRejection(command);
 }

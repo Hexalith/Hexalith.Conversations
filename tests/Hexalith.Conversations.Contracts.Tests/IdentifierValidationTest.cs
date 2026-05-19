@@ -162,4 +162,20 @@ public sealed class IdentifierValidationTest
         Should.Throw<ArgumentException>(() => ProjectionTrustState.Parse("CURRENT"));
         Should.Throw<JsonException>(() => JsonSerializer.Deserialize<ProjectionTrustState>("\"current\""));
     }
+
+    /// <summary>
+    /// <see cref="PartyId"/> normalizes whitespace and casing at construction so substitution guards
+    /// cannot be bypassed by typographic variants of the same identity. The wire prefix is unaffected.
+    /// </summary>
+    [Theory]
+    [InlineData("Party-One", "party-one")]
+    [InlineData(" Party-One ", "party-one")]
+    [InlineData("PARTY-ONE", "party-one")]
+    [InlineData("\tparty-one\n", "party-one")]
+    public void PartyIdShouldNormalizeWhitespaceAndCasing(string input, string expectedNormalized)
+    {
+        new PartyId(input).Value.ShouldBe(expectedNormalized);
+        new PartyId(input).ShouldBe(new PartyId(expectedNormalized));
+        JsonSerializer.Serialize(new PartyId(input)).ShouldBe($"\"party:{expectedNormalized}\"");
+    }
 }

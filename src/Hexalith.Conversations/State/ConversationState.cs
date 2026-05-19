@@ -3,8 +3,9 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Collections.Immutable;
+
 using Hexalith.Conversations.Contracts.Identifiers;
-using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
@@ -14,9 +15,15 @@ namespace Hexalith.Conversations.State;
 /// <summary>
 /// Replay-only state for a tenant-scoped conversation.
 /// </summary>
-public sealed record ConversationState
+/// <remarks>
+/// Declared as a sealed class (not a record) because the state carries identity through a
+/// rebuilt-on-each-Apply <see cref="ImmutableArray{T}"/> of participants. Record value-equality
+/// would be misleading over private collection fields, and the synthesized <c>with</c> copy
+/// constructor would share a mutable backing list across clones.
+/// </remarks>
+public sealed class ConversationState
 {
-    private readonly List<ConversationParticipant> _participants = [];
+    private ImmutableArray<ConversationParticipant> _participants = ImmutableArray<ConversationParticipant>.Empty;
 
     /// <summary>
     /// Gets a value indicating whether the conversation was created.
@@ -89,14 +96,19 @@ public sealed record ConversationState
     public string? Label { get; private set; }
 
     /// <summary>
+    /// Gets the deterministic timestamp of the most recently applied event, when any.
+    /// </summary>
+    public DateTimeOffset? LastEventAt { get; private set; }
+
+    /// <summary>
     /// Gets optional provider correlation metadata that is never authority.
     /// </summary>
     public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
 
     /// <summary>
-    /// Gets the replayed participant membership.
+    /// Gets the replayed participant membership as an immutable snapshot.
     /// </summary>
-    public IReadOnlyList<ConversationParticipant> Participants => _participants.AsReadOnly();
+    public IReadOnlyList<ConversationParticipant> Participants => _participants;
 
     /// <summary>
     /// Determines whether a participant membership already exists.
@@ -136,6 +148,7 @@ public sealed record ConversationState
         ConversationId = e.Metadata.ConversationId;
         CreatorPartyId = e.Metadata.ActorPartyId;
         CreatedAt = e.Metadata.CommittedAt;
+        LastEventAt = e.Metadata.CommittedAt;
         SchemaVersion = e.Metadata.SchemaVersion;
         CorrelationId = e.Metadata.CorrelationId;
         CausationId = e.Metadata.CausationId;
@@ -150,43 +163,29 @@ public sealed record ConversationState
     /// <summary>
     /// Applies a participant-added event during deterministic replay.
     /// </summary>
+    /// <remarks>
+    /// Replay is idempotent: a duplicate event in the stream (snapshot pointer not advanced,
+    /// dispatcher retry) is treated as a no-op so the aggregate remains loadable. Command-time
+    /// duplicate detection is the authority for rejecting duplicate membership and lives in the
+    /// aggregate validation, not here.
+    /// </remarks>
     /// <param name="e">The participant-added event.</param>
-    /// <exception cref="InvalidOperationException">Thrown when replay contains duplicate participant membership.</exception>
     public void Apply(ParticipantAddedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
 
         if (HasParticipant(e.ParticipantPartyId, e.ParticipantType, e.ParticipantRole))
         {
-            throw new InvalidOperationException("ParticipantAddedDomainEvent applied to duplicate membership.");
+            return;
         }
 
-        _participants.Add(new ConversationParticipant(
+        _participants = _participants.Add(new ConversationParticipant(
             e.ParticipantPartyId,
             e.ParticipantType,
             e.ParticipantRole,
             e.AddedAt,
             e.Metadata.ActorPartyId));
-    }
-
-    /// <summary>
-    /// Applies a conversation-closed event during deterministic replay.
-    /// </summary>
-    /// <param name="e">The conversation-closed event.</param>
-    public void Apply(ConversationClosed e)
-    {
-        ArgumentNullException.ThrowIfNull(e);
-        Lifecycle = ConversationLifecycleState.Closed;
-    }
-
-    /// <summary>
-    /// Applies a conversation-archived event during deterministic replay.
-    /// </summary>
-    /// <param name="e">The conversation-archived event.</param>
-    public void Apply(ConversationArchived e)
-    {
-        ArgumentNullException.ThrowIfNull(e);
-        Lifecycle = ConversationLifecycleState.Archived;
+        LastEventAt = e.Metadata.CommittedAt;
     }
 
     /// <summary>
@@ -197,4 +196,17 @@ public sealed record ConversationState
     {
         ArgumentNullException.ThrowIfNull(e);
     }
+
+    /// <summary>
+    /// Test-only seam for setting <see cref="Lifecycle"/> directly. Exposed to
+    /// <c>Hexalith.Conversations.Tests</c> via <c>InternalsVisibleTo</c>.
+    /// </summary>
+    /// <remarks>
+    /// Production code must never call this. Lifecycle transitions in production must flow through
+    /// the corresponding <c>Apply</c> overload for an emitted domain event. This seam exists so
+    /// participant tests can set up Closed/Archived states without depending on close/archive
+    /// commands, which are owned by a future story.
+    /// </remarks>
+    /// <param name="lifecycle">The lifecycle state to force.</param>
+    internal void ForceLifecycleForTests(ConversationLifecycleState lifecycle) => Lifecycle = lifecycle;
 }

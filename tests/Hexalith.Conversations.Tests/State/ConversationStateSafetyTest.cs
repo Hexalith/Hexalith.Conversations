@@ -161,16 +161,26 @@ public sealed class ConversationStateSafetyTest
         string eventJson = JsonSerializer.Serialize(added);
         string stateJson = JsonSerializer.Serialize(state.Participants);
 
+        // Cover diagnostic / debug leakage paths as well as the durable wire surface. Record ToString()
+        // emits each member's value and is the most likely accidental leak in a debug log or exception
+        // message; the explicit assertions catch a regression that would only surface in production logs.
+        string eventToString = added.ToString();
+        string participantToString = state.Participants.Single().ToString();
+
         foreach (string forbidden in ForbiddenMemberTerms)
         {
             eventJson.ShouldNotContain(forbidden, Case.Insensitive);
             stateJson.ShouldNotContain(forbidden, Case.Insensitive);
+            eventToString.ShouldNotContain(forbidden, Case.Insensitive);
+            participantToString.ShouldNotContain(forbidden, Case.Insensitive);
         }
 
         eventJson.ShouldContain("party-participant-safe");
         stateJson.ShouldContain("party-participant-safe");
         eventJson.ShouldNotContain("provider-session", Case.Insensitive);
         stateJson.ShouldNotContain("provider-session", Case.Insensitive);
+        eventToString.ShouldNotContain("provider-session", Case.Insensitive);
+        participantToString.ShouldNotContain("provider-session", Case.Insensitive);
     }
 
     private static CreateConversation CreateCommand()
