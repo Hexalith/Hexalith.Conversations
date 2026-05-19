@@ -1,6 +1,6 @@
 # Story 1.4: Add Conversation Participants with Stable Party Attribution
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,51 +20,51 @@ so that participant membership is attributable through stable Party identities w
 
 ## Tasks / Subtasks
 
-- [ ] Confirm prerequisite contract and aggregate foundations before implementation. (AC: 1-5)
-  - [ ] Verify Story 1.2 contract types exist for `ConversationId`, `TenantId`, `PartyId`, command/event metadata, typed errors, schema versioning, and the `ParticipantAdded` event; if they do not, implement only the missing participant-specific contract surface needed by this story and keep it aligned with Story 1.2.
-  - [ ] Verify Story 1.3 created `ConversationAggregate` and `ConversationState`; if not, stop and either implement Story 1.3 first or explicitly include the minimal aggregate foundation in this story after updating sprint scope.
-  - [ ] Re-read every existing file this story will update before editing it, especially contract, aggregate, state, command handler, validation, and test files created by Stories 1.2 and 1.3.
+- [x] Confirm prerequisite contract and aggregate foundations before implementation. (AC: 1-5)
+  - [x] Verify Story 1.2 contract types exist for `ConversationId`, `TenantId`, `PartyId`, command/event metadata, typed errors, schema versioning, and the `ParticipantAdded` event; if they do not, implement only the missing participant-specific contract surface needed by this story and keep it aligned with Story 1.2.
+  - [x] Verify Story 1.3 created `ConversationAggregate` and `ConversationState`; if not, stop and either implement Story 1.3 first or explicitly include the minimal aggregate foundation in this story after updating sprint scope.
+  - [x] Re-read every existing file this story will update before editing it, especially contract, aggregate, state, command handler, validation, and test files created by Stories 1.2 and 1.3.
 
-- [ ] Add or complete participant contract types in `src/Hexalith.Conversations.Contracts`. (AC: 1-3, 5)
-  - [ ] Ensure `Commands/AddParticipantCommand` carries tenant binding, conversation identity, actor/caller Party ID, target participant Party ID, participant type/role, schema version, correlation/causation metadata, and idempotency metadata where the shared command contract requires it.
-  - [ ] Ensure `Events/ParticipantAdded` is past-tense, versioned, tenant-scoped, conversation-scoped, and carries only stable Party IDs, participant type/role, correlation/causation metadata, and deterministic timestamp/version metadata expected by public contracts.
-  - [ ] Define participant type/role vocabulary for at least human, AI agent, and LLM in Contracts or reuse the Story 1.2 type if it already exists.
-  - [ ] Keep Contracts infrastructure-free and do not reference Parties client DTOs, provider DTOs, EventStore envelopes, server abstractions, Dapr, HTTP, UI, or persistence packages from participant command/event contracts.
-  - [ ] Keep provider identifiers as optional correlation metadata only; never make provider session IDs, model names, UI labels, thread names, or external business identifiers the participant source of truth.
-  - [ ] Treat stable `PartyId` as the only durable participant attribution authority; provider/user/model identifiers may be transient validation inputs only and must never become replay authority.
-  - [ ] Document the public rejection/result names for duplicate participant, unsupported participant type, provider-only identity, Party validation unavailable, and tenant-context mismatch so adopters do not infer behavior from raw upstream errors or EventStore failures.
+- [x] Add or complete participant contract types in `src/Hexalith.Conversations.Contracts`. (AC: 1-3, 5)
+  - [x] Ensure `Commands/AddParticipantCommand` carries tenant binding, conversation identity, actor/caller Party ID, target participant Party ID, participant type/role, schema version, correlation/causation metadata, and idempotency metadata where the shared command contract requires it.
+  - [x] Ensure `Events/ParticipantAdded` is past-tense, versioned, tenant-scoped, conversation-scoped, and carries only stable Party IDs, participant type/role, correlation/causation metadata, and deterministic timestamp/version metadata expected by public contracts.
+  - [x] Define participant type/role vocabulary for at least human, AI agent, and LLM in Contracts or reuse the Story 1.2 type if it already exists.
+  - [x] Keep Contracts infrastructure-free and do not reference Parties client DTOs, provider DTOs, EventStore envelopes, server abstractions, Dapr, HTTP, UI, or persistence packages from participant command/event contracts.
+  - [x] Keep provider identifiers as optional correlation metadata only; never make provider session IDs, model names, UI labels, thread names, or external business identifiers the participant source of truth.
+  - [x] Treat stable `PartyId` as the only durable participant attribution authority; provider/user/model identifiers may be transient validation inputs only and must never become replay authority.
+  - [x] Document the public rejection/result names for duplicate participant, unsupported participant type, provider-only identity, Party validation unavailable, and tenant-context mismatch so adopters do not infer behavior from raw upstream errors or EventStore failures.
 
-- [ ] Implement deterministic aggregate participant behavior in `src/Hexalith.Conversations`. (AC: 1-3, 5)
-  - [ ] Add or update `Conversations/ConversationAggregate.cs` with an add-participant command method that accepts validated command intent only.
-  - [ ] Add or update `Conversations/ConversationState.cs` to maintain participant membership keyed by stable Party ID plus approved role/type dimensions; by default, a duplicate is the same conversation, stable Party ID, and participant role/type unless the implemented contract explicitly forbids multiple roles for one Party.
-  - [ ] Apply `ParticipantAdded` events through deterministic replay logic; no wall-clock reads, HTTP calls, tenant lookups, Parties calls, UI shaping, EventStore calls, or logging from aggregate code.
-  - [ ] Reject closed, archived, unsupported, malformed, missing, incompatible, or duplicate participant states with typed domain results and no emitted success event; duplicate membership rejection is a domain state rule here, not the retry-safe idempotency contract owned by Story 1.6.
-  - [ ] Preserve existing conversation identity, lifecycle, creator attribution, business references, provider correlation metadata, and event replay behavior introduced by prior stories.
-  - [ ] Prove aggregate replay reconstructs participant state from `ParticipantAdded` events alone without calling Parties, providers, Tenants, read models, EventStore infrastructure, or command-time validators.
+- [x] Implement deterministic aggregate participant behavior in `src/Hexalith.Conversations`. (AC: 1-3, 5)
+  - [x] Add or update `Conversations/ConversationAggregate.cs` with an add-participant command method that accepts validated command intent only.
+  - [x] Add or update `Conversations/ConversationState.cs` to maintain participant membership keyed by stable Party ID plus approved role/type dimensions; by default, a duplicate is the same conversation, stable Party ID, and participant role/type unless the implemented contract explicitly forbids multiple roles for one Party.
+  - [x] Apply `ParticipantAdded` events through deterministic replay logic; no wall-clock reads, HTTP calls, tenant lookups, Parties calls, UI shaping, EventStore calls, or logging from aggregate code.
+  - [x] Reject closed, archived, unsupported, malformed, missing, incompatible, or duplicate participant states with typed domain results and no emitted success event; duplicate membership rejection is a domain state rule here, not the retry-safe idempotency contract owned by Story 1.6.
+  - [x] Preserve existing conversation identity, lifecycle, creator attribution, business references, provider correlation metadata, and event replay behavior introduced by prior stories.
+  - [x] Prove aggregate replay reconstructs participant state from `ParticipantAdded` events alone without calling Parties, providers, Tenants, read models, EventStore infrastructure, or command-time validators.
 
-- [ ] Add application-boundary participant validation only where the existing command pipeline already exists. (AC: 3-4)
-  - [ ] If Story 1.3 already introduced command handlers, add `Server/CommandHandlers/AddParticipantCommandHandler.cs` or equivalent in the established pattern.
-  - [ ] Validate command shape, schema version, tenant binding, conversation identity, actor Party ID, target Party ID, and participant type before aggregate invocation, then call the aggregate only after command-time Party proof has succeeded.
-  - [ ] Introduce or reuse a Conversations-owned adapter boundary such as `Server/Hydration/IParticipantDirectory` for command-time Party validation; keep it application-boundary only and do not reference it from Contracts, aggregate, or domain code.
-  - [ ] Make Parties validation unavailable, unknown, disabled, malformed, inaccessible, negative, indeterminate, or tenant-context-mismatched outcomes fail closed with content-safe typed errors.
-  - [ ] Treat "cross-tenant unsafe" as any participant addition where Party ownership or visibility for the command tenant cannot be proven by the application boundary.
-  - [ ] Do not implement full tenant access enforcement here unless it already exists from a prior story; Story 1.5 owns the comprehensive fail-closed tenant access gate.
-  - [ ] If the existing command pipeline has no tenant access service yet, preserve a single explicit guard seam for Story 1.5 instead of scattering tenant checks through participant validation, aggregate code, or transport code.
+- [x] Add application-boundary participant validation only where the existing command pipeline already exists. (AC: 3-4)
+  - [x] If Story 1.3 already introduced command handlers, add `Server/CommandHandlers/AddParticipantCommandHandler.cs` or equivalent in the established pattern.
+  - [x] Validate command shape, schema version, tenant binding, conversation identity, actor Party ID, target Party ID, and participant type before aggregate invocation, then call the aggregate only after command-time Party proof has succeeded.
+  - [x] Introduce or reuse a Conversations-owned adapter boundary such as `Server/Hydration/IParticipantDirectory` for command-time Party validation; keep it application-boundary only and do not reference it from Contracts, aggregate, or domain code.
+  - [x] Make Parties validation unavailable, unknown, disabled, malformed, inaccessible, negative, indeterminate, or tenant-context-mismatched outcomes fail closed with content-safe typed errors.
+  - [x] Treat "cross-tenant unsafe" as any participant addition where Party ownership or visibility for the command tenant cannot be proven by the application boundary.
+  - [x] Do not implement full tenant access enforcement here unless it already exists from a prior story; Story 1.5 owns the comprehensive fail-closed tenant access gate.
+  - [x] If the existing command pipeline has no tenant access service yet, preserve a single explicit guard seam for Story 1.5 instead of scattering tenant checks through participant validation, aggregate code, or transport code.
 
-- [ ] Add focused tests for participant contracts, aggregate behavior, and boundary hygiene. (AC: 1-5)
-  - [ ] Add contract tests proving `AddParticipantCommand` and `ParticipantAdded` serialize/deserialize with `System.Text.Json`, preserve required fields, and omit forbidden Party personal-data/provider payload fields by property-name inspection and representative JSON payload inspection.
-  - [ ] Add pure aggregate tests for successful human, AI agent, and LLM participant addition; deterministic replay; duplicate/conflicting participant rejection; closed/archived/incompatible state rejection; unsupported participant type rejection; provider-only identity rejection; and no event emission on rejection.
-  - [ ] Add application-boundary tests for Party validation success and fail-closed unavailable/unknown/inaccessible/timeout/error/not-found/tenant-mismatch cases if the command handler exists in scope, with typed rejection assertions instead of generic failure assertions.
-  - [ ] Keep aggregate tests pure and event-based; use a mocked or fake `IParticipantDirectory` only in command-handler/application-boundary tests, and include a proof that replay does not invoke the directory or any validation adapter.
-  - [ ] Add or extend boundary tests that inspect `.csproj` XML directly for forbidden references, not only `Assembly.GetReferencedAssemblies()`, because marker assemblies can make reflection-only checks pass vacuously.
-  - [ ] Ensure test fixtures are synthetic and tenant-safe; do not use real Party names, contact values, provider payloads, prompt content, or cross-tenant identifiers as fixture data.
-  - [ ] Inspect serialized events, aggregate snapshots if introduced, logs/diagnostic messages, `ToString()` output, and rejection payloads for forbidden personal-data/provider sentinels, not only the primary event JSON.
+- [x] Add focused tests for participant contracts, aggregate behavior, and boundary hygiene. (AC: 1-5)
+  - [x] Add contract tests proving `AddParticipantCommand` and `ParticipantAdded` serialize/deserialize with `System.Text.Json`, preserve required fields, and omit forbidden Party personal-data/provider payload fields by property-name inspection and representative JSON payload inspection.
+  - [x] Add pure aggregate tests for successful human, AI agent, and LLM participant addition; deterministic replay; duplicate/conflicting participant rejection; closed/archived/incompatible state rejection; unsupported participant type rejection; provider-only identity rejection; and no event emission on rejection.
+  - [x] Add application-boundary tests for Party validation success and fail-closed unavailable/unknown/inaccessible/timeout/error/not-found/tenant-mismatch cases if the command handler exists in scope, with typed rejection assertions instead of generic failure assertions.
+  - [x] Keep aggregate tests pure and event-based; use a mocked or fake `IParticipantDirectory` only in command-handler/application-boundary tests, and include a proof that replay does not invoke the directory or any validation adapter.
+  - [x] Add or extend boundary tests that inspect `.csproj` XML directly for forbidden references, not only `Assembly.GetReferencedAssemblies()`, because marker assemblies can make reflection-only checks pass vacuously.
+  - [x] Ensure test fixtures are synthetic and tenant-safe; do not use real Party names, contact values, provider payloads, prompt content, or cross-tenant identifiers as fixture data.
+  - [x] Inspect serialized events, aggregate snapshots if introduced, logs/diagnostic messages, `ToString()` output, and rejection payloads for forbidden personal-data/provider sentinels, not only the primary event JSON.
 
-- [ ] Update developer documentation and validation. (AC: 1-5)
-  - [ ] Update `README.md` or the existing contract guidance with participant attribution rules: stable Party IDs are durable, Party personal data is read-time hydration only, and provider IDs are correlation metadata only.
-  - [ ] Link to readiness decisions for Party hydration degraded states and projection freshness blocking semantics where relevant.
-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` if assets are current; otherwise run restore/build/test for the solution.
-  - [ ] Do not initialize nested submodules, and do not run recursive submodule commands.
+- [x] Update developer documentation and validation. (AC: 1-5)
+  - [x] Update `README.md` or the existing contract guidance with participant attribution rules: stable Party IDs are durable, Party personal data is read-time hydration only, and provider IDs are correlation metadata only.
+  - [x] Link to readiness decisions for Party hydration degraded states and projection freshness blocking semantics where relevant.
+  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` if assets are current; otherwise run restore/build/test for the solution.
+  - [x] Do not initialize nested submodules, and do not run recursive submodule commands.
 
 ## Dev Notes
 
@@ -175,21 +175,60 @@ NuGet Central Package Management requires versions in `Directory.Packages.props`
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
+
+- 2026-05-19: Targeted red tests failed for missing participant vocabulary, aggregate participant behavior, and server validation boundary before implementation.
+- 2026-05-19: `dotnet test .\tests\Hexalith.Conversations.Contracts.Tests\Hexalith.Conversations.Contracts.Tests.csproj --no-restore` passed.
+- 2026-05-19: `dotnet test .\tests\Hexalith.Conversations.Tests\Hexalith.Conversations.Tests.csproj --no-restore` passed.
+- 2026-05-19: `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj --no-restore` passed.
+- 2026-05-19: `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed.
 
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Confirmed Story 1.2 and 1.3 foundations existed, then completed participant command/event contracts with closed participant type/role vocabularies and documented typed rejection codes.
+- Added deterministic aggregate participant handling, replayed membership state keyed by stable Party ID plus type/role, and typed no-success-event rejections for unsafe state, duplicate membership, tenant/context mismatch, unsupported shape, and provider-only identity substitution.
+- Added application-boundary `IParticipantDirectory` validation and handler logic so Party proof failures fail closed before aggregate dispatch.
+- Added participant contract, aggregate, server-boundary, and privacy/safety tests; full solution tests pass.
 
 ### File List
+
+- _bmad-output/implementation-artifacts/1-4-add-conversation-participants-with-stable-party-attribution.md
+- _bmad-output/implementation-artifacts/sprint-status.yaml
+- README.md
+- src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs
+- src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs
+- src/Hexalith.Conversations.Contracts/Events/ParticipantAdded.cs
+- src/Hexalith.Conversations.Contracts/Participants/ParticipantRole.cs
+- src/Hexalith.Conversations.Contracts/Participants/ParticipantType.cs
+- src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs
+- src/Hexalith.Conversations/Commands/AddParticipant.cs
+- src/Hexalith.Conversations/Events/ParticipantAddedDomainEvent.cs
+- src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs
+- src/Hexalith.Conversations/State/ConversationLifecycleState.cs
+- src/Hexalith.Conversations/State/ConversationParticipant.cs
+- src/Hexalith.Conversations/State/ConversationState.cs
+- src/Hexalith.Conversations/Validation/AddParticipantBoundary.cs
+- src/Hexalith.Conversations/Validation/AddParticipantValidation.cs
+- src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs
+- src/Hexalith.Conversations.Server/Hydration/IParticipantDirectory.cs
+- src/Hexalith.Conversations.Server/Hydration/ParticipantDirectoryValidation.cs
+- src/Hexalith.Conversations.Server/Hydration/ParticipantDirectoryValidationStatus.cs
+- tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+- tests/Hexalith.Conversations.Contracts.Tests/ParticipantContractTest.cs
+- tests/Hexalith.Conversations.Server.Tests/AddParticipantCommandHandlerTest.cs
+- tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateCreateTest.cs
+- tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateParticipantTest.cs
+- tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs
 
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review applied boundary, privacy, duplicate, fail-closed validation, and replay-test clarifications.
 - 2026-05-18: Advanced elicitation applied typed-outcome, validation-order, tenant-seam, duplicate-domain-rule, replay, and privacy proof clarifications.
+- 2026-05-19: Implemented participant stable Party attribution, aggregate replay, fail-closed boundary validation, documentation, and tests.
 
 ## Party-Mode Review
 

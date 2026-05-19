@@ -77,18 +77,27 @@ public sealed class ConversationAggregateCreateTest
         first.Apply(created);
         second.Apply(created);
 
-        first.ShouldBe(second);
         first.IsCreated.ShouldBeTrue();
+        second.IsCreated.ShouldBeTrue();
         first.Lifecycle.ShouldBe(ConversationLifecycleState.Open);
+        second.Lifecycle.ShouldBe(first.Lifecycle);
         first.TenantId.ShouldBe(Tenant);
+        second.TenantId.ShouldBe(first.TenantId);
         first.ConversationId.ShouldBe(Conversation);
+        second.ConversationId.ShouldBe(first.ConversationId);
         first.CreatorPartyId.ShouldBe(Actor);
+        second.CreatorPartyId.ShouldBe(first.CreatorPartyId);
         first.CreatedAt.ShouldBe(CreatedAt);
+        second.CreatedAt.ShouldBe(first.CreatedAt);
         first.SchemaVersion.ShouldBe(SchemaVersion.Current);
+        second.SchemaVersion.ShouldBe(first.SchemaVersion);
         first.IdempotencyKey.ShouldBe("idempotency-alpha");
+        second.IdempotencyKey.ShouldBe(first.IdempotencyKey);
         first.BusinessReference.ShouldBe(new BusinessReference("crm", "case-123"));
+        second.BusinessReference.ShouldBe(first.BusinessReference);
         first.ProviderCorrelation.ShouldNotBeNull();
         first.ProviderCorrelation.ProviderResponseReference.ShouldBe("provider-response-88");
+        second.ProviderCorrelation.ShouldBe(first.ProviderCorrelation);
     }
 
     /// <summary>
@@ -127,7 +136,7 @@ public sealed class ConversationAggregateCreateTest
     [Fact]
     public void NullDomainCommandShouldReturnTypedRejection()
     {
-        DomainResult result = ConversationAggregate.Handle(command: null!, state: null);
+        DomainResult result = ConversationAggregate.Handle(command: (CreateConversation)null!, state: null);
 
         ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);

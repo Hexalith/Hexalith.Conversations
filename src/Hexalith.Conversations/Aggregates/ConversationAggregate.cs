@@ -14,6 +14,7 @@ using Hexalith.EventStore.Contracts.Results;
 
 using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Commands.CreateConversationCommand;
 using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
+using PublicAddParticipantCommand = Hexalith.Conversations.Contracts.Commands.AddParticipantCommand;
 
 namespace Hexalith.Conversations.Aggregates;
 
@@ -60,5 +61,42 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             publicCommand.ProviderCorrelation);
 
         return DomainResult.Success(new IEventPayload[] { created });
+    }
+
+    /// <summary>
+    /// Adds a validated participant when the conversation state permits new membership.
+    /// </summary>
+    /// <param name="command">The add-participant domain command.</param>
+    /// <param name="state">The current conversation state.</param>
+    /// <returns>A domain result containing one participant-added event or one typed rejection.</returns>
+    public static DomainResult Handle(AddParticipant command, ConversationState? state)
+    {
+        ConversationRejectedDomainEvent? rejection = AddParticipantValidation.Validate(command, state);
+        if (rejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
+        }
+
+        PublicAddParticipantCommand publicCommand = command.PublicCommand;
+        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
+
+        ConversationEventMetadata eventMetadata = new(
+            commandMetadata.SchemaVersion,
+            command.EventId,
+            ConversationEventType.ParticipantAdded,
+            commandMetadata.TenantId,
+            publicCommand.ConversationId,
+            commandMetadata.CorrelationId,
+            command.AddedAt,
+            commandMetadata.ActorPartyId,
+            commandMetadata.CausationId);
+
+        ParticipantAddedDomainEvent added = new(
+            eventMetadata,
+            publicCommand.ParticipantPartyId,
+            publicCommand.ParticipantType,
+            publicCommand.ParticipantRole);
+
+        return DomainResult.Success(new IEventPayload[] { added });
     }
 }

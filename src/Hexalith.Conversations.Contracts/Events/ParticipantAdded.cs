@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 
 namespace Hexalith.Conversations.Contracts.Events;
 
@@ -12,6 +13,10 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// </summary>
 /// <param name="metadata">The public event metadata.</param>
 /// <param name="participantPartyId">The stable Party reference added as participant.</param>
+/// <param name="participantType">The supported participant type.</param>
+/// <param name="participantRole">The supported participant role.</param>
 public sealed record ParticipantAdded(
     ConversationEventMetadata Metadata,
-    PartyId ParticipantPartyId);
+    PartyId ParticipantPartyId,
+    ParticipantType ParticipantType,
+    ParticipantRole ParticipantRole);

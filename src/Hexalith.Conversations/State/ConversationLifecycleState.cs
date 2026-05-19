@@ -19,4 +19,14 @@ public enum ConversationLifecycleState
     /// The conversation has been created and is open.
     /// </summary>
     Open = 1,
+
+    /// <summary>
+    /// The conversation has been closed.
+    /// </summary>
+    Closed = 2,
+
+    /// <summary>
+    /// The conversation has been archived.
+    /// </summary>
+    Archived = 3,
 }

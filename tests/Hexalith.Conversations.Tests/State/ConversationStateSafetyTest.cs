@@ -11,6 +11,7 @@ using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.State;
@@ -55,6 +56,8 @@ public sealed class ConversationStateSafetyTest
         Type[] inspectedTypes =
         [
             typeof(ConversationCreatedDomainEvent),
+            typeof(ParticipantAddedDomainEvent),
+            typeof(ConversationParticipant),
             typeof(ConversationRejectedDomainEvent),
             typeof(ConversationState),
         ];
@@ -119,6 +122,55 @@ public sealed class ConversationStateSafetyTest
         json.ShouldContain("correlation-safe-rejection");
         json.ShouldContain("causation-safe-rejection");
         json.ShouldContain("command_validation_failed");
+    }
+
+    /// <summary>
+    /// Serialized participant event and replayed membership state stay free of Party personal data and provider payload terms.
+    /// </summary>
+    [Fact]
+    public void SerializedParticipantEventAndStateShouldNotContainForbiddenPayloadTerms()
+    {
+        ConversationState state = new();
+        state.Apply(new ConversationCreatedDomainEvent(
+            new Hexalith.Conversations.Contracts.Events.ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-create-safe",
+                Hexalith.Conversations.Contracts.Events.ConversationEventType.ConversationCreated,
+                new TenantId("tenant-safe"),
+                new ConversationId("conversation-safe"),
+                "correlation-safe",
+                new DateTimeOffset(2026, 5, 18, 14, 0, 0, TimeSpan.Zero),
+                new PartyId("party-actor-safe"))));
+
+        ParticipantAddedDomainEvent added = new(
+            new Hexalith.Conversations.Contracts.Events.ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-participant-safe",
+                Hexalith.Conversations.Contracts.Events.ConversationEventType.ParticipantAdded,
+                new TenantId("tenant-safe"),
+                new ConversationId("conversation-safe"),
+                "correlation-safe",
+                new DateTimeOffset(2026, 5, 18, 14, 5, 0, TimeSpan.Zero),
+                new PartyId("party-actor-safe")),
+            new PartyId("party-participant-safe"),
+            ParticipantType.Human,
+            ParticipantRole.Member);
+
+        state.Apply(added);
+
+        string eventJson = JsonSerializer.Serialize(added);
+        string stateJson = JsonSerializer.Serialize(state.Participants);
+
+        foreach (string forbidden in ForbiddenMemberTerms)
+        {
+            eventJson.ShouldNotContain(forbidden, Case.Insensitive);
+            stateJson.ShouldNotContain(forbidden, Case.Insensitive);
+        }
+
+        eventJson.ShouldContain("party-participant-safe");
+        stateJson.ShouldContain("party-participant-safe");
+        eventJson.ShouldNotContain("provider-session", Case.Insensitive);
+        stateJson.ShouldNotContain("provider-session", Case.Insensitive);
     }
 
     private static CreateConversation CreateCommand()

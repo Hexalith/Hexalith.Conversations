@@ -17,6 +17,10 @@ Identity has a strict taxonomy:
 - UI labels and thread names are display/correlation metadata only.
 - Correlation IDs, causation IDs, and idempotency keys describe operations, not conversation identity.
 
+Participant attribution follows the same rule: durable conversation events store stable `PartyId` references plus closed participant `type` and `role` vocabulary only. Party display names, contact values, personal details, organization details, and raw Parties failure data are read-time/application-boundary concerns and must not be persisted in Conversations events. Provider session IDs, model labels, thread names, and external user identifiers can only be transient correlation or validation inputs; they never replace `PartyId` as participant authority.
+
+Command-time participant validation is intentionally fail-closed. If Parties cannot prove that the target `PartyId` is valid and visible for the command tenant, the add-participant command returns a typed Conversations rejection such as `participant_validation_unavailable` or `tenant_context_mismatch` and no `ParticipantAdded` event is emitted. Read-time Party hydration can later degrade according to the readiness decisions, but write-side participant membership cannot compensate by storing hydrated Party data.
+
 ### JSON Wire Shape
 
 Strongly-typed identifiers serialize as URN-style prefixed strings to prevent silent cross-type substitution on the wire:
@@ -35,7 +39,7 @@ JSON payloads lacking the expected prefix are rejected with `JsonException` at d
 
 `SchemaVersion` serializes as a strict JSON integer. JS adopters must emit integers without trailing `.0` and without exponent notation; numbers like `1.0`, `1e0`, and JSON strings `"1"` are rejected.
 
-Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationEventType`, `ConversationCommandType`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
+Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationEventType`, `ConversationCommandType`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
 
 Compound contracts such as `BusinessReference` and `ProviderCorrelationMetadata` remain JSON objects because they carry multiple fields.
 
@@ -64,7 +68,7 @@ The JSON for `metadata.TenantId` above is `"tenant:tenant-001"`, not `"tenant-00
 
 ### Typed Errors and Content Safety
 
-Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_binding_missing`, `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, and `command_validation_failed`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
+Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_binding_missing`, `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, `command_validation_failed`, `duplicate_participant`, `unsupported_participant`, `participant_validation_unavailable`, `tenant_context_mismatch`, and `provider_only_identity_forbidden`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
 
 The contract surface enforces a **best-effort** blocklist on the free-text fields `CorrelationId`, `AuditHandle`, `DeveloperGuidance`, and `SafeFieldDiagnostics` entries. The blocklist rejects substrings like `EventStore`, `stream`, `snapshot`, `dispatcher`, `handler`, `repository`, `aggregate identity`, `raw upstream`, and known leak markers. The primary non-disclosure mechanism is the closed-vocabulary `Code` and `Category`; treat the blocklist as a guardrail against accidental drift, not as a complete enforcement layer.
 

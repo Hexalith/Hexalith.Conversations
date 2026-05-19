@@ -5,6 +5,7 @@
 
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Results;
 
 namespace Hexalith.Conversations.Contracts.Serialization;
@@ -35,4 +36,18 @@ internal sealed class ConversationEventTypeJsonConverter : ConversationStringVal
     protected override ConversationEventType Create(string value) => ConversationEventType.Parse(value);
 
     protected override string GetValue(ConversationEventType value) => value.Value;
+}
+
+internal sealed class ParticipantTypeJsonConverter : ConversationStringValueJsonConverter<ParticipantType>
+{
+    protected override ParticipantType Create(string value) => ParticipantType.Parse(value);
+
+    protected override string GetValue(ParticipantType value) => value.Value;
+}
+
+internal sealed class ParticipantRoleJsonConverter : ConversationStringValueJsonConverter<ParticipantRole>
+{
+    protected override ParticipantRole Create(string value) => ParticipantRole.Parse(value);
+
+    protected override string GetValue(ParticipantRole value) => value.Value;
 }

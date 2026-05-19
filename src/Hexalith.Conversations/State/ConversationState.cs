@@ -4,6 +4,8 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 
@@ -14,6 +16,8 @@ namespace Hexalith.Conversations.State;
 /// </summary>
 public sealed record ConversationState
 {
+    private readonly List<ConversationParticipant> _participants = [];
+
     /// <summary>
     /// Gets a value indicating whether the conversation was created.
     /// </summary>
@@ -90,6 +94,23 @@ public sealed record ConversationState
     public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
 
     /// <summary>
+    /// Gets the replayed participant membership.
+    /// </summary>
+    public IReadOnlyList<ConversationParticipant> Participants => _participants.AsReadOnly();
+
+    /// <summary>
+    /// Determines whether a participant membership already exists.
+    /// </summary>
+    /// <param name="partyId">The stable Party reference.</param>
+    /// <param name="participantType">The participant type.</param>
+    /// <param name="participantRole">The participant role.</param>
+    /// <returns><see langword="true" /> when matching membership exists.</returns>
+    public bool HasParticipant(PartyId partyId, ParticipantType participantType, ParticipantRole participantRole)
+        => _participants.Any(p => p.PartyId == partyId
+            && p.ParticipantType == participantType
+            && p.ParticipantRole == participantRole);
+
+    /// <summary>
     /// Applies a conversation-created event during deterministic replay.
     /// </summary>
     /// <param name="e">The conversation-created event.</param>
@@ -124,6 +145,48 @@ public sealed record ConversationState
         Label = e.Label;
         IdempotencyKey = e.IdempotencyKey;
         ProviderCorrelation = e.ProviderCorrelation;
+    }
+
+    /// <summary>
+    /// Applies a participant-added event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The participant-added event.</param>
+    /// <exception cref="InvalidOperationException">Thrown when replay contains duplicate participant membership.</exception>
+    public void Apply(ParticipantAddedDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (HasParticipant(e.ParticipantPartyId, e.ParticipantType, e.ParticipantRole))
+        {
+            throw new InvalidOperationException("ParticipantAddedDomainEvent applied to duplicate membership.");
+        }
+
+        _participants.Add(new ConversationParticipant(
+            e.ParticipantPartyId,
+            e.ParticipantType,
+            e.ParticipantRole,
+            e.AddedAt,
+            e.Metadata.ActorPartyId));
+    }
+
+    /// <summary>
+    /// Applies a conversation-closed event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The conversation-closed event.</param>
+    public void Apply(ConversationClosed e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Lifecycle = ConversationLifecycleState.Closed;
+    }
+
+    /// <summary>
+    /// Applies a conversation-archived event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The conversation-archived event.</param>
+    public void Apply(ConversationArchived e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Lifecycle = ConversationLifecycleState.Archived;
     }
 
     /// <summary>

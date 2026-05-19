@@ -7,6 +7,7 @@ using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.TrustStates;
@@ -67,6 +68,17 @@ internal static class ContractSamples
         new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
         Actor);
 
+    internal static readonly ConversationEventMetadata ParticipantEventMetadata = new(
+        Version,
+        "event-participant-001",
+        ConversationEventType.ParticipantAdded,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
+
     internal static readonly ProjectionFreshness Freshness = new(
         ProjectionTrustState.Current,
         new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
@@ -84,6 +96,8 @@ internal static class ContractSamples
         new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
         ConversationCommandType.CreateConversationCommand,
         ConversationEventType.ConversationCreated,
+        ParticipantType.Human,
+        ParticipantRole.Member,
         ConversationErrorCode.TenantIsolationViolation,
         ConversationErrorCategory.Authorization,
         Tenant,
@@ -98,7 +112,7 @@ internal static class ContractSamples
         CommandMetadata,
         new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
         new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
-        new AddParticipantCommand(CommandMetadata, Conversation, Participant),
+        new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
         new AttachFileReferenceCommand(CommandMetadata, Conversation, File, Folder, Message),
         new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
         new CloseConversationCommand(CommandMetadata, Conversation, "resolved"),
@@ -106,7 +120,7 @@ internal static class ContractSamples
         EventMetadata,
         new ConversationCreated(EventMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
         new MessageAppended(EventMetadata, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
-        new ParticipantAdded(EventMetadata, Participant),
+        new ParticipantAdded(ParticipantEventMetadata, Participant, ParticipantType.Human, ParticipantRole.Member),
         new FileReferenceAttached(EventMetadata, File, Folder, Message),
         new ConversationMetadataUpdated(EventMetadata, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
         new ConversationClosed(EventMetadata, "resolved"),
@@ -147,6 +161,11 @@ internal static class ContractSamples
         ConversationErrorCode.AggregateNotFound,
         ConversationErrorCode.SchemaVersionUnsupported,
         ConversationErrorCode.CommandValidationFailed,
+        ConversationErrorCode.DuplicateParticipant,
+        ConversationErrorCode.UnsupportedParticipant,
+        ConversationErrorCode.ParticipantValidationUnavailable,
+        ConversationErrorCode.TenantContextMismatch,
+        ConversationErrorCode.ProviderOnlyIdentityForbidden,
     ];
 
     private static ConversationErrorCategory ErrorCategoryFor(ConversationErrorCode code)
@@ -161,11 +180,17 @@ internal static class ContractSamples
             _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
             _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
             _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
+            _ when code == ConversationErrorCode.DuplicateParticipant => ConversationErrorCategory.Conflict,
+            _ when code == ConversationErrorCode.UnsupportedParticipant => ConversationErrorCategory.Validation,
+            _ when code == ConversationErrorCode.ParticipantValidationUnavailable => ConversationErrorCategory.Validation,
+            _ when code == ConversationErrorCode.TenantContextMismatch => ConversationErrorCategory.Authorization,
+            _ when code == ConversationErrorCode.ProviderOnlyIdentityForbidden => ConversationErrorCategory.Validation,
             _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unsupported error code."),
         };
 
     private static bool IsRetryable(ConversationErrorCode code)
         => code == ConversationErrorCode.TenantProjectionStale
             || code == ConversationErrorCode.AuditSinkUnavailable
-            || code == ConversationErrorCode.IdempotencyConflict;
+            || code == ConversationErrorCode.IdempotencyConflict
+            || code == ConversationErrorCode.ParticipantValidationUnavailable;
 }

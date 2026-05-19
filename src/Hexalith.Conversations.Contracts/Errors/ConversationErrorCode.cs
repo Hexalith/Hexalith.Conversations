@@ -60,6 +60,31 @@ public sealed record ConversationErrorCode
     /// </summary>
     public static ConversationErrorCode CommandValidationFailed { get; } = new("command_validation_failed");
 
+    /// <summary>
+    /// Gets the duplicate participant membership code.
+    /// </summary>
+    public static ConversationErrorCode DuplicateParticipant { get; } = new("duplicate_participant");
+
+    /// <summary>
+    /// Gets the unsupported participant type or role code.
+    /// </summary>
+    public static ConversationErrorCode UnsupportedParticipant { get; } = new("unsupported_participant");
+
+    /// <summary>
+    /// Gets the participant validation unavailable code.
+    /// </summary>
+    public static ConversationErrorCode ParticipantValidationUnavailable { get; } = new("participant_validation_unavailable");
+
+    /// <summary>
+    /// Gets the tenant context mismatch code.
+    /// </summary>
+    public static ConversationErrorCode TenantContextMismatch { get; } = new("tenant_context_mismatch");
+
+    /// <summary>
+    /// Gets the provider-only identity forbidden code.
+    /// </summary>
+    public static ConversationErrorCode ProviderOnlyIdentityForbidden { get; } = new("provider_only_identity_forbidden");
+
     private static readonly IReadOnlyDictionary<string, ConversationErrorCode> KnownCodes =
         new[]
         {
@@ -72,6 +97,11 @@ public sealed record ConversationErrorCode
             AggregateNotFound,
             SchemaVersionUnsupported,
             CommandValidationFailed,
+            DuplicateParticipant,
+            UnsupportedParticipant,
+            ParticipantValidationUnavailable,
+            TenantContextMismatch,
+            ProviderOnlyIdentityForbidden,
         }.ToDictionary(code => code.Value, StringComparer.Ordinal);
 
     private ConversationErrorCode(string value)
