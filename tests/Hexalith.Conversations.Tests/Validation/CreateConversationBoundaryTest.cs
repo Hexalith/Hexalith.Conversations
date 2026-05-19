@@ -39,7 +39,7 @@ public sealed class CreateConversationBoundaryTest
             "event-boundary");
 
         result.IsSuccess.ShouldBeTrue();
-        ConversationCreated created = result.Events.Single().ShouldBeOfType<ConversationCreated>();
+        ConversationCreatedDomainEvent created = result.Events.Single().ShouldBeOfType<ConversationCreatedDomainEvent>();
         created.Metadata.TenantId.ShouldBe(command.Metadata.TenantId);
         created.Metadata.ActorPartyId.ShouldBe(command.Metadata.ActorPartyId);
         created.Metadata.ConversationId.ShouldBe(conversationId);
@@ -58,7 +58,7 @@ public sealed class CreateConversationBoundaryTest
             CreatedAt,
             "event-boundary");
 
-        ConversationRejected rejection = result.Events.Single().ShouldBeOfType<ConversationRejected>();
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
         rejection.ReasonCode.ShouldBe("command_missing");
     }
@@ -77,7 +77,7 @@ public sealed class CreateConversationBoundaryTest
             CreatedAt,
             eventId);
 
-        ConversationRejected rejection = result.Events.Single().ShouldBeOfType<ConversationRejected>();
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
         rejection.ReasonCode.ShouldBe("event_identity_missing");
     }

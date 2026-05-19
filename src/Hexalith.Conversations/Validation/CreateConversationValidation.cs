@@ -24,7 +24,7 @@ internal static class CreateConversationValidation
     /// <param name="command">The command to validate.</param>
     /// <param name="state">The current conversation state.</param>
     /// <returns>A rejection event when validation fails; otherwise <see langword="null" />.</returns>
-    public static ConversationRejected? Validate(CreateConversation? command, ConversationState? state)
+    public static ConversationRejectedDomainEvent? Validate(CreateConversation? command, ConversationState? state)
     {
         if (command is null)
         {
@@ -34,11 +34,16 @@ internal static class CreateConversationValidation
         CreateConversationCommand? publicCommand = command.PublicCommand;
         if (publicCommand is null)
         {
-            return Reject(ConversationErrorCode.CommandValidationFailed, "command_missing");
+            return Reject(ConversationErrorCode.CommandValidationFailed, "public_command_missing");
         }
 
         ConversationCommandMetadata? metadata = publicCommand.Metadata;
-        if (metadata is null || metadata.TenantId is null)
+        if (metadata is null)
+        {
+            return Reject(ConversationErrorCode.CommandValidationFailed, "metadata_missing");
+        }
+
+        if (metadata.TenantId is null)
         {
             return Reject(ConversationErrorCode.TenantBindingMissing, "tenant_binding_missing");
         }
@@ -108,7 +113,7 @@ internal static class CreateConversationValidation
                 metadata.CausationId);
         }
 
-        if (UsesCorrelationOrReferenceAsIdentity(command.ConversationId, publicCommand, metadata))
+        if (UsesCorrelationOrReferenceAsIdentity(command.ConversationId, command.EventId, publicCommand, metadata))
         {
             return Reject(
                 ConversationErrorCode.CommandValidationFailed,
@@ -123,22 +128,59 @@ internal static class CreateConversationValidation
 
     private static bool UsesCorrelationOrReferenceAsIdentity(
         ConversationId conversationId,
+        string eventId,
         CreateConversationCommand command,
         ConversationCommandMetadata metadata)
     {
         string value = conversationId.Value;
 
-        return EqualsOrdinal(value, metadata.TenantId.Value)
+        if (EqualsOrdinal(value, metadata.TenantId.Value)
             || EqualsOrdinal(value, metadata.ActorPartyId.Value)
             || EqualsOrdinal(value, metadata.CorrelationId)
             || EqualsOrdinal(value, metadata.CausationId)
             || EqualsOrdinal(value, metadata.IdempotencyKey)
+            || EqualsOrdinal(value, eventId)
+            || EqualsOrdinal(value, command.BusinessReference?.System)
             || EqualsOrdinal(value, command.BusinessReference?.Value)
             || EqualsOrdinal(value, command.ProjectId?.Value)
             || EqualsOrdinal(value, command.FolderId?.Value)
-            || EqualsOrdinal(value, command.Label)
-            || EqualsOrdinal(value, command.ProviderCorrelation?.ProviderSessionReference)
-            || EqualsOrdinal(value, command.ProviderCorrelation?.ProviderResponseReference);
+            || EqualsOrdinal(value, command.Label))
+        {
+            return true;
+        }
+
+        return ProviderCorrelationCarriesIdentity(value, command.ProviderCorrelation);
+    }
+
+    private static bool ProviderCorrelationCarriesIdentity(string value, ProviderCorrelationMetadata? provider)
+    {
+        if (provider is null)
+        {
+            return false;
+        }
+
+        if (EqualsOrdinal(value, provider.ProviderName)
+            || EqualsOrdinal(value, provider.ProviderType)
+            || EqualsOrdinal(value, provider.ProviderSessionReference)
+            || EqualsOrdinal(value, provider.ProviderResponseReference))
+        {
+            return true;
+        }
+
+        if (provider.ExtensionData is null)
+        {
+            return false;
+        }
+
+        foreach (KeyValuePair<string, string> entry in provider.ExtensionData)
+        {
+            if (EqualsOrdinal(value, entry.Key) || EqualsOrdinal(value, entry.Value))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static bool IsBusinessTimestamp(DateTimeOffset value)
@@ -147,7 +189,7 @@ internal static class CreateConversationValidation
     private static bool EqualsOrdinal(string value, string? candidate)
         => !string.IsNullOrWhiteSpace(candidate) && string.Equals(value, candidate, StringComparison.Ordinal);
 
-    private static ConversationRejected Reject(
+    private static ConversationRejectedDomainEvent Reject(
         ConversationErrorCode code,
         string reasonCode,
         SchemaVersion? schemaVersion = null,

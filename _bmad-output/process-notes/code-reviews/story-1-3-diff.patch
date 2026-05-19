@@ -1,0 +1,1156 @@
+commit f88ca023ef1a813cb52fcf875cd62d69173b2320
+Author: Jérôme Piquot <jpiquot@itaneo.com>
+Date:   Mon May 18 23:26:46 2026 +0200
+
+    feat: Implement conversation creation functionality
+    
+    - Added ConversationAggregate to handle tenant-scoped conversation commands.
+    - Introduced CreateConversation command and ConversationCreated event for creating conversations.
+    - Implemented validation logic for create conversation commands in CreateConversationValidation.
+    - Created ConversationState to manage the state of conversations.
+    - Developed CreateConversationBoundary to map public commands to domain logic.
+    - Added unit tests for conversation creation, validation, and boundary dispatching.
+    - Updated project references to include necessary EventStore components.
+    - Ensured compliance with safety and security standards in event payloads.
+
+diff --git a/src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs b/src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs
+new file mode 100644
+index 0000000..5c1fdef
+--- /dev/null
++++ b/src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs
+@@ -0,0 +1,65 @@
++// <copyright file="ConversationAggregate.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Commands;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.State;
++using Hexalith.Conversations.Validation;
++using Hexalith.EventStore.Client.Aggregates;
++using Hexalith.EventStore.Contracts.Events;
++using Hexalith.EventStore.Contracts.Results;
++
++using DomainConversationCreated = Hexalith.Conversations.Events.ConversationCreated;
++using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Commands.CreateConversationCommand;
++using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
++
++namespace Hexalith.Conversations.Aggregates;
++
++/// <summary>
++/// Handles tenant-scoped conversation domain commands.
++/// </summary>
++public sealed class ConversationAggregate : EventStoreAggregate<ConversationState>
++{
++    /// <summary>
++    /// Creates a conversation when the command is valid and the state has not already been created.
++    /// </summary>
++    /// <param name="command">The create-conversation domain command.</param>
++    /// <param name="state">The current conversation state, when any.</param>
++    /// <returns>A domain result containing one creation event or one typed rejection.</returns>
++    public static DomainResult Handle(CreateConversation command, ConversationState? state)
++    {
++        ConversationRejected? rejection = CreateConversationValidation.Validate(command, state);
++        if (rejection is not null)
++        {
++            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
++        }
++
++        PublicCreateConversationCommand publicCommand = command.PublicCommand;
++        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
++
++        ConversationEventMetadata eventMetadata = new(
++            commandMetadata.SchemaVersion,
++            command.EventId,
++            ConversationEventType.ConversationCreated,
++            commandMetadata.TenantId,
++            command.ConversationId!,
++            commandMetadata.CorrelationId,
++            command.CreatedAt,
++            commandMetadata.ActorPartyId,
++            commandMetadata.CausationId);
++
++        DomainConversationCreated created = new(
++            eventMetadata,
++            publicCommand.BusinessReference,
++            publicCommand.ProjectId,
++            publicCommand.FolderId,
++            publicCommand.Label,
++            commandMetadata.IdempotencyKey,
++            publicCommand.ProviderCorrelation);
++
++        return DomainResult.Success(new IEventPayload[] { created });
++    }
++}
+diff --git a/src/Hexalith.Conversations/Commands/CreateConversation.cs b/src/Hexalith.Conversations/Commands/CreateConversation.cs
+new file mode 100644
+index 0000000..3bf0c46
+--- /dev/null
++++ b/src/Hexalith.Conversations/Commands/CreateConversation.cs
+@@ -0,0 +1,22 @@
++// <copyright file="CreateConversation.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Identifiers;
++
++namespace Hexalith.Conversations.Commands;
++
++/// <summary>
++/// Domain command for creating a tenant-scoped conversation from the public create contract.
++/// </summary>
++/// <param name="PublicCommand">The public create-conversation contract supplied by an adopter boundary.</param>
++/// <param name="ConversationId">The Conversations-owned internal conversation identity.</param>
++/// <param name="CreatedAt">The deterministic creation timestamp supplied by the boundary.</param>
++/// <param name="EventId">The deterministic public event identity supplied by the boundary.</param>
++public sealed record CreateConversation(
++    CreateConversationCommand PublicCommand,
++    ConversationId? ConversationId,
++    DateTimeOffset CreatedAt,
++    string EventId);
+diff --git a/src/Hexalith.Conversations/Events/ConversationCreated.cs b/src/Hexalith.Conversations/Events/ConversationCreated.cs
+new file mode 100644
+index 0000000..6fe2a7d
+--- /dev/null
++++ b/src/Hexalith.Conversations/Events/ConversationCreated.cs
+@@ -0,0 +1,35 @@
++// <copyright file="ConversationCreated.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.EventStore.Contracts.Events;
++
++namespace Hexalith.Conversations.Events;
++
++/// <summary>
++/// Records the creation of a tenant-scoped conversation.
++/// </summary>
++/// <param name="metadata">The Conversations event metadata.</param>
++/// <param name="businessReference">An optional adopter-owned business reference.</param>
++/// <param name="projectId">An optional stable project reference.</param>
++/// <param name="folderId">An optional stable folder reference.</param>
++/// <param name="label">An optional UI label that is not identity.</param>
++/// <param name="idempotencyKey">The caller idempotency key copied from command metadata, when supplied.</param>
++/// <param name="providerCorrelation">Optional provider correlation metadata.</param>
++public sealed record ConversationCreated(
++    ConversationEventMetadata Metadata,
++    BusinessReference? BusinessReference = null,
++    ProjectId? ProjectId = null,
++    FolderId? FolderId = null,
++    string? Label = null,
++    string? IdempotencyKey = null,
++    ProviderCorrelationMetadata? ProviderCorrelation = null) : IEventPayload
++{
++    /// <summary>
++    /// Gets the deterministic creation timestamp copied from event metadata.
++    /// </summary>
++    public DateTimeOffset CreatedAt => Metadata.CommittedAt;
++}
+diff --git a/src/Hexalith.Conversations/Events/ConversationRejected.cs b/src/Hexalith.Conversations/Events/ConversationRejected.cs
+new file mode 100644
+index 0000000..58d1832
+--- /dev/null
++++ b/src/Hexalith.Conversations/Events/ConversationRejected.cs
+@@ -0,0 +1,42 @@
++// <copyright file="ConversationRejected.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.EventStore.Contracts.Events;
++
++namespace Hexalith.Conversations.Events;
++
++/// <summary>
++/// Records a content-safe rejection of a conversation command.
++/// </summary>
++/// <param name="code">The stable machine-readable rejection code.</param>
++/// <param name="reasonCode">The stable machine-readable reason within the code.</param>
++/// <param name="schemaVersion">The schema version supplied by the command, when available.</param>
++/// <param name="correlationId">The safe caller correlation identifier, when available.</param>
++/// <param name="causationId">The safe caller causation identifier, when available.</param>
++public sealed record ConversationRejected(
++    ConversationErrorCode Code,
++    string ReasonCode,
++    SchemaVersion? SchemaVersion = null,
++    string? CorrelationId = null,
++    string? CausationId = null) : IRejectionEvent
++{
++    /// <summary>
++    /// Gets the stable machine-readable rejection code.
++    /// </summary>
++    public ConversationErrorCode Code { get; } = Code ?? throw new ArgumentNullException(nameof(Code));
++
++    /// <summary>
++    /// Gets the stable machine-readable reason within the code.
++    /// </summary>
++    public string ReasonCode { get; } = ValidateReasonCode(ReasonCode);
++
++    private static string ValidateReasonCode(string value)
++    {
++        ArgumentException.ThrowIfNullOrWhiteSpace(value);
++        return value;
++    }
++}
+diff --git a/src/Hexalith.Conversations/Hexalith.Conversations.csproj b/src/Hexalith.Conversations/Hexalith.Conversations.csproj
+index db83a87..8e9f780 100644
+--- a/src/Hexalith.Conversations/Hexalith.Conversations.csproj
++++ b/src/Hexalith.Conversations/Hexalith.Conversations.csproj
+@@ -4,6 +4,8 @@
+   </PropertyGroup>
+   <ItemGroup>
+     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
++    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" />
++    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <InternalsVisibleTo Include="Hexalith.Conversations.Tests" />
+diff --git a/src/Hexalith.Conversations/State/ConversationLifecycleState.cs b/src/Hexalith.Conversations/State/ConversationLifecycleState.cs
+new file mode 100644
+index 0000000..b7a8d70
+--- /dev/null
++++ b/src/Hexalith.Conversations/State/ConversationLifecycleState.cs
+@@ -0,0 +1,22 @@
++// <copyright file="ConversationLifecycleState.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++namespace Hexalith.Conversations.State;
++
++/// <summary>
++/// Represents the lifecycle state carried by the conversation aggregate.
++/// </summary>
++public enum ConversationLifecycleState
++{
++    /// <summary>
++    /// The conversation has not been created.
++    /// </summary>
++    NotCreated = 0,
++
++    /// <summary>
++    /// The conversation has been created and is open.
++    /// </summary>
++    Open = 1,
++}
+diff --git a/src/Hexalith.Conversations/State/ConversationState.cs b/src/Hexalith.Conversations/State/ConversationState.cs
+new file mode 100644
+index 0000000..5d262bf
+--- /dev/null
++++ b/src/Hexalith.Conversations/State/ConversationState.cs
+@@ -0,0 +1,125 @@
++// <copyright file="ConversationState.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.Conversations.Events;
++
++namespace Hexalith.Conversations.State;
++
++/// <summary>
++/// Replay-only state for a tenant-scoped conversation.
++/// </summary>
++public sealed record ConversationState
++{
++    /// <summary>
++    /// Gets a value indicating whether the conversation was created.
++    /// </summary>
++    public bool IsCreated { get; private set; }
++
++    /// <summary>
++    /// Gets the current lifecycle state.
++    /// </summary>
++    public ConversationLifecycleState Lifecycle { get; private set; } = ConversationLifecycleState.NotCreated;
++
++    /// <summary>
++    /// Gets the tenant binding copied from persisted event data.
++    /// </summary>
++    public TenantId? TenantId { get; private set; }
++
++    /// <summary>
++    /// Gets the internal Conversations-owned identity copied from persisted event data.
++    /// </summary>
++    public ConversationId? ConversationId { get; private set; }
++
++    /// <summary>
++    /// Gets the creator Party attribution copied from persisted event data.
++    /// </summary>
++    public PartyId? CreatorPartyId { get; private set; }
++
++    /// <summary>
++    /// Gets the deterministic creation timestamp copied from persisted event data.
++    /// </summary>
++    public DateTimeOffset? CreatedAt { get; private set; }
++
++    /// <summary>
++    /// Gets the schema version copied from persisted event data.
++    /// </summary>
++    public SchemaVersion? SchemaVersion { get; private set; }
++
++    /// <summary>
++    /// Gets the correlation identifier copied from persisted event data.
++    /// </summary>
++    public string? CorrelationId { get; private set; }
++
++    /// <summary>
++    /// Gets the causation identifier copied from persisted event data.
++    /// </summary>
++    public string? CausationId { get; private set; }
++
++    /// <summary>
++    /// Gets the idempotency key copied from command metadata when supplied.
++    /// </summary>
++    public string? IdempotencyKey { get; private set; }
++
++    /// <summary>
++    /// Gets the optional adopter-owned business reference.
++    /// </summary>
++    public BusinessReference? BusinessReference { get; private set; }
++
++    /// <summary>
++    /// Gets the optional stable project reference.
++    /// </summary>
++    public ProjectId? ProjectId { get; private set; }
++
++    /// <summary>
++    /// Gets the optional stable folder reference.
++    /// </summary>
++    public FolderId? FolderId { get; private set; }
++
++    /// <summary>
++    /// Gets the optional UI label that is not identity.
++    /// </summary>
++    public string? Label { get; private set; }
++
++    /// <summary>
++    /// Gets optional provider correlation metadata that is never authority.
++    /// </summary>
++    public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
++
++    /// <summary>
++    /// Applies a conversation-created event during deterministic replay.
++    /// </summary>
++    /// <param name="e">The conversation-created event.</param>
++    public void Apply(ConversationCreated e)
++    {
++        ArgumentNullException.ThrowIfNull(e);
++
++        IsCreated = true;
++        Lifecycle = ConversationLifecycleState.Open;
++        TenantId = e.Metadata.TenantId;
++        ConversationId = e.Metadata.ConversationId;
++        CreatorPartyId = e.Metadata.ActorPartyId;
++        CreatedAt = e.Metadata.CommittedAt;
++        SchemaVersion = e.Metadata.SchemaVersion;
++        CorrelationId = e.Metadata.CorrelationId;
++        CausationId = e.Metadata.CausationId;
++        BusinessReference = e.BusinessReference;
++        ProjectId = e.ProjectId;
++        FolderId = e.FolderId;
++        Label = e.Label;
++        IdempotencyKey = e.IdempotencyKey;
++        ProviderCorrelation = e.ProviderCorrelation;
++    }
++
++    /// <summary>
++    /// Applies a rejection event as a no-op during replay.
++    /// </summary>
++    /// <param name="e">The rejection event.</param>
++    public void Apply(ConversationRejected e)
++    {
++        ArgumentNullException.ThrowIfNull(e);
++    }
++}
+diff --git a/src/Hexalith.Conversations/Validation/CreateConversationBoundary.cs b/src/Hexalith.Conversations/Validation/CreateConversationBoundary.cs
+new file mode 100644
+index 0000000..45b782b
+--- /dev/null
++++ b/src/Hexalith.Conversations/Validation/CreateConversationBoundary.cs
+@@ -0,0 +1,50 @@
++// <copyright file="CreateConversationBoundary.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Aggregates;
++using Hexalith.Conversations.Commands;
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.State;
++using Hexalith.EventStore.Contracts.Events;
++using Hexalith.EventStore.Contracts.Results;
++
++namespace Hexalith.Conversations.Validation;
++
++/// <summary>
++/// Maps public create-conversation contracts into the domain aggregate.
++/// </summary>
++public static class CreateConversationBoundary
++{
++    /// <summary>
++    /// Dispatches a public create-conversation command through the domain aggregate.
++    /// </summary>
++    /// <param name="command">The public create-conversation command.</param>
++    /// <param name="conversationId">The assigned Conversations-owned identity.</param>
++    /// <param name="createdAt">The deterministic creation timestamp supplied by the boundary.</param>
++    /// <param name="eventId">The deterministic event identity supplied by the boundary.</param>
++    /// <param name="state">The current conversation state, when any.</param>
++    /// <returns>A domain result containing one creation event or one typed rejection.</returns>
++    public static DomainResult Dispatch(
++        CreateConversationCommand? command,
++        ConversationId? conversationId,
++        DateTimeOffset createdAt,
++        string eventId,
++        ConversationState? state = null)
++    {
++        if (command is null)
++        {
++            return DomainResult.Rejection(new IRejectionEvent[]
++            {
++                new ConversationRejected(ConversationErrorCode.CommandValidationFailed, "command_missing"),
++            });
++        }
++
++        CreateConversation domainCommand = new(command, conversationId, createdAt, eventId);
++        return ConversationAggregate.Handle(domainCommand, state);
++    }
++}
+diff --git a/src/Hexalith.Conversations/Validation/CreateConversationValidation.cs b/src/Hexalith.Conversations/Validation/CreateConversationValidation.cs
+new file mode 100644
+index 0000000..3093483
+--- /dev/null
++++ b/src/Hexalith.Conversations/Validation/CreateConversationValidation.cs
+@@ -0,0 +1,157 @@
++// <copyright file="CreateConversationValidation.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Commands;
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.State;
++
++namespace Hexalith.Conversations.Validation;
++
++/// <summary>
++/// Validates create-conversation commands without external lookups.
++/// </summary>
++internal static class CreateConversationValidation
++{
++    /// <summary>
++    /// Validates a create-conversation command.
++    /// </summary>
++    /// <param name="command">The command to validate.</param>
++    /// <param name="state">The current conversation state.</param>
++    /// <returns>A rejection event when validation fails; otherwise <see langword="null" />.</returns>
++    public static ConversationRejected? Validate(CreateConversation? command, ConversationState? state)
++    {
++        if (command is null)
++        {
++            return Reject(ConversationErrorCode.CommandValidationFailed, "command_missing");
++        }
++
++        CreateConversationCommand? publicCommand = command.PublicCommand;
++        if (publicCommand is null)
++        {
++            return Reject(ConversationErrorCode.CommandValidationFailed, "command_missing");
++        }
++
++        ConversationCommandMetadata? metadata = publicCommand.Metadata;
++        if (metadata is null || metadata.TenantId is null)
++        {
++            return Reject(ConversationErrorCode.TenantBindingMissing, "tenant_binding_missing");
++        }
++
++        if (metadata.SchemaVersion is null)
++        {
++            return Reject(ConversationErrorCode.SchemaVersionUnsupported, "schema_version_missing");
++        }
++
++        if (metadata.ActorPartyId is null)
++        {
++            return Reject(
++                ConversationErrorCode.CommandValidationFailed,
++                "actor_party_missing",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (!metadata.SchemaVersion.Equals(SchemaVersion.Current))
++        {
++            return Reject(
++                ConversationErrorCode.SchemaVersionUnsupported,
++                "unsupported_schema_version",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (command.ConversationId is null)
++        {
++            return Reject(
++                ConversationErrorCode.CommandValidationFailed,
++                "conversation_identity_missing",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (string.IsNullOrWhiteSpace(command.EventId))
++        {
++            return Reject(
++                ConversationErrorCode.CommandValidationFailed,
++                "event_identity_missing",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (!IsBusinessTimestamp(command.CreatedAt))
++        {
++            return Reject(
++                ConversationErrorCode.CommandValidationFailed,
++                "created_timestamp_invalid",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (state?.IsCreated == true)
++        {
++            return Reject(
++                ConversationErrorCode.IdempotencyConflict,
++                "conversation_already_created",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        if (UsesCorrelationOrReferenceAsIdentity(command.ConversationId, publicCommand, metadata))
++        {
++            return Reject(
++                ConversationErrorCode.CommandValidationFailed,
++                "identity_substitution_forbidden",
++                metadata.SchemaVersion,
++                metadata.CorrelationId,
++                metadata.CausationId);
++        }
++
++        return null;
++    }
++
++    private static bool UsesCorrelationOrReferenceAsIdentity(
++        ConversationId conversationId,
++        CreateConversationCommand command,
++        ConversationCommandMetadata metadata)
++    {
++        string value = conversationId.Value;
++
++        return EqualsOrdinal(value, metadata.TenantId.Value)
++            || EqualsOrdinal(value, metadata.ActorPartyId.Value)
++            || EqualsOrdinal(value, metadata.CorrelationId)
++            || EqualsOrdinal(value, metadata.CausationId)
++            || EqualsOrdinal(value, metadata.IdempotencyKey)
++            || EqualsOrdinal(value, command.BusinessReference?.Value)
++            || EqualsOrdinal(value, command.ProjectId?.Value)
++            || EqualsOrdinal(value, command.FolderId?.Value)
++            || EqualsOrdinal(value, command.Label)
++            || EqualsOrdinal(value, command.ProviderCorrelation?.ProviderSessionReference)
++            || EqualsOrdinal(value, command.ProviderCorrelation?.ProviderResponseReference);
++    }
++
++    private static bool IsBusinessTimestamp(DateTimeOffset value)
++        => value > DateTimeOffset.MinValue && value.Year is >= 2000 and <= 9999;
++
++    private static bool EqualsOrdinal(string value, string? candidate)
++        => !string.IsNullOrWhiteSpace(candidate) && string.Equals(value, candidate, StringComparison.Ordinal);
++
++    private static ConversationRejected Reject(
++        ConversationErrorCode code,
++        string reasonCode,
++        SchemaVersion? schemaVersion = null,
++        string? correlationId = null,
++        string? causationId = null)
++        => new(code, reasonCode, schemaVersion, correlationId, causationId);
++}
+diff --git a/tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs b/tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
+index 32f1cad..f8f5803 100644
+--- a/tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
++++ b/tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
+@@ -140,7 +140,9 @@ public sealed class ScaffoldSmokeTest
+         AssertProjectReferences(
+             root,
+             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
+-            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj");
++            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
++            "Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
++            "Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
+         AssertProjectReferences(
+             root,
+             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+diff --git a/tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateCreateTest.cs b/tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateCreateTest.cs
+new file mode 100644
+index 0000000..3c668d1
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateCreateTest.cs
+@@ -0,0 +1,227 @@
++// <copyright file="ConversationAggregateCreateTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Aggregates;
++using Hexalith.Conversations.Commands;
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Events;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.State;
++using Hexalith.EventStore.Contracts.Results;
++using Shouldly;
++
++using Xunit;
++
++using DomainConversationCreated = Hexalith.Conversations.Events.ConversationCreated;
++
++namespace Hexalith.Conversations.Tests.Aggregates;
++
++/// <summary>
++/// Verifies tenant-safe creation behavior for the conversation aggregate.
++/// </summary>
++public sealed class ConversationAggregateCreateTest
++{
++    private static readonly TenantId Tenant = new("tenant-alpha");
++    private static readonly ConversationId Conversation = new("conversation-alpha");
++    private static readonly PartyId Actor = new("party-creator");
++    private static readonly DateTimeOffset CreatedAt = new(2026, 5, 18, 12, 30, 0, TimeSpan.Zero);
++
++    /// <summary>
++    /// A valid create command emits one versioned conversation-created event.
++    /// </summary>
++    [Fact]
++    public void ValidCreateShouldEmitOneConversationCreatedEvent()
++    {
++        CreateConversation command = CreateDomainCommand();
++
++        DomainResult result = ConversationAggregate.Handle(command, state: null);
++
++        result.IsSuccess.ShouldBeTrue();
++        result.Events.Count.ShouldBe(1);
++
++        DomainConversationCreated created = result.Events.Single().ShouldBeOfType<DomainConversationCreated>();
++        created.Metadata.SchemaVersion.ShouldBe(SchemaVersion.Current);
++        created.Metadata.EventId.ShouldBe("event-create-alpha");
++        created.Metadata.EventType.ShouldBe(ConversationEventType.ConversationCreated);
++        created.Metadata.TenantId.ShouldBe(Tenant);
++        created.Metadata.ConversationId.ShouldBe(Conversation);
++        created.Metadata.ActorPartyId.ShouldBe(Actor);
++        created.Metadata.CorrelationId.ShouldBe("correlation-alpha");
++        created.Metadata.CausationId.ShouldBe("causation-alpha");
++        created.Metadata.CommittedAt.ShouldBe(CreatedAt);
++        created.CreatedAt.ShouldBe(CreatedAt);
++        created.IdempotencyKey.ShouldBe("idempotency-alpha");
++        created.BusinessReference.ShouldBe(new BusinessReference("crm", "case-123"));
++        created.ProjectId.ShouldBe(new ProjectId("project-alpha"));
++        created.FolderId.ShouldBe(new FolderId("folder-alpha"));
++        created.Label.ShouldBe("Support case");
++        created.ProviderCorrelation.ShouldNotBeNull();
++        created.ProviderCorrelation.ProviderSessionReference.ShouldBe("provider-session-77");
++        created.Metadata.ConversationId.Value.ShouldNotBe(created.ProviderCorrelation.ProviderSessionReference);
++    }
++
++    /// <summary>
++    /// Replaying the same ordered event history produces the same conversation state.
++    /// </summary>
++    [Fact]
++    public void ConversationCreatedShouldReplayDeterministically()
++    {
++        DomainConversationCreated created = CreatedEvent();
++
++        ConversationState first = new();
++        ConversationState second = new();
++
++        first.Apply(created);
++        second.Apply(created);
++
++        first.ShouldBe(second);
++        first.IsCreated.ShouldBeTrue();
++        first.Lifecycle.ShouldBe(ConversationLifecycleState.Open);
++        first.TenantId.ShouldBe(Tenant);
++        first.ConversationId.ShouldBe(Conversation);
++        first.CreatorPartyId.ShouldBe(Actor);
++        first.CreatedAt.ShouldBe(CreatedAt);
++        first.SchemaVersion.ShouldBe(SchemaVersion.Current);
++        first.IdempotencyKey.ShouldBe("idempotency-alpha");
++        first.BusinessReference.ShouldBe(new BusinessReference("crm", "case-123"));
++        first.ProviderCorrelation.ShouldNotBeNull();
++        first.ProviderCorrelation.ProviderResponseReference.ShouldBe("provider-response-88");
++    }
++
++    /// <summary>
++    /// Creating an already-created conversation is rejected without a success event.
++    /// </summary>
++    [Fact]
++    public void DuplicateCreateShouldReturnTypedRejection()
++    {
++        CreateConversation command = CreateDomainCommand();
++        ConversationState state = new();
++        state.Apply(CreatedEvent());
++
++        DomainResult result = ConversationAggregate.Handle(command, state);
++
++        ConversationRejected rejection = SingleRejection(result);
++        rejection.Code.ShouldBe(ConversationErrorCode.IdempotencyConflict);
++        rejection.ReasonCode.ShouldBe("conversation_already_created");
++    }
++
++    /// <summary>
++    /// Unsupported schema versions are rejected with a stable machine-readable code.
++    /// </summary>
++    [Fact]
++    public void UnsupportedSchemaVersionShouldReturnTypedRejection()
++    {
++        CreateConversation command = CreateDomainCommand(schemaVersion: new SchemaVersion(SchemaVersion.Current.Value + 1));
++
++        DomainResult result = ConversationAggregate.Handle(command, state: null);
++
++        ConversationRejected rejection = SingleRejection(result);
++        rejection.Code.ShouldBe(ConversationErrorCode.SchemaVersionUnsupported);
++        rejection.ReasonCode.ShouldBe("unsupported_schema_version");
++    }
++
++    /// <summary>
++    /// Missing command metadata fails closed with a typed rejection.
++    /// </summary>
++    [Fact]
++    public void MissingTenantMetadataShouldReturnTypedRejection()
++    {
++        CreateConversation command = new(
++            PublicCommand: new CreateConversationCommand(Metadata: null!),
++            ConversationId: Conversation,
++            CreatedAt: CreatedAt,
++            EventId: "event-create-alpha");
++
++        DomainResult result = ConversationAggregate.Handle(command, state: null);
++
++        ConversationRejected rejection = SingleRejection(result);
++        rejection.Code.ShouldBe(ConversationErrorCode.TenantBindingMissing);
++        rejection.ReasonCode.ShouldBe("tenant_binding_missing");
++    }
++
++    /// <summary>
++    /// Missing conversation identity fails closed with a typed rejection.
++    /// </summary>
++    [Fact]
++    public void MissingConversationIdentityShouldReturnTypedRejection()
++    {
++        CreateConversation valid = CreateDomainCommand();
++        CreateConversation command = valid with { ConversationId = null };
++
++        DomainResult result = ConversationAggregate.Handle(command, state: null);
++
++        ConversationRejected rejection = SingleRejection(result);
++        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
++        rejection.ReasonCode.ShouldBe("conversation_identity_missing");
++    }
++
++    /// <summary>
++    /// Provider and external references cannot replace the internal conversation identity.
++    /// </summary>
++    [Theory]
++    [InlineData("provider-session-77")]
++    [InlineData("provider-response-88")]
++    [InlineData("case-123")]
++    [InlineData("Support case")]
++    public void ProviderAndExternalReferencesShouldNotReplaceConversationIdentity(string substitutedIdentity)
++    {
++        CreateConversation command = CreateDomainCommand(conversationId: new ConversationId(substitutedIdentity));
++
++        DomainResult result = ConversationAggregate.Handle(command, state: null);
++
++        ConversationRejected rejection = SingleRejection(result);
++        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
++        rejection.ReasonCode.ShouldBe("identity_substitution_forbidden");
++    }
++
++    private static CreateConversation CreateDomainCommand(
++        SchemaVersion? schemaVersion = null,
++        ConversationId? conversationId = null)
++    {
++        ConversationCommandMetadata metadata = new(
++            schemaVersion ?? SchemaVersion.Current,
++            Tenant,
++            Actor,
++            "correlation-alpha",
++            CausationId: "causation-alpha",
++            IdempotencyKey: "idempotency-alpha");
++
++        CreateConversationCommand publicCommand = new(
++            metadata,
++            new BusinessReference("crm", "case-123"),
++            new ProjectId("project-alpha"),
++            new FolderId("folder-alpha"),
++            "Support case",
++            new ProviderCorrelationMetadata(
++                "contoso-ai",
++                "assistant",
++                SchemaVersion.Current,
++                ProviderSessionReference: "provider-session-77",
++                ProviderResponseReference: "provider-response-88",
++                ExtensionData: new Dictionary<string, string> { ["thread"] = "thread-42" }));
++
++        return new CreateConversation(
++            publicCommand,
++            conversationId ?? Conversation,
++            CreatedAt,
++            "event-create-alpha");
++    }
++
++    private static DomainConversationCreated CreatedEvent()
++        => SingleCreated(ConversationAggregate.Handle(CreateDomainCommand(), state: null));
++
++    private static DomainConversationCreated SingleCreated(DomainResult result)
++        => result.Events.Single().ShouldBeOfType<DomainConversationCreated>();
++
++    private static ConversationRejected SingleRejection(DomainResult result)
++    {
++        result.IsRejection.ShouldBeTrue();
++        result.Events.Count.ShouldBe(1);
++        return result.Events.Single().ShouldBeOfType<ConversationRejected>();
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs b/tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs
+new file mode 100644
+index 0000000..1a103e4
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs
+@@ -0,0 +1,63 @@
++// <copyright file="DomainProjectBoundaryTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Xml.Linq;
++
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Tests.Boundaries;
++
++/// <summary>
++/// Verifies the domain project references only the narrow write-side domain libraries it needs.
++/// </summary>
++public sealed class DomainProjectBoundaryTest
++{
++    private static readonly string ProjectPath = Path.GetFullPath(
++        Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "..", "src", "Hexalith.Conversations", "Hexalith.Conversations.csproj"));
++
++    /// <summary>
++    /// The domain project references contracts plus the local write-side aggregate libraries.
++    /// </summary>
++    [Fact]
++    public void DomainProjectShouldReferenceOnlyExpectedDomainLibraries()
++    {
++        XDocument project = XDocument.Load(ProjectPath);
++
++        string[] references = project
++            .Descendants("ProjectReference")
++            .Select(reference => reference.Attribute("Include")?.Value ?? string.Empty)
++            .ToArray();
++
++        references.ShouldContain(reference => reference.Contains(@"Hexalith.Conversations.Contracts\", StringComparison.Ordinal));
++        references.ShouldContain(reference => reference.Contains(@"Hexalith.EventStore.Client\", StringComparison.Ordinal));
++        references.ShouldContain(reference => reference.Contains(@"Hexalith.EventStore.Contracts\", StringComparison.Ordinal));
++        references.ShouldNotContain(reference => reference.Contains(@"Hexalith.Conversations.Server\", StringComparison.Ordinal));
++        references.ShouldNotContain(reference => reference.Contains(@"Hexalith.Tenants\", StringComparison.Ordinal));
++        references.ShouldNotContain(reference => reference.Contains(@"Hexalith.Parties\", StringComparison.Ordinal));
++        references.ShouldNotContain(reference => reference.Contains(@"Hexalith.FrontComposer\", StringComparison.Ordinal));
++    }
++
++    /// <summary>
++    /// The domain project does not add transport, UI, hosting, or provider SDK packages.
++    /// </summary>
++    [Fact]
++    public void DomainProjectShouldNotReferenceForbiddenRuntimePackages()
++    {
++        XDocument project = XDocument.Load(ProjectPath);
++
++        string[] packageReferences = project
++            .Descendants("PackageReference")
++            .Select(reference => reference.Attribute("Include")?.Value ?? string.Empty)
++            .ToArray();
++
++        packageReferences.ShouldNotContain(package => package.StartsWith("Dapr", StringComparison.Ordinal));
++        packageReferences.ShouldNotContain(package => package.StartsWith("Aspire", StringComparison.Ordinal));
++        packageReferences.ShouldNotContain(package => package.StartsWith("Microsoft.AspNetCore", StringComparison.Ordinal));
++        packageReferences.ShouldNotContain(package => package.Contains("OpenAI", StringComparison.OrdinalIgnoreCase));
++        packageReferences.ShouldNotContain(package => package.Contains("Azure.AI", StringComparison.OrdinalIgnoreCase));
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj b/tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj
+index c0d428a..db15d47 100644
+--- a/tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj
++++ b/tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj
+@@ -5,6 +5,8 @@
+   <ItemGroup>
+     <ProjectReference Include="..\..\src\Hexalith.Conversations\Hexalith.Conversations.csproj" />
+     <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
++    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" />
++    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" />
+   </ItemGroup>
+   <ItemGroup>
+     <PackageReference Include="Microsoft.NET.Test.Sdk" />
+diff --git a/tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs b/tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs
+new file mode 100644
+index 0000000..cca19b1
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs
+@@ -0,0 +1,121 @@
++// <copyright file="ConversationStateSafetyTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using System.Reflection;
++using System.Text.Json;
++
++using Hexalith.Conversations.Aggregates;
++using Hexalith.Conversations.Commands;
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.State;
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Tests.State;
++
++/// <summary>
++/// Verifies created conversation payloads remain tenant-safe and content-safe.
++/// </summary>
++public sealed class ConversationStateSafetyTest
++{
++    private static readonly string[] ForbiddenMemberTerms =
++    [
++        "DisplayName",
++        "Email",
++        "Phone",
++        "PersonDetails",
++        "OrganizationDetails",
++        "Prompt",
++        "ResponsePayload",
++        "FileContent",
++        "FileMetadata",
++        "AccessToken",
++        "Claim",
++        "Authorization",
++        "Stream",
++        "Envelope",
++        "Snapshot",
++        "Sequence",
++        "ExpectedRevision",
++    ];
++
++    /// <summary>
++    /// Event and state members expose stable identifiers and metadata only.
++    /// </summary>
++    [Fact]
++    public void CreateEventAndStateMembersShouldNotExposeForbiddenPayloadTerms()
++    {
++        Type[] inspectedTypes =
++        [
++            typeof(ConversationCreated),
++            typeof(ConversationRejected),
++            typeof(ConversationState),
++        ];
++
++        string[] memberNames = inspectedTypes
++            .SelectMany(type => type.GetMembers(BindingFlags.Instance | BindingFlags.Public))
++            .Select(member => member.Name)
++            .ToArray();
++
++        foreach (string forbidden in ForbiddenMemberTerms)
++        {
++            memberNames.ShouldNotContain(name => name.Contains(forbidden, StringComparison.OrdinalIgnoreCase));
++        }
++    }
++
++    /// <summary>
++    /// Serialized create event payloads do not contain personal, provider-content, or persistence mechanics fields.
++    /// </summary>
++    [Fact]
++    public void SerializedCreateEventShouldNotContainForbiddenPayloadTerms()
++    {
++        ConversationCreated created = ConversationAggregate
++            .Handle(CreateCommand(), state: null)
++            .Events
++            .Single()
++            .ShouldBeOfType<ConversationCreated>();
++
++        string json = JsonSerializer.Serialize(created);
++
++        foreach (string forbidden in ForbiddenMemberTerms)
++        {
++            json.ShouldNotContain(forbidden, Case.Insensitive);
++        }
++
++        json.ShouldContain("tenant-safe");
++        json.ShouldContain("conversation-safe");
++        json.ShouldContain("party-safe");
++        json.ShouldContain("provider-session-safe");
++    }
++
++    private static CreateConversation CreateCommand()
++    {
++        ConversationCommandMetadata metadata = new(
++            SchemaVersion.Current,
++            new TenantId("tenant-safe"),
++            new PartyId("party-safe"),
++            "correlation-safe",
++            IdempotencyKey: "idempotency-safe");
++
++        CreateConversationCommand publicCommand = new(
++            metadata,
++            BusinessReference: new BusinessReference("crm", "case-safe"),
++            ProviderCorrelation: new ProviderCorrelationMetadata(
++                "contoso-ai",
++                "assistant",
++                SchemaVersion.Current,
++                ProviderSessionReference: "provider-session-safe"));
++
++        return new CreateConversation(
++            publicCommand,
++            new ConversationId("conversation-safe"),
++            new DateTimeOffset(2026, 5, 18, 14, 0, 0, TimeSpan.Zero),
++            "event-safe");
++    }
++}
+diff --git a/tests/Hexalith.Conversations.Tests/Validation/CreateConversationBoundaryTest.cs b/tests/Hexalith.Conversations.Tests/Validation/CreateConversationBoundaryTest.cs
+new file mode 100644
+index 0000000..02fd12a
+--- /dev/null
++++ b/tests/Hexalith.Conversations.Tests/Validation/CreateConversationBoundaryTest.cs
+@@ -0,0 +1,99 @@
++// <copyright file="CreateConversationBoundaryTest.cs" company="ITANEO">
++// Copyright (c) ITANEO. All rights reserved.
++// Licensed under the MIT License.
++// </copyright>
++
++using Hexalith.Conversations.Contracts.Commands;
++using Hexalith.Conversations.Contracts.Errors;
++using Hexalith.Conversations.Contracts.Identifiers;
++using Hexalith.Conversations.Contracts.Versioning;
++using Hexalith.Conversations.Events;
++using Hexalith.Conversations.Validation;
++using Hexalith.EventStore.Contracts.Results;
++using Shouldly;
++
++using Xunit;
++
++namespace Hexalith.Conversations.Tests.Validation;
++
++/// <summary>
++/// Verifies the narrow deterministic create-conversation dispatch boundary.
++/// </summary>
++public sealed class CreateConversationBoundaryTest
++{
++    private static readonly DateTimeOffset CreatedAt = new(2026, 5, 18, 13, 0, 0, TimeSpan.Zero);
++
++    /// <summary>
++    /// The boundary maps the public create command into aggregate creation.
++    /// </summary>
++    [Fact]
++    public void DispatchShouldMapPublicCreateCommandIntoConversationCreatedEvent()
++    {
++        CreateConversationCommand command = PublicCommand();
++        ConversationId conversationId = new("conversation-boundary");
++
++        DomainResult result = CreateConversationBoundary.Dispatch(
++            command,
++            conversationId,
++            CreatedAt,
++            "event-boundary");
++
++        result.IsSuccess.ShouldBeTrue();
++        ConversationCreated created = result.Events.Single().ShouldBeOfType<ConversationCreated>();
++        created.Metadata.TenantId.ShouldBe(command.Metadata.TenantId);
++        created.Metadata.ActorPartyId.ShouldBe(command.Metadata.ActorPartyId);
++        created.Metadata.ConversationId.ShouldBe(conversationId);
++        created.Metadata.CommittedAt.ShouldBe(CreatedAt);
++    }
++
++    /// <summary>
++    /// Null commands fail closed without emitting a success event.
++    /// </summary>
++    [Fact]
++    public void DispatchShouldRejectNullCommand()
++    {
++        DomainResult result = CreateConversationBoundary.Dispatch(
++            command: null,
++            new ConversationId("conversation-boundary"),
++            CreatedAt,
++            "event-boundary");
++
++        ConversationRejected rejection = result.Events.Single().ShouldBeOfType<ConversationRejected>();
++        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
++        rejection.ReasonCode.ShouldBe("command_missing");
++    }
++
++    /// <summary>
++    /// Malformed boundary metadata fails closed without aggregate side effects.
++    /// </summary>
++    [Theory]
++    [InlineData("")]
++    [InlineData(" ")]
++    public void DispatchShouldRejectMalformedEventMetadata(string eventId)
++    {
++        DomainResult result = CreateConversationBoundary.Dispatch(
++            PublicCommand(),
++            new ConversationId("conversation-boundary"),
++            CreatedAt,
++            eventId);
++
++        ConversationRejected rejection = result.Events.Single().ShouldBeOfType<ConversationRejected>();
++        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
++        rejection.ReasonCode.ShouldBe("event_identity_missing");
++    }
++
++    private static CreateConversationCommand PublicCommand()
++        => new(
++            new ConversationCommandMetadata(
++                SchemaVersion.Current,
++                new TenantId("tenant-boundary"),
++                new PartyId("party-boundary"),
++                "correlation-boundary",
++                IdempotencyKey: "idempotency-boundary"),
++            BusinessReference: new BusinessReference("support", "ticket-456"),
++            ProviderCorrelation: new ProviderCorrelationMetadata(
++                "contoso-ai",
++                "assistant",
++                SchemaVersion.Current,
++                ProviderSessionReference: "provider-session-boundary"));
++}

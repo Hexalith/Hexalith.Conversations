@@ -2,6 +2,15 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-3-create-tenant-safe-conversation-aggregate (2026-05-19)
+
+- `IsBusinessTimestamp` accepts year 9999 / `DateTimeOffset.MaxValue`. Symmetric with `ConversationEventMetadata.ValidateTimestamp` which has the same upper bound. Spec does not require a tighter business window. Revisit when retention/redaction governance defines a temporal window. File: `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs:144-145`.
+- `ConversationStateSafetyTest` positive assertions on test-fixture sentinel strings are tautological — they only prove serialization round-trips a string, not that anything safety-relevant happened. The forbidden-term scan is the load-bearing assertion; strengthen positive assertions in a future test-strengthening pass. File: `tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs:1021-1024`.
+- `DomainProjectBoundaryTest` uses Windows-only backslash literals in `Contains` checks and a hardcoded 5-level `..` traversal from `AppContext.BaseDirectory`. Fragile to cross-platform CI and to runtime-output-layout changes (`bin/Debug/net10.0/<rid>`). Owner: cross-platform CI / test infrastructure refactor. Files: `tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs:867,883-889`.
+- `ConversationRejected.ReasonCode` validates inside the record initializer using `ArgumentException.ThrowIfNullOrWhiteSpace`. JSON deserialization of a malformed payload terminates with an exception rather than yielding a typed no-op replay event. Replay tolerance for malformed rejection events is owned by Story 1.11 (prove replay/schema-versioning/projection-rebuild behavior). File: `src/Hexalith.Conversations/Events/ConversationRejected.cs:37-41`.
+- `schema_version_missing` returns `ConversationErrorCode.SchemaVersionUnsupported` — distinct `ReasonCode` is preserved but the top-level code is the same as the supported-but-wrong path. Adopters cannot differentiate without parsing the reason. Revisit during error-taxonomy refinement / Story 1.10. File: `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs:46-49`.
+- `ScaffoldSmokeTest` mixes forward-slash and backslash path conventions in expected-reference strings; `DomainProjectBoundaryTest` uses only backslashes. Inconsistency surfaces with cross-platform CI. Bundle with the test infrastructure cross-platform pass above. File: `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`.
+
 ## Deferred from: code review of 1-2-define-conversation-identity-command-event-and-error-contracts — Round 2 (2026-05-18)
 
 - `with`-clone on identifier records is silently broken because `init` was removed in favor of validating ctors. The trade-off was accepted in the prior round's "init-able defeats ctor guard" patch. Adopters porting from earlier shapes will hit unhelpful compile errors. Document the lock-down in README or add a test that asserts `with`-clone is intentionally unsupported. Files: `src/Hexalith.Conversations.Contracts/Identifiers/*.cs`.

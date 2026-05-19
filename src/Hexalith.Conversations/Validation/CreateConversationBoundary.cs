@@ -40,7 +40,7 @@ public static class CreateConversationBoundary
         {
             return DomainResult.Rejection(new IRejectionEvent[]
             {
-                new ConversationRejected(ConversationErrorCode.CommandValidationFailed, "command_missing"),
+                new ConversationRejectedDomainEvent(ConversationErrorCode.CommandValidationFailed, "command_missing"),
             });
         }
 

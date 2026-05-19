@@ -17,8 +17,6 @@ using Shouldly;
 
 using Xunit;
 
-using DomainConversationCreated = Hexalith.Conversations.Events.ConversationCreated;
-
 namespace Hexalith.Conversations.Tests.Aggregates;
 
 /// <summary>
@@ -44,7 +42,7 @@ public sealed class ConversationAggregateCreateTest
         result.IsSuccess.ShouldBeTrue();
         result.Events.Count.ShouldBe(1);
 
-        DomainConversationCreated created = result.Events.Single().ShouldBeOfType<DomainConversationCreated>();
+        ConversationCreatedDomainEvent created = result.Events.Single().ShouldBeOfType<ConversationCreatedDomainEvent>();
         created.Metadata.SchemaVersion.ShouldBe(SchemaVersion.Current);
         created.Metadata.EventId.ShouldBe("event-create-alpha");
         created.Metadata.EventType.ShouldBe(ConversationEventType.ConversationCreated);
@@ -71,7 +69,7 @@ public sealed class ConversationAggregateCreateTest
     [Fact]
     public void ConversationCreatedShouldReplayDeterministically()
     {
-        DomainConversationCreated created = CreatedEvent();
+        ConversationCreatedDomainEvent created = CreatedEvent();
 
         ConversationState first = new();
         ConversationState second = new();
@@ -94,6 +92,19 @@ public sealed class ConversationAggregateCreateTest
     }
 
     /// <summary>
+    /// Replaying a second ConversationCreatedDomainEvent against already-created state surfaces a deterministic invariant violation.
+    /// </summary>
+    [Fact]
+    public void ReplayingDuplicateConversationCreatedShouldThrowReplayInvariantViolation()
+    {
+        ConversationCreatedDomainEvent created = CreatedEvent();
+        ConversationState state = new();
+        state.Apply(created);
+
+        Should.Throw<InvalidOperationException>(() => state.Apply(created));
+    }
+
+    /// <summary>
     /// Creating an already-created conversation is rejected without a success event.
     /// </summary>
     [Fact]
@@ -105,9 +116,60 @@ public sealed class ConversationAggregateCreateTest
 
         DomainResult result = ConversationAggregate.Handle(command, state);
 
-        ConversationRejected rejection = SingleRejection(result);
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.IdempotencyConflict);
         rejection.ReasonCode.ShouldBe("conversation_already_created");
+    }
+
+    /// <summary>
+    /// A null domain command fails closed with a typed rejection.
+    /// </summary>
+    [Fact]
+    public void NullDomainCommandShouldReturnTypedRejection()
+    {
+        DomainResult result = ConversationAggregate.Handle(command: null!, state: null);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("command_missing");
+    }
+
+    /// <summary>
+    /// A null public command fails closed with a typed rejection.
+    /// </summary>
+    [Fact]
+    public void NullPublicCommandShouldReturnTypedRejection()
+    {
+        CreateConversation command = new(
+            PublicCommand: null!,
+            ConversationId: Conversation,
+            CreatedAt: CreatedAt,
+            EventId: "event-create-alpha");
+
+        DomainResult result = ConversationAggregate.Handle(command, state: null);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("public_command_missing");
+    }
+
+    /// <summary>
+    /// Missing command metadata is reported as metadata_missing (distinct from tenant_binding_missing).
+    /// </summary>
+    [Fact]
+    public void MissingCommandMetadataShouldReturnMetadataMissingRejection()
+    {
+        CreateConversation command = new(
+            PublicCommand: new CreateConversationCommand(Metadata: null!),
+            ConversationId: Conversation,
+            CreatedAt: CreatedAt,
+            EventId: "event-create-alpha");
+
+        DomainResult result = ConversationAggregate.Handle(command, state: null);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("metadata_missing");
     }
 
     /// <summary>
@@ -120,28 +182,9 @@ public sealed class ConversationAggregateCreateTest
 
         DomainResult result = ConversationAggregate.Handle(command, state: null);
 
-        ConversationRejected rejection = SingleRejection(result);
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.SchemaVersionUnsupported);
         rejection.ReasonCode.ShouldBe("unsupported_schema_version");
-    }
-
-    /// <summary>
-    /// Missing command metadata fails closed with a typed rejection.
-    /// </summary>
-    [Fact]
-    public void MissingTenantMetadataShouldReturnTypedRejection()
-    {
-        CreateConversation command = new(
-            PublicCommand: new CreateConversationCommand(Metadata: null!),
-            ConversationId: Conversation,
-            CreatedAt: CreatedAt,
-            EventId: "event-create-alpha");
-
-        DomainResult result = ConversationAggregate.Handle(command, state: null);
-
-        ConversationRejected rejection = SingleRejection(result);
-        rejection.Code.ShouldBe(ConversationErrorCode.TenantBindingMissing);
-        rejection.ReasonCode.ShouldBe("tenant_binding_missing");
     }
 
     /// <summary>
@@ -155,9 +198,43 @@ public sealed class ConversationAggregateCreateTest
 
         DomainResult result = ConversationAggregate.Handle(command, state: null);
 
-        ConversationRejected rejection = SingleRejection(result);
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
         rejection.ReasonCode.ShouldBe("conversation_identity_missing");
+    }
+
+    /// <summary>
+    /// Missing or whitespace event identity fails closed with a typed rejection.
+    /// </summary>
+    [Theory]
+    [InlineData("")]
+    [InlineData(" ")]
+    public void MissingEventIdentityShouldReturnTypedRejection(string eventId)
+    {
+        CreateConversation valid = CreateDomainCommand();
+        CreateConversation command = valid with { EventId = eventId };
+
+        DomainResult result = ConversationAggregate.Handle(command, state: null);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("event_identity_missing");
+    }
+
+    /// <summary>
+    /// Creation timestamps outside the business range fail closed with a typed rejection.
+    /// </summary>
+    [Fact]
+    public void CreatedAtBeforeBusinessRangeShouldReturnTypedRejection()
+    {
+        CreateConversation valid = CreateDomainCommand();
+        CreateConversation command = valid with { CreatedAt = new DateTimeOffset(1999, 12, 31, 23, 59, 59, TimeSpan.Zero) };
+
+        DomainResult result = ConversationAggregate.Handle(command, state: null);
+
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("created_timestamp_invalid");
     }
 
     /// <summary>
@@ -167,14 +244,25 @@ public sealed class ConversationAggregateCreateTest
     [InlineData("provider-session-77")]
     [InlineData("provider-response-88")]
     [InlineData("case-123")]
+    [InlineData("crm")]
+    [InlineData("contoso-ai")]
+    [InlineData("assistant")]
+    [InlineData("thread-42")]
+    [InlineData("thread")]
     [InlineData("Support case")]
+    [InlineData("event-create-alpha")]
+    [InlineData("idempotency-alpha")]
+    [InlineData("correlation-alpha")]
+    [InlineData("causation-alpha")]
+    [InlineData("project-alpha")]
+    [InlineData("folder-alpha")]
     public void ProviderAndExternalReferencesShouldNotReplaceConversationIdentity(string substitutedIdentity)
     {
         CreateConversation command = CreateDomainCommand(conversationId: new ConversationId(substitutedIdentity));
 
         DomainResult result = ConversationAggregate.Handle(command, state: null);
 
-        ConversationRejected rejection = SingleRejection(result);
+        ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
         rejection.ReasonCode.ShouldBe("identity_substitution_forbidden");
     }
@@ -212,16 +300,16 @@ public sealed class ConversationAggregateCreateTest
             "event-create-alpha");
     }
 
-    private static DomainConversationCreated CreatedEvent()
+    private static ConversationCreatedDomainEvent CreatedEvent()
         => SingleCreated(ConversationAggregate.Handle(CreateDomainCommand(), state: null));
 
-    private static DomainConversationCreated SingleCreated(DomainResult result)
-        => result.Events.Single().ShouldBeOfType<DomainConversationCreated>();
+    private static ConversationCreatedDomainEvent SingleCreated(DomainResult result)
+        => result.Events.Single().ShouldBeOfType<ConversationCreatedDomainEvent>();
 
-    private static ConversationRejected SingleRejection(DomainResult result)
+    private static ConversationRejectedDomainEvent SingleRejection(DomainResult result)
     {
         result.IsRejection.ShouldBeTrue();
         result.Events.Count.ShouldBe(1);
-        return result.Events.Single().ShouldBeOfType<ConversationRejected>();
+        return result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
     }
 }

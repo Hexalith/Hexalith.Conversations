@@ -93,9 +93,21 @@ public sealed record ConversationState
     /// Applies a conversation-created event during deterministic replay.
     /// </summary>
     /// <param name="e">The conversation-created event.</param>
-    public void Apply(ConversationCreated e)
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when the state has already been created. Duplicate <see cref="ConversationCreatedDomainEvent"/>
+    /// entries indicate a corrupted or replayed stream and must surface as a deterministic invariant
+    /// violation rather than silently overwriting tenant binding, creator attribution, or timestamps.
+    /// </exception>
+    public void Apply(ConversationCreatedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+
+        if (IsCreated)
+        {
+            throw new InvalidOperationException(
+                "ConversationCreatedDomainEvent applied to an already-created ConversationState. "
+                + "Duplicate creation in event history violates the replay invariant.");
+        }
 
         IsCreated = true;
         Lifecycle = ConversationLifecycleState.Open;
@@ -118,7 +130,7 @@ public sealed record ConversationState
     /// Applies a rejection event as a no-op during replay.
     /// </summary>
     /// <param name="e">The rejection event.</param>
-    public void Apply(ConversationRejected e)
+    public void Apply(ConversationRejectedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
     }

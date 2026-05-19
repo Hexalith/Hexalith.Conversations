@@ -12,7 +12,6 @@ using Hexalith.EventStore.Client.Aggregates;
 using Hexalith.EventStore.Contracts.Events;
 using Hexalith.EventStore.Contracts.Results;
 
-using DomainConversationCreated = Hexalith.Conversations.Events.ConversationCreated;
 using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Commands.CreateConversationCommand;
 using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
 
@@ -31,7 +30,7 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
     /// <returns>A domain result containing one creation event or one typed rejection.</returns>
     public static DomainResult Handle(CreateConversation command, ConversationState? state)
     {
-        ConversationRejected? rejection = CreateConversationValidation.Validate(command, state);
+        ConversationRejectedDomainEvent? rejection = CreateConversationValidation.Validate(command, state);
         if (rejection is not null)
         {
             return DomainResult.Rejection(new IRejectionEvent[] { rejection });
@@ -51,7 +50,7 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             commandMetadata.ActorPartyId,
             commandMetadata.CausationId);
 
-        DomainConversationCreated created = new(
+        ConversationCreatedDomainEvent created = new(
             eventMetadata,
             publicCommand.BusinessReference,
             publicCommand.ProjectId,

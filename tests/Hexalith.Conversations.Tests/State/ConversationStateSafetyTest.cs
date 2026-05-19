@@ -9,6 +9,7 @@ using System.Text.Json;
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
@@ -53,8 +54,8 @@ public sealed class ConversationStateSafetyTest
     {
         Type[] inspectedTypes =
         [
-            typeof(ConversationCreated),
-            typeof(ConversationRejected),
+            typeof(ConversationCreatedDomainEvent),
+            typeof(ConversationRejectedDomainEvent),
             typeof(ConversationState),
         ];
 
@@ -75,11 +76,11 @@ public sealed class ConversationStateSafetyTest
     [Fact]
     public void SerializedCreateEventShouldNotContainForbiddenPayloadTerms()
     {
-        ConversationCreated created = ConversationAggregate
+        ConversationCreatedDomainEvent created = ConversationAggregate
             .Handle(CreateCommand(), state: null)
             .Events
             .Single()
-            .ShouldBeOfType<ConversationCreated>();
+            .ShouldBeOfType<ConversationCreatedDomainEvent>();
 
         string json = JsonSerializer.Serialize(created);
 
@@ -92,6 +93,32 @@ public sealed class ConversationStateSafetyTest
         json.ShouldContain("conversation-safe");
         json.ShouldContain("party-safe");
         json.ShouldContain("provider-session-safe");
+    }
+
+    /// <summary>
+    /// Serialized rejection event payloads also stay free of forbidden payload terms even when caller-supplied
+    /// correlation and causation identifiers flow through.
+    /// </summary>
+    [Fact]
+    public void SerializedRejectionEventShouldNotContainForbiddenPayloadTerms()
+    {
+        ConversationRejectedDomainEvent rejection = new(
+            ConversationErrorCode.CommandValidationFailed,
+            "command_validation_failed",
+            SchemaVersion: SchemaVersion.Current,
+            CorrelationId: "correlation-safe-rejection",
+            CausationId: "causation-safe-rejection");
+
+        string json = JsonSerializer.Serialize(rejection);
+
+        foreach (string forbidden in ForbiddenMemberTerms)
+        {
+            json.ShouldNotContain(forbidden, Case.Insensitive);
+        }
+
+        json.ShouldContain("correlation-safe-rejection");
+        json.ShouldContain("causation-safe-rejection");
+        json.ShouldContain("command_validation_failed");
     }
 
     private static CreateConversation CreateCommand()

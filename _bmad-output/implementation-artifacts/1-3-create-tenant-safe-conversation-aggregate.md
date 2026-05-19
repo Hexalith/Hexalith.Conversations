@@ -1,6 +1,6 @@
 # Story 1.3: Create Tenant-Safe Conversation Aggregate
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -196,8 +196,38 @@ GPT-5 Codex
 - Findings deferred: Product/architecture must confirm Story 1.2 concrete contract type names, schema-version constants, and rejection taxonomy before implementation if they are still unavailable. True tenant membership authorization and infrastructure idempotency remain later-story responsibilities unless scope is explicitly changed.
 - Final recommendation: ready-for-dev
 
+## Review Findings
+
+### Decisions Resolved
+
+- [x] [Review][Decision] Parallel `ConversationCreated` domain event shadows the public Story 1.2 contract — **Resolved (rename):** renamed the domain events to `ConversationCreatedDomainEvent` and `ConversationRejectedDomainEvent` to remove the public-API name collision. The public `Hexalith.Conversations.Contracts.Events.ConversationCreated` remains the publication shape (owned by Story 1.10). `IdempotencyKey`, `IEventPayload`/`IRejectionEvent` markers, and replay semantics stay in the domain layer. The aggregate's `DomainConversationCreated` `using` alias was removed; XmlDoc on the renamed types documents the domain/public boundary.
+- [x] [Review][Decision] `Apply(ConversationCreated)` silently overwrites state on duplicate replay — **Resolved (throw):** added a deterministic invariant guard in `ConversationState.Apply(ConversationCreatedDomainEvent)` that throws `InvalidOperationException` when `IsCreated == true`. Corrupted streams that contain duplicate creation events now fail loudly at replay rather than silently rewriting tenant binding, creator attribution, or creation timestamp. New `ReplayingDuplicateConversationCreatedShouldThrowReplayInvariantViolation` test pins the behavior.
+- [x] [Review][Decision] `ConversationRejected` taxonomy alignment with Story 1.2 — **Dismissed (document boundary):** the durable rejection event and the caller-facing `ConversationError`/`ConversationErrorResult` envelope are deliberately separate event-sourcing concerns. The rejection event keeps the minimal Story 1.2 `ConversationErrorCode` plus a stable `ReasonCode`; the caller pipeline (Story 1.5+) and publication shape (Story 1.10) wrap it with `Category`, `IsRetryable`, audit handles, and documentation at response time. XmlDoc on `ConversationRejectedDomainEvent` documents this boundary explicitly.
+
+### Patches Applied
+
+- [x] [Review][Patch] Identity-substitution check now covers `BusinessReference.System` — `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs`.
+- [x] [Review][Patch] Identity-substitution check now covers `ProviderCorrelationMetadata.ProviderName`, `ProviderType`, and every `ExtensionData` key and value — extracted into a dedicated `ProviderCorrelationCarriesIdentity` helper in `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs`.
+- [x] [Review][Patch] Identity-substitution check now covers `command.EventId` — `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs`.
+- [x] [Review][Patch] `ConversationCreatedDomainEvent.Metadata` is now null-guarded at the record initializer with `Metadata = Metadata ?? throw new ArgumentNullException(nameof(Metadata))` — `src/Hexalith.Conversations/Events/ConversationCreatedDomainEvent.cs`.
+- [x] [Review][Patch] Split `metadata is null` from `metadata.TenantId is null`: the former now returns `CommandValidationFailed:metadata_missing`, the latter retains `TenantBindingMissing:tenant_binding_missing`. New `MissingCommandMetadataShouldReturnMetadataMissingRejection` test pins the split.
+- [x] [Review][Patch] Added aggregate-level validator coverage: `NullDomainCommandShouldReturnTypedRejection`, `NullPublicCommandShouldReturnTypedRejection`, `MissingCommandMetadataShouldReturnMetadataMissingRejection`, `MissingEventIdentityShouldReturnTypedRejection` (theory), and `CreatedAtBeforeBusinessRangeShouldReturnTypedRejection`. The substitution theory now exercises 15 substitution paths (was 4).
+- [x] [Review][Patch] Added `SerializedRejectionEventShouldNotContainForbiddenPayloadTerms` content-safety test that serializes a `ConversationRejectedDomainEvent` carrying caller-supplied `CorrelationId` and `CausationId` and asserts no forbidden payload terms appear.
+
+### Deferred
+
+- [x] [Review][Defer] `IsBusinessTimestamp` accepts year 9999 / `DateTimeOffset.MaxValue` — `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs:144-145`. Symmetric with `ConversationEventMetadata.ValidateTimestamp`; spec does not define an upper bound. Improvement, not blocker. — deferred, scope tightening for governance epic.
+- [x] [Review][Defer] `ConversationStateSafetyTest` positive assertions on fixture sentinels are tautological — `tests/Hexalith.Conversations.Tests/State/ConversationStateSafetyTest.cs:1021-1024`. The forbidden-term scan is the load-bearing assertion; positive sentinel checks add no safety guarantee. — deferred, test-strengthening pass.
+- [x] [Review][Defer] `DomainProjectBoundaryTest` uses Windows backslash literals — `tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs:883-889`. Will break on Linux CI; not regressive today. — deferred, cross-platform CI pass.
+- [x] [Review][Defer] `DomainProjectBoundaryTest` uses hardcoded 5-level `..` traversal — `tests/Hexalith.Conversations.Tests/Boundaries/DomainProjectBoundaryTest.cs:867`. Fragile to runtime layout changes (`bin/Debug/net10.0/<rid>`). — deferred, test infrastructure refactor.
+- [x] [Review][Defer] `ConversationRejected.ReasonCode` validation throws on JSON deserialize of null/whitespace — `src/Hexalith.Conversations/Events/ConversationRejected.cs:37-41`. Replay of malformed rejection terminates with exception rather than typed no-op. — deferred, owned by Story 1.11 (replay safety).
+- [x] [Review][Defer] `schema_version_missing` shares `ConversationErrorCode.SchemaVersionUnsupported` — `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs:46-49`. Distinct `ReasonCode` preserved; differentiation at the top-level code may be desirable for adopters. — deferred, error taxonomy refinement.
+- [x] [Review][Defer] `ScaffoldSmokeTest` mixes forward-slash and backslash path conventions across test files — `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`. Inconsistency surfaces with cross-platform CI. — deferred, cross-platform CI pass.
+
 ## Change Log
 
+- 2026-05-19: Code-review patches applied (best-practice resolution for all 3 decisions and all 7 patches). Renamed domain events to `ConversationCreatedDomainEvent` / `ConversationRejectedDomainEvent` to eliminate the Story 1.2 public-API name collision. Added replay-invariant guard in `Apply(ConversationCreatedDomainEvent)`. Extended identity-substitution check to cover `EventId`, `BusinessReference.System`, `ProviderName`, `ProviderType`, and every `ExtensionData` key/value. Split `metadata_missing` from `tenant_binding_missing`. Null-guarded `Metadata` at the event initializer. Added 12 new tests; suite runs 111/111 green (was 93/93). Story moved to `done`.
+- 2026-05-19: Code-review (multi-layer adversarial) recorded: 3 decision-needed, 7 patches, 7 deferred, 13 dismissed.
 - 2026-05-18: Implemented tenant-safe conversation aggregate creation, deterministic replay state, typed rejection validation, narrow boundary dispatch, and aggregate/project safety tests; moved story to review.
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review completed; low-risk clarifications applied and deferred decisions recorded.
