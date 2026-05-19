@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-19T13:30:00+02:00
+# last_updated: 2026-05-19T15:03:30+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-19T13:30:00+02:00
+last_updated: 2026-05-19T15:03:30+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -53,7 +53,7 @@ development_status:
   1-8-retrieve-and-list-conversations-by-tenant-business-context: ready-for-dev
   1-9-resolve-parties-and-upstream-references-at-read-time: ready-for-dev
   1-10-publish-versioned-conversation-domain-events: ready-for-dev
-  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: backlog
+  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: ready-for-dev
   epic-1-retrospective: optional
   epic-2: backlog
   2-1-define-governance-policy-and-audit-contracts: backlog
