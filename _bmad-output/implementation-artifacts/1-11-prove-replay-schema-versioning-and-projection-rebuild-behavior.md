@@ -19,6 +19,7 @@ so that the first conversation substrate is trustworthy before governance and co
 5. Given replay and rebuild tests run, when projection deletion, duplicate events, mixed-version streams, unsupported versions, stale derived state, tenant mismatch, and provider correlation changes are exercised, then tests prove deterministic replay, rebuild equivalence, version-aware behavior, tenant isolation, provider-correlation non-authority, and safe diagnostics, and the output can feed the release-evidence placeholder or manifest entry for Epic 1.
 6. Given the local proof is executed by a developer, when it completes, then it produces unsigned local verification evidence showing deterministic replay, projection rebuild equivalence, compatible version handling, unsupported-version fail-closed behavior, and sanitized diagnostics without requiring provider portability proof, release signing, manifest aggregation, production rebuild workers, admin UI, Aspire, Dapr, EventStore runtime, tenant seed data, cloud resources, provider credentials, or nested submodule initialization.
 7. Given the replay/rebuild/version matrix includes valid v1 events, supported mixed-version streams, additive v1 fields, unsupported future versions, malformed payloads, missing metadata, duplicate event identities, reordered positions, poison events, tenant mismatch, and provider-correlation mismatch, when tests evaluate each case, then they assert a deterministic outcome of replay, reject, quarantine, rebuilding, stale, invalid, or unavailable, and unsupported or ambiguous versions never silently coerce into trusted state or disclose tenant/conversation existence.
+8. Given replay, rebuild, verification, or evidence surfaces encounter unauthorized, nonexistent, cross-tenant, tenant-hidden, unsupported-version, malformed, poisoned, or quarantined records, when public or adopter-facing responses are produced, then the response shape, status vocabulary, timing-sensitive metadata, counts, cursors, and diagnostic codes remain non-disclosing and cannot be used to infer tenant, conversation, participant, provider, or raw EventStore existence.
 
 **Evidence Note:** This story must produce minimum unsigned local evidence for story closure. The evidence is suitable only as an input to later Epic 5 release evidence; release-gate event schema evolution evidence is carried forward into Story 5.9 for manifest aggregation and signing.
 
@@ -30,6 +31,7 @@ so that the first conversation substrate is trustworthy before governance and co
   - [ ] Use the readiness decision that EventStore envelope stability is inherited infrastructure for v1; Conversations owns domain event schemas, public contract versions, compatibility tests, and typed unsupported-version behavior.
   - [ ] Use the approved freshness vocabulary `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`; only `Current` enables trust-bearing decisions unless a later ADR grants a narrower exception.
   - [ ] Treat `docs/adrs/0001-idempotency-contract.md` as active branch context only if it is committed or present during implementation; do not depend on uncommitted ADR state without re-reading the branch.
+  - [ ] Define validation precedence before coding: parse metadata, verify tenant and conversation identity, verify schema version support, verify event type support, verify ordering/duplicate semantics, then apply payload. Any failure before confident replay must return a typed content-safe failure and must not upgrade projection or evidence state to trusted.
   - [ ] Stop for architecture clarification before changing EventStore envelope semantics, adding a public trust state, storing new authoritative durable state outside EventStore, or adding a long-running production rebuild worker beyond local proof fixtures.
 
 - [ ] Add or complete deterministic replay proof for aggregate state. (AC: 1, 3)
@@ -39,6 +41,7 @@ so that the first conversation substrate is trustworthy before governance and co
   - [ ] Use only ordered persisted conversation events as replay input. Projections, local evidence files, publication hints, caches, provider metadata, and read-model state must not contribute to aggregate replay authority.
   - [ ] Define the ordering proof explicitly: stream identity, event identity, schema version, event position or equivalent ordered cursor, duplicate event identity handling, gap/reorder handling, and tie behavior when the branch lacks a stronger EventStore ordering primitive.
   - [ ] Prove duplicate-tolerant behavior only where it is explicitly documented, such as participant replay no-op for duplicate membership. Do not silently tolerate duplicate creation or unknown event types.
+  - [ ] Keep Story 1.6 idempotency artifacts out of replay authority. Idempotency keys, pending command records, conflict fingerprints, retry metadata, and command status records may explain why persisted events exist, but replay and rebuild correctness must depend only on the ordered persisted event history.
   - [ ] Reject or surface malformed metadata, missing tenant identity, tenant mismatch, missing conversation identity, missing schema version, and unsupported schema version as typed content-safe failures before a confident replay result is returned.
   - [ ] Ensure provider correlation data remains metadata only. Provider session, response, or model identifiers must never become durable conversation identity or replay authority.
 
@@ -49,6 +52,7 @@ so that the first conversation substrate is trustworthy before governance and co
   - [ ] Compare rebuilt state against a named canonical oracle: replayed EventStore conversation state plus expected projection/freshness metadata. Normalize or separately assert volatile processing timestamps, checkpoints, generated-at values, and internal cursors so incidental storage shape is not mistaken for correctness.
   - [ ] Surface rebuilding, stale, unavailable, forbidden, redacted, and current states through the existing `ProjectionFreshness`/`ProjectionTrustState` vocabulary. Missing or contradictory metadata must not be reported as `Current`.
   - [ ] Make rebuild tenant-scoped. Mixed-tenant poison events, cross-tenant conversation IDs, tenant-mismatched metadata, and tenant-hidden records must fail closed or quarantine before any derived state becomes visible.
+  - [ ] Bound poison and quarantine effects to the smallest safe scope supported by the branch, normally the affected tenant/conversation projection partition. Tests must prove a poisoned or quarantined record cannot contaminate other tenant projections or make unrelated conversations appear stale, unavailable, or missing.
   - [ ] When rebuilt projection state disagrees with an existing derived artifact, mark the existing artifact stale, invalid, quarantined, or rebuilding; EventStore replay remains the authority.
   - [ ] Define public-vs-internal visibility for derived artifact states: public read surfaces may expose only the approved freshness/trust vocabulary, while internal diagnostics may name stale, invalid, quarantined, or rebuilding repair states with content-safe bounded identifiers.
   - [ ] Keep rebuild diagnostics content-safe: include bounded identifiers such as tenant scope, conversation identity, schema version, event type, event identity, projection contract version, and correlation/causation IDs only. Do not include message content, Party display data, provider payloads, raw upstream records, redacted content, EventStore stream names, storage offsets, or raw exception text.
@@ -60,11 +64,13 @@ so that the first conversation substrate is trustworthy before governance and co
   - [ ] Add at least one local additive-version fixture that demonstrates compatible replay/projection behavior without requiring the full upcasting framework deferred to Story 5.9.
   - [ ] Unknown historical event types are correctness failures unless a documented compatibility rule says otherwise. Do not silently skip unknown events during replay or rebuild.
   - [ ] Unsupported event, command, or projection versions must map to typed documented errors or compatibility diagnostics using existing `ConversationError`/`ConversationErrorCode` vocabulary where possible.
+  - [ ] Unsupported-version, unknown-type, and malformed-payload handling must occur before the derived read model or local evidence is marked `Current` or passing. A failed row may be recorded as safe local evidence only as a negative proof, not as trusted domain state.
   - [ ] Public errors and diagnostics must not echo unsupported payload fragments, raw JSON, provider metadata, authorization context, rejected command bodies, or raw infrastructure exception messages.
 
 - [ ] Add local verification output that can feed later release evidence. (AC: 4, 5)
   - [ ] Produce a small local evidence object or test result fixture under `tests/Hexalith.Conversations.Tests/Replay`, `tests/Hexalith.Conversations.Server.Tests/Projections`, or `src/Hexalith.Conversations.Testing` only when reusable. It must record covered test IDs, story key, contract/schema versions, projection contract version, tenant scope, rebuild status, pass/fail status, safe diagnostic code, and timestamp using fixed IDs/timestamps in tests.
   - [ ] Use named local fakes/seams for the proof: an in-memory ordered EventStore reader or fake append stream, a projection repository fake supporting delete/upsert/query, a fake clock, poison/malformed event fixtures, and an evidence fixture builder.
+  - [ ] Use synthetic fixed fixture identifiers only. Local evidence may record an abstract ordered cursor or projection version when needed for determinism, but must not serialize raw EventStore stream names, storage offsets, subscription names, raw provider IDs as authority, Party display data, or real tenant/user identifiers.
   - [ ] Keep release signing, conformance manifest aggregation, provider portability proof, and event schema evolution release evidence out of this story; Story 5.8 and Story 5.9 own those release-gate artifacts.
   - [ ] Include provider correlation change tests only to prove provider IDs are not authority. Do not implement a full provider migration or portability suite here.
   - [ ] Ensure verification and rebuild detail access uses the same tenant-access and redaction/freshness rules as normal reads. Background, admin, CLI, test, or diagnostic paths are not privileged bypasses.
@@ -74,11 +80,13 @@ so that the first conversation substrate is trustworthy before governance and co
   - [ ] Add projection rebuild tests under `tests/Hexalith.Conversations.Server.Tests/Projections` for projection deletion/rebuild equivalence, rebuilding state, stale metadata, unavailable projection store, mixed-tenant poison events, derived-state disagreement, duplicate/replayed events, duplicate event IDs, reordered positions, unsupported-version diagnostics, and content-safe diagnostic output.
   - [ ] Add contract/versioning tests under `tests/Hexalith.Conversations.Contracts.Tests/Versioning` proving schema-version JSON shape, current version behavior, missing/unsupported version rejection, additive-field tolerance where approved, and no EventStore/Dapr/internal topology terms in public contracts.
   - [ ] Add payload/privacy scans proving replay, rebuild, diagnostics, logs, serialized errors, test output, public contracts, and evidence fixtures exclude Party personal data, names, emails, contact values, raw provider prompts/responses, provider raw IDs used as authority, provider session authority, file binaries, raw upstream records, authorization claims, tokens, redacted content, EventStore stream names, storage positions, snapshots, Dapr topics, SignalR groups, internal artifact state, stack traces, and raw exception messages.
+  - [ ] Add side-channel equivalence tests for unauthorized, nonexistent, cross-tenant, tenant-hidden, unsupported-version, malformed, poisoned, and quarantined cases. Public response shape, approved freshness/trust vocabulary, counts, cursors, timing-bearing timestamps, and diagnostic code classes must not distinguish existence or ownership.
   - [ ] Keep tests local and deterministic with in-memory event sequences, fake projection stores, fake clocks, fake diagnostics, and safe fixture IDs. Do not require Aspire runtime, Dapr sidecars, EventStore server runtime, tenant seed data, provider credentials, external cloud resources, or nested submodule initialization.
   - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run restore/build/test if assets are stale. Do not run recursive submodule initialization.
 
 - [ ] Validate implementation scope before closing the story. (AC: 1-5)
   - [ ] Confirm EventStore remains the only v1 write authority and every projection/cache/evidence fixture created by this story declares itself derived, disposable, and rebuildable.
+  - [ ] Confirm no idempotency record, publication hint, projection row, cache, evidence fixture, or diagnostic output is used as replay input or conflict authority; those artifacts can only corroborate or explain EventStore-derived behavior.
   - [ ] Confirm public APIs/contracts still expose Conversations concepts only; no EventStore envelopes, stream names, snapshots, expected revisions, storage offsets, subscription topology, or raw projection internals are public.
   - [ ] Confirm trust-bearing reads, verification, rebuild, export-like proof, and diagnostics block on `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and unsupported-version states unless an ADR explicitly permits an exception.
   - [ ] Leave `sprint-status.yaml` untouched during dev-story unless the dev workflow owns the status transition.
@@ -98,6 +106,14 @@ The 2026-05-19 party-mode review kept Story 1.11 inside its existing local-proof
 The replay/version matrix is a required design artifact for implementation. It must cover valid v1, supported old/mixed versions, additive v1 fields, unsupported future versions, malformed payloads, missing metadata, duplicate event identities, reordered positions, poison events, tenant mismatch, and provider-correlation mismatch. Every row must have a deterministic outcome and unsupported or ambiguous versions must fail closed without silently skipping events or upgrading state to trusted.
 
 Implementation must inspect actual branch contracts and active Story 1.6 changes before coding. Prior automation observations and uncommitted ADR/code are useful warning signals only; the implementation-time branch state is authoritative.
+
+### Advanced Elicitation Hardening
+
+The 2026-05-19 advanced-elicitation pass focused on failure ordering, side channels, and authority boundaries. Implementation must make validation precedence explicit before replay or rebuild code can trust state: metadata parsing, tenant/conversation identity, schema-version support, event-type support, ordering/duplicate semantics, then payload application. Any earlier failure is a typed negative outcome and cannot mark projections, diagnostics, or evidence as trusted.
+
+Story 1.6 idempotency records are not replay inputs. They may explain command submission and duplicate command behavior, but Story 1.11 replay and rebuild proofs must be derived from the persisted ordered event history only. Duplicate event identity handling must stay separate from idempotency-key conflict handling so command retry mechanics do not become replay authority.
+
+Public and adopter-facing verification surfaces must preserve non-disclosure across unauthorized, nonexistent, cross-tenant, tenant-hidden, unsupported-version, malformed, poisoned, and quarantined cases. Local evidence may record deterministic negative proofs with fixed synthetic identifiers and normalized ordered cursors, but it must not expose raw EventStore stream names, storage offsets, provider IDs as authority, Party display data, raw payload fragments, or real tenant/user data.
 
 ### Replay, Rebuild, and Evidence Oracles
 
@@ -228,6 +244,7 @@ Do not add direct EventStore/Dapr references to `Contracts` or typed client pack
 
 - 2026-05-19: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-19: Party-mode review applied replay/rebuild oracle, version matrix, branch-inspection, evidence-boundary, and privacy/test-hardening clarifications.
+- 2026-05-19: Advanced elicitation applied validation-order, idempotency-boundary, poison-isolation, evidence-sanitization, and public side-channel clarifications.
 
 ## Party-Mode Review
 
@@ -238,4 +255,16 @@ Do not add direct EventStore/Dapr references to `Contracts` or typed client pack
 - Findings summary: Reviewers agreed Story 1.11 was valuable but initially needed story updates for deterministic replay ordering, projection rebuild oracle precision, version/failure decision matrices, branch-reality inspection, executable local evidence placement, evidence-scope boundaries, and broader privacy/side-channel test coverage.
 - Changes applied: Added acceptance criteria and tasks for unsigned local evidence, replay/version matrix outcomes, branch contract inspection before editing, ordered EventStore-only replay inputs, replay ordering proof, canonical projection rebuild oracle, public/internal derived-state visibility, explicit local fakes/seams, fixed evidence fixtures, duplicate/reordered/poison event tests, and expanded privacy scans over logs, errors, test output, public contracts, and evidence fixtures. Added dev notes clarifying party-mode hardening and replay/rebuild/evidence oracles.
 - Findings deferred: Signed schema evolution evidence, compatibility manifest aggregation, provider portability proof, production upcaster/migration policy, long-term projection storage mechanics, production rebuild scheduling, admin/UI controls, operational dashboards, and any non-`Current` trust-bearing exception remain deferred to later ADRs or Stories 5.8/5.9.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- ISO date and time: 2026-05-19T15:26:38Z
+- Selected story key: 1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior
+- Command/skill invocation used: `/bmad-advanced-elicitation 1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior`
+- Batch 1 method names: Red Team vs Blue Team; Security Audit Personas; Failure Mode Analysis; Self-Consistency Validation; Critique and Refine
+- Reshuffled Batch 2 method names: First Principles Analysis; Pre-mortem Analysis; Architecture Decision Records; Socratic Questioning; User Persona Focus Group
+- Findings summary: The story was already ready for development after party-mode review, but advanced elicitation found several implementability risks that should be explicit before coding: validation-order ambiguity, accidental coupling to Story 1.6 idempotency records, poison/quarantine blast-radius ambiguity, negative evidence accidentally becoming trusted state, and public side channels around unsupported-version or quarantined records.
+- Changes applied: Added AC 8 for non-disclosing replay/rebuild/verification/evidence surfaces; added validation precedence before trusted replay; separated idempotency records from replay authority; bounded poison/quarantine effects to the smallest safe projection scope; clarified unsupported-version negative evidence; constrained local evidence to synthetic fixed identifiers and normalized cursors; added side-channel equivalence tests; and added dev notes documenting advanced-elicitation hardening.
+- Findings deferred: Any broader public trust-state vocabulary, production projection quarantine storage policy, production rebuild scheduler, schema-evolution release evidence, signed manifest aggregation, provider portability proof, and non-`Current` trust-bearing exceptions remain deferred to later ADRs or Stories 5.8/5.9.
 - Final recommendation: ready-for-dev
