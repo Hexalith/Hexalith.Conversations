@@ -16,7 +16,7 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
 2. Given a request targets a conversation from another tenant or an inaccessible tenant scope, when the request is evaluated, then the response is typed and content-safe, and unauthorized, nonexistent, and cross-tenant records are indistinguishable to non-privileged callers unless policy explicitly permits disclosure.
 3. Given tenant authorization fails before a write command, when the command is rejected, then no aggregate state is loaded, no domain event is emitted, no projection mutation is performed, and no tenant-crossing metadata is published, and the rejection result maps to documented tenant-binding or tenant-isolation error semantics.
 4. Given tenant authorization fails before a read or list operation, when the read boundary responds, then it does not reveal conversation title, participant names, snippets, timestamps, counts, pagination gaps, business references, provider correlation metadata, or whether a protected record exists, and it returns a safe failure or no-access result suitable for adopter handling.
-5. Given tenant access tests run, when positive and adversarial cases execute, then tests cover missing tenant, malformed tenant, stale projection, unavailable projection store, disabled tenant, non-member caller, insufficient role, cross-tenant ID guessing, mixed-tenant command metadata, and projection poisoning, and failures are verified before aggregate or projection access.
+5. Given tenant access tests run, when positive and adversarial cases execute, then tests cover missing tenant, malformed tenant, stale projection, unavailable projection store, disabled tenant, non-member caller, insufficient role, unknown future Tenants role/status values, cross-tenant ID guessing, mixed-tenant command metadata, guard-bypass attempts through non-HTTP callers, and projection poisoning, and failures are verified before aggregate or projection access.
 
 ## Tasks / Subtasks
 
@@ -31,6 +31,8 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
   - [ ] Back the service with `Hexalith.Tenants.Client.Projections.ITenantProjectionStore`; do not call Tenants synchronously on the hot path and do not trust JWT/request tenant claims alone.
   - [ ] Map Tenants roles conservatively: `TenantReader` permits read only, `TenantContributor` permits read/write, and `TenantOwner` permits read/write/admin unless a later ADR narrows this.
   - [ ] Deny missing tenant id, malformed tenant id, missing caller/user id, unknown tenant, disabled tenant, missing member, insufficient role, unmapped role, projection store failure, null or malformed projection record, duplicate or ambiguous membership, stale/gap/rollback signal when the store or wrapper exposes it, and tenant mismatch.
+  - [ ] Compare trusted request tenant, route tenant, command body tenant, projection tenant, aggregate/conversation tenant, and idempotency tenant using one canonical tenant identifier representation; reject blank, unparseable, differently prefixed, or lossy string-normalized values before any protected delegate is invoked.
+  - [ ] Treat Tenants role and status mapping as closed-world: only explicitly supported `TenantReader`, `TenantContributor`, `TenantOwner`, `Active`, and `Disabled` states may influence access; unknown additions, duplicate records, or contradictory projection values deny until deliberately mapped.
   - [ ] Let `OperationCanceledException` propagate so request cancellation is not converted into an authorization result.
 
 - [ ] Wire the tenant guard before every available command/read path. (AC: 1, 3, 4)
@@ -40,6 +42,7 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
   - [ ] Reject mismatches between trusted request tenant, command body tenant, route tenant, aggregate/conversation tenant, projection key tenant, and idempotency context tenant before touching state.
   - [ ] Keep the aggregate pure: do not put Tenants calls, authorization decisions, request claims, HTTP context, or projection freshness checks inside `ConversationAggregate`.
   - [ ] Keep `Server/Program.cs` fail-closed unless this story or prior completed stories provides a real safe API bootstrap; do not replace the fail-closed startup with permissive endpoints. Protected routes must not succeed when tenant access services are absent; runtime projection-store unavailability must become a typed fail-closed denial, not a fallback allow path.
+  - [ ] Ensure HTTP endpoints, background processors, tool/MCP entry points, test-only invokers, and future application services cannot bypass the same tenant gate when they call a guarded command/read delegate; middleware-only authorization is insufficient evidence for this story.
 
 - [ ] Map denials to typed, content-safe errors. (AC: 2-4)
   - [ ] Reuse the Story 1.2 error contract vocabulary where present: `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `command_validation_failed`, and related typed problem/result contracts.
@@ -47,6 +50,7 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
   - [ ] For unauthorized, nonexistent, unknown-tenant, disabled-tenant, projection-unavailable, stale-projection, and cross-tenant conversation cases, return the same safe externally observable status/body/header/pagination shape unless a policy explicitly permits disclosure to the caller.
   - [ ] Keep internal denial reasons precise for tests, telemetry, audit handles, and server diagnostics, but do not expose those internal reasons publicly unless an existing Story 1.2 contract explicitly defines the stable public code.
   - [ ] Include only safe metadata such as bounded reason code, retryability, correlation id, optional audit handle, and documentation pointer. Do not include target tenant id, Party data, conversation title, business reference, provider id, snippets, raw upstream problem details, claims, tokens, or member dictionaries.
+  - [ ] Make public retryability and diagnostics non-disclosing: they may communicate a generic retry-safe category only when that category cannot distinguish unauthorized, nonexistent, hidden, stale, or unavailable protected records for the caller.
 
 - [ ] Register Tenants integration without breaking project boundaries. (AC: 1, 5)
   - [ ] Add the smallest required references to `Hexalith.Tenants.Client` and `Hexalith.Tenants.Contracts` in the server/test projects using central package or project-reference conventions; do not add these dependencies to `Hexalith.Conversations.Contracts` or the domain aggregate project.
@@ -59,7 +63,9 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
   - [ ] Add command-boundary tests with fake aggregate loader/dispatcher/event appender/projection publisher proving denied writes do not load aggregate state, dispatch commands, emit domain events, mutate projections, or publish tenant-crossing metadata.
   - [ ] Add read-boundary tests with fake projection/read services proving denied reads do not call projection lookup, totals, pagination, hydration, provider metadata, or existence-sensitive branches.
   - [ ] Add adversarial tests for cross-tenant ID guessing and mixed metadata, including route/header/body/aggregate tenant mismatches.
+  - [ ] Add bypass tests proving every available command/read entry point shares the same tenant-access decorator or guard, including direct service calls that skip ASP.NET middleware and any local/test harness seam introduced by this story.
   - [ ] Add contract/content-safety tests proving denial payloads omit protected titles, participant names, snippets, timestamps, counts, pagination gaps, headers or metadata that reveal existence, business references, provider correlation metadata, raw tenant ids where disclosure is not allowed, Party personal data, and raw upstream errors.
+  - [ ] Add observability privacy tests proving logs, metrics, traces, exception messages, activity tags, and audit handles use bounded safe reason categories and correlation ids without raw tenant ids, member dictionaries, caller tokens, Party data, conversation content, business references, provider metadata, or upstream problem bodies.
   - [ ] Add or update boundary tests so forbidden Tenants/Parties/EventStore infrastructure references cannot appear in Contracts or domain projects.
 
 - [ ] Validate the story implementation. (AC: 1-5)
@@ -106,6 +112,16 @@ Suggested denial evidence matrix:
 | ambiguous, duplicate, malformed, or poisoned projection state | `TenantAccessAmbiguous` | same non-disclosing denial shape | no | none |
 
 Deferred decisions from the review: exact long-term tenant projection freshness SLA, distributed decision cache strategy, admin/audit UX copy, localization of denial messages, any explicit existence-disclosure policy, and any Conversations-specific role model beyond Tenants `TenantReader`, `TenantContributor`, and `TenantOwner`.
+
+### Advanced Elicitation Hardening
+
+The 2026-05-19 advanced elicitation pass kept Story 1.5 within the party-reviewed scope and clarified failure modes that could otherwise become implementation shortcuts:
+
+- Tenant equality must be canonical and lossless across route, header/request context, command body, projection key, aggregate/conversation identity, and idempotency context. A string comparison that trims, lowercases, strips prefixes, or accepts incompatible identifier forms is not sufficient evidence.
+- Role and status handling must be explicit and closed-world. Future Tenants enum values, duplicated membership records, contradictory projection state, or partially deserialized records deny until a later story or ADR deliberately expands the mapping.
+- The guard must be reusable below transport middleware. ASP.NET authorization alone does not satisfy the story if background processors, tool/MCP actions, direct application services, local test harnesses, or future command/query invokers can reach protected delegates without `IConversationTenantAccessService`.
+- Public retryability, diagnostics, logs, metrics, traces, exception text, and audit handles must not become secondary disclosure channels. They can carry bounded categories and correlation handles only when those values do not reveal tenant identity, membership, conversation existence, Party data, provider metadata, business references, or upstream failures.
+- The story still does not require distributed transactions, production-grade tenant freshness durability, policy authoring UI, new public disclosure policy, custom Conversations roles, or cross-module conformance manifests. Those remain deferred decisions unless an explicit ADR/story pulls them in.
 
 ### Current Repository State
 
@@ -237,3 +253,16 @@ Aspire AppHost remains local orchestration only. This story should not require A
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review completed; denial mapping, guard placement, projection-state, and non-disclosure clarifications applied.
+- 2026-05-19: Advanced elicitation applied canonical tenant equality, closed-world role/status, guard-bypass, public retryability, and observability privacy clarifications.
+
+## Advanced Elicitation
+
+- Date/time: 2026-05-19T00:03:58Z
+- Selected story key: `1-5-enforce-tenant-access-and-typed-fail-closed-rejections`
+- Command/skill invocation used: `/bmad-advanced-elicitation 1-5-enforce-tenant-access-and-typed-fail-closed-rejections`
+- Batch 1 method names: Red Team vs Blue Team; Security Audit Personas; Failure Mode Analysis; Self-Consistency Validation; Critique and Refine
+- Reshuffled Batch 2 method names: First Principles Analysis; Pre-mortem Analysis; Architecture Decision Records; Socratic Questioning; User Persona Focus Group
+- Findings summary: Elicitation found that the story was already directionally strong, but implementers could still pass tests with brittle string-based tenant comparisons, open-ended role/status mapping, middleware-only guards, retryability or diagnostics that reveal protected state, and observability surfaces that leak identifiers or upstream details.
+- Changes applied: Clarified canonical tenant identifier comparison across all tenant-bearing inputs; added closed-world Tenants role/status handling; required shared guard coverage beyond HTTP middleware; constrained public retryability and diagnostics; expanded bypass and observability privacy evidence tests; added an advanced hardening note preserving deferred decision boundaries.
+- Findings deferred: Distributed tenant-decision cache strategy, production freshness durability/SLO, custom Conversations roles, explicit existence-disclosure policy, policy/admin UX copy and localization, distributed transaction semantics between authorization and dispatch, and release-level conformance manifest coverage.
+- Final recommendation: ready-for-dev
