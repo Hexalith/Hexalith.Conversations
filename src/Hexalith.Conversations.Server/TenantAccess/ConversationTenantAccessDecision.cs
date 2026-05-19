@@ -51,7 +51,7 @@ public sealed record ConversationTenantAccessDecision(
         string? projectionWatermark = null)
         => new(
             true,
-            requirement,
+            ValidateRequirement(requirement),
             tenantId ?? throw new ArgumentNullException(nameof(tenantId)),
             ValidateCaller(callerPrincipalId),
             ConversationTenantAccessDenialReason.None,
@@ -86,7 +86,7 @@ public sealed record ConversationTenantAccessDecision(
 
         return new(
             false,
-            requirement,
+            ValidateRequirement(requirement),
             tenantId,
             callerPrincipalId,
             reason,
@@ -99,14 +99,20 @@ public sealed record ConversationTenantAccessDecision(
     /// Converts the decision to a durable content-safe command rejection.
     /// </summary>
     /// <param name="schemaVersion">The command schema version.</param>
-    /// <param name="correlationId">The command correlation id.</param>
-    /// <param name="causationId">The command causation id.</param>
+    /// <param name="correlationId">The safe correlation id supplied by the boundary, never the caller-controlled command body.</param>
+    /// <param name="causationId">The safe causation id supplied by the boundary, never the caller-controlled command body.</param>
     /// <returns>A content-safe rejection event.</returns>
+    /// <remarks>
+    /// Public <see cref="ConversationRejectedDomainEvent.ReasonCode"/> mirrors the Story 1.2 error-code token
+    /// so that unauthorized, nonexistent, disabled-tenant, stale-projection, and cross-tenant outcomes are
+    /// externally indistinguishable. Internal <see cref="DenialReason"/> stays on this in-memory decision
+    /// for telemetry and audit-handle use only and never crosses the durable event boundary.
+    /// </remarks>
     public ConversationRejectedDomainEvent ToRejection(
         SchemaVersion? schemaVersion,
         string? correlationId,
         string? causationId)
-        => new(ToRejectionCode(), ToReasonCode(DenialReason), schemaVersion, correlationId, causationId);
+        => new(ToRejectionCode(), ToPublicReasonCode(ToRejectionCode()), schemaVersion, correlationId, causationId);
 
     /// <summary>
     /// Converts the decision to a non-disclosing public error result.
@@ -128,7 +134,7 @@ public sealed record ConversationTenantAccessDecision(
             schemaVersion,
             code,
             category,
-            IsRetryable: false,
+            IsRetryable: IsPublicRetryable(),
             correlationId,
             Documentation: ErrorDocumentation,
             DeveloperGuidance: "The requested operation was not accepted.");
@@ -140,6 +146,19 @@ public sealed record ConversationTenantAccessDecision(
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return value;
+    }
+
+    private static ConversationTenantAccessRequirement ValidateRequirement(ConversationTenantAccessRequirement requirement)
+    {
+        if (!Enum.IsDefined(typeof(ConversationTenantAccessRequirement), requirement))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(requirement),
+                requirement,
+                "The tenant access requirement value is outside the closed-world set.");
+        }
+
+        return requirement;
     }
 
     private ConversationErrorCode ToRejectionCode()
@@ -162,26 +181,25 @@ public sealed record ConversationTenantAccessDecision(
             ? ConversationErrorCode.TenantBindingMissing
             : ConversationErrorCode.TenantIsolationViolation;
 
-    private static string ToReasonCode(ConversationTenantAccessDenialReason reason)
-        => reason switch
+    private bool IsPublicRetryable()
+        => DenialReason is ConversationTenantAccessDenialReason.TenantAccessUnavailable
+            or ConversationTenantAccessDenialReason.TenantAccessStale
+            or ConversationTenantAccessDenialReason.TenantAccessGapDetected
+            or ConversationTenantAccessDenialReason.TenantAccessRolledBack
+                && IsRetryable;
+
+    private static string ToPublicReasonCode(ConversationErrorCode code)
+    {
+        if (code == ConversationErrorCode.TenantBindingMissing)
         {
-            ConversationTenantAccessDenialReason.None => "tenant_access_allowed",
-            ConversationTenantAccessDenialReason.MissingTenant => "tenant_binding_missing",
-            ConversationTenantAccessDenialReason.MalformedTenant => "tenant_binding_malformed",
-            ConversationTenantAccessDenialReason.MissingCaller => "caller_missing",
-            ConversationTenantAccessDenialReason.UnknownTenant => "tenant_unknown",
-            ConversationTenantAccessDenialReason.TenantDisabled => "tenant_disabled",
-            ConversationTenantAccessDenialReason.MissingMember => "tenant_member_missing",
-            ConversationTenantAccessDenialReason.InsufficientRole => "tenant_role_insufficient",
-            ConversationTenantAccessDenialReason.UnmappedRole => "tenant_role_unmapped",
-            ConversationTenantAccessDenialReason.UnmappedStatus => "tenant_status_unmapped",
-            ConversationTenantAccessDenialReason.TenantAccessUnavailable => "tenant_access_unavailable",
-            ConversationTenantAccessDenialReason.TenantAccessStale => "tenant_access_stale",
-            ConversationTenantAccessDenialReason.TenantAccessGapDetected => "tenant_access_gap_detected",
-            ConversationTenantAccessDenialReason.TenantAccessRolledBack => "tenant_access_rolled_back",
-            ConversationTenantAccessDenialReason.TenantMismatch => "tenant_mismatch",
-            ConversationTenantAccessDenialReason.MalformedProjection => "tenant_projection_malformed",
-            ConversationTenantAccessDenialReason.TenantProjectionPoisoned => "tenant_projection_poisoned",
-            _ => "tenant_access_denied",
-        };
+            return "tenant_binding_missing";
+        }
+
+        if (code == ConversationErrorCode.TenantProjectionStale)
+        {
+            return "tenant_projection_stale";
+        }
+
+        return "tenant_isolation_violation";
+    }
 }

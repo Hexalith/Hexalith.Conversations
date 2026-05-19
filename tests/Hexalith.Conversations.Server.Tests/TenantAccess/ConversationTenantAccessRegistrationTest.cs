@@ -17,7 +17,7 @@ namespace Hexalith.Conversations.Server.Tests.TenantAccess;
 public sealed class ConversationTenantAccessRegistrationTest
 {
     /// <summary>
-    /// The registration adds Tenants projection services and the Conversations tenant access boundary.
+    /// The registration adds Tenants projection services, the Conversations projection signal, and the access boundary.
     /// </summary>
     [Fact]
     public void AddConversationTenantAccessShouldRegisterTenantsProjectionAndAccessService()
@@ -33,5 +33,31 @@ public sealed class ConversationTenantAccessRegistrationTest
             .ShouldBeOfType<ConversationTenantAccessService>();
         provider.GetRequiredService<ITenantProjectionStore>().ShouldNotBeNull();
         provider.GetRequiredService<TenantEventProcessor>().ShouldNotBeNull();
+
+        // F12: the projection signal is registered explicitly so freshness/poisoning checks
+        // remain a first-class dependency, not a silent cast against the store.
+        provider.GetRequiredService<IConversationTenantProjectionSignal>()
+            .ShouldBeOfType<DefaultConversationTenantProjectionSignal>();
+    }
+
+    /// <summary>
+    /// F20: omitting <see cref="ConversationTenantAccessServiceCollectionExtensions.AddConversationTenantAccess"/>
+    /// must leave the access service unresolvable so protected routes cannot fall back to a permissive default.
+    /// </summary>
+    [Fact]
+    public void OmittingRegistrationShouldLeaveAccessServiceUnresolvable()
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+
+        // Intentionally NOT calling AddConversationTenantAccess.
+        using ServiceProvider provider = services.BuildServiceProvider();
+
+        provider.GetService<IConversationTenantAccessService>().ShouldBeNull();
+        provider.GetService<IConversationTenantProjectionSignal>().ShouldBeNull();
+
+        // Requesting the access service via GetRequiredService must throw, never fall back.
+        Should.Throw<InvalidOperationException>(() =>
+            provider.GetRequiredService<IConversationTenantAccessService>());
     }
 }

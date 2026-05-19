@@ -39,7 +39,7 @@ public sealed class AddParticipantCommandHandler(
     /// <param name="loadStateAsync">Loads the current conversation state only after tenant access is allowed.</param>
     /// <param name="addedAt">The deterministic participant-added timestamp.</param>
     /// <param name="eventId">The deterministic event identity.</param>
-    /// <param name="trustedTenantId">The trusted request tenant context.</param>
+    /// <param name="trustedTenantId">The trusted request tenant context. Required: the caller boundary (auth middleware) must supply a non-null trusted tenant; a null value is treated as a missing tenant binding.</param>
     /// <param name="routeTenantId">The route tenant context, when present.</param>
     /// <param name="idempotencyTenantId">The idempotency tenant context, when present.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
@@ -57,27 +57,101 @@ public sealed class AddParticipantCommandHandler(
     {
         ArgumentNullException.ThrowIfNull(loadStateAsync);
 
-        ConversationRejectedDomainEvent? shapeRejection = AddParticipantBoundary.ValidateCommandShape(command, addedAt, eventId);
-        if (shapeRejection is not null)
+        // D4 hybrid: cheap schema-shape check (public vocabulary) runs before the tenant
+        // access guard. Semantic shape (party id, type, role, conversation id, event id,
+        // timestamp) is deferred to post-authorization so its rejection vocabulary is not
+        // fingerprintable by cross-tenant probes.
+        ConversationRejectedDomainEvent? schemaRejection = AddParticipantBoundary.ValidateSchemaShape(command);
+        if (schemaRejection is not null)
         {
-            return DomainResult.Rejection(new IRejectionEvent[] { shapeRejection });
+            return DomainResult.Rejection(new IRejectionEvent[] { schemaRejection });
         }
+
+        // F4: do not fall back to the caller-controlled command body when the trusted
+        // tenant binding is absent. A missing trusted tenant fails closed with the safe
+        // tenant-binding rejection without recording caller-supplied correlation values
+        // into the tenant audit trail.
+        if (trustedTenantId is null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[]
+            {
+                new ConversationRejectedDomainEvent(
+                    ConversationErrorCode.TenantBindingMissing,
+                    "tenant_binding_missing",
+                    command!.Metadata.SchemaVersion,
+                    CorrelationId: eventId,
+                    CausationId: null),
+            });
+        }
+
+        TenantId grantedTenantId = trustedTenantId;
 
         return await ConversationTenantAccessGuard.RunAsync(
             _tenantAccessService,
             ConversationTenantAccessRequirement.Write,
-            trustedTenantId ?? command!.Metadata.TenantId,
+            grantedTenantId,
             callerPrincipalId,
             decision => DomainResult.Rejection(new IRejectionEvent[]
             {
+                // F4: use the deterministic boundary-provided eventId as the safe correlation
+                // token on the denial path; do not propagate caller-controlled correlation or
+                // causation ids into the durable rejection event of the granted tenant.
                 decision.ToRejection(
                     command!.Metadata.SchemaVersion,
-                    command.Metadata.CorrelationId,
-                    command.Metadata.CausationId),
+                    correlationId: eventId,
+                    causationId: null),
             }),
             async guardedCancellationToken =>
             {
-                ConversationState? state = await loadStateAsync(guardedCancellationToken).ConfigureAwait(false);
+                // D4: semantic shape validation runs first inside the guarded path so a
+                // semantically invalid command never triggers an aggregate load.
+                ConversationRejectedDomainEvent? semanticRejection = AddParticipantBoundary.ValidateSemanticShape(command!, addedAt, eventId);
+                if (semanticRejection is not null)
+                {
+                    return DomainResult.Rejection(new IRejectionEvent[] { semanticRejection });
+                }
+
+                // F2: convert state-load infrastructure exceptions to a typed fail-closed
+                // rejection so caller boundaries never see raw EventStore / stream vocabulary.
+                ConversationState? state;
+                try
+                {
+                    state = await loadStateAsync(guardedCancellationToken).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    throw;
+                }
+                catch (Exception)
+                {
+                    return DomainResult.Rejection(new IRejectionEvent[]
+                    {
+                        new ConversationRejectedDomainEvent(
+                            ConversationErrorCode.TenantProjectionStale,
+                            "tenant_projection_stale",
+                            command!.Metadata.SchemaVersion,
+                            CorrelationId: eventId,
+                            CausationId: null),
+                    });
+                }
+
+                // F3: aggregate tenant cross-check after load. A loaded state whose
+                // TenantId disagrees with the granted tenant cannot proceed even if every
+                // other binding matched, because EventStore aggregate ownership is the
+                // ultimate tenant-isolation invariant.
+                if (state is not null && state.IsCreated && state.TenantId is { } stateTenantId && stateTenantId != grantedTenantId)
+                {
+                    return DomainResult.Rejection(new IRejectionEvent[]
+                    {
+                        new ConversationRejectedDomainEvent(
+                            ConversationErrorCode.TenantIsolationViolation,
+                            "tenant_isolation_violation",
+                            command!.Metadata.SchemaVersion,
+                            CorrelationId: eventId,
+                            CausationId: null),
+                    });
+                }
+
                 return await HandleAfterTenantAccessAsync(
                     command!,
                     state,
@@ -86,7 +160,9 @@ public sealed class AddParticipantCommandHandler(
                     guardedCancellationToken).ConfigureAwait(false);
             },
             routeTenantId,
-            command!.Metadata.TenantId,
+            commandTenantId: command!.Metadata.TenantId,
+            aggregateTenantId: null,
+            projectionTenantId: null,
             idempotencyTenantId: idempotencyTenantId,
             cancellationToken: cancellationToken).ConfigureAwait(false);
     }

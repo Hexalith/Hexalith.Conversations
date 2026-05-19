@@ -3,6 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Collections.Generic;
+using System.Globalization;
+using System.Text;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Tenants.Client.Projections;
 using Hexalith.Tenants.Contracts.Enums;
@@ -15,9 +19,11 @@ namespace Hexalith.Conversations.Server.TenantAccess;
 /// Checks Conversations tenant access from the local Tenants projection.
 /// </summary>
 /// <param name="projectionStore">The local tenant projection store.</param>
+/// <param name="projectionSignal">The Conversations-owned projection signal for freshness, gap, rollback, and poisoning detection.</param>
 /// <param name="logger">The service logger.</param>
 public sealed class ConversationTenantAccessService(
     ITenantProjectionStore projectionStore,
+    IConversationTenantProjectionSignal projectionSignal,
     ILogger<ConversationTenantAccessService> logger)
     : IConversationTenantAccessService
 {
@@ -26,6 +32,9 @@ public sealed class ConversationTenantAccessService(
 
     private readonly ITenantProjectionStore _projectionStore =
         projectionStore ?? throw new ArgumentNullException(nameof(projectionStore));
+
+    private readonly IConversationTenantProjectionSignal _projectionSignal =
+        projectionSignal ?? throw new ArgumentNullException(nameof(projectionSignal));
 
     /// <inheritdoc />
     public async ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
@@ -41,6 +50,14 @@ public sealed class ConversationTenantAccessService(
     {
         cancellationToken.ThrowIfCancellationRequested();
 
+        if (!Enum.IsDefined(typeof(ConversationTenantAccessRequirement), requirement))
+        {
+            throw new ArgumentOutOfRangeException(
+                nameof(requirement),
+                requirement,
+                "The tenant access requirement value is outside the closed-world set.");
+        }
+
         TenantResolution tenantResolution = ResolveTenant(
             trustedTenantId,
             routeTenantId,
@@ -54,7 +71,7 @@ public sealed class ConversationTenantAccessService(
             return Denied(requirement, trustedTenantId, callerPrincipalId, tenantResolution.DenialReason);
         }
 
-        if (string.IsNullOrWhiteSpace(callerPrincipalId))
+        if (!TryValidateCallerPrincipalId(callerPrincipalId))
         {
             return Denied(
                 requirement,
@@ -67,7 +84,7 @@ public sealed class ConversationTenantAccessService(
             requirement,
             tenantResolution.TenantId!,
             tenantResolution.CanonicalValue!,
-            callerPrincipalId,
+            callerPrincipalId!,
             cancellationToken).ConfigureAwait(false);
 
         if (signalDenial is not null)
@@ -92,6 +109,10 @@ public sealed class ConversationTenantAccessService(
                 "Tenant access projection lookup failed; failing closed. Requirement={Requirement}, FailureType={FailureType}",
                 requirement,
                 ex.GetType().Name);
+            _logger.LogTrace(
+                ex,
+                "Tenant access projection lookup failure detail. Requirement={Requirement}",
+                requirement);
 
             return Denied(
                 requirement,
@@ -105,7 +126,7 @@ public sealed class ConversationTenantAccessService(
             requirement,
             tenantResolution.TenantId!,
             tenantResolution.CanonicalValue!,
-            callerPrincipalId,
+            callerPrincipalId!,
             state);
     }
 
@@ -154,14 +175,67 @@ public sealed class ConversationTenantAccessService(
             return false;
         }
 
+        // Closed-world canonicalization: reject trim drift, control characters, common
+        // delimiters that hint at prefixed identity, and unicode normalization variance.
+        // Identifiers passing this check are byte-identical to their canonical NFC form,
+        // contain only printable non-whitespace characters, and do not embed delimiter
+        // characters reserved for upstream namespacing schemes.
         if (!string.Equals(value, value.Trim(), StringComparison.Ordinal)
-            || value.Contains(':', StringComparison.Ordinal)
-            || value.Any(char.IsWhiteSpace))
+            || !string.Equals(value, value.Normalize(NormalizationForm.FormC), StringComparison.Ordinal))
         {
             return false;
         }
 
+        foreach (char c in value)
+        {
+            if (char.IsWhiteSpace(c) || char.IsControl(c))
+            {
+                return false;
+            }
+
+            if (c is ':' or '/' or '\\' or '|' or '#' or '?' or '&' or '%' or ',' or ';' or '<' or '>' or '"' or '\'')
+            {
+                return false;
+            }
+
+            UnicodeCategory category = CharUnicodeInfo.GetUnicodeCategory(c);
+            if (category is UnicodeCategory.Format
+                or UnicodeCategory.Surrogate
+                or UnicodeCategory.PrivateUse
+                or UnicodeCategory.OtherNotAssigned)
+            {
+                return false;
+            }
+        }
+
         canonical = value;
+        return true;
+    }
+
+    private static bool TryValidateCallerPrincipalId(string? callerPrincipalId)
+    {
+        if (string.IsNullOrWhiteSpace(callerPrincipalId))
+        {
+            return false;
+        }
+
+        // The boundary contract (see IConversationTenantAccessService) requires the auth
+        // middleware to hand a canonical caller principal id. Treat trim drift or embedded
+        // control characters as MissingCaller (defense-in-depth) rather than normalizing
+        // here, which would shadow upstream identity-provider drift bugs.
+        if (!string.Equals(callerPrincipalId, callerPrincipalId.Trim(), StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        foreach (char c in callerPrincipalId)
+        {
+            if (char.IsControl(c))
+            {
+                return false;
+            }
+        }
+
         return true;
     }
 
@@ -172,15 +246,12 @@ public sealed class ConversationTenantAccessService(
         string callerPrincipalId,
         CancellationToken cancellationToken)
     {
-        if (_projectionStore is not IConversationTenantProjectionSignal signal)
-        {
-            return null;
-        }
-
-        ConversationTenantProjectionHealth health;
+        ConversationTenantProjectionHealth? health;
         try
         {
-            health = await signal.GetProjectionHealthAsync(canonicalTenantId, cancellationToken).ConfigureAwait(false);
+            health = await _projectionSignal
+                .GetProjectionHealthAsync(canonicalTenantId, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
         {
@@ -192,6 +263,24 @@ public sealed class ConversationTenantAccessService(
                 "Tenant access projection health lookup failed; failing closed. Requirement={Requirement}, FailureType={FailureType}",
                 requirement,
                 ex.GetType().Name);
+            _logger.LogTrace(
+                ex,
+                "Tenant access projection health lookup failure detail. Requirement={Requirement}",
+                requirement);
+
+            return Denied(
+                requirement,
+                tenantId,
+                callerPrincipalId,
+                ConversationTenantAccessDenialReason.TenantAccessUnavailable,
+                isRetryable: true);
+        }
+
+        if (health is null)
+        {
+            _logger.LogError(
+                "Tenant access projection health signal returned a null record; failing closed. Requirement={Requirement}",
+                requirement);
 
             return Denied(
                 requirement,
@@ -275,7 +364,29 @@ public sealed class ConversationTenantAccessService(
             return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.MalformedProjection);
         }
 
-        if (state.Members.Keys.Any(memberId => string.IsNullOrWhiteSpace(memberId) || memberId != memberId.Trim()))
+        // Snapshot the membership dictionary into a local Ordinal-keyed map so the
+        // subsequent checks observe a consistent view and no broadened comparer (e.g.,
+        // OrdinalIgnoreCase) from a non-default projection store can widen access.
+        Dictionary<string, TenantRole> members;
+        try
+        {
+            members = new Dictionary<string, TenantRole>(state.Members.Count, StringComparer.Ordinal);
+            foreach (KeyValuePair<string, TenantRole> entry in state.Members)
+            {
+                if (string.IsNullOrWhiteSpace(entry.Key) || entry.Key != entry.Key.Trim())
+                {
+                    return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.TenantProjectionPoisoned);
+                }
+
+                if (members.ContainsKey(entry.Key))
+                {
+                    return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.TenantProjectionPoisoned);
+                }
+
+                members.Add(entry.Key, entry.Value);
+            }
+        }
+        catch (ArgumentException)
         {
             return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.TenantProjectionPoisoned);
         }
@@ -295,14 +406,17 @@ public sealed class ConversationTenantAccessService(
             return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.UnmappedStatus);
         }
 
-        if (state.Members.Values.Any(role => !Enum.IsDefined(typeof(TenantRole), role)))
-        {
-            return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.UnmappedRole);
-        }
-
-        if (!state.Members.TryGetValue(callerPrincipalId, out TenantRole role))
+        if (!members.TryGetValue(callerPrincipalId, out TenantRole role))
         {
             return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.MissingMember);
+        }
+
+        // D2 hybrid: an unmapped role on the caller's own record denies only the caller.
+        // Other members' unmapped roles do not deny this caller — closed-world denial scope
+        // is narrowed so a partial Tenants SDK rollout cannot DoS valid members.
+        if (!Enum.IsDefined(typeof(TenantRole), role))
+        {
+            return Denied(requirement, tenantId, callerPrincipalId, ConversationTenantAccessDenialReason.UnmappedRole);
         }
 
         return HasPermission(role, requirement)

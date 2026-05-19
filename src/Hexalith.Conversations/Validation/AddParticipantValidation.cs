@@ -135,6 +135,29 @@ internal static class AddParticipantValidation
         DateTimeOffset addedAt,
         string? eventId)
     {
+        ConversationRejectedDomainEvent? schemaRejection = ValidateSchemaShape(command);
+        if (schemaRejection is not null)
+        {
+            return schemaRejection;
+        }
+
+        return ValidateSemanticShape(command!, addedAt, eventId);
+    }
+
+    /// <summary>
+    /// Validates the shape fields that must be present before the tenant access guard can run.
+    /// </summary>
+    /// <param name="command">The public add-participant command.</param>
+    /// <returns>A rejection event when validation fails; otherwise <see langword="null" />.</returns>
+    /// <remarks>
+    /// Only checks fields whose vocabulary is already public via the contract package and that are
+    /// strictly required to authorize the request: presence of command, metadata, tenant binding,
+    /// and schema version. Semantic shape (party id, type, role, conversation id, event id, timestamp)
+    /// is validated post-authorization to avoid fingerprinting the validation surface to unauthorized
+    /// callers.
+    /// </remarks>
+    public static ConversationRejectedDomainEvent? ValidateSchemaShape(AddParticipantCommand? command)
+    {
         if (command is null)
         {
             return Reject(ConversationErrorCode.CommandValidationFailed, "command_missing");
@@ -156,21 +179,39 @@ internal static class AddParticipantValidation
             return Reject(ConversationErrorCode.SchemaVersionUnsupported, "schema_version_missing");
         }
 
-        if (metadata.ActorPartyId is null)
-        {
-            return Reject(
-                ConversationErrorCode.CommandValidationFailed,
-                "actor_party_missing",
-                metadata.SchemaVersion,
-                metadata.CorrelationId,
-                metadata.CausationId);
-        }
-
         if (!metadata.SchemaVersion.Equals(SchemaVersion.Current))
         {
             return Reject(
                 ConversationErrorCode.SchemaVersionUnsupported,
                 "unsupported_schema_version",
+                metadata.SchemaVersion,
+                metadata.CorrelationId,
+                metadata.CausationId);
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Validates the semantic shape fields that must be checked after the tenant access guard allows the request.
+    /// </summary>
+    /// <param name="command">The public add-participant command.</param>
+    /// <param name="addedAt">The deterministic participant-added timestamp.</param>
+    /// <param name="eventId">The deterministic event identity.</param>
+    /// <returns>A rejection event when validation fails; otherwise <see langword="null" />.</returns>
+    public static ConversationRejectedDomainEvent? ValidateSemanticShape(
+        AddParticipantCommand command,
+        DateTimeOffset addedAt,
+        string? eventId)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ConversationCommandMetadata metadata = command.Metadata!;
+
+        if (metadata.ActorPartyId is null)
+        {
+            return Reject(
+                ConversationErrorCode.CommandValidationFailed,
+                "actor_party_missing",
                 metadata.SchemaVersion,
                 metadata.CorrelationId,
                 metadata.CausationId);

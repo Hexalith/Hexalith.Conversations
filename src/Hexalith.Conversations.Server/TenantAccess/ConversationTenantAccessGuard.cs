@@ -60,8 +60,15 @@ public static class ConversationTenantAccessGuard
                 cancellationToken)
             .ConfigureAwait(false);
 
-        return decision.IsAllowed
-            ? await protectedOperation(cancellationToken).ConfigureAwait(false)
-            : deniedResult(decision);
+        if (!decision.IsAllowed)
+        {
+            return deniedResult(decision);
+        }
+
+        // Honor late cancellation between the access decision and the protected operation
+        // so an abandoned request cannot trigger downstream infrastructure work.
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return await protectedOperation(cancellationToken).ConfigureAwait(false);
     }
 }

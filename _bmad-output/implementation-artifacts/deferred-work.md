@@ -2,6 +2,11 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-5-enforce-tenant-access-and-typed-fail-closed-rejections (2026-05-19)
+
+- Cross-tenant existence/membership probing via response timing — signal short-circuit (unknown tenant) vs full `GetAsync` + O(N) `state.Members.Values.Any` member walk produces measurable latency variance. A denied caller can enumerate tenant existence and approximate each tenant's member count from response latency, defeating the public-facing collapse of unsafe outcomes to a single error code. Constant-time defense (always do worst-case work) adds significant complexity; defer to a hardening / observability ADR or Story 6.x. Files: `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessService.cs:648-692, 860-892`.
+- `idempotencyTenantId` parameter on `AddParticipantCommandHandler.HandleAsync` is plumbed into the access guard but never derived from `command.Metadata.IdempotencyKey`. Cross-tenant idempotency-key replay (an attacker reuses a key from another tenant's prior command) is invisible to the access service. The defense is opt-in at the call site only. Wiring the idempotency-key store into the handler belongs to Story 1.6 (`add-idempotent-command-handling`, ready-for-dev). Files: `src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs:55, 90`.
+
 ## Deferred from: code review of 1-4-add-conversation-participants-with-stable-party-attribution (2026-05-19)
 
 - Future-story risk: `ConversationState.Apply(ConversationClosed)` / `Apply(ConversationArchived)` accept Contracts events directly; if a future close/archive story emits `*DomainEvent` wrappers (codebase convention), these overloads become dead code and Closed/Archived state silently regresses to `Open` after reload. Also: archive-then-close and close-on-archived sequences silently demote lifecycle without integrity check. Linked to the matching Decision item on the story. Re-evaluate when the close/archive command lands. File: `src/Hexalith.Conversations/State/ConversationState.cs:176-190`.
