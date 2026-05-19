@@ -19,6 +19,7 @@ so that stored conversation events remain stable and privacy-safe while users st
 5. Given hydration tests run, when Party rename, deleted Party, inaccessible Party, unavailable Parties adapter, stale upstream reference, and unauthorized upstream reference scenarios are exercised, then tests prove read-time display updates without event rewrites, safe degradation, no Party personal-data persistence, and no cross-tenant disclosure.
 6. Given a read response includes hydrated references, when Party display/status data is returned, then the allowed Party field set is explicit and limited to stable `PartyId`, policy-approved display label, policy-approved avatar/display token, policy-approved availability/status, and safe fallback label/status; email, phone, tenant metadata, profile details, contact channels, identifiers, name history, raw audit data, and raw upstream problem details are absent rather than null-filled with sensitive hints.
 7. Given a read response contains duplicate Party, Project, Folder, or File references, when hydration is composed, then references are grouped and deduplicated per request/page with at most one adapter batch call per upstream resource type where the adapter supports batching, cancellation is propagated, partial failures degrade only affected references, and any single-lookup fallback has a documented bound.
+8. Given hydrated display data is unavailable, unauthorized, stale, or policy-redacted, when the public response is serialized, logged, measured, cached in memory for the request, sorted, filtered, or paged, then mutable upstream display data and internal reason codes do not influence tenant authorization, existence disclosure, pagination cursors, stable ordering, response status shape, or public diagnostics unless an explicit policy decision allows that disclosure.
 
 ## Tasks / Subtasks
 
@@ -26,6 +27,8 @@ so that stored conversation events remain stable and privacy-safe while users st
   - [ ] Add or extend projection/read DTOs so conversation detail responses can carry stable references plus hydration state for Party, Project, Folder, and File references.
   - [ ] Use approved trust/freshness vocabulary where it applies: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
   - [ ] Add explicit unresolved/degraded fields that do not require clients to infer safety from `null`, empty display text, missing objects, or HTTP status alone.
+  - [ ] Keep public hydration states separate from internal adapter reason codes; do not expose source module names, raw upstream status codes, transport exceptions, retryability hints, or timestamp/correlation details that would reveal whether a protected resource exists.
+  - [ ] Ensure fallback labels/status values are Conversations-generated safe text or tokens, not sanitized fragments of upstream names, paths, filenames, identifiers, email addresses, tenant metadata, or problem details.
   - [ ] Keep contract DTOs infrastructure-free: no `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `HttpClient`, EventStore, Dapr, FrontComposer, or ASP.NET Core references.
 
 - [ ] Add Conversations-owned upstream adapter abstractions under `src/Hexalith.Conversations.Server`. (AC: 1-4)
@@ -39,6 +42,7 @@ so that stored conversation events remain stable and privacy-safe while users st
   - [ ] Run tenant access before projection read and before any upstream hydration attempt.
   - [ ] Use Story 1.7/1.8 projection read models as the input; do not hydrate directly from EventStore streams or aggregate replay for ordinary reads.
   - [ ] Preserve stable IDs from the projection and add transient display/status details only to the response object.
+  - [ ] Do not use hydrated mutable display labels, upstream status, adapter timing, or internal reason codes as authorization inputs, existence checks, cursor material, stable sort keys, filter predicates, ETags, cache keys, or projection freshness upgrades.
   - [ ] Keep hydrated Party, Project, Folder, and File display data out of durable events, projections, logs, traces, caches, transcript-shaped artifacts, and testing snapshots that represent persisted state.
   - [ ] Keep unauthorized, nonexistent, deleted, and cross-tenant references indistinguishable unless an approved policy permits disclosure.
 
@@ -56,6 +60,7 @@ so that stored conversation events remain stable and privacy-safe while users st
   - [ ] Add cross-tenant poison tests using sentinel values in inaccessible upstream data and assert those values never appear in responses, logs, errors, serialized DTOs, or test snapshots.
   - [ ] Add degradation matrix tests for deleted, inaccessible, policy-filtered, cross-tenant, unavailable, timeout, throttled, stale, and mixed-validity batches, proving permission-safe DTO shape, safe fallback labels/status, no raw reason leakage across authorization boundaries, and non-PII logging.
   - [ ] Add batching/deduplication tests so repeated references in a detail response, timeline, or list page produce at most one adapter batch call per resource type after deduplication, and any single-lookup fallback remains bounded and cancellation-aware.
+  - [ ] Add adversarial public-surface tests for mutable upstream display labels in sort/filter/page/cursor paths, fallback label generation, public status-code/body/header equivalence, telemetry tags, retry hints, and serialized diagnostics so unauthorized, nonexistent, deleted, policy-filtered, and cross-tenant outcomes remain non-enumerable.
   - [ ] Extend boundary tests to inspect `.csproj` XML for forbidden dependencies in `Contracts` and to ensure upstream client dependencies, if added, stay in `Server` or another approved adapter boundary.
 
 - [ ] Validate the implementation scope. (AC: 5)
@@ -89,6 +94,14 @@ Party-mode review on 2026-05-18 tightened the pre-dev contract around read-time 
 Public degraded states must not become reference-enumeration signals. Internally, adapters may distinguish deleted, erased, inaccessible, policy-filtered, cross-tenant denied, unavailable, timeout, throttled, stale, and not-found outcomes, but public DTOs must collapse externally indistinguishable cases whenever policy requires non-disclosure. `Stale` is read-time-only: it means the upstream adapter cannot prove the returned metadata is current or canonical for this request; it must not imply that Conversations stores mutable display data or rewrites projections.
 
 The allowed Party hydration surface is an allowlist, not a pass-through of Parties DTOs: stable `PartyId`, policy-approved display label, policy-approved avatar/display token, policy-approved availability/status, and safe fallback label/status. The response must exclude email, phone, tenant metadata, profile/person/organization details, contact channels, identifiers, name history, raw audit fields, raw upstream problem details, and any field not explicitly approved for Conversations read display.
+
+### Pre-Dev Advanced Elicitation Decisions
+
+Advanced elicitation on 2026-05-19 reinforced that hydration is presentation enrichment, not a second authority path. Tenant authorization, projection trust/freshness, stable ordering, filtering, pagination, ETags, and cache identity must be derived from Conversations-owned stable references and projection metadata, not from mutable upstream labels, current upstream availability, adapter timings, or internal resolver reasons.
+
+The public DTO contract should expose only policy-approved hydration states and safe fallback labels/status values. Internal adapter outcomes may distinguish deleted, erased, forbidden, not-found, cross-tenant, throttled, timeout, stale, and unavailable cases for diagnostics and tests, but public response bodies, status codes, headers, retry hints, timing-sensitive behavior, telemetry tags, and serialized diagnostics must not let callers enumerate protected upstream resources. Any exception requires an explicit policy decision outside this story.
+
+Fallback display data is generated by Conversations policy, not sanitized upstream content. Do not derive fallback text from inaccessible names, file paths, project labels, contact channels, raw IDs, tenant metadata, or raw problem details; sentinel poison values from upstream fakes must stay absent from responses, logs, snapshots, and diagnostics.
 
 ### Current Repository State and Previous Story Intelligence
 
@@ -153,6 +166,7 @@ Shared deterministic factories may be added to `src/Hexalith.Conversations.Testi
 - Do not expose upstream DTOs, raw problem details, EventStore projection internals, route names, generated client names, or hydration-source internals as public Conversations contracts.
 - Do not add UI trust components, citation copy behavior, or admin drawers here; Epic 3 owns operator UI surfaces.
 - Do not treat provider IDs, Party display names, project labels, folder paths, or file names as stable identity.
+- Do not let read-time hydration change ordering, filtering, pagination, cursor validation, ETag generation, cache keys, authorization results, or projection freshness classification.
 
 ### Validation
 
@@ -198,6 +212,7 @@ Validation must stay local and deterministic. Unit tests should use fake adapter
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review applied pre-dev hardening for hydration field allowlists, degraded-state disclosure, batching bounds, read-only invariants, and privacy tests.
+- 2026-05-19: Advanced elicitation applied pre-dev hardening for public/internal hydration-state separation, fallback-label safety, mutable display-data non-authority, and adversarial non-enumeration tests.
 
 ## Party-Mode Review
 
@@ -208,4 +223,16 @@ Validation must stay local and deterministic. Unit tests should use fake adapter
 - Findings summary: Story was directionally ready but needed sharper pre-dev guardrails for Conversations-owned hydration ports, explicit Party field allowlists, degraded-state non-disclosure, stale-state meaning, batching/dedup bounds, and read-only/privacy proof tests.
 - Changes applied: Added acceptance criteria for Party hydration allowlist and bounded per-resource batching; clarified the read pipeline; expanded tests for no durable mutation, degradation matrix, cross-tenant poison data, non-PII logging, deduplication, partial failure, and contract boundary checks; added Dev Notes for public-vs-internal degraded states, read-time-only stale semantics, adapter placement, and allowed Party fields.
 - Findings deferred: Exact public degraded-state labels, fallback display text/icons, timeout/batch-size defaults, partial top-level response shape, operational telemetry schema beyond non-PII logging, UI/admin/evidence/citation behavior, and any durable cache strategy remain deferred to later API, architecture, or UI decisions.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- Date/time: 2026-05-19T04:02:25Z
+- Selected story key: 1-9-resolve-parties-and-upstream-references-at-read-time
+- Command/skill invocation used: `/bmad-advanced-elicitation 1-9-resolve-parties-and-upstream-references-at-read-time`
+- Batch 1 method names: Red Team vs Blue Team; Security Audit Personas; Failure Mode Analysis; Self-Consistency Validation; Critique and Refine
+- Reshuffled Batch 2 method names: First Principles Analysis; Pre-mortem Analysis; Architecture Decision Records; Socratic Questioning; User Persona Focus Group
+- Findings summary: The elicitation found that the story was strong on read-time-only hydration and Party field allowlists, but needed sharper protections against public/internal state confusion, fallback label leaks, mutable upstream display data influencing stable read semantics, and non-body side channels that could enumerate protected references.
+- Changes applied: Added AC 8; clarified public hydration states versus internal adapter reason codes; required Conversations-generated fallback labels/status values; prohibited hydrated display data from authorization, cursor, sort, filter, ETag, cache-key, and freshness decisions; added adversarial tests for public shape/header/status/telemetry/retry diagnostics, cursor paths, fallback labels, and poison upstream values.
+- Findings deferred: Exact public state labels, fallback copy/icons, adapter timeout and batch-size defaults, telemetry schema, response-level partial-success shape, and any policy exception that intentionally discloses protected-resource existence remain deferred to API/product/architecture decisions outside this story.
 - Final recommendation: ready-for-dev

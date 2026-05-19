@@ -23,3 +23,4 @@
 2026-05-19T01:01:06Z	advanced-elicitation	1-6-add-idempotent-command-handling	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
 2026-05-19T02:02:15Z	advanced-elicitation	1-7-project-conversation-read-models-with-freshness-metadata	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
 2026-05-19T03:03:40Z	advanced-elicitation	1-8-retrieve-and-list-conversations-by-tenant-business-context	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
+2026-05-19T04:02:25Z	advanced-elicitation	1-9-resolve-parties-and-upstream-references-at-read-time	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
