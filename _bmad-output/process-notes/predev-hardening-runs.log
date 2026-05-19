@@ -20,3 +20,4 @@
 2026-05-18T22:05:22Z	party-mode-review	1-10-publish-versioned-conversation-domain-events	ok	Applied party-mode review trace and story hardening clarifications; final recommendation ready-for-dev
 2026-05-18T23:04:05Z	advanced-elicitation	1-4-add-conversation-participants-with-stable-party-attribution	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
 2026-05-19T00:03:58Z	advanced-elicitation	1-5-enforce-tenant-access-and-typed-fail-closed-rejections	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
+2026-05-19T01:01:06Z	advanced-elicitation	1-6-add-idempotent-command-handling	ok	Applied advanced elicitation trace and story hardening clarifications; final recommendation ready-for-dev
