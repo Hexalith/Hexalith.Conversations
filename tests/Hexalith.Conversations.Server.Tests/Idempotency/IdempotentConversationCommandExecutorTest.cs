@@ -53,8 +53,17 @@ public sealed class IdempotentConversationCommandExecutorTest
             _ => outcome,
             TestContext.Current.CancellationToken);
 
+        // P18 review fix (2026-05-19): assert structural fields of the replayed outcome instead of reference equality.
+        // Reference equality only proved the store returned the same object; it did not validate that downstream consumers
+        // see the expected category, identities, and retryability semantics.
         ConversationIdempotencyReplayResult replay = result.ShouldBeOfType<ConversationIdempotencyReplayResult>();
-        replay.Outcome.ShouldBe(outcome);
+        replay.Outcome.Category.ShouldBe(IdempotencyOutcomeCategory.Success);
+        replay.Outcome.TenantId.ShouldBe(outcome.TenantId);
+        replay.Outcome.CommandType.ShouldBe(outcome.CommandType);
+        replay.Outcome.ConversationId.ShouldBe(outcome.ConversationId);
+        replay.Outcome.ParticipantPartyId.ShouldBe(outcome.ParticipantPartyId);
+        replay.Outcome.RejectionCode.ShouldBeNull();
+        replay.Outcome.IsRetryable.ShouldBeFalse();
         mutationCount.ShouldBe(0);
     }
 
@@ -120,7 +129,10 @@ public sealed class IdempotentConversationCommandExecutorTest
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.IdempotencyOutcomeUnknown);
-        rejection.ReasonCode.ShouldBe("idempotency_record_pending");
+
+        // P8 review fix (2026-05-19): internal lifecycle reason codes (idempotency_record_pending, _poisoned, _expired, ...)
+        // are coarsened to the single public reason "idempotency_outcome_unknown" to avoid disclosing internal store state.
+        rejection.ReasonCode.ShouldBe("idempotency_outcome_unknown");
         mutationCount.ShouldBe(0);
     }
 

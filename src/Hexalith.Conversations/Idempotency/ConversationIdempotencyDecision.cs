@@ -31,10 +31,21 @@ public sealed record ConversationIdempotencyDecision(
     /// <summary>
     /// Creates a duplicate decision.
     /// </summary>
-    /// <param name="outcome">The stored logical outcome.</param>
+    /// <param name="outcome">The stored logical outcome. Must be non-null and represent a terminal category (Success, NoOp, or Rejection).</param>
     /// <returns>The duplicate decision.</returns>
     public static ConversationIdempotencyDecision Duplicate(ConversationIdempotencyOutcome outcome)
-        => new(ConversationIdempotencyDecisionKind.Duplicate, outcome, "idempotency_duplicate");
+    {
+        // P17 review fix: previously Duplicate accepted any (or null) outcome; a buggy store could leak a malformed duplicate.
+        ArgumentNullException.ThrowIfNull(outcome);
+        if (outcome.Category == IdempotencyOutcomeCategory.Uncertain)
+        {
+            throw new ArgumentException(
+                "Duplicate idempotency decision requires a terminal outcome category (Success, NoOp, or Rejection); 'Uncertain' is non-terminal.",
+                nameof(outcome));
+        }
+
+        return new(ConversationIdempotencyDecisionKind.Duplicate, outcome, "idempotency_duplicate");
+    }
 
     /// <summary>
     /// Creates a conflict decision.

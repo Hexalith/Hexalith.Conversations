@@ -172,7 +172,12 @@ public sealed record ConversationCommandFingerprint(
             commandType,
             scopeKind,
             scopeValue,
-            metadata.IdempotencyKey ?? throw new ArgumentException("Idempotency key is required.", nameof(metadata)),
+
+            // P9 review fix (2026-05-19): nameof previously misreported the parameter (the public entry point binds
+            // 'command', not 'metadata'). Use a stable parameter label that matches the public surface.
+            metadata.IdempotencyKey ?? throw new ArgumentException(
+                "Conversations command idempotency key is required when constructing a scoped fingerprint.",
+                paramName: "command.Metadata.IdempotencyKey"),
             metadata.SchemaVersion);
 
     private static ConversationPayloadFingerprint Fingerprint(IEnumerable<KeyValuePair<string, string?>> parts)

@@ -55,9 +55,14 @@ public sealed record ConversationIdempotencyOutcome(
     public ConversationCommandType CommandType { get; } = RequireNonNull(CommandType, nameof(CommandType));
 
     /// <summary>
-    /// Gets the safe correlation handle.
+    /// Gets the safe correlation handle. Should be a server-derived opaque token, not a raw caller-supplied tracking ID (D1 review decision 2026-05-19).
     /// </summary>
     public string CorrelationId { get; } = ValidateRequired(CorrelationId, nameof(CorrelationId));
+
+    /// <summary>
+    /// Gets the outcome category, validated against the rejection-code/retryability invariant.
+    /// </summary>
+    public IdempotencyOutcomeCategory Category { get; } = ValidateCategoryInvariant(Category, RejectionCode, IsRetryable);
 
     /// <summary>
     /// Creates a successful logical outcome.
@@ -195,4 +200,53 @@ public sealed record ConversationIdempotencyOutcome(
 
     private static T RequireNonNull<T>(T value, string parameterName) where T : class
         => value ?? throw new ArgumentNullException(parameterName);
+
+    private static IdempotencyOutcomeCategory ValidateCategoryInvariant(
+        IdempotencyOutcomeCategory category,
+        ConversationErrorCode? rejectionCode,
+        bool isRetryable)
+    {
+        switch (category)
+        {
+            case IdempotencyOutcomeCategory.Success:
+            case IdempotencyOutcomeCategory.NoOp:
+                if (rejectionCode is not null)
+                {
+                    throw new ArgumentException(
+                        $"Idempotency outcome category '{category}' must not carry a rejection code.",
+                        nameof(rejectionCode));
+                }
+
+                if (isRetryable)
+                {
+                    throw new ArgumentException(
+                        $"Idempotency outcome category '{category}' must not be marked retryable.",
+                        nameof(isRetryable));
+                }
+
+                break;
+            case IdempotencyOutcomeCategory.Rejection:
+                if (rejectionCode is null)
+                {
+                    throw new ArgumentException(
+                        "Idempotency outcome category 'Rejection' requires a rejection code.",
+                        nameof(rejectionCode));
+                }
+
+                break;
+            case IdempotencyOutcomeCategory.Uncertain:
+                if (!isRetryable)
+                {
+                    throw new ArgumentException(
+                        "Idempotency outcome category 'Uncertain' must be marked retryable.",
+                        nameof(isRetryable));
+                }
+
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(category), category, "Unknown idempotency outcome category.");
+        }
+
+        return category;
+    }
 }

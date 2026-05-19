@@ -28,7 +28,7 @@ public interface IConversationIdempotencyStore
     /// Completes an existing reservation with a terminal logical outcome.
     /// </summary>
     /// <param name="fingerprint">The scoped command fingerprint.</param>
-    /// <param name="outcome">The terminal logical outcome.</param>
+    /// <param name="outcome">The terminal logical outcome. Must not have <see cref="IdempotencyOutcomeCategory.Uncertain"/>.</param>
     /// <param name="completedAt">The completion timestamp.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
@@ -36,5 +36,16 @@ public interface IConversationIdempotencyStore
         ConversationCommandFingerprint fingerprint,
         ConversationIdempotencyOutcome outcome,
         DateTimeOffset completedAt,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Releases an existing reservation without persisting a terminal outcome. Use when the mutation produced a retryable
+    /// rejection or threw an exception, so a subsequent retry can re-acquire the scoped key without waiting for retention expiry.
+    /// </summary>
+    /// <param name="fingerprint">The scoped command fingerprint.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    ValueTask ReleaseAsync(
+        ConversationCommandFingerprint fingerprint,
         CancellationToken cancellationToken = default);
 }

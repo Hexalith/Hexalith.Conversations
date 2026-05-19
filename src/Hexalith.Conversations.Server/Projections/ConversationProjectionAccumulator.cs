@@ -119,14 +119,28 @@ public sealed class ConversationProjectionAccumulator
         }
 
         CaptureIdentity(e!.Metadata);
-        _label = e.Label;
-        _businessReference = e.BusinessReference;
-        _attributes.Clear();
+
+        // P12 review fix (2026-05-19): treat null Label / BusinessReference as "no change" rather than "clear".
+        // This makes Created+MetadataUpdated reorder-deterministic in combination with Apply(ConversationCreated)'s
+        // ??= semantics: whichever event carries a non-null value wins, regardless of arrival order.
+        if (e.Label is not null)
+        {
+            _label = e.Label;
+        }
+
+        if (e.BusinessReference is not null)
+        {
+            _businessReference = e.BusinessReference;
+        }
+
         if (e.Attributes is null)
         {
+            // null Attributes means "do not modify"; this preserves projection state under a metadata update that
+            // only touches Label/BusinessReference (or arrives reordered against a previous metadata update).
             return;
         }
 
+        _attributes.Clear();
         foreach (KeyValuePair<string, string> attribute in e.Attributes.OrderBy(a => a.Key, StringComparer.Ordinal))
         {
             _attributes[attribute.Key] = attribute.Value;
@@ -169,6 +183,25 @@ public sealed class ConversationProjectionAccumulator
     private bool TryMarkProcessed(ConversationEventMetadata? metadata)
     {
         ArgumentNullException.ThrowIfNull(metadata);
+
+        // P1 review fix (2026-05-19): identity guard. Once an event from tenant T / conversation C has been applied,
+        // events bearing a different tenant or conversation must be silently ignored so the projection cannot be
+        // poisoned cross-tenant / cross-conversation. The accumulator is single-conversation by design; the guard
+        // makes the assumption explicit and fail-closed rather than silently merging the wrong identity.
+        if (_tenantId is not null && !_tenantId.Equals(metadata.TenantId))
+        {
+            return false;
+        }
+
+        if (_conversationId is not null && !_conversationId.Equals(metadata.ConversationId))
+        {
+            return false;
+        }
+
+        // P2 review fix (2026-05-19): _processedEventIds is a HashSet keyed by EventId only. EventIds are deterministic
+        // per producer but not globally unique across conversations; scope deduplication by the captured identity above,
+        // which is enforced before we add the EventId. The dictionary itself does not need a composite key because
+        // identity is the upstream guard.
         return _processedEventIds.Add(metadata.EventId);
     }
 

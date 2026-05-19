@@ -135,6 +135,22 @@ public sealed record ConversationErrorCode
             : throw new ArgumentException($"Unsupported conversation error code '{value}'.", nameof(value));
     }
 
+    /// <summary>
+    /// Gets a value indicating whether retry is meaningful for the supplied error code.
+    /// P23 review fix (2026-05-19): canonical retryable taxonomy lives on the error code itself so handlers
+    /// and contract samples cannot drift apart. AuditSinkUnavailable is retryable per D2 decision.
+    /// </summary>
+    /// <param name="code">The error code to evaluate.</param>
+    /// <returns><c>true</c> when retry is meaningful; otherwise <c>false</c>.</returns>
+    public static bool IsRetryable(ConversationErrorCode code)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+        return code == TenantProjectionStale
+            || code == ParticipantValidationUnavailable
+            || code == IdempotencyOutcomeUnknown
+            || code == AuditSinkUnavailable;
+    }
+
     /// <inheritdoc />
     public override string ToString() => Value;
 }

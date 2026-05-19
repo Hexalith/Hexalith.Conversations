@@ -184,5 +184,10 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
             DateTimeOffset completedAt,
             CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
+
+        public ValueTask ReleaseAsync(
+            ConversationCommandFingerprint fingerprint,
+            CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
     }
 }

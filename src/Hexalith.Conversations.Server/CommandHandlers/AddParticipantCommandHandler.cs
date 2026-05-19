@@ -147,11 +147,15 @@ public sealed class AddParticipantCommandHandler
                 if (_idempotencyExecutor is not null && !string.IsNullOrWhiteSpace(command!.Metadata.IdempotencyKey))
                 {
                     ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command!, command.ConversationId);
+
+                    // P11 review fix (2026-05-19): pass the deterministic boundary-provided eventId as correlation
+                    // for the idempotency-conflict / unknown-outcome rejection events, matching the tenant-denial
+                    // path above. Caller-controlled correlation must not flow into durable rejection events.
                     return await _idempotencyExecutor.ExecuteAsync(
                         fingerprint,
                         addedAt,
-                        command.Metadata.CorrelationId,
-                        command.Metadata.CausationId,
+                        correlationId: eventId,
+                        causationId: null,
                         ExecuteMutationAsync,
                         result => ToIdempotencyOutcome(command, result),
                         guardedCancellationToken).ConfigureAwait(false);
@@ -298,11 +302,20 @@ public sealed class AddParticipantCommandHandler
         AddParticipantCommand command,
         DomainResult result)
     {
+        // P10 review fix (2026-05-19): unexpected event shape (multi-event Success, or a different rejection subtype)
+        // must not throw a raw InvalidOperationException after the mutation has already produced side effects.
+        // Fall back to a safe Uncertain outcome so the executor releases the reservation (P4) and the caller can retry.
         if (result.IsSuccess)
         {
-            if (result.Events.Single() is not ParticipantAddedDomainEvent added)
+            ParticipantAddedDomainEvent? added = result.Events.OfType<ParticipantAddedDomainEvent>().FirstOrDefault();
+            if (added is null)
             {
-                throw new InvalidOperationException("AddParticipant idempotency outcome requires a participant-added event.");
+                return ConversationIdempotencyOutcome.Uncertain(
+                    command.Metadata.SchemaVersion,
+                    command.Metadata.TenantId,
+                    ConversationCommandType.AddParticipantCommand,
+                    command.ConversationId,
+                    command.Metadata.CorrelationId);
             }
 
             return ConversationIdempotencyOutcome.Success(
@@ -318,9 +331,15 @@ public sealed class AddParticipantCommandHandler
 
         if (result.IsRejection)
         {
-            if (result.Events.Single() is not ConversationRejectedDomainEvent rejection)
+            ConversationRejectedDomainEvent? rejection = result.Events.OfType<ConversationRejectedDomainEvent>().FirstOrDefault();
+            if (rejection is null)
             {
-                throw new InvalidOperationException("AddParticipant idempotency outcome requires a conversation rejection event.");
+                return ConversationIdempotencyOutcome.Uncertain(
+                    command.Metadata.SchemaVersion,
+                    command.Metadata.TenantId,
+                    ConversationCommandType.AddParticipantCommand,
+                    command.ConversationId,
+                    command.Metadata.CorrelationId);
             }
 
             return ConversationIdempotencyOutcome.Rejection(
@@ -329,7 +348,7 @@ public sealed class AddParticipantCommandHandler
                 ConversationCommandType.AddParticipantCommand,
                 command.ConversationId,
                 rejection.Code,
-                IsRetryableRejection(rejection.Code),
+                ConversationErrorCode.IsRetryable(rejection.Code),
                 command.Metadata.CorrelationId);
         }
 
@@ -341,8 +360,4 @@ public sealed class AddParticipantCommandHandler
             command.Metadata.CorrelationId);
     }
 
-    private static bool IsRetryableRejection(ConversationErrorCode code)
-        => code == ConversationErrorCode.TenantProjectionStale
-            || code == ConversationErrorCode.ParticipantValidationUnavailable
-            || code == ConversationErrorCode.IdempotencyOutcomeUnknown;
 }

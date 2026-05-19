@@ -6,6 +6,7 @@
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Idempotency;
@@ -32,18 +33,30 @@ public sealed class ConversationIdempotencyStoreTest
     [Fact]
     public async Task ConcurrentEquivalentReservationsShouldHaveSingleWinner()
     {
+        // P7 review fix (2026-05-19): ReserveAsync returns a synchronously-completed ValueTask, so a LINQ projection
+        // of `.AsTask()` calls runs sequentially. Use Task.Run with a barrier so all 32 callers race the lock at the same
+        // wall-clock instant; only then does the test actually prove atomic reservation.
         InMemoryConversationIdempotencyStore store = new();
         ConversationCommandFingerprint fingerprint = Fingerprint();
+        const int callers = 32;
+        using Barrier barrier = new(callers);
+        CancellationToken token = TestContext.Current.CancellationToken;
 
         Task<ConversationIdempotencyDecision>[] attempts = Enumerable
-            .Range(0, 32)
-            .Select(_ => store.ReserveAsync(fingerprint, Now, Retention, TestContext.Current.CancellationToken).AsTask())
+            .Range(0, callers)
+            .Select(_ => Task.Run(
+                async () =>
+                {
+                    barrier.SignalAndWait(token);
+                    return await store.ReserveAsync(fingerprint, Now, Retention, token);
+                },
+                token))
             .ToArray();
 
         ConversationIdempotencyDecision[] decisions = await Task.WhenAll(attempts);
 
         decisions.Count(d => d.Kind == ConversationIdempotencyDecisionKind.Reserved).ShouldBe(1);
-        decisions.Count(d => d.Kind == ConversationIdempotencyDecisionKind.RetryableUncertainty).ShouldBe(31);
+        decisions.Count(d => d.Kind == ConversationIdempotencyDecisionKind.RetryableUncertainty).ShouldBe(callers - 1);
 
         ConversationIdempotencyOutcome outcome = SuccessOutcome();
         await store.CompleteAsync(fingerprint, outcome, Now.AddSeconds(1), TestContext.Current.CancellationToken);
@@ -90,10 +103,11 @@ public sealed class ConversationIdempotencyStoreTest
     }
 
     /// <summary>
-    /// Expired keys do not silently reserve again because the original business mutation might have succeeded.
+    /// Expired records are evicted and a new caller can re-acquire the scoped key (P5 review fix 2026-05-19);
+    /// otherwise an expired record would permanently lock the key for callers retrying after the retention window.
     /// </summary>
     [Fact]
-    public async Task ExpiredRecordShouldReturnRetryableUncertainty()
+    public async Task ExpiredRecordShouldBeEvictedAndReplaceableByFreshReservation()
     {
         InMemoryConversationIdempotencyStore store = new();
         ConversationCommandFingerprint fingerprint = Fingerprint();
@@ -102,14 +116,13 @@ public sealed class ConversationIdempotencyStoreTest
             .Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
         await store.CompleteAsync(fingerprint, SuccessOutcome(), Now.AddMinutes(1), TestContext.Current.CancellationToken);
 
-        ConversationIdempotencyDecision expired = await store.ReserveAsync(
+        ConversationIdempotencyDecision afterExpiry = await store.ReserveAsync(
             fingerprint,
             Now.AddMinutes(6),
             TimeSpan.FromMinutes(5),
             TestContext.Current.CancellationToken);
 
-        expired.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
-        expired.ReasonCode.ShouldBe("idempotency_record_expired");
+        afterExpiry.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
     }
 
     /// <summary>
@@ -174,6 +187,105 @@ public sealed class ConversationIdempotencyStoreTest
         incompatibleDecision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
         incompatibleDecision.ReasonCode.ShouldBe("idempotency_record_version_incompatible");
     }
+
+    /// <summary>
+    /// P19 review fix (2026-05-19): tenant A's stored outcome must be invisible to tenant B with the same idempotency key
+    /// and scope value. Scope-record equality includes TenantId; this test makes the cross-tenant isolation explicit.
+    /// </summary>
+    [Fact]
+    public async Task SameIdempotencyKeyUnderDifferentTenantShouldNotReplayStoredOutcome()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        TenantId tenantA = new("tenant-A");
+        TenantId tenantB = new("tenant-B");
+        ConversationCommandFingerprint fingerprintA = FingerprintForTenant(tenantA, idempotencyKey: "shared-key");
+        ConversationCommandFingerprint fingerprintB = FingerprintForTenant(tenantB, idempotencyKey: "shared-key");
+
+        await store.ReserveAsync(fingerprintA, Now, Retention, TestContext.Current.CancellationToken);
+        await store.CompleteAsync(
+            fingerprintA,
+            ConversationIdempotencyOutcome.Success(
+                SchemaVersion.Current,
+                tenantA,
+                ConversationCommandType.CreateConversationCommand,
+                Conversation,
+                messageId: null,
+                participantPartyId: null,
+                fileId: null,
+                correlationId: "correlation-A",
+                auditHandle: "audit-A"),
+            Now.AddSeconds(1),
+            TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyDecision tenantBDecision = await store.ReserveAsync(
+            fingerprintB,
+            Now.AddSeconds(2),
+            Retention,
+            TestContext.Current.CancellationToken);
+
+        tenantBDecision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
+        tenantBDecision.StoredOutcome.ShouldBeNull();
+    }
+
+    /// <summary>
+    /// P20 review fix (2026-05-19): a key reserved under one command type must not collide with the same key under a
+    /// different command type, even at the same tenant + scope. Scope-record equality includes CommandType.
+    /// </summary>
+    [Fact]
+    public async Task SameKeyUnderDifferentCommandTypeShouldNotCollide()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        ConversationCommandFingerprint createFingerprint = Fingerprint(idempotencyKey: "shared-key");
+        ConversationCommandFingerprint addParticipantFingerprint = AddParticipantFingerprint(idempotencyKey: "shared-key");
+
+        ConversationIdempotencyDecision createDecision = await store.ReserveAsync(
+            createFingerprint,
+            Now,
+            Retention,
+            TestContext.Current.CancellationToken);
+        ConversationIdempotencyDecision addParticipantDecision = await store.ReserveAsync(
+            addParticipantFingerprint,
+            Now.AddSeconds(1),
+            Retention,
+            TestContext.Current.CancellationToken);
+
+        createDecision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
+        addParticipantDecision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
+    }
+
+    private static ConversationCommandFingerprint FingerprintForTenant(
+        TenantId tenantId,
+        string idempotencyKey = "idempotency-001")
+        => ConversationCommandFingerprint.Create(
+            new CreateConversationCommand(
+                new ConversationCommandMetadata(
+                    SchemaVersion.Current,
+                    tenantId,
+                    Actor,
+                    "correlation-001",
+                    "causation-001",
+                    idempotencyKey),
+                new BusinessReference("crm", "case-123"),
+                new ProjectId("project-001"),
+                new FolderId("folder-001"),
+                "Case 123",
+                new ProviderCorrelationMetadata(
+                    "provider-a",
+                    "assistant",
+                    SchemaVersion.Current,
+                    "provider-session",
+                    "provider-response")),
+            Conversation);
+
+    private static ConversationCommandFingerprint AddParticipantFingerprint(string idempotencyKey)
+        => ConversationCommandFingerprint.Create(
+            new AddParticipantCommand(
+                Metadata(idempotencyKey),
+                Conversation,
+                ParticipantPartyId: new PartyId("party-new"),
+                ParticipantType: ParticipantType.Human,
+                ParticipantRole: ParticipantRole.Member),
+            Conversation);
 
     private static ConversationCommandFingerprint Fingerprint(
         string label = "Case 123",

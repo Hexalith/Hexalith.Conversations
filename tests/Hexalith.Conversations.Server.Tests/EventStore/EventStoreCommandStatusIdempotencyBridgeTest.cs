@@ -11,46 +11,80 @@ namespace Hexalith.Conversations.Server.Tests.EventStore;
 
 /// <summary>
 /// Verifies EventStore command status is interpreted as an internal signal, not a public replay contract.
+/// P26 review fix (2026-05-19): assert externally-observable contracts (never invents a Conversations outcome,
+/// always returns RetryableUncertainty, never exposes EventStore internals through the decision) rather than
+/// mirroring the IsTerminal() classifier with [InlineData]. The InlineData-driven test passed regardless of
+/// whether IsTerminal() was implemented correctly.
 /// </summary>
 public sealed class EventStoreCommandStatusIdempotencyBridgeTest
 {
-    /// <summary>
-    /// Pending EventStore command statuses become retryable uncertainty.
-    /// </summary>
-    [Theory]
-    [InlineData(CommandStatus.Received)]
-    [InlineData(CommandStatus.Processing)]
-    [InlineData(CommandStatus.EventsStored)]
-    [InlineData(CommandStatus.EventsPublished)]
-    public void PendingStatusShouldReturnRetryableUncertainty(CommandStatus status)
-    {
-        ConversationIdempotencyDecision decision = EventStoreCommandStatusIdempotencyBridge.Interpret(Status(status));
+    private static readonly DateTimeOffset Now = new(2026, 5, 19, 14, 30, 0, TimeSpan.Zero);
 
-        decision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
-        decision.ReasonCode.ShouldBe("eventstore_command_status_pending");
+    /// <summary>
+    /// The bridge must never return Reserved, Duplicate, or Conflict; EventStore status alone cannot resolve a
+    /// Conversations-domain logical outcome.
+    /// </summary>
+    [Fact]
+    public void BridgeNeverInventsConversationsOutcome()
+    {
+        foreach (CommandStatus status in Enum.GetValues<CommandStatus>())
+        {
+            ConversationIdempotencyDecision decision =
+                EventStoreCommandStatusIdempotencyBridge.Interpret(Status(status));
+
+            decision.Kind.ShouldBe(
+                ConversationIdempotencyDecisionKind.RetryableUncertainty,
+                $"status={status} must not produce a terminal Conversations outcome");
+            decision.StoredOutcome.ShouldBeNull($"status={status} must not invent a stored outcome");
+        }
     }
 
     /// <summary>
-    /// Terminal EventStore status alone is not enough to replay a Conversations logical outcome.
+    /// A missing command-status record cannot mean "duplicate"; it means "we cannot tell, retry".
     /// </summary>
-    [Theory]
-    [InlineData(CommandStatus.Completed)]
-    [InlineData(CommandStatus.Rejected)]
-    [InlineData(CommandStatus.PublishFailed)]
-    [InlineData(CommandStatus.TimedOut)]
-    public void TerminalStatusShouldRequireConversationReplay(CommandStatus status)
+    [Fact]
+    public void MissingStatusReturnsContentSafeRetryableUncertainty()
     {
-        ConversationIdempotencyDecision decision = EventStoreCommandStatusIdempotencyBridge.Interpret(Status(status));
+        ConversationIdempotencyDecision decision = EventStoreCommandStatusIdempotencyBridge.Interpret(null);
 
         decision.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
-        decision.ReasonCode.ShouldBe("eventstore_terminal_replay_required");
+        decision.ReasonCode.ShouldBe("eventstore_command_status_missing");
         decision.StoredOutcome.ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Pending and terminal statuses produce distinguishable internal reason codes (so the host can distinguish
+    /// "still in flight" from "completed but Conversations replay required") without leaking EventStore vocabulary
+    /// through the decision's StoredOutcome.
+    /// </summary>
+    [Fact]
+    public void PendingAndTerminalStatusesProduceDistinguishableInternalReasonCodes()
+    {
+        HashSet<string> pendingReasons = new(StringComparer.Ordinal);
+        HashSet<string> terminalReasons = new(StringComparer.Ordinal);
+
+        foreach (CommandStatus status in Enum.GetValues<CommandStatus>())
+        {
+            ConversationIdempotencyDecision decision =
+                EventStoreCommandStatusIdempotencyBridge.Interpret(Status(status));
+            if (status.IsTerminal())
+            {
+                terminalReasons.Add(decision.ReasonCode);
+            }
+            else
+            {
+                pendingReasons.Add(decision.ReasonCode);
+            }
+        }
+
+        pendingReasons.ShouldBe(new[] { "eventstore_command_status_pending" });
+        terminalReasons.ShouldBe(new[] { "eventstore_terminal_replay_required" });
     }
 
     private static CommandStatusRecord Status(CommandStatus status)
         => new(
             status,
-            new DateTimeOffset(2026, 5, 19, 14, 30, 0, TimeSpan.Zero),
+            Now,
             AggregateId: "conversation-001",
             EventCount: status == CommandStatus.Completed ? 1 : null,
             RejectionEventType: status == CommandStatus.Rejected ? "ConversationRejectedDomainEvent" : null,
