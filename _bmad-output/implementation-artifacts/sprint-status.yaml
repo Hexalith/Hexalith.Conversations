@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-19T15:03:30+02:00
+# last_updated: 2026-05-19T15:10:52+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-19T15:03:30+02:00
+last_updated: 2026-05-19T15:10:52+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -48,7 +48,7 @@ development_status:
   1-3-create-tenant-safe-conversation-aggregate: done
   1-4-add-conversation-participants-with-stable-party-attribution: done
   1-5-enforce-tenant-access-and-typed-fail-closed-rejections: done
-  1-6-add-idempotent-command-handling: ready-for-dev
+  1-6-add-idempotent-command-handling: review
   1-7-project-conversation-read-models-with-freshness-metadata: ready-for-dev
   1-8-retrieve-and-list-conversations-by-tenant-business-context: ready-for-dev
   1-9-resolve-parties-and-upstream-references-at-read-time: ready-for-dev

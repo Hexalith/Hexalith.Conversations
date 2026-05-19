@@ -1,0 +1,200 @@
+// <copyright file="ConversationCommandFingerprintTest.cs" company="ITANEO">
+// Copyright (c) ITANEO. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+
+using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.Versioning;
+using Hexalith.Conversations.Idempotency;
+using Shouldly;
+
+using Xunit;
+
+namespace Hexalith.Conversations.Tests.Idempotency;
+
+/// <summary>
+/// Verifies the Conversations-owned idempotency scope and canonical fingerprint contract.
+/// </summary>
+public sealed class ConversationCommandFingerprintTest
+{
+    private static readonly TenantId Tenant = new("tenant-001");
+    private static readonly ConversationId Conversation = new("conversation-001");
+    private static readonly PartyId Actor = new("party-actor");
+    private static readonly PartyId Participant = new("party-participant");
+    private static readonly MessageId Message = new("message-001");
+    private static readonly FileId File = new("file-001");
+    private static readonly FolderId Folder = new("folder-001");
+    private static readonly BusinessReference Business = new("crm", "case-123");
+
+    /// <summary>
+    /// Provider correlation changes do not affect the canonical fingerprint because provider IDs are not authority.
+    /// </summary>
+    [Fact]
+    public void ProviderCorrelationChangesShouldNotChangeFingerprint()
+    {
+        CreateConversationCommand first = CreateConversation(providerSession: "provider-session-a");
+        CreateConversationCommand second = CreateConversation(providerSession: "provider-session-b");
+
+        ConversationCommandFingerprint firstFingerprint = ConversationCommandFingerprint.Create(first, Conversation);
+        ConversationCommandFingerprint secondFingerprint = ConversationCommandFingerprint.Create(second, Conversation);
+
+        firstFingerprint.Scope.ShouldBe(secondFingerprint.Scope);
+        firstFingerprint.PayloadFingerprint.ShouldBe(secondFingerprint.PayloadFingerprint);
+        firstFingerprint.ToString().ShouldNotContain("provider-session-a", Case.Insensitive);
+        firstFingerprint.ToString().ShouldNotContain("provider-session-b", Case.Insensitive);
+    }
+
+    /// <summary>
+    /// Safe command meaning changes do affect the fingerprint.
+    /// </summary>
+    [Fact]
+    public void DifferentSafePayloadMeaningShouldChangeFingerprint()
+    {
+        ConversationCommandFingerprint first = ConversationCommandFingerprint.Create(
+            CreateConversation(label: "Case 123"),
+            Conversation);
+        ConversationCommandFingerprint second = ConversationCommandFingerprint.Create(
+            CreateConversation(label: "Case 456"),
+            Conversation);
+
+        first.Scope.ShouldBe(second.Scope);
+        first.PayloadFingerprint.ShouldNotBe(second.PayloadFingerprint);
+    }
+
+    /// <summary>
+    /// Every public command type in the story matrix receives a scoped idempotency key.
+    /// </summary>
+    [Fact]
+    public void CommandMatrixShouldProduceExpectedScopes()
+    {
+        (object Command, ConversationCommandType CommandType, string ScopeKind)[] commands =
+        [
+            (CreateConversation(), ConversationCommandType.CreateConversationCommand, ConversationIdempotencyScope.CreateAllocationScopeKind),
+            (new AppendMessageCommand(Metadata(), Conversation, Message, Actor, "Hello", Provider("session")),
+                ConversationCommandType.AppendMessageCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session")),
+                ConversationCommandType.AddParticipantCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (new AttachFileReferenceCommand(Metadata(), Conversation, File, Folder, Message),
+                ConversationCommandType.AttachFileReferenceCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (new UpdateConversationMetadataCommand(Metadata(), Conversation, "Case 123", Business),
+                ConversationCommandType.UpdateConversationMetadataCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (new CloseConversationCommand(Metadata(), Conversation, "resolved"),
+                ConversationCommandType.CloseConversationCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (new ArchiveConversationCommand(Metadata(), Conversation, "retained"),
+                ConversationCommandType.ArchiveConversationCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+        ];
+
+        foreach ((object command, ConversationCommandType commandType, string scopeKind) in commands)
+        {
+            ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command, Conversation);
+
+            fingerprint.Scope.TenantId.ShouldBe(Tenant);
+            fingerprint.Scope.CommandType.ShouldBe(commandType);
+            fingerprint.Scope.ScopeKind.ShouldBe(scopeKind);
+            fingerprint.Scope.ScopeValue.ShouldBe(Conversation.Value);
+            fingerprint.Scope.IdempotencyKey.ShouldBe("idempotency-001");
+            fingerprint.Scope.SchemaVersion.ShouldBe(SchemaVersion.Current);
+        }
+    }
+
+    /// <summary>
+    /// Dictionary order and null/empty safe metadata are canonicalized without weakening identity fields.
+    /// </summary>
+    [Fact]
+    public void SafeMetadataOrderingShouldBeCanonicalized()
+    {
+        UpdateConversationMetadataCommand first = new(
+            Metadata(),
+            Conversation,
+            "Case 123",
+            Business,
+            new Dictionary<string, string>
+            {
+                ["priority"] = "normal",
+                ["owner"] = "support",
+            });
+
+        UpdateConversationMetadataCommand second = new(
+            Metadata(),
+            Conversation,
+            "Case 123",
+            Business,
+            new Dictionary<string, string>
+            {
+                ["owner"] = "support",
+                ["priority"] = "normal",
+            });
+
+        ConversationCommandFingerprint nullAttributes = ConversationCommandFingerprint.Create(
+            new UpdateConversationMetadataCommand(Metadata(), Conversation, "Case 123", Business),
+            Conversation);
+        ConversationCommandFingerprint emptyAttributes = ConversationCommandFingerprint.Create(
+            new UpdateConversationMetadataCommand(Metadata(), Conversation, "Case 123", Business, new Dictionary<string, string>()),
+            Conversation);
+
+        ConversationCommandFingerprint.Create(first, Conversation).PayloadFingerprint
+            .ShouldBe(ConversationCommandFingerprint.Create(second, Conversation).PayloadFingerprint);
+        nullAttributes.PayloadFingerprint.ShouldBe(emptyAttributes.PayloadFingerprint);
+    }
+
+    /// <summary>
+    /// Scope comparison remains exact and does not collapse tenant, command, schema, or conversation identity.
+    /// </summary>
+    [Fact]
+    public void ScopeIdentityShouldNotUseLossyNormalization()
+    {
+        ConversationCommandFingerprint baseline = ConversationCommandFingerprint.Create(CreateConversation(), Conversation);
+        ConversationCommandFingerprint tenantCaseChange = ConversationCommandFingerprint.Create(
+            CreateConversation(metadata: Metadata(tenant: new TenantId("TENANT-001"))),
+            Conversation);
+        ConversationCommandFingerprint differentConversation = ConversationCommandFingerprint.Create(
+            CreateConversation(),
+            new ConversationId("conversation-002"));
+        ConversationCommandFingerprint differentSchema = ConversationCommandFingerprint.Create(
+            CreateConversation(metadata: Metadata(schemaVersion: new SchemaVersion(SchemaVersion.Current.Value + 1))),
+            Conversation);
+        ConversationCommandFingerprint differentCommandType = ConversationCommandFingerprint.Create(
+            new CloseConversationCommand(Metadata(), Conversation, "resolved"),
+            Conversation);
+
+        baseline.Scope.ShouldNotBe(tenantCaseChange.Scope);
+        baseline.Scope.ShouldNotBe(differentConversation.Scope);
+        baseline.Scope.ShouldNotBe(differentSchema.Scope);
+        baseline.Scope.ShouldNotBe(differentCommandType.Scope);
+    }
+
+    private static CreateConversationCommand CreateConversation(
+        ConversationCommandMetadata? metadata = null,
+        string label = "Case 123",
+        string providerSession = "provider-session")
+        => new(metadata ?? Metadata(), Business, new ProjectId("project-001"), Folder, label, Provider(providerSession));
+
+    private static ConversationCommandMetadata Metadata(
+        TenantId? tenant = null,
+        SchemaVersion? schemaVersion = null)
+        => new(
+            schemaVersion ?? SchemaVersion.Current,
+            tenant ?? Tenant,
+            Actor,
+            "correlation-001",
+            "causation-001",
+            "idempotency-001");
+
+    private static ProviderCorrelationMetadata Provider(string providerSession)
+        => new(
+            "provider-a",
+            "assistant",
+            SchemaVersion.Current,
+            providerSession,
+            "provider-response",
+            new Dictionary<string, string> { ["thread"] = "thread-001" });
+}

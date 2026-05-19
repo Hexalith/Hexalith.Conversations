@@ -158,6 +158,7 @@ internal static class ContractSamples
         ConversationErrorCode.AuditSinkUnavailable,
         ConversationErrorCode.AuditPairingRequired,
         ConversationErrorCode.IdempotencyConflict,
+        ConversationErrorCode.IdempotencyOutcomeUnknown,
         ConversationErrorCode.AggregateNotFound,
         ConversationErrorCode.SchemaVersionUnsupported,
         ConversationErrorCode.CommandValidationFailed,
@@ -177,6 +178,7 @@ internal static class ContractSamples
             _ when code == ConversationErrorCode.AuditSinkUnavailable => ConversationErrorCategory.Audit,
             _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
             _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
+            _ when code == ConversationErrorCode.IdempotencyOutcomeUnknown => ConversationErrorCategory.Freshness,
             _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
             _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
             _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
@@ -192,5 +194,6 @@ internal static class ContractSamples
         => code == ConversationErrorCode.TenantProjectionStale
             || code == ConversationErrorCode.AuditSinkUnavailable
             || code == ConversationErrorCode.IdempotencyConflict
+            || code == ConversationErrorCode.IdempotencyOutcomeUnknown
             || code == ConversationErrorCode.ParticipantValidationUnavailable;
 }

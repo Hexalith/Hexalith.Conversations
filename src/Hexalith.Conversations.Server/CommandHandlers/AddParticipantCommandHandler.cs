@@ -6,7 +6,9 @@
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Events;
+using Hexalith.Conversations.Idempotency;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.State;
@@ -19,17 +21,39 @@ namespace Hexalith.Conversations.Server.CommandHandlers;
 /// <summary>
 /// Handles add-participant commands after command-time Party validation.
 /// </summary>
-/// <param name="participantDirectory">The participant directory validation boundary.</param>
-/// <param name="tenantAccessService">The tenant access boundary.</param>
-public sealed class AddParticipantCommandHandler(
-    IParticipantDirectory participantDirectory,
-    IConversationTenantAccessService tenantAccessService)
+public sealed class AddParticipantCommandHandler
 {
-    private readonly IParticipantDirectory _participantDirectory =
-        participantDirectory ?? throw new ArgumentNullException(nameof(participantDirectory));
+    private readonly IdempotentConversationCommandExecutor? _idempotencyExecutor;
+    private readonly IParticipantDirectory _participantDirectory;
+    private readonly IConversationTenantAccessService _tenantAccessService;
 
-    private readonly IConversationTenantAccessService _tenantAccessService =
-        tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddParticipantCommandHandler"/> class without idempotency storage.
+    /// </summary>
+    /// <param name="participantDirectory">The participant directory validation boundary.</param>
+    /// <param name="tenantAccessService">The tenant access boundary.</param>
+    public AddParticipantCommandHandler(
+        IParticipantDirectory participantDirectory,
+        IConversationTenantAccessService tenantAccessService)
+        : this(participantDirectory, tenantAccessService, idempotencyExecutor: null)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="AddParticipantCommandHandler"/> class.
+    /// </summary>
+    /// <param name="participantDirectory">The participant directory validation boundary.</param>
+    /// <param name="tenantAccessService">The tenant access boundary.</param>
+    /// <param name="idempotencyExecutor">The optional idempotency executor.</param>
+    public AddParticipantCommandHandler(
+        IParticipantDirectory participantDirectory,
+        IConversationTenantAccessService tenantAccessService,
+        IdempotentConversationCommandExecutor? idempotencyExecutor)
+    {
+        _participantDirectory = participantDirectory ?? throw new ArgumentNullException(nameof(participantDirectory));
+        _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+        _idempotencyExecutor = idempotencyExecutor;
+    }
 
     /// <summary>
     /// Checks tenant access, loads state, validates the participant Party reference, then dispatches the command to the aggregate.
@@ -111,53 +135,29 @@ public sealed class AddParticipantCommandHandler(
                     return DomainResult.Rejection(new IRejectionEvent[] { semanticRejection });
                 }
 
-                // F2: convert state-load infrastructure exceptions to a typed fail-closed
-                // rejection so caller boundaries never see raw EventStore / stream vocabulary.
-                ConversationState? state;
-                try
+                ValueTask<DomainResult> ExecuteMutationAsync(CancellationToken mutationCancellationToken)
+                    => ExecuteAddParticipantMutationAsync(
+                        command!,
+                        grantedTenantId,
+                        loadStateAsync,
+                        addedAt,
+                        eventId,
+                        mutationCancellationToken);
+
+                if (_idempotencyExecutor is not null && !string.IsNullOrWhiteSpace(command!.Metadata.IdempotencyKey))
                 {
-                    state = await loadStateAsync(guardedCancellationToken).ConfigureAwait(false);
-                }
-                catch (OperationCanceledException)
-                {
-                    throw;
-                }
-                catch (Exception)
-                {
-                    return DomainResult.Rejection(new IRejectionEvent[]
-                    {
-                        new ConversationRejectedDomainEvent(
-                            ConversationErrorCode.TenantProjectionStale,
-                            "tenant_projection_stale",
-                            command!.Metadata.SchemaVersion,
-                            CorrelationId: eventId,
-                            CausationId: null),
-                    });
+                    ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command!, command.ConversationId);
+                    return await _idempotencyExecutor.ExecuteAsync(
+                        fingerprint,
+                        addedAt,
+                        command.Metadata.CorrelationId,
+                        command.Metadata.CausationId,
+                        ExecuteMutationAsync,
+                        result => ToIdempotencyOutcome(command, result),
+                        guardedCancellationToken).ConfigureAwait(false);
                 }
 
-                // F3: aggregate tenant cross-check after load. A loaded state whose
-                // TenantId disagrees with the granted tenant cannot proceed even if every
-                // other binding matched, because EventStore aggregate ownership is the
-                // ultimate tenant-isolation invariant.
-                if (state is not null && state.IsCreated && state.TenantId is { } stateTenantId && stateTenantId != grantedTenantId)
-                {
-                    return DomainResult.Rejection(new IRejectionEvent[]
-                    {
-                        new ConversationRejectedDomainEvent(
-                            ConversationErrorCode.TenantIsolationViolation,
-                            "tenant_isolation_violation",
-                            command!.Metadata.SchemaVersion,
-                            CorrelationId: eventId,
-                            CausationId: null),
-                    });
-                }
-
-                return await HandleAfterTenantAccessAsync(
-                    command!,
-                    state,
-                    addedAt,
-                    eventId,
-                    guardedCancellationToken).ConfigureAwait(false);
+                return await ExecuteMutationAsync(guardedCancellationToken).ConfigureAwait(false);
             },
             routeTenantId,
             commandTenantId: command!.Metadata.TenantId,
@@ -165,6 +165,58 @@ public sealed class AddParticipantCommandHandler(
             projectionTenantId: null,
             idempotencyTenantId: idempotencyTenantId,
             cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+
+    private async ValueTask<DomainResult> ExecuteAddParticipantMutationAsync(
+        AddParticipantCommand command,
+        TenantId grantedTenantId,
+        Func<CancellationToken, ValueTask<ConversationState?>> loadStateAsync,
+        DateTimeOffset addedAt,
+        string eventId,
+        CancellationToken cancellationToken)
+    {
+        // F2: convert state-load infrastructure exceptions to a typed fail-closed
+        // rejection so caller boundaries never see raw EventStore / stream vocabulary.
+        ConversationState? state;
+        try
+        {
+            state = await loadStateAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[]
+            {
+                new ConversationRejectedDomainEvent(
+                    ConversationErrorCode.TenantProjectionStale,
+                    "tenant_projection_stale",
+                    command.Metadata.SchemaVersion,
+                    CorrelationId: eventId,
+                    CausationId: null),
+            });
+        }
+
+        // F3: aggregate tenant cross-check after load. A loaded state whose
+        // TenantId disagrees with the granted tenant cannot proceed even if every
+        // other binding matched, because EventStore aggregate ownership is the
+        // ultimate tenant-isolation invariant.
+        if (state is not null && state.IsCreated && state.TenantId is { } stateTenantId && stateTenantId != grantedTenantId)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[]
+            {
+                new ConversationRejectedDomainEvent(
+                    ConversationErrorCode.TenantIsolationViolation,
+                    "tenant_isolation_violation",
+                    command.Metadata.SchemaVersion,
+                    CorrelationId: eventId,
+                    CausationId: null),
+            });
+        }
+
+        return await HandleAfterTenantAccessAsync(command, state, addedAt, eventId, cancellationToken).ConfigureAwait(false);
     }
 
     private async ValueTask<DomainResult> HandleAfterTenantAccessAsync(
@@ -241,4 +293,56 @@ public sealed class AddParticipantCommandHandler(
                 command.Metadata.CorrelationId,
                 command.Metadata.CausationId)
             : ParticipantValidationUnavailableRejection(command);
+
+    private static ConversationIdempotencyOutcome ToIdempotencyOutcome(
+        AddParticipantCommand command,
+        DomainResult result)
+    {
+        if (result.IsSuccess)
+        {
+            if (result.Events.Single() is not ParticipantAddedDomainEvent added)
+            {
+                throw new InvalidOperationException("AddParticipant idempotency outcome requires a participant-added event.");
+            }
+
+            return ConversationIdempotencyOutcome.Success(
+                command.Metadata.SchemaVersion,
+                command.Metadata.TenantId,
+                ConversationCommandType.AddParticipantCommand,
+                command.ConversationId,
+                messageId: null,
+                participantPartyId: added.ParticipantPartyId,
+                fileId: null,
+                command.Metadata.CorrelationId);
+        }
+
+        if (result.IsRejection)
+        {
+            if (result.Events.Single() is not ConversationRejectedDomainEvent rejection)
+            {
+                throw new InvalidOperationException("AddParticipant idempotency outcome requires a conversation rejection event.");
+            }
+
+            return ConversationIdempotencyOutcome.Rejection(
+                command.Metadata.SchemaVersion,
+                command.Metadata.TenantId,
+                ConversationCommandType.AddParticipantCommand,
+                command.ConversationId,
+                rejection.Code,
+                IsRetryableRejection(rejection.Code),
+                command.Metadata.CorrelationId);
+        }
+
+        return ConversationIdempotencyOutcome.NoOp(
+            command.Metadata.SchemaVersion,
+            command.Metadata.TenantId,
+            ConversationCommandType.AddParticipantCommand,
+            command.ConversationId,
+            command.Metadata.CorrelationId);
+    }
+
+    private static bool IsRetryableRejection(ConversationErrorCode code)
+        => code == ConversationErrorCode.TenantProjectionStale
+            || code == ConversationErrorCode.ParticipantValidationUnavailable
+            || code == ConversationErrorCode.IdempotencyOutcomeUnknown;
 }

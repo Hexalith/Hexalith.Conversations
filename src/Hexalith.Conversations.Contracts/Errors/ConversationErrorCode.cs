@@ -46,6 +46,11 @@ public sealed record ConversationErrorCode
     public static ConversationErrorCode IdempotencyConflict { get; } = new("idempotency_conflict");
 
     /// <summary>
+    /// Gets the idempotency outcome unknown code.
+    /// </summary>
+    public static ConversationErrorCode IdempotencyOutcomeUnknown { get; } = new("idempotency_outcome_unknown");
+
+    /// <summary>
     /// Gets the hidden or unavailable aggregate code.
     /// </summary>
     public static ConversationErrorCode AggregateNotFound { get; } = new("aggregate_not_found");
@@ -94,6 +99,7 @@ public sealed record ConversationErrorCode
             AuditSinkUnavailable,
             AuditPairingRequired,
             IdempotencyConflict,
+            IdempotencyOutcomeUnknown,
             AggregateNotFound,
             SchemaVersionUnsupported,
             CommandValidationFailed,
