@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "produced_by": "jobs/preflight-predev-hardening.py",
-  "timestamp": "2026-05-19T10:02:41Z",
+  "timestamp": "2026-05-19T09:02:09Z",
   "repo": "D:\\Hexalith.Conversations",
   "result": "fail",
   "bootstrap_actions": [],
@@ -12,7 +12,7 @@
       "path": "D:\\Hexalith.Conversations\\_bmad-output\\implementation-artifacts\\sprint-status.yaml",
       "result": "pass",
       "details": "PARSE OK",
-      "file_size_bytes": 5835,
+      "file_size_bytes": 5840,
       "line_count": 112,
       "top_level_keys": [
         "development_status",
@@ -63,11 +63,11 @@
         ":(exclude)_bmad-output/process-notes/preflight-latest.json"
       ],
       "exit_code": 0,
-      "stdout": " M _bmad-output/implementation-artifacts/1-5-enforce-tenant-access-and-typed-fail-closed-rejections.md\n M _bmad-output/implementation-artifacts/sprint-status.yaml\n M src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs\n M src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj\n M tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs\n M tests/Hexalith.Conversations.Server.Tests/AddParticipantCommandHandlerTest.cs\n M tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj\n M tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs\n?? src/Hexalith.Conversations.Server/TenantAccess/\n?? tests/Hexalith.Conversations.Server.Tests/TenantAccess/\n",
+      "stdout": " M _bmad-output/implementation-artifacts/sprint-status.yaml\n",
       "stderr": "",
-      "dirty_path_count": 10,
+      "dirty_path_count": 1,
       "result": "fail",
-      "details": "10 dirty path(s)"
+      "details": "1 dirty path(s)"
     }
   ],
   "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."

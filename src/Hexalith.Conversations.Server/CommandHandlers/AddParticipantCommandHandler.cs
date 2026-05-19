@@ -5,8 +5,10 @@
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.Hydration;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.State;
 using Hexalith.Conversations.Validation;
 using Hexalith.EventStore.Contracts.Events;
@@ -18,38 +20,89 @@ namespace Hexalith.Conversations.Server.CommandHandlers;
 /// Handles add-participant commands after command-time Party validation.
 /// </summary>
 /// <param name="participantDirectory">The participant directory validation boundary.</param>
-public sealed class AddParticipantCommandHandler(IParticipantDirectory participantDirectory)
+/// <param name="tenantAccessService">The tenant access boundary.</param>
+public sealed class AddParticipantCommandHandler(
+    IParticipantDirectory participantDirectory,
+    IConversationTenantAccessService tenantAccessService)
 {
     private readonly IParticipantDirectory _participantDirectory =
         participantDirectory ?? throw new ArgumentNullException(nameof(participantDirectory));
 
+    private readonly IConversationTenantAccessService _tenantAccessService =
+        tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+
     /// <summary>
-    /// Validates the participant Party reference, then dispatches the command to the aggregate.
+    /// Checks tenant access, loads state, validates the participant Party reference, then dispatches the command to the aggregate.
     /// </summary>
     /// <param name="command">The public add-participant command.</param>
-    /// <param name="state">The current conversation state.</param>
+    /// <param name="callerPrincipalId">The caller principal or user identifier.</param>
+    /// <param name="loadStateAsync">Loads the current conversation state only after tenant access is allowed.</param>
     /// <param name="addedAt">The deterministic participant-added timestamp.</param>
     /// <param name="eventId">The deterministic event identity.</param>
+    /// <param name="trustedTenantId">The trusted request tenant context.</param>
+    /// <param name="routeTenantId">The route tenant context, when present.</param>
+    /// <param name="idempotencyTenantId">The idempotency tenant context, when present.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A participant-added event or a typed content-safe rejection.</returns>
     public async ValueTask<DomainResult> HandleAsync(
         AddParticipantCommand? command,
-        ConversationState? state,
+        string? callerPrincipalId,
+        Func<CancellationToken, ValueTask<ConversationState?>> loadStateAsync,
         DateTimeOffset addedAt,
         string eventId,
+        TenantId? trustedTenantId = null,
+        TenantId? routeTenantId = null,
+        TenantId? idempotencyTenantId = null,
         CancellationToken cancellationToken = default)
     {
+        ArgumentNullException.ThrowIfNull(loadStateAsync);
+
         ConversationRejectedDomainEvent? shapeRejection = AddParticipantBoundary.ValidateCommandShape(command, addedAt, eventId);
         if (shapeRejection is not null)
         {
             return DomainResult.Rejection(new IRejectionEvent[] { shapeRejection });
         }
 
+        return await ConversationTenantAccessGuard.RunAsync(
+            _tenantAccessService,
+            ConversationTenantAccessRequirement.Write,
+            trustedTenantId ?? command!.Metadata.TenantId,
+            callerPrincipalId,
+            decision => DomainResult.Rejection(new IRejectionEvent[]
+            {
+                decision.ToRejection(
+                    command!.Metadata.SchemaVersion,
+                    command.Metadata.CorrelationId,
+                    command.Metadata.CausationId),
+            }),
+            async guardedCancellationToken =>
+            {
+                ConversationState? state = await loadStateAsync(guardedCancellationToken).ConfigureAwait(false);
+                return await HandleAfterTenantAccessAsync(
+                    command!,
+                    state,
+                    addedAt,
+                    eventId,
+                    guardedCancellationToken).ConfigureAwait(false);
+            },
+            routeTenantId,
+            command!.Metadata.TenantId,
+            idempotencyTenantId: idempotencyTenantId,
+            cancellationToken: cancellationToken).ConfigureAwait(false);
+    }
+
+    private async ValueTask<DomainResult> HandleAfterTenantAccessAsync(
+        AddParticipantCommand command,
+        ConversationState? state,
+        DateTimeOffset addedAt,
+        string eventId,
+        CancellationToken cancellationToken)
+    {
         ParticipantDirectoryValidation? validation;
         try
         {
             validation = await _participantDirectory
-                .ValidateParticipantAsync(command!.Metadata.TenantId, command.ParticipantPartyId, cancellationToken)
+                .ValidateParticipantAsync(command.Metadata.TenantId, command.ParticipantPartyId, cancellationToken)
                 .ConfigureAwait(false);
         }
         catch (OperationCanceledException)
@@ -64,7 +117,7 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
             // underlying provider error type.
             return DomainResult.Rejection(new IRejectionEvent[]
             {
-                ParticipantValidationUnavailableRejection(command!),
+                ParticipantValidationUnavailableRejection(command),
             });
         }
 
@@ -74,7 +127,7 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
             // on the subsequent Status access.
             return DomainResult.Rejection(new IRejectionEvent[]
             {
-                ParticipantValidationUnavailableRejection(command!),
+                ParticipantValidationUnavailableRejection(command),
             });
         }
 
@@ -82,7 +135,7 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
         {
             return DomainResult.Rejection(new IRejectionEvent[]
             {
-                ToRejection(validation.Status, command!),
+                ToRejection(validation.Status, command),
             });
         }
 
@@ -90,7 +143,7 @@ public sealed class AddParticipantCommandHandler(IParticipantDirectory participa
         // committing the aggregate dispatch.
         cancellationToken.ThrowIfCancellationRequested();
 
-        return AddParticipantBoundary.DispatchValidated(command!, addedAt, eventId, state);
+        return AddParticipantBoundary.DispatchValidated(command, addedAt, eventId, state);
     }
 
     private static ConversationRejectedDomainEvent ParticipantValidationUnavailableRejection(AddParticipantCommand command)

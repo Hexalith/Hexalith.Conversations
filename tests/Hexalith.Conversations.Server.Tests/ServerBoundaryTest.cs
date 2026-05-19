@@ -30,7 +30,12 @@ public sealed class ServerBoundaryTest
 
         references.ShouldContain("Hexalith.Conversations.Contracts");
         references.ShouldContain("Hexalith.Conversations");
+        references.ShouldContain("Hexalith.Tenants.Client");
+        references.ShouldContain("Hexalith.Tenants.Contracts");
         references.ShouldNotContain("Hexalith.EventStore.Server");
+        references.ShouldNotContain("Hexalith.Tenants.Server");
+        references.ShouldNotContain("Hexalith.Parties");
+        references.ShouldNotContain("Hexalith.FrontComposer");
         references.ShouldNotContain("Dapr.Client");
     }
 }

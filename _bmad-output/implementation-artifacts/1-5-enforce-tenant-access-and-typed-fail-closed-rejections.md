@@ -1,6 +1,6 @@
 # Story 1.5: Enforce Tenant Access and Typed Fail-Closed Rejections
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -20,58 +20,58 @@ so that cross-tenant access, enumeration, and stale authorization cannot leak or
 
 ## Tasks / Subtasks
 
-- [ ] Confirm implementation preconditions and preserve scope. (AC: 1-5)
-  - [ ] Verify the contract types from Story 1.2 exist or implement only the minimum error/result additions that Story 1.5 owns without replacing Story 1.2.
-  - [ ] Verify the aggregate/command/read surfaces from Stories 1.3, 1.4, 1.4.1, 1.4.2, and 1.7 exist before wiring real guards around them. If they do not exist, add the tenant-access boundary and tests with fake invokers/readers only; do not invent conversation aggregate, message, participant, reference, or projection behavior in this story.
-  - [ ] Read every existing file before editing, especially `src/Hexalith.Conversations.Server/Program.cs`, `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj`, `src/Hexalith.Conversations.Contracts`, `src/Hexalith.Conversations`, and all matching test files.
+- [x] Confirm implementation preconditions and preserve scope. (AC: 1-5)
+  - [x] Verify the contract types from Story 1.2 exist or implement only the minimum error/result additions that Story 1.5 owns without replacing Story 1.2.
+  - [x] Verify the aggregate/command/read surfaces from Stories 1.3, 1.4, 1.4.1, 1.4.2, and 1.7 exist before wiring real guards around them. If they do not exist, add the tenant-access boundary and tests with fake invokers/readers only; do not invent conversation aggregate, message, participant, reference, or projection behavior in this story.
+  - [x] Read every existing file before editing, especially `src/Hexalith.Conversations.Server/Program.cs`, `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj`, `src/Hexalith.Conversations.Contracts`, `src/Hexalith.Conversations`, and all matching test files.
 
-- [ ] Add the Conversations tenant-access decision boundary. (AC: 1, 2, 5)
-  - [ ] Add `Server/TenantAccess/IConversationTenantAccessService.cs`, `ConversationTenantAccessService.cs`, `ConversationTenantAccessRequirement.cs`, `ConversationTenantAccessDecision.cs`, and `ConversationTenantAccessDenialReason.cs`.
-  - [ ] Model access decisions as a single server/application boundary contract with allowed/denied state, requirement, tenant id, optional caller/principal id, internal denial reason, retryability, and projection version/watermark metadata when available; do not include Party personal data, provider metadata, conversation content, or raw tenant membership dictionaries.
-  - [ ] Back the service with `Hexalith.Tenants.Client.Projections.ITenantProjectionStore`; do not call Tenants synchronously on the hot path and do not trust JWT/request tenant claims alone.
-  - [ ] Map Tenants roles conservatively: `TenantReader` permits read only, `TenantContributor` permits read/write, and `TenantOwner` permits read/write/admin unless a later ADR narrows this.
-  - [ ] Deny missing tenant id, malformed tenant id, missing caller/user id, unknown tenant, disabled tenant, missing member, insufficient role, unmapped role, projection store failure, null or malformed projection record, duplicate or ambiguous membership, stale/gap/rollback signal when the store or wrapper exposes it, and tenant mismatch.
-  - [ ] Compare trusted request tenant, route tenant, command body tenant, projection tenant, aggregate/conversation tenant, and idempotency tenant using one canonical tenant identifier representation; reject blank, unparseable, differently prefixed, or lossy string-normalized values before any protected delegate is invoked.
-  - [ ] Treat Tenants role and status mapping as closed-world: only explicitly supported `TenantReader`, `TenantContributor`, `TenantOwner`, `Active`, and `Disabled` states may influence access; unknown additions, duplicate records, or contradictory projection values deny until deliberately mapped.
-  - [ ] Let `OperationCanceledException` propagate so request cancellation is not converted into an authorization result.
+- [x] Add the Conversations tenant-access decision boundary. (AC: 1, 2, 5)
+  - [x] Add `Server/TenantAccess/IConversationTenantAccessService.cs`, `ConversationTenantAccessService.cs`, `ConversationTenantAccessRequirement.cs`, `ConversationTenantAccessDecision.cs`, and `ConversationTenantAccessDenialReason.cs`.
+  - [x] Model access decisions as a single server/application boundary contract with allowed/denied state, requirement, tenant id, optional caller/principal id, internal denial reason, retryability, and projection version/watermark metadata when available; do not include Party personal data, provider metadata, conversation content, or raw tenant membership dictionaries.
+  - [x] Back the service with `Hexalith.Tenants.Client.Projections.ITenantProjectionStore`; do not call Tenants synchronously on the hot path and do not trust JWT/request tenant claims alone.
+  - [x] Map Tenants roles conservatively: `TenantReader` permits read only, `TenantContributor` permits read/write, and `TenantOwner` permits read/write/admin unless a later ADR narrows this.
+  - [x] Deny missing tenant id, malformed tenant id, missing caller/user id, unknown tenant, disabled tenant, missing member, insufficient role, unmapped role, projection store failure, null or malformed projection record, duplicate or ambiguous membership, stale/gap/rollback signal when the store or wrapper exposes it, and tenant mismatch.
+  - [x] Compare trusted request tenant, route tenant, command body tenant, projection tenant, aggregate/conversation tenant, and idempotency tenant using one canonical tenant identifier representation; reject blank, unparseable, differently prefixed, or lossy string-normalized values before any protected delegate is invoked.
+  - [x] Treat Tenants role and status mapping as closed-world: only explicitly supported `TenantReader`, `TenantContributor`, `TenantOwner`, `Active`, and `Disabled` states may influence access; unknown additions, duplicate records, or contradictory projection values deny until deliberately mapped.
+  - [x] Let `OperationCanceledException` propagate so request cancellation is not converted into an authorization result.
 
-- [ ] Wire the tenant guard before every available command/read path. (AC: 1, 3, 4)
-  - [ ] Implement guards as command handler decorators/pipeline behavior before command invokers and query/read service decorators before projection readers where those seams exist; if no shared seam exists yet, guard each available command, read, publication-detail, and audit-sensitive boundary individually.
-  - [ ] For commands, check tenant access before validation steps that could load aggregate state, before EventStore dispatch, before projection mutation, before publication detail access, and before audit-sensitive metadata access.
-  - [ ] For reads/lists, check tenant access before projection lookup, count/facet calculation, pagination cursor resolution, Party hydration, provider correlation lookup, or any existence-sensitive branch.
-  - [ ] Reject mismatches between trusted request tenant, command body tenant, route tenant, aggregate/conversation tenant, projection key tenant, and idempotency context tenant before touching state.
-  - [ ] Keep the aggregate pure: do not put Tenants calls, authorization decisions, request claims, HTTP context, or projection freshness checks inside `ConversationAggregate`.
-  - [ ] Keep `Server/Program.cs` fail-closed unless this story or prior completed stories provides a real safe API bootstrap; do not replace the fail-closed startup with permissive endpoints. Protected routes must not succeed when tenant access services are absent; runtime projection-store unavailability must become a typed fail-closed denial, not a fallback allow path.
-  - [ ] Ensure HTTP endpoints, background processors, tool/MCP entry points, test-only invokers, and future application services cannot bypass the same tenant gate when they call a guarded command/read delegate; middleware-only authorization is insufficient evidence for this story.
+- [x] Wire the tenant guard before every available command/read path. (AC: 1, 3, 4)
+  - [x] Implement guards as command handler decorators/pipeline behavior before command invokers and query/read service decorators before projection readers where those seams exist; if no shared seam exists yet, guard each available command, read, publication-detail, and audit-sensitive boundary individually.
+  - [x] For commands, check tenant access before validation steps that could load aggregate state, before EventStore dispatch, before projection mutation, before publication detail access, and before audit-sensitive metadata access.
+  - [x] For reads/lists, check tenant access before projection lookup, count/facet calculation, pagination cursor resolution, Party hydration, provider correlation lookup, or any existence-sensitive branch.
+  - [x] Reject mismatches between trusted request tenant, command body tenant, route tenant, aggregate/conversation tenant, projection key tenant, and idempotency context tenant before touching state.
+  - [x] Keep the aggregate pure: do not put Tenants calls, authorization decisions, request claims, HTTP context, or projection freshness checks inside `ConversationAggregate`.
+  - [x] Keep `Server/Program.cs` fail-closed unless this story or prior completed stories provides a real safe API bootstrap; do not replace the fail-closed startup with permissive endpoints. Protected routes must not succeed when tenant access services are absent; runtime projection-store unavailability must become a typed fail-closed denial, not a fallback allow path.
+  - [x] Ensure HTTP endpoints, background processors, tool/MCP entry points, test-only invokers, and future application services cannot bypass the same tenant gate when they call a guarded command/read delegate; middleware-only authorization is insufficient evidence for this story.
 
-- [ ] Map denials to typed, content-safe errors. (AC: 2-4)
-  - [ ] Reuse the Story 1.2 error contract vocabulary where present: `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `command_validation_failed`, and related typed problem/result contracts.
-  - [ ] Do not add public synonyms such as `access_denied`, `forbidden_tenant`, or `tenant_expired` unless the contract tests and documentation deliberately update the shared vocabulary.
-  - [ ] For unauthorized, nonexistent, unknown-tenant, disabled-tenant, projection-unavailable, stale-projection, and cross-tenant conversation cases, return the same safe externally observable status/body/header/pagination shape unless a policy explicitly permits disclosure to the caller.
-  - [ ] Keep internal denial reasons precise for tests, telemetry, audit handles, and server diagnostics, but do not expose those internal reasons publicly unless an existing Story 1.2 contract explicitly defines the stable public code.
-  - [ ] Include only safe metadata such as bounded reason code, retryability, correlation id, optional audit handle, and documentation pointer. Do not include target tenant id, Party data, conversation title, business reference, provider id, snippets, raw upstream problem details, claims, tokens, or member dictionaries.
-  - [ ] Make public retryability and diagnostics non-disclosing: they may communicate a generic retry-safe category only when that category cannot distinguish unauthorized, nonexistent, hidden, stale, or unavailable protected records for the caller.
+- [x] Map denials to typed, content-safe errors. (AC: 2-4)
+  - [x] Reuse the Story 1.2 error contract vocabulary where present: `tenant_binding_missing`, `tenant_isolation_violation`, `tenant_projection_stale`, `command_validation_failed`, and related typed problem/result contracts.
+  - [x] Do not add public synonyms such as `access_denied`, `forbidden_tenant`, or `tenant_expired` unless the contract tests and documentation deliberately update the shared vocabulary.
+  - [x] For unauthorized, nonexistent, unknown-tenant, disabled-tenant, projection-unavailable, stale-projection, and cross-tenant conversation cases, return the same safe externally observable status/body/header/pagination shape unless a policy explicitly permits disclosure to the caller.
+  - [x] Keep internal denial reasons precise for tests, telemetry, audit handles, and server diagnostics, but do not expose those internal reasons publicly unless an existing Story 1.2 contract explicitly defines the stable public code.
+  - [x] Include only safe metadata such as bounded reason code, retryability, correlation id, optional audit handle, and documentation pointer. Do not include target tenant id, Party data, conversation title, business reference, provider id, snippets, raw upstream problem details, claims, tokens, or member dictionaries.
+  - [x] Make public retryability and diagnostics non-disclosing: they may communicate a generic retry-safe category only when that category cannot distinguish unauthorized, nonexistent, hidden, stale, or unavailable protected records for the caller.
 
-- [ ] Register Tenants integration without breaking project boundaries. (AC: 1, 5)
-  - [ ] Add the smallest required references to `Hexalith.Tenants.Client` and `Hexalith.Tenants.Contracts` in the server/test projects using central package or project-reference conventions; do not add these dependencies to `Hexalith.Conversations.Contracts` or the domain aggregate project.
-  - [ ] Register `AddHexalithTenants(...)` at the server/application boundary when a real host exists, and map the Tenants subscription endpoint only where the host is safely configured with CloudEvents and Dapr subscribe handling.
-  - [ ] Keep the default in-memory `ITenantProjectionStore` test/local only. Production durability, sequence/gap tracking, and freshness SLO metadata require ADR-003 or an approved readiness decision before being treated as complete production behavior.
-  - [ ] Do not initialize or update nested submodules. Root-level sibling reads are enough for this story.
+- [x] Register Tenants integration without breaking project boundaries. (AC: 1, 5)
+  - [x] Add the smallest required references to `Hexalith.Tenants.Client` and `Hexalith.Tenants.Contracts` in the server/test projects using central package or project-reference conventions; do not add these dependencies to `Hexalith.Conversations.Contracts` or the domain aggregate project.
+  - [x] Register `AddHexalithTenants(...)` at the server/application boundary when a real host exists, and map the Tenants subscription endpoint only where the host is safely configured with CloudEvents and Dapr subscribe handling.
+  - [x] Keep the default in-memory `ITenantProjectionStore` test/local only. Production durability, sequence/gap tracking, and freshness SLO metadata require ADR-003 or an approved readiness decision before being treated as complete production behavior.
+  - [x] Do not initialize or update nested submodules. Root-level sibling reads are enough for this story.
 
-- [ ] Add local evidence tests for fail-closed behavior. (AC: 1-5)
-  - [ ] Add focused unit tests under `tests/Hexalith.Conversations.Server.Tests/TenantAccess` for role mapping, missing tenant, malformed/blank tenant, missing caller, unknown tenant, disabled tenant, missing member, insufficient role, unmapped role, projection-store exception, cancellation propagation, stale/gap/rollback signal, and projection poisoning.
-  - [ ] Add command-boundary tests with fake aggregate loader/dispatcher/event appender/projection publisher proving denied writes do not load aggregate state, dispatch commands, emit domain events, mutate projections, or publish tenant-crossing metadata.
-  - [ ] Add read-boundary tests with fake projection/read services proving denied reads do not call projection lookup, totals, pagination, hydration, provider metadata, or existence-sensitive branches.
-  - [ ] Add adversarial tests for cross-tenant ID guessing and mixed metadata, including route/header/body/aggregate tenant mismatches.
-  - [ ] Add bypass tests proving every available command/read entry point shares the same tenant-access decorator or guard, including direct service calls that skip ASP.NET middleware and any local/test harness seam introduced by this story.
-  - [ ] Add contract/content-safety tests proving denial payloads omit protected titles, participant names, snippets, timestamps, counts, pagination gaps, headers or metadata that reveal existence, business references, provider correlation metadata, raw tenant ids where disclosure is not allowed, Party personal data, and raw upstream errors.
-  - [ ] Add observability privacy tests proving logs, metrics, traces, exception messages, activity tags, and audit handles use bounded safe reason categories and correlation ids without raw tenant ids, member dictionaries, caller tokens, Party data, conversation content, business references, provider metadata, or upstream problem bodies.
-  - [ ] Add or update boundary tests so forbidden Tenants/Parties/EventStore infrastructure references cannot appear in Contracts or domain projects.
+- [x] Add local evidence tests for fail-closed behavior. (AC: 1-5)
+  - [x] Add focused unit tests under `tests/Hexalith.Conversations.Server.Tests/TenantAccess` for role mapping, missing tenant, malformed/blank tenant, missing caller, unknown tenant, disabled tenant, missing member, insufficient role, unmapped role, projection-store exception, cancellation propagation, stale/gap/rollback signal, and projection poisoning.
+  - [x] Add command-boundary tests with fake aggregate loader/dispatcher/event appender/projection publisher proving denied writes do not load aggregate state, dispatch commands, emit domain events, mutate projections, or publish tenant-crossing metadata.
+  - [x] Add read-boundary tests with fake projection/read services proving denied reads do not call projection lookup, totals, pagination, hydration, provider metadata, or existence-sensitive branches.
+  - [x] Add adversarial tests for cross-tenant ID guessing and mixed metadata, including route/header/body/aggregate tenant mismatches.
+  - [x] Add bypass tests proving every available command/read entry point shares the same tenant-access decorator or guard, including direct service calls that skip ASP.NET middleware and any local/test harness seam introduced by this story.
+  - [x] Add contract/content-safety tests proving denial payloads omit protected titles, participant names, snippets, timestamps, counts, pagination gaps, headers or metadata that reveal existence, business references, provider correlation metadata, raw tenant ids where disclosure is not allowed, Party personal data, and raw upstream errors.
+  - [x] Add observability privacy tests proving logs, metrics, traces, exception messages, activity tags, and audit handles use bounded safe reason categories and correlation ids without raw tenant ids, member dictionaries, caller tokens, Party data, conversation content, business references, provider metadata, or upstream problem bodies.
+  - [x] Add or update boundary tests so forbidden Tenants/Parties/EventStore infrastructure references cannot appear in Contracts or domain projects.
 
-- [ ] Validate the story implementation. (AC: 1-5)
-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` first.
-  - [ ] If assets are stale, run `dotnet restore .\Hexalith.Conversations.slnx`, `dotnet build .\Hexalith.Conversations.slnx --no-restore`, and `dotnet test .\Hexalith.Conversations.slnx --no-build`.
-  - [ ] Capture validation commands and any deferred readiness gaps in the Dev Agent Record.
+- [x] Validate the story implementation. (AC: 1-5)
+  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore` first.
+  - [x] If assets are stale, run `dotnet restore .\Hexalith.Conversations.slnx`, `dotnet build .\Hexalith.Conversations.slnx --no-restore`, and `dotnet test .\Hexalith.Conversations.slnx --no-build`.
+  - [x] Capture validation commands and any deferred readiness gaps in the Dev Agent Record.
 
 ## Dev Notes
 
@@ -228,15 +228,54 @@ Aspire AppHost remains local orchestration only. This story should not require A
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
+
+- `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj --no-restore` failed red because `Hexalith.Conversations.Server.TenantAccess` did not exist yet.
+- `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj` passed after implementation: 51 passed.
+- `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed: Contracts 77, Client 1, Server 51, Domain 56, Integration 8.
+- `dotnet restore .\Hexalith.Conversations.slnx` passed after Tenants references were added.
+- `dotnet build .\Hexalith.Conversations.slnx --no-restore` passed with 0 warnings and 0 errors.
+- `dotnet build .\Hexalith.Conversations.slnx --no-restore` passed after stricter closed-world role validation with 0 warnings and 0 errors.
+- `dotnet test .\Hexalith.Conversations.slnx --no-build` passed after stricter closed-world role validation: Contracts 77, Client 1, Server 52, Domain 56, Integration 8.
+
+### Implementation Plan
+
+- Added a Conversations-owned server tenant access boundary backed by `ITenantProjectionStore`, with closed-world Tenants role/status mapping, canonical tenant comparison, optional projection health signals, content-safe decision/rejection mapping, and cancellation propagation.
+- Added a shared `ConversationTenantAccessGuard` and rewired the available participant command handler to load aggregate state and call Party validation only after tenant access succeeds.
+- Kept `Program.cs` fail-closed; added DI registration through `AddConversationTenantAccess()` for the future real host boundary, without mapping Dapr subscription endpoints in the current non-host startup.
 
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Implemented Story 1.5 tenant access boundary in `src/Hexalith.Conversations.Server/TenantAccess`.
+- Wired `AddParticipantCommandHandler` through the tenant guard before state loading, Party validation, and aggregate dispatch.
+- Added local evidence tests for role mapping, missing/malformed tenant, missing caller, unknown/disabled tenant, missing member, insufficient/unmapped role, projection exceptions, cancellation propagation, stale/gap/rollback/poison signals, cross-tenant mismatches, denied write/read delegate bypass prevention, content-safe errors, safe logging, DI registration, and project-boundary references.
+- Deferred production tenant projection durability, freshness SLOs, distributed decision caching, explicit existence-disclosure policy, and subscription endpoint mapping until the approved host/ADR work exists.
 
 ### File List
+
+- `_bmad-output/implementation-artifacts/1-5-enforce-tenant-access-and-typed-fail-closed-rejections.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs`
+- `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessDecision.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessDenialReason.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessGuard.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessRequirement.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessService.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessServiceCollectionExtensions.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantProjectionHealth.cs`
+- `src/Hexalith.Conversations.Server/TenantAccess/IConversationTenantAccessService.cs`
+- `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/AddParticipantCommandHandlerTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj`
+- `tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/AddParticipantCommandHandlerTenantAccessTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantAccessGuardTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantAccessRegistrationTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/ConversationTenantAccessServiceTest.cs`
 
 ## Party-Mode Review
 
@@ -254,6 +293,7 @@ Aspire AppHost remains local orchestration only. This story should not require A
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review completed; denial mapping, guard placement, projection-state, and non-disclosure clarifications applied.
 - 2026-05-19: Advanced elicitation applied canonical tenant equality, closed-world role/status, guard-bypass, public retryability, and observability privacy clarifications.
+- 2026-05-19: Implemented tenant access boundary, guarded participant command path, Tenants registration, fail-closed tests, and validation evidence; story moved to review.
 
 ## Advanced Elicitation
 

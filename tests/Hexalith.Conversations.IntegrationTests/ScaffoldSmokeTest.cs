@@ -147,7 +147,9 @@ public sealed class ScaffoldSmokeTest
             root,
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
-            "src/Hexalith.Conversations/Hexalith.Conversations.csproj");
+            "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
+            "Hexalith.Tenants/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
+            "Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",

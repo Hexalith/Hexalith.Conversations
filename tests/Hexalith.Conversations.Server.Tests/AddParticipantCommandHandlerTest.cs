@@ -12,6 +12,7 @@ using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.CommandHandlers;
 using Hexalith.Conversations.Server.Hydration;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.State;
 using Hexalith.EventStore.Contracts.Results;
 using Shouldly;
@@ -39,14 +40,16 @@ public sealed class AddParticipantCommandHandlerTest
     public async Task ValidPartyProofShouldDispatchAggregate()
     {
         FakeParticipantDirectory directory = new(ParticipantDirectoryValidation.Valid());
-        AddParticipantCommandHandler handler = new(directory);
+        AddParticipantCommandHandler handler = new(directory, AllowedTenantAccess());
 
         DomainResult result = await handler.HandleAsync(
             Command(),
-            CreatedState(),
+            "user-alpha",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
             AddedAt,
             "event-add-alpha",
-            TestContext.Current.CancellationToken);
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
         result.Events.Single().ShouldBeOfType<ParticipantAddedDomainEvent>();
@@ -73,14 +76,16 @@ public sealed class AddParticipantCommandHandlerTest
     public async Task PartyValidationFailuresShouldFailClosedBeforeAggregateInvocation(ParticipantDirectoryValidationStatus status)
     {
         FakeParticipantDirectory directory = new(new ParticipantDirectoryValidation(status));
-        AddParticipantCommandHandler handler = new(directory);
+        AddParticipantCommandHandler handler = new(directory, AllowedTenantAccess());
 
         DomainResult result = await handler.HandleAsync(
             Command(),
-            CreatedState(),
+            "user-alpha",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
             AddedAt,
             "event-add-alpha",
-            TestContext.Current.CancellationToken);
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(status == ParticipantDirectoryValidationStatus.TenantMismatch
@@ -96,19 +101,27 @@ public sealed class AddParticipantCommandHandlerTest
     public async Task InvalidCommandShapeShouldNotCallParticipantDirectory()
     {
         FakeParticipantDirectory directory = new(ParticipantDirectoryValidation.Valid());
-        AddParticipantCommandHandler handler = new(directory);
+        AddParticipantCommandHandler handler = new(directory, AllowedTenantAccess());
         AddParticipantCommand invalid = Command() with { ParticipantPartyId = null! };
+        int loadCount = 0;
 
         DomainResult result = await handler.HandleAsync(
             invalid,
-            CreatedState(),
+            "user-alpha",
+            _ =>
+            {
+                loadCount++;
+                return ValueTask.FromResult<ConversationState?>(CreatedState());
+            },
             AddedAt,
             "event-add-alpha",
-            TestContext.Current.CancellationToken);
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = SingleRejection(result);
         rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
         rejection.ReasonCode.ShouldBe("participant_party_missing");
+        loadCount.ShouldBe(0);
         directory.CallCount.ShouldBe(0);
     }
 
@@ -150,6 +163,12 @@ public sealed class AddParticipantCommandHandlerTest
         return result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
     }
 
+    private static IConversationTenantAccessService AllowedTenantAccess()
+        => new StubTenantAccessService(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Write,
+            Tenant,
+            "user-alpha"));
+
     private sealed class FakeParticipantDirectory(ParticipantDirectoryValidation validation) : IParticipantDirectory
     {
         public int CallCount { get; private set; }
@@ -169,5 +188,20 @@ public sealed class AddParticipantCommandHandlerTest
             LastPartyId = participantPartyId;
             return ValueTask.FromResult(validation);
         }
+    }
+
+    private sealed class StubTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
+    {
+        public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
+            ConversationTenantAccessRequirement requirement,
+            TenantId? trustedTenantId,
+            string? callerPrincipalId,
+            TenantId? routeTenantId = null,
+            TenantId? commandTenantId = null,
+            TenantId? aggregateTenantId = null,
+            TenantId? projectionTenantId = null,
+            TenantId? idempotencyTenantId = null,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(decision);
     }
 }
