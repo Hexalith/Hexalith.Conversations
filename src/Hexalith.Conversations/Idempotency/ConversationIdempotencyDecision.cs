@@ -11,10 +11,12 @@ namespace Hexalith.Conversations.Idempotency;
 /// <param name="Kind">The idempotency decision kind.</param>
 /// <param name="StoredOutcome">The stored logical outcome for duplicates, when available.</param>
 /// <param name="ReasonCode">The safe internal reason code.</param>
+/// <param name="ReservationCreatedAt">The reservation timestamp token for newly reserved keys.</param>
 public sealed record ConversationIdempotencyDecision(
     ConversationIdempotencyDecisionKind Kind,
     ConversationIdempotencyOutcome? StoredOutcome,
-    string ReasonCode)
+    string ReasonCode,
+    DateTimeOffset? ReservationCreatedAt = null)
 {
     /// <summary>
     /// Gets the safe internal reason code.
@@ -23,6 +25,18 @@ public sealed record ConversationIdempotencyDecision(
 
     /// <summary>
     /// Creates a reserved decision.
+    /// </summary>
+    /// <param name="reservationCreatedAt">The reservation timestamp token.</param>
+    /// <returns>The reserved decision.</returns>
+    public static ConversationIdempotencyDecision Reserved(DateTimeOffset reservationCreatedAt)
+        => new(
+            ConversationIdempotencyDecisionKind.Reserved,
+            StoredOutcome: null,
+            "idempotency_reserved",
+            reservationCreatedAt);
+
+    /// <summary>
+    /// Creates a reserved decision without a store token for tests that do not exercise release/poison identity.
     /// </summary>
     /// <returns>The reserved decision.</returns>
     public static ConversationIdempotencyDecision Reserved()

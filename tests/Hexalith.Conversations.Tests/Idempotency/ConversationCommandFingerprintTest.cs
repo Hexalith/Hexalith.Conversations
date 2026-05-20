@@ -147,6 +147,29 @@ public sealed class ConversationCommandFingerprintTest
     }
 
     /// <summary>
+    /// P46: Safe payload text uses NFC canonicalization without changing identity dimensions.
+    /// </summary>
+    [Fact]
+    public void SafeTextShouldUseNfcNormalization()
+    {
+        ConversationCommandFingerprint composedLabel = ConversationCommandFingerprint.Create(
+            CreateConversation(label: "Caf\u00e9"),
+            Conversation);
+        ConversationCommandFingerprint decomposedLabel = ConversationCommandFingerprint.Create(
+            CreateConversation(label: "Cafe\u0301"),
+            Conversation);
+        ConversationCommandFingerprint composedAttribute = ConversationCommandFingerprint.Create(
+            UpdateMetadata(attributes: new Dictionary<string, string> { ["note"] = "Caf\u00e9" }),
+            Conversation);
+        ConversationCommandFingerprint decomposedAttribute = ConversationCommandFingerprint.Create(
+            UpdateMetadata(attributes: new Dictionary<string, string> { ["note"] = "Cafe\u0301" }),
+            Conversation);
+
+        composedLabel.PayloadFingerprint.ShouldBe(decomposedLabel.PayloadFingerprint);
+        composedAttribute.PayloadFingerprint.ShouldBe(decomposedAttribute.PayloadFingerprint);
+    }
+
+    /// <summary>
     /// Scope comparison remains exact and does not collapse tenant, command, schema, or conversation identity.
     /// </summary>
     [Fact]
@@ -165,11 +188,33 @@ public sealed class ConversationCommandFingerprintTest
         ConversationCommandFingerprint differentCommandType = ConversationCommandFingerprint.Create(
             new CloseConversationCommand(Metadata(), Conversation, "resolved"),
             Conversation);
+        ConversationCommandFingerprint visuallySimilarTenant = ConversationCommandFingerprint.Create(
+            CreateConversation(metadata: Metadata(tenant: new TenantId("tenant-\u043e01"))),
+            Conversation);
+        ConversationCommandFingerprint nfkcEquivalentTenant = ConversationCommandFingerprint.Create(
+            CreateConversation(metadata: Metadata(tenant: new TenantId("\uff54enant-001"))),
+            Conversation);
 
         baseline.Scope.ShouldNotBe(tenantCaseChange.Scope);
         baseline.Scope.ShouldNotBe(differentConversation.Scope);
         baseline.Scope.ShouldNotBe(differentSchema.Scope);
         baseline.Scope.ShouldNotBe(differentCommandType.Scope);
+        baseline.Scope.ShouldNotBe(visuallySimilarTenant.Scope);
+        baseline.Scope.ShouldNotBe(nfkcEquivalentTenant.Scope);
+    }
+
+    /// <summary>
+    /// P39: Missing required canonical fields fail eagerly with a clear canonical field name.
+    /// </summary>
+    [Fact]
+    public void MissingRequiredCanonicalFieldShouldThrowClearArgumentException()
+    {
+        ArgumentException exception = Should.Throw<ArgumentException>(() => ConversationCommandFingerprint.Create(
+            new AppendMessageCommand(Metadata(), Conversation, Message, Actor, " "),
+            Conversation));
+
+        exception.ParamName.ShouldBe("value");
+        exception.Message.ShouldContain("canonical field 'text'");
     }
 
     private static CreateConversationCommand CreateConversation(
@@ -177,6 +222,16 @@ public sealed class ConversationCommandFingerprintTest
         string label = "Case 123",
         string providerSession = "provider-session")
         => new(metadata ?? Metadata(), Business, new ProjectId("project-001"), Folder, label, Provider(providerSession));
+
+    private static UpdateConversationMetadataCommand UpdateMetadata(
+        ConversationCommandMetadata? metadata = null,
+        IReadOnlyDictionary<string, string>? attributes = null)
+        => new(
+            metadata ?? Metadata(),
+            Conversation,
+            "Case 123",
+            new BusinessReference("crm", "case-123"),
+            attributes);
 
     private static ConversationCommandMetadata Metadata(
         TenantId? tenant = null,

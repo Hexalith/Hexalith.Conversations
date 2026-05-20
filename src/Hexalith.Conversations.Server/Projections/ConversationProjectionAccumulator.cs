@@ -20,10 +20,21 @@ public sealed class ConversationProjectionAccumulator
     private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
 
     private BusinessReference? _businessReference;
-    private ConversationId? _conversationId;
+    private readonly ConversationId _conversationId;
     private string? _label;
     private ConversationProjectionLifecycleState _lifecycle = ConversationProjectionLifecycleState.NotCreated;
-    private TenantId? _tenantId;
+    private readonly TenantId _tenantId;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ConversationProjectionAccumulator"/> class.
+    /// </summary>
+    /// <param name="expectedTenantId">The tenant identity this accumulator is allowed to project.</param>
+    /// <param name="expectedConversationId">The conversation identity this accumulator is allowed to project.</param>
+    public ConversationProjectionAccumulator(TenantId expectedTenantId, ConversationId expectedConversationId)
+    {
+        _tenantId = expectedTenantId ?? throw new ArgumentNullException(nameof(expectedTenantId));
+        _conversationId = expectedConversationId ?? throw new ArgumentNullException(nameof(expectedConversationId));
+    }
 
     /// <summary>
     /// Gets the current immutable projection snapshot.
@@ -47,12 +58,12 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(ConversationCreated e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         if (_lifecycle == ConversationProjectionLifecycleState.NotCreated)
         {
             _lifecycle = ConversationProjectionLifecycleState.Open;
@@ -68,12 +79,12 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(ParticipantAdded e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         _participants[e.ParticipantPartyId] = e.ParticipantPartyId;
     }
 
@@ -83,12 +94,12 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(MessageAppended e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         _messages[e.MessageId] = e.MessageId;
     }
 
@@ -98,12 +109,12 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(FileReferenceAttached e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         _files[e.FileId] = e.FileId;
     }
 
@@ -113,12 +124,11 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(ConversationMetadataUpdated e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
-
-        CaptureIdentity(e!.Metadata);
 
         // P12 review fix (2026-05-19): treat null Label / BusinessReference as "no change" rather than "clear".
         // This makes Created+MetadataUpdated reorder-deterministic in combination with Apply(ConversationCreated)'s
@@ -133,9 +143,9 @@ public sealed class ConversationProjectionAccumulator
             _businessReference = e.BusinessReference;
         }
 
-        if (e.Attributes is null)
+        if (e.Attributes is null || e.Attributes.Count == 0)
         {
-            // null Attributes means "do not modify"; this preserves projection state under a metadata update that
+            // null/empty Attributes means "do not modify"; this preserves projection state under a metadata update that
             // only touches Label/BusinessReference (or arrives reordered against a previous metadata update).
             return;
         }
@@ -153,12 +163,12 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(ConversationClosed e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         if (_lifecycle != ConversationProjectionLifecycleState.Archived)
         {
             _lifecycle = ConversationProjectionLifecycleState.Closed;
@@ -171,43 +181,29 @@ public sealed class ConversationProjectionAccumulator
     /// <param name="e">The event to apply.</param>
     public void Apply(ConversationArchived e)
     {
-        if (!TryMarkProcessed(e?.Metadata))
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
         {
             return;
         }
 
-        CaptureIdentity(e!.Metadata);
         _lifecycle = ConversationProjectionLifecycleState.Archived;
     }
 
-    private bool TryMarkProcessed(ConversationEventMetadata? metadata)
+    private bool TryMarkProcessed(ConversationEventMetadata metadata)
     {
         ArgumentNullException.ThrowIfNull(metadata);
 
-        // P1 review fix (2026-05-19): identity guard. Once an event from tenant T / conversation C has been applied,
-        // events bearing a different tenant or conversation must be silently ignored so the projection cannot be
-        // poisoned cross-tenant / cross-conversation. The accumulator is single-conversation by design; the guard
-        // makes the assumption explicit and fail-closed rather than silently merging the wrong identity.
-        if (_tenantId is not null && !_tenantId.Equals(metadata.TenantId))
+        if (!_tenantId.Equals(metadata.TenantId))
         {
             return false;
         }
 
-        if (_conversationId is not null && !_conversationId.Equals(metadata.ConversationId))
+        if (!_conversationId.Equals(metadata.ConversationId))
         {
             return false;
         }
 
-        // P2 review fix (2026-05-19): _processedEventIds is a HashSet keyed by EventId only. EventIds are deterministic
-        // per producer but not globally unique across conversations; scope deduplication by the captured identity above,
-        // which is enforced before we add the EventId. The dictionary itself does not need a composite key because
-        // identity is the upstream guard.
         return _processedEventIds.Add(metadata.EventId);
-    }
-
-    private void CaptureIdentity(ConversationEventMetadata metadata)
-    {
-        _tenantId ??= metadata.TenantId;
-        _conversationId ??= metadata.ConversationId;
     }
 }

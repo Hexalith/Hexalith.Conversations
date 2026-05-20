@@ -18,18 +18,22 @@ public sealed class IdempotentConversationCommandExecutor
 {
     private readonly IConversationIdempotencyStore _idempotencyStore;
     private readonly TimeSpan _retention;
+    private readonly TimeProvider _timeProvider;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="IdempotentConversationCommandExecutor"/> class.
     /// </summary>
     /// <param name="idempotencyStore">The idempotency store.</param>
     /// <param name="retention">The retention duration for new reservations.</param>
+    /// <param name="timeProvider">The deterministic clock provider.</param>
     public IdempotentConversationCommandExecutor(
         IConversationIdempotencyStore idempotencyStore,
-        TimeSpan? retention = null)
+        TimeSpan? retention = null,
+        TimeProvider? timeProvider = null)
     {
         _idempotencyStore = idempotencyStore ?? throw new ArgumentNullException(nameof(idempotencyStore));
         _retention = retention ?? TimeSpan.FromHours(24);
+        _timeProvider = timeProvider ?? TimeProvider.System;
         if (_retention <= TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(retention), "Retention must be positive.");
@@ -70,6 +74,8 @@ public sealed class IdempotentConversationCommandExecutor
             ConversationIdempotencyDecisionKind.Reserved => await ExecuteReservedAsync(
                 fingerprint,
                 now,
+                decision.ReservationCreatedAt ?? now,
+                correlationId,
                 mutationAsync,
                 outcomeFactory,
                 cancellationToken).ConfigureAwait(false),
@@ -102,7 +108,7 @@ public sealed class IdempotentConversationCommandExecutor
         {
             IdempotencyOutcomeCategory.Rejection when outcome.RejectionCode is not null => Rejection(
                 outcome.RejectionCode,
-                "idempotency_duplicate_rejection_replay",
+                outcome.OriginalReasonCode!,
                 fingerprint,
                 correlationId,
                 causationId),
@@ -119,6 +125,7 @@ public sealed class IdempotentConversationCommandExecutor
             "idempotency_record_expired" => "idempotency_outcome_unknown",
             "idempotency_record_version_incompatible" => "idempotency_outcome_unknown",
             "idempotency_duplicate" => "idempotency_outcome_unknown",
+            "idempotency_duplicate_rejection_replay" => "idempotency_outcome_unknown",
             "eventstore_command_status_pending" => "idempotency_outcome_unknown",
             "eventstore_terminal_replay_required" => "idempotency_outcome_unknown",
             _ => "idempotency_outcome_unknown",
@@ -127,6 +134,8 @@ public sealed class IdempotentConversationCommandExecutor
     private async ValueTask<DomainResult> ExecuteReservedAsync(
         ConversationCommandFingerprint fingerprint,
         DateTimeOffset now,
+        DateTimeOffset reservationCreatedAt,
+        string correlationId,
         Func<CancellationToken, ValueTask<DomainResult>> mutationAsync,
         Func<DomainResult, ConversationIdempotencyOutcome> outcomeFactory,
         CancellationToken cancellationToken)
@@ -140,22 +149,30 @@ public sealed class IdempotentConversationCommandExecutor
         }
         catch
         {
-            // P6 review fix: an exception inside the mutation or outcomeFactory must release the reservation
-            // so subsequent retries are not blocked for the entire retention window.
-            await TryReleaseAsync(fingerprint, CancellationToken.None).ConfigureAwait(false);
+            await TryMarkPoisonedAsync(
+                fingerprint,
+                CreateUncertainOutcome(fingerprint, correlationId),
+                now,
+                reservationCreatedAt,
+                CancellationToken.None).ConfigureAwait(false);
             throw;
         }
 
-        // P4 review fix: a retryable rejection (e.g., TenantProjectionStale, ParticipantValidationUnavailable) must not
-        // be persisted as a terminal Completed record; subsequent retries should be allowed to re-attempt the mutation.
         if (outcome.IsRetryable || outcome.Category == IdempotencyOutcomeCategory.Uncertain)
         {
-            await TryReleaseAsync(fingerprint, cancellationToken).ConfigureAwait(false);
+            ConversationIdempotencyOutcome uncertainty = outcome.Category == IdempotencyOutcomeCategory.Uncertain
+                ? outcome
+                : CreateUncertainOutcome(fingerprint, correlationId);
+            await TryMarkPoisonedAsync(
+                fingerprint,
+                uncertainty,
+                now,
+                reservationCreatedAt,
+                cancellationToken).ConfigureAwait(false);
             return result;
         }
 
-        // P15 review fix: capture a fresh completion timestamp instead of reusing the reservation 'now'.
-        DateTimeOffset completedAt = DateTimeOffset.UtcNow;
+        DateTimeOffset completedAt = _timeProvider.GetUtcNow();
         if (completedAt < now)
         {
             completedAt = now;
@@ -167,25 +184,47 @@ public sealed class IdempotentConversationCommandExecutor
         }
         catch
         {
-            await TryReleaseAsync(fingerprint, CancellationToken.None).ConfigureAwait(false);
+            await TryMarkPoisonedAsync(
+                fingerprint,
+                CreateUncertainOutcome(fingerprint, correlationId),
+                completedAt,
+                reservationCreatedAt,
+                CancellationToken.None).ConfigureAwait(false);
             throw;
         }
 
         return result;
     }
 
-    private async ValueTask TryReleaseAsync(ConversationCommandFingerprint fingerprint, CancellationToken cancellationToken)
+    private async ValueTask TryMarkPoisonedAsync(
+        ConversationCommandFingerprint fingerprint,
+        ConversationIdempotencyOutcome outcome,
+        DateTimeOffset poisonedAt,
+        DateTimeOffset reservationCreatedAt,
+        CancellationToken cancellationToken)
     {
         try
         {
-            await _idempotencyStore.ReleaseAsync(fingerprint, cancellationToken).ConfigureAwait(false);
+            await _idempotencyStore
+                .MarkPoisonedAsync(fingerprint, outcome, poisonedAt, reservationCreatedAt, cancellationToken)
+                .ConfigureAwait(false);
         }
         catch
         {
-            // Best-effort release: a failed release is not worse than leaving the record Pending.
-            // The next retry after expiry will replace it via the Reserve eviction path (P5).
+            // Best-effort poison: a failed poison is not worse than leaving the record Pending.
         }
     }
+
+    private static ConversationIdempotencyOutcome CreateUncertainOutcome(
+        ConversationCommandFingerprint fingerprint,
+        string correlationId)
+        => ConversationIdempotencyOutcome.Uncertain(
+            fingerprint.Scope.SchemaVersion,
+            fingerprint.Scope.TenantId,
+            fingerprint.Scope.CommandType,
+            new Hexalith.Conversations.Contracts.Identifiers.ConversationId(fingerprint.Scope.ScopeValue),
+            ConversationAuditHandle.FromServerBoundary(fingerprint, correlationId),
+            ConversationAuditHandle.FromServerBoundary(fingerprint, correlationId));
 
     private static DomainResult Rejection(
         ConversationErrorCode code,

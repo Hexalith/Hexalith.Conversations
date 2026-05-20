@@ -92,6 +92,30 @@ public sealed record ConversationIdempotencyRecord(
         };
     }
 
+    /// <summary>
+    /// Creates a poisoned copy of the record with a retryable uncertainty outcome.
+    /// </summary>
+    /// <param name="outcome">The retryable uncertainty outcome.</param>
+    /// <param name="poisonedAt">The poison timestamp.</param>
+    /// <returns>The poisoned record.</returns>
+    public ConversationIdempotencyRecord Poison(ConversationIdempotencyOutcome outcome, DateTimeOffset poisonedAt)
+    {
+        ArgumentNullException.ThrowIfNull(outcome);
+        if (outcome.Category != IdempotencyOutcomeCategory.Uncertain)
+        {
+            throw new ArgumentException(
+                "Poisoned idempotency records require an Uncertain outcome.",
+                nameof(outcome));
+        }
+
+        return this with
+        {
+            Status = ConversationIdempotencyRecordStatus.Poisoned,
+            UpdatedAt = poisonedAt,
+            Outcome = outcome,
+        };
+    }
+
     /// <inheritdoc />
     public override string ToString()
         => "IdempotencyRecord { "
@@ -109,7 +133,16 @@ public sealed record ConversationIdempotencyRecord(
     private static ConversationIdempotencyOutcome? ValidateOutcome(
         ConversationIdempotencyRecordStatus status,
         ConversationIdempotencyOutcome? outcome)
-        => status == ConversationIdempotencyRecordStatus.Completed && outcome is null
-            ? throw new ArgumentException("Completed idempotency records require an outcome.", nameof(outcome))
-            : outcome;
+        => status switch
+        {
+            ConversationIdempotencyRecordStatus.Pending when outcome is not null =>
+                throw new ArgumentException("Pending idempotency records must not carry an outcome.", nameof(outcome)),
+            ConversationIdempotencyRecordStatus.Completed when outcome is null =>
+                throw new ArgumentException("Completed idempotency records require an outcome.", nameof(outcome)),
+            ConversationIdempotencyRecordStatus.Poisoned when outcome is null =>
+                throw new ArgumentException("Poisoned idempotency records require an uncertainty outcome.", nameof(outcome)),
+            ConversationIdempotencyRecordStatus.Poisoned when outcome.Category != IdempotencyOutcomeCategory.Uncertain =>
+                throw new ArgumentException("Poisoned idempotency records require an Uncertain outcome.", nameof(outcome)),
+            _ => outcome,
+        };
 }

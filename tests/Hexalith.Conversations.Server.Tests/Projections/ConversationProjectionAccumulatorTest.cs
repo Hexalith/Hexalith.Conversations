@@ -31,7 +31,7 @@ public sealed class ConversationProjectionAccumulatorTest
     [Fact]
     public void DuplicateAndReorderedDeliveriesShouldNotCreateDuplicateReadModelRows()
     {
-        ConversationProjectionAccumulator accumulator = new();
+        ConversationProjectionAccumulator accumulator = Accumulator();
 
         accumulator.Apply(ParticipantAdded("event-participant-001"));
         accumulator.Apply(MessageAppended("event-message-001"));
@@ -56,7 +56,7 @@ public sealed class ConversationProjectionAccumulatorTest
     [Fact]
     public void DuplicateTerminalLifecycleEventsShouldNotRegressState()
     {
-        ConversationProjectionAccumulator accumulator = new();
+        ConversationProjectionAccumulator accumulator = Accumulator();
 
         accumulator.Apply(Created("event-create-001"));
         accumulator.Apply(Archived("event-archive-001"));
@@ -73,8 +73,8 @@ public sealed class ConversationProjectionAccumulatorTest
     [Fact]
     public void DuplicateMetadataUpdatesShouldRemainDeterministic()
     {
-        ConversationProjectionAccumulator first = new();
-        ConversationProjectionAccumulator second = new();
+        ConversationProjectionAccumulator first = Accumulator();
+        ConversationProjectionAccumulator second = Accumulator();
 
         ConversationMetadataUpdated metadata = MetadataUpdated("event-metadata-001");
 
@@ -91,6 +91,74 @@ public sealed class ConversationProjectionAccumulatorTest
         first.Snapshot.Attributes.ShouldBe(second.Snapshot.Attributes);
     }
 
+    /// <summary>
+    /// P41: A lifecycle close that arrives before creation is deterministic and cannot be reopened by a late create.
+    /// </summary>
+    [Fact]
+    public void ClosedBeforeCreatedShouldRemainClosed()
+    {
+        ConversationProjectionAccumulator accumulator = Accumulator();
+
+        accumulator.Apply(Closed("event-close-early"));
+        accumulator.Apply(Created("event-create-late"));
+
+        accumulator.Snapshot.Lifecycle.ShouldBe(ConversationProjectionLifecycleState.Closed);
+        accumulator.Snapshot.ProcessedEventIds.ShouldBe(["event-close-early", "event-create-late"], ignoreOrder: false);
+    }
+
+    /// <summary>
+    /// P42: A wrong-identity event before creation is ignored and cannot poison the accumulator identity.
+    /// </summary>
+    [Fact]
+    public void WrongIdentityEventBeforeCreatedShouldNotPoisonAccumulator()
+    {
+        ConversationProjectionAccumulator accumulator = Accumulator();
+
+        accumulator.Apply(ParticipantAdded(
+            "event-wrong-participant",
+            tenantId: new TenantId("tenant-other"),
+            conversationId: new ConversationId("conversation-other")));
+        accumulator.Apply(Created("event-create-001"));
+
+        accumulator.Snapshot.TenantId.ShouldBe(Tenant);
+        accumulator.Snapshot.ConversationId.ShouldBe(Conversation);
+        accumulator.Snapshot.Label.ShouldBe("Case 123");
+        accumulator.Snapshot.ParticipantPartyIds.ShouldBeEmpty();
+        accumulator.Snapshot.ProcessedEventIds.ShouldBe(["event-create-001"], ignoreOrder: false);
+    }
+
+    /// <summary>
+    /// P45: Empty attributes mean no change, so metadata update ordering remains deterministic.
+    /// </summary>
+    [Fact]
+    public void EmptyAttributesShouldNotClearExistingProjectionAttributes()
+    {
+        ConversationProjectionAccumulator first = Accumulator();
+        ConversationProjectionAccumulator second = Accumulator();
+
+        ConversationMetadataUpdated withAttributes = MetadataUpdated(
+            "event-metadata-with-attributes",
+            new Dictionary<string, string>
+            {
+                ["owner"] = "support",
+                ["priority"] = "high",
+            });
+        ConversationMetadataUpdated emptyAttributes = MetadataUpdated(
+            "event-metadata-empty-attributes",
+            new Dictionary<string, string>());
+
+        first.Apply(Created("event-create-001"));
+        first.Apply(withAttributes);
+        first.Apply(emptyAttributes);
+
+        second.Apply(Created("event-create-001"));
+        second.Apply(emptyAttributes);
+        second.Apply(withAttributes);
+
+        first.Snapshot.Attributes.ShouldBe(second.Snapshot.Attributes);
+        first.Snapshot.Attributes.Count.ShouldBe(2);
+    }
+
     private static ConversationCreated Created(string eventId)
         => new(
             Metadata(eventId, ConversationEventType.ConversationCreated),
@@ -99,9 +167,12 @@ public sealed class ConversationProjectionAccumulatorTest
             Folder,
             "Case 123");
 
-    private static ParticipantAdded ParticipantAdded(string eventId)
+    private static ParticipantAdded ParticipantAdded(
+        string eventId,
+        TenantId? tenantId = null,
+        ConversationId? conversationId = null)
         => new(
-            Metadata(eventId, ConversationEventType.ParticipantAdded),
+            Metadata(eventId, ConversationEventType.ParticipantAdded, tenantId, conversationId),
             Participant,
             ParticipantType.Human,
             ParticipantRole.Member);
@@ -120,12 +191,14 @@ public sealed class ConversationProjectionAccumulatorTest
             Folder,
             Message);
 
-    private static ConversationMetadataUpdated MetadataUpdated(string eventId)
+    private static ConversationMetadataUpdated MetadataUpdated(
+        string eventId,
+        IReadOnlyDictionary<string, string>? attributes = null)
         => new(
             Metadata(eventId, ConversationEventType.ConversationMetadataUpdated),
             "Case 456",
             new BusinessReference("crm", "case-456"),
-            new Dictionary<string, string>
+            attributes ?? new Dictionary<string, string>
             {
                 ["owner"] = "support",
                 ["priority"] = "high",
@@ -137,13 +210,20 @@ public sealed class ConversationProjectionAccumulatorTest
     private static ConversationArchived Archived(string eventId)
         => new(Metadata(eventId, ConversationEventType.ConversationArchived), "retained");
 
-    private static ConversationEventMetadata Metadata(string eventId, ConversationEventType eventType)
+    private static ConversationProjectionAccumulator Accumulator()
+        => new(Tenant, Conversation);
+
+    private static ConversationEventMetadata Metadata(
+        string eventId,
+        ConversationEventType eventType,
+        TenantId? tenantId = null,
+        ConversationId? conversationId = null)
         => new(
             SchemaVersion.Current,
             eventId,
             eventType,
-            Tenant,
-            Conversation,
+            tenantId ?? Tenant,
+            conversationId ?? Conversation,
             "correlation-001",
             Now,
             Actor,

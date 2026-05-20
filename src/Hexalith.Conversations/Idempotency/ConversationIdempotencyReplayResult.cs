@@ -20,24 +20,24 @@ public sealed record ConversationIdempotencyReplayResult(ConversationIdempotency
     /// <summary>
     /// Gets the stored logical outcome.
     /// </summary>
-    public ConversationIdempotencyOutcome Outcome { get; } =
+    public ConversationIdempotencyOutcome Outcome { get; init; } =
         outcome ?? throw new ArgumentNullException(nameof(outcome));
 
     /// <inheritdoc />
-    public override string? ResultPayload { get; } =
-        JsonSerializer.Serialize(
+    public override string? ResultPayload
+        => JsonSerializer.Serialize(
             new
             {
-                outcome.Category,
-                outcome.SchemaVersion,
-                outcome.CommandType,
-                outcome.ConversationId,
-                outcome.MessageId,
-                outcome.ParticipantPartyId,
-                outcome.FileId,
-                outcome.RejectionCode,
-                outcome.IsRetryable,
-                outcome.AuditHandle,
+                Outcome.Category,
+                Outcome.SchemaVersion,
+                Outcome.CommandType,
+                Outcome.ConversationId,
+                Outcome.MessageId,
+                Outcome.ParticipantPartyId,
+                Outcome.FileId,
+                Outcome.RejectionCode,
+                Outcome.IsRetryable,
+                Outcome.AuditHandle,
             },
             new JsonSerializerOptions(JsonSerializerDefaults.Web));
 }

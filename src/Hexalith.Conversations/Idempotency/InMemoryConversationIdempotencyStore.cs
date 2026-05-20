@@ -48,15 +48,18 @@ public sealed class InMemoryConversationIdempotencyStore : IConversationIdempote
             if (!_records.TryGetValue(fingerprint.Scope, out ConversationIdempotencyRecord? existing))
             {
                 _records.Add(fingerprint.Scope, ConversationIdempotencyRecord.Pending(fingerprint, now, retention));
-                return ValueTask.FromResult(ConversationIdempotencyDecision.Reserved());
+                return ValueTask.FromResult(ConversationIdempotencyDecision.Reserved(now));
             }
 
-            // P5 review fix: an expired record must not permanently lock the scoped key.
-            // Replace it with a fresh reservation rather than returning RetryableUncertainty forever.
             if (existing.ExpiresAt <= now)
             {
-                _records[fingerprint.Scope] = ConversationIdempotencyRecord.Pending(fingerprint, now, retention);
-                return ValueTask.FromResult(ConversationIdempotencyDecision.Reserved());
+                if (existing.Status == ConversationIdempotencyRecordStatus.Pending)
+                {
+                    _records[fingerprint.Scope] = ConversationIdempotencyRecord.Pending(fingerprint, now, retention);
+                    return ValueTask.FromResult(ConversationIdempotencyDecision.Reserved(now));
+                }
+
+                return ValueTask.FromResult(ConversationIdempotencyDecision.RetryableUncertainty("idempotency_record_expired"));
             }
 
             return ValueTask.FromResult(EvaluateExisting(existing, fingerprint, now));
@@ -88,6 +91,16 @@ public sealed class InMemoryConversationIdempotencyStore : IConversationIdempote
                 throw new InvalidOperationException("Cannot complete an idempotency key that was not reserved.");
             }
 
+            if (existing.RecordVersion != ConversationIdempotencyRecord.CurrentRecordVersion)
+            {
+                throw new InvalidOperationException("Cannot complete an idempotency record with an unsupported record version.");
+            }
+
+            if (existing.Status != ConversationIdempotencyRecordStatus.Pending)
+            {
+                throw new InvalidOperationException("Cannot complete an idempotency record that is not pending.");
+            }
+
             if (existing.Fingerprint != fingerprint.PayloadFingerprint)
             {
                 throw new InvalidOperationException("Cannot complete an idempotency key with a different fingerprint.");
@@ -108,8 +121,40 @@ public sealed class InMemoryConversationIdempotencyStore : IConversationIdempote
     }
 
     /// <inheritdoc />
+    public ValueTask MarkPoisonedAsync(
+        ConversationCommandFingerprint fingerprint,
+        ConversationIdempotencyOutcome outcome,
+        DateTimeOffset poisonedAt,
+        DateTimeOffset reservationCreatedAt,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        ArgumentNullException.ThrowIfNull(fingerprint);
+        ArgumentNullException.ThrowIfNull(outcome);
+        if (outcome.Category != IdempotencyOutcomeCategory.Uncertain)
+        {
+            throw new InvalidOperationException("Poisoned idempotency records require an Uncertain outcome.");
+        }
+
+        lock (_gate)
+        {
+            if (_records.TryGetValue(fingerprint.Scope, out ConversationIdempotencyRecord? existing)
+                && existing.Status == ConversationIdempotencyRecordStatus.Pending
+                && existing.RecordVersion == ConversationIdempotencyRecord.CurrentRecordVersion
+                && existing.CreatedAt == reservationCreatedAt
+                && existing.Fingerprint == fingerprint.PayloadFingerprint)
+            {
+                _records[fingerprint.Scope] = existing.Poison(outcome, poisonedAt);
+            }
+        }
+
+        return ValueTask.CompletedTask;
+    }
+
+    /// <inheritdoc />
     public ValueTask ReleaseAsync(
         ConversationCommandFingerprint fingerprint,
+        DateTimeOffset reservationCreatedAt,
         CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
@@ -117,10 +162,9 @@ public sealed class InMemoryConversationIdempotencyStore : IConversationIdempote
 
         lock (_gate)
         {
-            // P4/P6 review fix: drop the reservation entirely so a subsequent retry can re-acquire the key
-            // (retryable rejections and exceptions during mutation must not block the key for the full retention window).
             if (_records.TryGetValue(fingerprint.Scope, out ConversationIdempotencyRecord? existing)
                 && existing.Status == ConversationIdempotencyRecordStatus.Pending
+                && existing.CreatedAt == reservationCreatedAt
                 && existing.Fingerprint == fingerprint.PayloadFingerprint)
             {
                 _records.Remove(fingerprint.Scope);

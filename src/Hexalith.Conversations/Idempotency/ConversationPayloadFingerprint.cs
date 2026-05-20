@@ -42,7 +42,7 @@ public sealed record ConversationPayloadFingerprint(string Algorithm, string Val
         StringBuilder canonical = new();
         foreach (KeyValuePair<string, string?> part in parts.OrderBy(p => p.Key, StringComparer.Ordinal))
         {
-            string value = part.Value ?? string.Empty;
+            string value = NormalizeSafeText(part.Key, part.Value ?? string.Empty);
             canonical
                 .Append(part.Key.Length)
                 .Append(':')
@@ -64,4 +64,15 @@ public sealed record ConversationPayloadFingerprint(string Algorithm, string Val
         ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
         return value;
     }
+
+    private static string NormalizeSafeText(string key, string value)
+        => IsSafeFreeTextField(key)
+            ? value.Normalize(NormalizationForm.FormC)
+            : value;
+
+    private static bool IsSafeFreeTextField(string key)
+        => key == "label"
+            || key == "business.value"
+            || key == "text"
+            || key.StartsWith("attribute.", StringComparison.Ordinal);
 }

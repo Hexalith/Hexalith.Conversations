@@ -31,6 +31,8 @@ public static class ConversationAuditHandle
             fingerprint.Scope.TenantId.Value,
             fingerprint.Scope.CommandType.Value,
             fingerprint.Scope.ScopeKind,
+            fingerprint.Scope.ScopeValue,
+            fingerprint.Scope.IdempotencyKey,
             fingerprint.Scope.SchemaVersion.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),
             serverOperationId);
 

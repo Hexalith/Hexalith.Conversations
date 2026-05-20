@@ -25,7 +25,7 @@ public interface IConversationIdempotencyStore
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Completes an existing reservation with a terminal logical outcome.
+    /// Completes an existing current-version pending reservation with a terminal logical outcome.
     /// </summary>
     /// <param name="fingerprint">The scoped command fingerprint.</param>
     /// <param name="outcome">The terminal logical outcome. Must not have <see cref="IdempotencyOutcomeCategory.Uncertain"/>.</param>
@@ -39,13 +39,30 @@ public interface IConversationIdempotencyStore
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Releases an existing reservation without persisting a terminal outcome. Use when the mutation produced a retryable
-    /// rejection or threw an exception, so a subsequent retry can re-acquire the scoped key without waiting for retention expiry.
+    /// Marks an existing pending reservation as poisoned with a retryable uncertainty outcome.
     /// </summary>
     /// <param name="fingerprint">The scoped command fingerprint.</param>
+    /// <param name="outcome">The retryable uncertainty outcome to persist.</param>
+    /// <param name="poisonedAt">The poison timestamp.</param>
+    /// <param name="reservationCreatedAt">The reservation timestamp token returned by <see cref="ReserveAsync"/>.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A task representing the asynchronous operation.</returns>
+    ValueTask MarkPoisonedAsync(
+        ConversationCommandFingerprint fingerprint,
+        ConversationIdempotencyOutcome outcome,
+        DateTimeOffset poisonedAt,
+        DateTimeOffset reservationCreatedAt,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Releases an existing reservation without persisting an outcome when the caller still owns the pending reservation.
+    /// </summary>
+    /// <param name="fingerprint">The scoped command fingerprint.</param>
+    /// <param name="reservationCreatedAt">The reservation timestamp token returned by <see cref="ReserveAsync"/>.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     ValueTask ReleaseAsync(
         ConversationCommandFingerprint fingerprint,
+        DateTimeOffset reservationCreatedAt,
         CancellationToken cancellationToken = default);
 }

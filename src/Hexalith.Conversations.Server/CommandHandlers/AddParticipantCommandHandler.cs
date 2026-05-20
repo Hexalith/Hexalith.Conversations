@@ -144,8 +144,21 @@ public sealed class AddParticipantCommandHandler
                         eventId,
                         mutationCancellationToken);
 
-                if (_idempotencyExecutor is not null && !string.IsNullOrWhiteSpace(command!.Metadata.IdempotencyKey))
+                if (_idempotencyExecutor is not null)
                 {
+                    if (string.IsNullOrWhiteSpace(command!.Metadata.IdempotencyKey))
+                    {
+                        return DomainResult.Rejection(new IRejectionEvent[]
+                        {
+                            new ConversationRejectedDomainEvent(
+                                ConversationErrorCode.IdempotencyKeyMissing,
+                                "idempotency_key_missing",
+                                command.Metadata.SchemaVersion,
+                                CorrelationId: eventId,
+                                CausationId: null),
+                        });
+                    }
+
                     ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command!, command.ConversationId);
                     string auditHandle = ConversationAuditHandle.FromServerBoundary(fingerprint, eventId);
 
@@ -353,6 +366,7 @@ public sealed class AddParticipantCommandHandler
                 ConversationCommandType.AddParticipantCommand,
                 command.ConversationId,
                 rejection.Code,
+                rejection.ReasonCode,
                 ConversationErrorCode.IsRetryable(rejection.Code),
                 auditHandle,
                 auditHandle);

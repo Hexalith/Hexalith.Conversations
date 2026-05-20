@@ -142,6 +142,54 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
         loadCount.ShouldBe(0);
     }
 
+    /// <summary>
+    /// P44: Replayed idempotent rejections preserve the first-attempt typed code and reason code.
+    /// </summary>
+    [Fact]
+    public async Task DuplicateRejectionReplayShouldMatchFirstAttemptCodeAndReason()
+    {
+        InMemoryConversationIdempotencyStore idempotencyStore = new();
+        AddParticipantCommandHandler handler = new(
+            new FakeParticipantDirectory(),
+            new StubTenantAccessService(ConversationTenantAccessDecision.Allowed(
+                ConversationTenantAccessRequirement.Write,
+                Tenant,
+                "user-1")),
+            new IdempotentConversationCommandExecutor(idempotencyStore));
+        int loadCount = 0;
+
+        ValueTask<ConversationState?> LoadStateAsync(CancellationToken _)
+        {
+            loadCount++;
+            return ValueTask.FromResult<ConversationState?>(CreatedStateWithParticipant());
+        }
+
+        DomainResult first = await handler.HandleAsync(
+            Command(),
+            callerPrincipalId: "user-1",
+            loadStateAsync: LoadStateAsync,
+            addedAt: AddedAt,
+            eventId: "event-add-a",
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+        DomainResult replay = await handler.HandleAsync(
+            Command(),
+            callerPrincipalId: "user-1",
+            loadStateAsync: LoadStateAsync,
+            addedAt: AddedAt.AddSeconds(1),
+            eventId: "event-add-b",
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent firstRejection = first.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        ConversationRejectedDomainEvent replayRejection = replay.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        firstRejection.Code.ShouldBe(ConversationErrorCode.DuplicateParticipant);
+        firstRejection.ReasonCode.ShouldBe("participant_membership_duplicate");
+        replayRejection.Code.ShouldBe(firstRejection.Code);
+        replayRejection.ReasonCode.ShouldBe(firstRejection.ReasonCode);
+        loadCount.ShouldBe(1);
+    }
+
     private static AddParticipantCommand Command(string? idempotencyKey = "idempotency-a")
         => new(
             new ConversationCommandMetadata(
@@ -170,6 +218,26 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
                 CreatedAt,
                 Actor,
                 "causation-a")));
+        return state;
+    }
+
+    private static ConversationState CreatedStateWithParticipant()
+    {
+        ConversationState state = CreatedState();
+        state.Apply(new ParticipantAddedDomainEvent(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-existing-participant-a",
+                ConversationEventType.ParticipantAdded,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                CreatedAt.AddMinutes(1),
+                Actor,
+                "causation-a"),
+            Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member));
         return state;
     }
 
@@ -245,6 +313,15 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
 
         public ValueTask ReleaseAsync(
             ConversationCommandFingerprint fingerprint,
+            DateTimeOffset reservationCreatedAt,
+            CancellationToken cancellationToken = default)
+            => ValueTask.CompletedTask;
+
+        public ValueTask MarkPoisonedAsync(
+            ConversationCommandFingerprint fingerprint,
+            ConversationIdempotencyOutcome outcome,
+            DateTimeOffset poisonedAt,
+            DateTimeOffset reservationCreatedAt,
             CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
     }

@@ -43,6 +43,14 @@ server-generated timestamps, transport headers, raw JSON byte order, EventStore 
 stream names, expected revisions, sequence numbers, mutable Party display data, raw
 provider payloads, exception text, and raw command bodies.
 
+Unicode normalization is intentionally asymmetric. Safe free-text payload values such as
+labels, business-reference values, message text, and adopter attribute values are
+normalized to Unicode NFC before hashing so visually identical user text does not split
+idempotency outcomes. Identity dimensions remain byte-exact: tenant IDs, conversation
+IDs, durable message/participant/file IDs, idempotency keys, schema versions, command
+types, scope values, attribute keys, and reason codes are not case-folded, compatibility
+normalized, trimmed, or otherwise weakened.
+
 Equivalent duplicate terminal outcomes are replayed as stable logical outcomes. The
 stable outcome may include result category, conversation/message/participant/reference
 identity, typed rejection code, retryability, and safe correlation or audit handles. It

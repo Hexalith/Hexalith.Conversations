@@ -103,18 +103,16 @@ public sealed class ConversationIdempotencyStoreTest
     }
 
     /// <summary>
-    /// Expired records are evicted and a new caller can re-acquire the scoped key (P5 review fix 2026-05-19);
-    /// otherwise an expired record would permanently lock the key for callers retrying after the retention window.
+    /// Expired pending records are evicted and a new caller can re-acquire the scoped key.
     /// </summary>
     [Fact]
-    public async Task ExpiredRecordShouldBeEvictedAndReplaceableByFreshReservation()
+    public async Task ExpiredPendingRecordShouldBeEvictedAndReplaceableByFreshReservation()
     {
         InMemoryConversationIdempotencyStore store = new();
         ConversationCommandFingerprint fingerprint = Fingerprint();
 
         (await store.ReserveAsync(fingerprint, Now, TimeSpan.FromMinutes(5), TestContext.Current.CancellationToken))
             .Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
-        await store.CompleteAsync(fingerprint, SuccessOutcome(), Now.AddMinutes(1), TestContext.Current.CancellationToken);
 
         ConversationIdempotencyDecision afterExpiry = await store.ReserveAsync(
             fingerprint,
@@ -123,6 +121,138 @@ public sealed class ConversationIdempotencyStoreTest
             TestContext.Current.CancellationToken);
 
         afterExpiry.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
+    }
+
+    /// <summary>
+    /// P33: Expired completed records are not silently overwritten because the original mutation may already have
+    /// produced a durable business effect.
+    /// </summary>
+    [Fact]
+    public async Task ExpiredCompletedRecordShouldReturnRetryableUncertaintyWithoutReplacement()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        ConversationCommandFingerprint fingerprint = Fingerprint();
+
+        await store.ReserveAsync(fingerprint, Now, TimeSpan.FromMinutes(5), TestContext.Current.CancellationToken);
+        await store.CompleteAsync(fingerprint, SuccessOutcome(), Now.AddMinutes(1), TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyDecision afterExpiry = await store.ReserveAsync(
+            fingerprint,
+            Now.AddMinutes(6),
+            TimeSpan.FromMinutes(5),
+            TestContext.Current.CancellationToken);
+
+        afterExpiry.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
+        afterExpiry.ReasonCode.ShouldBe("idempotency_record_expired");
+        store.SnapshotRecords().Single().Status.ShouldBe(ConversationIdempotencyRecordStatus.Completed);
+    }
+
+    /// <summary>
+    /// P27: Completion only applies to a current pending reservation and cannot overwrite terminal or incompatible
+    /// records.
+    /// </summary>
+    [Fact]
+    public async Task CompleteShouldRejectNonPendingOrVersionIncompatibleRecords()
+    {
+        ConversationCommandFingerprint completedFingerprint = Fingerprint(idempotencyKey: "idempotency-completed");
+        ConversationCommandFingerprint poisonedFingerprint = Fingerprint(idempotencyKey: "idempotency-poisoned");
+        ConversationCommandFingerprint incompatibleFingerprint = Fingerprint(idempotencyKey: "idempotency-incompatible");
+        ConversationIdempotencyRecord completed = ConversationIdempotencyRecord
+            .Pending(completedFingerprint, Now, Retention)
+            .Complete(SuccessOutcome(), Now.AddSeconds(1));
+        ConversationIdempotencyRecord poisoned = ConversationIdempotencyRecord
+            .Pending(poisonedFingerprint, Now, Retention)
+            .Poison(UncertainOutcome(poisonedFingerprint), Now.AddSeconds(1));
+        ConversationIdempotencyRecord incompatible = ConversationIdempotencyRecord.Pending(
+            incompatibleFingerprint,
+            Now,
+            Retention) with
+        {
+            RecordVersion = ConversationIdempotencyRecord.CurrentRecordVersion + 1,
+        };
+        InMemoryConversationIdempotencyStore store = new([completed, poisoned, incompatible]);
+
+        await Should.ThrowAsync<InvalidOperationException>(() => store
+            .CompleteAsync(completedFingerprint, SuccessOutcome(), Now.AddSeconds(2), TestContext.Current.CancellationToken)
+            .AsTask());
+        await Should.ThrowAsync<InvalidOperationException>(() => store
+            .CompleteAsync(poisonedFingerprint, SuccessOutcome(), Now.AddSeconds(2), TestContext.Current.CancellationToken)
+            .AsTask());
+        await Should.ThrowAsync<InvalidOperationException>(() => store
+            .CompleteAsync(incompatibleFingerprint, SuccessOutcome(), Now.AddSeconds(2), TestContext.Current.CancellationToken)
+            .AsTask());
+
+        store.SnapshotRecords().Select(r => r.Status).ShouldBe([
+            ConversationIdempotencyRecordStatus.Completed,
+            ConversationIdempotencyRecordStatus.Poisoned,
+            ConversationIdempotencyRecordStatus.Pending,
+        ], ignoreOrder: true);
+    }
+
+    /// <summary>
+    /// P32: A delayed release from an expired reservation cannot remove a newer pending reservation for the same key.
+    /// </summary>
+    [Fact]
+    public async Task ReleaseShouldRespectReservationIdentity()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        ConversationCommandFingerprint fingerprint = Fingerprint();
+
+        ConversationIdempotencyDecision first = await store.ReserveAsync(
+            fingerprint,
+            Now,
+            TimeSpan.FromMinutes(5),
+            TestContext.Current.CancellationToken);
+        ConversationIdempotencyDecision second = await store.ReserveAsync(
+            fingerprint,
+            Now.AddMinutes(6),
+            Retention,
+            TestContext.Current.CancellationToken);
+
+        await store.ReleaseAsync(
+            fingerprint,
+            first.ReservationCreatedAt!.Value,
+            TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyRecord record = store.SnapshotRecords().Single();
+        second.Kind.ShouldBe(ConversationIdempotencyDecisionKind.Reserved);
+        record.Status.ShouldBe(ConversationIdempotencyRecordStatus.Pending);
+        record.CreatedAt.ShouldBe(second.ReservationCreatedAt!.Value);
+    }
+
+    /// <summary>
+    /// P43: Poisoning a pending reservation leaves a non-terminal uncertainty outcome for future replay resolution.
+    /// </summary>
+    [Fact]
+    public async Task MarkPoisonedShouldPersistUncertainOutcomeForPendingReservation()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        ConversationCommandFingerprint fingerprint = Fingerprint();
+        ConversationIdempotencyDecision reserved = await store.ReserveAsync(
+            fingerprint,
+            Now,
+            Retention,
+            TestContext.Current.CancellationToken);
+        ConversationIdempotencyOutcome uncertainty = UncertainOutcome(fingerprint);
+
+        await store.MarkPoisonedAsync(
+            fingerprint,
+            uncertainty,
+            Now.AddSeconds(1),
+            reserved.ReservationCreatedAt!.Value,
+            TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyRecord record = store.SnapshotRecords().Single();
+        record.Status.ShouldBe(ConversationIdempotencyRecordStatus.Poisoned);
+        record.Outcome.ShouldBe(uncertainty);
+
+        ConversationIdempotencyDecision retry = await store.ReserveAsync(
+            fingerprint,
+            Now.AddSeconds(2),
+            Retention,
+            TestContext.Current.CancellationToken);
+        retry.Kind.ShouldBe(ConversationIdempotencyDecisionKind.RetryableUncertainty);
+        retry.ReasonCode.ShouldBe("idempotency_record_poisoned");
     }
 
     /// <summary>
@@ -157,13 +287,9 @@ public sealed class ConversationIdempotencyStoreTest
     {
         ConversationCommandFingerprint poisonedFingerprint = Fingerprint(label: "Poisoned", idempotencyKey: "idempotency-poisoned");
         ConversationCommandFingerprint incompatibleFingerprint = Fingerprint(label: "Incompatible", idempotencyKey: "idempotency-incompatible");
-        ConversationIdempotencyRecord poisoned = ConversationIdempotencyRecord.Pending(
-            poisonedFingerprint,
-            Now,
-            Retention) with
-        {
-            Status = ConversationIdempotencyRecordStatus.Poisoned,
-        };
+        ConversationIdempotencyRecord poisoned = ConversationIdempotencyRecord
+            .Pending(poisonedFingerprint, Now, Retention)
+            .Poison(UncertainOutcome(poisonedFingerprint), Now.AddSeconds(1));
         ConversationIdempotencyRecord incompatible = ConversationIdempotencyRecord.Pending(
             incompatibleFingerprint,
             Now,
@@ -327,4 +453,13 @@ public sealed class ConversationIdempotencyStoreTest
             fileId: null,
             correlationId: "audit-001",
             auditHandle: "audit-001");
+
+    private static ConversationIdempotencyOutcome UncertainOutcome(ConversationCommandFingerprint fingerprint)
+        => ConversationIdempotencyOutcome.Uncertain(
+            SchemaVersion.Current,
+            fingerprint.Scope.TenantId,
+            fingerprint.Scope.CommandType,
+            Conversation,
+            correlationId: "audit-uncertain",
+            auditHandle: "audit-uncertain");
 }

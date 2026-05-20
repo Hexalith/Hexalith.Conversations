@@ -201,8 +201,14 @@ public sealed record ConversationCommandFingerprint(
 
     private static IEnumerable<KeyValuePair<string, string?>> Required(string key, string? value)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(value, key);
-        yield return new KeyValuePair<string, string?>(key, value);
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            throw new ArgumentException(
+                $"Required canonical field '{key}' is missing or whitespace.",
+                nameof(value));
+        }
+
+        return [new KeyValuePair<string, string?>(key, value)];
     }
 
     private static IEnumerable<KeyValuePair<string, string?>> Optional(string key, string? value)

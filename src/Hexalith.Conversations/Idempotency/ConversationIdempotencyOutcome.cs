@@ -22,9 +22,10 @@ namespace Hexalith.Conversations.Idempotency;
 /// <param name="ParticipantPartyId">The durable participant Party identity, when relevant.</param>
 /// <param name="FileId">The durable file reference identity, when relevant.</param>
 /// <param name="RejectionCode">The typed rejection code, when relevant.</param>
+/// <param name="OriginalReasonCode">The original typed rejection reason code, when relevant.</param>
 /// <param name="IsRetryable">A value indicating whether retry is meaningful.</param>
 /// <param name="CorrelationId">The safe correlation handle.</param>
-/// <param name="AuditHandle">The optional safe audit handle.</param>
+/// <param name="AuditHandle">The server-derived safe audit handle.</param>
 public sealed record ConversationIdempotencyOutcome(
     IdempotencyOutcomeCategory Category,
     SchemaVersion SchemaVersion,
@@ -35,9 +36,10 @@ public sealed record ConversationIdempotencyOutcome(
     PartyId? ParticipantPartyId,
     FileId? FileId,
     ConversationErrorCode? RejectionCode,
+    string? OriginalReasonCode,
     bool IsRetryable,
     string CorrelationId,
-    string? AuditHandle = null)
+    string AuditHandle)
 {
     /// <summary>
     /// Gets the outcome schema version.
@@ -62,7 +64,13 @@ public sealed record ConversationIdempotencyOutcome(
     /// <summary>
     /// Gets the server-generated audit handle.
     /// </summary>
-    public string AuditHandle { get; } = ValidateRequired(AuditHandle ?? CorrelationId, nameof(AuditHandle));
+    public string AuditHandle { get; } = ValidateRequired(AuditHandle, "auditHandle");
+
+    /// <summary>
+    /// Gets the original rejection reason code, when the stored outcome is a rejection.
+    /// </summary>
+    public string? OriginalReasonCode { get; } =
+        ValidateOriginalReasonCode(Category, RejectionCode, OriginalReasonCode);
 
     /// <summary>
     /// Gets the outcome category, validated against the rejection-code/retryability invariant.
@@ -80,7 +88,7 @@ public sealed record ConversationIdempotencyOutcome(
     /// <param name="participantPartyId">The durable participant Party identity, when relevant.</param>
     /// <param name="fileId">The durable file reference identity, when relevant.</param>
     /// <param name="correlationId">The safe correlation handle.</param>
-    /// <param name="auditHandle">The optional safe audit handle.</param>
+    /// <param name="auditHandle">The server-derived safe audit handle.</param>
     /// <returns>The stable success outcome.</returns>
     public static ConversationIdempotencyOutcome Success(
         SchemaVersion schemaVersion,
@@ -91,7 +99,7 @@ public sealed record ConversationIdempotencyOutcome(
         PartyId? participantPartyId,
         FileId? fileId,
         string correlationId,
-        string? auditHandle = null)
+        string auditHandle)
         => new(
             IdempotencyOutcomeCategory.Success,
             schemaVersion,
@@ -102,6 +110,7 @@ public sealed record ConversationIdempotencyOutcome(
             participantPartyId,
             fileId,
             RejectionCode: null,
+            OriginalReasonCode: null,
             IsRetryable: false,
             correlationId,
             auditHandle);
@@ -114,9 +123,10 @@ public sealed record ConversationIdempotencyOutcome(
     /// <param name="commandType">The public command type.</param>
     /// <param name="conversationId">The durable conversation identity, when relevant.</param>
     /// <param name="rejectionCode">The typed rejection code.</param>
+    /// <param name="originalReasonCode">The original typed rejection reason code.</param>
     /// <param name="isRetryable">A value indicating whether retry is meaningful.</param>
     /// <param name="correlationId">The safe correlation handle.</param>
-    /// <param name="auditHandle">The optional safe audit handle.</param>
+    /// <param name="auditHandle">The server-derived safe audit handle.</param>
     /// <returns>The stable rejection outcome.</returns>
     public static ConversationIdempotencyOutcome Rejection(
         SchemaVersion schemaVersion,
@@ -124,9 +134,10 @@ public sealed record ConversationIdempotencyOutcome(
         ConversationCommandType commandType,
         ConversationId? conversationId,
         ConversationErrorCode rejectionCode,
+        string originalReasonCode,
         bool isRetryable,
         string correlationId,
-        string? auditHandle = null)
+        string auditHandle)
         => new(
             IdempotencyOutcomeCategory.Rejection,
             schemaVersion,
@@ -137,6 +148,7 @@ public sealed record ConversationIdempotencyOutcome(
             ParticipantPartyId: null,
             FileId: null,
             rejectionCode,
+            originalReasonCode,
             isRetryable,
             correlationId,
             auditHandle);
@@ -149,6 +161,7 @@ public sealed record ConversationIdempotencyOutcome(
     /// <param name="commandType">The public command type.</param>
     /// <param name="conversationId">The durable conversation identity, when relevant.</param>
     /// <param name="correlationId">The safe correlation handle.</param>
+    /// <param name="auditHandle">The server-derived safe audit handle.</param>
     /// <returns>The stable no-op outcome.</returns>
     public static ConversationIdempotencyOutcome NoOp(
         SchemaVersion schemaVersion,
@@ -156,7 +169,7 @@ public sealed record ConversationIdempotencyOutcome(
         ConversationCommandType commandType,
         ConversationId? conversationId,
         string correlationId,
-        string? auditHandle = null)
+        string auditHandle)
         => new(
             IdempotencyOutcomeCategory.NoOp,
             schemaVersion,
@@ -167,6 +180,7 @@ public sealed record ConversationIdempotencyOutcome(
             ParticipantPartyId: null,
             FileId: null,
             RejectionCode: null,
+            OriginalReasonCode: null,
             IsRetryable: false,
             correlationId,
             auditHandle);
@@ -179,6 +193,7 @@ public sealed record ConversationIdempotencyOutcome(
     /// <param name="commandType">The public command type.</param>
     /// <param name="conversationId">The durable conversation identity, when relevant.</param>
     /// <param name="correlationId">The safe correlation handle.</param>
+    /// <param name="auditHandle">The server-derived safe audit handle.</param>
     /// <returns>The stable uncertainty outcome.</returns>
     public static ConversationIdempotencyOutcome Uncertain(
         SchemaVersion schemaVersion,
@@ -186,7 +201,7 @@ public sealed record ConversationIdempotencyOutcome(
         ConversationCommandType commandType,
         ConversationId? conversationId,
         string correlationId,
-        string? auditHandle = null)
+        string auditHandle)
         => new(
             IdempotencyOutcomeCategory.Uncertain,
             schemaVersion,
@@ -197,6 +212,7 @@ public sealed record ConversationIdempotencyOutcome(
             ParticipantPartyId: null,
             FileId: null,
             ConversationErrorCode.IdempotencyOutcomeUnknown,
+            OriginalReasonCode: "idempotency_outcome_unknown",
             IsRetryable: true,
             correlationId,
             auditHandle);
@@ -242,6 +258,14 @@ public sealed record ConversationIdempotencyOutcome(
                         nameof(rejectionCode));
                 }
 
+                bool expectedRetryable = ConversationErrorCode.IsRetryable(rejectionCode);
+                if (isRetryable != expectedRetryable)
+                {
+                    throw new ArgumentException(
+                        $"Idempotency outcome rejection code '{rejectionCode.Value}' requires IsRetryable={expectedRetryable}.",
+                        nameof(isRetryable));
+                }
+
                 break;
             case IdempotencyOutcomeCategory.Uncertain:
                 if (!isRetryable)
@@ -257,5 +281,26 @@ public sealed record ConversationIdempotencyOutcome(
         }
 
         return category;
+    }
+
+    private static string? ValidateOriginalReasonCode(
+        IdempotencyOutcomeCategory category,
+        ConversationErrorCode? rejectionCode,
+        string? originalReasonCode)
+    {
+        if (category is IdempotencyOutcomeCategory.Rejection or IdempotencyOutcomeCategory.Uncertain)
+        {
+            ArgumentException.ThrowIfNullOrWhiteSpace(originalReasonCode, nameof(OriginalReasonCode));
+            return originalReasonCode;
+        }
+
+        if (rejectionCode is null && originalReasonCode is not null)
+        {
+            throw new ArgumentException(
+                $"Idempotency outcome category '{category}' must not carry an original reason code.",
+                nameof(originalReasonCode));
+        }
+
+        return null;
     }
 }
