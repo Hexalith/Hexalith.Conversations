@@ -249,6 +249,7 @@ GPT-5 Codex
 - 2026-05-20: Round 2 red phase for review patches P27-P46 failed on missing reservation tokens, poison lifecycle, original reason-code replay, explicit projection identity, and Unicode normalization tests.
 - 2026-05-20: Round 2 focused validation passed: `dotnet test .\Hexalith.Conversations.slnx --no-restore --filter "FullyQualifiedName~Idempotency|FullyQualifiedName~Projection"` with 71 targeted tests plus non-matching-project smoke discovery.
 - 2026-05-20: Round 2 completion validation passed: `dotnet test .\Hexalith.Conversations.slnx --no-restore` with 288 tests.
+- 2026-05-20: Revalidated after HEAD moved to `cfe4bd7`; first rerun exposed a time-sensitive add-participant idempotency replay test, then deterministic `TimeProvider` wiring was added and `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed with 288 tests.
 
 ### Completion Notes List
 
@@ -267,6 +268,7 @@ GPT-5 Codex
 - Final validation: `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed with 269 tests.
 - Resolved Round 2 review patches P27-P46: pending-only completion, reservation-identity release, expired-completed uncertainty, poisoned retry traces, deterministic completion time, original rejection reason replay, explicit projection identity, empty-attribute no-op semantics, and NFC-only safe text canonicalization are implemented and covered.
 - Final Round 2 validation: `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed with 288 tests.
+- Stabilized add-participant idempotency replay tests with an injected fixed clock so the 24-hour retention gate cannot become date-sensitive during future reruns.
 
 ### File List
 
@@ -321,6 +323,7 @@ GPT-5 Codex
 - 2026-05-20: Completed review patch P23 by routing contract samples through the canonical retryable taxonomy, added drift-prevention contract coverage, closed P9/P13 as explicit deferrals, and moved Story 1.6 to review. `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 269 tests.
 - 2026-05-20: Round 2 adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) over commit range `dca60bd^..1728fa8`. Headlines: Blind Hunter 13 MAJOR / 10 MINOR / 2 NIT / 2 ABSTAIN; Edge Case Hunter 1 BLOCKER / 8 MAJOR / 11 MINOR; Acceptance Auditor AC1/AC3/AC4/AC5 PARTIAL, AC2/AC6 PASS, 1 MAJOR / 6 MINOR. After triage: 5 decisions (D7–D11, all resolved to patches P42–P46), 20 patches (P27–P46), 2 deferrals (DEF6/DEF7), 18 dismissed. Round 2 patches left as action items; moved back to in-progress.
 - 2026-05-20: Applied Round 2 review patches P27-P46, updated ADR-0001 Unicode-normalization semantics, corrected the local evidence file-list path, and moved Story 1.6 to review. `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 288 tests.
+- 2026-05-20: Stabilized add-participant idempotency replay tests after current-HEAD revalidation exposed a wall-clock retention dependency; final `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 288 tests.
 
 ### Review Findings
 

@@ -81,7 +81,9 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
                 ConversationTenantAccessRequirement.Write,
                 Tenant,
                 "user-1")),
-            new IdempotentConversationCommandExecutor(idempotencyStore));
+            new IdempotentConversationCommandExecutor(
+                idempotencyStore,
+                timeProvider: new FixedTimeProvider(AddedAt.AddSeconds(2))));
         int loadCount = 0;
 
         DomainResult result = await handler.HandleAsync(
@@ -155,7 +157,9 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
                 ConversationTenantAccessRequirement.Write,
                 Tenant,
                 "user-1")),
-            new IdempotentConversationCommandExecutor(idempotencyStore));
+            new IdempotentConversationCommandExecutor(
+                idempotencyStore,
+                timeProvider: new FixedTimeProvider(AddedAt.AddSeconds(2))));
         int loadCount = 0;
 
         ValueTask<ConversationState?> LoadStateAsync(CancellationToken _)
@@ -324,5 +328,10 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
             DateTimeOffset reservationCreatedAt,
             CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }
