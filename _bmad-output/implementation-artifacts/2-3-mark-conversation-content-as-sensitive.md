@@ -24,6 +24,7 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
    - And the event does not store raw sensitive content, message text, prompt fragments, Party personal data, provider payloads, file binaries, upstream detail objects, audit storage locations, or unbounded diagnostics.
    - And policy attribution is limited to Story 2.1-safe policy identifiers, version/source category, bounded rationale, and opaque evidence handles; raw policy text, storage coordinates, audit sink identity, customer names, provider identifiers, and Party personal data are forbidden.
    - And defined content segment targets are identifier-only governed target references; offsets, excerpts, serialized text, provider payload coordinates, UI selection text, or exported document fragments are not valid durable target identity.
+   - And the durable event timestamp and audit evidence timestamp are server-trusted operation metadata; caller-supplied timestamps are request context only unless Story 2.1 explicitly defines a trusted caller timestamp contract.
 
 3. Fail-closed rejection behavior
    - Given the operator lacks permission, tenant state is missing/stale/disabled/unavailable, conversation tenant binding mismatches, target reference is missing/cross-tenant/unsupported/already-incompatible, policy reference is missing or invalid, rationale is missing, schema version is unsupported, idempotency conflicts, or the conversation is inaccessible,
@@ -39,6 +40,7 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
    - Then paired audit evidence is recorded or emitted in the same governed operation boundary before the mutation is reported as successful,
    - And the audit evidence records actor, timestamp, tenant, conversation, target reference, policy basis, rationale, outcome, schema version, and safe correlation metadata.
    - And no sensitivity-marked durable event may be committed or externally reported as successful unless the matching audit evidence has been durably accepted or an approved opaque audit handle is available for the same tenant, conversation, target, actor, operation timestamp, schema version, and correlation metadata.
+   - And any partial, uncertain, reordered, duplicate, or contradictory audit/domain pairing result remains internal, retry-safe, non-disclosing, and cannot publish, project, export, or externally report a successful sensitivity mark.
    - Given audit recording is unavailable or cannot prove pairing,
    - When the command is handled,
    - Then the sensitivity mutation fails closed with an audit-unavailable outcome and no sensitivity-marked event.
@@ -49,6 +51,7 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
    - When aggregate state or read projections rebuild from persisted events,
    - Then replay reconstructs the same sensitivity state by target reference, category, policy basis, actor attribution, rationale, audit linkage, and timestamps,
    - And duplicate, reordered, or replayed events do not create divergent sensitivity state or duplicate audit evidence.
+   - And malformed, unsupported-version, unsafe-handle, or unpaired historic sensitivity events cannot upgrade projected trust; rebuilds isolate or mark the affected sensitivity state non-current using sanitized diagnostics.
    - And command decisions are made from authorized server-side checks plus aggregate replay state, never from projection, cache, export, UI, evidence bundle, or read-model state.
    - Given authorized read paths expose sensitivity state,
    - When projections are current, stale, rebuilding, unavailable, or hidden by tenant isolation,
@@ -78,6 +81,7 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
   - [ ] Add a domain event such as `ConversationContentMarkedSensitiveDomainEvent` with public `ConversationEventMetadata` plus sensitivity-specific payload.
   - [ ] Extend `ConversationState` with replay-only sensitivity state keyed by target reference and `Apply` methods that deterministically update the mark history without side effects.
   - [ ] Define repeated-mark behavior explicitly: same target/category/policy/rationale metadata is idempotent; materially different category, policy, rationale, schema, or target metadata is a typed sanitized conflict unless an approved superseding-event rule exists in Story 2.1 contracts.
+  - [ ] Ensure any idempotency or duplicate fingerprint uses canonical safe values and approved bounded rationale identity, not raw rationale text, policy internals, audit storage coordinates, provider data, or protected content fragments.
   - [ ] Do not implement message redaction, source-event deletion, legal-hold decisions, export workflows, full compliance UI, audit-record governance, or irreversible content removal in this story.
 
 - [ ] Add application-boundary authorization and audit gates (AC: 1, 3, 4, 6)
@@ -131,6 +135,13 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
 - Governance mutations require paired audit/domain evidence and must fail closed when audit recording is unavailable. Non-governance commands may continue during audit degradation only by explicit ADR. [Source: `_bmad-output/planning-artifacts/architecture.md#Governance Security`]
 - Public APIs expose domain-first Conversations commands, projections, result contracts, version metadata, typed errors, and freshness state while hiding EventStore mechanics and raw projection/storage internals. [Source: `_bmad-output/planning-artifacts/architecture.md#API & Communication Patterns`]
 - Redaction is append-only and policy-governed by default; irreversible source-event redaction requires a future legal/compliance ADR. Sensitivity marking must not imply redaction, deletion, retention enforcement, or export suppression in this story. [Source: `_bmad-output/planning-artifacts/architecture.md#Redaction Semantics`]
+
+### Advanced Elicitation Hardening
+
+- The 2026-05-20 advanced-elicitation pass kept Story 2.3 inside mark-sensitive scope but sharpened success authority: a public success requires a trusted domain event and trusted audit evidence for the same server-side operation. Caller timestamps, projection state, idempotency artifacts, and audit handles are correlation inputs, not authority to report success.
+- Rationale and policy attribution are high-risk disclosure surfaces. Store and compare only the Story 2.1-approved representation, and never echo raw rationale, raw policy text, storage coordinates, provider identifiers, Party personal data, protected content fragments, or target lifecycle facts through public errors, idempotency conflicts, test names, sample data, logs, traces, or `ToString()` output.
+- Target lifecycle ambiguity is fail-closed. If a target is redacted, inaccessible, unsupported, hidden by tenant/governance rules, stale, or otherwise unsafe to prove after authorization, the command returns a typed sanitized rejection without revealing whether the target exists or why it is unavailable.
+- Replay and projection rebuilds must treat malformed, unsupported-version, unsafe-handle, or unpaired historic sensitivity events as untrusted input. They may isolate or mark derived sensitivity state non-current, but they must not upgrade trust, duplicate audit evidence, or become command authority.
 
 ### Existing Code Patterns To Reuse
 
@@ -207,7 +218,7 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
 
 ### Lessons Applied
 
-- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.3 now has a completed party-mode trace; later automation should run advanced elicitation only after this dated trace and treat both passes as pre-dev clarification, not scope expansion. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
+- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.3 now has a completed party-mode trace and a completed advanced-elicitation trace; implementation should treat both as pre-dev clarification, not scope expansion. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
 
 ## References
 
@@ -261,4 +272,34 @@ N/A - story created by BMAD create-story automation.
   - Expanded test requirements for target matrix coverage, authorization-before-disclosure, audit-unavailable/audit-conflict fail-closed behavior, idempotency variants, projection rebuild/non-authority, and privacy scans over non-JSON surfaces.
 - Findings deferred:
   - Exact sensitivity category vocabulary, policy attribution schema names, segment identity model beyond safe opaque references, sensitivity update/unmark semantics, export/evidence bundle behavior, compliance UI, legal-hold interaction, retention/redaction enforcement, and audit-record governance remain deferred to Story 2.1 contracts, later stories, or ADRs.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- ISO date and time: 2026-05-20T20:03:51Z
+- Selected story key: `2-3-mark-conversation-content-as-sensitive`
+- Command/skill invocation used: `/bmad-advanced-elicitation 2-3-mark-conversation-content-as-sensitive`
+- Batch 1 method names:
+  - Red Team vs Blue Team
+  - Security Audit Personas
+  - Failure Mode Analysis
+  - Self-Consistency Validation
+  - Critique and Refine
+- Reshuffled Batch 2 method names:
+  - First Principles Analysis
+  - Pre-mortem Analysis
+  - Architecture Decision Records
+  - Socratic Questioning
+  - User Persona Focus Group
+- Findings summary:
+  - The story was already ready for development after party-mode review, but advanced elicitation found remaining implementability risks around trusted timestamp authority, audit/domain partial failures, unsafe rationale and policy attribution leakage, target lifecycle ambiguity, idempotency fingerprint safety, and projection/replay trust upgrades from malformed historic events.
+- Changes applied:
+  - Clarified that durable event and audit timestamps are server-trusted operation metadata and that caller timestamps are request context unless Story 2.1 explicitly defines otherwise.
+  - Clarified that partial, uncertain, reordered, duplicate, or contradictory audit/domain pairing cannot publish, project, export, or externally report success.
+  - Added replay/rebuild guardrails for malformed, unsupported-version, unsafe-handle, or unpaired historic sensitivity events.
+  - Added safe idempotency fingerprint guidance that excludes raw rationale text, policy internals, audit storage coordinates, provider data, and protected content fragments.
+  - Added advanced-elicitation hardening notes for success authority, disclosure surfaces, target lifecycle fail-closed behavior, and replay/projection non-authority.
+  - Updated L08 wording to show both pre-dev hardening passes are complete.
+- Findings deferred:
+  - Exact sensitivity category vocabulary, policy attribution schema names, trusted caller timestamp rules, target lifecycle taxonomy, superseding/unmark semantics, export/evidence bundle behavior, legal-hold interaction, and audit-record governance remain deferred to Story 2.1 contracts, later stories, or ADRs.
 - Final recommendation: ready-for-dev
