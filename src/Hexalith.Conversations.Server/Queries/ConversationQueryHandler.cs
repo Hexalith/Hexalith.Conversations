@@ -15,18 +15,27 @@ namespace Hexalith.Conversations.Server.Queries;
 /// <summary>
 /// Handles tenant-safe conversation retrieve and list queries.
 /// </summary>
-public sealed class ConversationQueryHandler(
-    IConversationTenantAccessService tenantAccessService,
-    IConversationProjectionReadStore projectionReadStore,
-    TimeProvider? timeProvider = null)
+public sealed class ConversationQueryHandler
 {
-    private readonly IConversationProjectionReadStore _projectionReadStore =
-        projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
+    private readonly IConversationTenantAccessService _tenantAccessService;
+    private readonly IConversationProjectionReadStore _projectionReadStore;
+    private readonly ConversationProjectionReadService _projectionReadService;
+    private readonly ConversationQueryCursor _cursor;
+    private readonly TimeProvider _timeProvider;
 
-    private readonly IConversationTenantAccessService _tenantAccessService =
-        tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
-
-    private readonly TimeProvider _timeProvider = timeProvider ?? TimeProvider.System;
+    public ConversationQueryHandler(
+        IConversationTenantAccessService tenantAccessService,
+        IConversationProjectionReadStore projectionReadStore,
+        ConversationProjectionReadService projectionReadService,
+        ConversationQueryCursor cursor,
+        TimeProvider? timeProvider = null)
+    {
+        _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+        _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
+        _projectionReadService = projectionReadService ?? throw new ArgumentNullException(nameof(projectionReadService));
+        _cursor = cursor ?? throw new ArgumentNullException(nameof(cursor));
+        _timeProvider = timeProvider ?? TimeProvider.System;
+    }
 
     /// <summary>
     /// Retrieves one authorized conversation detail.
@@ -40,8 +49,7 @@ public sealed class ConversationQueryHandler(
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        ConversationProjectionReadService readService = new(_tenantAccessService, _projectionReadStore);
-        ConversationProjectionReadResult result = await readService
+        ConversationProjectionReadResult result = await _projectionReadService
             .ReadDetailAsync(
                 query.TenantId,
                 query.CallerPrincipalId,
@@ -78,7 +86,7 @@ public sealed class ConversationQueryHandler(
         ConversationQueryCursor.DecodedCursor? cursor = null;
         if (query.Page.ContinuationCursor is not null)
         {
-            if (!ConversationQueryCursor.TryDecode(query.Page.ContinuationCursor, out ConversationQueryCursor.DecodedCursor decoded))
+            if (!_cursor.TryDecode(query.Page.ContinuationCursor, out ConversationQueryCursor.DecodedCursor decoded))
             {
                 return ConversationListResult.Hidden(query.SchemaVersion);
             }
@@ -101,11 +109,6 @@ public sealed class ConversationQueryHandler(
             return ConversationListResult.Hidden(query.SchemaVersion);
         }
 
-        if (cursor.HasValue && !cursor.Value.Matches(query.TenantId, query.CallerPrincipalId, query.Filter, _timeProvider.GetUtcNow()))
-        {
-            return ConversationListResult.Hidden(query.SchemaVersion);
-        }
-
         IReadOnlyList<ConversationSummaryProjectionV1> candidates;
         try
         {
@@ -124,9 +127,41 @@ public sealed class ConversationQueryHandler(
             return ConversationListResult.Unavailable(query.SchemaVersion);
         }
 
-        int offset = cursor?.Offset ?? 0;
-        List<ConversationSummaryProjectionV1> accessible = candidates
+        // Tenant-scoped poison guard: reject any row whose stored TenantId disagrees with the request scope
+        // before any filter, count, ordering, or freshness evaluation runs.
+        List<ConversationSummaryProjectionV1> tenantScoped = candidates
             .Where(summary => summary.TenantId == query.TenantId)
+            .ToList();
+
+        // Mixed-generation poison guard: the detail boundary refuses to trust mixed-generation rows; the
+        // list boundary mirrors that posture. When candidate rows disagree on projection generation we
+        // surface Rebuilding/MixedGeneration rather than returning a page from inconsistent generations.
+        if (HasMixedGenerations(tenantScoped))
+        {
+            return new ConversationListResult(
+                query.SchemaVersion,
+                ProjectionTrustState.Rebuilding,
+                ProjectionFreshnessReasonCode.MixedGeneration,
+                [],
+                new ConversationPageMetadata(0),
+                "Retry after the read model finishes rebuilding.");
+        }
+
+        string projectionGenerationToken = ComputeGenerationToken(tenantScoped);
+
+        if (cursor.HasValue
+            && !cursor.Value.Matches(
+                query.TenantId,
+                query.CallerPrincipalId,
+                query.Filter,
+                projectionGenerationToken,
+                _timeProvider.GetUtcNow()))
+        {
+            return ConversationListResult.Hidden(query.SchemaVersion);
+        }
+
+        int offset = cursor?.Offset ?? 0;
+        List<ConversationSummaryProjectionV1> accessible = tenantScoped
             .Where(summary => MatchesFilter(summary, query.Filter))
             .OrderByDescending(summary => summary.Freshness.LastAppliedEventTimestamp)
             .ThenBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)
@@ -141,18 +176,16 @@ public sealed class ConversationQueryHandler(
             .ToList();
 
         string? nextCursor = issueContinuation
-            ? ConversationQueryCursor.Encode(
+            ? _cursor.Encode(
                 query.TenantId,
                 query.CallerPrincipalId,
                 query.Filter,
                 offset + page.Count,
+                projectionGenerationToken,
                 _timeProvider.GetUtcNow())
             : null;
 
-        ProjectionTrustState state = page.Select(summary => summary.Freshness.FreshnessState).FirstOrDefault()
-            ?? ProjectionTrustState.Current;
-        ProjectionFreshnessReasonCode reason = page.Select(summary => summary.Freshness.ReasonCode).FirstOrDefault()
-            ?? ProjectionFreshnessReasonCode.Current;
+        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = AggregateFreshness(tenantScoped);
 
         return new ConversationListResult(
             query.SchemaVersion,
@@ -170,7 +203,7 @@ public sealed class ConversationQueryHandler(
             && Matches(summary.ProjectId, filter.ProjectId)
             && Matches(summary.FolderId, filter.FolderId)
             && MatchesLifecycle(summary.LifecycleState, filter.LifecycleState)
-            && MatchesDate(summary.Freshness.LastAppliedEventTimestamp, filter)
+            && MatchesProjectedAt(summary.Freshness.LastAppliedEventTimestamp, filter)
             && MatchesParticipant(summary.ParticipantPartyIds, filter.ParticipantPartyId);
 
     private static bool MatchesBusinessReference(BusinessReference? actual, BusinessReference? expected)
@@ -186,21 +219,92 @@ public sealed class ConversationQueryHandler(
     private static bool MatchesLifecycle(string actual, string? expected)
         => expected is null || string.Equals(actual, expected, StringComparison.Ordinal);
 
-    private static bool MatchesDate(DateTimeOffset projectedActivity, ConversationListFilterV1 filter)
+    private static bool MatchesProjectedAt(DateTimeOffset projectedAt, ConversationListFilterV1 filter)
     {
-        if (filter.DateFrom.HasValue && projectedActivity < filter.DateFrom.Value)
+        if (filter.ProjectedAtFrom.HasValue && projectedAt < filter.ProjectedAtFrom.Value)
         {
             return false;
         }
 
-        if (filter.DateTo.HasValue && projectedActivity > filter.DateTo.Value)
+        if (filter.ProjectedAtTo.HasValue && projectedAt > filter.ProjectedAtTo.Value)
         {
             return false;
         }
 
-        return !filter.RecentActivityAfter.HasValue || projectedActivity > filter.RecentActivityAfter.Value;
+        return !filter.RecentActivityAfter.HasValue || projectedAt > filter.RecentActivityAfter.Value;
     }
 
     private static bool MatchesParticipant(IReadOnlyList<PartyId> actual, PartyId? expected)
         => expected is null || actual.Contains(expected);
+
+    private static bool HasMixedGenerations(IReadOnlyList<ConversationSummaryProjectionV1> summaries)
+    {
+        if (summaries.Count <= 1)
+        {
+            return false;
+        }
+
+        string firstCursor = summaries[0].Freshness.ProjectionCursor;
+        for (int i = 1; i < summaries.Count; i++)
+        {
+            ProjectionFreshnessV1 freshness = summaries[i].Freshness;
+            if (!string.Equals(freshness.ProjectionCursor, firstCursor, StringComparison.Ordinal))
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static string ComputeGenerationToken(IReadOnlyList<ConversationSummaryProjectionV1> summaries)
+    {
+        if (summaries.Count == 0)
+        {
+            return "empty";
+        }
+
+        // Same-generation guard ensures every row shares ProjectionCursor; use the first row's cursor
+        // and the maximum applied event position as the binding token. Cursor encoding will reject
+        // continuation when the token changes between page requests.
+        ProjectionFreshnessV1 freshness = summaries[0].Freshness;
+        long maxPosition = summaries.Max(s => s.Freshness.LastAppliedEventPosition);
+        return $"{freshness.ProjectionCursor}:{maxPosition}";
+    }
+
+    private static (ProjectionTrustState State, ProjectionFreshnessReasonCode Reason) AggregateFreshness(
+        IReadOnlyList<ConversationSummaryProjectionV1> summaries)
+    {
+        if (summaries.Count == 0)
+        {
+            return (ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current);
+        }
+
+        // Worst-case aggregation: priority is Unavailable > Rebuilding > Stale > Redacted > Current.
+        // Forbidden cannot reach here because tenant-scoped poison guard already filtered cross-tenant
+        // rows, and tenant denial returns Hidden() earlier.
+        ProjectionTrustState worst = ProjectionTrustState.Current;
+        ProjectionFreshnessReasonCode worstReason = ProjectionFreshnessReasonCode.Current;
+        foreach (ConversationSummaryProjectionV1 summary in summaries)
+        {
+            ProjectionTrustState candidate = summary.Freshness.FreshnessState;
+            if (Priority(candidate) > Priority(worst))
+            {
+                worst = candidate;
+                worstReason = summary.Freshness.ReasonCode;
+            }
+        }
+
+        return (worst, worstReason);
+
+        static int Priority(ProjectionTrustState state)
+        {
+            if (state == ProjectionTrustState.Unavailable) { return 5; }
+            if (state == ProjectionTrustState.Rebuilding) { return 4; }
+            if (state == ProjectionTrustState.Stale) { return 3; }
+            if (state == ProjectionTrustState.Redacted) { return 2; }
+            if (state == ProjectionTrustState.Forbidden) { return 1; }
+            return 0;
+        }
+    }
 }

@@ -3,6 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
+
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
@@ -13,6 +17,8 @@ using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+
+using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Tests.Queries;
 
@@ -43,7 +49,7 @@ public sealed class ConversationQueryHandlerTest
             "caller-001",
             ConversationTenantAccessDenialReason.MissingMember));
         FakeProjectionReadStore store = new();
-        ConversationQueryHandler handler = new(access, store);
+        ConversationQueryHandler handler = CreateHandler(access, store);
 
         ConversationDetailResult result = await handler.GetAsync(
             new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
@@ -66,7 +72,7 @@ public sealed class ConversationQueryHandlerTest
         {
             Models = ProjectedModels(OtherTenant, Conversation),
         };
-        ConversationQueryHandler handler = new(access, store);
+        ConversationQueryHandler handler = CreateHandler(access, store);
 
         ConversationDetailResult result = await handler.GetAsync(
             new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
@@ -75,6 +81,67 @@ public sealed class ConversationQueryHandlerTest
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         result.Details.ShouldBeNull();
         store.DetailReads.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// Nonexistent projection returns the same hidden shape as an unauthorized caller.
+    /// </summary>
+    [Fact]
+    public async Task DetailNonexistentConversationShouldReturnHiddenSameAsUnauthorized()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new() { Models = null };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationDetailResult result = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Forbidden);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldBe("The requested conversation is not available.");
+    }
+
+    /// <summary>
+    /// Unauthorized, nonexistent, cross-tenant, and missing-projection details all return the same external shape.
+    /// </summary>
+    [Fact]
+    public async Task DetailDenialPathsShouldShareSameShape()
+    {
+        ConversationDetailResult unauthorized = await CreateHandler(
+            new FakeTenantAccessService(ConversationTenantAccessDecision.Denied(
+                ConversationTenantAccessRequirement.Read,
+                Tenant,
+                "caller-001",
+                ConversationTenantAccessDenialReason.MissingMember)),
+            new FakeProjectionReadStore())
+            .GetAsync(GetQuery(), TestContext.Current.CancellationToken);
+
+        ConversationDetailResult nonexistent = await CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore { Models = null })
+            .GetAsync(GetQuery(), TestContext.Current.CancellationToken);
+
+        ConversationDetailResult crossTenant = await CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore { Models = ProjectedModels(OtherTenant, Conversation) })
+            .GetAsync(GetQuery(), TestContext.Current.CancellationToken);
+
+        unauthorized.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        nonexistent.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        crossTenant.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+
+        unauthorized.ReasonCode.ShouldBe(nonexistent.ReasonCode);
+        unauthorized.ReasonCode.ShouldBe(crossTenant.ReasonCode);
+        unauthorized.SafeNextAction.ShouldBe(nonexistent.SafeNextAction);
+        unauthorized.SafeNextAction.ShouldBe(crossTenant.SafeNextAction);
+        unauthorized.Details.ShouldBeNull();
+        nonexistent.Details.ShouldBeNull();
+        crossTenant.Details.ShouldBeNull();
+
+        static GetConversationQuery GetQuery()
+            => new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation);
     }
 
     /// <summary>
@@ -95,7 +162,7 @@ public sealed class ConversationQueryHandlerTest
                 Summary(Tenant, Conversation, Business, Project, Folder, Participant),
             ],
         };
-        ConversationQueryHandler handler = new(access, store);
+        ConversationQueryHandler handler = CreateHandler(access, store);
 
         ConversationListResult result = await handler.ListAsync(
             new ListConversationsQuery(
@@ -127,7 +194,7 @@ public sealed class ConversationQueryHandlerTest
                 Summary(Tenant, new ConversationId("conversation-folder-miss"), Business, Project, new FolderId("folder-other"), Participant),
             ],
         };
-        ConversationQueryHandler handler = new(access, store);
+        ConversationQueryHandler handler = CreateHandler(access, store);
 
         ConversationListResult result = await handler.ListAsync(
             new ListConversationsQuery(
@@ -151,6 +218,196 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// Mixed-generation rows from the projection store surface as Rebuilding instead of leaking inconsistent rows.
+    /// </summary>
+    [Fact]
+    public async Task ListShouldRejectMixedGenerationCandidates()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-a"), Business, Project, Folder, Participant, cursor: "pos:1"),
+                Summary(Tenant, new ConversationId("conv-b"), Business, Project, Folder, Participant, cursor: "pos:2"),
+            ],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Conversations.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// A page combining Current and Stale rows reports the worst-case freshness, not the first row.
+    /// </summary>
+    [Fact]
+    public async Task ListFreshnessShouldAggregateWorstCaseAcrossPage()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-current"), Business, Project, Folder, Participant),
+                Summary(
+                    Tenant,
+                    new ConversationId("conv-stale"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    freshnessState: ProjectionTrustState.Stale,
+                    reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+            ],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Stale);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        result.Conversations.Count.ShouldBe(2);
+    }
+
+    /// <summary>
+    /// Each list filter dimension narrows the result to only its matching row, in isolation.
+    /// </summary>
+    [Theory]
+    [InlineData("business")]
+    [InlineData("project")]
+    [InlineData("folder")]
+    [InlineData("lifecycle")]
+    [InlineData("participant")]
+    public async Task ListShouldFilterByEachDimensionExactly(string dimension)
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        BusinessReference otherBusiness = new("crm", "case-999");
+        ProjectId otherProject = new("project-999");
+        FolderId otherFolder = new("folder-999");
+        PartyId otherParticipant = new("party-other");
+
+        (IReadOnlyList<ConversationSummaryProjectionV1> rows, ConversationListFilterV1 filter) = dimension switch
+        {
+            "business" => (
+                (IReadOnlyList<ConversationSummaryProjectionV1>)
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant),
+                    Summary(Tenant, new ConversationId("miss"), otherBusiness, Project, Folder, Participant),
+                ],
+                new ConversationListFilterV1(BusinessReference: Business)),
+            "project" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant),
+                    Summary(Tenant, new ConversationId("miss"), Business, otherProject, Folder, Participant),
+                ],
+                new ConversationListFilterV1(ProjectId: Project)),
+            "folder" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, otherFolder, Participant),
+                ],
+                new ConversationListFilterV1(FolderId: Folder)),
+            "lifecycle" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, Participant, lifecycle: "Closed"),
+                ],
+                new ConversationListFilterV1(LifecycleState: "Open")),
+            "participant" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, otherParticipant),
+                ],
+                new ConversationListFilterV1(ParticipantPartyId: Participant)),
+            _ => throw new ArgumentOutOfRangeException(nameof(dimension)),
+        };
+
+        FakeProjectionReadStore store = new() { Summaries = rows };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", filter),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.Count.ShouldBe(1);
+        result.Conversations[0].ConversationId.Value.ShouldBe("match");
+    }
+
+    /// <summary>
+    /// ProjectedAt range and RecentActivityAfter filter out rows outside the window.
+    /// </summary>
+    [Fact]
+    public async Task ListShouldFilterByProjectedAtRangeAndRecentActivity()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        DateTimeOffset early = new(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset middle = new(2026, 3, 1, 0, 0, 0, TimeSpan.Zero);
+        DateTimeOffset late = new(2026, 6, 1, 0, 0, 0, TimeSpan.Zero);
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-early"), Business, Project, Folder, Participant, lastAppliedAt: early),
+                Summary(Tenant, new ConversationId("conv-middle"), Business, Project, Folder, Participant, lastAppliedAt: middle),
+                Summary(Tenant, new ConversationId("conv-late"), Business, Project, Folder, Participant, lastAppliedAt: late),
+            ],
+        };
+
+        ConversationListResult result = await CreateHandler(access, store).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                new ConversationListFilterV1(
+                    ProjectedAtFrom: middle.AddDays(-1),
+                    ProjectedAtTo: late.AddDays(-1),
+                    RecentActivityAfter: early)),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.Count.ShouldBe(1);
+        result.Conversations[0].ConversationId.Value.ShouldBe("conv-middle");
+    }
+
+    /// <summary>
+    /// Pagination boundary: the page returns at most PageSize rows even when more accessible rows exist.
+    /// </summary>
+    [Fact]
+    public async Task ListPaginationShouldNotLeakBeyondPageSize()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-a"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-b"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-c"), Business, Project, Folder, Participant),
+            ],
+        };
+
+        ConversationListResult result = await CreateHandler(access, store).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2)),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.Count.ShouldBe(2);
+        result.Page.ReturnedCount.ShouldBe(2);
+        result.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+    }
+
+    /// <summary>
     /// Malformed cursors fail closed before authorization-sensitive reads.
     /// </summary>
     [Fact]
@@ -158,7 +415,7 @@ public sealed class ConversationQueryHandlerTest
     {
         FakeTenantAccessService access = AllowedAccess();
         FakeProjectionReadStore store = new();
-        ConversationQueryHandler handler = new(access, store);
+        ConversationQueryHandler handler = CreateHandler(access, store);
 
         ConversationListResult result = await handler.ListAsync(
             new ListConversationsQuery(
@@ -185,12 +442,14 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryHandler handler = new(access, store);
-        string cursor = ConversationQueryCursor.EncodeForTests(
+        ConversationQueryCursor cursorService = CreateCursor();
+        ConversationQueryHandler handler = CreateHandler(access, store, cursor: cursorService);
+        string cursor = cursorService.EncodeForTests(
             Tenant,
             "different-caller",
             ConversationListFilterV1.Empty,
             offset: 1,
+            projectionGenerationToken: "pos:1:1",
             issuedAt: Now);
 
         ConversationListResult result = await handler.ListAsync(
@@ -204,7 +463,225 @@ public sealed class ConversationQueryHandlerTest
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         result.Conversations.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// Tampered cursor signatures fail closed; the verifier never reads projection storage.
+    /// </summary>
+    [Fact]
+    public async Task TamperedCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor cursorService = CreateCursor();
+        string original = cursorService.EncodeForTests(
+            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+
+        // Flip a byte of the base64 payload to break the HMAC.
+        byte[] bytes = Convert.FromBase64String(original);
+        bytes[^1] ^= 0xFF;
+        string tampered = Convert.ToBase64String(bytes);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, tampered)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         store.ListReads.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Cursors signed under a different deployment key are rejected.
+    /// </summary>
+    [Fact]
+    public async Task CursorSignedWithDifferentKeyShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor otherKeyCursor = CreateCursor(seed: 99, keyId: "other-key");
+        string foreign = otherKeyCursor.EncodeForTests(
+            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: CreateCursor()).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, foreign)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        store.ListReads.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Cursors older than the configured MaxAge fail closed.
+    /// </summary>
+    [Fact]
+    public async Task ExpiredCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor cursorService = CreateCursor();
+        FakeTimeProvider time = new(Now.AddHours(2));
+        string aged = cursorService.EncodeForTests(
+            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService, time: time).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, aged)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+    }
+
+    /// <summary>
+    /// Future-dated cursors (clock skew or forged) fail closed via the age lower bound.
+    /// </summary>
+    [Fact]
+    public async Task FutureDatedCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor cursorService = CreateCursor();
+        string futureCursor = cursorService.EncodeForTests(
+            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now.AddHours(1));
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService, time: new FakeTimeProvider(Now)).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, futureCursor)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+    }
+
+    /// <summary>
+    /// Cursors issued against a different projection generation token fail closed.
+    /// </summary>
+    [Fact]
+    public async Task GenerationMismatchedCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor cursorService = CreateCursor();
+        string staleGen = cursorService.EncodeForTests(
+            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:OLD:0", Now);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, staleGen)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+    }
+
+    /// <summary>
+    /// Cursors issued for a different tenant fail closed.
+    /// </summary>
+    [Fact]
+    public async Task TenantMismatchedCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursor cursorService = CreateCursor();
+        string foreign = cursorService.EncodeForTests(
+            OtherTenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, foreign)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+    }
+
+    /// <summary>
+    /// Cursors with offsets above the configured MaxOffset fail closed.
+    /// </summary>
+    [Fact]
+    public async Task ExcessiveOffsetCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        ConversationQueryCursorOptions options = OptionsFor(maxOffset: 10);
+        ConversationQueryCursor cursorService = new(Options.Create(options));
+        // Encode a cursor at the boundary and then manually craft a payload with offset > MaxOffset.
+        // Easiest path: bypass Encode and hand-craft. We re-use cursorService with offset 5 which is fine.
+        string oversize = ForgeCursorWithOffset(cursorService, options, offset: 999_999);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(10, oversize)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+    }
+
+    /// <summary>
+    /// Public query contracts do not expose any field that would let a caller supply a provider session id.
+    /// </summary>
+    [Fact]
+    public void GetAndListContractsShouldNotExposeProviderSessionField()
+    {
+        Type detailQuery = typeof(GetConversationQuery);
+        Type listQuery = typeof(ListConversationsQuery);
+        Type filter = typeof(ConversationListFilterV1);
+
+        foreach (Type type in new[] { detailQuery, listQuery, filter })
+        {
+            foreach (System.Reflection.PropertyInfo property in type.GetProperties())
+            {
+                property.Name.ShouldNotContain("Session", Case.Insensitive);
+                property.Name.ShouldNotContain("Provider", Case.Insensitive);
+            }
+        }
     }
 
     private static FakeTenantAccessService AllowedAccess()
@@ -212,6 +689,54 @@ public sealed class ConversationQueryHandlerTest
             ConversationTenantAccessRequirement.Read,
             Tenant,
             "caller-001"));
+
+    private static ConversationQueryHandler CreateHandler(
+        FakeTenantAccessService access,
+        FakeProjectionReadStore store,
+        ConversationQueryCursor? cursor = null,
+        TimeProvider? time = null)
+    {
+        ConversationQueryCursor cursorInstance = cursor ?? CreateCursor();
+        ConversationProjectionReadService readService = new(access, store);
+        return new ConversationQueryHandler(access, store, readService, cursorInstance, time ?? new FakeTimeProvider(Now));
+    }
+
+    private static ConversationQueryCursor CreateCursor(int seed = 42, string keyId = "test-key-1")
+        => new(Options.Create(OptionsFor(seed, keyId)));
+
+    private static ConversationQueryCursorOptions OptionsFor(int seed = 42, string keyId = "test-key-1", int maxOffset = 100_000)
+    {
+        byte[] key = new byte[32];
+        Random rng = new(seed);
+        rng.NextBytes(key);
+        return new ConversationQueryCursorOptions
+        {
+            SigningKey = key,
+            KeyId = keyId,
+            MaxOffset = maxOffset,
+        };
+    }
+
+    private static string ForgeCursorWithOffset(
+        ConversationQueryCursor cursorService,
+        ConversationQueryCursorOptions options,
+        int offset)
+    {
+        ConversationQueryCursor.CursorPayload payload = new(
+            1,
+            options.KeyId,
+            Tenant.Value,
+            "caller-001",
+            ConversationQueryCursor.Fingerprint(ConversationListFilterV1.Empty),
+            ConversationQueryCursor.SortVersion,
+            "pos:1:1",
+            offset,
+            Now.UtcDateTime);
+        string payloadJson = JsonSerializer.Serialize(payload);
+        using HMACSHA256 hmac = new(options.SigningKey);
+        string signature = Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(payloadJson)));
+        return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{payloadJson}.{signature}"));
+    }
 
     private static ConversationProjectedReadModels ProjectedModels(TenantId tenantId, ConversationId conversationId)
         => new(
@@ -224,13 +749,18 @@ public sealed class ConversationQueryHandlerTest
         BusinessReference? business,
         ProjectId? project,
         FolderId? folder,
-        PartyId participant)
+        PartyId participant,
+        string lifecycle = "Open",
+        string cursor = "pos:0000000001",
+        DateTimeOffset? lastAppliedAt = null,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reason = null)
         => new(
             SchemaVersion.Current,
             tenantId,
             conversationId,
-            Freshness(),
-            "Open",
+            Freshness(cursor, lastAppliedAt, freshnessState, reason),
+            lifecycle,
             "Case 123",
             business,
             project,
@@ -244,7 +774,7 @@ public sealed class ConversationQueryHandlerTest
             SchemaVersion.Current,
             tenantId,
             conversationId,
-            Freshness(),
+            Freshness("pos:0000000001"),
             "Open",
             "Case 123",
             Business,
@@ -255,17 +785,25 @@ public sealed class ConversationQueryHandlerTest
             [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
             []);
 
-    private static ProjectionFreshnessV1 Freshness()
-        => new(
+    private static ProjectionFreshnessV1 Freshness(
+        string cursor = "pos:0000000001",
+        DateTimeOffset? lastAppliedAt = null,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reason = null)
+    {
+        ProjectionTrustState state = freshnessState ?? ProjectionTrustState.Current;
+        bool isStale = state == ProjectionTrustState.Stale;
+        return new(
             SchemaVersion.Current,
-            "pos:0000000001",
+            cursor,
             1,
-            Now,
-            Now.AddSeconds(1),
+            lastAppliedAt ?? Now,
+            (lastAppliedAt ?? Now).AddSeconds(1),
             TimeSpan.FromSeconds(1),
-            IsStale: false,
-            ProjectionTrustState.Current,
-            ProjectionFreshnessReasonCode.Current);
+            IsStale: isStale,
+            state,
+            reason ?? ProjectionFreshnessReasonCode.Current);
+    }
 
     private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
     {
@@ -313,5 +851,10 @@ public sealed class ConversationQueryHandlerTest
             ListReads++;
             return ValueTask.FromResult(Summaries);
         }
+    }
+
+    private sealed class FakeTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
     }
 }

@@ -2,6 +2,14 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-8-retrieve-and-list-conversations-by-tenant-business-context (2026-05-20)
+
+- List handler enumerates entire tenant in memory before paging [`src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:109-135`] — pre-existing in-memory `IConversationProjectionReadStore` abstraction. A production read store will need backed querying with server-side filter/sort/page push-down. Performance, not security. Re-engage when Story 1.11 (replay/rebuild) or the production projection store lands.
+- Offset-based pagination is unstable under concurrent inserts/deletes [`src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:127-135`] — caller sees duplicates or skipped rows when the underlying list changes between pages. Spec accepts offset semantics for now; keyset pagination on `(LastAppliedEventTimestamp, ConversationId)` is the production-grade fix when projection store gains real query support.
+- `ConversationProviderCorrelationV1.From` does not catch `ArgumentException` from the inner constructor [`src/Hexalith.Conversations.Contracts/Queries/ConversationProviderCorrelationV1.cs:43-46`] — if a projection row has empty `ProviderName`/`ProviderType`, the detail path 500s. Bundle with the projection-poison hardening pass after Story 1.9 owns Party hydration.
+- `int.TryParse(pageSizeText, ...)` silently falls back to 25 on malformed input [`src/Hexalith.Conversations.Server/Api/ConversationReadApi.cs:106-109`] — hides client bugs but does not affect security. Tighten with explicit `Hidden`/400 return when the contract grows error vocabulary for invalid input.
+- `TryGet` (header and query) silently picks the first value when multiple are supplied [`src/Hexalith.Conversations.Server/Api/ConversationReadApi.cs:136-150`] — ASP.NET rarely emits multiples; production hardening can require single-value semantics with an explicit error.
+
 ## Deferred from: code review of 1-7-project-conversation-read-models-with-freshness-metadata (2026-05-20)
 
 - Concurrent rebuild/read test (Task line 61) — hermetic projection tests cannot model concurrent store mutation without a real read store. Re-engage when Story 1.8 (retrieve/list) or Story 1.11 (replay/rebuild) introduces the store. File: `tests/Hexalith.Conversations.Server.Tests/Projections/`.

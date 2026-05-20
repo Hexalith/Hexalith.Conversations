@@ -66,8 +66,8 @@ public sealed class ConversationQueryContractTest
             ContractSamples.Project,
             ContractSamples.Folder,
             "Open",
-            DateFrom: new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero),
-            DateTo: new DateTimeOffset(2026, 5, 31, 23, 59, 59, TimeSpan.Zero),
+            ProjectedAtFrom: new DateTimeOffset(2026, 5, 1, 0, 0, 0, TimeSpan.Zero),
+            ProjectedAtTo: new DateTimeOffset(2026, 5, 31, 23, 59, 59, TimeSpan.Zero),
             RecentActivityAfter: new DateTimeOffset(2026, 5, 15, 0, 0, 0, TimeSpan.Zero),
             ContractSamples.Participant);
         ListConversationsQuery query = new(

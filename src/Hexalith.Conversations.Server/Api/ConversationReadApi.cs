@@ -3,8 +3,12 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Globalization;
+using System.Security.Claims;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Queries;
+using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Queries;
 
@@ -13,8 +17,24 @@ namespace Hexalith.Conversations.Server.Api;
 /// <summary>
 /// Defines guarded conversation read routes for hosts that explicitly opt in.
 /// </summary>
+/// <remarks>
+/// Routes require an authenticated principal via <c>RequireAuthorization()</c>. Tenant scope is taken from
+/// the <see cref="TenantIdClaimType"/> claim and caller identity from <see cref="ClaimTypes.NameIdentifier"/>.
+/// The host MUST register an authentication scheme (JWT, cookie, etc.) and the corresponding authorization
+/// services before mapping these endpoints; otherwise the routes return 401 by construction.
+/// </remarks>
 public static class ConversationReadApi
 {
+    /// <summary>
+    /// The claim type that carries the tenant binding (matches the common OIDC <c>tid</c> claim name).
+    /// </summary>
+    public const string TenantIdClaimType = "tid";
+
+    /// <summary>
+    /// The header that carries the safe request correlation id. Optional; a new id is generated when absent.
+    /// </summary>
+    public const string CorrelationIdHeaderName = "X-Correlation-Id";
+
     /// <summary>
     /// Maps versioned conversation read endpoints.
     /// </summary>
@@ -24,7 +44,7 @@ public static class ConversationReadApi
     {
         ArgumentNullException.ThrowIfNull(endpoints);
 
-        RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations");
+        RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations").RequireAuthorization();
         group.MapGet("/{conversationId}", GetConversationAsync);
         group.MapGet("/", ListConversationsAsync);
         return endpoints;
@@ -38,20 +58,32 @@ public static class ConversationReadApi
     {
         if (!TryGetTenantCaller(context, out TenantId? tenantId, out string? callerPrincipalId, out string correlationId))
         {
-            return Results.Json(ConversationDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+            return HiddenDetail();
         }
 
-        ConversationDetailResult result = await handler.GetAsync(
-            new GetConversationQuery(
-                SchemaVersion.Current,
-                tenantId!,
-                callerPrincipalId!,
-                correlationId,
-                new ConversationId(conversationId)),
-            cancellationToken)
-            .ConfigureAwait(false);
+        ConversationDetailResult result;
+        try
+        {
+            result = await handler.GetAsync(
+                new GetConversationQuery(
+                    SchemaVersion.Current,
+                    tenantId!,
+                    callerPrincipalId!,
+                    correlationId,
+                    new ConversationId(conversationId)),
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ArgumentException)
+        {
+            return HiddenDetail();
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return UnavailableDetail();
+        }
 
-        return Results.Json(result, statusCode: result.Details is null ? StatusCodes.Status404NotFound : StatusCodes.Status200OK);
+        return DetailToHttpResult(result);
     }
 
     private static async Task<IResult> ListConversationsAsync(
@@ -61,50 +93,110 @@ public static class ConversationReadApi
     {
         if (!TryGetTenantCaller(context, out TenantId? tenantId, out string? callerPrincipalId, out string correlationId))
         {
-            return Results.Json(ConversationListResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+            return HiddenList();
         }
 
+        ConversationListFilterV1 filter;
+        ConversationPageRequest page;
         try
         {
-            ConversationListResult result = await handler.ListAsync(
+            filter = BuildFilter(context.Request.Query);
+            page = BuildPage(context.Request.Query);
+        }
+        catch (ArgumentException)
+        {
+            // Side-channel equivalence: malformed filter input fails closed with the same shape as a denial.
+            return HiddenList();
+        }
+
+        ConversationListResult result;
+        try
+        {
+            result = await handler.ListAsync(
                 new ListConversationsQuery(
                     SchemaVersion.Current,
                     tenantId!,
                     callerPrincipalId!,
                     correlationId,
-                    BuildFilter(context.Request.Query),
-                    BuildPage(context.Request.Query)),
+                    filter,
+                    page),
                 cancellationToken)
                 .ConfigureAwait(false);
-
-            return Results.Json(result, statusCode: StatusCodes.Status200OK);
         }
-        catch (ArgumentException)
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
-            return Results.Json(ConversationListResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+            return UnavailableList();
         }
+
+        return ListToHttpResult(result);
     }
 
+    private static IResult DetailToHttpResult(ConversationDetailResult result)
+    {
+        // AC 3 / response matrix:
+        //   Visible          → 200 OK with body
+        //   Unavailable      → 503 Service Unavailable (authorized caller, infrastructure outage)
+        //   Forbidden/Hidden → 404 Not Found (same-shape denial)
+        if (result.FreshnessState == ProjectionTrustState.Unavailable)
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return result.Details is null
+            ? Results.Json(result, statusCode: StatusCodes.Status404NotFound)
+            : Results.Json(result, statusCode: StatusCodes.Status200OK);
+    }
+
+    private static IResult ListToHttpResult(ConversationListResult result)
+    {
+        if (result.FreshnessState == ProjectionTrustState.Unavailable)
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        // Hidden, accessible-and-current, and stale/rebuilding all return 200 with content-safe bodies.
+        // Side-channel equivalence: malformed filters route through HiddenList() and produce the same shape.
+        return Results.Json(result, statusCode: StatusCodes.Status200OK);
+    }
+
+    private static IResult HiddenDetail()
+        => Results.Json(ConversationDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+
+    private static IResult UnavailableDetail()
+        => Results.Json(ConversationDetailResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
+
+    private static IResult HiddenList()
+        => Results.Json(ConversationListResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status200OK);
+
+    private static IResult UnavailableList()
+        => Results.Json(ConversationListResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
+
     private static ConversationListFilterV1 BuildFilter(IQueryCollection query)
-        => new(
-            BusinessReference: TryGet(query, "businessSystem", out string? businessSystem)
-                && TryGet(query, "businessValue", out string? businessValue)
-                    ? new BusinessReference(businessSystem, businessValue)
-                    : null,
+    {
+        bool hasSystem = TryGet(query, "businessSystem", out string? businessSystem);
+        bool hasValue = TryGet(query, "businessValue", out string? businessValue);
+        if (hasSystem ^ hasValue)
+        {
+            throw new ArgumentException("businessSystem and businessValue must be supplied together.");
+        }
+
+        return new ConversationListFilterV1(
+            BusinessReference: hasSystem && hasValue ? new BusinessReference(businessSystem, businessValue) : null,
             ProjectId: TryGet(query, "projectId", out string? projectId) ? new ProjectId(projectId) : null,
             FolderId: TryGet(query, "folderId", out string? folderId) ? new FolderId(folderId) : null,
             LifecycleState: TryGet(query, "lifecycleState", out string? lifecycleState) ? lifecycleState : null,
-            DateFrom: TryParseDate(query, "dateFrom"),
-            DateTo: TryParseDate(query, "dateTo"),
+            ProjectedAtFrom: TryParseDate(query, "projectedAtFrom"),
+            ProjectedAtTo: TryParseDate(query, "projectedAtTo"),
             RecentActivityAfter: TryParseDate(query, "recentActivityAfter"),
             ParticipantPartyId: TryGet(query, "participantPartyId", out string? participantPartyId)
                 ? new PartyId(participantPartyId)
                 : null);
+    }
 
     private static ConversationPageRequest BuildPage(IQueryCollection query)
     {
         int pageSize = TryGet(query, "pageSize", out string? pageSizeText)
-            && int.TryParse(pageSizeText, out int parsedPageSize)
+            && int.TryParse(pageSizeText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedPageSize)
                 ? parsedPageSize
                 : 25;
         return new ConversationPageRequest(pageSize, TryGet(query, "cursor", out string? cursor) ? cursor : null);
@@ -118,18 +210,33 @@ public static class ConversationReadApi
     {
         tenantId = null;
         callerPrincipalId = null;
-        correlationId = TryGet(context.Request.Headers, "X-Correlation-Id", out string? suppliedCorrelation)
+        correlationId = TryGet(context.Request.Headers, CorrelationIdHeaderName, out string? suppliedCorrelation)
             ? suppliedCorrelation
             : Guid.NewGuid().ToString("N");
 
-        if (!TryGet(context.Request.Headers, "X-Tenant-Id", out string? tenant)
-            || !TryGet(context.Request.Headers, "X-Caller-Principal-Id", out string? caller))
+        ClaimsPrincipal? principal = context.User;
+        if (principal is null || principal.Identity is null || !principal.Identity.IsAuthenticated)
         {
             return false;
         }
 
-        tenantId = new TenantId(tenant);
-        callerPrincipalId = caller;
+        string? tenantClaim = principal.FindFirstValue(TenantIdClaimType);
+        string? callerClaim = principal.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(tenantClaim) || string.IsNullOrWhiteSpace(callerClaim))
+        {
+            return false;
+        }
+
+        try
+        {
+            tenantId = new TenantId(tenantClaim);
+        }
+        catch (ArgumentException)
+        {
+            return false;
+        }
+
+        callerPrincipalId = callerClaim;
         return true;
     }
 
@@ -150,7 +257,12 @@ public static class ConversationReadApi
     }
 
     private static DateTimeOffset? TryParseDate(IQueryCollection query, string key)
-        => TryGet(query, key, out string? value) && DateTimeOffset.TryParse(value, out DateTimeOffset parsed)
+        => TryGet(query, key, out string? value)
+            && DateTimeOffset.TryParse(
+                value,
+                CultureInfo.InvariantCulture,
+                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+                out DateTimeOffset parsed)
             ? parsed
             : null;
 }

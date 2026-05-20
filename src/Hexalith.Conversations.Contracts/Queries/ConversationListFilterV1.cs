@@ -10,21 +10,27 @@ namespace Hexalith.Conversations.Contracts.Queries;
 /// <summary>
 /// Defines exact-match tenant-scoped filters for conversation listing.
 /// </summary>
+/// <remarks>
+/// The date bounds filter on the projection's last-applied event timestamp
+/// (<see cref="Projections.ProjectionFreshnessV1.LastAppliedEventTimestamp"/>), not on business activity.
+/// A future projection field for "last visible message activity" is planned in Story 1.9; the current
+/// recent-activity bound shares the same projection timestamp until that field exists.
+/// </remarks>
 /// <param name="businessReference">The adopter-owned external business correlation key.</param>
 /// <param name="projectId">The stable project reference.</param>
 /// <param name="folderId">The stable folder reference.</param>
 /// <param name="lifecycleState">The closed conversation lifecycle value.</param>
-/// <param name="dateFrom">The inclusive lower bound for the projected activity timestamp.</param>
-/// <param name="dateTo">The inclusive upper bound for the projected activity timestamp.</param>
-/// <param name="recentActivityAfter">The exclusive recent-activity lower bound.</param>
+/// <param name="projectedAtFrom">The inclusive lower bound for the projection's last-applied event timestamp.</param>
+/// <param name="projectedAtTo">The inclusive upper bound for the projection's last-applied event timestamp.</param>
+/// <param name="recentActivityAfter">The exclusive lower bound for projected activity (projection-write-time until Story 1.9 ships LastMessageAt).</param>
 /// <param name="participantPartyId">The stable participant Party reference.</param>
 public sealed record ConversationListFilterV1(
     BusinessReference? BusinessReference = null,
     ProjectId? ProjectId = null,
     FolderId? FolderId = null,
     string? LifecycleState = null,
-    DateTimeOffset? DateFrom = null,
-    DateTimeOffset? DateTo = null,
+    DateTimeOffset? ProjectedAtFrom = null,
+    DateTimeOffset? ProjectedAtTo = null,
     DateTimeOffset? RecentActivityAfter = null,
     PartyId? ParticipantPartyId = null)
 {
@@ -39,20 +45,22 @@ public sealed record ConversationListFilterV1(
     public string? LifecycleState { get; } = ValidateLifecycle(LifecycleState);
 
     /// <summary>
-    /// Gets the inclusive lower bound for the projected activity timestamp.
+    /// Gets the inclusive lower bound for the projection's last-applied event timestamp.
     /// </summary>
-    public DateTimeOffset? DateFrom { get; } = DateFrom;
+    public DateTimeOffset? ProjectedAtFrom { get; } = ProjectedAtFrom;
 
     /// <summary>
-    /// Gets the inclusive upper bound for the projected activity timestamp.
+    /// Gets the inclusive upper bound for the projection's last-applied event timestamp.
     /// </summary>
-    public DateTimeOffset? DateTo { get; } = ValidateDateRange(DateFrom, DateTo);
+    public DateTimeOffset? ProjectedAtTo { get; } = ValidateProjectedAtRange(ProjectedAtFrom, ProjectedAtTo);
 
-    private static DateTimeOffset? ValidateDateRange(DateTimeOffset? from, DateTimeOffset? to)
+    private static DateTimeOffset? ValidateProjectedAtRange(DateTimeOffset? from, DateTimeOffset? to)
     {
         if (from.HasValue && to.HasValue && from > to)
         {
-            throw new ArgumentException("The date lower bound must not be after the upper bound.", nameof(to));
+            throw new ArgumentException(
+                "The projected-at lower bound must not be after the upper bound.",
+                nameof(ProjectedAtTo));
         }
 
         return to;
@@ -68,7 +76,7 @@ public sealed record ConversationListFilterV1(
         return value switch
         {
             "Initializing" or "Open" or "Closed" or "Archived" => value,
-            _ => throw new ArgumentException("Unsupported conversation lifecycle state.", nameof(value)),
+            _ => throw new ArgumentException("Unsupported conversation lifecycle state.", nameof(LifecycleState)),
         };
     }
 }
