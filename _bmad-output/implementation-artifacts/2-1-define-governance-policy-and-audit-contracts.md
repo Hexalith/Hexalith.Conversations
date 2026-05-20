@@ -34,6 +34,12 @@ so that governance behavior is enforceable, testable, and safe before mutation w
    - Then required rationale, actor, tenant, policy, schema version, and correlation fields are enforced,
    - And forbidden content and personal-data fields are absent from contract shapes.
 
+5. Safe contract authority and disclosure boundaries
+   - Given governance and audit contracts are public adopter-facing surfaces,
+   - When operation timestamps, actor attribution, denial outcomes, audit-unavailable outcomes, policy-blocked outcomes, legal-hold deferrals, and audit evidence handles are serialized,
+   - Then externally visible values are bounded, schema-versioned, content-safe, and derived from explicit Conversations contract inputs rather than handler, projection, storage, audit sink, exception, provider, or upstream internals,
+   - And actor, policy, evidence, correlation, and causation identifiers do not reveal Party personal data, protected tenant existence, audit storage locations, raw diagnostics, or provider-owned details.
+
 ## Tasks / Subtasks
 
 - [ ] Add governance contract vocabulary under `src/Hexalith.Conversations.Contracts/Governance` (AC: 1, 3)
@@ -45,10 +51,13 @@ so that governance behavior is enforceable, testable, and safe before mutation w
   - [ ] Introduce a shared governance metadata record that carries schema version, tenant ID, conversation ID, actor Party ID, rationale, policy reference, operation timestamp, correlation ID, and optional causation ID.
   - [ ] Preserve compatibility with existing `ConversationCommandMetadata` and `ConversationEventMetadata`; prefer composition or obvious mapping over duplicating unrelated command metadata fields.
   - [ ] Add safe audit handle/evidence reference contracts without exposing audit storage implementation details, persistence sequence numbers, logs, exceptions, or raw sink names.
+  - [ ] Keep command metadata, governance operation metadata, and audit evidence metadata semantically distinct; do not let idempotency keys, storage sequence values, projection checkpoints, or handler diagnostics become public audit evidence identity.
+  - [ ] Treat operation timestamps as explicit contract evidence with validation and UTC-safe serialization expectations; tests must reject default/min/max or caller-upgraded trust values that would make stale or unaudited activity look authoritative.
 
 - [ ] Add contract shapes for future Epic 2 mutation workflows (AC: 1, 2, 3)
   - [ ] Model request/event/evidence shapes needed by Stories 2.2-2.8: set/replace retention policy, mark content sensitive, redact message content, archive/logically delete or close governance state where in scope, legal-hold deferral, audit-record governance, and privileged operational justification.
   - [ ] Include explicit result/evidence states for success, denial, audit unavailable, and policy blocked; implementation should bind these to stable contract vocabulary such as `Succeeded`, `Denied`, `AuditUnavailableFailed`, and `PolicyBlocked` or document an equivalent domain-safe naming choice.
+  - [ ] Separate public outcome vocabulary from internal diagnostics; contracts may expose bounded retryability or remediation classes only when they do not reveal target existence, audit sink state, policy internals, upstream details, exception text, or cross-tenant facts.
   - [ ] Add matrix-style sample/test coverage proving every governance mutation kind has paired audit evidence for each required result/evidence state.
   - [ ] Do not implement command handlers, aggregate mutation methods, audit sinks, projection materializers, UI components, or source-event deletion behavior in this story.
 
@@ -63,6 +72,7 @@ so that governance behavior is enforceable, testable, and safe before mutation w
   - [ ] Forbidden-surface tests prove no raw message content, Party personal data, provider payloads, upstream detail objects, EventStore terms, storage terms, exception details, tokens, or claims appear in public type names, property names, JSON property names, or curated sample payloads.
   - [ ] Forbidden-surface tests also prove no server/runtime package concepts, provider SDK type names, handler/projection names, audit sink names, storage locations, stream/revision details, or raw diagnostics appear in public contracts or fixtures.
   - [ ] Serialization round-trip tests use `System.Text.Json` web defaults and follow the existing JSON-equivalence style.
+  - [ ] `ToString()`, XML documentation examples, sample fixture names, assertion failure messages, and validation error strings must remain content-safe and must not echo rationale text, policy details, raw actor values beyond approved identifiers, exception content, or unsafe free-text values.
   - [ ] Add a dependency-boundary test or build assertion proving `Hexalith.Conversations.Contracts` does not reference server/runtime assemblies, EventStore client/runtime packages, provider SDKs, storage libraries, handler assemblies, projection assemblies, or UI packages.
 
 - [ ] Add documentation-ready developer notes in XML docs where public contracts would otherwise be ambiguous (AC: 3, 4)
@@ -106,11 +116,19 @@ so that governance behavior is enforceable, testable, and safe before mutation w
 - Prefer one shared metadata/value shape for governance operations rather than repeating tenant, actor, policy, rationale, timestamp, schema, and correlation fields across every command/evidence record.
 - Rationale must be a required, non-empty, content-safe string. Policy reference must be required, non-empty, and safe to return to adopters or auditors. Correlation ID must remain required.
 - Timestamps must be `DateTimeOffset` and validated with the same plausible business range pattern used by `ConversationEventMetadata`.
+- Timestamps, actor attribution, and evidence handles must not imply runtime success by themselves. Outcome contracts should carry the explicit result/evidence state, and tests should prove stale, denied, policy-blocked, and audit-unavailable records cannot be mistaken for successful audited mutations.
 - Governance target contracts should identify safe target references such as conversation, message, attachment/file reference, participant attribution, audit record, or defined content segment. They must not carry raw content values.
 - Audit evidence contracts should be citeable through stable safe handles and policy references. They must not expose audit sink names, log locations, raw storage keys, exception messages, or unbounded diagnostics.
 - Closed vocabularies are preferred for outcome and operation classes so later handlers cannot invent incompatible strings. If represented as records/classes for converter compatibility, add JSON fixtures and unsafe term tests.
+- Evidence handles should be opaque Conversations-owned values. They may correlate command, event, and audit evidence for adopters, but they must not be EventStore positions, audit sink keys, storage paths, stream names, projection checkpoints, or provider identifiers.
 - Legal-hold handling must be represented as an explicit deferral or policy-blocked outcome. Do not model legal hold as a silent no-op, deletion, archival, redaction, or audit suppression path.
 - Contract names and payload fields must stay business-facing and storage-neutral. Any EventStore, provider, upstream, storage, handler, projection, or runtime term in public names or serialized payloads is a review failure unless already allowed by an existing Conversations contract convention.
+
+### Advanced Elicitation Hardening
+
+The 2026-05-20 advanced elicitation pass kept Story 2.1 inside its contract-only scope and sharpened the places where public contracts can accidentally become authority, diagnostics, or disclosure surfaces. Governance contracts must distinguish command intent, operation metadata, event evidence, audit evidence, and public outcome state. Correlation and causation values help connect records, but they are not storage identity, audit sink identity, or proof of successful audited mutation.
+
+Contract tests should deliberately exercise adversarial disclosure paths: unsafe `ToString()` output, XML documentation examples, fixture names, validation messages, denial payloads, audit-unavailable payloads, legal-hold deferral payloads, and failed serialization/validation assertions. These surfaces must remain as safe as the JSON payload itself.
 
 ### Testing Requirements
 
@@ -138,7 +156,7 @@ so that governance behavior is enforceable, testable, and safe before mutation w
 
 ### Lessons Applied
 
-- L08: Party-mode review and advanced elicitation are separate hardening passes. This story has no completed party-mode or advanced-elicitation trace yet; those must be added by later pre-dev hardening runs, not assumed from this create-story operation. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
+- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.1 now has a completed party-mode trace and a completed advanced-elicitation trace; later implementation should treat those as pre-dev clarifications, not as permission to expand beyond contract-first scope. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
 
 ## References
 
@@ -191,4 +209,24 @@ N/A - story created by BMAD create-story automation.
 - Findings deferred:
   - Final public type names for governance/evidence outcomes may be adjusted during implementation if they remain domain-safe and tests bind the chosen vocabulary.
   - Irreversible source-event deletion remains out of scope unless a future approved ADR authorizes it.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- Date: 2026-05-20T15:01:15Z
+- Selected story key: `2-1-define-governance-policy-and-audit-contracts`
+- Command/skill invocation used: `/bmad-advanced-elicitation 2-1-define-governance-policy-and-audit-contracts`
+- Batch 1 method names: Red Team vs Blue Team; Security Audit Personas; Failure Mode Analysis; Self-Consistency Validation; Critique and Refine
+- Reshuffled Batch 2 method names: First Principles Analysis; Pre-mortem Analysis; Architecture Decision Records; Socratic Questioning; User Persona Focus Group
+- Findings summary:
+  - Story 2.1 was already ready for development after party-mode review, but advanced elicitation found implementability risks around public contracts becoming accidental authority or diagnostics surfaces.
+  - Command metadata, governance operation metadata, event evidence, audit evidence, and public outcome state must remain separate enough that later handlers cannot treat correlation IDs, idempotency keys, projection checkpoints, or storage positions as audit proof.
+  - Disclosure safety must cover non-obvious surfaces such as `ToString()`, XML documentation examples, fixture names, validation messages, denial payloads, audit-unavailable payloads, and assertion output.
+- Changes applied:
+  - Added AC 5 for safe contract authority and disclosure boundaries.
+  - Clarified metadata separation, operation timestamp trust, public-vs-internal outcome vocabulary, opaque evidence handles, stale/denied/audit-unavailable state semantics, and non-JSON disclosure tests.
+  - Updated Lessons Applied to reflect that party-mode review and advanced elicitation are both complete for this story.
+- Findings deferred:
+  - Exact public names for governance operation identity, audit evidence handles, retryability classes, and outcome vocabulary remain implementation choices as long as tests bind safe domain semantics.
+  - Runtime audit enforcement, audit sink implementation, aggregate mutations, projection behavior, UI disclosure handling, and source-event deletion remain out of scope for Story 2.1.
 - Final recommendation: ready-for-dev
