@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -22,5 +23,15 @@ public interface IConversationProjectionReadStore
     ValueTask<ConversationProjectedReadModels?> ReadAsync(
         TenantId tenantId,
         ConversationId conversationId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists candidate summaries for a tenant-scoped query boundary.
+    /// </summary>
+    /// <param name="tenantId">The tenant binding.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>Candidate summaries from the projection read side.</returns>
+    ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        TenantId tenantId,
         CancellationToken cancellationToken = default);
 }

@@ -220,5 +220,10 @@ public sealed class ConversationProjectionReadServiceTest
 
             return ValueTask.FromResult(Models);
         }
+
+        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+            TenantId tenantId,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult<IReadOnlyList<ConversationSummaryProjectionV1>>([]);
     }
 }

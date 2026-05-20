@@ -86,6 +86,15 @@ public sealed class ConversationProjectionReadService(
             return Forbidden();
         }
 
+        if (!ProjectionMatchesRequest(models, routeTenantId, conversationId))
+        {
+            return new ConversationProjectionReadResult(
+                ProjectionTrustState.Forbidden,
+                ProjectionFreshnessReasonCode.PoisonEvent,
+                null,
+                false);
+        }
+
         if (!SameGeneration(models.Summary.Freshness, models.Detail.Freshness))
         {
             return new ConversationProjectionReadResult(
@@ -116,6 +125,15 @@ public sealed class ConversationProjectionReadService(
             && summary.LastAppliedEventPosition == detail.LastAppliedEventPosition
             && summary.LastAppliedEventTimestamp.UtcTicks == detail.LastAppliedEventTimestamp.UtcTicks
             && summary.ProjectionGeneratedAt.UtcTicks == detail.ProjectionGeneratedAt.UtcTicks;
+
+    private static bool ProjectionMatchesRequest(
+        ConversationProjectedReadModels models,
+        TenantId tenantId,
+        ConversationId conversationId)
+        => models.Summary.TenantId == tenantId
+            && models.Detail.TenantId == tenantId
+            && models.Summary.ConversationId == conversationId
+            && models.Detail.ConversationId == conversationId;
 
     private static ConversationProjectionReadResult Unavailable()
         => new(
