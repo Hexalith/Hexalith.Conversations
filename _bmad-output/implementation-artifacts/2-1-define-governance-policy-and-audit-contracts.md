@@ -48,7 +48,8 @@ so that governance behavior is enforceable, testable, and safe before mutation w
 
 - [ ] Add contract shapes for future Epic 2 mutation workflows (AC: 1, 2, 3)
   - [ ] Model request/event/evidence shapes needed by Stories 2.2-2.8: set/replace retention policy, mark content sensitive, redact message content, archive/logically delete or close governance state where in scope, legal-hold deferral, audit-record governance, and privileged operational justification.
-  - [ ] Include explicit result/evidence states for success, denial, audit unavailable, and policy blocked.
+  - [ ] Include explicit result/evidence states for success, denial, audit unavailable, and policy blocked; implementation should bind these to stable contract vocabulary such as `Succeeded`, `Denied`, `AuditUnavailableFailed`, and `PolicyBlocked` or document an equivalent domain-safe naming choice.
+  - [ ] Add matrix-style sample/test coverage proving every governance mutation kind has paired audit evidence for each required result/evidence state.
   - [ ] Do not implement command handlers, aggregate mutation methods, audit sinks, projection materializers, UI components, or source-event deletion behavior in this story.
 
 - [ ] Update serialization registration and curated samples (AC: 4)
@@ -58,8 +59,11 @@ so that governance behavior is enforceable, testable, and safe before mutation w
 
 - [ ] Add focused contract validation tests (AC: 1, 2, 4)
   - [ ] Required-field tests cover rationale, actor Party ID, tenant ID, conversation ID, policy reference, schema version, timestamp, and correlation ID.
+  - [ ] Uniform metadata validation covers null, empty, whitespace, default timestamp, malformed correlation, and omitted tenant scope cases across both command and audit evidence contracts; privileged actions must not infer tenant scope from conversation identity alone.
   - [ ] Forbidden-surface tests prove no raw message content, Party personal data, provider payloads, upstream detail objects, EventStore terms, storage terms, exception details, tokens, or claims appear in public type names, property names, JSON property names, or curated sample payloads.
+  - [ ] Forbidden-surface tests also prove no server/runtime package concepts, provider SDK type names, handler/projection names, audit sink names, storage locations, stream/revision details, or raw diagnostics appear in public contracts or fixtures.
   - [ ] Serialization round-trip tests use `System.Text.Json` web defaults and follow the existing JSON-equivalence style.
+  - [ ] Add a dependency-boundary test or build assertion proving `Hexalith.Conversations.Contracts` does not reference server/runtime assemblies, EventStore client/runtime packages, provider SDKs, storage libraries, handler assemblies, projection assemblies, or UI packages.
 
 - [ ] Add documentation-ready developer notes in XML docs where public contracts would otherwise be ambiguous (AC: 3, 4)
   - [ ] State that redaction is append-only and policy governed by default.
@@ -105,13 +109,17 @@ so that governance behavior is enforceable, testable, and safe before mutation w
 - Governance target contracts should identify safe target references such as conversation, message, attachment/file reference, participant attribution, audit record, or defined content segment. They must not carry raw content values.
 - Audit evidence contracts should be citeable through stable safe handles and policy references. They must not expose audit sink names, log locations, raw storage keys, exception messages, or unbounded diagnostics.
 - Closed vocabularies are preferred for outcome and operation classes so later handlers cannot invent incompatible strings. If represented as records/classes for converter compatibility, add JSON fixtures and unsafe term tests.
+- Legal-hold handling must be represented as an explicit deferral or policy-blocked outcome. Do not model legal hold as a silent no-op, deletion, archival, redaction, or audit suppression path.
+- Contract names and payload fields must stay business-facing and storage-neutral. Any EventStore, provider, upstream, storage, handler, projection, or runtime term in public names or serialized payloads is a review failure unless already allowed by an existing Conversations contract convention.
 
 ### Testing Requirements
 
 - Extend contract tests before considering the story complete. Every new public record must be present in `ContractSamples.AllContracts` and survive JSON round trip.
 - Add representative fixture JSON for the important governance/evidence shapes so future changes are visible in review.
+- Add a governance mutation/evidence matrix fixture covering success, denial, audit-unavailable failure, and policy-blocked outcomes for each Story 2.2-2.8 operation family.
 - Add negative validation tests for missing rationale, missing policy reference, missing actor, missing tenant, missing conversation, invalid timestamp, and missing correlation ID.
 - Add forbidden-content tests that construct governance/evidence payloads with unsafe terms and assert validation rejects them where fields are free text.
+- Add semantic distinction tests proving contracts distinguish source event history, projected/displayed content, audit records, derived materializations, archival, logical deletion, retention enforcement, and legal-hold deferral without implying source-event deletion.
 - Run at minimum:
   - `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj`
   - If project references or shared primitives move, run `dotnet test Hexalith.Conversations.slnx`.
@@ -162,3 +170,25 @@ N/A - story created by BMAD create-story automation.
 ### File List
 
 - `_bmad-output/implementation-artifacts/2-1-define-governance-policy-and-audit-contracts.md`
+
+## Party-Mode Review
+
+- Date: 2026-05-20T12:03:19Z
+- Selected story key: `2-1-define-governance-policy-and-audit-contracts`
+- Command/skill invocation used: `/bmad-party-mode 2-1-define-governance-policy-and-audit-contracts; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary:
+  - Story is ready for development as a contract-first governance/audit slice, provided implementation stays out of runtime handlers, aggregates, projections, audit sinks, UI, and source-event deletion.
+  - Audit pairing must be explicit for success, denial, audit-unavailable failure, and policy-blocked outcomes; generic audit envelopes alone are not sufficient unless matrix tests prove every required evidence path.
+  - Contract vocabulary must distinguish redaction, retention, archival, logical deletion, derived materialization cleanup, audit records, and legal-hold deferral without implying source-event deletion.
+  - Privacy, forbidden-surface, and dependency-boundary tests are the main guardrails against leaking EventStore, storage, provider, upstream, server/runtime, Party personal data, raw content, or diagnostics.
+- Changes applied:
+  - Clarified required audit outcome vocabulary and matrix-style evidence coverage.
+  - Added uniform metadata validation expectations including malformed correlation and tenant-scope omission cases.
+  - Expanded forbidden-surface expectations to include server/runtime, provider SDK, handler/projection, audit sink, storage location, stream/revision, and diagnostic terms.
+  - Added dependency-boundary test expectation for the Contracts project.
+  - Added explicit legal-hold deferral/policy-blocked semantics and semantic distinction tests for governance state concepts.
+- Findings deferred:
+  - Final public type names for governance/evidence outcomes may be adjusted during implementation if they remain domain-safe and tests bind the chosen vocabulary.
+  - Irreversible source-event deletion remains out of scope unless a future approved ADR authorizes it.
+- Final recommendation: ready-for-dev
