@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-20T12:35:45+02:00
+# last_updated: 2026-05-20T13:02:53+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-20T12:35:45+02:00
+last_updated: 2026-05-20T13:02:53+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -55,8 +55,8 @@ development_status:
   1-10-publish-versioned-conversation-domain-events: ready-for-dev
   1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: ready-for-dev
   epic-1-retrospective: optional
-  epic-2: backlog
-  2-1-define-governance-policy-and-audit-contracts: backlog
+  epic-2: in-progress
+  2-1-define-governance-policy-and-audit-contracts: ready-for-dev
   2-2-set-conversation-retention-policy-with-rationale: backlog
   2-3-mark-conversation-content-as-sensitive: backlog
   2-4-redact-message-content-with-audit-attribution: backlog
