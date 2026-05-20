@@ -99,10 +99,9 @@ public sealed class ConversationProjectionReadServiceTest
         ConversationProjectedReadModels models = ProjectedModels();
         FakeProjectionReadStore store = new()
         {
-            Models = models with
-            {
-                Detail = DetailWithFreshness(models.Detail, FreshnessAtPosition(2)),
-            },
+            Models = new ConversationProjectedReadModels(
+                models.Summary,
+                DetailWithFreshness(models.Detail, FreshnessAtPosition(2))),
         };
         ConversationProjectionReadService service = new(access, store);
 

@@ -74,10 +74,54 @@ public sealed class ProjectionFreshnessContractTest
         }
         """;
 
-        Should.Throw<Exception>(() =>
+        Should.Throw<ArgumentException>(() =>
         {
             _ = JsonSerializer.Deserialize<ProjectionFreshnessV1>(json, WebOptions);
         });
+    }
+
+    /// <summary>
+    /// Public freshness JSON property names must not leak EventStore or storage topology vocabulary.
+    /// </summary>
+    [Fact]
+    public void FreshnessJsonShouldNotExposeStorageTopologyTerms()
+    {
+        string json = JsonSerializer.Serialize(CurrentFreshness(), WebOptions).ToLowerInvariant();
+
+        foreach (string forbiddenName in new[]
+        {
+            "streamid",
+            "streamposition",
+            "expectedrevision",
+            "subscriptionid",
+            "subscriptionname",
+            "checkpointid",
+            "checkpointname",
+            "\"revision\"",
+            "sequencetoken",
+            "providerpayload",
+        })
+        {
+            json.ShouldNotContain(forbiddenName);
+        }
+    }
+
+    /// <summary>
+    /// Stale projections must declare the stale flag.
+    /// </summary>
+    [Fact]
+    public void StaleStateWithoutStaleFlagShouldFailClosed()
+    {
+        Should.Throw<ArgumentException>(() => new ProjectionFreshnessV1(
+            SchemaVersion.Current,
+            "pos:0000000042",
+            42,
+            LastApplied,
+            Generated.AddMinutes(30),
+            TimeSpan.FromMinutes(30),
+            IsStale: false,
+            ProjectionTrustState.Stale,
+            ProjectionFreshnessReasonCode.StaleThresholdExceeded));
     }
 
     /// <summary>

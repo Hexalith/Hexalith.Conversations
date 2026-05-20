@@ -1,6 +1,6 @@
 # Story 1.7: Project Conversation Read Models with Freshness Metadata
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -71,6 +71,36 @@ so that consumers can read conversation state without confusing stale, rebuildin
   - [x] Document the public freshness reason-code allowlist separately from internal diagnostic fields and explain that unknown public values are non-current by default.
   - [x] Link Story 1.7 local evidence forward to Story 1.11 replay/schema-version work, Story 1.8 retrieve/list behavior, Story 3.x operator trust surfaces, Story 4.2 client behavior, and Story 6.2 projection-lag observability.
   - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run restore/build/test if assets are stale. Do not initialize nested submodules recursively.
+
+### Review Findings
+
+_From `/bmad-code-review 1.7` on 2026-05-20 against commit `95728f1`. Three parallel review layers: Blind Hunter, Edge Case Hunter, Acceptance Auditor. All decisions resolved; all patches applied._
+
+- [x] [Review][Decision] Lifecycle vocabulary collision — renamed lifecycle token `"Rebuilding"` → `"Initializing"` in `ConversationDetailProjectionV1.ValidateLifecycle`, `ConversationSummaryProjectionV1.ValidateLifecycle`, and `ConversationProjectionMaterializer`. Lifecycle and freshness now use disjoint vocabularies.
+- [x] [Review][Decision] `MetadataMissing` reason code — removed from the public allowlist (no server code path emitted it and the freshness contract already fails closed on missing required fields).
+- [x] [Review][Decision] Whitespace `MessageAppended.Text` — materializer now wraps dispatch in `try/catch (ArgumentException)` and marks `Poisoned`; the projection degrades to `Unavailable`/`PoisonEvent` instead of crashing.
+- [x] [Review][Decision] `MessageId`/`PartyId`/`FileId` collisions across distinct event IDs — detected in `Apply(ParticipantAdded)`, `Apply(MessageAppended, position)`, `Apply(FileReferenceAttached)` and downgraded to `Poisoned`.
+- [x] [Review][Decision] `ConversationMetadataUpdated.Attributes` — replace-all semantics retained and documented in `docs/projection-read-models.md` and the inline materializer code comment.
+- [x] [Review][Decision] List/count/pagination surface — formally deferred to Story 1.8; entry added to `deferred-work.md`.
+
+- [x] [Review][Patch] Tautological `if (Rebuilding && Rebuilding) { = Rebuilding }` block removed; lifecycle constant renamed to `InitializingState` and the dead override deleted.
+- [x] [Review][Patch] `ConversationProjectedReadModels.Detail` — `init` accessor removed; both Summary and Detail are now read-only positional record members. `with { Detail = ... }` no longer compiles; the read service test was updated to construct a fresh record.
+- [x] [Review][Patch] `catch (Exception)` in `ReadDetailAsync` narrowed to `InvalidOperationException`, `IOException`, `TimeoutException`. Cancellation now propagates naturally.
+- [x] [Review][Patch] `ValidateStaleFlag` now also rejects `state == Stale && isStale == false`, enforcing symmetry with the existing Current+isStale=true check. New test `StaleStateWithoutStaleFlagShouldFailClosed` covers it.
+- [x] [Review][Patch] `SameGeneration` now compares `LastAppliedEventTimestamp.UtcTicks` and `ProjectionGeneratedAt.UtcTicks` — robust to JSON offset round-tripping.
+- [x] [Review][Patch] `MissingRequiredFreshnessFieldsShouldFailClosed` narrowed from `Should.Throw<Exception>` to `Should.Throw<ArgumentException>`.
+- [x] [Review][Patch] Added `FreshnessJsonShouldNotExposeStorageTopologyTerms` asserting public JSON does not contain `streamid`, `streamposition`, `expectedrevision`, `subscriptionid`/`name`, `checkpointid`/`name`, `"revision"`, `sequencetoken`, or `providerpayload`.
+- [x] [Review][Patch] Added `DeletingAndRebuildingProjectionShouldProduceEquivalentReadModels` — explicit deletion-and-rebuild equivalence proof using a fresh materializer instance over the same accepted history.
+- [x] [Review][Patch] First-event gap check now also fires when `LastAppliedPosition == 0 && record.Position != 1`. New test `InitialNonOnePositionShouldDowngradeProjectionToRebuilding` covers it.
+- [x] [Review][Patch] Unknown event type no longer throws — `TryGetMetadata` returns null and the materializer marks `HasOutOfOrderEvent = true` and skips dispatch. New test `UnknownEventTypeShouldDowngradeProjectionWithoutThrowing` covers it.
+- [x] [Review][Patch] Future-dated `CommittedAt` — finding kept as-is; the existing `MetadataContradictory` → `Unavailable` downgrade already fails closed, and the `Year ≤ 9999` upper bound that previously rejected far-future events is no longer needed since the broader `ContradictoryProjectionMetadataShouldDowngradeToUnavailable` test path covers the disclosure-of-bad-timestamp case via fail-closed state.
+- [x] [Review][Patch] `CreateFreshness` empty-stream synthesized position — left at `Math.Max(LastAppliedPosition, 1)` with an explicit comment: empty stream is only reachable via `Project([])` (not a real production path), is non-current by definition (Rebuilding from `!WasCreated`), and consumers must not trust the synthesized cursor for ordering.
+- [x] [Review][Patch] Public `ProjectionGeneratedAt` clamp documented inline in `CreateFreshness` and in `docs/projection-read-models.md` — clamp preserves the contract invariant `generatedAt >= lastApplied`; the `Unavailable`/`MetadataContradictory` state already invalidates trust.
+- [x] [Review][Patch] Year-2000 timestamp floor removed in both `ProjectionFreshnessV1.ValidateTimestamp` and `ConversationTimelineMessageProjectionV1.ValidateTimestamp`. The `> DateTimeOffset.MinValue` lower bound remains.
+- [x] [Review][Patch] `_processedEventIds.Add` reordered AFTER the tenant/conversation poison check — a same-EventId legitimate follow-up event in the same pass is no longer silently swallowed by a poison dedup entry.
+- [x] [Review][Patch] Message timeline tie-break — `_messages` now stores `(Position, Message)` and the timeline orders by `CreatedAt` then `Position` (instead of `MessageId.Value` ordinal), preserving causal order across batched-commit messages with identical timestamps.
+
+- [x] [Review][Defer] Concurrent rebuild/read test — Task line 61 nominally required it, but hermetic projection tests cannot model concurrent store mutation without a store implementation. Deferred to Story 1.8/1.11 where the read store landing point lives.
 
 ## Dev Notes
 
@@ -235,6 +265,7 @@ GPT-5
 - 2026-05-18: Party-mode review applied freshness decision matrix, tenant non-disclosure, rebuild/poison-event, boundary-test, and privacy clarifications.
 - 2026-05-19: Advanced elicitation applied trust-computation, checkpoint-ordering, mixed-generation, and public reason-code clarifications.
 - 2026-05-20: Implemented Story 1.7 projection freshness contracts, deterministic materialization, tenant-safe read boundary, tests, docs, and validation evidence; moved to review.
+- 2026-05-20: Code review (`/bmad-code-review 1.7`) applied 6 decisions and 17 patches across contracts, server materializer, read service, tests, and docs. All 318 tests pass. Moved to done.
 
 ## Party-Mode Review
 

@@ -19,8 +19,8 @@ public sealed class ConversationProjectionMaterializer
 {
     private const string ArchivedState = "Archived";
     private const string ClosedState = "Closed";
+    private const string InitializingState = "Initializing";
     private const string OpenState = "Open";
-    private const string RebuildingState = "Rebuilding";
 
     /// <summary>
     /// Projects a summary/detail pair from an ordered public event sequence.
@@ -60,18 +60,12 @@ public sealed class ConversationProjectionMaterializer
             isRebuilding,
             metadataWriteFailed);
 
-        string lifecycleState = builder.LifecycleState;
-        if (freshness.FreshnessState == ProjectionTrustState.Rebuilding && lifecycleState == RebuildingState)
-        {
-            lifecycleState = RebuildingState;
-        }
-
         ConversationSummaryProjectionV1 summary = new(
             SchemaVersion.Current,
             tenantId,
             conversationId,
             freshness,
-            lifecycleState,
+            builder.LifecycleState,
             builder.Label,
             builder.BusinessReference,
             builder.ProjectId,
@@ -86,7 +80,7 @@ public sealed class ConversationProjectionMaterializer
             tenantId,
             conversationId,
             freshness,
-            lifecycleState,
+            builder.LifecycleState,
             builder.Label,
             builder.BusinessReference,
             builder.ProjectId,
@@ -107,9 +101,17 @@ public sealed class ConversationProjectionMaterializer
         bool isRebuilding,
         bool metadataWriteFailed)
     {
+        // ProjectionFreshnessV1 requires position >= 1; clamp here for the no-events case so the
+        // freshness can still be constructed. The empty-stream path is non-current by definition
+        // (WasCreated is false, so the projection is Rebuilding), and consumers must not trust the
+        // synthesized cursor for ordering.
         long position = Math.Max(builder.LastAppliedPosition, 1);
         DateTimeOffset lastApplied = builder.LastAppliedTimestamp ?? projectionGeneratedAt;
         bool contradictoryTimestamp = projectionGeneratedAt < lastApplied;
+
+        // When metadata is contradictory the projection is reported as Unavailable. The public
+        // ProjectionGeneratedAt is clamped to lastApplied so the contract invariant
+        // (generatedAt >= lastApplied) holds; consumers must not treat the clamped value as truth.
         DateTimeOffset publicGeneratedAt = contradictoryTimestamp ? lastApplied : projectionGeneratedAt;
         TimeSpan lag = publicGeneratedAt - lastApplied;
 
@@ -173,10 +175,10 @@ public sealed class ConversationProjectionMaterializer
     {
         private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
         private readonly Dictionary<FileId, ConversationFileReferenceProjectionV1> _fileReferences = [];
-        private readonly Dictionary<MessageId, ConversationTimelineMessageProjectionV1> _messages = [];
+        private readonly Dictionary<MessageId, (long Position, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
         private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
-        private string _lifecycleState = RebuildingState;
+        private string _lifecycleState = InitializingState;
 
         public IReadOnlyDictionary<string, string> Attributes
             => new Dictionary<string, string>(
@@ -208,8 +210,9 @@ public sealed class ConversationProjectionMaterializer
         public IReadOnlyList<ConversationTimelineMessageProjectionV1> Messages
             => _messages
                 .Values
-                .OrderBy(message => message.CreatedAt)
-                .ThenBy(message => message.MessageId.Value, StringComparer.Ordinal)
+                .OrderBy(entry => entry.Message.CreatedAt)
+                .ThenBy(entry => entry.Position)
+                .Select(entry => entry.Message)
                 .ToArray();
 
         public IReadOnlyList<PartyId> ParticipantPartyIds
@@ -234,19 +237,35 @@ public sealed class ConversationProjectionMaterializer
 
         public void Apply(ConversationProjectionEventRecord record)
         {
-            ConversationEventMetadata metadata = GetMetadata(record.Event);
-            if (!_processedEventIds.Add(metadata.EventId))
+            ConversationEventMetadata? metadata = TryGetMetadata(record.Event);
+            if (metadata is null)
             {
+                // Unknown event type: cannot mutate state, downgrade to non-current.
+                HasOutOfOrderEvent = true;
                 return;
             }
 
+            // Tenant/conversation mismatch is checked before dedup so a same-EventId legitimate
+            // follow-up event in the same pass is not silently swallowed by a poison dedup entry.
             if (!tenantId.Equals(metadata.TenantId) || !conversationId.Equals(metadata.ConversationId))
             {
                 Poisoned = true;
                 return;
             }
 
-            if (LastAppliedPosition > 0 && record.Position != LastAppliedPosition + 1)
+            if (!_processedEventIds.Add(metadata.EventId))
+            {
+                return;
+            }
+
+            if (LastAppliedPosition == 0)
+            {
+                if (record.Position != 1)
+                {
+                    HasGap = true;
+                }
+            }
+            else if (record.Position != LastAppliedPosition + 1)
             {
                 if (record.Position <= LastAppliedPosition)
                 {
@@ -266,6 +285,20 @@ public sealed class ConversationProjectionMaterializer
             LastAppliedPosition = Math.Max(LastAppliedPosition, record.Position);
             LastAppliedTimestamp = MaxTimestamp(LastAppliedTimestamp, metadata.CommittedAt);
 
+            try
+            {
+                Dispatch(record);
+            }
+            catch (ArgumentException)
+            {
+                // Contract-validation failure from an event payload (e.g., whitespace text):
+                // treat as poison rather than crashing the projection pass.
+                Poisoned = true;
+            }
+        }
+
+        private void Dispatch(ConversationProjectionEventRecord record)
+        {
             switch (record.Event)
             {
                 case ConversationCreated created:
@@ -275,7 +308,7 @@ public sealed class ConversationProjectionMaterializer
                     Apply(participant);
                     break;
                 case MessageAppended message:
-                    Apply(message);
+                    Apply(message, record.Position);
                     break;
                 case FileReferenceAttached file:
                     Apply(file);
@@ -299,7 +332,7 @@ public sealed class ConversationProjectionMaterializer
             }
         }
 
-        private static ConversationEventMetadata GetMetadata(object e)
+        private static ConversationEventMetadata? TryGetMetadata(object e)
             => e switch
             {
                 ConversationCreated created => created.Metadata,
@@ -309,7 +342,7 @@ public sealed class ConversationProjectionMaterializer
                 ConversationMetadataUpdated update => update.Metadata,
                 ConversationClosed closed => closed.Metadata,
                 ConversationArchived archived => archived.Metadata,
-                _ => throw new ArgumentException("Unsupported conversation projection event.", nameof(e)),
+                _ => null,
             };
 
         private static DateTimeOffset MaxTimestamp(DateTimeOffset? current, DateTimeOffset next)
@@ -318,7 +351,7 @@ public sealed class ConversationProjectionMaterializer
         private void Apply(ConversationCreated e)
         {
             WasCreated = true;
-            if (_lifecycleState == RebuildingState)
+            if (_lifecycleState == InitializingState)
             {
                 _lifecycleState = OpenState;
             }
@@ -331,27 +364,53 @@ public sealed class ConversationProjectionMaterializer
         }
 
         private void Apply(ParticipantAdded e)
-            => _participants[e.ParticipantPartyId] = new ConversationParticipantProjectionV1(
+        {
+            if (_participants.ContainsKey(e.ParticipantPartyId))
+            {
+                Poisoned = true;
+                return;
+            }
+
+            _participants[e.ParticipantPartyId] = new ConversationParticipantProjectionV1(
                 e.ParticipantPartyId,
                 e.ParticipantType,
                 e.ParticipantRole);
+        }
 
-        private void Apply(MessageAppended e)
-            => _messages[e.MessageId] = new ConversationTimelineMessageProjectionV1(
+        private void Apply(MessageAppended e, long position)
+        {
+            if (_messages.ContainsKey(e.MessageId))
+            {
+                Poisoned = true;
+                return;
+            }
+
+            _messages[e.MessageId] = (position, new ConversationTimelineMessageProjectionV1(
                 e.MessageId,
                 e.AuthorPartyId,
                 e.Text,
                 e.Metadata.CommittedAt,
-                e.ProviderCorrelation);
+                e.ProviderCorrelation));
+        }
 
         private void Apply(FileReferenceAttached e)
-            => _fileReferences[e.FileId] = new ConversationFileReferenceProjectionV1(
+        {
+            if (_fileReferences.ContainsKey(e.FileId))
+            {
+                Poisoned = true;
+                return;
+            }
+
+            _fileReferences[e.FileId] = new ConversationFileReferenceProjectionV1(
                 e.FileId,
                 e.FolderId,
                 e.MessageId);
+        }
 
         private void Apply(ConversationMetadataUpdated e)
         {
+            // Replace-all semantics: empty/null Attributes = no-op; non-empty = full replace.
+            // Producers cannot signal per-key deletion through this event.
             if (e.Label is not null)
             {
                 Label = e.Label;

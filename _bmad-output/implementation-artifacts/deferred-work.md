@@ -2,6 +2,10 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-7-project-conversation-read-models-with-freshness-metadata (2026-05-20)
+
+- Concurrent rebuild/read test (Task line 61) — hermetic projection tests cannot model concurrent store mutation without a real read store. Re-engage when Story 1.8 (retrieve/list) or Story 1.11 (replay/rebuild) introduces the store. File: `tests/Hexalith.Conversations.Server.Tests/Projections/`.
+
 ## Deferred from: code review of 1-6-add-idempotent-command-handling — Round 3 (2026-05-20)
 
 - DEF1 (reaffirmed): Idempotency executor is wired only into `AddParticipantCommandHandler`. The other six command handlers (`AppendMessage`, `AttachReference`, `UpdateMetadata`, `Close`, `Archive`, and `CreateConversation`-with-handler) are not yet implemented, so AC1 and AC5 land at PARTIAL. Re-engage when each Epic-1 story introduces its handler. Files: `src/Hexalith.Conversations.Server/CommandHandlers/`.

@@ -205,6 +205,129 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Rebuilding projection state from accepted events yields the same read models as the original materialization.
+    /// </summary>
+    [Fact]
+    public void DeletingAndRebuildingProjectionShouldProduceEquivalentReadModels()
+    {
+        ConversationProjectionMaterializer materializer = Materializer();
+        ConversationProjectionEventRecord[] history = OrderedEvents();
+
+        ConversationProjectedReadModels original = materializer.Project(
+            Tenant,
+            Conversation,
+            history,
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        // Simulate projection-store wipe: discard `original`, replay the same accepted history
+        // with a fresh materializer instance, and confirm the rebuilt models are equivalent.
+        ConversationProjectedReadModels rebuilt = Materializer().Project(
+            Tenant,
+            Conversation,
+            history,
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        rebuilt.Summary.Freshness.ShouldBe(original.Summary.Freshness);
+        rebuilt.Summary.LifecycleState.ShouldBe(original.Summary.LifecycleState);
+        rebuilt.Summary.MessageCount.ShouldBe(original.Summary.MessageCount);
+        rebuilt.Summary.FileReferenceCount.ShouldBe(original.Summary.FileReferenceCount);
+        rebuilt.Summary.ParticipantPartyIds.ShouldBe(original.Summary.ParticipantPartyIds, ignoreOrder: false);
+        rebuilt.Detail.Freshness.ShouldBe(original.Detail.Freshness);
+        rebuilt.Detail.LifecycleState.ShouldBe(original.Detail.LifecycleState);
+        rebuilt.Detail.Messages.ShouldBe(original.Detail.Messages, ignoreOrder: false);
+        rebuilt.Detail.Participants.ShouldBe(original.Detail.Participants, ignoreOrder: false);
+        rebuilt.Detail.FileReferences.ShouldBe(original.Detail.FileReferences, ignoreOrder: false);
+        rebuilt.Detail.Attributes.ShouldBe(original.Detail.Attributes);
+    }
+
+    /// <summary>
+    /// MessageAppended with whitespace text is treated as poison rather than crashing the projection pass.
+    /// </summary>
+    [Fact]
+    public void WhitespaceMessageTextShouldDowngradeProjectionToPoisonEvent()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, new MessageAppended(
+                    Metadata("event-message-001", ConversationEventType.MessageAppended, 2),
+                    Message,
+                    Actor,
+                    "   ")),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.PoisonEvent);
+        result.Detail.Messages.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// MessageId collisions across distinct event IDs degrade trust rather than overwriting silently.
+    /// </summary>
+    [Fact]
+    public void MessageIdCollisionShouldDowngradeProjectionToPoisonEvent()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, MessageAppended("event-message-001", 2)),
+                Event(3, MessageAppended("event-message-002", 3)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.PoisonEvent);
+    }
+
+    /// <summary>
+    /// A stream starting at a non-1 position has a detectable initial gap.
+    /// </summary>
+    [Fact]
+    public void InitialNonOnePositionShouldDowngradeProjectionToRebuilding()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(5, Created("event-create-001", 5)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.GapDetected);
+    }
+
+    /// <summary>
+    /// Unknown event types must not crash the materializer; they are downgraded to a non-current state.
+    /// </summary>
+    [Fact]
+    public void UnknownEventTypeShouldDowngradeProjectionWithoutThrowing()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, new UnknownProjectionEvent()),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.OutOfOrderEvent);
+    }
+
+    /// <summary>
     /// Contradictory timestamps are downgraded instead of throwing or returning current state.
     /// </summary>
     [Fact]
@@ -292,4 +415,6 @@ public sealed class ConversationProjectionMaterializerTest
             Started.AddSeconds(position),
             Actor,
             "causation-001");
+
+    private sealed record UnknownProjectionEvent;
 }

@@ -46,11 +46,6 @@ public sealed record ProjectionFreshnessReasonCode
     public static ProjectionFreshnessReasonCode Redacted { get; } = new("redacted");
 
     /// <summary>
-    /// Gets the reason code for missing freshness metadata.
-    /// </summary>
-    public static ProjectionFreshnessReasonCode MetadataMissing { get; } = new("metadata_missing");
-
-    /// <summary>
     /// Gets the reason code for contradictory freshness metadata.
     /// </summary>
     public static ProjectionFreshnessReasonCode MetadataContradictory { get; } = new("metadata_contradictory");
@@ -89,7 +84,6 @@ public sealed record ProjectionFreshnessReasonCode
             [Unavailable.Value] = Unavailable,
             [Forbidden.Value] = Forbidden,
             [Redacted.Value] = Redacted,
-            [MetadataMissing.Value] = MetadataMissing,
             [MetadataContradictory.Value] = MetadataContradictory,
             [GapDetected.Value] = GapDetected,
             [OutOfOrderEvent.Value] = OutOfOrderEvent,

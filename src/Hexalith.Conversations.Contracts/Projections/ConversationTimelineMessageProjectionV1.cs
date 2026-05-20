@@ -55,11 +55,6 @@ public sealed record ConversationTimelineMessageProjectionV1(
             throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.");
         }
 
-        if (value.Year < 2000 || value.Year > 9999)
-        {
-            throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must fall within the plausible business range (year 2000-9999).");
-        }
-
         return value;
     }
 }
