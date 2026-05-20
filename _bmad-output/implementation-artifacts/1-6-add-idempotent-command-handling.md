@@ -1,6 +1,6 @@
 # Story 1.6: Add Idempotent Command Handling
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -324,6 +324,7 @@ GPT-5 Codex
 - 2026-05-20: Round 2 adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) over commit range `dca60bd^..1728fa8`. Headlines: Blind Hunter 13 MAJOR / 10 MINOR / 2 NIT / 2 ABSTAIN; Edge Case Hunter 1 BLOCKER / 8 MAJOR / 11 MINOR; Acceptance Auditor AC1/AC3/AC4/AC5 PARTIAL, AC2/AC6 PASS, 1 MAJOR / 6 MINOR. After triage: 5 decisions (D7–D11, all resolved to patches P42–P46), 20 patches (P27–P46), 2 deferrals (DEF6/DEF7), 18 dismissed. Round 2 patches left as action items; moved back to in-progress.
 - 2026-05-20: Applied Round 2 review patches P27-P46, updated ADR-0001 Unicode-normalization semantics, corrected the local evidence file-list path, and moved Story 1.6 to review. `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 288 tests.
 - 2026-05-20: Stabilized add-participant idempotency replay tests after current-HEAD revalidation exposed a wall-clock retention dependency; final `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 288 tests.
+- 2026-05-20: Round 3 adversarial parallel review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) over commit range `dca60bd^..HEAD`. Headlines: Blind 5 alleged BLOCKER / 17 MAJOR / 8 MINOR / 4 NIT (most false positives after verification); Edge Case 45 unguarded-path findings; Acceptance Auditor AC2/AC6 PASS, AC1/AC3/AC4/AC5 PARTIAL (PARTIALs traced to DEF1/DEF3, no regression). After triage: 3 decisions (D12-D14, all resolved as patches P52-P54), 8 patches (P47-P54), 4 reaffirmed deferrals (DEF1/DEF3/DEF6/DEF7), ~70 dismissed. All 8 patches applied. `dotnet test Hexalith.Conversations.slnx --no-restore` green on 291 tests. Story status moved to `done`.
 
 ### Review Findings
 
@@ -423,7 +424,58 @@ After triage and deduplication: 5 decision-needed, 14 patches, 2 deferrals, 18 d
 - [x] [Review][Defer] DEF6 — `ConversationCommandFingerprint.Create(object command, ConversationId createAllocationScope)` accepts `object` and `createAllocationScope` is required-non-null but ignored for 6 of 7 command types. Compile-time exhaustiveness is delegated to the test `CommandMatrixShouldProduceExpectedScopes`. Refactor for typed exhaustiveness (e.g., split into 7 typed factory methods, or introduce a sealed `IConversationCommand` discriminator) when contract-evolution lands. — deferred, refactor scope. [src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs:39-93]
 - [x] [Review][Defer] DEF7 — Producer-invariant assumption: `ConversationProjectionAccumulator` deduplicates by `EventId` only. A producer that reuses an `EventId` for a different payload (bug or replay-with-mutation) causes the projection to silently retain the first payload and drop the second. This is the documented behavior per P2 but assumes producer hygiene. Production read-model code should add a stronger same-EventId/different-payload invariant check (or treat repeated EventIds with payload divergence as `Poisoned`). — deferred, production read-model concern; bundle with DEF5. [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:114-148]
 
+#### Round 3 — Adversarial parallel review (2026-05-20)
 
+Run over commit range `dca60bd^..HEAD` (4,881-line code-only diff, 35 files) after Round 2 patches and stabilization commits `66e3372`/`80426e3`/`1728fa8` were applied. Three layers (Blind Hunter, Edge Case Hunter, Acceptance Auditor).
+
+Headlines after verification of claims against the actual source:
+
+- Blind Hunter: 5 alleged BLOCKER, 17 MAJOR, 8 MINOR, 4 NIT. After verification: 1 patch, 1 decision, the rest false positives (TenantId equality holds via record semantics; `ResultPayload` IDs are ADR-approved; tenant-first ordering proven via boundary schema check at handler:88; `TryMarkPoisonedAsync` best-effort failure is by-design; aggressive substring assertions are test smell, not behavior bug).
+- Edge Case Hunter: 45 unguarded-path findings. After verification: 3 patches; the remainder either covered by P21/P25/P32 documented tolerances, by best-effort poison semantics, by DEF1/DEF3/DEF7 deferrals, or by closed vocabulary that the Hunter mistook for free input.
+- Acceptance Auditor: AC1 PARTIAL (only `AddParticipant` wired — DEF1), AC2 PASS, AC3 PARTIAL (bridge unwired — DEF3), AC4 PASS, AC5 PARTIAL (no positive same-schema equivalence test; close/archive only at executor level — DEF1), AC6 PASS. 1 MAJOR/3 MINOR non-AC. Scope boundaries all COMPLIANT. DEF1–DEF7 all STILL_DEFERRED, no regression.
+
+After triage: 3 decisions, 5 patches, 4 reaffirmed deferrals, ~70 dismissed (false positives or by-design).
+
+#### Decisions resolved (Round 3, 2026-05-20)
+
+User direction: "follow best practices" on all three. Resolutions:
+
+- D12 → Patch **P52**: Best practice for handler/aggregate contract drift is to surface it, but P10's intent (no exception after side effects) is preserved. Keep the executor's "poison + return result" path as-is; add a contract test asserting the AddParticipant aggregate Success path emits exactly one `ParticipantAddedDomainEvent`, making the P10 fallback documented "should never happen" code with a regression guardrail. Tighten the `ToIdempotencyOutcome` comment to declare the fallback as defensive-only.
+- D13 → Patch **P53**: Best practice for error taxonomy is distinct categories per distinct meanings. Add `ConversationErrorCategory.Uncertainty` (or `Retryable`) and remap `IdempotencyOutcomeUnknown` in `ContractSamples.ErrorCategoryFor` and any production mirror. Treat `Freshness` strictly as projection-staleness from here on.
+- D14 → Patch **P54**: Best practice for idempotency conflicts (Stripe/AWS pattern) is "use a fresh key after a conflict". Keep `IsRetryable=false`. Document the caller guidance explicitly in ADR-0001 (a new clause under "Decision") and on `ConversationErrorCode.IdempotencyConflict`'s XML doc.
+
+#### Patches (Round 3)
+
+- [x] [Review][Patch] P47 — `ConversationCommandFingerprint.Required(key, value)` now throws `ArgumentException(..., paramName: key)`, so `ex.ParamName` surfaces the canonical field name (`text`, `author.party.id`, etc.). Test `MissingRequiredCanonicalFieldShouldThrowClearArgumentException` updated to assert `ParamName == "text"`. [src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs:202-214; tests/Hexalith.Conversations.Tests/Idempotency/ConversationCommandFingerprintTest.cs]
+- [x] [Review][Patch] P48 — `ConversationAuditHandle.FromServerBoundary` switched to length-prefixed canonical encoding (`{len}:{value}\n` per part), mirroring `ConversationPayloadFingerprint.FromParts`. Embedded delimiters in any input cannot now collide with a different scope tuple. Added `AuditHandleShouldUseLengthPrefixedEncodingToPreventDelimiterInjection` test. [src/Hexalith.Conversations/Idempotency/ConversationAuditHandle.cs:22-50; tests/Hexalith.Conversations.Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest.cs]
+- [x] [Review][Patch] P49 — `ValidateCategoryInvariant` for category `Uncertain` now rejects any non-`IdempotencyOutcomeUnknown` `RejectionCode`. Direct constructor and `record with` expressions cannot bypass the factory's pinned code. [src/Hexalith.Conversations/Idempotency/ConversationIdempotencyOutcome.cs:270-289]
+- [x] [Review][Patch] P50 — Added `EquivalentMetadataShouldProduceIdenticalFingerprint` test covering `CreateConversation`, `AppendMessage`, and `AddParticipant`. AC1 "stable outcome" claim no longer relies on reference identity. [tests/Hexalith.Conversations.Tests/Idempotency/ConversationCommandFingerprintTest.cs]
+- [x] [Review][Patch] P51 — `ConversationCommandSchemaValidation.ValidateMetadata` now rejects idempotency keys longer than 200 chars or containing control characters (`char.IsControl`), returning `command_validation_failed` with reason `idempotency_key_invalid`. Composes with P48 to keep scope-record diagnostics safe. [src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs:86-117]
+- [x] [Review][Patch] P52 (from D12) — Added `AddParticipantSuccessShouldEmitExactlyOneParticipantAddedEvent` test asserting the aggregate Success contract. Tightened the `ToIdempotencyOutcome` comment to declare the P10 fallback as defensive-only and reference the new regression guardrail. [src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs:321-345; tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateParticipantTest.cs]
+- [x] [Review][Patch] P53 (from D13) — Added `ConversationErrorCategory.Uncertainty`. Remapped `IdempotencyOutcomeUnknown` to `Uncertainty` in `ContractSamples.ErrorCategoryFor`. `Freshness` is reserved for projection-staleness only. [src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCategory.cs:48-69; tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs:182]
+- [x] [Review][Patch] P54 (from D14) — Added "Conflict retry semantics" clause to ADR-0001 §"Decision" and mirrored guidance in the XML doc on `ConversationErrorCode.IdempotencyConflict`. Caller guidance: generate a fresh idempotency key after a conflict; resubmitting the original equivalent payload remains safe. [docs/adrs/0001-idempotency-contract.md; src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs:44-55]
+
+#### Reaffirmed deferrals (Round 3)
+
+- [x] [Review][Defer] DEF1 (reaffirmed) — `AppendMessage`/`AttachReference`/`UpdateMetadata`/`Close`/`Archive` command handlers do not yet exist, so the idempotency executor is wired only into `AddParticipantCommandHandler`. AC1 and AC5 are PARTIAL as a direct consequence. Re-engage when each subsequent Epic-1 story introduces its handler. — still deferred, scope unchanged.
+- [x] [Review][Defer] DEF3 (reaffirmed) — `EventStoreCommandStatusIdempotencyBridge.Interpret` exists as a static helper but no caller invokes it. The executor's pending/unknown path always returns RetryableUncertainty rather than attempting an EventStore-history-derived terminal outcome. AC3 is PARTIAL as a direct consequence; ADR-0001 §3 "resolve a terminal outcome from authoritative EventStore history when that can be proven" remains unimplemented per D4. — still deferred, expected owner: Story 1.10 or 5.6.
+- [x] [Review][Defer] DEF6 (reaffirmed) — `ConversationCommandFingerprint.Create(object command, ConversationId createAllocationScope)` still accepts `object` with runtime type discrimination via `switch` instead of typed exhaustiveness. — still deferred, refactor scope.
+- [x] [Review][Defer] DEF7 (reaffirmed) — Same-EventId / different-payload Poisoned detection in `ConversationProjectionAccumulator` not added. — still deferred, production read-model concern.
+
+#### Dismissed (Round 3) — selected false positives worth recording
+
+- Blind Hunter "TenantId reference equality breaks dictionary lookups" — `TenantId` is a `record` in `Hexalith.Tenants.Contracts`, so value equality applies. The existing `SameIdempotencyKeyUnderDifferentTenantShouldNotReplayStoredOutcome` test would fail otherwise.
+- Blind Hunter "AddParticipantCommandHandler validates IdempotencyKey inside the per-tenant lambda" — `AddParticipantBoundary.ValidateSchemaShape(command)` at handler line 88 runs before the tenant access guard at line 113. The inside-lambda re-check at lines 149-160 is defense-in-depth for the executor-wired path; it does not weaken tenant-first ordering.
+- Blind Hunter / Edge Hunter "MarkPoisonedAsync silent no-op on identity mismatch is a bug" — by design (line 141-149 of `InMemoryConversationIdempotencyStore`): a delayed poison from a stale owner must not overwrite a fresh reservation owned by someone else. `TryMarkPoisonedAsync` documents this as "best-effort poison: a failed poison is not worse than leaving the record Pending."
+- Blind Hunter "ResultPayload serializes raw `ConversationId`/`MessageId`/`PartyId`/`FileId`" — ADR-0001 §54-58 explicitly approves "durable conversation/message/participant/reference identity" in the stored outcome.
+- Edge Hunter "`ConversationPayloadFingerprint.FromParts` lacks escaping for `=`/`:`/`\n`" — length-prefixed canonical form (`{key.Length}:{key}={value.Length}:{value}\n`) is collision-safe by construction.
+- Edge Hunter "CreateAllocation `ScopeValue` parsed as `ConversationId` will throw" — the `allocationScope` parameter on `Create` IS a `ConversationId` and the scope value is its `.Value`; no format mismatch.
+- Blind Hunter "Projection accumulator is not thread-safe" — by design for the local-evidence story; production projection drivers single-thread per aggregate. No claim of concurrent applies.
+
+- Date/time: 2026-05-20T15:00:00Z (round 3)
+- Selected story key: `1-6-add-idempotent-command-handling`
+- Command/skill invocation used: `/bmad-code-review 1.6`
+- Final recommendation: in-progress (3 decisions + 5 patches before close).
 
 - Date/time: 2026-05-18T14:22:21Z
 - Selected story key: 1-6-add-idempotent-command-handling

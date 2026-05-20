@@ -275,6 +275,16 @@ public sealed record ConversationIdempotencyOutcome(
                         nameof(isRetryable));
                 }
 
+                // P49 review fix (2026-05-20): the Uncertain factory hard-codes RejectionCode = IdempotencyOutcomeUnknown.
+                // The primary record constructor and `with` expressions must enforce the same invariant so direct construction
+                // (or record mutation) cannot create an Uncertain outcome with an arbitrary RejectionCode.
+                if (rejectionCode is not null && rejectionCode != ConversationErrorCode.IdempotencyOutcomeUnknown)
+                {
+                    throw new ArgumentException(
+                        $"Idempotency outcome category 'Uncertain' must carry RejectionCode = '{ConversationErrorCode.IdempotencyOutcomeUnknown.Value}' (got '{rejectionCode.Value}').",
+                        nameof(rejectionCode));
+                }
+
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(category), category, "Unknown idempotency outcome category.");

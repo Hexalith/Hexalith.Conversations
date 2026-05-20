@@ -30,6 +30,43 @@ public sealed class ConversationCommandFingerprintTest
     private static readonly BusinessReference Business = new("crm", "case-123");
 
     /// <summary>
+    /// P50 review fix (2026-05-20): two fingerprints built from independently-constructed metadata with identical
+    /// (tenant, command type, conversation scope, idempotency key, schema version, canonical payload) tuples must
+    /// produce equal scope AND equal payload-fingerprint values. AC1 "stable outcome" depends on this positive
+    /// equivalence and the existing tests only assert negatives.
+    /// </summary>
+    [Fact]
+    public void EquivalentMetadataShouldProduceIdenticalFingerprint()
+    {
+        // Build the same logical command twice from independently-constructed metadata instances.
+        ConversationCommandFingerprint createA = ConversationCommandFingerprint.Create(CreateConversation(), Conversation);
+        ConversationCommandFingerprint createB = ConversationCommandFingerprint.Create(CreateConversation(), Conversation);
+
+        ConversationCommandFingerprint appendA = ConversationCommandFingerprint.Create(
+            new AppendMessageCommand(Metadata(), Conversation, Message, Actor, "Hello", Provider("session-a")),
+            Conversation);
+        ConversationCommandFingerprint appendB = ConversationCommandFingerprint.Create(
+            new AppendMessageCommand(Metadata(), Conversation, Message, Actor, "Hello", Provider("session-b")),
+            Conversation);
+
+        ConversationCommandFingerprint addParticipantA = ConversationCommandFingerprint.Create(
+            new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session-a")),
+            Conversation);
+        ConversationCommandFingerprint addParticipantB = ConversationCommandFingerprint.Create(
+            new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session-b")),
+            Conversation);
+
+        createA.Scope.ShouldBe(createB.Scope);
+        createA.PayloadFingerprint.ShouldBe(createB.PayloadFingerprint);
+
+        appendA.Scope.ShouldBe(appendB.Scope);
+        appendA.PayloadFingerprint.ShouldBe(appendB.PayloadFingerprint);
+
+        addParticipantA.Scope.ShouldBe(addParticipantB.Scope);
+        addParticipantA.PayloadFingerprint.ShouldBe(addParticipantB.PayloadFingerprint);
+    }
+
+    /// <summary>
     /// Provider correlation changes do not affect the canonical fingerprint because provider IDs are not authority.
     /// </summary>
     [Fact]
@@ -213,7 +250,8 @@ public sealed class ConversationCommandFingerprintTest
             new AppendMessageCommand(Metadata(), Conversation, Message, Actor, " "),
             Conversation));
 
-        exception.ParamName.ShouldBe("value");
+        // P47 review fix (2026-05-20): ParamName now surfaces the canonical field name, not the local 'value' parameter.
+        exception.ParamName.ShouldBe("text");
         exception.Message.ShouldContain("canonical field 'text'");
     }
 

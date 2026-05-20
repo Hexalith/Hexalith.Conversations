@@ -121,6 +121,22 @@ public sealed class IdempotentConversationCommandExecutorTest
     }
 
     /// <summary>
+    /// P48 review fix (2026-05-20): the audit handle's canonical encoding is length-prefixed so that an embedded
+    /// delimiter in any scope part cannot collide with a different-but-otherwise-equivalent scope tuple.
+    /// </summary>
+    [Fact]
+    public void AuditHandleShouldUseLengthPrefixedEncodingToPreventDelimiterInjection()
+    {
+        ConversationCommandFingerprint plainKey = Fingerprint(idempotencyKey: "idempotency-clean");
+        ConversationCommandFingerprint embeddedNewlineKey = Fingerprint(idempotencyKey: "idempotency-clean\ninjected");
+
+        string plainHandle = ConversationAuditHandle.FromServerBoundary(plainKey, "event-server-001");
+        string injectedHandle = ConversationAuditHandle.FromServerBoundary(embeddedNewlineKey, "event-server-001");
+
+        plainHandle.ShouldNotBe(injectedHandle);
+    }
+
+    /// <summary>
     /// Conflicting key reuse returns a typed rejection before mutation.
     /// </summary>
     [Fact]

@@ -62,6 +62,14 @@ public response uses the Conversations `idempotency_conflict` code, mutates no
 conversation state, publishes no successful domain event, and does not disclose which
 field differed.
 
+A conflict response is not retryable in the `ConversationErrorCode.IsRetryable` taxonomy.
+A caller who receives `idempotency_conflict` must generate a fresh idempotency key for
+the corrected request; the same key cannot be reused with a different payload until the
+conflict record expires per retention. This matches industry idempotency design (Stripe,
+AWS) and avoids ambiguous "same key, different intent" replays where the second submission
+silently changes the durable outcome. Resubmitting the original equivalent payload remains
+safe and returns the stored logical outcome.
+
 The reservation lifecycle is atomic:
 
 1. Reserve: create a pending record only if no non-expired record exists for the scoped

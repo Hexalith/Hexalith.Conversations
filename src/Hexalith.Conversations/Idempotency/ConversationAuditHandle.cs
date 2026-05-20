@@ -26,17 +26,28 @@ public static class ConversationAuditHandle
         ArgumentNullException.ThrowIfNull(fingerprint);
         ArgumentException.ThrowIfNullOrWhiteSpace(serverOperationId);
 
-        string material = string.Join(
-            '\n',
-            fingerprint.Scope.TenantId.Value,
-            fingerprint.Scope.CommandType.Value,
-            fingerprint.Scope.ScopeKind,
-            fingerprint.Scope.ScopeValue,
-            fingerprint.Scope.IdempotencyKey,
-            fingerprint.Scope.SchemaVersion.Value.ToString(System.Globalization.CultureInfo.InvariantCulture),
-            serverOperationId);
+        // P48 review fix (2026-05-20): length-prefixed canonical encoding prevents newline/delimiter injection in any input
+        // (TenantId, ScopeValue, IdempotencyKey, serverOperationId) from producing identical hash material across distinct
+        // scope tuples. Mirrors the length-prefix discipline in ConversationPayloadFingerprint.FromParts.
+        StringBuilder material = new();
+        AppendPart(material, fingerprint.Scope.TenantId.Value);
+        AppendPart(material, fingerprint.Scope.CommandType.Value);
+        AppendPart(material, fingerprint.Scope.ScopeKind);
+        AppendPart(material, fingerprint.Scope.ScopeValue);
+        AppendPart(material, fingerprint.Scope.IdempotencyKey);
+        AppendPart(material, fingerprint.Scope.SchemaVersion.Value.ToString(System.Globalization.CultureInfo.InvariantCulture));
+        AppendPart(material, serverOperationId);
 
-        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(material));
+        byte[] hash = SHA256.HashData(Encoding.UTF8.GetBytes(material.ToString()));
         return "audit-" + Convert.ToHexString(hash, 0, 16).ToLowerInvariant();
+    }
+
+    private static void AppendPart(StringBuilder material, string value)
+    {
+        material
+            .Append(value.Length)
+            .Append(':')
+            .Append(value)
+            .Append('\n');
     }
 }

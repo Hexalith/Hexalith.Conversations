@@ -320,6 +320,13 @@ public sealed class AddParticipantCommandHandler
         // P10 review fix (2026-05-19): unexpected event shape (multi-event Success, or a different rejection subtype)
         // must not throw a raw InvalidOperationException after the mutation has already produced side effects.
         // Fall back to a safe Uncertain outcome so the executor releases the reservation (P4) and the caller can retry.
+        //
+        // P52 review fix (2026-05-20): this Uncertain fallback is defensive-only. The AddParticipant aggregate Success
+        // contract is exactly one ParticipantAddedDomainEvent — see
+        // ConversationAggregateParticipantTest.AddParticipantSuccessShouldEmitExactlyOneParticipantAddedEvent.
+        // If a future aggregate change drifts this contract, the regression guardrail fails loud rather than
+        // letting the executor here silently poison a successful mutation (so the first caller sees Success
+        // and any retry within retention sees IdempotencyOutcomeUnknown until DEF3 EventStore-replay wiring lands).
         if (result.IsSuccess)
         {
             ParticipantAddedDomainEvent? added = result.Events.OfType<ParticipantAddedDomainEvent>().FirstOrDefault();

@@ -70,6 +70,27 @@ public sealed class ConversationAggregateParticipantTest
     }
 
     /// <summary>
+    /// P52 review fix (2026-05-20): the AddParticipant aggregate Success contract is exactly one
+    /// <see cref="ParticipantAddedDomainEvent"/>. Encoding this as a dedicated test makes the P10
+    /// fallback in <c>AddParticipantCommandHandler.ToIdempotencyOutcome</c> a documented
+    /// "should never happen" defense — if a future change drifts and emits zero or multiple events
+    /// on Success, this test fails loud rather than the executor silently poisoning a successful
+    /// mutation and returning IdempotencyOutcomeUnknown on retry.
+    /// </summary>
+    [Fact]
+    public void AddParticipantSuccessShouldEmitExactlyOneParticipantAddedEvent()
+    {
+        ConversationState state = CreatedState();
+        AddParticipant command = AddDomainCommand(HumanParty, ParticipantType.Human);
+
+        DomainResult result = ConversationAggregate.Handle(command, state);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Events.Count().ShouldBe(1);
+        result.Events.Single().ShouldBeOfType<ParticipantAddedDomainEvent>();
+    }
+
+    /// <summary>
     /// Replaying participant events reconstructs membership without validators or external services.
     /// </summary>
     [Fact]

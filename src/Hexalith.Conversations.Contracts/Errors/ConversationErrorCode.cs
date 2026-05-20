@@ -43,6 +43,13 @@ public sealed record ConversationErrorCode
     /// <summary>
     /// Gets the idempotency conflict code.
     /// </summary>
+    /// <remarks>
+    /// P54 review fix (2026-05-20): a conflict is non-retryable. A caller who receives
+    /// <c>idempotency_conflict</c> must generate a fresh idempotency key for the corrected request;
+    /// the same key cannot be reused with a different payload until the conflict record expires per
+    /// retention. Resubmitting the original equivalent payload remains safe and returns the stored
+    /// logical outcome. See ADR-0001 §"Decision" for the rationale.
+    /// </remarks>
     public static ConversationErrorCode IdempotencyConflict { get; } = new("idempotency_conflict");
 
     /// <summary>

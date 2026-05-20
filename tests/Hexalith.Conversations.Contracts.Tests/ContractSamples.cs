@@ -179,7 +179,11 @@ internal static class ContractSamples
             _ when code == ConversationErrorCode.AuditSinkUnavailable => ConversationErrorCategory.Audit,
             _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
             _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
-            _ when code == ConversationErrorCode.IdempotencyOutcomeUnknown => ConversationErrorCategory.Freshness,
+
+            // P53 review fix (2026-05-20): IdempotencyOutcomeUnknown is a retryable-uncertainty signal,
+            // not a projection-staleness signal. The new Uncertainty category keeps Freshness reserved
+            // strictly for stale read-models.
+            _ when code == ConversationErrorCode.IdempotencyOutcomeUnknown => ConversationErrorCategory.Uncertainty,
             _ when code == ConversationErrorCode.IdempotencyKeyMissing => ConversationErrorCategory.Validation,
             _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
             _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,

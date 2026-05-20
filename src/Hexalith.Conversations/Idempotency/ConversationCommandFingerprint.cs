@@ -201,11 +201,13 @@ public sealed record ConversationCommandFingerprint(
 
     private static IEnumerable<KeyValuePair<string, string?>> Required(string key, string? value)
     {
+        // P47 review fix (2026-05-20): surface the canonical field name in ArgumentException.ParamName so callers can identify
+        // which canonical field failed (e.g., 'text', 'author.party.id') instead of the uninformative literal 'value'.
         if (string.IsNullOrWhiteSpace(value))
         {
             throw new ArgumentException(
                 $"Required canonical field '{key}' is missing or whitespace.",
-                nameof(value));
+                paramName: key);
         }
 
         return [new KeyValuePair<string, string?>(key, value)];

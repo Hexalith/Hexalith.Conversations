@@ -50,6 +50,13 @@ public sealed record ConversationErrorCategory
     /// </summary>
     public static ConversationErrorCategory Hidden { get; } = new("hidden");
 
+    /// <summary>
+    /// Gets the uncertainty category. P53 review fix (2026-05-20): distinguishes transient/retryable signals
+    /// (e.g., <c>idempotency_outcome_unknown</c>) from projection-staleness, which keeps <c>Freshness</c> reserved
+    /// strictly for read-model staleness rather than acting as a catch-all for retryable conditions.
+    /// </summary>
+    public static ConversationErrorCategory Uncertainty { get; } = new("uncertainty");
+
     private static readonly IReadOnlyDictionary<string, ConversationErrorCategory> KnownCategories =
         new[]
         {
@@ -60,6 +67,7 @@ public sealed record ConversationErrorCategory
             Audit,
             Versioning,
             Hidden,
+            Uncertainty,
         }.ToDictionary(category => category.Value, StringComparer.Ordinal);
 
     private ConversationErrorCategory(string value)

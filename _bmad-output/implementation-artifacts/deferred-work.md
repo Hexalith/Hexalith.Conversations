@@ -2,6 +2,13 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-6-add-idempotent-command-handling — Round 3 (2026-05-20)
+
+- DEF1 (reaffirmed): Idempotency executor is wired only into `AddParticipantCommandHandler`. The other six command handlers (`AppendMessage`, `AttachReference`, `UpdateMetadata`, `Close`, `Archive`, and `CreateConversation`-with-handler) are not yet implemented, so AC1 and AC5 land at PARTIAL. Re-engage when each Epic-1 story introduces its handler. Files: `src/Hexalith.Conversations.Server/CommandHandlers/`.
+- DEF3 (reaffirmed): `EventStoreCommandStatusIdempotencyBridge.Interpret` is a static helper with no caller. The executor's pending/unknown path always returns RetryableUncertainty rather than attempting an EventStore-history-derived terminal outcome, so ADR-0001 §3 "resolve a terminal outcome from authoritative EventStore history when that can be proven" remains unimplemented. AC3 lands at PARTIAL. Expected owner: Story 1.10 or 5.6. Files: `src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs`, `src/Hexalith.Conversations.Server/EventStore/EventStoreCommandStatusIdempotencyBridge.cs`.
+- DEF6 (reaffirmed): `ConversationCommandFingerprint.Create(object command, ConversationId createAllocationScope)` still uses `object` + runtime-type `switch` instead of typed exhaustiveness. Refactor scope. File: `src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs`.
+- DEF7 (reaffirmed): `ConversationProjectionAccumulator` deduplicates by `EventId` only. Producer hygiene is assumed; a same-EventId / different-payload producer bug would silently keep the first payload. Production read-model concern; bundle with DEF5. File: `src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs`.
+
 ## Deferred from: code review of 1-6-add-idempotent-command-handling — Round 2 (2026-05-20)
 
 - DEF6: `ConversationCommandFingerprint.Create(object command, ConversationId createAllocationScope)` accepts `object` and `createAllocationScope` is required-non-null but ignored for 6 of 7 command types. Compile-time exhaustiveness is delegated to the test `CommandMatrixShouldProduceExpectedScopes`. Refactor for typed exhaustiveness (e.g., split into 7 typed factory methods, or introduce a sealed `IConversationCommand` discriminator) when the next contract-evolution batch lands. File: `src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs:39-93`.

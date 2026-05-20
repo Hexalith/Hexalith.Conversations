@@ -84,7 +84,36 @@ internal static class ConversationCommandSchemaValidation
                 metadata.CausationId);
         }
 
+        // P51 review fix (2026-05-20): the idempotency key is used as a dictionary key, baked into the audit-handle hash material,
+        // and surfaced into diagnostics. Cap length and forbid control characters at the envelope boundary so storage, hashing,
+        // and log-redaction paths cannot be abused by callers.
+        if (metadata.IdempotencyKey.Length > IdempotencyKeyMaxLength
+            || ContainsControlCharacter(metadata.IdempotencyKey))
+        {
+            return Reject(
+                ConversationErrorCode.CommandValidationFailed,
+                "idempotency_key_invalid",
+                metadata.SchemaVersion,
+                metadata.CorrelationId,
+                metadata.CausationId);
+        }
+
         return null;
+    }
+
+    private const int IdempotencyKeyMaxLength = 200;
+
+    private static bool ContainsControlCharacter(string value)
+    {
+        foreach (char c in value)
+        {
+            if (char.IsControl(c))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static ConversationRejectedDomainEvent Reject(
