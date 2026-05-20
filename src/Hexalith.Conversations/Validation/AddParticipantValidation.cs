@@ -158,38 +158,7 @@ internal static class AddParticipantValidation
     /// </remarks>
     public static ConversationRejectedDomainEvent? ValidateSchemaShape(AddParticipantCommand? command)
     {
-        if (command is null)
-        {
-            return Reject(ConversationErrorCode.CommandValidationFailed, "command_missing");
-        }
-
-        ConversationCommandMetadata? metadata = command.Metadata;
-        if (metadata is null)
-        {
-            return Reject(ConversationErrorCode.CommandValidationFailed, "metadata_missing");
-        }
-
-        if (metadata.TenantId is null)
-        {
-            return Reject(ConversationErrorCode.TenantBindingMissing, "tenant_binding_missing");
-        }
-
-        if (metadata.SchemaVersion is null)
-        {
-            return Reject(ConversationErrorCode.SchemaVersionUnsupported, "schema_version_missing");
-        }
-
-        if (!metadata.SchemaVersion.Equals(SchemaVersion.Current))
-        {
-            return Reject(
-                ConversationErrorCode.SchemaVersionUnsupported,
-                "unsupported_schema_version",
-                metadata.SchemaVersion,
-                metadata.CorrelationId,
-                metadata.CausationId);
-        }
-
-        return null;
+        return ConversationCommandSchemaValidation.ValidateEnvelope(command);
     }
 
     /// <summary>

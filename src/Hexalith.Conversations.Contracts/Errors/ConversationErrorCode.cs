@@ -51,6 +51,11 @@ public sealed record ConversationErrorCode
     public static ConversationErrorCode IdempotencyOutcomeUnknown { get; } = new("idempotency_outcome_unknown");
 
     /// <summary>
+    /// Gets the missing idempotency key code.
+    /// </summary>
+    public static ConversationErrorCode IdempotencyKeyMissing { get; } = new("idempotency_key_missing");
+
+    /// <summary>
     /// Gets the hidden or unavailable aggregate code.
     /// </summary>
     public static ConversationErrorCode AggregateNotFound { get; } = new("aggregate_not_found");
@@ -100,6 +105,7 @@ public sealed record ConversationErrorCode
             AuditPairingRequired,
             IdempotencyConflict,
             IdempotencyOutcomeUnknown,
+            IdempotencyKeyMissing,
             AggregateNotFound,
             SchemaVersionUnsupported,
             CommandValidationFailed,

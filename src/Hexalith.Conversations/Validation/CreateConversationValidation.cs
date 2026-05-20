@@ -37,37 +37,19 @@ internal static class CreateConversationValidation
             return Reject(ConversationErrorCode.CommandValidationFailed, "public_command_missing");
         }
 
-        ConversationCommandMetadata? metadata = publicCommand.Metadata;
-        if (metadata is null)
+        ConversationRejectedDomainEvent? envelopeRejection = ConversationCommandSchemaValidation.ValidateEnvelope(publicCommand);
+        if (envelopeRejection is not null)
         {
-            return Reject(ConversationErrorCode.CommandValidationFailed, "metadata_missing");
+            return envelopeRejection;
         }
 
-        if (metadata.TenantId is null)
-        {
-            return Reject(ConversationErrorCode.TenantBindingMissing, "tenant_binding_missing");
-        }
-
-        if (metadata.SchemaVersion is null)
-        {
-            return Reject(ConversationErrorCode.SchemaVersionUnsupported, "schema_version_missing");
-        }
+        ConversationCommandMetadata metadata = publicCommand.Metadata;
 
         if (metadata.ActorPartyId is null)
         {
             return Reject(
                 ConversationErrorCode.CommandValidationFailed,
                 "actor_party_missing",
-                metadata.SchemaVersion,
-                metadata.CorrelationId,
-                metadata.CausationId);
-        }
-
-        if (!metadata.SchemaVersion.Equals(SchemaVersion.Current))
-        {
-            return Reject(
-                ConversationErrorCode.SchemaVersionUnsupported,
-                "unsupported_schema_version",
                 metadata.SchemaVersion,
                 metadata.CorrelationId,
                 metadata.CausationId);

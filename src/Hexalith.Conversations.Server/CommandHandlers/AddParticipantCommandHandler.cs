@@ -147,6 +147,7 @@ public sealed class AddParticipantCommandHandler
                 if (_idempotencyExecutor is not null && !string.IsNullOrWhiteSpace(command!.Metadata.IdempotencyKey))
                 {
                     ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command!, command.ConversationId);
+                    string auditHandle = ConversationAuditHandle.FromServerBoundary(fingerprint, eventId);
 
                     // P11 review fix (2026-05-19): pass the deterministic boundary-provided eventId as correlation
                     // for the idempotency-conflict / unknown-outcome rejection events, matching the tenant-denial
@@ -157,7 +158,7 @@ public sealed class AddParticipantCommandHandler
                         correlationId: eventId,
                         causationId: null,
                         ExecuteMutationAsync,
-                        result => ToIdempotencyOutcome(command, result),
+                        result => ToIdempotencyOutcome(command, result, auditHandle),
                         guardedCancellationToken).ConfigureAwait(false);
                 }
 
@@ -300,7 +301,8 @@ public sealed class AddParticipantCommandHandler
 
     private static ConversationIdempotencyOutcome ToIdempotencyOutcome(
         AddParticipantCommand command,
-        DomainResult result)
+        DomainResult result,
+        string auditHandle)
     {
         // P10 review fix (2026-05-19): unexpected event shape (multi-event Success, or a different rejection subtype)
         // must not throw a raw InvalidOperationException after the mutation has already produced side effects.
@@ -315,7 +317,8 @@ public sealed class AddParticipantCommandHandler
                     command.Metadata.TenantId,
                     ConversationCommandType.AddParticipantCommand,
                     command.ConversationId,
-                    command.Metadata.CorrelationId);
+                    auditHandle,
+                    auditHandle);
             }
 
             return ConversationIdempotencyOutcome.Success(
@@ -326,7 +329,8 @@ public sealed class AddParticipantCommandHandler
                 messageId: null,
                 participantPartyId: added.ParticipantPartyId,
                 fileId: null,
-                command.Metadata.CorrelationId);
+                auditHandle,
+                auditHandle);
         }
 
         if (result.IsRejection)
@@ -339,7 +343,8 @@ public sealed class AddParticipantCommandHandler
                     command.Metadata.TenantId,
                     ConversationCommandType.AddParticipantCommand,
                     command.ConversationId,
-                    command.Metadata.CorrelationId);
+                    auditHandle,
+                    auditHandle);
             }
 
             return ConversationIdempotencyOutcome.Rejection(
@@ -349,7 +354,8 @@ public sealed class AddParticipantCommandHandler
                 command.ConversationId,
                 rejection.Code,
                 ConversationErrorCode.IsRetryable(rejection.Code),
-                command.Metadata.CorrelationId);
+                auditHandle,
+                auditHandle);
         }
 
         return ConversationIdempotencyOutcome.NoOp(
@@ -357,7 +363,8 @@ public sealed class AddParticipantCommandHandler
             command.Metadata.TenantId,
             ConversationCommandType.AddParticipantCommand,
             command.ConversationId,
-            command.Metadata.CorrelationId);
+            auditHandle,
+            auditHandle);
     }
 
 }

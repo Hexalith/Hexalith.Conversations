@@ -1,6 +1,6 @@
 # Story 1.6: Add Idempotent Command Handling
 
-Status: in-progress
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -244,6 +244,8 @@ GPT-5 Codex
 - 2026-05-19: Red/green cycle for domain idempotency primitives. Initial `dotnet test .\tests\Hexalith.Conversations.Tests\Hexalith.Conversations.Tests.csproj --no-restore` failed on missing `Hexalith.Conversations.Idempotency`; after implementation it passed with 66 tests.
 - 2026-05-19: Red/green cycle for server idempotency executor and add-participant wiring. Initial server test run failed on missing executor/replay types; after implementation `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj --no-restore` passed with 110 tests.
 - 2026-05-19: Solution validation passed: `dotnet test .\Hexalith.Conversations.slnx --no-restore`.
+- 2026-05-20: P23 follow-up validation passed: `dotnet test .\tests\Hexalith.Conversations.Contracts.Tests\Hexalith.Conversations.Contracts.Tests.csproj --no-restore` with 78 tests.
+- 2026-05-20: Story completion validation passed: `dotnet test .\Hexalith.Conversations.slnx --no-restore` with 269 tests.
 
 ### Completion Notes List
 
@@ -254,6 +256,12 @@ GPT-5 Codex
 - Added an EventStore command-status bridge that treats EventStore status as an internal signal and requires Conversations replay before exposing terminal logical outcomes.
 - Added duplicate/reorder-safe projection accumulator using event-id deduplication and set/update-by-stable-ID behavior for local projection evidence.
 - Added local evidence notes for Story 5.6 handoff, including command matrix, duplicate/conflict/unknown coverage, storage/fake used, privacy checks, and deferred release-gate gaps.
+- Resolved review patch P22 by adding server-derived opaque audit handles for stored idempotency outcomes, filtering duplicate replay `ResultPayload` down to bounded logical fields, and scrubbing `ConversationIdempotencyRecord.ToString()` scope values and idempotency keys.
+- Resolved review patch P24 by adding `ConversationErrorCode.IdempotencyKeyMissing`, shared command-envelope validation across every public command type, and add-participant boundary coverage proving missing keys reject before tenant access, idempotency lookup, or aggregate load.
+- Validation: `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed with 268 tests.
+- Resolved review patch P23 by routing `ContractSamples.SafeError` through `ConversationErrorCode.IsRetryable(code)` and adding contract-test coverage that sample retryability cannot drift from the canonical taxonomy.
+- Resolved P9 and P13 as explicit deferred-review decisions rather than open Story 1.6 code work: typed empty-text handling belongs with the future AppendMessage handler, and buffering/dropping child projection events before `ConversationCreated` belongs with production read-model work in Story 1.7.
+- Final validation: `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed with 269 tests.
 
 ### File List
 
@@ -269,6 +277,7 @@ GPT-5 Codex
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs`
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionLifecycleState.cs`
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionSnapshot.cs`
+- `src/Hexalith.Conversations/Idempotency/ConversationAuditHandle.cs`
 - `src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs`
 - `src/Hexalith.Conversations/Idempotency/ConversationIdempotencyDecision.cs`
 - `src/Hexalith.Conversations/Idempotency/ConversationIdempotencyDecisionKind.cs`
@@ -281,13 +290,18 @@ GPT-5 Codex
 - `src/Hexalith.Conversations/Idempotency/IConversationIdempotencyStore.cs`
 - `src/Hexalith.Conversations/Idempotency/IdempotencyOutcomeCategory.cs`
 - `src/Hexalith.Conversations/Idempotency/InMemoryConversationIdempotencyStore.cs`
+- `src/Hexalith.Conversations/Validation/AddParticipantValidation.cs`
+- `src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs`
+- `src/Hexalith.Conversations/Validation/CreateConversationValidation.cs`
 - `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/EventStore/EventStoreCommandStatusIdempotencyBridgeTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/Idempotency/AddParticipantCommandHandlerIdempotencyTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionAccumulatorTest.cs`
 - `tests/Hexalith.Conversations.Tests/Idempotency/ConversationCommandFingerprintTest.cs`
 - `tests/Hexalith.Conversations.Tests/Idempotency/ConversationIdempotencyStoreTest.cs`
+- `tests/Hexalith.Conversations.Tests/Validation/ConversationCommandSchemaValidationTest.cs`
 
 ## Change Log
 
@@ -297,6 +311,8 @@ GPT-5 Codex
 - 2026-05-19: Implemented Story 1.6 local idempotency ADR, primitives, server command-flow adapter, EventStore status bridge, projection duplicate/reorder proof, and automated evidence; moved story to review.
 - 2026-05-19: Adversarial code review (Blind Hunter + Edge Case Hunter + Acceptance Auditor) raised 6 BLOCKER, 15 MAJOR, 11 MINOR findings; review-findings section appended; moved back to in-progress.
 - 2026-05-19: Applied 22 of 26 review patches (P1–P8, P10–P12, P14–P21, P25, P26 fully; P9, P23 partially); P13 analyzed and intentionally not applied; P22 and P24 left as action items for the next dev iteration. `dotnet test Hexalith.Conversations.slnx` green on 259 tests after patches.
+- 2026-05-19: Applied review patches P22 and P24: server-generated audit handles now replace raw caller correlation in idempotency outcomes, duplicate replay payloads omit caller-supplied fields, idempotency record diagnostics scrub scoped key material, and missing/empty/whitespace idempotency keys return typed `idempotency_key_missing` validation rejections across the public command matrix. `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 268 tests.
+- 2026-05-20: Completed review patch P23 by routing contract samples through the canonical retryable taxonomy, added drift-prevention contract coverage, closed P9/P13 as explicit deferrals, and moved Story 1.6 to review. `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 269 tests.
 
 ### Review Findings
 
@@ -313,7 +329,7 @@ Adversarial parallel review (2026-05-19) — 3 layers (Blind Hunter, Edge Case H
 
 #### Patch
 
-Patches checked off (`[x]`) were applied in the same review session (2026-05-19) with `dotnet test Hexalith.Conversations.slnx` green on 259 tests; `[ ]` remain as action items the dev must pick up before the story closes.
+Patches checked off (`[x]`) were applied or resolved across review/development sessions. The initial review session validated 259 tests, the P22/P24 follow-up validated 268 tests, and the P23 completion follow-up validated `dotnet test .\Hexalith.Conversations.slnx --no-restore` green on 269 tests. Deferred entries are recorded below and no unchecked patch action items remain for Story 1.6.
 
 - [x] [Review][Patch] P1 — Add tenant + conversation identity guards to `ConversationProjectionAccumulator` [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:175-179]
 - [x] [Review][Patch] P2 — Scope `_processedEventIds` after the identity guard so cross-conversation EventId collisions cannot dedupe [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:20, 169-173]
@@ -323,11 +339,11 @@ Patches checked off (`[x]`) were applied in the same review session (2026-05-19)
 - [x] [Review][Patch] P6 — `try`/`catch` around mutation + outcomeFactory releases reservation on exception via new `ReleaseAsync` [src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs ExecuteReservedAsync]
 - [x] [Review][Patch] P7 — Rewrote `ConcurrentEquivalentReservationsShouldHaveSingleWinner` with `Task.Run` + `Barrier` so 32 callers race the lock at the same wall-clock instant [tests/Hexalith.Conversations.Tests/Idempotency/ConversationIdempotencyStoreTest.cs:33-59]
 - [x] [Review][Patch] P8 — Coarsened internal lifecycle reason codes (`idempotency_record_expired`, `idempotency_record_poisoned`, `idempotency_record_pending`, `idempotency_duplicate`, EventStore-specific reasons) to the single public `idempotency_outcome_unknown` via `CoarsePublicReason` [src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs CoarsePublicReason]
-- [~] [Review][Patch] P9 — Clarified `nameof()` parameter on `BuildScope` (was `metadata`, now `command.Metadata.IdempotencyKey`); the larger "replace raw ArgumentException with typed Conversations rejection" change is deferred to the future `AppendMessage` handler that would actually exercise empty Text [src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs BuildScope]
+- [x] [Review][Patch] P9 — Clarified `nameof()` parameter on `BuildScope` (was `metadata`, now `command.Metadata.IdempotencyKey`); the larger "replace raw ArgumentException with typed Conversations rejection" change is explicitly deferred to the future `AppendMessage` handler that would actually exercise empty Text. [src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs BuildScope]
 - [x] [Review][Patch] P10 — `ToIdempotencyOutcome` falls back to `Uncertain` outcome on unexpected event shape instead of throwing raw `InvalidOperationException` [src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs ToIdempotencyOutcome]
 - [x] [Review][Patch] P11 — Idempotency conflict path uses deterministic `eventId` for correlation, matching the tenant-denial pattern [src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs:147-158]
 - [x] [Review][Patch] P12 — `Apply(ConversationMetadataUpdated)` treats null Label/BusinessReference/Attributes as "no change" instead of "clear" [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs Apply(ConversationMetadataUpdated)]
-- [ ] [Review][Patch] P13 — Buffer or drop child events arriving before `ConversationCreated`. Decision after analysis: not applied. With P1+P2 identity guards, reorder safety is preserved and the Snapshot accurately reflects the events received; in production the Created event always arrives. If a transient `NotCreated`-with-populated-collections snapshot is problematic for read-model consumers, revisit when the production projection lands (Story 1.7). [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:69-77, 84-93, 99-108]
+- [x] [Review][Patch] P13 — Buffer or drop child events arriving before `ConversationCreated`. Resolved as an explicit Story 1.7 deferral after analysis: with P1+P2 identity guards, Story 1.6 reorder safety is preserved and the Snapshot accurately reflects the events received; in production the Created event always arrives. If a transient `NotCreated`-with-populated-collections snapshot is problematic for read-model consumers, revisit when the production projection lands. [src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:69-77, 84-93, 99-108]
 - [x] [Review][Patch] P14 — Added `ValidateCategoryInvariant` constructor guard binding `Category` to `RejectionCode`/`IsRetryable` [src/Hexalith.Conversations/Idempotency/ConversationIdempotencyOutcome.cs ValidateCategoryInvariant]
 - [x] [Review][Patch] P15 — Capture completion timestamp via `DateTimeOffset.UtcNow` at `CompleteAsync` call instead of reusing reservation `now` [src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs ExecuteReservedAsync]
 - [x] [Review][Patch] P16 — `CompleteAsync` rejects records whose `ExpiresAt` has already passed [src/Hexalith.Conversations/Idempotency/InMemoryConversationIdempotencyStore.cs:69-83]
@@ -336,9 +352,9 @@ Patches checked off (`[x]`) were applied in the same review session (2026-05-19)
 - [x] [Review][Patch] P19 — New `SameIdempotencyKeyUnderDifferentTenantShouldNotReplayStoredOutcome` test [tests/Hexalith.Conversations.Tests/Idempotency/ConversationIdempotencyStoreTest.cs]
 - [x] [Review][Patch] P20 — New `SameKeyUnderDifferentCommandTypeShouldNotCollide` test [tests/Hexalith.Conversations.Tests/Idempotency/ConversationIdempotencyStoreTest.cs]
 - [x] [Review][Patch] P21 — Documented clock-skew tolerance in `EvaluateExisting`; eviction-on-expiry (P5) means callers escape the lock even if `now < CreatedAt` is supplied [src/Hexalith.Conversations/Idempotency/InMemoryConversationIdempotencyStore.cs EvaluateExisting]
-- [ ] [Review][Patch] P22 — Replace raw caller `CorrelationId` with a server-generated audit handle; filter `ResultPayload` to drop caller-supplied fields; scrub `Scope.IdempotencyKey` / `Scope.ScopeValue` from `ConversationIdempotencyRecord.ToString()`; extend non-disclosure test. Not applied (cascades to outcome record, replay result, every test stub, and every handler that constructs an outcome). Action item: the dev should consider whether to (a) introduce a discrete `AuditHandle`-generation helper and rename `CorrelationId` to `CallerCorrelationToken` with `[JsonIgnore]` on the field, or (b) keep the contract but stop populating it from `command.Metadata.CorrelationId` and instead derive a hashed handle. [src/Hexalith.Conversations/Idempotency/ConversationIdempotencyOutcome.cs, ConversationIdempotencyReplayResult.cs:27-28, ConversationIdempotencyRecord.cs ToString]
-- [~] [Review][Patch] P23 — Added `ConversationErrorCode.IsRetryable(code)` static helper as canonical taxonomy (treats `AuditSinkUnavailable` as retryable); `AddParticipantCommandHandler` now consumes it. Action item to finish: route `ContractSamples` retryable classifier through the same helper. [src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs, AddParticipantCommandHandler.cs ToIdempotencyOutcome]
-- [ ] [Review][Patch] P24 — Make `IdempotencyKey` mandatory at the command boundary; null/empty/whitespace returns a typed rejection; surface in Contracts validators. Not applied (requires a new `ConversationErrorCode` value and a validator change that touches every command type). Action item for dev. [src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs:147, src/Hexalith.Conversations.Contracts/Validation]
+- [x] [Review][Patch] P22 — Replace raw caller `CorrelationId` with a server-generated audit handle; filter `ResultPayload` to drop caller-supplied fields; scrub `Scope.IdempotencyKey` / `Scope.ScopeValue` from `ConversationIdempotencyRecord.ToString()`; extend non-disclosure test. Applied with `ConversationAuditHandle.FromServerBoundary`, add-participant outcome mapping no longer populates outcomes from `command.Metadata.CorrelationId`, replay payload serialization omits `TenantId`/`CorrelationId` and includes `auditHandle`, and store/debug tests assert idempotency keys and scope values stay out of diagnostics. [src/Hexalith.Conversations/Idempotency/ConversationAuditHandle.cs; src/Hexalith.Conversations/Idempotency/ConversationIdempotencyOutcome.cs; src/Hexalith.Conversations/Idempotency/ConversationIdempotencyReplayResult.cs; src/Hexalith.Conversations/Idempotency/ConversationIdempotencyRecord.cs; src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs]
+- [x] [Review][Patch] P23 — Added `ConversationErrorCode.IsRetryable(code)` static helper as canonical taxonomy (treats `AuditSinkUnavailable` as retryable); `AddParticipantCommandHandler` and `ContractSamples.SafeError` now consume it, with `SafeErrorSamplesShouldUseCanonicalRetryableTaxonomy` guarding against future drift. [src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs, AddParticipantCommandHandler.cs ToIdempotencyOutcome, tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs, tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs]
+- [x] [Review][Patch] P24 — Make `IdempotencyKey` mandatory at the command boundary; null/empty/whitespace returns a typed rejection; surface in Contracts validators. Applied with new `ConversationErrorCode.IdempotencyKeyMissing`, shared `ConversationCommandSchemaValidation` over create/append/add-participant/attach/update/close/archive command envelopes, add-participant pre-access rejection coverage, and contract parse/sample coverage. [src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs; src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs; src/Hexalith.Conversations/Validation/AddParticipantValidation.cs; src/Hexalith.Conversations/Validation/CreateConversationValidation.cs; tests/Hexalith.Conversations.Tests/Validation/ConversationCommandSchemaValidationTest.cs]
 - [x] [Review][Patch] P25 — `CompleteAsync` rejects outcomes with `Category=Uncertain` [src/Hexalith.Conversations/Idempotency/InMemoryConversationIdempotencyStore.cs:69-83]
 - [x] [Review][Patch] P26 — `EventStoreCommandStatusIdempotencyBridgeTest` restructured to assert externally-observable contracts (`BridgeNeverInventsConversationsOutcome`, `MissingStatusReturnsContentSafeRetryableUncertainty`, `PendingAndTerminalStatusesProduceDistinguishableInternalReasonCodes`) [tests/Hexalith.Conversations.Server.Tests/EventStore/EventStoreCommandStatusIdempotencyBridgeTest.cs]
 
@@ -347,6 +363,8 @@ Patches checked off (`[x]`) were applied in the same review session (2026-05-19)
 - [x] [Review][Defer] DEF1 — Handler wiring for `AppendMessage`/`AttachReference`/`UpdateMetadata`/`Close`/`Archive` [src/Hexalith.Conversations.Server/CommandHandlers] — deferred, depends on the stories that introduce those handlers (explicitly recorded in `1-6-idempotency-local-evidence.md:28`)
 - [x] [Review][Defer] DEF2 — `ConversationCommandType` JSON round-trip via custom JsonConverter [src/Hexalith.Conversations/Idempotency/ConversationIdempotencyScope.cs] — deferred, no JsonConverter exists in this story's scope; revisit when a durable persistence adapter for the idempotency store is introduced
 - [x] [Review][Defer] DEF3 — `EventStoreCommandStatusIdempotencyBridge` runtime wiring [src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs, src/Hexalith.Conversations.Server/EventStore/EventStoreCommandStatusIdempotencyBridge.cs] — deferred (D4 decision 2026-05-19): the bridge is a primitive available for future production wiring; the safe default (always RetryableUncertainty for terminal status) is preserved so no incorrect success is invented; correct the local-evidence narrative to remove the runtime-participation implication and add the wiring as a follow-up for a later story
+- [x] [Review][Defer] DEF4 — AppendMessage-specific typed validation rejection for empty text is deferred until the AppendMessage handler exists and can exercise that boundary without speculative Story 1.6 code.
+- [x] [Review][Defer] DEF5 — Buffer/drop semantics for child projection events before `ConversationCreated` are deferred to Story 1.7 production read-model design; Story 1.6 keeps local projection evidence deterministic with identity guards, event-id dedupe, and idempotent set/update operations.
 
 
 

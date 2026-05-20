@@ -25,5 +25,19 @@ public sealed record ConversationIdempotencyReplayResult(ConversationIdempotency
 
     /// <inheritdoc />
     public override string? ResultPayload { get; } =
-        JsonSerializer.Serialize(outcome, new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        JsonSerializer.Serialize(
+            new
+            {
+                outcome.Category,
+                outcome.SchemaVersion,
+                outcome.CommandType,
+                outcome.ConversationId,
+                outcome.MessageId,
+                outcome.ParticipantPartyId,
+                outcome.FileId,
+                outcome.RejectionCode,
+                outcome.IsRetryable,
+                outcome.AuditHandle,
+            },
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
 }

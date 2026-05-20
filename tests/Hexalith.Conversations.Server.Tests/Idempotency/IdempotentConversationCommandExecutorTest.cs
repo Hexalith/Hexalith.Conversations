@@ -68,6 +68,41 @@ public sealed class IdempotentConversationCommandExecutorTest
     }
 
     /// <summary>
+    /// P22: duplicate replay payloads expose only the server-generated audit handle and bounded logical outcome fields.
+    /// </summary>
+    [Fact]
+    public async Task DuplicateReplayPayloadShouldExcludeCallerSuppliedCorrelationAndScope()
+    {
+        InMemoryConversationIdempotencyStore store = new();
+        IdempotentConversationCommandExecutor executor = new(store);
+        ConversationCommandFingerprint fingerprint = Fingerprint(correlationId: "caller-correlation-secret");
+        string auditHandle = ConversationAuditHandle.FromServerBoundary(fingerprint, "event-server-001");
+        ConversationIdempotencyOutcome outcome = SuccessOutcome(auditHandle);
+
+        await store.ReserveAsync(fingerprint, Now, TimeSpan.FromHours(24), TestContext.Current.CancellationToken);
+        await store.CompleteAsync(fingerprint, outcome, Now.AddSeconds(1), TestContext.Current.CancellationToken);
+
+        DomainResult result = await executor.ExecuteAsync(
+            fingerprint,
+            Now.AddSeconds(2),
+            "event-server-002",
+            null,
+            _ => ValueTask.FromResult(DomainResult.NoOp()),
+            _ => outcome,
+            TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyReplayResult replay = result.ShouldBeOfType<ConversationIdempotencyReplayResult>();
+        replay.Outcome.CorrelationId.ShouldBe(auditHandle);
+        replay.Outcome.AuditHandle.ShouldBe(auditHandle);
+        replay.ResultPayload.ShouldNotBeNull();
+        replay.ResultPayload.ShouldContain("auditHandle");
+        replay.ResultPayload.ShouldNotContain("correlationId", Case.Insensitive);
+        replay.ResultPayload.ShouldNotContain("caller-correlation-secret", Case.Insensitive);
+        replay.ResultPayload.ShouldNotContain("idempotency-001", Case.Insensitive);
+        replay.ResultPayload.ShouldNotContain(Tenant.Value, Case.Insensitive);
+    }
+
+    /// <summary>
     /// Conflicting key reuse returns a typed rejection before mutation.
     /// </summary>
     [Fact]
@@ -153,6 +188,7 @@ public sealed class IdempotentConversationCommandExecutorTest
             InMemoryConversationIdempotencyStore store = new();
             IdempotentConversationCommandExecutor executor = new(store);
             ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command, Conversation);
+            string auditHandle = ConversationAuditHandle.FromServerBoundary(fingerprint, "event-lifecycle-001");
             ConversationIdempotencyOutcome outcome = ConversationIdempotencyOutcome.Success(
                 SchemaVersion.Current,
                 Tenant,
@@ -161,7 +197,8 @@ public sealed class IdempotentConversationCommandExecutorTest
                 messageId: null,
                 participantPartyId: null,
                 fileId: null,
-                correlationId: "correlation-001");
+                correlationId: auditHandle,
+                auditHandle: auditHandle);
             int mutationCount = 0;
 
             await store.ReserveAsync(fingerprint, Now, TimeSpan.FromHours(24), TestContext.Current.CancellationToken);
@@ -185,26 +222,28 @@ public sealed class IdempotentConversationCommandExecutorTest
         }
     }
 
-    private static ConversationCommandFingerprint Fingerprint(string label = "Case 123")
+    private static ConversationCommandFingerprint Fingerprint(
+        string label = "Case 123",
+        string correlationId = "correlation-001")
         => ConversationCommandFingerprint.Create(
             new CreateConversationCommand(
-                Metadata(),
+                Metadata(correlationId),
                 new BusinessReference("crm", "case-123"),
                 new ProjectId("project-001"),
                 new FolderId("folder-001"),
                 label),
             Conversation);
 
-    private static ConversationCommandMetadata Metadata()
+    private static ConversationCommandMetadata Metadata(string correlationId = "correlation-001")
         => new(
             SchemaVersion.Current,
             Tenant,
             Actor,
-            "correlation-001",
+            correlationId,
             "causation-001",
             "idempotency-001");
 
-    private static ConversationIdempotencyOutcome SuccessOutcome()
+    private static ConversationIdempotencyOutcome SuccessOutcome(string auditHandle = "audit-001")
         => ConversationIdempotencyOutcome.Success(
             SchemaVersion.Current,
             Tenant,
@@ -213,5 +252,6 @@ public sealed class IdempotentConversationCommandExecutorTest
             messageId: null,
             participantPartyId: null,
             fileId: null,
-            correlationId: "correlation-001");
+            correlationId: auditHandle,
+            auditHandle: auditHandle);
 }

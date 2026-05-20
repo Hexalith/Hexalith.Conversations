@@ -145,6 +145,8 @@ public sealed class ConversationIdempotencyStoreTest
         recordText.ShouldNotContain("EventStore", Case.Insensitive);
         recordText.ShouldNotContain("stream", Case.Insensitive);
         recordText.ShouldNotContain("payload", Case.Insensitive);
+        recordText.ShouldNotContain("idempotency-001", Case.Insensitive);
+        recordText.ShouldNotContain(Conversation.Value, Case.Insensitive);
     }
 
     /// <summary>
@@ -212,7 +214,7 @@ public sealed class ConversationIdempotencyStoreTest
                 messageId: null,
                 participantPartyId: null,
                 fileId: null,
-                correlationId: "correlation-A",
+                correlationId: "audit-A",
                 auditHandle: "audit-A"),
             Now.AddSeconds(1),
             TestContext.Current.CancellationToken);
@@ -323,6 +325,6 @@ public sealed class ConversationIdempotencyStoreTest
             messageId: null,
             participantPartyId: null,
             fileId: null,
-            correlationId: "correlation-001",
+            correlationId: "audit-001",
             auditHandle: "audit-001");
 }

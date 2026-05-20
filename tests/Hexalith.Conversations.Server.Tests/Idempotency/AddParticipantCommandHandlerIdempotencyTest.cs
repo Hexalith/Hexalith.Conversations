@@ -104,7 +104,45 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
         directory.CallCount.ShouldBe(0);
     }
 
-    private static AddParticipantCommand Command()
+    /// <summary>
+    /// P24: a missing idempotency key is rejected before tenant access, idempotency lookup, or aggregate load.
+    /// </summary>
+    [Fact]
+    public async Task MissingIdempotencyKeyShouldRejectBeforeTenantAccessAndIdempotencyLookup()
+    {
+        SpyIdempotencyStore idempotencyStore = new(ConversationIdempotencyDecision.Reserved());
+        SpyTenantAccessService tenantAccess = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Write,
+            Tenant,
+            "user-1"));
+        AddParticipantCommandHandler handler = new(
+            new FakeParticipantDirectory(),
+            tenantAccess,
+            new IdempotentConversationCommandExecutor(idempotencyStore));
+        int loadCount = 0;
+
+        DomainResult result = await handler.HandleAsync(
+            Command(idempotencyKey: null),
+            callerPrincipalId: "user-1",
+            loadStateAsync: _ =>
+            {
+                loadCount++;
+                return ValueTask.FromResult<ConversationState?>(CreatedState());
+            },
+            addedAt: AddedAt,
+            eventId: "event-add-a",
+            trustedTenantId: Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.IdempotencyKeyMissing);
+        rejection.ReasonCode.ShouldBe("idempotency_key_missing");
+        tenantAccess.Invocations.ShouldBe(0);
+        idempotencyStore.ReserveCalls.ShouldBe(0);
+        loadCount.ShouldBe(0);
+    }
+
+    private static AddParticipantCommand Command(string? idempotencyKey = "idempotency-a")
         => new(
             new ConversationCommandMetadata(
                 SchemaVersion.Current,
@@ -112,7 +150,7 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
                 Actor,
                 "correlation-a",
                 "causation-a",
-                "idempotency-a"),
+                idempotencyKey),
             Conversation,
             Participant,
             ParticipantType.Human,
@@ -162,6 +200,26 @@ public sealed class AddParticipantCommandHandlerIdempotencyTest
             TenantId? idempotencyTenantId = null,
             CancellationToken cancellationToken = default)
             => ValueTask.FromResult(decision);
+    }
+
+    private sealed class SpyTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
+    {
+        public int Invocations { get; private set; }
+
+        public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
+            ConversationTenantAccessRequirement requirement,
+            TenantId? trustedTenantId,
+            string? callerPrincipalId,
+            TenantId? routeTenantId = null,
+            TenantId? commandTenantId = null,
+            TenantId? aggregateTenantId = null,
+            TenantId? projectionTenantId = null,
+            TenantId? idempotencyTenantId = null,
+            CancellationToken cancellationToken = default)
+        {
+            Invocations++;
+            return ValueTask.FromResult(decision);
+        }
     }
 
     private sealed class SpyIdempotencyStore(ConversationIdempotencyDecision decision) : IConversationIdempotencyStore

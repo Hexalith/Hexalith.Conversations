@@ -140,7 +140,7 @@ internal static class ContractSamples
         Version,
         code,
         ErrorCategoryFor(code),
-        IsRetryable(code),
+        ConversationErrorCode.IsRetryable(code),
         "correlation-001",
         "audit-001",
         new Uri("https://docs.hexalith.local/conversations/errors"),
@@ -159,6 +159,7 @@ internal static class ContractSamples
         ConversationErrorCode.AuditPairingRequired,
         ConversationErrorCode.IdempotencyConflict,
         ConversationErrorCode.IdempotencyOutcomeUnknown,
+        ConversationErrorCode.IdempotencyKeyMissing,
         ConversationErrorCode.AggregateNotFound,
         ConversationErrorCode.SchemaVersionUnsupported,
         ConversationErrorCode.CommandValidationFailed,
@@ -179,6 +180,7 @@ internal static class ContractSamples
             _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
             _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
             _ when code == ConversationErrorCode.IdempotencyOutcomeUnknown => ConversationErrorCategory.Freshness,
+            _ when code == ConversationErrorCode.IdempotencyKeyMissing => ConversationErrorCategory.Validation,
             _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
             _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
             _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
@@ -189,11 +191,4 @@ internal static class ContractSamples
             _ when code == ConversationErrorCode.ProviderOnlyIdentityForbidden => ConversationErrorCategory.Validation,
             _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unsupported error code."),
         };
-
-    private static bool IsRetryable(ConversationErrorCode code)
-        => code == ConversationErrorCode.TenantProjectionStale
-            || code == ConversationErrorCode.AuditSinkUnavailable
-            || code == ConversationErrorCode.IdempotencyConflict
-            || code == ConversationErrorCode.IdempotencyOutcomeUnknown
-            || code == ConversationErrorCode.ParticipantValidationUnavailable;
 }

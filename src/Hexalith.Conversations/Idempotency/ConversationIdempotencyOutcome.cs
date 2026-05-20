@@ -60,6 +60,11 @@ public sealed record ConversationIdempotencyOutcome(
     public string CorrelationId { get; } = ValidateRequired(CorrelationId, nameof(CorrelationId));
 
     /// <summary>
+    /// Gets the server-generated audit handle.
+    /// </summary>
+    public string AuditHandle { get; } = ValidateRequired(AuditHandle ?? CorrelationId, nameof(AuditHandle));
+
+    /// <summary>
     /// Gets the outcome category, validated against the rejection-code/retryability invariant.
     /// </summary>
     public IdempotencyOutcomeCategory Category { get; } = ValidateCategoryInvariant(Category, RejectionCode, IsRetryable);
@@ -150,7 +155,8 @@ public sealed record ConversationIdempotencyOutcome(
         TenantId tenantId,
         ConversationCommandType commandType,
         ConversationId? conversationId,
-        string correlationId)
+        string correlationId,
+        string? auditHandle = null)
         => new(
             IdempotencyOutcomeCategory.NoOp,
             schemaVersion,
@@ -162,7 +168,8 @@ public sealed record ConversationIdempotencyOutcome(
             FileId: null,
             RejectionCode: null,
             IsRetryable: false,
-            correlationId);
+            correlationId,
+            auditHandle);
 
     /// <summary>
     /// Creates a retryable uncertainty logical outcome.
@@ -178,7 +185,8 @@ public sealed record ConversationIdempotencyOutcome(
         TenantId tenantId,
         ConversationCommandType commandType,
         ConversationId? conversationId,
-        string correlationId)
+        string correlationId,
+        string? auditHandle = null)
         => new(
             IdempotencyOutcomeCategory.Uncertain,
             schemaVersion,
@@ -190,7 +198,8 @@ public sealed record ConversationIdempotencyOutcome(
             FileId: null,
             ConversationErrorCode.IdempotencyOutcomeUnknown,
             IsRetryable: true,
-            correlationId);
+            correlationId,
+            auditHandle);
 
     private static string ValidateRequired(string value, string parameterName)
     {

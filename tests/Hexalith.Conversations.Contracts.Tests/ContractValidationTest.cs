@@ -83,6 +83,18 @@ public sealed class ContractValidationTest
     }
 
     /// <summary>
+    /// Ensures sample errors use the same retryability taxonomy as production contracts.
+    /// </summary>
+    [Fact]
+    public void SafeErrorSamplesShouldUseCanonicalRetryableTaxonomy()
+    {
+        foreach (ConversationErrorCode code in ContractSamples.AllErrorCodes)
+        {
+            ContractSamples.SafeError(code).IsRetryable.ShouldBe(ConversationErrorCode.IsRetryable(code));
+        }
+    }
+
+    /// <summary>
     /// Ensures public timestamps reject the default minimum value and out-of-range years.
     /// </summary>
     [Theory]
@@ -282,6 +294,7 @@ public sealed class ContractValidationTest
     public void ClosedVocabularyParseShouldRejectUnknownValues()
     {
         Should.Throw<ArgumentException>(() => ConversationErrorCode.Parse("bogus_code"));
+        ConversationErrorCode.Parse("idempotency_key_missing").ShouldBe(ConversationErrorCode.IdempotencyKeyMissing);
         Should.Throw<ArgumentException>(() => ConversationErrorCategory.Parse("bogus"));
         Should.Throw<ArgumentException>(() => ConversationEventType.Parse("BogusEvent"));
         Should.Throw<ArgumentException>(() => ConversationCommandType.Parse("BogusCommand"));

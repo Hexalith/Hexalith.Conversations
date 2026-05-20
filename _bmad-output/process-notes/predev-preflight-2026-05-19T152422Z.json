@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
   "produced_by": "jobs/preflight-predev-hardening.py",
-  "timestamp": "2026-05-20T06:02:00Z",
+  "timestamp": "2026-05-19T15:24:22Z",
   "repo": "D:\\Hexalith.Conversations",
-  "result": "fail",
+  "result": "pass",
   "bootstrap_actions": [],
   "checks": [
     {
@@ -63,11 +63,11 @@
         ":(exclude)_bmad-output/process-notes/preflight-latest.json"
       ],
       "exit_code": 0,
-      "stdout": " M _bmad-output/implementation-artifacts/1-6-add-idempotent-command-handling.md\n M src/Hexalith.Conversations.Contracts/Errors/ConversationErrorCode.cs\n M src/Hexalith.Conversations.Server/CommandHandlers/AddParticipantCommandHandler.cs\n M src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs\n M src/Hexalith.Conversations/Idempotency/ConversationIdempotencyOutcome.cs\n M src/Hexalith.Conversations/Idempotency/ConversationIdempotencyRecord.cs\n M src/Hexalith.Conversations/Idempotency/ConversationIdempotencyReplayResult.cs\n M src/Hexalith.Conversations/Validation/AddParticipantValidation.cs\n M src/Hexalith.Conversations/Validation/CreateConversationValidation.cs\n M tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs\n M tests/Hexalith.Conversations.Contracts.Tests/ContractValidationTest.cs\n M tests/Hexalith.Conversations.Server.Tests/Idempotency/AddParticipantCommandHandlerIdempotencyTest.cs\n M tests/Hexalith.Conversations.Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest.cs\n M tests/Hexalith.Conversations.Tests/Idempotency/ConversationIdempotencyStoreTest.cs\n?? _bmad-output/test-artifacts/nfr-assessment.md\n?? src/Hexalith.Conversations/Idempotency/ConversationAuditHandle.cs\n?? src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs\n?? tests/Hexalith.Conversations.Tests/Validation/ConversationCommandSchemaValidationTest.cs\n",
+      "stdout": "",
       "stderr": "",
-      "dirty_path_count": 18,
-      "result": "fail",
-      "details": "18 dirty path(s)"
+      "dirty_path_count": 0,
+      "result": "pass",
+      "details": "0 dirty paths"
     }
   ],
   "note_to_llm": "This file was produced by jobs/preflight-predev-hardening.py. The recurring pre-dev hardening job MUST quote the contents of this file verbatim when reporting pre-flight results; do NOT re-run the checks yourself, paraphrase them, or summarize them in your own words."
