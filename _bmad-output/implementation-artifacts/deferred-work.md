@@ -2,6 +2,11 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: code review of 1-6-add-idempotent-command-handling — Round 2 (2026-05-20)
+
+- DEF6: `ConversationCommandFingerprint.Create(object command, ConversationId createAllocationScope)` accepts `object` and `createAllocationScope` is required-non-null but ignored for 6 of 7 command types. Compile-time exhaustiveness is delegated to the test `CommandMatrixShouldProduceExpectedScopes`. Refactor for typed exhaustiveness (e.g., split into 7 typed factory methods, or introduce a sealed `IConversationCommand` discriminator) when the next contract-evolution batch lands. File: `src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs:39-93`.
+- DEF7: Producer-invariant assumption — `ConversationProjectionAccumulator` deduplicates by `EventId` only. A producer that reuses an `EventId` for a different payload (bug or replay-with-mutation) causes the projection to silently retain the first payload and drop the second. This is the documented behavior per P2 but assumes producer hygiene. Production read-model code should add a stronger same-EventId/different-payload invariant check (or treat repeated EventIds with payload divergence as `Poisoned`). Bundle with DEF5. File: `src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs:114-148`.
+
 ## Deferred from: code review of 1-6-add-idempotent-command-handling (2026-05-19)
 
 - Handler wiring for `AppendMessage`, `AttachReference`, `UpdateMetadata`, `Close`, and `Archive` against `IdempotentConversationCommandExecutor` — those handlers do not yet exist; the idempotency primitives are story-complete and the wiring is explicitly recorded as deferred in `_bmad-output/implementation-artifacts/1-6-idempotency-local-evidence.md:28`. Re-engage when each subsequent Epic-1 story introduces its handler. Files: `src/Hexalith.Conversations.Server/CommandHandlers/`.
