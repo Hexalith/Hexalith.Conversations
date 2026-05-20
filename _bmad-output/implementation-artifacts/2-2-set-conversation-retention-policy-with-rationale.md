@@ -16,6 +16,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - Then the command is accepted through the Conversations application boundary and dispatched to the Conversation aggregate,
    - And no handler, API, admin, worker, or tool path can set retention without the same tenant and governance checks.
    - And tenant access and governance permission are validated before EventStore stream resolution, aggregate hydration, projection reads, audit lookups, idempotency result disclosure, or any response mapping that could reveal conversation existence.
+   - And the effective operation timestamp is a validated Conversations command value or server-boundary value, never a client display timestamp, projection timestamp, audit sink timestamp, or aggregate-generated clock value.
 
 2. Retention policy set and replace events
    - Given a conversation has no active retention policy,
@@ -32,6 +33,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - Then a typed documented rejection is returned using existing Conversations-safe error/result vocabulary,
    - And no retention mutation event, audit success evidence, projection update, publication-ready event, or side effect is emitted.
    - And unsupported/missing/future schema versions, missing actor attribution, malformed correlation metadata, untrusted idempotency state, and unsafe rationale or policy-reference values fail closed with the same non-disclosing public response shape required for tenant-denied and conversation-hidden outcomes.
+   - And unsafe rationale or policy-reference values include null, whitespace-only, over-limit, control-character, path-like, sink-like, stream-like, provider-like, token-like, claim-like, or tenant/customer-name-like values that could leak through JSON, `ToString()`, validation messages, logs, traces, XML docs, fixtures, or assertion text.
 
 4. Audit pairing is mandatory
    - Given retention changes are governance mutations,
@@ -42,6 +44,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - When the command is handled,
    - Then the retention mutation fails closed with an audit-unavailable outcome and no retention-policy-set/replaced event.
    - And no externally successful result is returned unless the retention domain evidence and audit evidence are durably correlated according to the Story 2.1 governance/audit contract pattern.
+   - And partial failure cases, including audit evidence accepted but domain append unavailable, domain evidence append attempted without provable audit correlation, duplicate retry after uncertain pairing, and audit handle reuse on idempotent duplicate requests, are reported as retry-safe internal uncertainty or stable sanitized duplicate outcomes without creating duplicate audit/domain evidence.
 
 5. Deterministic replay and projected state
    - Given retention policy events exist in the event stream,
@@ -80,6 +83,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
   - [ ] Fail closed when the audit seam is unavailable, returns an unsafe handle, cannot correlate to the retention operation, or reports an uncertain outcome.
   - [ ] Preserve idempotency behavior from Story 1.6: duplicate compatible requests return stable outcomes, conflicting fingerprints reject without mutation, and unknown/pending outcomes remain retry-safe and non-mutating.
   - [ ] Ensure duplicate compatible requests reuse the original safe result, timestamp, and audit handle when policy allows, and prove they emit no duplicate retention or audit evidence.
+  - [ ] Add local failure-injection seams or fakes for audit available/domain append unavailable, audit correlation uncertain, unsafe audit handle returned, and duplicate retry after uncertain pairing; prove public responses stay sanitized and retry-safe.
 
 - [ ] Add safe result and error mapping (AC: 3, 4, 6)
   - [ ] Map unauthorized, hidden, cross-tenant, stale tenant projection, unsupported schema, missing rationale, invalid policy reference, audit unavailable, idempotency conflict, and aggregate-not-found cases to typed sanitized responses.
@@ -160,6 +164,14 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
 - Duplicate/replayed retention events should not produce divergent state. Command-time duplicate/conflict handling remains the authority for accepted/rejected command behavior.
 - The aggregate records supplied, validated timestamps and metadata only. It must not read clocks, identity context, tenant context, audit services, projections, configuration, or diagnostics.
 
+### Advanced Elicitation Hardening
+
+- The 2026-05-20 advanced-elicitation pass kept Story 2.2 within retention set/replace scope but made the failure contract sharper: a public success requires both retention domain evidence and audit evidence to be durably correlated, while partial or uncertain pairing remains internal, retry-safe, and non-disclosing.
+- Timestamp authority is deliberately outside the aggregate. The application boundary validates and supplies the timestamp that events record; projections, audit sink clocks, client display time, and aggregate-generated clocks cannot decide replacement order or success.
+- Rationale and policy-reference values are both safety-sensitive. Validation must reject values that could become storage paths, stream names, audit sink identifiers, provider references, claims/tokens, exception text, tenant/customer names, Party personal data, or unsafe free-text echoes in non-JSON surfaces.
+- Idempotent duplicate behavior must preserve the original safe result, timestamp, and allowed audit handle without writing duplicate retention or audit evidence. Conflicting or uncertain retries must not reveal whether the target conversation exists or whether audit/domain evidence partially completed.
+- Active retention projection state is descriptive only. It may help authorized reads explain current governed state, but cannot authorize commands, schedule lifecycle work, trigger redaction/deletion, or serve as evidence that audit/domain pairing succeeded.
+
 ### Scope Boundaries
 
 - In scope:
@@ -192,7 +204,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
 
 ### Lessons Applied
 
-- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.2 now has a completed party-mode trace; later automation should run advanced elicitation only after this dated trace and treat both passes as pre-dev clarification, not scope expansion. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
+- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.2 now has a completed party-mode trace and a completed advanced-elicitation trace; implementation should treat both passes as pre-dev clarification, not scope expansion. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
 
 ## References
 
@@ -245,4 +257,34 @@ N/A - story created by BMAD create-story automation.
   - Updated L08 lesson wording to record that party-mode review is complete and advanced elicitation remains a later separate pass.
 - Findings deferred:
   - Retention enforcement engine, deletion/redaction workflows, legal-hold precedence, UI management flows, policy catalog authority/lifecycle, localization of rationale content, and provider/audit backend architecture remain deferred to later stories or ADRs.
+- Final recommendation: ready-for-dev
+
+## Advanced Elicitation
+
+- ISO date and time: 2026-05-20T19:02:16Z
+- Selected story key: `2-2-set-conversation-retention-policy-with-rationale`
+- Command/skill invocation used: `/bmad-advanced-elicitation 2-2-set-conversation-retention-policy-with-rationale`
+- Batch 1 method names:
+  - Red Team vs Blue Team
+  - Security Audit Personas
+  - Failure Mode Analysis
+  - Self-Consistency Validation
+  - Critique and Refine
+- Reshuffled Batch 2 method names:
+  - First Principles Analysis
+  - Pre-mortem Analysis
+  - Architecture Decision Records
+  - Socratic Questioning
+  - User Persona Focus Group
+- Findings summary:
+  - The story was already ready for development after party-mode review, but advanced elicitation found remaining implementability risks around partial audit/domain failure, timestamp authority, rationale and policy-reference safety, retry behavior after uncertain evidence pairing, and accidental projection authority.
+  - The elicitation also confirmed that retention enforcement, legal-hold precedence, catalog authority, and UI workflows should remain deferred rather than pulled into Story 2.2.
+- Changes applied:
+  - Added explicit timestamp authority language so the aggregate records validated boundary metadata and does not derive time from clients, projections, audit sinks, or clocks.
+  - Expanded unsafe rationale and policy-reference rejection criteria across JSON and non-JSON leakage surfaces.
+  - Clarified partial audit/domain pairing failure and duplicate retry behavior as retry-safe, non-disclosing, and free of duplicate audit/domain evidence.
+  - Added test tasks for audit/domain failure-injection seams and duplicate retry after uncertain pairing.
+  - Added advanced-elicitation hardening notes and updated L08 wording to show both pre-dev hardening passes are complete.
+- Findings deferred:
+  - Retention enforcement, deletion/redaction workflows, legal-hold precedence, policy catalog authority/lifecycle, localization of rationale content, UI workflows, and provider/audit backend architecture remain deferred to later stories or ADRs.
 - Final recommendation: ready-for-dev
