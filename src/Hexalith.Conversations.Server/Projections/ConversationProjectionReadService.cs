@@ -68,7 +68,15 @@ public sealed class ConversationProjectionReadService(
                 .ReadAsync(routeTenantId, conversationId, cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        catch (InvalidOperationException)
+        {
+            return Unavailable();
+        }
+        catch (IOException)
+        {
+            return Unavailable();
+        }
+        catch (TimeoutException)
         {
             return Unavailable();
         }
@@ -106,8 +114,8 @@ public sealed class ConversationProjectionReadService(
     private static bool SameGeneration(ProjectionFreshnessV1 summary, ProjectionFreshnessV1 detail)
         => summary.ProjectionCursor == detail.ProjectionCursor
             && summary.LastAppliedEventPosition == detail.LastAppliedEventPosition
-            && summary.LastAppliedEventTimestamp == detail.LastAppliedEventTimestamp
-            && summary.ProjectionGeneratedAt == detail.ProjectionGeneratedAt;
+            && summary.LastAppliedEventTimestamp.UtcTicks == detail.LastAppliedEventTimestamp.UtcTicks
+            && summary.ProjectionGeneratedAt.UtcTicks == detail.ProjectionGeneratedAt.UtcTicks;
 
     private static ConversationProjectionReadResult Unavailable()
         => new(

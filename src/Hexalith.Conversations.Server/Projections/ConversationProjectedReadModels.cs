@@ -24,5 +24,5 @@ public sealed record ConversationProjectedReadModels(
     /// <summary>
     /// Gets the projected conversation detail.
     /// </summary>
-    public ConversationDetailProjectionV1 Detail { get; init; } = Detail ?? throw new ArgumentNullException(nameof(Detail));
+    public ConversationDetailProjectionV1 Detail { get; } = Detail ?? throw new ArgumentNullException(nameof(Detail));
 }

@@ -111,11 +111,6 @@ public sealed record ProjectionFreshnessV1(
             throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.");
         }
 
-        if (value.Year < 2000 || value.Year > 9999)
-        {
-            throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must fall within the plausible business range (year 2000-9999).");
-        }
-
         return value;
     }
 
@@ -146,6 +141,11 @@ public sealed record ProjectionFreshnessV1(
         if (state == ProjectionTrustState.Current && isStale)
         {
             throw new ArgumentException("Current projections must not be marked stale.", nameof(isStale));
+        }
+
+        if (state == ProjectionTrustState.Stale && !isStale)
+        {
+            throw new ArgumentException("Stale projections must be marked stale.", nameof(isStale));
         }
 
         return isStale;

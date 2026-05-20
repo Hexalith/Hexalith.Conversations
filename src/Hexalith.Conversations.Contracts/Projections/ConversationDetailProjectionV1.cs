@@ -91,7 +91,7 @@ public sealed record ConversationDetailProjectionV1(
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return value switch
         {
-            "Open" or "Closed" or "Archived" or "Rebuilding" => value,
+            "Initializing" or "Open" or "Closed" or "Archived" => value,
             _ => throw new ArgumentException("Unsupported conversation lifecycle state.", nameof(value)),
         };
     }
