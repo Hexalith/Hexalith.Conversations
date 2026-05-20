@@ -1,0 +1,118 @@
+// <copyright file="ConversationProjectionReadService.cs" company="ITANEO">
+// Copyright (c) ITANEO. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Server.TenantAccess;
+
+namespace Hexalith.Conversations.Server.Projections;
+
+/// <summary>
+/// Applies tenant access and freshness checks before returning projection details.
+/// </summary>
+public sealed class ConversationProjectionReadService(
+    IConversationTenantAccessService tenantAccessService,
+    IConversationProjectionReadStore projectionReadStore)
+{
+    private readonly IConversationProjectionReadStore _projectionReadStore =
+        projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
+
+    private readonly IConversationTenantAccessService _tenantAccessService =
+        tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+
+    /// <summary>
+    /// Reads a conversation detail projection through the fail-closed tenant and freshness boundary.
+    /// </summary>
+    /// <param name="trustedTenantId">The trusted request tenant binding.</param>
+    /// <param name="callerPrincipalId">The caller principal identity.</param>
+    /// <param name="routeTenantId">The route tenant binding.</param>
+    /// <param name="conversationId">The conversation identity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A non-disclosing projection read result.</returns>
+    public async ValueTask<ConversationProjectionReadResult> ReadDetailAsync(
+        TenantId? trustedTenantId,
+        string? callerPrincipalId,
+        TenantId? routeTenantId,
+        ConversationId? conversationId,
+        CancellationToken cancellationToken = default)
+    {
+        if (trustedTenantId is null || routeTenantId is null || conversationId is null || string.IsNullOrWhiteSpace(callerPrincipalId))
+        {
+            return Forbidden();
+        }
+
+        ConversationTenantAccessDecision decision = await _tenantAccessService
+            .CheckAccessAsync(
+                ConversationTenantAccessRequirement.Read,
+                trustedTenantId,
+                callerPrincipalId,
+                routeTenantId: routeTenantId,
+                projectionTenantId: routeTenantId,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!decision.IsAllowed)
+        {
+            return Forbidden();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+
+        ConversationProjectedReadModels? models;
+        try
+        {
+            models = await _projectionReadStore
+                .ReadAsync(routeTenantId, conversationId, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return Unavailable();
+        }
+
+        if (models is null)
+        {
+            return Forbidden();
+        }
+
+        if (!SameGeneration(models.Summary.Freshness, models.Detail.Freshness))
+        {
+            return new ConversationProjectionReadResult(
+                ProjectionTrustState.Rebuilding,
+                ProjectionFreshnessReasonCode.MixedGeneration,
+                null,
+                false);
+        }
+
+        ProjectionFreshnessV1 freshness = models.Detail.Freshness;
+        bool enabled = freshness.AllowsTrustBearingDecision();
+        return new ConversationProjectionReadResult(
+            freshness.FreshnessState,
+            freshness.ReasonCode,
+            enabled ? models.Detail : null,
+            enabled);
+    }
+
+    private static ConversationProjectionReadResult Forbidden()
+        => new(
+            ProjectionTrustState.Forbidden,
+            ProjectionFreshnessReasonCode.Forbidden,
+            null,
+            false);
+
+    private static bool SameGeneration(ProjectionFreshnessV1 summary, ProjectionFreshnessV1 detail)
+        => summary.ProjectionCursor == detail.ProjectionCursor
+            && summary.LastAppliedEventPosition == detail.LastAppliedEventPosition
+            && summary.LastAppliedEventTimestamp == detail.LastAppliedEventTimestamp
+            && summary.ProjectionGeneratedAt == detail.ProjectionGeneratedAt;
+
+    private static ConversationProjectionReadResult Unavailable()
+        => new(
+            ProjectionTrustState.Unavailable,
+            ProjectionFreshnessReasonCode.Unavailable,
+            null,
+            false);
+}

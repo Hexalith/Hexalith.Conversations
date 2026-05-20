@@ -1,0 +1,295 @@
+// <copyright file="ConversationProjectionMaterializerTest.cs" company="ITANEO">
+// Copyright (c) ITANEO. All rights reserved.
+// Licensed under the MIT License.
+// </copyright>
+
+using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Contracts.Versioning;
+using Hexalith.Conversations.Server.Projections;
+
+namespace Hexalith.Conversations.Server.Tests.Projections;
+
+/// <summary>
+/// Verifies Story 1.7 projection materialization and freshness downgrade behavior.
+/// </summary>
+public sealed class ConversationProjectionMaterializerTest
+{
+    private static readonly TenantId Tenant = new("tenant-001");
+    private static readonly TenantId OtherTenant = new("tenant-other");
+    private static readonly ConversationId Conversation = new("conversation-001");
+    private static readonly ConversationId OtherConversation = new("conversation-other");
+    private static readonly PartyId Actor = new("party-actor");
+    private static readonly PartyId Participant = new("party-participant");
+    private static readonly MessageId Message = new("message-001");
+    private static readonly FileId File = new("file-001");
+    private static readonly FolderId Folder = new("folder-001");
+    private static readonly ProjectId Project = new("project-001");
+    private static readonly DateTimeOffset Started = new(2026, 5, 20, 9, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset Generated = new(2026, 5, 20, 9, 0, 10, TimeSpan.Zero);
+
+    /// <summary>
+    /// Ordered event replay derives summary and detail models from stable IDs and content-safe fields.
+    /// </summary>
+    [Fact]
+    public void OrderedReplayShouldBuildCurrentSummaryAndDetailModels()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+        result.Summary.MessageCount.ShouldBe(1);
+        result.Summary.FileReferenceCount.ShouldBe(1);
+        result.Summary.ParticipantPartyIds.ShouldBe([Participant], ignoreOrder: false);
+        result.Detail.Messages.Single().Text.ShouldBe("Hello");
+        result.Detail.Participants.Single().ParticipantPartyId.ShouldBe(Participant);
+        result.Detail.FileReferences.Single().FileId.ShouldBe(File);
+        result.Detail.ProjectId.ShouldBe(Project);
+        result.Detail.FolderId.ShouldBe(Folder);
+        result.Detail.Attributes.ShouldBe(new Dictionary<string, string> { ["priority"] = "high" });
+    }
+
+    /// <summary>
+    /// Duplicate and replayed delivery is idempotent and rebuilds to the same read model.
+    /// </summary>
+    [Fact]
+    public void DuplicateAndReplayedEventsShouldRemainDeterministic()
+    {
+        ConversationProjectionEventRecord[] repeated =
+        [
+            .. OrderedEvents(),
+            Event(2, ParticipantAdded("event-participant-001", 2)),
+            Event(3, MessageAppended("event-message-001", 3)),
+            Event(4, FileAttached("event-file-001", 4)),
+        ];
+
+        ConversationProjectedReadModels first = Materializer().Project(Tenant, Conversation, repeated, Generated, TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels rebuilt = Materializer().Project(Tenant, Conversation, OrderedEvents(), Generated, TimeSpan.FromMinutes(5));
+
+        first.Summary.Freshness.ShouldBe(rebuilt.Summary.Freshness);
+        first.Summary.ParticipantPartyIds.ShouldBe(rebuilt.Summary.ParticipantPartyIds, ignoreOrder: false);
+        first.Summary.MessageCount.ShouldBe(rebuilt.Summary.MessageCount);
+        first.Summary.FileReferenceCount.ShouldBe(rebuilt.Summary.FileReferenceCount);
+        first.Detail.Messages.ShouldBe(rebuilt.Detail.Messages, ignoreOrder: false);
+        first.Detail.Participants.ShouldBe(rebuilt.Detail.Participants, ignoreOrder: false);
+        first.Detail.FileReferences.ShouldBe(rebuilt.Detail.FileReferences, ignoreOrder: false);
+        first.Detail.Attributes.ShouldBe(rebuilt.Detail.Attributes);
+    }
+
+    /// <summary>
+    /// Gaps in source positions degrade trust to rebuilding instead of producing a confident current model.
+    /// </summary>
+    [Fact]
+    public void GapDetectionShouldDowngradeProjectionToRebuilding()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(3, MessageAppended("event-message-001", 3)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.GapDetected);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// Child events before creation are projected only as rebuilding evidence, never as current truth.
+    /// </summary>
+    [Fact]
+    public void ChildEventBeforeCreatedShouldDowngradeProjectionToRebuilding()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, MessageAppended("event-message-001", 1)),
+                Event(2, Created("event-create-001", 2)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.Messages.Single().MessageId.ShouldBe(Message);
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.OutOfOrderEvent);
+    }
+
+    /// <summary>
+    /// Mixed-tenant poison events are rejected before mutation and make the projection unavailable.
+    /// </summary>
+    [Fact]
+    public void MixedTenantPoisonEventShouldNotMutateProjectionAndShouldDowngradeTrust()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, ParticipantAdded("event-poison", 2, OtherTenant, OtherConversation)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.Participants.ShouldBeEmpty();
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.PoisonEvent);
+    }
+
+    /// <summary>
+    /// Stale metadata is explicit and blocks trust-bearing decisions.
+    /// </summary>
+    [Fact]
+    public void StaleProjectionShouldExposeStaleFreshness()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated.AddMinutes(30),
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Stale);
+        result.Summary.Freshness.IsStale.ShouldBeTrue();
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// Metadata write failures after mutation must not leave a public current model.
+    /// </summary>
+    [Fact]
+    public void MetadataWriteFailureAfterMutationShouldDowngradeProjection()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5),
+            metadataWriteFailed: true);
+
+        result.Detail.Messages.Count.ShouldBe(1);
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MetadataWriteFailed);
+    }
+
+    /// <summary>
+    /// Active rebuild windows are public rebuilding states even when the materialized data is otherwise complete.
+    /// </summary>
+    [Fact]
+    public void ActiveRebuildShouldDowngradeProjectionToRebuilding()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5),
+            isRebuilding: true);
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Rebuilding);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// Contradictory timestamps are downgraded instead of throwing or returning current state.
+    /// </summary>
+    [Fact]
+    public void ContradictoryProjectionMetadataShouldDowngradeToUnavailable()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Started,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MetadataContradictory);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    private static ConversationProjectionMaterializer Materializer() => new();
+
+    private static ConversationProjectionEventRecord[] OrderedEvents() =>
+    [
+        Event(1, Created("event-create-001", 1)),
+        Event(2, ParticipantAdded("event-participant-001", 2)),
+        Event(3, MessageAppended("event-message-001", 3)),
+        Event(4, FileAttached("event-file-001", 4)),
+        Event(5, MetadataUpdated("event-metadata-001", 5)),
+    ];
+
+    private static ConversationProjectionEventRecord Event(long position, object e)
+        => new(position, e);
+
+    private static ConversationCreated Created(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationCreated, position),
+            new BusinessReference("crm", "case-123"),
+            Project,
+            Folder,
+            "Case 123");
+
+    private static ParticipantAdded ParticipantAdded(
+        string eventId,
+        long position,
+        TenantId? tenantId = null,
+        ConversationId? conversationId = null)
+        => new(
+            Metadata(eventId, ConversationEventType.ParticipantAdded, position, tenantId, conversationId),
+            Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member);
+
+    private static MessageAppended MessageAppended(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.MessageAppended, position),
+            Message,
+            Actor,
+            "Hello");
+
+    private static FileReferenceAttached FileAttached(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.FileReferenceAttached, position),
+            File,
+            Folder,
+            Message);
+
+    private static ConversationMetadataUpdated MetadataUpdated(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationMetadataUpdated, position),
+            null,
+            null,
+            new Dictionary<string, string> { ["priority"] = "high" });
+
+    private static ConversationEventMetadata Metadata(
+        string eventId,
+        ConversationEventType eventType,
+        long position,
+        TenantId? tenantId = null,
+        ConversationId? conversationId = null)
+        => new(
+            SchemaVersion.Current,
+            eventId,
+            eventType,
+            tenantId ?? Tenant,
+            conversationId ?? Conversation,
+            "correlation-001",
+            Started.AddSeconds(position),
+            Actor,
+            "causation-001");
+}
