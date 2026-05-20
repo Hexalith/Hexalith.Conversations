@@ -15,6 +15,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - When the tenant access, governance role, policy reference, schema version, idempotency, and audit-precondition checks pass,
    - Then the command is accepted through the Conversations application boundary and dispatched to the Conversation aggregate,
    - And no handler, API, admin, worker, or tool path can set retention without the same tenant and governance checks.
+   - And tenant access and governance permission are validated before EventStore stream resolution, aggregate hydration, projection reads, audit lookups, idempotency result disclosure, or any response mapping that could reveal conversation existence.
 
 2. Retention policy set and replace events
    - Given a conversation has no active retention policy,
@@ -23,12 +24,14 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - Given a conversation already has an active retention policy,
    - When a replacement command succeeds,
    - Then the aggregate emits a retention-policy-replaced domain event that records the new active policy and enough prior-policy reference to reconstruct the transition without copying raw policy internals or unsafe diagnostics.
+   - And setting the same policy/rationale with the same idempotency identity returns the original sanitized outcome without appending duplicate domain or audit evidence, while replacing an active policy with a materially different policy or rationale emits exactly one replacement event in persisted event order.
 
 3. Fail-closed rejection behavior
    - Given the operator lacks permission, tenant state is missing/stale/disabled/unavailable, conversation tenant binding mismatches, the policy reference is missing or invalid, rationale is missing, schema version is unsupported, idempotency conflicts, or the conversation is inaccessible,
    - When the command is handled,
    - Then a typed documented rejection is returned using existing Conversations-safe error/result vocabulary,
    - And no retention mutation event, audit success evidence, projection update, publication-ready event, or side effect is emitted.
+   - And unsupported/missing/future schema versions, missing actor attribution, malformed correlation metadata, untrusted idempotency state, and unsafe rationale or policy-reference values fail closed with the same non-disclosing public response shape required for tenant-denied and conversation-hidden outcomes.
 
 4. Audit pairing is mandatory
    - Given retention changes are governance mutations,
@@ -38,18 +41,22 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
    - Given audit recording is unavailable or cannot prove pairing,
    - When the command is handled,
    - Then the retention mutation fails closed with an audit-unavailable outcome and no retention-policy-set/replaced event.
+   - And no externally successful result is returned unless the retention domain evidence and audit evidence are durably correlated according to the Story 2.1 governance/audit contract pattern.
 
 5. Deterministic replay and projected state
    - Given retention policy events exist in the event stream,
    - When aggregate state or read projections rebuild from persisted events,
    - Then replay reconstructs the same active retention policy, prior-policy transition metadata, actor attribution, rationale, policy basis, and timestamps,
    - And duplicate, reordered, or replayed events do not create divergent active policy state or duplicate audit evidence.
+   - And event sequence, not operation timestamp alone, is the authority for replacement ordering; operation timestamps, actor attribution, correlation metadata, schema version, and audit handles are validated by orchestration and recorded by the aggregate without aggregate access to clocks, tenant services, audit services, projections, identity context, or configuration.
+   - And projected active retention state is derived descriptive governance state only; it is not authoritative for command decisions and must not schedule deletion, redact content, suppress content, expire records, alter legal-hold behavior, or trigger UI/workflow side effects in this story.
 
 6. Safe payload, disclosure, and observability boundaries
    - Given retention policy commands, events, results, logs, traces, test fixtures, and sample JSON are produced,
    - When retention policy data is serialized, displayed, logged, or asserted in tests,
    - Then outputs exclude raw message content, Party personal data, provider payloads, upstream detail objects, audit storage locations, EventStore substrate names, exception text, unbounded diagnostics, tokens, claims, and cross-tenant facts,
    - And unauthorized, nonexistent, cross-tenant, stale, audit-unavailable, and policy-blocked outcomes use the same non-disclosing public response shape where required by Story 1.5 and Story 2.1.
+   - And rationale text, policy references, safe audit handles, and correlation metadata use bounded Conversations-owned values that cannot contain storage paths, stream names, provider identifiers, audit sink keys, projection checkpoints, raw claims, tokens, exception text, Party names, contact data, or tenant/customer names.
 
 ## Tasks / Subtasks
 
@@ -72,9 +79,11 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
   - [ ] Add an audit pairing boundary or adapter seam that can prove audit availability before a success result is returned.
   - [ ] Fail closed when the audit seam is unavailable, returns an unsafe handle, cannot correlate to the retention operation, or reports an uncertain outcome.
   - [ ] Preserve idempotency behavior from Story 1.6: duplicate compatible requests return stable outcomes, conflicting fingerprints reject without mutation, and unknown/pending outcomes remain retry-safe and non-mutating.
+  - [ ] Ensure duplicate compatible requests reuse the original safe result, timestamp, and audit handle when policy allows, and prove they emit no duplicate retention or audit evidence.
 
 - [ ] Add safe result and error mapping (AC: 3, 4, 6)
   - [ ] Map unauthorized, hidden, cross-tenant, stale tenant projection, unsupported schema, missing rationale, invalid policy reference, audit unavailable, idempotency conflict, and aggregate-not-found cases to typed sanitized responses.
+  - [ ] Include missing actor attribution, malformed correlation metadata, unsafe rationale, future schema version, untrusted idempotency state, and duplicate-command conflict in the rejection matrix.
   - [ ] Keep internal diagnostics separate from public outcome vocabulary; public responses may include bounded retryability/remediation only when it does not reveal target existence, audit infrastructure, policy internals, upstream facts, or exception details.
   - [ ] Ensure safe audit handles are opaque Conversations-owned values, not storage paths, stream positions, projection checkpoints, audit sink keys, log IDs, or provider identifiers.
 
@@ -140,11 +149,16 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
 ### Implementation Guardrails
 
 - Validation order matters: schema and required contract fields, tenant access, governance permission, audit precondition, idempotency/fingerprint handling, aggregate validation, audit pairing, then success response. If the established idempotency executor requires a different internal order, preserve non-disclosure and no-mutation guarantees in tests.
+- Tenant access and governance permission must occur before any aggregate load, EventStore stream resolution, projection lookup, audit lookup, idempotency result disclosure, or response shape that could reveal whether a conversation exists.
 - Retention rationale is required but sensitive as free text. Store only what Story 2.1 permits; never echo unsafe rationale in `ToString()`, validation errors, logs, traces, assertion messages, or public diagnostics.
+- Rationale validation should be stable and bounded before dev handoff: reject null, empty, whitespace-only, unsafe, or over-limit values using sanitized validation codes, and keep localization of human rationale content out of scope.
 - Policy references are required and must be safe to expose. If a policy reference can reveal protected policy internals, expose a bounded public reference and keep internal policy details out of public contracts.
+- Story 2.2 validates policy-reference shape and safety only unless Story 2.1 already defines a catalog-authority contract; global, tenant, external, or compliance catalog ownership is a deferred decision.
 - Audit handles are evidence correlation values, not storage identity. They must be opaque, stable enough for adopter citation where allowed, and safe to return in denial/audit-unavailable cases only when policy allows.
+- Audit/domain pairing is a success gate: no retention-policy-set/replaced event may be externally reported as successful unless required audit evidence is durably recorded or atomically linked in the same governed operation boundary.
 - Replacement semantics must be deterministic: replaying events in persisted order yields exactly one active retention policy and an auditable prior-policy transition record where appropriate.
 - Duplicate/replayed retention events should not produce divergent state. Command-time duplicate/conflict handling remains the authority for accepted/rejected command behavior.
+- The aggregate records supplied, validated timestamps and metadata only. It must not read clocks, identity context, tenant context, audit services, projections, configuration, or diagnostics.
 
 ### Scope Boundaries
 
@@ -162,6 +176,7 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
   - Irreversible source-event deletion.
   - Full compliance investigation UI and evidence export workflows.
   - New authoritative storage outside EventStore.
+  - Any lifecycle side effect from active retention projection state, including scheduling deletion, redaction, suppression, expiration, legal-hold changes, or UI management behavior.
 
 ### Testing Requirements
 
@@ -172,10 +187,12 @@ so that conversation retention is explicit, auditable, tenant-scoped, and replay
 - If project references, serialization registration, or shared primitives move, run `dotnet test Hexalith.Conversations.slnx`.
 - Tests must prove no mutation when audit is unavailable, tenant access is stale/missing, governance permission fails, idempotency conflicts, or command validation fails.
 - Tests must include failure paths and assertion text checks where feasible, because unsafe values often leak through non-JSON surfaces after JSON payloads are cleaned.
+- Tests must prove authorization-before-load/read/disclosure ordering, no domain event without audit evidence, idempotent duplicate commands without duplicate audit/domain evidence, replacement projection rebuild from persisted event order, aggregate replay without clocks/services, and no deletion/redaction/enforcement/legal-hold/UI side effects.
+- Privacy tests must scan success and rejection JSON, logs/traces where testable, telemetry tags, `ToString()`, XML docs, curated samples, projection DTOs, and assertion output for EventStore stream names, provider names, audit sink details, storage paths, projection checkpoints, raw exception text, claims, tokens, Party personal data, and cross-tenant identifiers.
 
 ### Lessons Applied
 
-- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.2 is newly created and has not yet had either review trace; later automation should run party-mode first, then advanced elicitation only after a completed party-mode trace exists. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
+- L08: Party-mode review and advanced elicitation are separate hardening passes. Story 2.2 now has a completed party-mode trace; later automation should run advanced elicitation only after this dated trace and treat both passes as pre-dev clarification, not scope expansion. [Source: `_bmad-output/process-notes/story-creation-lessons.md#L08 - Party Review Vs. Elicitation`]
 
 ## References
 
@@ -210,3 +227,22 @@ N/A - story created by BMAD create-story automation.
 ### File List
 
 - `_bmad-output/implementation-artifacts/2-2-set-conversation-retention-policy-with-rationale.md`
+
+## Party-Mode Review
+
+- ISO date and time: 2026-05-20T17:10:59Z
+- Selected story key: `2-2-set-conversation-retention-policy-with-rationale`
+- Command/skill invocation used: `/bmad-party-mode 2-2-set-conversation-retention-policy-with-rationale; review;`
+- Participating BMAD agents: Winston (System Architect), Amelia (Senior Software Engineer), John (Product Manager), Murat (Master Test Architect and Quality Advisor)
+- Findings summary:
+  - All reviewers agreed the story was directionally correct but needed sharper pre-dev acceptance language around tenant/governance authorization ordering, audit/domain durability, idempotency and replacement semantics, privacy-safe public payloads, deterministic timestamp handling, and non-enforcement scope.
+  - Reviewers also flagged adopter-facing validation clarity for rationale, policy references, schema versions, safe audit handles, typed rejection taxonomy, and privacy scans over non-JSON surfaces.
+- Changes applied:
+  - Added acceptance criteria requiring tenant/governance authorization before EventStore stream resolution, aggregate hydration, projection reads, audit lookups, idempotency result disclosure, or response mapping that could reveal existence.
+  - Clarified audit/domain pairing as a success gate: no externally successful result without durably correlated retention domain evidence and audit evidence, and audit-unavailable outcomes emit no retention mutation event.
+  - Clarified idempotent duplicate behavior, replacement behavior, rejection taxonomy, schema-version handling, rationale/policy-reference safety, deterministic timestamp and metadata handling, aggregate service/clock prohibitions, and projection-derived non-authority.
+  - Added explicit non-enforcement scope for active retention projection state and expanded tests for authorization-before-load, no domain event without audit evidence, duplicate command evidence suppression, replacement projection rebuild, privacy scans, and no deletion/redaction/enforcement/legal-hold/UI side effects.
+  - Updated L08 lesson wording to record that party-mode review is complete and advanced elicitation remains a later separate pass.
+- Findings deferred:
+  - Retention enforcement engine, deletion/redaction workflows, legal-hold precedence, UI management flows, policy catalog authority/lifecycle, localization of rationale content, and provider/audit backend architecture remain deferred to later stories or ADRs.
+- Final recommendation: ready-for-dev
