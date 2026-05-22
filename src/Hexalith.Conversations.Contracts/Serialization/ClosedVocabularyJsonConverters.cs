@@ -9,6 +9,7 @@ using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.Versioning;
 
 namespace Hexalith.Conversations.Contracts.Serialization;
 
@@ -267,4 +268,12 @@ internal sealed class BuyerAcceptanceDemoExecutionStatusJsonConverter :
     protected override BuyerAcceptanceDemoExecutionStatus Create(string value) => BuyerAcceptanceDemoExecutionStatus.Parse(value);
 
     protected override string GetValue(BuyerAcceptanceDemoExecutionStatus value) => value.Value;
+}
+
+internal sealed class ContractCompatibilityStatusJsonConverter :
+    ConversationStringValueJsonConverter<ContractCompatibilityStatus>
+{
+    protected override ContractCompatibilityStatus Create(string value) => ContractCompatibilityStatus.Parse(value);
+
+    protected override string GetValue(ContractCompatibilityStatus value) => value.Value;
 }

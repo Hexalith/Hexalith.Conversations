@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T20:07:15+02:00
+# last_updated: 2026-05-22T20:39:42+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T20:07:15+02:00
+last_updated: 2026-05-22T20:39:42+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -77,8 +77,8 @@ development_status:
   3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: backlog
   3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: backlog
   epic-3-retrospective: optional
-  epic-4: backlog
-  4-1-publish-conversations-contract-package-and-compatibility-metadata: backlog
+  epic-4: in-progress
+  4-1-publish-conversations-contract-package-and-compatibility-metadata: done
   4-2-provide-supported-net-client-happy-path: backlog
   4-3-expose-typed-sanitized-errors-and-remediation-guidance: backlog
   4-4-define-core-preconditions-and-onboarding-diagnostics: backlog

@@ -16,10 +16,37 @@ public sealed record ContractVersionInfo(
     SchemaVersion ActiveSchemaVersion,
     SchemaVersion MinimumSupportedSchemaVersion)
 {
+    private ContractCompatibilityStatus _status = ContractCompatibilityStatus.Supported;
+
+    /// <summary>
+    /// Gets the public contract family name.
+    /// </summary>
+    public string ContractName { get; } = EnsureRequiredText(ContractName, nameof(ContractName));
+
+    /// <summary>
+    /// Gets the active schema version.
+    /// </summary>
+    public SchemaVersion ActiveSchemaVersion { get; } = ActiveSchemaVersion ?? throw new ArgumentNullException(nameof(ActiveSchemaVersion));
+
     /// <summary>
     /// Gets the minimum supported schema version.
     /// </summary>
     public SchemaVersion MinimumSupportedSchemaVersion { get; } = ValidateMinimum(ActiveSchemaVersion, MinimumSupportedSchemaVersion);
+
+    /// <summary>
+    /// Gets the adopter-facing compatibility status for this contract family.
+    /// </summary>
+    public ContractCompatibilityStatus Status
+    {
+        get => _status;
+        init => _status = value ?? throw new ArgumentNullException(nameof(value));
+    }
+
+    private static string EnsureRequiredText(string value, string parameterName)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+        return value;
+    }
 
     private static SchemaVersion ValidateMinimum(SchemaVersion activeSchemaVersion, SchemaVersion minimumSupportedSchemaVersion)
     {

@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
+    <PackageId>Hexalith.Conversations.Contracts</PackageId>
+    <Description>Adopter-safe public contracts, schema versioning, typed errors, and compatibility metadata for Hexalith Conversations.</Description>
+    <PackageTags>hexalith;conversations;contracts;compatibility;dotnet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="$(MSBuildProjectDirectory)\..\..\README.md" />
+    <None Update="README.md" Pack="true" PackagePath="\" />
+  </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Contracts.Tests" />
   </ItemGroup>

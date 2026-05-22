@@ -1,5 +1,37 @@
 # Test Automation Summary
 
+## Story 4.1 Publish Conversations Contract Package and Compatibility Metadata
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Versioning/ContractCompatibilityMetadataTest.cs` - Added compatibility metadata coverage for active v1 command/projection/event/package discovery, closed status vocabulary serialization, supported/deprecated/unsupported/invalid checks, malformed and unsupported package-version inputs, additive JSON tolerance, typed safe failures, and forbidden content fragments.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs` - Added package inventory coverage that packs the contracts project and inspects `.nupkg`/`.nuspec` metadata and entries for adopter-safe contents.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization and forbidden-surface fixtures for compatibility status, package version, remediation, request, metadata, and result contracts.
+
+### Validation
+- [x] Red phase: targeted contract test filter failed before implementation because the new compatibility types did not exist.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Versioning|FullyQualifiedName~ContractMetadata|FullyQualifiedName~ContractsAssemblyBoundary|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization"` - 38 passed.
+- [x] `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - produced `.artifacts/package-validation/Hexalith.Conversations.Contracts.1.0.0.nupkg`.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ContractPackageInventory"` - 2 passed.
+- [x] QA follow-up: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Versioning|FullyQualifiedName~ContractMetadata|FullyQualifiedName~ContractsAssemblyBoundary|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization|FullyQualifiedName~ContractPackageInventory"` - 44 passed.
+- [x] QA follow-up: `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - completed successfully.
+- [x] Senior review auto-fix: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Versioning|FullyQualifiedName~ContractMetadata|FullyQualifiedName~ContractsAssemblyBoundary|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization|FullyQualifiedName~ContractPackageInventory"` - 49 passed.
+- [x] Senior review auto-fix: `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - completed successfully.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed after senior review fixes: Contracts 273, Client 1, Integration 8, Core 139, Server 377.
+
+### Coverage
+- Compatibility metadata now exposes active v1 command, projection, event, contracts package, and .NET client package versions through contract-owned DTOs.
+- Compatibility status is a closed vocabulary with JSON converter coverage for `supported`, `deprecated`, `unsupported`, and `invalid`.
+- Compatibility checks return content-safe typed results for supported, deprecated package, unsupported schema/package, and malformed schema/package inputs.
+- Senior review coverage enforces status/remediation/error invariants, non-null compatibility status, package-specific contracts/client version evaluation, and client package metadata alignment without adding client behavior.
+- Package validation proves the contracts `.nupkg` includes adopter metadata and README guidance while excluding server, infrastructure, UI, test, and generated files.
+- No server compatibility endpoint, client happy-path behavior, onboarding diagnostics, conformance package, release signing, or deprecation policy lifecycle was added.
+
+### Checklist Validation
+- [x] Contract, package inventory, serialization, and boundary tests generated.
+- [x] Tests use xUnit, Shouldly, `System.Text.Json`, NuGet package inspection, and existing contract-sample safety patterns.
+- [x] Tests cover happy path plus deprecated, unsupported, malformed, additive JSON, package inventory, dependency boundary, and content-safety scenarios.
+- [x] Summary includes validation commands and package-validation evidence.
+
 ## Story 3.7 Provide Self-Serve Buyer Acceptance Demo
 
 ### Generated Tests

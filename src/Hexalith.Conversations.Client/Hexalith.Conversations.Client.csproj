@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
+    <PackageId>Hexalith.Conversations.Client</PackageId>
+    <Description>Thin .NET client package boundary for Hexalith Conversations adopter integrations.</Description>
+    <PackageTags>hexalith;conversations;client;contracts;dotnet</PackageTags>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
