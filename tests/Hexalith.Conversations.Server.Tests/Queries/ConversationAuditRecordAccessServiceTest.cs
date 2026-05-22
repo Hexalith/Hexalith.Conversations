@@ -205,7 +205,7 @@ public sealed class ConversationAuditRecordAccessServiceTest
     {
         ConversationAuditRecordAccessService service = new(
             AllowedAccess(),
-            new FakeProjectionReadStore { ThrowOnRead = true });
+            new FakeProjectionReadStore { ReadException = new IOException("projection unavailable") });
 
         ConversationAuditRecordResult result = await service.GetAsync(
             Query("audit-evidence-001", AuditRecordActionClassification.Allowed),
@@ -214,6 +214,24 @@ public sealed class ConversationAuditRecordAccessServiceTest
         result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
         result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Unavailable);
         result.Details.ShouldBeNull();
+    }
+
+    [Fact]
+    public async Task UnexpectedAuditSourceFailureShouldReturnContentSafeUnavailable()
+    {
+        ConversationAuditRecordAccessService service = new(
+            AllowedAccess(),
+            new FakeProjectionReadStore { ReadException = new UnauthorizedAccessException("raw audit backend path") });
+
+        ConversationAuditRecordResult result = await service.GetAsync(
+            Query("audit-evidence-001", AuditRecordActionClassification.Allowed),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Unavailable);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldNotContain("raw", Case.Insensitive);
+        result.SafeNextAction.ShouldNotContain("backend", Case.Insensitive);
     }
 
     [Fact]
@@ -236,6 +254,31 @@ public sealed class ConversationAuditRecordAccessServiceTest
         first.Details.GovernedTarget.ToTargetKey().ShouldBe(second.Details.GovernedTarget.ToTargetKey());
         original.Detail.Messages.Single().Text.ShouldBe("[redacted]");
         rebuilt.Detail.Messages.Single().Text.ShouldBe("[redacted]");
+    }
+
+    [Fact]
+    public async Task RedactionAuditRecordMissingAnchorShouldReturnHiddenDetail()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = Models(
+                Tenant,
+                "redaction-policy-standard",
+                includeRedaction: true,
+                includeRedactionAuditEvidence: false),
+        };
+        ConversationAuditRecordAccessService service = new(AllowedAccess(), store);
+
+        ConversationAuditRecordResult result = await service.GetAsync(
+            Query("audit-evidence-redaction-001", AuditRecordActionClassification.Allowed),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldBe("The requested audit record is not available.");
+        store.DetailReads.ShouldBe(1);
+        store.Models!.Detail.Redactions.Single().AuditEvidence.ShouldBeNull();
+        store.Models.Detail.Messages.Single().Text.ShouldBe("[redacted]");
     }
 
     [Fact]
@@ -291,7 +334,8 @@ public sealed class ConversationAuditRecordAccessServiceTest
         string policyReference,
         ProjectionTrustState? state = null,
         ProjectionFreshnessReasonCode? reason = null,
-        bool includeRedaction = false)
+        bool includeRedaction = false,
+        bool includeRedactionAuditEvidence = true)
     {
         ProjectionFreshnessV1 freshness = Freshness(state, reason);
         ConversationSummaryProjectionV1 summary = new(
@@ -321,10 +365,12 @@ public sealed class ConversationAuditRecordAccessServiceTest
                     "customer-request",
                     Actor,
                     Now.AddMinutes(1),
-                    new GovernanceAuditEvidenceReference(
-                        new AuditEvidenceHandle("audit-evidence-redaction-001"),
-                        policyReference,
-                        Now.AddMinutes(1)),
+                    includeRedactionAuditEvidence
+                        ? new GovernanceAuditEvidenceReference(
+                            new AuditEvidenceHandle("audit-evidence-redaction-001"),
+                            policyReference,
+                            Now.AddMinutes(1))
+                        : null,
                     ProjectionTrustState.Redacted),
             ]
             : [];
@@ -394,7 +440,7 @@ public sealed class ConversationAuditRecordAccessServiceTest
     {
         public ConversationProjectedReadModels? Models { get; set; }
 
-        public bool ThrowOnRead { get; set; }
+        public Exception? ReadException { get; set; }
 
         public int DetailReads { get; private set; }
 
@@ -404,9 +450,9 @@ public sealed class ConversationAuditRecordAccessServiceTest
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
-            if (ThrowOnRead)
+            if (ReadException is not null)
             {
-                throw new IOException("projection unavailable");
+                throw ReadException;
             }
 
             return ValueTask.FromResult(Models);

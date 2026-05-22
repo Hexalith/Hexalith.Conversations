@@ -6,7 +6,9 @@
 using System.Globalization;
 using System.Security.Claims;
 
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -46,6 +48,7 @@ public static class ConversationReadApi
 
         RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations").RequireAuthorization();
         group.MapGet("/{conversationId}", GetConversationAsync);
+        group.MapGet("/{conversationId}/audit-records/{auditEvidenceHandle}", GetAuditRecordAsync);
         group.MapGet("/", ListConversationsAsync);
         return endpoints;
     }
@@ -84,6 +87,45 @@ public static class ConversationReadApi
         }
 
         return DetailToHttpResult(result);
+    }
+
+    private static async Task<IResult> GetAuditRecordAsync(
+        string conversationId,
+        string auditEvidenceHandle,
+        HttpContext context,
+        ConversationQueryHandler handler,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetTenantCaller(context, out TenantId? tenantId, out string? callerPrincipalId, out string correlationId))
+        {
+            return HiddenAuditRecord();
+        }
+
+        ConversationAuditRecordResult result;
+        try
+        {
+            result = await handler.GetAuditRecordAsync(
+                new GetConversationAuditRecordQuery(
+                    SchemaVersion.Current,
+                    tenantId!,
+                    callerPrincipalId!,
+                    correlationId,
+                    new ConversationId(conversationId),
+                    auditEvidenceHandle,
+                    AuditRecordActionClassification.Allowed),
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ArgumentException)
+        {
+            return HiddenAuditRecord();
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return UnavailableAuditRecord();
+        }
+
+        return AuditRecordToHttpResult(result);
     }
 
     private static async Task<IResult> ListConversationsAsync(
@@ -159,11 +201,35 @@ public static class ConversationReadApi
         return Results.Json(result, statusCode: StatusCodes.Status200OK);
     }
 
+    private static IResult AuditRecordToHttpResult(ConversationAuditRecordResult result)
+    {
+        if (result.FreshnessState == ProjectionTrustState.Unavailable
+            || result.FreshnessState == ProjectionTrustState.Rebuilding)
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return result.Details is null
+            ? Results.Json(result, statusCode: StatusCodes.Status404NotFound)
+            : Results.Json(result, statusCode: StatusCodes.Status200OK);
+    }
+
     private static IResult HiddenDetail()
         => Results.Json(ConversationDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
 
     private static IResult UnavailableDetail()
         => Results.Json(ConversationDetailResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
+
+    private static IResult HiddenAuditRecord()
+        => Results.Json(ConversationAuditRecordResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+
+    private static IResult UnavailableAuditRecord()
+        => Results.Json(
+            ConversationAuditRecordResult.Unavailable(
+                SchemaVersion.Current,
+                ProjectionFreshnessReasonCode.Unavailable,
+                "Retry after the audit detail is available."),
+            statusCode: StatusCodes.Status503ServiceUnavailable);
 
     private static IResult HiddenList()
         => Results.Json(ConversationListResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status200OK);

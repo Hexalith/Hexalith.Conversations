@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -46,11 +47,14 @@ public sealed class ConversationReadApiTest
         using WebApplication app = BuildApp(AllowedAccess(), new FakeProjectionReadStore());
 
         RouteEndpoint detail = FindEndpoint(app, "/api/v1/conversations/{conversationId}");
+        RouteEndpoint audit = FindEndpoint(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}");
         RouteEndpoint list = FindEndpoint(app, "/api/v1/conversations/");
 
         detail.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
+        audit.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         list.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         detail.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}");
+        audit.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}");
         list.RoutePattern.RawText.ShouldBe("/api/v1/conversations/");
     }
 
@@ -156,6 +160,154 @@ public sealed class ConversationReadApiTest
         response.Body.ShouldNotContain("EventStore", Case.Insensitive);
         response.Body.ShouldNotContain("providerSessionReference", Case.Insensitive);
         response.Body.ShouldNotContain("transcript", Case.Insensitive);
+        store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task AuditRecordRequestShouldBindTrustedClaimsAndReturnSafeDetails()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithAuditRecord(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["auditEvidenceHandle"] = "audit-evidence-001",
+            },
+            queryString: "?tenantId=tenant-evil&callerPrincipalId=caller-evil&action=Exported",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        response.Body.ShouldContain("\"actionClass\":\"Allowed\"");
+        response.Body.ShouldContain("\"policyBasis\":\"retention-policy-standard\"");
+        response.Body.ShouldContain("\"auditEvidence\"");
+        response.Body.ShouldNotContain("tenant-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("caller-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("storage", Case.Insensitive);
+        response.Body.ShouldNotContain("EventStore", Case.Insensitive);
+        access.Calls.ShouldBe(1);
+        access.LastTrustedTenantId.ShouldBe(Tenant);
+        access.LastCallerPrincipalId.ShouldBe("caller-001");
+        store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task AuditRecordMalformedHandleShouldReturnHiddenShape()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithAuditRecord(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["auditEvidenceHandle"] = "bad handle",
+            },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task AuditRecordMissingTenantClaimShouldReturnHiddenShapeWithoutProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithAuditRecord(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["auditEvidenceHandle"] = "audit-evidence-001",
+            },
+            user: AuthenticatedUserWithoutTenant());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+        response.Body.ShouldNotContain("audit-evidence-001", Case.Insensitive);
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task AuditRecordStoreFailureShouldReturnUnavailableShapeWithoutRawTerms()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            ReadException = new UnauthorizedAccessException("raw audit backend path"),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["auditEvidenceHandle"] = "audit-evidence-001",
+            },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status503ServiceUnavailable);
+        response.Body.ShouldContain("\"freshnessState\":\"Unavailable\"");
+        response.Body.ShouldNotContain("raw", Case.Insensitive);
+        response.Body.ShouldNotContain("backend", Case.Insensitive);
+        response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+        access.Calls.ShouldBe(1);
+        store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task AuditRecordPermissionDowngradeShouldClearProtectedDetail()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithAuditRecord(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+        Dictionary<string, object?> routeValues = new()
+        {
+            ["conversationId"] = Conversation.Value,
+            ["auditEvidenceHandle"] = "audit-evidence-001",
+        };
+
+        ApiResponse visible = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: routeValues,
+            user: AuthenticatedUser());
+        access.SetDecision(ConversationTenantAccessDecision.Denied(
+            ConversationTenantAccessRequirement.Read,
+            Tenant,
+            "caller-001",
+            ConversationTenantAccessDenialReason.MissingMember));
+
+        ApiResponse denied = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}",
+            routeValues: routeValues,
+            user: AuthenticatedUser());
+
+        visible.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        visible.Body.ShouldContain("\"policyBasis\":\"retention-policy-standard\"");
+        denied.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        denied.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        denied.Body.ShouldNotContain("retention-policy-standard", Case.Insensitive);
+        denied.Body.ShouldNotContain("audit-evidence-001", Case.Insensitive);
+        denied.Body.ShouldNotContain("\"auditEvidence\"", Case.Insensitive);
         store.DetailReads.ShouldBe(1);
     }
 
@@ -458,6 +610,33 @@ public sealed class ConversationReadApiTest
                         VisibleText: "Hello from the adopter."),
                 ]));
 
+    private static ConversationProjectedReadModels ProjectedModelsWithAuditRecord(TenantId tenantId, ConversationId conversationId)
+        => new(
+            Summary(tenantId, conversationId, Business, Project, Folder, Participant),
+            new ConversationDetailProjectionV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                Freshness(),
+                "Open",
+                "Case 123",
+                Business,
+                Project,
+                Folder,
+                null,
+                [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+                [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
+                [],
+                ActiveRetentionPolicy: new ConversationRetentionPolicyProjectionV1(
+                    "retention-policy-standard",
+                    "customer-request",
+                    Actor,
+                    Now,
+                    new GovernanceAuditEvidenceReference(
+                        new AuditEvidenceHandle("audit-evidence-001"),
+                        "retention-policy-standard",
+                        Now))));
+
     private static ProjectionFreshnessV1 Freshness()
         => new(
             SchemaVersion.Current,
@@ -474,6 +653,8 @@ public sealed class ConversationReadApiTest
 
     private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
     {
+        private ConversationTenantAccessDecision _decision = decision;
+
         public int Calls { get; private set; }
 
         public string? LastCallerPrincipalId { get; private set; }
@@ -483,6 +664,9 @@ public sealed class ConversationReadApiTest
         public TenantId? LastRouteTenantId { get; private set; }
 
         public TenantId? LastTrustedTenantId { get; private set; }
+
+        public void SetDecision(ConversationTenantAccessDecision decision)
+            => _decision = decision;
 
         public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
             ConversationTenantAccessRequirement requirement,
@@ -500,7 +684,7 @@ public sealed class ConversationReadApiTest
             LastCallerPrincipalId = callerPrincipalId;
             LastRouteTenantId = routeTenantId;
             LastProjectionTenantId = projectionTenantId;
-            return ValueTask.FromResult(decision);
+            return ValueTask.FromResult(_decision);
         }
     }
 
@@ -525,6 +709,8 @@ public sealed class ConversationReadApiTest
 
         public ConversationProjectedReadModels? Models { get; init; }
 
+        public Exception? ReadException { get; init; }
+
         public int DetailReads { get; private set; }
 
         public int ListReads { get; private set; }
@@ -535,6 +721,11 @@ public sealed class ConversationReadApiTest
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
+            if (ReadException is not null)
+            {
+                throw ReadException;
+            }
+
             return ValueTask.FromResult(Models);
         }
 

@@ -382,6 +382,16 @@ public sealed class ConversationProjectionMaterializerTest
         messageEntry.VisibleText.ShouldNotContain("secret", Case.Insensitive);
         messageEntry.TrustState.ShouldBe(ProjectionTrustState.Redacted);
         messageEntry.DegradedState.ShouldBe(ProjectionTrustState.Redacted);
+        messageEntry.RedactionAttribution.ShouldNotBeNull();
+        messageEntry.RedactionAttribution.Category.ShouldBe(RedactionCategory.ContentSuppression);
+        messageEntry.RedactionAttribution.PolicyReference.ShouldBe("redaction-policy-standard");
+        messageEntry.RedactionAttribution.ReasonClass.ShouldBe("customer-request");
+        messageEntry.RedactionAttribution.ActorPartyId.ShouldBe(Actor);
+        messageEntry.RedactionAttribution.TargetKey.ShouldBe("message:message-001");
+        messageEntry.RedactionAttribution.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Ready);
+        messageEntry.AuditEvidence.ShouldNotBeNull();
+        messageEntry.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        messageEntry.SafeAccessibilityLabel.ShouldBe("Redacted message evidence with governed attribution");
         result.Detail.Redactions.Count.ShouldBe(1);
         ConversationRedactionProjectionV1 redaction = result.Detail.Redactions.Single();
         redaction.Target.MessageId.ShouldBe(Message);
@@ -391,7 +401,50 @@ public sealed class ConversationProjectionMaterializerTest
         redaction.AuditEvidence!.Handle.Value.ShouldBe("audit-evidence-001");
         redaction.TrustState.ShouldBe(ProjectionTrustState.Redacted);
         redaction.ToString().ShouldNotContain("secret", Case.Insensitive);
+        ConversationEvidenceEntryV1 redactionEntry = result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Redaction");
+        redactionEntry.RedactionAttribution.ShouldNotBeNull();
+        redactionEntry.RedactionAttribution.AuditEvidence.ShouldBe(redaction.AuditEvidence);
+        redactionEntry.RedactionAttribution.Placeholder.ShouldBe("[redacted]");
+        redactionEntry.RedactionAttribution.SafeAccessibilityLabel.ShouldBe("Redacted evidence with governed attribution");
+        redactionEntry.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Ready);
+        redactionEntry.VisibleText.ShouldNotBeNull();
+        redactionEntry.VisibleText.ShouldNotContain("secret", Case.Insensitive);
         result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Governance events materialize stable audit-ready evidence anchors for later inline detail reads.
+    /// </summary>
+    [Fact]
+    public void GovernanceEventsShouldProjectAuditDetailAnchors()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, RetentionSet("event-retention-set-001", 2)),
+                Event(3, Sensitive(
+                    "event-sensitive-message-001",
+                    3,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        ConversationEvidenceEntryV1 retention = result.Detail.EvidenceEntries.Single(entry => entry.Kind == "RetentionPolicy");
+        ConversationEvidenceEntryV1 sensitivity = result.Detail.EvidenceEntries.Single(entry => entry.Kind == "SensitivityMark");
+
+        retention.GovernedTarget.ShouldNotBeNull();
+        retention.GovernedTarget.ToTargetKey().ShouldBe("conversation");
+        retention.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Ready);
+        retention.AuditEvidence.ShouldNotBeNull();
+        retention.SafeDetailLabel.ShouldBe("Retention policy audit detail");
+        sensitivity.GovernedTarget.ShouldNotBeNull();
+        sensitivity.GovernedTarget.ToTargetKey().ShouldBe("message:message-001");
+        sensitivity.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Ready);
+        sensitivity.RationaleClass.ShouldBe("customer-request");
+        sensitivity.SafeAccessibilityLabel.ShouldBe("Sensitivity mark evidence with governed audit detail");
     }
 
     /// <summary>

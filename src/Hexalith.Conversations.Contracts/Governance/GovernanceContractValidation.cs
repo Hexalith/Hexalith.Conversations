@@ -7,6 +7,8 @@ namespace Hexalith.Conversations.Contracts.Governance;
 
 internal static class GovernanceContractValidation
 {
+    internal const string CanonicalRedactionPlaceholder = "[redacted]";
+
     private const int MaxSafeTextLength = 512;
     private const int MaxSafeTokenLength = 128;
 
@@ -67,6 +69,14 @@ internal static class GovernanceContractValidation
         }
 
         return safe;
+    }
+
+    internal static string RequiredSafeRedactionPlaceholder(string value, string parameterName)
+    {
+        string safe = RequiredSafeText(value, parameterName);
+        return string.Equals(safe, CanonicalRedactionPlaceholder, StringComparison.Ordinal)
+            ? safe
+            : throw new ArgumentException("Redaction placeholders must use the canonical content-safe marker.", parameterName);
     }
 
     internal static string? OptionalSafeToken(string? value, string parameterName)

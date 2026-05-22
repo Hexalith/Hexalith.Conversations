@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T16:52:04+02:00
+# last_updated: 2026-05-22T17:27:35+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T16:52:04+02:00
+last_updated: 2026-05-22T17:27:35+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -68,7 +68,7 @@ development_status:
   epic-3: in-progress
   3-1-find-tenant-scoped-conversations-safely: done
   3-2-read-governed-conversation-evidence: done
-  3-3-inspect-redaction-attribution-and-governance-audit-trail: backlog
+  3-3-inspect-redaction-attribution-and-governance-audit-trail: done
   3-4-copy-citations-and-open-stable-temporal-evidence-links: backlog
   3-5-preserve-read-only-compliance-workflows-and-safe-command-gates: backlog
   3-6-run-governance-verification-and-return-structured-results: backlog

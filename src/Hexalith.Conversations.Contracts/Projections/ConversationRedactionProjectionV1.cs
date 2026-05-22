@@ -60,7 +60,8 @@ public sealed record ConversationRedactionProjectionV1(
     /// <summary>
     /// Gets the safe display placeholder.
     /// </summary>
-    public string Placeholder { get; } = ValidateRequired(Placeholder, nameof(Placeholder));
+    public string Placeholder { get; } =
+        GovernanceContractValidation.RequiredSafeRedactionPlaceholder(Placeholder, nameof(Placeholder));
 
     private static string ValidateRequired(string value, string parameterName)
     {

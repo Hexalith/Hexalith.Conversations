@@ -1,5 +1,37 @@
 # Test Automation Summary
 
+## Story 3.3 Inspect Redaction Attribution and Governance Audit Trail
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ConversationEvidenceContractTest.cs` - Added redaction attribution contract coverage for safe JSON shape, safe labels/accessibility text, audit-handle linkage, missing-audit incomplete state, canonical placeholder enforcement, target-key consistency, visible-text consistency, readiness consistency, and forbidden original-content/provider/storage vocabulary.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization fixture coverage for `ConversationRedactionAttributionV1`.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs` - Added projection coverage proving redacted message evidence carries inline attribution, redaction evidence links to the same audit handle, governance evidence anchors expose safe detail metadata, chronological evidence ordering remains stable, and redacted content stays suppressed.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs` - Added route coverage proving audit-detail reads are under the authorized `/api/v1/conversations` group, bind tenant/caller only from trusted claims, ignore caller-supplied authority/action query data, return safe detail JSON, hide malformed handles without projection reads, hide missing trusted-tenant claims without projection reads, coarsen unexpected audit store failures to safe unavailable responses, and clear protected audit detail after a permission downgrade.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationAuditRecordAccessServiceTest.cs` - Added gap coverage proving redaction audit records with missing audit anchors return hidden detail while preserving redacted placeholders, and unexpected audit source failures return content-safe unavailable results.
+- [x] Existing `ConversationAuditRecordAccessServiceTest` and `ConversationQueryHandlerTest` coverage exercised independent audit authorization, stale/rebuilding/unavailable/cross-tenant/malformed handle states, redaction audit detail, and safe policy treatment.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationEvidence|FullyQualifiedName~Redaction|FullyQualifiedName~AuditRecord|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 32 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationAuditRecordAccessServiceTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` - 94 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~TenantAccess|FullyQualifiedName~Hydration|FullyQualifiedName~Temporal|FullyQualifiedName~ConversationProjectionReadServiceTest|FullyQualifiedName~ConversationQueryRegistrationTest"` - 152 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 665 passed.
+
+### Coverage
+- Governed evidence entries now carry server-owned safe audit target/link metadata and optional inline redaction attribution without original content, raw snippets, provider payloads, upstream Party details, EventStore topology, storage locations, or audit sink details.
+- Redacted message entries and redaction evidence entries link to the same safe audit evidence reference when present; missing audit metadata remains explicit through incomplete readiness instead of becoming ready/current by default.
+- Redaction placeholders are canonical `[redacted]` markers, redaction attribution target keys must match governed targets, and redacted evidence visible text plus audit readiness must stay consistent with attached attribution.
+- Missing redaction audit anchors, missing trusted tenant claims, audit store failures, and permission-downgraded inline audit detail refreshes fail closed without retaining protected policy basis, audit evidence handles, raw failure terms, or detail payloads.
+- Retention, sensitivity, and redaction evidence records expose stable target, actor, timestamp, policy basis, rationale class, trust state, audit readiness, safe labels, and next-action metadata for a future trust component without adding an Admin shell.
+- Audit detail reads are exposed through the existing authorized read API/query boundary and continue to rely on tenant authorization, current projection freshness, malformed-handle hiding, policy-blocked shapes, and content-safe unavailable/rebuilding results.
+- UI E2E tests are not applicable for Story 3.3 because this repository still has no Admin/FrontComposer project for this slice; the implemented scope is contracts, server projection/query behavior, API route, and safety tests.
+
+### Checklist Validation
+- [x] API and backend E2E-style read-path tests generated for the implemented redaction/audit inspection feature.
+- [x] UI E2E tests assessed as not applicable because Story 3.3 is implemented as backend contracts/server/API read behavior in this repository.
+- [x] Tests use standard xUnit, Shouldly, ASP.NET endpoint invocation, and existing fake-store patterns.
+- [x] Tests cover happy path plus unauthorized audit, redacted evidence, missing audit anchor, stale projection, malformed handle, permission downgrade, accessibility-label contract, and safe hidden/unavailable states.
+- [x] Tests are independent, use no sleeps or hardcoded waits, and the summary includes coverage metrics.
+
 ## Story 3.2 Governed Conversation Evidence Read
 
 ### Generated Tests

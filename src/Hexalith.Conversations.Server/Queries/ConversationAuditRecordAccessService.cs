@@ -70,21 +70,7 @@ public sealed class ConversationAuditRecordAccessService(
                 .ReadAsync(query.TenantId, query.ConversationId, cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (InvalidOperationException)
-        {
-            return ConversationAuditRecordResult.Unavailable(
-                query.SchemaVersion,
-                ProjectionFreshnessReasonCode.Unavailable,
-                "Retry after the audit-record view is available.");
-        }
-        catch (IOException)
-        {
-            return ConversationAuditRecordResult.Unavailable(
-                query.SchemaVersion,
-                ProjectionFreshnessReasonCode.Unavailable,
-                "Retry after the audit-record view is available.");
-        }
-        catch (TimeoutException)
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
             return ConversationAuditRecordResult.Unavailable(
                 query.SchemaVersion,

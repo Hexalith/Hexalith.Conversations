@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.TrustStates;
 
@@ -24,7 +25,15 @@ public sealed record ConversationEvidenceEntryV1(
     FileId? FileId = null,
     string? VisibleText = null,
     ConversationProviderCorrelationV1? ProviderCorrelation = null,
-    string? PolicyReference = null)
+    string? PolicyReference = null,
+    GovernanceTarget? GovernedTarget = null,
+    string? RationaleClass = null,
+    GovernanceAuditEvidenceReference? AuditEvidence = null,
+    string? SafeSummaryLabel = null,
+    string? SafeDetailLabel = null,
+    string? SafeAccessibilityLabel = null,
+    string? SafeNextAction = null,
+    ConversationRedactionAttributionV1? RedactionAttribution = null)
 {
     public string EntryId { get; } = RequireSafeText(EntryId, nameof(EntryId));
 
@@ -42,9 +51,87 @@ public sealed record ConversationEvidenceEntryV1(
 
     public ProjectionTrustState DegradedState { get; } = DegradedState ?? throw new ArgumentNullException(nameof(DegradedState));
 
-    public string? VisibleText { get; } = string.IsNullOrWhiteSpace(VisibleText) ? null : VisibleText;
+    public string? VisibleText { get; } = ValidateVisibleText(VisibleText, TrustState, RedactionAttribution);
 
-    public string? PolicyReference { get; } = string.IsNullOrWhiteSpace(PolicyReference) ? null : PolicyReference;
+    public string? PolicyReference { get; } =
+        string.IsNullOrWhiteSpace(PolicyReference)
+            ? null
+            : GovernanceContractValidation.RequiredSafeToken(PolicyReference, nameof(PolicyReference));
+
+    public string? RationaleClass { get; } =
+        string.IsNullOrWhiteSpace(RationaleClass)
+            ? null
+            : GovernanceContractValidation.RequiredSafeText(RationaleClass, nameof(RationaleClass));
+
+    public string? SafeSummaryLabel { get; } =
+        string.IsNullOrWhiteSpace(SafeSummaryLabel)
+            ? null
+            : GovernanceContractValidation.RequiredSafeText(SafeSummaryLabel, nameof(SafeSummaryLabel));
+
+    public string? SafeDetailLabel { get; } =
+        string.IsNullOrWhiteSpace(SafeDetailLabel)
+            ? null
+            : GovernanceContractValidation.RequiredSafeText(SafeDetailLabel, nameof(SafeDetailLabel));
+
+    public string? SafeAccessibilityLabel { get; } =
+        string.IsNullOrWhiteSpace(SafeAccessibilityLabel)
+            ? null
+            : GovernanceContractValidation.RequiredSafeText(SafeAccessibilityLabel, nameof(SafeAccessibilityLabel));
+
+    public string? SafeNextAction { get; } =
+        string.IsNullOrWhiteSpace(SafeNextAction)
+            ? null
+            : GovernanceContractValidation.RequiredSafeText(SafeNextAction, nameof(SafeNextAction));
+
+    public ConversationRedactionAttributionV1? RedactionAttribution { get; } =
+        ValidateRedactionAttribution(RedactionAttribution, AuditReadiness);
+
+    private static ConversationRedactionAttributionV1? ValidateRedactionAttribution(
+        ConversationRedactionAttributionV1? attribution,
+        ConversationAuditReadinessState auditReadiness)
+    {
+        if (attribution is null)
+        {
+            return null;
+        }
+
+        if (auditReadiness != attribution.AuditReadiness)
+        {
+            throw new ArgumentException(
+                "Evidence audit readiness must match redaction attribution audit readiness.",
+                nameof(auditReadiness));
+        }
+
+        return attribution;
+    }
+
+    private static string? ValidateVisibleText(
+        string? value,
+        ProjectionTrustState trustState,
+        ConversationRedactionAttributionV1? attribution)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        if (attribution is not null && !string.Equals(value, attribution.Placeholder, StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "Redacted evidence visible text must match the safe redaction placeholder.",
+                nameof(value));
+        }
+
+        if (trustState == ProjectionTrustState.Redacted
+            && !string.Equals(value, GovernanceContractValidation.CanonicalRedactionPlaceholder, StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "Redacted evidence visible text must use the canonical redaction placeholder.",
+                nameof(value));
+        }
+
+        return value;
+    }
 
     private static string RequireSafeText(string value, string parameterName)
     {

@@ -320,6 +320,8 @@ public sealed class ConversationProjectionMaterializer
                 currentOrUnavailable));
         }
 
+        Dictionary<string, ConversationRedactionProjectionV1> redactionsByTarget = builder.Redactions
+            .ToDictionary(redaction => redaction.Target.ToTargetKey(), StringComparer.Ordinal);
         HashSet<MessageId> redactedMessageIds = builder.Redactions
             .Where(redaction => redaction.Target.MessageId is not null)
             .Select(redaction => redaction.Target.MessageId!)
@@ -327,8 +329,14 @@ public sealed class ConversationProjectionMaterializer
 
         foreach (ConversationTimelineMessageProjectionV1 message in builder.Messages)
         {
+            GovernanceTarget messageTarget = new(GovernedTargetKind.Message, MessageId: message.MessageId);
+            string messageTargetKey = messageTarget.ToTargetKey();
             bool redacted = redactedMessageIds.Contains(message.MessageId);
+            redactionsByTarget.TryGetValue(messageTargetKey, out ConversationRedactionProjectionV1? redaction);
             ProjectionTrustState state = redacted ? ProjectionTrustState.Redacted : currentOrUnavailable;
+            ConversationAuditReadinessState messageAuditReadiness = redacted
+                ? RedactionAuditReadiness(redaction, freshness)
+                : auditReadiness;
             entries.Add(new ConversationEvidenceEntryV1(
                 $"message:{message.MessageId.Value}",
                 "Message",
@@ -336,11 +344,23 @@ public sealed class ConversationProjectionMaterializer
                 message.CreatedAt,
                 state,
                 citationAvailability,
-                auditReadiness,
+                messageAuditReadiness,
                 state,
                 MessageId: message.MessageId,
                 VisibleText: message.Text,
-                ProviderCorrelation: ConversationProviderCorrelationV1.From(message.ProviderCorrelation)));
+                ProviderCorrelation: ConversationProviderCorrelationV1.From(message.ProviderCorrelation),
+                GovernedTarget: messageTarget,
+                RationaleClass: redaction?.ReasonClass,
+                AuditEvidence: redaction?.AuditEvidence,
+                SafeSummaryLabel: redacted ? "Redacted message evidence" : "Message evidence",
+                SafeDetailLabel: redacted ? "Redaction audit detail" : null,
+                SafeAccessibilityLabel: redacted
+                    ? "Redacted message evidence with governed attribution"
+                    : "Message evidence",
+                SafeNextAction: redacted
+                    ? SafeAuditNextAction(messageAuditReadiness)
+                    : null,
+                RedactionAttribution: redaction is null ? null : CreateRedactionAttribution(redaction, freshness)));
         }
 
         foreach (ConversationFileReferenceProjectionV1 file in builder.FileReferences)
@@ -367,13 +387,21 @@ public sealed class ConversationProjectionMaterializer
                 retention.AppliedAt,
                 currentOrUnavailable,
                 citationAvailability,
-                ConversationAuditReadinessState.Ready,
+                AuditReadinessFor(retention.AuditEvidence, freshness),
                 currentOrUnavailable,
-                PolicyReference: retention.PolicyReference));
+                PolicyReference: retention.PolicyReference,
+                GovernedTarget: new GovernanceTarget(GovernedTargetKind.Conversation),
+                RationaleClass: retention.Rationale,
+                AuditEvidence: retention.AuditEvidence,
+                SafeSummaryLabel: "Retention policy evidence",
+                SafeDetailLabel: "Retention policy audit detail",
+                SafeAccessibilityLabel: "Retention policy evidence with governed audit detail",
+                SafeNextAction: SafeAuditNextAction(AuditReadinessFor(retention.AuditEvidence, freshness))));
         }
 
         foreach (ConversationSensitivityMarkProjectionV1 sensitivity in builder.SensitivityMarks)
         {
+            ConversationAuditReadinessState sensitivityReadiness = AuditReadinessFor(sensitivity.AuditEvidence, freshness);
             entries.Add(new ConversationEvidenceEntryV1(
                 $"sensitivity:{sensitivity.Target.ToTargetKey()}",
                 "SensitivityMark",
@@ -381,14 +409,22 @@ public sealed class ConversationProjectionMaterializer
                 sensitivity.MarkedAt,
                 sensitivity.TrustState,
                 citationAvailability,
-                ConversationAuditReadinessState.Ready,
+                sensitivityReadiness,
                 sensitivity.TrustState,
                 MessageId: sensitivity.Target.MessageId,
-                PolicyReference: sensitivity.PolicyReference));
+                PolicyReference: sensitivity.PolicyReference,
+                GovernedTarget: sensitivity.Target,
+                RationaleClass: sensitivity.Rationale,
+                AuditEvidence: sensitivity.AuditEvidence,
+                SafeSummaryLabel: "Sensitivity mark evidence",
+                SafeDetailLabel: "Sensitivity mark audit detail",
+                SafeAccessibilityLabel: "Sensitivity mark evidence with governed audit detail",
+                SafeNextAction: SafeAuditNextAction(sensitivityReadiness)));
         }
 
         foreach (ConversationRedactionProjectionV1 redaction in builder.Redactions)
         {
+            ConversationAuditReadinessState redactionReadiness = RedactionAuditReadiness(redaction, freshness);
             entries.Add(new ConversationEvidenceEntryV1(
                 $"redaction:{redaction.Target.ToTargetKey()}",
                 "Redaction",
@@ -396,17 +432,88 @@ public sealed class ConversationProjectionMaterializer
                 redaction.RedactedAt,
                 redaction.TrustState,
                 citationAvailability,
-                redaction.AuditEvidence is null ? ConversationAuditReadinessState.Incomplete : ConversationAuditReadinessState.Ready,
+                redactionReadiness,
                 redaction.TrustState,
                 MessageId: redaction.Target.MessageId,
                 VisibleText: redaction.Placeholder,
-                PolicyReference: redaction.PolicyReference));
+                PolicyReference: redaction.PolicyReference,
+                GovernedTarget: redaction.Target,
+                RationaleClass: redaction.ReasonClass,
+                AuditEvidence: redaction.AuditEvidence,
+                SafeSummaryLabel: "Redaction evidence",
+                SafeDetailLabel: "Redaction audit detail",
+                SafeAccessibilityLabel: "Redaction evidence with governed attribution",
+                SafeNextAction: SafeAuditNextAction(redactionReadiness),
+                RedactionAttribution: CreateRedactionAttribution(redaction, freshness)));
         }
 
         return entries
             .OrderBy(entry => entry.OccurredAt)
             .ThenBy(entry => entry.EntryId, StringComparer.Ordinal)
             .ToArray();
+    }
+
+    private static ConversationRedactionAttributionV1 CreateRedactionAttribution(
+        ConversationRedactionProjectionV1 redaction,
+        ProjectionFreshnessV1 freshness)
+    {
+        ConversationAuditReadinessState auditReadiness = RedactionAuditReadiness(redaction, freshness);
+        return new(
+            redaction.Category,
+            redaction.PolicyReference,
+            redaction.ReasonClass,
+            redaction.ActorPartyId,
+            redaction.RedactedAt,
+            redaction.Target,
+            redaction.Target.ToTargetKey(),
+            redaction.AuditEvidence,
+            auditReadiness,
+            redaction.TrustState,
+            redaction.Placeholder,
+            "Redaction attribution",
+            "Redacted evidence with governed attribution",
+            SafeAuditNextAction(auditReadiness));
+    }
+
+    private static ConversationAuditReadinessState AuditReadinessFor(
+        GovernanceAuditEvidenceReference? auditEvidence,
+        ProjectionFreshnessV1 freshness)
+    {
+        if (!freshness.AllowsTrustBearingDecision())
+        {
+            return ConversationAuditReadinessState.Unknown;
+        }
+
+        return auditEvidence is null
+            ? ConversationAuditReadinessState.Incomplete
+            : ConversationAuditReadinessState.Ready;
+    }
+
+    private static ConversationAuditReadinessState RedactionAuditReadiness(
+        ConversationRedactionProjectionV1? redaction,
+        ProjectionFreshnessV1 freshness)
+        => redaction is null
+            ? ConversationAuditReadinessState.Unavailable
+            : AuditReadinessFor(redaction.AuditEvidence, freshness);
+
+    private static string SafeAuditNextAction(ConversationAuditReadinessState readiness)
+    {
+        if (readiness == ConversationAuditReadinessState.Ready)
+        {
+            return "Open governed audit detail when authorized.";
+        }
+
+        if (readiness == ConversationAuditReadinessState.Incomplete)
+        {
+            return "Show incomplete audit detail state.";
+        }
+
+        if (readiness == ConversationAuditReadinessState.Unavailable)
+        {
+            return "Show unavailable audit detail state.";
+        }
+
+        return "Wait for current governed evidence before opening detail.";
     }
 
     private sealed class ProjectionBuilder(TenantId tenantId, ConversationId conversationId)
