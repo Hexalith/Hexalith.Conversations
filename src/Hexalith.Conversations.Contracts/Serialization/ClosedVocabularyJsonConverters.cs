@@ -152,6 +152,51 @@ internal sealed class GovernanceStateConceptJsonConverter : ConversationStringVa
     protected override string GetValue(GovernanceStateConcept value) => value.Value;
 }
 
+internal sealed class ConversationGovernanceVerificationScopeKindJsonConverter :
+    ConversationStringValueJsonConverter<ConversationGovernanceVerificationScopeKind>
+{
+    protected override ConversationGovernanceVerificationScopeKind Create(string value)
+        => ConversationGovernanceVerificationScopeKind.Parse(value);
+
+    protected override string GetValue(ConversationGovernanceVerificationScopeKind value) => value.Value;
+}
+
+internal sealed class ConversationGovernanceVerificationSuiteJsonConverter :
+    ConversationStringValueJsonConverter<ConversationGovernanceVerificationSuite>
+{
+    protected override ConversationGovernanceVerificationSuite Create(string value)
+        => ConversationGovernanceVerificationSuite.Parse(value);
+
+    protected override string GetValue(ConversationGovernanceVerificationSuite value) => value.Value;
+}
+
+internal sealed class ConversationGovernanceVerificationExecutionStatusJsonConverter :
+    ConversationStringValueJsonConverter<ConversationGovernanceVerificationExecutionStatus>
+{
+    protected override ConversationGovernanceVerificationExecutionStatus Create(string value)
+        => ConversationGovernanceVerificationExecutionStatus.Parse(value);
+
+    protected override string GetValue(ConversationGovernanceVerificationExecutionStatus value) => value.Value;
+}
+
+internal sealed class ConversationGovernanceVerificationFailureClassificationJsonConverter :
+    ConversationStringValueJsonConverter<ConversationGovernanceVerificationFailureClassification>
+{
+    protected override ConversationGovernanceVerificationFailureClassification Create(string value)
+        => ConversationGovernanceVerificationFailureClassification.Parse(value);
+
+    protected override string GetValue(ConversationGovernanceVerificationFailureClassification value) => value.Value;
+}
+
+internal sealed class ConversationGovernanceVerificationRemediationJsonConverter :
+    ConversationStringValueJsonConverter<ConversationGovernanceVerificationRemediation>
+{
+    protected override ConversationGovernanceVerificationRemediation Create(string value)
+        => ConversationGovernanceVerificationRemediation.Parse(value);
+
+    protected override string GetValue(ConversationGovernanceVerificationRemediation value) => value.Value;
+}
+
 internal sealed class AuditRecordActionClassificationJsonConverter : ConversationStringValueJsonConverter<AuditRecordActionClassification>
 {
     protected override AuditRecordActionClassification Create(string value) => AuditRecordActionClassification.Parse(value);

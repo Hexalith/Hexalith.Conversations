@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 3.6 Run Governance Verification and Return Structured Results
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/GovernanceVerificationContractTest.cs` - Added contract coverage for stable verification JSON shape, closed verification scope/suite/status/classification/remediation vocabularies, safe diagnostic text rejection, required v1 suite/classification vocabulary, duplicate suite rejection, and inverted time-window rejection.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization fixtures for verification vocabularies, scope, request, check result, run result, and evidence handle records.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationGovernanceVerificationServiceTest.cs` - Added service coverage for passing verification, missing audit pair, redaction replay failure, projection rebuild disagreement, unsupported schema, stale projection, missing/non-verify privileged justification, tenant-wide deferred scope, local read-only audit-not-recorded reason, dependency unavailable, retained-coverage data unavailable, rebuilding temporal evidence, thrown event-source failure, unauthorized scope, cross-tenant poison, provider correlation authority misuse, DI registration, and mutation-boundary separation.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~GovernanceVerification|FullyQualifiedName~ContractSerialization"` - 17 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationGovernanceVerification"` - 18 passed after senior review auto-fixes.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~GovernanceVerification|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~ConversationQuery|FullyQualifiedName~ContractValidation|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 66 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~ConversationReplayVerifier|FullyQualifiedName~ConversationAggregateRedaction|FullyQualifiedName~ConversationAggregateRetentionPolicy|FullyQualifiedName~ConversationAggregateSensitivity"` - 51 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~GovernanceVerification|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest|FullyQualifiedName~ConversationProjectionRebuildVerifierTest|FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` - 125 passed after senior review auto-fixes.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationTenantAccess|FullyQualifiedName~ConversationPrivilegedOperationalJustificationService|FullyQualifiedName~SetConversationRetentionPolicyCommandHandlerTest|FullyQualifiedName~MarkConversationContentSensitiveCommandHandlerTest|FullyQualifiedName~RedactMessageContentCommandHandlerTest"` - 133 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 746 passed after senior review auto-fixes.
+
+### Coverage
+- Verification contracts now expose tenant-safe request scope, suite selection, per-check results, run results, execution status, failure classification, evidence handles, and safe remediation without open polymorphism or raw infrastructure disclosure.
+- Server verification runs through trusted tenant/caller authority, requires existing verify justification before touching tenant conversation data, blocks on non-current projection freshness, reuses replay and projection rebuild proof paths, and keeps verification output as derived evidence only.
+- Check adapters distinguish governance failures from dependency, stale projection, data unavailable, unsupported version, unauthorized/hidden, and execution-style failures across audit pairing, tenant isolation, redaction replay, projection rebuild, provider portability, schema compatibility, missing/incorrect privileged verification justification, deferred tenant scope, and local read-only proof paths.
+- No HTTP execution surface, worker, durable verification store, event append path, UI shell, evidence bundle export, or Story 3.7/3.8 scope was added.
+
+### Checklist Validation
+- [x] Contract, service, and safety tests generated for the implemented verification workflow.
+- [x] API/CLI boundary assessed as service-only for this story because the repository has no approved CLI/worker/Admin shell and adding an HTTP execution endpoint was optional.
+- [x] Tests use standard xUnit, Shouldly, DI resolution, reflection safety-net checks, and existing fake-store patterns.
+- [x] Tests cover happy path plus invariant failure, infrastructure/dependency failure, stale projection, retained-coverage data unavailable, missing audit pair, missing/non-verify verify justification, local read-only audit state, tenant-wide deferred scope, redaction replay failure, projection rebuild disagreement, unsupported schema, provider portability failure, cross-tenant poison, unauthorized scope, and release-gate suitability.
+- [x] Tests are independent, use no sleeps or hardcoded waits, and the summary includes validation commands and coverage metrics.
+
 ## Story 3.5 Preserve Read-Only Compliance Workflows and Safe Command Gates
 
 ### Generated Tests
