@@ -130,6 +130,8 @@ internal static class ContractSamples
 
     internal static readonly GovernanceTarget SensitivityMessageTarget = new(GovernedTargetKind.Message, MessageId: Message);
 
+    internal static readonly GovernanceTarget RedactionMessageTarget = new(GovernedTargetKind.Message, MessageId: Message);
+
     internal static readonly GovernanceAuditEvidenceReference AuditEvidence = new(
         new AuditEvidenceHandle("audit-evidence-001"),
         "retention-policy-standard",
@@ -154,6 +156,15 @@ internal static class ContractSamples
         SensitivityMessageTarget,
         SensitivityCategory.Restricted,
         "sensitivity-policy-standard",
+        "customer-request",
+        GovernanceTimestamp);
+
+    internal static readonly RedactMessageContentCommand RedactionCommand = new(
+        CommandMetadata,
+        Conversation,
+        RedactionMessageTarget,
+        RedactionCategory.ContentSuppression,
+        "redaction-policy-standard",
         "customer-request",
         GovernanceTimestamp);
 
@@ -190,6 +201,17 @@ internal static class ContractSamples
         Actor,
         "causation-001");
 
+    internal static readonly ConversationEventMetadata RedactionEventMetadata = new(
+        Version,
+        "event-redacted-001",
+        ConversationEventType.MessageContentRedacted,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        GovernanceTimestamp,
+        Actor,
+        "causation-001");
+
     internal static IReadOnlyList<object> AllContracts =>
     [
         Version,
@@ -198,9 +220,11 @@ internal static class ContractSamples
         ConversationCommandType.CreateConversationCommand,
         ConversationCommandType.SetConversationRetentionPolicyCommand,
         ConversationCommandType.MarkConversationContentSensitiveCommand,
+        ConversationCommandType.RedactMessageContentCommand,
         ConversationEventType.ConversationCreated,
         ConversationEventType.RetentionPolicySet,
         ConversationEventType.ConversationContentMarkedSensitive,
+        ConversationEventType.MessageContentRedacted,
         ConversationLifecycleStatus.Open,
         ParticipantType.Human,
         ParticipantRole.Member,
@@ -237,6 +261,7 @@ internal static class ContractSamples
         GovernanceEvidence(GovernanceOperationKind.SetRetentionPolicy, GovernanceOutcome.Succeeded),
         RetentionCommand,
         SensitivityCommand,
+        RedactionCommand,
         new ConversationRetentionPolicyResult(
             Version,
             Tenant,
@@ -309,6 +334,46 @@ internal static class ContractSamples
             "correlation-004",
             Error: SafeError(ConversationErrorCode.CommandValidationFailed),
             Remediation: GovernanceRemediation.WaitForLegalHoldRelease),
+        new ConversationRedactionResult(
+            Version,
+            Tenant,
+            Conversation,
+            RedactionMessageTarget,
+            RedactionCategory.ContentSuppression,
+            GovernanceOutcome.Succeeded,
+            "correlation-001",
+            AuditEvidence,
+            Remediation: GovernanceRemediation.None),
+        new ConversationRedactionResult(
+            Version,
+            Tenant,
+            Conversation,
+            RedactionMessageTarget,
+            null,
+            GovernanceOutcome.Denied,
+            "correlation-002",
+            Error: SafeError(ConversationErrorCode.TenantIsolationViolation),
+            Remediation: GovernanceRemediation.RequestAuthorization),
+        new ConversationRedactionResult(
+            Version,
+            Tenant,
+            Conversation,
+            RedactionMessageTarget,
+            null,
+            GovernanceOutcome.AuditUnavailableFailed,
+            "correlation-003",
+            Error: SafeError(ConversationErrorCode.AuditSinkUnavailable),
+            Remediation: GovernanceRemediation.RetryWhenAuditAvailable),
+        new ConversationRedactionResult(
+            Version,
+            Tenant,
+            Conversation,
+            RedactionMessageTarget,
+            null,
+            GovernanceOutcome.PolicyBlocked,
+            "correlation-004",
+            Error: SafeError(ConversationErrorCode.CommandValidationFailed),
+            Remediation: GovernanceRemediation.WaitForLegalHoldRelease),
         new ConversationRetentionPolicyProjectionV1(
             "retention-policy-standard",
             "customer-request",
@@ -360,6 +425,13 @@ internal static class ContractSamples
             SensitivityMessageTarget,
             SensitivityCategory.Restricted,
             "sensitivity-policy-standard",
+            "customer-request",
+            AuditEvidence),
+        new MessageContentRedacted(
+            RedactionEventMetadata,
+            RedactionMessageTarget,
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
             "customer-request",
             AuditEvidence),
         ProjectionTrustState.Current,

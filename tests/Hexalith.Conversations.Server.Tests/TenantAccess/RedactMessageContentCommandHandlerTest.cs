@@ -1,4 +1,4 @@
-// <copyright file="MarkConversationContentSensitiveCommandHandlerTest.cs" company="ITANEO">
+// <copyright file="RedactMessageContentCommandHandlerTest.cs" company="ITANEO">
 // Copyright (c) ITANEO. All rights reserved.
 // Licensed under the MIT License.
 // </copyright>
@@ -21,9 +21,9 @@ using Hexalith.EventStore.Contracts.Results;
 namespace Hexalith.Conversations.Server.Tests.TenantAccess;
 
 /// <summary>
-/// Verifies sensitivity-mark command authorization and audit gates.
+/// Verifies redaction command authorization and audit gates.
 /// </summary>
-public sealed class MarkConversationContentSensitiveCommandHandlerTest
+public sealed class RedactMessageContentCommandHandlerTest
 {
     private static readonly TenantId Tenant = new("tenant-a");
     private static readonly TenantId OtherTenant = new("tenant-b");
@@ -45,7 +45,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             Tenant,
             "user-1",
             ConversationTenantAccessDenialReason.InsufficientRole));
-        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        RedactMessageContentCommandHandler handler = new(access, audit);
         int loadCount = 0;
 
         DomainResult result = await handler.HandleAsync(
@@ -56,7 +56,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
                 loadCount++;
                 return ValueTask.FromResult<ConversationState?>(CreatedState());
             },
-            "event-sensitive-a",
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -68,7 +68,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
     }
 
     /// <summary>
-    /// Audit unavailability fails closed and emits no sensitivity mutation event.
+    /// Audit unavailability fails closed and emits no redaction mutation event.
     /// </summary>
     [Fact]
     public async Task HandleAsyncShouldFailClosedWhenAuditUnavailable()
@@ -78,23 +78,23 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        RedactMessageContentCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-sensitive-a",
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.AuditSinkUnavailable);
-        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
+        result.Events.Any(e => e is MessageContentRedactedDomainEvent).ShouldBeFalse();
     }
 
     /// <summary>
-    /// Non-success audit precondition outcomes fail closed without sensitivity mutation events.
+    /// Non-success audit precondition outcomes fail closed without redaction mutation events.
     /// </summary>
     /// <param name="status">The audit status.</param>
     /// <param name="expectedCodeValue">The expected public rejection code value.</param>
@@ -102,7 +102,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
     [Theory]
     [InlineData(ConversationGovernanceAuditStatus.UnsafeEvidence, "audit_pairing_required", "audit_evidence_unsafe")]
     [InlineData(ConversationGovernanceAuditStatus.Uncertain, "idempotency_outcome_unknown", "audit_pairing_uncertain")]
-    [InlineData(ConversationGovernanceAuditStatus.PolicyBlocked, "command_validation_failed", "sensitivity_policy_blocked")]
+    [InlineData(ConversationGovernanceAuditStatus.PolicyBlocked, "command_validation_failed", "redaction_policy_blocked")]
     public async Task HandleAsyncShouldFailClosedForNonSuccessAuditStatuses(
         ConversationGovernanceAuditStatus status,
         string expectedCodeValue,
@@ -113,46 +113,162 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        RedactMessageContentCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-sensitive-a",
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.Parse(expectedCodeValue));
         rejection.ReasonCode.ShouldBe(expectedReason);
-        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
+        result.Events.Any(e => e is MessageContentRedactedDomainEvent).ShouldBeFalse();
         audit.CallCount.ShouldBe(1);
     }
 
     /// <summary>
-    /// A successful audited command emits a sensitivity event after state tenant binding is checked.
+    /// Target validation happens before audit evidence is created, avoiding external side effects for invalid targets.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldEmitSensitivityEventWhenGovernanceAuditAndStatePass()
+    public async Task HandleAsyncShouldRejectInvalidTargetBeforeAudit()
     {
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
         SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        RedactMessageContentCommandHandler handler = new(access, audit);
+        GovernanceTarget missingMessage = new(GovernedTargetKind.Message, MessageId: new MessageId("message-missing"));
+
+        DomainResult result = await handler.HandleAsync(
+            Command(target: missingMessage),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-redacted-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("redaction_target_invalid");
+        audit.CallCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Compatible already-redacted targets return no-op before duplicate audit evidence can be created.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldReturnNoOpForCompatibleDuplicateBeforeAudit()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(access, audit);
+        ConversationState state = CreatedState();
+        state.Apply(RedactedEvent());
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(state),
+            "event-redacted-duplicate",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        result.IsNoOp.ShouldBeTrue();
+        result.Events.ShouldBeEmpty();
+        audit.CallCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Audit evidence must be paired to the command policy and timestamp before mutation dispatch.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectMismatchedAuditEvidenceWithoutMutation()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(new GovernanceAuditEvidenceReference(
+            new AuditEvidenceHandle("audit-evidence-wrong"),
+            "redaction-policy-other",
+            AppliedAt.AddMinutes(1))));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-sensitive-a",
+            "event-redacted-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditPairingRequired);
+        rejection.ReasonCode.ShouldBe("audit_pairing_mismatch");
+        result.Events.Any(e => e is MessageContentRedactedDomainEvent).ShouldBeFalse();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// A successful audited command emits a redaction event after state tenant binding is checked.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldEmitRedactionEventWhenGovernanceAuditAndStatePass()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
-        result.Events.Single().ShouldBeOfType<ConversationContentMarkedSensitiveDomainEvent>();
+        result.Events.Single().ShouldBeOfType<MessageContentRedactedDomainEvent>();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// A prior sensitivity mark on the target does not bypass the redaction audit gate or block the mutation.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRedactAlreadySensitiveTargetAfterAudit()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(access, audit);
+        ConversationState state = CreatedState();
+        state.Apply(SensitiveEvent());
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(state),
+            "event-redacted-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Events.Single().ShouldBeOfType<MessageContentRedactedDomainEvent>();
+        state.SensitivityMarks.Single().Target.MessageId.ShouldBe(Message);
         audit.CallCount.ShouldBe(1);
     }
 
@@ -167,13 +283,13 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        RedactMessageContentCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState(OtherTenant)),
-            "event-sensitive-a",
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -194,7 +310,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(
+        RedactMessageContentCommandHandler handler = new(
             access,
             audit,
             new IdempotentConversationCommandExecutor(idempotencyStore));
@@ -208,7 +324,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
                 loadCount++;
                 return ValueTask.FromResult<ConversationState?>(CreatedState());
             },
-            "event-sensitive-a",
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -221,125 +337,185 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
     }
 
     /// <summary>
-    /// Compatible duplicate sensitivity commands replay the original sanitized outcome.
+    /// Unsupported schema versions are rejected before tenant access, state load, idempotency, or audit disclosure.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldReplayDuplicateSensitivityOutcomeWithoutDuplicateAuditOrMutation()
+    public async Task HandleAsyncShouldRejectUnsupportedSchemaBeforeTenantAccessAndDisclosure()
     {
-        InMemoryConversationIdempotencyStore idempotencyStore = new();
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
         SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(
+        SpyIdempotencyStore idempotencyStore = new(ConversationIdempotencyDecision.Reserved());
+        RedactMessageContentCommandHandler handler = new(
             access,
             audit,
-            new IdempotentConversationCommandExecutor(
-                idempotencyStore,
-                timeProvider: new FixedTimeProvider(AppliedAt.AddMinutes(1))));
+            new IdempotentConversationCommandExecutor(idempotencyStore));
         int loadCount = 0;
 
-        ValueTask<ConversationState?> LoadStateAsync(CancellationToken _)
-        {
-            loadCount++;
-            return ValueTask.FromResult<ConversationState?>(CreatedState());
-        }
-
-        DomainResult first = await handler.HandleAsync(
-            Command(),
+        DomainResult result = await handler.HandleAsync(
+            Command(schemaVersion: new SchemaVersion(SchemaVersion.Current.Value + 1)),
             "user-1",
-            LoadStateAsync,
-            "event-sensitive-a",
-            Tenant,
-            cancellationToken: TestContext.Current.CancellationToken);
-        DomainResult replay = await handler.HandleAsync(
-            Command(),
-            "user-1",
-            LoadStateAsync,
-            "event-sensitive-b",
+            _ =>
+            {
+                loadCount++;
+                return ValueTask.FromResult<ConversationState?>(CreatedState());
+            },
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
-        first.IsSuccess.ShouldBeTrue();
-        ConversationIdempotencyReplayResult replayResult = replay.ShouldBeOfType<ConversationIdempotencyReplayResult>();
-        replayResult.Outcome.Category.ShouldBe(IdempotencyOutcomeCategory.Success);
-        replayResult.Outcome.CommandType.ShouldBe(ConversationCommandType.MarkConversationContentSensitiveCommand);
-        replayResult.Outcome.AuditHandle.ShouldNotBeNullOrWhiteSpace();
-        replayResult.Outcome.AuditHandle.ShouldBe(replayResult.Outcome.CorrelationId);
-        string replayPayload = replayResult.ResultPayload.ShouldNotBeNull();
-        replayPayload.ShouldNotContain("idempotency-a", Case.Insensitive);
-        loadCount.ShouldBe(1);
-        audit.CallCount.ShouldBe(1);
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.SchemaVersionUnsupported);
+        rejection.ReasonCode.ShouldBe("unsupported_schema_version");
+        access.CallCount.ShouldBe(0);
+        idempotencyStore.ReserveCalls.ShouldBe(0);
+        loadCount.ShouldBe(0);
+        audit.CallCount.ShouldBe(0);
     }
 
     /// <summary>
-    /// Reusing an idempotency identity for a materially different sensitivity mark rejects without state load or audit.
+    /// State loading failures are coarsened to stale tenant state and fail before audit proof.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldRejectMateriallyDifferentMarkWithSameIdempotencyIdentity()
+    public async Task HandleAsyncShouldCoarsenStateLoadFailureBeforeAudit()
     {
-        InMemoryConversationIdempotencyStore idempotencyStore = new();
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
         SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        MarkConversationContentSensitiveCommandHandler handler = new(
-            access,
-            audit,
-            new IdempotentConversationCommandExecutor(
-                idempotencyStore,
-                timeProvider: new FixedTimeProvider(AppliedAt.AddMinutes(1))));
-        int loadCount = 0;
+        RedactMessageContentCommandHandler handler = new(access, audit);
 
-        ValueTask<ConversationState?> LoadStateAsync(CancellationToken _)
-        {
-            loadCount++;
-            return ValueTask.FromResult<ConversationState?>(CreatedState());
-        }
-
-        DomainResult first = await handler.HandleAsync(
+        DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
-            LoadStateAsync,
-            "event-sensitive-a",
-            Tenant,
-            cancellationToken: TestContext.Current.CancellationToken);
-        DomainResult conflict = await handler.HandleAsync(
-            Command(SensitivityCategory.Regulated),
-            "user-1",
-            LoadStateAsync,
-            "event-sensitive-b",
+            _ => throw new InvalidOperationException("projection store outage"),
+            "event-redacted-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
-        first.IsSuccess.ShouldBeTrue();
-        ConversationRejectedDomainEvent rejection = conflict.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
-        rejection.Code.ShouldBe(ConversationErrorCode.IdempotencyConflict);
-        rejection.ReasonCode.ShouldBe("idempotency_conflict");
-        loadCount.ShouldBe(1);
-        audit.CallCount.ShouldBe(1);
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.TenantProjectionStale);
+        rejection.ReasonCode.ShouldBe("tenant_projection_stale");
+        audit.CallCount.ShouldBe(0);
     }
 
-    private static MarkConversationContentSensitiveCommand Command(SensitivityCategory? category = null)
+    /// <summary>
+    /// Completed duplicate redaction requests replay the stored sanitized result without state load or audit evidence creation.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldReplayCompletedDuplicateWithoutStateLoadOrAudit()
+    {
+        ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(Command(), Conversation);
+        string auditHandle = ConversationAuditHandle.FromServerBoundary(fingerprint, "event-redacted-original");
+        ConversationIdempotencyOutcome outcome = ConversationIdempotencyOutcome.Success(
+            SchemaVersion.Current,
+            Tenant,
+            ConversationCommandType.RedactMessageContentCommand,
+            Conversation,
+            Message,
+            participantPartyId: null,
+            fileId: null,
+            auditHandle,
+            auditHandle);
+        SpyIdempotencyStore idempotencyStore = new(ConversationIdempotencyDecision.Duplicate(outcome));
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(
+            access,
+            audit,
+            new IdempotentConversationCommandExecutor(idempotencyStore));
+        int loadCount = 0;
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ =>
+            {
+                loadCount++;
+                return ValueTask.FromResult<ConversationState?>(CreatedState());
+            },
+            "event-redacted-replay",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationIdempotencyReplayResult replay = result.ShouldBeOfType<ConversationIdempotencyReplayResult>();
+        replay.Outcome.Category.ShouldBe(IdempotencyOutcomeCategory.Success);
+        replay.Outcome.CommandType.ShouldBe(ConversationCommandType.RedactMessageContentCommand);
+        replay.Outcome.MessageId.ShouldBe(Message);
+        string replayPayload = replay.ResultPayload.ShouldNotBeNull();
+        replayPayload.ShouldNotContain("idempotency-a", Case.Insensitive);
+        replayPayload.ShouldNotContain("customer-request", Case.Insensitive);
+        idempotencyStore.ReserveCalls.ShouldBe(1);
+        loadCount.ShouldBe(0);
+        audit.CallCount.ShouldBe(0);
+    }
+
+    private static RedactMessageContentCommand Command(
+        RedactionCategory? category = null,
+        SchemaVersion? schemaVersion = null,
+        GovernanceTarget? target = null)
         => new(
             new ConversationCommandMetadata(
-                SchemaVersion.Current,
+                schemaVersion ?? SchemaVersion.Current,
                 Tenant,
                 Actor,
                 "correlation-a",
                 "causation-a",
                 "idempotency-a"),
             Conversation,
-            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
-            category ?? SensitivityCategory.Restricted,
-            "sensitivity-policy-standard",
+            target ?? new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            category ?? RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
             "customer-request",
             AppliedAt);
 
     private static GovernanceAuditEvidenceReference AuditEvidence()
-        => new(new AuditEvidenceHandle("audit-evidence-001"), "sensitivity-policy-standard", AppliedAt);
+        => new(new AuditEvidenceHandle("audit-evidence-001"), "redaction-policy-standard", AppliedAt);
+
+    private static ConversationContentMarkedSensitiveDomainEvent SensitiveEvent()
+        => new(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-sensitive-a",
+                ConversationEventType.ConversationContentMarkedSensitive,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                AppliedAt,
+                Actor,
+                "causation-a"),
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-sensitive-001"),
+                "sensitivity-policy-standard",
+                AppliedAt));
+
+    private static MessageContentRedactedDomainEvent RedactedEvent()
+        => new(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-redacted-original",
+                ConversationEventType.MessageContentRedacted,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                AppliedAt,
+                Actor,
+                "causation-a"),
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            AuditEvidence());
 
     private static ConversationState CreatedState(TenantId? tenant = null)
     {
@@ -360,7 +536,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
                 SchemaVersion.Current,
                 "event-message-a",
                 ConversationEventType.MessageAppended,
-                Tenant,
+                tenant ?? Tenant,
                 Conversation,
                 "correlation-a",
                 CreatedAt.AddMinutes(1),
@@ -388,21 +564,23 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             GovernanceOperationKind operationKind,
             string operationId,
             CancellationToken cancellationToken = default)
-        {
-            CallCount++;
-            return ValueTask.FromResult(result);
-        }
+            => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
 
         public ValueTask<ConversationGovernanceAuditResult> RecordRedactionAsync(
             RedactMessageContentCommand command,
             GovernanceOperationKind operationKind,
             string operationId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
+        {
+            CallCount++;
+            return ValueTask.FromResult(result);
+        }
     }
 
     private sealed class SpyTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
     {
+        public int CallCount { get; private set; }
+
         public ConversationTenantAccessRequirement LastRequirement { get; private set; }
 
         public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
@@ -416,6 +594,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             TenantId? idempotencyTenantId = null,
             CancellationToken cancellationToken = default)
         {
+            CallCount++;
             LastRequirement = requirement;
             return ValueTask.FromResult(decision);
         }
@@ -455,10 +634,5 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             DateTimeOffset reservationCreatedAt,
             CancellationToken cancellationToken = default)
             => ValueTask.CompletedTask;
-    }
-
-    private sealed class FixedTimeProvider(DateTimeOffset utcNow) : TimeProvider
-    {
-        public override DateTimeOffset GetUtcNow() => utcNow;
     }
 }

@@ -64,4 +64,15 @@ internal static class PublicationSamples
         new DateTimeOffset(2026, 5, 18, 11, 5, 0, TimeSpan.Zero),
         Actor,
         "causation-001");
+
+    internal static readonly ConversationEventMetadata RedactionMetadata = new(
+        Version,
+        "event-redacted-001",
+        ConversationEventType.MessageContentRedacted,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 6, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
 }

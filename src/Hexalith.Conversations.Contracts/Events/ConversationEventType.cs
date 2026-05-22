@@ -70,6 +70,11 @@ public sealed record ConversationEventType
     /// </summary>
     public static ConversationEventType ConversationContentMarkedSensitive { get; } = new(nameof(ConversationContentMarkedSensitive));
 
+    /// <summary>
+    /// Gets the event type for a governed message-content redaction operation.
+    /// </summary>
+    public static ConversationEventType MessageContentRedacted { get; } = new(nameof(MessageContentRedacted));
+
     private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
         new[]
         {
@@ -84,6 +89,7 @@ public sealed record ConversationEventType
             RetentionPolicySet,
             RetentionPolicyReplaced,
             ConversationContentMarkedSensitive,
+            MessageContentRedacted,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationEventType(string value)

@@ -379,6 +379,13 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             string operationId,
             CancellationToken cancellationToken = default)
             => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
+
+        public ValueTask<ConversationGovernanceAuditResult> RecordRedactionAsync(
+            RedactMessageContentCommand command,
+            GovernanceOperationKind operationKind,
+            string operationId,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
     }
 
     private sealed class SpyTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService

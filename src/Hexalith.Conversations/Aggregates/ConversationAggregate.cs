@@ -17,6 +17,7 @@ using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Comma
 using PublicAddParticipantCommand = Hexalith.Conversations.Contracts.Commands.AddParticipantCommand;
 using PublicSetConversationRetentionPolicyCommand = Hexalith.Conversations.Contracts.Governance.SetConversationRetentionPolicyCommand;
 using PublicMarkConversationContentSensitiveCommand = Hexalith.Conversations.Contracts.Governance.MarkConversationContentSensitiveCommand;
+using PublicRedactMessageContentCommand = Hexalith.Conversations.Contracts.Governance.RedactMessageContentCommand;
 
 namespace Hexalith.Conversations.Aggregates;
 
@@ -196,5 +197,51 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             command.AuditEvidence,
             commandMetadata.IdempotencyKey);
         return DomainResult.Success(new IEventPayload[] { marked });
+    }
+
+    /// <summary>
+    /// Records governed message-content redaction intent when the current conversation state permits it.
+    /// </summary>
+    /// <param name="command">The redaction domain command.</param>
+    /// <param name="state">The current conversation state.</param>
+    /// <returns>A domain result containing one redaction event, a no-op, or one typed rejection.</returns>
+    public static DomainResult Handle(RedactMessageContent command, ConversationState? state)
+    {
+        ConversationRejectedDomainEvent? rejection = RedactMessageContentValidation.Validate(command, state);
+        if (rejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
+        }
+
+        PublicRedactMessageContentCommand publicCommand = command.PublicCommand;
+        string targetKey = ConversationState.RedactionTargetKey(publicCommand.Target);
+        if (state!.TryGetRedaction(targetKey, out ConversationRedactionState? redaction)
+            && redaction is not null
+            && RedactMessageContentValidation.IsCompatible(publicCommand, redaction))
+        {
+            return DomainResult.NoOp();
+        }
+
+        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
+        ConversationEventMetadata eventMetadata = new(
+            commandMetadata.SchemaVersion,
+            command.EventId,
+            ConversationEventType.MessageContentRedacted,
+            commandMetadata.TenantId,
+            publicCommand.ConversationId,
+            commandMetadata.CorrelationId,
+            publicCommand.OperationTimestamp,
+            commandMetadata.ActorPartyId,
+            commandMetadata.CausationId);
+
+        MessageContentRedactedDomainEvent redacted = new(
+            eventMetadata,
+            publicCommand.Target,
+            publicCommand.Category,
+            publicCommand.PolicyReference,
+            publicCommand.Rationale,
+            command.AuditEvidence,
+            commandMetadata.IdempotencyKey);
+        return DomainResult.Success(new IEventPayload[] { redacted });
     }
 }

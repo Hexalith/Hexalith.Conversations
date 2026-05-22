@@ -39,4 +39,18 @@ public interface IConversationGovernanceAuditService
         GovernanceOperationKind operationKind,
         string operationId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records audit evidence for a redaction mutation.
+    /// </summary>
+    /// <param name="command">The redaction command.</param>
+    /// <param name="operationKind">The governed operation kind.</param>
+    /// <param name="operationId">The server-generated operation identity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The audit precondition result.</returns>
+    ValueTask<ConversationGovernanceAuditResult> RecordRedactionAsync(
+        RedactMessageContentCommand command,
+        GovernanceOperationKind operationKind,
+        string operationId,
+        CancellationToken cancellationToken = default);
 }

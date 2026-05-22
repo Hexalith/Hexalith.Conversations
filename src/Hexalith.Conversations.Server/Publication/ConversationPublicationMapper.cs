@@ -75,6 +75,7 @@ public static class ConversationPublicationMapper
             RetentionPolicySet e => e,
             RetentionPolicyReplaced e => e,
             ConversationContentMarkedSensitive e => e,
+            MessageContentRedacted e => e,
             ConversationCreatedDomainEvent e => new ConversationCreated(
                 e.Metadata,
                 e.BusinessReference,
@@ -99,6 +100,13 @@ public static class ConversationPublicationMapper
                 e.Rationale,
                 e.AuditEvidence),
             ConversationContentMarkedSensitiveDomainEvent e => new ConversationContentMarkedSensitive(
+                e.Metadata,
+                e.Target,
+                e.Category,
+                e.PolicyReference,
+                e.Rationale,
+                e.AuditEvidence),
+            MessageContentRedactedDomainEvent e => new MessageContentRedacted(
                 e.Metadata,
                 e.Target,
                 e.Category,

@@ -137,6 +137,9 @@ public sealed class ConversationCommandFingerprintTest
             (RetentionCommand(),
                 ConversationCommandType.SetConversationRetentionPolicyCommand,
                 ConversationIdempotencyScope.ConversationScopeKind),
+            (RedactionCommand(),
+                ConversationCommandType.RedactMessageContentCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
         ];
 
         foreach ((object command, ConversationCommandType commandType, string scopeKind) in commands)
@@ -287,6 +290,16 @@ public sealed class ConversationCommandFingerprintTest
             "retention-policy-standard",
             "customer-request",
             new DateTimeOffset(2026, 5, 19, 9, 0, 0, TimeSpan.Zero));
+
+    private static RedactMessageContentCommand RedactionCommand()
+        => new(
+            Metadata(),
+            Conversation,
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            new DateTimeOffset(2026, 5, 19, 9, 5, 0, TimeSpan.Zero));
 
     private static ConversationCommandMetadata Metadata(
         TenantId? tenant = null,

@@ -221,4 +221,33 @@ public sealed class ConversationPublicationMapperTest
         published.Target.MessageId.ShouldBe(PublicationSamples.Message);
         published.PolicyReference.ShouldBe("sensitivity-policy-standard");
     }
+
+    /// <summary>
+    /// A durable redaction domain event maps to one public content-safe event.
+    /// </summary>
+    [Fact]
+    public void RedactionDomainEventShouldMapToPublicRedactionEvent()
+    {
+        MessageContentRedactedDomainEvent domainEvent = new(
+            PublicationSamples.RedactionMetadata,
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: PublicationSamples.Message),
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-001"),
+                "redaction-policy-standard",
+                PublicationSamples.RedactionMetadata.CommittedAt));
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, domainEvent));
+
+        result.IsPublished.ShouldBeTrue(result.Diagnostic?.Code.Value);
+        MessageContentRedacted published = result.GetPublishedEvent<MessageContentRedacted>();
+        published.Metadata.EventType.ShouldBe(ConversationEventType.MessageContentRedacted);
+        published.Target.MessageId.ShouldBe(PublicationSamples.Message);
+        published.Category.ShouldBe(RedactionCategory.ContentSuppression);
+        published.PolicyReference.ShouldBe("redaction-policy-standard");
+        published.ToString().ShouldNotContain("customer-request", Case.Insensitive);
+    }
 }

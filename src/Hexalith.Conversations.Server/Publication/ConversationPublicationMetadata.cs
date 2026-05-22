@@ -31,6 +31,7 @@ public static class ConversationPublicationMetadata
             RetentionPolicySet retentionSet => retentionSet.Metadata,
             RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
             ConversationContentMarkedSensitive sensitive => sensitive.Metadata,
+            MessageContentRedacted redacted => redacted.Metadata,
             _ => null,
         };
 
@@ -54,6 +55,7 @@ public static class ConversationPublicationMetadata
             RetentionPolicySet => eventType == ConversationEventType.RetentionPolicySet,
             RetentionPolicyReplaced => eventType == ConversationEventType.RetentionPolicyReplaced,
             ConversationContentMarkedSensitive => eventType == ConversationEventType.ConversationContentMarkedSensitive,
+            MessageContentRedacted => eventType == ConversationEventType.MessageContentRedacted,
             _ => false,
         };
 }

@@ -52,6 +52,7 @@ public sealed record ConversationCommandFingerprint(
             ArchiveConversationCommand archive => CreateForArchive(archive),
             SetConversationRetentionPolicyCommand retention => CreateForSetRetentionPolicy(retention),
             MarkConversationContentSensitiveCommand sensitivity => CreateForMarkSensitive(sensitivity),
+            RedactMessageContentCommand redaction => CreateForRedaction(redaction),
             _ => throw new ArgumentException($"Unsupported conversation command type '{command.GetType().FullName}'.", nameof(command)),
         };
     }
@@ -200,6 +201,27 @@ public sealed record ConversationCommandFingerprint(
                     .Concat(Required("sensitivity.rationale", command.Rationale))
                     .Concat(Required(
                         "sensitivity.operation.timestamp",
+                        command.OperationTimestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture)))));
+    }
+
+    public static ConversationCommandFingerprint CreateForRedaction(RedactMessageContentCommand command)
+    {
+        ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
+        return new ConversationCommandFingerprint(
+            BuildScope(
+                metadata,
+                ConversationCommandType.RedactMessageContentCommand,
+                ConversationIdempotencyScope.ConversationScopeKind,
+                RequireNonNull(command.ConversationId, nameof(command.ConversationId)).Value),
+            Fingerprint(
+                MetadataParts(metadata)
+                    .Concat(TargetParts(command.Target))
+                    .Concat(Required("redaction.target.key", command.Target?.ToTargetKey()))
+                    .Concat(Required("redaction.category", command.Category?.Value))
+                    .Concat(Required("redaction.policy.reference", command.PolicyReference))
+                    .Concat(Required("redaction.rationale", command.Rationale))
+                    .Concat(Required(
+                        "redaction.operation.timestamp",
                         command.OperationTimestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture)))));
     }
 

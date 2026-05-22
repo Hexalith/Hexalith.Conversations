@@ -29,6 +29,7 @@ public sealed class ConversationState
     private ImmutableArray<ConversationFileReference> _fileReferences = ImmutableArray<ConversationFileReference>.Empty;
     private ImmutableArray<ConversationMessage> _messages = ImmutableArray<ConversationMessage>.Empty;
     private ImmutableArray<ConversationParticipant> _participants = ImmutableArray<ConversationParticipant>.Empty;
+    private readonly Dictionary<string, ConversationRedactionState> _redactions = new(StringComparer.Ordinal);
     private readonly Dictionary<string, ConversationSensitivityMarkState> _sensitivityMarks = new(StringComparer.Ordinal);
 
     /// <summary>
@@ -123,6 +124,12 @@ public sealed class ConversationState
         => _sensitivityMarks.Values.OrderBy(mark => mark.TargetKey, StringComparer.Ordinal).ToArray();
 
     /// <summary>
+    /// Gets replayed redaction intents keyed by deterministic governed target reference.
+    /// </summary>
+    public IReadOnlyList<ConversationRedactionState> Redactions
+        => _redactions.Values.OrderBy(redaction => redaction.TargetKey, StringComparer.Ordinal).ToArray();
+
+    /// <summary>
     /// Gets the replayed participant membership as an immutable snapshot.
     /// </summary>
     public IReadOnlyList<ConversationParticipant> Participants => _participants;
@@ -165,11 +172,31 @@ public sealed class ConversationState
         => _sensitivityMarks.TryGetValue(targetKey, out mark);
 
     /// <summary>
+    /// Looks up replayed redaction state by deterministic governed target key.
+    /// </summary>
+    /// <param name="targetKey">The target key.</param>
+    /// <param name="redaction">The matched redaction when present.</param>
+    /// <returns><see langword="true" /> when the target already has a replayed redaction.</returns>
+    public bool TryGetRedaction(string targetKey, out ConversationRedactionState? redaction)
+        => _redactions.TryGetValue(targetKey, out redaction);
+
+    /// <summary>
     /// Builds a deterministic safe key for a governed target reference.
     /// </summary>
     /// <param name="target">The content-safe governed target reference.</param>
     /// <returns>The deterministic target key.</returns>
     public static string SensitivityTargetKey(GovernanceTarget target)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        return target.ToTargetKey();
+    }
+
+    /// <summary>
+    /// Builds a deterministic safe key for a governed redaction target reference.
+    /// </summary>
+    /// <param name="target">The content-safe governed target reference.</param>
+    /// <returns>The deterministic target key.</returns>
+    public static string RedactionTargetKey(GovernanceTarget target)
     {
         ArgumentNullException.ThrowIfNull(target);
         return target.ToTargetKey();
@@ -322,6 +349,35 @@ public sealed class ConversationState
     }
 
     /// <summary>
+    /// Applies a message-content-redacted event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The redaction event.</param>
+    public void Apply(MessageContentRedactedDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        string targetKey = RedactionTargetKey(e.Target);
+        if (_redactions.TryGetValue(targetKey, out ConversationRedactionState? existing)
+            && existing.Category == e.Category
+            && existing.PolicyReference == e.PolicyReference
+            && existing.Rationale == e.Rationale)
+        {
+            return;
+        }
+
+        _redactions[targetKey] = new ConversationRedactionState(
+            targetKey,
+            e.Target,
+            e.Category,
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence);
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
     /// Applies a public conversation-created event during deterministic replay.
     /// </summary>
     /// <param name="e">The public conversation-created event.</param>
@@ -388,6 +444,22 @@ public sealed class ConversationState
     {
         ArgumentNullException.ThrowIfNull(e);
         Apply(new ConversationContentMarkedSensitiveDomainEvent(
+            e.Metadata,
+            e.Target,
+            e.Category,
+            e.PolicyReference,
+            e.Rationale,
+            e.AuditEvidence));
+    }
+
+    /// <summary>
+    /// Applies a public message-content-redacted event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public redaction event.</param>
+    public void Apply(MessageContentRedacted e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new MessageContentRedactedDomainEvent(
             e.Metadata,
             e.Target,
             e.Category,

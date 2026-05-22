@@ -61,6 +61,11 @@ public sealed record ConversationCommandType
     public static ConversationCommandType MarkConversationContentSensitiveCommand { get; } =
         new(nameof(MarkConversationContentSensitiveCommand));
 
+    /// <summary>
+    /// Gets the command type for recording governed message-content redaction intent.
+    /// </summary>
+    public static ConversationCommandType RedactMessageContentCommand { get; } = new(nameof(RedactMessageContentCommand));
+
     private static readonly IReadOnlyDictionary<string, ConversationCommandType> KnownTypes =
         new[]
         {
@@ -73,6 +78,7 @@ public sealed record ConversationCommandType
             ArchiveConversationCommand,
             SetConversationRetentionPolicyCommand,
             MarkConversationContentSensitiveCommand,
+            RedactMessageContentCommand,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationCommandType(string value)
