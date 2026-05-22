@@ -53,7 +53,7 @@ development_status:
   1-8-retrieve-and-list-conversations-by-tenant-business-context: done
   1-9-resolve-parties-and-upstream-references-at-read-time: done
   1-10-publish-versioned-conversation-domain-events: done
-  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: ready-for-dev
+  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: done
   epic-1-retrospective: optional
   epic-2: in-progress
   2-1-define-governance-policy-and-audit-contracts: ready-for-dev

@@ -5,6 +5,7 @@
 
 using System.Collections.Immutable;
 
+using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -23,6 +24,9 @@ namespace Hexalith.Conversations.State;
 /// </remarks>
 public sealed class ConversationState
 {
+    private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
+    private ImmutableArray<ConversationFileReference> _fileReferences = ImmutableArray<ConversationFileReference>.Empty;
+    private ImmutableArray<ConversationMessage> _messages = ImmutableArray<ConversationMessage>.Empty;
     private ImmutableArray<ConversationParticipant> _participants = ImmutableArray<ConversationParticipant>.Empty;
 
     /// <summary>
@@ -111,6 +115,22 @@ public sealed class ConversationState
     public IReadOnlyList<ConversationParticipant> Participants => _participants;
 
     /// <summary>
+    /// Gets the replayed messages as an immutable snapshot.
+    /// </summary>
+    public IReadOnlyList<ConversationMessage> Messages => _messages;
+
+    /// <summary>
+    /// Gets the replayed file references as an immutable snapshot.
+    /// </summary>
+    public IReadOnlyList<ConversationFileReference> FileReferences => _fileReferences;
+
+    /// <summary>
+    /// Gets deterministic metadata attributes copied from persisted events.
+    /// </summary>
+    public IReadOnlyDictionary<string, string> Attributes
+        => new Dictionary<string, string>(_attributes.OrderBy(a => a.Key, StringComparer.Ordinal), StringComparer.Ordinal);
+
+    /// <summary>
     /// Determines whether a participant membership already exists.
     /// </summary>
     /// <param name="partyId">The stable Party reference.</param>
@@ -185,6 +205,149 @@ public sealed class ConversationState
             e.ParticipantRole,
             e.AddedAt,
             e.Metadata.ActorPartyId));
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a public conversation-created event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public conversation-created event.</param>
+    public void Apply(ConversationCreated e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new ConversationCreatedDomainEvent(
+            e.Metadata,
+            e.BusinessReference,
+            e.ProjectId,
+            e.FolderId,
+            e.Label,
+            ProviderCorrelation: e.ProviderCorrelation));
+    }
+
+    /// <summary>
+    /// Applies a public participant-added event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public participant-added event.</param>
+    public void Apply(ParticipantAdded e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new ParticipantAddedDomainEvent(
+            e.Metadata,
+            e.ParticipantPartyId,
+            e.ParticipantType,
+            e.ParticipantRole));
+    }
+
+    /// <summary>
+    /// Applies a public message-appended event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public message-appended event.</param>
+    public void Apply(MessageAppended e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        ArgumentException.ThrowIfNullOrWhiteSpace(e.Text);
+
+        if (_messages.Any(m => m.MessageId == e.MessageId))
+        {
+            throw new InvalidOperationException("Duplicate message identity in replayed event history.");
+        }
+
+        _messages = _messages.Add(new ConversationMessage(
+            e.MessageId,
+            e.AuthorPartyId,
+            e.Text,
+            e.Metadata.CommittedAt,
+            e.ProviderCorrelation));
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a public file-reference-attached event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public file-reference-attached event.</param>
+    public void Apply(FileReferenceAttached e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (_fileReferences.Any(f => f.FileId == e.FileId))
+        {
+            throw new InvalidOperationException("Duplicate file identity in replayed event history.");
+        }
+
+        _fileReferences = _fileReferences.Add(new ConversationFileReference(e.FileId, e.FolderId, e.MessageId));
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a public metadata-updated event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public metadata-updated event.</param>
+    public void Apply(ConversationMetadataUpdated e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (e.Label is not null)
+        {
+            Label = e.Label;
+        }
+
+        if (e.BusinessReference is not null)
+        {
+            BusinessReference = e.BusinessReference;
+        }
+
+        if (e.Attributes is not null && e.Attributes.Count > 0)
+        {
+            _attributes.Clear();
+            foreach (KeyValuePair<string, string> attribute in e.Attributes.OrderBy(a => a.Key, StringComparer.Ordinal))
+            {
+                _attributes[attribute.Key] = attribute.Value;
+            }
+        }
+
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a public conversation-closed event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public conversation-closed event.</param>
+    public void Apply(ConversationClosed e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (Lifecycle != ConversationLifecycleState.Archived)
+        {
+            Lifecycle = ConversationLifecycleState.Closed;
+        }
+
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a public conversation-archived event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public conversation-archived event.</param>
+    public void Apply(ConversationArchived e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Lifecycle = ConversationLifecycleState.Archived;
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a bounded public lifecycle-changed event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public lifecycle-changed event.</param>
+    public void Apply(ConversationLifecycleChanged e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Lifecycle = e.CurrentState.Value switch
+        {
+            "Open" => ConversationLifecycleState.Open,
+            "Closed" => ConversationLifecycleState.Closed,
+            "Archived" => ConversationLifecycleState.Archived,
+            _ => throw new ArgumentException("Unsupported lifecycle state.", nameof(e)),
+        };
         LastEventAt = e.Metadata.CommittedAt;
     }
 

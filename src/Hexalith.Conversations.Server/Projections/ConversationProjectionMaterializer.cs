@@ -129,6 +129,11 @@ public sealed class ConversationProjectionMaterializer
             state = ProjectionTrustState.Unavailable;
             reason = ProjectionFreshnessReasonCode.PoisonEvent;
         }
+        else if (builder.UnsupportedVersion)
+        {
+            state = ProjectionTrustState.Unavailable;
+            reason = ProjectionFreshnessReasonCode.Unavailable;
+        }
         else if (contradictoryTimestamp)
         {
             state = ProjectionTrustState.Unavailable;
@@ -233,6 +238,8 @@ public sealed class ConversationProjectionMaterializer
 
         public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
 
+        public bool UnsupportedVersion { get; private set; }
+
         public bool WasCreated { get; private set; }
 
         public void Apply(ConversationProjectionEventRecord record)
@@ -250,6 +257,12 @@ public sealed class ConversationProjectionMaterializer
             if (!tenantId.Equals(metadata.TenantId) || !conversationId.Equals(metadata.ConversationId))
             {
                 Poisoned = true;
+                return;
+            }
+
+            if (metadata.SchemaVersion != SchemaVersion.Current)
+            {
+                UnsupportedVersion = true;
                 return;
             }
 
