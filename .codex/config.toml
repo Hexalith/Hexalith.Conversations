@@ -1,2 +1,5 @@
 [features]
 codex_hooks = true
+
+[projects.'D:\Hexalith.Conversations']
+trust_level = "trusted"
