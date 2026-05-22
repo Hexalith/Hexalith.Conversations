@@ -92,7 +92,8 @@ public sealed class ConversationProjectionMaterializer
             builder.FileReferences,
             builder.Attributes,
             builder.ActiveRetentionPolicy,
-            builder.SensitivityMarks);
+            builder.SensitivityMarks,
+            builder.Redactions);
 
         return new(summary, detail);
     }
@@ -186,6 +187,7 @@ public sealed class ConversationProjectionMaterializer
         private readonly Dictionary<MessageId, (long Position, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
         private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, ConversationRedactionProjectionV1> _redactions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, ConversationSensitivityMarkProjectionV1> _sensitivityMarks = new(StringComparer.Ordinal);
         private string _lifecycleState = InitializingState;
 
@@ -243,6 +245,12 @@ public sealed class ConversationProjectionMaterializer
         public ProjectId? ProjectId { get; private set; }
 
         public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
+
+        public IReadOnlyList<ConversationRedactionProjectionV1> Redactions
+            => _redactions
+                .Values
+                .OrderBy(redaction => redaction.Target.ToTargetKey(), StringComparer.Ordinal)
+                .ToArray();
 
         public IReadOnlyList<ConversationSensitivityMarkProjectionV1> SensitivityMarks
             => _sensitivityMarks
@@ -363,6 +371,9 @@ public sealed class ConversationProjectionMaterializer
                 case ConversationContentMarkedSensitive sensitive:
                     Apply(sensitive);
                     break;
+                case MessageContentRedacted redacted:
+                    Apply(redacted);
+                    break;
                 default:
                     HasOutOfOrderEvent = true;
                     break;
@@ -383,6 +394,7 @@ public sealed class ConversationProjectionMaterializer
                 RetentionPolicySet retentionSet => retentionSet.Metadata,
                 RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
                 ConversationContentMarkedSensitive sensitive => sensitive.Metadata,
+                MessageContentRedacted redacted => redacted.Metadata,
                 _ => null,
             };
 
@@ -426,10 +438,15 @@ public sealed class ConversationProjectionMaterializer
                 return;
             }
 
+            string targetKey = new GovernanceTarget(GovernedTargetKind.Message, MessageId: e.MessageId).ToTargetKey();
+            string text = _redactions.TryGetValue(targetKey, out ConversationRedactionProjectionV1? redaction)
+                ? redaction.Placeholder
+                : e.Text;
+
             _messages[e.MessageId] = (position, new ConversationTimelineMessageProjectionV1(
                 e.MessageId,
                 e.AuthorPartyId,
-                e.Text,
+                text,
                 e.Metadata.CommittedAt,
                 e.ProviderCorrelation));
         }
@@ -511,6 +528,34 @@ public sealed class ConversationProjectionMaterializer
                 e.Metadata.CommittedAt,
                 e.AuditEvidence,
                 ProjectionTrustState.Current);
+        }
+
+        private void Apply(MessageContentRedacted e)
+        {
+            ConversationRedactionProjectionV1 redaction = new(
+                e.Target,
+                e.Category,
+                e.PolicyReference,
+                e.Rationale,
+                e.Metadata.ActorPartyId,
+                e.Metadata.CommittedAt,
+                e.AuditEvidence,
+                ProjectionTrustState.Redacted);
+            _redactions[e.Target.ToTargetKey()] = redaction;
+
+            if (e.Target.Kind == GovernedTargetKind.Message
+                && e.Target.MessageId is not null
+                && _messages.TryGetValue(e.Target.MessageId, out (long Position, ConversationTimelineMessageProjectionV1 Message) existing))
+            {
+                _messages[e.Target.MessageId] = (
+                    existing.Position,
+                    new ConversationTimelineMessageProjectionV1(
+                        existing.Message.MessageId,
+                        existing.Message.AuthorPartyId,
+                        redaction.Placeholder,
+                        existing.Message.CreatedAt,
+                        existing.Message.ProviderCorrelation));
+            }
         }
     }
 }

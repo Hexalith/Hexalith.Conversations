@@ -24,6 +24,7 @@ public sealed class ConversationQueryHandler
     private readonly ConversationQueryCursor _cursor;
     private readonly TimeProvider _timeProvider;
     private readonly ConversationReadHydrationService _hydrationService;
+    private readonly ConversationTemporalReconstructionService _temporalReconstructionService;
 
     public ConversationQueryHandler(
         IConversationTenantAccessService tenantAccessService,
@@ -31,7 +32,8 @@ public sealed class ConversationQueryHandler
         ConversationProjectionReadService projectionReadService,
         ConversationQueryCursor cursor,
         TimeProvider? timeProvider = null,
-        ConversationReadHydrationService? hydrationService = null)
+        ConversationReadHydrationService? hydrationService = null,
+        ConversationTemporalReconstructionService? temporalReconstructionService = null)
     {
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
@@ -39,6 +41,11 @@ public sealed class ConversationQueryHandler
         _cursor = cursor ?? throw new ArgumentNullException(nameof(cursor));
         _timeProvider = timeProvider ?? TimeProvider.System;
         _hydrationService = hydrationService ?? new ConversationReadHydrationService();
+        _temporalReconstructionService = temporalReconstructionService
+            ?? new ConversationTemporalReconstructionService(
+                _tenantAccessService,
+                _projectionReadService,
+                new UnavailableConversationTemporalEventSource());
     }
 
     /// <summary>
@@ -80,6 +87,20 @@ public sealed class ConversationQueryHandler
             query.SchemaVersion,
             details,
             "Current projection is available.");
+    }
+
+    /// <summary>
+    /// Retrieves one authorized conversation detail reconstructed at a prior temporal anchor.
+    /// </summary>
+    /// <param name="query">The temporal retrieve query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A content-safe temporal detail result.</returns>
+    public ValueTask<ConversationTemporalDetailResult> GetAtPointInTimeAsync(
+        GetConversationAtPointInTimeQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return _temporalReconstructionService.ReconstructAsync(query, cancellationToken);
     }
 
     /// <summary>

@@ -331,6 +331,66 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Redaction events derive safe read state and suppress projected message text.
+    /// </summary>
+    [Fact]
+    public void RedactionEventsShouldProjectSafeStateAndSuppressMessageText()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, MessageAppended("event-message-001", 2, "secret customer content")),
+                Event(3, Redacted(
+                    "event-redacted-message-001",
+                    3,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.Messages.Single().Text.ShouldBe("[redacted]");
+        result.Detail.Messages.Single().Text.ShouldNotContain("secret", Case.Insensitive);
+        result.Detail.Redactions.Count.ShouldBe(1);
+        ConversationRedactionProjectionV1 redaction = result.Detail.Redactions.Single();
+        redaction.Target.MessageId.ShouldBe(Message);
+        redaction.Category.ShouldBe(RedactionCategory.ContentSuppression);
+        redaction.Placeholder.ShouldBe("[redacted]");
+        redaction.ActorPartyId.ShouldBe(Actor);
+        redaction.AuditEvidence!.Handle.Value.ShouldBe("audit-evidence-001");
+        redaction.TrustState.ShouldBe(ProjectionTrustState.Redacted);
+        redaction.ToString().ShouldNotContain("secret", Case.Insensitive);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Redaction state remains authoritative even if a retained event sequence replays the target message later.
+    /// </summary>
+    [Fact]
+    public void EarlierRedactionStateShouldSuppressLaterProjectedMessageText()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, Redacted(
+                    "event-redacted-message-001",
+                    2,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message))),
+                Event(3, MessageAppended("event-message-001", 3, "secret customer content")),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.Redactions.Single().Target.MessageId.ShouldBe(Message);
+        result.Detail.Messages.Single().Text.ShouldBe("[redacted]");
+        result.Detail.Messages.Single().Text.ShouldNotContain("secret", Case.Insensitive);
+        result.Detail.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
     /// Unsupported-version sensitivity events cannot upgrade projected sensitivity state to current truth.
     /// </summary>
     [Fact]
@@ -492,12 +552,12 @@ public sealed class ConversationProjectionMaterializerTest
             ParticipantType.Human,
             ParticipantRole.Member);
 
-    private static MessageAppended MessageAppended(string eventId, long position)
+    private static MessageAppended MessageAppended(string eventId, long position, string text = "Hello")
         => new(
             Metadata(eventId, ConversationEventType.MessageAppended, position),
             Message,
             Actor,
-            "Hello");
+            text);
 
     private static FileReferenceAttached FileAttached(string eventId, long position)
         => new(
@@ -540,6 +600,18 @@ public sealed class ConversationProjectionMaterializerTest
             "sensitivity-policy-standard",
             "customer-request",
             AuditEvidence(position, "sensitivity-policy-standard"));
+
+    private static MessageContentRedacted Redacted(
+        string eventId,
+        long position,
+        GovernanceTarget target)
+        => new(
+            Metadata(eventId, ConversationEventType.MessageContentRedacted, position),
+            target,
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "redaction-policy-standard"));
 
     private static GovernanceAuditEvidenceReference AuditEvidence(long position)
         => AuditEvidence(position, "retention-policy-standard");

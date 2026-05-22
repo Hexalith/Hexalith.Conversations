@@ -27,6 +27,7 @@ namespace Hexalith.Conversations.Contracts.Projections;
 /// <param name="attributes">Safe adopter metadata.</param>
 /// <param name="activeRetentionPolicy">Derived active retention state for authorized reads.</param>
 /// <param name="sensitivityMarks">Derived sensitivity state for authorized reads.</param>
+/// <param name="redactions">Derived redaction state for authorized reads.</param>
 public sealed record ConversationDetailProjectionV1(
     SchemaVersion SchemaVersion,
     TenantId TenantId,
@@ -43,7 +44,8 @@ public sealed record ConversationDetailProjectionV1(
     IReadOnlyList<ConversationFileReferenceProjectionV1>? FileReferences = null,
     IReadOnlyDictionary<string, string>? Attributes = null,
     ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null,
-    IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null)
+    IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null,
+    IReadOnlyList<ConversationRedactionProjectionV1>? Redactions = null)
 {
     /// <summary>
     /// Gets the public projection schema version.
@@ -100,6 +102,12 @@ public sealed record ConversationDetailProjectionV1(
     /// </summary>
     public IReadOnlyList<ConversationSensitivityMarkProjectionV1> SensitivityMarks { get; } =
         ValidateList(SensitivityMarks, nameof(SensitivityMarks));
+
+    /// <summary>
+    /// Gets derived redaction state for authorized reads.
+    /// </summary>
+    public IReadOnlyList<ConversationRedactionProjectionV1> Redactions { get; } =
+        ValidateList(Redactions, nameof(Redactions));
 
     private static string ValidateLifecycle(string value)
     {

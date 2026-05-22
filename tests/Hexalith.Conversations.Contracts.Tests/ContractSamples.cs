@@ -389,6 +389,15 @@ internal static class ContractSamples
             GovernanceTimestamp,
             AuditEvidence,
             ProjectionTrustState.Current),
+        new ConversationRedactionProjectionV1(
+            RedactionMessageTarget,
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            Actor,
+            GovernanceTimestamp,
+            AuditEvidence,
+            ProjectionTrustState.Current),
         new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
         new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
         new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
@@ -439,6 +448,69 @@ internal static class ContractSamples
         Freshness,
         FreshnessV1,
         new GetConversationQuery(Version, Tenant, "caller-001", "correlation-001", Conversation),
+        new ConversationTemporalAnchorV1(
+            Version,
+            Tenant,
+            Conversation,
+            ConversationTemporalAnchorV1.SafeSourcePositionKind,
+            SafeSourcePosition: 42),
+        new GetConversationAtPointInTimeQuery(
+            Version,
+            Tenant,
+            "caller-001",
+            "correlation-001",
+            Conversation,
+            new ConversationTemporalAnchorV1(
+                Version,
+                Tenant,
+                Conversation,
+                ConversationTemporalAnchorV1.ProjectionCursorKind,
+                ProjectionCursor: "pos:0000000042")),
+        new ConversationTemporalConfidenceV1(
+            Version,
+            ProjectionTrustState.Current,
+            ProjectionFreshnessReasonCode.Current,
+            true,
+            "Temporal evidence is complete for the requested anchor."),
+        new ConversationTemporalDetailsV1(
+            Version,
+            Tenant,
+            Conversation,
+            new ConversationTemporalAnchorV1(
+                Version,
+                Tenant,
+                Conversation,
+                ConversationTemporalAnchorV1.SafeSourcePositionKind,
+                SafeSourcePosition: 42),
+            new ConversationTemporalConfidenceV1(
+                Version,
+                ProjectionTrustState.Current,
+                ProjectionFreshnessReasonCode.Current,
+                true,
+                "Temporal evidence is complete for the requested anchor."),
+            FreshnessV1,
+            "Open",
+            "Case 123",
+            Messages:
+            [
+                new ConversationTimelineMessageProjectionV1(
+                    Message,
+                    Actor,
+                    "[redacted]",
+                    EventMetadata.CommittedAt),
+            ],
+            Redactions:
+            [
+                new ConversationRedactionProjectionV1(
+                    RedactionMessageTarget,
+                    RedactionCategory.ContentSuppression,
+                    "redaction-policy-standard",
+                    "customer-request",
+                    Actor,
+                    GovernanceTimestamp,
+                    AuditEvidence,
+                    ProjectionTrustState.Current),
+            ]),
         new ConversationListFilterV1(Business, Project, Folder, "Open", ParticipantPartyId: Participant),
         new ConversationPageRequest(25),
         new ConversationPageMetadata(1, "opaque-cursor"),
@@ -566,8 +638,62 @@ internal static class ContractSamples
                         GovernanceTimestamp,
                         AuditEvidence,
                         ProjectionTrustState.Current),
+                ],
+                Redactions:
+                [
+                    new ConversationRedactionProjectionV1(
+                        RedactionMessageTarget,
+                        RedactionCategory.ContentSuppression,
+                        "redaction-policy-standard",
+                        "customer-request",
+                        Actor,
+                        GovernanceTimestamp,
+                        AuditEvidence,
+                        ProjectionTrustState.Current),
                 ]),
             "Current projection is available."),
+        ConversationTemporalDetailResult.Visible(
+            Version,
+            new ConversationTemporalDetailsV1(
+                Version,
+                Tenant,
+                Conversation,
+                new ConversationTemporalAnchorV1(
+                    Version,
+                    Tenant,
+                    Conversation,
+                    ConversationTemporalAnchorV1.SafeSourcePositionKind,
+                    SafeSourcePosition: 42),
+                new ConversationTemporalConfidenceV1(
+                    Version,
+                    ProjectionTrustState.Current,
+                    ProjectionFreshnessReasonCode.Current,
+                    true,
+                    "Temporal evidence is complete for the requested anchor."),
+                FreshnessV1,
+                "Open",
+                "Case 123",
+                Messages:
+                [
+                    new ConversationTimelineMessageProjectionV1(
+                        Message,
+                        Actor,
+                        "[redacted]",
+                        EventMetadata.CommittedAt),
+                ],
+                Redactions:
+                [
+                    new ConversationRedactionProjectionV1(
+                        RedactionMessageTarget,
+                        RedactionCategory.ContentSuppression,
+                        "redaction-policy-standard",
+                        "customer-request",
+                        Actor,
+                        GovernanceTimestamp,
+                        AuditEvidence,
+                        ProjectionTrustState.Current),
+                ]),
+            "Use the returned temporal anchor for stable historical evidence."),
         new ConversationListResult(
             Version,
             ProjectionTrustState.Current,

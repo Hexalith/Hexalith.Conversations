@@ -33,6 +33,26 @@
 ## Next Steps
 - Keep the contract, domain, server, projection, and solution test lanes in CI for Story 2.3.
 
+## Story 2.6 Point-in-Time Governance Reconstruction Evidence
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/TemporalReconstructionContractTest.cs` - Added temporal anchor/result serialization, supported cursor form validation, forbidden substrate vocabulary checks, and safe hidden-result shape coverage.
+- [x] `tests/Hexalith.Conversations.Tests/Replay/ConversationReplayVerifierTest.cs` - Added replay coverage proving retention, sensitivity, and redaction governance events replay deterministically with existing fail-closed replay protections preserved.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs` - Added redaction projection coverage proving redacted message text is replaced with a safe placeholder, redaction read state carries safe audit metadata, and prior redaction state suppresses later materialized message text.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationTemporalReconstructionServiceTest.cs` - Added server temporal reconstruction coverage for timestamp anchors, safe-position cursors, projection cursors, contract cursors, malformed/cross-tenant cursor failure, projection rebuild, incomplete sources, source gaps, unsupported schema, and out-of-coverage behavior.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Temporal|FullyQualifiedName~ConversationQueryContractTest|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 22 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~ConversationReplayVerifierTest|FullyQualifiedName~Temporal"` - 20 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~Temporal|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationProjectionMaterializerTest"` - 53 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 572 passed.
+
+### Coverage
+- Contract coverage verifies temporal query/result DTOs expose Conversations-owned anchors, safe next actions, confidence/freshness metadata, and no EventStore stream/snapshot/raw substrate terms.
+- Replay coverage verifies public/domain governance events are applied by `ConversationReplayVerifier` while existing tenant, conversation, schema, event-type, position, duplicate, malformed payload, unknown-event, and rejection no-op behavior remains covered.
+- Server coverage verifies authorization and current disclosure projection checks happen before temporal evidence reads; timestamp, safe-position, projection-cursor, and contract-cursor anchors resolve to safe authoritative anchors; and unsafe cursor/source/projection states return hidden, unavailable, or rebuilding results without protected detail disclosure.
+- Redaction coverage verifies current redaction policy suppresses historical message text, prior redaction state suppresses later materialized message text, and responses expose only placeholders, policy reason class, actor attribution, timestamp, and citeable audit handles.
+
 ## Story 2.5 Audit Pairing Enforcement Evidence
 
 ### Generated Tests

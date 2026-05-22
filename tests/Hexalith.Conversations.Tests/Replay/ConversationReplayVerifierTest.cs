@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -220,6 +221,33 @@ public sealed class ConversationReplayVerifierTest
         result.State!.IsCreated.ShouldBeTrue();
     }
 
+    /// <summary>
+    /// Governance events replay through the same deterministic state machine as command-time state.
+    /// </summary>
+    [Fact]
+    public void GovernanceEventsShouldReplayDeterministically()
+    {
+        ConversationReplayResult result = ConversationReplayVerifier.Replay(
+            Tenant,
+            Conversation,
+            [
+                Record(1, Created("event-create-001", 1)),
+                Record(2, MessageAppended("event-message-001", 2)),
+                Record(3, RetentionSet("event-retention-set-001", 3)),
+                Record(4, RetentionReplacedDomain("event-retention-replaced-001", 4)),
+                Record(5, Sensitive("event-sensitive-001", 5)),
+                Record(6, RedactedDomain("event-redacted-001", 6)),
+            ]);
+
+        result.Outcome.ShouldBe(ConversationReplayOutcome.Replay);
+        result.State.ShouldNotBeNull();
+        result.State.ActiveRetentionPolicy.ShouldNotBeNull();
+        result.State.ActiveRetentionPolicy.PolicyReference.ShouldBe("retention-policy-extended");
+        result.State.SensitivityMarks.Single().Target.MessageId.ShouldBe(Message);
+        result.State.Redactions.Single().Target.MessageId.ShouldBe(Message);
+        result.State.Redactions.Single().Category.ShouldBe(RedactionCategory.ContentSuppression);
+    }
+
     [Fact]
     public void MisorderedRejectionEventShouldFailClosed()
     {
@@ -384,6 +412,39 @@ public sealed class ConversationReplayVerifierTest
             Folder,
             Message);
 
+    private static RetentionPolicySet RetentionSet(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.RetentionPolicySet, position),
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "retention-policy-standard"));
+
+    private static RetentionPolicyReplacedDomainEvent RetentionReplacedDomain(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.RetentionPolicyReplaced, position),
+            "retention-policy-extended",
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "retention-policy-extended"));
+
+    private static ConversationContentMarkedSensitive Sensitive(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationContentMarkedSensitive, position),
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "sensitivity-policy-standard"));
+
+    private static MessageContentRedactedDomainEvent RedactedDomain(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.MessageContentRedacted, position),
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "redaction-policy-standard"));
+
     private static ConversationMetadataUpdated MetadataUpdated(string eventId, long position)
         => new(
             Metadata(eventId, ConversationEventType.ConversationMetadataUpdated, position),
@@ -411,6 +472,12 @@ public sealed class ConversationReplayVerifierTest
 
     private static ProviderCorrelationMetadata Provider(string session)
         => new("contoso-ai", "assistant", SchemaVersion.Current, session, "provider-response-001");
+
+    private static GovernanceAuditEvidenceReference AuditEvidence(long position, string policyReference)
+        => new(
+            new AuditEvidenceHandle("audit-evidence-001"),
+            policyReference,
+            Started.AddSeconds(position));
 
     private sealed record UnknownReplayEvent;
 }
