@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Versioning;
 
 namespace Hexalith.Conversations.Contracts.Projections;
@@ -24,6 +25,7 @@ namespace Hexalith.Conversations.Contracts.Projections;
 /// <param name="messageCount">The projected message count.</param>
 /// <param name="fileReferenceCount">The projected file-reference count.</param>
 /// <param name="providerCorrelation">Optional safe provider correlation metadata.</param>
+/// <param name="searchTrustPreview">Compact search trust metadata owned by this projection.</param>
 public sealed record ConversationSummaryProjectionV1(
     SchemaVersion SchemaVersion,
     TenantId TenantId,
@@ -37,7 +39,8 @@ public sealed record ConversationSummaryProjectionV1(
     IReadOnlyList<PartyId>? ParticipantPartyIds = null,
     int MessageCount = 0,
     int FileReferenceCount = 0,
-    ProviderCorrelationMetadata? ProviderCorrelation = null)
+    ProviderCorrelationMetadata? ProviderCorrelation = null,
+    ConversationSearchTrustPreviewV1? SearchTrustPreview = null)
 {
     /// <summary>
     /// Gets the public projection schema version.
@@ -78,6 +81,12 @@ public sealed record ConversationSummaryProjectionV1(
     /// Gets the projected file-reference count.
     /// </summary>
     public int FileReferenceCount { get; } = ValidateCount(FileReferenceCount, nameof(FileReferenceCount));
+
+    /// <summary>
+    /// Gets compact search trust metadata owned by this projection.
+    /// </summary>
+    public ConversationSearchTrustPreviewV1 SearchTrustPreview { get; } =
+        SearchTrustPreview ?? ConversationSearchTrustPreviewV1.FromFreshness(Freshness);
 
     private static string ValidateLifecycle(string value)
     {

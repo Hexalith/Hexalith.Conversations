@@ -1,5 +1,24 @@
 # Test Automation Summary
 
+## Story 3.1 Tenant-Scoped Find Evidence
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ConversationQueryContractTest.cs` - Added Story 3.1 filter vocabulary validation, invalid date range rejection, search trust-preview JSON shape coverage, and assertions that list responses avoid totals, facets, autocomplete, recent-search, provider-session, and transcript surfaces.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization fixture coverage for Story 3.1 search trust-preview contracts and vocabularies.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` - Added exact filter coverage for redaction state, freshness state, audit readiness, and verification state; safe no-accessible-matches shape coverage; trust-preview hydration behavior; and review regression coverage for non-current accessible matches beyond the continuation lookahead row.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs` - Added query-string binding coverage for Story 3.1 trust filters and fail-closed malformed date/closed-vocabulary filter handling without projection reads.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationQuery|FullyQualifiedName~ConversationSearch|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 17 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest|FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~Projection"` - 117 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~TenantAccess|FullyQualifiedName~Hydration|FullyQualifiedName~ConversationQueryRegistrationTest"` - 138 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 642 passed.
+
+### Coverage
+- Contracts now extend the existing tenant-scoped list-query path with closed, safe search filters for redaction, freshness, audit readiness, and verification state, without adding provider/session identifiers, broad transcript search, totals, facets, autocomplete, or recent-search metadata.
+- Summary and projection contracts now expose compact search trust previews with freshness, redaction, participant resolution, citation availability, audit readiness, verification state, match source, and safe why-visible copy. Older projections default to non-assumptive trust metadata.
+- Server/API coverage verifies tenant access still gates projection reads, poison rows are tenant-filtered before search, new filters apply only to tenant-scoped projection fields, malformed query values return hidden list shape, hydration updates participant resolution state after paging, non-current accessible matches downgrade list freshness even beyond the continuation lookahead row, and no accessible matches use safe empty copy.
+
 ## Story 2.8 Privileged Operational Justification Evidence
 
 ### Generated Tests

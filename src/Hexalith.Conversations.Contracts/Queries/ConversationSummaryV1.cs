@@ -28,7 +28,8 @@ public sealed record ConversationSummaryV1(
     ConversationProviderCorrelationV1? ProviderCorrelation = null,
     IReadOnlyList<PartyReferenceHydrationV1>? PartyHydration = null,
     ProjectReferenceHydrationV1? ProjectHydration = null,
-    FolderReferenceHydrationV1? FolderHydration = null)
+    FolderReferenceHydrationV1? FolderHydration = null,
+    ConversationSearchTrustPreviewV1? SearchTrustPreview = null)
 {
     /// <summary>
     /// Gets the public schema version.
@@ -71,6 +72,12 @@ public sealed record ConversationSummaryV1(
     public FolderReferenceHydrationV1? FolderHydration { get; } = FolderHydration;
 
     /// <summary>
+    /// Gets compact trust-preview metadata for safe search result selection.
+    /// </summary>
+    public ConversationSearchTrustPreviewV1 SearchTrustPreview { get; } =
+        SearchTrustPreview ?? ConversationSearchTrustPreviewV1.FromFreshness(Freshness);
+
+    /// <summary>
     /// Creates a query summary from an approved projection.
     /// </summary>
     /// <param name="projection">The source projection.</param>
@@ -91,7 +98,31 @@ public sealed record ConversationSummaryV1(
             projection.ParticipantPartyIds,
             projection.MessageCount,
             projection.FileReferenceCount,
-            ConversationProviderCorrelationV1.From(projection.ProviderCorrelation));
+            ConversationProviderCorrelationV1.From(projection.ProviderCorrelation),
+            SearchTrustPreview: projection.SearchTrustPreview);
+    }
+
+    public ConversationSummaryV1 WithSearchTrustPreview(ConversationSearchTrustPreviewV1 preview)
+    {
+        ArgumentNullException.ThrowIfNull(preview);
+        return new(
+            SchemaVersion,
+            TenantId,
+            ConversationId,
+            Freshness,
+            LifecycleState,
+            Label,
+            BusinessReference,
+            ProjectId,
+            FolderId,
+            ParticipantPartyIds,
+            MessageCount,
+            FileReferenceCount,
+            ProviderCorrelation,
+            PartyHydration,
+            ProjectHydration,
+            FolderHydration,
+            preview);
     }
 
     private static IReadOnlyList<PartyId> ValidateParticipants(IReadOnlyList<PartyId>? participants)

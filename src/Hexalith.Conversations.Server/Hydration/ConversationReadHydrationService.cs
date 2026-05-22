@@ -116,23 +116,30 @@ public sealed class ConversationReadHydrationService
             await HydrateOrUnavailableAsync(folderIds, ids => _directory.HydrateFoldersAsync(context, ids, cancellationToken)).ConfigureAwait(false);
 
         return summaries
-            .Select(summary => new ConversationSummaryV1(
-                summary.SchemaVersion,
-                summary.TenantId,
-                summary.ConversationId,
-                summary.Freshness,
-                summary.LifecycleState,
-                summary.Label,
-                summary.BusinessReference,
-                summary.ProjectId,
-                summary.FolderId,
-                summary.ParticipantPartyIds,
-                summary.MessageCount,
-                summary.FileReferenceCount,
-                summary.ProviderCorrelation,
-                summary.ParticipantPartyIds.Select(id => ToPartyHydration(id, Resolve(id, partyResults))).ToList(),
-                summary.ProjectId is null ? null : ToProjectHydration(summary.ProjectId, Resolve(summary.ProjectId, projectResults)),
-                summary.FolderId is null ? null : ToFolderHydration(summary.FolderId, Resolve(summary.FolderId, folderResults))))
+            .Select(summary =>
+            {
+                IReadOnlyList<PartyReferenceHydrationV1> partyHydration = summary.ParticipantPartyIds
+                    .Select(id => ToPartyHydration(id, Resolve(id, partyResults)))
+                    .ToList();
+                return new ConversationSummaryV1(
+                    summary.SchemaVersion,
+                    summary.TenantId,
+                    summary.ConversationId,
+                    summary.Freshness,
+                    summary.LifecycleState,
+                    summary.Label,
+                    summary.BusinessReference,
+                    summary.ProjectId,
+                    summary.FolderId,
+                    summary.ParticipantPartyIds,
+                    summary.MessageCount,
+                    summary.FileReferenceCount,
+                    summary.ProviderCorrelation,
+                    partyHydration,
+                    summary.ProjectId is null ? null : ToProjectHydration(summary.ProjectId, Resolve(summary.ProjectId, projectResults)),
+                    summary.FolderId is null ? null : ToFolderHydration(summary.FolderId, Resolve(summary.FolderId, folderResults)),
+                    summary.SearchTrustPreview.WithParticipantResolution(WorstHydrationState(partyHydration)));
+            })
             .ToList();
     }
 
@@ -246,6 +253,35 @@ public sealed class ConversationReadHydrationService
                 => (ProjectionTrustState.Unavailable, false),
             _ => (ProjectionTrustState.Forbidden, false),
         };
+
+    private static ProjectionTrustState WorstHydrationState(IReadOnlyList<PartyReferenceHydrationV1> hydration)
+    {
+        if (hydration.Count == 0)
+        {
+            return ProjectionTrustState.Current;
+        }
+
+        ProjectionTrustState worst = ProjectionTrustState.Current;
+        foreach (PartyReferenceHydrationV1 item in hydration)
+        {
+            if (Priority(item.HydrationState) > Priority(worst))
+            {
+                worst = item.HydrationState;
+            }
+        }
+
+        return worst;
+
+        static int Priority(ProjectionTrustState state)
+        {
+            if (state == ProjectionTrustState.Unavailable) { return 5; }
+            if (state == ProjectionTrustState.Rebuilding) { return 4; }
+            if (state == ProjectionTrustState.Stale) { return 3; }
+            if (state == ProjectionTrustState.Redacted) { return 2; }
+            if (state == ProjectionTrustState.Forbidden) { return 1; }
+            return 0;
+        }
+    }
 
     private static string SafeOrFallback(string? value, string fallback)
         => string.IsNullOrWhiteSpace(value) ? fallback : value;

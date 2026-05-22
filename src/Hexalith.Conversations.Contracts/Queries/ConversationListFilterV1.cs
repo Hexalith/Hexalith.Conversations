@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.TrustStates;
 
 namespace Hexalith.Conversations.Contracts.Queries;
 
@@ -24,6 +25,10 @@ namespace Hexalith.Conversations.Contracts.Queries;
 /// <param name="projectedAtTo">The inclusive upper bound for the projection's last-applied event timestamp.</param>
 /// <param name="recentActivityAfter">The exclusive lower bound for projected activity (projection-write-time until Story 1.9 ships LastMessageAt).</param>
 /// <param name="participantPartyId">The stable participant Party reference.</param>
+/// <param name="redactionState">The explicit redaction trust state to match.</param>
+/// <param name="freshnessState">The explicit projection freshness state to match.</param>
+/// <param name="auditReadiness">The explicit audit-readiness state to match.</param>
+/// <param name="verificationState">The explicit verification state to match.</param>
 public sealed record ConversationListFilterV1(
     BusinessReference? BusinessReference = null,
     ProjectId? ProjectId = null,
@@ -32,7 +37,11 @@ public sealed record ConversationListFilterV1(
     DateTimeOffset? ProjectedAtFrom = null,
     DateTimeOffset? ProjectedAtTo = null,
     DateTimeOffset? RecentActivityAfter = null,
-    PartyId? ParticipantPartyId = null)
+    PartyId? ParticipantPartyId = null,
+    ProjectionTrustState? RedactionState = null,
+    ProjectionTrustState? FreshnessState = null,
+    ConversationAuditReadinessState? AuditReadiness = null,
+    ConversationVerificationState? VerificationState = null)
 {
     /// <summary>
     /// Gets an empty filter.
@@ -53,6 +62,26 @@ public sealed record ConversationListFilterV1(
     /// Gets the inclusive upper bound for the projection's last-applied event timestamp.
     /// </summary>
     public DateTimeOffset? ProjectedAtTo { get; } = ValidateProjectedAtRange(ProjectedAtFrom, ProjectedAtTo);
+
+    /// <summary>
+    /// Gets the explicit redaction trust state to match.
+    /// </summary>
+    public ProjectionTrustState? RedactionState { get; } = RedactionState;
+
+    /// <summary>
+    /// Gets the explicit projection freshness state to match.
+    /// </summary>
+    public ProjectionTrustState? FreshnessState { get; } = FreshnessState;
+
+    /// <summary>
+    /// Gets the explicit audit-readiness state to match.
+    /// </summary>
+    public ConversationAuditReadinessState? AuditReadiness { get; } = AuditReadiness;
+
+    /// <summary>
+    /// Gets the explicit verification state to match.
+    /// </summary>
+    public ConversationVerificationState? VerificationState { get; } = VerificationState;
 
     private static DateTimeOffset? ValidateProjectedAtRange(DateTimeOffset? from, DateTimeOffset? to)
     {

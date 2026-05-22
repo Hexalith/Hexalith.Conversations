@@ -8,6 +8,7 @@ using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 
@@ -60,6 +61,7 @@ public sealed class ConversationProjectionMaterializer
             staleAfter,
             isRebuilding,
             metadataWriteFailed);
+        ConversationSearchTrustPreviewV1 searchTrustPreview = CreateSearchTrustPreview(builder, freshness);
 
         ConversationSummaryProjectionV1 summary = new(
             SchemaVersion.Current,
@@ -74,7 +76,8 @@ public sealed class ConversationProjectionMaterializer
             builder.ParticipantPartyIds,
             builder.Messages.Count,
             builder.FileReferences.Count,
-            builder.ProviderCorrelation);
+            builder.ProviderCorrelation,
+            searchTrustPreview);
 
         ConversationDetailProjectionV1 detail = new(
             SchemaVersion.Current,
@@ -180,6 +183,35 @@ public sealed class ConversationProjectionMaterializer
     private static string FormatCursor(long position)
         => FormattableString.Invariant($"pos:{position:D10}");
 
+    private static ConversationSearchTrustPreviewV1 CreateSearchTrustPreview(
+        ProjectionBuilder builder,
+        ProjectionFreshnessV1 freshness)
+    {
+        bool current = freshness.AllowsTrustBearingDecision();
+        ProjectionTrustState redactionState = builder.Redactions.Count > 0
+            ? ProjectionTrustState.Redacted
+            : current ? ProjectionTrustState.Current : ProjectionTrustState.Unavailable;
+        ConversationCitationAvailability citationAvailability = current && builder.WasCreated
+            ? ConversationCitationAvailability.Available
+            : ConversationCitationAvailability.Unavailable;
+        ConversationAuditReadinessState auditReadiness = current && builder.HasAuditEvidence
+            ? ConversationAuditReadinessState.Ready
+            : current ? ConversationAuditReadinessState.Incomplete : ConversationAuditReadinessState.Unknown;
+
+        return new(
+            freshness.FreshnessState,
+            freshness.ReasonCode,
+            redactionState,
+            builder.ParticipantPartyIds.Count == 0 ? ProjectionTrustState.Current : ProjectionTrustState.Unavailable,
+            citationAvailability,
+            auditReadiness,
+            ConversationVerificationState.Unknown,
+            ConversationSearchMatchSource.TenantScope,
+            current
+                ? "Visible through authorized tenant scope."
+                : "Visible through authorized tenant scope with non-current metadata.");
+    }
+
     private sealed class ProjectionBuilder(TenantId tenantId, ConversationId conversationId)
     {
         private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
@@ -209,6 +241,11 @@ public sealed class ConversationProjectionMaterializer
         public FolderId? FolderId { get; private set; }
 
         public bool HasGap { get; private set; }
+
+        public bool HasAuditEvidence
+            => ActiveRetentionPolicy?.AuditEvidence is not null
+                || Redactions.Any(redaction => redaction.AuditEvidence is not null)
+                || SensitivityMarks.Any(mark => mark.AuditEvidence is not null);
 
         public bool HasOutOfOrderEvent { get; private set; }
 

@@ -236,18 +236,25 @@ public sealed class ConversationQueryHandler
         }
 
         int offset = cursor?.Offset ?? 0;
-        List<ConversationSummaryProjectionV1> accessible = tenantScoped
+        List<ConversationSummaryProjectionV1> accessibleMatches = tenantScoped
             .Where(summary => MatchesFilter(summary, query.Filter))
             .OrderByDescending(summary => summary.Freshness.LastAppliedEventTimestamp)
             .ThenBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)
+            .ToList();
+        List<ConversationSummaryProjectionV1> accessible = accessibleMatches
             .Skip(offset)
             .Take(query.Page.PageSize + 1)
             .ToList();
 
         bool issueContinuation = accessible.Count > query.Page.PageSize;
-        IReadOnlyList<ConversationSummaryV1> page = accessible
+        IReadOnlyList<ConversationSummaryProjectionV1> pageCandidates = accessible
             .Take(query.Page.PageSize)
-            .Select(ConversationSummaryV1.FromProjection)
+            .ToList();
+        (ConversationSearchMatchSource matchSource, string whyVisible) = DetermineMatchSource(query.Filter);
+        IReadOnlyList<ConversationSummaryV1> page = pageCandidates
+            .Select(summary => ConversationSummaryV1
+                .FromProjection(summary)
+                .WithSearchTrustPreview(summary.SearchTrustPreview.WithMatchSource(matchSource, whyVisible)))
             .ToList();
 
         page = await _hydrationService
@@ -267,7 +274,7 @@ public sealed class ConversationQueryHandler
                 _timeProvider.GetUtcNow())
             : null;
 
-        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = AggregateFreshness(tenantScoped);
+        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = AggregateFreshness(accessibleMatches);
 
         return new ConversationListResult(
             query.SchemaVersion,
@@ -275,7 +282,9 @@ public sealed class ConversationQueryHandler
             reason,
             page,
             new ConversationPageMetadata(page.Count, nextCursor),
-            nextCursor is null
+            page.Count == 0
+                ? "No accessible matches."
+                : nextCursor is null
                 ? "Accessible results are complete for the supplied filters."
                 : "Use the cursor only with the same tenant, caller, filters, and ordering.");
     }
@@ -286,7 +295,11 @@ public sealed class ConversationQueryHandler
             && Matches(summary.FolderId, filter.FolderId)
             && MatchesLifecycle(summary.LifecycleState, filter.LifecycleState)
             && MatchesProjectedAt(summary.Freshness.LastAppliedEventTimestamp, filter)
-            && MatchesParticipant(summary.ParticipantPartyIds, filter.ParticipantPartyId);
+            && MatchesParticipant(summary.ParticipantPartyIds, filter.ParticipantPartyId)
+            && Matches(summary.SearchTrustPreview.RedactionState, filter.RedactionState)
+            && Matches(summary.Freshness.FreshnessState, filter.FreshnessState)
+            && Matches(summary.SearchTrustPreview.AuditReadiness, filter.AuditReadiness)
+            && Matches(summary.SearchTrustPreview.VerificationState, filter.VerificationState);
 
     private static bool MatchesBusinessReference(BusinessReference? actual, BusinessReference? expected)
         => expected is null
@@ -318,6 +331,61 @@ public sealed class ConversationQueryHandler
 
     private static bool MatchesParticipant(IReadOnlyList<PartyId> actual, PartyId? expected)
         => expected is null || actual.Contains(expected);
+
+    private static (ConversationSearchMatchSource MatchSource, string WhyVisible) DetermineMatchSource(ConversationListFilterV1 filter)
+    {
+        if (filter.BusinessReference is not null)
+        {
+            return (ConversationSearchMatchSource.BusinessReference, "Visible through authorized tenant scope and matched business reference.");
+        }
+
+        if (filter.ProjectId is not null)
+        {
+            return (ConversationSearchMatchSource.ProjectReference, "Visible through authorized tenant scope and matched project reference.");
+        }
+
+        if (filter.FolderId is not null)
+        {
+            return (ConversationSearchMatchSource.FolderReference, "Visible through authorized tenant scope and matched folder reference.");
+        }
+
+        if (filter.ParticipantPartyId is not null)
+        {
+            return (ConversationSearchMatchSource.ParticipantReference, "Visible through authorized tenant scope and matched participant reference.");
+        }
+
+        if (filter.LifecycleState is not null)
+        {
+            return (ConversationSearchMatchSource.LifecycleState, "Visible through authorized tenant scope and matched lifecycle state.");
+        }
+
+        if (filter.ProjectedAtFrom.HasValue || filter.ProjectedAtTo.HasValue || filter.RecentActivityAfter.HasValue)
+        {
+            return (ConversationSearchMatchSource.DateRange, "Visible through authorized tenant scope and matched date range.");
+        }
+
+        if (filter.RedactionState is not null)
+        {
+            return (ConversationSearchMatchSource.RedactionState, "Visible through authorized tenant scope and matched redaction state.");
+        }
+
+        if (filter.FreshnessState is not null)
+        {
+            return (ConversationSearchMatchSource.FreshnessState, "Visible through authorized tenant scope and matched freshness state.");
+        }
+
+        if (filter.AuditReadiness is not null)
+        {
+            return (ConversationSearchMatchSource.AuditReadiness, "Visible through authorized tenant scope and matched audit readiness.");
+        }
+
+        if (filter.VerificationState is not null)
+        {
+            return (ConversationSearchMatchSource.VerificationState, "Visible through authorized tenant scope and matched verification state.");
+        }
+
+        return (ConversationSearchMatchSource.TenantScope, "Visible through authorized tenant scope.");
+    }
 
     private static bool HasMixedGenerations(IReadOnlyList<ConversationSummaryProjectionV1> summaries)
     {

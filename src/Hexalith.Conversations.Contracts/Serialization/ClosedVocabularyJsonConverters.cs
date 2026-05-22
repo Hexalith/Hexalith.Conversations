@@ -7,6 +7,7 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Results;
 
 namespace Hexalith.Conversations.Contracts.Serialization;
@@ -156,4 +157,32 @@ internal sealed class AuditRecordActionClassificationJsonConverter : Conversatio
     protected override AuditRecordActionClassification Create(string value) => AuditRecordActionClassification.Parse(value);
 
     protected override string GetValue(AuditRecordActionClassification value) => value.Value;
+}
+
+internal sealed class ConversationCitationAvailabilityJsonConverter : ConversationStringValueJsonConverter<ConversationCitationAvailability>
+{
+    protected override ConversationCitationAvailability Create(string value) => ConversationCitationAvailability.Parse(value);
+
+    protected override string GetValue(ConversationCitationAvailability value) => value.Value;
+}
+
+internal sealed class ConversationAuditReadinessStateJsonConverter : ConversationStringValueJsonConverter<ConversationAuditReadinessState>
+{
+    protected override ConversationAuditReadinessState Create(string value) => ConversationAuditReadinessState.Parse(value);
+
+    protected override string GetValue(ConversationAuditReadinessState value) => value.Value;
+}
+
+internal sealed class ConversationVerificationStateJsonConverter : ConversationStringValueJsonConverter<ConversationVerificationState>
+{
+    protected override ConversationVerificationState Create(string value) => ConversationVerificationState.Parse(value);
+
+    protected override string GetValue(ConversationVerificationState value) => value.Value;
+}
+
+internal sealed class ConversationSearchMatchSourceJsonConverter : ConversationStringValueJsonConverter<ConversationSearchMatchSource>
+{
+    protected override ConversationSearchMatchSource Create(string value) => ConversationSearchMatchSource.Parse(value);
+
+    protected override string GetValue(ConversationSearchMatchSource value) => value.Value;
 }

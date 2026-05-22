@@ -190,15 +190,30 @@ public static class ConversationReadApi
             RecentActivityAfter: TryParseDate(query, "recentActivityAfter"),
             ParticipantPartyId: TryGet(query, "participantPartyId", out string? participantPartyId)
                 ? new PartyId(participantPartyId)
+                : null,
+            RedactionState: TryGet(query, "redactionState", out string? redactionState)
+                ? ProjectionTrustState.Parse(redactionState)
+                : null,
+            FreshnessState: TryGet(query, "freshnessState", out string? freshnessState)
+                ? ProjectionTrustState.Parse(freshnessState)
+                : null,
+            AuditReadiness: TryGet(query, "auditReadiness", out string? auditReadiness)
+                ? ConversationAuditReadinessState.Parse(auditReadiness)
+                : null,
+            VerificationState: TryGet(query, "verificationState", out string? verificationState)
+                ? ConversationVerificationState.Parse(verificationState)
                 : null);
     }
 
     private static ConversationPageRequest BuildPage(IQueryCollection query)
     {
-        int pageSize = TryGet(query, "pageSize", out string? pageSizeText)
-            && int.TryParse(pageSizeText, NumberStyles.Integer, CultureInfo.InvariantCulture, out int parsedPageSize)
-                ? parsedPageSize
-                : 25;
+        int pageSize = 25;
+        if (TryGet(query, "pageSize", out string? pageSizeText)
+            && !int.TryParse(pageSizeText, NumberStyles.Integer, CultureInfo.InvariantCulture, out pageSize))
+        {
+            throw new ArgumentException("Invalid page size.", nameof(query));
+        }
+
         return new ConversationPageRequest(pageSize, TryGet(query, "cursor", out string? cursor) ? cursor : null);
     }
 
@@ -257,12 +272,18 @@ public static class ConversationReadApi
     }
 
     private static DateTimeOffset? TryParseDate(IQueryCollection query, string key)
-        => TryGet(query, key, out string? value)
-            && DateTimeOffset.TryParse(
-                value,
-                CultureInfo.InvariantCulture,
-                DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
-                out DateTimeOffset parsed)
+    {
+        if (!TryGet(query, key, out string? value))
+        {
+            return null;
+        }
+
+        return DateTimeOffset.TryParse(
+            value,
+            CultureInfo.InvariantCulture,
+            DateTimeStyles.AssumeUniversal | DateTimeStyles.AdjustToUniversal,
+            out DateTimeOffset parsed)
             ? parsed
-            : null;
+            : throw new ArgumentException("Invalid date filter.", key);
+    }
 }

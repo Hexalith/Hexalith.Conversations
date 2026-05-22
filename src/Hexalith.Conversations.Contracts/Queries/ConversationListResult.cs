@@ -60,7 +60,7 @@ public sealed record ConversationListResult(
             ProjectionFreshnessReasonCode.Forbidden,
             [],
             new ConversationPageMetadata(0),
-            "No accessible conversations are available.");
+            "No accessible matches.");
 
     /// <summary>
     /// Creates a content-safe unavailable list result.

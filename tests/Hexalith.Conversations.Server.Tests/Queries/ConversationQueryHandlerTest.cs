@@ -397,6 +397,87 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// A non-current accessible match beyond the returned page still downgrades list freshness.
+    /// </summary>
+    [Fact]
+    public async Task ListFreshnessShouldAggregateWorstCaseAcrossAllAccessibleMatchesBeforePaging()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-current"), Business, Project, Folder, Participant),
+                Summary(
+                    Tenant,
+                    new ConversationId("conv-stale"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    freshnessState: ProjectionTrustState.Stale,
+                    reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+            ],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(1)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Stale);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        result.Conversations.Count.ShouldBe(1);
+        result.Page.ContinuationCursor.ShouldNotBeNull();
+    }
+
+    /// <summary>
+    /// A non-current accessible match beyond the continuation lookahead still downgrades list freshness.
+    /// </summary>
+    [Fact]
+    public async Task ListFreshnessShouldIncludeAccessibleMatchesBeyondLookahead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-current-1"), Business, Project, Folder, Participant, lastAppliedAt: Now.AddMinutes(3)),
+                Summary(Tenant, new ConversationId("conv-current-2"), Business, Project, Folder, Participant, lastAppliedAt: Now.AddMinutes(2)),
+                Summary(
+                    Tenant,
+                    new ConversationId("conv-stale"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    lastAppliedAt: Now.AddMinutes(1),
+                    freshnessState: ProjectionTrustState.Stale,
+                    reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+            ],
+        };
+
+        ConversationListResult result = await CreateHandler(access, store).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(1)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Stale);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+        result.Conversations.Single().ConversationId.Value.ShouldBe("conv-current-1");
+        result.Page.ContinuationCursor.ShouldNotBeNull();
+    }
+
+    /// <summary>
     /// Each list filter dimension narrows the result to only its matching row, in isolation.
     /// </summary>
     [Theory]
@@ -405,6 +486,10 @@ public sealed class ConversationQueryHandlerTest
     [InlineData("folder")]
     [InlineData("lifecycle")]
     [InlineData("participant")]
+    [InlineData("redaction")]
+    [InlineData("freshness")]
+    [InlineData("audit")]
+    [InlineData("verification")]
     public async Task ListShouldFilterByEachDimensionExactly(string dimension)
     {
         FakeTenantAccessService access = AllowedAccess();
@@ -412,6 +497,16 @@ public sealed class ConversationQueryHandlerTest
         ProjectId otherProject = new("project-999");
         FolderId otherFolder = new("folder-999");
         PartyId otherParticipant = new("party-other");
+        ConversationSearchTrustPreviewV1 matchingTrust = TrustPreview(
+            ProjectionTrustState.Redacted,
+            ProjectionTrustState.Stale,
+            ConversationAuditReadinessState.Ready,
+            ConversationVerificationState.Verified);
+        ConversationSearchTrustPreviewV1 nonMatchingTrust = TrustPreview(
+            ProjectionTrustState.Current,
+            ProjectionTrustState.Current,
+            ConversationAuditReadinessState.Incomplete,
+            ConversationVerificationState.Unverified);
 
         (IReadOnlyList<ConversationSummaryProjectionV1> rows, ConversationListFilterV1 filter) = dimension switch
         {
@@ -446,6 +541,39 @@ public sealed class ConversationQueryHandlerTest
                     Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, otherParticipant),
                 ],
                 new ConversationListFilterV1(ParticipantPartyId: Participant)),
+            "redaction" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant, trustPreview: matchingTrust),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, Participant, trustPreview: nonMatchingTrust),
+                ],
+                new ConversationListFilterV1(RedactionState: ProjectionTrustState.Redacted)),
+            "freshness" => (
+                [
+                    Summary(
+                        Tenant,
+                        new ConversationId("match"),
+                        Business,
+                        Project,
+                        Folder,
+                        Participant,
+                        freshnessState: ProjectionTrustState.Stale,
+                        reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded,
+                        trustPreview: matchingTrust),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, Participant, trustPreview: nonMatchingTrust),
+                ],
+                new ConversationListFilterV1(FreshnessState: ProjectionTrustState.Stale)),
+            "audit" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant, trustPreview: matchingTrust),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, Participant, trustPreview: nonMatchingTrust),
+                ],
+                new ConversationListFilterV1(AuditReadiness: ConversationAuditReadinessState.Ready)),
+            "verification" => (
+                [
+                    Summary(Tenant, new ConversationId("match"), Business, Project, Folder, Participant, trustPreview: matchingTrust),
+                    Summary(Tenant, new ConversationId("miss"), Business, Project, Folder, Participant, trustPreview: nonMatchingTrust),
+                ],
+                new ConversationListFilterV1(VerificationState: ConversationVerificationState.Verified)),
             _ => throw new ArgumentOutOfRangeException(nameof(dimension)),
         };
 
@@ -457,6 +585,7 @@ public sealed class ConversationQueryHandlerTest
 
         result.Conversations.Count.ShouldBe(1);
         result.Conversations[0].ConversationId.Value.ShouldBe("match");
+        result.Conversations[0].SearchTrustPreview.MatchSource.ShouldNotBe(ConversationSearchMatchSource.Unknown);
     }
 
     /// <summary>
@@ -570,6 +699,39 @@ public sealed class ConversationQueryHandlerTest
         directory.LastPartyIds.ShouldNotContain(third);
         result.Conversations[0].PartyHydration.Single().SafeLabel.ShouldBe("Z label");
         result.Conversations[1].PartyHydration.Single().SafeLabel.ShouldBe("A label");
+        result.Conversations[0].SearchTrustPreview.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Current);
+    }
+
+    /// <summary>
+    /// Empty list results use safe copy and expose no facet, autocomplete, or recent-search metadata.
+    /// </summary>
+    [Fact]
+    public async Task NoAccessibleMatchesShouldUseSafeEmptyShape()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, new BusinessReference("crm", "case-999"), Project, Folder, Participant)],
+        };
+
+        ConversationListResult result = await CreateHandler(access, store).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                new ConversationListFilterV1(BusinessReference: Business)),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.ShouldBeEmpty();
+        result.Page.ReturnedCount.ShouldBe(0);
+        result.SafeNextAction.ShouldBe("No accessible matches.");
+
+        string json = JsonSerializer.Serialize(result);
+        json.ShouldNotContain("facet", Case.Insensitive);
+        json.ShouldNotContain("autocomplete", Case.Insensitive);
+        json.ShouldNotContain("recentSearch", Case.Insensitive);
+        json.ShouldNotContain("total", Case.Insensitive);
     }
 
     /// <summary>
@@ -933,7 +1095,8 @@ public sealed class ConversationQueryHandlerTest
         string cursor = "pos:0000000001",
         DateTimeOffset? lastAppliedAt = null,
         ProjectionTrustState? freshnessState = null,
-        ProjectionFreshnessReasonCode? reason = null)
+        ProjectionFreshnessReasonCode? reason = null,
+        ConversationSearchTrustPreviewV1? trustPreview = null)
         => new(
             SchemaVersion.Current,
             tenantId,
@@ -946,7 +1109,26 @@ public sealed class ConversationQueryHandlerTest
             folder,
             [participant],
             MessageCount: 1,
-            FileReferenceCount: 0);
+            FileReferenceCount: 0,
+            SearchTrustPreview: trustPreview);
+
+    private static ConversationSearchTrustPreviewV1 TrustPreview(
+        ProjectionTrustState redactionState,
+        ProjectionTrustState freshnessState,
+        ConversationAuditReadinessState auditReadiness,
+        ConversationVerificationState verificationState)
+        => new(
+            freshnessState,
+            freshnessState == ProjectionTrustState.Current
+                ? ProjectionFreshnessReasonCode.Current
+                : ProjectionFreshnessReasonCode.StaleThresholdExceeded,
+            redactionState,
+            ProjectionTrustState.Current,
+            ConversationCitationAvailability.Available,
+            auditReadiness,
+            verificationState,
+            ConversationSearchMatchSource.TenantScope,
+            "Visible through authorized tenant scope.");
 
     private static ConversationDetailProjectionV1 Detail(TenantId tenantId, ConversationId conversationId)
         => new(

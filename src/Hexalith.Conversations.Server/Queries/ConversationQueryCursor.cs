@@ -121,6 +121,10 @@ public sealed class ConversationQueryCursor
             projectedAtTo = filter.ProjectedAtTo?.UtcDateTime,
             recentActivityAfter = filter.RecentActivityAfter?.UtcDateTime,
             participant = filter.ParticipantPartyId?.Value,
+            redactionState = filter.RedactionState?.Value,
+            freshnessState = filter.FreshnessState?.Value,
+            auditReadiness = filter.AuditReadiness?.Value,
+            verificationState = filter.VerificationState?.Value,
             sortVersion = SortVersion,
         });
         byte[] bytes = SHA256.HashData(Encoding.UTF8.GetBytes(input));

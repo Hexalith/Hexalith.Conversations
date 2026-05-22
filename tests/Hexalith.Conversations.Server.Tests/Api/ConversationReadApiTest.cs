@@ -134,6 +134,86 @@ public sealed class ConversationReadApiTest
         response.Body.ShouldNotContain("conversation-cross-tenant", Case.Insensitive);
     }
 
+    [Fact]
+    public async Task ListRequestShouldBindStory31TrustFilterParameters()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(
+                    Tenant,
+                    new ConversationId("conversation-match"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    TrustPreview(
+                        ProjectionTrustState.Redacted,
+                        ProjectionTrustState.Stale,
+                        ConversationAuditReadinessState.Ready,
+                        ConversationVerificationState.Verified),
+                    ProjectionTrustState.Stale,
+                    ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+                Summary(
+                    Tenant,
+                    new ConversationId("conversation-miss"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    TrustPreview(
+                        ProjectionTrustState.Current,
+                        ProjectionTrustState.Current,
+                        ConversationAuditReadinessState.Incomplete,
+                        ConversationVerificationState.Unverified)),
+            ],
+        };
+        using WebApplication app = BuildApp(AllowedAccess(), store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/",
+            queryString: "?redactionState=Redacted&freshnessState=Stale&auditReadiness=Ready&verificationState=Verified",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        using JsonDocument document = JsonDocument.Parse(response.Body);
+        JsonElement conversations = document.RootElement.GetProperty("conversations");
+        conversations.GetArrayLength().ShouldBe(1);
+        conversations[0].GetProperty("conversationId").GetString().ShouldBe("conv:conversation-match");
+        conversations[0].GetProperty("searchTrustPreview").GetProperty("redactionState").GetString().ShouldBe("Redacted");
+        response.Body.ShouldNotContain("conversation-miss", Case.Insensitive);
+        response.Body.ShouldNotContain("autocomplete", Case.Insensitive);
+        response.Body.ShouldNotContain("recentSearch", Case.Insensitive);
+        response.Body.ShouldNotContain("facet", Case.Insensitive);
+    }
+
+    [Theory]
+    [InlineData("?projectedAtFrom=not-a-date")]
+    [InlineData("?redactionState=TranscriptText")]
+    [InlineData("?freshnessState=Maybe")]
+    [InlineData("?auditReadiness=almost-ready")]
+    [InlineData("?verificationState=maybe")]
+    [InlineData("?pageSize=not-a-number")]
+    public async Task ListRequestWithMalformedStory31FilterShouldReturnHiddenShapeWithoutProjectionRead(string queryString)
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, new ConversationId("conversation-match"), Business, Project, Folder, Participant)],
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/",
+            queryString: queryString,
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldContain("\"conversations\":[]");
+        access.Calls.ShouldBe(0);
+        store.ListReads.ShouldBe(0);
+    }
+
     private static WebApplication BuildApp(IConversationTenantAccessService access, IConversationProjectionReadStore store)
     {
         WebApplicationBuilder builder = WebApplication.CreateBuilder();
@@ -209,7 +289,16 @@ public sealed class ConversationReadApiTest
         return new ConversationQueryCursor(Options.Create(new ConversationQueryCursorOptions { SigningKey = key, KeyId = "api-test-key" }));
     }
 
-    private static ConversationSummaryProjectionV1 Summary(TenantId tenantId, ConversationId conversationId, BusinessReference? business, ProjectId? project, FolderId? folder, PartyId participant)
+    private static ConversationSummaryProjectionV1 Summary(
+        TenantId tenantId,
+        ConversationId conversationId,
+        BusinessReference? business,
+        ProjectId? project,
+        FolderId? folder,
+        PartyId participant,
+        ConversationSearchTrustPreviewV1? trustPreview = null,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reason = null)
         => new(
             SchemaVersion.Current,
             tenantId,
@@ -221,9 +310,9 @@ public sealed class ConversationReadApiTest
                 Now,
                 Now.AddSeconds(1),
                 TimeSpan.FromSeconds(1),
-                IsStale: false,
-                ProjectionTrustState.Current,
-                ProjectionFreshnessReasonCode.Current),
+                IsStale: freshnessState == ProjectionTrustState.Stale,
+                freshnessState ?? ProjectionTrustState.Current,
+                reason ?? ProjectionFreshnessReasonCode.Current),
             "Open",
             "Case 123",
             business,
@@ -231,7 +320,26 @@ public sealed class ConversationReadApiTest
             folder,
             [participant],
             MessageCount: 1,
-            FileReferenceCount: 0);
+            FileReferenceCount: 0,
+            SearchTrustPreview: trustPreview);
+
+    private static ConversationSearchTrustPreviewV1 TrustPreview(
+        ProjectionTrustState redactionState,
+        ProjectionTrustState freshnessState,
+        ConversationAuditReadinessState auditReadiness,
+        ConversationVerificationState verificationState)
+        => new(
+            freshnessState,
+            freshnessState == ProjectionTrustState.Current
+                ? ProjectionFreshnessReasonCode.Current
+                : ProjectionFreshnessReasonCode.StaleThresholdExceeded,
+            redactionState,
+            ProjectionTrustState.Current,
+            ConversationCitationAvailability.Available,
+            auditReadiness,
+            verificationState,
+            ConversationSearchMatchSource.TenantScope,
+            "Visible through authorized tenant scope.");
 
     private sealed record ApiResponse(int StatusCode, string Body);
 
