@@ -51,7 +51,7 @@ development_status:
   1-6-add-idempotent-command-handling: done
   1-7-project-conversation-read-models-with-freshness-metadata: done
   1-8-retrieve-and-list-conversations-by-tenant-business-context: done
-  1-9-resolve-parties-and-upstream-references-at-read-time: review
+  1-9-resolve-parties-and-upstream-references-at-read-time: done
   1-10-publish-versioned-conversation-domain-events: ready-for-dev
   1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: ready-for-dev
   epic-1-retrospective: optional

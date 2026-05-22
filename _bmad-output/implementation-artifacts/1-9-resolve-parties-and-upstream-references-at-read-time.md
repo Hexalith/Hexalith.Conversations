@@ -1,6 +1,6 @@
 # Story 1.9: Resolve Parties and Upstream References at Read Time
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -246,6 +246,29 @@ GPT-5 Codex
 - 2026-05-18: Party-mode review applied pre-dev hardening for hydration field allowlists, degraded-state disclosure, batching bounds, read-only invariants, and privacy tests.
 - 2026-05-19: Advanced elicitation applied pre-dev hardening for public/internal hydration-state separation, fallback-label safety, mutable display-data non-authority, and adversarial non-enumeration tests.
 - 2026-05-20: Implemented read-time hydration contracts, server adapter boundary, query composition, degradation mapping, and focused tests; moved story to review.
+- 2026-05-22: Senior Developer Review (AI) applied two auto-fixes to `ConversationReadHydrationService` (broaden adapter failure mapping; drop unused per-file folder hydration) and moved story to done after full server-test re-run (181 passed).
+
+## Senior Developer Review (AI)
+
+- Date: 2026-05-22
+- Reviewer: Jérôme Piquot
+- Outcome: Changes Applied (auto-fix mode)
+- Validation: `dotnet test .\Hexalith.Conversations.slnx --no-restore` (365 passed) and `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj --no-restore` re-run after fixes (181 passed).
+
+### Findings
+
+HIGH — `ConversationReadHydrationService.HydrateOrUnavailableAsync` only caught `TimeoutException`, `InvalidOperationException`, and `IOException`. Any other adapter failure (e.g., `HttpRequestException`, transport exceptions, custom adapter errors) would bubble out and crash the public read response, violating AC 3 and AC 4 ("safe degraded" state when upstream is unavailable, partial failures degrade only affected references). Fix applied: catch any non-`OperationCanceledException` and map the affected batch to `Unavailable`, preserving cancellation propagation and avoiding raw upstream problem detail leakage. (`src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs`)
+
+MEDIUM — `HydrateDetailAsync` collected folder IDs from `details.FileReferences` into the folder hydration batch even though `ConversationDetailsV1.FolderHydration` is a single value derived from `details.FolderId` only. The extra folder IDs were fetched from upstream and discarded. Fix applied: only hydrate the top-level `FolderId`, eliminating dead upstream work and keeping the batch contents aligned with the contract surface. (`src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs`)
+
+MEDIUM (deferred to follow-up) — Dev Agent Record → File List omits the participant directory files (`IParticipantDirectory.cs`, `ParticipantDirectoryValidation.cs`, `ParticipantDirectoryValidationStatus.cs`) that live under `src/Hexalith.Conversations.Server/Hydration/`. These predate Story 1.9 work, so the omission is documentation-only, not a correctness issue.
+
+LOW (deferred to follow-up) — The hydration DTO records (`PartyReferenceHydrationV1`, `ProjectReferenceHydrationV1`, `FolderReferenceHydrationV1`, `FileReferenceHydrationV1`) do not validate that `Resolved` is consistent with `HydrationState` (e.g., `(Forbidden, true)` is constructible). The service maps correctly today, but the contract permits inconsistent combinations.
+
+### Review Follow-ups (AI)
+
+- [ ] [AI-Review][MED] Update story File List with pre-existing participant directory files now sharing the Hydration folder (documentation only).
+- [ ] [AI-Review][LOW] Add invariant validation on hydration DTOs so `Resolved` cannot be `true` for non-`Current`/non-`Stale` `HydrationState`.
 
 ## Party-Mode Review
 

@@ -38,13 +38,7 @@ public sealed class ConversationReadHydrationService
             .Distinct()
             .ToList();
         IReadOnlyList<ProjectId> projectIds = details.ProjectId is null ? [] : [details.ProjectId];
-        IReadOnlyList<FolderId> folderIds = details.FileReferences
-            .Select(file => file.FolderId)
-            .Where(folder => folder is not null)
-            .Cast<FolderId>()
-            .Concat(details.FolderId is null ? [] : [details.FolderId])
-            .Distinct()
-            .ToList();
+        IReadOnlyList<FolderId> folderIds = details.FolderId is null ? [] : [details.FolderId];
         IReadOnlyList<FileId> fileIds = details.FileReferences
             .Select(file => file.FileId)
             .Distinct()
@@ -160,16 +154,11 @@ public sealed class ConversationReadHydrationService
         {
             throw;
         }
-        catch (TimeoutException)
+        catch (Exception)
         {
-            return Unavailable(references);
-        }
-        catch (InvalidOperationException)
-        {
-            return Unavailable(references);
-        }
-        catch (IOException)
-        {
+            // AC 3/4: Map any non-cancellation adapter failure (timeout, throttling, transport, custom
+            // adapter exceptions, etc.) to safe Unavailable hydration so the entire read does not crash
+            // and raw upstream problem details never reach the public response.
             return Unavailable(references);
         }
     }
