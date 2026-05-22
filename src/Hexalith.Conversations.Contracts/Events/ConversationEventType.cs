@@ -65,6 +65,11 @@ public sealed record ConversationEventType
     /// </summary>
     public static ConversationEventType RetentionPolicyReplaced { get; } = new(nameof(RetentionPolicyReplaced));
 
+    /// <summary>
+    /// Gets the event type for a governed sensitivity mark operation.
+    /// </summary>
+    public static ConversationEventType ConversationContentMarkedSensitive { get; } = new(nameof(ConversationContentMarkedSensitive));
+
     private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
         new[]
         {
@@ -78,6 +83,7 @@ public sealed record ConversationEventType
             ConversationLifecycleChanged,
             RetentionPolicySet,
             RetentionPolicyReplaced,
+            ConversationContentMarkedSensitive,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationEventType(string value)

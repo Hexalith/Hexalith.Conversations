@@ -16,6 +16,7 @@ internal static class PublicationSamples
     internal static readonly ConversationId Conversation = new("conversation-001");
     internal static readonly PartyId Actor = new("party-actor");
     internal static readonly PartyId Participant = new("party-participant");
+    internal static readonly MessageId Message = new("message-001");
     internal static readonly ProjectId Project = new("project-001");
     internal static readonly FolderId Folder = new("folder-001");
     internal static readonly BusinessReference Business = new("crm", "case-123");
@@ -50,6 +51,17 @@ internal static class PublicationSamples
         Conversation,
         "correlation-001",
         new DateTimeOffset(2026, 5, 18, 11, 1, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
+
+    internal static readonly ConversationEventMetadata SensitivityMetadata = new(
+        Version,
+        "event-sensitive-001",
+        ConversationEventType.ConversationContentMarkedSensitive,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 5, 0, TimeSpan.Zero),
         Actor,
         "causation-001");
 }

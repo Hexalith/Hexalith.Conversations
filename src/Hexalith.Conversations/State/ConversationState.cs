@@ -6,6 +6,7 @@
 using System.Collections.Immutable;
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -28,6 +29,7 @@ public sealed class ConversationState
     private ImmutableArray<ConversationFileReference> _fileReferences = ImmutableArray<ConversationFileReference>.Empty;
     private ImmutableArray<ConversationMessage> _messages = ImmutableArray<ConversationMessage>.Empty;
     private ImmutableArray<ConversationParticipant> _participants = ImmutableArray<ConversationParticipant>.Empty;
+    private readonly Dictionary<string, ConversationSensitivityMarkState> _sensitivityMarks = new(StringComparer.Ordinal);
 
     /// <summary>
     /// Gets a value indicating whether the conversation was created.
@@ -115,6 +117,12 @@ public sealed class ConversationState
     public ConversationRetentionPolicyState? ActiveRetentionPolicy { get; private set; }
 
     /// <summary>
+    /// Gets replayed sensitivity marks keyed by deterministic governed target reference.
+    /// </summary>
+    public IReadOnlyList<ConversationSensitivityMarkState> SensitivityMarks
+        => _sensitivityMarks.Values.OrderBy(mark => mark.TargetKey, StringComparer.Ordinal).ToArray();
+
+    /// <summary>
     /// Gets the replayed participant membership as an immutable snapshot.
     /// </summary>
     public IReadOnlyList<ConversationParticipant> Participants => _participants;
@@ -146,6 +154,26 @@ public sealed class ConversationState
         => _participants.Any(p => p.PartyId == partyId
             && p.ParticipantType == participantType
             && p.ParticipantRole == participantRole);
+
+    /// <summary>
+    /// Looks up replayed sensitivity state by deterministic governed target key.
+    /// </summary>
+    /// <param name="targetKey">The target key.</param>
+    /// <param name="mark">The matched mark when present.</param>
+    /// <returns><see langword="true" /> when the target already has a replayed mark.</returns>
+    public bool TryGetSensitivityMark(string targetKey, out ConversationSensitivityMarkState? mark)
+        => _sensitivityMarks.TryGetValue(targetKey, out mark);
+
+    /// <summary>
+    /// Builds a deterministic safe key for a governed target reference.
+    /// </summary>
+    /// <param name="target">The content-safe governed target reference.</param>
+    /// <returns>The deterministic target key.</returns>
+    public static string SensitivityTargetKey(GovernanceTarget target)
+    {
+        ArgumentNullException.ThrowIfNull(target);
+        return target.ToTargetKey();
+    }
 
     /// <summary>
     /// Applies a conversation-created event during deterministic replay.
@@ -265,6 +293,35 @@ public sealed class ConversationState
     }
 
     /// <summary>
+    /// Applies a sensitivity-marked event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The sensitivity event.</param>
+    public void Apply(ConversationContentMarkedSensitiveDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        string targetKey = SensitivityTargetKey(e.Target);
+        if (_sensitivityMarks.TryGetValue(targetKey, out ConversationSensitivityMarkState? existing)
+            && existing.Category == e.Category
+            && existing.PolicyReference == e.PolicyReference
+            && existing.Rationale == e.Rationale)
+        {
+            return;
+        }
+
+        _sensitivityMarks[targetKey] = new ConversationSensitivityMarkState(
+            targetKey,
+            e.Target,
+            e.Category,
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence);
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
     /// Applies a public conversation-created event during deterministic replay.
     /// </summary>
     /// <param name="e">The public conversation-created event.</param>
@@ -319,6 +376,22 @@ public sealed class ConversationState
             e.Metadata,
             e.PolicyReference,
             e.PreviousPolicyReference,
+            e.Rationale,
+            e.AuditEvidence));
+    }
+
+    /// <summary>
+    /// Applies a public sensitivity-marked event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public sensitivity event.</param>
+    public void Apply(ConversationContentMarkedSensitive e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new ConversationContentMarkedSensitiveDomainEvent(
+            e.Metadata,
+            e.Target,
+            e.Category,
+            e.PolicyReference,
             e.Rationale,
             e.AuditEvidence));
     }

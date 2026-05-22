@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -90,7 +91,8 @@ public sealed class ConversationProjectionMaterializer
             builder.Messages,
             builder.FileReferences,
             builder.Attributes,
-            builder.ActiveRetentionPolicy);
+            builder.ActiveRetentionPolicy,
+            builder.SensitivityMarks);
 
         return new(summary, detail);
     }
@@ -184,6 +186,7 @@ public sealed class ConversationProjectionMaterializer
         private readonly Dictionary<MessageId, (long Position, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
         private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, ConversationSensitivityMarkProjectionV1> _sensitivityMarks = new(StringComparer.Ordinal);
         private string _lifecycleState = InitializingState;
 
         public IReadOnlyDictionary<string, string> Attributes
@@ -240,6 +243,12 @@ public sealed class ConversationProjectionMaterializer
         public ProjectId? ProjectId { get; private set; }
 
         public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
+
+        public IReadOnlyList<ConversationSensitivityMarkProjectionV1> SensitivityMarks
+            => _sensitivityMarks
+                .Values
+                .OrderBy(mark => mark.Target.ToTargetKey(), StringComparer.Ordinal)
+                .ToArray();
 
         public bool UnsupportedVersion { get; private set; }
 
@@ -351,6 +360,9 @@ public sealed class ConversationProjectionMaterializer
                 case RetentionPolicyReplaced retentionReplaced:
                     Apply(retentionReplaced);
                     break;
+                case ConversationContentMarkedSensitive sensitive:
+                    Apply(sensitive);
+                    break;
                 default:
                     HasOutOfOrderEvent = true;
                     break;
@@ -370,6 +382,7 @@ public sealed class ConversationProjectionMaterializer
                 ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
                 RetentionPolicySet retentionSet => retentionSet.Metadata,
                 RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
+                ConversationContentMarkedSensitive sensitive => sensitive.Metadata,
                 _ => null,
             };
 
@@ -485,6 +498,19 @@ public sealed class ConversationProjectionMaterializer
                 e.Metadata.CommittedAt,
                 e.AuditEvidence,
                 e.PreviousPolicyReference);
+        }
+
+        private void Apply(ConversationContentMarkedSensitive e)
+        {
+            _sensitivityMarks[e.Target.ToTargetKey()] = new ConversationSensitivityMarkProjectionV1(
+                e.Target,
+                e.Category,
+                e.PolicyReference,
+                e.Rationale,
+                e.Metadata.ActorPartyId,
+                e.Metadata.CommittedAt,
+                e.AuditEvidence,
+                ProjectionTrustState.Current);
         }
     }
 }

@@ -25,4 +25,39 @@ public sealed record GovernanceTarget(
     public GovernedTargetKind Kind { get; } = GovernanceContractValidation.RequireNonNull(Kind, nameof(Kind));
 
     public string? SegmentReference { get; } = GovernanceContractValidation.OptionalSafeToken(SegmentReference, nameof(SegmentReference));
+
+    /// <summary>
+    /// Builds the deterministic safe key used to identify this target across aggregate replay and
+    /// projection materialization. Centralizing here prevents key drift between writers and readers.
+    /// </summary>
+    /// <returns>The deterministic safe target key.</returns>
+    public string ToTargetKey()
+    {
+        if (Kind == GovernedTargetKind.Conversation)
+        {
+            return "conversation";
+        }
+
+        if (Kind == GovernedTargetKind.Message)
+        {
+            return $"message:{MessageId?.Value}";
+        }
+
+        if (Kind == GovernedTargetKind.File)
+        {
+            return $"file:{FileId?.Value}";
+        }
+
+        if (Kind == GovernedTargetKind.Participant)
+        {
+            return $"participant:{PartyId?.Value}";
+        }
+
+        if (Kind == GovernedTargetKind.ContentSegment)
+        {
+            return $"segment:{SegmentReference}";
+        }
+
+        return $"unsupported:{Kind.Value}";
+    }
 }

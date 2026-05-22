@@ -7,6 +7,7 @@ using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -193,5 +194,31 @@ public sealed class ConversationPublicationMapperTest
 
         first.GetPublishedEvent<ParticipantAdded>().Metadata.EventId.ShouldBe(second.GetPublishedEvent<ParticipantAdded>().Metadata.EventId);
         first.GetPublishedEvent<ParticipantAdded>().Metadata.DeduplicationKey.ShouldBe(second.GetPublishedEvent<ParticipantAdded>().Metadata.DeduplicationKey);
+    }
+
+    /// <summary>
+    /// A durable sensitivity domain event maps to one public content-safe event.
+    /// </summary>
+    [Fact]
+    public void SensitivityDomainEventShouldMapToPublicSensitivityEvent()
+    {
+        ConversationContentMarkedSensitiveDomainEvent domainEvent = new(
+            PublicationSamples.SensitivityMetadata,
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: PublicationSamples.Message),
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-001"),
+                "sensitivity-policy-standard",
+                PublicationSamples.SensitivityMetadata.CommittedAt));
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, domainEvent));
+
+        result.IsPublished.ShouldBeTrue(result.Diagnostic?.Code.Value);
+        ConversationContentMarkedSensitive published = result.GetPublishedEvent<ConversationContentMarkedSensitive>();
+        published.Target.MessageId.ShouldBe(PublicationSamples.Message);
+        published.PolicyReference.ShouldBe("sensitivity-policy-standard");
     }
 }

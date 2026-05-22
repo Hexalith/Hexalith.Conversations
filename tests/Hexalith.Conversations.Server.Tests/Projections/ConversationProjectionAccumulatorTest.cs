@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -159,6 +160,25 @@ public sealed class ConversationProjectionAccumulatorTest
         first.Snapshot.Attributes.Count.ShouldBe(2);
     }
 
+    /// <summary>
+    /// Sensitivity marked events project target-keyed derived state without duplication.
+    /// </summary>
+    [Fact]
+    public void SensitivityMarkedEventsShouldProjectTargetKeyedState()
+    {
+        ConversationProjectionAccumulator accumulator = Accumulator();
+
+        accumulator.Apply(Created("event-create-001"));
+        accumulator.Apply(Sensitive("event-sensitive-001", new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message)));
+        accumulator.Apply(Sensitive("event-sensitive-001", new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message)));
+        accumulator.Apply(Sensitive("event-sensitive-002", new GovernanceTarget(GovernedTargetKind.ContentSegment, SegmentReference: "segment-001")));
+
+        accumulator.Snapshot.SensitivityMarks.Count.ShouldBe(2);
+        accumulator.Snapshot.SensitivityMarks.Select(mark => mark.Target.Kind)
+            .ShouldBe([GovernedTargetKind.ContentSegment, GovernedTargetKind.Message], ignoreOrder: true);
+        accumulator.Snapshot.ProcessedEventIds.Count.ShouldBe(3);
+    }
+
     private static ConversationCreated Created(string eventId)
         => new(
             Metadata(eventId, ConversationEventType.ConversationCreated),
@@ -209,6 +229,18 @@ public sealed class ConversationProjectionAccumulatorTest
 
     private static ConversationArchived Archived(string eventId)
         => new(Metadata(eventId, ConversationEventType.ConversationArchived), "retained");
+
+    private static ConversationContentMarkedSensitive Sensitive(string eventId, GovernanceTarget target)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationContentMarkedSensitive),
+            target,
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-001"),
+                "sensitivity-policy-standard",
+                Now));
 
     private static ConversationProjectionAccumulator Accumulator()
         => new(Tenant, Conversation);

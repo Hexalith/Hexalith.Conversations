@@ -30,6 +30,7 @@ public static class ConversationPublicationMetadata
             ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
             RetentionPolicySet retentionSet => retentionSet.Metadata,
             RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
+            ConversationContentMarkedSensitive sensitive => sensitive.Metadata,
             _ => null,
         };
 
@@ -52,6 +53,7 @@ public static class ConversationPublicationMetadata
             ConversationLifecycleChanged => eventType == ConversationEventType.ConversationLifecycleChanged,
             RetentionPolicySet => eventType == ConversationEventType.RetentionPolicySet,
             RetentionPolicyReplaced => eventType == ConversationEventType.RetentionPolicyReplaced,
+            ConversationContentMarkedSensitive => eventType == ConversationEventType.ConversationContentMarkedSensitive,
             _ => false,
         };
 }

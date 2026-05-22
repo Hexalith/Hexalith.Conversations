@@ -32,4 +32,12 @@ public sealed record ConversationProjectionSnapshot(
     IReadOnlyList<FileId> FileIds,
     IReadOnlyDictionary<string, string> Attributes,
     IReadOnlyList<string> ProcessedEventIds,
-    ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null);
+    ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null,
+    IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null)
+{
+    /// <summary>
+    /// Gets derived sensitivity state for authorized reads.
+    /// </summary>
+    public IReadOnlyList<ConversationSensitivityMarkProjectionV1> SensitivityMarks { get; } =
+        SensitivityMarks ?? Array.Empty<ConversationSensitivityMarkProjectionV1>();
+}

@@ -16,6 +16,7 @@ using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Command
 using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
 using PublicAddParticipantCommand = Hexalith.Conversations.Contracts.Commands.AddParticipantCommand;
 using PublicSetConversationRetentionPolicyCommand = Hexalith.Conversations.Contracts.Governance.SetConversationRetentionPolicyCommand;
+using PublicMarkConversationContentSensitiveCommand = Hexalith.Conversations.Contracts.Governance.MarkConversationContentSensitiveCommand;
 
 namespace Hexalith.Conversations.Aggregates;
 
@@ -149,5 +150,51 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             command.AuditEvidence,
             commandMetadata.IdempotencyKey);
         return DomainResult.Success(new IEventPayload[] { set });
+    }
+
+    /// <summary>
+    /// Marks governed conversation content as sensitive when the current conversation state permits it.
+    /// </summary>
+    /// <param name="command">The sensitivity mark domain command.</param>
+    /// <param name="state">The current conversation state.</param>
+    /// <returns>A domain result containing one sensitivity event, a no-op, or one typed rejection.</returns>
+    public static DomainResult Handle(MarkConversationContentSensitive command, ConversationState? state)
+    {
+        ConversationRejectedDomainEvent? rejection = MarkConversationContentSensitiveValidation.Validate(command, state);
+        if (rejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
+        }
+
+        PublicMarkConversationContentSensitiveCommand publicCommand = command.PublicCommand;
+        string targetKey = ConversationState.SensitivityTargetKey(publicCommand.Target);
+        if (state!.TryGetSensitivityMark(targetKey, out ConversationSensitivityMarkState? mark)
+            && mark is not null
+            && MarkConversationContentSensitiveValidation.IsCompatible(publicCommand, mark))
+        {
+            return DomainResult.NoOp();
+        }
+
+        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
+        ConversationEventMetadata eventMetadata = new(
+            commandMetadata.SchemaVersion,
+            command.EventId,
+            ConversationEventType.ConversationContentMarkedSensitive,
+            commandMetadata.TenantId,
+            publicCommand.ConversationId,
+            commandMetadata.CorrelationId,
+            publicCommand.OperationTimestamp,
+            commandMetadata.ActorPartyId,
+            commandMetadata.CausationId);
+
+        ConversationContentMarkedSensitiveDomainEvent marked = new(
+            eventMetadata,
+            publicCommand.Target,
+            publicCommand.Category,
+            publicCommand.PolicyReference,
+            publicCommand.Rationale,
+            command.AuditEvidence,
+            commandMetadata.IdempotencyKey);
+        return DomainResult.Success(new IEventPayload[] { marked });
     }
 }

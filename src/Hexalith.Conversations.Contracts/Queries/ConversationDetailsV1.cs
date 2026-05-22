@@ -31,7 +31,8 @@ public sealed record ConversationDetailsV1(
     IReadOnlyList<PartyReferenceHydrationV1>? PartyHydration = null,
     ProjectReferenceHydrationV1? ProjectHydration = null,
     FolderReferenceHydrationV1? FolderHydration = null,
-    IReadOnlyList<FileReferenceHydrationV1>? FileHydration = null)
+    IReadOnlyList<FileReferenceHydrationV1>? FileHydration = null,
+    IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null)
 {
     /// <summary>
     /// Gets the public schema version.
@@ -67,6 +68,12 @@ public sealed record ConversationDetailsV1(
     /// Gets stable file references.
     /// </summary>
     public IReadOnlyList<ConversationFileReferenceProjectionV1> FileReferences { get; } = ValidateList(FileReferences, nameof(FileReferences));
+
+    /// <summary>
+    /// Gets derived sensitivity state for authorized reads.
+    /// </summary>
+    public IReadOnlyList<ConversationSensitivityMarkProjectionV1> SensitivityMarks { get; } =
+        ValidateList(SensitivityMarks, nameof(SensitivityMarks));
 
     /// <summary>
     /// Gets safe adopter metadata.
@@ -116,7 +123,8 @@ public sealed record ConversationDetailsV1(
             projection.Messages,
             projection.FileReferences,
             GovernanceState: "Unavailable",
-            Attributes: projection.Attributes);
+            Attributes: projection.Attributes,
+            SensitivityMarks: projection.SensitivityMarks);
     }
 
     private static IReadOnlyList<T> ValidateList<T>(IReadOnlyList<T>? values, string parameterName)

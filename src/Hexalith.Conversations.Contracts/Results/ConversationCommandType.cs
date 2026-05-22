@@ -55,6 +55,12 @@ public sealed record ConversationCommandType
     /// </summary>
     public static ConversationCommandType SetConversationRetentionPolicyCommand { get; } = new(nameof(SetConversationRetentionPolicyCommand));
 
+    /// <summary>
+    /// Gets the command type for marking governed conversation content as sensitive.
+    /// </summary>
+    public static ConversationCommandType MarkConversationContentSensitiveCommand { get; } =
+        new(nameof(MarkConversationContentSensitiveCommand));
+
     private static readonly IReadOnlyDictionary<string, ConversationCommandType> KnownTypes =
         new[]
         {
@@ -66,6 +72,7 @@ public sealed record ConversationCommandType
             CloseConversationCommand,
             ArchiveConversationCommand,
             SetConversationRetentionPolicyCommand,
+            MarkConversationContentSensitiveCommand,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationCommandType(string value)

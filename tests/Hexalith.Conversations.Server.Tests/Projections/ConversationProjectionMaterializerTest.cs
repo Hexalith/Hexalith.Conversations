@@ -294,6 +294,69 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Sensitivity events derive target-keyed read state with safe audit and trust metadata.
+    /// </summary>
+    [Fact]
+    public void SensitivityEventsShouldProjectDerivedReadState()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, MessageAppended("event-message-001", 2)),
+                Event(3, Sensitive(
+                    "event-sensitive-message-001",
+                    3,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message))),
+                Event(4, Sensitive(
+                    "event-sensitive-segment-001",
+                    4,
+                    new GovernanceTarget(GovernedTargetKind.ContentSegment, SegmentReference: "segment-001"))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.SensitivityMarks.Count.ShouldBe(2);
+        ConversationSensitivityMarkProjectionV1 messageMark = result.Detail.SensitivityMarks
+            .Single(mark => mark.Target.Kind == GovernedTargetKind.Message);
+        messageMark.Target.MessageId.ShouldBe(Message);
+        messageMark.Category.ShouldBe(SensitivityCategory.Restricted);
+        messageMark.PolicyReference.ShouldBe("sensitivity-policy-standard");
+        messageMark.Rationale.ShouldBe("customer-request");
+        messageMark.ActorPartyId.ShouldBe(Actor);
+        messageMark.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        messageMark.TrustState.ShouldBe(ProjectionTrustState.Current);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Unsupported-version sensitivity events cannot upgrade projected sensitivity state to current truth.
+    /// </summary>
+    [Fact]
+    public void UnsupportedSensitivityEventShouldDowngradeProjectionWithoutSensitivityState()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, Sensitive(
+                    "event-sensitive-unsupported",
+                    2,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+                    schemaVersion: new SchemaVersion(2))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.SensitivityMarks.ShouldBeEmpty();
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Summary.Freshness.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Unavailable);
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
     /// MessageAppended with whitespace text is treated as poison rather than crashing the projection pass.
     /// </summary>
     [Fact]
@@ -465,10 +528,26 @@ public sealed class ConversationProjectionMaterializerTest
             "customer-request",
             AuditEvidence(position));
 
+    private static ConversationContentMarkedSensitive Sensitive(
+        string eventId,
+        long position,
+        GovernanceTarget target,
+        SchemaVersion? schemaVersion = null)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationContentMarkedSensitive, position, schemaVersion: schemaVersion),
+            target,
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            AuditEvidence(position, "sensitivity-policy-standard"));
+
     private static GovernanceAuditEvidenceReference AuditEvidence(long position)
+        => AuditEvidence(position, "retention-policy-standard");
+
+    private static GovernanceAuditEvidenceReference AuditEvidence(long position, string policyReference)
         => new(
             new AuditEvidenceHandle("audit-evidence-001"),
-            "retention-policy-standard",
+            policyReference,
             Started.AddSeconds(position));
 
     private static ConversationEventMetadata Metadata(
@@ -476,9 +555,10 @@ public sealed class ConversationProjectionMaterializerTest
         ConversationEventType eventType,
         long position,
         TenantId? tenantId = null,
-        ConversationId? conversationId = null)
+        ConversationId? conversationId = null,
+        SchemaVersion? schemaVersion = null)
         => new(
-            SchemaVersion.Current,
+            schemaVersion ?? SchemaVersion.Current,
             eventId,
             eventType,
             tenantId ?? Tenant,

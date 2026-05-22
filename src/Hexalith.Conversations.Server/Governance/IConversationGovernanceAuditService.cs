@@ -25,4 +25,18 @@ public interface IConversationGovernanceAuditService
         GovernanceOperationKind operationKind,
         string operationId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records audit evidence for a sensitivity mark mutation.
+    /// </summary>
+    /// <param name="command">The sensitivity mark command.</param>
+    /// <param name="operationKind">The governed operation kind.</param>
+    /// <param name="operationId">The server-generated operation identity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The audit precondition result.</returns>
+    ValueTask<ConversationGovernanceAuditResult> RecordSensitivityMarkAsync(
+        MarkConversationContentSensitiveCommand command,
+        GovernanceOperationKind operationKind,
+        string operationId,
+        CancellationToken cancellationToken = default);
 }

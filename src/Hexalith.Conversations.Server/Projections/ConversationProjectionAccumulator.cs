@@ -4,8 +4,10 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
-using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.TrustStates;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -25,6 +27,7 @@ public sealed class ConversationProjectionAccumulator
     private string? _label;
     private ConversationProjectionLifecycleState _lifecycle = ConversationProjectionLifecycleState.NotCreated;
     private ConversationRetentionPolicyProjectionV1? _activeRetentionPolicy;
+    private readonly Dictionary<string, ConversationSensitivityMarkProjectionV1> _sensitivityMarks = new(StringComparer.Ordinal);
     private readonly TenantId _tenantId;
 
     /// <summary>
@@ -53,7 +56,10 @@ public sealed class ConversationProjectionAccumulator
             _files.Values.OrderBy(f => f.Value, StringComparer.Ordinal).ToArray(),
             new Dictionary<string, string>(_attributes, StringComparer.Ordinal),
             _processedEventIds.OrderBy(id => id, StringComparer.Ordinal).ToArray(),
-            _activeRetentionPolicy);
+            _activeRetentionPolicy,
+            _sensitivityMarks.Values
+                .OrderBy(mark => mark.Target.ToTargetKey(), StringComparer.Ordinal)
+                .ToArray());
 
     /// <summary>
     /// Applies a conversation-created event.
@@ -232,6 +238,29 @@ public sealed class ConversationProjectionAccumulator
             e.Metadata.CommittedAt,
             e.AuditEvidence,
             e.PreviousPolicyReference);
+    }
+
+    /// <summary>
+    /// Applies a sensitivity-marked event.
+    /// </summary>
+    /// <param name="e">The event to apply.</param>
+    public void Apply(ConversationContentMarkedSensitive e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
+        {
+            return;
+        }
+
+        _sensitivityMarks[e.Target.ToTargetKey()] = new ConversationSensitivityMarkProjectionV1(
+            e.Target,
+            e.Category,
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence,
+            ProjectionTrustState.Current);
     }
 
     private bool TryMarkProcessed(ConversationEventMetadata metadata)

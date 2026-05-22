@@ -1,6 +1,6 @@
 # Story 2.3: Mark Conversation Content as Sensitive
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -68,56 +68,56 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
 
 ## Tasks / Subtasks
 
-- [ ] Add sensitivity command and contract integration (AC: 1, 3, 6)
-  - [ ] Add or finalize the public mark-sensitive command shape under `src/Hexalith.Conversations.Contracts/Governance/` using Story 2.1 governance metadata, governed target, sensitivity category, policy reference, rationale, audit evidence, and outcome vocabulary.
-  - [ ] Reuse existing `TenantId`, `ConversationId`, `MessageId`, `FileId`, `PartyId`, `SchemaVersion`, `ConversationCommandMetadata`, `ConversationEventMetadata`, and `ConversationError` conventions instead of inventing parallel identifiers or result types.
-  - [ ] Model the governed target as a closed target type plus existing `ConversationId` and the existing target identifier where applicable; segment targets may carry only a safe opaque segment identifier or approved bounded descriptor, never raw content.
-  - [ ] Represent defined content segments as bounded opaque references, ranges, or policy-approved target descriptors; never carry the actual segment text in command, event, projection, validation, or diagnostic payloads.
-  - [ ] Add serialization samples for success, denial, audit-unavailable, policy-blocked, unsupported-target, and hidden-state results.
+- [x] Add sensitivity command and contract integration (AC: 1, 3, 6)
+  - [x] Add or finalize the public mark-sensitive command shape under `src/Hexalith.Conversations.Contracts/Governance/` using Story 2.1 governance metadata, governed target, sensitivity category, policy reference, rationale, audit evidence, and outcome vocabulary.
+  - [x] Reuse existing `TenantId`, `ConversationId`, `MessageId`, `FileId`, `PartyId`, `SchemaVersion`, `ConversationCommandMetadata`, `ConversationEventMetadata`, and `ConversationError` conventions instead of inventing parallel identifiers or result types.
+  - [x] Model the governed target as a closed target type plus existing `ConversationId` and the existing target identifier where applicable; segment targets may carry only a safe opaque segment identifier or approved bounded descriptor, never raw content.
+  - [x] Represent defined content segments as bounded opaque references, ranges, or policy-approved target descriptors; never carry the actual segment text in command, event, projection, validation, or diagnostic payloads.
+  - [x] Add serialization samples for success, denial, audit-unavailable, policy-blocked, unsupported-target, and hidden-state results.
 
-- [ ] Add domain command, aggregate handling, and replay state (AC: 1, 2, 3, 5)
-  - [ ] Introduce a domain command such as `MarkConversationContentSensitive` in the domain layer and map it from the public contract at the server/application boundary.
-  - [ ] Extend `ConversationAggregate` with a sensitivity handler that validates created/open state, tenant binding, target reference, sensitivity category, policy/rationale presence, schema support, and incompatible duplicate semantics before emitting any event.
-  - [ ] Add a domain event such as `ConversationContentMarkedSensitiveDomainEvent` with public `ConversationEventMetadata` plus sensitivity-specific payload.
-  - [ ] Extend `ConversationState` with replay-only sensitivity state keyed by target reference and `Apply` methods that deterministically update the mark history without side effects.
-  - [ ] Define repeated-mark behavior explicitly: same target/category/policy/rationale metadata is idempotent; materially different category, policy, rationale, schema, or target metadata is a typed sanitized conflict unless an approved superseding-event rule exists in Story 2.1 contracts.
-  - [ ] Ensure any idempotency or duplicate fingerprint uses canonical safe values and approved bounded rationale identity, not raw rationale text, policy internals, audit storage coordinates, provider data, or protected content fragments.
-  - [ ] Do not implement message redaction, source-event deletion, legal-hold decisions, export workflows, full compliance UI, audit-record governance, or irreversible content removal in this story.
+- [x] Add domain command, aggregate handling, and replay state (AC: 1, 2, 3, 5)
+  - [x] Introduce a domain command such as `MarkConversationContentSensitive` in the domain layer and map it from the public contract at the server/application boundary.
+  - [x] Extend `ConversationAggregate` with a sensitivity handler that validates created/open state, tenant binding, target reference, sensitivity category, policy/rationale presence, schema support, and incompatible duplicate semantics before emitting any event.
+  - [x] Add a domain event such as `ConversationContentMarkedSensitiveDomainEvent` with public `ConversationEventMetadata` plus sensitivity-specific payload.
+  - [x] Extend `ConversationState` with replay-only sensitivity state keyed by target reference and `Apply` methods that deterministically update the mark history without side effects.
+  - [x] Define repeated-mark behavior explicitly: same target/category/policy/rationale metadata is idempotent; materially different category, policy, rationale, schema, or target metadata is a typed sanitized conflict unless an approved superseding-event rule exists in Story 2.1 contracts.
+  - [x] Ensure any idempotency or duplicate fingerprint uses canonical safe values and approved bounded rationale identity, not raw rationale text, policy internals, audit storage coordinates, provider data, or protected content fragments.
+  - [x] Do not implement message redaction, source-event deletion, legal-hold decisions, export workflows, full compliance UI, audit-record governance, or irreversible content removal in this story.
 
-- [ ] Add application-boundary authorization and audit gates (AC: 1, 3, 4, 6)
-  - [ ] Ensure tenant access is checked before aggregate load, target lookup, projection read, export/rebuild use, or command dispatch using the Story 1.5 guard/service pattern.
-  - [ ] Ensure tenant/governance authorization also precedes EventStore stream resolution, audit lookup result disclosure, idempotency outcome disclosure, and any differentiated missing-target or missing-conversation response.
-  - [ ] Add a governance permission/role requirement distinct from ordinary conversation read/write access; keep it narrow and Conversations-owned if the current tenant access model cannot express it.
-  - [ ] Add or reuse an audit pairing boundary that can prove audit availability and safe evidence correlation before a success result is returned.
-  - [ ] Fail closed when the audit seam is unavailable, returns an unsafe handle, cannot correlate to the sensitivity operation, reports an uncertain/conflicting outcome, cannot durably prove pairing, or would reveal audit infrastructure.
-  - [ ] Preserve Story 1.6 idempotency behavior: duplicate compatible requests return stable outcomes, conflicting fingerprints reject without mutation, and unknown/pending outcomes remain retry-safe and non-mutating.
+- [x] Add application-boundary authorization and audit gates (AC: 1, 3, 4, 6)
+  - [x] Ensure tenant access is checked before aggregate load, target lookup, projection read, export/rebuild use, or command dispatch using the Story 1.5 guard/service pattern.
+  - [x] Ensure tenant/governance authorization also precedes EventStore stream resolution, audit lookup result disclosure, idempotency outcome disclosure, and any differentiated missing-target or missing-conversation response.
+  - [x] Add a governance permission/role requirement distinct from ordinary conversation read/write access; keep it narrow and Conversations-owned if the current tenant access model cannot express it.
+  - [x] Add or reuse an audit pairing boundary that can prove audit availability and safe evidence correlation before a success result is returned.
+  - [x] Fail closed when the audit seam is unavailable, returns an unsafe handle, cannot correlate to the sensitivity operation, reports an uncertain/conflicting outcome, cannot durably prove pairing, or would reveal audit infrastructure.
+  - [x] Preserve Story 1.6 idempotency behavior: duplicate compatible requests return stable outcomes, conflicting fingerprints reject without mutation, and unknown/pending outcomes remain retry-safe and non-mutating.
 
-- [ ] Add safe result and error mapping (AC: 3, 4, 6)
-  - [ ] Map unauthorized, hidden, cross-tenant, stale tenant projection, unsupported schema, missing rationale, invalid policy reference, invalid target, incompatible duplicate, audit unavailable, idempotency conflict, and aggregate-not-found cases to typed sanitized responses.
-  - [ ] Keep internal diagnostics separate from public outcome vocabulary; public responses may include bounded retryability/remediation only when it does not reveal target existence, audit infrastructure, policy internals, upstream facts, exception details, or protected content.
-  - [ ] Ensure safe audit handles are opaque Conversations-owned values, not storage paths, stream positions, projection checkpoints, audit sink keys, log IDs, or provider identifiers.
-  - [ ] Ensure public responses expose only approved status, category, safe policy reference, safe target reference, correlation/causation where already allowed, retryability/remediation where non-disclosing, and approved opaque audit handles.
+- [x] Add safe result and error mapping (AC: 3, 4, 6)
+  - [x] Map unauthorized, hidden, cross-tenant, stale tenant projection, unsupported schema, missing rationale, invalid policy reference, invalid target, incompatible duplicate, audit unavailable, idempotency conflict, and aggregate-not-found cases to typed sanitized responses.
+  - [x] Keep internal diagnostics separate from public outcome vocabulary; public responses may include bounded retryability/remediation only when it does not reveal target existence, audit infrastructure, policy internals, upstream facts, exception details, or protected content.
+  - [x] Ensure safe audit handles are opaque Conversations-owned values, not storage paths, stream positions, projection checkpoints, audit sink keys, log IDs, or provider identifiers.
+  - [x] Ensure public responses expose only approved status, category, safe policy reference, safe target reference, correlation/causation where already allowed, retryability/remediation where non-disclosing, and approved opaque audit handles.
 
-- [ ] Add projection/read-model integration for sensitivity state only (AC: 2, 5, 6)
-  - [ ] Extend the existing projection accumulator/materializer only as needed to expose authorized sensitivity state, target reference, category, policy basis, audit handle, and trust/freshness metadata.
-  - [ ] Keep projected state derived and rebuildable; projections, caches, exports, UI state, and evidence bundles are not authoritative.
-  - [ ] During stale/rebuilding/unavailable projection states, expose bounded trust/freshness signals and do not make governance decisions from stale projected state unless an approved ADR explicitly allows it.
-  - [ ] Make hidden/restricted read states indistinguishable where required to avoid revealing protected target existence or cross-tenant facts.
-  - [ ] Add no mutation-specific storage outside EventStore; any materialized sensitivity state must be rebuildable from accepted sensitivity events and safe to discard.
+- [x] Add projection/read-model integration for sensitivity state only (AC: 2, 5, 6)
+  - [x] Extend the existing projection accumulator/materializer only as needed to expose authorized sensitivity state, target reference, category, policy basis, audit handle, and trust/freshness metadata.
+  - [x] Keep projected state derived and rebuildable; projections, caches, exports, UI state, and evidence bundles are not authoritative.
+  - [x] During stale/rebuilding/unavailable projection states, expose bounded trust/freshness signals and do not make governance decisions from stale projected state unless an approved ADR explicitly allows it.
+  - [x] Make hidden/restricted read states indistinguishable where required to avoid revealing protected target existence or cross-tenant facts.
+  - [x] Add no mutation-specific storage outside EventStore; any materialized sensitivity state must be rebuildable from accepted sensitivity events and safe to discard.
 
-- [ ] Add focused automated tests (AC: 1-6)
-  - [ ] Contract tests cover required metadata, governed target, sensitivity category, rationale, policy reference, schema version, timestamp, actor, tenant, conversation, correlation, causation, safe audit handle, JSON round trips, and forbidden field names.
-  - [ ] Aggregate tests cover marking conversation/message/file/participant/segment targets, invalid targets, missing rationale, invalid policy reference, malformed policy attribution, unsupported schema, oversized/unsafe metadata, tenant mismatch, closed/archived state if applicable, compatible repeated marks, incompatible duplicate marks, deterministic replay, and no-event rejection paths.
-  - [ ] Server/application tests cover tenant authorization before aggregate load, EventStore stream resolution, target lookup, projection read, audit lookup/disclosure, or idempotency outcome disclosure; governance permission denial; stale/missing tenant projection; audit-unavailable/audit-conflict fail-closed behavior; idempotent duplicate/conflict behavior; and same-shape non-disclosure.
-  - [ ] Projection tests cover deterministic rebuild from sensitivity events, target-keyed state for every supported target type, duplicate/reordered event tolerance, stale projection signaling, hidden/restricted read semantics, no authority leakage from projection state, and no cross-tenant sensitivity-state disclosure.
-  - [ ] Target matrix tests cover conversation, message, file/attachment, participant, and defined segment targets with at least one success path, invalid/inaccessible path, cross-tenant denial, replay assertion, and projection assertion each.
-  - [ ] Privacy/forbidden-surface tests prove public type names, property names, JSON payloads, logs/traces where testable, exception messages, test snapshots, audit-facing errors, `ToString()`, validation messages, assertion output, curated fixtures, docs, and sample JSON do not expose forbidden infrastructure, personal-data, provider, upstream, audit-storage, EventStore, raw diagnostic, claim/token, cross-tenant, or protected-content terms.
+- [x] Add focused automated tests (AC: 1-6)
+  - [x] Contract tests cover required metadata, governed target, sensitivity category, rationale, policy reference, schema version, timestamp, actor, tenant, conversation, correlation, causation, safe audit handle, JSON round trips, and forbidden field names.
+  - [x] Aggregate tests cover marking conversation/message/file/participant/segment targets, invalid targets, missing rationale, invalid policy reference, malformed policy attribution, unsupported schema, oversized/unsafe metadata, tenant mismatch, closed/archived state if applicable, compatible repeated marks, incompatible duplicate marks, deterministic replay, and no-event rejection paths.
+  - [x] Server/application tests cover tenant authorization before aggregate load, EventStore stream resolution, target lookup, projection read, audit lookup/disclosure, or idempotency outcome disclosure; governance permission denial; stale/missing tenant projection; audit-unavailable/audit-conflict fail-closed behavior; idempotent duplicate/conflict behavior; and same-shape non-disclosure.
+  - [x] Projection tests cover deterministic rebuild from sensitivity events, target-keyed state for every supported target type, duplicate/reordered event tolerance, stale projection signaling, hidden/restricted read semantics, no authority leakage from projection state, and no cross-tenant sensitivity-state disclosure.
+  - [x] Target matrix tests cover conversation, message, file/attachment, participant, and defined segment targets with at least one success path, invalid/inaccessible path, cross-tenant denial, replay assertion, and projection assertion each.
+  - [x] Privacy/forbidden-surface tests prove public type names, property names, JSON payloads, logs/traces where testable, exception messages, test snapshots, audit-facing errors, `ToString()`, validation messages, assertion output, curated fixtures, docs, and sample JSON do not expose forbidden infrastructure, personal-data, provider, upstream, audit-storage, EventStore, raw diagnostic, claim/token, cross-tenant, or protected-content terms.
 
-- [ ] Update developer-facing docs and samples (AC: 1, 4, 6)
-  - [ ] Add XML docs for sensitivity command/event/result contracts explaining that sensitivity marking is append-only governance metadata with mandatory audit evidence.
-  - [ ] Document that sensitivity marking does not redact content, delete source events, enforce retention, govern audit records, or implement UI/export workflows; those are owned by later stories unless explicitly promoted by ADR.
-  - [ ] Add sample JSON for mark-sensitive success, denied, hidden/restricted, audit-unavailable, policy-blocked, and unsupported-target outcomes using content-safe values only.
-  - [ ] Document the safe target model, operation ordering, duplicate/conflict behavior, and audit-unavailable retry behavior without exposing policy internals or audit infrastructure.
+- [x] Update developer-facing docs and samples (AC: 1, 4, 6)
+  - [x] Add XML docs for sensitivity command/event/result contracts explaining that sensitivity marking is append-only governance metadata with mandatory audit evidence.
+  - [x] Document that sensitivity marking does not redact content, delete source events, enforce retention, govern audit records, or implement UI/export workflows; those are owned by later stories unless explicitly promoted by ADR.
+  - [x] Add sample JSON for mark-sensitive success, denied, hidden/restricted, audit-unavailable, policy-blocked, and unsupported-target outcomes using content-safe values only.
+  - [x] Document the safe target model, operation ordering, duplicate/conflict behavior, and audit-unavailable retry behavior without exposing policy internals or audit infrastructure.
 
 ## Dev Notes
 
@@ -240,20 +240,106 @@ so that downstream projections, UI, exports, and evidence workflows can treat se
 
 ### Agent Model Used
 
-N/A - story created by BMAD create-story automation.
+Codex GPT-5.5 requested where supported; implemented in the current Codex dev-story session.
 
 ### Debug Log References
 
 - Preflight JSON: `_bmad-output/process-notes/predev-preflight-latest.json`
+- Red phase: added failing sensitivity contract, aggregate, server authorization/audit tests before implementation.
+- Validation: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --no-restore` passed (152 tests).
+- Validation: `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --no-restore` passed (124 tests).
+- QA automation summary: `_bmad-output/implementation-artifacts/tests/test-summary.md`
+- Validation: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --no-restore` passed (228 tests).
+- Validation: `dotnet test Hexalith.Conversations.slnx --no-restore` passed (513 tests).
 
 ### Completion Notes List
 
 - Story context created from Epic 2 Story 2.3, Story 2.1 prerequisite contracts, Story 2.2 mutation pattern, architecture governance/data/API constraints, project context, and current code/test patterns.
-- Status set to ready-for-dev; `sprint-status.yaml` owns the queue state.
+- Initial story status was ready-for-dev; final implementation status is review in both story file and `sprint-status.yaml`.
+- Implemented content-safe public sensitivity command/event/result/projection contracts using existing Conversations identifiers, metadata, governance vocabulary, and safe audit evidence references.
+- Added domain command/event handling, target-keyed replay state, compatible no-op duplicate behavior, incompatible sanitized conflict behavior, and safe idempotency fingerprinting for sensitivity marks.
+- Added server-side tenant/governance authorization and audit-pairing gate for sensitivity marks before aggregate dispatch, preserving fail-closed audit and idempotency behavior.
+- Added publication mapping and projection/read-model integration for derived sensitivity state without making projections command authority.
+- Added focused contract, aggregate, server handler, publication, projection, target matrix, and privacy/forbidden-surface coverage.
+- QA automation pass added sensitivity-specific audit status, tenant-mismatch, idempotency conflict, duplicate replay, materially different same-key, and projection materialization downgrade coverage.
 
 ### File List
 
 - `_bmad-output/implementation-artifacts/2-3-mark-conversation-content-as-sensitive.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationContentMarkedSensitive.cs`
+- `src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs`
+- `src/Hexalith.Conversations.Contracts/Governance/ConversationSensitivityMarkResult.cs`
+- `src/Hexalith.Conversations.Contracts/Governance/GovernanceTarget.cs`
+- `src/Hexalith.Conversations.Contracts/Governance/MarkConversationContentSensitiveCommand.cs`
+- `src/Hexalith.Conversations.Contracts/Projections/ConversationDetailProjectionV1.cs`
+- `src/Hexalith.Conversations.Contracts/Projections/ConversationSensitivityMarkProjectionV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/ConversationDetailsV1.cs`
+- `src/Hexalith.Conversations.Contracts/Results/ConversationCommandType.cs`
+- `src/Hexalith.Conversations.Server/CommandHandlers/MarkConversationContentSensitiveCommandHandler.cs`
+- `src/Hexalith.Conversations.Server/Governance/IConversationGovernanceAuditService.cs`
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionAccumulator.cs`
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs`
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionSnapshot.cs`
+- `src/Hexalith.Conversations.Server/Publication/ConversationPublicationMapper.cs`
+- `src/Hexalith.Conversations.Server/Publication/ConversationPublicationMetadata.cs`
+- `src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs`
+- `src/Hexalith.Conversations/Commands/MarkConversationContentSensitive.cs`
+- `src/Hexalith.Conversations/Events/ConversationContentMarkedSensitiveDomainEvent.cs`
+- `src/Hexalith.Conversations/Idempotency/ConversationCommandFingerprint.cs`
+- `src/Hexalith.Conversations/State/ConversationSensitivityMarkState.cs`
+- `src/Hexalith.Conversations/State/ConversationState.cs`
+- `src/Hexalith.Conversations/Validation/MarkConversationContentSensitiveBoundary.cs`
+- `src/Hexalith.Conversations/Validation/MarkConversationContentSensitiveValidation.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/SensitivityContractTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionAccumulatorTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Publication/ConversationPublicationMapperTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Publication/PublicationSamples.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/MarkConversationContentSensitiveCommandHandlerTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/TenantAccess/SetConversationRetentionPolicyCommandHandlerTest.cs`
+- `tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateSensitivityTest.cs`
+
+### Change Log
+
+- 2026-05-22: Implemented Story 2.3 mark-sensitive governance command, domain event/replay, authorization/audit gate, projection/read-model state, publication mapping, samples, and automated tests.
+- 2026-05-22: Senior Developer Review (AI, Claude Opus 4.7) — outcome Approve; one MEDIUM duplication finding auto-fixed (`SensitivityTargetKey` consolidated onto `GovernanceTarget.ToTargetKey()`); status moved to done after full-solution test pass (513 tests).
+
+## Senior Developer Review (AI)
+
+- Reviewer: Jérôme Piquot (Claude Opus 4.7 review session, jpiquot@itaneo.com)
+- Date: 2026-05-22
+- Outcome: Approve
+
+### Summary
+
+All six acceptance criteria are implemented with traceable evidence in the changed code:
+
+- AC1: `MarkConversationContentSensitiveCommandHandler.HandleAsync` runs schema-shape validation, fail-closed tenant binding, `ConversationTenantAccessGuard.RunAsync(Governance)`, semantic-shape validation, idempotency execution, audit-pairing, then aggregate dispatch — in that order — before any event commits.
+- AC2: `ConversationContentMarkedSensitive` (contracts) and `ConversationContentMarkedSensitiveDomainEvent` (domain) carry only Story 2.1-safe metadata (governance target, category, bounded policy reference, bounded rationale, audit evidence handle, actor party, committed timestamp). `ToString()` overrides explicitly exclude rationale and policy reference.
+- AC3: Each negative path returns `ConversationRejectedDomainEvent` with a typed `ConversationErrorCode` and short reason code (`tenant_binding_missing`, `tenant_isolation_violation`, `sensitivity_target_invalid`, `sensitivity_mark_conflict`, `audit_unavailable`, `audit_pairing_required`, `audit_evidence_unsafe`, `audit_pairing_uncertain`, `sensitivity_policy_blocked`, `idempotency_key_missing`); no mutation, audit, projection, or publication side effect occurs on rejection.
+- AC4: Audit pairing is enforced inside `ExecuteSensitivityMutationAsync` — the aggregate dispatch is skipped unless `IConversationGovernanceAuditService.RecordSensitivityMarkAsync` returns `Succeeded` with non-null evidence. Audit-unavailable, unsafe-evidence, uncertain, and policy-blocked statuses each map to a distinct typed rejection without mutation.
+- AC5: `ConversationState.Apply(ConversationContentMarkedSensitiveDomainEvent)` deterministically updates target-keyed sensitivity state and short-circuits compatible duplicates. The projection accumulator/materializer derive read-only sensitivity state from public events and never authorize commands; the handler reads aggregate state only via the supplied `loadStateAsync` after authorization.
+- AC6: ToString/JSON sample tests in `SensitivityContractTest` and `ContractSamples` keep rationale/policy text off the public surface; `ConversationCommandFingerprint.CreateForMarkSensitive` uses canonical key/value pairs (target kind/IDs + category + policy reference + rationale + ISO timestamp) without raw content or audit storage internals.
+
+### Key Findings
+
+1. MEDIUM — `SensitivityTargetKey` was duplicated in three places (`ConversationState`, `ConversationProjectionAccumulator`, `ConversationProjectionMaterializer.ProjectionBuilder`) with hand-written switch logic. Drift between writers and readers would silently desync replay state from projection state.
+   - Fix applied: hoisted the deterministic key into `GovernanceTarget.ToTargetKey()` on the contracts type. `ConversationState.SensitivityTargetKey` now delegates to it, and both projection classes call `target.ToTargetKey()` directly. The duplicate switch implementations are removed.
+
+No HIGH/CRITICAL findings. No LOW findings worth tracking as follow-ups.
+
+### Test Validation
+
+- `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj` — Passed 152 / Failed 0.
+- `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj` — Passed 124 / Failed 0.
+- `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj` — Passed 228 / Failed 0.
+- `dotnet test Hexalith.Conversations.slnx` (after refactor) — Passed 513 / Failed 0 across all projects.
+
+### Action Items
+
+None. Implementation is ready to ship.
 
 ## Party-Mode Review
 

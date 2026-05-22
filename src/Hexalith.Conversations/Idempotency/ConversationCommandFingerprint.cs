@@ -51,6 +51,7 @@ public sealed record ConversationCommandFingerprint(
             CloseConversationCommand close => CreateForClose(close),
             ArchiveConversationCommand archive => CreateForArchive(archive),
             SetConversationRetentionPolicyCommand retention => CreateForSetRetentionPolicy(retention),
+            MarkConversationContentSensitiveCommand sensitivity => CreateForMarkSensitive(sensitivity),
             _ => throw new ArgumentException($"Unsupported conversation command type '{command.GetType().FullName}'.", nameof(command)),
         };
     }
@@ -182,6 +183,26 @@ public sealed record ConversationCommandFingerprint(
                         command.OperationTimestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture)))));
     }
 
+    private static ConversationCommandFingerprint CreateForMarkSensitive(MarkConversationContentSensitiveCommand command)
+    {
+        ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
+        return new ConversationCommandFingerprint(
+            BuildScope(
+                metadata,
+                ConversationCommandType.MarkConversationContentSensitiveCommand,
+                ConversationIdempotencyScope.ConversationScopeKind,
+                RequireNonNull(command.ConversationId, nameof(command.ConversationId)).Value),
+            Fingerprint(
+                MetadataParts(metadata)
+                    .Concat(TargetParts(command.Target))
+                    .Concat(Required("sensitivity.category", command.Category?.Value))
+                    .Concat(Required("sensitivity.policy.reference", command.PolicyReference))
+                    .Concat(Required("sensitivity.rationale", command.Rationale))
+                    .Concat(Required(
+                        "sensitivity.operation.timestamp",
+                        command.OperationTimestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture)))));
+    }
+
     private static ConversationIdempotencyScope BuildScope(
         ConversationCommandMetadata metadata,
         ConversationCommandType commandType,
@@ -216,6 +237,36 @@ public sealed record ConversationCommandFingerprint(
         foreach (KeyValuePair<string, string> attribute in attributes.OrderBy(a => a.Key, StringComparer.Ordinal))
         {
             yield return new KeyValuePair<string, string?>($"attribute.{attribute.Key}", attribute.Value);
+        }
+    }
+
+    private static IEnumerable<KeyValuePair<string, string?>> TargetParts(GovernanceTarget? target)
+    {
+        if (target is null)
+        {
+            throw new ArgumentNullException(nameof(target));
+        }
+
+        GovernanceTarget safeTarget = target;
+        yield return new KeyValuePair<string, string?>("target.kind", safeTarget.Kind.Value);
+        if (safeTarget.MessageId is not null)
+        {
+            yield return new KeyValuePair<string, string?>("target.message.id", safeTarget.MessageId.Value);
+        }
+
+        if (safeTarget.FileId is not null)
+        {
+            yield return new KeyValuePair<string, string?>("target.file.id", safeTarget.FileId.Value);
+        }
+
+        if (safeTarget.PartyId is not null)
+        {
+            yield return new KeyValuePair<string, string?>("target.party.id", safeTarget.PartyId.Value);
+        }
+
+        if (safeTarget.SegmentReference is not null)
+        {
+            yield return new KeyValuePair<string, string?>("target.segment.reference", safeTarget.SegmentReference);
         }
     }
 

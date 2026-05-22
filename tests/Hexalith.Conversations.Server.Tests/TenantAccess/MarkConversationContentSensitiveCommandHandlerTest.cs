@@ -1,4 +1,4 @@
-// <copyright file="SetConversationRetentionPolicyCommandHandlerTest.cs" company="ITANEO">
+// <copyright file="MarkConversationContentSensitiveCommandHandlerTest.cs" company="ITANEO">
 // Copyright (c) ITANEO. All rights reserved.
 // Licensed under the MIT License.
 // </copyright>
@@ -21,16 +21,17 @@ using Hexalith.EventStore.Contracts.Results;
 namespace Hexalith.Conversations.Server.Tests.TenantAccess;
 
 /// <summary>
-/// Verifies the governed retention handler authorization and audit gates.
+/// Verifies sensitivity-mark command authorization and audit gates.
 /// </summary>
-public sealed class SetConversationRetentionPolicyCommandHandlerTest
+public sealed class MarkConversationContentSensitiveCommandHandlerTest
 {
     private static readonly TenantId Tenant = new("tenant-a");
     private static readonly TenantId OtherTenant = new("tenant-b");
     private static readonly ConversationId Conversation = new("conversation-a");
     private static readonly PartyId Actor = new("party-actor");
-    private static readonly DateTimeOffset CreatedAt = new(2026, 5, 19, 9, 0, 0, TimeSpan.Zero);
-    private static readonly DateTimeOffset AppliedAt = new(2026, 5, 19, 9, 5, 0, TimeSpan.Zero);
+    private static readonly MessageId Message = new("message-a");
+    private static readonly DateTimeOffset CreatedAt = new(2026, 5, 20, 9, 0, 0, TimeSpan.Zero);
+    private static readonly DateTimeOffset AppliedAt = new(2026, 5, 20, 9, 5, 0, TimeSpan.Zero);
 
     /// <summary>
     /// Tenant or governance denial happens before aggregate load and before audit proof.
@@ -39,13 +40,12 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     public async Task HandleAsyncShouldDenyBeforeStateLoadAndAudit()
     {
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
-        ConversationTenantAccessDecision denial = ConversationTenantAccessDecision.Denied(
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Denied(
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1",
-            ConversationTenantAccessDenialReason.InsufficientRole);
-        SpyTenantAccessService access = new(denial);
-        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+            ConversationTenantAccessDenialReason.InsufficientRole));
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
         int loadCount = 0;
 
         DomainResult result = await handler.HandleAsync(
@@ -56,20 +56,19 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
                 loadCount++;
                 return ValueTask.FromResult<ConversationState?>(CreatedState());
             },
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.TenantIsolationViolation);
-        rejection.CorrelationId.ShouldBe("event-retention-a");
         loadCount.ShouldBe(0);
         audit.CallCount.ShouldBe(0);
         access.LastRequirement.ShouldBe(ConversationTenantAccessRequirement.Governance);
     }
 
     /// <summary>
-    /// Audit unavailability fails closed and emits no retention mutation event.
+    /// Audit unavailability fails closed and emits no sensitivity mutation event.
     /// </summary>
     [Fact]
     public async Task HandleAsyncShouldFailClosedWhenAuditUnavailable()
@@ -79,24 +78,23 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.AuditSinkUnavailable);
-        rejection.ReasonCode.ShouldBe("audit_unavailable");
-        result.Events.Any(e => e is RetentionPolicySetDomainEvent || e is RetentionPolicyReplacedDomainEvent).ShouldBeFalse();
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
     }
 
     /// <summary>
-    /// Non-success audit precondition outcomes fail closed without retention mutation events.
+    /// Non-success audit precondition outcomes fail closed without sensitivity mutation events.
     /// </summary>
     /// <param name="status">The audit status.</param>
     /// <param name="expectedCodeValue">The expected public rejection code value.</param>
@@ -104,7 +102,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     [Theory]
     [InlineData(ConversationGovernanceAuditStatus.UnsafeEvidence, "audit_pairing_required", "audit_evidence_unsafe")]
     [InlineData(ConversationGovernanceAuditStatus.Uncertain, "idempotency_outcome_unknown", "audit_pairing_uncertain")]
-    [InlineData(ConversationGovernanceAuditStatus.PolicyBlocked, "command_validation_failed", "retention_policy_blocked")]
+    [InlineData(ConversationGovernanceAuditStatus.PolicyBlocked, "command_validation_failed", "sensitivity_policy_blocked")]
     public async Task HandleAsyncShouldFailClosedForNonSuccessAuditStatuses(
         ConversationGovernanceAuditStatus status,
         string expectedCodeValue,
@@ -115,47 +113,46 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
         rejection.Code.ShouldBe(ConversationErrorCode.Parse(expectedCodeValue));
         rejection.ReasonCode.ShouldBe(expectedReason);
-        result.Events.Any(e => e is RetentionPolicySetDomainEvent || e is RetentionPolicyReplacedDomainEvent).ShouldBeFalse();
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
         audit.CallCount.ShouldBe(1);
     }
 
     /// <summary>
-    /// A successful audited command emits a retention policy event after state tenant binding is checked.
+    /// A successful audited command emits a sensitivity event after state tenant binding is checked.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldEmitRetentionEventWhenGovernanceAuditAndStatePass()
+    public async Task HandleAsyncShouldEmitSensitivityEventWhenGovernanceAuditAndStatePass()
     {
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
         SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         result.IsSuccess.ShouldBeTrue();
-        RetentionPolicySetDomainEvent set = result.Events.Single().ShouldBeOfType<RetentionPolicySetDomainEvent>();
-        set.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        result.Events.Single().ShouldBeOfType<ConversationContentMarkedSensitiveDomainEvent>();
         audit.CallCount.ShouldBe(1);
     }
 
@@ -170,13 +167,13 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
 
         DomainResult result = await handler.HandleAsync(
             Command(),
             "user-1",
             _ => ValueTask.FromResult<ConversationState?>(CreatedState(OtherTenant)),
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -197,7 +194,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(
+        MarkConversationContentSensitiveCommandHandler handler = new(
             access,
             audit,
             new IdempotentConversationCommandExecutor(idempotencyStore));
@@ -211,7 +208,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
                 loadCount++;
                 return ValueTask.FromResult<ConversationState?>(CreatedState());
             },
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -224,10 +221,10 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     }
 
     /// <summary>
-    /// Compatible duplicate retention commands replay the original sanitized outcome without duplicate audit or mutation work.
+    /// Compatible duplicate sensitivity commands replay the original sanitized outcome.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldReplayDuplicateRetentionOutcomeWithoutDuplicateAuditOrMutation()
+    public async Task HandleAsyncShouldReplayDuplicateSensitivityOutcomeWithoutDuplicateAuditOrMutation()
     {
         InMemoryConversationIdempotencyStore idempotencyStore = new();
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
@@ -235,7 +232,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(
+        MarkConversationContentSensitiveCommandHandler handler = new(
             access,
             audit,
             new IdempotentConversationCommandExecutor(
@@ -253,21 +250,21 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             Command(),
             "user-1",
             LoadStateAsync,
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
         DomainResult replay = await handler.HandleAsync(
             Command(),
             "user-1",
             LoadStateAsync,
-            "event-retention-b",
+            "event-sensitive-b",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
         first.IsSuccess.ShouldBeTrue();
         ConversationIdempotencyReplayResult replayResult = replay.ShouldBeOfType<ConversationIdempotencyReplayResult>();
         replayResult.Outcome.Category.ShouldBe(IdempotencyOutcomeCategory.Success);
-        replayResult.Outcome.CommandType.ShouldBe(ConversationCommandType.SetConversationRetentionPolicyCommand);
+        replayResult.Outcome.CommandType.ShouldBe(ConversationCommandType.MarkConversationContentSensitiveCommand);
         replayResult.Outcome.AuditHandle.ShouldNotBeNullOrWhiteSpace();
         replayResult.Outcome.AuditHandle.ShouldBe(replayResult.Outcome.CorrelationId);
         string replayPayload = replayResult.ResultPayload.ShouldNotBeNull();
@@ -277,10 +274,10 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     }
 
     /// <summary>
-    /// Reusing an idempotency identity for a materially different retention policy rejects without state load or audit.
+    /// Reusing an idempotency identity for a materially different sensitivity mark rejects without state load or audit.
     /// </summary>
     [Fact]
-    public async Task HandleAsyncShouldRejectMateriallyDifferentPolicyWithSameIdempotencyIdentity()
+    public async Task HandleAsyncShouldRejectMateriallyDifferentMarkWithSameIdempotencyIdentity()
     {
         InMemoryConversationIdempotencyStore idempotencyStore = new();
         FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
@@ -288,7 +285,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             ConversationTenantAccessRequirement.Governance,
             Tenant,
             "user-1"));
-        SetConversationRetentionPolicyCommandHandler handler = new(
+        MarkConversationContentSensitiveCommandHandler handler = new(
             access,
             audit,
             new IdempotentConversationCommandExecutor(
@@ -306,14 +303,14 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             Command(),
             "user-1",
             LoadStateAsync,
-            "event-retention-a",
+            "event-sensitive-a",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
         DomainResult conflict = await handler.HandleAsync(
-            Command("retention-policy-extended"),
+            Command(SensitivityCategory.Regulated),
             "user-1",
             LoadStateAsync,
-            "event-retention-b",
+            "event-sensitive-b",
             Tenant,
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -325,7 +322,7 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
         audit.CallCount.ShouldBe(1);
     }
 
-    private static SetConversationRetentionPolicyCommand Command(string policyReference = "retention-policy-standard")
+    private static MarkConversationContentSensitiveCommand Command(SensitivityCategory? category = null)
         => new(
             new ConversationCommandMetadata(
                 SchemaVersion.Current,
@@ -335,12 +332,14 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
                 "causation-a",
                 "idempotency-a"),
             Conversation,
-            policyReference,
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            category ?? SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
             "customer-request",
             AppliedAt);
 
     private static GovernanceAuditEvidenceReference AuditEvidence()
-        => new(new AuditEvidenceHandle("audit-evidence-001"), "retention-policy-standard", AppliedAt);
+        => new(new AuditEvidenceHandle("audit-evidence-001"), "sensitivity-policy-standard", AppliedAt);
 
     private static ConversationState CreatedState(TenantId? tenant = null)
     {
@@ -356,6 +355,20 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
                 CreatedAt,
                 Actor,
                 "causation-a")));
+        state.Apply(new MessageAppended(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-message-a",
+                ConversationEventType.MessageAppended,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                CreatedAt.AddMinutes(1),
+                Actor,
+                "causation-a"),
+            Message,
+            Actor,
+            "safe-placeholder"));
         return state;
     }
 
@@ -368,17 +381,17 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             GovernanceOperationKind operationKind,
             string operationId,
             CancellationToken cancellationToken = default)
-        {
-            CallCount++;
-            return ValueTask.FromResult(result);
-        }
+            => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
 
         public ValueTask<ConversationGovernanceAuditResult> RecordSensitivityMarkAsync(
             MarkConversationContentSensitiveCommand command,
             GovernanceOperationKind operationKind,
             string operationId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult(ConversationGovernanceAuditResult.AuditUnavailable());
+        {
+            CallCount++;
+            return ValueTask.FromResult(result);
+        }
     }
 
     private sealed class SpyTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
