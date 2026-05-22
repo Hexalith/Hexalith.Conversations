@@ -139,13 +139,44 @@ internal static class ContractSamples
         GovernanceConversationTarget,
         RetentionAction.ApplyPolicy);
 
+    internal static readonly SetConversationRetentionPolicyCommand RetentionCommand = new(
+        CommandMetadata,
+        Conversation,
+        "retention-policy-standard",
+        "customer-request",
+        GovernanceTimestamp);
+
+    internal static readonly ConversationEventMetadata RetentionSetEventMetadata = new(
+        Version,
+        "event-retention-set-001",
+        ConversationEventType.RetentionPolicySet,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        GovernanceTimestamp,
+        Actor,
+        "causation-001");
+
+    internal static readonly ConversationEventMetadata RetentionReplacedEventMetadata = new(
+        Version,
+        "event-retention-replaced-001",
+        ConversationEventType.RetentionPolicyReplaced,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        GovernanceTimestamp.AddMinutes(1),
+        Actor,
+        "causation-001");
+
     internal static IReadOnlyList<object> AllContracts =>
     [
         Version,
         new ContractVersionInfo("Conversations", Version, Version),
         new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
         ConversationCommandType.CreateConversationCommand,
+        ConversationCommandType.SetConversationRetentionPolicyCommand,
         ConversationEventType.ConversationCreated,
+        ConversationEventType.RetentionPolicySet,
         ConversationLifecycleStatus.Open,
         ParticipantType.Human,
         ParticipantRole.Member,
@@ -179,6 +210,45 @@ internal static class ContractSamples
         AuditEvidence,
         GovernanceRequest,
         GovernanceEvidence(GovernanceOperationKind.SetRetentionPolicy, GovernanceOutcome.Succeeded),
+        RetentionCommand,
+        new ConversationRetentionPolicyResult(
+            Version,
+            Tenant,
+            Conversation,
+            GovernanceOutcome.Succeeded,
+            "correlation-001",
+            AuditEvidence,
+            Remediation: GovernanceRemediation.None),
+        new ConversationRetentionPolicyResult(
+            Version,
+            Tenant,
+            Conversation,
+            GovernanceOutcome.Denied,
+            "correlation-002",
+            Error: SafeError(ConversationErrorCode.TenantIsolationViolation),
+            Remediation: GovernanceRemediation.ResubmitWithPolicyReference),
+        new ConversationRetentionPolicyResult(
+            Version,
+            Tenant,
+            Conversation,
+            GovernanceOutcome.AuditUnavailableFailed,
+            "correlation-003",
+            Error: SafeError(ConversationErrorCode.AuditSinkUnavailable),
+            Remediation: GovernanceRemediation.RetryWhenAuditAvailable),
+        new ConversationRetentionPolicyResult(
+            Version,
+            Tenant,
+            Conversation,
+            GovernanceOutcome.PolicyBlocked,
+            "correlation-004",
+            Error: SafeError(ConversationErrorCode.CommandValidationFailed),
+            Remediation: GovernanceRemediation.WaitForLegalHoldRelease),
+        new ConversationRetentionPolicyProjectionV1(
+            "retention-policy-standard",
+            "customer-request",
+            Actor,
+            GovernanceTimestamp,
+            AuditEvidence),
         new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
         new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
         new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
@@ -199,6 +269,17 @@ internal static class ContractSamples
             ConversationLifecycleStatus.Open,
             ConversationLifecycleStatus.Closed,
             "resolved"),
+        new RetentionPolicySet(
+            RetentionSetEventMetadata,
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence),
+        new RetentionPolicyReplaced(
+            RetentionReplacedEventMetadata,
+            "retention-policy-extended",
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence),
         ProjectionTrustState.Current,
         ProjectionFreshnessReasonCode.Current,
         Freshness,
@@ -251,7 +332,13 @@ internal static class ContractSamples
             [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
             [new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, ProviderCorrelation)],
             [new ConversationFileReferenceProjectionV1(File, Folder, Message)],
-            new Dictionary<string, string> { ["priority"] = "normal" }),
+            new Dictionary<string, string> { ["priority"] = "normal" },
+            new ConversationRetentionPolicyProjectionV1(
+                "retention-policy-standard",
+                "customer-request",
+                Actor,
+                GovernanceTimestamp,
+                AuditEvidence)),
         new ConversationSummaryV1(
             Version,
             Tenant,

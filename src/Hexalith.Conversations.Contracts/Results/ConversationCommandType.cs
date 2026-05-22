@@ -50,6 +50,11 @@ public sealed record ConversationCommandType
     /// </summary>
     public static ConversationCommandType ArchiveConversationCommand { get; } = new(nameof(ArchiveConversationCommand));
 
+    /// <summary>
+    /// Gets the command type for setting or replacing a governed retention policy.
+    /// </summary>
+    public static ConversationCommandType SetConversationRetentionPolicyCommand { get; } = new(nameof(SetConversationRetentionPolicyCommand));
+
     private static readonly IReadOnlyDictionary<string, ConversationCommandType> KnownTypes =
         new[]
         {
@@ -60,6 +65,7 @@ public sealed record ConversationCommandType
             UpdateConversationMetadataCommand,
             CloseConversationCommand,
             ArchiveConversationCommand,
+            SetConversationRetentionPolicyCommand,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationCommandType(string value)

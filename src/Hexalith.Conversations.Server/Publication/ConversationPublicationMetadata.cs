@@ -28,6 +28,8 @@ public static class ConversationPublicationMetadata
             ConversationClosed closed => closed.Metadata,
             ConversationArchived archived => archived.Metadata,
             ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
+            RetentionPolicySet retentionSet => retentionSet.Metadata,
+            RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
             _ => null,
         };
 
@@ -48,6 +50,8 @@ public static class ConversationPublicationMetadata
             ConversationClosed => eventType == ConversationEventType.ConversationClosed,
             ConversationArchived => eventType == ConversationEventType.ConversationArchived,
             ConversationLifecycleChanged => eventType == ConversationEventType.ConversationLifecycleChanged,
+            RetentionPolicySet => eventType == ConversationEventType.RetentionPolicySet,
+            RetentionPolicyReplaced => eventType == ConversationEventType.RetentionPolicyReplaced,
             _ => false,
         };
 }

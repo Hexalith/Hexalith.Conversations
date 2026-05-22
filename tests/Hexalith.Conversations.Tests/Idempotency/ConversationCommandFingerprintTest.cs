@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Results;
@@ -55,6 +56,8 @@ public sealed class ConversationCommandFingerprintTest
         ConversationCommandFingerprint addParticipantB = ConversationCommandFingerprint.Create(
             new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session-b")),
             Conversation);
+        ConversationCommandFingerprint retentionA = ConversationCommandFingerprint.Create(RetentionCommand(), Conversation);
+        ConversationCommandFingerprint retentionB = ConversationCommandFingerprint.Create(RetentionCommand(), Conversation);
 
         createA.Scope.ShouldBe(createB.Scope);
         createA.PayloadFingerprint.ShouldBe(createB.PayloadFingerprint);
@@ -64,6 +67,9 @@ public sealed class ConversationCommandFingerprintTest
 
         addParticipantA.Scope.ShouldBe(addParticipantB.Scope);
         addParticipantA.PayloadFingerprint.ShouldBe(addParticipantB.PayloadFingerprint);
+
+        retentionA.Scope.ShouldBe(retentionB.Scope);
+        retentionA.PayloadFingerprint.ShouldBe(retentionB.PayloadFingerprint);
     }
 
     /// <summary>
@@ -127,6 +133,9 @@ public sealed class ConversationCommandFingerprintTest
                 ConversationIdempotencyScope.ConversationScopeKind),
             (new ArchiveConversationCommand(Metadata(), Conversation, "retained"),
                 ConversationCommandType.ArchiveConversationCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (RetentionCommand(),
+                ConversationCommandType.SetConversationRetentionPolicyCommand,
                 ConversationIdempotencyScope.ConversationScopeKind),
         ];
 
@@ -270,6 +279,14 @@ public sealed class ConversationCommandFingerprintTest
             "Case 123",
             new BusinessReference("crm", "case-123"),
             attributes);
+
+    private static SetConversationRetentionPolicyCommand RetentionCommand()
+        => new(
+            Metadata(),
+            Conversation,
+            "retention-policy-standard",
+            "customer-request",
+            new DateTimeOffset(2026, 5, 19, 9, 0, 0, TimeSpan.Zero));
 
     private static ConversationCommandMetadata Metadata(
         TenantId? tenant = null,

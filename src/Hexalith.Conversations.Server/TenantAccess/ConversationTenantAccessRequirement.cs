@@ -24,4 +24,9 @@ public enum ConversationTenantAccessRequirement
     /// Administrative access for audit-sensitive or operational metadata.
     /// </summary>
     Admin = 2,
+
+    /// <summary>
+    /// Governed mutation access for retention, redaction, sensitivity, archival, and audit-policy changes.
+    /// </summary>
+    Governance = 3,
 }

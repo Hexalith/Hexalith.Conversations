@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 
 namespace Hexalith.Conversations.Server.Projections;
 
@@ -30,4 +31,5 @@ public sealed record ConversationProjectionSnapshot(
     IReadOnlyList<MessageId> MessageIds,
     IReadOnlyList<FileId> FileIds,
     IReadOnlyDictionary<string, string> Attributes,
-    IReadOnlyList<string> ProcessedEventIds);
+    IReadOnlyList<string> ProcessedEventIds,
+    ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null);

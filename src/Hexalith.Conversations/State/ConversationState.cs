@@ -110,6 +110,11 @@ public sealed class ConversationState
     public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
 
     /// <summary>
+    /// Gets the replayed active retention policy state, when a governed policy has been accepted.
+    /// </summary>
+    public ConversationRetentionPolicyState? ActiveRetentionPolicy { get; private set; }
+
+    /// <summary>
     /// Gets the replayed participant membership as an immutable snapshot.
     /// </summary>
     public IReadOnlyList<ConversationParticipant> Participants => _participants;
@@ -209,6 +214,57 @@ public sealed class ConversationState
     }
 
     /// <summary>
+    /// Applies a retention-policy-set event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The retention policy event.</param>
+    public void Apply(RetentionPolicySetDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (ActiveRetentionPolicy is not null
+            && ActiveRetentionPolicy.PolicyReference == e.PolicyReference
+            && ActiveRetentionPolicy.Rationale == e.Rationale
+            && ActiveRetentionPolicy.AuditEvidence == e.AuditEvidence)
+        {
+            return;
+        }
+
+        ActiveRetentionPolicy = new ConversationRetentionPolicyState(
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence);
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
+    /// Applies a retention-policy-replaced event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The retention policy event.</param>
+    public void Apply(RetentionPolicyReplacedDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (ActiveRetentionPolicy is not null
+            && ActiveRetentionPolicy.PolicyReference == e.PolicyReference
+            && ActiveRetentionPolicy.Rationale == e.Rationale
+            && ActiveRetentionPolicy.AuditEvidence == e.AuditEvidence)
+        {
+            return;
+        }
+
+        ActiveRetentionPolicy = new ConversationRetentionPolicyState(
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence,
+            e.PreviousPolicyReference);
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
     /// Applies a public conversation-created event during deterministic replay.
     /// </summary>
     /// <param name="e">The public conversation-created event.</param>
@@ -236,6 +292,35 @@ public sealed class ConversationState
             e.ParticipantPartyId,
             e.ParticipantType,
             e.ParticipantRole));
+    }
+
+    /// <summary>
+    /// Applies a public retention-policy-set event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public retention policy event.</param>
+    public void Apply(RetentionPolicySet e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new RetentionPolicySetDomainEvent(
+            e.Metadata,
+            e.PolicyReference,
+            e.Rationale,
+            e.AuditEvidence));
+    }
+
+    /// <summary>
+    /// Applies a public retention-policy-replaced event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public retention policy event.</param>
+    public void Apply(RetentionPolicyReplaced e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new RetentionPolicyReplacedDomainEvent(
+            e.Metadata,
+            e.PolicyReference,
+            e.PreviousPolicyReference,
+            e.Rationale,
+            e.AuditEvidence));
     }
 
     /// <summary>

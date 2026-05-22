@@ -55,6 +55,16 @@ public sealed record ConversationEventType
     /// </summary>
     public static ConversationEventType ConversationLifecycleChanged { get; } = new(nameof(ConversationLifecycleChanged));
 
+    /// <summary>
+    /// Gets the event type for a governed retention policy set operation.
+    /// </summary>
+    public static ConversationEventType RetentionPolicySet { get; } = new(nameof(RetentionPolicySet));
+
+    /// <summary>
+    /// Gets the event type for a governed retention policy replacement operation.
+    /// </summary>
+    public static ConversationEventType RetentionPolicyReplaced { get; } = new(nameof(RetentionPolicyReplaced));
+
     private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
         new[]
         {
@@ -66,6 +76,8 @@ public sealed record ConversationEventType
             ConversationClosed,
             ConversationArchived,
             ConversationLifecycleChanged,
+            RetentionPolicySet,
+            RetentionPolicyReplaced,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationEventType(string value)

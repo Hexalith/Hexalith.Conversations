@@ -15,6 +15,7 @@ using Hexalith.EventStore.Contracts.Results;
 using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Commands.CreateConversationCommand;
 using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
 using PublicAddParticipantCommand = Hexalith.Conversations.Contracts.Commands.AddParticipantCommand;
+using PublicSetConversationRetentionPolicyCommand = Hexalith.Conversations.Contracts.Governance.SetConversationRetentionPolicyCommand;
 
 namespace Hexalith.Conversations.Aggregates;
 
@@ -98,5 +99,55 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             publicCommand.ParticipantRole);
 
         return DomainResult.Success(new IEventPayload[] { added });
+    }
+
+    /// <summary>
+    /// Sets or replaces a governed retention policy when the current conversation state permits it.
+    /// </summary>
+    /// <param name="command">The retention policy domain command.</param>
+    /// <param name="state">The current conversation state.</param>
+    /// <returns>A domain result containing one retention event or one typed rejection.</returns>
+    public static DomainResult Handle(SetConversationRetentionPolicy command, ConversationState? state)
+    {
+        ConversationRejectedDomainEvent? rejection = SetConversationRetentionPolicyValidation.Validate(command, state);
+        if (rejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
+        }
+
+        PublicSetConversationRetentionPolicyCommand publicCommand = command.PublicCommand;
+        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
+        bool replacing = state!.ActiveRetentionPolicy is not null;
+
+        ConversationEventMetadata eventMetadata = new(
+            commandMetadata.SchemaVersion,
+            command.EventId,
+            replacing ? ConversationEventType.RetentionPolicyReplaced : ConversationEventType.RetentionPolicySet,
+            commandMetadata.TenantId,
+            publicCommand.ConversationId,
+            commandMetadata.CorrelationId,
+            publicCommand.OperationTimestamp,
+            commandMetadata.ActorPartyId,
+            commandMetadata.CausationId);
+
+        if (replacing)
+        {
+            RetentionPolicyReplacedDomainEvent replaced = new(
+                eventMetadata,
+                publicCommand.PolicyReference,
+                state.ActiveRetentionPolicy!.PolicyReference,
+                publicCommand.Rationale,
+                command.AuditEvidence,
+                commandMetadata.IdempotencyKey);
+            return DomainResult.Success(new IEventPayload[] { replaced });
+        }
+
+        RetentionPolicySetDomainEvent set = new(
+            eventMetadata,
+            publicCommand.PolicyReference,
+            publicCommand.Rationale,
+            command.AuditEvidence,
+            commandMetadata.IdempotencyKey);
+        return DomainResult.Success(new IEventPayload[] { set });
     }
 }

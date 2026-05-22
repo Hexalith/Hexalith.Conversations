@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -268,6 +269,31 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Retention policy events derive descriptive active retention state without becoming command authority.
+    /// </summary>
+    [Fact]
+    public void RetentionPolicyEventsShouldProjectActiveRetentionState()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, RetentionSet("event-retention-set-001", 2)),
+                Event(3, RetentionReplaced("event-retention-replaced-001", 3)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Detail.ActiveRetentionPolicy.ShouldNotBeNull();
+        result.Detail.ActiveRetentionPolicy.PolicyReference.ShouldBe("retention-policy-extended");
+        result.Detail.ActiveRetentionPolicy.PreviousPolicyReference.ShouldBe("retention-policy-standard");
+        result.Detail.ActiveRetentionPolicy.ActorPartyId.ShouldBe(Actor);
+        result.Detail.ActiveRetentionPolicy.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        result.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
     /// MessageAppended with whitespace text is treated as poison rather than crashing the projection pass.
     /// </summary>
     [Fact]
@@ -423,6 +449,27 @@ public sealed class ConversationProjectionMaterializerTest
             null,
             null,
             new Dictionary<string, string> { ["priority"] = "high" });
+
+    private static RetentionPolicySet RetentionSet(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.RetentionPolicySet, position),
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence(position));
+
+    private static RetentionPolicyReplaced RetentionReplaced(string eventId, long position)
+        => new(
+            Metadata(eventId, ConversationEventType.RetentionPolicyReplaced, position),
+            "retention-policy-extended",
+            "retention-policy-standard",
+            "customer-request",
+            AuditEvidence(position));
+
+    private static GovernanceAuditEvidenceReference AuditEvidence(long position)
+        => new(
+            new AuditEvidenceHandle("audit-evidence-001"),
+            "retention-policy-standard",
+            Started.AddSeconds(position));
 
     private static ConversationEventMetadata Metadata(
         string eventId,

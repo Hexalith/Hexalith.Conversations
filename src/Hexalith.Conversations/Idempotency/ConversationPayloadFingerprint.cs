@@ -74,5 +74,6 @@ public sealed record ConversationPayloadFingerprint(string Algorithm, string Val
         => key == "label"
             || key == "business.value"
             || key == "text"
+            || key == "retention.rationale"
             || key.StartsWith("attribute.", StringComparison.Ordinal);
 }

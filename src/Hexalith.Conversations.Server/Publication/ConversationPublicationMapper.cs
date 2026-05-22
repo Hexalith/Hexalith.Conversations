@@ -72,6 +72,8 @@ public static class ConversationPublicationMapper
             ConversationClosed e => ToLifecycleChanged(e, ConversationLifecycleStatus.Open, ConversationLifecycleStatus.Closed),
             ConversationArchived e => ToLifecycleChanged(e, ConversationLifecycleStatus.Closed, ConversationLifecycleStatus.Archived),
             ConversationLifecycleChanged e => e,
+            RetentionPolicySet e => e,
+            RetentionPolicyReplaced e => e,
             ConversationCreatedDomainEvent e => new ConversationCreated(
                 e.Metadata,
                 e.BusinessReference,
@@ -84,6 +86,17 @@ public static class ConversationPublicationMapper
                 e.ParticipantPartyId,
                 e.ParticipantType,
                 e.ParticipantRole),
+            RetentionPolicySetDomainEvent e => new RetentionPolicySet(
+                e.Metadata,
+                e.PolicyReference,
+                e.Rationale,
+                e.AuditEvidence),
+            RetentionPolicyReplacedDomainEvent e => new RetentionPolicyReplaced(
+                e.Metadata,
+                e.PolicyReference,
+                e.PreviousPolicyReference,
+                e.Rationale,
+                e.AuditEvidence),
             _ => null,
         };
 

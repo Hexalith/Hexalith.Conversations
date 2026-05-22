@@ -6,6 +6,7 @@
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Governance;
 
 using Shouldly;
@@ -447,6 +448,45 @@ public sealed class GovernanceContractTest
             .ToString();
         evidenceText.ShouldNotContain(rationaleSample, Case.Insensitive);
         evidenceText.ShouldNotContain(policySample, Case.Insensitive);
+
+        string commandText = ContractSamples.RetentionCommand.ToString();
+        commandText.ShouldNotContain(rationaleSample, Case.Insensitive);
+        commandText.ShouldNotContain(policySample, Case.Insensitive);
+
+        string retentionSetText = new RetentionPolicySet(
+            ContractSamples.RetentionSetEventMetadata,
+            policySample,
+            rationaleSample,
+            ContractSamples.AuditEvidence).ToString();
+        retentionSetText.ShouldNotContain(rationaleSample, Case.Insensitive);
+        retentionSetText.ShouldNotContain(policySample, Case.Insensitive);
+    }
+
+    /// <summary>
+    /// Ensures retention command and event contracts reject unsafe rationale, policy, and audit values.
+    /// </summary>
+    [Theory]
+    [InlineData("raw message content")]
+    [InlineData("EventStore stream")]
+    [InlineData("provider sdk")]
+    [InlineData("token claim")]
+    [InlineData("c:\\audit\\location")]
+    [InlineData("https://audit.local/value")]
+    public void RetentionContractsShouldRejectUnsafeValues(string unsafeValue)
+    {
+        Should.Throw<ArgumentException>(() => new SetConversationRetentionPolicyCommand(
+            ContractSamples.CommandMetadata,
+            ContractSamples.Conversation,
+            "retention-policy-standard",
+            unsafeValue,
+            ContractSamples.GovernanceTimestamp));
+
+        Should.Throw<ArgumentException>(() => new SetConversationRetentionPolicyCommand(
+            ContractSamples.CommandMetadata,
+            ContractSamples.Conversation,
+            unsafeValue,
+            "customer-request",
+            ContractSamples.GovernanceTimestamp));
     }
 
     /// <summary>

@@ -89,7 +89,8 @@ public sealed class ConversationProjectionMaterializer
             builder.Participants,
             builder.Messages,
             builder.FileReferences,
-            builder.Attributes);
+            builder.Attributes,
+            builder.ActiveRetentionPolicy);
 
         return new(summary, detail);
     }
@@ -189,6 +190,8 @@ public sealed class ConversationProjectionMaterializer
             => new Dictionary<string, string>(
                 _attributes.OrderBy(attribute => attribute.Key, StringComparer.Ordinal),
                 StringComparer.Ordinal);
+
+        public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy { get; private set; }
 
         public BusinessReference? BusinessReference { get; private set; }
 
@@ -342,6 +345,12 @@ public sealed class ConversationProjectionMaterializer
                 case ConversationLifecycleChanged lifecycle:
                     Apply(lifecycle);
                     break;
+                case RetentionPolicySet retentionSet:
+                    Apply(retentionSet);
+                    break;
+                case RetentionPolicyReplaced retentionReplaced:
+                    Apply(retentionReplaced);
+                    break;
                 default:
                     HasOutOfOrderEvent = true;
                     break;
@@ -359,6 +368,8 @@ public sealed class ConversationProjectionMaterializer
                 ConversationClosed closed => closed.Metadata,
                 ConversationArchived archived => archived.Metadata,
                 ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
+                RetentionPolicySet retentionSet => retentionSet.Metadata,
+                RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
                 _ => null,
             };
 
@@ -453,6 +464,27 @@ public sealed class ConversationProjectionMaterializer
         private void Apply(ConversationLifecycleChanged e)
         {
             _lifecycleState = e.CurrentState.Value;
+        }
+
+        private void Apply(RetentionPolicySet e)
+        {
+            ActiveRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
+                e.PolicyReference,
+                e.Rationale,
+                e.Metadata.ActorPartyId,
+                e.Metadata.CommittedAt,
+                e.AuditEvidence);
+        }
+
+        private void Apply(RetentionPolicyReplaced e)
+        {
+            ActiveRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
+                e.PolicyReference,
+                e.Rationale,
+                e.Metadata.ActorPartyId,
+                e.Metadata.CommittedAt,
+                e.AuditEvidence,
+                e.PreviousPolicyReference);
         }
     }
 }

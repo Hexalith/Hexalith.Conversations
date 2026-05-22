@@ -431,7 +431,8 @@ public sealed class ConversationTenantAccessService(
             TenantRole.TenantContributor => requirement is ConversationTenantAccessRequirement.Read or ConversationTenantAccessRequirement.Write,
             TenantRole.TenantOwner => requirement is ConversationTenantAccessRequirement.Read
                 or ConversationTenantAccessRequirement.Write
-                or ConversationTenantAccessRequirement.Admin,
+                or ConversationTenantAccessRequirement.Admin
+                or ConversationTenantAccessRequirement.Governance,
             _ => false,
         };
 

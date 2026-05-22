@@ -7,6 +7,9 @@ namespace Hexalith.Conversations.Contracts.Governance;
 
 internal static class GovernanceContractValidation
 {
+    private const int MaxSafeTextLength = 512;
+    private const int MaxSafeTokenLength = 128;
+
     private static readonly string[] UnsafeTerms =
     [
         "raw message content",
@@ -28,6 +31,10 @@ internal static class GovernanceContractValidation
         "runtime",
         "sdk",
         "server runtime",
+        "tenant:",
+        "customer:",
+        "bearer",
+        "secret",
     ];
 
     internal static T RequireNonNull<T>(T value, string parameterName)
@@ -37,6 +44,11 @@ internal static class GovernanceContractValidation
     internal static string RequiredSafeText(string value, string parameterName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+        if (value.Length > MaxSafeTextLength)
+        {
+            throw new ArgumentException("Value must be within the bounded content-safe length.", parameterName);
+        }
+
         EnsureContentSafe(value, parameterName);
         return value;
     }
@@ -47,6 +59,11 @@ internal static class GovernanceContractValidation
         if (safe.Any(static c => !IsTokenCharacter(c)))
         {
             throw new ArgumentException("Value must be a bounded content-safe identifier.", parameterName);
+        }
+
+        if (safe.Length > MaxSafeTokenLength)
+        {
+            throw new ArgumentException("Value must be within the bounded content-safe identifier length.", parameterName);
         }
 
         return safe;
@@ -84,6 +101,16 @@ internal static class GovernanceContractValidation
 
     private static void EnsureContentSafe(string value, string parameterName)
     {
+        if (value.Any(char.IsControl))
+        {
+            throw new ArgumentException("Value must remain content-safe and cannot contain control characters.", parameterName);
+        }
+
+        if (LooksLikePathOrLocation(value))
+        {
+            throw new ArgumentException("Value must remain content-safe and cannot contain storage or location syntax.", parameterName);
+        }
+
         foreach (string term in UnsafeTerms)
         {
             if (value.Contains(term, StringComparison.OrdinalIgnoreCase))
@@ -95,4 +122,10 @@ internal static class GovernanceContractValidation
 
     private static bool IsTokenCharacter(char value)
         => char.IsAsciiLetterOrDigit(value) || value is '-' or '_' or '.' or ':';
+
+    private static bool LooksLikePathOrLocation(string value)
+        => value.Contains("://", StringComparison.Ordinal)
+            || value.Contains('\\', StringComparison.Ordinal)
+            || value.Contains('/', StringComparison.Ordinal)
+            || value.Contains("..", StringComparison.Ordinal);
 }

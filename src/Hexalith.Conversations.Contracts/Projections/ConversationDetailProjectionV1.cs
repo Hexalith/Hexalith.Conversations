@@ -25,6 +25,7 @@ namespace Hexalith.Conversations.Contracts.Projections;
 /// <param name="messages">Visible timeline messages.</param>
 /// <param name="fileReferences">Stable file references.</param>
 /// <param name="attributes">Safe adopter metadata.</param>
+/// <param name="activeRetentionPolicy">Derived active retention state for authorized reads.</param>
 public sealed record ConversationDetailProjectionV1(
     SchemaVersion SchemaVersion,
     TenantId TenantId,
@@ -39,7 +40,8 @@ public sealed record ConversationDetailProjectionV1(
     IReadOnlyList<ConversationParticipantProjectionV1>? Participants = null,
     IReadOnlyList<ConversationTimelineMessageProjectionV1>? Messages = null,
     IReadOnlyList<ConversationFileReferenceProjectionV1>? FileReferences = null,
-    IReadOnlyDictionary<string, string>? Attributes = null)
+    IReadOnlyDictionary<string, string>? Attributes = null,
+    ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null)
 {
     /// <summary>
     /// Gets the public projection schema version.
@@ -85,6 +87,11 @@ public sealed record ConversationDetailProjectionV1(
     /// Gets safe adopter metadata.
     /// </summary>
     public IReadOnlyDictionary<string, string> Attributes { get; } = ValidateAttributes(Attributes);
+
+    /// <summary>
+    /// Gets derived active retention state for authorized reads.
+    /// </summary>
+    public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy { get; } = ActiveRetentionPolicy;
 
     private static string ValidateLifecycle(string value)
     {

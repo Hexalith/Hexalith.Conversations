@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Identifiers;
 
 namespace Hexalith.Conversations.Server.Projections;
@@ -23,6 +24,7 @@ public sealed class ConversationProjectionAccumulator
     private readonly ConversationId _conversationId;
     private string? _label;
     private ConversationProjectionLifecycleState _lifecycle = ConversationProjectionLifecycleState.NotCreated;
+    private ConversationRetentionPolicyProjectionV1? _activeRetentionPolicy;
     private readonly TenantId _tenantId;
 
     /// <summary>
@@ -50,7 +52,8 @@ public sealed class ConversationProjectionAccumulator
             _messages.Values.OrderBy(m => m.Value, StringComparer.Ordinal).ToArray(),
             _files.Values.OrderBy(f => f.Value, StringComparer.Ordinal).ToArray(),
             new Dictionary<string, string>(_attributes, StringComparer.Ordinal),
-            _processedEventIds.OrderBy(id => id, StringComparer.Ordinal).ToArray());
+            _processedEventIds.OrderBy(id => id, StringComparer.Ordinal).ToArray(),
+            _activeRetentionPolicy);
 
     /// <summary>
     /// Applies a conversation-created event.
@@ -188,6 +191,47 @@ public sealed class ConversationProjectionAccumulator
         }
 
         _lifecycle = ConversationProjectionLifecycleState.Archived;
+    }
+
+    /// <summary>
+    /// Applies a retention-policy-set event.
+    /// </summary>
+    /// <param name="e">The event to apply.</param>
+    public void Apply(RetentionPolicySet e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
+        {
+            return;
+        }
+
+        _activeRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence);
+    }
+
+    /// <summary>
+    /// Applies a retention-policy-replaced event.
+    /// </summary>
+    /// <param name="e">The event to apply.</param>
+    public void Apply(RetentionPolicyReplaced e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
+        {
+            return;
+        }
+
+        _activeRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
+            e.PolicyReference,
+            e.Rationale,
+            e.Metadata.ActorPartyId,
+            e.Metadata.CommittedAt,
+            e.AuditEvidence,
+            e.PreviousPolicyReference);
     }
 
     private bool TryMarkProcessed(ConversationEventMetadata metadata)

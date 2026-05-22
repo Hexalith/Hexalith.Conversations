@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
 
@@ -49,6 +50,7 @@ public sealed record ConversationCommandFingerprint(
             UpdateConversationMetadataCommand update => CreateForUpdateMetadata(update),
             CloseConversationCommand close => CreateForClose(close),
             ArchiveConversationCommand archive => CreateForArchive(archive),
+            SetConversationRetentionPolicyCommand retention => CreateForSetRetentionPolicy(retention),
             _ => throw new ArgumentException($"Unsupported conversation command type '{command.GetType().FullName}'.", nameof(command)),
         };
     }
@@ -160,6 +162,24 @@ public sealed record ConversationCommandFingerprint(
                 ConversationIdempotencyScope.ConversationScopeKind,
                 RequireNonNull(command.ConversationId, nameof(command.ConversationId)).Value),
             Fingerprint(MetadataParts(metadata).Concat(Optional("reason.code", command.ReasonCode))));
+    }
+
+    private static ConversationCommandFingerprint CreateForSetRetentionPolicy(SetConversationRetentionPolicyCommand command)
+    {
+        ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
+        return new ConversationCommandFingerprint(
+            BuildScope(
+                metadata,
+                ConversationCommandType.SetConversationRetentionPolicyCommand,
+                ConversationIdempotencyScope.ConversationScopeKind,
+                RequireNonNull(command.ConversationId, nameof(command.ConversationId)).Value),
+            Fingerprint(
+                MetadataParts(metadata)
+                    .Concat(Required("retention.policy.reference", command.PolicyReference))
+                    .Concat(Required("retention.rationale", command.Rationale))
+                    .Concat(Required(
+                        "retention.operation.timestamp",
+                        command.OperationTimestamp.ToString("O", System.Globalization.CultureInfo.InvariantCulture)))));
     }
 
     private static ConversationIdempotencyScope BuildScope(
