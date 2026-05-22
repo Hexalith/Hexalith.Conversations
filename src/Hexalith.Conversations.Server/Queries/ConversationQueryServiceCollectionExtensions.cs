@@ -3,10 +3,12 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Queries;
@@ -91,6 +93,8 @@ public static class ConversationQueryServiceCollectionExtensions
     {
         services.AddSingleton<ConversationQueryCursor>(static provider =>
             new ConversationQueryCursor(provider.GetRequiredService<IOptions<ConversationQueryCursorOptions>>()));
+        services.TryAddSingleton<IConversationReferenceHydrationDirectory>(UnavailableConversationReferenceHydrationDirectory.Instance);
+        services.AddScoped<ConversationReadHydrationService>();
         services.AddScoped<ConversationProjectionReadService>();
         services.AddScoped<ConversationQueryHandler>();
         return services;

@@ -7,6 +7,7 @@ using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
 
@@ -22,19 +23,22 @@ public sealed class ConversationQueryHandler
     private readonly ConversationProjectionReadService _projectionReadService;
     private readonly ConversationQueryCursor _cursor;
     private readonly TimeProvider _timeProvider;
+    private readonly ConversationReadHydrationService _hydrationService;
 
     public ConversationQueryHandler(
         IConversationTenantAccessService tenantAccessService,
         IConversationProjectionReadStore projectionReadStore,
         ConversationProjectionReadService projectionReadService,
         ConversationQueryCursor cursor,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        ConversationReadHydrationService? hydrationService = null)
     {
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
         _projectionReadService = projectionReadService ?? throw new ArgumentNullException(nameof(projectionReadService));
         _cursor = cursor ?? throw new ArgumentNullException(nameof(cursor));
         _timeProvider = timeProvider ?? TimeProvider.System;
+        _hydrationService = hydrationService ?? new ConversationReadHydrationService();
     }
 
     /// <summary>
@@ -65,9 +69,16 @@ public sealed class ConversationQueryHandler
                 : ConversationDetailResult.Hidden(query.SchemaVersion);
         }
 
+        ConversationDetailsV1 details = await _hydrationService
+            .HydrateDetailAsync(
+                ConversationDetailsV1.FromProjection(result.Projection),
+                new ConversationHydrationContext(query.TenantId, query.CallerPrincipalId, query.CorrelationId),
+                cancellationToken)
+            .ConfigureAwait(false);
+
         return ConversationDetailResult.Visible(
             query.SchemaVersion,
-            ConversationDetailsV1.FromProjection(result.Projection),
+            details,
             "Current projection is available.");
     }
 
@@ -174,6 +185,13 @@ public sealed class ConversationQueryHandler
             .Take(query.Page.PageSize)
             .Select(ConversationSummaryV1.FromProjection)
             .ToList();
+
+        page = await _hydrationService
+            .HydrateSummariesAsync(
+                page,
+                new ConversationHydrationContext(query.TenantId, query.CallerPrincipalId, query.CorrelationId),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         string? nextCursor = issueContinuation
             ? _cursor.Encode(

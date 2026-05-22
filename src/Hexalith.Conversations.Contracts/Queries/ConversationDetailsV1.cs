@@ -27,7 +27,11 @@ public sealed record ConversationDetailsV1(
     IReadOnlyList<ConversationTimelineMessageProjectionV1>? Messages = null,
     IReadOnlyList<ConversationFileReferenceProjectionV1>? FileReferences = null,
     string? GovernanceState = null,
-    IReadOnlyDictionary<string, string>? Attributes = null)
+    IReadOnlyDictionary<string, string>? Attributes = null,
+    IReadOnlyList<PartyReferenceHydrationV1>? PartyHydration = null,
+    ProjectReferenceHydrationV1? ProjectHydration = null,
+    FolderReferenceHydrationV1? FolderHydration = null,
+    IReadOnlyList<FileReferenceHydrationV1>? FileHydration = null)
 {
     /// <summary>
     /// Gets the public schema version.
@@ -70,6 +74,26 @@ public sealed record ConversationDetailsV1(
     public IReadOnlyDictionary<string, string> Attributes { get; } = Attributes ?? new Dictionary<string, string>(StringComparer.Ordinal);
 
     /// <summary>
+    /// Gets response-scoped Party reference hydration.
+    /// </summary>
+    public IReadOnlyList<PartyReferenceHydrationV1> PartyHydration { get; } = ValidateList(PartyHydration, nameof(PartyHydration));
+
+    /// <summary>
+    /// Gets response-scoped project reference hydration.
+    /// </summary>
+    public ProjectReferenceHydrationV1? ProjectHydration { get; } = ProjectHydration;
+
+    /// <summary>
+    /// Gets response-scoped folder reference hydration.
+    /// </summary>
+    public FolderReferenceHydrationV1? FolderHydration { get; } = FolderHydration;
+
+    /// <summary>
+    /// Gets response-scoped file reference hydration.
+    /// </summary>
+    public IReadOnlyList<FileReferenceHydrationV1> FileHydration { get; } = ValidateList(FileHydration, nameof(FileHydration));
+
+    /// <summary>
     /// Creates query details from an approved projection.
     /// </summary>
     /// <param name="projection">The source projection.</param>
@@ -92,7 +116,7 @@ public sealed record ConversationDetailsV1(
             projection.Messages,
             projection.FileReferences,
             GovernanceState: "Unavailable",
-            projection.Attributes);
+            Attributes: projection.Attributes);
     }
 
     private static IReadOnlyList<T> ValidateList<T>(IReadOnlyList<T>? values, string parameterName)

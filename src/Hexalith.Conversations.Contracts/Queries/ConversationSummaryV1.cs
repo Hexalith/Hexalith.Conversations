@@ -25,7 +25,10 @@ public sealed record ConversationSummaryV1(
     IReadOnlyList<PartyId>? ParticipantPartyIds = null,
     int MessageCount = 0,
     int FileReferenceCount = 0,
-    ConversationProviderCorrelationV1? ProviderCorrelation = null)
+    ConversationProviderCorrelationV1? ProviderCorrelation = null,
+    IReadOnlyList<PartyReferenceHydrationV1>? PartyHydration = null,
+    ProjectReferenceHydrationV1? ProjectHydration = null,
+    FolderReferenceHydrationV1? FolderHydration = null)
 {
     /// <summary>
     /// Gets the public schema version.
@@ -51,6 +54,21 @@ public sealed record ConversationSummaryV1(
     /// Gets stable participant Party references.
     /// </summary>
     public IReadOnlyList<PartyId> ParticipantPartyIds { get; } = ValidateParticipants(ParticipantPartyIds);
+
+    /// <summary>
+    /// Gets response-scoped Party reference hydration.
+    /// </summary>
+    public IReadOnlyList<PartyReferenceHydrationV1> PartyHydration { get; } = ValidateHydration(PartyHydration, nameof(PartyHydration));
+
+    /// <summary>
+    /// Gets response-scoped project reference hydration.
+    /// </summary>
+    public ProjectReferenceHydrationV1? ProjectHydration { get; } = ProjectHydration;
+
+    /// <summary>
+    /// Gets response-scoped folder reference hydration.
+    /// </summary>
+    public FolderReferenceHydrationV1? FolderHydration { get; } = FolderHydration;
 
     /// <summary>
     /// Creates a query summary from an approved projection.
@@ -86,5 +104,17 @@ public sealed record ConversationSummaryV1(
         return participants.Any(participant => participant is null)
             ? throw new ArgumentException("Participant Party references must not contain null elements.", nameof(participants))
             : participants;
+    }
+
+    private static IReadOnlyList<T> ValidateHydration<T>(IReadOnlyList<T>? values, string parameterName)
+    {
+        if (values is null || values.Count == 0)
+        {
+            return Array.Empty<T>();
+        }
+
+        return values.Any(value => value is null)
+            ? throw new ArgumentException("Hydration lists must not contain null elements.", parameterName)
+            : values;
     }
 }

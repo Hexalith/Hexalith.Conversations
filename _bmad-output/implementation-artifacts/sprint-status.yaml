@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-20T19:00:59+02:00
+# last_updated: 2026-05-20T19:07:33+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-20T19:00:59+02:00
+last_updated: 2026-05-20T19:07:33+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -51,7 +51,7 @@ development_status:
   1-6-add-idempotent-command-handling: done
   1-7-project-conversation-read-models-with-freshness-metadata: done
   1-8-retrieve-and-list-conversations-by-tenant-business-context: done
-  1-9-resolve-parties-and-upstream-references-at-read-time: ready-for-dev
+  1-9-resolve-parties-and-upstream-references-at-read-time: review
   1-10-publish-versioned-conversation-domain-events: ready-for-dev
   1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: ready-for-dev
   epic-1-retrospective: optional

@@ -156,6 +156,10 @@ internal static class ContractSamples
         new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member),
         new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt, ProviderCorrelation),
         new ConversationFileReferenceProjectionV1(File, Folder, Message),
+        new PartyReferenceHydrationV1(Participant, ProjectionTrustState.Current, true, "Project participant", "participant-token", "Available"),
+        new ProjectReferenceHydrationV1(Project, ProjectionTrustState.Unavailable, false, "Reference unavailable", "unavailable", "Unavailable"),
+        new FolderReferenceHydrationV1(Folder, ProjectionTrustState.Redacted, false, "Reference redacted", "redacted", "Redacted"),
+        new FileReferenceHydrationV1(File, ProjectionTrustState.Forbidden, false, "Reference unavailable", "unavailable", "Unavailable"),
         new ConversationSummaryProjection(Tenant, Conversation, Freshness, "Case 123", Business, [Actor, Participant]),
         new ConversationSummaryProjectionV1(
             Version,
@@ -214,7 +218,11 @@ internal static class ContractSamples
             [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
             [new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt)],
             [new ConversationFileReferenceProjectionV1(File, Folder, Message)],
-            "Unavailable"),
+            "Unavailable",
+            PartyHydration: [new PartyReferenceHydrationV1(Participant, ProjectionTrustState.Current, true, "Project participant", "participant-token", "Available")],
+            ProjectHydration: new ProjectReferenceHydrationV1(Project, ProjectionTrustState.Unavailable, false, "Reference unavailable", "unavailable", "Unavailable"),
+            FolderHydration: new FolderReferenceHydrationV1(Folder, ProjectionTrustState.Redacted, false, "Reference redacted", "redacted", "Redacted"),
+            FileHydration: [new FileReferenceHydrationV1(File, ProjectionTrustState.Forbidden, false, "Reference unavailable", "unavailable", "Unavailable")]),
         ConversationDetailResult.Visible(
             Version,
             new ConversationDetailsV1(
@@ -231,7 +239,8 @@ internal static class ContractSamples
                 [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
                 [new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", EventMetadata.CommittedAt)],
                 [new ConversationFileReferenceProjectionV1(File, Folder, Message)],
-                "Unavailable"),
+                "Unavailable",
+                PartyHydration: [new PartyReferenceHydrationV1(Participant, ProjectionTrustState.Current, true, "Project participant", "participant-token", "Available")]),
             "Current projection is available."),
         new ConversationListResult(
             Version,

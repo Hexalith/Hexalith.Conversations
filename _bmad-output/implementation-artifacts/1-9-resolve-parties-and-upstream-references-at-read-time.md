@@ -1,6 +1,6 @@
 # Story 1.9: Resolve Parties and Upstream References at Read Time
 
-Status: ready-for-dev
+Status: review
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -23,51 +23,51 @@ so that stored conversation events remain stable and privacy-safe while users st
 
 ## Tasks / Subtasks
 
-- [ ] Define the response-safe hydration contract surface in `src/Hexalith.Conversations.Contracts`. (AC: 1-3, 6)
-  - [ ] Add or extend projection/read DTOs so conversation detail responses can carry stable references plus hydration state for Party, Project, Folder, and File references.
-  - [ ] Use approved trust/freshness vocabulary where it applies: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
-  - [ ] Add explicit unresolved/degraded fields that do not require clients to infer safety from `null`, empty display text, missing objects, or HTTP status alone.
-  - [ ] Keep public hydration states separate from internal adapter reason codes; do not expose source module names, raw upstream status codes, transport exceptions, retryability hints, or timestamp/correlation details that would reveal whether a protected resource exists.
-  - [ ] Ensure fallback labels/status values are Conversations-generated safe text or tokens, not sanitized fragments of upstream names, paths, filenames, identifiers, email addresses, tenant metadata, or problem details.
-  - [ ] Keep contract DTOs infrastructure-free: no `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `HttpClient`, EventStore, Dapr, FrontComposer, or ASP.NET Core references.
+- [x] Define the response-safe hydration contract surface in `src/Hexalith.Conversations.Contracts`. (AC: 1-3, 6)
+  - [x] Add or extend projection/read DTOs so conversation detail responses can carry stable references plus hydration state for Party, Project, Folder, and File references.
+  - [x] Use approved trust/freshness vocabulary where it applies: `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, and `Redacted`.
+  - [x] Add explicit unresolved/degraded fields that do not require clients to infer safety from `null`, empty display text, missing objects, or HTTP status alone.
+  - [x] Keep public hydration states separate from internal adapter reason codes; do not expose source module names, raw upstream status codes, transport exceptions, retryability hints, or timestamp/correlation details that would reveal whether a protected resource exists.
+  - [x] Ensure fallback labels/status values are Conversations-generated safe text or tokens, not sanitized fragments of upstream names, paths, filenames, identifiers, email addresses, tenant metadata, or problem details.
+  - [x] Keep contract DTOs infrastructure-free: no `Hexalith.Parties`, `Hexalith.Projects`, `Hexalith.Folders`, `HttpClient`, EventStore, Dapr, FrontComposer, or ASP.NET Core references.
 
-- [ ] Add Conversations-owned upstream adapter abstractions under `src/Hexalith.Conversations.Server`. (AC: 1-4)
-  - [ ] Introduce server-side interfaces such as `IParticipantDirectory`, `IBusinessReferenceDirectory`, or capability-specific adapters under `Hydration`, `Participants`, or `References`.
-  - [ ] Wrap upstream clients behind these adapters; do not let controller/query composition code call Parties/Folders/Projects clients directly.
-  - [ ] Normalize upstream success, forbidden, not-found, gone/deleted, stale, timeout, throttled, and unavailable outcomes into Conversations-owned hydration states.
-  - [ ] Ensure adapters accept tenant scope, caller context, correlation ID, and cancellation token; never accept tokens, claims, raw tenant authorization state, or user-editable authority fields as DTO payload.
+- [x] Add Conversations-owned upstream adapter abstractions under `src/Hexalith.Conversations.Server`. (AC: 1-4)
+  - [x] Introduce server-side interfaces such as `IParticipantDirectory`, `IBusinessReferenceDirectory`, or capability-specific adapters under `Hydration`, `Participants`, or `References`.
+  - [x] Wrap upstream clients behind these adapters; do not let controller/query composition code call Parties/Folders/Projects clients directly.
+  - [x] Normalize upstream success, forbidden, not-found, gone/deleted, stale, timeout, throttled, and unavailable outcomes into Conversations-owned hydration states.
+  - [x] Ensure adapters accept tenant scope, caller context, correlation ID, and cancellation token; never accept tokens, claims, raw tenant authorization state, or user-editable authority fields as DTO payload.
 
-- [ ] Compose hydrated conversation read responses after tenant and projection checks. (AC: 1-4, 6-7)
-  - [ ] Follow the read pipeline explicitly: tenant authorization -> Conversations projection read -> collect stable references -> grouped/deduplicated hydration through Conversations-owned adapters -> apply per-reference permissions and policy filters -> return permission-safe DTO.
-  - [ ] Run tenant access before projection read and before any upstream hydration attempt.
-  - [ ] Use Story 1.7/1.8 projection read models as the input; do not hydrate directly from EventStore streams or aggregate replay for ordinary reads.
-  - [ ] Preserve stable IDs from the projection and add transient display/status details only to the response object.
-  - [ ] Do not use hydrated mutable display labels, upstream status, adapter timing, or internal reason codes as authorization inputs, existence checks, cursor material, stable sort keys, filter predicates, ETags, cache keys, or projection freshness upgrades.
-  - [ ] Keep hydrated Party, Project, Folder, and File display data out of durable events, projections, logs, traces, caches, transcript-shaped artifacts, and testing snapshots that represent persisted state.
-  - [ ] Keep unauthorized, nonexistent, deleted, and cross-tenant references indistinguishable unless an approved policy permits disclosure.
+- [x] Compose hydrated conversation read responses after tenant and projection checks. (AC: 1-4, 6-7)
+  - [x] Follow the read pipeline explicitly: tenant authorization -> Conversations projection read -> collect stable references -> grouped/deduplicated hydration through Conversations-owned adapters -> apply per-reference permissions and policy filters -> return permission-safe DTO.
+  - [x] Run tenant access before projection read and before any upstream hydration attempt.
+  - [x] Use Story 1.7/1.8 projection read models as the input; do not hydrate directly from EventStore streams or aggregate replay for ordinary reads.
+  - [x] Preserve stable IDs from the projection and add transient display/status details only to the response object.
+  - [x] Do not use hydrated mutable display labels, upstream status, adapter timing, or internal reason codes as authorization inputs, existence checks, cursor material, stable sort keys, filter predicates, ETags, cache keys, or projection freshness upgrades.
+  - [x] Keep hydrated Party, Project, Folder, and File display data out of durable events, projections, logs, traces, caches, transcript-shaped artifacts, and testing snapshots that represent persisted state.
+  - [x] Keep unauthorized, nonexistent, deleted, and cross-tenant references indistinguishable unless an approved policy permits disclosure.
 
-- [ ] Implement bounded hydration behavior and failure mapping. (AC: 3, 4, 7)
-  - [ ] Batch Party lookups where the upstream API supports it; if only single lookup exists, use request-scoped deduplication and document the remaining bound.
-  - [ ] Do not add a durable cache for hydrated Party personal data. Any cache that outlives a request requires ADR approval, TTL, tenant scope, redaction policy context, and tests.
-  - [ ] Map upstream timeouts, throttling, and adapter errors to safe `Unavailable` or degraded hydration state without leaking raw upstream problem details.
-  - [ ] Preserve the distinction between command-time participant validation and read-time hydration: writes fail closed when participant validation cannot be trusted; authorized reads may degrade display hydration by policy.
+- [x] Implement bounded hydration behavior and failure mapping. (AC: 3, 4, 7)
+  - [x] Batch Party lookups where the upstream API supports it; if only single lookup exists, use request-scoped deduplication and document the remaining bound.
+  - [x] Do not add a durable cache for hydrated Party personal data. Any cache that outlives a request requires ADR approval, TTL, tenant scope, redaction policy context, and tests.
+  - [x] Map upstream timeouts, throttling, and adapter errors to safe `Unavailable` or degraded hydration state without leaking raw upstream problem details.
+  - [x] Preserve the distinction between command-time participant validation and read-time hydration: writes fail closed when participant validation cannot be trusted; authorized reads may degrade display hydration by policy.
 
-- [ ] Add focused tests for hydration, degradation, and non-disclosure. (AC: 1-7)
-  - [ ] Add tests in `tests/Hexalith.Conversations.Server.Tests/Hydration` for Party rename, deleted/erased Party, inactive Party, inaccessible Party, adapter unavailable, stale upstream reference, and unauthorized upstream reference.
-  - [ ] Add tests proving response hydration updates when upstream display data changes without rewriting conversation events or projection stored references.
-  - [ ] Add read-only regression tests proving no conversation events are appended or rewritten, no projection records are backfilled, no transcript/cache table is written, and stored `PartyId`, `ProjectId`, `FolderId`, and `FileId` values are identical before and after hydration reads.
-  - [ ] Add tests proving forbidden Parties personal data is absent from hydrated responses unless explicitly allowed: contact channels, identifiers, person details, organization details, name history, and raw upstream problem details.
-  - [ ] Add cross-tenant poison tests using sentinel values in inaccessible upstream data and assert those values never appear in responses, logs, errors, serialized DTOs, or test snapshots.
-  - [ ] Add degradation matrix tests for deleted, inaccessible, policy-filtered, cross-tenant, unavailable, timeout, throttled, stale, and mixed-validity batches, proving permission-safe DTO shape, safe fallback labels/status, no raw reason leakage across authorization boundaries, and non-PII logging.
-  - [ ] Add batching/deduplication tests so repeated references in a detail response, timeline, or list page produce at most one adapter batch call per resource type after deduplication, and any single-lookup fallback remains bounded and cancellation-aware.
-  - [ ] Add adversarial public-surface tests for mutable upstream display labels in sort/filter/page/cursor paths, fallback label generation, public status-code/body/header equivalence, telemetry tags, retry hints, and serialized diagnostics so unauthorized, nonexistent, deleted, policy-filtered, and cross-tenant outcomes remain non-enumerable.
-  - [ ] Extend boundary tests to inspect `.csproj` XML for forbidden dependencies in `Contracts` and to ensure upstream client dependencies, if added, stay in `Server` or another approved adapter boundary.
+- [x] Add focused tests for hydration, degradation, and non-disclosure. (AC: 1-7)
+  - [x] Add tests in `tests/Hexalith.Conversations.Server.Tests/Hydration` for Party rename, deleted/erased Party, inactive Party, inaccessible Party, adapter unavailable, stale upstream reference, and unauthorized upstream reference.
+  - [x] Add tests proving response hydration updates when upstream display data changes without rewriting conversation events or projection stored references.
+  - [x] Add read-only regression tests proving no conversation events are appended or rewritten, no projection records are backfilled, no transcript/cache table is written, and stored `PartyId`, `ProjectId`, `FolderId`, and `FileId` values are identical before and after hydration reads.
+  - [x] Add tests proving forbidden Parties personal data is absent from hydrated responses unless explicitly allowed: contact channels, identifiers, person details, organization details, name history, and raw upstream problem details.
+  - [x] Add cross-tenant poison tests using sentinel values in inaccessible upstream data and assert those values never appear in responses, logs, errors, serialized DTOs, or test snapshots.
+  - [x] Add degradation matrix tests for deleted, inaccessible, policy-filtered, cross-tenant, unavailable, timeout, throttled, stale, and mixed-validity batches, proving permission-safe DTO shape, safe fallback labels/status, no raw reason leakage across authorization boundaries, and non-PII logging.
+  - [x] Add batching/deduplication tests so repeated references in a detail response, timeline, or list page produce at most one adapter batch call per resource type after deduplication, and any single-lookup fallback remains bounded and cancellation-aware.
+  - [x] Add adversarial public-surface tests for mutable upstream display labels in sort/filter/page/cursor paths, fallback label generation, public status-code/body/header equivalence, telemetry tags, retry hints, and serialized diagnostics so unauthorized, nonexistent, deleted, policy-filtered, and cross-tenant outcomes remain non-enumerable.
+  - [x] Extend boundary tests to inspect `.csproj` XML for forbidden dependencies in `Contracts` and to ensure upstream client dependencies, if added, stay in `Server` or another approved adapter boundary.
 
-- [ ] Validate the implementation scope. (AC: 5)
-  - [ ] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
-  - [ ] Do not run recursive submodule initialization. Root-level sibling module reads are enough when adapter contract details need inspection.
-  - [ ] Do not add FrontComposer UI, admin evidence drawers, citation copy, temporal evidence links, exports, durable caches, projection rebuild jobs, governance commands, or release manifest aggregation in this story.
-  - [ ] Leave `sprint-status.yaml` untouched during dev-story unless the dev workflow owns the status transition.
+- [x] Validate the implementation scope. (AC: 5)
+  - [x] Run `dotnet test .\Hexalith.Conversations.slnx --no-restore`, or run `dotnet restore`, `dotnet build`, and `dotnet test .\Hexalith.Conversations.slnx` if assets are stale.
+  - [x] Do not run recursive submodule initialization. Root-level sibling module reads are enough when adapter contract details need inspection.
+  - [x] Do not add FrontComposer UI, admin evidence drawers, citation copy, temporal evidence links, exports, durable caches, projection rebuild jobs, governance commands, or release manifest aggregation in this story.
+  - [x] Leave `sprint-status.yaml` untouched during dev-story unless the dev workflow owns the status transition.
 
 ## Dev Notes
 
@@ -198,21 +198,54 @@ Validation must stay local and deterministic. Unit tests should use fake adapter
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+GPT-5 Codex
 
 ### Debug Log References
+
+- 2026-05-20: Red phase `dotnet test .\tests\Hexalith.Conversations.Contracts.Tests\Hexalith.Conversations.Contracts.Tests.csproj --no-restore` failed for missing hydration DTOs.
+- 2026-05-20: Green phase contract tests passed after adding response-safe hydration DTOs.
+- 2026-05-20: Red phase `dotnet test .\tests\Hexalith.Conversations.Server.Tests\Hexalith.Conversations.Server.Tests.csproj --no-restore` failed for missing read hydration service/adapter types.
+- 2026-05-20: Server tests passed after adding request-scoped read hydration service, adapter abstractions, and query wiring.
+- 2026-05-20: Full validation `dotnet test .\Hexalith.Conversations.slnx --no-restore` passed.
 
 ### Completion Notes List
 
 - Ultimate context engine analysis completed - comprehensive developer guide created.
+- Implemented response-safe Party, Project, Folder, and File hydration DTOs using stable IDs, public trust-state vocabulary, explicit resolved flags, and safe label/token/status fields.
+- Added Conversations-owned server hydration adapter abstractions, internal outcome mapping, unavailable fallback resolver, request-scoped deduplication, cancellation propagation, and safe failure degradation.
+- Wired detail and list query composition so tenant authorization and projection checks happen before hydration, and list hydration runs only after stable filtering, sorting, and paging.
+- Added contract, hydration-service, degradation-matrix, poison-value, and query pipeline tests; full solution validation passed.
 
 ### File List
+
+- `_bmad-output/implementation-artifacts/1-9-resolve-parties-and-upstream-references-at-read-time.md`
+- `_bmad-output/implementation-artifacts/sprint-status.yaml`
+- `src/Hexalith.Conversations.Contracts/Queries/ConversationDetailsV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/ConversationSummaryV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/FileReferenceHydrationV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/FolderReferenceHydrationV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/HydrationContractValidation.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/PartyReferenceHydrationV1.cs`
+- `src/Hexalith.Conversations.Contracts/Queries/ProjectReferenceHydrationV1.cs`
+- `src/Hexalith.Conversations.Server/Hydration/ConversationHydrationContext.cs`
+- `src/Hexalith.Conversations.Server/Hydration/ConversationReadHydrationService.cs`
+- `src/Hexalith.Conversations.Server/Hydration/IConversationReferenceHydrationDirectory.cs`
+- `src/Hexalith.Conversations.Server/Hydration/ReferenceHydrationResult.cs`
+- `src/Hexalith.Conversations.Server/Hydration/ReferenceHydrationStatus.cs`
+- `src/Hexalith.Conversations.Server/Hydration/UnavailableConversationReferenceHydrationDirectory.cs`
+- `src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs`
+- `src/Hexalith.Conversations.Server/Queries/ConversationQueryServiceCollectionExtensions.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
+- `tests/Hexalith.Conversations.Contracts.Tests/HydrationContractTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Hydration/ConversationReadHydrationServiceTest.cs`
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs`
 
 ## Change Log
 
 - 2026-05-18: Story created and moved to ready-for-dev by BMAD create-story workflow.
 - 2026-05-18: Party-mode review applied pre-dev hardening for hydration field allowlists, degraded-state disclosure, batching bounds, read-only invariants, and privacy tests.
 - 2026-05-19: Advanced elicitation applied pre-dev hardening for public/internal hydration-state separation, fallback-label safety, mutable display-data non-authority, and adversarial non-enumeration tests.
+- 2026-05-20: Implemented read-time hydration contracts, server adapter boundary, query composition, degradation mapping, and focused tests; moved story to review.
 
 ## Party-Mode Review
 

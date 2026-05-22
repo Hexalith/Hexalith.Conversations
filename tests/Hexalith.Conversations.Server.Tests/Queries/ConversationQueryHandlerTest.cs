@@ -14,6 +14,7 @@ using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
+using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
@@ -101,6 +102,51 @@ public sealed class ConversationQueryHandlerTest
         result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.Forbidden);
         result.Details.ShouldBeNull();
         result.SafeNextAction.ShouldBe("The requested conversation is not available.");
+    }
+
+    /// <summary>
+    /// Authorized detail reads hydrate stable references after projection data is accepted.
+    /// </summary>
+    [Fact]
+    public async Task DetailShouldHydrateAfterAuthorizedProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new() { Models = ProjectedModels(Tenant, Conversation) };
+        FakeReferenceHydrationDirectory directory = new()
+        {
+            PartyResults =
+            {
+                [Actor] = new ReferenceHydrationResult<PartyId>(Actor, ReferenceHydrationStatus.Current, "Actor", "actor-token", "Available"),
+                [Participant] = new ReferenceHydrationResult<PartyId>(Participant, ReferenceHydrationStatus.Current, "Participant", "participant-token", "Available"),
+            },
+            ProjectResults =
+            {
+                [Project] = new ReferenceHydrationResult<ProjectId>(Project, ReferenceHydrationStatus.Unavailable),
+            },
+            FolderResults =
+            {
+                [Folder] = new ReferenceHydrationResult<FolderId>(Folder, ReferenceHydrationStatus.Redacted),
+            },
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store, hydration: new ConversationReadHydrationService(directory));
+
+        ConversationDetailResult result = await handler.GetAsync(GetQuery(), TestContext.Current.CancellationToken);
+
+        result.Details.ShouldNotBeNull();
+        result.Details.PartyHydration.Count.ShouldBe(2);
+        result.Details.PartyHydration.Single(x => x.PartyId == Participant).SafeLabel.ShouldBe("Participant");
+        result.Details.ProjectHydration.ShouldNotBeNull();
+        result.Details.ProjectHydration.HydrationState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Details.FolderHydration.ShouldNotBeNull();
+        result.Details.FolderHydration.HydrationState.ShouldBe(ProjectionTrustState.Redacted);
+        directory.PartyBatchCalls.ShouldBe(1);
+        directory.LastContext.ShouldNotBeNull();
+        directory.LastContext.TenantId.ShouldBe(Tenant);
+        directory.LastContext.CallerPrincipalId.ShouldBe("caller-001");
+        directory.LastContext.CorrelationId.ShouldBe("correlation-001");
+
+        static GetConversationQuery GetQuery()
+            => new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation);
     }
 
     /// <summary>
@@ -408,6 +454,52 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// List hydration runs only after stable ordering and paging select the visible page.
+    /// </summary>
+    [Fact]
+    public async Task ListHydrationShouldOnlyUseReturnedPageReferences()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        PartyId first = new("party-first");
+        PartyId second = new("party-second");
+        PartyId third = new("party-third");
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-first"), Business, Project, Folder, first, lastAppliedAt: Now.AddMinutes(3)),
+                Summary(Tenant, new ConversationId("conv-second"), Business, Project, Folder, second, lastAppliedAt: Now.AddMinutes(2)),
+                Summary(Tenant, new ConversationId("conv-third"), Business, Project, Folder, third, lastAppliedAt: Now.AddMinutes(1)),
+            ],
+        };
+        FakeReferenceHydrationDirectory directory = new()
+        {
+            PartyResults =
+            {
+                [first] = new ReferenceHydrationResult<PartyId>(first, ReferenceHydrationStatus.Current, "Z label", "first-token", "Available"),
+                [second] = new ReferenceHydrationResult<PartyId>(second, ReferenceHydrationStatus.Current, "A label", "second-token", "Available"),
+                [third] = new ReferenceHydrationResult<PartyId>(third, ReferenceHydrationStatus.Current, "Hidden page label", "third-token", "Available"),
+            },
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store, hydration: new ConversationReadHydrationService(directory));
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2)),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.Select(summary => summary.ConversationId.Value).ShouldBe(["conv-first", "conv-second"]);
+        directory.LastPartyIds.ShouldBe([first, second], ignoreOrder: true);
+        directory.LastPartyIds.ShouldNotContain(third);
+        result.Conversations[0].PartyHydration.Single().SafeLabel.ShouldBe("Z label");
+        result.Conversations[1].PartyHydration.Single().SafeLabel.ShouldBe("A label");
+    }
+
+    /// <summary>
     /// Malformed cursors fail closed before authorization-sensitive reads.
     /// </summary>
     [Fact]
@@ -694,11 +786,12 @@ public sealed class ConversationQueryHandlerTest
         FakeTenantAccessService access,
         FakeProjectionReadStore store,
         ConversationQueryCursor? cursor = null,
-        TimeProvider? time = null)
+        TimeProvider? time = null,
+        ConversationReadHydrationService? hydration = null)
     {
         ConversationQueryCursor cursorInstance = cursor ?? CreateCursor();
         ConversationProjectionReadService readService = new(access, store);
-        return new ConversationQueryHandler(access, store, readService, cursorInstance, time ?? new FakeTimeProvider(Now));
+        return new ConversationQueryHandler(access, store, readService, cursorInstance, time ?? new FakeTimeProvider(Now), hydration);
     }
 
     private static ConversationQueryCursor CreateCursor(int seed = 42, string keyId = "test-key-1")
@@ -850,6 +943,62 @@ public sealed class ConversationQueryHandlerTest
         {
             ListReads++;
             return ValueTask.FromResult(Summaries);
+        }
+    }
+
+    private sealed class FakeReferenceHydrationDirectory : IConversationReferenceHydrationDirectory
+    {
+        public Dictionary<PartyId, ReferenceHydrationResult<PartyId>> PartyResults { get; } = [];
+
+        public Dictionary<ProjectId, ReferenceHydrationResult<ProjectId>> ProjectResults { get; } = [];
+
+        public Dictionary<FolderId, ReferenceHydrationResult<FolderId>> FolderResults { get; } = [];
+
+        public Dictionary<FileId, ReferenceHydrationResult<FileId>> FileResults { get; } = [];
+
+        public int PartyBatchCalls { get; private set; }
+
+        public ConversationHydrationContext? LastContext { get; private set; }
+
+        public IReadOnlyList<PartyId> LastPartyIds { get; private set; } = [];
+
+        public ValueTask<IReadOnlyDictionary<PartyId, ReferenceHydrationResult<PartyId>>> HydratePartiesAsync(
+            ConversationHydrationContext context,
+            IReadOnlyCollection<PartyId> partyIds,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            PartyBatchCalls++;
+            LastContext = context;
+            LastPartyIds = partyIds.ToList();
+            return ValueTask.FromResult((IReadOnlyDictionary<PartyId, ReferenceHydrationResult<PartyId>>)PartyResults);
+        }
+
+        public ValueTask<IReadOnlyDictionary<ProjectId, ReferenceHydrationResult<ProjectId>>> HydrateProjectsAsync(
+            ConversationHydrationContext context,
+            IReadOnlyCollection<ProjectId> projectIds,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return ValueTask.FromResult((IReadOnlyDictionary<ProjectId, ReferenceHydrationResult<ProjectId>>)ProjectResults);
+        }
+
+        public ValueTask<IReadOnlyDictionary<FolderId, ReferenceHydrationResult<FolderId>>> HydrateFoldersAsync(
+            ConversationHydrationContext context,
+            IReadOnlyCollection<FolderId> folderIds,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return ValueTask.FromResult((IReadOnlyDictionary<FolderId, ReferenceHydrationResult<FolderId>>)FolderResults);
+        }
+
+        public ValueTask<IReadOnlyDictionary<FileId, ReferenceHydrationResult<FileId>>> HydrateFilesAsync(
+            ConversationHydrationContext context,
+            IReadOnlyCollection<FileId> fileIds,
+            CancellationToken cancellationToken = default)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return ValueTask.FromResult((IReadOnlyDictionary<FileId, ReferenceHydrationResult<FileId>>)FileResults);
         }
     }
 
