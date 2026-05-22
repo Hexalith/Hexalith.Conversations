@@ -143,3 +143,10 @@ internal sealed class GovernanceStateConceptJsonConverter : ConversationStringVa
 
     protected override string GetValue(GovernanceStateConcept value) => value.Value;
 }
+
+internal sealed class AuditRecordActionClassificationJsonConverter : ConversationStringValueJsonConverter<AuditRecordActionClassification>
+{
+    protected override AuditRecordActionClassification Create(string value) => AuditRecordActionClassification.Parse(value);
+
+    protected override string GetValue(AuditRecordActionClassification value) => value.Value;
+}

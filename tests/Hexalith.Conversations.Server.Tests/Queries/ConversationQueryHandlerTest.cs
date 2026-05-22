@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -147,6 +148,40 @@ public sealed class ConversationQueryHandlerTest
 
         static GetConversationQuery GetQuery()
             => new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation);
+    }
+
+    /// <summary>
+    /// The audit-record handler entry point uses the governed read boundary and returns citeable evidence.
+    /// </summary>
+    [Fact]
+    public async Task AuditRecordShouldReadThroughGovernedQueryEntryPoint()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithAuditRecord(Tenant, Conversation),
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationAuditRecordResult result = await handler.GetAuditRecordAsync(
+            new GetConversationAuditRecordQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "audit-evidence-001",
+                AuditRecordActionClassification.Allowed),
+            TestContext.Current.CancellationToken);
+
+        result.ActionClass.ShouldBe(AuditRecordActionClassification.Allowed);
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        result.Details.ShouldNotBeNull();
+        result.Details.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        result.Details.ActorPartyId.ShouldBe(Actor);
+        result.Details.PolicyTreatment.ExportEligible.ShouldBeFalse();
+        access.Calls.ShouldBe(1);
+        store.DetailReads.ShouldBe(1);
     }
 
     /// <summary>
@@ -836,6 +871,11 @@ public sealed class ConversationQueryHandlerTest
             Summary(tenantId, conversationId, Business, Project, Folder, Participant),
             Detail(tenantId, conversationId));
 
+    private static ConversationProjectedReadModels ProjectedModelsWithAuditRecord(TenantId tenantId, ConversationId conversationId)
+        => new(
+            Summary(tenantId, conversationId, Business, Project, Folder, Participant),
+            DetailWithAuditRecord(tenantId, conversationId));
+
     private static ConversationSummaryProjectionV1 Summary(
         TenantId tenantId,
         ConversationId conversationId,
@@ -877,6 +917,31 @@ public sealed class ConversationQueryHandlerTest
             [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
             [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
             []);
+
+    private static ConversationDetailProjectionV1 DetailWithAuditRecord(TenantId tenantId, ConversationId conversationId)
+        => new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            Freshness("pos:0000000001"),
+            "Open",
+            "Case 123",
+            Business,
+            Project,
+            Folder,
+            null,
+            [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+            [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
+            [],
+            ActiveRetentionPolicy: new ConversationRetentionPolicyProjectionV1(
+                "retention-policy-standard",
+                "customer-request",
+                Actor,
+                Now,
+                new GovernanceAuditEvidenceReference(
+                    new AuditEvidenceHandle("audit-evidence-001"),
+                    "retention-policy-standard",
+                    Now)));
 
     private static ProjectionFreshnessV1 Freshness(
         string cursor = "pos:0000000001",

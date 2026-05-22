@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 
 namespace Hexalith.Conversations.Contracts.Governance;
@@ -15,16 +17,21 @@ namespace Hexalith.Conversations.Contracts.Governance;
 /// <param name="fileId">The optional file reference.</param>
 /// <param name="partyId">The optional participant Party reference.</param>
 /// <param name="segmentReference">An optional opaque content segment reference.</param>
+/// <param name="auditEvidenceHandle">An optional opaque audit evidence reference for governed audit records.</param>
 public sealed record GovernanceTarget(
     GovernedTargetKind Kind,
     MessageId? MessageId = null,
     FileId? FileId = null,
     PartyId? PartyId = null,
-    string? SegmentReference = null)
+    string? SegmentReference = null,
+    AuditEvidenceHandle? AuditEvidenceHandle = null)
 {
     public GovernedTargetKind Kind { get; } = GovernanceContractValidation.RequireNonNull(Kind, nameof(Kind));
 
     public string? SegmentReference { get; } = GovernanceContractValidation.OptionalSafeToken(SegmentReference, nameof(SegmentReference));
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public AuditEvidenceHandle? AuditEvidenceHandle { get; } = AuditEvidenceHandle;
 
     /// <summary>
     /// Builds the deterministic safe key used to identify this target across aggregate replay and
@@ -56,6 +63,16 @@ public sealed record GovernanceTarget(
         if (Kind == GovernedTargetKind.ContentSegment)
         {
             return $"segment:{SegmentReference}";
+        }
+
+        if (Kind == GovernedTargetKind.AuditRecord)
+        {
+            if (AuditEvidenceHandle is null)
+            {
+                throw new InvalidOperationException("Audit-record targets require a safe audit evidence handle.");
+            }
+
+            return $"audit:{AuditEvidenceHandle.Value}";
         }
 
         return $"unsupported:{Kind.Value}";

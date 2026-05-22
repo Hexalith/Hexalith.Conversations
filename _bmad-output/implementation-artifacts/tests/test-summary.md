@@ -33,6 +33,25 @@
 ## Next Steps
 - Keep the contract, domain, server, projection, and solution test lanes in CI for Story 2.3.
 
+## Story 2.7 Audit Record Governance Evidence
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/AuditRecordGovernanceContractTest.cs` - Added audit-record action vocabulary, audit target key, missing-handle validation, JSON shape, query/contract `ToString()` safety, unsupported vocabulary rejection, and forbidden substrate field coverage.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` - Added handler entry-point coverage proving `GetAuditRecordAsync()` returns citeable audit evidence through the governed query boundary.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationAuditRecordAccessServiceTest.cs` - Added server audit-record read/export coverage for allowed read, denied read, denied export, policy-blocked export, redacted/withheld details, stale/rebuilding projection, malformed handles, cross-tenant projection poison, source unavailability, rebuild preservation, outcome-only action blocking, and mutation attempts.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs` - Existing projection/redaction replay coverage was exercised with Story 2.7 filters to prove rebuild and redaction behavior remains stable.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~AuditRecord|FullyQualifiedName~GovernanceContractTest|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 63 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~AuditRecord|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest"` - 46 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~Projection"` - 69 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 595 passed.
+
+### Coverage
+- Contracts now expose closed audit-record action classes, safe audit-record target keys, missing-handle rejection, policy treatment metadata, governed audit review details, and content-safe read/export results without raw audit sink, storage, EventStore topology, provider payload, message text, redacted text, Party personal data, or raw upstream fields.
+- Server coverage verifies tenant authorization occurs before handle parsing and projection reads; the query handler exposes the same governed audit-record boundary; unauthorized, malformed, cross-tenant, unavailable, stale, and rebuilding paths return non-disclosing results; allowed export is in-memory only; policy-blocked, outcome-only, and separate-log paths do not create unmanaged durable export surfaces.
+- Rebuild/redaction coverage verifies derived audit views preserve citeable metadata while message redaction remains distinct from audit-record redaction and does not reintroduce suppressed message text.
+
 ## Story 2.6 Point-in-Time Governance Reconstruction Evidence
 
 ### Generated Tests

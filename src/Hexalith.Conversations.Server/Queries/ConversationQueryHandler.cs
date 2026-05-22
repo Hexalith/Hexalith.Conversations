@@ -25,6 +25,7 @@ public sealed class ConversationQueryHandler
     private readonly TimeProvider _timeProvider;
     private readonly ConversationReadHydrationService _hydrationService;
     private readonly ConversationTemporalReconstructionService _temporalReconstructionService;
+    private readonly ConversationAuditRecordAccessService _auditRecordAccessService;
 
     public ConversationQueryHandler(
         IConversationTenantAccessService tenantAccessService,
@@ -33,7 +34,8 @@ public sealed class ConversationQueryHandler
         ConversationQueryCursor cursor,
         TimeProvider? timeProvider = null,
         ConversationReadHydrationService? hydrationService = null,
-        ConversationTemporalReconstructionService? temporalReconstructionService = null)
+        ConversationTemporalReconstructionService? temporalReconstructionService = null,
+        ConversationAuditRecordAccessService? auditRecordAccessService = null)
     {
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
@@ -46,6 +48,8 @@ public sealed class ConversationQueryHandler
                 _tenantAccessService,
                 _projectionReadService,
                 new UnavailableConversationTemporalEventSource());
+        _auditRecordAccessService = auditRecordAccessService
+            ?? new ConversationAuditRecordAccessService(_tenantAccessService, _projectionReadStore);
     }
 
     /// <summary>
@@ -101,6 +105,20 @@ public sealed class ConversationQueryHandler
     {
         ArgumentNullException.ThrowIfNull(query);
         return _temporalReconstructionService.ReconstructAsync(query, cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves one authorized audit-record view for review or in-memory export.
+    /// </summary>
+    /// <param name="query">The audit-record query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A content-safe audit-record result.</returns>
+    public ValueTask<ConversationAuditRecordResult> GetAuditRecordAsync(
+        GetConversationAuditRecordQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return _auditRecordAccessService.GetAsync(query, cancellationToken);
     }
 
     /// <summary>

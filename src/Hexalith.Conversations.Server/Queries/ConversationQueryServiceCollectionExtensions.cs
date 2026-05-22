@@ -96,6 +96,7 @@ public static class ConversationQueryServiceCollectionExtensions
         services.TryAddSingleton<IConversationReferenceHydrationDirectory>(UnavailableConversationReferenceHydrationDirectory.Instance);
         services.AddScoped<ConversationReadHydrationService>();
         services.AddScoped<ConversationProjectionReadService>();
+        services.AddScoped<ConversationAuditRecordAccessService>();
         services.AddScoped<ConversationQueryHandler>();
         return services;
     }

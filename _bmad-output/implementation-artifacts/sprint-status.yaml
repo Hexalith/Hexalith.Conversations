@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T14:34:46+02:00
+# last_updated: 2026-05-22T15:20:00+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T14:34:46+02:00
+last_updated: 2026-05-22T15:20:00+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -62,7 +62,7 @@ development_status:
   2-4-redact-message-content-with-audit-attribution: done
   2-5-enforce-audit-pairing-and-audit-unavailable-fail-closed-behavior: done
   2-6-reconstruct-point-in-time-governance-state: done
-  2-7-govern-audit-record-access-retention-and-redaction: backlog
+  2-7-govern-audit-record-access-retention-and-redaction: done
   2-8-record-and-review-privileged-operational-justification: backlog
   epic-2-retrospective: optional
   epic-3: backlog
