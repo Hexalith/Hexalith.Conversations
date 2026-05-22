@@ -189,15 +189,7 @@ public sealed class ConversationQueryHandler
         {
             candidates = await _projectionReadStore.ListAsync(query.TenantId, cancellationToken).ConfigureAwait(false);
         }
-        catch (InvalidOperationException)
-        {
-            return ConversationListResult.Unavailable(query.SchemaVersion);
-        }
-        catch (IOException)
-        {
-            return ConversationListResult.Unavailable(query.SchemaVersion);
-        }
-        catch (TimeoutException)
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
             return ConversationListResult.Unavailable(query.SchemaVersion);
         }
@@ -430,9 +422,9 @@ public sealed class ConversationQueryHandler
             return (ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current);
         }
 
-        // Worst-case aggregation: priority is Unavailable > Rebuilding > Stale > Redacted > Current.
-        // Forbidden cannot reach here because tenant-scoped poison guard already filtered cross-tenant
-        // rows, and tenant denial returns Hidden() earlier.
+        // Worst-case aggregation: priority is Forbidden > Unavailable > Rebuilding > Stale > Redacted > Current.
+        // Forbidden normally cannot reach here because tenant-scoped poison guard already filtered cross-tenant
+        // rows, but keep the ordering fail-closed if a future caller supplies one.
         ProjectionTrustState worst = ProjectionTrustState.Current;
         ProjectionFreshnessReasonCode worstReason = ProjectionFreshnessReasonCode.Current;
         foreach (ConversationSummaryProjectionV1 summary in summaries)
@@ -449,11 +441,11 @@ public sealed class ConversationQueryHandler
 
         static int Priority(ProjectionTrustState state)
         {
+            if (state == ProjectionTrustState.Forbidden) { return 6; }
             if (state == ProjectionTrustState.Unavailable) { return 5; }
             if (state == ProjectionTrustState.Rebuilding) { return 4; }
             if (state == ProjectionTrustState.Stale) { return 3; }
             if (state == ProjectionTrustState.Redacted) { return 2; }
-            if (state == ProjectionTrustState.Forbidden) { return 1; }
             return 0;
         }
     }

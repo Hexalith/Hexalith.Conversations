@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -33,7 +35,9 @@ public sealed record ConversationDetailsV1(
     FolderReferenceHydrationV1? FolderHydration = null,
     IReadOnlyList<FileReferenceHydrationV1>? FileHydration = null,
     IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null,
-    IReadOnlyList<ConversationRedactionProjectionV1>? Redactions = null)
+    IReadOnlyList<ConversationRedactionProjectionV1>? Redactions = null,
+    ConversationEvidenceTrustPostureV1? TrustPosture = null,
+    IReadOnlyList<ConversationEvidenceEntryV1>? EvidenceEntries = null)
 {
     /// <summary>
     /// Gets the public schema version.
@@ -54,6 +58,20 @@ public sealed record ConversationDetailsV1(
     /// Gets projection freshness context.
     /// </summary>
     public ProjectionFreshnessV1 Freshness { get; } = Freshness ?? throw new ArgumentNullException(nameof(Freshness));
+
+    /// <summary>
+    /// Gets the trust posture that must be rendered before timeline reliance.
+    /// </summary>
+    [JsonPropertyOrder(-20)]
+    public ConversationEvidenceTrustPostureV1 TrustPosture { get; } =
+        TrustPosture ?? ConversationEvidenceTrustPostureV1.FromFreshness(SchemaVersion, TenantId, ConversationId, Freshness);
+
+    /// <summary>
+    /// Gets governed evidence records derived from the projection.
+    /// </summary>
+    [JsonPropertyOrder(-10)]
+    public IReadOnlyList<ConversationEvidenceEntryV1> EvidenceEntries { get; } =
+        ValidateList(EvidenceEntries, nameof(EvidenceEntries));
 
     /// <summary>
     /// Gets stable participant references.
@@ -132,7 +150,9 @@ public sealed record ConversationDetailsV1(
             GovernanceState: "Unavailable",
             Attributes: projection.Attributes,
             SensitivityMarks: projection.SensitivityMarks,
-            Redactions: projection.Redactions);
+            Redactions: projection.Redactions,
+            TrustPosture: projection.TrustPosture,
+            EvidenceEntries: projection.EvidenceEntries);
     }
 
     private static IReadOnlyList<T> ValidateList<T>(IReadOnlyList<T>? values, string parameterName)

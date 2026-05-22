@@ -62,6 +62,8 @@ public sealed class ConversationProjectionMaterializer
             isRebuilding,
             metadataWriteFailed);
         ConversationSearchTrustPreviewV1 searchTrustPreview = CreateSearchTrustPreview(builder, freshness);
+        ConversationEvidenceTrustPostureV1 trustPosture = CreateTrustPosture(builder, freshness);
+        IReadOnlyList<ConversationEvidenceEntryV1> evidenceEntries = CreateEvidenceEntries(builder, freshness);
 
         ConversationSummaryProjectionV1 summary = new(
             SchemaVersion.Current,
@@ -96,7 +98,9 @@ public sealed class ConversationProjectionMaterializer
             builder.Attributes,
             builder.ActiveRetentionPolicy,
             builder.SensitivityMarks,
-            builder.Redactions);
+            builder.Redactions,
+            trustPosture,
+            evidenceEntries);
 
         return new(summary, detail);
     }
@@ -212,6 +216,199 @@ public sealed class ConversationProjectionMaterializer
                 : "Visible through authorized tenant scope with non-current metadata.");
     }
 
+    private static ConversationEvidenceTrustPostureV1 CreateTrustPosture(
+        ProjectionBuilder builder,
+        ProjectionFreshnessV1 freshness)
+    {
+        bool current = freshness.AllowsTrustBearingDecision();
+        ProjectionTrustState completeness = current && builder.WasCreated
+            ? ProjectionTrustState.Current
+            : freshness.FreshnessState == ProjectionTrustState.Current ? ProjectionTrustState.Unavailable : freshness.FreshnessState;
+        ConversationAuditReadinessState auditReadiness = current && builder.HasAuditEvidence
+            ? ConversationAuditReadinessState.Ready
+            : current ? ConversationAuditReadinessState.Incomplete : ConversationAuditReadinessState.Unknown;
+        ConversationCitationAvailability citationAvailability = current && builder.WasCreated
+            ? ConversationCitationAvailability.Available
+            : ConversationCitationAvailability.Unavailable;
+
+        return new(
+            SchemaVersion.Current,
+            builder.TenantId,
+            builder.ConversationId,
+            freshness.ProjectionCursor,
+            freshness,
+            completeness,
+            builder.ParticipantPartyIds.Count == 0 ? ProjectionTrustState.Current : ProjectionTrustState.Unavailable,
+            citationAvailability,
+            auditReadiness,
+            ConversationVerificationState.Unknown,
+            DefaultCommandEligibility(freshness, auditReadiness));
+    }
+
+    private static IReadOnlyList<ConversationCommandAvailabilityV1> DefaultCommandEligibility(
+        ProjectionFreshnessV1 freshness,
+        ConversationAuditReadinessState auditReadiness)
+        =>
+        [
+            new ConversationCommandAvailabilityV1(
+                "set-retention-policy",
+                ProjectionTrustState.Unavailable,
+                "conversations.governance",
+                freshness.FreshnessState,
+                "governance",
+                ProjectionTrustState.Current,
+                auditReadiness,
+                "Command execution is blocked from the governed read surface.",
+                freshness.ProjectionGeneratedAt),
+            new ConversationCommandAvailabilityV1(
+                "mark-content-sensitive",
+                ProjectionTrustState.Unavailable,
+                "conversations.governance",
+                freshness.FreshnessState,
+                "governance",
+                ProjectionTrustState.Current,
+                auditReadiness,
+                "Command execution is blocked from the governed read surface.",
+                freshness.ProjectionGeneratedAt),
+            new ConversationCommandAvailabilityV1(
+                "redact-message-content",
+                ProjectionTrustState.Unavailable,
+                "conversations.governance",
+                freshness.FreshnessState,
+                "governance",
+                ProjectionTrustState.Current,
+                auditReadiness,
+                "Command execution is blocked from the governed read surface.",
+                freshness.ProjectionGeneratedAt),
+        ];
+
+    private static IReadOnlyList<ConversationEvidenceEntryV1> CreateEvidenceEntries(
+        ProjectionBuilder builder,
+        ProjectionFreshnessV1 freshness)
+    {
+        List<ConversationEvidenceEntryV1> entries = [];
+        ProjectionTrustState currentOrUnavailable = freshness.AllowsTrustBearingDecision()
+            ? ProjectionTrustState.Current
+            : ProjectionTrustState.Unavailable;
+        ConversationCitationAvailability citationAvailability = freshness.AllowsTrustBearingDecision()
+            ? ConversationCitationAvailability.Available
+            : ConversationCitationAvailability.Unavailable;
+        ConversationAuditReadinessState auditReadiness = freshness.AllowsTrustBearingDecision() && builder.HasAuditEvidence
+            ? ConversationAuditReadinessState.Ready
+            : freshness.AllowsTrustBearingDecision() ? ConversationAuditReadinessState.Incomplete : ConversationAuditReadinessState.Unknown;
+
+        entries.Add(new ConversationEvidenceEntryV1(
+            $"freshness:{freshness.ProjectionCursor}",
+            "Freshness",
+            null,
+            freshness.ProjectionGeneratedAt,
+            freshness.FreshnessState,
+            citationAvailability,
+            auditReadiness,
+            freshness.FreshnessState));
+
+        foreach (ConversationParticipantProjectionV1 participant in builder.Participants)
+        {
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"participant:{participant.ParticipantPartyId.Value}",
+                "Participant",
+                participant.ParticipantPartyId,
+                participant.OccurredAt ?? freshness.LastAppliedEventTimestamp,
+                currentOrUnavailable,
+                citationAvailability,
+                auditReadiness,
+                currentOrUnavailable));
+        }
+
+        HashSet<MessageId> redactedMessageIds = builder.Redactions
+            .Where(redaction => redaction.Target.MessageId is not null)
+            .Select(redaction => redaction.Target.MessageId!)
+            .ToHashSet();
+
+        foreach (ConversationTimelineMessageProjectionV1 message in builder.Messages)
+        {
+            bool redacted = redactedMessageIds.Contains(message.MessageId);
+            ProjectionTrustState state = redacted ? ProjectionTrustState.Redacted : currentOrUnavailable;
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"message:{message.MessageId.Value}",
+                "Message",
+                message.AuthorPartyId,
+                message.CreatedAt,
+                state,
+                citationAvailability,
+                auditReadiness,
+                state,
+                MessageId: message.MessageId,
+                VisibleText: message.Text,
+                ProviderCorrelation: ConversationProviderCorrelationV1.From(message.ProviderCorrelation)));
+        }
+
+        foreach (ConversationFileReferenceProjectionV1 file in builder.FileReferences)
+        {
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"attachment:{file.FileId.Value}",
+                "Attachment",
+                null,
+                file.OccurredAt ?? freshness.LastAppliedEventTimestamp,
+                currentOrUnavailable,
+                citationAvailability,
+                auditReadiness,
+                currentOrUnavailable,
+                FileId: file.FileId));
+        }
+
+        if (builder.ActiveRetentionPolicy is not null)
+        {
+            ConversationRetentionPolicyProjectionV1 retention = builder.ActiveRetentionPolicy;
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"retention:{retention.PolicyReference}",
+                "RetentionPolicy",
+                retention.ActorPartyId,
+                retention.AppliedAt,
+                currentOrUnavailable,
+                citationAvailability,
+                ConversationAuditReadinessState.Ready,
+                currentOrUnavailable,
+                PolicyReference: retention.PolicyReference));
+        }
+
+        foreach (ConversationSensitivityMarkProjectionV1 sensitivity in builder.SensitivityMarks)
+        {
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"sensitivity:{sensitivity.Target.ToTargetKey()}",
+                "SensitivityMark",
+                sensitivity.ActorPartyId,
+                sensitivity.MarkedAt,
+                sensitivity.TrustState,
+                citationAvailability,
+                ConversationAuditReadinessState.Ready,
+                sensitivity.TrustState,
+                MessageId: sensitivity.Target.MessageId,
+                PolicyReference: sensitivity.PolicyReference));
+        }
+
+        foreach (ConversationRedactionProjectionV1 redaction in builder.Redactions)
+        {
+            entries.Add(new ConversationEvidenceEntryV1(
+                $"redaction:{redaction.Target.ToTargetKey()}",
+                "Redaction",
+                redaction.ActorPartyId,
+                redaction.RedactedAt,
+                redaction.TrustState,
+                citationAvailability,
+                redaction.AuditEvidence is null ? ConversationAuditReadinessState.Incomplete : ConversationAuditReadinessState.Ready,
+                redaction.TrustState,
+                MessageId: redaction.Target.MessageId,
+                VisibleText: redaction.Placeholder,
+                PolicyReference: redaction.PolicyReference));
+        }
+
+        return entries
+            .OrderBy(entry => entry.OccurredAt)
+            .ThenBy(entry => entry.EntryId, StringComparer.Ordinal)
+            .ToArray();
+    }
+
     private sealed class ProjectionBuilder(TenantId tenantId, ConversationId conversationId)
     {
         private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
@@ -231,6 +428,8 @@ public sealed class ConversationProjectionMaterializer
         public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy { get; private set; }
 
         public BusinessReference? BusinessReference { get; private set; }
+
+        public ConversationId ConversationId => conversationId;
 
         public IReadOnlyList<ConversationFileReferenceProjectionV1> FileReferences
             => _fileReferences
@@ -282,6 +481,8 @@ public sealed class ConversationProjectionMaterializer
         public ProjectId? ProjectId { get; private set; }
 
         public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
+
+        public TenantId TenantId => tenantId;
 
         public IReadOnlyList<ConversationRedactionProjectionV1> Redactions
             => _redactions
@@ -464,7 +665,8 @@ public sealed class ConversationProjectionMaterializer
             _participants[e.ParticipantPartyId] = new ConversationParticipantProjectionV1(
                 e.ParticipantPartyId,
                 e.ParticipantType,
-                e.ParticipantRole);
+                e.ParticipantRole,
+                e.Metadata.CommittedAt);
         }
 
         private void Apply(MessageAppended e, long position)
@@ -499,7 +701,8 @@ public sealed class ConversationProjectionMaterializer
             _fileReferences[e.FileId] = new ConversationFileReferenceProjectionV1(
                 e.FileId,
                 e.FolderId,
-                e.MessageId);
+                e.MessageId,
+                e.Metadata.CommittedAt);
         }
 
         private void Apply(ConversationMetadataUpdated e)

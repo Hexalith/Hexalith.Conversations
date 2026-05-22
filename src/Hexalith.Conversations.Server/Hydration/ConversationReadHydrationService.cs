@@ -53,6 +53,10 @@ public sealed class ConversationReadHydrationService
         IReadOnlyDictionary<FileId, ReferenceHydrationResult<FileId>> fileResults =
             await HydrateOrUnavailableAsync(fileIds, ids => _directory.HydrateFilesAsync(context, ids, cancellationToken)).ConfigureAwait(false);
 
+        IReadOnlyList<PartyReferenceHydrationV1> partyHydration = partyIds
+            .Select(id => ToPartyHydration(id, Resolve(id, partyResults)))
+            .ToList();
+
         return new ConversationDetailsV1(
             details.SchemaVersion,
             details.TenantId,
@@ -69,10 +73,14 @@ public sealed class ConversationReadHydrationService
             details.FileReferences,
             details.GovernanceState,
             details.Attributes,
-            partyIds.Select(id => ToPartyHydration(id, Resolve(id, partyResults))).ToList(),
+            partyHydration,
             details.ProjectId is null ? null : ToProjectHydration(details.ProjectId, Resolve(details.ProjectId, projectResults)),
             details.FolderId is null ? null : ToFolderHydration(details.FolderId, Resolve(details.FolderId, folderResults)),
-            fileIds.Select(id => ToFileHydration(id, Resolve(id, fileResults))).ToList());
+            fileIds.Select(id => ToFileHydration(id, Resolve(id, fileResults))).ToList(),
+            details.SensitivityMarks,
+            details.Redactions,
+            details.TrustPosture.WithParticipantResolution(WorstHydrationState(partyHydration)),
+            details.EvidenceEntries);
     }
 
     /// <summary>
@@ -274,11 +282,11 @@ public sealed class ConversationReadHydrationService
 
         static int Priority(ProjectionTrustState state)
         {
+            if (state == ProjectionTrustState.Forbidden) { return 6; }
             if (state == ProjectionTrustState.Unavailable) { return 5; }
             if (state == ProjectionTrustState.Rebuilding) { return 4; }
             if (state == ProjectionTrustState.Stale) { return 3; }
             if (state == ProjectionTrustState.Redacted) { return 2; }
-            if (state == ProjectionTrustState.Forbidden) { return 1; }
             return 0;
         }
     }

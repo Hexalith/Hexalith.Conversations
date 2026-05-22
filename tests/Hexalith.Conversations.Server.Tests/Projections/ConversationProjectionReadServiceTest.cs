@@ -76,7 +76,7 @@ public sealed class ConversationProjectionReadServiceTest
             ConversationTenantAccessRequirement.Read,
             Tenant,
             "user-001"));
-        FakeProjectionReadStore store = new() { ThrowOnRead = true };
+        FakeProjectionReadStore store = new() { ReadException = new UnauthorizedAccessException("raw projection backend detail") };
         ConversationProjectionReadService service = new(access, store);
 
         ConversationProjectionReadResult result = await service.ReadDetailAsync(Tenant, "user-001", Tenant, Conversation, TestContext.Current.CancellationToken);
@@ -110,6 +110,37 @@ public sealed class ConversationProjectionReadServiceTest
         result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
         result.Projection.ShouldBeNull();
         result.IsAvailableForTrustBearingActions.ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// Non-current detail projections never become trust-bearing detail reads.
+    /// </summary>
+    [Theory]
+    [InlineData("Stale", "stale_threshold_exceeded")]
+    [InlineData("Rebuilding", "rebuilding")]
+    [InlineData("Unavailable", "unavailable")]
+    [InlineData("Redacted", "redacted")]
+    public async Task NonCurrentDetailFreshnessShouldBlockTrustBearingProjection(string freshnessState, string reasonCode)
+    {
+        ProjectionTrustState state = ProjectionTrustState.Parse(freshnessState);
+        ProjectionFreshnessReasonCode reason = ProjectionFreshnessReasonCode.Parse(reasonCode);
+        FakeTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Read,
+            Tenant,
+            "user-001"));
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithFreshness(FreshnessAtPosition(1, state, reason)),
+        };
+        ConversationProjectionReadService service = new(access, store);
+
+        ConversationProjectionReadResult result = await service.ReadDetailAsync(Tenant, "user-001", Tenant, Conversation, TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(state);
+        result.ReasonCode.ShouldBe(reason);
+        result.Projection.ShouldBeNull();
+        result.IsAvailableForTrustBearingActions.ShouldBeFalse();
+        store.Reads.ShouldBe(1);
     }
 
     /// <summary>
@@ -153,17 +184,50 @@ public sealed class ConversationProjectionReadServiceTest
             Now.AddSeconds(1),
             TimeSpan.FromMinutes(5));
 
-    private static ProjectionFreshnessV1 FreshnessAtPosition(long position)
-        => new(
+    private static ConversationProjectedReadModels ProjectedModelsWithFreshness(ProjectionFreshnessV1 freshness)
+    {
+        ConversationProjectedReadModels models = ProjectedModels();
+        return new(
+            SummaryWithFreshness(models.Summary, freshness),
+            DetailWithFreshness(models.Detail, freshness));
+    }
+
+    private static ProjectionFreshnessV1 FreshnessAtPosition(
+        long position,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reasonCode = null)
+    {
+        ProjectionTrustState state = freshnessState ?? ProjectionTrustState.Current;
+        return new(
             SchemaVersion.Current,
             $"pos:{position:D10}",
             position,
             Now,
             Now.AddSeconds(1),
             TimeSpan.FromSeconds(1),
-            IsStale: false,
-            ProjectionTrustState.Current,
-            ProjectionFreshnessReasonCode.Current);
+            IsStale: state == ProjectionTrustState.Stale,
+            state,
+            reasonCode ?? ProjectionFreshnessReasonCode.Current);
+    }
+
+    private static ConversationSummaryProjectionV1 SummaryWithFreshness(
+        ConversationSummaryProjectionV1 summary,
+        ProjectionFreshnessV1 freshness)
+        => new(
+            summary.SchemaVersion,
+            summary.TenantId,
+            summary.ConversationId,
+            freshness,
+            summary.LifecycleState,
+            summary.Label,
+            summary.BusinessReference,
+            summary.ProjectId,
+            summary.FolderId,
+            summary.ParticipantPartyIds,
+            summary.MessageCount,
+            summary.FileReferenceCount,
+            summary.ProviderCorrelation,
+            summary.SearchTrustPreview);
 
     private static ConversationDetailProjectionV1 DetailWithFreshness(
         ConversationDetailProjectionV1 detail,
@@ -205,7 +269,7 @@ public sealed class ConversationProjectionReadServiceTest
 
         public int Reads { get; private set; }
 
-        public bool ThrowOnRead { get; set; }
+        public Exception? ReadException { get; set; }
 
         public ValueTask<ConversationProjectedReadModels?> ReadAsync(
             TenantId tenantId,
@@ -213,9 +277,9 @@ public sealed class ConversationProjectionReadServiceTest
             CancellationToken cancellationToken = default)
         {
             Reads++;
-            if (ThrowOnRead)
+            if (ReadException is not null)
             {
-                throw new InvalidOperationException("Projection unavailable.");
+                throw ReadException;
             }
 
             return ValueTask.FromResult(Models);

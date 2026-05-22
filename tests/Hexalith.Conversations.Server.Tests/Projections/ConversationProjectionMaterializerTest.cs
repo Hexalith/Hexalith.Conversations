@@ -8,6 +8,7 @@ using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Projections;
@@ -56,6 +57,29 @@ public sealed class ConversationProjectionMaterializerTest
         result.Detail.ProjectId.ShouldBe(Project);
         result.Detail.FolderId.ShouldBe(Folder);
         result.Detail.Attributes.ShouldBe(new Dictionary<string, string> { ["priority"] = "high" });
+        result.Detail.TrustPosture.EvidenceCompletenessState.ShouldBe(ProjectionTrustState.Current);
+        result.Detail.TrustPosture.CitationAvailability.ShouldBe(ConversationCitationAvailability.Available);
+        result.Detail.TrustPosture.CommandEligibility.ShouldAllBe(item => item.AvailabilityState == ProjectionTrustState.Unavailable);
+        result.Detail.EvidenceEntries.Select(entry => entry.Kind).ShouldContain("Message");
+        result.Detail.EvidenceEntries.Select(entry => entry.Kind).ShouldContain("Participant");
+        result.Detail.EvidenceEntries.Select(entry => entry.Kind).ShouldContain("Attachment");
+        result.Detail.EvidenceEntries.Select(entry => entry.Kind).ShouldContain("Freshness");
+        result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Participant").OccurredAt.ShouldBe(Started.AddSeconds(2));
+        result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Attachment").OccurredAt.ShouldBe(Started.AddSeconds(4));
+        result.Detail.EvidenceEntries
+            .Select(entry => entry.OccurredAt)
+            .ShouldBe(result.Detail.EvidenceEntries
+                .Select(entry => entry.OccurredAt)
+                .Order()
+                .ToArray());
+        result.Detail.EvidenceEntries
+            .Where(entry => entry.Kind == "Message")
+            .Select(entry => entry.OccurredAt)
+            .ShouldBe(result.Detail.EvidenceEntries
+                .Where(entry => entry.Kind == "Message")
+                .Select(entry => entry.OccurredAt)
+                .Order()
+                .ToArray());
     }
 
     /// <summary>
@@ -352,6 +376,12 @@ public sealed class ConversationProjectionMaterializerTest
 
         result.Detail.Messages.Single().Text.ShouldBe("[redacted]");
         result.Detail.Messages.Single().Text.ShouldNotContain("secret", Case.Insensitive);
+        ConversationEvidenceEntryV1 messageEntry = result.Detail.EvidenceEntries.Single(entry => entry.Kind == "Message");
+        messageEntry.VisibleText.ShouldBe("[redacted]");
+        messageEntry.VisibleText.ShouldNotBeNull();
+        messageEntry.VisibleText.ShouldNotContain("secret", Case.Insensitive);
+        messageEntry.TrustState.ShouldBe(ProjectionTrustState.Redacted);
+        messageEntry.DegradedState.ShouldBe(ProjectionTrustState.Redacted);
         result.Detail.Redactions.Count.ShouldBe(1);
         ConversationRedactionProjectionV1 redaction = result.Detail.Redactions.Single();
         redaction.Target.MessageId.ShouldBe(Message);

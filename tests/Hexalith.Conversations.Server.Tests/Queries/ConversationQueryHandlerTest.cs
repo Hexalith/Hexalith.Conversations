@@ -136,6 +136,12 @@ public sealed class ConversationQueryHandlerTest
         result.Details.ShouldNotBeNull();
         result.Details.PartyHydration.Count.ShouldBe(2);
         result.Details.PartyHydration.Single(x => x.PartyId == Participant).SafeLabel.ShouldBe("Participant");
+        result.Details.TrustPosture.TenantId.ShouldBe(Tenant);
+        result.Details.TrustPosture.ConversationId.ShouldBe(Conversation);
+        result.Details.TrustPosture.TemporalCursor.ShouldBe("pos:0000000001");
+        result.Details.TrustPosture.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Current);
+        result.Details.TrustPosture.CommandEligibility.ShouldAllBe(item => item.AvailabilityState == ProjectionTrustState.Unavailable);
+        result.Details.EvidenceEntries.ShouldContain(entry => entry.Kind == "Message" && entry.MessageId == new MessageId("message-001"));
         result.Details.ProjectHydration.ShouldNotBeNull();
         result.Details.ProjectHydration.HydrationState.ShouldBe(ProjectionTrustState.Unavailable);
         result.Details.FolderHydration.ShouldNotBeNull();
@@ -148,6 +154,43 @@ public sealed class ConversationQueryHandlerTest
 
         static GetConversationQuery GetQuery()
             => new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation);
+    }
+
+    /// <summary>
+    /// Projection-owned missing citation and partial evidence states remain explicit through the query boundary.
+    /// </summary>
+    [Fact]
+    public async Task DetailShouldPreserveProjectionOwnedDegradedTrustMetadata()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModelsWithDegradedTrust(Tenant, Conversation),
+        };
+        FakeReferenceHydrationDirectory directory = new()
+        {
+            PartyResults =
+            {
+                [Actor] = new ReferenceHydrationResult<PartyId>(Actor, ReferenceHydrationStatus.Current, "Actor", "actor-token", "Available"),
+                [Participant] = new ReferenceHydrationResult<PartyId>(Participant, ReferenceHydrationStatus.Current, "Participant", "participant-token", "Available"),
+            },
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store, hydration: new ConversationReadHydrationService(directory));
+
+        ConversationDetailResult result = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        result.Details.ShouldNotBeNull();
+        result.Details.TrustPosture.EvidenceCompletenessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Details.TrustPosture.CitationAvailability.ShouldBe(ConversationCitationAvailability.Unavailable);
+        result.Details.TrustPosture.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Incomplete);
+        result.Details.TrustPosture.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Current);
+        ConversationEvidenceEntryV1 entry = result.Details.EvidenceEntries.Single(e => e.Kind == "Message");
+        entry.CitationAvailability.ShouldBe(ConversationCitationAvailability.Unavailable);
+        entry.DegradedState.ShouldBe(ProjectionTrustState.Unavailable);
+        entry.VisibleText.ShouldBe("Partial evidence available.");
     }
 
     /// <summary>
@@ -295,6 +338,28 @@ public sealed class ConversationQueryHandlerTest
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         result.Conversations.ShouldBeEmpty();
         store.ListReads.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Projection list storage failures are coarsened to unavailable without leaking infrastructure details.
+    /// </summary>
+    [Fact]
+    public async Task ListProjectionStoreFailureShouldReturnUnavailable()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            ListException = new UnauthorizedAccessException("raw projection backend path"),
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Conversations.ShouldBeEmpty();
+        result.SafeNextAction.ShouldNotContain("raw", Case.Insensitive);
+        store.ListReads.ShouldBe(1);
     }
 
     /// <summary>
@@ -1079,6 +1144,11 @@ public sealed class ConversationQueryHandlerTest
             Summary(tenantId, conversationId, Business, Project, Folder, Participant),
             Detail(tenantId, conversationId));
 
+    private static ConversationProjectedReadModels ProjectedModelsWithDegradedTrust(TenantId tenantId, ConversationId conversationId)
+        => new(
+            Summary(tenantId, conversationId, Business, Project, Folder, Participant),
+            DetailWithDegradedTrust(tenantId, conversationId));
+
     private static ConversationProjectedReadModels ProjectedModelsWithAuditRecord(TenantId tenantId, ConversationId conversationId)
         => new(
             Summary(tenantId, conversationId, Business, Project, Folder, Participant),
@@ -1144,7 +1214,63 @@ public sealed class ConversationQueryHandlerTest
             null,
             [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
             [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
-            []);
+            [],
+            TrustPosture: CurrentTrustPosture(tenantId, conversationId, auditReady: false),
+            EvidenceEntries:
+            [
+                new ConversationEvidenceEntryV1(
+                    "message:message-001",
+                    "Message",
+                    Actor,
+                    Now,
+                    ProjectionTrustState.Current,
+                    ConversationCitationAvailability.Available,
+                    ConversationAuditReadinessState.Incomplete,
+                    ProjectionTrustState.Current,
+                    MessageId: new MessageId("message-001"),
+                    VisibleText: "Hello from the adopter."),
+            ]);
+
+    private static ConversationDetailProjectionV1 DetailWithDegradedTrust(TenantId tenantId, ConversationId conversationId)
+        => new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            Freshness("pos:0000000001"),
+            "Open",
+            "Case 123",
+            Business,
+            Project,
+            Folder,
+            null,
+            [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+            [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Partial evidence available.", Now)],
+            [],
+            TrustPosture: new ConversationEvidenceTrustPostureV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                "pos:0000000001",
+                Freshness("pos:0000000001"),
+                ProjectionTrustState.Unavailable,
+                ProjectionTrustState.Unavailable,
+                ConversationCitationAvailability.Unavailable,
+                ConversationAuditReadinessState.Incomplete,
+                ConversationVerificationState.Unknown),
+            EvidenceEntries:
+            [
+                new ConversationEvidenceEntryV1(
+                    "message:message-001",
+                    "Message",
+                    Actor,
+                    Now,
+                    ProjectionTrustState.Current,
+                    ConversationCitationAvailability.Unavailable,
+                    ConversationAuditReadinessState.Incomplete,
+                    ProjectionTrustState.Unavailable,
+                    MessageId: new MessageId("message-001"),
+                    VisibleText: "Partial evidence available."),
+            ]);
 
     private static ConversationDetailProjectionV1 DetailWithAuditRecord(TenantId tenantId, ConversationId conversationId)
         => new(
@@ -1169,7 +1295,24 @@ public sealed class ConversationQueryHandlerTest
                 new GovernanceAuditEvidenceReference(
                     new AuditEvidenceHandle("audit-evidence-001"),
                     "retention-policy-standard",
-                    Now)));
+                    Now)),
+            TrustPosture: CurrentTrustPosture(tenantId, conversationId, auditReady: true));
+
+    private static ConversationEvidenceTrustPostureV1 CurrentTrustPosture(
+        TenantId tenantId,
+        ConversationId conversationId,
+        bool auditReady)
+        => new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            "pos:0000000001",
+            Freshness("pos:0000000001"),
+            ProjectionTrustState.Current,
+            ProjectionTrustState.Unavailable,
+            ConversationCitationAvailability.Available,
+            auditReady ? ConversationAuditReadinessState.Ready : ConversationAuditReadinessState.Incomplete,
+            ConversationVerificationState.Unknown);
 
     private static PrivilegedOperationalJustificationDetailsV1 PrivilegedDetails()
         => new(
@@ -1239,6 +1382,8 @@ public sealed class ConversationQueryHandlerTest
 
         public IReadOnlyList<ConversationSummaryProjectionV1> Summaries { get; set; } = [];
 
+        public Exception? ListException { get; set; }
+
         public int DetailReads { get; private set; }
 
         public int ListReads { get; private set; }
@@ -1257,6 +1402,11 @@ public sealed class ConversationQueryHandlerTest
             CancellationToken cancellationToken = default)
         {
             ListReads++;
+            if (ListException is not null)
+            {
+                throw ListException;
+            }
+
             return ValueTask.FromResult(Summaries);
         }
     }

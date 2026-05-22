@@ -14,10 +14,12 @@ namespace Hexalith.Conversations.Contracts.Projections;
 /// <param name="participantPartyId">The stable Party identity.</param>
 /// <param name="participantType">The participant type.</param>
 /// <param name="participantRole">The participant role.</param>
+/// <param name="occurredAt">The projected time the participant became part of the record.</param>
 public sealed record ConversationParticipantProjectionV1(
     PartyId ParticipantPartyId,
     ParticipantType ParticipantType,
-    ParticipantRole ParticipantRole)
+    ParticipantRole ParticipantRole,
+    DateTimeOffset? OccurredAt = null)
 {
     /// <summary>
     /// Gets the stable Party identity.
@@ -33,4 +35,19 @@ public sealed record ConversationParticipantProjectionV1(
     /// Gets the participant role.
     /// </summary>
     public ParticipantRole ParticipantRole { get; } = ParticipantRole ?? throw new ArgumentNullException(nameof(ParticipantRole));
+
+    /// <summary>
+    /// Gets the projected time the participant became part of the record, when available.
+    /// </summary>
+    public DateTimeOffset? OccurredAt { get; } = ValidateTimestamp(OccurredAt);
+
+    private static DateTimeOffset? ValidateTimestamp(DateTimeOffset? value)
+    {
+        if (value <= DateTimeOffset.MinValue)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.");
+        }
+
+        return value;
+    }
 }

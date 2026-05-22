@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Versioning;
 
 namespace Hexalith.Conversations.Contracts.Projections;
@@ -45,7 +46,9 @@ public sealed record ConversationDetailProjectionV1(
     IReadOnlyDictionary<string, string>? Attributes = null,
     ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy = null,
     IReadOnlyList<ConversationSensitivityMarkProjectionV1>? SensitivityMarks = null,
-    IReadOnlyList<ConversationRedactionProjectionV1>? Redactions = null)
+    IReadOnlyList<ConversationRedactionProjectionV1>? Redactions = null,
+    ConversationEvidenceTrustPostureV1? TrustPosture = null,
+    IReadOnlyList<ConversationEvidenceEntryV1>? EvidenceEntries = null)
 {
     /// <summary>
     /// Gets the public projection schema version.
@@ -66,6 +69,18 @@ public sealed record ConversationDetailProjectionV1(
     /// Gets the server-computed freshness metadata.
     /// </summary>
     public ProjectionFreshnessV1 Freshness { get; } = Freshness ?? throw new ArgumentNullException(nameof(Freshness));
+
+    /// <summary>
+    /// Gets projection-owned trust posture for the opened record.
+    /// </summary>
+    public ConversationEvidenceTrustPostureV1 TrustPosture { get; } =
+        TrustPosture ?? ConversationEvidenceTrustPostureV1.FromFreshness(SchemaVersion, TenantId, ConversationId, Freshness);
+
+    /// <summary>
+    /// Gets governed evidence records derived from projection state.
+    /// </summary>
+    public IReadOnlyList<ConversationEvidenceEntryV1> EvidenceEntries { get; } =
+        ValidateList(EvidenceEntries, nameof(EvidenceEntries));
 
     /// <summary>
     /// Gets the safe lifecycle state token.

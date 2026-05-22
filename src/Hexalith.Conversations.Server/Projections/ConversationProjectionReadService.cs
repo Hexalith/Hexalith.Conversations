@@ -68,15 +68,7 @@ public sealed class ConversationProjectionReadService(
                 .ReadAsync(routeTenantId, conversationId, cancellationToken)
                 .ConfigureAwait(false);
         }
-        catch (InvalidOperationException)
-        {
-            return Unavailable();
-        }
-        catch (IOException)
-        {
-            return Unavailable();
-        }
-        catch (TimeoutException)
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
             return Unavailable();
         }

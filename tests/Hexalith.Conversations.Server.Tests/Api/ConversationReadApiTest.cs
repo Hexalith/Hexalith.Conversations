@@ -32,6 +32,8 @@ public sealed class ConversationReadApiTest
 {
     private static readonly TenantId Tenant = new("tenant-001");
     private static readonly TenantId OtherTenant = new("tenant-002");
+    private static readonly ConversationId Conversation = new("conversation-001");
+    private static readonly PartyId Actor = new("party-actor");
     private static readonly PartyId Participant = new("party-participant");
     private static readonly ProjectId Project = new("project-001");
     private static readonly FolderId Folder = new("folder-001");
@@ -71,6 +73,53 @@ public sealed class ConversationReadApiTest
     }
 
     [Fact]
+    public async Task DetailRequestMalformedConversationIdShouldReturnHiddenShapeWithoutProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = "   " },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task DetailRequestShouldBindTenantAndCallerOnlyFromTrustedClaims()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            queryString: "?tenantId=tenant-evil&callerPrincipalId=caller-evil&user=caller-evil&role=admin&commandPermission=conversations.governance",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        access.Calls.ShouldBe(1);
+        access.LastTrustedTenantId.ShouldBe(Tenant);
+        access.LastRouteTenantId.ShouldBe(Tenant);
+        access.LastProjectionTenantId.ShouldBe(Tenant);
+        access.LastCallerPrincipalId.ShouldBe("caller-001");
+        response.Body.ShouldNotContain("tenant-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("caller-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("commandPermission", Case.Insensitive);
+    }
+
+    [Fact]
     public async Task DetailRequestHandlerFailureShouldReturnUnavailableShape()
     {
         using WebApplication app = BuildApp(new ThrowingTenantAccessService(), new FakeProjectionReadStore());
@@ -83,6 +132,31 @@ public sealed class ConversationReadApiTest
         response.Body.ShouldContain("\"freshnessState\":\"Unavailable\"");
         response.Body.ShouldNotContain("tenant-001", Case.Insensitive);
         response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+    }
+
+    [Fact]
+    public async Task DetailRequestShouldReturnGovernedTrustPostureAndEvidenceEntries()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(AllowedAccess(), store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        response.Body.ShouldContain("\"trustPosture\"");
+        response.Body.ShouldContain("\"evidenceEntries\"");
+        response.Body.ShouldContain("\"commandEligibility\"");
+        response.Body.ShouldContain("\"availabilityState\":\"Unavailable\"");
+        response.Body.ShouldContain("\"kind\":\"Message\"");
+        response.Body.ShouldNotContain("EventStore", Case.Insensitive);
+        response.Body.ShouldNotContain("providerSessionReference", Case.Insensitive);
+        response.Body.ShouldNotContain("transcript", Case.Insensitive);
+        store.DetailReads.ShouldBe(1);
     }
 
     [Fact]
@@ -341,11 +415,74 @@ public sealed class ConversationReadApiTest
             ConversationSearchMatchSource.TenantScope,
             "Visible through authorized tenant scope.");
 
+    private static ConversationProjectedReadModels ProjectedModels(TenantId tenantId, ConversationId conversationId)
+        => new(
+            Summary(tenantId, conversationId, Business, Project, Folder, Participant),
+            new ConversationDetailProjectionV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                Freshness(),
+                "Open",
+                "Case 123",
+                Business,
+                Project,
+                Folder,
+                null,
+                [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+                [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
+                [],
+                TrustPosture: new ConversationEvidenceTrustPostureV1(
+                    SchemaVersion.Current,
+                    tenantId,
+                    conversationId,
+                    "pos:0000000001",
+                    Freshness(),
+                    ProjectionTrustState.Current,
+                    ProjectionTrustState.Unavailable,
+                    ConversationCitationAvailability.Available,
+                    ConversationAuditReadinessState.Incomplete,
+                    ConversationVerificationState.Unknown),
+                EvidenceEntries:
+                [
+                    new ConversationEvidenceEntryV1(
+                        "message:message-001",
+                        "Message",
+                        Actor,
+                        Now,
+                        ProjectionTrustState.Current,
+                        ConversationCitationAvailability.Available,
+                        ConversationAuditReadinessState.Incomplete,
+                        ProjectionTrustState.Current,
+                        MessageId: new MessageId("message-001"),
+                        VisibleText: "Hello from the adopter."),
+                ]));
+
+    private static ProjectionFreshnessV1 Freshness()
+        => new(
+            SchemaVersion.Current,
+            "pos:0000000001",
+            1,
+            Now,
+            Now.AddSeconds(1),
+            TimeSpan.FromSeconds(1),
+            IsStale: false,
+            ProjectionTrustState.Current,
+            ProjectionFreshnessReasonCode.Current);
+
     private sealed record ApiResponse(int StatusCode, string Body);
 
     private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
     {
         public int Calls { get; private set; }
+
+        public string? LastCallerPrincipalId { get; private set; }
+
+        public TenantId? LastProjectionTenantId { get; private set; }
+
+        public TenantId? LastRouteTenantId { get; private set; }
+
+        public TenantId? LastTrustedTenantId { get; private set; }
 
         public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
             ConversationTenantAccessRequirement requirement,
@@ -359,6 +496,10 @@ public sealed class ConversationReadApiTest
             CancellationToken cancellationToken = default)
         {
             Calls++;
+            LastTrustedTenantId = trustedTenantId;
+            LastCallerPrincipalId = callerPrincipalId;
+            LastRouteTenantId = routeTenantId;
+            LastProjectionTenantId = projectionTenantId;
             return ValueTask.FromResult(decision);
         }
     }
@@ -382,6 +523,8 @@ public sealed class ConversationReadApiTest
     {
         public IReadOnlyList<ConversationSummaryProjectionV1> Summaries { get; init; } = [];
 
+        public ConversationProjectedReadModels? Models { get; init; }
+
         public int DetailReads { get; private set; }
 
         public int ListReads { get; private set; }
@@ -392,7 +535,7 @@ public sealed class ConversationReadApiTest
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
-            return ValueTask.FromResult<ConversationProjectedReadModels?>(null);
+            return ValueTask.FromResult(Models);
         }
 
         public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(

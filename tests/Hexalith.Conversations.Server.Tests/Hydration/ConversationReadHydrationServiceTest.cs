@@ -45,10 +45,10 @@ public sealed class ConversationReadHydrationServiceTest
                     SafeStatus: "POISON-status"),
                 [Participant] = new ReferenceHydrationResult<PartyId>(
                     Participant,
-                    ReferenceHydrationStatus.Current,
+                    ReferenceHydrationStatus.Stale,
                     SafeLabel: "Renamed participant",
                     SafeToken: "participant-token",
-                    SafeStatus: "Available"),
+                    SafeStatus: "Stale"),
             },
             ProjectResults =
             {
@@ -109,6 +109,9 @@ public sealed class ConversationReadHydrationServiceTest
         hydrated.FolderHydration.HydrationState.ShouldBe(ProjectionTrustState.Redacted);
         hydrated.FolderHydration.SafeLabel.ShouldBe("Reference redacted");
         hydrated.FileHydration.Single().HydrationState.ShouldBe(ProjectionTrustState.Stale);
+        hydrated.TrustPosture.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Forbidden);
+        hydrated.TrustPosture.EvidenceCompletenessState.ShouldBe(ProjectionTrustState.Current);
+        hydrated.TrustPosture.CitationAvailability.ShouldBe(ConversationCitationAvailability.Available);
 
         string serialized = System.Text.Json.JsonSerializer.Serialize(
             hydrated,
@@ -220,7 +223,18 @@ public sealed class ConversationReadHydrationServiceTest
             [
                 new ConversationFileReferenceProjectionV1(File, Folder, new MessageId("message-001")),
                 new ConversationFileReferenceProjectionV1(File, Folder, new MessageId("message-002")),
-            ]);
+            ],
+            TrustPosture: new ConversationEvidenceTrustPostureV1(
+                SchemaVersion.Current,
+                Tenant,
+                Conversation,
+                "pos:0000000001",
+                Freshness(),
+                ProjectionTrustState.Current,
+                ProjectionTrustState.Unavailable,
+                ConversationCitationAvailability.Available,
+                ConversationAuditReadinessState.Ready,
+                ConversationVerificationState.Unknown));
 
     private static ProjectionFreshnessV1 Freshness()
         => new(

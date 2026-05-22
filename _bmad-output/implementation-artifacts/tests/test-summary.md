@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 3.2 Governed Conversation Evidence Read
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ConversationEvidenceContractTest.cs` - Added governed detail contract coverage for trust posture, evidence entries before message timeline data, fail-closed command eligibility defaults, explicit unavailable metadata defaults, and forbidden infrastructure/provider/session/transcript vocabulary checks.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization fixtures for governed evidence trust posture, evidence entries, and command availability metadata.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs` - Added projection-owned trust posture/evidence-entry assertions, evidence kind coverage for messages/participants/attachments/freshness, chronological message evidence ordering, and redaction placeholder preservation in evidence entries.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs` - Added QA follow-up coverage proving stale, rebuilding, unavailable, and redacted detail projections do not become trust-bearing reads.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Hydration/ConversationReadHydrationServiceTest.cs` - Added detail participant-resolution downgrade coverage while preserving projection-owned evidence completeness and citation availability.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` - Added governed detail query assertions for tenant scope, record identity, temporal cursor, command eligibility, missing citation metadata, partial evidence metadata, and evidence entry propagation after authorized projection read/hydration.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs` - Added existing detail route coverage proving authorized reads return trust posture, evidence entries, command eligibility, malformed route values fail hidden without projection reads, trusted claims are used instead of caller-supplied authority, and no unsafe EventStore/provider-session/transcript terms are exposed.
+- [x] AI review follow-up - Added regression coverage for full evidence-entry chronology across participant/message/attachment/freshness records, forbidden participant-resolution aggregation precedence, and projection store exception coarsening for detail/list reads.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationQuery|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 20 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationProjectionReadServiceTest|FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationReadHydrationServiceTest|FullyQualifiedName~ConversationReadApiTest"` - 93 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~TenantAccess|FullyQualifiedName~Temporal|FullyQualifiedName~AuditRecord|FullyQualifiedName~ConversationQueryRegistrationTest"` - 148 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 653 passed.
+
+### Coverage
+- Detail projections and query details now expose source-owned trust posture with tenant scope, record identity, safe temporal cursor, projection freshness, evidence completeness, participant resolution, citation availability, audit readiness, verification state, and server-owned command availability metadata that defaults blocked/unavailable.
+- Governed evidence entries now represent messages, participants, attachments, retention policy, sensitivity marks, redactions, and freshness metadata as evidence records rather than chat bubbles, preserving chronological evidence ordering and redacted placeholders.
+- Server coverage verifies tenant/freshness denial ordering remains unchanged, non-current detail projections fail closed, projection store failures coarsen to unavailable, missing citation and partial evidence metadata remain explicit, detail hydration is response-scoped and only aggregates participant resolution, and the existing authorized API route returns the governed read shape without unsafe new routes or caller-supplied authority.
+
+### Checklist Validation
+- [x] API and backend E2E-style read-path tests generated for the implemented governed detail feature.
+- [x] UI E2E tests assessed as not applicable because Story 3.2 is implemented as backend contracts/server/API read behavior in this repository.
+- [x] Tests use standard xUnit, Shouldly, ASP.NET endpoint invocation, and existing fake-store patterns.
+- [x] Tests cover happy path plus stale, rebuilding, unavailable, redacted, malformed route, missing citation, partial evidence, unresolved participant, and cross-tenant/hidden cases.
+- [x] Tests are independent, use no sleeps or hardcoded waits, and the summary includes coverage metrics.
+
 ## Story 3.1 Tenant-Scoped Find Evidence
 
 ### Generated Tests
