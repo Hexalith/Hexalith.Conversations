@@ -92,7 +92,7 @@ public sealed record ConversationErrorCategory
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return KnownCategories.TryGetValue(value, out ConversationErrorCategory? category)
             ? category
-            : throw new ArgumentException($"Unsupported conversation error category '{value}'.", nameof(value));
+            : throw new ArgumentException("Unsupported conversation error category.", nameof(value));
     }
 
     /// <inheritdoc />

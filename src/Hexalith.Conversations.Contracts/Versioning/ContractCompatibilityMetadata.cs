@@ -121,6 +121,7 @@ public sealed record ContractCompatibilityRemediation(string GuidanceCode, Uri D
         "upgrade-to-active-v1",
         "use-supported-v1-package",
         "send-positive-integer-schema-version",
+        "send-semantic-package-version",
     };
 
     /// <summary>
@@ -350,9 +351,6 @@ public sealed record ContractCompatibilityResult(
 /// </summary>
 public static class ConversationContractCompatibility
 {
-    private static readonly Uri CompatibilityDocumentation =
-        new("https://docs.hexalith.local/conversations/contracts/v1/compatibility", UriKind.Absolute);
-
     private static readonly IReadOnlySet<string> DeprecatedPackageVersions = new HashSet<string>(StringComparer.Ordinal)
     {
         "0.9.0",
@@ -393,7 +391,7 @@ public static class ConversationContractCompatibility
         ContractCompatibilityStatus status = StatusFor(severity);
         if (status != ContractCompatibilityStatus.Supported)
         {
-            remediations.Add(RemediationFor(severity));
+            remediations.AddRange(RemediationsFor(severity, diagnostics));
         }
 
         ConversationError? error = severity is CompatibilitySeverity.Invalid or CompatibilitySeverity.Unsupported
@@ -463,27 +461,48 @@ public static class ConversationContractCompatibility
         RaiseSeverity(ref severity, CompatibilitySeverity.Unsupported);
     }
 
-    private static ConversationError CreateVersioningError(IReadOnlyDictionary<string, string> diagnostics, CompatibilitySeverity severity)
-        => new(
-            SchemaVersion.Current,
+    private static ConversationError CreateVersioningError(
+        IReadOnlyDictionary<string, string> diagnostics,
+        CompatibilitySeverity severity)
+        => ConversationErrorCatalog.CreateError(
             ConversationErrorCode.SchemaVersionUnsupported,
-            ConversationErrorCategory.Versioning,
-            IsRetryable: false,
-            CorrelationId: "compatibility-check",
-            Documentation: CompatibilityDocumentation,
-            SafeFieldDiagnostics: diagnostics,
-            DeveloperGuidance: severity == CompatibilitySeverity.Invalid
+            "compatibility-check",
+            safeFieldDiagnostics: diagnostics,
+            developerGuidance: severity == CompatibilitySeverity.Invalid
                 ? "Send positive integer schema versions and semantic package versions."
                 : "Use the active v1 contracts package and client package.");
 
-    private static ContractCompatibilityRemediation RemediationFor(CompatibilitySeverity severity)
-        => severity switch
+    private static IReadOnlyList<ContractCompatibilityRemediation> RemediationsFor(
+        CompatibilitySeverity severity,
+        IReadOnlyDictionary<string, string> diagnostics)
+    {
+        Uri documentation = ConversationErrorCatalog.Get(ConversationErrorCode.SchemaVersionUnsupported).Documentation;
+        if (severity == CompatibilitySeverity.Invalid)
         {
-            CompatibilitySeverity.Invalid => new("send-positive-integer-schema-version", CompatibilityDocumentation),
-            CompatibilitySeverity.Deprecated => new("upgrade-to-active-v1", CompatibilityDocumentation),
-            CompatibilitySeverity.Unsupported => new("use-supported-v1-package", CompatibilityDocumentation),
-            _ => new("upgrade-to-active-v1", CompatibilityDocumentation),
-        };
+            List<ContractCompatibilityRemediation> remediations = [];
+            if (diagnostics.Values.Contains("invalid_positive_integer_required", StringComparer.Ordinal))
+            {
+                remediations.Add(new("send-positive-integer-schema-version", documentation));
+            }
+
+            if (diagnostics.Values.Contains("invalid_semantic_version_required", StringComparer.Ordinal))
+            {
+                remediations.Add(new("send-semantic-package-version", documentation));
+            }
+
+            return remediations;
+        }
+
+        return
+        [
+            severity switch
+            {
+                CompatibilitySeverity.Deprecated => new("upgrade-to-active-v1", documentation),
+                CompatibilitySeverity.Unsupported => new("use-supported-v1-package", documentation),
+                _ => new("upgrade-to-active-v1", documentation),
+            },
+        ];
+    }
 
     private static ContractCompatibilityStatus StatusFor(CompatibilitySeverity severity)
         => severity switch

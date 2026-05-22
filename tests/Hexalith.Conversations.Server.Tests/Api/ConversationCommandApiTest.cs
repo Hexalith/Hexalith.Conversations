@@ -90,6 +90,7 @@ public sealed class ConversationCommandApiTest
 
         response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
         response.Body.ShouldContain("command_validation_failed");
+        response.Body.ShouldContain("correct-request");
         response.Body.ShouldNotContain("conversation-other", Case.Insensitive);
         handler.AppendCalls.ShouldBe(0);
     }
@@ -108,7 +109,85 @@ public sealed class ConversationCommandApiTest
 
         response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
         response.Body.ShouldContain("tenant_context_mismatch");
+        response.Body.ShouldContain("align-context");
         response.Body.ShouldNotContain("tenant-002", Case.Insensitive);
+        handler.CreateCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task MissingMetadataShouldReturnTypedValidationErrorWithoutHandlerCall()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/",
+            new CreateConversationCommand(null!, Label: "Case 123"),
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        response.Body.ShouldContain("command_validation_failed");
+        response.Body.ShouldContain("correct-request");
+        response.Body.ShouldNotContain("Case 123", Case.Insensitive);
+        handler.CreateCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task MalformedBodyShouldReturnTypedValidationErrorWithoutRawBodyLeak()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeRawAsync(
+            app,
+            "/api/v1/conversations/",
+            "{ \"metadata\": { \"tenantId\": \"tenant:tenant-999\", ",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        response.Body.ShouldContain("command_validation_failed");
+        response.Body.ShouldContain("correct-request");
+        response.Body.ShouldNotContain("tenant-999", Case.Insensitive);
+        handler.CreateCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task UnauthenticatedCallerShouldReturnTypedBindingError()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/",
+            CreateCommand(),
+            user: new ClaimsPrincipal(new ClaimsIdentity()));
+
+        response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
+        response.Body.ShouldContain("tenant_binding_missing");
+        response.Body.ShouldContain("provide-context");
+        handler.CreateCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task MissingTenantClaimShouldReturnTypedBindingError()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+        ClaimsPrincipal user = new(new ClaimsIdentity(
+            [new Claim(ClaimTypes.NameIdentifier, "caller-001")],
+            authenticationType: "Test"));
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/",
+            CreateCommand(),
+            user: user);
+
+        response.StatusCode.ShouldBe(StatusCodes.Status403Forbidden);
+        response.Body.ShouldContain("tenant_binding_missing");
+        response.Body.ShouldContain("provide-context");
         handler.CreateCalls.ShouldBe(0);
     }
 
@@ -120,13 +199,10 @@ public sealed class ConversationCommandApiTest
             AppendOutcome = ConversationCommandApiOutcome<ConversationCommandAcceptedResult>.Failure(
                 new ConversationErrorResult(
                     [
-                        new ConversationError(
-                            SchemaVersion.Current,
+                        ConversationErrorCatalog.CreateError(
                             ConversationErrorCode.IdempotencyConflict,
-                            ConversationErrorCategory.Conflict,
-                            IsRetryable: false,
-                            CorrelationId: "corr-001",
-                            DeveloperGuidance: "Use a new idempotency key for a changed command payload."),
+                            "corr-001",
+                            developerGuidance: "Use a new idempotency key for a changed command payload."),
                     ]),
                 StatusCodes.Status409Conflict),
         };
@@ -141,8 +217,59 @@ public sealed class ConversationCommandApiTest
 
         response.StatusCode.ShouldBe(StatusCodes.Status409Conflict);
         response.Body.ShouldContain("idempotency_conflict");
+        response.Body.ShouldContain("use-new-idempotency-key");
         response.Body.ShouldNotContain("EventStore", Case.Insensitive);
         response.Body.ShouldNotContain("stream", Case.Insensitive);
+        handler.AppendCalls.ShouldBe(1);
+    }
+
+    [Theory]
+    [InlineData("audit_sink_unavailable", StatusCodes.Status503ServiceUnavailable, "retry-later")]
+    [InlineData("tenant_projection_stale", StatusCodes.Status503ServiceUnavailable, "retry-later")]
+    [InlineData("participant_validation_unavailable", StatusCodes.Status503ServiceUnavailable, "retry-later")]
+    [InlineData("provider_only_identity_forbidden", StatusCodes.Status400BadRequest, "use-party-identity")]
+    public async Task HandlerTypedRemediationErrorsShouldStayCatalogAlignedAndSafe(
+        string codeValue,
+        int statusCode,
+        string expectedClientAction)
+    {
+        ConversationErrorCode code = ConversationErrorCode.Parse(codeValue);
+        FakeCommandHandler handler = new()
+        {
+            AppendOutcome = ConversationCommandApiOutcome<ConversationCommandAcceptedResult>.Failure(
+                new ConversationErrorResult(
+                    [
+                        ConversationErrorCatalog.CreateError(
+                            code,
+                            "corr-001",
+                            auditHandle: "audit-001",
+                            safeFieldDiagnostics: new Dictionary<string, string>
+                            {
+                                ["remediation"] = "safe-action-required",
+                            },
+                            developerGuidance: "Use the typed Conversations result to choose remediation."),
+                    ]),
+                statusCode),
+        };
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/{conversationId}/messages",
+            AppendCommand(),
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(statusCode);
+        response.Body.ShouldContain(codeValue);
+        response.Body.ShouldContain(expectedClientAction);
+        response.Body.ShouldContain(ConversationErrorCatalog.Get(code).SafeMessage);
+        response.Body.ShouldContain("https://docs.hexalith.local/conversations/contracts/v1/errors");
+        response.Body.ShouldNotContain("tenant-999", Case.Insensitive);
+        response.Body.ShouldNotContain("provider-session", Case.Insensitive);
+        response.Body.ShouldNotContain("EventStore", Case.Insensitive);
+        response.Body.ShouldNotContain("handler", Case.Insensitive);
+        response.Body.ShouldNotContain("D:\\", Case.Insensitive);
         handler.AppendCalls.ShouldBe(1);
     }
 
@@ -176,6 +303,43 @@ public sealed class ConversationCommandApiTest
 
         string json = JsonSerializer.Serialize(body, JsonOptions);
         byte[] requestBody = Encoding.UTF8.GetBytes(json);
+        context.Request.ContentLength = requestBody.Length;
+        context.Request.Body = new MemoryStream(requestBody);
+        context.Response.Body = new MemoryStream();
+
+        if (routeValues is not null)
+        {
+            foreach (KeyValuePair<string, object?> routeValue in routeValues)
+            {
+                context.Request.RouteValues[routeValue.Key] = routeValue.Value;
+            }
+        }
+
+        await endpoint.RequestDelegate!(context);
+        context.Response.Body.Position = 0;
+        using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
+        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        return new ApiResponse(context.Response.StatusCode, responseBody);
+    }
+
+    private static async Task<ApiResponse> InvokeRawAsync(
+        WebApplication app,
+        string routePattern,
+        string body,
+        IReadOnlyDictionary<string, object?>? routeValues = null,
+        ClaimsPrincipal? user = null)
+    {
+        RouteEndpoint endpoint = FindEndpoint(app, routePattern);
+        DefaultHttpContext context = new()
+        {
+            RequestServices = app.Services,
+            User = user ?? new ClaimsPrincipal(new ClaimsIdentity()),
+        };
+        context.Request.Method = HttpMethods.Post;
+        context.Request.ContentType = "application/json";
+        context.Request.Headers[ConversationReadApi.CorrelationIdHeaderName] = "corr-001";
+
+        byte[] requestBody = Encoding.UTF8.GetBytes(body);
         context.Request.ContentLength = requestBody.Length;
         context.Request.Body = new MemoryStream(requestBody);
         context.Response.Body = new MemoryStream();

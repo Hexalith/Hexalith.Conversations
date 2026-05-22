@@ -1,5 +1,45 @@
 # Test Automation Summary
 
+## Story 4.3 Expose Typed Sanitized Errors and Remediation Guidance
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ConversationErrorCatalogTest.cs` - Added descriptor coverage for every supported error code, retryability/catalog consistency, safe message/action fields, HTTPS documentation pointers, audit-handle allowance, closed action vocabulary serialization, and additive JSON tolerance.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs` - Extended unsafe free-text rejection to the new `SafeMessage` field and preserved serialized content-safety checks across curated error fixtures.
+- [x] Senior review auto-fix: `tests/Hexalith.Conversations.Contracts.Tests/ForbiddenPublicSurfaceTest.cs` now rejects tenant, Party, conversation, provider-session/payload, business-reference, local-path, and exception markers across every protected `ConversationError` free-text field.
+- [x] Senior review auto-fix: `tests/Hexalith.Conversations.Contracts.Tests/ConversationErrorCatalogTest.cs` now proves unsupported error code/category/action parser and JSON converter diagnostics do not echo raw protected values.
+- [x] Senior review auto-fix: `tests/Hexalith.Conversations.Contracts.Tests/Versioning/ContractCompatibilityMetadataTest.cs` now proves invalid package versions return `send-semantic-package-version` while invalid schema versions keep `send-positive-integer-schema-version`.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs` and `ContractSamples.cs` - Updated representative wire fixtures and serialization samples for `clientAction`, `safeMessage`, catalog descriptors, and closed action vocabulary.
+- [x] `tests/Hexalith.Conversations.Client.Tests/ConversationClientTest.cs` - Added typed fallback coverage for unsupported schema before send, typed server error bodies, non-JSON 400/401/403/404/409/500 responses, timeout/unknown outcome, tenant denial fallback, idempotency conflict, and client-visible content-safety.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationCommandApiTest.cs` - Added command API coverage for malformed body, missing metadata, unauthenticated caller, missing tenant claim, tenant mismatch, route/body mismatch, handler-supplied idempotency conflict, handler-supplied audit unavailable, stale projection, participant/onboarding unavailable, provider-identity failures, and shared catalog action/message fields.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Error|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~Versioning|FullyQualifiedName~ContractSerialization"` - 49 passed.
+- [x] Senior review auto-fix: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Error|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~Versioning|FullyQualifiedName~ContractSerialization"` - 50 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj` - 23 passed.
+- [x] Senior review regression: `dotnet test tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj` - 23 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCommandApi"` - 13 passed after QA automation follow-up coverage.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCommandApi|FullyQualifiedName~ConversationReadApi|FullyQualifiedName~Governance|FullyQualifiedName~Idempotency"` - 116 passed after QA automation follow-up coverage.
+- [x] Senior review regression: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCommandApi|FullyQualifiedName~ConversationReadApi|FullyQualifiedName~Governance|FullyQualifiedName~Idempotency"` - 116 passed.
+- [x] `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - produced `.artifacts/package-validation/Hexalith.Conversations.Contracts.1.0.0.nupkg`.
+- [x] Senior review regression: `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - passed.
+- [x] `dotnet pack src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj -c Release -o .artifacts/package-validation` - produced `.artifacts/package-validation/Hexalith.Conversations.Client.1.0.0.nupkg`. First parallel attempt collided on a shared contracts intermediate DLL lock; serial rerun passed.
+- [x] Senior review regression: `dotnet pack src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj -c Release -o .artifacts/package-validation` - exited successfully.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Contracts 278, Integration 8, Core 139, Server 386.
+- [x] Senior review regression: `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Contracts 279, Integration 8, Core 139, Server 390.
+
+### Coverage
+- Contracts now expose canonical typed remediation fields through `ConversationErrorClientAction`, `ConversationErrorDescriptor`, and `ConversationErrorCatalog` without replacing `ConversationErrorResult`.
+- REST, client fallback, and compatibility checks now source category, retryability, safe action, safe message, documentation pointer, and audit-handle allowance from the shared catalog.
+- Client and server tests prove raw non-JSON failures, malformed requests, authorization failures, idempotency conflicts, audit unavailable, stale projection, participant/onboarding unavailable, provider-identity failures, unsupported schemas, and unknown outcomes coarsen to bounded typed errors without leaking tenant IDs, provider/session details, route internals, raw exception text, or storage/infrastructure terms.
+- Senior review coverage proves typed error free-text guards reject common protected identifier, provider, business-reference, local-path, and exception markers, and parser/converter diagnostics avoid echoing unsupported raw closed-vocabulary values.
+- Compatibility remediation coverage now distinguishes invalid schema-version guidance from invalid package-version guidance.
+- README and contract package docs now document compact adopter-facing error semantics at the contract/client level without adding raw HTTP fallback examples.
+
+### Checklist Validation
+- [x] Story 4.3 AC1-AC4 are covered by contract descriptor tests, client fallback tests, server command API tests, compatibility serialization tests, forbidden-surface scans, package validation, and full-solution regression tests.
+- [x] The implementation keeps shared contracts plus `Hexalith.Conversations.Client` as the supported v1 path and does not add adopter-facing raw HTTP fallback guidance.
+- [x] Summary includes targeted validation commands, package-validation evidence, full-solution results, and the transient pack-lock rerun note.
+
 ## Story 4.2 Provide Supported .NET Client Happy Path
 
 ### Generated Tests

@@ -25,6 +25,8 @@ namespace Hexalith.Conversations.Contracts.Errors;
 /// <param name="documentation">An optional documentation pointer.</param>
 /// <param name="safeFieldDiagnostics">Optional non-disclosing field diagnostics.</param>
 /// <param name="developerGuidance">Optional safe developer guidance.</param>
+/// <param name="clientAction">Optional bounded adopter action.</param>
+/// <param name="safeMessage">Optional safe adopter-facing message.</param>
 public sealed record ConversationError(
     SchemaVersion SchemaVersion,
     ConversationErrorCode Code,
@@ -34,7 +36,9 @@ public sealed record ConversationError(
     string? AuditHandle = null,
     Uri? Documentation = null,
     IReadOnlyDictionary<string, string>? SafeFieldDiagnostics = null,
-    string? DeveloperGuidance = null)
+    string? DeveloperGuidance = null,
+    ConversationErrorClientAction? ClientAction = null,
+    string? SafeMessage = null)
 {
     private static readonly string[] UnsafeTerms =
     [
@@ -56,6 +60,21 @@ public sealed record ConversationError(
         "store",
         "aggregate identity",
         "raw upstream",
+        "tenant:",
+        "tenant-",
+        "party:",
+        "party-",
+        "conv:",
+        "conversation-",
+        "provider-session",
+        "provider response",
+        "provider payload",
+        "business reference",
+        "case-",
+        "raw exception",
+        "exception",
+        "C:\\",
+        "D:\\",
     ];
 
     /// <summary>
@@ -77,6 +96,16 @@ public sealed record ConversationError(
     /// Gets the optional safe developer guidance.
     /// </summary>
     public string? DeveloperGuidance { get; } = EnsureSafeOptionalText(DeveloperGuidance, nameof(DeveloperGuidance));
+
+    /// <summary>
+    /// Gets the optional bounded adopter action.
+    /// </summary>
+    public ConversationErrorClientAction? ClientAction { get; } = ClientAction;
+
+    /// <summary>
+    /// Gets the optional safe adopter-facing message.
+    /// </summary>
+    public string? SafeMessage { get; } = EnsureSafeOptionalText(SafeMessage, nameof(SafeMessage));
 
     private static string EnsureSafeRequiredText(string value, string parameterName)
     {
@@ -116,7 +145,7 @@ public sealed record ConversationError(
         return validated;
     }
 
-    private static void EnsureContentSafe(string value, string parameterName)
+    internal static void EnsureContentSafe(string value, string parameterName)
     {
         foreach (string term in UnsafeTerms)
         {

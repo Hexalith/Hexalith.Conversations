@@ -69,8 +69,6 @@ public static class ConversationCommandApi
         {
             return ErrorResult(
                 ConversationErrorCode.CommandValidationFailed,
-                ConversationErrorCategory.Validation,
-                retryable: false,
                 command?.Metadata?.CorrelationId ?? CorrelationIdFrom(context),
                 StatusCodes.Status400BadRequest,
                 "Route and command conversation identity must match.");
@@ -117,8 +115,6 @@ public static class ConversationCommandApi
         {
             rejection = ErrorResult(
                 ConversationErrorCode.CommandValidationFailed,
-                ConversationErrorCategory.Validation,
-                retryable: false,
                 correlationId,
                 StatusCodes.Status400BadRequest,
                 "Command metadata is required.");
@@ -130,8 +126,6 @@ public static class ConversationCommandApi
         {
             rejection = ErrorResult(
                 ConversationErrorCode.TenantBindingMissing,
-                ConversationErrorCategory.Authorization,
-                retryable: false,
                 correlationId,
                 StatusCodes.Status403Forbidden,
                 "Authenticated tenant and caller context is required.");
@@ -144,8 +138,6 @@ public static class ConversationCommandApi
         {
             rejection = ErrorResult(
                 ConversationErrorCode.TenantBindingMissing,
-                ConversationErrorCategory.Authorization,
-                retryable: false,
                 correlationId,
                 StatusCodes.Status403Forbidden,
                 "Authenticated tenant and caller context is required.");
@@ -159,8 +151,6 @@ public static class ConversationCommandApi
             {
                 rejection = ErrorResult(
                     ConversationErrorCode.TenantContextMismatch,
-                    ConversationErrorCategory.Authorization,
-                    retryable: false,
                     correlationId,
                     StatusCodes.Status403Forbidden,
                     "Command tenant binding must match authenticated tenant context.");
@@ -171,8 +161,6 @@ public static class ConversationCommandApi
         {
             rejection = ErrorResult(
                 ConversationErrorCode.TenantBindingMissing,
-                ConversationErrorCategory.Authorization,
-                retryable: false,
                 correlationId,
                 StatusCodes.Status403Forbidden,
                 "Authenticated tenant and caller context is required.");
@@ -184,21 +172,16 @@ public static class ConversationCommandApi
 
     private static IResult ErrorResult(
         ConversationErrorCode code,
-        ConversationErrorCategory category,
-        bool retryable,
         string correlationId,
         int statusCode,
         string developerGuidance)
         => Results.Json(
             new ConversationErrorResult(
                 [
-                    new ConversationError(
-                        SchemaVersion.Current,
+                    ConversationErrorCatalog.CreateError(
                         code,
-                        category,
-                        retryable,
                         correlationId,
-                        DeveloperGuidance: developerGuidance),
+                        developerGuidance: developerGuidance),
                 ]),
             statusCode: statusCode);
 

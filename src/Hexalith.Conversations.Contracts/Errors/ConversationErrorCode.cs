@@ -145,7 +145,7 @@ public sealed record ConversationErrorCode
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return KnownCodes.TryGetValue(value, out ConversationErrorCode? code)
             ? code
-            : throw new ArgumentException($"Unsupported conversation error code '{value}'.", nameof(value));
+            : throw new ArgumentException("Unsupported conversation error code.", nameof(value));
     }
 
     /// <summary>
@@ -158,10 +158,7 @@ public sealed record ConversationErrorCode
     public static bool IsRetryable(ConversationErrorCode code)
     {
         ArgumentNullException.ThrowIfNull(code);
-        return code == TenantProjectionStale
-            || code == ParticipantValidationUnavailable
-            || code == IdempotencyOutcomeUnknown
-            || code == AuditSinkUnavailable;
+        return ConversationErrorCatalog.Get(code).IsRetryable;
     }
 
     /// <inheritdoc />

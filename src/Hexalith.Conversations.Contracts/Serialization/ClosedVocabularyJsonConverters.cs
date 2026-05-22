@@ -27,6 +27,13 @@ internal sealed class ConversationErrorCategoryJsonConverter : ConversationStrin
     protected override string GetValue(ConversationErrorCategory value) => value.Value;
 }
 
+internal sealed class ConversationErrorClientActionJsonConverter : ConversationStringValueJsonConverter<ConversationErrorClientAction>
+{
+    protected override ConversationErrorClientAction Create(string value) => ConversationErrorClientAction.Parse(value);
+
+    protected override string GetValue(ConversationErrorClientAction value) => value.Value;
+}
+
 internal sealed class ConversationCommandTypeJsonConverter : ConversationStringValueJsonConverter<ConversationCommandType>
 {
     protected override ConversationCommandType Create(string value) => ConversationCommandType.Parse(value);

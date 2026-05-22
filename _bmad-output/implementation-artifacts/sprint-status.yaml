@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T21:14:14+02:00
+# last_updated: 2026-05-22T21:59:33+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T21:14:14+02:00
+last_updated: 2026-05-22T21:59:33+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -54,7 +54,7 @@ development_status:
   1-9-resolve-parties-and-upstream-references-at-read-time: done
   1-10-publish-versioned-conversation-domain-events: done
   1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: done
-  epic-1-retrospective: optional
+  epic-1-retrospective: done
   epic-2: in-progress
   2-1-define-governance-policy-and-audit-contracts: done
   2-2-set-conversation-retention-policy-with-rationale: done
@@ -80,7 +80,7 @@ development_status:
   epic-4: in-progress
   4-1-publish-conversations-contract-package-and-compatibility-metadata: done
   4-2-provide-supported-net-client-happy-path: done
-  4-3-expose-typed-sanitized-errors-and-remediation-guidance: backlog
+  4-3-expose-typed-sanitized-errors-and-remediation-guidance: done
   4-4-define-core-preconditions-and-onboarding-diagnostics: backlog
   4-5-provide-adopter-facing-conformance-tests-and-core-fixture: backlog
   4-6-capture-caller-metadata-for-attribution-audit-and-composition: backlog

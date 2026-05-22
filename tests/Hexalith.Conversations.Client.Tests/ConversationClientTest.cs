@@ -187,6 +187,8 @@ public sealed class ConversationClientTest
         result.Error.ShouldNotBeNull();
         result.Error!.Errors.Single().Code.ShouldBe(ConversationErrorCode.SchemaVersionUnsupported);
         result.Error.Errors.Single().Category.ShouldBe(ConversationErrorCategory.Versioning);
+        result.Error.Errors.Single().ClientAction.ShouldBe(ConversationErrorClientAction.UseSupportedVersion);
+        result.Error.Errors.Single().SafeMessage.ShouldBe("Use supported Conversations contract and client versions.");
         handler.Requests.ShouldBeEmpty();
     }
 
@@ -217,6 +219,7 @@ public sealed class ConversationClientTest
         conflict.IsSuccess.ShouldBeFalse();
         conflict.Error.ShouldNotBeNull();
         conflict.Error!.Errors.Single().Code.ShouldBe(ConversationErrorCode.IdempotencyConflict);
+        conflict.Error.Errors.Single().ClientAction.ShouldBe(ConversationErrorClientAction.UseNewIdempotencyKey);
         handler.Requests.Select(r => r.Header("Idempotency-Key")).ShouldBe(["idem-append-001", "idem-append-001"]);
     }
 
@@ -237,6 +240,7 @@ public sealed class ConversationClientTest
         timeout.IsSuccess.ShouldBeFalse();
         timeout.Error.ShouldNotBeNull();
         timeout.Error!.Errors.Single().Code.ShouldBe(ConversationErrorCode.IdempotencyOutcomeUnknown);
+        timeout.Error.Errors.Single().ClientAction.ShouldBe(ConversationErrorClientAction.RetrySameRequest);
         retry.IsSuccess.ShouldBeTrue();
         handler.Requests.Count.ShouldBe(2);
         handler.Requests.Select(r => r.Header("Idempotency-Key")).ShouldBe(["idem-timeout-001", "idem-timeout-001"]);
@@ -259,6 +263,7 @@ public sealed class ConversationClientTest
         result.Error.ShouldNotBeNull();
         string serialized = JsonSerializer.Serialize(result.Error, JsonOptions);
         serialized.ShouldContain("idempotency_outcome_unknown");
+        serialized.ShouldContain("retry-same-request");
         serialized.ShouldNotContain("EventStore", Case.Insensitive);
         serialized.ShouldNotContain("D:\\", Case.Insensitive);
         serialized.ShouldNotContain("stream", Case.Insensitive);
@@ -278,8 +283,38 @@ public sealed class ConversationClientTest
         result.Error.ShouldNotBeNull();
         string serialized = JsonSerializer.Serialize(result.Error, JsonOptions);
         serialized.ShouldContain("tenant_isolation_violation");
+        serialized.ShouldContain("check-access");
         serialized.ShouldNotContain("tenant-999", Case.Insensitive);
         serialized.ShouldNotContain("server route", Case.Insensitive);
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.BadRequest, "command_validation_failed", "correct-request")]
+    [InlineData(HttpStatusCode.Unauthorized, "tenant_isolation_violation", "check-access")]
+    [InlineData(HttpStatusCode.Forbidden, "tenant_isolation_violation", "check-access")]
+    [InlineData(HttpStatusCode.NotFound, "aggregate_not_found", "hide-or-refresh")]
+    [InlineData(HttpStatusCode.Conflict, "idempotency_conflict", "use-new-idempotency-key")]
+    [InlineData(HttpStatusCode.InternalServerError, "idempotency_outcome_unknown", "retry-same-request")]
+    public async Task NonJsonErrorResponsesShouldMapToTypedSafeFallback(
+        HttpStatusCode statusCode,
+        string expectedCode,
+        string expectedAction)
+    {
+        using FakeHttpMessageHandler handler = new();
+        handler.EnqueueString(statusCode, "EventStore handler stream failure at C:\\private");
+        ConversationClient client = CreateClient(handler);
+
+        ConversationClientResult<ConversationCreatedResult> result = await client
+            .CreateConversationAsync(CreateCommand(), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeFalse();
+        result.Error.ShouldNotBeNull();
+        string serialized = JsonSerializer.Serialize(result.Error, JsonOptions);
+        serialized.ShouldContain(expectedCode);
+        serialized.ShouldContain(expectedAction);
+        serialized.ShouldNotContain("EventStore", Case.Insensitive);
+        serialized.ShouldNotContain("handler", Case.Insensitive);
+        serialized.ShouldNotContain("C:\\", Case.Insensitive);
     }
 
     [Fact]
@@ -400,13 +435,10 @@ public sealed class ConversationClientTest
         string correlationId)
         => new(
             [
-                new ConversationError(
-                    SchemaVersion.Current,
+                ConversationErrorCatalog.CreateError(
                     code,
-                    category,
-                    retryable,
                     correlationId,
-                    DeveloperGuidance: "Use the typed Conversations result to decide retry behavior."),
+                    developerGuidance: "Use the typed Conversations result to decide retry behavior."),
             ]);
 
     private static JsonSerializerOptions JsonOptions => new(JsonSerializerDefaults.Web);

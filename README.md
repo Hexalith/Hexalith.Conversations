@@ -39,7 +39,7 @@ JSON payloads lacking the expected prefix are rejected with `JsonException` at d
 
 `SchemaVersion` serializes as a strict JSON integer. JS adopters must emit integers without trailing `.0` and without exponent notation; numbers like `1.0`, `1e0`, and JSON strings `"1"` are rejected.
 
-Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationEventType`, `ConversationCommandType`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
+Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationErrorClientAction`, `ConversationEventType`, `ConversationCommandType`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
 
 For `ParticipantType`, the canonical wire value diverges from the .NET property name for acronym-heavy entries. Use the wire value, not the property name, when serializing or matching by string:
 
@@ -80,7 +80,28 @@ The JSON for `metadata.TenantId` above is `"tenant:tenant-001"`, not `"tenant-00
 
 Typed errors are machine-readable first. Error contracts use stable codes such as `tenant_binding_missing`, `tenant_isolation_violation`, `aggregate_not_found`, `tenant_projection_stale`, `audit_sink_unavailable`, `audit_pairing_required`, `idempotency_conflict`, `schema_version_unsupported`, `command_validation_failed`, `duplicate_participant`, `unsupported_participant`, `participant_validation_unavailable`, `tenant_context_mismatch`, and `provider_only_identity_forbidden`. Error details must remain content-safe: no inaccessible tenant IDs, Party personal data, conversation existence disclosure, redacted content, provider payloads, storage internals, raw exceptions, or cross-tenant business references.
 
-The contract surface enforces a **best-effort** blocklist on the free-text fields `CorrelationId`, `AuditHandle`, `DeveloperGuidance`, and `SafeFieldDiagnostics` entries. The blocklist rejects substrings like `EventStore`, `stream`, `snapshot`, `dispatcher`, `handler`, `repository`, `aggregate identity`, `raw upstream`, and known leak markers. The primary non-disclosure mechanism is the closed-vocabulary `Code` and `Category`; treat the blocklist as a guardrail against accidental drift, not as a complete enforcement layer.
+`ConversationError` carries a stable `Code`, broad `Category`, `IsRetryable`, `ClientAction`, `SafeMessage`, `CorrelationId`, optional allowed `AuditHandle`, optional `SafeFieldDiagnostics`, and an HTTPS `Documentation` pointer. Adopter applications should branch on `Code`, `Category`, and `ClientAction`; transport status remains metadata.
+
+| Code | Category | Retryable | Client action | Safe message intent | Documentation |
+| --- | --- | --- | --- | --- | --- |
+| `tenant_binding_missing` | `authorization` | `false` | `provide-context` | Provide authenticated tenant and caller context. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `tenant_isolation_violation` | `authorization` | `false` | `check-access` | The supplied access context cannot complete the request. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `tenant_projection_stale` | `freshness` | `true` | `retry-later` | Retry after tenant access state is current. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `audit_sink_unavailable` | `audit` | `true` | `retry-later` | Retry after audit recording is available. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `audit_pairing_required` | `audit` | `false` | `provide-audit-evidence` | Provide required audit evidence before retrying. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `idempotency_conflict` | `conflict` | `false` | `use-new-idempotency-key` | Use a new idempotency key for a changed command payload. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `idempotency_outcome_unknown` | `uncertainty` | `true` | `retry-same-request` | Retry with the same idempotency metadata. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `idempotency_key_missing` | `validation` | `false` | `provide-idempotency-key` | Provide idempotency metadata before sending the command. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `aggregate_not_found` | `hidden` | `false` | `hide-or-refresh` | The requested conversation is not available. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `schema_version_unsupported` | `versioning` | `false` | `use-supported-version` | Use supported Conversations contract and client versions. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `command_validation_failed` | `validation` | `false` | `correct-request` | Correct the request and retry. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `duplicate_participant` | `conflict` | `false` | `correct-request` | Correct participant membership and retry. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `unsupported_participant` | `validation` | `false` | `correct-request` | Use a supported participant type and role. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `participant_validation_unavailable` | `validation` | `true` | `retry-later` | Retry after participant validation is available. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `tenant_context_mismatch` | `authorization` | `false` | `align-context` | Align the request context with the authenticated context. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+| `provider_only_identity_forbidden` | `validation` | `false` | `use-party-identity` | Use a Conversations Party identity for participant attribution. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
+
+The contract surface enforces a **best-effort** blocklist on the free-text fields `CorrelationId`, `AuditHandle`, `DeveloperGuidance`, `SafeMessage`, and `SafeFieldDiagnostics` entries. The blocklist rejects substrings like `EventStore`, `stream`, `snapshot`, `dispatcher`, `handler`, `repository`, `aggregate identity`, `raw upstream`, and known leak markers. The primary non-disclosure mechanism is the closed-vocabulary `Code`, `Category`, and `ClientAction`; treat the blocklist as a guardrail against accidental drift, not as a complete enforcement layer.
 
 ### Freshness and Result Shapes
 

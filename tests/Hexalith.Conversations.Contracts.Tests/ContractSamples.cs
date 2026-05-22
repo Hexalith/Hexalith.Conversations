@@ -269,6 +269,8 @@ internal static class ContractSamples
         ParticipantRole.Member,
         ConversationErrorCode.TenantIsolationViolation,
         ConversationErrorCategory.Authorization,
+        ConversationErrorClientAction.CheckAccess,
+        ConversationErrorCatalog.Get(ConversationErrorCode.TenantIsolationViolation),
         Tenant,
         Conversation,
         Actor,
@@ -1221,19 +1223,15 @@ internal static class ContractSamples
         return GovernanceRemediation.None;
     }
 
-    internal static ConversationError SafeError(ConversationErrorCode code) => new(
-        Version,
+    internal static ConversationError SafeError(ConversationErrorCode code) => ConversationErrorCatalog.CreateError(
         code,
-        ErrorCategoryFor(code),
-        ConversationErrorCode.IsRetryable(code),
         "correlation-001",
-        "audit-001",
-        new Uri("https://docs.hexalith.local/conversations/errors"),
-        new Dictionary<string, string>
+        auditHandle: "audit-001",
+        safeFieldDiagnostics: new Dictionary<string, string>
         {
             ["target"] = "hidden",
         },
-        "The requested operation was not accepted.");
+        developerGuidance: "The requested operation was not accepted.");
 
     internal static IReadOnlyList<ConversationErrorCode> AllErrorCodes =>
     [
@@ -1255,29 +1253,4 @@ internal static class ContractSamples
         ConversationErrorCode.ProviderOnlyIdentityForbidden,
     ];
 
-    private static ConversationErrorCategory ErrorCategoryFor(ConversationErrorCode code)
-        => code switch
-        {
-            _ when code == ConversationErrorCode.TenantBindingMissing => ConversationErrorCategory.Validation,
-            _ when code == ConversationErrorCode.TenantIsolationViolation => ConversationErrorCategory.Authorization,
-            _ when code == ConversationErrorCode.TenantProjectionStale => ConversationErrorCategory.Freshness,
-            _ when code == ConversationErrorCode.AuditSinkUnavailable => ConversationErrorCategory.Audit,
-            _ when code == ConversationErrorCode.AuditPairingRequired => ConversationErrorCategory.Audit,
-            _ when code == ConversationErrorCode.IdempotencyConflict => ConversationErrorCategory.Conflict,
-
-            // P53 review fix (2026-05-20): IdempotencyOutcomeUnknown is a retryable-uncertainty signal,
-            // not a projection-staleness signal. The new Uncertainty category keeps Freshness reserved
-            // strictly for stale read-models.
-            _ when code == ConversationErrorCode.IdempotencyOutcomeUnknown => ConversationErrorCategory.Uncertainty,
-            _ when code == ConversationErrorCode.IdempotencyKeyMissing => ConversationErrorCategory.Validation,
-            _ when code == ConversationErrorCode.AggregateNotFound => ConversationErrorCategory.Hidden,
-            _ when code == ConversationErrorCode.SchemaVersionUnsupported => ConversationErrorCategory.Versioning,
-            _ when code == ConversationErrorCode.CommandValidationFailed => ConversationErrorCategory.Validation,
-            _ when code == ConversationErrorCode.DuplicateParticipant => ConversationErrorCategory.Conflict,
-            _ when code == ConversationErrorCode.UnsupportedParticipant => ConversationErrorCategory.Validation,
-            _ when code == ConversationErrorCode.ParticipantValidationUnavailable => ConversationErrorCategory.Validation,
-            _ when code == ConversationErrorCode.TenantContextMismatch => ConversationErrorCategory.Authorization,
-            _ when code == ConversationErrorCode.ProviderOnlyIdentityForbidden => ConversationErrorCategory.Validation,
-            _ => throw new ArgumentOutOfRangeException(nameof(code), code, "Unsupported error code."),
-        };
 }

@@ -23,9 +23,9 @@ internal abstract class ConversationStringValueJsonConverter<T> : JsonConverter<
         {
             return Create(raw);
         }
-        catch (ArgumentException ex)
+        catch (ArgumentException)
         {
-            throw new JsonException($"{typeToConvert.Name} payload is malformed: {ex.Message}", ex);
+            throw new JsonException($"{typeToConvert.Name} payload is malformed.");
         }
     }
 

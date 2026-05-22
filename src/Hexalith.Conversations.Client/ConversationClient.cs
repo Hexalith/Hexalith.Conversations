@@ -30,9 +30,6 @@ public sealed class ConversationClient : IConversationClient
     internal const string ActorPartyIdHeaderName = "X-Actor-Party-Id";
     internal const string CallerPrincipalIdHeaderName = "X-Caller-Principal-Id";
 
-    private static readonly Uri FallbackDocumentation =
-        new("https://docs.hexalith.local/conversations/contracts/v1/errors", UriKind.Absolute);
-
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
     {
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
@@ -138,15 +135,11 @@ public sealed class ConversationClient : IConversationClient
             ? null
             : new ConversationErrorResult(
                 [
-                    new ConversationError(
-                        SchemaVersion.Current,
+                    ConversationErrorCatalog.CreateError(
                         compatibility.Error.Code,
-                        compatibility.Error.Category,
-                        compatibility.Error.IsRetryable,
                         metadata.CorrelationId,
-                        Documentation: compatibility.Error.Documentation,
-                        SafeFieldDiagnostics: compatibility.Error.SafeFieldDiagnostics,
-                        DeveloperGuidance: compatibility.Error.DeveloperGuidance),
+                        safeFieldDiagnostics: compatibility.Error.SafeFieldDiagnostics,
+                        developerGuidance: compatibility.Error.DeveloperGuidance),
                 ]);
     }
 
@@ -173,8 +166,6 @@ public sealed class ConversationClient : IConversationClient
                 return ConversationClientResult<T>.Failure(
                     FallbackError(
                         ConversationErrorCode.CommandValidationFailed,
-                        ConversationErrorCategory.Validation,
-                        retryable: false,
                         correlationId,
                         "The response body did not match the supported Conversations contract."),
                     response.StatusCode);
@@ -223,22 +214,20 @@ public sealed class ConversationClient : IConversationClient
     private static ConversationErrorResult FallbackForStatus(HttpStatusCode statusCode, string correlationId)
         => statusCode switch
         {
+            HttpStatusCode.BadRequest => FallbackError(
+                ConversationErrorCode.CommandValidationFailed,
+                correlationId,
+                "Correct the request and retry."),
             HttpStatusCode.Conflict => FallbackError(
                 ConversationErrorCode.IdempotencyConflict,
-                ConversationErrorCategory.Conflict,
-                retryable: false,
                 correlationId,
                 "Use a new idempotency key for a changed command payload."),
             HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized => FallbackError(
                 ConversationErrorCode.TenantIsolationViolation,
-                ConversationErrorCategory.Authorization,
-                retryable: false,
                 correlationId,
                 "Check tenant access and caller authorization."),
             HttpStatusCode.NotFound => FallbackError(
                 ConversationErrorCode.AggregateNotFound,
-                ConversationErrorCategory.Hidden,
-                retryable: false,
                 correlationId,
                 "The requested conversation is not available."),
             _ => UnknownOutcome(correlationId),
@@ -247,27 +236,19 @@ public sealed class ConversationClient : IConversationClient
     private static ConversationErrorResult UnknownOutcome(string correlationId)
         => FallbackError(
             ConversationErrorCode.IdempotencyOutcomeUnknown,
-            ConversationErrorCategory.Uncertainty,
-            retryable: true,
             correlationId,
             "Retry with the same idempotency metadata when the command outcome is unknown.");
 
     private static ConversationErrorResult FallbackError(
         ConversationErrorCode code,
-        ConversationErrorCategory category,
-        bool retryable,
         string correlationId,
         string developerGuidance)
         => new(
             [
-                new ConversationError(
-                    SchemaVersion.Current,
+                ConversationErrorCatalog.CreateError(
                     code,
-                    category,
-                    retryable,
                     correlationId,
-                    Documentation: FallbackDocumentation,
-                    DeveloperGuidance: developerGuidance),
+                    developerGuidance: developerGuidance),
             ]);
 
     private static bool IsUnknownOutcomeException(Exception exception, CancellationToken cancellationToken)

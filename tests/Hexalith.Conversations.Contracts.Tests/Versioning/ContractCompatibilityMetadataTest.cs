@@ -223,6 +223,7 @@ public sealed class ContractCompatibilityMetadataTest
         result.Error.SafeFieldDiagnostics.ShouldNotBeNull();
         result.Error.SafeFieldDiagnostics.Keys.ShouldContain("eventSchemaVersion");
         result.Error.SafeFieldDiagnostics.Values.ShouldNotContain(requestedVersion);
+        result.Remediations.Select(r => r.GuidanceCode).ShouldContain("send-positive-integer-schema-version");
     }
 
     [Theory]
@@ -242,6 +243,7 @@ public sealed class ContractCompatibilityMetadataTest
         result.Error.SafeFieldDiagnostics.Keys.ShouldContain("contractsPackageVersion");
         result.Error.SafeFieldDiagnostics.Values.ShouldNotContain(requestedVersion);
         result.Remediations.ShouldNotBeEmpty();
+        result.Remediations.Select(r => r.GuidanceCode).ShouldContain("send-semantic-package-version");
         result.Remediations.All(r => r.DocumentationUri.IsAbsoluteUri).ShouldBeTrue();
     }
 

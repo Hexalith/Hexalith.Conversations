@@ -139,6 +139,19 @@ public sealed class ForbiddenPublicSurfaceTest
             "dispatcher unavailable",
             "repository unreachable",
             "checkpoint 12345",
+            "tenant:tenant-999",
+            "tenant-999",
+            "party:party-hidden",
+            "party-hidden",
+            "conv:conversation-hidden",
+            "conversation-hidden",
+            "provider-session-001",
+            "provider payload body",
+            "business reference case-123",
+            "NullReferenceException at command boundary",
+            "raw exception text",
+            "C:\\private\\path",
+            "D:\\secret\\path",
         ];
 
         foreach (string unsafeSample in unsafeSamples)
@@ -187,6 +200,14 @@ public sealed class ForbiddenPublicSurfaceTest
                 {
                     [unsafeSample] = "value",
                 }));
+
+            Should.Throw<ArgumentException>(() => new ConversationError(
+                ContractSamples.Version,
+                ConversationErrorCode.IdempotencyConflict,
+                ConversationErrorCategory.Conflict,
+                true,
+                "correlation-001",
+                SafeMessage: unsafeSample));
         }
     }
 

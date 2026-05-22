@@ -82,7 +82,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"schemaVersion":1,"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":"audit-001","documentation":"https://docs.hexalith.local/conversations/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted."}
+            {"schemaVersion":1,"code":"tenant_isolation_violation","category":"authorization","isRetryable":false,"correlationId":"correlation-001","auditHandle":null,"documentation":"https://docs.hexalith.local/conversations/contracts/v1/errors","safeFieldDiagnostics":{"target":"hidden"},"developerGuidance":"The requested operation was not accepted.","clientAction":"check-access","safeMessage":"The request cannot be completed with the supplied access context."}
             """,
             ContractSamples.SafeError(ConversationErrorCode.TenantIsolationViolation));
 
