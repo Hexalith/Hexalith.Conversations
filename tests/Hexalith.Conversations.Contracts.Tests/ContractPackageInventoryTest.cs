@@ -55,7 +55,7 @@ public sealed class ContractPackageInventoryTest
     }
 
     [Fact]
-    public void ClientProjectShouldDeclareAlignedAdopterPackageMetadataWithoutClientBehavior()
+    public void ClientProjectShouldDeclareAlignedAdopterPackageMetadataAndSupportedClientSurface()
     {
         string projectPath = Path.Combine(FindRepositoryRoot(), "src", "Hexalith.Conversations.Client", "Hexalith.Conversations.Client.csproj");
         XDocument project = XDocument.Load(projectPath);
@@ -75,7 +75,17 @@ public sealed class ContractPackageInventoryTest
             .Where(path => !path.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase)
                 && !path.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.OrdinalIgnoreCase))
             .Select(Path.GetFileName)
-            .ShouldBe(["ClientAssemblyMarker.cs"]);
+            .ShouldBe(
+                [
+                    "ClientAssemblyMarker.cs",
+                    "ConversationClient.cs",
+                    "ConversationClientContext.cs",
+                    "ConversationClientOptions.cs",
+                    "ConversationClientResult.cs",
+                    "ConversationClientServiceCollectionExtensions.cs",
+                    "IConversationClient.cs",
+                ],
+                ignoreOrder: true);
     }
 
     [Fact]

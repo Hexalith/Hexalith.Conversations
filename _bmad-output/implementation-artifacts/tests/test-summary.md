@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 4.2 Provide Supported .NET Client Happy Path
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Client.Tests/ConversationClientTest.cs` - Added deterministic fake-transport coverage for create, append, and read request mapping; typed success/error mapping; current and non-current freshness outcomes; unsupported schema handling; duplicate replay; idempotency conflict; timeout/unknown outcome retry; non-seekable HTTP response content; tenant denial fallback; sanitized server errors; and DI typed-client registration.
+- [x] `tests/Hexalith.Conversations.Client.Tests/ClientBoundaryTest.cs` - Extended client assembly boundary coverage for allowed Microsoft HTTP/DI references only and absence of raw HTTP fallback public surface.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationCommandApiTest.cs` - Added opt-in command API coverage for authorization metadata, create/append route shape, tenant binding, route/body conversation mismatch, typed idempotency conflict mapping, and content-safety.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs` - Updated client package inventory coverage now that Story 4.2 intentionally adds supported client behavior.
+
+### Validation
+- [x] Readiness gates verified in `_bmad-output/implementation-artifacts/readiness-gates.md`: `Projection freshness blocking semantics` and `.NET client versus raw HTTP fallback policy` are `decided`.
+- [x] Red phase: `dotnet test tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj` failed before implementation because `ConversationClient`, `IConversationClient`, and DI references did not exist.
+- [x] `dotnet test tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj` - 17 passed after review fix.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationReadApi|FullyQualifiedName~ConversationCommandApi|FullyQualifiedName~Idempotency"` - 56 passed.
+- [x] `dotnet pack src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj -c Release -o .artifacts/package-validation` - produced `.artifacts/package-validation/Hexalith.Conversations.Client.1.0.0.nupkg`.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed after review fix: Client 17, Contracts 273, Integration 8, Core 139, Server 382.
+
+### Coverage
+- The supported .NET client now posts v1 `CreateConversationCommand` and `AppendMessageCommand`, reads `ConversationDetailResult` from the existing read route, and returns typed success or `ConversationErrorResult` outcomes without exposing `HttpResponseMessage` or EventStore mechanics.
+- Review fix hardened response deserialization for non-seekable HTTP content streams used by real transports.
+- Idempotency metadata is preserved through command bodies and safe headers; duplicate replay and conflict behavior remain typed and caller-visible without using provider session IDs as durable identity.
+- Freshness handling preserves `ConversationDetailResult` trust states; only `Current` + `current` + non-stale detail allows trust-bearing timeline use.
+- A narrow opt-in `ConversationCommandApi` server extension was added for hosts/tests while `Program.cs` remains fail-closed.
+- Raw HTTP fallback remains non-promotional: no public raw HTTP fallback API, examples, README snippets, or docs were added.
+
+### Checklist Validation
+- [x] Client, server API, boundary, package inventory, and raw-fallback-negative tests generated or updated.
+- [x] Tests use xUnit, Shouldly, deterministic fake HTTP handlers, ASP.NET endpoint invocation, and existing contract DTOs.
+- [x] Tests cover happy path plus unsupported schema, stale/rebuilding/unavailable/forbidden freshness, timeout retry, duplicate replay, idempotency conflict, tenant denial, sanitized errors, and dependency boundaries.
+- [x] Summary includes validation commands, package-validation evidence, and full-solution results.
+
 ## Story 4.1 Publish Conversations Contract Package and Compatibility Metadata
 
 ### Generated Tests

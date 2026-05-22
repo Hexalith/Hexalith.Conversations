@@ -9,6 +9,9 @@
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Http" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Client.Tests" />
   </ItemGroup>
 </Project>
