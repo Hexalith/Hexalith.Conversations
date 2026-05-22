@@ -96,6 +96,34 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
     }
 
     /// <summary>
+    /// Audit service exceptions fail closed and emit no retention mutation event.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldFailClosedWhenAuditServiceThrows()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()), throwOnRecord: true);
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-retention-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditSinkUnavailable);
+        rejection.ReasonCode.ShouldBe("audit_unavailable");
+        result.Events.Any(e => e is RetentionPolicySetDomainEvent || e is RetentionPolicyReplacedDomainEvent).ShouldBeFalse();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
     /// Non-success audit precondition outcomes fail closed without retention mutation events.
     /// </summary>
     /// <param name="status">The audit status.</param>
@@ -156,6 +184,64 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
         result.IsSuccess.ShouldBeTrue();
         RetentionPolicySetDomainEvent set = result.Events.Single().ShouldBeOfType<RetentionPolicySetDomainEvent>();
         set.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-001");
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// Closed conversation state is rejected before audit evidence is created.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectClosedConversationBeforeAudit()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(ClosedState()),
+            "event-retention-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("conversation_not_open");
+        audit.CallCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Audit evidence must be paired to the retention command policy and timestamp before mutation dispatch.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectMismatchedAuditEvidenceWithoutMutation()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(new GovernanceAuditEvidenceReference(
+            new AuditEvidenceHandle("audit-evidence-wrong"),
+            "retention-policy-other",
+            AppliedAt.AddMinutes(1))));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        SetConversationRetentionPolicyCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-retention-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditPairingRequired);
+        rejection.ReasonCode.ShouldBe("audit_pairing_mismatch");
+        result.Events.Any(e => e is RetentionPolicySetDomainEvent || e is RetentionPolicyReplacedDomainEvent).ShouldBeFalse();
         audit.CallCount.ShouldBe(1);
     }
 
@@ -359,7 +445,25 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
         return state;
     }
 
-    private sealed class FakeAuditService(ConversationGovernanceAuditResult result) : IConversationGovernanceAuditService
+    private static ConversationState ClosedState()
+    {
+        ConversationState state = CreatedState();
+        state.Apply(new ConversationClosed(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-close-a",
+                ConversationEventType.ConversationClosed,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                AppliedAt,
+                Actor,
+                "causation-a"),
+            "resolved"));
+        return state;
+    }
+
+    private sealed class FakeAuditService(ConversationGovernanceAuditResult result, bool throwOnRecord = false) : IConversationGovernanceAuditService
     {
         public int CallCount { get; private set; }
 
@@ -370,6 +474,11 @@ public sealed class SetConversationRetentionPolicyCommandHandlerTest
             CancellationToken cancellationToken = default)
         {
             CallCount++;
+            if (throwOnRecord)
+            {
+                throw new InvalidOperationException("audit sink unavailable");
+            }
+
             return ValueTask.FromResult(result);
         }
 

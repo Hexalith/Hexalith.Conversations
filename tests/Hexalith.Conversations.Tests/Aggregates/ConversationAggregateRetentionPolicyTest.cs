@@ -134,6 +134,28 @@ public sealed class ConversationAggregateRetentionPolicyTest
         rejection.ReasonCode.ShouldBe("audit_pairing_required");
     }
 
+    /// <summary>
+    /// Mismatched audit evidence fails closed before a retention mutation event is emitted.
+    /// </summary>
+    [Fact]
+    public void MismatchedAuditEvidenceShouldReturnAuditPairingRejection()
+    {
+        SetConversationRetentionPolicy command = Command("retention-policy-standard") with
+        {
+            AuditEvidence = new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-wrong"),
+                "retention-policy-other",
+                AppliedAt.AddMinutes(1)),
+        };
+
+        DomainResult result = ConversationAggregate.Handle(command, CreatedState());
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditPairingRequired);
+        rejection.ReasonCode.ShouldBe("audit_pairing_mismatch");
+        result.Events.Any(e => e is RetentionPolicySetDomainEvent || e is RetentionPolicyReplacedDomainEvent).ShouldBeFalse();
+    }
+
     private static SetConversationRetentionPolicy Command(string policyReference, DateTimeOffset? appliedAt = null)
     {
         ConversationCommandMetadata metadata = new(
@@ -153,12 +175,12 @@ public sealed class ConversationAggregateRetentionPolicyTest
 
         return new SetConversationRetentionPolicy(
             publicCommand,
-            AuditEvidence(appliedAt ?? AppliedAt),
+            AuditEvidence(policyReference, appliedAt ?? AppliedAt),
             $"event-{policyReference}");
     }
 
-    private static GovernanceAuditEvidenceReference AuditEvidence(DateTimeOffset capturedAt)
-        => new(new AuditEvidenceHandle("audit-evidence-001"), "retention-policy-standard", capturedAt);
+    private static GovernanceAuditEvidenceReference AuditEvidence(string policyReference, DateTimeOffset capturedAt)
+        => new(new AuditEvidenceHandle("audit-evidence-001"), policyReference, capturedAt);
 
     private static ConversationState CreatedState(TenantId? tenant = null, ConversationId? conversation = null)
     {

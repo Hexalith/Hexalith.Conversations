@@ -106,6 +106,28 @@ public sealed class ConversationAggregateSensitivityTest
     }
 
     /// <summary>
+    /// Mismatched audit evidence fails closed before a sensitivity mutation event is emitted.
+    /// </summary>
+    [Fact]
+    public void MismatchedAuditEvidenceShouldReturnAuditPairingRejection()
+    {
+        MarkConversationContentSensitive command = Command() with
+        {
+            AuditEvidence = new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-wrong"),
+                "sensitivity-policy-other",
+                AppliedAt.AddMinutes(1)),
+        };
+
+        DomainResult result = ConversationAggregate.Handle(command, CreatedState());
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditPairingRequired);
+        rejection.ReasonCode.ShouldBe("audit_pairing_mismatch");
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
+    }
+
+    /// <summary>
     /// Every supported target type can be marked using only stable target identity.
     /// </summary>
     /// <param name="targetKind">The target kind.</param>

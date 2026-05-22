@@ -33,6 +33,25 @@
 ## Next Steps
 - Keep the contract, domain, server, projection, and solution test lanes in CI for Story 2.3.
 
+## Story 2.5 Audit Pairing Enforcement Evidence
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateRetentionPolicyTest.cs` - Added aggregate coverage proving mismatched retention audit evidence fails with `AuditPairingRequired` / `audit_pairing_mismatch` before retention mutation events.
+- [x] `tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateSensitivityTest.cs` - Added aggregate coverage proving mismatched sensitivity audit evidence fails with `AuditPairingRequired` / `audit_pairing_mismatch` before sensitivity mutation events.
+- [x] `tests/Hexalith.Conversations.Server.Tests/TenantAccess/SetConversationRetentionPolicyCommandHandlerTest.cs` - Added retention handler coverage for audit-service exceptions, closed-state pre-audit rejection, and mismatched returned audit evidence without mutation.
+- [x] `tests/Hexalith.Conversations.Server.Tests/TenantAccess/MarkConversationContentSensitiveCommandHandlerTest.cs` - Added sensitivity handler coverage for audit-service exceptions, invalid target pre-audit rejection, compatible duplicate no-op before duplicate audit, and mismatched returned audit evidence without mutation.
+- [x] `tests/Hexalith.Conversations.Server.Tests/TenantAccess/RedactMessageContentCommandHandlerTest.cs` - Added redaction handler coverage proving audit-service exceptions map to fail-closed `audit_unavailable` without mutation.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs` - Added explicit release-gate inventory for implemented governance mutation handlers, aggregate commands, domain mutation events, and operation kinds; future vocabulary remains prepared but unimplemented; review tightened coverage so audited aggregate commands and non-governance command paths must remain explicit.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter FullyQualifiedName~Governance` - completed; no tests currently match this aggregate-project filter.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~ConversationAggregateRetentionPolicyTest|FullyQualifiedName~ConversationAggregateSensitivityTest|FullyQualifiedName~ConversationAggregateRedactionTest"` - 31 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter FullyQualifiedName~TenantAccess` - 125 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter FullyQualifiedName~GovernanceAuditPairingSafetyNetTest` - 3 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~TenantAccess|FullyQualifiedName~Governance"` - 128 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj` - 156 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 556 passed.
+
 ## Story 2.4 Redaction Evidence
 
 ### Generated Tests

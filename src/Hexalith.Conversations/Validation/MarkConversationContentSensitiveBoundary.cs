@@ -25,6 +25,20 @@ public static class MarkConversationContentSensitiveBoundary
         string eventId)
         => MarkConversationContentSensitiveValidation.ValidateSemanticShape(command, eventId);
 
+    public static ConversationRejectedDomainEvent? ValidateStateBeforeAudit(
+        MarkConversationContentSensitiveCommand command,
+        string eventId,
+        ConversationState? state)
+        => MarkConversationContentSensitiveValidation.ValidateStateBeforeAudit(command, eventId, state);
+
+    public static ConversationRejectedDomainEvent? ValidateAuditEvidenceProvided(
+        MarkConversationContentSensitiveCommand command,
+        GovernanceAuditEvidenceReference? auditEvidence)
+        => MarkConversationContentSensitiveValidation.ValidateAuditEvidenceProvided(command, auditEvidence);
+
+    public static bool IsCompatibleExistingSensitivityMark(MarkConversationContentSensitiveCommand command, ConversationState? state)
+        => MarkConversationContentSensitiveValidation.IsCompatibleExistingSensitivityMark(command, state);
+
     public static DomainResult DispatchValidated(
         MarkConversationContentSensitiveCommand command,
         GovernanceAuditEvidenceReference auditEvidence,

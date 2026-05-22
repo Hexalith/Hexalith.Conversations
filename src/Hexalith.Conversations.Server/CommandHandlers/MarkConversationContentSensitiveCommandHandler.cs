@@ -178,25 +178,34 @@ public sealed class MarkConversationContentSensitiveCommandHandler
             return Rejection(command, ConversationErrorCode.TenantIsolationViolation, "tenant_isolation_violation", eventId);
         }
 
-        ConversationGovernanceAuditResult auditResult;
-        try
+        ConversationRejectedDomainEvent? preAuditRejection =
+            MarkConversationContentSensitiveBoundary.ValidateStateBeforeAudit(command, eventId, state);
+        if (preAuditRejection is not null)
         {
-            auditResult = await _auditService
-                .RecordSensitivityMarkAsync(command, GovernanceOperationKind.MarkContentSensitive, eventId, cancellationToken)
-                .ConfigureAwait(false);
+            return DomainResult.Rejection(new IRejectionEvent[] { preAuditRejection });
         }
-        catch (OperationCanceledException)
+
+        if (MarkConversationContentSensitiveBoundary.IsCompatibleExistingSensitivityMark(command, state))
         {
-            throw;
+            return DomainResult.NoOp();
         }
-        catch (Exception)
-        {
-            return Rejection(command, ConversationErrorCode.AuditSinkUnavailable, "audit_unavailable", eventId);
-        }
+
+        ConversationGovernanceAuditResult auditResult = await ConversationGovernanceAuditGate
+            .RecordRequiredAsync(
+                token => _auditService.RecordSensitivityMarkAsync(command, GovernanceOperationKind.MarkContentSensitive, eventId, token),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (auditResult.Status != ConversationGovernanceAuditStatus.Succeeded || auditResult.Evidence is null)
         {
             return AuditFailure(command, auditResult.Status, eventId);
+        }
+
+        ConversationRejectedDomainEvent? auditPairingRejection =
+            MarkConversationContentSensitiveBoundary.ValidateAuditEvidenceProvided(command, auditResult.Evidence);
+        if (auditPairingRejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { auditPairingRejection });
         }
 
         return MarkConversationContentSensitiveBoundary.DispatchValidated(command, auditResult.Evidence, eventId, state);

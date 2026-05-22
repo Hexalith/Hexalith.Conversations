@@ -94,6 +94,34 @@ public sealed class RedactMessageContentCommandHandlerTest
     }
 
     /// <summary>
+    /// Audit service exceptions fail closed and emit no redaction mutation event.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldFailClosedWhenAuditServiceThrows()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()), throwOnRecord: true);
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        RedactMessageContentCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-redacted-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditSinkUnavailable);
+        rejection.ReasonCode.ShouldBe("audit_unavailable");
+        result.Events.Any(e => e is MessageContentRedactedDomainEvent).ShouldBeFalse();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
     /// Non-success audit precondition outcomes fail closed without redaction mutation events.
     /// </summary>
     /// <param name="status">The audit status.</param>
@@ -548,7 +576,7 @@ public sealed class RedactMessageContentCommandHandlerTest
         return state;
     }
 
-    private sealed class FakeAuditService(ConversationGovernanceAuditResult result) : IConversationGovernanceAuditService
+    private sealed class FakeAuditService(ConversationGovernanceAuditResult result, bool throwOnRecord = false) : IConversationGovernanceAuditService
     {
         public int CallCount { get; private set; }
 
@@ -573,6 +601,11 @@ public sealed class RedactMessageContentCommandHandlerTest
             CancellationToken cancellationToken = default)
         {
             CallCount++;
+            if (throwOnRecord)
+            {
+                throw new InvalidOperationException("audit sink unavailable");
+            }
+
             return ValueTask.FromResult(result);
         }
     }

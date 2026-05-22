@@ -25,6 +25,17 @@ public static class SetConversationRetentionPolicyBoundary
         string eventId)
         => SetConversationRetentionPolicyValidation.ValidateSemanticShape(command, eventId);
 
+    public static ConversationRejectedDomainEvent? ValidateStateBeforeAudit(
+        SetConversationRetentionPolicyCommand command,
+        string eventId,
+        ConversationState? state)
+        => SetConversationRetentionPolicyValidation.ValidateStateBeforeAudit(command, eventId, state);
+
+    public static ConversationRejectedDomainEvent? ValidateAuditEvidenceProvided(
+        SetConversationRetentionPolicyCommand command,
+        GovernanceAuditEvidenceReference? auditEvidence)
+        => SetConversationRetentionPolicyValidation.ValidateAuditEvidenceProvided(command, auditEvidence);
+
     public static DomainResult DispatchValidated(
         SetConversationRetentionPolicyCommand command,
         GovernanceAuditEvidenceReference auditEvidence,

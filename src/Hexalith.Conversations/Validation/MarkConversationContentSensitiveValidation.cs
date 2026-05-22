@@ -33,6 +33,16 @@ internal static class MarkConversationContentSensitiveValidation
 
         MarkConversationContentSensitiveCommand publicCommand = command.PublicCommand;
 
+        return ValidateStateBeforeAudit(publicCommand, command.EventId, state);
+    }
+
+    public static ConversationRejectedDomainEvent? ValidateStateBeforeAudit(
+        MarkConversationContentSensitiveCommand publicCommand,
+        string? eventId,
+        ConversationState? state)
+    {
+        ArgumentNullException.ThrowIfNull(publicCommand);
+
         if (state is null || !state.IsCreated)
         {
             return Reject(
@@ -203,14 +213,28 @@ internal static class MarkConversationContentSensitiveValidation
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        return auditEvidence is null
-            ? Reject(
+        if (auditEvidence is null)
+        {
+            return Reject(
                 ConversationErrorCode.AuditPairingRequired,
                 "audit_pairing_required",
                 command.Metadata.SchemaVersion,
                 command.Metadata.CorrelationId,
-                command.Metadata.CausationId)
-            : null;
+                command.Metadata.CausationId);
+        }
+
+        if (auditEvidence.PolicyReference != command.PolicyReference
+            || auditEvidence.CapturedAt != command.OperationTimestamp)
+        {
+            return Reject(
+                ConversationErrorCode.AuditPairingRequired,
+                "audit_pairing_mismatch",
+                command.Metadata.SchemaVersion,
+                command.Metadata.CorrelationId,
+                command.Metadata.CausationId);
+        }
+
+        return null;
     }
 
     public static bool IsCompatible(MarkConversationContentSensitiveCommand command, ConversationSensitivityMarkState mark)
@@ -222,6 +246,16 @@ internal static class MarkConversationContentSensitiveValidation
             && mark.Category == command.Category
             && mark.PolicyReference == command.PolicyReference
             && mark.Rationale == command.Rationale;
+    }
+
+    public static bool IsCompatibleExistingSensitivityMark(MarkConversationContentSensitiveCommand command, ConversationState? state)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+
+        return state is not null
+            && state.TryGetSensitivityMark(ConversationState.SensitivityTargetKey(command.Target), out ConversationSensitivityMarkState? mark)
+            && mark is not null
+            && IsCompatible(command, mark);
     }
 
     private static ConversationRejectedDomainEvent? ValidateShape(

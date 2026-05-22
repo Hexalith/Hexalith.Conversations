@@ -94,6 +94,34 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
     }
 
     /// <summary>
+    /// Audit service exceptions fail closed and emit no sensitivity mutation event.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldFailClosedWhenAuditServiceThrows()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()), throwOnRecord: true);
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-sensitive-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditSinkUnavailable);
+        rejection.ReasonCode.ShouldBe("audit_unavailable");
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
     /// Non-success audit precondition outcomes fail closed without sensitivity mutation events.
     /// </summary>
     /// <param name="status">The audit status.</param>
@@ -153,6 +181,94 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
 
         result.IsSuccess.ShouldBeTrue();
         result.Events.Single().ShouldBeOfType<ConversationContentMarkedSensitiveDomainEvent>();
+        audit.CallCount.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// Target validation happens before audit evidence is created.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectInvalidTargetBeforeAudit()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        GovernanceTarget missingMessage = new(GovernedTargetKind.Message, MessageId: new MessageId("message-missing"));
+
+        DomainResult result = await handler.HandleAsync(
+            Command(target: missingMessage),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-sensitive-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        rejection.ReasonCode.ShouldBe("sensitivity_target_invalid");
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
+        audit.CallCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Compatible already-sensitive targets return no-op before duplicate audit evidence can be created.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldReturnNoOpForCompatibleDuplicateBeforeAudit()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(AuditEvidence()));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+        ConversationState state = CreatedState();
+        state.Apply(SensitiveEvent());
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(state),
+            "event-sensitive-duplicate",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        result.IsNoOp.ShouldBeTrue();
+        result.Events.ShouldBeEmpty();
+        audit.CallCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Audit evidence must be paired to the sensitivity command policy and timestamp before mutation dispatch.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsyncShouldRejectMismatchedAuditEvidenceWithoutMutation()
+    {
+        FakeAuditService audit = new(ConversationGovernanceAuditResult.Succeeded(new GovernanceAuditEvidenceReference(
+            new AuditEvidenceHandle("audit-evidence-wrong"),
+            "sensitivity-policy-other",
+            AppliedAt.AddMinutes(1))));
+        SpyTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "user-1"));
+        MarkConversationContentSensitiveCommandHandler handler = new(access, audit);
+
+        DomainResult result = await handler.HandleAsync(
+            Command(),
+            "user-1",
+            _ => ValueTask.FromResult<ConversationState?>(CreatedState()),
+            "event-sensitive-a",
+            Tenant,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        ConversationRejectedDomainEvent rejection = result.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        rejection.Code.ShouldBe(ConversationErrorCode.AuditPairingRequired);
+        rejection.ReasonCode.ShouldBe("audit_pairing_mismatch");
+        result.Events.Any(e => e is ConversationContentMarkedSensitiveDomainEvent).ShouldBeFalse();
         audit.CallCount.ShouldBe(1);
     }
 
@@ -322,7 +438,9 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
         audit.CallCount.ShouldBe(1);
     }
 
-    private static MarkConversationContentSensitiveCommand Command(SensitivityCategory? category = null)
+    private static MarkConversationContentSensitiveCommand Command(
+        SensitivityCategory? category = null,
+        GovernanceTarget? target = null)
         => new(
             new ConversationCommandMetadata(
                 SchemaVersion.Current,
@@ -332,7 +450,7 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
                 "causation-a",
                 "idempotency-a"),
             Conversation,
-            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            target ?? new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
             category ?? SensitivityCategory.Restricted,
             "sensitivity-policy-standard",
             "customer-request",
@@ -372,7 +490,25 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
         return state;
     }
 
-    private sealed class FakeAuditService(ConversationGovernanceAuditResult result) : IConversationGovernanceAuditService
+    private static ConversationContentMarkedSensitiveDomainEvent SensitiveEvent()
+        => new(
+            new ConversationEventMetadata(
+                SchemaVersion.Current,
+                "event-sensitive-original",
+                ConversationEventType.ConversationContentMarkedSensitive,
+                Tenant,
+                Conversation,
+                "correlation-a",
+                AppliedAt,
+                Actor,
+                "causation-a"),
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+            SensitivityCategory.Restricted,
+            "sensitivity-policy-standard",
+            "customer-request",
+            AuditEvidence());
+
+    private sealed class FakeAuditService(ConversationGovernanceAuditResult result, bool throwOnRecord = false) : IConversationGovernanceAuditService
     {
         public int CallCount { get; private set; }
 
@@ -390,6 +526,11 @@ public sealed class MarkConversationContentSensitiveCommandHandlerTest
             CancellationToken cancellationToken = default)
         {
             CallCount++;
+            if (throwOnRecord)
+            {
+                throw new InvalidOperationException("audit sink unavailable");
+            }
+
             return ValueTask.FromResult(result);
         }
 

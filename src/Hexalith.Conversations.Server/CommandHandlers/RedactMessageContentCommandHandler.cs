@@ -190,21 +190,11 @@ public sealed class RedactMessageContentCommandHandler
             return DomainResult.NoOp();
         }
 
-        ConversationGovernanceAuditResult auditResult;
-        try
-        {
-            auditResult = await _auditService
-                .RecordRedactionAsync(command, GovernanceOperationKind.RedactMessageContent, eventId, cancellationToken)
-                .ConfigureAwait(false);
-        }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception)
-        {
-            return Rejection(command, ConversationErrorCode.AuditSinkUnavailable, "audit_unavailable", eventId);
-        }
+        ConversationGovernanceAuditResult auditResult = await ConversationGovernanceAuditGate
+            .RecordRequiredAsync(
+                token => _auditService.RecordRedactionAsync(command, GovernanceOperationKind.RedactMessageContent, eventId, token),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (auditResult.Status != ConversationGovernanceAuditStatus.Succeeded || auditResult.Evidence is null)
         {

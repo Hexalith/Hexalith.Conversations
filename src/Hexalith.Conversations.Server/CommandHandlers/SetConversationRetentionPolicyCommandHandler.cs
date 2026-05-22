@@ -178,25 +178,29 @@ public sealed class SetConversationRetentionPolicyCommandHandler
             return Rejection(command, ConversationErrorCode.TenantIsolationViolation, "tenant_isolation_violation", eventId);
         }
 
-        ConversationGovernanceAuditResult auditResult;
-        try
+        ConversationRejectedDomainEvent? preAuditRejection =
+            SetConversationRetentionPolicyBoundary.ValidateStateBeforeAudit(command, eventId, state);
+        if (preAuditRejection is not null)
         {
-            auditResult = await _auditService
-                .RecordRetentionPolicyChangeAsync(command, OperationKindFor(state), eventId, cancellationToken)
-                .ConfigureAwait(false);
+            return DomainResult.Rejection(new IRejectionEvent[] { preAuditRejection });
         }
-        catch (OperationCanceledException)
-        {
-            throw;
-        }
-        catch (Exception)
-        {
-            return Rejection(command, ConversationErrorCode.AuditSinkUnavailable, "audit_unavailable", eventId);
-        }
+
+        ConversationGovernanceAuditResult auditResult = await ConversationGovernanceAuditGate
+            .RecordRequiredAsync(
+                token => _auditService.RecordRetentionPolicyChangeAsync(command, OperationKindFor(state), eventId, token),
+                cancellationToken)
+            .ConfigureAwait(false);
 
         if (auditResult.Status != ConversationGovernanceAuditStatus.Succeeded || auditResult.Evidence is null)
         {
             return AuditFailure(command, auditResult.Status, eventId);
+        }
+
+        ConversationRejectedDomainEvent? auditPairingRejection =
+            SetConversationRetentionPolicyBoundary.ValidateAuditEvidenceProvided(command, auditResult.Evidence);
+        if (auditPairingRejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { auditPairingRejection });
         }
 
         return SetConversationRetentionPolicyBoundary.DispatchValidated(command, auditResult.Evidence, eventId, state);

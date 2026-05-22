@@ -33,6 +33,16 @@ internal static class SetConversationRetentionPolicyValidation
 
         SetConversationRetentionPolicyCommand publicCommand = command!.PublicCommand;
 
+        return ValidateStateBeforeAudit(publicCommand, command.EventId, state);
+    }
+
+    public static ConversationRejectedDomainEvent? ValidateStateBeforeAudit(
+        SetConversationRetentionPolicyCommand publicCommand,
+        string? eventId,
+        ConversationState? state)
+    {
+        ArgumentNullException.ThrowIfNull(publicCommand);
+
         if (state is null || !state.IsCreated)
         {
             return Reject(
@@ -161,14 +171,28 @@ internal static class SetConversationRetentionPolicyValidation
     {
         ArgumentNullException.ThrowIfNull(command);
 
-        return auditEvidence is null
-            ? Reject(
+        if (auditEvidence is null)
+        {
+            return Reject(
                 ConversationErrorCode.AuditPairingRequired,
                 "audit_pairing_required",
                 command.Metadata.SchemaVersion,
                 command.Metadata.CorrelationId,
-                command.Metadata.CausationId)
-            : null;
+                command.Metadata.CausationId);
+        }
+
+        if (auditEvidence.PolicyReference != command.PolicyReference
+            || auditEvidence.CapturedAt != command.OperationTimestamp)
+        {
+            return Reject(
+                ConversationErrorCode.AuditPairingRequired,
+                "audit_pairing_mismatch",
+                command.Metadata.SchemaVersion,
+                command.Metadata.CorrelationId,
+                command.Metadata.CausationId);
+        }
+
+        return null;
     }
 
     private static ConversationRejectedDomainEvent? ValidateShape(
