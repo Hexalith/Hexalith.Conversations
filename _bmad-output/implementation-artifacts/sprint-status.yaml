@@ -56,7 +56,7 @@ development_status:
   1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: done
   epic-1-retrospective: optional
   epic-2: in-progress
-  2-1-define-governance-policy-and-audit-contracts: ready-for-dev
+  2-1-define-governance-policy-and-audit-contracts: done
   2-2-set-conversation-retention-policy-with-rationale: ready-for-dev
   2-3-mark-conversation-content-as-sensitive: ready-for-dev
   2-4-redact-message-content-with-audit-attribution: backlog

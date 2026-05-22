@@ -6,6 +6,7 @@
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -112,6 +113,32 @@ internal static class ContractSamples
         ProjectionTrustState.Stale,
         "Read models may lag immediately after command acceptance.");
 
+    internal static readonly DateTimeOffset GovernanceTimestamp = new(2026, 5, 18, 12, 0, 0, TimeSpan.Zero);
+
+    internal static readonly GovernanceOperationMetadata GovernanceMetadata = new(
+        Version,
+        Tenant,
+        Conversation,
+        Actor,
+        "customer-request",
+        "retention-policy-standard",
+        GovernanceTimestamp,
+        "correlation-001",
+        "causation-001");
+
+    internal static readonly GovernanceTarget GovernanceConversationTarget = new(GovernedTargetKind.Conversation);
+
+    internal static readonly GovernanceAuditEvidenceReference AuditEvidence = new(
+        new AuditEvidenceHandle("audit-evidence-001"),
+        "retention-policy-standard",
+        GovernanceTimestamp);
+
+    internal static readonly GovernanceRequest GovernanceRequest = new(
+        GovernanceMetadata,
+        GovernanceOperationKind.SetRetentionPolicy,
+        GovernanceConversationTarget,
+        RetentionAction.ApplyPolicy);
+
     internal static IReadOnlyList<object> AllContracts =>
     [
         Version,
@@ -134,6 +161,24 @@ internal static class ContractSamples
         Business,
         ProviderCorrelation,
         CommandMetadata,
+        GovernanceOperationKind.SetRetentionPolicy,
+        GovernedTargetKind.Conversation,
+        RetentionAction.ApplyPolicy,
+        SensitivityCategory.Sensitive,
+        RedactionCategory.DisplayMask,
+        ArchivalState.Archived,
+        LegalHoldDeferral.DeferredUntilRelease,
+        PolicyBlockedOutcome.LegalHoldActive,
+        PrivilegedActionClass.OperationalOverride,
+        GovernanceOutcome.Succeeded,
+        GovernanceRemediation.None,
+        GovernanceStateConcept.EventHistory,
+        GovernanceMetadata,
+        GovernanceConversationTarget,
+        AuditEvidence.Handle,
+        AuditEvidence,
+        GovernanceRequest,
+        GovernanceEvidence(GovernanceOperationKind.SetRetentionPolicy, GovernanceOutcome.Succeeded),
         new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
         new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
         new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
@@ -288,6 +333,35 @@ internal static class ContractSamples
         SafeError(ConversationErrorCode.TenantIsolationViolation),
         new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
     ];
+
+    internal static GovernanceAuditEvidence GovernanceEvidence(GovernanceOperationKind operationKind, GovernanceOutcome outcome)
+        => new(
+            GovernanceMetadata,
+            operationKind,
+            GovernanceConversationTarget,
+            outcome,
+            AuditEvidence,
+            RemediationFor(outcome));
+
+    private static GovernanceRemediation RemediationFor(GovernanceOutcome outcome)
+    {
+        if (outcome == GovernanceOutcome.Denied)
+        {
+            return GovernanceRemediation.ResubmitWithPolicyReference;
+        }
+
+        if (outcome == GovernanceOutcome.AuditUnavailableFailed)
+        {
+            return GovernanceRemediation.RetryWhenAuditAvailable;
+        }
+
+        if (outcome == GovernanceOutcome.PolicyBlocked)
+        {
+            return GovernanceRemediation.WaitForLegalHoldRelease;
+        }
+
+        return GovernanceRemediation.None;
+    }
 
     internal static ConversationError SafeError(ConversationErrorCode code) => new(
         Version,
