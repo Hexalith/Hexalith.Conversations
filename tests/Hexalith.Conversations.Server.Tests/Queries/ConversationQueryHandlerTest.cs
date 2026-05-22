@@ -185,6 +185,44 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// The privileged-action review entry point delegates to the governed review boundary.
+    /// </summary>
+    [Fact]
+    public async Task PrivilegedJustificationShouldReadThroughGovernedQueryEntryPoint()
+    {
+        FakeTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Governance,
+            Tenant,
+            "caller-001"));
+        FakePrivilegedReviewSource source = new()
+        {
+            Details = PrivilegedDetails(),
+        };
+        ConversationPrivilegedJustificationReviewService reviewService = new(access, source);
+        ConversationQueryHandler handler = CreateHandler(
+            access,
+            new FakeProjectionReadStore(),
+            privilegedReview: reviewService);
+
+        PrivilegedOperationalJustificationResult result = await handler.GetPrivilegedOperationalJustificationAsync(
+            new GetPrivilegedOperationalJustificationQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "audit-evidence-privileged-001"),
+            TestContext.Current.CancellationToken);
+
+        result.VisibilityState.ShouldBe(ProjectionTrustState.Current);
+        result.Details.ShouldNotBeNull();
+        result.Details.AuditEvidence.Handle.Value.ShouldBe("audit-evidence-privileged-001");
+        result.Details.OperationClass.ShouldBe(PrivilegedOperationalActionClass.Read);
+        access.Calls.ShouldBe(1);
+        source.Reads.ShouldBe(1);
+    }
+
+    /// <summary>
     /// Unauthorized, nonexistent, cross-tenant, and missing-projection details all return the same external shape.
     /// </summary>
     [Fact]
@@ -822,11 +860,19 @@ public sealed class ConversationQueryHandlerTest
         FakeProjectionReadStore store,
         ConversationQueryCursor? cursor = null,
         TimeProvider? time = null,
-        ConversationReadHydrationService? hydration = null)
+        ConversationReadHydrationService? hydration = null,
+        ConversationPrivilegedJustificationReviewService? privilegedReview = null)
     {
         ConversationQueryCursor cursorInstance = cursor ?? CreateCursor();
         ConversationProjectionReadService readService = new(access, store);
-        return new ConversationQueryHandler(access, store, readService, cursorInstance, time ?? new FakeTimeProvider(Now), hydration);
+        return new ConversationQueryHandler(
+            access,
+            store,
+            readService,
+            cursorInstance,
+            time ?? new FakeTimeProvider(Now),
+            hydration,
+            privilegedJustificationReviewService: privilegedReview);
     }
 
     private static ConversationQueryCursor CreateCursor(int seed = 42, string keyId = "test-key-1")
@@ -943,6 +989,28 @@ public sealed class ConversationQueryHandlerTest
                     "retention-policy-standard",
                     Now)));
 
+    private static PrivilegedOperationalJustificationDetailsV1 PrivilegedDetails()
+        => new(
+            SchemaVersion.Current,
+            Tenant,
+            Conversation,
+            new GovernanceTarget(GovernedTargetKind.Conversation),
+            Actor,
+            PrivilegedOperationalActionClass.Read,
+            PrivilegedActionClass.ComplianceReview,
+            "privileged-review-policy",
+            "customer-request",
+            Now,
+            GovernanceOutcome.Succeeded,
+            new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-privileged-001"),
+                "privileged-review-policy",
+                Now),
+            ProjectionTrustState.Current,
+            Freshness("pos:0000000001"),
+            "Use the returned audit handle as governed evidence.",
+            "correlation-001");
+
     private static ProjectionFreshnessV1 Freshness(
         string cursor = "pos:0000000001",
         DateTimeOffset? lastAppliedAt = null,
@@ -1008,6 +1076,23 @@ public sealed class ConversationQueryHandlerTest
         {
             ListReads++;
             return ValueTask.FromResult(Summaries);
+        }
+    }
+
+    private sealed class FakePrivilegedReviewSource : IPrivilegedOperationalJustificationReviewSource
+    {
+        public PrivilegedOperationalJustificationDetailsV1? Details { get; set; }
+
+        public int Reads { get; private set; }
+
+        public ValueTask<PrivilegedOperationalJustificationDetailsV1?> ReadAsync(
+            TenantId tenantId,
+            ConversationId conversationId,
+            AuditEvidenceHandle auditEvidenceHandle,
+            CancellationToken cancellationToken = default)
+        {
+            Reads++;
+            return ValueTask.FromResult(Details);
         }
     }
 

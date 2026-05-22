@@ -53,4 +53,21 @@ public interface IConversationGovernanceAuditService
         GovernanceOperationKind operationKind,
         string operationId,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Records audit evidence for a privileged operational justification boundary.
+    /// </summary>
+    /// <param name="command">The structured privileged justification command.</param>
+    /// <param name="operationKind">The governed operation kind.</param>
+    /// <param name="outcome">The bounded public outcome being recorded.</param>
+    /// <param name="operationId">The server-generated operation identity.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The audit precondition result.</returns>
+    ValueTask<ConversationGovernanceAuditResult> RecordPrivilegedOperationalJustificationAsync(
+        RecordPrivilegedOperationalJustificationCommand command,
+        GovernanceOperationKind operationKind,
+        GovernanceOutcome outcome,
+        string operationId,
+        CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(ConversationGovernanceAuditResult.PolicyBlocked());
 }

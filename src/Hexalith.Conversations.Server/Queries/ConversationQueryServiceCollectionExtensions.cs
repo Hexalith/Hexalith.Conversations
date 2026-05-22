@@ -97,6 +97,9 @@ public static class ConversationQueryServiceCollectionExtensions
         services.AddScoped<ConversationReadHydrationService>();
         services.AddScoped<ConversationProjectionReadService>();
         services.AddScoped<ConversationAuditRecordAccessService>();
+        services.TryAddSingleton<IPrivilegedOperationalJustificationReviewSource>(
+            UnavailablePrivilegedOperationalJustificationReviewSource.Instance);
+        services.AddScoped<ConversationPrivilegedJustificationReviewService>();
         services.AddScoped<ConversationQueryHandler>();
         return services;
     }

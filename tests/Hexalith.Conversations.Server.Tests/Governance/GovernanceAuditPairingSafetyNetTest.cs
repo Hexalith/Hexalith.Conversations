@@ -97,6 +97,7 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             GovernanceOperationKind.ReplaceRetentionPolicy,
             GovernanceOperationKind.MarkContentSensitive,
             GovernanceOperationKind.RedactMessageContent,
+            GovernanceOperationKind.RecordPrivilegedJustification,
         };
         GovernanceOperationKind[] futureOnly =
         {
@@ -104,13 +105,28 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             GovernanceOperationKind.LogicallyDeleteConversation,
             GovernanceOperationKind.DeferForLegalHold,
             GovernanceOperationKind.GovernAuditRecord,
-            GovernanceOperationKind.RecordPrivilegedJustification,
         };
 
         foreach (GovernanceOperationKind operationKind in futureOnly)
         {
             implemented.ShouldNotContain(operationKind);
         }
+    }
+
+    /// <summary>
+    /// Privileged justification is an implemented audit boundary, not an aggregate mutation path.
+    /// </summary>
+    [Fact]
+    public void PrivilegedJustificationShouldBeImplementedAsPreconditionAuditBoundary()
+    {
+        typeof(ConversationPrivilegedOperationalJustificationService).GetConstructors()
+            .SelectMany(constructor => constructor.GetParameters())
+            .Select(parameter => parameter.ParameterType)
+            .ShouldContain(typeof(IConversationGovernanceAuditService));
+
+        typeof(IConversationGovernanceAuditService).GetMethods()
+            .Select(method => method.Name)
+            .ShouldContain(nameof(IConversationGovernanceAuditService.RecordPrivilegedOperationalJustificationAsync));
     }
 
     /// <summary>

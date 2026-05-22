@@ -123,6 +123,13 @@ internal sealed class PrivilegedActionClassJsonConverter : ConversationStringVal
     protected override string GetValue(PrivilegedActionClass value) => value.Value;
 }
 
+internal sealed class PrivilegedOperationalActionClassJsonConverter : ConversationStringValueJsonConverter<PrivilegedOperationalActionClass>
+{
+    protected override PrivilegedOperationalActionClass Create(string value) => PrivilegedOperationalActionClass.Parse(value);
+
+    protected override string GetValue(PrivilegedOperationalActionClass value) => value.Value;
+}
+
 internal sealed class GovernanceOutcomeJsonConverter : ConversationStringValueJsonConverter<GovernanceOutcome>
 {
     protected override GovernanceOutcome Create(string value) => GovernanceOutcome.Parse(value);

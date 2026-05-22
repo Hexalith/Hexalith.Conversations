@@ -1,5 +1,29 @@
 # Test Automation Summary
 
+## Story 2.8 Privileged Operational Justification Evidence
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/PrivilegedOperationalJustificationContractTest.cs` - Added privileged operation-class vocabulary, structured justification command/detail/result JSON shape, required-field validation, unsupported vocabulary rejection, `ToString()` safety, and forbidden substrate/personal-data field coverage.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Added serialization fixtures for privileged justification vocabulary, command, query, details, and result contracts.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationPrivilegedOperationalJustificationServiceTest.cs` - Added server precondition coverage for approved privileged action, missing justification, unauthorized operator, governance-class authorization, stale/rebuilding freshness, cross-tenant projection poison, audit unavailable/unsafe/uncertain/policy-blocked paths, partial operation outcome, and no delegate execution before gates pass.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationPrivilegedJustificationReviewServiceTest.cs` - Added review-history coverage for authorized reviewer access, unauthorized non-disclosure, malformed handles, unavailable review source, stale review evidence, and explicit redacted/withheld fields.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryRegistrationTest.cs` - Added fail-closed query registration coverage proving the handler resolves with the default unavailable privileged review source when no durable source is configured.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs` - Updated audit-pairing inventory so `RecordPrivilegedJustification` is an implemented privileged audit boundary without making ordinary conversation commands audit-sink dependent.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Privileged|FullyQualifiedName~GovernanceContractTest|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 69 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~Privileged|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest|FullyQualifiedName~ConversationAuditRecordAccessServiceTest"` - 36 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~Projection"` - 97 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ContractSerializationTest|FullyQualifiedName~Privileged|FullyQualifiedName~GovernanceContractTest|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 72 passed.
+- [x] Review fix validation `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~Privileged|FullyQualifiedName~ConversationQueryRegistrationTest|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~Projection"` - 119 passed.
+- [x] Review fix validation `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Privileged|FullyQualifiedName~GovernanceContractTest|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 69 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 625 passed.
+
+### Coverage
+- Contracts now expose a closed privileged operation-class vocabulary, structured justification command, governed review query, coherent review details, and content-safe result states without raw conversation content, EventStore topology, storage paths, provider payloads, Party personal data, tokens, claims, or raw audit sink identifiers.
+- Server coverage verifies tenant authorization occurs before protected evidence resolution, privileged reads/exports/verifications use Admin access, governance-changing metadata/visibility paths use Governance access, current freshness and audit evidence are required before executing privileged delegates, non-success/throwing delegate outcomes are audit-linked with content-safe diagnostics, and unsafe states fail closed without mutation/disclosure.
+- Review coverage verifies authorized compliance reviewers receive coherent tenant-scoped records, while unauthorized, malformed, stale, unavailable, and redacted states remain explicit and non-disclosing.
+
 ## Generated Tests
 
 ### API Tests

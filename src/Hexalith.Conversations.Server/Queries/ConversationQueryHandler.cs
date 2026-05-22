@@ -26,6 +26,7 @@ public sealed class ConversationQueryHandler
     private readonly ConversationReadHydrationService _hydrationService;
     private readonly ConversationTemporalReconstructionService _temporalReconstructionService;
     private readonly ConversationAuditRecordAccessService _auditRecordAccessService;
+    private readonly ConversationPrivilegedJustificationReviewService? _privilegedJustificationReviewService;
 
     public ConversationQueryHandler(
         IConversationTenantAccessService tenantAccessService,
@@ -35,7 +36,8 @@ public sealed class ConversationQueryHandler
         TimeProvider? timeProvider = null,
         ConversationReadHydrationService? hydrationService = null,
         ConversationTemporalReconstructionService? temporalReconstructionService = null,
-        ConversationAuditRecordAccessService? auditRecordAccessService = null)
+        ConversationAuditRecordAccessService? auditRecordAccessService = null,
+        ConversationPrivilegedJustificationReviewService? privilegedJustificationReviewService = null)
     {
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
@@ -50,6 +52,7 @@ public sealed class ConversationQueryHandler
                 new UnavailableConversationTemporalEventSource());
         _auditRecordAccessService = auditRecordAccessService
             ?? new ConversationAuditRecordAccessService(_tenantAccessService, _projectionReadStore);
+        _privilegedJustificationReviewService = privilegedJustificationReviewService;
     }
 
     /// <summary>
@@ -119,6 +122,28 @@ public sealed class ConversationQueryHandler
     {
         ArgumentNullException.ThrowIfNull(query);
         return _auditRecordAccessService.GetAsync(query, cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves one authorized privileged operational justification record for compliance review.
+    /// </summary>
+    /// <param name="query">The privileged-action review query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A content-safe privileged-action review result.</returns>
+    public ValueTask<PrivilegedOperationalJustificationResult> GetPrivilegedOperationalJustificationAsync(
+        GetPrivilegedOperationalJustificationQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        if (_privilegedJustificationReviewService is null)
+        {
+            return ValueTask.FromResult(PrivilegedOperationalJustificationResult.Unavailable(
+                query.SchemaVersion,
+                ProjectionFreshnessReasonCode.Unavailable,
+                "Retry after privileged-action evidence is available."));
+        }
+
+        return _privilegedJustificationReviewService.GetAsync(query, cancellationToken);
     }
 
     /// <summary>

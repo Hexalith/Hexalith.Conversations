@@ -253,6 +253,48 @@ public sealed record PrivilegedActionClass
 }
 
 /// <summary>
+/// Defines the privileged operation classes that may touch tenant conversation data.
+/// </summary>
+[JsonConverter(typeof(PrivilegedOperationalActionClassJsonConverter))]
+public sealed record PrivilegedOperationalActionClass
+{
+    public static PrivilegedOperationalActionClass Read { get; } = new(nameof(Read));
+
+    public static PrivilegedOperationalActionClass Rebuild { get; } = new(nameof(Rebuild));
+
+    public static PrivilegedOperationalActionClass Repair { get; } = new(nameof(Repair));
+
+    public static PrivilegedOperationalActionClass Export { get; } = new(nameof(Export));
+
+    public static PrivilegedOperationalActionClass Verify { get; } = new(nameof(Verify));
+
+    public static PrivilegedOperationalActionClass VisibilityChange { get; } = new(nameof(VisibilityChange));
+
+    public static PrivilegedOperationalActionClass MetadataChange { get; } = new(nameof(MetadataChange));
+
+    public static PrivilegedOperationalActionClass TenantDataTouch { get; } = new(nameof(TenantDataTouch));
+
+    private static readonly IReadOnlyDictionary<string, PrivilegedOperationalActionClass> KnownValues = Known(
+        Read,
+        Rebuild,
+        Repair,
+        Export,
+        Verify,
+        VisibilityChange,
+        MetadataChange,
+        TenantDataTouch);
+
+    private PrivilegedOperationalActionClass(string value) => Value = GovernanceContractValidation.RequiredSafeToken(value, nameof(value));
+
+    public string Value { get; }
+
+    public static PrivilegedOperationalActionClass Parse(string value)
+        => ParseKnown(value, KnownValues, nameof(PrivilegedOperationalActionClass));
+
+    public override string ToString() => Value;
+}
+
+/// <summary>
 /// Defines public evidence result states for governance operations.
 /// </summary>
 [JsonConverter(typeof(GovernanceOutcomeJsonConverter))]
