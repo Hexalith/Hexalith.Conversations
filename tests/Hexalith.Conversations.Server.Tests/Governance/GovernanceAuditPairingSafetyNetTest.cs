@@ -7,8 +7,11 @@ using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Events;
+using Hexalith.Conversations.Server.Api;
 using Hexalith.Conversations.Server.CommandHandlers;
 using Hexalith.Conversations.Server.Governance;
+using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.Queries;
 
 namespace Hexalith.Conversations.Server.Tests.Governance;
 
@@ -154,6 +157,41 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             .ShouldNotContain(typeof(IConversationGovernanceAuditService));
     }
 
+    /// <summary>
+    /// Read-only workspace boundaries must not depend directly on mutation handlers, audit gates, or idempotency mutation paths.
+    /// </summary>
+    [Fact]
+    public void ReadOnlyWorkspaceBoundariesShouldNotReferenceMutationExecutionTypes()
+    {
+        Type[] readOnlyBoundaries =
+        [
+            typeof(ConversationReadApi),
+            typeof(ConversationQueryHandler),
+            typeof(ConversationProjectionReadService),
+            typeof(ConversationCitationAccessService),
+            typeof(ConversationTemporalReconstructionService),
+            typeof(ConversationAuditRecordAccessService),
+        ];
+        Type[] forbiddenMutationTypes =
+        [
+            typeof(SetConversationRetentionPolicyCommandHandler),
+            typeof(MarkConversationContentSensitiveCommandHandler),
+            typeof(RedactMessageContentCommandHandler),
+            typeof(AddParticipantCommandHandler),
+            typeof(IdempotentConversationCommandExecutor),
+            typeof(ConversationGovernanceAuditGate),
+        ];
+
+        foreach (Type readOnlyBoundary in readOnlyBoundaries)
+        {
+            Type[] directDependencies = DirectDependencies(readOnlyBoundary);
+            foreach (Type forbidden in forbiddenMutationTypes)
+            {
+                directDependencies.ShouldNotContain(forbidden);
+            }
+        }
+    }
+
     private sealed record ImplementedGovernanceMutationPath(
         Type HandlerType,
         Type AggregateCommandType,
@@ -162,4 +200,16 @@ public sealed class GovernanceAuditPairingSafetyNetTest
 
     private static bool HasRequiredGovernanceAuditEvidence(Type type)
         => type.GetProperty(nameof(SetConversationRetentionPolicy.AuditEvidence))?.PropertyType == typeof(GovernanceAuditEvidenceReference);
+
+    private static Type[] DirectDependencies(Type type)
+        =>
+        [
+            .. type.GetConstructors()
+                .SelectMany(constructor => constructor.GetParameters())
+                .Select(parameter => parameter.ParameterType),
+            .. type.GetFields(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                .Select(field => field.FieldType),
+            .. type.GetProperties(System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Public)
+                .Select(property => property.PropertyType),
+        ];
 }

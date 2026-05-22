@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 3.5 Preserve Read-Only Compliance Workflows and Safe Command Gates
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ConversationCommandAvailabilityContractTest.cs` - Added fail-closed command availability contract coverage for explicit read-only/governance-changing classification, fresh server recheck requirements, missing-metadata defaults, available-governance gate validation, valid available-metadata recheck requirements, mandatory recheck on unavailable metadata, normalized safe vocabulary rejection, and stable JSON serialization.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs` - Added projection state matrix coverage proving default governance command metadata remains unavailable, server-owned, audit/freshness annotated, and recheck-required across current, audit-ready, stale, rebuilding, unavailable, and unsupported-schema projections.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` - Added read-boundary coverage proving projection-owned command metadata is preserved as advisory metadata, available metadata stays recheck-gated, stale projections clear protected detail state, and default missing command metadata remains unavailable/read-only/recheck-required.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs` - Added API coverage proving the authorized read group exposes GET routes only and ignores client-supplied command metadata/authority.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs` - Added safety-net coverage proving read-only workspace boundaries do not directly depend on governance mutation handlers, the governance audit gate, or idempotent command execution.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationCommandAvailability|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~ContractValidation|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 66 passed after senior review auto-fixes.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest|FullyQualifiedName~Privileged"` - 122 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationTenantAccess|FullyQualifiedName~SetConversationRetentionPolicyCommandHandlerTest|FullyQualifiedName~MarkConversationContentSensitiveCommandHandlerTest|FullyQualifiedName~RedactMessageContentCommandHandlerTest"` - 118 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 714 passed after senior review auto-fixes.
+
+### Coverage
+- Command availability metadata is now explicitly classified as read-only or governance-changing, requires fresh server recheck for every metadata instance, and rejects unsafe vocabulary tied to EventStore internals, provider payloads, browser/client state, route secrets, raw exceptions, and Party personal data, including separator/casing variants.
+- Missing command metadata still produces non-empty unavailable defaults; projection-owned governance commands remain advisory from read workflows, and any available metadata must still carry required permission, precondition, risk, freshness, audit, blocked reason, classification, last-evaluated metadata, and a fresh server recheck requirement.
+- Read APIs remain GET-only under the existing authorized `/api/v1/conversations` group and continue binding tenant/caller from trusted claims only.
+- Stale or denied read transitions close protected detail/citation/audit/command fields rather than retaining clipboard-ready, temporal, audit, or command authority data.
+- UI/component E2E was not applicable for Story 3.5 because there is still no `Hexalith.Conversations.Admin` or web project; the implemented scope is contracts, server projections/query behavior, read API, and safety tests.
+
+### Checklist Validation
+- [x] API and backend read-path safety tests generated for command-gate behavior.
+- [x] UI E2E tests assessed as not applicable because no UI exists in this repository for this story.
+- [x] Tests use standard xUnit, Shouldly, ASP.NET endpoint invocation, reflection safety-net checks, and existing fake-store patterns.
+- [x] Tests cover fail-closed defaults, blocked command metadata, available command metadata, mandatory recheck metadata, normalized safe command fields, stale projection clearing, client-supplied metadata rejection, read-only route shape, and mutation-boundary separation.
+- [x] Tests are independent, use no sleeps or hardcoded waits, and the summary includes validation commands and coverage metrics.
+
 ## Story 3.4 Copy Citations and Stable Temporal Evidence Links
 
 ### Generated Tests

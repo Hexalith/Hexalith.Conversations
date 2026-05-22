@@ -141,6 +141,9 @@ public sealed class ConversationQueryHandlerTest
         result.Details.TrustPosture.TemporalCursor.ShouldBe("pos:0000000001");
         result.Details.TrustPosture.ParticipantResolutionState.ShouldBe(ProjectionTrustState.Current);
         result.Details.TrustPosture.CommandEligibility.ShouldAllBe(item => item.AvailabilityState == ProjectionTrustState.Unavailable);
+        result.Details.TrustPosture.CommandEligibility.ShouldAllBe(
+            item => item.ActionClassification == ConversationCommandAvailabilityV1.ReadOnlyActionClassification);
+        result.Details.TrustPosture.CommandEligibility.ShouldAllBe(item => item.RequiresFreshServerRecheck);
         result.Details.EvidenceEntries.ShouldContain(entry => entry.Kind == "Message" && entry.MessageId == new MessageId("message-001"));
         result.Details.ProjectHydration.ShouldNotBeNull();
         result.Details.ProjectHydration.HydrationState.ShouldBe(ProjectionTrustState.Unavailable);
@@ -191,6 +194,102 @@ public sealed class ConversationQueryHandlerTest
         entry.CitationAvailability.ShouldBe(ConversationCitationAvailability.Unavailable);
         entry.DegradedState.ShouldBe(ProjectionTrustState.Unavailable);
         entry.VisibleText.ShouldBe("Partial evidence available.");
+    }
+
+    /// <summary>
+    /// Projection-owned governance command metadata is preserved as unavailable advisory metadata by the query boundary.
+    /// </summary>
+    [Fact]
+    public async Task DetailShouldPreserveProjectionOwnedGovernanceCommandMetadata()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                DetailWithCommandMetadata(Tenant, Conversation)),
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationDetailResult result = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.Details.ShouldNotBeNull();
+        ConversationCommandAvailabilityV1 command = result.Details.TrustPosture.CommandEligibility.Single();
+        command.ActionName.ShouldBe("set-retention-policy");
+        command.ActionClassification.ShouldBe(ConversationCommandAvailabilityV1.GovernanceChangingActionClassification);
+        command.RequiresFreshServerRecheck.ShouldBeTrue();
+        command.AvailabilityState.ShouldBe(ProjectionTrustState.Unavailable);
+        command.RequiredPermission.ShouldBe("conversations.governance");
+        command.FreshnessRequirementState.ShouldBe(ProjectionTrustState.Current);
+        command.AuditRequirement.ShouldBe(ConversationAuditReadinessState.Ready);
+        store.DetailReads.ShouldBe(1);
+        access.Calls.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// Available projection-owned command metadata is still advisory and keeps its mandatory server recheck flag.
+    /// </summary>
+    [Fact]
+    public async Task DetailShouldPreserveAvailableCommandMetadataOnlyAsAdvisoryRecheckMetadata()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                DetailWithCommandMetadata(Tenant, Conversation, commandAvailability: ProjectionTrustState.Current)),
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationDetailResult result = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.Details.ShouldNotBeNull();
+        ConversationCommandAvailabilityV1 command = result.Details.TrustPosture.CommandEligibility.Single();
+        command.AvailabilityState.ShouldBe(ProjectionTrustState.Current);
+        command.ActionClassification.ShouldBe(ConversationCommandAvailabilityV1.GovernanceChangingActionClassification);
+        command.RequiresFreshServerRecheck.ShouldBeTrue();
+        command.PreconditionState.ShouldBe(ProjectionTrustState.Current);
+        command.FreshnessRequirementState.ShouldBe(ProjectionTrustState.Current);
+        command.AuditRequirement.ShouldBe(ConversationAuditReadinessState.Ready);
+        command.RequiredPermission.ShouldBe("conversations.governance");
+    }
+
+    /// <summary>
+    /// Stale detail projections close protected detail state instead of returning stale command/citation metadata.
+    /// </summary>
+    [Fact]
+    public async Task DetailStaleProjectionShouldClearProtectedDetailState()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(
+                    Tenant,
+                    Conversation,
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    freshnessState: ProjectionTrustState.Stale,
+                    reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+                DetailWithCommandMetadata(
+                    Tenant,
+                    Conversation,
+                    freshnessState: ProjectionTrustState.Stale,
+                    reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded)),
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationDetailResult result = await handler.GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldBe("The requested conversation is not available.");
+        store.DetailReads.ShouldBe(1);
     }
 
     /// <summary>
@@ -1461,6 +1560,58 @@ public sealed class ConversationQueryHandlerTest
                     MessageId: new MessageId("message-001"),
                     VisibleText: "Partial evidence available."),
             ]);
+
+    private static ConversationDetailProjectionV1 DetailWithCommandMetadata(
+        TenantId tenantId,
+        ConversationId conversationId,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reason = null,
+        ProjectionTrustState? commandAvailability = null)
+    {
+        ProjectionFreshnessV1 freshness = Freshness(
+            "pos:0000000001",
+            freshnessState: freshnessState,
+            reason: reason);
+
+        return new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            freshness,
+            "Open",
+            "Case 123",
+            Business,
+            Project,
+            Folder,
+            null,
+            [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+            [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
+            [],
+            TrustPosture: new ConversationEvidenceTrustPostureV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                freshness.ProjectionCursor,
+                freshness,
+                ProjectionTrustState.Current,
+                ProjectionTrustState.Current,
+                ConversationCitationAvailability.Available,
+                ConversationAuditReadinessState.Ready,
+                ConversationVerificationState.Unknown,
+                [
+                    new ConversationCommandAvailabilityV1(
+                        "set-retention-policy",
+                        commandAvailability ?? ProjectionTrustState.Unavailable,
+                        "conversations.governance",
+                        ProjectionTrustState.Current,
+                        "governance",
+                        ProjectionTrustState.Current,
+                        ConversationAuditReadinessState.Ready,
+                        "Command execution requires a fresh server recheck.",
+                        Now,
+                        ConversationCommandAvailabilityV1.GovernanceChangingActionClassification),
+                ]));
+    }
 
     private static ConversationDetailProjectionV1 DetailWithAuditRecord(TenantId tenantId, ConversationId conversationId)
         => new(

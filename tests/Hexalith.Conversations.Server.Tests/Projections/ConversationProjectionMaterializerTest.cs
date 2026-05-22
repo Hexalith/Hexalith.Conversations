@@ -83,6 +83,80 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Default command metadata is server-owned, governance-classified, unavailable, and rechecked across projection states.
+    /// </summary>
+    [Fact]
+    public void DefaultCommandMetadataShouldStayUnavailableAcrossProjectionStates()
+    {
+        ConversationProjectedReadModels current = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels auditReady = Materializer().Project(
+            Tenant,
+            Conversation,
+            [Event(1, Created("event-create-001", 1)), Event(2, RetentionSet("event-retention-set-001", 2))],
+            Generated,
+            TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels redacted = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, MessageAppended("event-message-001", 2, "secret customer content")),
+                Event(3, Redacted(
+                    "event-redacted-message-001",
+                    3,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels stale = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated.AddMinutes(30),
+            TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels rebuilding = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5),
+            isRebuilding: true);
+        ConversationProjectedReadModels unavailable = Materializer().Project(
+            Tenant,
+            Conversation,
+            OrderedEvents(),
+            Generated,
+            TimeSpan.FromMinutes(5),
+            metadataWriteFailed: true);
+        ConversationProjectedReadModels unsupported = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, Sensitive(
+                    "event-sensitive-unsupported",
+                    2,
+                    new GovernanceTarget(GovernedTargetKind.Message, MessageId: Message),
+                    schemaVersion: new SchemaVersion(2))),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        AssertCommands(current, ProjectionTrustState.Current, ConversationAuditReadinessState.Incomplete);
+        AssertCommands(auditReady, ProjectionTrustState.Current, ConversationAuditReadinessState.Ready);
+        AssertCommands(redacted, ProjectionTrustState.Current, ConversationAuditReadinessState.Ready);
+        AssertCommands(stale, ProjectionTrustState.Stale, ConversationAuditReadinessState.Unknown);
+        AssertCommands(rebuilding, ProjectionTrustState.Rebuilding, ConversationAuditReadinessState.Unknown);
+        AssertCommands(unavailable, ProjectionTrustState.Unavailable, ConversationAuditReadinessState.Unknown);
+        AssertCommands(unsupported, ProjectionTrustState.Unavailable, ConversationAuditReadinessState.Unknown);
+    }
+
+    /// <summary>
     /// Bounded lifecycle-change events update projected state without relying on free-form lifecycle strings.
     /// </summary>
     [Fact]
@@ -603,6 +677,27 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     private static ConversationProjectionMaterializer Materializer() => new();
+
+    private static void AssertCommands(
+        ConversationProjectedReadModels models,
+        ProjectionTrustState preconditionState,
+        ConversationAuditReadinessState auditReadiness)
+    {
+        IReadOnlyList<ConversationCommandAvailabilityV1> commands = models.Detail.TrustPosture.CommandEligibility;
+
+        commands.Select(command => command.ActionName).ShouldBe(
+            ["set-retention-policy", "mark-content-sensitive", "redact-message-content"],
+            ignoreOrder: false);
+        commands.ShouldAllBe(command => command.ActionClassification == ConversationCommandAvailabilityV1.GovernanceChangingActionClassification);
+        commands.ShouldAllBe(command => command.RequiresFreshServerRecheck);
+        commands.ShouldAllBe(command => command.AvailabilityState == ProjectionTrustState.Unavailable);
+        commands.ShouldAllBe(command => command.RequiredPermission == "conversations.governance");
+        commands.ShouldAllBe(command => command.PreconditionState == preconditionState);
+        commands.ShouldAllBe(command => command.RiskLevel == "governance");
+        commands.ShouldAllBe(command => command.FreshnessRequirementState == ProjectionTrustState.Current);
+        commands.ShouldAllBe(command => command.AuditRequirement == auditReadiness);
+        commands.ShouldAllBe(command => command.BlockedReason == "Command execution is blocked from the governed read surface.");
+    }
 
     private static ConversationProjectionEventRecord[] OrderedEvents() =>
     [

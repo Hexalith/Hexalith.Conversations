@@ -65,6 +65,31 @@ public sealed class ConversationReadApiTest
     }
 
     [Fact]
+    public void ReadRoutesShouldExposeOnlyGetMethodsAndNoMutationRoutes()
+    {
+        using WebApplication app = BuildApp(AllowedAccess(), new FakeProjectionReadStore());
+
+        RouteEndpoint[] endpoints = ((IEndpointRouteBuilder)app)
+            .DataSources
+            .SelectMany(source => source.Endpoints)
+            .OfType<RouteEndpoint>()
+            .Where(endpoint => endpoint.RoutePattern.RawText?.StartsWith("/api/v1/conversations", StringComparison.Ordinal) == true)
+            .ToArray();
+
+        endpoints.Length.ShouldBe(5);
+        foreach (RouteEndpoint endpoint in endpoints)
+        {
+            HttpMethodMetadata methods = endpoint.Metadata.GetMetadata<HttpMethodMetadata>()!;
+            methods.HttpMethods.ShouldBe([HttpMethods.Get], ignoreOrder: false);
+            string route = endpoint.RoutePattern.RawText ?? string.Empty;
+            route.ShouldNotContain("commands", Case.Insensitive);
+            route.ShouldNotContain("retention", Case.Insensitive);
+            route.ShouldNotContain("redact", Case.Insensitive);
+            route.ShouldNotContain("sensitive", Case.Insensitive);
+        }
+    }
+
+    [Fact]
     public async Task DetailRequestMissingTenantClaimShouldReturnHiddenShapeWithoutProjectionRead()
     {
         FakeTenantAccessService access = AllowedAccess();
@@ -127,6 +152,37 @@ public sealed class ConversationReadApiTest
         response.Body.ShouldNotContain("tenant-evil", Case.Insensitive);
         response.Body.ShouldNotContain("caller-evil", Case.Insensitive);
         response.Body.ShouldNotContain("commandPermission", Case.Insensitive);
+    }
+
+    [Fact]
+    public async Task DetailRequestShouldIgnoreClientSuppliedCommandMetadata()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(AllowedAccess(), store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            queryString: "?actionName=redact-message-content&availabilityState=Current&requiredPermission=conversations.admin&actionClassification=client-side-optional",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        using JsonDocument document = JsonDocument.Parse(response.Body);
+        JsonElement commands = document.RootElement
+            .GetProperty("details")
+            .GetProperty("trustPosture")
+            .GetProperty("commandEligibility");
+        commands.GetArrayLength().ShouldBe(1);
+        JsonElement command = commands[0];
+        command.GetProperty("actionName").GetString().ShouldBe("read-governed-record");
+        command.GetProperty("availabilityState").GetString().ShouldBe("Unavailable");
+        command.GetProperty("requiredPermission").GetString().ShouldBe("conversations.read");
+        command.GetProperty("actionClassification").GetString().ShouldBe("read-only");
+        command.GetProperty("requiresFreshServerRecheck").GetBoolean().ShouldBeTrue();
+        response.Body.ShouldNotContain("conversations.admin", Case.Insensitive);
+        response.Body.ShouldNotContain("client-side-optional", Case.Insensitive);
     }
 
     [Fact]
