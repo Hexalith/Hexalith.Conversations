@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T19:19:10+02:00
+# last_updated: 2026-05-22T20:07:15+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T19:19:10+02:00
+last_updated: 2026-05-22T20:07:15+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system
@@ -72,7 +72,7 @@ development_status:
   3-4-copy-citations-and-open-stable-temporal-evidence-links: done
   3-5-preserve-read-only-compliance-workflows-and-safe-command-gates: done
   3-6-run-governance-verification-and-return-structured-results: done
-  3-7-provide-self-serve-buyer-acceptance-demo: backlog
+  3-7-provide-self-serve-buyer-acceptance-demo: done
   3-8a-verify-responsive-layout-and-mobile-safe-triage: backlog
   3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: backlog
   3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: backlog

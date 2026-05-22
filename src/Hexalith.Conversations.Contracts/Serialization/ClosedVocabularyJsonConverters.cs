@@ -231,3 +231,40 @@ internal sealed class ConversationSearchMatchSourceJsonConverter : ConversationS
 
     protected override string GetValue(ConversationSearchMatchSource value) => value.Value;
 }
+
+internal sealed class BuyerAcceptanceDemoStepKindJsonConverter : ConversationStringValueJsonConverter<BuyerAcceptanceDemoStepKind>
+{
+    protected override BuyerAcceptanceDemoStepKind Create(string value) => BuyerAcceptanceDemoStepKind.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceDemoStepKind value) => value.Value;
+}
+
+internal sealed class BuyerAcceptanceDemoFixtureKindJsonConverter : ConversationStringValueJsonConverter<BuyerAcceptanceDemoFixtureKind>
+{
+    protected override BuyerAcceptanceDemoFixtureKind Create(string value) => BuyerAcceptanceDemoFixtureKind.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceDemoFixtureKind value) => value.Value;
+}
+
+internal sealed class BuyerAcceptanceDemoTrustStateJsonConverter : ConversationStringValueJsonConverter<BuyerAcceptanceDemoTrustState>
+{
+    protected override BuyerAcceptanceDemoTrustState Create(string value) => BuyerAcceptanceDemoTrustState.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceDemoTrustState value) => value.Value;
+}
+
+internal sealed class BuyerAcceptanceEvidenceOwnershipJsonConverter :
+    ConversationStringValueJsonConverter<BuyerAcceptanceEvidenceOwnership>
+{
+    protected override BuyerAcceptanceEvidenceOwnership Create(string value) => BuyerAcceptanceEvidenceOwnership.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceEvidenceOwnership value) => value.Value;
+}
+
+internal sealed class BuyerAcceptanceDemoExecutionStatusJsonConverter :
+    ConversationStringValueJsonConverter<BuyerAcceptanceDemoExecutionStatus>
+{
+    protected override BuyerAcceptanceDemoExecutionStatus Create(string value) => BuyerAcceptanceDemoExecutionStatus.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceDemoExecutionStatus value) => value.Value;
+}

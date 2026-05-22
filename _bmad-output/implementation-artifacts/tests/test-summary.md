@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 3.7 Provide Self-Serve Buyer Acceptance Demo
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/BuyerAcceptanceDemoContractTest.cs` - Added buyer acceptance scenario, fixture, step, evidence summary, verification summary, closed vocabulary, JSON shape, duplicate mapping, temporal cursor validation, undeclared fixture rejection, and content-safety coverage.
+- [x] `tests/Hexalith.Conversations.Tests/Testing/BuyerAcceptanceDemoFixtureTest.cs` - Added deterministic synthetic fixture coverage for canonical trust states, synthetic marker, unique scenario steps, composite temporal cursor fixture, authorized projection data, verification pass/fail fixtures, and cross-tenant poison sentinel non-disclosure.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationBuyerAcceptanceDemoServiceTest.cs` - Added service runner coverage for full walkthrough summary, selected verification pass/fail output, out-of-scope verification filtering, temporal replay source wiring, module-vs-inherited evidence scope, cross-tenant denial, missing caller fail-closed behavior with verification summary suppression, missing/same-tenant probe partial outcomes, poison sentinel safety, DI registration, and mutation-boundary separation.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance"` - 18 passed after red phase and review fixes.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance"` - 2 passed after red phase.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance"` - 8 passed after QA and review gap fixes.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~GovernanceVerification|FullyQualifiedName~ContractValidation|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 78 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest|FullyQualifiedName~ConversationGovernanceVerificationServiceTest|FullyQualifiedName~ConversationProjectionMaterializerTest"` - 121 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationTemporalReconstructionServiceTest|FullyQualifiedName~ConversationAuditRecordAccessServiceTest|FullyQualifiedName~GovernanceAuditPairingSafetyNetTest|FullyQualifiedName~Privileged"` - 52 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionReadServiceTest|FullyQualifiedName~TenantAccess|FullyQualifiedName~Hydration"` - 145 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 774 passed.
+
+### Coverage
+- Buyer acceptance contracts expose deterministic scenario, fixture, step, evidence summary, selected verification summary, pass/fail status, requirement mappings, evidence handles, and module-vs-inherited ownership without open polymorphism.
+- Synthetic fixtures cover full trust, redaction with audit evidence, stale evidence, missing citation/incomplete audit, unresolved participant hydration, blocked governance command metadata, verification pass/fail, and cross-tenant poison sentinels.
+- The service runner composes existing read/query/projection and attached verification outputs, binds tenant/caller authority from the trusted boundary, fails closed without caller authority, and returns only an in-memory content-safe summary.
+- No HTTP endpoint, UI shell, durable demo store, production seed store, export artifact, command handler, governance audit gate, or EventStore append path was added.
+
+### Checklist Validation
+- [x] Contract, fixture-builder, service, DI, and safety tests generated for Story 3.7.
+- [x] API/demo-host route assessed as not necessary for current repo shape; service and tests provide the self-serve execution entry point without mutation semantics.
+- [x] Tests use standard xUnit, Shouldly, DI resolution, deterministic fixture builders, fake in-memory read stores, and reflection safety-net checks.
+- [x] Tests cover repeatability, safe fixture handling, selected verification output, out-of-scope verification filtering, canonical temporal cursor handling, content-safe evidence summary, module-vs-inherited evidence separation, missing caller/verification/probe partial or failed outcomes, same-tenant hidden read rejection for cross-tenant proof, cross-tenant poison non-disclosure, and mutation-boundary separation.
+
 ## Story 3.6 Run Governance Verification and Return Structured Results
 
 ### Generated Tests
