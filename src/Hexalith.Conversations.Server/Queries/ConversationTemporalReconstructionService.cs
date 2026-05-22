@@ -66,7 +66,7 @@ public sealed class ConversationTemporalReconstructionService
             return ConversationTemporalDetailResult.Hidden(query.SchemaVersion);
         }
 
-        if (!TryResolvePosition(query.Anchor, out long? requestedPosition))
+        if (!TryResolvePosition(query.Anchor, out long? requestedPosition, out long? requestedProjectionVersion))
         {
             return ConversationTemporalDetailResult.Hidden(query.SchemaVersion);
         }
@@ -83,6 +83,12 @@ public sealed class ConversationTemporalReconstructionService
         if (currentProjection.Projection is null)
         {
             return ProjectionUnavailableResult(query.SchemaVersion, currentProjection);
+        }
+
+        if (requestedProjectionVersion is long projectionVersion
+            && projectionVersion != currentProjection.Projection.Freshness.LastAppliedEventPosition)
+        {
+            return ConversationTemporalDetailResult.Hidden(query.SchemaVersion);
         }
 
         ConversationTemporalEventSourceResult source;
@@ -157,7 +163,10 @@ public sealed class ConversationTemporalReconstructionService
             return ReplayFailureResult(query.SchemaVersion, replay.DiagnosticCode);
         }
 
-        ConversationTemporalAnchorV1 resolvedAnchor = ResolveAuthoritativeAnchor(query.Anchor, bounded[^1]);
+        ConversationTemporalAnchorV1 resolvedAnchor = ResolveAuthoritativeAnchor(
+            query.Anchor,
+            bounded[^1],
+            currentProjection.Projection.Freshness);
         ConversationTemporalConfidenceV1 confidence = new(
             query.SchemaVersion,
             ProjectionTrustState.Current,
@@ -218,9 +227,13 @@ public sealed class ConversationTemporalReconstructionService
         };
     }
 
-    private static bool TryResolvePosition(ConversationTemporalAnchorV1 anchor, out long? requestedPosition)
+    private static bool TryResolvePosition(
+        ConversationTemporalAnchorV1 anchor,
+        out long? requestedPosition,
+        out long? requestedProjectionVersion)
     {
         requestedPosition = null;
+        requestedProjectionVersion = null;
         if (anchor.AnchorKind == ConversationTemporalAnchorV1.TimestampKind)
         {
             return true;
@@ -236,32 +249,63 @@ public sealed class ConversationTemporalReconstructionService
             ? anchor.ProjectionCursor
             : anchor.ContractCursor;
 
-        return TryParsePositionCursor(cursor, out requestedPosition);
+        return TryParsePositionCursor(anchor.AnchorKind, cursor, out requestedPosition, out requestedProjectionVersion);
     }
 
-    private static bool TryParsePositionCursor(string? cursor, out long? requestedPosition)
+    private static bool TryParsePositionCursor(
+        string anchorKind,
+        string? cursor,
+        out long? requestedPosition,
+        out long? requestedProjectionVersion)
     {
         requestedPosition = null;
+        requestedProjectionVersion = null;
         if (string.IsNullOrWhiteSpace(cursor))
         {
             return false;
         }
 
-        string value = cursor.StartsWith("temporal:v1:", StringComparison.Ordinal)
-            ? cursor["temporal:v1:".Length..]
-            : cursor;
+        string[] parts = cursor.Split(':', StringSplitOptions.RemoveEmptyEntries);
 
-        if (!value.StartsWith("pos:", StringComparison.Ordinal))
+        if (anchorKind == ConversationTemporalAnchorV1.ProjectionCursorKind)
         {
+            if (parts.Length == 2
+                && string.Equals(parts[0], "pos", StringComparison.Ordinal)
+                && long.TryParse(parts[1], out long projectionPosition)
+                && projectionPosition >= 1)
+            {
+                requestedPosition = projectionPosition;
+                return true;
+            }
+
             return false;
         }
 
-        if (!long.TryParse(value["pos:".Length..], out long position) || position < 1)
+        if (parts.Length is not (4 or 6)
+            || !string.Equals(parts[0], "temporal", StringComparison.Ordinal)
+            || !string.Equals(parts[1], "v1", StringComparison.Ordinal)
+            || !string.Equals(parts[2], "pos", StringComparison.Ordinal)
+            || !long.TryParse(parts[3], out long position)
+            || position < 1)
         {
             return false;
         }
 
         requestedPosition = position;
+
+        if (parts.Length == 4)
+        {
+            return true;
+        }
+
+        if (!string.Equals(parts[4], "projection", StringComparison.Ordinal)
+            || !long.TryParse(parts[5], out long projectionVersion)
+            || projectionVersion < 1)
+        {
+            return false;
+        }
+
+        requestedProjectionVersion = projectionVersion;
         return true;
     }
 
@@ -286,17 +330,20 @@ public sealed class ConversationTemporalReconstructionService
 
     private static ConversationTemporalAnchorV1 ResolveAuthoritativeAnchor(
         ConversationTemporalAnchorV1 requested,
-        ConversationReplayEventRecord last)
+        ConversationReplayEventRecord last,
+        ProjectionFreshnessV1 freshness)
     {
+        string contractCursor = $"temporal:v1:pos:{last.Position:D10}:projection:{freshness.LastAppliedEventPosition:D10}";
         return new(
             requested.SchemaVersion,
             requested.TenantId,
             requested.ConversationId,
-            ConversationTemporalAnchorV1.SafeSourcePositionKind,
+            ConversationTemporalAnchorV1.CompositeCursorKind,
             SafeSourcePosition: last.Position,
-            ContractCursor: null,
-            ProjectionCursor: null,
-            Timestamp: null);
+            ContractCursor: contractCursor,
+            ProjectionCursor: freshness.ProjectionCursor,
+            ProjectionVersion: freshness.LastAppliedEventPosition,
+            SupportingTimestamp: freshness.LastAppliedEventTimestamp);
     }
 
     private static ConversationTemporalDetailsV1 BuildDetails(

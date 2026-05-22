@@ -19,6 +19,8 @@ namespace Hexalith.Conversations.Contracts.Queries;
 /// <param name="safeSourcePosition">The positive Conversations-owned source position.</param>
 /// <param name="projectionCursor">The safe projection cursor value.</param>
 /// <param name="contractCursor">The safe contract-defined temporal cursor.</param>
+/// <param name="projectionVersion">The projection version that participates in a composite authoritative anchor.</param>
+/// <param name="supportingTimestamp">A supporting display/correlation timestamp; never the authoritative legal anchor.</param>
 public sealed record ConversationTemporalAnchorV1(
     SchemaVersion SchemaVersion,
     TenantId TenantId,
@@ -27,12 +29,15 @@ public sealed record ConversationTemporalAnchorV1(
     DateTimeOffset? Timestamp = null,
     long? SafeSourcePosition = null,
     string? ProjectionCursor = null,
-    string? ContractCursor = null)
+    string? ContractCursor = null,
+    long? ProjectionVersion = null,
+    DateTimeOffset? SupportingTimestamp = null)
 {
     public const string TimestampKind = "timestamp";
     public const string SafeSourcePositionKind = "safe_source_position";
     public const string ProjectionCursorKind = "projection_cursor";
     public const string ContractCursorKind = "contract_cursor";
+    public const string CompositeCursorKind = "composite_cursor";
 
     /// <summary>
     /// Gets the anchor contract schema version.
@@ -67,19 +72,39 @@ public sealed record ConversationTemporalAnchorV1(
     /// <summary>
     /// Gets the safe projection cursor value.
     /// </summary>
-    public string? ProjectionCursor { get; } = ValidateOptionalCursor(AnchorKind, ProjectionCursor, ProjectionCursorKind);
+    public string? ProjectionCursor { get; } = ValidateOptionalCursor(
+        AnchorKind,
+        ProjectionCursor,
+        ProjectionCursorKind,
+        SafeSourcePosition,
+        ProjectionVersion);
 
     /// <summary>
     /// Gets the safe contract-defined temporal cursor.
     /// </summary>
-    public string? ContractCursor { get; } = ValidateOptionalCursor(AnchorKind, ContractCursor, ContractCursorKind);
+    public string? ContractCursor { get; } = ValidateOptionalCursor(
+        AnchorKind,
+        ContractCursor,
+        ContractCursorKind,
+        SafeSourcePosition,
+        ProjectionVersion);
+
+    /// <summary>
+    /// Gets the projection version that participates in a composite authoritative anchor.
+    /// </summary>
+    public long? ProjectionVersion { get; } = ValidateProjectionVersion(AnchorKind, ProjectionVersion);
+
+    /// <summary>
+    /// Gets a supporting display/correlation timestamp; never the authoritative legal anchor.
+    /// </summary>
+    public DateTimeOffset? SupportingTimestamp { get; } = ValidateSupportingTimestamp(AnchorKind, SupportingTimestamp);
 
     private static string ValidateKind(string value)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value);
         return value switch
         {
-            TimestampKind or SafeSourcePositionKind or ProjectionCursorKind or ContractCursorKind => value,
+            TimestampKind or SafeSourcePositionKind or ProjectionCursorKind or ContractCursorKind or CompositeCursorKind => value,
             _ => throw new ArgumentException("Unsupported temporal anchor kind.", nameof(value)),
         };
     }
@@ -101,12 +126,13 @@ public sealed record ConversationTemporalAnchorV1(
 
     private static long? ValidatePosition(string kind, long? value)
     {
-        if (kind == SafeSourcePositionKind && value is null)
+        bool required = kind is SafeSourcePositionKind or CompositeCursorKind;
+        if (required && value is null)
         {
             throw new ArgumentException("Source-position anchors require a safe source position.", nameof(value));
         }
 
-        if (kind != SafeSourcePositionKind && value is not null)
+        if (!required && value is not null)
         {
             throw new ArgumentException("Only source-position anchors may carry a safe source position.", nameof(value));
         }
@@ -119,9 +145,14 @@ public sealed record ConversationTemporalAnchorV1(
         return value;
     }
 
-    private static string? ValidateOptionalCursor(string kind, string? value, string cursorKind)
+    private static string? ValidateOptionalCursor(
+        string kind,
+        string? value,
+        string cursorKind,
+        long? safeSourcePosition,
+        long? projectionVersion)
     {
-        bool required = kind == cursorKind;
+        bool required = kind == cursorKind || kind == CompositeCursorKind;
         if (required && string.IsNullOrWhiteSpace(value))
         {
             throw new ArgumentException("Cursor anchors require a cursor value.", nameof(value));
@@ -132,6 +163,72 @@ public sealed record ConversationTemporalAnchorV1(
             throw new ArgumentException("Only the matching cursor anchor may carry this cursor value.", nameof(value));
         }
 
+        if (kind == CompositeCursorKind
+            && cursorKind == ContractCursorKind
+            && !ContractCursorMatchesCompositeAnchor(value, safeSourcePosition, projectionVersion))
+        {
+            throw new ArgumentException("Composite temporal cursors must carry a valid safe position and projection version.", nameof(value));
+        }
+
         return value;
+    }
+
+    private static long? ValidateProjectionVersion(string kind, long? value)
+    {
+        if (kind == CompositeCursorKind && value is null)
+        {
+            throw new ArgumentException("Composite temporal anchors require a projection version.", nameof(value));
+        }
+
+        if (kind != CompositeCursorKind && value is not null)
+        {
+            throw new ArgumentException("Only composite temporal anchors may carry a projection version.", nameof(value));
+        }
+
+        if (value is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value.Value, 1);
+        }
+
+        return value;
+    }
+
+    private static DateTimeOffset? ValidateSupportingTimestamp(string kind, DateTimeOffset? value)
+    {
+        if (kind != CompositeCursorKind && value is not null)
+        {
+            throw new ArgumentException("Only composite temporal anchors may carry a supporting timestamp.", nameof(value));
+        }
+
+        if (value <= DateTimeOffset.MinValue)
+        {
+            throw new ArgumentOutOfRangeException(nameof(value), "Supporting timestamp must be greater than DateTimeOffset.MinValue.");
+        }
+
+        return value;
+    }
+
+    private static bool ContractCursorMatchesCompositeAnchor(
+        string? cursor,
+        long? expectedPosition,
+        long? expectedProjectionVersion)
+    {
+        if (string.IsNullOrWhiteSpace(cursor))
+        {
+            return false;
+        }
+
+        string[] parts = cursor.Split(':', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length == 6
+            && string.Equals(parts[0], "temporal", StringComparison.Ordinal)
+            && string.Equals(parts[1], "v1", StringComparison.Ordinal)
+            && string.Equals(parts[2], "pos", StringComparison.Ordinal)
+            && long.TryParse(parts[3], out long parsedPosition)
+            && parsedPosition > 0
+            && (expectedPosition is null || expectedPosition == parsedPosition)
+            && string.Equals(parts[4], "projection", StringComparison.Ordinal)
+            && long.TryParse(parts[5], out long parsedProjectionVersion)
+            && parsedProjectionVersion > 0
+            && (expectedProjectionVersion is null || expectedProjectionVersion == parsedProjectionVersion);
     }
 }

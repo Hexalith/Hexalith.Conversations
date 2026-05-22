@@ -33,7 +33,8 @@ public sealed record ConversationEvidenceEntryV1(
     string? SafeDetailLabel = null,
     string? SafeAccessibilityLabel = null,
     string? SafeNextAction = null,
-    ConversationRedactionAttributionV1? RedactionAttribution = null)
+    ConversationRedactionAttributionV1? RedactionAttribution = null,
+    long? SafeSourcePosition = null)
 {
     public string EntryId { get; } = RequireSafeText(EntryId, nameof(EntryId));
 
@@ -85,6 +86,8 @@ public sealed record ConversationEvidenceEntryV1(
 
     public ConversationRedactionAttributionV1? RedactionAttribution { get; } =
         ValidateRedactionAttribution(RedactionAttribution, AuditReadiness);
+
+    public long? SafeSourcePosition { get; } = ValidateSourcePosition(SafeSourcePosition);
 
     private static ConversationRedactionAttributionV1? ValidateRedactionAttribution(
         ConversationRedactionAttributionV1? attribution,
@@ -144,6 +147,16 @@ public sealed record ConversationEvidenceEntryV1(
         if (value <= DateTimeOffset.MinValue)
         {
             throw new ArgumentOutOfRangeException(nameof(value), "Timestamp must be greater than DateTimeOffset.MinValue.");
+        }
+
+        return value;
+    }
+
+    private static long? ValidateSourcePosition(long? value)
+    {
+        if (value is not null)
+        {
+            ArgumentOutOfRangeException.ThrowIfLessThan(value.Value, 1);
         }
 
         return value;

@@ -47,6 +47,8 @@ public static class ConversationReadApi
         ArgumentNullException.ThrowIfNull(endpoints);
 
         RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations").RequireAuthorization();
+        group.MapGet("/{conversationId}/citations/{evidenceEntryId}", GetCitationAsync);
+        group.MapGet("/{conversationId}/temporal", GetTemporalAsync);
         group.MapGet("/{conversationId}", GetConversationAsync);
         group.MapGet("/{conversationId}/audit-records/{auditEvidenceHandle}", GetAuditRecordAsync);
         group.MapGet("/", ListConversationsAsync);
@@ -87,6 +89,92 @@ public static class ConversationReadApi
         }
 
         return DetailToHttpResult(result);
+    }
+
+    private static async Task<IResult> GetCitationAsync(
+        string conversationId,
+        string evidenceEntryId,
+        HttpContext context,
+        ConversationQueryHandler handler,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetTenantCaller(context, out TenantId? tenantId, out string? callerPrincipalId, out string correlationId))
+        {
+            return HiddenCitation();
+        }
+
+        ConversationCitationResult result;
+        try
+        {
+            result = await handler.GetCitationAsync(
+                new GetConversationCitationQuery(
+                    SchemaVersion.Current,
+                    tenantId!,
+                    callerPrincipalId!,
+                    correlationId,
+                    new ConversationId(conversationId),
+                    evidenceEntryId),
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ArgumentException)
+        {
+            return HiddenCitation();
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return UnavailableCitation();
+        }
+
+        return CitationToHttpResult(result);
+    }
+
+    private static async Task<IResult> GetTemporalAsync(
+        string conversationId,
+        HttpContext context,
+        ConversationQueryHandler handler,
+        CancellationToken cancellationToken)
+    {
+        if (!TryGetTenantCaller(context, out TenantId? tenantId, out string? callerPrincipalId, out string correlationId))
+        {
+            return HiddenTemporal();
+        }
+
+        if (!TryGet(context.Request.Query, "cursor", out string? cursor) || !TryParseTemporalCursor(cursor, out _))
+        {
+            return HiddenTemporal();
+        }
+
+        ConversationTemporalDetailResult result;
+        try
+        {
+            ConversationId parsedConversationId = new(conversationId);
+            result = await handler.GetAtPointInTimeAsync(
+                new GetConversationAtPointInTimeQuery(
+                    SchemaVersion.Current,
+                    tenantId!,
+                    callerPrincipalId!,
+                    correlationId,
+                    parsedConversationId,
+                    new ConversationTemporalAnchorV1(
+                        SchemaVersion.Current,
+                        tenantId!,
+                        parsedConversationId,
+                        ConversationTemporalAnchorV1.ContractCursorKind,
+                        ContractCursor: cursor)),
+                cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ArgumentException)
+        {
+            return HiddenTemporal();
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return UnavailableTemporal();
+        }
+
+        return TemporalToHttpResult(result);
     }
 
     private static async Task<IResult> GetAuditRecordAsync(
@@ -214,11 +302,58 @@ public static class ConversationReadApi
             : Results.Json(result, statusCode: StatusCodes.Status200OK);
     }
 
+    private static IResult CitationToHttpResult(ConversationCitationResult result)
+    {
+        if (result.FreshnessState == ProjectionTrustState.Unavailable
+            || result.FreshnessState == ProjectionTrustState.Rebuilding)
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return result.Citation is null
+            ? Results.Json(result, statusCode: StatusCodes.Status404NotFound)
+            : Results.Json(result, statusCode: StatusCodes.Status200OK);
+    }
+
+    private static IResult TemporalToHttpResult(ConversationTemporalDetailResult result)
+    {
+        if (result.FreshnessState == ProjectionTrustState.Unavailable
+            || result.FreshnessState == ProjectionTrustState.Rebuilding)
+        {
+            return Results.Json(result, statusCode: StatusCodes.Status503ServiceUnavailable);
+        }
+
+        return result.Details is null
+            ? Results.Json(result, statusCode: StatusCodes.Status404NotFound)
+            : Results.Json(result, statusCode: StatusCodes.Status200OK);
+    }
+
     private static IResult HiddenDetail()
         => Results.Json(ConversationDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
 
     private static IResult UnavailableDetail()
         => Results.Json(ConversationDetailResult.Unavailable(SchemaVersion.Current), statusCode: StatusCodes.Status503ServiceUnavailable);
+
+    private static IResult HiddenCitation()
+        => Results.Json(ConversationCitationResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+
+    private static IResult UnavailableCitation()
+        => Results.Json(
+            ConversationCitationResult.Unavailable(
+                SchemaVersion.Current,
+                ProjectionFreshnessReasonCode.Unavailable),
+            statusCode: StatusCodes.Status503ServiceUnavailable);
+
+    private static IResult HiddenTemporal()
+        => Results.Json(ConversationTemporalDetailResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
+
+    private static IResult UnavailableTemporal()
+        => Results.Json(
+            ConversationTemporalDetailResult.Unavailable(
+                SchemaVersion.Current,
+                ProjectionFreshnessReasonCode.Unavailable,
+                "Retry after temporal evidence is available."),
+            statusCode: StatusCodes.Status503ServiceUnavailable);
 
     private static IResult HiddenAuditRecord()
         => Results.Json(ConversationAuditRecordResult.Hidden(SchemaVersion.Current), statusCode: StatusCodes.Status404NotFound);
@@ -351,5 +486,38 @@ public static class ConversationReadApi
             out DateTimeOffset parsed)
             ? parsed
             : throw new ArgumentException("Invalid date filter.", key);
+    }
+
+    private static bool TryParseTemporalCursor(string value, out long position)
+    {
+        position = 0;
+        if (string.IsNullOrWhiteSpace(value)
+            || !value.StartsWith("temporal:v1:", StringComparison.Ordinal)
+            || value.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is ':' or '-' or '_' or '.')))
+        {
+            return false;
+        }
+
+        string[] parts = value.Split(':', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length is not (4 or 6)
+            || !string.Equals(parts[0], "temporal", StringComparison.Ordinal)
+            || !string.Equals(parts[1], "v1", StringComparison.Ordinal)
+            || !string.Equals(parts[2], "pos", StringComparison.Ordinal)
+            || !long.TryParse(parts[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed)
+            || parsed < 1)
+        {
+            return false;
+        }
+
+        if (parts.Length == 6
+            && (!string.Equals(parts[4], "projection", StringComparison.Ordinal)
+                || !long.TryParse(parts[5], NumberStyles.Integer, CultureInfo.InvariantCulture, out long projectionVersion)
+                || projectionVersion < 1))
+        {
+            return false;
+        }
+
+        position = parsed;
+        return true;
     }
 }

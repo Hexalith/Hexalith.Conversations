@@ -228,6 +228,166 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// Citation copy is built from the governed projection after the current authorization/freshness boundary.
+    /// </summary>
+    [Fact]
+    public async Task CitationShouldReadSafeDtoThroughGovernedQueryEntryPoint()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                DetailWithCitation(Tenant, Conversation)),
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationCitationResult result = await handler.GetCitationAsync(
+            new GetConversationCitationQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "message:message-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        result.Citation.ShouldNotBeNull();
+        result.Citation.EvidenceEntryId.ShouldBe("message:message-001");
+        result.Citation.SafeCopiedText.ShouldContain("message:message-001");
+        result.Citation.SafeCopiedText.ShouldContain("pos:0000000001");
+        result.Citation.SafeCopiedText.ShouldNotContain("Hello from the adopter.", Case.Insensitive);
+        result.Citation.AuditEvidence!.Handle.Value.ShouldBe("audit-evidence-001");
+        access.Calls.ShouldBe(1);
+        store.DetailReads.ShouldBe(1);
+    }
+
+    /// <summary>
+    /// Missing audit handles downgrade audit-linked citation targets instead of returning trusted copied text.
+    /// </summary>
+    [Fact]
+    public async Task CitationMissingAuditHandleShouldReturnIncompleteSafeDto()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                DetailWithCitation(Tenant, Conversation, includeAuditEvidence: false)),
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationCitationResult result = await handler.GetCitationAsync(
+            new GetConversationCitationQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "message:message-001"),
+            TestContext.Current.CancellationToken);
+
+        result.Citation.ShouldNotBeNull();
+        result.Citation.CitationAvailability.ShouldBe(ConversationCitationAvailability.Incomplete);
+        result.Citation.AuditReadiness.ShouldBe(ConversationAuditReadinessState.Incomplete);
+        result.Citation.AuditEvidence.ShouldBeNull();
+        result.Citation.SafeCopiedText.ShouldBe("Citation is incomplete.");
+    }
+
+    /// <summary>
+    /// Redacted citation targets cite only the canonical placeholder and redaction attribution metadata.
+    /// </summary>
+    [Fact]
+    public async Task CitationRedactedTargetShouldUsePlaceholderAndAttributionWithoutOriginalText()
+    {
+        ConversationQueryHandler handler = CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore
+            {
+                Models = new ConversationProjectedReadModels(
+                    Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                    DetailWithRedactedCitation(Tenant, Conversation)),
+            });
+
+        ConversationCitationResult result = await handler.GetCitationAsync(
+            new GetConversationCitationQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "message:message-001"),
+            TestContext.Current.CancellationToken);
+
+        result.Citation.ShouldNotBeNull();
+        result.Citation.TrustState.ShouldBe(ProjectionTrustState.Redacted);
+        result.Citation.SafeCopiedText.ShouldContain("redaction=[redacted]");
+        result.Citation.SafeCopiedText.ShouldContain("redactionPolicy=redaction-policy-standard");
+        result.Citation.SafeCopiedText.ShouldContain("redactionReason=customer-request");
+        result.Citation.SafeCopiedText.ShouldNotContain("secret customer content", Case.Insensitive);
+        result.Citation.SafeLabel.ShouldBe("Redacted message evidence citation");
+        result.Citation.SafeAccessibilityLabel.ShouldBe("Copy redacted message evidence citation");
+    }
+
+    /// <summary>
+    /// Citation denial, missing targets, and stale projections stay content-safe.
+    /// </summary>
+    [Fact]
+    public async Task CitationDeniedMissingOrStaleTargetShouldFailClosed()
+    {
+        ConversationCitationResult denied = await CreateHandler(
+            new FakeTenantAccessService(ConversationTenantAccessDecision.Denied(
+                ConversationTenantAccessRequirement.Read,
+                Tenant,
+                "caller-001",
+                ConversationTenantAccessDenialReason.MissingMember)),
+            new FakeProjectionReadStore())
+            .GetCitationAsync(CitationQuery("message:message-001"), TestContext.Current.CancellationToken);
+
+        ConversationCitationResult missing = await CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore
+            {
+                Models = new ConversationProjectedReadModels(
+                    Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                    DetailWithCitation(Tenant, Conversation)),
+            })
+            .GetCitationAsync(CitationQuery("message:missing"), TestContext.Current.CancellationToken);
+
+        ConversationCitationResult stale = await CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore
+            {
+                Models = new ConversationProjectedReadModels(
+                    Summary(Tenant, Conversation, Business, Project, Folder, Participant, freshnessState: ProjectionTrustState.Stale, reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded),
+                    DetailWithCitation(Tenant, Conversation, freshnessState: ProjectionTrustState.Stale, reason: ProjectionFreshnessReasonCode.StaleThresholdExceeded)),
+            })
+            .GetCitationAsync(CitationQuery("message:message-001"), TestContext.Current.CancellationToken);
+
+        ConversationCitationResult crossTenant = await CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore
+            {
+                Models = new ConversationProjectedReadModels(
+                    Summary(OtherTenant, Conversation, Business, Project, Folder, Participant),
+                    DetailWithCitation(OtherTenant, Conversation)),
+            })
+            .GetCitationAsync(CitationQuery("message:message-001"), TestContext.Current.CancellationToken);
+
+        denied.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        missing.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        stale.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        crossTenant.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        denied.Citation.ShouldBeNull();
+        missing.Citation.ShouldBeNull();
+        stale.Citation.ShouldBeNull();
+        crossTenant.Citation.ShouldBeNull();
+
+        static GetConversationCitationQuery CitationQuery(string evidenceEntryId)
+            => new(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation, evidenceEntryId);
+    }
+
+    /// <summary>
     /// The privileged-action review entry point delegates to the governed review boundary.
     /// </summary>
     [Fact]
@@ -1294,9 +1454,144 @@ public sealed class ConversationQueryHandlerTest
                 Now,
                 new GovernanceAuditEvidenceReference(
                     new AuditEvidenceHandle("audit-evidence-001"),
-                    "retention-policy-standard",
-                    Now)),
+                "retention-policy-standard",
+                Now)),
             TrustPosture: CurrentTrustPosture(tenantId, conversationId, auditReady: true));
+
+    private static ConversationDetailProjectionV1 DetailWithCitation(
+        TenantId tenantId,
+        ConversationId conversationId,
+        bool includeAuditEvidence = true,
+        ProjectionTrustState? freshnessState = null,
+        ProjectionFreshnessReasonCode? reason = null)
+    {
+        ProjectionFreshnessV1 freshness = Freshness(
+            "pos:0000000001",
+            freshnessState: freshnessState,
+            reason: reason);
+        GovernanceAuditEvidenceReference? auditEvidence = includeAuditEvidence
+            ? new GovernanceAuditEvidenceReference(
+                new AuditEvidenceHandle("audit-evidence-001"),
+                "retention-policy-standard",
+                Now)
+            : null;
+        ConversationAuditReadinessState auditReadiness = includeAuditEvidence
+            ? ConversationAuditReadinessState.Ready
+            : ConversationAuditReadinessState.Incomplete;
+
+        return new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            freshness,
+            "Open",
+            "Case 123",
+            Business,
+            Project,
+            Folder,
+            null,
+            [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+            [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "Hello from the adopter.", Now)],
+            [],
+            TrustPosture: new ConversationEvidenceTrustPostureV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                freshness.ProjectionCursor,
+                freshness,
+                ProjectionTrustState.Current,
+                ProjectionTrustState.Current,
+                ConversationCitationAvailability.Available,
+                auditReadiness,
+                ConversationVerificationState.Unknown),
+            EvidenceEntries:
+            [
+                new ConversationEvidenceEntryV1(
+                    "message:message-001",
+                    "Message",
+                    Actor,
+                    Now,
+                    ProjectionTrustState.Current,
+                    ConversationCitationAvailability.Available,
+                    auditReadiness,
+                    ProjectionTrustState.Current,
+                    MessageId: new MessageId("message-001"),
+                    VisibleText: "Hello from the adopter.",
+                    AuditEvidence: auditEvidence,
+                    SafeSummaryLabel: "Message evidence citation",
+                    SafeAccessibilityLabel: "Copy message evidence citation",
+                    SafeNextAction: "Open stable temporal evidence link."),
+            ]);
+    }
+
+    private static ConversationDetailProjectionV1 DetailWithRedactedCitation(TenantId tenantId, ConversationId conversationId)
+    {
+        ProjectionFreshnessV1 freshness = Freshness("pos:0000000001");
+        GovernanceAuditEvidenceReference auditEvidence = new(
+            new AuditEvidenceHandle("audit-evidence-001"),
+            "redaction-policy-standard",
+            Now);
+        ConversationRedactionAttributionV1 attribution = new(
+            RedactionCategory.ContentSuppression,
+            "redaction-policy-standard",
+            "customer-request",
+            Actor,
+            Now,
+            new GovernanceTarget(GovernedTargetKind.Message, MessageId: new MessageId("message-001")),
+            "message:message-001",
+            auditEvidence,
+            ConversationAuditReadinessState.Ready,
+            ProjectionTrustState.Redacted,
+            "[redacted]",
+            "Redacted message evidence citation",
+            "Copy redacted message evidence citation",
+            "Open stable temporal evidence link.");
+
+        return new(
+            SchemaVersion.Current,
+            tenantId,
+            conversationId,
+            freshness,
+            "Open",
+            "Case 123",
+            Business,
+            Project,
+            Folder,
+            null,
+            [new ConversationParticipantProjectionV1(Participant, ParticipantType.Human, ParticipantRole.Member)],
+            [new ConversationTimelineMessageProjectionV1(new MessageId("message-001"), Actor, "secret customer content", Now)],
+            [],
+            TrustPosture: new ConversationEvidenceTrustPostureV1(
+                SchemaVersion.Current,
+                tenantId,
+                conversationId,
+                freshness.ProjectionCursor,
+                freshness,
+                ProjectionTrustState.Redacted,
+                ProjectionTrustState.Current,
+                ConversationCitationAvailability.Available,
+                ConversationAuditReadinessState.Ready,
+                ConversationVerificationState.Unknown),
+            EvidenceEntries:
+            [
+                new ConversationEvidenceEntryV1(
+                    "message:message-001",
+                    "Message",
+                    Actor,
+                    Now,
+                    ProjectionTrustState.Redacted,
+                    ConversationCitationAvailability.Available,
+                    ConversationAuditReadinessState.Ready,
+                    ProjectionTrustState.Redacted,
+                    MessageId: new MessageId("message-001"),
+                    VisibleText: "[redacted]",
+                    AuditEvidence: auditEvidence,
+                    SafeSummaryLabel: "Redacted message evidence citation",
+                    SafeAccessibilityLabel: "Copy redacted message evidence citation",
+                    SafeNextAction: "Open stable temporal evidence link.",
+                    RedactionAttribution: attribution),
+            ]);
+    }
 
     private static ConversationEvidenceTrustPostureV1 CurrentTrustPosture(
         TenantId tenantId,

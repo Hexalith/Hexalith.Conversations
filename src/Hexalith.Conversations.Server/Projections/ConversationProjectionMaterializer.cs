@@ -305,7 +305,8 @@ public sealed class ConversationProjectionMaterializer
             freshness.FreshnessState,
             citationAvailability,
             auditReadiness,
-            freshness.FreshnessState));
+            freshness.FreshnessState,
+            SafeSourcePosition: freshness.LastAppliedEventPosition));
 
         foreach (ConversationParticipantProjectionV1 participant in builder.Participants)
         {
@@ -317,7 +318,8 @@ public sealed class ConversationProjectionMaterializer
                 currentOrUnavailable,
                 citationAvailability,
                 auditReadiness,
-                currentOrUnavailable));
+                currentOrUnavailable,
+                SafeSourcePosition: builder.SourcePositionForParticipant(participant.ParticipantPartyId) ?? freshness.LastAppliedEventPosition));
         }
 
         Dictionary<string, ConversationRedactionProjectionV1> redactionsByTarget = builder.Redactions
@@ -360,7 +362,8 @@ public sealed class ConversationProjectionMaterializer
                 SafeNextAction: redacted
                     ? SafeAuditNextAction(messageAuditReadiness)
                     : null,
-                RedactionAttribution: redaction is null ? null : CreateRedactionAttribution(redaction, freshness)));
+                RedactionAttribution: redaction is null ? null : CreateRedactionAttribution(redaction, freshness),
+                SafeSourcePosition: builder.SourcePositionForMessage(message.MessageId) ?? freshness.LastAppliedEventPosition));
         }
 
         foreach (ConversationFileReferenceProjectionV1 file in builder.FileReferences)
@@ -374,7 +377,8 @@ public sealed class ConversationProjectionMaterializer
                 citationAvailability,
                 auditReadiness,
                 currentOrUnavailable,
-                FileId: file.FileId));
+                FileId: file.FileId,
+                SafeSourcePosition: builder.SourcePositionForFile(file.FileId) ?? freshness.LastAppliedEventPosition));
         }
 
         if (builder.ActiveRetentionPolicy is not null)
@@ -396,7 +400,8 @@ public sealed class ConversationProjectionMaterializer
                 SafeSummaryLabel: "Retention policy evidence",
                 SafeDetailLabel: "Retention policy audit detail",
                 SafeAccessibilityLabel: "Retention policy evidence with governed audit detail",
-                SafeNextAction: SafeAuditNextAction(AuditReadinessFor(retention.AuditEvidence, freshness))));
+                SafeNextAction: SafeAuditNextAction(AuditReadinessFor(retention.AuditEvidence, freshness)),
+                SafeSourcePosition: builder.ActiveRetentionPolicyPosition ?? freshness.LastAppliedEventPosition));
         }
 
         foreach (ConversationSensitivityMarkProjectionV1 sensitivity in builder.SensitivityMarks)
@@ -419,7 +424,8 @@ public sealed class ConversationProjectionMaterializer
                 SafeSummaryLabel: "Sensitivity mark evidence",
                 SafeDetailLabel: "Sensitivity mark audit detail",
                 SafeAccessibilityLabel: "Sensitivity mark evidence with governed audit detail",
-                SafeNextAction: SafeAuditNextAction(sensitivityReadiness)));
+                SafeNextAction: SafeAuditNextAction(sensitivityReadiness),
+                SafeSourcePosition: builder.SourcePositionForSensitivity(sensitivity.Target.ToTargetKey()) ?? freshness.LastAppliedEventPosition));
         }
 
         foreach (ConversationRedactionProjectionV1 redaction in builder.Redactions)
@@ -444,7 +450,8 @@ public sealed class ConversationProjectionMaterializer
                 SafeDetailLabel: "Redaction audit detail",
                 SafeAccessibilityLabel: "Redaction evidence with governed attribution",
                 SafeNextAction: SafeAuditNextAction(redactionReadiness),
-                RedactionAttribution: CreateRedactionAttribution(redaction, freshness)));
+                RedactionAttribution: CreateRedactionAttribution(redaction, freshness),
+                SafeSourcePosition: builder.SourcePositionForRedaction(redaction.Target.ToTargetKey()) ?? freshness.LastAppliedEventPosition));
         }
 
         return entries
@@ -522,8 +529,12 @@ public sealed class ConversationProjectionMaterializer
         private readonly Dictionary<FileId, ConversationFileReferenceProjectionV1> _fileReferences = [];
         private readonly Dictionary<MessageId, (long Position, ConversationTimelineMessageProjectionV1 Message)> _messages = [];
         private readonly Dictionary<PartyId, ConversationParticipantProjectionV1> _participants = [];
+        private readonly Dictionary<FileId, long> _filePositions = [];
+        private readonly Dictionary<PartyId, long> _participantPositions = [];
         private readonly HashSet<string> _processedEventIds = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, long> _redactionPositions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, ConversationRedactionProjectionV1> _redactions = new(StringComparer.Ordinal);
+        private readonly Dictionary<string, long> _sensitivityPositions = new(StringComparer.Ordinal);
         private readonly Dictionary<string, ConversationSensitivityMarkProjectionV1> _sensitivityMarks = new(StringComparer.Ordinal);
         private string _lifecycleState = InitializingState;
 
@@ -533,6 +544,8 @@ public sealed class ConversationProjectionMaterializer
                 StringComparer.Ordinal);
 
         public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy { get; private set; }
+
+        public long? ActiveRetentionPolicyPosition { get; private set; }
 
         public BusinessReference? BusinessReference { get; private set; }
 
@@ -683,13 +696,13 @@ public sealed class ConversationProjectionMaterializer
                     Apply(created);
                     break;
                 case ParticipantAdded participant:
-                    Apply(participant);
+                    Apply(participant, record.Position);
                     break;
                 case MessageAppended message:
                     Apply(message, record.Position);
                     break;
                 case FileReferenceAttached file:
-                    Apply(file);
+                    Apply(file, record.Position);
                     break;
                 case ConversationMetadataUpdated update:
                     Apply(update);
@@ -708,16 +721,16 @@ public sealed class ConversationProjectionMaterializer
                     Apply(lifecycle);
                     break;
                 case RetentionPolicySet retentionSet:
-                    Apply(retentionSet);
+                    Apply(retentionSet, record.Position);
                     break;
                 case RetentionPolicyReplaced retentionReplaced:
-                    Apply(retentionReplaced);
+                    Apply(retentionReplaced, record.Position);
                     break;
                 case ConversationContentMarkedSensitive sensitive:
-                    Apply(sensitive);
+                    Apply(sensitive, record.Position);
                     break;
                 case MessageContentRedacted redacted:
-                    Apply(redacted);
+                    Apply(redacted, record.Position);
                     break;
                 default:
                     HasOutOfOrderEvent = true;
@@ -761,7 +774,24 @@ public sealed class ConversationProjectionMaterializer
             ProviderCorrelation ??= e.ProviderCorrelation;
         }
 
-        private void Apply(ParticipantAdded e)
+        public long? SourcePositionForFile(FileId fileId)
+            => _filePositions.TryGetValue(fileId, out long position) ? position : null;
+
+        public long? SourcePositionForMessage(MessageId messageId)
+            => _messages.TryGetValue(messageId, out (long Position, ConversationTimelineMessageProjectionV1 Message) entry)
+                ? entry.Position
+                : null;
+
+        public long? SourcePositionForParticipant(PartyId partyId)
+            => _participantPositions.TryGetValue(partyId, out long position) ? position : null;
+
+        public long? SourcePositionForRedaction(string targetKey)
+            => _redactionPositions.TryGetValue(targetKey, out long position) ? position : null;
+
+        public long? SourcePositionForSensitivity(string targetKey)
+            => _sensitivityPositions.TryGetValue(targetKey, out long position) ? position : null;
+
+        private void Apply(ParticipantAdded e, long position)
         {
             if (_participants.ContainsKey(e.ParticipantPartyId))
             {
@@ -774,6 +804,7 @@ public sealed class ConversationProjectionMaterializer
                 e.ParticipantType,
                 e.ParticipantRole,
                 e.Metadata.CommittedAt);
+            _participantPositions[e.ParticipantPartyId] = position;
         }
 
         private void Apply(MessageAppended e, long position)
@@ -797,7 +828,7 @@ public sealed class ConversationProjectionMaterializer
                 e.ProviderCorrelation));
         }
 
-        private void Apply(FileReferenceAttached e)
+        private void Apply(FileReferenceAttached e, long position)
         {
             if (_fileReferences.ContainsKey(e.FileId))
             {
@@ -810,6 +841,7 @@ public sealed class ConversationProjectionMaterializer
                 e.FolderId,
                 e.MessageId,
                 e.Metadata.CommittedAt);
+            _filePositions[e.FileId] = position;
         }
 
         private void Apply(ConversationMetadataUpdated e)
@@ -843,7 +875,7 @@ public sealed class ConversationProjectionMaterializer
             _lifecycleState = e.CurrentState.Value;
         }
 
-        private void Apply(RetentionPolicySet e)
+        private void Apply(RetentionPolicySet e, long position)
         {
             ActiveRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
                 e.PolicyReference,
@@ -851,9 +883,10 @@ public sealed class ConversationProjectionMaterializer
                 e.Metadata.ActorPartyId,
                 e.Metadata.CommittedAt,
                 e.AuditEvidence);
+            ActiveRetentionPolicyPosition = position;
         }
 
-        private void Apply(RetentionPolicyReplaced e)
+        private void Apply(RetentionPolicyReplaced e, long position)
         {
             ActiveRetentionPolicy = new ConversationRetentionPolicyProjectionV1(
                 e.PolicyReference,
@@ -862,9 +895,10 @@ public sealed class ConversationProjectionMaterializer
                 e.Metadata.CommittedAt,
                 e.AuditEvidence,
                 e.PreviousPolicyReference);
+            ActiveRetentionPolicyPosition = position;
         }
 
-        private void Apply(ConversationContentMarkedSensitive e)
+        private void Apply(ConversationContentMarkedSensitive e, long position)
         {
             _sensitivityMarks[e.Target.ToTargetKey()] = new ConversationSensitivityMarkProjectionV1(
                 e.Target,
@@ -875,9 +909,10 @@ public sealed class ConversationProjectionMaterializer
                 e.Metadata.CommittedAt,
                 e.AuditEvidence,
                 ProjectionTrustState.Current);
+            _sensitivityPositions[e.Target.ToTargetKey()] = position;
         }
 
-        private void Apply(MessageContentRedacted e)
+        private void Apply(MessageContentRedacted e, long position)
         {
             ConversationRedactionProjectionV1 redaction = new(
                 e.Target,
@@ -889,6 +924,7 @@ public sealed class ConversationProjectionMaterializer
                 e.AuditEvidence,
                 ProjectionTrustState.Redacted);
             _redactions[e.Target.ToTargetKey()] = redaction;
+            _redactionPositions[e.Target.ToTargetKey()] = position;
 
             if (e.Target.Kind == GovernedTargetKind.Message
                 && e.Target.MessageId is not null

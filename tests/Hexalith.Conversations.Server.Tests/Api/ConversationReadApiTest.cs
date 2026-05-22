@@ -47,13 +47,19 @@ public sealed class ConversationReadApiTest
         using WebApplication app = BuildApp(AllowedAccess(), new FakeProjectionReadStore());
 
         RouteEndpoint detail = FindEndpoint(app, "/api/v1/conversations/{conversationId}");
+        RouteEndpoint citation = FindEndpoint(app, "/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}");
+        RouteEndpoint temporal = FindEndpoint(app, "/api/v1/conversations/{conversationId}/temporal");
         RouteEndpoint audit = FindEndpoint(app, "/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}");
         RouteEndpoint list = FindEndpoint(app, "/api/v1/conversations/");
 
         detail.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
+        citation.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
+        temporal.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         audit.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         list.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         detail.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}");
+        citation.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}");
+        temporal.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}/temporal");
         audit.RoutePattern.RawText.ShouldBe("/api/v1/conversations/{conversationId}/audit-records/{auditEvidenceHandle}");
         list.RoutePattern.RawText.ShouldBe("/api/v1/conversations/");
     }
@@ -194,6 +200,132 @@ public sealed class ConversationReadApiTest
         access.LastTrustedTenantId.ShouldBe(Tenant);
         access.LastCallerPrincipalId.ShouldBe("caller-001");
         store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task CitationRequestShouldBindTrustedClaimsAndReturnSafeCopiedText()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["evidenceEntryId"] = "message:message-001",
+            },
+            queryString: "?tenantId=tenant-evil&callerPrincipalId=caller-evil&permission=admin",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        response.Body.ShouldContain("\"citation\"");
+        response.Body.ShouldContain("\"safeCopiedText\"");
+        response.Body.ShouldContain("\"temporalCursor\"");
+        response.Body.ShouldNotContain("Hello from the adopter.", Case.Insensitive);
+        response.Body.ShouldNotContain("tenant-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("caller-evil", Case.Insensitive);
+        response.Body.ShouldNotContain("permission", Case.Insensitive);
+        access.LastTrustedTenantId.ShouldBe(Tenant);
+        access.LastCallerPrincipalId.ShouldBe("caller-001");
+        store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task CitationMalformedTargetShouldReturnHiddenShapeWithoutProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}",
+            routeValues: new Dictionary<string, object?>
+            {
+                ["conversationId"] = Conversation.Value,
+                ["evidenceEntryId"] = "bad target",
+            },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("message-001", Case.Insensitive);
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task CitationPermissionDowngradeShouldClearClipboardAndLinkMetadata()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+        Dictionary<string, object?> routeValues = new()
+        {
+            ["conversationId"] = Conversation.Value,
+            ["evidenceEntryId"] = "message:message-001",
+        };
+
+        ApiResponse visible = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}",
+            routeValues: routeValues,
+            user: AuthenticatedUser());
+        access.SetDecision(ConversationTenantAccessDecision.Denied(
+            ConversationTenantAccessRequirement.Read,
+            Tenant,
+            "caller-001",
+            ConversationTenantAccessDenialReason.MissingMember));
+
+        ApiResponse denied = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/citations/{evidenceEntryId}",
+            routeValues: routeValues,
+            user: AuthenticatedUser());
+
+        visible.StatusCode.ShouldBe(StatusCodes.Status200OK);
+        visible.Body.ShouldContain("\"safeCopiedText\"");
+        visible.Body.ShouldContain("\"temporalCursor\"");
+        denied.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        denied.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        denied.Body.ShouldNotContain("\"safeCopiedText\"", Case.Insensitive);
+        denied.Body.ShouldNotContain("\"temporalCursor\"", Case.Insensitive);
+        denied.Body.ShouldNotContain("message-001", Case.Insensitive);
+        store.DetailReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task TemporalMalformedCursorShouldReturnHiddenShapeWithoutProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/temporal",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            queryString: "?cursor=raw-stream-position",
+            user: AuthenticatedUser());
+        ApiResponse malformedProjection = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/temporal",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            queryString: "?cursor=temporal:v1:pos:0000000002:projection:not-a-number",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("conversation-001", Case.Insensitive);
+        response.Body.ShouldNotContain("raw-stream-position", Case.Insensitive);
+        malformedProjection.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        malformedProjection.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        malformedProjection.Body.ShouldNotContain("not-a-number", Case.Insensitive);
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
     }
 
     [Fact]

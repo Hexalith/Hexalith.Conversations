@@ -24,6 +24,7 @@ public sealed class ConversationQueryHandler
     private readonly ConversationQueryCursor _cursor;
     private readonly TimeProvider _timeProvider;
     private readonly ConversationReadHydrationService _hydrationService;
+    private readonly ConversationCitationAccessService _citationAccessService;
     private readonly ConversationTemporalReconstructionService _temporalReconstructionService;
     private readonly ConversationAuditRecordAccessService _auditRecordAccessService;
     private readonly ConversationPrivilegedJustificationReviewService? _privilegedJustificationReviewService;
@@ -35,6 +36,7 @@ public sealed class ConversationQueryHandler
         ConversationQueryCursor cursor,
         TimeProvider? timeProvider = null,
         ConversationReadHydrationService? hydrationService = null,
+        ConversationCitationAccessService? citationAccessService = null,
         ConversationTemporalReconstructionService? temporalReconstructionService = null,
         ConversationAuditRecordAccessService? auditRecordAccessService = null,
         ConversationPrivilegedJustificationReviewService? privilegedJustificationReviewService = null)
@@ -45,6 +47,7 @@ public sealed class ConversationQueryHandler
         _cursor = cursor ?? throw new ArgumentNullException(nameof(cursor));
         _timeProvider = timeProvider ?? TimeProvider.System;
         _hydrationService = hydrationService ?? new ConversationReadHydrationService();
+        _citationAccessService = citationAccessService ?? new ConversationCitationAccessService(_projectionReadService);
         _temporalReconstructionService = temporalReconstructionService
             ?? new ConversationTemporalReconstructionService(
                 _tenantAccessService,
@@ -108,6 +111,20 @@ public sealed class ConversationQueryHandler
     {
         ArgumentNullException.ThrowIfNull(query);
         return _temporalReconstructionService.ReconstructAsync(query, cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves one authorized permission-safe citation for a governed evidence entry.
+    /// </summary>
+    /// <param name="query">The citation query.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A content-safe citation result.</returns>
+    public ValueTask<ConversationCitationResult> GetCitationAsync(
+        GetConversationCitationQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return _citationAccessService.GetAsync(query, cancellationToken);
     }
 
     /// <summary>

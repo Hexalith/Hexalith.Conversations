@@ -117,10 +117,12 @@ public sealed class ConversationTemporalReconstructionServiceTest
 
         result.Details.ShouldNotBeNull();
         result.AuthoritativeTemporalAnchor.ShouldNotBeNull();
-        result.AuthoritativeTemporalAnchor.AnchorKind.ShouldBe(ConversationTemporalAnchorV1.SafeSourcePositionKind);
+        result.AuthoritativeTemporalAnchor.AnchorKind.ShouldBe(ConversationTemporalAnchorV1.CompositeCursorKind);
         result.AuthoritativeTemporalAnchor.SafeSourcePosition.ShouldBe(3);
+        result.AuthoritativeTemporalAnchor.ProjectionCursor.ShouldBe("pos:0000000004");
+        result.AuthoritativeTemporalAnchor.ProjectionVersion.ShouldBe(4);
         result.Details.Messages.Single().MessageId.ShouldBe(Message);
-        result.Details.TemporalAnchor.ProjectionCursor.ShouldBeNull();
+        result.Details.TemporalAnchor.ProjectionCursor.ShouldBe("pos:0000000004");
     }
 
     /// <summary>
@@ -152,11 +154,17 @@ public sealed class ConversationTemporalReconstructionServiceTest
                     ConversationTemporalAnchorV1.ContractCursorKind,
                     ContractCursor: "temporal:v1:pos:0000000002")),
             TestContext.Current.CancellationToken);
+        ConversationTemporalDetailResult mismatchedProjection = await service.ReconstructAsync(
+            Query(ContractCursorAnchor("temporal:v1:pos:0000000002:projection:0000000999")),
+            TestContext.Current.CancellationToken);
 
         malformed.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         mismatched.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        mismatchedProjection.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         malformed.Details.ShouldBeNull();
         mismatched.Details.ShouldBeNull();
+        mismatchedProjection.Details.ShouldBeNull();
+        mismatchedProjection.AuthoritativeTemporalAnchor.ShouldBeNull();
         source.Reads.ShouldBe(0);
     }
 

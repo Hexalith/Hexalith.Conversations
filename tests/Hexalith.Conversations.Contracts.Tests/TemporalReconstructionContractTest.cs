@@ -28,8 +28,12 @@ public sealed class TemporalReconstructionContractTest
             ContractSamples.Version,
             ContractSamples.Tenant,
             ContractSamples.Conversation,
-            ConversationTemporalAnchorV1.SafeSourcePositionKind,
-            SafeSourcePosition: 42);
+            ConversationTemporalAnchorV1.CompositeCursorKind,
+            SafeSourcePosition: 42,
+            ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
+            ContractCursor: "temporal:v1:pos:42",
+            ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition,
+            SupportingTimestamp: ContractSamples.EventMetadata.CommittedAt);
         ConversationTemporalConfidenceV1 confidence = new(
             ContractSamples.Version,
             ProjectionTrustState.Current,
@@ -74,6 +78,9 @@ public sealed class TemporalReconstructionContractTest
 
         json.ShouldContain("authoritativeTemporalAnchor");
         json.ShouldContain("safeSourcePosition");
+        json.ShouldContain("projectionCursor");
+        json.ShouldContain("projectionVersion");
+        json.ShouldContain("supportingTimestamp");
         json.ShouldContain("confidence");
         json.ShouldContain("redactions");
         json.ShouldNotContain("EventStore", Case.Insensitive);
@@ -88,6 +95,7 @@ public sealed class TemporalReconstructionContractTest
     [InlineData(ConversationTemporalAnchorV1.SafeSourcePositionKind)]
     [InlineData(ConversationTemporalAnchorV1.ProjectionCursorKind)]
     [InlineData(ConversationTemporalAnchorV1.ContractCursorKind)]
+    [InlineData(ConversationTemporalAnchorV1.CompositeCursorKind)]
     public void TemporalAnchorShouldAcceptSupportedForms(string kind)
     {
         ConversationTemporalAnchorV1 anchor = kind switch
@@ -116,6 +124,16 @@ public sealed class TemporalReconstructionContractTest
                 ContractSamples.Conversation,
                 kind,
                 ContractCursor: "temporal:v1:pos:0000000007"),
+            ConversationTemporalAnchorV1.CompositeCursorKind => new(
+                ContractSamples.Version,
+                ContractSamples.Tenant,
+                ContractSamples.Conversation,
+                kind,
+                SafeSourcePosition: 7,
+                ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
+                ContractCursor: "temporal:v1:pos:0000000007",
+                ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition,
+                SupportingTimestamp: ContractSamples.EventMetadata.CommittedAt),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported test row."),
         };
 
@@ -139,6 +157,16 @@ public sealed class TemporalReconstructionContractTest
             ContractSamples.Conversation,
             "stream-position",
             ProjectionCursor: "pos:0000000001"));
+
+        Should.Throw<ArgumentException>(() => new ConversationTemporalAnchorV1(
+            ContractSamples.Version,
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            ConversationTemporalAnchorV1.CompositeCursorKind,
+            SafeSourcePosition: 7,
+            ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
+            ContractCursor: "temporal:v1:pos:0000000008",
+            ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition));
     }
 
     [Fact]
