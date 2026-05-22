@@ -50,6 +50,11 @@ public sealed record ConversationEventType
     /// </summary>
     public static ConversationEventType ConversationArchived { get; } = new(nameof(ConversationArchived));
 
+    /// <summary>
+    /// Gets the event type for bounded conversation lifecycle changes.
+    /// </summary>
+    public static ConversationEventType ConversationLifecycleChanged { get; } = new(nameof(ConversationLifecycleChanged));
+
     private static readonly IReadOnlyDictionary<string, ConversationEventType> KnownTypes =
         new[]
         {
@@ -60,6 +65,7 @@ public sealed record ConversationEventType
             ConversationMetadataUpdated,
             ConversationClosed,
             ConversationArchived,
+            ConversationLifecycleChanged,
         }.ToDictionary(type => type.Value, StringComparer.Ordinal);
 
     private ConversationEventType(string value)

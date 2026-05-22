@@ -17,7 +17,7 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// <param name="tenantId">The tenant binding.</param>
 /// <param name="conversationId">The tenant-scoped conversation identity.</param>
 /// <param name="correlationId">The correlation identifier.</param>
-/// <param name="committedAt">The committed timestamp for the public contract.</param>
+/// <param name="occurredAt">The timestamp for the persisted conversation fact.</param>
 /// <param name="actorPartyId">The stable actor Party reference.</param>
 /// <param name="causationId">The optional causation identifier.</param>
 public sealed record ConversationEventMetadata(
@@ -27,49 +27,66 @@ public sealed record ConversationEventMetadata(
     TenantId TenantId,
     ConversationId ConversationId,
     string CorrelationId,
-    DateTimeOffset CommittedAt,
+    DateTimeOffset OccurredAt,
     PartyId ActorPartyId,
     string? CausationId = null)
 {
     /// <summary>
     /// Gets the event schema version.
     /// </summary>
-    public SchemaVersion SchemaVersion { get; } = RequireNonNull(SchemaVersion, nameof(SchemaVersion));
+    public SchemaVersion SchemaVersion { get; init; } = RequireNonNull(SchemaVersion, nameof(SchemaVersion));
 
     /// <summary>
     /// Gets the public event identity chosen by the producer.
     /// </summary>
-    public string EventId { get; } = ValidateRequired(EventId);
+    public string EventId { get; init; } = ValidateRequired(EventId);
 
     /// <summary>
     /// Gets the public Conversations event type.
     /// </summary>
-    public ConversationEventType EventType { get; } = RequireNonNull(EventType, nameof(EventType));
+    public ConversationEventType EventType { get; init; } = RequireNonNull(EventType, nameof(EventType));
 
     /// <summary>
     /// Gets the tenant binding.
     /// </summary>
-    public TenantId TenantId { get; } = RequireNonNull(TenantId, nameof(TenantId));
+    public TenantId TenantId { get; init; } = RequireNonNull(TenantId, nameof(TenantId));
 
     /// <summary>
     /// Gets the tenant-scoped conversation identity.
     /// </summary>
-    public ConversationId ConversationId { get; } = RequireNonNull(ConversationId, nameof(ConversationId));
+    public ConversationId ConversationId { get; init; } = RequireNonNull(ConversationId, nameof(ConversationId));
 
     /// <summary>
     /// Gets the correlation identifier.
     /// </summary>
-    public string CorrelationId { get; } = ValidateRequired(CorrelationId);
+    public string CorrelationId { get; init; } = ValidateRequired(CorrelationId);
 
     /// <summary>
-    /// Gets the committed timestamp for the public contract.
+    /// Gets the timestamp for the persisted conversation fact.
     /// </summary>
-    public DateTimeOffset CommittedAt { get; } = ValidateTimestamp(CommittedAt);
+    public DateTimeOffset OccurredAt { get; init; } = ValidateTimestamp(OccurredAt);
 
     /// <summary>
     /// Gets the stable actor Party reference.
     /// </summary>
-    public PartyId ActorPartyId { get; } = RequireNonNull(ActorPartyId, nameof(ActorPartyId));
+    public PartyId ActorPartyId { get; init; } = RequireNonNull(ActorPartyId, nameof(ActorPartyId));
+
+    /// <summary>
+    /// Gets the optional causation identifier.
+    /// </summary>
+    public string? CausationId { get; init; } = CausationId;
+
+    /// <summary>
+    /// Gets the stable default deduplication key for at-least-once publication consumers.
+    /// </summary>
+    public string DeduplicationKey
+        => FormattableString.Invariant($"tenant:{TenantId.Value}|conv:{ConversationId.Value}|{EventId}|{SchemaVersion.Value}");
+
+    /// <summary>
+    /// Gets the legacy source-compatible alias for the public occurrence timestamp.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public DateTimeOffset CommittedAt => OccurredAt;
 
     private static string ValidateRequired(string value)
     {

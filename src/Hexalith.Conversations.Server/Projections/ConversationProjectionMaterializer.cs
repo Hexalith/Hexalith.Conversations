@@ -326,6 +326,9 @@ public sealed class ConversationProjectionMaterializer
                 case ConversationArchived:
                     _lifecycleState = ArchivedState;
                     break;
+                case ConversationLifecycleChanged lifecycle:
+                    Apply(lifecycle);
+                    break;
                 default:
                     HasOutOfOrderEvent = true;
                     break;
@@ -342,6 +345,7 @@ public sealed class ConversationProjectionMaterializer
                 ConversationMetadataUpdated update => update.Metadata,
                 ConversationClosed closed => closed.Metadata,
                 ConversationArchived archived => archived.Metadata,
+                ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
                 _ => null,
             };
 
@@ -431,6 +435,11 @@ public sealed class ConversationProjectionMaterializer
             {
                 _attributes[attribute.Key] = attribute.Value;
             }
+        }
+
+        private void Apply(ConversationLifecycleChanged e)
+        {
+            _lifecycleState = e.CurrentState.Value;
         }
     }
 }

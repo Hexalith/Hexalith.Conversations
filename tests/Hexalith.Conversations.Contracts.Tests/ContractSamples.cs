@@ -80,6 +80,17 @@ internal static class ContractSamples
         Actor,
         "causation-001");
 
+    internal static readonly ConversationEventMetadata LifecycleChangedEventMetadata = new(
+        Version,
+        "event-lifecycle-001",
+        ConversationEventType.ConversationLifecycleChanged,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
+
     internal static readonly ProjectionFreshness Freshness = new(
         ProjectionTrustState.Current,
         new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
@@ -108,6 +119,7 @@ internal static class ContractSamples
         new UnsupportedSchemaVersion(new SchemaVersion(2), Version, Version),
         ConversationCommandType.CreateConversationCommand,
         ConversationEventType.ConversationCreated,
+        ConversationLifecycleStatus.Open,
         ParticipantType.Human,
         ParticipantRole.Member,
         ConversationErrorCode.TenantIsolationViolation,
@@ -137,6 +149,11 @@ internal static class ContractSamples
         new ConversationMetadataUpdated(EventMetadata, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
         new ConversationClosed(EventMetadata, "resolved"),
         new ConversationArchived(EventMetadata, "retained"),
+        new ConversationLifecycleChanged(
+            LifecycleChangedEventMetadata,
+            ConversationLifecycleStatus.Open,
+            ConversationLifecycleStatus.Closed,
+            "resolved"),
         ProjectionTrustState.Current,
         ProjectionFreshnessReasonCode.Current,
         Freshness,

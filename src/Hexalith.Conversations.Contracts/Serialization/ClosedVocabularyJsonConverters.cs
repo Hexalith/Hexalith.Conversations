@@ -38,6 +38,13 @@ internal sealed class ConversationEventTypeJsonConverter : ConversationStringVal
     protected override string GetValue(ConversationEventType value) => value.Value;
 }
 
+internal sealed class ConversationLifecycleStatusJsonConverter : ConversationStringValueJsonConverter<ConversationLifecycleStatus>
+{
+    protected override ConversationLifecycleStatus Create(string value) => ConversationLifecycleStatus.Parse(value);
+
+    protected override string GetValue(ConversationLifecycleStatus value) => value.Value;
+}
+
 internal sealed class ParticipantTypeJsonConverter : ConversationStringValueJsonConverter<ParticipantType>
 {
     protected override ParticipantType Create(string value) => ParticipantType.Parse(value);

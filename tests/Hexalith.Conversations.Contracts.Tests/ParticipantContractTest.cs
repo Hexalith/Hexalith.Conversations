@@ -94,7 +94,7 @@ public sealed class ParticipantContractTest
 
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":1,"eventId":"event-participant-001","eventType":"ParticipantAdded","tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party:party-actor","causationId":"causation-001"},"participantPartyId":"party:party-participant","participantType":"AIAgent","participantRole":"Facilitator"}
+            {"metadata":{"schemaVersion":1,"eventId":"event-participant-001","eventType":"ParticipantAdded","tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","occurredAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party:party-actor","causationId":"causation-001","deduplicationKey":"tenant:tenant-001|conv:conversation-001|event-participant-001|1"},"participantPartyId":"party:party-participant","participantType":"AIAgent","participantRole":"Facilitator"}
             """,
             added);
 

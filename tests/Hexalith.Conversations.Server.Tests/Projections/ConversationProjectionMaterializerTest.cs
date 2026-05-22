@@ -58,6 +58,31 @@ public sealed class ConversationProjectionMaterializerTest
     }
 
     /// <summary>
+    /// Bounded lifecycle-change events update projected state without relying on free-form lifecycle strings.
+    /// </summary>
+    [Fact]
+    public void LifecycleChangedEventShouldUpdateProjectedLifecycleState()
+    {
+        ConversationProjectedReadModels result = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, new ConversationLifecycleChanged(
+                    Metadata("event-lifecycle-001", ConversationEventType.ConversationLifecycleChanged, 2),
+                    ConversationLifecycleStatus.Open,
+                    ConversationLifecycleStatus.Closed,
+                    "resolved")),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        result.Summary.LifecycleState.ShouldBe("Closed");
+        result.Detail.LifecycleState.ShouldBe("Closed");
+        result.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+    }
+
+    /// <summary>
     /// Duplicate and replayed delivery is idempotent and rebuilds to the same read model.
     /// </summary>
     [Fact]

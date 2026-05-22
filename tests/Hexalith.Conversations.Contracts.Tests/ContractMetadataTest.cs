@@ -80,6 +80,7 @@ public sealed class ContractMetadataTest
             typeof(ConversationMetadataUpdated),
             typeof(ConversationClosed),
             typeof(ConversationArchived),
+            typeof(ConversationLifecycleChanged),
         ];
 
         foreach (Type eventType in eventTypes)
@@ -96,9 +97,11 @@ public sealed class ContractMetadataTest
                 "TenantId",
                 "ConversationId",
                 "CorrelationId",
-                "CommittedAt",
+                "OccurredAt",
                 "ActorPartyId",
                 "CausationId",
+                "DeduplicationKey",
+                "CommittedAt",
             ],
             ignoreOrder: true);
 
@@ -108,6 +111,8 @@ public sealed class ContractMetadataTest
         AssertNonNullableProperty<ConversationEventMetadata, TenantId>(nameof(ConversationEventMetadata.TenantId));
         AssertNonNullableProperty<ConversationEventMetadata, ConversationId>(nameof(ConversationEventMetadata.ConversationId));
         AssertNonNullableProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CorrelationId));
+        AssertNonNullableProperty<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.OccurredAt));
+        AssertNonNullableProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.DeduplicationKey));
         AssertNonNullableProperty<ConversationEventMetadata, DateTimeOffset>(nameof(ConversationEventMetadata.CommittedAt));
         AssertNonNullableProperty<ConversationEventMetadata, PartyId>(nameof(ConversationEventMetadata.ActorPartyId));
         AssertNullableReferenceProperty<ConversationEventMetadata, string>(nameof(ConversationEventMetadata.CausationId));

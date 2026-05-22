@@ -70,7 +70,7 @@ public sealed class ContractSerializationTest
 
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","committedAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party:party-actor","causationId":"causation-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
+            {"metadata":{"schemaVersion":1,"eventId":"event-001","eventType":"ConversationCreated","tenantId":"tenant:tenant-001","conversationId":"conv:conversation-001","correlationId":"correlation-001","occurredAt":"2026-05-18T11:00:00+00:00","actorPartyId":"party:party-actor","causationId":"causation-001","deduplicationKey":"tenant:tenant-001|conv:conversation-001|event-001|1"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"createdAt":"2026-05-18T11:00:00+00:00"}
             """,
             new ConversationCreated(
                 ContractSamples.EventMetadata,
