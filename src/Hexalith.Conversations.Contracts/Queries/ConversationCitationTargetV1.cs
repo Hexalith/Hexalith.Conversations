@@ -17,6 +17,22 @@ public sealed record ConversationCitationTargetV1(
     ConversationId ConversationId,
     string EvidenceEntryId)
 {
+    private const int MaxSafeTokenLength = 256;
+
+    private static readonly string[] UnsafeTokenTerms =
+    [
+        "eventstore",
+        "provider",
+        "snapshot",
+        "storage",
+        "stream",
+        "offset",
+        "selectedtext",
+        "browsertitle",
+        "clipboardselection",
+        "secret",
+    ];
+
     public SchemaVersion SchemaVersion { get; } = SchemaVersion ?? throw new ArgumentNullException(nameof(SchemaVersion));
 
     public TenantId TenantId { get; } = TenantId ?? throw new ArgumentNullException(nameof(TenantId));
@@ -28,9 +44,25 @@ public sealed record ConversationCitationTargetV1(
     internal static string ValidateSafeToken(string value, string parameterName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
-        return value.Any(c => !IsSafeTokenCharacter(c))
-            ? throw new ArgumentException("Citation target contains unsupported characters.", parameterName)
-            : value;
+        if (value.Length > MaxSafeTokenLength)
+        {
+            throw new ArgumentException("Citation target exceeds the safe identifier length.", parameterName);
+        }
+
+        if (value.Any(c => !IsSafeTokenCharacter(c)))
+        {
+            throw new ArgumentException("Citation target contains unsupported characters.", parameterName);
+        }
+
+        foreach (string term in UnsafeTokenTerms)
+        {
+            if (value.Contains(term, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Citation target contains reserved disclosure vocabulary.", parameterName);
+            }
+        }
+
+        return value;
     }
 
     private static bool IsSafeTokenCharacter(char value)

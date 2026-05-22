@@ -33,7 +33,7 @@ public sealed class ConversationCitationContractTest
             ContractSamples.AuditEvidence,
             ContractSamples.FreshnessV1.ProjectionCursor,
             ContractSamples.FreshnessV1.LastAppliedEventPosition,
-            "temporal:v1:pos:42",
+            "temporal:v1:pos:0000000042:projection:0000000042",
             "Conversation evidence message:message-001 at 2026-05-18T11:00:00.0000000+00:00.",
             "Message evidence citation",
             "Copy message evidence citation",
@@ -79,4 +79,48 @@ public sealed class ConversationCitationContractTest
         json.ShouldNotContain("conversation-001", Case.Insensitive);
         json.ShouldNotContain("tenant-001", Case.Insensitive);
     }
+
+    [Theory]
+    [InlineData("safeCopiedText", "raw exception from provider payload")]
+    [InlineData("safeLabel", "browser selected text")]
+    [InlineData("safeAccessibilityLabel", "original message display name")]
+    [InlineData("evidenceKind", "EventStore stream")]
+    public void CitationDtoShouldRejectForbiddenDisclosureVocabulary(string field, string unsafeValue)
+    {
+        Should.Throw<ArgumentException>(() => CitationWith(field, unsafeValue));
+    }
+
+    [Theory]
+    [InlineData("eventstore:stream-001")]
+    [InlineData("provider:payload-001")]
+    [InlineData("message bad")]
+    public void CitationTargetShouldRejectUnsafeEvidenceEntryIds(string evidenceEntryId)
+    {
+        Should.Throw<ArgumentException>(() => new ConversationCitationTargetV1(
+            ContractSamples.Version,
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            evidenceEntryId));
+    }
+
+    private static ConversationCitationV1 CitationWith(string field, string value)
+        => new(
+            ContractSamples.Version,
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            "message:message-001",
+            field == "evidenceKind" ? value : "Message",
+            ContractSamples.EventMetadata.CommittedAt,
+            ProjectionTrustState.Current,
+            ConversationCitationAvailability.Available,
+            ConversationAuditReadinessState.Ready,
+            ContractSamples.Actor,
+            ContractSamples.AuditEvidence,
+            ContractSamples.FreshnessV1.ProjectionCursor,
+            ContractSamples.FreshnessV1.LastAppliedEventPosition,
+            "temporal:v1:pos:0000000042:projection:0000000042",
+            field == "safeCopiedText" ? value : "citation=conv:conversation-001/message:message-001; tenant=tenant:tenant-001",
+            field == "safeLabel" ? value : "Message evidence citation",
+            field == "safeAccessibilityLabel" ? value : "Copy message evidence citation",
+            field == "safeNextAction" ? value : "Open stable temporal evidence link.");
 }

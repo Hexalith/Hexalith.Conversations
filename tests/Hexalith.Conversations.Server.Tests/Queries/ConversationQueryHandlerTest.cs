@@ -388,6 +388,36 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// Citation links with source positions beyond the current projection cursor are treated as incomplete evidence.
+    /// </summary>
+    [Fact]
+    public async Task CitationWithFutureSourcePositionShouldNotReturnTrustedTemporalCursor()
+    {
+        ConversationQueryHandler handler = CreateHandler(
+            AllowedAccess(),
+            new FakeProjectionReadStore
+            {
+                Models = new ConversationProjectedReadModels(
+                    Summary(Tenant, Conversation, Business, Project, Folder, Participant),
+                    DetailWithCitation(Tenant, Conversation, safeSourcePosition: 99)),
+            });
+
+        ConversationCitationResult result = await handler.GetCitationAsync(
+            new GetConversationCitationQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Conversation,
+                "message:message-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.GapDetected);
+        result.Citation.ShouldBeNull();
+    }
+
+    /// <summary>
     /// The privileged-action review entry point delegates to the governed review boundary.
     /// </summary>
     [Fact]
@@ -1463,7 +1493,8 @@ public sealed class ConversationQueryHandlerTest
         ConversationId conversationId,
         bool includeAuditEvidence = true,
         ProjectionTrustState? freshnessState = null,
-        ProjectionFreshnessReasonCode? reason = null)
+        ProjectionFreshnessReasonCode? reason = null,
+        long? safeSourcePosition = null)
     {
         ProjectionFreshnessV1 freshness = Freshness(
             "pos:0000000001",
@@ -1520,7 +1551,8 @@ public sealed class ConversationQueryHandlerTest
                     AuditEvidence: auditEvidence,
                     SafeSummaryLabel: "Message evidence citation",
                     SafeAccessibilityLabel: "Copy message evidence citation",
-                    SafeNextAction: "Open stable temporal evidence link."),
+                    SafeNextAction: "Open stable temporal evidence link.",
+                    SafeSourcePosition: safeSourcePosition),
             ]);
     }
 

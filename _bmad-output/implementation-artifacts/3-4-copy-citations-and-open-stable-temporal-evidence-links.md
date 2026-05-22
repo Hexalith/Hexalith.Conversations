@@ -260,10 +260,10 @@ GPT-5 Codex
 
 ### Debug Log References
 
-- 2026-05-22: Focused contracts lane passed: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~TemporalReconstruction|FullyQualifiedName~ForbiddenPublicSurfaceTest"` (30 passed).
-- 2026-05-22: Focused server/API lane passed: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationTemporalReconstructionServiceTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` (72 passed).
+- 2026-05-22: Focused contracts lane passed: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~TemporalReconstruction|FullyQualifiedName~ForbiddenPublicSurfaceTest"` (37 passed after review fixes).
+- 2026-05-22: Focused server/API lane passed: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationTemporalReconstructionServiceTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` (74 passed after review fixes).
 - 2026-05-22: Projection/audit/read regression lane passed: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationProjectionReadServiceTest|FullyQualifiedName~ConversationAuditRecordAccessServiceTest|FullyQualifiedName~TenantAccess|FullyQualifiedName~Hydration"` (183 passed).
-- 2026-05-22: Full regression passed: `dotnet test Hexalith.Conversations.slnx` (678 passed).
+- 2026-05-22: Full regression passed: `dotnet test Hexalith.Conversations.slnx` (687 passed after review fixes).
 
 ### Completion Notes List
 
@@ -292,13 +292,16 @@ Approved after automatic fix.
 
 - [x] HIGH: Contract cursors with a mismatched `projection` segment were parsed by position only, allowing a stale or conflicting composite cursor to resolve instead of failing closed. Fixed `ConversationTemporalReconstructionService` to parse strict contract cursor shapes and compare supplied projection version with current projection freshness before reading temporal evidence.
 - [x] MEDIUM: API cursor preflight accepted malformed projection segments because it only searched for a `pos` token. Tightened `ConversationReadApi` temporal cursor parsing so malformed projection cursor forms return the hidden shape without projection reads.
+- [x] HIGH: Citation DTO safe text fields accepted forbidden disclosure vocabulary such as raw exception/provider/browser-selected terms at construction time. Tightened `ConversationCitationV1` validation and added contract tests so unsafe copied text, labels, accessibility labels, and evidence kinds cannot be constructed.
+- [x] HIGH: Citation target evidence IDs accepted reserved substrate/client vocabulary such as EventStore/provider/storage/browser-selection terms. Tightened `ConversationCitationTargetV1` token validation and added contract tests for unsafe target rejection.
+- [x] MEDIUM: Citation resolution could build a temporal cursor from an evidence entry whose safe source position was beyond the current projection version. Added a fail-closed gap check in `ConversationCitationAccessService` and regression coverage so broken temporal evidence returns rebuilding without a trusted citation DTO.
 
 ### Validation
 
-- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~TemporalReconstruction|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 30 passed.
-- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationTemporalReconstructionServiceTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` - 72 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationEvidence|FullyQualifiedName~TemporalReconstruction|FullyQualifiedName~ForbiddenPublicSurfaceTest"` - 37 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationCitation|FullyQualifiedName~ConversationTemporalReconstructionServiceTest|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest"` - 74 passed.
 - [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~ConversationProjectionMaterializerTest|FullyQualifiedName~ConversationProjectionReadServiceTest|FullyQualifiedName~ConversationAuditRecordAccessServiceTest|FullyQualifiedName~TenantAccess|FullyQualifiedName~Hydration"` - 183 passed.
-- [x] `dotnet test Hexalith.Conversations.slnx` - 678 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 687 passed.
 
 ### Checklist
 
@@ -313,22 +316,17 @@ Approved after automatic fix.
 - `_bmad-output/implementation-artifacts/3-4-copy-citations-and-open-stable-temporal-evidence-links.md`
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
 - `_bmad-output/implementation-artifacts/tests/test-summary.md`
-- `src/Hexalith.Conversations.Contracts/Queries/ConversationCitationResult.cs`
 - `src/Hexalith.Conversations.Contracts/Queries/ConversationCitationTargetV1.cs`
 - `src/Hexalith.Conversations.Contracts/Queries/ConversationCitationV1.cs`
-- `src/Hexalith.Conversations.Contracts/Queries/ConversationEvidenceEntryV1.cs`
 - `src/Hexalith.Conversations.Contracts/Queries/ConversationTemporalAnchorV1.cs`
-- `src/Hexalith.Conversations.Contracts/Queries/GetConversationCitationQuery.cs`
 - `src/Hexalith.Conversations.Server/Api/ConversationReadApi.cs`
 - `src/Hexalith.Conversations.Server/Queries/ConversationCitationAccessService.cs`
-- `src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs`
 - `src/Hexalith.Conversations.Server/Queries/ConversationTemporalReconstructionService.cs`
 - `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs`
 - `tests/Hexalith.Conversations.Contracts.Tests/ConversationCitationContractTest.cs`
 - `tests/Hexalith.Conversations.Contracts.Tests/TemporalReconstructionContractTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs`
 - `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs`
-- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationTemporalReconstructionServiceTest.cs`
 
 ## Story Context Validation
 
@@ -353,4 +351,5 @@ Approved after automatic fix.
 
 - 2026-05-22: Implemented Story 3.4 citation DTO/query/service/API and composite temporal anchor behavior; added focused contract/server/API/regression tests; moved story and sprint status to review.
 - 2026-05-22: Senior Developer Review fixed strict temporal projection-cursor validation, added regression coverage, and moved story/sprint status to done.
+- 2026-05-22: Story automator review follow-up tightened citation DTO/target disclosure validation, blocked future-position citation cursors, added regression tests, and revalidated focused/full test lanes.
 - 2026-05-22: Created Story 3.4 context from Epic 3 requirements, PRD/architecture/UX/readiness/project context, previous Story 3.2/3.3 learnings, current citation/temporal/read API implementation, recent git history, official Microsoft documentation, and MDN Clipboard API documentation.

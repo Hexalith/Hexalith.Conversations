@@ -31,7 +31,7 @@ public sealed class TemporalReconstructionContractTest
             ConversationTemporalAnchorV1.CompositeCursorKind,
             SafeSourcePosition: 42,
             ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
-            ContractCursor: "temporal:v1:pos:42",
+            ContractCursor: "temporal:v1:pos:0000000042:projection:0000000042",
             ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition,
             SupportingTimestamp: ContractSamples.EventMetadata.CommittedAt);
         ConversationTemporalConfidenceV1 confidence = new(
@@ -130,9 +130,9 @@ public sealed class TemporalReconstructionContractTest
                 ContractSamples.Conversation,
                 kind,
                 SafeSourcePosition: 7,
-                ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
-                ContractCursor: "temporal:v1:pos:0000000007",
-                ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition,
+                ProjectionCursor: "pos:0000000007",
+                ContractCursor: "temporal:v1:pos:0000000007:projection:0000000007",
+                ProjectionVersion: 7,
                 SupportingTimestamp: ContractSamples.EventMetadata.CommittedAt),
             _ => throw new ArgumentOutOfRangeException(nameof(kind), kind, "Unsupported test row."),
         };
@@ -167,6 +167,26 @@ public sealed class TemporalReconstructionContractTest
             ProjectionCursor: ContractSamples.FreshnessV1.ProjectionCursor,
             ContractCursor: "temporal:v1:pos:0000000008",
             ProjectionVersion: ContractSamples.FreshnessV1.LastAppliedEventPosition));
+
+        Should.Throw<ArgumentException>(() => new ConversationTemporalAnchorV1(
+            ContractSamples.Version,
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            ConversationTemporalAnchorV1.CompositeCursorKind,
+            SafeSourcePosition: 7,
+            ProjectionCursor: "pos:0000000007",
+            ContractCursor: "temporal:v1:pos:0000000007",
+            ProjectionVersion: 7));
+
+        Should.Throw<ArgumentException>(() => new ConversationTemporalAnchorV1(
+            ContractSamples.Version,
+            ContractSamples.Tenant,
+            ContractSamples.Conversation,
+            ConversationTemporalAnchorV1.CompositeCursorKind,
+            SafeSourcePosition: 7,
+            ProjectionCursor: "pos:0000000008",
+            ContractCursor: "temporal:v1:pos:0000000007:projection:0000000008",
+            ProjectionVersion: 9));
     }
 
     [Fact]

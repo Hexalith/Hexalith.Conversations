@@ -329,6 +329,28 @@ public sealed class ConversationReadApiTest
     }
 
     [Fact]
+    public async Task TemporalBarePositionCursorShouldReturnHiddenShapeWithoutProjectionRead()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+        using WebApplication app = BuildApp(access, store);
+
+        ApiResponse response = await InvokeAsync(app, "/api/v1/conversations/{conversationId}/temporal",
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            queryString: "?cursor=temporal:v1:pos:0000000001",
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status404NotFound);
+        response.Body.ShouldContain("\"freshnessState\":\"Forbidden\"");
+        response.Body.ShouldNotContain("temporal:v1:pos:0000000001", Case.Insensitive);
+        access.Calls.ShouldBe(0);
+        store.DetailReads.ShouldBe(0);
+    }
+
+    [Fact]
     public async Task AuditRecordMalformedHandleShouldReturnHiddenShape()
     {
         FakeTenantAccessService access = AllowedAccess();

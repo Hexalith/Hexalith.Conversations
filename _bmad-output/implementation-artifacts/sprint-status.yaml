@@ -1,5 +1,5 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-22T17:51:41+02:00
+# last_updated: 2026-05-22T18:05:55+02:00
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-22T17:51:41+02:00
+last_updated: 2026-05-22T18:05:55+02:00
 project: Hexalith.Conversations
 project_key: NOKEY
 tracking_system: file-system

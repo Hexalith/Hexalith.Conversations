@@ -140,7 +140,8 @@ public static class ConversationReadApi
             return HiddenTemporal();
         }
 
-        if (!TryGet(context.Request.Query, "cursor", out string? cursor) || !TryParseTemporalCursor(cursor, out _))
+        if (!TryGet(context.Request.Query, "cursor", out string? cursor)
+            || !TryParseTemporalCursor(cursor, out TemporalCursorParts cursorParts))
         {
             return HiddenTemporal();
         }
@@ -160,8 +161,11 @@ public static class ConversationReadApi
                         SchemaVersion.Current,
                         tenantId!,
                         parsedConversationId,
-                        ConversationTemporalAnchorV1.ContractCursorKind,
-                        ContractCursor: cursor)),
+                        ConversationTemporalAnchorV1.CompositeCursorKind,
+                        SafeSourcePosition: cursorParts.SourcePosition,
+                        ProjectionCursor: FormatProjectionCursor(cursorParts.ProjectionVersion),
+                        ContractCursor: cursor,
+                        ProjectionVersion: cursorParts.ProjectionVersion)),
                 cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -488,9 +492,9 @@ public static class ConversationReadApi
             : throw new ArgumentException("Invalid date filter.", key);
     }
 
-    private static bool TryParseTemporalCursor(string value, out long position)
+    private static bool TryParseTemporalCursor(string value, out TemporalCursorParts cursorParts)
     {
-        position = 0;
+        cursorParts = default;
         if (string.IsNullOrWhiteSpace(value)
             || !value.StartsWith("temporal:v1:", StringComparison.Ordinal)
             || value.Any(c => !(char.IsAsciiLetterOrDigit(c) || c is ':' or '-' or '_' or '.')))
@@ -499,25 +503,25 @@ public static class ConversationReadApi
         }
 
         string[] parts = value.Split(':', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length is not (4 or 6)
+        if (parts.Length != 6
             || !string.Equals(parts[0], "temporal", StringComparison.Ordinal)
             || !string.Equals(parts[1], "v1", StringComparison.Ordinal)
             || !string.Equals(parts[2], "pos", StringComparison.Ordinal)
             || !long.TryParse(parts[3], NumberStyles.Integer, CultureInfo.InvariantCulture, out long parsed)
-            || parsed < 1)
+            || parsed < 1
+            || !string.Equals(parts[4], "projection", StringComparison.Ordinal)
+            || !long.TryParse(parts[5], NumberStyles.Integer, CultureInfo.InvariantCulture, out long projectionVersion)
+            || projectionVersion < 1)
         {
             return false;
         }
 
-        if (parts.Length == 6
-            && (!string.Equals(parts[4], "projection", StringComparison.Ordinal)
-                || !long.TryParse(parts[5], NumberStyles.Integer, CultureInfo.InvariantCulture, out long projectionVersion)
-                || projectionVersion < 1))
-        {
-            return false;
-        }
-
-        position = parsed;
+        cursorParts = new TemporalCursorParts(parsed, projectionVersion);
         return true;
     }
+
+    private static string FormatProjectionCursor(long position)
+        => $"pos:{position.ToString("D10", CultureInfo.InvariantCulture)}";
+
+    private readonly record struct TemporalCursorParts(long SourcePosition, long ProjectionVersion);
 }

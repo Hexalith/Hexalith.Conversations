@@ -51,6 +51,12 @@ public sealed class ConversationCitationAccessService(ConversationProjectionRead
             return ConversationCitationResult.Hidden(query.SchemaVersion);
         }
 
+        if (entry.SafeSourcePosition is long safeSourcePosition
+            && safeSourcePosition > result.Projection.Freshness.LastAppliedEventPosition)
+        {
+            return ConversationCitationResult.Rebuilding(query.SchemaVersion, ProjectionFreshnessReasonCode.GapDetected);
+        }
+
         ConversationCitationV1 citation = BuildCitation(query, result.Projection, entry);
         return ConversationCitationResult.Visible(
             query.SchemaVersion,

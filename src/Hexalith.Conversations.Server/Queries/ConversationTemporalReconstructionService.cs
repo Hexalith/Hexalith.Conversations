@@ -285,7 +285,7 @@ public sealed class ConversationTemporalReconstructionService
             || !string.Equals(parts[0], "temporal", StringComparison.Ordinal)
             || !string.Equals(parts[1], "v1", StringComparison.Ordinal)
             || !string.Equals(parts[2], "pos", StringComparison.Ordinal)
-            || !long.TryParse(parts[3], out long position)
+            || !long.TryParse(parts[3], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out long position)
             || position < 1)
         {
             return false;
@@ -293,13 +293,18 @@ public sealed class ConversationTemporalReconstructionService
 
         requestedPosition = position;
 
+        if (anchorKind == ConversationTemporalAnchorV1.CompositeCursorKind && parts.Length != 6)
+        {
+            return false;
+        }
+
         if (parts.Length == 4)
         {
             return true;
         }
 
         if (!string.Equals(parts[4], "projection", StringComparison.Ordinal)
-            || !long.TryParse(parts[5], out long projectionVersion)
+            || !long.TryParse(parts[5], System.Globalization.NumberStyles.Integer, System.Globalization.CultureInfo.InvariantCulture, out long projectionVersion)
             || projectionVersion < 1)
         {
             return false;

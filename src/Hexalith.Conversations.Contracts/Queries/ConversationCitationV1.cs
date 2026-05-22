@@ -33,6 +33,37 @@ public sealed record ConversationCitationV1(
     string SafeAccessibilityLabel,
     string SafeNextAction)
 {
+    private const int MaxSafeCitationTextLength = 2048;
+
+    private static readonly string[] UnsafeCitationTerms =
+    [
+        "eventstore",
+        "provider payload",
+        "provider correlation",
+        "provider session",
+        "snapshot",
+        "storage offset",
+        "storage location",
+        "raw exception",
+        "raw message",
+        "original message",
+        "displayname",
+        "display name",
+        "selectedtext",
+        "selected text",
+        "browser-selected",
+        "browsertitle",
+        "browser title",
+        "clipboardselection",
+        "rendered-text-only",
+        "rendered text",
+        "hidden field",
+        "localstorage",
+        "sessionstorage",
+        "personal data",
+        "secret",
+    ];
+
     public SchemaVersion SchemaVersion { get; } = SchemaVersion ?? throw new ArgumentNullException(nameof(SchemaVersion));
 
     public TenantId TenantId { get; } = TenantId ?? throw new ArgumentNullException(nameof(TenantId));
@@ -88,6 +119,24 @@ public sealed record ConversationCitationV1(
     private static string ValidateSafeText(string value, string parameterName)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(value, parameterName);
+        if (value.Length > MaxSafeCitationTextLength)
+        {
+            throw new ArgumentException("Citation text exceeds the safe bounded length.", parameterName);
+        }
+
+        if (value.Any(char.IsControl))
+        {
+            throw new ArgumentException("Citation text cannot contain control characters.", parameterName);
+        }
+
+        foreach (string term in UnsafeCitationTerms)
+        {
+            if (value.Contains(term, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new ArgumentException("Citation text contains reserved disclosure vocabulary.", parameterName);
+            }
+        }
+
         return value;
     }
 
