@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "1",
+  "title": "Hexalith.Conversations Conformance Manifest Schema",
+  "description": "Structured specification for the versioned release-specific conformance manifest. Each entry maps one conformance test to a functional or non-functional requirement, carry-forward commitment, release-gate status, pass criteria, waiver status, measurement method, environment, and evidence artifact. This document is navigable by non-developer release approvers without requiring log or system access.",
+  "fields": [
+    {
+      "name": "testId",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Stable bounded machine-readable identifier for the conformance test. Must use only alphanumeric characters, hyphens, underscores, and dots. Maximum 128 characters."
+    },
+    {
+      "name": "testName",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded human-readable name for the test. Maximum 512 characters. No control characters or protected identifiers."
+    },
+    {
+      "name": "requirementId",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "The functional or non-functional requirement identifier this test verifies (e.g., FR83, NFR63). Must be a bounded machine-readable token."
+    },
+    {
+      "name": "carryForwardCommitmentRef",
+      "type": "string (safe-token) or null",
+      "required": false,
+      "validation": "optional-safe-token",
+      "description": "Optional bounded reference to a carry-forward commitment this test satisfies. Null when not applicable."
+    },
+    {
+      "name": "releaseGateId",
+      "type": "string (closed-vocabulary) or null",
+      "required": false,
+      "validation": "closed-vocabulary or null",
+      "description": "Optional release gate this test contributes to. One of: tenant-isolation, audit-integrity, redaction-non-leakage, unsupported-schema-rejection, projection-rebuild-determinism, contract-compatibility, provider-portability. Null when the test is not gate-specific."
+    },
+    {
+      "name": "passCriteria",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded human-readable description of what constitutes a passing result for this test. Maximum 512 characters."
+    },
+    {
+      "name": "releaseDecisionStatus",
+      "type": "string (closed-vocabulary)",
+      "required": true,
+      "validation": "closed-vocabulary",
+      "description": "Current release decision for this test entry. One of: pass, fail, waived, unknown-accepted. When waived, waiverReference must be present (enforced by validation)."
+    },
+    {
+      "name": "waiverReference",
+      "type": "string (safe-token) or null",
+      "required": false,
+      "validation": "optional-safe-token; required-by-validator when releaseDecisionStatus is waived",
+      "description": "Optional bounded waiver reference. Must be present when releaseDecisionStatus is waived; ValidateManifest returns missing-waiver-reference otherwise."
+    },
+    {
+      "name": "measurementMethod",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded description of how this test result is measured or produced (e.g., automated-doc-validation-test, automated-generation-test)."
+    },
+    {
+      "name": "environment",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Bounded descriptor of the environment in which the test was executed (e.g., local-ci, staging-env)."
+    },
+    {
+      "name": "evidenceArtifactHandle",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Bounded machine-readable handle for the evidence artifact that supports this test entry."
+    },
+    {
+      "name": "owner",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Bounded identifier for the owner responsible for this test entry and its evidence."
+    },
+    {
+      "name": "lifecycleStage",
+      "type": "string (closed-vocabulary)",
+      "required": true,
+      "validation": "closed-vocabulary",
+      "description": "The lifecycle stage of the conformance activity. One of: design-review, automated-test, load-performance-test, operational-drill, release-evidence, accessibility-validation."
+    },
+    {
+      "name": "registeredAtUtc",
+      "type": "DateTimeOffset (UTC)",
+      "required": true,
+      "validation": "utc-timestamp",
+      "description": "UTC timestamp when this test entry was registered in the manifest. Offset must be zero."
+    }
+  ],
+  "validationRules": [
+    {
+      "ruleName": "no-duplicate-test-ids",
+      "description": "Each testId must appear at most once in the manifest entries. Duplicate testId values indicate either a data entry error or a missing versioned entry.",
+      "errorToken": "duplicate-test-id"
+    },
+    {
+      "ruleName": "waived-requires-waiver-reference",
+      "description": "When releaseDecisionStatus is waived, the waiverReference field must be non-null. An entry claiming waived status without a waiver reference is incomplete and cannot be accepted.",
+      "errorToken": "missing-waiver-reference"
+    }
+  ],
+  "exampleRow": {
+    "testId": "story-5-1-compatibility-policy-publication",
+    "testName": "Contract compatibility policy document publication and validation",
+    "requirementId": "FR81",
+    "carryForwardCommitmentRef": null,
+    "releaseGateId": null,
+    "passCriteria": "Policy document exists and validation tests pass",
+    "releaseDecisionStatus": "pass",
+    "waiverReference": null,
+    "measurementMethod": "automated-doc-validation-test",
+    "environment": "local-ci",
+    "evidenceArtifactHandle": "contract-compatibility-policy",
+    "owner": "release-engineer",
+    "lifecycleStage": "release-evidence",
+    "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+  }
+}

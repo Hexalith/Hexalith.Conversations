@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "manifestVersion": "v1-fixture",
+  "releaseReference": "local-test-release",
+  "generatedAtUtc": "2026-05-23T00:00:00+00:00",
+  "entries": [
+    {
+      "testId": "story-5-1-compatibility-policy-publication",
+      "testName": "Contract compatibility policy document publication and validation",
+      "requirementId": "FR81",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Policy document exists and validation tests pass",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-doc-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "contract-compatibility-policy",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-2-release-conformance-artifact",
+      "testName": "Release conformance artifact generation and validation",
+      "requirementId": "FR82",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Conformance artifact exists validates with zero errors and contains all 7 gate IDs",
+      "releaseDecisionStatus": "unknown-accepted",
+      "waiverReference": null,
+      "measurementMethod": "automated-generation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "release-conformance-artifact-v1-fixture",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-3-conformance-manifest-schema",
+      "testName": "Versioned conformance manifest schema definition and fixture validation",
+      "requirementId": "FR83",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Manifest fixture exists validates with zero diagnostics and covers FR83 FR84 and NFR63",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-manifest-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "conformance-manifest-v1-fixture",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    }
+  ],
+  "changeLog": []
+}

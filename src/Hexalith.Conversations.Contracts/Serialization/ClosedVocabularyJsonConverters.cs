@@ -342,3 +342,11 @@ internal sealed class ReleaseGateIdJsonConverter :
 
     protected override string GetValue(ReleaseGateId value) => value.Value;
 }
+
+internal sealed class ConformanceManifestLifecycleStageJsonConverter :
+    ConversationStringValueJsonConverter<ConformanceManifestLifecycleStage>
+{
+    protected override ConformanceManifestLifecycleStage Create(string value) => ConformanceManifestLifecycleStage.Parse(value);
+
+    protected override string GetValue(ConformanceManifestLifecycleStage value) => value.Value;
+}

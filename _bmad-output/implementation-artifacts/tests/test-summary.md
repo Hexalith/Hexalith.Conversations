@@ -1,5 +1,31 @@
 # Test Automation Summary
 
+## Story 5.3 Maintain Versioned Conformance Manifest with Traceability
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/ConformanceManifestContractTest.cs` - 41 contract tests covering `ConformanceManifestLifecycleStage` closed-vocabulary completeness (6 NFR1 values), JSON rejection of synonyms (test, testing, design, ops, review, load-test), `Parse` round-trips, `ConformanceManifestRowV1` construction-time validation (null/empty test ID, empty test name/requirement/pass-criteria/evidence/owner/environment, null lifecycle stage, non-UTC timestamp, unsafe free-text), null `ReleaseGateId` accepted, null `WaiverReference` accepted at construction, `ConformanceManifestChangeV1` construction-time validation (null change ID, empty summary, empty affected IDs, non-UTC timestamp, empty changed-by), `ConformanceManifestV1` construction-time validation (null schema version, empty manifest version/release reference, empty entries, null entry in list, null change-log), `ConformanceManifestValidator.ValidateManifest` returns errors for duplicate test IDs and waived-without-waiver, stable camelCase web JSON, round-trip, additive tolerance, fixture file existence/deserialization/zero-diagnostics/3-entry minimum/content-safety.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceManifestValidationTest.cs` - 6 validation tests covering fixture passes `ValidateManifest` with zero errors, duplicate test ID returns `duplicate-test-id`, waived entry without waiver reference returns `missing-waiver-reference`, fixture entries pass content-safety scan, stable camelCase JSON and deterministic round-trip, `ConformanceManifestLifecycleStage.All` returns exactly 6 stages matching NFR1.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - registered `ConformanceManifestLifecycleStage`, `ConformanceManifestRowV1`, `ConformanceManifestChangeV1`, and `ConformanceManifestV1` samples to extend serialization, forbidden-surface, and content-safety coverage automatically.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/ConformanceManifestV1.cs` - Defines `ConformanceManifestLifecycleStage` (6 NFR1 stages, sealed-record closed-vocabulary pattern), `ConformanceManifestRowV1` (sealed record, 14 validated fields), `ConformanceManifestChangeV1` (sealed record, version history entry), `ConformanceManifestV1` (sealed record, versioned manifest), and `ConformanceManifestValidator` (static class with `ValidateManifest` returning content-safe error tokens).
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` - Added `ConformanceManifestLifecycleStageJsonConverter` following the `ConversationStringValueJsonConverter<T>` pattern.
+- [x] `docs/release-evidence/manifest.schema.json` - Structured human-navigable JSON specification with field definitions, validation rules, and an example row; navigable by non-developer release approvers (NFR68).
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Synthetic deterministic fixture manifest with 3 entries (story-5-1, story-5-2, story-5-3), empty change-log, release-reference "local-test-release", manifest-version "v1-fixture".
+
+### Validation
+- [x] Targeted contract tests: `dotnet test tests/Hexalith.Conversations.Contracts.Tests --filter "FullyQualifiedName~ConformanceManifest|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization"` - 57 passed.
+- [x] Conformance validation tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests` - 43 passed (including 6 new Story 5.3 tests).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 43, Integration 8, Core 153, Server 428, Contracts 466 (1121 total).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: each manifest row maps to functional requirements, NFRs, carry-forward commitments, release-gate status, pass criteria, waiver status, measurement method, environment, and evidence artifact handle.
+- AC2: `ConformanceManifestChangeV1` preserves version history with affected requirement IDs; `ValidateManifest` flags stale/orphan entries (duplicate test IDs).
+- AC3: `ValidateManifest` returns content-safe typed error tokens for duplicate IDs, waived-without-reference; diagnostics are actionable and never expose protected identifiers.
+- AC4: each row carries requirement ID, gate status, evidence artifact handle, owner, lifecycle stage, release decision status, and conditional waiver reference; validation rejects entries lacking traceability.
+
 ## Story 5.2 Generate Signed Release Conformance Artifact
 
 ### Generated Tests
