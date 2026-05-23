@@ -8,7 +8,7 @@ This initial scaffold is intentionally non-operative. It establishes project bou
 
 The supported v1 integration path is a .NET client that shares `Hexalith.Conversations.Contracts` with adopter applications. Adopters should create commands and interpret results, projections, and typed errors through these shared contracts; raw EventStore knowledge is not required for normal integration.
 
-For the end-to-end adopter workflow, see the [Developer Integration Guide](docs/integration-guide.md).
+For the end-to-end adopter workflow, see the [Developer Integration Guide](docs/integration-guide.md). For release-owner compatibility rules, deprecation handling, and FR81 classification, see the [Contract Compatibility and Deprecation Policy](docs/release-evidence/contract-compatibility-policy.md).
 
 Identity has a strict taxonomy:
 

@@ -16,6 +16,8 @@ Use `ConversationContractCompatibility.Evaluate(...)` to evaluate adopter-suppli
 
 Compatibility failures use the same `ConversationError` shape as runtime command and client failures. Unsupported or invalid schema/package inputs return `schema_version_unsupported` with `versioning`, `use-supported-version`, a safe message, and the package documentation pointer.
 
+For release-owner additive-change, breaking-change, deprecation-window, minimum-version, unsupported-version, and FR81 classification rules, see the [Contract Compatibility and Deprecation Policy](../../docs/release-evidence/contract-compatibility-policy.md).
+
 ## Supported v1 Integration Path
 
 The supported v1 integration path is shared contracts plus the .NET client package. This package publishes the public DTOs and compatibility metadata. The client happy path is implemented separately, so this package does not define transport behavior, retries, onboarding diagnostics, or raw HTTP fallback examples.

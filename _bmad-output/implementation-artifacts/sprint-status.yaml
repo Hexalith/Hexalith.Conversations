@@ -86,8 +86,8 @@ development_status:
   4-6-capture-caller-metadata-for-attribution-audit-and-composition: done
   4-7-publish-developer-integration-guide-and-api-examples: done
   epic-4-retrospective: optional
-  epic-5: backlog
-  5-1-publish-contract-compatibility-and-deprecation-policy: backlog
+  epic-5: in-progress
+  5-1-publish-contract-compatibility-and-deprecation-policy: done
   5-2-generate-signed-release-conformance-artifact: backlog
   5-3-maintain-versioned-conformance-manifest-with-traceability: backlog
   5-4-support-named-waivers-for-release-gate-exceptions: backlog

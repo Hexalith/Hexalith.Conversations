@@ -1,5 +1,27 @@
 # Test Automation Summary
 
+## Story 5.1 Publish Contract Compatibility and Deprecation Policy
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Documentation/ContractCompatibilityPolicyValidationTest.cs` - Added deterministic FR81 policy validation for policy publication/linkage, public compatibility surface coverage, stable release-evidence classification IDs, metadata alignment with `ConversationContractCompatibility.Current`, compatibility evaluation scenarios, safe diagnostics, HTTPS documentation pointers, and policy content-safety scanning.
+
+### Implementation
+- [x] `docs/release-evidence/contract-compatibility-policy.md` - Published the FR81 compatibility and deprecation policy covering additive changes, breaking changes, deprecation/minimum-version rules, unsupported-version behavior, persisted-event versus public-contract boundaries, and Story 5.1 evidence boundaries without creating signed artifacts, manifests, waiver approvals, or release-gate decisions.
+- [x] `README.md`, `docs/integration-guide.md`, and `src/Hexalith.Conversations.Contracts/README.md` - Linked the policy from adopter-facing documentation without duplicating drift-prone metadata tables.
+
+### Validation
+- [x] Red phase: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~ContractCompatibility|FullyQualifiedName~CompatibilityPolicy|FullyQualifiedName~SchemaVersionCompatibility|FullyQualifiedName~IntegrationGuide"` - failed as expected before the policy existed: 4 policy validation tests failed on missing `docs/release-evidence/contract-compatibility-policy.md`.
+- [x] Targeted green phase: same command - 38 passed after publishing the policy, links, and validation test.
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 25, Integration 8, Core 153, Server 428, Contracts 395 (1032 total).
+- [x] No validation step used or required nested submodule initialization or `git submodule update --init --recursive`.
+
+### Coverage
+- AC1: policy covers commands, projections, published events, typed errors, version discovery, contracts package, .NET client package, additive/breaking rules, deprecation, minimum v1 support, unsupported behavior, remediation, and the persisted-event/public-contract distinction.
+- AC2: local release-evidence summary uses stable policy IDs and classifications `additive`, `breaking`, `deprecated`, `unsupported`, and `waiver-dependent` without creating Story 5.2-5.4 artifacts.
+- AC3: policy checks prove FR81 traceability, metadata alignment with current contract/package versions, supported/deprecated/unsupported/invalid/additive scenarios, and content-safe diagnostics.
+- No runtime tenant authorization, audit pairing, redaction replay, idempotency, projection freshness, event persistence, client transport behavior, public compatibility vocabulary, signed artifact, manifest, waiver, release-gate aggregation, CLI, DocFX site, durable store, worker, or UI surface was added.
+
 ## Story 4.7 Publish Developer Integration Guide and API Examples
 
 ### Generated Tests
