@@ -1,5 +1,26 @@
 # Test Automation Summary
 
+## Story 6.7 Publish Responsibility Boundary Documentation
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Documentation/ResponsibilityBoundaryValidationTest.cs` — 11 [Fact] tests: ResponsibilityBoundaryDocument_Exists_AtExpectedPath, ResponsibilityBoundaryDocument_ContainsAllRequiredSections, ResponsibilityBoundaryDocument_MentionsAll10AdjacentSystems, ResponsibilityBoundaryDocument_MentionsConversationsOwnedConcepts, ResponsibilityBoundaryDocument_MentionsBoundaryStructure, ResponsibilityBoundaryDocument_MentionsInheritedControls, ResponsibilityBoundaryDocument_MentionsRequirementFR104, ResponsibilityBoundaryDocument_RelatedLinksAreWellFormed, ResponsibilityBoundaryDocument_FreeTextPassesContentSafety, ResponsibilityBoundaryDocument_DoesNotClaimOwnershipOfAdjacentSystems, IntegrationGuide_LinksToResponsibilityBoundaries.
+
+### Implementation
+- [x] `docs/responsibility-boundaries.md` — New file: operator/buyer-evaluator/compliance-stakeholder boundary document with 6 required sections (Overview, What Conversations Owns, Responsibility Boundaries, Inherited Platform Controls, Requirement Mapping, Related Documentation) and all 10 FR104 adjacent-system boundaries (chatbot, LLM provider, legal-hold, attachment, identity, tenant lifecycle, project/folder, Party personal data, provider availability, Hexalith platform controls), each with Owner, Source of Truth, Failure Semantics, Evidence Obligation, and Handoff Path.
+- [x] `docs/integration-guide.md` — Added one cross-reference sentence in the "Responsibility Boundaries" section pointing to `responsibility-boundaries.md`.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` — Story 6.7 entry added (entry 17): testId=story-6-7-responsibility-boundary-documentation, requirementId=FR104, measurementMethod=automated-doc-validation-test, evidenceArtifactHandle=responsibility-boundary-document, releaseGateId=null.
+
+### Validation
+- [x] Targeted tests: `dotnet test ... --filter "FullyQualifiedName~ResponsibilityBoundary|FullyQualifiedName~IntegrationGuide"` — 18 passed (11 new + 7 pre-existing).
+- [x] Full Contracts suite: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/...` — 579 passed (568 baseline + 11 new).
+- [x] Full solution: all 1482 tests pass (23 Client + 216 Conformance + 8 Integration + 153 Core + 503 Server + 579 Contracts).
+- [x] `dotnet build Hexalith.Conversations.slnx` — 0 warnings, 0 errors.
+
+### Coverage
+- AC1: `docs/responsibility-boundaries.md` distinguishes Conversations responsibilities from all 10 adjacent systems: chatbot, LLM provider sessions, legal-hold authority, attachment storage, identity, tenant lifecycle, project/folder lifecycle, Party personal data, provider availability, and Hexalith platform controls. Each boundary names what Conversations does NOT own.
+- AC2: All 10 boundary sections carry Owner, Source of Truth, Failure Semantics, Evidence Obligation, and Handoff Path. Document does not claim Conversations owns data or authority delegated to EventStore, Tenants, Parties, Folders, FrontComposer, or provider systems.
+- AC3: `ResponsibilityBoundaryValidationTest.cs` validates structure (6 required sections), FR104 adjacent-system coverage (all 10), Conversations-owned concepts, boundary structure fields, inherited controls, and cross-reference from integration guide. Content-safety scan uses conservative forbidden list; ownership violation assertions prevent stale or contradictory ownership claims.
+
 ## Story 6.6 Track Second-Adopter Status and Downgrade-Rule Milestones
 
 ### Generated Tests

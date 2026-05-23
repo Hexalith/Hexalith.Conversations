@@ -243,6 +243,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-6-7-responsibility-boundary-documentation",
+      "testName": "Responsibility boundary documentation publication and validation",
+      "requirementId": "FR104",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Responsibility boundary document exists, contains all 10 adjacent-system boundaries, all 6 required sections, and all validation tests pass",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-doc-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "responsibility-boundary-document",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

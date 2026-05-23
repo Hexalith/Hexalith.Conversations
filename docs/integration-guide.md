@@ -10,6 +10,8 @@ Conversations does not own chatbot or agent orchestration, LLM provider behavior
 
 The supported v1 path is the typed .NET client plus shared contracts. Do not publish or rely on raw HTTP fallback examples unless a later approved diagnostics scope records that exception.
 
+For formal boundary accountability including operator, buyer evaluator, and compliance stakeholder guidance — owner, source of truth, failure semantics, evidence obligation, and handoff path for each adjacent system — see [Responsibility Boundaries](responsibility-boundaries.md).
+
 ## CORE Behavior
 
 Use `ConversationClientContext` to bind each call to a trusted tenant context, stable actor `PartyId`, caller principal, correlation id, optional causation id, and idempotency key. This tenant binding is fail-closed. The server still validates tenant access from authenticated context plus the local Tenants projection; the client metadata is not a JWT-only shortcut and cannot bypass fail-closed checks.
