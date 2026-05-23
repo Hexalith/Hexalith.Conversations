@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" />
+    <PackageReference Include="Shouldly" />
+    <PackageReference Include="xunit.v3" />
+    <PackageReference Include="xunit.runner.visualstudio" />
+    <PackageReference Include="coverlet.collector" />
+  </ItemGroup>
+</Project>

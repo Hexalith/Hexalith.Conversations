@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Conformance;
 using Hexalith.Conversations.Contracts.Diagnostics;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
@@ -301,6 +302,60 @@ internal static class ContractSamples
                     new Uri("https://docs.hexalith.local/conversations/contracts/v1/preconditions"),
                     ["AC2", "AC3"],
                     ConversationErrorCatalog.CreateError(ConversationErrorCode.AuditSinkUnavailable, "correlation-001")),
+            ]),
+        ConformanceCheck.CreateConversation,
+        ConformanceOutcome.Ready,
+        ConformanceFailureClassification.Conformant,
+        new ConformanceCheckResultV1(
+            Version,
+            ConformanceCheck.CreateConversation,
+            "supported",
+            ConformanceOutcome.Ready,
+            ConformanceFailureClassification.Conformant,
+            ["FR73", "FR74"],
+            ["supported-schema-versions"],
+            ["release-gate-commands-queries-events"],
+            "Create conversation accepted the supported request and projected current evidence.",
+            "none",
+            new Uri("https://docs.hexalith.local/conversations/contracts/v1/conformance"),
+            "conformance-create-conversation"),
+        new ConformanceCheckResultV1(
+            Version,
+            ConformanceCheck.CompatibilityDiscovery,
+            "unsupported",
+            ConformanceOutcome.Blocked,
+            ConformanceFailureClassification.ProductInvariant,
+            ["FR74"],
+            ["contract-compatibility"],
+            ["release-gate-version-discovery"],
+            "Unsupported version discovery returned a typed versioning error rather than processing under an incompatible contract.",
+            "use-supported-v1-package",
+            new Uri("https://docs.hexalith.local/conversations/contracts/v1/conformance"),
+            "conformance-compatibility-discovery",
+            ConversationErrorCatalog.CreateError(ConversationErrorCode.SchemaVersionUnsupported, "conformance-compatibility-discovery")),
+        new ConformanceRunResultV1(
+            Version,
+            ConformanceOutcome.Ready,
+            ConformanceFailureClassification.Conformant,
+            "All CORE conformance checks passed against the synthetic fixture.",
+            "adopter-core-conformance-v1",
+            "conformance-runner",
+            "correlation-conformance-001",
+            new DateTimeOffset(2026, 5, 23, 9, 0, 0, TimeSpan.Zero),
+            [
+                new ConformanceCheckResultV1(
+                    Version,
+                    ConformanceCheck.TenantBinding,
+                    "supported",
+                    ConformanceOutcome.Ready,
+                    ConformanceFailureClassification.Conformant,
+                    ["FR74"],
+                    ["projection-freshness"],
+                    ["release-gate-tenant-isolation"],
+                    "Tenant binding scoped the read to the authorized tenant.",
+                    "none",
+                    new Uri("https://docs.hexalith.local/conversations/contracts/v1/conformance"),
+                    "correlation-conformance-tenantbinding"),
             ]),
         ConversationCommandType.CreateConversationCommand,
         ConversationCommandType.SetConversationRetentionPolicyCommand,

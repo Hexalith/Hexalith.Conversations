@@ -20,6 +20,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj" />

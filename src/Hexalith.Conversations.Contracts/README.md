@@ -62,6 +62,43 @@ CORE preconditions describe the environment state an adopter integration depends
 
 Onboarding diagnostics evaluate the closed `OnboardingDiagnosticCheck` set (tenant context, contract version, provider configuration, projection subscription, schema compatibility, audit availability, Parties integration) and return an `OnboardingDiagnosticRunResultV1`. Each `OnboardingDiagnosticCheckResultV1` carries a closed `OnboardingDiagnosticStatus` (`ready`, `degraded`, `blocked`, `unknown`) mapped to the shared trust/freshness vocabulary, a safe message, a bounded remediation guidance code, an HTTPS documentation pointer, and the same typed `ConversationError` shape used elsewhere. Diagnostics never disclose tenant data, Party data, conversation existence, provider payloads, or production secrets; a denied, missing, or cross-tenant request collapses to a single `unknown` result.
 
+## Adopter Conformance Tests and CORE Fixture
+
+Adopters can prove their integration respects Conversations contracts before deployment by running the adopter-facing conformance suite against the synthetic CORE fixture. The suite reuses the contracts in this package (compatibility metadata, the typed error catalog, and the CORE precondition catalog) plus the shared trust/freshness vocabulary; it does not introduce a parallel model.
+
+The conformance contracts live under `Hexalith.Conversations.Contracts.Conformance`:
+
+- `ConformanceCheck` is the closed vocabulary covering the CORE integration surface.
+- `ConformanceOutcome` reuses the Story 4.4 readiness language (`ready`, `degraded`, `blocked`, `unknown`) aligned to the shared trust/freshness vocabulary; only `ready` is trust-bearing. No conformance-only synonyms are introduced.
+- `ConformanceFailureClassification` distinguishes `conformant` from `product-invariant`, `infrastructure`, `configuration`, `unavailable-dependency`, and `execution` failures.
+- `ConformanceCheckResultV1` and `ConformanceRunResultV1` carry only structured, content-safe data and serialize to deterministic camelCase web JSON for CI consumption. Typed failures embed the shared `ConversationError`.
+
+Each check maps to the relevant requirement, CORE precondition, and release-gate category so release-gate aggregation can consume the local evidence without rework:
+
+| Conformance check | Requirement | CORE preconditions | Release-gate category |
+| --- | --- | --- | --- |
+| `create-conversation` | FR73, FR74 | `supported-schema-versions`, `idempotency-key-behavior` | `release-gate-commands-queries-events` |
+| `append-message` | FR73, FR74 | `idempotency-key-behavior` | `release-gate-commands-queries-events` |
+| `read-timeline` | FR73, FR74 | `projection-subscription-health` | `release-gate-commands-queries-events`, `release-gate-projection-freshness` |
+| `tenant-binding` | FR74 | `projection-freshness` | `release-gate-tenant-isolation` |
+| `party-identity` | FR74 | `participant-identity-validation` | `release-gate-tenant-isolation` |
+| `idempotency` | FR74 | `idempotency-key-behavior` | `release-gate-idempotent-commands` |
+| `error-envelope` | FR74 | `required-configuration` | `release-gate-error-envelope` |
+| `projection-freshness` | FR74 | `projection-freshness`, `projection-subscription-health` | `release-gate-projection-freshness` |
+| `event-publication` | FR74 | `supported-schema-versions` | `release-gate-event-schema-evolution` |
+| `governance-precondition` | FR74 | `audit-sink-availability`, `required-configuration` | `release-gate-tenant-isolation` |
+| `compatibility-discovery` | FR74 | `contract-compatibility`, `supported-schema-versions` | `release-gate-version-discovery` |
+
+The reusable synthetic CORE fixture ships in `Hexalith.Conversations.Testing` as `ConversationConformanceCoreFixtures`. It is deterministic, content-safe, and clearly marked (`synthetic-conformance-data`); it requires no production tenant data, provider credentials, or nested submodule initialization. It provides one authorized tenant-scoped happy-path conversation (participants, message attribution, business references, and `Current` projection freshness) plus typed failure cases for unsupported schema/version, stale projection, cross-tenant denial (hidden shape), duplicate-command idempotency conflict, and a sanitized error. Unique cross-tenant poison sentinel values are scanned by content-safety tests and must never appear in any authorized-tenant output.
+
+To run the adopter suite in CI, execute the conformance test project and consume the serialized `ConformanceRunResultV1`:
+
+```bash
+dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj
+```
+
+Conformance assertions and the fixture target Conversations contracts and the supported `Hexalith.Conversations.Client`, not raw HTTP fallback. Release signing, versioned conformance manifests, and waiver aggregation are intentionally out of scope for the local-evidence slice.
+
 ## Safe Surface
 
 The package is limited to public Conversations contracts. It does not publish runtime topology, local build paths, UI implementation details, provider-specific content fields, Party personal data, or operational failure text. Compatibility metadata is not tenant authorization, governance truth, projection freshness, or runtime health; it only tells adopters which contract and package versions are supported and where to find safe remediation guidance.

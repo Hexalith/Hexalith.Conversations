@@ -82,7 +82,7 @@ development_status:
   4-2-provide-supported-net-client-happy-path: done
   4-3-expose-typed-sanitized-errors-and-remediation-guidance: done
   4-4-define-core-preconditions-and-onboarding-diagnostics: done
-  4-5-provide-adopter-facing-conformance-tests-and-core-fixture: backlog
+  4-5-provide-adopter-facing-conformance-tests-and-core-fixture: done
   4-6-capture-caller-metadata-for-attribution-audit-and-composition: backlog
   4-7-publish-developer-integration-guide-and-api-examples: backlog
   epic-4-retrospective: optional
