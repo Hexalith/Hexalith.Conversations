@@ -1,0 +1,18 @@
+{
+  "waiverId": "waiver-story-5-4-named-waiver-process",
+  "owner": "release-engineer",
+  "approver": "release-approver",
+  "affectedRequirementId": "FR85",
+  "affectedGateId": null,
+  "affectedStoryIds": ["5-4-support-named-waivers-for-release-gate-exceptions"],
+  "isBlocker": false,
+  "risk": "Named waiver process documentation may need iteration before GA",
+  "compensatingControl": "Waiver schema document and fixture provide navigable governance evidence for release approvers",
+  "expiryDateUtc": "2027-01-01T00:00:00+00:00",
+  "buyerImpact": "Buyer can review named waivers through release evidence documents",
+  "buyerAcceptanceStatus": null,
+  "evidenceLinks": ["release-waiver-v1-fixture", "waiver-schema-doc"],
+  "reviewDateUtc": "2026-12-01T00:00:00+00:00",
+  "lifecycleStatus": "active",
+  "createdAtUtc": "2026-05-23T00:00:00+00:00"
+}

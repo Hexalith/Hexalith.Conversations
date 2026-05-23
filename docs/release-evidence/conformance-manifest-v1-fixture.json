@@ -51,6 +51,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-4-named-waiver-process",
+      "testName": "Named waiver contract type validation and governance traceability",
+      "requirementId": "FR85",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Waiver contract type validates with zero errors and fixture proves governance traceability",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-contract-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "release-waiver-v1-fixture",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

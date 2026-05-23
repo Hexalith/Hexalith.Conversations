@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "1",
+  "title": "Hexalith.Conversations Release Waiver Schema",
+  "description": "Structured specification for a named release-gate waiver record. A waiver makes an accepted risk explicit, owned, time-bound, and visible to release approvers and buyers where needed. Each waiver record must be traceable to a requirement or gate, list all affected stories, and carry a compensating control. This document is navigable by non-developer release approvers without requiring log or system access (NFR68).",
+  "fields": [
+    {
+      "name": "waiverId",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Stable bounded machine-readable identifier for the waiver. Must use only alphanumeric characters, hyphens, underscores, and dots. Maximum 128 characters. Example: waiver-story-5-4-named-waiver-process."
+    },
+    {
+      "name": "owner",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "Bounded identifier for the person or role accountable for this waiver. Must be a bounded safe-token. Example: release-engineer."
+    },
+    {
+      "name": "approver",
+      "type": "string (safe-token) or null",
+      "required": false,
+      "validation": "optional-safe-token; required-by-validator when isBlocker is true",
+      "description": "Optional bounded identifier for the approver who explicitly authorized this waiver. Null is valid at construction. The validator returns blocker-requires-approver when isBlocker is true and approver is null."
+    },
+    {
+      "name": "affectedRequirementId",
+      "type": "string (safe-token)",
+      "required": true,
+      "validation": "safe-token",
+      "description": "The functional or non-functional requirement identifier this waiver covers. Example: FR85, NFR62."
+    },
+    {
+      "name": "affectedGateId",
+      "type": "string (closed-vocabulary) or null",
+      "required": false,
+      "validation": "closed-vocabulary or null",
+      "description": "Optional release gate this waiver applies to. One of: tenant-isolation, audit-integrity, redaction-non-leakage, unsupported-schema-rejection, projection-rebuild-determinism, contract-compatibility, provider-portability. Null when the waiver covers a non-gate requirement."
+    },
+    {
+      "name": "affectedStoryIds",
+      "type": "array of string (safe-token)",
+      "required": true,
+      "validation": "non-empty; each element safe-token; no null elements",
+      "description": "Non-empty list of story key identifiers affected by this waiver. Each element must be a bounded safe-token. Example: [\"5-4-support-named-waivers-for-release-gate-exceptions\"]."
+    },
+    {
+      "name": "isBlocker",
+      "type": "boolean",
+      "required": true,
+      "validation": "boolean",
+      "description": "True when this waiver covers an automatic release blocker under NFR62 (tenant isolation, audit integrity, redaction non-leakage, unsupported schema rejection, projection rebuild determinism, or contract breakage). Blocker waivers require an explicit approver and trigger buyer-facing acceptance checks when an affected gate is specified."
+    },
+    {
+      "name": "risk",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded human-readable description of the accepted risk. Maximum 512 characters. No control characters or protected identifiers."
+    },
+    {
+      "name": "compensatingControl",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded human-readable description of the compensating control that mitigates the accepted risk. Maximum 512 characters."
+    },
+    {
+      "name": "expiryDateUtc",
+      "type": "DateTimeOffset (UTC)",
+      "required": true,
+      "validation": "utc-timestamp; validator flags expired-waiver when past evaluatedAt",
+      "description": "UTC date-time when this waiver expires. Offset must be zero. The validator returns expired-waiver when ExpiryDateUtc is before the evaluatedAt point-in-time, regardless of lifecycle status."
+    },
+    {
+      "name": "buyerImpact",
+      "type": "string (safe-text)",
+      "required": true,
+      "validation": "safe-text",
+      "description": "Bounded human-readable description of the impact on buyers or customers. Maximum 512 characters."
+    },
+    {
+      "name": "buyerAcceptanceStatus",
+      "type": "string (safe-token) or null",
+      "required": false,
+      "validation": "optional-safe-token; required-by-validator when isBlocker is true and affectedGateId is non-null",
+      "description": "Optional bounded token representing buyer acceptance status. Null means not customer-facing. Expected values: buyer-accepted, buyer-pending, not-applicable. The validator returns buyer-facing-missing-acceptance when isBlocker is true, affectedGateId is non-null, and buyerAcceptanceStatus is null."
+    },
+    {
+      "name": "evidenceLinks",
+      "type": "array of string (safe-token)",
+      "required": true,
+      "validation": "non-null; empty list allowed; each element safe-token",
+      "description": "Bounded list of safe-token evidence artifact handles supporting this waiver. Null list is not allowed; empty list is valid. Each element must be a bounded safe-token."
+    },
+    {
+      "name": "reviewDateUtc",
+      "type": "DateTimeOffset (UTC)",
+      "required": true,
+      "validation": "utc-timestamp; validator flags stale-review-date when past evaluatedAt",
+      "description": "UTC date-time for the next scheduled review of this waiver. Offset must be zero. The validator returns stale-review-date when ReviewDateUtc is before the evaluatedAt point-in-time."
+    },
+    {
+      "name": "lifecycleStatus",
+      "type": "string (closed-vocabulary)",
+      "required": true,
+      "validation": "closed-vocabulary",
+      "description": "Current lifecycle state of the waiver. One of: active (currently valid and approved), expired (past ExpiryDateUtc; treated as a finding), rejected (explicitly denied by approver), superseded (replaced by a newer named waiver). Expired and superseded waivers are stale and may affect gate status."
+    },
+    {
+      "name": "createdAtUtc",
+      "type": "DateTimeOffset (UTC)",
+      "required": true,
+      "validation": "utc-timestamp",
+      "description": "UTC date-time when this waiver record was created. Offset must be zero."
+    }
+  ],
+  "validationRules": [
+    {
+      "ruleName": "blocker-requires-approver",
+      "description": "When isBlocker is true, the approver field must be non-null. A blocker waiver without an explicit named approver cannot be considered authoritative.",
+      "errorToken": "blocker-requires-approver"
+    },
+    {
+      "ruleName": "expired-waiver",
+      "description": "When ExpiryDateUtc is before the evaluatedAt point-in-time, the waiver is expired regardless of its lifecycleStatus value. An active waiver with a past expiry is still flagged as expired.",
+      "errorToken": "expired-waiver"
+    },
+    {
+      "ruleName": "stale-review-date",
+      "description": "When ReviewDateUtc is before the evaluatedAt point-in-time, the waiver's review date is overdue. Stale review dates indicate the waiver may not reflect the current risk posture.",
+      "errorToken": "stale-review-date"
+    },
+    {
+      "ruleName": "buyer-facing-missing-acceptance",
+      "description": "When isBlocker is true and affectedGateId is non-null (gate-specific blocker waiver), buyerAcceptanceStatus must be non-null. A buyer-facing blocker waiver without explicit acceptance status cannot be released without buyer visibility.",
+      "errorToken": "buyer-facing-missing-acceptance"
+    }
+  ],
+  "exampleRecord": {
+    "waiverId": "waiver-story-5-4-named-waiver-process",
+    "owner": "release-engineer",
+    "approver": "release-approver",
+    "affectedRequirementId": "FR85",
+    "affectedGateId": null,
+    "affectedStoryIds": ["5-4-support-named-waivers-for-release-gate-exceptions"],
+    "isBlocker": false,
+    "risk": "Named waiver process documentation may need iteration before GA",
+    "compensatingControl": "Waiver schema document and fixture provide navigable governance evidence for release approvers",
+    "expiryDateUtc": "2027-01-01T00:00:00+00:00",
+    "buyerImpact": "Buyer can review named waivers through release evidence documents",
+    "buyerAcceptanceStatus": null,
+    "evidenceLinks": ["release-waiver-v1-fixture", "waiver-schema-doc"],
+    "reviewDateUtc": "2026-12-01T00:00:00+00:00",
+    "lifecycleStatus": "active",
+    "createdAtUtc": "2026-05-23T00:00:00+00:00"
+  }
+}

@@ -1,5 +1,31 @@
 # Test Automation Summary
 
+## Story 5.4 Support Named Waivers for Release-Gate Exceptions
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseWaiverContractTest.cs` - 43 contract tests covering `WaiverLifecycleStatus` closed-vocabulary completeness (4 values: active, expired, rejected, superseded), JSON rejection of synonyms (valid, invalid, cancelled, done, pending) via Parse and all 4 spec synonyms (valid, invalid, cancelled, done) via JsonSerializer.Deserialize, `Parse` round-trips for all 4 values, `IsActive` (true only for active), `IsStale` (true for expired and superseded, false for active and rejected), `ReleaseWaiverV1` construction-time validation (null AffectedStoryIds, null/empty WaiverId, null/empty Owner, null Approver accepted, null/empty AffectedRequirementId, null AffectedGateId accepted, empty/null-element AffectedStoryIds, empty Risk/CompensatingControl/BuyerImpact, non-UTC ExpiryDateUtc, null BuyerAcceptanceStatus accepted, null EvidenceLinks throws ArgumentNullException, empty EvidenceLinks accepted, non-UTC ReviewDateUtc, null LifecycleStatus throws ArgumentNullException, non-UTC CreatedAtUtc), `ReleaseWaiverValidator.ValidateWaiver` error tokens (blocker-requires-approver, expired-waiver, stale-review-date, buyer-facing-missing-acceptance), stable camelCase web JSON, round-trip, additive tolerance, fixture file existence/deserialization/zero-errors/content-safety, manifest fixture has 4 entries. Review auto-fixed: JSON synonym test extended to all 4 spec synonyms; null AffectedStoryIds test added (+1 test).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseWaiverValidationTest.cs` - 7 validation tests covering fixture waiver passes `ValidateWaiver` with zero errors (evaluatedAt=2026-05-23), blocker with null approver returns blocker-requires-approver, past ExpiryDateUtc returns expired-waiver, past ReviewDateUtc returns stale-review-date, fixture content-safety scan, stable camelCase JSON and deterministic round-trip, `WaiverLifecycleStatus.All` returns exactly 4 values.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - registered `WaiverLifecycleStatus` (4 values), and two `ReleaseWaiverV1` samples (non-blocker and blocker-with-gate) to extend serialization, forbidden-surface, and content-safety coverage automatically.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/ReleaseWaiverV1.cs` - Defines `WaiverLifecycleStatus` (4 values: active, expired, rejected, superseded; `IsActive` and `IsStale` computed properties; sealed-record closed-vocabulary pattern), `ReleaseWaiverV1` (sealed record, 16 validated fields using `RequiredSafeToken`/`RequiredSafeText`/`RequiredUtcTimestamp`/`OptionalSafeToken`; `AffectedStoryIds` uses mapping-token validation without disclosure blocklist to allow story IDs containing "exception"; `EvidenceLinks` null-guarded), and `ReleaseWaiverValidator` (static class with `ValidateWaiver(waiver, evaluatedAt)` returning 4 content-safe error tokens).
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` - Added `WaiverLifecycleStatusJsonConverter` following the `ConversationStringValueJsonConverter<T>` pattern exactly like `ReleaseGateStatusJsonConverter`.
+- [x] `docs/release-evidence/waiver.schema.json` - Structured human-navigable JSON specification with field definitions (16 fields with type/required/validation/description), validation rules (4 rules matching ValidateWaiver error tokens), and example record; navigable by non-developer release approvers (NFR68).
+- [x] `docs/release-evidence/release-waiver-v1-fixture.json` - Synthetic deterministic fixture waiver (waiverId=waiver-story-5-4-named-waiver-process, owner=release-engineer, approver=release-approver, affectedRequirementId=FR85, affectedGateId=null, isBlocker=false, lifecycleStatus=active, all dates future relative to 2026-05-23, content-safe).
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with Story 5.4 entry (testId=story-5-4-named-waiver-process, requirementId=FR85, evidenceArtifactHandle=release-waiver-v1-fixture, releaseDecisionStatus=pass); now has 4 entries.
+
+### Validation
+- [x] Targeted contract tests: `dotnet test tests/Hexalith.Conversations.Contracts.Tests --filter "FullyQualifiedName~ReleaseWaiver|FullyQualifiedName~WaiverLifecycle"` - 43 passed (42 original + 1 review-added).
+- [x] Conformance validation tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests` - 50 passed (43 existing + 7 new Story 5.4 tests).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 50, Integration 8, Core 153, Server 428, Contracts 512 (1174 total, 0 failures).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: `ReleaseWaiverV1` records all required governance fields (owner, approver, affected requirement/gate/stories, isBlocker, risk, compensatingControl, expiryDateUtc, buyerImpact, buyerAcceptanceStatus, evidenceLinks, reviewDateUtc, lifecycleStatus, createdAtUtc); automatic release blockers cannot be waived without explicit named approval (`blocker-requires-approver` error token).
+- AC2: `WaiverLifecycleStatus` (4 values: active/expired/rejected/superseded) distinguishes lifecycle states in release evidence; `IsStale` computed property marks expired and superseded waivers as findings; `ValidateWaiver` flags expired waivers and stale review dates regardless of lifecycle status.
+- AC3: 43 contract tests and 7 conformance tests prove governance traceability (blocker enforcement, expiry detection, review staleness, buyer-facing acceptance), release decision clarity (all validator error tokens exercised), and content-safe evidence output (fixture passes content-safety scan).
+
 ## Story 5.3 Maintain Versioned Conformance Manifest with Traceability
 
 ### Generated Tests

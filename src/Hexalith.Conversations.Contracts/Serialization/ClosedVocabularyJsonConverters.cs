@@ -350,3 +350,11 @@ internal sealed class ConformanceManifestLifecycleStageJsonConverter :
 
     protected override string GetValue(ConformanceManifestLifecycleStage value) => value.Value;
 }
+
+internal sealed class WaiverLifecycleStatusJsonConverter :
+    ConversationStringValueJsonConverter<WaiverLifecycleStatus>
+{
+    protected override WaiverLifecycleStatus Create(string value) => WaiverLifecycleStatus.Parse(value);
+
+    protected override string GetValue(WaiverLifecycleStatus value) => value.Value;
+}
