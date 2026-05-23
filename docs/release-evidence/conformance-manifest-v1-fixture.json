@@ -99,6 +99,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-7-redaction-conformance",
+      "testName": "Redaction replay conformance suite release-gating coverage",
+      "requirementId": "FR89",
+      "carryForwardCommitmentRef": "story-2-4-redaction-replay-non-disclosure",
+      "releaseGateId": "redaction-non-leakage",
+      "passCriteria": "All 10 redaction replay scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "redaction-conformance-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

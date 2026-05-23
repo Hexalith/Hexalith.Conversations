@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 5.7 Verify Redaction Replay Conformance
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/RedactionConformanceFixtures.cs` - `RedactionReplayScenarioData` sealed record and `RedactionConformanceSeedData` static class with 10 deterministic synthetic scenario records (7 ready, 2 blocked, 1 unknown — all conformant classification). No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/RedactionConformanceSuite.cs` - Non-test suite runner following IdempotencyConformanceSuite pattern. SuiteId = `"redaction-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 10 checks use `ConformanceCheck.GovernancePrecondition`, RequirementMappings = `["FR89"]`, ReleaseGateMappings = `["redaction-non-leakage"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/RedactionConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR89RequirementAndRedactionGateMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (2 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/RedactionConformanceFixtures.cs` - New fixture file with 10 scenarios: projection-replay-content-safe (ready), temporal-view-replay-hidden (ready), rebuild-replay-content-safe (ready), audit-citation-without-exposure (ready), log-trace-output-content-safe (ready), error-response-content-safe (ready), stale-projection-blocked (blocked/TenantProjectionStale), audit-sink-blocked (blocked/AuditSinkUnavailable), cross-scope-replay-hidden (unknown/AggregateNotFound), diagnostics-content-safety (ready).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/RedactionConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 10-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 7th Story 5.7 entry (testId=story-5-7-redaction-conformance, requirementId=FR89, carryForwardCommitmentRef=story-2-4-redaction-replay-non-disclosure, releaseGateId=redaction-non-leakage (IS in ReleaseGateId closed vocabulary), evidenceArtifactHandle=redaction-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Debug Log
+- Bug fix: 3 SafeMessage values in Dev Notes contained "redacted content" (forbidden by UnsafeTerms). Replaced with content-safe equivalents.
+- Bug fix: pre-written test used `ConversationConformanceCoreFixtures` (static class) as variable type; corrected to `ConversationConformanceCoreSeedData` (return type of `Create()`).
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~Redaction"` - 15 passed (15 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 95 passed (80 baseline + 15 new).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1219 tests, 0 failures (Client 23, Conformance 95, Integration 8, Core 153, Server 428, Contracts 512).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: suite covers all 10 required redaction replay disclosure surfaces; any non-conformant result is an automatic release gate flag under the redaction-non-leakage mapping.
+- AC2: manifest entry identifies covered scenarios, pass criteria, FR89 requirement, carry-forward commitment to Story 2.4, evidence artifact handle, and content-safe diagnostics without exposing protected identifiers.
+- Two-Level Evidence rule honored: `carryForwardCommitmentRef` links to Story 2.4 production proof; Story 5.7 adds release-gating coverage without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.6 Verify Idempotent Command Conformance
 
 ### Generated Tests
