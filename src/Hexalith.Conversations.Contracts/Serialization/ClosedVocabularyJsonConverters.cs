@@ -382,3 +382,11 @@ internal sealed class BuyerAcceptanceItemStatusJsonConverter :
 
     protected override string GetValue(BuyerAcceptanceItemStatus value) => value.Value;
 }
+
+internal sealed class SecondAdopterStatusJsonConverter :
+    ConversationStringValueJsonConverter<SecondAdopterStatus>
+{
+    protected override SecondAdopterStatus Create(string value) => SecondAdopterStatus.Parse(value);
+
+    protected override string GetValue(SecondAdopterStatus value) => value.Value;
+}

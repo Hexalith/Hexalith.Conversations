@@ -1478,6 +1478,23 @@ internal static class ContractSamples
             null,
             null,
             new DateTimeOffset(2027, 9, 1, 0, 0, 0, TimeSpan.Zero)),
+        SecondAdopterStatus.Identified,
+        SecondAdopterStatus.Qualified,
+        SecondAdopterStatus.Deferred,
+        SecondAdopterStatus.Disqualified,
+        new SecondAdopterStatusEntryV1(
+            "entry-sample-001",
+            SecondAdopterStatus.Qualified,
+            "FR103",
+            "release-engineer",
+            new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero),
+            true,
+            "second-adopter-capability",
+            null,
+            null,
+            null,
+            null,
+            new DateTimeOffset(2027, 9, 1, 0, 0, 0, TimeSpan.Zero)),
     ];
 
     internal static GovernanceAuditEvidence GovernanceEvidence(GovernanceOperationKind operationKind, GovernanceOutcome outcome)

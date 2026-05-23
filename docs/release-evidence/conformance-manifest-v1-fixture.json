@@ -227,6 +227,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-6-6-second-adopter-status",
+      "testName": "Second-adopter status tracking and downgrade-rule review milestone validation",
+      "requirementId": "FR103",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "All 10 second-adopter lifecycle scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "second-adopter-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

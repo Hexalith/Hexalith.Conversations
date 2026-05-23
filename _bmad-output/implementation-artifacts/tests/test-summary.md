@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 6.6 Track Second-Adopter Status and Downgrade-Rule Milestones
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/SecondAdopterVocabularyTest.cs` — 8 [Fact] tests: SecondAdopterStatus_AllContains4Values, SecondAdopterStatus_Parse_Identified_ReturnsIdentified, SecondAdopterStatus_Parse_Qualified_ReturnsQualified, SecondAdopterStatus_Parse_Deferred_ReturnsDeferred, SecondAdopterStatus_Parse_Disqualified_ReturnsDisqualified, SecondAdopterStatus_Parse_UnknownValue_ThrowsArgumentException, SecondAdopterStatus_SerializesAndDeserializesToCorrectValue, SecondAdopterStatus_Disqualified_WireValueIsDisqualified.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/SecondAdopterStatusValidatorTest.cs` — 10 [Fact] tests: ValidateEntry_Identified_FutureMilestone_ReturnsNoErrors, ValidateEntry_Qualified_WithTrigger_ReturnsNoErrors, ValidateEntry_Deferred_WithValidWaiver_ReturnsNoErrors, ValidateEntry_Disqualified_WithRationale_ReturnsNoErrors, ValidateEntry_MilestoneOverdue_ReturnsMilestoneOverdue, ValidateEntry_ReviewOverdue_ReturnsReviewOverdue, ValidateEntry_Qualified_NoTrigger_ReturnsQualifiedNoDowngradeTrigger, ValidateEntry_WaiverExpired_ReturnsWaiverExpired, ValidateEntry_Disqualified_NoRationale_ReturnsRevertedMissingRationale, ValidateEntry_Deferred_NoWaiverRef_DoesNotTriggerWaiverExpired.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceSuiteTest.cs` — 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, AllPassScenariosShouldProduceReadyOutcome, AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails, AllChecksShouldBeClassifiedAsConformant, AllChecksShouldCarryFR103RequirementAndSecondAdopterMappings, PassScenariosShouldHaveNullTypedError, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip, NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow, MilestoneOverdueShouldProduceConformantResult, RevertedNoRationaleShouldProduceConformantResult.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/SecondAdopterVocabulary.cs` — New file: SecondAdopterStatus sealed record vocabulary (4 values: Identified, Qualified, Deferred, Disqualified).
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/SecondAdopterStatusEntryV1.cs` — New file: SecondAdopterStatusEntryV1 positional record with eager field validation (12 params) + SecondAdopterStatusValidator static class (5 error tokens: milestone-overdue, review-overdue, qualified-no-downgrade-trigger, waiver-expired, reverted-missing-rationale).
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` — Added SecondAdopterStatusJsonConverter.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` — Added SecondAdopterStatus (4 values) and SecondAdopterStatusEntryV1 sample.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceFixtures.cs` — SecondAdopterScenarioData record + SecondAdopterConformanceSeedData with 10 deterministic synthetic scenarios.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/SecondAdopterConformanceSuite.cs` — Suite runner; SuiteId=second-adopter-suite; calls SecondAdopterStatusValidator.ValidateEntry per scenario; conformant when actual errors match expected errors.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` — Story 6.6 entry added: testId=story-6-6-second-adopter-status, requirementId=FR103, releaseGateId=null, evidenceArtifactHandle=second-adopter-suite-result.
+
+### Validation
+- [x] Targeted tests (vocabulary + validator): `dotnet test ... --filter "FullyQualifiedName~SecondAdopter"` — 18 passed.
+- [x] Targeted tests (conformance suite): `dotnet test ... --filter "FullyQualifiedName~SecondAdopterConformance"` — 15 passed.
+- [x] Full Contracts suite: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/...` — 568 passed (550 baseline + 18 new).
+- [x] Full Conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/...` — 216 passed (201 baseline + 15 new).
+- [x] Full solution: all 1471 tests pass (23 Client + 216 Conformance + 8 Integration + 153 Core + 503 Server + 568 Contracts).
+
+### Coverage
+- AC1: SecondAdopterStatusEntryV1 (12 params) carries all required governance fields: status, affected requirements, review owner, milestone date, downgrade-rule trigger, capability ref, waiver ref/expiry, rationale, conformance artifact, review date.
+- AC2: SecondAdopterStatusValidator identifies capabilities requiring review via 5 error tokens; milestone-overdue and review-overdue surface timing issues; qualified-no-downgrade-trigger enforces downgrade rule; waiver-expired and reverted-missing-rationale enforce lifecycle governance.
+- AC3: All 5 validator error tokens tested; 10-scenario conformance suite covers all AC3-required paths; serialization stability and content-safety verified.
+
 ## Story 6.5 Support Buyer Partial Acceptance and Waiver Review
 
 ### Generated Tests
