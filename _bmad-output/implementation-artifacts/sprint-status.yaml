@@ -84,7 +84,7 @@ development_status:
   4-4-define-core-preconditions-and-onboarding-diagnostics: done
   4-5-provide-adopter-facing-conformance-tests-and-core-fixture: done
   4-6-capture-caller-metadata-for-attribution-audit-and-composition: done
-  4-7-publish-developer-integration-guide-and-api-examples: backlog
+  4-7-publish-developer-integration-guide-and-api-examples: done
   epic-4-retrospective: optional
   epic-5: backlog
   5-1-publish-contract-compatibility-and-deprecation-policy: backlog

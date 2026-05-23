@@ -1,5 +1,31 @@
 # Test Automation Summary
 
+## Story 4.7 Publish Developer Integration Guide and API Examples
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Documentation/IntegrationGuideValidationTest.cs` - Added deterministic documentation validation for the integration guide, root README link, shipped client/contract type names, embedded C# snippet identifiers, canonical error tables, compatibility metadata, conformance command/reference accuracy, HTTPS documentation pointers, and content-safety forbidden fragments.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Documentation/IntegrationGuideWorkflowExampleTest.cs` - Added compile-time adopter workflow coverage for the documented DI registration, create conversation, append message, timeline read with freshness, typed error retry branches, compatibility discovery, and CORE precondition surfaces.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj` - Added a project reference to `Hexalith.Conversations.Client` so documentation validation can prove client-surface examples reference shipped types and members.
+
+### Implementation
+- [x] `docs/integration-guide.md` - Published the adopter developer integration guide with responsibility boundaries, CORE behavior, fail-closed failure modes, compatibility discovery, CORE preconditions, conformance guidance, and validated .NET client/contract snippets for setup, create, append, read timeline, typed errors, idempotent retry, freshness, compatibility, and preconditions.
+- [x] `README.md` - Linked the new Developer Integration Guide from the supported v1 contract package guidance.
+
+### Validation
+- [x] Red phase: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Documentation|FullyQualifiedName~IntegrationGuide|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractMetadata|FullyQualifiedName~ErrorCatalog"` - failed as expected before the guide existed: 4 documentation tests failed on missing `docs/integration-guide.md`.
+- [x] Targeted green phase: same command - 28 passed after publishing the guide and README link.
+- [x] QA automation follow-up: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Documentation|FullyQualifiedName~IntegrationGuide|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractMetadata|FullyQualifiedName~ErrorCatalog"` - 30 passed after adding compile-time workflow coverage.
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 25, Integration 8, Core 153, Server 428, Contracts 390 (1027 total).
+
+### Coverage
+- AC1: guide documents Conversations responsibility boundaries and CORE behavior using shipped contract/client/precondition/compatibility names, with canonical tables linked rather than copied.
+- AC2: embedded C# snippets cover .NET client registration, create, append, timeline read, typed errors, idempotent retry, freshness, compatibility discovery, CORE preconditions, and conformance execution; docs validation asserts referenced types and members exist.
+- AC2 follow-up: compile-time workflow coverage now exercises the same supported client/contract sequence against the shipped public surface so signature drift fails tests.
+- AC3: failure-mode guidance stays content-safe, documents fail-closed behavior, hidden `aggregate_not_found`, stale projection, unsupported schema, audit handles where allowed, and remediation paths without policy internals or unsafe substrate detail.
+- AC4: documentation checks validate README error tables against `ConversationErrorCatalog`, compatibility metadata against `ConversationContractCompatibility.Current`, conformance references, HTTPS pointers, and unsafe example text.
+- No raw HTTP fallback examples, sample host, DocFX pipeline, production behavior, new public vocabulary, durable state, Epic 5 release evidence, or Epic 6 operator/buyer documentation was added.
+
 ## Story 4.6 Capture Caller Metadata for Attribution, Audit, and Composition
 
 ### Generated Tests
