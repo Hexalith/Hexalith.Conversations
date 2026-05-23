@@ -39,6 +39,7 @@
 
 generated: 2026-05-17T14:17:58.2822735+02:00
 last_updated: 2026-05-23
+# Story 5.10 ready-for-dev 2026-05-23: ContractValidationScenarioData (10 scenarios), ContractValidationConformanceSeedData, ContractValidationConformanceSuite, ContractValidationConformanceSuiteTest; manifest fixture extended to 10 entries; carryForwardCommitmentRef → story-4-5; releaseGateId → contract-compatibility
 # Story 5.9 ready-for-dev 2026-05-23: EventSchemaEvolutionScenarioData (10 scenarios), EventSchemaEvolutionConformanceSeedData, EventSchemaEvolutionConformanceSuite, EventSchemaEvolutionConformanceSuiteTest; manifest fixture extended to 9 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → unsupported-schema-rejection
 project: Hexalith.Conversations
 # Story 5.5 ready-for-dev 2026-05-23: TenantIsolationConformanceSeedData (12 scenarios), TenantIsolationConformanceSuite, TenantIsolationConformanceSuiteTest; manifest fixture extended to 5 entries; carryForwardCommitmentRef → story-1-5
@@ -104,7 +105,7 @@ development_status:
   5-7-verify-redaction-replay-conformance: done
   5-8-prove-provider-portability: done
   5-9-prove-event-schema-evolution: done
-  5-10-validate-commands-queries-events-errors-and-version-discovery: backlog
+  5-10-validate-commands-queries-events-errors-and-version-discovery: done
   5-11-separate-module-level-evidence-from-platform-controls: backlog
   epic-5-retrospective: optional
   epic-6: backlog

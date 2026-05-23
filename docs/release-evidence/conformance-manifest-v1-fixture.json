@@ -147,6 +147,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-10-contract-validation-conformance",
+      "testName": "Contract validation conformance suite release-gating coverage",
+      "requirementId": "FR92",
+      "carryForwardCommitmentRef": "story-4-5-adopter-conformance-suite",
+      "releaseGateId": "contract-compatibility",
+      "passCriteria": "All 10 contract validation scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "contract-validation-conformance-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

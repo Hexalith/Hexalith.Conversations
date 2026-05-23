@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 5.10 Validate Commands, Queries, Events, Errors, and Version Discovery
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/ContractValidationConformanceFixtures.cs` - `ContractValidationScenarioData` sealed record and `ContractValidationConformanceSeedData` static class with 10 deterministic synthetic scenario records (8 ready, 1 blocked, 1 unknown — all conformant classification). Scenario 4 token renamed from `"error-envelope-shape"` to `"typed-error-shape"` because `"envelope"` is in the UnsafeTerms blocklist. No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`. Content-safe messages follow the same rules as Stories 5.5–5.9.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ContractValidationConformanceSuite.cs` - Non-test suite runner following ProviderPortabilityConformanceSuite pattern. SuiteId = `"contract-validation-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 10 checks use `ConformanceCheck.CompatibilityDiscovery`, RequirementMappings = `["FR92"]`, ReleaseGateMappings = `["contract-compatibility"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ContractValidationConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseCompatibilityDiscoveryCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR92RequirementAndContractCompatibilityGateMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (1 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/ContractValidationConformanceFixtures.cs` - New fixture file with 10 scenarios: command-contract-shape (ready), query-contract-shape (ready), event-publication-shape (ready), typed-error-shape (ready), version-discovery-shape (ready), core-fixture-happy-path (ready), core-fixture-blocked-schema (blocked/SchemaVersionUnsupported), core-fixture-probe-hidden (unknown/AggregateNotFound), redaction-consumer-contract (ready), conformance-invariant-proof (ready).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ContractValidationConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 10-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 10th Story 5.10 entry (testId=story-5-10-contract-validation-conformance, requirementId=FR92, carryForwardCommitmentRef=story-4-5-adopter-conformance-suite, releaseGateId=contract-compatibility (IS in ReleaseGateId closed vocabulary), evidenceArtifactHandle=contract-validation-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Debug Log
+- Bug fix: Scenario 4 token `"error-envelope-shape"` and SafeMessage `"Typed error envelope..."` both blocked by `"envelope"` in UnsafeTerms. Renamed token to `"typed-error-shape"` and SafeMessage to `"Typed error contract is content-safe..."`. Dev Notes listed only `"tenant-"`, `"provider-session"`, and `"stream"` as blocked, but the actual UnsafeTerms list in ConversationError.cs includes `"envelope"` and many more terms.
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~ContractValidation"` - 15 passed (15 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 140 passed (125 baseline + 15 new).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded (implicit in test run), 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1264 tests, 0 failures (Client 23, Conformance 140, Integration 8, Core 153, Server 428, Contracts 512).
+
+### Coverage
+- AC1: suite covers all 10 required contract validation surfaces; any non-conformant result is an automatic release gate flag under the contract-compatibility mapping.
+- AC2: consumer-driven contract tests (redaction-consumer-contract scenario) prove stability for Stories 2.4 and 4.2; manifest entry identifies covered scenarios, pass criteria, FR92 requirement, carry-forward commitment to Story 4.5, evidence artifact handle, and content-safe diagnostics.
+- AC3: adopter-style CORE fixture scenarios (core-fixture-happy-path, core-fixture-blocked-schema, core-fixture-probe-hidden) prove realistic integration behavior with synthetic tenant-safe fixture data.
+- AC4: conformance-invariant-proof scenario validates project conformance invariants have traceable automated evidence.
+- AC5: contract validation failure reporting is content-safe (all messages pass UnsafeTerms check) and traceable (correlation IDs, requirement mappings, release-gate mappings).
+- Two-Level Evidence rule honored: `carryForwardCommitmentRef` links to Story 4.5 production proof; Story 5.10 adds release-gating coverage under `contract-compatibility` without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.9 Prove Event Schema Evolution
 
 ### Generated Tests
