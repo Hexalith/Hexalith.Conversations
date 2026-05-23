@@ -326,3 +326,19 @@ internal sealed class ConformanceFailureClassificationJsonConverter :
 
     protected override string GetValue(ConformanceFailureClassification value) => value.Value;
 }
+
+internal sealed class ReleaseGateStatusJsonConverter :
+    ConversationStringValueJsonConverter<ReleaseGateStatus>
+{
+    protected override ReleaseGateStatus Create(string value) => ReleaseGateStatus.Parse(value);
+
+    protected override string GetValue(ReleaseGateStatus value) => value.Value;
+}
+
+internal sealed class ReleaseGateIdJsonConverter :
+    ConversationStringValueJsonConverter<ReleaseGateId>
+{
+    protected override ReleaseGateId Create(string value) => ReleaseGateId.Parse(value);
+
+    protected override string GetValue(ReleaseGateId value) => value.Value;
+}

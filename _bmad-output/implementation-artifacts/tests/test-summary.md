@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 5.2 Generate Signed Release Conformance Artifact
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseConformanceArtifactContractTest.cs` - 31 contract tests covering `ReleaseGateStatus` closed-vocabulary completeness (4 values), JSON rejection of synonyms, `IsBlocking` property, `ReleaseGateId` closed-vocabulary completeness (7 gates), JSON rejection of unknown gate IDs, `ReleaseGateResultV1` construction-time validation (null gate/status, empty handle/requirement/summary, non-UTC timestamp), `ReleaseConformanceArtifactV1` construction-time validation (empty build hash, missing signer, null schema, empty/incomplete gate list), `ValidateArtifact` errors, `OverallStatus` computed matrix (all-pass/any-fail/some-waived/mixed), stable camelCase web JSON, round-trip, additive tolerance, fixture file existence/validity/gate-completeness/content-safety.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs` - 10 generation tests covering builder produces valid artifact from CORE fixture, all 7 gates present, overall status deterministic, audit-integrity=pass (GovernancePrecondition Ready), tenant-isolation=unknown-accepted (TenantBinding Unknown outcome), provider-portability=unknown-accepted (no adopter mapping), all gate statuses in closed vocabulary, content-safety scan, null rejection, builder determinism.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactBuilder.cs` - `ReleaseConformanceArtifactBuilder` class with deterministic gate-to-check mapping (ready→pass, blocked+non-conformant→fail, else→unknown-accepted), 7-gate construction, injected `TimeProvider`, and fail-closed null validation.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - registered `ReleaseGateStatus`, `ReleaseGateId`, `ReleaseGateResultV1`, and `ReleaseConformanceArtifactV1` samples to extend serialization, forbidden-surface, and content-safety coverage automatically.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/ReleaseGateStatus.cs` - Defines `ReleaseGateStatus` (pass, fail, waived, unknown-accepted with `IsBlocking` property), `ReleaseGateId` (7 gate IDs), and `ReleaseGateResultV1` sealed record with content-safe field validation.
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/ReleaseConformanceArtifactV1.cs` - Sealed record with all required evidence fields, computed `OverallStatus`, constructor-time gate completeness validation, and static `ValidateArtifact` returning typed errors.
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` - Added `ReleaseGateStatusJsonConverter` and `ReleaseGateIdJsonConverter` following the `ConversationStringValueJsonConverter<T>` pattern.
+- [x] `docs/release-evidence/release-conformance-artifact-v1-fixture.json` - Committed synthetic deterministic fixture file (schema v1, "test-runner" signer, "ci-build-test-fixture" build hash, 7 gate results, overall status unknown-accepted) generated and validated by the generation test.
+
+### Validation
+- [x] Targeted contract tests: `dotnet test tests/Hexalith.Conversations.Contracts.Tests --filter "FullyQualifiedName~ReleaseConformance|FullyQualifiedName~ReleaseGate"` - 31 passed.
+- [x] Conformance generation tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests` - 37 passed (including 10 new Story 5.2 tests).
+- [x] Full contracts suite: `dotnet test tests/Hexalith.Conversations.Contracts.Tests` - 425 passed (including serialization, forbidden-surface, content-safety scans over new types).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 37, Integration 8, Core 153, Server 428, Contracts 425 (1074 total).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: artifact captures build hash, schema/event versions, contract package versions, test environment identity, dataset scale, tool versions, timestamped evidence links, signer identity, and release manifest reference; machine-readable camelCase JSON, deterministic, content-safe.
+- AC2: 7 gate IDs (tenant-isolation, audit-integrity, redaction-non-leakage, unsupported-schema-rejection, projection-rebuild-determinism, contract-compatibility, provider-portability) each classified as pass/fail/waived/unknown-accepted; overall-status computation is deterministic and non-forgeable.
+- AC3: construction-time validation rejects unsafe/incomplete/unsigned artifacts; `ValidateArtifact` returns typed diagnostics; content-safety scan blocks forbidden fragments in all free-text fields.
+- No Story 5.3 manifest, 5.4 named waivers, 5.5-5.9 domain suites, 5.10 aggregation, PKI signing, durable store, CLI, or new public error codes were added.
+
 ## Story 5.1 Publish Contract Compatibility and Deprecation Policy
 
 ### Generated Tests

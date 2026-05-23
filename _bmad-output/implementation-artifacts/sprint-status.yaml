@@ -37,6 +37,7 @@
 generated: 2026-05-17T14:17:58.2822735+02:00
 last_updated: 2026-05-23
 project: Hexalith.Conversations
+# Story 5.2 completed 2026-05-23: ReleaseGateStatus, ReleaseGateId, ReleaseGateResultV1, ReleaseConformanceArtifactV1, ReleaseConformanceArtifactBuilder, contract and generation tests, fixture artifact
 project_key: NOKEY
 tracking_system: file-system
 story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
@@ -88,7 +89,7 @@ development_status:
   epic-4-retrospective: optional
   epic-5: in-progress
   5-1-publish-contract-compatibility-and-deprecation-policy: done
-  5-2-generate-signed-release-conformance-artifact: backlog
+  5-2-generate-signed-release-conformance-artifact: done
   5-3-maintain-versioned-conformance-manifest-with-traceability: backlog
   5-4-support-named-waivers-for-release-gate-exceptions: backlog
   5-5-verify-tenant-isolation-conformance: backlog

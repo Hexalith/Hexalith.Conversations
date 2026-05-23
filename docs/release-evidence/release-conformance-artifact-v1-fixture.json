@@ -1,0 +1,85 @@
+{
+  "schemaVersion": 1,
+  "buildHash": "ci-build-test-fixture",
+  "signerOrRunnerId": "test-runner",
+  "testEnvironmentId": "test-env-local",
+  "datasetScale": "synthetic-dataset",
+  "toolVersions": "1032 tests",
+  "releaseManifestReference": "release-manifest-stub",
+  "generatedAtUtc": "2026-05-23T10:00:00+00:00",
+  "eventSchemaVersions": [
+    1
+  ],
+  "contractPackageVersions": [
+    "hexalith-conversations-contracts-1.0.0"
+  ],
+  "evidenceLinks": [
+    "correlation-conformance-run"
+  ],
+  "gateResults": [
+    {
+      "gateId": "tenant-isolation",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "Partial adopter suite coverage; full proof suite deferred to a later story.",
+      "evidenceHandle": "isolation-gate-evidence",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "audit-integrity",
+      "status": "pass",
+      "safeEvidenceSummary": "Adopter suite check passed; CORE fixture evidence verified.",
+      "evidenceHandle": "audit-integrity-evidence",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "redaction-non-leakage",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "Partial adopter suite coverage; full proof suite deferred to a later story.",
+      "evidenceHandle": "redaction-non-leakage-stub",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "unsupported-schema-rejection",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "Partial adopter suite coverage; full proof suite deferred to a later story.",
+      "evidenceHandle": "unsupported-schema-rejection-evidence",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "projection-rebuild-determinism",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "Partial adopter suite coverage; full proof suite deferred to a later story.",
+      "evidenceHandle": "projection-rebuild-determinism-evidence",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "contract-compatibility",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "Partial adopter suite coverage; full manifest coverage deferred to a later story.",
+      "evidenceHandle": "contract-compatibility-evidence",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    },
+    {
+      "gateId": "provider-portability",
+      "status": "unknown-accepted",
+      "safeEvidenceSummary": "No direct adopter suite coverage; full proof suite deferred to a later story.",
+      "evidenceHandle": "provider-portability-stub",
+      "evaluatedAtUtc": "2026-05-23T10:00:00+00:00",
+      "requirementId": "FR86",
+      "waiverReference": null
+    }
+  ],
+  "overallStatus": "unknown-accepted"
+}
