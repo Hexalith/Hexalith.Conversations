@@ -374,3 +374,11 @@ internal sealed class SubstrateConsequenceAreaJsonConverter :
 
     protected override string GetValue(SubstrateConsequenceArea value) => value.Value;
 }
+
+internal sealed class BuyerAcceptanceItemStatusJsonConverter :
+    ConversationStringValueJsonConverter<BuyerAcceptanceItemStatus>
+{
+    protected override BuyerAcceptanceItemStatus Create(string value) => BuyerAcceptanceItemStatus.Parse(value);
+
+    protected override string GetValue(BuyerAcceptanceItemStatus value) => value.Value;
+}

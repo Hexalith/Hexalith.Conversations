@@ -1458,6 +1458,26 @@ internal static class ContractSamples
             new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero),
             null,
             null),
+        BuyerAcceptanceItemStatus.Accepted,
+        BuyerAcceptanceItemStatus.Excluded,
+        BuyerAcceptanceItemStatus.UnknownAccepted,
+        BuyerAcceptanceItemStatus.Waived,
+        new BuyerPartialAcceptanceItemV1(
+            "item-sample-001",
+            BuyerAcceptanceItemStatus.Accepted,
+            "test-capability",
+            "release-engineer",
+            "approver-001",
+            false,
+            null,
+            new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero),
+            "buyer-ack-sample",
+            null,
+            null,
+            null,
+            null,
+            null,
+            new DateTimeOffset(2027, 9, 1, 0, 0, 0, TimeSpan.Zero)),
     ];
 
     internal static GovernanceAuditEvidence GovernanceEvidence(GovernanceOperationKind operationKind, GovernanceOutcome outcome)

@@ -1,5 +1,6 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
 # last_updated: 2026-05-23
+# Story 6.5 ready-for-dev 2026-05-23: BuyerAcceptanceItemStatus (4 values), BuyerPartialAcceptanceItemV1, BuyerPartialAcceptanceItemValidator (5 error tokens); BuyerAcceptanceConformanceSuite, BuyerAcceptanceConformanceSuiteTest; ~34 new tests; FR102
 # Story 6.4 ready-for-dev 2026-05-23: CapabilityReleaseScope (7 values), SubstrateConsequenceArea (8 values), CapabilityReleaseScopeEntryV1, CapabilityReleaseScopeValidator (3 error tokens); ReleaseScopeConformanceSuite, ReleaseScopeConformanceSuiteTest; ~30 new tests; FR100 + FR101
 # Story 6.3 ready-for-dev 2026-05-23: ConversationConformanceStatusClass (8 values), ConversationConformanceStatusClassifier (Classify + ClassifyGate), IConversationConformanceTelemetry, ConversationConformanceTelemetry (counter conversations.conformance.outcomes); ConformanceStatusConformanceSuite, ConformanceStatusConformanceSuiteTest; ~38 new tests; FR99 + NFR59
 # Story 6.2 ready-for-dev 2026-05-23: ConversationProjectionFreshnessClass (5 values), ConversationProjectionLagClass (4 values), ConversationPublicationFailureClass (6 values), IConversationProjectionTelemetry, ConversationProjectionTelemetry (3 counters), ConversationPublicationService wrapper; wired into ConversationProjectionReadService; ~24 new Server tests; FR96 + FR97
@@ -118,7 +119,7 @@ development_status:
   6-2-observe-projection-lag-rebuild-availability-and-publication-failures: done
   6-3-surface-conformance-and-verification-status-for-incidents-and-ci: done
   6-4-classify-release-scope-and-deferred-capability-consequences: done
-  6-5-support-buyer-partial-acceptance-and-waiver-review: backlog
+  6-5-support-buyer-partial-acceptance-and-waiver-review: done
   6-6-track-second-adopter-status-and-downgrade-rule-milestones: backlog
   6-7-publish-responsibility-boundary-documentation: backlog
   6-8a-validate-operational-telemetry-redaction: backlog

@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 6.5 Support Buyer Partial Acceptance and Waiver Review
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/BuyerAcceptanceVocabularyTest.cs` — 8 [Fact] tests: BuyerAcceptanceItemStatus_AllContains4Values, BuyerAcceptanceItemStatus_Parse_Accepted_ReturnsAccepted, BuyerAcceptanceItemStatus_Parse_Excluded_ReturnsExcluded, BuyerAcceptanceItemStatus_Parse_UnknownAccepted_ReturnsUnknownAccepted, BuyerAcceptanceItemStatus_Parse_Waived_ReturnsWaived, BuyerAcceptanceItemStatus_Parse_UnknownValue_ThrowsArgumentException, BuyerAcceptanceItemStatus_SerializesAndDeserializesToCorrectValue, BuyerAcceptanceItemStatus_UnknownAccepted_WireValueIsUnknownAccepted.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/BuyerPartialAcceptanceValidatorTest.cs` — 11 [Fact] tests: ValidateItem_Accepted_WithAck_ReturnsNoErrors, ValidateItem_Excluded_NoAckRequired_ReturnsNoErrors, ValidateItem_UnknownAccepted_WithAck_ReturnsNoErrors, ValidateItem_Waived_WithWaiverLink_ReturnsNoErrors, ValidateItem_Blocker_WithApprover_ReturnsNoErrors, ValidateItem_Accepted_MissingAck_ReturnsMissingBuyerAcknowledgement, ValidateItem_Blocker_MissingApprover_ReturnsBlockerRequiresApprover, ValidateItem_ExpiredItem_ReturnsExpiredAcceptanceItem, ValidateItem_ReviewDue_ReturnsReviewDue, ValidateItem_Waived_NoLink_ReturnsWaivedMissingWaiverLink, ValidateItem_Excluded_DoesNotRequireBuyerAck.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceSuiteTest.cs` — 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, AllPassScenariosShouldProduceReadyOutcome, AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails, AllChecksShouldBeClassifiedAsConformant, AllChecksShouldCarryFR102RequirementAndBuyerAcceptanceMappings, PassScenariosShouldHaveNullTypedError, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip, NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow, ExpiredItemShouldProduceConformantResult, MissingAckShouldProduceConformantResult.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/BuyerAcceptanceVocabulary.cs` — New file: BuyerAcceptanceItemStatus sealed record vocabulary (4 values: Accepted, Excluded, UnknownAccepted, Waived).
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/BuyerPartialAcceptanceItemV1.cs` — New file: BuyerPartialAcceptanceItemV1 positional record with eager field validation (15 params) + BuyerPartialAcceptanceItemValidator static class (5 error tokens: blocker-requires-approver, missing-buyer-acknowledgement, expired-acceptance-item, review-due, waived-missing-waiver-link).
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` — Added BuyerAcceptanceItemStatusJsonConverter.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` — Added BuyerAcceptanceItemStatus (4 values) and BuyerPartialAcceptanceItemV1 samples.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceFixtures.cs` — BuyerAcceptanceScenarioData record + BuyerAcceptanceConformanceSeedData with 10 deterministic synthetic scenarios.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/BuyerAcceptanceConformanceSuite.cs` — Suite runner; SuiteId=buyer-acceptance-suite; calls BuyerPartialAcceptanceItemValidator.ValidateItem per scenario; conformant when actual errors match expected errors.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` — Story 6.5 entry added: testId=story-6-5-buyer-partial-acceptance, requirementId=FR102, releaseGateId=null, evidenceArtifactHandle=buyer-acceptance-suite-result.
+
+### Validation
+- [x] Targeted tests (vocabulary + validator): `dotnet test ... --filter "FullyQualifiedName~BuyerAcceptance"` — 27 passed.
+- [x] Targeted tests (conformance suite): `dotnet test ... --filter "FullyQualifiedName~BuyerAcceptanceConformance"` — 15 passed.
+- [x] Full Contracts suite: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/...` — 550 passed (531 baseline + 19 new).
+- [x] Full Conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/...` — 201 passed (186 baseline + 15 new).
+
+### Coverage
+- AC1: BuyerPartialAcceptanceItemV1 (15 params) carries all required governance fields: accepted capabilities, excluded capabilities, active waivers, unknown-accepted items, compensating controls, owners, expiry dates, buyer acknowledgement, review milestones, and links to signed conformance artifacts and release manifests.
+- AC2: BuyerPartialAcceptanceItemValidator enforces "blocker-requires-approver" for release blocker items; buyer-visible rationale enforced via required Approver field on blockers.
+- AC3: All 5 validator error tokens tested; 10-scenario conformance suite covers all AC3-required paths; serialization stability and content-safety verified.
+- AC4: BuyerPartialAcceptanceItemValidator links directly to waiver entries, conformance manifest rows, affected stories, and release-scope consequence statements; missing links detected by "waived-missing-waiver-link" and "missing-buyer-acknowledgement" tokens.
+
 ## Story 6.4 Classify Release Scope and Deferred Capability Consequences
 
 ### Generated Tests
