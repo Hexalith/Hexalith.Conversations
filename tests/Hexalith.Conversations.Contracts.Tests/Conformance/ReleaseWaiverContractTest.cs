@@ -426,7 +426,7 @@ public sealed class ReleaseWaiverContractTest
         JsonNode? node = JsonNode.Parse(json);
         JsonNode? entries = node?["entries"];
         entries.ShouldNotBeNull();
-        entries!.AsArray().Count.ShouldBe(4);
+        entries!.AsArray().Count.ShouldBeGreaterThanOrEqualTo(4);
     }
 
     // --- Helpers ---

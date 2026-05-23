@@ -67,6 +67,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-5-isolation-conformance",
+      "testName": "Tenant isolation conformance suite release-gating coverage",
+      "requirementId": "FR87",
+      "carryForwardCommitmentRef": "story-1-5-binding-fail-closed",
+      "releaseGateId": "tenant-isolation",
+      "passCriteria": "All 12 isolation scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "isolation-conformance-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []
