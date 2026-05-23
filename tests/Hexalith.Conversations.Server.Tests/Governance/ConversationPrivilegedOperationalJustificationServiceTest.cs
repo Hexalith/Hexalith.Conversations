@@ -41,7 +41,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
         ConversationPrivilegedOperationalJustificationService service = new(
             access,
             new FakeProjectionReadStore { Models = Models(Tenant) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
         int delegateCalls = 0;
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
@@ -146,7 +147,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 "caller-001",
                 ConversationTenantAccessDenialReason.MissingMember)),
             store,
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
         int delegateCalls = 0;
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
@@ -175,7 +177,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
         ConversationPrivilegedOperationalJustificationService service = new(
             access,
             new FakeProjectionReadStore { Models = Models(Tenant) },
-            new FakeGovernanceAuditService());
+            new FakeGovernanceAuditService(),
+            new FakeTimeProvider(Now));
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
             Command(PrivilegedOperationalActionClass.VisibilityChange),
@@ -203,7 +206,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 Tenant,
                 "caller-001")),
             new FakeProjectionReadStore { Models = Models(Tenant, trustState, reason) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
         int delegateCalls = 0;
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
@@ -232,7 +236,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 Tenant,
                 "caller-001")),
             new FakeProjectionReadStore { Models = Models(OtherTenant) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
         int delegateCalls = 0;
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
@@ -264,7 +269,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 Tenant,
                 "caller-001")),
             new FakeProjectionReadStore { Models = Models(Tenant) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
         int delegateCalls = 0;
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
@@ -293,7 +299,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 Tenant,
                 "caller-001")),
             new FakeProjectionReadStore { Models = Models(Tenant) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
             Command(PrivilegedOperationalActionClass.Rebuild),
@@ -324,7 +331,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
                 Tenant,
                 "caller-001")),
             new FakeProjectionReadStore { Models = Models(Tenant) },
-            audit);
+            audit,
+            new FakeTimeProvider(Now));
 
         PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
             Command(PrivilegedOperationalActionClass.Repair),
