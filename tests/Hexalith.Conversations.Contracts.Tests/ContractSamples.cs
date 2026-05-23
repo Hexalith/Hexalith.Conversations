@@ -43,6 +43,18 @@ internal static class ContractSamples
             ["region"] = "eu",
         });
 
+    internal static readonly CallerMetadata Caller = new(
+        Version,
+        "adopter-client",
+        "1.4.0",
+        "front-composer",
+        "adopter-portal",
+        "intake",
+        new Dictionary<string, string>
+        {
+            ["channel"] = "web",
+        });
+
     internal static readonly ConversationCommandMetadata CommandMetadata = new(
         Version,
         Tenant,
@@ -381,6 +393,7 @@ internal static class ContractSamples
         Message,
         Business,
         ProviderCorrelation,
+        Caller,
         CommandMetadata,
         GovernanceOperationKind.SetRetentionPolicy,
         GovernedTargetKind.Conversation,
@@ -855,11 +868,11 @@ internal static class ContractSamples
             GovernanceTimestamp,
             AuditEvidence,
             ProjectionTrustState.Current),
-        new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation),
-        new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation),
+        new CreateConversationCommand(CommandMetadata, Business, Project, Folder, "Case 123", ProviderCorrelation, Caller),
+        new AppendMessageCommand(CommandMetadata, Conversation, Message, Actor, "Hello from the adopter.", ProviderCorrelation, Caller),
         new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
         new AttachFileReferenceCommand(CommandMetadata, Conversation, File, Folder, Message),
-        new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
+        new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }, Caller),
         new CloseConversationCommand(CommandMetadata, Conversation, "resolved"),
         new ArchiveConversationCommand(CommandMetadata, Conversation, "retained"),
         EventMetadata,

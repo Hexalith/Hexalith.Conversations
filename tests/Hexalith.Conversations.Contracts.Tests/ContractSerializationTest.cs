@@ -58,7 +58,7 @@ public sealed class ContractSerializationTest
     {
         AssertJsonEquivalent(
             """
-            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}}}
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":{"system":"crm","value":"case-123"},"projectId":"project:project-001","folderId":"folder:folder-001","label":"Case 123","providerCorrelation":{"providerName":"provider-a","providerType":"assistant","metadataSchemaVersion":1,"providerSessionReference":"session-reference","providerResponseReference":"response-reference","extensionData":{"region":"eu"}},"callerMetadata":null}
             """,
             new CreateConversationCommand(
                 ContractSamples.CommandMetadata,
@@ -132,6 +132,45 @@ public sealed class ContractSerializationTest
                 ContractSamples.Tenant,
                 ContractSamples.Actor,
                 "correlation-null"));
+    }
+
+    /// <summary>
+    /// Verifies the optional caller-metadata provenance member is carried on each command that accepts it
+    /// (create, append, update) and round-trips with a stable camelCase wire shape (Story 4.6). This proves
+    /// the additive attachment surfaces uniformly across all three commands rather than only on create.
+    /// </summary>
+    [Fact]
+    public void CallerMetadataShouldRoundTripOnEveryCommandThatCarriesIt()
+    {
+        AssertJsonEquivalent(
+            """
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"businessReference":null,"projectId":null,"folderId":null,"label":"Case 123","providerCorrelation":null,"callerMetadata":{"metadataSchemaVersion":1,"clientName":"adopter-client","clientVersion":"1.4.0","composerSource":"front-composer","origin":"adopter-portal","integrationContext":"intake","extensionData":{"channel":"web"}}}
+            """,
+            new CreateConversationCommand(
+                ContractSamples.CommandMetadata,
+                Label: "Case 123",
+                CallerMetadata: ContractSamples.Caller));
+
+        AssertJsonEquivalent(
+            """
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"conversationId":"conv:conversation-001","messageId":"message:message-001","authorPartyId":"party:party-actor","text":"Hello from the adopter.","providerCorrelation":null,"callerMetadata":{"metadataSchemaVersion":1,"clientName":"adopter-client","clientVersion":"1.4.0","composerSource":"front-composer","origin":"adopter-portal","integrationContext":"intake","extensionData":{"channel":"web"}}}
+            """,
+            new AppendMessageCommand(
+                ContractSamples.CommandMetadata,
+                ContractSamples.Conversation,
+                ContractSamples.Message,
+                ContractSamples.Actor,
+                "Hello from the adopter.",
+                CallerMetadata: ContractSamples.Caller));
+
+        AssertJsonEquivalent(
+            """
+            {"metadata":{"schemaVersion":1,"tenantId":"tenant:tenant-001","actorPartyId":"party:party-actor","correlationId":"correlation-001","causationId":"causation-001","idempotencyKey":"idempotency-001"},"conversationId":"conv:conversation-001","label":null,"businessReference":null,"attributes":null,"callerMetadata":{"metadataSchemaVersion":1,"clientName":"adopter-client","clientVersion":"1.4.0","composerSource":"front-composer","origin":"adopter-portal","integrationContext":"intake","extensionData":{"channel":"web"}}}
+            """,
+            new UpdateConversationMetadataCommand(
+                ContractSamples.CommandMetadata,
+                ContractSamples.Conversation,
+                CallerMetadata: ContractSamples.Caller));
     }
 
     /// <summary>

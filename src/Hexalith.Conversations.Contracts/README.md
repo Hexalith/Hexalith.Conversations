@@ -99,6 +99,23 @@ dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversation
 
 Conformance assertions and the fixture target Conversations contracts and the supported `Hexalith.Conversations.Client`, not raw HTTP fallback. Release signing, versioned conformance manifests, and waiver aggregation are intentionally out of scope for the local-evidence slice.
 
+## Caller Metadata (Provenance Only)
+
+`CallerMetadata` is an optional, bounded, content-safe provenance bag adopters can attach to `CreateConversationCommand`, `AppendMessageCommand`, and `UpdateConversationMetadataCommand`. It carries client/composer/origin attribution for audit, downstream projection, and Hexalith front-end composition surfaces. Correlation and causation identifiers are NOT part of caller metadata; they remain first-class on `ConversationCommandMetadata` and propagate onto events through `ConversationEventMetadata`.
+
+Caller metadata is **provenance only**. It is never authorization, tenant truth, governance truth, or UI-inferred trust state. Tenant access stays decided by the claims-derived tenant context and the local Tenants projection; caller-supplied values can never override tenant scope, command availability, or freshness/trust signals. Every displayed trust claim still maps to Conversations-owned projection freshness or command-availability metadata.
+
+| Approved field | Bound / limit | Policy |
+| --- | --- | --- |
+| `clientName` | optional; <= 256 chars; no control characters; content-safe | reject if invalid |
+| `clientVersion` | optional; <= 256 chars; no control characters; content-safe | reject if invalid |
+| `composerSource` | optional; <= 256 chars; no control characters; content-safe | reject if invalid |
+| `origin` | optional; <= 256 chars; no control characters; content-safe | reject if invalid |
+| `integrationContext` | optional; <= 256 chars; no control characters; content-safe | reject if invalid |
+| `extensionData` | optional opaque string bag; <= 32 entries; each key/value <= 256 chars; non-empty key; non-null value; content-safe | reject if invalid |
+
+Malformed, oversized, unbounded, sensitive, or unsupported metadata is **rejected** with a typed `command_validation_failed` diagnostic rather than silently truncated, because a truncated content-unsafe value cannot guarantee a safe residual fragment. Forbidden as caller-metadata keys or values: tenant identity, user/Party identity, tokens, claims, provider payloads, raw prompts, message/redacted text, business-reference values, secrets, local paths, and raw exception text. The same free-text content-safety guardrail used by `ConversationError` rejects these by construction, and the command boundary re-bounds caller metadata (and the existing `UpdateConversationMetadataCommand.Attributes` bag) before dispatch.
+
 ## Safe Surface
 
 The package is limited to public Conversations contracts. It does not publish runtime topology, local build paths, UI implementation details, provider-specific content fields, Party personal data, or operational failure text. Compatibility metadata is not tenant authorization, governance truth, projection freshness, or runtime health; it only tells adopters which contract and package versions are supported and where to find safe remediation guidance.

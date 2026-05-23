@@ -16,10 +16,12 @@ namespace Hexalith.Conversations.Contracts.Commands;
 /// <param name="authorPartyId">The stable Party reference for the message author.</param>
 /// <param name="text">The message text supplied by the caller.</param>
 /// <param name="providerCorrelation">Optional provider correlation metadata.</param>
+/// <param name="callerMetadata">Optional bounded, content-safe caller provenance metadata.</param>
 public sealed record AppendMessageCommand(
     ConversationCommandMetadata Metadata,
     ConversationId ConversationId,
     MessageId MessageId,
     PartyId AuthorPartyId,
     string Text,
-    ProviderCorrelationMetadata? ProviderCorrelation = null);
+    ProviderCorrelationMetadata? ProviderCorrelation = null,
+    CallerMetadata? CallerMetadata = null);

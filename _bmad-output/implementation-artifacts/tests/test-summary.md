@@ -1,5 +1,40 @@
 # Test Automation Summary
 
+## Story 4.6 Capture Caller Metadata for Attribution, Audit, and Composition
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/CallerMetadataContractsTest.cs` - Added construction-time validation (size caps, count caps, control-character rejection, content-unsafe rejection of tenant/Party/provider-payload/business-reference/EventStore/local-path/exception fragments), whitespace-only rejection, malformed extension data rejection, required schema version, stable camelCase web JSON shape, additive-JSON tolerance, and boundary-bag bounding coverage for `CallerMetadata.TryValidateMetadataBag`.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Registered a `CallerMetadata` sample in `AllContracts` and attached it to the create/append/update command samples so the new contract participates in serialization, forbidden-surface, and content-safety scans.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSerializationTest.cs` - Updated the representative `CreateConversationCommand` wire fixture for the additive `callerMetadata` member.
+- [x] `tests/Hexalith.Conversations.Tests/Validation/CallerMetadataValidationTest.cs` - Added command-boundary coverage: valid caller metadata passes, absent caller metadata stays valid, token-like/sensitive values rejected at construction, oversized/tenant-spoofing/over-count `UpdateConversationMetadataCommand.Attributes` bag returns typed `command_validation_failed` rejections with bounded reason codes that never echo caller-supplied values, and a trust-inference assertion that caller metadata never alters the envelope tenant binding.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Publication/CallerMetadataPublicationTest.cs` - Added publication non-leak coverage (no caller-supplied client/composer/origin value appears in safe transport headers; correlation/causation remain the canonical provenance carrier) and a command-API trust-inference test proving caller metadata claiming a different tenant/elevated origin does not override the claims-derived tenant binding.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Identifiers/CallerMetadata.cs` - New bounded, content-safe, eagerly-validated provenance record modeled on `ProviderCorrelationMetadata`. Approved fields: `clientName`, `clientVersion`, `composerSource`, `origin`, `integrationContext`, and a bounded opaque `extensionData` string bag. Reuses the shared `ConversationError.EnsureContentSafe` guardrail; exposes `TryValidateBounds`/`TryValidateMetadataBag` non-throwing boundary helpers returning bounded reason codes.
+- [x] `src/Hexalith.Conversations.Contracts/Commands/CreateConversationCommand.cs`, `AppendMessageCommand.cs`, `UpdateConversationMetadataCommand.cs` - Added an additive optional `CallerMetadata? CallerMetadata = null` following the existing optional `ProviderCorrelationMetadata? ProviderCorrelation = null` precedent (no breaking change; no broad envelope change, so no ADR trigger).
+- [x] `src/Hexalith.Conversations/Validation/ConversationCommandSchemaValidation.cs` - Extended the canonical envelope validator to bound caller metadata AFTER the shared envelope (tenant/schema/idempotency), reusing the idempotency-key reject/bound pattern. Closes the noted gap by also bounding the previously unbounded `UpdateConversationMetadataCommand.Attributes` bag with the same deterministic policy. Returns typed `ConversationRejectedDomainEvent(CommandValidationFailed, ...)` with bounded reason codes.
+- [x] `src/Hexalith.Conversations.Contracts/README.md` - Added a compact adopter-facing caller-metadata table (approved fields, bounds, reject policy) and the provenance-only rule.
+
+### Design Decisions (Dev Notes)
+- Attachment approach: additive optional parameter on the three relevant command records, NOT a broad `ConversationCommandMetadata` envelope change (avoids the broad-public-envelope ADR trigger).
+- Correlation/causation are not duplicated in caller metadata; they remain first-class on `ConversationCommandMetadata`/`ConversationEventMetadata`.
+- Reject/truncate/omit policy (AC3): deterministic **reject** at construction and at the command boundary; no silent truncation, because a truncated content-unsafe value cannot guarantee a safe residual fragment.
+- No new durable state: caller metadata is a command-boundary provenance bag bound by the validator; no new durable event field was added, and published provenance flows only through the existing safe correlation/causation transport headers (no ADR trigger).
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~CallerMetadata|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization|FullyQualifiedName~ContractValidation"` - 64 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~CallerMetadata|FullyQualifiedName~Validation"` - 22 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~CallerMetadata|FullyQualifiedName~Publication|FullyQualifiedName~CommandApi"` - 31 passed.
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Conformance 25, Integration 8, Core 150, Server 425, Contracts 372 (1003 total).
+
+### Coverage
+- AC1: only approved bounded caller-metadata fields are accepted; identity/secret/protected values are rejected by construction and at the command boundary.
+- AC2: caller metadata stays provenance only and never becomes tenant truth, authorization, governance truth, or UI trust state; the command-API trust-inference test proves a spoofing caller cannot override the claims-derived tenant binding.
+- AC3: malformed/oversized/unbounded/sensitive/unsupported metadata is rejected with typed bounded diagnostics that never echo caller-supplied values; publication non-leak test proves no caller value reaches transport headers.
+- AC4: contract, domain-validation, trust-inference, and publication/no-leak tests prove safe validation, bounded telemetry, attribution usefulness, and no trust/authorization inference.
+- No Story 4.7 guide/DocFX/raw HTTP examples, no Epic 5/6 work, no parallel correlation/error/attribution model, no new durable state, and no caller-metadata-as-authority were added.
+
 ## Story 4.5 Provide Adopter-Facing Conformance Tests and CORE Fixture
 
 ### Generated Tests

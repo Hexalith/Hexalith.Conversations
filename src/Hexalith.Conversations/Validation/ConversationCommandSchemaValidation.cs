@@ -5,6 +5,7 @@
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 
@@ -39,7 +40,61 @@ internal static class ConversationCommandSchemaValidation
             _ => throw new ArgumentException($"Unsupported conversation command type '{command.GetType().FullName}'.", nameof(command)),
         };
 
-        return ValidateMetadata(metadata);
+        ConversationRejectedDomainEvent? envelopeRejection = ValidateMetadata(metadata);
+        if (envelopeRejection is not null)
+        {
+            return envelopeRejection;
+        }
+
+        return ValidateCallerMetadata(command, metadata);
+    }
+
+    /// <summary>
+    /// Bounds caller-supplied provenance metadata at the command boundary.
+    /// </summary>
+    /// <remarks>
+    /// Caller metadata is provenance only and is validated AFTER the shared envelope (tenant binding, schema version,
+    /// idempotency key); it never participates in tenant scope, authorization, command eligibility, or trust state.
+    /// This mirrors the idempotency-key bounding precedent: deterministic size/count caps and control-character
+    /// rejection, returning a typed <see cref="ConversationRejectedDomainEvent"/> (<c>command_validation_failed</c>)
+    /// with a bounded reason code rather than echoing any caller-supplied value. It also bounds the existing safe
+    /// adopter metadata bag on <see cref="UpdateConversationMetadataCommand"/>, which was previously unbounded.
+    /// </remarks>
+    /// <param name="command">The public command contract.</param>
+    /// <param name="metadata">The already-validated shared command metadata.</param>
+    /// <returns>A typed rejection when caller metadata is out of bounds; otherwise <see langword="null" />.</returns>
+    private static ConversationRejectedDomainEvent? ValidateCallerMetadata(object command, ConversationCommandMetadata metadata)
+    {
+        CallerMetadata? callerMetadata = command switch
+        {
+            CreateConversationCommand create => create.CallerMetadata,
+            AppendMessageCommand append => append.CallerMetadata,
+            UpdateConversationMetadataCommand update => update.CallerMetadata,
+            _ => null,
+        };
+
+        if (!CallerMetadata.TryValidateBounds(callerMetadata, out string? callerReason))
+        {
+            return Reject(
+                ConversationErrorCode.CommandValidationFailed,
+                callerReason ?? "caller_metadata_invalid",
+                metadata.SchemaVersion,
+                metadata.CorrelationId,
+                metadata.CausationId);
+        }
+
+        if (command is UpdateConversationMetadataCommand updateCommand
+            && !CallerMetadata.TryValidateMetadataBag(updateCommand.Attributes, out string? attributesReason))
+        {
+            return Reject(
+                ConversationErrorCode.CommandValidationFailed,
+                attributesReason ?? "caller_metadata_invalid",
+                metadata.SchemaVersion,
+                metadata.CorrelationId,
+                metadata.CausationId);
+        }
+
+        return null;
     }
 
     /// <summary>
