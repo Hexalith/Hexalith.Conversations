@@ -6,6 +6,7 @@
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.TrustStates;
+using Hexalith.Conversations.Server.Diagnostics;
 using Hexalith.Conversations.Server.TenantAccess;
 
 namespace Hexalith.Conversations.Server.Projections;
@@ -15,13 +16,16 @@ namespace Hexalith.Conversations.Server.Projections;
 /// </summary>
 public sealed class ConversationProjectionReadService(
     IConversationTenantAccessService tenantAccessService,
-    IConversationProjectionReadStore projectionReadStore)
+    IConversationProjectionReadStore projectionReadStore,
+    IConversationProjectionTelemetry? telemetry = null)
 {
     private readonly IConversationProjectionReadStore _projectionReadStore =
         projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
 
     private readonly IConversationTenantAccessService _tenantAccessService =
         tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
+
+    private readonly IConversationProjectionTelemetry? _telemetry = telemetry;
 
     /// <summary>
     /// Reads a conversation detail projection through the fail-closed tenant and freshness boundary.
@@ -70,7 +74,7 @@ public sealed class ConversationProjectionReadService(
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
-            return Unavailable();
+            return EmitFreshnessTelemetryAndReturn(Unavailable());
         }
 
         if (models is null)
@@ -89,20 +93,20 @@ public sealed class ConversationProjectionReadService(
 
         if (!SameGeneration(models.Summary.Freshness, models.Detail.Freshness))
         {
-            return new ConversationProjectionReadResult(
+            return EmitFreshnessTelemetryAndReturn(new ConversationProjectionReadResult(
                 ProjectionTrustState.Rebuilding,
                 ProjectionFreshnessReasonCode.MixedGeneration,
                 null,
-                false);
+                false));
         }
 
         ProjectionFreshnessV1 freshness = models.Detail.Freshness;
         bool enabled = freshness.AllowsTrustBearingDecision();
-        return new ConversationProjectionReadResult(
+        return EmitFreshnessTelemetryAndReturn(new ConversationProjectionReadResult(
             freshness.FreshnessState,
             freshness.ReasonCode,
             enabled ? models.Detail : null,
-            enabled);
+            enabled));
     }
 
     private static ConversationProjectionReadResult Forbidden()
@@ -133,4 +137,23 @@ public sealed class ConversationProjectionReadService(
             ProjectionFreshnessReasonCode.Unavailable,
             null,
             false);
+
+    private ConversationProjectionReadResult EmitFreshnessTelemetryAndReturn(ConversationProjectionReadResult result)
+    {
+        if (_telemetry is not null && result.FreshnessState != ProjectionTrustState.Forbidden)
+        {
+            string safeCorrelationId = Guid.NewGuid().ToString("N")[..8];
+            ConversationProjectionFreshnessClass freshnessClass =
+                ConversationProjectionFreshnessClassifier.Classify(result.FreshnessState, result.ReasonCode);
+            ConversationProjectionLagClass lagClass =
+                ConversationProjectionFreshnessClassifier.ClassifyLag(result.ReasonCode);
+            _telemetry.RecordProjectionFreshnessState(freshnessClass, lagClass, safeCorrelationId);
+            if (result.FreshnessState == ProjectionTrustState.Rebuilding)
+            {
+                _telemetry.RecordProjectionRebuildProgress(ConversationProjectionFreshnessClass.Rebuilding, safeCorrelationId);
+            }
+        }
+
+        return result;
+    }
 }

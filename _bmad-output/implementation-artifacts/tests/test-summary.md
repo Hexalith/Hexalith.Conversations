@@ -1,5 +1,36 @@
 # Test Automation Summary
 
+## Story 6.2 Observe Projection Lag, Rebuild, Availability, and Publication Failures
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationProjectionFreshnessClassifierTest.cs` — 9 [Fact] tests: ClassifyTrustState_Current_ReturnsCurrent, ClassifyTrustState_Stale_ReturnsStale, ClassifyTrustState_Rebuilding_ReturnsRebuilding, ClassifyTrustState_Unavailable_ReturnsUnavailable, ClassifyTrustState_Forbidden_ReturnsUnavailable, ClassifyLag_StaleThresholdExceeded_ReturnsThresholdBreached, ClassifyLag_GapDetected_ReturnsCriticalLag, ClassifyLag_OutOfOrderEvent_ReturnsCriticalLag, ClassifyLag_Current_ReturnsWithinThreshold.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationPublicationFailureClassifierTest.cs` — 4 [Fact] tests: ClassifyCode_SchemaVersionUnsupported_ReturnsUnsupportedSchema, ClassifyCode_TenantContextMismatch_ReturnsTenantViolation, ClassifyCode_TenantIsolationViolation_ReturnsTenantViolation, ClassifyCode_CommandValidationFailed_ReturnsTransientFailure.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationProjectionTelemetryTest.cs` — 11 [Fact] tests: RecordProjectionFreshnessState_CurrentWithinThreshold_EmitsBoundedCounterWithBothDimensions, RecordProjectionFreshnessState_Stale_EmitsBoundedCounterWithStaleClass, RecordProjectionFreshnessState_Rebuilding_EmitsBoundedCounterWithRebuildingClass, RecordProjectionFreshnessState_LogMessageContainsOnlyBoundedFields_NoTenantOrConversationIds, RecordProjectionRebuildProgress_Rebuilding_EmitsBoundedCounter, RecordProjectionRebuildProgress_NoneClass_ThrowsArgumentException, RecordPublicationFailure_UnsupportedSchema_EmitsBoundedCounter, RecordPublicationFailure_LogMessageContainsOnlyBoundedFields, RecordPublicationFailure_NoneClass_ThrowsArgumentException, RecordProjectionFreshnessState_NoneClass_ThrowsArgumentException, AddConversationProjectionTelemetry_RegistersServiceCorrectly.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionFreshnessClass.cs` — New enum (6 values: None, Current, Stale, Rebuilding, Unavailable, PartiallyRebuilt).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionLagClass.cs` — New enum (5 values: None, WithinThreshold, ThresholdBreached, CriticalLag, Unavailable).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationPublicationFailureClass.cs` — New enum (6 values: None, TransientFailure, UnsupportedSchema, DeadLettered, ReplayRequired, TenantViolation).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionFreshnessClassifier.cs` — Static helper mapping ProjectionTrustState → ConversationProjectionFreshnessClass and ProjectionFreshnessReasonCode → ConversationProjectionLagClass. Forbidden collapses to Unavailable (side-channel prevention).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationPublicationFailureClassifier.cs` — Static helper mapping ConversationErrorCode → ConversationPublicationFailureClass.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/IConversationProjectionTelemetry.cs` — Interface with RecordProjectionFreshnessState, RecordProjectionRebuildProgress, RecordPublicationFailure.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionTelemetry.cs` — Implementation using IMeterFactory (counters: conversations.projection.freshness, conversations.projection.rebuild, conversations.publication.failures) and ILogger with content-safe templates. None class guard throws ArgumentException.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionTelemetryServiceCollectionExtensions.cs` — AddConversationProjectionTelemetry() registers singleton.
+- [x] `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs` — Added optional IConversationProjectionTelemetry? constructor param; EmitFreshnessTelemetryAndReturn helper emits freshness + rebuild signals for all non-Forbidden result paths (Unavailable, Rebuilding, final result).
+- [x] `src/Hexalith.Conversations.Server/Publication/ConversationPublicationService.cs` — New non-static wrapper around ConversationPublicationMapper; emits RecordPublicationFailure on rejected results with safe short correlationId.
+
+### Validation
+- [x] Targeted tests (freshness classifier): `dotnet test ... --filter "FullyQualifiedName~ConversationProjectionFreshness"` — 9 passed.
+- [x] Targeted tests (publication failure classifier): `dotnet test ... --filter "FullyQualifiedName~ConversationPublicationFailure"` — 4 passed.
+- [x] Targeted tests (telemetry): `dotnet test ... --filter "FullyQualifiedName~ConversationProjectionTelemetry"` — 11 passed.
+- [x] Full Server suite: `dotnet test tests/Hexalith.Conversations.Server.Tests/...` — 477 passed (453 baseline + 24 new).
+- [x] Full solution: `dotnet test Hexalith.Conversations.slnx` — 1328 tests, 0 failures (Client 23, Conformance 155, Integration 8, Core 153, Server 477, Contracts 512).
+
+### Coverage
+- AC1: ProjectionTrustState → ConversationProjectionFreshnessClass (all 6 states mapped); ProjectionFreshnessReasonCode → ConversationProjectionLagClass (all 12 reason codes mapped); signals emitted at all non-Forbidden result paths in ConversationProjectionReadService; no TenantId, ConversationId, or free-text dimensions.
+- AC2: ConversationErrorCode → ConversationPublicationFailureClass (all 16 codes covered with fallback TransientFailure); ConversationPublicationService wrapper emits RecordPublicationFailure on rejected results using safe generated correlationId only.
+- AC3: Tests verify counter dimensions (freshness_class, lag_class, rebuild_class, failure_class) are bounded lowercase enum names; log messages contain only bounded fields; None class guards throw ArgumentException; DI registration verified.
+
 ## Story 6.1 Observe Command Rejections and Tenant Isolation Denials Safely
 
 ### Generated Tests

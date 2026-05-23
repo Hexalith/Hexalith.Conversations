@@ -1,5 +1,6 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
 # last_updated: 2026-05-23
+# Story 6.2 ready-for-dev 2026-05-23: ConversationProjectionFreshnessClass (5 values), ConversationProjectionLagClass (4 values), ConversationPublicationFailureClass (6 values), IConversationProjectionTelemetry, ConversationProjectionTelemetry (3 counters), ConversationPublicationService wrapper; wired into ConversationProjectionReadService; ~24 new Server tests; FR96 + FR97
 # Story 5.11 ready-for-dev 2026-05-23: PlatformEvidenceSeparationScenarioData (10 scenarios), PlatformEvidenceSeparationConformanceSeedData, PlatformEvidenceSeparationConformanceSuite, PlatformEvidenceSeparationConformanceSuiteTest; manifest fixture extended to 11 entries; releaseGateId → null (platform-evidence not in closed vocabulary); FR94
 # Story 5.8 ready-for-dev 2026-05-23: ProviderPortabilityConformanceSeedData (10 scenarios), ProviderPortabilityConformanceSuite, ProviderPortabilityConformanceSuiteTest; manifest fixture extended to 8 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → provider-portability
 # Story 5.7 ready-for-dev 2026-05-23: RedactionReplayScenarioData, RedactionConformanceSeedData (10 scenarios), RedactionConformanceSuite, RedactionConformanceSuiteTest; manifest fixture extended to 7 entries; carryForwardCommitmentRef → story-2-4; releaseGateId → redaction-non-leakage
@@ -112,7 +113,7 @@ development_status:
   epic-5-retrospective: optional
   epic-6: in-progress
   6-1-observe-command-rejections-and-tenant-isolation-denials-safely: done
-  6-2-observe-projection-lag-rebuild-availability-and-publication-failures: backlog
+  6-2-observe-projection-lag-rebuild-availability-and-publication-failures: done
   6-3-surface-conformance-and-verification-status-for-incidents-and-ci: backlog
   6-4-classify-release-scope-and-deferred-capability-consequences: backlog
   6-5-support-buyer-partial-acceptance-and-waiver-review: backlog
