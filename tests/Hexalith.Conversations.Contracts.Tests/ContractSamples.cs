@@ -1432,6 +1432,32 @@ internal static class ContractSamples
         new ConversationCreatedResult(Version, Tenant, Conversation, "correlation-001", "idempotency-001", Visibility, ConversationCommandType.CreateConversationCommand),
         SafeError(ConversationErrorCode.TenantIsolationViolation),
         new ConversationErrorResult([SafeError(ConversationErrorCode.AggregateNotFound)]),
+        CapabilityReleaseScope.V1,
+        CapabilityReleaseScope.Deferred,
+        SubstrateConsequenceArea.TenantIsolation,
+        SubstrateConsequenceArea.AuditPairing,
+        new CapabilityReleaseScopeEntryV1(
+            "create-conversation",
+            CapabilityReleaseScope.V1,
+            [],
+            "FR100",
+            null,
+            null,
+            "release-engineer",
+            new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero),
+            null,
+            null),
+        new CapabilityReleaseScopeEntryV1(
+            "deferred-cmd",
+            CapabilityReleaseScope.Deferred,
+            [SubstrateConsequenceArea.TenantIsolation],
+            null,
+            null,
+            null,
+            "release-engineer",
+            new DateTimeOffset(2027, 6, 1, 0, 0, 0, TimeSpan.Zero),
+            null,
+            null),
     ];
 
     internal static GovernanceAuditEvidence GovernanceEvidence(GovernanceOperationKind operationKind, GovernanceOutcome outcome)

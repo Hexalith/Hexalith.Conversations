@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 6.4 Classify Release Scope and Deferred Capability Consequences
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/CapabilityReleaseScopeVocabularyTest.cs` — 9 [Fact] tests: CapabilityReleaseScope_AllContains7Values, CapabilityReleaseScope_Parse_V1_ReturnsV1, CapabilityReleaseScope_Parse_Deferred_ReturnsDeferred, CapabilityReleaseScope_Parse_UnknownValue_ThrowsArgumentException, SubstrateConsequenceArea_AllContains8Values, SubstrateConsequenceArea_Parse_TenantIsolation_ReturnsTenantIsolation, SubstrateConsequenceArea_Parse_UnknownValue_ThrowsArgumentException, CapabilityReleaseScope_SerializesAndDeserializesToCorrectValue, SubstrateConsequenceArea_SerializesAndDeserializesToCorrectValue.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Conformance/CapabilityReleaseScopeValidatorTest.cs` — 10 [Fact] tests: ValidateEntry_V1Scope_ReturnsNoErrors, ValidateEntry_V1Point1Scope_ReturnsNoErrors, ValidateEntry_DeferredWithConsequences_ReturnsNoErrors, ValidateEntry_DeferredNoConsequences_ReturnsDeferredSubstrateNoConsequences, ValidateEntry_WaivedWithReference_ReturnsNoErrors, ValidateEntry_WaivedNoReference_ReturnsWaivedNoReference, ValidateEntry_ConditionalWithFutureExpiry_ReturnsNoErrors, ValidateEntry_ConditionalWithPastExpiry_ReturnsExpiredConditionalScope, ValidateEntry_ConditionalNullExpiry_ReturnsExpiredConditionalScope, ValidateEntry_OutOfScope_ReturnsNoErrors.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceSuiteTest.cs` — 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, AllPassScenariosShouldProduceReadyOutcome, AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails, AllChecksShouldBeClassifiedAsConformant, AllChecksShouldCarryFR100RequirementAndReleaseScopeMappings, PassScenariosShouldHaveNullTypedError, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip, NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow, DeferredNoAreasShouldProduceConformantResult, WaivedNoRefShouldProduceConformantResult.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/CapabilityReleaseScopeVocabulary.cs` — New file: CapabilityReleaseScope (7 values: V1, V1Point1, VNext, Deferred, Waived, Conditional, OutOfScope) and SubstrateConsequenceArea (8 values: TenantIsolation, AuditPairing, Idempotency, SchemaEvolution, ProjectionFreshness, RedactionReplay, ProviderPortability, AdopterCompatibility) sealed record vocabularies.
+- [x] `src/Hexalith.Conversations.Contracts/Conformance/CapabilityReleaseScopeEntryV1.cs` — New file: CapabilityReleaseScopeEntryV1 positional record with eager field validation + CapabilityReleaseScopeValidator static class (3 error tokens: deferred-substrate-no-consequences, waived-no-reference, expired-conditional-scope).
+- [x] `src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs` — Added CapabilityReleaseScopeJsonConverter and SubstrateConsequenceAreaJsonConverter.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceFixtures.cs` — ReleaseScopeScenarioData record + ReleaseScopeConformanceSeedData with 10 deterministic synthetic scenarios.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseScopeConformanceSuite.cs` — Suite runner; SuiteId=release-scope-suite; calls CapabilityReleaseScopeValidator.ValidateEntry per scenario; conformant when actual errors match expected errors.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` — Story 6.4 entry added: testId=story-6-4-release-scope-classification, requirementId=FR100, releaseGateId=null, evidenceArtifactHandle=release-scope-suite-result.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` — Added CapabilityReleaseScope, SubstrateConsequenceArea, and CapabilityReleaseScopeEntryV1 samples.
+
+### Validation
+- [x] Targeted tests (vocabulary): `dotnet test ... --filter "FullyQualifiedName~CapabilityReleaseScope"` — 19 passed.
+- [x] Targeted tests (conformance suite): `dotnet test ... --filter "FullyQualifiedName~ReleaseScopeConformance"` — 15 passed.
+- [x] Full Contracts suite: `dotnet test tests/Hexalith.Conversations.Contracts.Tests/...` — 531 passed (512 baseline + 19 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/...` — 186 passed (171 baseline + 15 new).
+- [x] Full solution: `dotnet test Hexalith.Conversations.slnx` — 1404 tests, 0 failures (Client 23, Conformance 186, Integration 8, Core 153, Server 503, Contracts 531).
+
+### Coverage
+- AC1: CapabilityReleaseScope (7 values) + CapabilityReleaseScopeEntryV1 carry full traceability fields (RequirementRef, ReleaseGateRef, DependencyRef, Owner, ReviewDateUtc); JSON serialization round-trip verified.
+- AC2: SubstrateConsequenceArea (8 values) + CapabilityReleaseScopeValidator error token "deferred-substrate-no-consequences" enforces that deferred entries must name substrate impact areas; cannot hide behind generic deferred label.
+- AC3: All 3 validator error tokens tested (deferred-substrate-no-consequences, waived-no-reference, expired-conditional-scope); 10-scenario conformance suite covers pass/fail paths; serialization stability and content-safety verified.
+
 ## Story 6.3 Surface Conformance and Verification Status for Incidents and CI
 
 ### Generated Tests

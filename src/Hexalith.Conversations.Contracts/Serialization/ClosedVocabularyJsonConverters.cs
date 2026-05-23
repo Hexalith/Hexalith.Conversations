@@ -358,3 +358,19 @@ internal sealed class WaiverLifecycleStatusJsonConverter :
 
     protected override string GetValue(WaiverLifecycleStatus value) => value.Value;
 }
+
+internal sealed class CapabilityReleaseScopeJsonConverter :
+    ConversationStringValueJsonConverter<CapabilityReleaseScope>
+{
+    protected override CapabilityReleaseScope Create(string value) => CapabilityReleaseScope.Parse(value);
+
+    protected override string GetValue(CapabilityReleaseScope value) => value.Value;
+}
+
+internal sealed class SubstrateConsequenceAreaJsonConverter :
+    ConversationStringValueJsonConverter<SubstrateConsequenceArea>
+{
+    protected override SubstrateConsequenceArea Create(string value) => SubstrateConsequenceArea.Parse(value);
+
+    protected override string GetValue(SubstrateConsequenceArea value) => value.Value;
+}
