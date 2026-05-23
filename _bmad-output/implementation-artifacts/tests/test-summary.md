@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 6.3 Surface Conformance and Verification Status for Incidents and CI
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationConformanceStatusClassifierTest.cs` — 13 [Fact] tests: Classify_ConformantReady_ReturnsPass, Classify_ConformantBlocked_ReturnsPass, Classify_ConformantDegraded_ReturnsStaleEvidence, Classify_ConformantUnknown_ReturnsUnknownAccepted, Classify_ProductInvariant_ReturnsFail, Classify_Infrastructure_ReturnsInfrastructureFailure, Classify_UnavailableDependency_ReturnsInfrastructureFailure, Classify_ExecutionClassification_ReturnsExecutionFailure, Classify_Configuration_ReturnsExecutionFailure, ClassifyGate_Pass_ReturnsPass, ClassifyGate_Fail_ReturnsFail, ClassifyGate_Waived_ReturnsWaived, ClassifyGate_UnknownAccepted_ReturnsUnknownAccepted.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationConformanceTelemetryTest.cs` — 10 [Fact] tests: RecordConformanceOutcome_PassClass_EmitsBoundedCounterWithCorrectDimensions, RecordConformanceOutcome_FailClass_EmitsBlockingTrueDimension, RecordConformanceOutcome_WaivedClass_EmitsBlockingFalseDimension, RecordConformanceOutcome_InfrastructureFailure_EmitsBoundedCounter, RecordConformanceOutcome_StaleEvidence_EmitsBoundedCounter, RecordConformanceOutcome_LogMessageContainsOnlyBoundedFields_NoTenantOrConversationIds, RecordConformanceOutcome_NoneClass_ThrowsArgumentException, RecordConformanceOutcome_EmptyGateId_ThrowsArgumentException, RecordConformanceOutcome_EmptyCorrelationId_ThrowsArgumentException, AddConversationConformanceTelemetry_RegistersServiceCorrectly.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceSuiteTest.cs` — 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR99RequirementAndConformanceStatusMappings, PreconditionMappingsShouldNotBeEmpty, PassScenariosShouldHaveNullTypedError, FailScenariosShouldHaveNonNullTypedError, OnlyProductInvariantFailScenarioShouldHaveBlockingTrue, WaivedGateScenarioShouldProduceReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip, NullScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationConformanceStatusClass.cs` — New enum (8 values: None, Pass, Fail, Waived, UnknownAccepted, InfrastructureFailure, StaleEvidence, ExecutionFailure).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationConformanceStatusClassifier.cs` — Static helper mapping ConformanceOutcome+ConformanceFailureClassification → ConversationConformanceStatusClass and ReleaseGateStatus → ConversationConformanceStatusClass.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/IConversationConformanceTelemetry.cs` — Interface with RecordConformanceOutcome(statusClass, safeGateId, isBlocking, correlationId).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationConformanceTelemetry.cs` — Implementation using IMeterFactory (counter: conversations.conformance.outcomes with status_class, gate_id, blocking dimensions) and ILogger with content-safe template. None class guard throws ArgumentException.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationConformanceTelemetryServiceCollectionExtensions.cs` — AddConversationConformanceTelemetry() registers singleton.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceFixtures.cs` — ConformanceStatusScenarioData record + ConformanceStatusConformanceSeedData with 10 deterministic synthetic scenarios (note: placed in Conformance.Tests rather than Testing due to Testing→Server boundary constraint).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceSuite.cs` — Suite runner; SuiteId=conformance-status-suite; calls Classify or ClassifyGate per scenario; maps conformant → Ready/Conformant/null, non-conformant → Blocked/ProductInvariant/error.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` — Story 6.3 entry added: testId=story-6-3-conformance-status, requirementId=FR99, releaseGateId=null, evidenceArtifactHandle=conformance-status-suite-result.
+
+### Validation
+- [x] Targeted tests (classifier): `dotnet test ... --filter "FullyQualifiedName~ConversationConformanceStatus"` — 13 passed.
+- [x] Targeted tests (telemetry): `dotnet test ... --filter "FullyQualifiedName~ConversationConformanceTelemetry"` — 10 passed.
+- [x] Targeted tests (conformance suite): `dotnet test ... --filter "FullyQualifiedName~ConformanceStatus"` — 15 passed.
+- [x] Full Server suite: `dotnet test tests/Hexalith.Conversations.Server.Tests/...` — 503 passed (480 baseline + 23 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/...` — 170 passed (155 baseline + 15 new).
+- [x] Full solution: `dotnet test Hexalith.Conversations.slnx` — 1369 tests, 0 failures (Client 23, Conformance 170, Integration 8, Core 153, Server 503, Contracts 512).
+
+### Coverage
+- AC1: ConversationConformanceStatusClass (8 values: None, Pass, Fail, Waived, UnknownAccepted, InfrastructureFailure, StaleEvidence, ExecutionFailure); counter conversations.conformance.outcomes emits bounded status_class, gate_id, blocking dimensions; no TenantId, ConversationId, or free-text dimensions.
+- AC2: ConversationConformanceStatusClassifier.Classify maps ConformanceFailureClassification (non-Conformant overrides outcome) + ConformanceOutcome (Conformant path); ClassifyGate maps ReleaseGateStatus; all 9 classifier table entries verified; Waived only reachable via ClassifyGate.
+- AC3: 15 conformance suite tests cover classifier mapping, telemetry bounds, serialization stability, content-safety, and conformance manifest traceability; None guard, empty gate ID, empty correlation ID guards all tested.
+
 ## Story 6.2 Observe Projection Lag, Rebuild, Availability, and Publication Failures
 
 ### Generated Tests
