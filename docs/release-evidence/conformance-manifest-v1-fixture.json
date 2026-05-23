@@ -115,6 +115,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-8-portability-conformance",
+      "testName": "Provider portability conformance suite release-gating coverage",
+      "requirementId": "FR90",
+      "carryForwardCommitmentRef": "story-1-11-replay-portability-proof",
+      "releaseGateId": "provider-portability",
+      "passCriteria": "All 10 provider portability scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "portability-conformance-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

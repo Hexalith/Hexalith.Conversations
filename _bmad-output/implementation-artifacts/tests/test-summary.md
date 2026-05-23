@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 5.8 Prove Provider Portability
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/ProviderPortabilityConformanceFixtures.cs` - `ProviderPortabilityScenarioData` sealed record and `ProviderPortabilityConformanceSeedData` static class with 10 deterministic synthetic scenario records (7 ready, 2 blocked, 1 unknown — all conformant classification). No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`. Content-safe messages: "EventStore", "store", and "provider payload" terms replaced with safe equivalents.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ProviderPortabilityConformanceSuite.cs` - Non-test suite runner following RedactionConformanceSuite pattern. SuiteId = `"portability-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 10 checks use `ConformanceCheck.EventPublication`, RequirementMappings = `["FR90"]`, ReleaseGateMappings = `["provider-portability"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ProviderPortabilityConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseEventPublicationCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR90RequirementAndPortabilityGateMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (2 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/ProviderPortabilityConformanceFixtures.cs` - New fixture file with 10 scenarios: provider-id-stripped (ready), provider-id-changed (ready), session-expiry-recoverable (ready), provider-id-migrated (ready), projection-rebuild-without-provider (ready), replay-determinism-without-provider (ready), provider-only-identity-blocked (blocked/ProviderOnlyIdentityForbidden), session-authority-blocked (blocked/ProviderOnlyIdentityForbidden), cross-provider-correlation-hidden (unknown/AggregateNotFound), diagnostics-content-safety (ready).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ProviderPortabilityConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 10-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 8th Story 5.8 entry (testId=story-5-8-portability-conformance, requirementId=FR90, carryForwardCommitmentRef=story-1-11-replay-portability-proof, releaseGateId=provider-portability (IS in ReleaseGateId closed vocabulary), evidenceArtifactHandle=portability-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Debug Log
+- Bug fix: 6 SafeMessage values in Dev Notes contained blocked UnsafeTerms ("EventStore", "store", "provider payload"). Replaced with content-safe equivalents: "EventStore" → "the event log" or "the event history source of truth"; "stored as" → "kept as"; "provider payload" → "infrastructure terms".
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~Portability"` - 16 passed (15 new + 1 pre-existing).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 110 passed (95 baseline + 15 new).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1234 tests, 0 failures (Client 23, Conformance 110, Integration 8, Core 153, Server 428, Contracts 512).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: suite covers all 10 required provider portability surfaces; any non-conformant result is an automatic release gate flag under the provider-portability mapping.
+- AC2: invariants (tenant isolation, idempotency, ordering tolerance, auditability, replay determinism) remain stable across all 10 portability scenarios; blocked and unknown outcomes prove fail-closed and side-channel-safe behavior.
+- AC3: manifest entry identifies covered scenarios, pass criteria, FR90 requirement, carry-forward commitment to Story 1.11, evidence artifact handle, and content-safe diagnostics without exposing protected identifiers.
+- AC4: 15 automated tests provide minimum evidence; missing required evidence would block gate closure per AC4 requirements.
+- Two-Level Evidence rule honored: `carryForwardCommitmentRef` links to Story 1.11 production proof; Story 5.8 adds release-gating coverage without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.7 Verify Redaction Replay Conformance
 
 ### Generated Tests

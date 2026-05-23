@@ -1,5 +1,6 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
 # last_updated: 2026-05-23
+# Story 5.8 ready-for-dev 2026-05-23: ProviderPortabilityConformanceSeedData (10 scenarios), ProviderPortabilityConformanceSuite, ProviderPortabilityConformanceSuiteTest; manifest fixture extended to 8 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → provider-portability
 # Story 5.7 ready-for-dev 2026-05-23: RedactionReplayScenarioData, RedactionConformanceSeedData (10 scenarios), RedactionConformanceSuite, RedactionConformanceSuiteTest; manifest fixture extended to 7 entries; carryForwardCommitmentRef → story-2-4; releaseGateId → redaction-non-leakage
 # Story 5.6 ready-for-dev 2026-05-23: IdempotencyConformanceSeedData (8 scenarios), IdempotencyConformanceSuite, IdempotencyConformanceSuiteTest; manifest fixture extended to 6 entries; carryForwardCommitmentRef → story-1-6
 # project: Hexalith.Conversations
@@ -100,7 +101,7 @@ development_status:
   5-5-verify-tenant-isolation-conformance: done
   5-6-verify-idempotent-command-conformance: done
   5-7-verify-redaction-replay-conformance: done
-  5-8-prove-provider-portability: backlog
+  5-8-prove-provider-portability: done
   5-9-prove-event-schema-evolution: backlog
   5-10-validate-commands-queries-events-errors-and-version-discovery: backlog
   5-11-separate-module-level-evidence-from-platform-controls: backlog
