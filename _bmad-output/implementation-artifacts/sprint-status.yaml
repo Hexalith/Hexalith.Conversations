@@ -1,5 +1,6 @@
 # generated: 2026-05-17T14:17:58.2822735+02:00
 # last_updated: 2026-05-23
+# Story 5.6 ready-for-dev 2026-05-23: IdempotencyConformanceSeedData (8 scenarios), IdempotencyConformanceSuite, IdempotencyConformanceSuiteTest; manifest fixture extended to 6 entries; carryForwardCommitmentRef → story-1-6
 # project: Hexalith.Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -96,7 +97,7 @@ development_status:
   5-3-maintain-versioned-conformance-manifest-with-traceability: done
   5-4-support-named-waivers-for-release-gate-exceptions: done
   5-5-verify-tenant-isolation-conformance: done
-  5-6-verify-idempotent-command-conformance: backlog
+  5-6-verify-idempotent-command-conformance: done
   5-7-verify-redaction-replay-conformance: backlog
   5-8-prove-provider-portability: backlog
   5-9-prove-event-schema-evolution: backlog

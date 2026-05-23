@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 5.6 Verify Idempotent Command Conformance
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/IdempotencyConformanceFixtures.cs` - `IdempotencyScenarioData` sealed record and `IdempotencyConformanceSeedData` static class with 8 deterministic synthetic scenario records (5 ready, 2 blocked, 1 unknown — all conformant classification). No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/IdempotencyConformanceSuite.cs` - Non-test suite runner following TenantIsolationConformanceSuite pattern. SuiteId = `"idempotency-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 8 checks use `ConformanceCheck.Idempotency`, RequirementMappings = `["FR88"]`, ReleaseGateMappings = `["idempotency"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/IdempotencyConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly8Checks, AllChecksShouldUseIdempotencyCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR88RequirementAndIdempotencyMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (2 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/IdempotencyConformanceFixtures.cs` - New fixture file with 8 scenarios: duplicate-equivalent-command (ready), duplicate-nonequivalent-command (blocked/IdempotencyConflict), reordered-delivery (ready), unknown-outcome-retry (ready), replayed-delivery (ready), mismatched-key-reuse (unknown/AggregateNotFound), missing-idempotency-key (blocked/IdempotencyKeyMissing), diagnostics-content-safety (ready).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/IdempotencyConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 8-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 6th Story 5.6 entry (testId=story-5-6-idempotency-conformance, requirementId=FR88, carryForwardCommitmentRef=story-1-6-idempotency-stable-outcomes, releaseGateId=null (idempotency not in ReleaseGateId closed vocabulary), evidenceArtifactHandle=idempotency-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Debug Log
+- manifest releaseGateId `"idempotency"` rejected by closed-vocabulary JSON converter (7 gate IDs; idempotency is not one). Dev Notes stated field is "not schema-validated" — incorrect; tests DO deserialize via converter. Fixed: set `releaseGateId` to `null` matching stories 5.1–5.4 pattern.
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~Idempotency"` - 16 passed (15 new + 1 existing from AdopterConformanceSuite).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 80 passed (65 baseline + 15 new).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded, 0 warnings, 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1204 tests, 0 failures (Client 23, Conformance 80, Integration 8, Core 153, Server 428, Contracts 512).
+- [x] No validation step used nested submodule initialization.
+
+### Coverage
+- AC1: suite covers all 8 required idempotency scenarios; any non-conformant result is an automatic release gate flag under the idempotency mapping.
+- AC2: manifest entry identifies covered scenarios, pass criteria, FR88 requirement, carry-forward commitment to Story 1.6, evidence artifact handle, and content-safe diagnostics without exposing protected identifiers.
+- Two-Level Evidence rule honored: `carryForwardCommitmentRef` links to Story 1.6 production proof; Story 5.6 adds release-gating coverage without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.5 Verify Tenant Isolation Conformance
 
 ### Generated Tests
