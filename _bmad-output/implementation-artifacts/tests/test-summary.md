@@ -1,5 +1,29 @@
 # Test Automation Summary
 
+## Story 5.11 Separate Module-Level Evidence from Platform Controls
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/PlatformEvidenceSeparationConformanceFixtures.cs` - `PlatformEvidenceSeparationScenarioData` sealed record and `PlatformEvidenceSeparationConformanceSeedData` static class with 10 deterministic synthetic scenario records (8 ready, 1 blocked, 1 unknown — all conformant classification). All 10 scenario tokens verified safe against full 31-term UnsafeTerms blocklist. No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/PlatformEvidenceSeparationConformanceSuite.cs` - Non-test suite runner following ContractValidationConformanceSuite pattern. SuiteId = `"platform-evidence-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 10 checks use `ConformanceCheck.GovernancePrecondition`, RequirementMappings = `["FR94"]`, PreconditionMappings = `["platform-evidence-separation-precondition"]`, ReleaseGateMappings = `["platform-evidence"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/PlatformEvidenceSeparationConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseGovernancePreconditionCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR94RequirementAndPlatformEvidenceGateMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (1 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/PlatformEvidenceSeparationConformanceFixtures.cs` - New fixture file with 10 scenarios: conversations-controls-documented (ready), eventlog-controls-inherited (ready), access-management-inherited (ready), parties-registry-inherited (ready), ui-framework-inherited (ready), infra-runtime-inherited (ready), missing-inherited-evidence-hidden (unknown/AggregateNotFound), incompatible-inherited-evidence-blocked (blocked/SchemaVersionUnsupported), approver-view-summarizes-controls (ready), approver-view-content-safe (ready).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/PlatformEvidenceSeparationConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 10-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 11th Story 5.11 entry (testId=story-5-11-platform-evidence-separation, requirementId=FR94, carryForwardCommitmentRef=null, releaseGateId=null (platform-evidence NOT in ReleaseGateId closed vocabulary), evidenceArtifactHandle=platform-evidence-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~PlatformEvidence"` - 15 passed (15 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 155 passed (140 baseline + 15 new).
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1279 tests, 0 failures (Client 23, Conformance 155, Integration 8, Core 153, Server 428, Contracts 512).
+
+### Coverage
+- AC1: suite covers all 10 required platform evidence separation surfaces; conversations-owned controls are distinguished from inherited controls with source, version reference, and scope limitation.
+- AC2: missing-inherited-evidence-hidden and incompatible-inherited-evidence-blocked scenarios prove that absent or incompatible inherited evidence is disclosed explicitly rather than silently omitted.
+- AC3: approver-view-summarizes-controls and approver-view-content-safe scenarios prove non-developer approver views are content-safe and summarize all required fields.
+- Two-Level Evidence rule honored: carryForwardCommitmentRef=null (platform boundary documentation spans multiple prior stories); Story 5.11 adds release-gating coverage under "platform-evidence" mapping without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.10 Validate Commands, Queries, Events, Errors, and Version Discovery
 
 ### Generated Tests
