@@ -45,6 +45,23 @@ Direct HTTP examples are intentionally outside normal v1 adopter guidance unless
 | `tenant_context_mismatch` | `authorization` | `false` | `align-context` | Align the request context with the authenticated context. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 | `provider_only_identity_forbidden` | `validation` | `false` | `use-party-identity` | Use a Conversations Party identity for participant attribution. | `https://docs.hexalith.local/conversations/contracts/v1/errors` |
 
+## CORE Preconditions and Onboarding Diagnostics
+
+CORE preconditions describe the environment state an adopter integration depends on before relying on Conversations behavior. The canonical, contract-owned catalog is `ConversationCorePreconditionCatalog.All`; each entry carries a `preconditionId`, the diagnostic `check` that evaluates it, the required trust state (only `Current` is trust-bearing), the typed `unmetErrorCode` reused from `ConversationErrorCatalog`, and a safe-failure description. When a precondition is unknown, failing, stale, or unsupported, dependent operations return a typed safe failure or a degraded-read result and never silently weaken tenant isolation, audit pairing, freshness, or schema compatibility.
+
+| Precondition | Required state | Safe failure behavior | Unmet error code |
+| --- | --- | --- | --- |
+| `projection-freshness` | `Current` | Stale tenant access degrades reads to a non-trust-bearing state and fails writes closed; retry after the projection is current. | `tenant_projection_stale` |
+| `audit-sink-availability` | `Current` | Governed mutations fail closed when audit recording is unavailable; retry after audit recording is available. | `audit_sink_unavailable` |
+| `supported-schema-versions` | `Current` | Unsupported schema versions are rejected with a versioning error rather than processed under an incompatible contract. | `schema_version_unsupported` |
+| `contract-compatibility` | `Current` | Unsupported or invalid contract/package versions return a typed versioning error and bounded remediation. | `schema_version_unsupported` |
+| `participant-identity-validation` | `Current` | Writes fail closed when validation is unavailable; authorized reads may degrade hydration to a safe unresolved state without disclosing personal data. | `participant_validation_unavailable` |
+| `idempotency-key-behavior` | `Current` | Commands missing idempotency metadata are rejected before processing so retries cannot duplicate accepted outcomes. | `idempotency_key_missing` |
+| `projection-subscription-health` | `Current` | A stale, rebuilding, or unavailable subscription degrades reads and fails writes closed; retry after the subscription is current. | `tenant_projection_stale` |
+| `required-configuration` | `Current` | Missing required configuration yields a bounded configuration-gap status with no provider content or secret values exposed. | `command_validation_failed` |
+
+Onboarding diagnostics evaluate the closed `OnboardingDiagnosticCheck` set (tenant context, contract version, provider configuration, projection subscription, schema compatibility, audit availability, Parties integration) and return an `OnboardingDiagnosticRunResultV1`. Each `OnboardingDiagnosticCheckResultV1` carries a closed `OnboardingDiagnosticStatus` (`ready`, `degraded`, `blocked`, `unknown`) mapped to the shared trust/freshness vocabulary, a safe message, a bounded remediation guidance code, an HTTPS documentation pointer, and the same typed `ConversationError` shape used elsewhere. Diagnostics never disclose tenant data, Party data, conversation existence, provider payloads, or production secrets; a denied, missing, or cross-tenant request collapses to a single `unknown` result.
+
 ## Safe Surface
 
 The package is limited to public Conversations contracts. It does not publish runtime topology, local build paths, UI implementation details, provider-specific content fields, Party personal data, or operational failure text. Compatibility metadata is not tenant authorization, governance truth, projection freshness, or runtime health; it only tells adopters which contract and package versions are supported and where to find safe remediation guidance.

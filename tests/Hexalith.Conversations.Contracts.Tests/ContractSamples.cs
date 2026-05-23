@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Diagnostics;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Governance;
@@ -256,6 +257,51 @@ internal static class ContractSamples
         ConversationContractCompatibility.Evaluate(new ContractCompatibilityRequest(ContractsPackageVersion: "0.9.0")),
         ConversationContractCompatibility.Evaluate(new ContractCompatibilityRequest(CommandSchemaVersion: "2")),
         ConversationContractCompatibility.Evaluate(new ContractCompatibilityRequest(EventSchemaVersion: "latest")),
+        OnboardingDiagnosticCheck.TenantContext,
+        OnboardingDiagnosticStatus.Ready,
+        ConversationCorePreconditionCatalog.Get("projection-freshness"),
+        new OnboardingDiagnosticCheckResultV1(
+            Version,
+            OnboardingDiagnosticCheck.TenantContext,
+            OnboardingDiagnosticStatus.Ready,
+            "Tenant context is current and access is allowed.",
+            "none",
+            new Uri("https://docs.hexalith.local/conversations/contracts/v1/preconditions"),
+            ["AC1", "AC2"]),
+        new OnboardingDiagnosticCheckResultV1(
+            Version,
+            OnboardingDiagnosticCheck.ProjectionSubscription,
+            OnboardingDiagnosticStatus.Degraded,
+            "Tenant projection is not current; retry after it is refreshed.",
+            "retry-after-projection-current",
+            new Uri("https://docs.hexalith.local/conversations/contracts/v1/preconditions"),
+            ["AC2", "AC3"],
+            ConversationErrorCatalog.CreateError(ConversationErrorCode.TenantProjectionStale, "correlation-001")),
+        new OnboardingDiagnosticRunResultV1(
+            Version,
+            OnboardingDiagnosticStatus.Degraded,
+            "Some CORE preconditions are not yet ready.",
+            "correlation-001",
+            new DateTimeOffset(2026, 5, 23, 12, 0, 0, TimeSpan.Zero),
+            [
+                new OnboardingDiagnosticCheckResultV1(
+                    Version,
+                    OnboardingDiagnosticCheck.TenantContext,
+                    OnboardingDiagnosticStatus.Ready,
+                    "Tenant context is current and access is allowed.",
+                    "none",
+                    new Uri("https://docs.hexalith.local/conversations/contracts/v1/preconditions"),
+                    ["AC2"]),
+                new OnboardingDiagnosticCheckResultV1(
+                    Version,
+                    OnboardingDiagnosticCheck.AuditAvailability,
+                    OnboardingDiagnosticStatus.Degraded,
+                    "Audit recording is not currently available; retry later.",
+                    "retry-after-audit-available",
+                    new Uri("https://docs.hexalith.local/conversations/contracts/v1/preconditions"),
+                    ["AC2", "AC3"],
+                    ConversationErrorCatalog.CreateError(ConversationErrorCode.AuditSinkUnavailable, "correlation-001")),
+            ]),
         ConversationCommandType.CreateConversationCommand,
         ConversationCommandType.SetConversationRetentionPolicyCommand,
         ConversationCommandType.MarkConversationContentSensitiveCommand,

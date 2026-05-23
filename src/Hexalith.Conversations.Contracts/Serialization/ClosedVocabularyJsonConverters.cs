@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Contracts.Diagnostics;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Governance;
@@ -283,4 +284,20 @@ internal sealed class ContractCompatibilityStatusJsonConverter :
     protected override ContractCompatibilityStatus Create(string value) => ContractCompatibilityStatus.Parse(value);
 
     protected override string GetValue(ContractCompatibilityStatus value) => value.Value;
+}
+
+internal sealed class OnboardingDiagnosticCheckJsonConverter :
+    ConversationStringValueJsonConverter<OnboardingDiagnosticCheck>
+{
+    protected override OnboardingDiagnosticCheck Create(string value) => OnboardingDiagnosticCheck.Parse(value);
+
+    protected override string GetValue(OnboardingDiagnosticCheck value) => value.Value;
+}
+
+internal sealed class OnboardingDiagnosticStatusJsonConverter :
+    ConversationStringValueJsonConverter<OnboardingDiagnosticStatus>
+{
+    protected override OnboardingDiagnosticStatus Create(string value) => OnboardingDiagnosticStatus.Parse(value);
+
+    protected override string GetValue(OnboardingDiagnosticStatus value) => value.Value;
 }

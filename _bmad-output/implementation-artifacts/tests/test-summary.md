@@ -1,5 +1,29 @@
 # Test Automation Summary
 
+## Story 4.4 Define CORE Preconditions and Onboarding Diagnostics
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/Diagnostics/OnboardingDiagnosticContractsTest.cs` - Added closed-vocabulary coverage for the diagnostic check/status vocabularies, JSON rejection of unsupported/synonym values (`ok`, `healthy`, `maybe`), ready/non-ready error invariants, HTTPS documentation enforcement, content-safe free-text rejection, stable camelCase run-result JSON shape, additive-JSON tolerance, CORE precondition catalog coverage (every required precondition, trust-bearing `Current` state, shared error-catalog reuse), and free-text leakage scanning.
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs` - Registered the diagnostic check/status vocabularies, `OnboardingDiagnosticCheckResultV1` (ready and degraded), `OnboardingDiagnosticRunResultV1`, and a `CorePreconditionV1` so the new contracts participate in serialization, forbidden-surface, and content-safety scans.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationOnboardingDiagnosticsServiceTest.cs` - Added AC4 service coverage with deterministic fakes for ready, missing tenant context, denied access side-channel equivalence, production-faithful freshness/availability access denials (stale/gap/rollback/poisoned/unavailable) collapsing to the hidden `unknown` shape, stale tenant projection, projection subscription failure, audit sink unavailable, unsupported contract, schema incompatibility, missing provider config, Parties integration unavailable, throwing-signal fail-closed behavior, content-safety scans, mutation-boundary separation, and DI registration with fail-closed defaults.
+
+### Validation
+- [x] Readiness gates re-read in `_bmad-output/implementation-artifacts/readiness-gates.md`: `Projection freshness blocking semantics` and `Command availability metadata` remain decided; diagnostics use only the shared `Current`/`Stale`/`Rebuilding`/`Unavailable`/`Forbidden`/`Redacted` vocabulary.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --filter "FullyQualifiedName~Diagnostic|FullyQualifiedName~Precondition|FullyQualifiedName~ForbiddenPublicSurface|FullyQualifiedName~ContractSerialization|FullyQualifiedName~Versioning"` - 61 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~Diagnostic|FullyQualifiedName~Onboarding"` - all targeted diagnostics tests passed (36 diagnostics tests after the review added production-faithful freshness/availability side-channel coverage).
+- [x] `dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj -c Release -o .artifacts/package-validation` - produced `.artifacts/package-validation/Hexalith.Conversations.Contracts.1.0.0.nupkg`.
+- [x] `dotnet test Hexalith.Conversations.slnx` - all solution tests passed: Client 23, Integration 8, Core 139, Server 423, Contracts 316 (909 total) after the senior review added side-channel coverage.
+
+### Coverage
+- Diagnostics contracts expose a closed check vocabulary, a closed status vocabulary mapped to the shared trust/freshness language (`ready`/`degraded`/`blocked`/`unknown`), per-check and run results, a CORE precondition descriptor, and a contract-owned precondition catalog reused by docs and tests, all reusing the shared `ConversationError`/`ConversationErrorCatalog` envelope rather than a parallel model.
+- The read-only server orchestrator binds tenant/caller authority from the trusted boundary, fails closed on missing/denied/cross-tenant requests with a side-channel-equivalent `unknown` result, derives projection-subscription/freshness from `ConversationTenantProjectionHealth`, delegates schema/contract compatibility to `ConversationContractCompatibility.Evaluate`, and reports bounded audit, Parties, and provider-configuration statuses without leaking protected detail.
+- No new durable state, runtime gate semantic, public error/status/freshness vocabulary, or globally-runnable host was added; dependent command/query gating continues through the existing tenant-access guard, freshness gate, audit pairing, and idempotency executor proven by existing command/read API tests.
+
+### Checklist Validation
+- [x] Contract, server, content-safety, side-channel, dependency-boundary, and DI tests generated for Story 4.4 AC1-AC4.
+- [x] Tests use xUnit, Shouldly, deterministic fakes, and existing tenant-access/projection-health/participant-directory patterns with no sleeps or live services.
+- [x] Summary includes targeted validation commands, package-validation evidence, and full-solution results.
+
 ## Story 4.3 Expose Typed Sanitized Errors and Remediation Guidance
 
 ### Generated Tests
