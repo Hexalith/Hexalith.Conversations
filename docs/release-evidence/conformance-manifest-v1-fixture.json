@@ -131,6 +131,22 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-5-9-schema-evolution-conformance",
+      "testName": "Event schema evolution conformance suite release-gating coverage",
+      "requirementId": "FR91",
+      "carryForwardCommitmentRef": "story-1-11-schema-evolution-proof",
+      "releaseGateId": "unsupported-schema-rejection",
+      "passCriteria": "All 10 schema evolution scenarios produce expected outcomes and run result serializes to content-safe camelCase JSON",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-conformance-suite-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "schema-evolution-conformance-suite-result",
+      "owner": "release-engineer",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-23T00:00:00+00:00"
     }
   ],
   "changeLog": []

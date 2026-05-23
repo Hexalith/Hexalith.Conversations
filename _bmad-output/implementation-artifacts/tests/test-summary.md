@@ -1,5 +1,30 @@
 # Test Automation Summary
 
+## Story 5.9 Prove Event Schema Evolution
+
+### Generated Tests
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/EventSchemaEvolutionConformanceFixtures.cs` - `EventSchemaEvolutionScenarioData` sealed record and `EventSchemaEvolutionConformanceSeedData` static class with 10 deterministic synthetic scenario records (7 ready, 2 blocked, 1 unknown — all conformant classification). No real tenant IDs, Party IDs, or conversation IDs. Marked with `SyntheticDataMarker = "synthetic-conformance-data"`. Content-safe messages follow the same rules as Stories 5.5–5.8.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/EventSchemaEvolutionConformanceSuite.cs` - Non-test suite runner following ProviderPortabilityConformanceSuite pattern. SuiteId = `"schema-evolution-conformance-suite"`, RunnerId = `"local-ci-runner"`. All 10 checks use `ConformanceCheck.EventPublication`, RequirementMappings = `["FR91"]`, ReleaseGateMappings = `["unsupported-schema-rejection"]`. Read-only: no aggregate command dispatch, no event appends.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/EventSchemaEvolutionConformanceSuiteTest.cs` - 15 [Fact] tests: RunResultShouldHaveExactly10Checks, AllChecksShouldUseEventPublicationCheckId, EachScenarioShouldProduceExpectedConformanceOutcome, EachScenarioCheckShouldBeClassifiedAsConformant, AllChecksShouldCarryFR91RequirementAndSchemaEvolutionGateMappings (incl. PreconditionMappings.ShouldNotBeEmpty), ReadyScenariosShouldHaveNullTypedError, BlockedScenariosShouldHaveNonNullTypedError (2 blocked), UnknownScenariosShouldCarryAggregateNotFoundTypedError (1 unknown, HideOrRefresh, !IsRetryable), AllConformantScenariosProduceOverallReadyOutcome, SuiteIdAndRunnerIdShouldMatchSpecifiedValues, RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments, RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip (incl. PreconditionMappings round-trip), NullScenariosListShouldThrow, EmptyScenariosListShouldThrow, NullCorrelationIdShouldThrow.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Testing/Fixtures/EventSchemaEvolutionConformanceFixtures.cs` - New fixture file with 10 scenarios: schema-v1-replay (ready), additive-field-replay (ready), version-metadata-present (ready), mixed-version-history-replay (ready), projection-rebuild-mixed-versions (ready), upcaster-boundary-deterministic (ready), diagnostics-content-safety (ready), unsupported-version-blocked (blocked/SchemaVersionUnsupported), unsupported-version-not-skipped (blocked/SchemaVersionUnsupported), version-schema-probe-hidden (unknown/AggregateNotFound).
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/EventSchemaEvolutionConformanceSuite.cs` - Suite runner with explicit parameter signature. Aggregation: anyFailure → blocked; anyDegraded → degraded; else → ready. All-conformant 10-scenario fixture produces overallOutcome = ready.
+- [x] `docs/release-evidence/conformance-manifest-v1-fixture.json` - Extended with 9th Story 5.9 entry (testId=story-5-9-schema-evolution-conformance, requirementId=FR91, carryForwardCommitmentRef=story-1-11-schema-evolution-proof, releaseGateId=unsupported-schema-rejection (IS in ReleaseGateId closed vocabulary), evidenceArtifactHandle=schema-evolution-conformance-suite-result, releaseDecisionStatus=pass).
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --filter "FullyQualifiedName~SchemaEvolution"` - 15 passed (15 new).
+- [x] Full conformance suite: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` - 125 passed (110 baseline + 15 new).
+- [x] `dotnet build Hexalith.Conversations.slnx` - succeeded (implicit in test run), 0 errors.
+- [x] `dotnet test Hexalith.Conversations.slnx` - 1249 tests, 0 failures (Client 23, Conformance 125, Integration 8, Core 153, Server 428, Contracts 512).
+
+### Coverage
+- AC1: suite covers all 10 required event schema evolution surfaces; any non-conformant result is an automatic release gate flag under the unsupported-schema-rejection mapping.
+- AC2: manifest entry identifies covered scenarios, pass criteria, FR91 requirement, carry-forward commitment to Story 1.11, evidence artifact handle, and content-safe diagnostics without exposing protected identifiers.
+- AC3: 15 automated tests provide minimum evidence; missing required evidence would block gate closure per AC3 requirements.
+- Two-Level Evidence rule honored: `carryForwardCommitmentRef` links to Story 1.11 production proof; Story 5.9 adds release-gating coverage under `unsupported-schema-rejection` without re-proving production behavior.
+- No new ConformanceCheck values, ConformanceOutcome values, ReleaseGateId values, public error codes, src/ library projects, or production runtime changes.
+
 ## Story 5.8 Prove Provider Portability
 
 ### Generated Tests
