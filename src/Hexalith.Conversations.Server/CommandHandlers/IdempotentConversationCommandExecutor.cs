@@ -6,6 +6,8 @@
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Idempotency;
+using Hexalith.Conversations.Server.Diagnostics;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Contracts.Events;
 using Hexalith.EventStore.Contracts.Results;
 
@@ -17,7 +19,9 @@ namespace Hexalith.Conversations.Server.CommandHandlers;
 public sealed class IdempotentConversationCommandExecutor
 {
     private readonly IConversationIdempotencyStore _idempotencyStore;
+    private readonly ConversationTenantAccessRequirement _operationRequirement;
     private readonly TimeSpan _retention;
+    private readonly IConversationRejectionTelemetry? _telemetry;
     private readonly TimeProvider _timeProvider;
 
     /// <summary>
@@ -26,14 +30,20 @@ public sealed class IdempotentConversationCommandExecutor
     /// <param name="idempotencyStore">The idempotency store.</param>
     /// <param name="retention">The retention duration for new reservations.</param>
     /// <param name="timeProvider">The deterministic clock provider.</param>
+    /// <param name="telemetry">The optional rejection telemetry.</param>
+    /// <param name="operationRequirement">The bounded operation class emitted on idempotency rejection signals.</param>
     public IdempotentConversationCommandExecutor(
         IConversationIdempotencyStore idempotencyStore,
         TimeSpan? retention = null,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IConversationRejectionTelemetry? telemetry = null,
+        ConversationTenantAccessRequirement operationRequirement = ConversationTenantAccessRequirement.Write)
     {
         _idempotencyStore = idempotencyStore ?? throw new ArgumentNullException(nameof(idempotencyStore));
         _retention = retention ?? TimeSpan.FromHours(24);
         _timeProvider = timeProvider ?? TimeProvider.System;
+        _telemetry = telemetry;
+        _operationRequirement = operationRequirement;
         if (_retention <= TimeSpan.Zero)
         {
             throw new ArgumentOutOfRangeException(nameof(retention), "Retention must be positive.");
@@ -81,13 +91,13 @@ public sealed class IdempotentConversationCommandExecutor
                 cancellationToken).ConfigureAwait(false),
             ConversationIdempotencyDecisionKind.Duplicate when decision.StoredOutcome is not null =>
                 ReplayStoredOutcome(decision.StoredOutcome, fingerprint, correlationId, causationId),
-            ConversationIdempotencyDecisionKind.Conflict => Rejection(
+            ConversationIdempotencyDecisionKind.Conflict => RecordIdempotencyRejectionAndReturn(
                 ConversationErrorCode.IdempotencyConflict,
                 "idempotency_conflict",
                 fingerprint,
                 correlationId,
                 causationId),
-            _ => Rejection(
+            _ => RecordIdempotencyRejectionAndReturn(
                 ConversationErrorCode.IdempotencyOutcomeUnknown,
                 CoarsePublicReason(decision.ReasonCode),
                 fingerprint,
@@ -225,6 +235,22 @@ public sealed class IdempotentConversationCommandExecutor
             new Hexalith.Conversations.Contracts.Identifiers.ConversationId(fingerprint.Scope.ScopeValue),
             ConversationAuditHandle.FromServerBoundary(fingerprint, correlationId),
             ConversationAuditHandle.FromServerBoundary(fingerprint, correlationId));
+
+    private DomainResult RecordIdempotencyRejectionAndReturn(
+        ConversationErrorCode code,
+        string reasonCode,
+        ConversationCommandFingerprint fingerprint,
+        string correlationId,
+        string? causationId)
+    {
+        _telemetry?.RecordCommandRejection(
+            ConversationCommandRejectionClass.Idempotency,
+            _operationRequirement,
+            isRetryable: false,
+            correlationId);
+
+        return Rejection(code, reasonCode, fingerprint, correlationId, causationId);
+    }
 
     private static DomainResult Rejection(
         ConversationErrorCode code,

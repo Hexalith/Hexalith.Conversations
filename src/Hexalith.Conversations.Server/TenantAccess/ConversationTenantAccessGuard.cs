@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Server.Diagnostics;
 
 namespace Hexalith.Conversations.Server.TenantAccess;
 
@@ -27,6 +28,8 @@ public static class ConversationTenantAccessGuard
     /// <param name="aggregateTenantId">The aggregate tenant binding when available.</param>
     /// <param name="projectionTenantId">The projection key tenant binding when available.</param>
     /// <param name="idempotencyTenantId">The idempotency tenant binding when available.</param>
+    /// <param name="telemetry">The optional rejection telemetry — when supplied, emits bounded signals on denial.</param>
+    /// <param name="correlationId">The safe correlation identifier for telemetry — required when <paramref name="telemetry"/> is supplied.</param>
     /// <param name="cancellationToken">The cancellation token.</param>
     /// <returns>The denied result or the protected operation result.</returns>
     public static async ValueTask<TResult> RunAsync<TResult>(
@@ -41,6 +44,8 @@ public static class ConversationTenantAccessGuard
         TenantId? aggregateTenantId = null,
         TenantId? projectionTenantId = null,
         TenantId? idempotencyTenantId = null,
+        IConversationRejectionTelemetry? telemetry = null,
+        string? correlationId = null,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(accessService);
@@ -62,6 +67,27 @@ public static class ConversationTenantAccessGuard
 
         if (!decision.IsAllowed)
         {
+            if (telemetry is not null && !string.IsNullOrWhiteSpace(correlationId))
+            {
+                ConversationTenantDenialClass denialClass =
+                    ConversationCommandRejectionClassifier.Classify(decision.DenialReason);
+
+                if (denialClass != ConversationTenantDenialClass.None)
+                {
+                    telemetry.RecordTenantDenial(denialClass, decision.Requirement, decision.IsRetryable, correlationId);
+                }
+
+                if (decision.DenialReason is ConversationTenantAccessDenialReason.MissingTenant
+                    or ConversationTenantAccessDenialReason.MalformedTenant)
+                {
+                    telemetry.RecordCommandRejection(
+                        ConversationCommandRejectionClass.TenantBinding,
+                        decision.Requirement,
+                        decision.IsRetryable,
+                        correlationId);
+                }
+            }
+
             return deniedResult(decision);
         }
 

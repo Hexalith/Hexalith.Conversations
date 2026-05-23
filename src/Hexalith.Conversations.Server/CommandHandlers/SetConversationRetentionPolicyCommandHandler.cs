@@ -9,6 +9,7 @@ using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Idempotency;
+using Hexalith.Conversations.Server.Diagnostics;
 using Hexalith.Conversations.Server.Governance;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.State;
@@ -25,6 +26,7 @@ public sealed class SetConversationRetentionPolicyCommandHandler
 {
     private readonly IConversationGovernanceAuditService _auditService;
     private readonly IdempotentConversationCommandExecutor? _idempotencyExecutor;
+    private readonly IConversationRejectionTelemetry? _telemetry;
     private readonly IConversationTenantAccessService _tenantAccessService;
 
     /// <summary>
@@ -33,14 +35,17 @@ public sealed class SetConversationRetentionPolicyCommandHandler
     /// <param name="tenantAccessService">The tenant access boundary.</param>
     /// <param name="auditService">The governance audit boundary.</param>
     /// <param name="idempotencyExecutor">The optional idempotency executor.</param>
+    /// <param name="telemetry">The optional rejection telemetry.</param>
     public SetConversationRetentionPolicyCommandHandler(
         IConversationTenantAccessService tenantAccessService,
         IConversationGovernanceAuditService auditService,
-        IdempotentConversationCommandExecutor? idempotencyExecutor = null)
+        IdempotentConversationCommandExecutor? idempotencyExecutor = null,
+        IConversationRejectionTelemetry? telemetry = null)
     {
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _auditService = auditService ?? throw new ArgumentNullException(nameof(auditService));
         _idempotencyExecutor = idempotencyExecutor;
+        _telemetry = telemetry;
     }
 
     /// <summary>
@@ -149,6 +154,8 @@ public sealed class SetConversationRetentionPolicyCommandHandler
             aggregateTenantId: null,
             projectionTenantId: null,
             idempotencyTenantId: idempotencyTenantId,
+            telemetry: _telemetry,
+            correlationId: eventId,
             cancellationToken: cancellationToken).ConfigureAwait(false);
     }
 
@@ -193,6 +200,15 @@ public sealed class SetConversationRetentionPolicyCommandHandler
 
         if (auditResult.Status != ConversationGovernanceAuditStatus.Succeeded || auditResult.Evidence is null)
         {
+            if (auditResult.Status == ConversationGovernanceAuditStatus.AuditUnavailable)
+            {
+                _telemetry?.RecordCommandRejection(
+                    ConversationCommandRejectionClass.AuditUnavailable,
+                    ConversationTenantAccessRequirement.Governance,
+                    isRetryable: ConversationErrorCode.IsRetryable(ConversationErrorCode.AuditSinkUnavailable),
+                    eventId);
+            }
+
             return AuditFailure(command, auditResult.Status, eventId);
         }
 

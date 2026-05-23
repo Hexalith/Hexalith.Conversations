@@ -1,5 +1,36 @@
 # Test Automation Summary
 
+## Story 6.1 Observe Command Rejections and Tenant Isolation Denials Safely
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationCommandRejectionClassifierTest.cs` — 15 [Fact] tests: ClassifyErrorCode_TenantBindingMissing_ReturnsTenantBinding, ClassifyErrorCode_TenantIsolationViolation_ReturnsTenantIsolation, ClassifyErrorCode_TenantProjectionStale_ReturnsTenantProjectionUnavailable, ClassifyErrorCode_CommandValidationFailed_ReturnsValidation, ClassifyErrorCode_SchemaVersionUnsupported_ReturnsValidation, ClassifyErrorCode_IdempotencyConflict_ReturnsIdempotency, ClassifyErrorCode_AuditSinkUnavailable_ReturnsAuditUnavailable, ClassifyDenialReason_MissingTenant_ReturnsMissingContext, ClassifyDenialReason_MalformedTenant_ReturnsMissingContext, ClassifyDenialReason_UnknownTenant_ReturnsUnknownOrDisabled, ClassifyDenialReason_TenantDisabled_ReturnsUnknownOrDisabled, ClassifyDenialReason_InsufficientRole_ReturnsInsufficientAccess, ClassifyDenialReason_TenantAccessUnavailable_ReturnsProjectionUnavailable, ClassifyDenialReason_TenantAccessStale_ReturnsProjectionUnavailable, ClassifyDenialReason_TenantMismatch_ReturnsContextMismatch.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Diagnostics/ConversationRejectionTelemetryTest.cs` — 10 [Fact] tests: RecordCommandRejection_EmitsCounterWithBoundedDimensions_NoConversationIdDimension, RecordCommandRejection_LogMessageContainsOnlyBoundedFields_NoTenantOrPartyIds, RecordTenantDenial_EmitsCounterWithBoundedDimensions_NoTargetTenantValue, RecordTenantDenial_LogMessageContainsOnlyBoundedFields_NoCrosstenantData, RecordPrivilegedAccessAttempt_EmitsCounterWithBoundedDimensions, RecordCommandRejection_NullOrEmptyCorrelationId_ThrowsArgumentException, RecordCommandRejection_NoneClass_ThrowsArgumentException, RecordTenantDenial_NoneClass_ThrowsArgumentException, RecordPrivilegedAccessAttempt_NoneClass_ThrowsArgumentException, AddConversationRejectionTelemetry_RegistersServiceCorrectly. (review auto-fix: renamed DoesNotEmit→ThrowsArgumentException; added 2 None-class guard tests)
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationCommandRejectionClass.cs` — New enum (9 values: None, Validation, TenantBinding, TenantIsolation, TenantProjectionUnavailable, Idempotency, AuditUnavailable, PolicyRejection, Infrastructure).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationTenantDenialClass.cs` — New enum (6 values: None, MissingContext, UnknownOrDisabled, InsufficientAccess, ProjectionUnavailable, ContextMismatch).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationPrivilegedAccessClass.cs` — New enum (3 values: None, AuthorizedPrivilegedOperation, UnauthorizedPrivilegedAttempt).
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationCommandRejectionClassifier.cs` — Static helper mapping ConversationErrorCode → ConversationCommandRejectionClass and ConversationTenantAccessDenialReason → ConversationTenantDenialClass.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/IConversationRejectionTelemetry.cs` — Interface with RecordCommandRejection, RecordTenantDenial, RecordPrivilegedAccessAttempt.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationRejectionTelemetry.cs` — Implementation using IMeterFactory (counters: conversations.command.rejections, conversations.tenant.denials, conversations.privileged.access) and ILogger with content-safe templates.
+- [x] `src/Hexalith.Conversations.Server/Diagnostics/ConversationRejectionTelemetryServiceCollectionExtensions.cs` — AddConversationRejectionTelemetry() registers singleton.
+- [x] `src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessGuard.cs` — Added optional IConversationRejectionTelemetry? and correlationId? parameters to RunAsync; emits RecordTenantDenial + RecordCommandRejection(TenantBinding) on denial when supplied.
+- [x] `src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs` — Added optional IConversationRejectionTelemetry? constructor param; emits RecordCommandRejection(Idempotency) on Conflict/Unknown decisions.
+- [x] `src/Hexalith.Conversations.Server/CommandHandlers/SetConversationRetentionPolicyCommandHandler.cs` — Added optional IConversationRejectionTelemetry?; wired to guard and AuditUnavailable rejection path.
+- [x] `src/Hexalith.Conversations.Server/CommandHandlers/RedactMessageContentCommandHandler.cs` — Added optional IConversationRejectionTelemetry?; wired to guard and AuditUnavailable rejection path.
+- [x] `src/Hexalith.Conversations.Server/CommandHandlers/MarkConversationContentSensitiveCommandHandler.cs` — Added optional IConversationRejectionTelemetry?; wired to guard and AuditUnavailable rejection path.
+
+### Validation
+- [x] Targeted tests: `dotnet test tests/Hexalith.Conversations.Server.Tests/... --filter "FullyQualifiedName~ConversationCommandRejection|FullyQualifiedName~ConversationRejection"` — 23 passed.
+- [x] Full Server suite: `dotnet test tests/Hexalith.Conversations.Server.Tests/...` — 451 passed (428 baseline + 23 new).
+- [x] Full solution: `dotnet test Hexalith.Conversations.slnx` — 1302 tests, 0 failures (Client 23, Conformance 155, Integration 8, Core 153, Server 451, Contracts 512).
+- [x] Post-review (auto-fix): Full solution — 1304 tests, 0 failures (Server 453, +2 None-class guard tests added).
+
+### Coverage
+- AC1: All 16 ConversationErrorCode values classified into bounded ConversationCommandRejectionClass; signals emit only closed-vocabulary enum names as dimension values; no TenantId, PartyId, ConversationId, or free-text dimensions.
+- AC2: All 16 ConversationTenantAccessDenialReason values mapped to 5-value ConversationTenantDenialClass; tenant denials fire in all governance command handler paths via ConversationTenantAccessGuard.
+- AC3: Tests verify bounded label dimensions, no cross-tenant data, None class throws ArgumentException, and DI registration works correctly. Content-safety enforced by MeterListener-based counter capture + CapturingLogger log message assertions.
+
 ## Story 5.11 Separate Module-Level Evidence from Platform Controls
 
 ### Generated Tests
