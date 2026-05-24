@@ -2,6 +2,15 @@
 
 Items deferred from completed code reviews. Each entry links to the source review and the rationale.
 
+## Deferred from: correct-course findings remediation (2026-05-24)
+
+Source: `_bmad-output/planning-artifacts/sprint-change-proposal-2026-05-24.md` (epic 2-6 retrospective findings). Stories 6.8A and 6.8B were built and validated as part of this remediation; the items below are the residual deferrals.
+
+- Rendered-UI verification for the investigation workspace (Stories 3.8A/3.8B/3.8C) is blocked: no Blazor/web/UI host project exists in the Conversations module, so responsive layout, accessibility-tree/keyboard/screen-reader, and rendered-surface disclosure checks cannot execute. DTO-level non-disclosure is already proven in stories 3.1-3.7 (the v1 compensating control). Re-engage when a UI-host scope decision is made (likely a new UI epic) or when 3.8A-3.8C are formally waived for v1. See `readiness-gates.md` gate `Investigation workspace UI host`.
+- Named release-waiver runtime workflow is deferred (Story 5.4 shipped the contract, validator, schema, and fixture only). Runtime approval/issuance workflow, durable waiver storage, an admin/review surface, and cross-story waiver aggregation into the release-gate decision are not implemented. Re-engage when an operator/admin surface or GA release-gate automation lands. Files: `src/Hexalith.Conversations.Contracts/Conformance/` (ReleaseWaiver contracts), release-gate aggregation.
+- Release-evidence suites (Epic 5, Stories 5.2/5.3/5.5-5.11) are evidence *infrastructure* validated against synthetic content-safe fixtures, not a produced signed GA certification run with real provider/runtime artifacts and PKI signing (PKI is ADR-gated out for v1). Before GA, the release-gate framework must be executed as an actual gate over real evidence, not only unit-validated. Owner: GA release-gate closure.
+- Content-safety blocklist friction recurred across Epics 4, 5, and 6 (the closed-vocabulary domain terms `store`, `exception`, `sequence`, `stream`, `tenant-`, `provider-session`, `envelope`, etc. collide with the scanner). Extract the per-story ad hoc free-text scanning into one shared, reusable content-safety check helper so new stories reuse it instead of re-deriving the token rules. Refactor scope; not security-blocking. Files: conformance test fixtures + the various per-story safety scans.
+
 ## Deferred from: code review of 1-8-retrieve-and-list-conversations-by-tenant-business-context (2026-05-20)
 
 - List handler enumerates entire tenant in memory before paging [`src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:109-135`] — pre-existing in-memory `IConversationProjectionReadStore` abstraction. A production read store will need backed querying with server-side filter/sort/page push-down. Performance, not security. Re-engage when Story 1.11 (replay/rebuild) or the production projection store lands.
