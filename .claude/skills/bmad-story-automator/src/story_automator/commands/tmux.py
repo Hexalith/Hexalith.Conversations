@@ -192,10 +192,15 @@ def _build_cmd(args: list[str]) -> int:
     if agent == "codex" and not ai_command:
         codex_home = f"/tmp/sa-codex-home-{project_hash(root)}"
         auth_src = os.path.expanduser("~/.codex/auth.json")
+        # codex relies on an OS sandbox (Landlock/Seatbelt) for `workspace-write`,
+        # which does not exist on Windows -> it degrades to read-only and refuses
+        # to write. Use `danger-full-access` on Windows (no sandbox to establish);
+        # keep the safer `workspace-write` on Linux/macOS where the sandbox works.
+        sandbox_mode = "danger-full-access" if os.name == "nt" else "workspace-write"
         print(
             f'mkdir -p "{codex_home}"'
             + f' && if [ -f "{auth_src}" ]; then ln -sf "{auth_src}" "{codex_home}/auth.json"; fi'
-            + f' && CODEX_HOME="{codex_home}" codex exec -s workspace-write -c \'approval_policy="never"\''
+            + f' && CODEX_HOME="{codex_home}" codex exec -s {sandbox_mode} -c \'approval_policy="never"\''
             + f' -c \'model_reasoning_effort="high"\''
             + f" --disable plugins --disable sqlite --disable shell_snapshot {quoted_prompt}"
         )

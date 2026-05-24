@@ -428,3 +428,5 @@ FodyWeavers.xsd
 *.msm
 *.msp
 .agents\.story-automator-active
+.claude/.story-automator-active
+.claude\.story-automator-active

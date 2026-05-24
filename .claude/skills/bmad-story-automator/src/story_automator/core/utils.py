@@ -69,8 +69,12 @@ def write_atomic(path: str | Path, data: str | bytes) -> None:
     ensure_dir(path.parent)
     fd, tmp = tempfile.mkstemp(prefix=f".{path.name}.", suffix=".tmp", dir=path.parent)
     try:
-        mode = "wb" if isinstance(data, bytes) else "w"
-        with os.fdopen(fd, mode) as handle:
+        is_bytes = isinstance(data, bytes)
+        mode = "wb" if is_bytes else "w"
+        # Force UTF-8 for text writes; the Windows locale codec (cp1252) cannot
+        # encode characters captured from agent TUIs (arrows, box drawing, etc.).
+        open_kwargs = {} if is_bytes else {"encoding": "utf-8", "errors": "replace"}
+        with os.fdopen(fd, mode, **open_kwargs) as handle:
             handle.write(data)
             handle.flush()
             os.fsync(handle.fileno())
@@ -101,6 +105,8 @@ def run_cmd(
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             text=True,
+            encoding="utf-8",
+            errors="replace",
             timeout=timeout,
             check=False,
         )

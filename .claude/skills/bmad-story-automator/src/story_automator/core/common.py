@@ -91,6 +91,8 @@ def run_cmd(*args: str, timeout: int = DEFAULT_COMMAND_TIMEOUT, env: dict[str, s
         list(args),
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
         env=proc_env,
         cwd=str(cwd) if cwd else None,

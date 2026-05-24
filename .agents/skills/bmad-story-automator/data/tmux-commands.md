@@ -160,7 +160,10 @@ Without it, the stop hook will block child sessions from stopping, causing infin
 # 1. create the session with an inert placeholder command
 # 2. set remain-on-exit on the pane/session
 # 3. respawn the pane into a bash runner that executes the per-session command file
-tmux new-session -d -s "SESSION_NAME" -x 200 -y 50 -c "PROJECT_PATH" \
+# Run from PROJECT_PATH as the client cwd so the new session inherits it.
+# (We avoid tmux's `-c PROJECT_PATH` flag because the tmux 3.6a-win32 build
+#  rejects absolute Windows paths to `-c` with "create window failed: spawn failed".)
+tmux new-session -d -s "SESSION_NAME" -x 200 -y 50 \
   -e STORY_AUTOMATOR_CHILD=true -e AI_AGENT=codex -e CLAUDECODE= -e BASH_ENV= \
   /bin/sleep 86400
 tmux set-option -t "PANE_ID" remain-on-exit on

@@ -31,6 +31,24 @@ DEFAULT_WIDTH = 200
 DEFAULT_HEIGHT = 50
 REMAIN_ON_EXIT = "on"
 PLACEHOLDER_COMMAND = ("/bin/sleep", "86400")
+
+
+def _placeholder_command(bash_path: str) -> tuple[str, ...]:
+    """Long-running placeholder command that win32 tmux can actually spawn.
+
+    The pane is immediately respawned with the real runner, so this only needs
+    to hold the pane open briefly. win32 tmux cannot spawn the bare MSYS path
+    ``/bin/sleep`` when tmux is launched from a native Windows process (the
+    ``/bin`` mount only resolves inside MSYS), which surfaces as
+    ``create window failed: spawn failed``. Prefer an absolute ``sleep`` path and
+    fall back to running it through the already-resolved bash.
+    """
+    sleep_path = shutil.which("sleep")
+    if sleep_path:
+        return (sleep_path, "86400")
+    return (bash_path, "-c", "exec sleep 86400")
+
+
 ARTIFACT_TTL_SECONDS = 24 * 60 * 60
 RECONCILE_GRACE_SECONDS = 1.0
 RUNNER_MODE_ENV = "SA_TMUX_RUNTIME"
@@ -397,8 +415,6 @@ def _spawn_runner(session: str, command: str, selected_agent: str, project_root:
         str(DEFAULT_WIDTH),
         "-y",
         str(DEFAULT_HEIGHT),
-        "-c",
-        str(root),
         "-e",
         "STORY_AUTOMATOR_CHILD=true",
         "-e",
@@ -407,7 +423,8 @@ def _spawn_runner(session: str, command: str, selected_agent: str, project_root:
         "CLAUDECODE=",
         "-e",
         "BASH_ENV=",
-        *PLACEHOLDER_COMMAND,
+        *_placeholder_command(bash_path),
+        cwd=str(root),
     )
     if create_code != 0:
         cleanup_runtime_artifacts(session, str(root))
@@ -493,20 +510,24 @@ def _spawn_legacy(session: str, command: str, selected_agent: str, project_root:
         str(DEFAULT_WIDTH),
         "-y",
         str(DEFAULT_HEIGHT),
-        "-c",
-        root,
         "-e",
         "STORY_AUTOMATOR_CHILD=true",
         "-e",
         f"AI_AGENT={selected_agent}",
         "-e",
         "CLAUDECODE=",
+        cwd=root,
     )
     if code != 0:
         return (output, code)
     if len(command) > 500:
         _write_private_text(paths.command, "#!/bin/bash\n" + command + "\n", 0o700)
-        run_cmd("tmux", "send-keys", "-t", session, f"bash {paths.command}", "Enter")
+        # send-keys delivers the path as literal keystrokes to the pane's shell.
+        # On Windows the command file is a backslash path (C:\...\file.sh); MSYS
+        # bash eats the backslashes, so render a quoted forward-slash path that
+        # MSYS bash accepts (C:/.../file.sh).
+        script_path = Path(paths.command).as_posix()
+        run_cmd("tmux", "send-keys", "-t", session, f"bash '{script_path}'", "Enter")
     else:
         run_cmd("tmux", "send-keys", "-t", session, command, "Enter")
     return ("", 0)
@@ -953,6 +974,14 @@ def _status_mode(session: str, project_root: str | None, mode: str | None) -> st
 def _resolve_spawn_mode(mode: str | None) -> str:
     configured = (mode or runtime_mode()).strip().lower()
     if configured == "legacy":
+        return "legacy"
+    if configured == "runner":
+        return "runner"
+    # "auto": the win32 tmux port crashes the server on `respawn-pane` (used by
+    # the runner path), so fall back to the legacy spawn path on Windows. The
+    # runner path stays the default on Linux/macOS. Override with
+    # SA_TMUX_RUNTIME=runner|legacy.
+    if os.name == "nt":
         return "legacy"
     return "runner"
 

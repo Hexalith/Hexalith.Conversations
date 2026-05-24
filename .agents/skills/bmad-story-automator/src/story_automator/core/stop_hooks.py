@@ -72,7 +72,7 @@ def ensure_codex_stop_hook(*, project_root: Path, command: str, timeout: int) ->
     hooks_path = codex_dir / "hooks.json"
     config_path = codex_dir / "config.toml"
 
-    config_update = _prepare_codex_hooks_feature(config_path)
+    config_update = _prepare_codex_hook_feature(config_path)
     hook_update = _prepare_json_stop_hook(
         hooks_path,
         command=command,
@@ -128,7 +128,7 @@ def _codex_hook_message(changed: bool, trusted: bool) -> str:
             if trusted
             else "Trust this project in Codex, then restart Codex so the hook can load."
         )
-        return "Codex Stop hook configured in .codex/hooks.json and codex_hooks enabled in .codex/config.toml. " + suffix
+        return "Codex Stop hook configured in .codex/hooks.json and hooks enabled in .codex/config.toml. " + suffix
     if trusted:
         return "Codex Stop hook verified."
     return "Codex Stop hook is configured on disk, but this project is not yet trusted in Codex."
@@ -311,17 +311,17 @@ def _is_python_command(command_name: str) -> bool:
     return bool(re.fullmatch(r"python(?:\d+(?:\.\d+)?)?", command_name))
 
 
-def _ensure_codex_hooks_feature(path: Path) -> HookInstallResult:
-    update = _prepare_codex_hooks_feature(path)
+def _ensure_codex_hook_feature(path: Path) -> HookInstallResult:
+    update = _prepare_codex_hook_feature(path)
     _write_prepared_update(update)
     return update.result
 
 
-def _prepare_codex_hooks_feature(path: Path) -> HookFileUpdate:
+def _prepare_codex_hook_feature(path: Path) -> HookFileUpdate:
     if not path.exists():
         return HookFileUpdate(
             result=HookInstallResult(changed=True, reason="created", path=path, written=True),
-            data="[features]\ncodex_hooks = true\n",
+            data="[features]\nhooks = true\n",
         )
 
     text = path.read_text(encoding="utf-8")
@@ -331,13 +331,14 @@ def _prepare_codex_hooks_feature(path: Path) -> HookFileUpdate:
         features = {}
     if not isinstance(features, dict):
         raise HookConfigError("invalid_features_table", path)
-    if features.get("codex_hooks") is True:
+    has_deprecated_key = "codex_hooks" in features
+    if features.get("hooks") is True and not has_deprecated_key:
         return HookFileUpdate(result=HookInstallResult(changed=False, reason="already_enabled", path=path))
 
-    updated = _set_features_codex_hooks(text)
+    updated = _set_features_hooks(text)
     _parse_toml(updated, path)
     return HookFileUpdate(
-        result=HookInstallResult(changed=True, reason="codex_hooks_enabled", path=path, written=True),
+        result=HookInstallResult(changed=True, reason="hooks_enabled", path=path, written=True),
         data=updated,
     )
 
@@ -372,35 +373,75 @@ def _codex_project_is_trusted(config_path: Path, project_root: Path) -> bool:
     return False
 
 
-def _set_features_codex_hooks(text: str) -> str:
+def _set_features_hooks(text: str) -> str:
     lines = text.splitlines()
     if not lines:
-        return "[features]\ncodex_hooks = true\n"
+        return "[features]\nhooks = true\n"
 
     table_start = _find_table_start(lines, "features")
     if table_start is None:
-        return _set_top_level_features_codex_hooks(text, lines)
+        return _set_top_level_features_hooks(text, lines)
 
     table_end = _find_table_end(lines, table_start)
-    key_pattern = re.compile(r"^(\s*)codex_hooks\s*=.*$")
+    hook_line_index: int | None = None
+    hook_indent = ""
+    deprecated_line_indices: list[int] = []
+    hook_key_pattern = re.compile(r"^(\s*)hooks\s*=.*$")
+    deprecated_key_pattern = re.compile(r"^(\s*)codex_hooks\s*=.*$")
     for index in range(table_start + 1, table_end):
-        match = key_pattern.match(lines[index])
+        match = hook_key_pattern.match(lines[index])
         if match:
-            lines[index] = f"{match.group(1)}codex_hooks = true"
-            return "\n".join(lines) + "\n"
+            hook_line_index = index
+            hook_indent = match.group(1)
+            continue
+        match = deprecated_key_pattern.match(lines[index])
+        if match:
+            if hook_line_index is None and not hook_indent:
+                hook_indent = match.group(1)
+            deprecated_line_indices.append(index)
+    if hook_line_index is not None:
+        lines[hook_line_index] = f"{hook_indent}hooks = true"
+        for index in reversed(deprecated_line_indices):
+            del lines[index]
+        return "\n".join(lines) + "\n"
+    if deprecated_line_indices:
+        lines[deprecated_line_indices[0]] = f"{hook_indent}hooks = true"
+        for index in reversed(deprecated_line_indices[1:]):
+            del lines[index]
+        return "\n".join(lines) + "\n"
 
-    lines.insert(table_start + 1, "codex_hooks = true")
+    lines.insert(table_start + 1, "hooks = true")
     return "\n".join(lines) + "\n"
 
 
-def _set_top_level_features_codex_hooks(text: str, lines: list[str]) -> str:
+def _set_top_level_features_hooks(text: str, lines: list[str]) -> str:
     root_end = _find_first_table_start(lines)
-    exact_dotted = re.compile(r"^(\s*)features\.codex_hooks\s*=.*$")
+    hooks_dotted_pattern = re.compile(r"^(\s*)features\.hooks\s*=.*$")
+    deprecated_dotted_pattern = re.compile(r"^(\s*)features\.codex_hooks\s*=.*$")
+    hook_line_index: int | None = None
+    hook_indent = ""
+    deprecated_line_indices: list[int] = []
     for index, line in enumerate(lines[:root_end]):
-        match = exact_dotted.match(line)
+        match = hooks_dotted_pattern.match(line)
         if match:
-            lines[index] = f"{match.group(1)}features.codex_hooks = true"
-            return "\n".join(lines) + "\n"
+            hook_line_index = index
+            hook_indent = match.group(1)
+            continue
+        match = deprecated_dotted_pattern.match(line)
+        if match:
+            if hook_line_index is None and not hook_indent:
+                hook_indent = match.group(1)
+            deprecated_line_indices.append(index)
+    if hook_line_index is not None:
+        lines[hook_line_index] = f"{hook_indent}features.hooks = true"
+        for index in reversed(deprecated_line_indices):
+            del lines[index]
+        return "\n".join(lines) + "\n"
+    if deprecated_line_indices:
+        lines[deprecated_line_indices[0]] = f"{hook_indent}features.hooks = true"
+        for index in reversed(deprecated_line_indices[1:]):
+            del lines[index]
+        return "\n".join(lines) + "\n"
 
     inline_features = re.compile(r"^(\s*)features\s*=\s*\{(.*)\}\s*(#.*)?$")
     for index, line in enumerate(lines[:root_end]):
@@ -415,11 +456,11 @@ def _set_top_level_features_codex_hooks(text: str, lines: list[str]) -> str:
         if dotted_features.match(line):
             last_dotted_index = index
     if last_dotted_index is not None:
-        lines.insert(last_dotted_index + 1, "features.codex_hooks = true")
+        lines.insert(last_dotted_index + 1, "features.hooks = true")
         return "\n".join(lines) + "\n"
 
     separator = "\n" if text.endswith("\n") else "\n\n"
-    return f"{text}{separator}[features]\ncodex_hooks = true\n"
+    return f"{text}{separator}[features]\nhooks = true\n"
 
 
 def _find_first_table_start(lines: list[str]) -> int:
@@ -434,15 +475,17 @@ def _set_inline_features_table_line(match: re.Match[str]) -> str:
     indent, inner, comment = match.group(1), match.group(2), match.group(3) or ""
     items = [item.strip() for item in _split_inline_table_items(inner) if item.strip()]
     updated_items: list[str] = []
-    replaced = False
+    has_hooks = False
     for item in items:
-        if re.match(r"^codex_hooks\s*=", item):
-            updated_items.append("codex_hooks = true")
-            replaced = True
+        if re.match(r"^hooks\s*=", item):
+            updated_items.append("hooks = true")
+            has_hooks = True
+        elif re.match(r"^codex_hooks\s*=", item):
+            continue
         else:
             updated_items.append(item)
-    if not replaced:
-        updated_items.append("codex_hooks = true")
+    if not has_hooks:
+        updated_items.append("hooks = true")
     return f"{indent}features = {{ {', '.join(updated_items)} }}{comment}"
 
 
