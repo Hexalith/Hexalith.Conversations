@@ -11,6 +11,7 @@
   </Folder>
   <Folder Name="/src/">
     <Project Path="src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj" />
+    <Project Path="src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj" />
     <Project Path="src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj" />
     <Project Path="src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
     <Project Path="src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" />
@@ -19,6 +20,7 @@
     <Project Path="src/Hexalith.Conversations/Hexalith.Conversations.csproj" />
   </Folder>
   <Folder Name="/tests/">
+    <Project Path="tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />

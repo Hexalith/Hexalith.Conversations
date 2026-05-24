@@ -1,5 +1,56 @@
 # Test Automation Summary
 
+## Story 3.8B Verify Accessibility Tree, Keyboard, and Screen-Reader Safety
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Admin.Web.Tests/Rendering/InvestigationWorkspaceAccessibilityTest.cs` — 7 [Fact] renderer unit tests: exactly one document `<h1>`; heading outline follows trust order (h1 → trust-order h2 → five trust-panel h3 → timeline h2); skip link + banner/search/main landmarks + programmatic `tabindex="-1"` skip target; no positive/zero tabindex; safe `aria-live="polite"` status region with no poison sentinel; disabled governance commands expose the safe blocked reason via `aria-describedby` to a `command-reason` span while preserving the `disabled aria-disabled="true"` contract; hidden-read renders byte-identical for unauthorized-existing and nonexistent records.
+- [x] `tests/Hexalith.Conversations.Admin.Web.Tests/Accessibility/AccessibilityEvidenceHarnessTest.cs` — 1 Playwright-backed [Fact] driving headless Chromium against the running host across 15 scenario rows (all 12 fixtures at desktop, plus a forced-colors+reduced-motion row and two 200%-zoom rows). Per row it captures the accessibility tree via `Locator.AriaSnapshotAsync()`, the heading outline, landmark roles via `Page.GetByRole`, the keyboard Tab focus-order trace, and the resolved accessible-name/description surface, then asserts single-h1 heading order, banner/search/main + skip link presence, trust-order-before-timeline, accessible-name forbidden-sentinel absence, skip-link-first focus order, content-safe focus trace, blocked-command reasons resolvable through `aria-describedby`, and honored forced-colors/reduced-motion context. Suite-level guards prove command buttons and a forced-colors row were actually exercised.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Admin.Web/Rendering/InvestigationWorkspaceRenderer.cs` — extended the 3.8A renderer with accessibility semantics (no new disclosure; all text still derived from the already-authorized/redacted view model). Added a single document `<h1>` in a banner landmark; a `role="search"` find landmark; a `#governed-record` skip link targeting `<main tabindex="-1" aria-labelledby="workspace-title">`; a coherent heading outline (section `h2` for Trust order / Evidence timeline, `h3` for panels and rows) replacing the previous duplicated `<h1>`/`<h2>`; a safe `aria-live="polite"` `role="status"` region announcing the safe trust/completeness/command classes; accessible blocked-reason descriptions wired with `aria-describedby` to visible `command-reason` text; a `:focus-visible` outline that switches to system `Highlight` under forced colors. The redundant responsive duplicate surfaces are marked `aria-hidden="true"` so assistive technology hears the trust posture once. All `data-testid`, `data-trust-rank`, telemetry-label, forced-colors/reduced-motion, HTML-encoding, and indistinguishable hidden-read contracts from 3.8A are preserved.
+- [x] `_bmad-output/implementation-artifacts/evidence/3-8b-accessibility-tree-keyboard-screen-reader-safety/` — generated `accessibility-matrix.json`, `aria-snapshots.json` (captured accessibility tree per fixture/mode), `focus-order-trace.json`, `accessible-name-scan.json`, `fixture-matrix.json`, `evidence-summary.md`, and the `manual-keyboard-screen-reader-notes.md` keyboard/screen-reader walkthrough + human Narrator/NVDA confirmation checklist.
+- [x] `tests/README.md` — documented the accessibility lane running alongside the responsive lane in the same project.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj` — 14 passed (5 baseline 3.8A renderer + 7 new accessibility renderer + 1 responsive harness + 1 new accessibility harness); 3.8A responsive lane stays green.
+- [x] `dotnet test Hexalith.Conversations.slnx` — 1529 passed, 0 failed, 0 skipped (Contracts 580, Server 503, Conformance 248, Core 153, Client 23, Admin.Web 14, Integration 8), up from the 1519 baseline after 3.8A.
+- [x] `dotnet build Hexalith.Conversations.slnx --configuration Release` — 0 warnings, 0 errors.
+- [x] Playwright Chromium confirmed installed (`%LOCALAPPDATA%/ms-playwright`); host + browser launch verified end-to-end.
+
+### Coverage
+- AC1: The captured accessibility tree and Tab focus trace prove keyboard/AT traversal reaches tenant scope, identity, trust posture, evidence completeness, and the command gate before timeline reliance (single-h1 heading outline + data-trust-rank order + skip-link-first focus). Blocked-action reasons and safe next actions are exposed through accessible descriptions; redacted/unauthorized values are absent from accessible names, descriptions, live region, headings, and the focus trace (forbidden-sentinel scan over the resolved accessible-name surface and the aria snapshot).
+- AC2: Accessibility safety is exercised across no-access (cross-tenant + unauthorized-existing hidden reads), denied/blocked-command, redacted, stale/rebuilding, missing-citation, unresolved-participant, permission-downgrade, virtualized-restricted, and high-contrast/reduced-motion/200%-zoom rows. Each row records component, surface, scenario, and pass/fail in `accessibility-matrix.json`.
+- AC3: ARIA snapshots, focus-order traces, accessible-name scans, and the manual notes are tenant-safe and content-safe (no poison sentinel), generated from the canonical `BuyerAcceptanceInvestigationWorkspaceCatalog` fixtures, and linked to this story's evidence bundle.
+- Scope boundary: This story does not re-prove Story 3.8A responsive layout / mobile safe-triage (kept green) or Story 3.8C leakage/clipboard/browser-title/full telemetry-disclosure closure (owned there).
+
+## Story 3.8A Verify Responsive Layout and Mobile Safe Triage
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Admin.Web.Tests/Rendering/InvestigationWorkspaceRendererTest.cs` — 3 [Fact] tests covering required responsive fixture exposure, cross-tenant poison sentinel absence in the no-access render, trust-order test IDs, and disabled governance-changing mobile triage actions.
+- [x] `tests/Hexalith.Conversations.Admin.Web.Tests/Responsive/ResponsiveEvidenceHarnessTest.cs` — 1 Playwright-backed [Fact] test that renders 11 canonical fixtures across 7 viewport/zoom rows (77 evidence rows) and validates trust order, mobile safe triage, responsive duplicate safety, poison-sentinel absence in DOM text/attributes/title/duplicates/telemetry labels, safe viewport telemetry labels, high contrast, reduced motion, and 200 percent browser-zoom equivalents.
+
+### Implementation
+- [x] `src/Hexalith.Conversations.Admin.Web/` — new first-party rendered Admin Web host for the narrow Find -> Read -> Trust investigation workspace evidence surface. It consumes permission-safe Conversations projection/query DTOs plus existing buyer-acceptance synthetic fixtures and does not query raw EventStore streams, logs, envelopes, aggregate internals, or provider session IDs.
+- [x] `src/Hexalith.Conversations.Admin.Web/Rendering/` — permission-safe catalog, view model, fixture summaries, and renderer. The renderer preserves tenant scope, record identity, trust posture, evidence completeness, command eligibility, then timeline order in DOM/visual checks; all governance-changing actions render disabled from the read surface.
+- [x] `src/Hexalith.Conversations.AppHost/Program.cs` and `.csproj` — AppHost now registers the Admin Web host as `conversations-admin-web`.
+- [x] `tests/install-playwright.ps1` and `tests/README.md` — documented and automated Playwright Chromium installation for the rendered evidence lane.
+- [x] `_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/` — generated `viewport-matrix.json`, `fixture-matrix.json`, `safe-telemetry-label-scan.json`, `evidence-summary.md`, and representative screenshots.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj` — 4 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj` — 580 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance|FullyQualifiedName~ConversationTestIds"` — 5 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --filter "FullyQualifiedName~BuyerAcceptance|FullyQualifiedName~ConversationQueryHandlerTest|FullyQualifiedName~ConversationReadApiTest|FullyQualifiedName~ConversationProjectionMaterializerTest"` — 103 passed.
+- [x] `dotnet test Hexalith.Conversations.slnx` — 1519 passed.
+- [x] `dotnet build Hexalith.Conversations.slnx --configuration Release` — 0 warnings, 0 errors.
+- [x] Live browser sanity: `http://127.0.0.1:5183/investigations?fixture=TenantA_Admin_FullTrust` loaded with no console warnings/errors and full-page screenshot captured.
+
+### Coverage
+- AC1: Desktop, tablet, mobile, wide desktop, and 200 percent zoom rows validate that tenant scope, record identity, trust posture, evidence completeness, and command eligibility precede timeline reliance. Mobile triage remains read-only; governance-changing controls are disabled with safe reasons.
+- AC2: Sticky summaries, drawer summaries, skeleton placeholders, condensed panels, and timeline rows are rendered from permission-safe DTO/view-model data. Cross-tenant poison sentinel values are asserted absent from DOM text, attributes, page title, responsive duplicate markup, and telemetry labels.
+- AC3: Evidence is generated from canonical buyer-acceptance fixtures extended into 11 responsive scenario IDs. The evidence folder contains machine-readable viewport, fixture, telemetry scan, and screenshot outputs traceable to this story.
+- Scope boundary: This story does not claim Story 3.8B accessibility-tree/screen-reader closure or Story 3.8C clipboard/browser-title/full telemetry-disclosure closure.
+
 ## Story 6.7 Publish Responsibility Boundary Documentation
 
 ### Generated Tests

@@ -5,4 +5,6 @@
 
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
+builder.AddProject<Projects.Hexalith_Conversations_Admin_Web>("conversations-admin-web");
+
 builder.Build().Run();

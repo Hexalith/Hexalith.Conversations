@@ -1,0 +1,110 @@
+[
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record",
+      "button|command-action||Available: read-governed-record"
+    ]
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record",
+      "button|command-action||Available: read-governed-record"
+    ]
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Mode": "default",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Mode": "forced-colors-reduced-motion",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Mode": "zoom-200",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record"
+    ]
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Mode": "zoom-200",
+    "Trace": [
+      "a|skip-to-record||Skip to governed record",
+      "button|command-action||Available: read-governed-record"
+    ]
+  }
+]

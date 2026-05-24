@@ -391,6 +391,26 @@ public sealed class ConformanceManifestContractTest
     }
 
     [Fact]
+    public void FixtureFileShouldContainV1TelemetryAndRenderedUiWaiverEvidence()
+    {
+        string json = File.ReadAllText(GetFixturePath());
+        ConformanceManifestV1 manifest = JsonSerializer.Deserialize<ConformanceManifestV1>(json, WebOptions)!;
+        string[] testIds = manifest.Entries.Select(e => e.TestId).ToArray();
+
+        testIds.ShouldContain("story-6-8a-operational-telemetry-redaction");
+        testIds.ShouldContain("story-6-8b-operational-telemetry-cardinality");
+        testIds.ShouldContain("story-3-8-rendered-ui-verification-waiver");
+
+        ConformanceManifestRowV1 waiver = manifest.Entries.Single(e => e.TestId == "story-3-8-rendered-ui-verification-waiver");
+        waiver.ReleaseDecisionStatus.ShouldBe(ReleaseGateStatus.Waived);
+        waiver.WaiverReference.ShouldBe("waiver-story-3-8-investigation-workspace-ui-host");
+        waiver.RequirementId.ShouldBe("NFR69");
+
+        manifest.ChangeLog.Select(c => c.ChangeId)
+            .ShouldContain("v1-2026-05-24-telemetry-and-ui-waiver");
+    }
+
+    [Fact]
     public void FixtureFileShouldPassContentSafetyScan()
     {
         string[] forbidden =

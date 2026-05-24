@@ -1,0 +1,14 @@
+[
+  "HighContrast_ReducedMotion_BrowserZoom",
+  "MissingCitation_IncompleteEvidence",
+  "MixedTimeline_PartialLoad_RedactedEvents",
+  "PermissionDowngrade_WhileDrawerOpen",
+  "TenantA_Admin_FullTrust",
+  "TenantA_MobileTriage_ReadOnly",
+  "TenantA_Reviewer_RedactedParticipants",
+  "TenantA_Stale_RebuildingProjection",
+  "TenantB_NoAccess_CrossTenantPoison",
+  "UnauthorizedExisting_IndistinguishableFromMissing",
+  "UnresolvedParticipant_DegradedHydration",
+  "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows"
+]

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "manifestVersion": "v1-fixture",
   "releaseReference": "local-test-release",
-  "generatedAtUtc": "2026-05-23T00:00:00+00:00",
+  "generatedAtUtc": "2026-05-24T00:00:00+00:00",
   "entries": [
     {
       "testId": "story-5-1-compatibility-policy-publication",
@@ -259,7 +259,92 @@
       "owner": "release-engineer",
       "lifecycleStage": "release-evidence",
       "registeredAtUtc": "2026-05-23T00:00:00+00:00"
+    },
+    {
+      "testId": "story-6-8a-operational-telemetry-redaction",
+      "testName": "Operational telemetry redaction validation",
+      "requirementId": "NFR56",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Telemetry redaction suite passes and proves metric dimensions and structured logs exclude unsafe values",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-telemetry-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "telemetry-redaction-conformance-suite-result",
+      "owner": "sre",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-24T00:00:00+00:00"
+    },
+    {
+      "testId": "story-6-8b-operational-telemetry-cardinality",
+      "testName": "Operational telemetry cardinality validation",
+      "requirementId": "NFR57",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Telemetry cardinality suite passes and proves dimension keys and values remain bounded under load",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-telemetry-validation-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "telemetry-cardinality-conformance-suite-result",
+      "owner": "sre",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-24T00:00:00+00:00"
+    },
+    {
+      "testId": "story-3-8a-responsive-layout-mobile-safe-triage",
+      "testName": "Rendered responsive layout and mobile safe-triage verification",
+      "requirementId": "NFR69",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Rendered responsive matrix proves trust order before timeline, mobile safe read-only triage, responsive duplicate safety, viewport-suffixed telemetry labels, and cross-tenant sentinel absence across all fixtures and viewports",
+      "releaseDecisionStatus": "pass",
+      "waiverReference": null,
+      "measurementMethod": "automated-responsive-evidence-test",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "story-3-8a-responsive-layout-mobile-safe-triage",
+      "owner": "architect",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-24T00:00:00+00:00"
+    },
+    {
+      "testId": "story-3-8-rendered-ui-verification-waiver",
+      "testName": "Rendered investigation workspace accessibility and disclosure verification waiver narrowed to stories 3.8B and 3.8C",
+      "requirementId": "NFR69",
+      "carryForwardCommitmentRef": null,
+      "releaseGateId": null,
+      "passCriteria": "Named waiver records owner approver expiry compensating control buyer impact and review date; responsive layout and mobile safe-triage (story 3.8A) is now verified and removed from waiver scope",
+      "releaseDecisionStatus": "waived",
+      "waiverReference": "waiver-story-3-8-investigation-workspace-ui-host",
+      "measurementMethod": "readiness-waiver-decision",
+      "environment": "local-ci",
+      "evidenceArtifactHandle": "waiver-story-3-8-investigation-workspace-ui-host",
+      "owner": "architect",
+      "lifecycleStage": "release-evidence",
+      "registeredAtUtc": "2026-05-24T00:00:00+00:00"
     }
   ],
-  "changeLog": []
+  "changeLog": [
+    {
+      "changeId": "v1-2026-05-24-telemetry-and-ui-waiver",
+      "changeSummary": "Registered telemetry validation evidence and headless v1 rendered UI waiver",
+      "affectedRequirementIds": [
+        "NFR56",
+        "NFR57",
+        "NFR69"
+      ],
+      "changedAtUtc": "2026-05-24T00:00:00+00:00",
+      "changedBy": "release-engineer"
+    },
+    {
+      "changeId": "v1-2026-05-24-story-3-8a-responsive-verified",
+      "changeSummary": "Registered story 3.8A rendered responsive and mobile safe-triage evidence and narrowed the rendered UI waiver to stories 3.8B and 3.8C",
+      "affectedRequirementIds": [
+        "NFR69"
+      ],
+      "changedAtUtc": "2026-05-24T00:00:00+00:00",
+      "changedBy": "release-engineer"
+    }
+  ]
 }

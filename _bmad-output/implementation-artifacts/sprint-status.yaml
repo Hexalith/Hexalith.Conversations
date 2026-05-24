@@ -48,6 +48,8 @@
 generated: 2026-05-17T14:17:58.2822735+02:00
 last_updated: 2026-05-24
 # Decision 2026-05-24: v1 ships headless (no rendered UI host). Stories 3.8A/3.8B/3.8C waived for v1 under named waiver `waiver-story-3-8-investigation-workspace-ui-host` (DTO non-disclosure 3.1-3.7 + telemetry redaction/cardinality 6.8A/6.8B compensating control; review 2026-11-24, expiry 2027-05-24). epic-3 -> done. See readiness-gate-decisions-2026-05-24.md. First-party UI host recorded as a future epic.
+# Reopen 2026-05-24: Jerome explicitly reopened Stories 3.8A/3.8B/3.8C for implementation. The previous headless-v1 waiver is superseded for this rendered-UI verification set; all three stories require real rendered-surface evidence. epic-3 -> in-progress.
+# Story 3.8B regenerated 2026-05-24 (stays ready-for-dev): refreshed after 3.8A implemented the rendered Hexalith.Conversations.Admin.Web host + Hexalith.Conversations.Admin.Web.Tests Playwright lane. Story now extends the existing renderer (no Fluent UI/FrontComposer; hand-rendered HTML) to add heading outline, landmarks, aria-live, accessible blocked-reason descriptions, and a keyboard/accessibility Playwright evidence harness mirroring ResponsiveEvidenceHarnessTest; reuses BuyerAcceptanceInvestigationWorkspaceCatalog fixtures.
 # Story 6.1 ready-for-dev 2026-05-23: ConversationCommandRejectionClass (9 values), ConversationTenantDenialClass (6 values), ConversationPrivilegedAccessClass (3 values), ConversationCommandRejectionClassifier, IConversationRejectionTelemetry, ConversationRejectionTelemetry (Meter + ILogger); wired into TenantAccessGuard, IdempotentConversationCommandExecutor, and ConversationGovernanceAuditGate; ~22 new Server tests
 # Story 5.10 ready-for-dev 2026-05-23: ContractValidationScenarioData (10 scenarios), ContractValidationConformanceSeedData, ContractValidationConformanceSuite, ContractValidationConformanceSuiteTest; manifest fixture extended to 10 entries; carryForwardCommitmentRef → story-4-5; releaseGateId → contract-compatibility
 # Story 5.9 ready-for-dev 2026-05-23: EventSchemaEvolutionScenarioData (10 scenarios), EventSchemaEvolutionConformanceSeedData, EventSchemaEvolutionConformanceSuite, EventSchemaEvolutionConformanceSuiteTest; manifest fixture extended to 9 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → unsupported-schema-rejection
@@ -84,7 +86,7 @@ development_status:
   2-7-govern-audit-record-access-retention-and-redaction: done
   2-8-record-and-review-privileged-operational-justification: done
   epic-2-retrospective: done
-  epic-3: done
+  epic-3: in-progress
   3-1-find-tenant-scoped-conversations-safely: done
   3-2-read-governed-conversation-evidence: done
   3-3-inspect-redaction-attribution-and-governance-audit-trail: done
@@ -92,9 +94,9 @@ development_status:
   3-5-preserve-read-only-compliance-workflows-and-safe-command-gates: done
   3-6-run-governance-verification-and-return-structured-results: done
   3-7-provide-self-serve-buyer-acceptance-demo: done
-  3-8a-verify-responsive-layout-and-mobile-safe-triage: waived
-  3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: waived
-  3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: waived
+  3-8a-verify-responsive-layout-and-mobile-safe-triage: done
+  3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: review
+  3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: ready-for-dev
   epic-3-retrospective: done
   epic-4: done
   4-1-publish-conversations-contract-package-and-compatibility-metadata: done

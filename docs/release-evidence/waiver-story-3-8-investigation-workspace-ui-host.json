@@ -5,15 +5,14 @@
   "affectedRequirementId": "NFR69",
   "affectedGateId": null,
   "affectedStoryIds": [
-    "3-8a-verify-responsive-layout-and-mobile-safe-triage",
     "3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety",
     "3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety"
   ],
   "isBlocker": false,
-  "risk": "Rendered investigation-workspace UI is unverified for responsive layout, accessibility tree and screen-reader safety, and disclosure leakage across DOM, clipboard, browser title, and telemetry. No operator UI ships in v1, so the risk is latent: it materializes only if a rendered workspace is later built and shipped without first running stories 3.8A, 3.8B, and 3.8C against it.",
-  "compensatingControl": "Data-layer non-disclosure is proven across stories 3.1 through 3.7 with permission-safe read DTOs, fail-closed degradation, and normalized forbidden-vocabulary checks; operational telemetry redaction and cardinality bounds are proven in stories 6.8A and 6.8B. v1 delivers a headless module (contract package plus .NET client); adopters render their own UI and inherit the documented non-disclosure read contract.",
+  "risk": "Superseded and narrowed. Stories 3.8A, 3.8B, and 3.8C were reopened on 2026-05-24 for rendered responsive, accessibility, and disclosure verification against a real first-party investigation workspace surface. Story 3.8A (responsive layout and mobile safe triage) is now verified by the rendered Admin Web evidence lane and is removed from this waiver; only accessibility-tree/keyboard/screen-reader (3.8B) and leakage/clipboard/browser/telemetry-disclosure (3.8C) verification remain waived pending implementation.",
+  "compensatingControl": "Data-layer non-disclosure is proven across stories 3.1 through 3.7 with permission-safe read DTOs, fail-closed degradation, and normalized forbidden-vocabulary checks; operational telemetry redaction and cardinality bounds are proven in stories 6.8A and 6.8B; rendered responsive trust ordering and mobile safe triage are now proven by story 3.8A. v1 delivers a headless module (contract package plus .NET client); adopters render their own UI and inherit the documented non-disclosure read contract.",
   "expiryDateUtc": "2027-05-24T00:00:00+00:00",
-  "buyerImpact": "Buyers integrating the headless v1 module receive contract-level non-disclosure guarantees and run their own rendered-surface verification for responsive, accessibility, and leakage safety against any UI they build. No operator UI is delivered or certified in v1.",
+  "buyerImpact": "Historical and narrowed. Buyers integrating the headless v1 module still receive contract-level non-disclosure guarantees, and first-party rendered responsive/mobile safe-triage behavior is now verified by Story 3.8A. Any first-party rendered investigation workspace still requires completion or explicit replacement of Stories 3.8B and 3.8C before release.",
   "buyerAcceptanceStatus": null,
   "evidenceLinks": [
     "epic-3-retro-2026-05-24",
@@ -21,6 +20,6 @@
     "readiness-gate-decisions-2026-05-24"
   ],
   "reviewDateUtc": "2026-11-24T00:00:00+00:00",
-  "lifecycleStatus": "active",
+  "lifecycleStatus": "superseded",
   "createdAtUtc": "2026-05-24T00:00:00+00:00"
 }

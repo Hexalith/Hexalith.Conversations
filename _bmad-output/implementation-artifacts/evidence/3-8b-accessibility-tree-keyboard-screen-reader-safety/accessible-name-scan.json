@@ -1,0 +1,92 @@
+[
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Mode": "default",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Mode": "forced-colors-reduced-motion",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Mode": "zoom-200",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Mode": "zoom-200",
+    "AccessibleNameScanPassed": true,
+    "FocusTraceContentSafe": true
+  }
+]

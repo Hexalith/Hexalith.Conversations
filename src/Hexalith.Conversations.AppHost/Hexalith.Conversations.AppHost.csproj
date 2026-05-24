@@ -6,6 +6,7 @@
     <UserSecretsId>hexalith-conversations</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
 </Project>

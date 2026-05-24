@@ -23,9 +23,11 @@ public sealed class ScaffoldSmokeTest
         "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
         "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
         "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+        "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
         "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
         "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
         "src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj",
+        "tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj",
         "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj",
         "tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj",
         "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
@@ -157,7 +159,13 @@ public sealed class ScaffoldSmokeTest
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj");
         AssertProjectReferences(
             root,
+            "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
+            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+            "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj");
+        AssertProjectReferences(
+            root,
             "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+            "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj");
     }
 

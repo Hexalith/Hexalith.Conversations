@@ -1,0 +1,1514 @@
+[
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.mobile",
+      "tenant-a.admin.full-trust.drawer-summary.mobile",
+      "tenant-a.admin.full-trust.evidence-completeness.mobile",
+      "tenant-a.admin.full-trust.mobile",
+      "tenant-a.admin.full-trust.record-identity.mobile",
+      "tenant-a.admin.full-trust.skeleton.mobile",
+      "tenant-a.admin.full-trust.sticky-summary.mobile",
+      "tenant-a.admin.full-trust.tenant-scope.mobile",
+      "tenant-a.admin.full-trust.timeline.mobile",
+      "tenant-a.admin.full-trust.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.mobile",
+      "tenant-a.admin.full-trust.drawer-summary.mobile",
+      "tenant-a.admin.full-trust.evidence-completeness.mobile",
+      "tenant-a.admin.full-trust.mobile",
+      "tenant-a.admin.full-trust.record-identity.mobile",
+      "tenant-a.admin.full-trust.skeleton.mobile",
+      "tenant-a.admin.full-trust.sticky-summary.mobile",
+      "tenant-a.admin.full-trust.tenant-scope.mobile",
+      "tenant-a.admin.full-trust.timeline.mobile",
+      "tenant-a.admin.full-trust.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.tablet",
+      "tenant-a.admin.full-trust.drawer-summary.tablet",
+      "tenant-a.admin.full-trust.evidence-completeness.tablet",
+      "tenant-a.admin.full-trust.record-identity.tablet",
+      "tenant-a.admin.full-trust.skeleton.tablet",
+      "tenant-a.admin.full-trust.sticky-summary.tablet",
+      "tenant-a.admin.full-trust.tablet",
+      "tenant-a.admin.full-trust.tenant-scope.tablet",
+      "tenant-a.admin.full-trust.timeline.tablet",
+      "tenant-a.admin.full-trust.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.desktop",
+      "tenant-a.admin.full-trust.desktop",
+      "tenant-a.admin.full-trust.drawer-summary.desktop",
+      "tenant-a.admin.full-trust.evidence-completeness.desktop",
+      "tenant-a.admin.full-trust.record-identity.desktop",
+      "tenant-a.admin.full-trust.skeleton.desktop",
+      "tenant-a.admin.full-trust.sticky-summary.desktop",
+      "tenant-a.admin.full-trust.tenant-scope.desktop",
+      "tenant-a.admin.full-trust.timeline.desktop",
+      "tenant-a.admin.full-trust.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.wide-desktop",
+      "tenant-a.admin.full-trust.drawer-summary.wide-desktop",
+      "tenant-a.admin.full-trust.evidence-completeness.wide-desktop",
+      "tenant-a.admin.full-trust.record-identity.wide-desktop",
+      "tenant-a.admin.full-trust.skeleton.wide-desktop",
+      "tenant-a.admin.full-trust.sticky-summary.wide-desktop",
+      "tenant-a.admin.full-trust.tenant-scope.wide-desktop",
+      "tenant-a.admin.full-trust.timeline.wide-desktop",
+      "tenant-a.admin.full-trust.trust-posture.wide-desktop",
+      "tenant-a.admin.full-trust.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.mobile",
+      "tenant-a.admin.full-trust.drawer-summary.mobile",
+      "tenant-a.admin.full-trust.evidence-completeness.mobile",
+      "tenant-a.admin.full-trust.mobile",
+      "tenant-a.admin.full-trust.record-identity.mobile",
+      "tenant-a.admin.full-trust.skeleton.mobile",
+      "tenant-a.admin.full-trust.sticky-summary.mobile",
+      "tenant-a.admin.full-trust.tenant-scope.mobile",
+      "tenant-a.admin.full-trust.timeline.mobile",
+      "tenant-a.admin.full-trust.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Admin_FullTrust",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.admin.full-trust.command-eligibility.tablet",
+      "tenant-a.admin.full-trust.drawer-summary.tablet",
+      "tenant-a.admin.full-trust.evidence-completeness.tablet",
+      "tenant-a.admin.full-trust.record-identity.tablet",
+      "tenant-a.admin.full-trust.skeleton.tablet",
+      "tenant-a.admin.full-trust.sticky-summary.tablet",
+      "tenant-a.admin.full-trust.tablet",
+      "tenant-a.admin.full-trust.tenant-scope.tablet",
+      "tenant-a.admin.full-trust.timeline.tablet",
+      "tenant-a.admin.full-trust.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.mobile",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.mobile",
+      "tenant-a.reviewer.redacted-participants.mobile",
+      "tenant-a.reviewer.redacted-participants.record-identity.mobile",
+      "tenant-a.reviewer.redacted-participants.skeleton.mobile",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.mobile",
+      "tenant-a.reviewer.redacted-participants.timeline.mobile",
+      "tenant-a.reviewer.redacted-participants.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.mobile",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.mobile",
+      "tenant-a.reviewer.redacted-participants.mobile",
+      "tenant-a.reviewer.redacted-participants.record-identity.mobile",
+      "tenant-a.reviewer.redacted-participants.skeleton.mobile",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.mobile",
+      "tenant-a.reviewer.redacted-participants.timeline.mobile",
+      "tenant-a.reviewer.redacted-participants.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.tablet",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.tablet",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.tablet",
+      "tenant-a.reviewer.redacted-participants.record-identity.tablet",
+      "tenant-a.reviewer.redacted-participants.skeleton.tablet",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.tablet",
+      "tenant-a.reviewer.redacted-participants.tablet",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.tablet",
+      "tenant-a.reviewer.redacted-participants.timeline.tablet",
+      "tenant-a.reviewer.redacted-participants.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.desktop",
+      "tenant-a.reviewer.redacted-participants.desktop",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.desktop",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.desktop",
+      "tenant-a.reviewer.redacted-participants.record-identity.desktop",
+      "tenant-a.reviewer.redacted-participants.skeleton.desktop",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.desktop",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.desktop",
+      "tenant-a.reviewer.redacted-participants.timeline.desktop",
+      "tenant-a.reviewer.redacted-participants.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.record-identity.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.skeleton.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.timeline.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.trust-posture.wide-desktop",
+      "tenant-a.reviewer.redacted-participants.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.mobile",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.mobile",
+      "tenant-a.reviewer.redacted-participants.mobile",
+      "tenant-a.reviewer.redacted-participants.record-identity.mobile",
+      "tenant-a.reviewer.redacted-participants.skeleton.mobile",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.mobile",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.mobile",
+      "tenant-a.reviewer.redacted-participants.timeline.mobile",
+      "tenant-a.reviewer.redacted-participants.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Reviewer_RedactedParticipants",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.reviewer.redacted-participants.command-eligibility.tablet",
+      "tenant-a.reviewer.redacted-participants.drawer-summary.tablet",
+      "tenant-a.reviewer.redacted-participants.evidence-completeness.tablet",
+      "tenant-a.reviewer.redacted-participants.record-identity.tablet",
+      "tenant-a.reviewer.redacted-participants.skeleton.tablet",
+      "tenant-a.reviewer.redacted-participants.sticky-summary.tablet",
+      "tenant-a.reviewer.redacted-participants.tablet",
+      "tenant-a.reviewer.redacted-participants.tenant-scope.tablet",
+      "tenant-a.reviewer.redacted-participants.timeline.tablet",
+      "tenant-a.reviewer.redacted-participants.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.mobile",
+      "tenant-a.mobile.read-only-triage.drawer-summary.mobile",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.mobile",
+      "tenant-a.mobile.read-only-triage.mobile",
+      "tenant-a.mobile.read-only-triage.record-identity.mobile",
+      "tenant-a.mobile.read-only-triage.skeleton.mobile",
+      "tenant-a.mobile.read-only-triage.sticky-summary.mobile",
+      "tenant-a.mobile.read-only-triage.tenant-scope.mobile",
+      "tenant-a.mobile.read-only-triage.timeline.mobile",
+      "tenant-a.mobile.read-only-triage.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.mobile",
+      "tenant-a.mobile.read-only-triage.drawer-summary.mobile",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.mobile",
+      "tenant-a.mobile.read-only-triage.mobile",
+      "tenant-a.mobile.read-only-triage.record-identity.mobile",
+      "tenant-a.mobile.read-only-triage.skeleton.mobile",
+      "tenant-a.mobile.read-only-triage.sticky-summary.mobile",
+      "tenant-a.mobile.read-only-triage.tenant-scope.mobile",
+      "tenant-a.mobile.read-only-triage.timeline.mobile",
+      "tenant-a.mobile.read-only-triage.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.tablet",
+      "tenant-a.mobile.read-only-triage.drawer-summary.tablet",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.tablet",
+      "tenant-a.mobile.read-only-triage.record-identity.tablet",
+      "tenant-a.mobile.read-only-triage.skeleton.tablet",
+      "tenant-a.mobile.read-only-triage.sticky-summary.tablet",
+      "tenant-a.mobile.read-only-triage.tablet",
+      "tenant-a.mobile.read-only-triage.tenant-scope.tablet",
+      "tenant-a.mobile.read-only-triage.timeline.tablet",
+      "tenant-a.mobile.read-only-triage.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.desktop",
+      "tenant-a.mobile.read-only-triage.desktop",
+      "tenant-a.mobile.read-only-triage.drawer-summary.desktop",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.desktop",
+      "tenant-a.mobile.read-only-triage.record-identity.desktop",
+      "tenant-a.mobile.read-only-triage.skeleton.desktop",
+      "tenant-a.mobile.read-only-triage.sticky-summary.desktop",
+      "tenant-a.mobile.read-only-triage.tenant-scope.desktop",
+      "tenant-a.mobile.read-only-triage.timeline.desktop",
+      "tenant-a.mobile.read-only-triage.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.wide-desktop",
+      "tenant-a.mobile.read-only-triage.drawer-summary.wide-desktop",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.wide-desktop",
+      "tenant-a.mobile.read-only-triage.record-identity.wide-desktop",
+      "tenant-a.mobile.read-only-triage.skeleton.wide-desktop",
+      "tenant-a.mobile.read-only-triage.sticky-summary.wide-desktop",
+      "tenant-a.mobile.read-only-triage.tenant-scope.wide-desktop",
+      "tenant-a.mobile.read-only-triage.timeline.wide-desktop",
+      "tenant-a.mobile.read-only-triage.trust-posture.wide-desktop",
+      "tenant-a.mobile.read-only-triage.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.mobile",
+      "tenant-a.mobile.read-only-triage.drawer-summary.mobile",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.mobile",
+      "tenant-a.mobile.read-only-triage.mobile",
+      "tenant-a.mobile.read-only-triage.record-identity.mobile",
+      "tenant-a.mobile.read-only-triage.skeleton.mobile",
+      "tenant-a.mobile.read-only-triage.sticky-summary.mobile",
+      "tenant-a.mobile.read-only-triage.tenant-scope.mobile",
+      "tenant-a.mobile.read-only-triage.timeline.mobile",
+      "tenant-a.mobile.read-only-triage.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_MobileTriage_ReadOnly",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.mobile.read-only-triage.command-eligibility.tablet",
+      "tenant-a.mobile.read-only-triage.drawer-summary.tablet",
+      "tenant-a.mobile.read-only-triage.evidence-completeness.tablet",
+      "tenant-a.mobile.read-only-triage.record-identity.tablet",
+      "tenant-a.mobile.read-only-triage.skeleton.tablet",
+      "tenant-a.mobile.read-only-triage.sticky-summary.tablet",
+      "tenant-a.mobile.read-only-triage.tablet",
+      "tenant-a.mobile.read-only-triage.tenant-scope.tablet",
+      "tenant-a.mobile.read-only-triage.timeline.tablet",
+      "tenant-a.mobile.read-only-triage.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.desktop",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.wide-desktop",
+      "tenant-b.no-access.cross-tenant-attempt.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.mobile",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-b.no-access.cross-tenant-attempt.command-eligibility.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.drawer-summary.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.evidence-completeness.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.record-identity.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.skeleton.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.sticky-summary.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.tenant-scope.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.timeline.tablet",
+      "tenant-b.no-access.cross-tenant-attempt.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.mobile",
+      "tenant-a.timeline.partial-redacted.drawer-summary.mobile",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.mobile",
+      "tenant-a.timeline.partial-redacted.mobile",
+      "tenant-a.timeline.partial-redacted.record-identity.mobile",
+      "tenant-a.timeline.partial-redacted.skeleton.mobile",
+      "tenant-a.timeline.partial-redacted.sticky-summary.mobile",
+      "tenant-a.timeline.partial-redacted.tenant-scope.mobile",
+      "tenant-a.timeline.partial-redacted.timeline.mobile",
+      "tenant-a.timeline.partial-redacted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.mobile",
+      "tenant-a.timeline.partial-redacted.drawer-summary.mobile",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.mobile",
+      "tenant-a.timeline.partial-redacted.mobile",
+      "tenant-a.timeline.partial-redacted.record-identity.mobile",
+      "tenant-a.timeline.partial-redacted.skeleton.mobile",
+      "tenant-a.timeline.partial-redacted.sticky-summary.mobile",
+      "tenant-a.timeline.partial-redacted.tenant-scope.mobile",
+      "tenant-a.timeline.partial-redacted.timeline.mobile",
+      "tenant-a.timeline.partial-redacted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.tablet",
+      "tenant-a.timeline.partial-redacted.drawer-summary.tablet",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.tablet",
+      "tenant-a.timeline.partial-redacted.record-identity.tablet",
+      "tenant-a.timeline.partial-redacted.skeleton.tablet",
+      "tenant-a.timeline.partial-redacted.sticky-summary.tablet",
+      "tenant-a.timeline.partial-redacted.tablet",
+      "tenant-a.timeline.partial-redacted.tenant-scope.tablet",
+      "tenant-a.timeline.partial-redacted.timeline.tablet",
+      "tenant-a.timeline.partial-redacted.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.desktop",
+      "tenant-a.timeline.partial-redacted.desktop",
+      "tenant-a.timeline.partial-redacted.drawer-summary.desktop",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.desktop",
+      "tenant-a.timeline.partial-redacted.record-identity.desktop",
+      "tenant-a.timeline.partial-redacted.skeleton.desktop",
+      "tenant-a.timeline.partial-redacted.sticky-summary.desktop",
+      "tenant-a.timeline.partial-redacted.tenant-scope.desktop",
+      "tenant-a.timeline.partial-redacted.timeline.desktop",
+      "tenant-a.timeline.partial-redacted.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.wide-desktop",
+      "tenant-a.timeline.partial-redacted.drawer-summary.wide-desktop",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.wide-desktop",
+      "tenant-a.timeline.partial-redacted.record-identity.wide-desktop",
+      "tenant-a.timeline.partial-redacted.skeleton.wide-desktop",
+      "tenant-a.timeline.partial-redacted.sticky-summary.wide-desktop",
+      "tenant-a.timeline.partial-redacted.tenant-scope.wide-desktop",
+      "tenant-a.timeline.partial-redacted.timeline.wide-desktop",
+      "tenant-a.timeline.partial-redacted.trust-posture.wide-desktop",
+      "tenant-a.timeline.partial-redacted.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.mobile",
+      "tenant-a.timeline.partial-redacted.drawer-summary.mobile",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.mobile",
+      "tenant-a.timeline.partial-redacted.mobile",
+      "tenant-a.timeline.partial-redacted.record-identity.mobile",
+      "tenant-a.timeline.partial-redacted.skeleton.mobile",
+      "tenant-a.timeline.partial-redacted.sticky-summary.mobile",
+      "tenant-a.timeline.partial-redacted.tenant-scope.mobile",
+      "tenant-a.timeline.partial-redacted.timeline.mobile",
+      "tenant-a.timeline.partial-redacted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.timeline.partial-redacted.command-eligibility.tablet",
+      "tenant-a.timeline.partial-redacted.drawer-summary.tablet",
+      "tenant-a.timeline.partial-redacted.evidence-completeness.tablet",
+      "tenant-a.timeline.partial-redacted.record-identity.tablet",
+      "tenant-a.timeline.partial-redacted.skeleton.tablet",
+      "tenant-a.timeline.partial-redacted.sticky-summary.tablet",
+      "tenant-a.timeline.partial-redacted.tablet",
+      "tenant-a.timeline.partial-redacted.tenant-scope.tablet",
+      "tenant-a.timeline.partial-redacted.timeline.tablet",
+      "tenant-a.timeline.partial-redacted.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.mobile",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.mobile",
+      "tenant-a.timeline.virtualized-restricted.mobile",
+      "tenant-a.timeline.virtualized-restricted.record-identity.mobile",
+      "tenant-a.timeline.virtualized-restricted.skeleton.mobile",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.mobile",
+      "tenant-a.timeline.virtualized-restricted.timeline.mobile",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.mobile",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.mobile",
+      "tenant-a.timeline.virtualized-restricted.mobile",
+      "tenant-a.timeline.virtualized-restricted.record-identity.mobile",
+      "tenant-a.timeline.virtualized-restricted.skeleton.mobile",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.mobile",
+      "tenant-a.timeline.virtualized-restricted.timeline.mobile",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.tablet",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.tablet",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.tablet",
+      "tenant-a.timeline.virtualized-restricted.record-identity.tablet",
+      "tenant-a.timeline.virtualized-restricted.skeleton.tablet",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.tablet",
+      "tenant-a.timeline.virtualized-restricted.tablet",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.tablet",
+      "tenant-a.timeline.virtualized-restricted.timeline.tablet",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.desktop",
+      "tenant-a.timeline.virtualized-restricted.desktop",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.desktop",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.desktop",
+      "tenant-a.timeline.virtualized-restricted.record-identity.desktop",
+      "tenant-a.timeline.virtualized-restricted.skeleton.desktop",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.desktop",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.desktop",
+      "tenant-a.timeline.virtualized-restricted.timeline.desktop",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.record-identity.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.skeleton.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.timeline.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.wide-desktop",
+      "tenant-a.timeline.virtualized-restricted.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.mobile",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.mobile",
+      "tenant-a.timeline.virtualized-restricted.mobile",
+      "tenant-a.timeline.virtualized-restricted.record-identity.mobile",
+      "tenant-a.timeline.virtualized-restricted.skeleton.mobile",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.mobile",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.mobile",
+      "tenant-a.timeline.virtualized-restricted.timeline.mobile",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.timeline.virtualized-restricted.command-eligibility.tablet",
+      "tenant-a.timeline.virtualized-restricted.drawer-summary.tablet",
+      "tenant-a.timeline.virtualized-restricted.evidence-completeness.tablet",
+      "tenant-a.timeline.virtualized-restricted.record-identity.tablet",
+      "tenant-a.timeline.virtualized-restricted.skeleton.tablet",
+      "tenant-a.timeline.virtualized-restricted.sticky-summary.tablet",
+      "tenant-a.timeline.virtualized-restricted.tablet",
+      "tenant-a.timeline.virtualized-restricted.tenant-scope.tablet",
+      "tenant-a.timeline.virtualized-restricted.timeline.tablet",
+      "tenant-a.timeline.virtualized-restricted.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.mobile",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.mobile",
+      "tenant-a.unauthorized.safe-denial.mobile",
+      "tenant-a.unauthorized.safe-denial.record-identity.mobile",
+      "tenant-a.unauthorized.safe-denial.skeleton.mobile",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.mobile",
+      "tenant-a.unauthorized.safe-denial.timeline.mobile",
+      "tenant-a.unauthorized.safe-denial.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.mobile",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.mobile",
+      "tenant-a.unauthorized.safe-denial.mobile",
+      "tenant-a.unauthorized.safe-denial.record-identity.mobile",
+      "tenant-a.unauthorized.safe-denial.skeleton.mobile",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.mobile",
+      "tenant-a.unauthorized.safe-denial.timeline.mobile",
+      "tenant-a.unauthorized.safe-denial.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.tablet",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.tablet",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.tablet",
+      "tenant-a.unauthorized.safe-denial.record-identity.tablet",
+      "tenant-a.unauthorized.safe-denial.skeleton.tablet",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.tablet",
+      "tenant-a.unauthorized.safe-denial.tablet",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.tablet",
+      "tenant-a.unauthorized.safe-denial.timeline.tablet",
+      "tenant-a.unauthorized.safe-denial.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.desktop",
+      "tenant-a.unauthorized.safe-denial.desktop",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.desktop",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.desktop",
+      "tenant-a.unauthorized.safe-denial.record-identity.desktop",
+      "tenant-a.unauthorized.safe-denial.skeleton.desktop",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.desktop",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.desktop",
+      "tenant-a.unauthorized.safe-denial.timeline.desktop",
+      "tenant-a.unauthorized.safe-denial.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.record-identity.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.skeleton.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.timeline.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.trust-posture.wide-desktop",
+      "tenant-a.unauthorized.safe-denial.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.mobile",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.mobile",
+      "tenant-a.unauthorized.safe-denial.mobile",
+      "tenant-a.unauthorized.safe-denial.record-identity.mobile",
+      "tenant-a.unauthorized.safe-denial.skeleton.mobile",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.mobile",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.mobile",
+      "tenant-a.unauthorized.safe-denial.timeline.mobile",
+      "tenant-a.unauthorized.safe-denial.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.unauthorized.safe-denial.command-eligibility.tablet",
+      "tenant-a.unauthorized.safe-denial.drawer-summary.tablet",
+      "tenant-a.unauthorized.safe-denial.evidence-completeness.tablet",
+      "tenant-a.unauthorized.safe-denial.record-identity.tablet",
+      "tenant-a.unauthorized.safe-denial.skeleton.tablet",
+      "tenant-a.unauthorized.safe-denial.sticky-summary.tablet",
+      "tenant-a.unauthorized.safe-denial.tablet",
+      "tenant-a.unauthorized.safe-denial.tenant-scope.tablet",
+      "tenant-a.unauthorized.safe-denial.timeline.tablet",
+      "tenant-a.unauthorized.safe-denial.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.mobile",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.mobile",
+      "tenant-a.permission-downgrade.drawer.mobile",
+      "tenant-a.permission-downgrade.drawer.record-identity.mobile",
+      "tenant-a.permission-downgrade.drawer.skeleton.mobile",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.mobile",
+      "tenant-a.permission-downgrade.drawer.timeline.mobile",
+      "tenant-a.permission-downgrade.drawer.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.mobile",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.mobile",
+      "tenant-a.permission-downgrade.drawer.mobile",
+      "tenant-a.permission-downgrade.drawer.record-identity.mobile",
+      "tenant-a.permission-downgrade.drawer.skeleton.mobile",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.mobile",
+      "tenant-a.permission-downgrade.drawer.timeline.mobile",
+      "tenant-a.permission-downgrade.drawer.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.tablet",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.tablet",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.tablet",
+      "tenant-a.permission-downgrade.drawer.record-identity.tablet",
+      "tenant-a.permission-downgrade.drawer.skeleton.tablet",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.tablet",
+      "tenant-a.permission-downgrade.drawer.tablet",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.tablet",
+      "tenant-a.permission-downgrade.drawer.timeline.tablet",
+      "tenant-a.permission-downgrade.drawer.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.desktop",
+      "tenant-a.permission-downgrade.drawer.desktop",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.desktop",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.desktop",
+      "tenant-a.permission-downgrade.drawer.record-identity.desktop",
+      "tenant-a.permission-downgrade.drawer.skeleton.desktop",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.desktop",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.desktop",
+      "tenant-a.permission-downgrade.drawer.timeline.desktop",
+      "tenant-a.permission-downgrade.drawer.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.record-identity.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.skeleton.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.timeline.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.trust-posture.wide-desktop",
+      "tenant-a.permission-downgrade.drawer.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.mobile",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.mobile",
+      "tenant-a.permission-downgrade.drawer.mobile",
+      "tenant-a.permission-downgrade.drawer.record-identity.mobile",
+      "tenant-a.permission-downgrade.drawer.skeleton.mobile",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.mobile",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.mobile",
+      "tenant-a.permission-downgrade.drawer.timeline.mobile",
+      "tenant-a.permission-downgrade.drawer.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.permission-downgrade.drawer.command-eligibility.tablet",
+      "tenant-a.permission-downgrade.drawer.drawer-summary.tablet",
+      "tenant-a.permission-downgrade.drawer.evidence-completeness.tablet",
+      "tenant-a.permission-downgrade.drawer.record-identity.tablet",
+      "tenant-a.permission-downgrade.drawer.skeleton.tablet",
+      "tenant-a.permission-downgrade.drawer.sticky-summary.tablet",
+      "tenant-a.permission-downgrade.drawer.tablet",
+      "tenant-a.permission-downgrade.drawer.tenant-scope.tablet",
+      "tenant-a.permission-downgrade.drawer.timeline.tablet",
+      "tenant-a.permission-downgrade.drawer.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.mobile",
+      "tenant-a.missing-citation.incomplete.drawer-summary.mobile",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.mobile",
+      "tenant-a.missing-citation.incomplete.mobile",
+      "tenant-a.missing-citation.incomplete.record-identity.mobile",
+      "tenant-a.missing-citation.incomplete.skeleton.mobile",
+      "tenant-a.missing-citation.incomplete.sticky-summary.mobile",
+      "tenant-a.missing-citation.incomplete.tenant-scope.mobile",
+      "tenant-a.missing-citation.incomplete.timeline.mobile",
+      "tenant-a.missing-citation.incomplete.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.mobile",
+      "tenant-a.missing-citation.incomplete.drawer-summary.mobile",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.mobile",
+      "tenant-a.missing-citation.incomplete.mobile",
+      "tenant-a.missing-citation.incomplete.record-identity.mobile",
+      "tenant-a.missing-citation.incomplete.skeleton.mobile",
+      "tenant-a.missing-citation.incomplete.sticky-summary.mobile",
+      "tenant-a.missing-citation.incomplete.tenant-scope.mobile",
+      "tenant-a.missing-citation.incomplete.timeline.mobile",
+      "tenant-a.missing-citation.incomplete.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.tablet",
+      "tenant-a.missing-citation.incomplete.drawer-summary.tablet",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.tablet",
+      "tenant-a.missing-citation.incomplete.record-identity.tablet",
+      "tenant-a.missing-citation.incomplete.skeleton.tablet",
+      "tenant-a.missing-citation.incomplete.sticky-summary.tablet",
+      "tenant-a.missing-citation.incomplete.tablet",
+      "tenant-a.missing-citation.incomplete.tenant-scope.tablet",
+      "tenant-a.missing-citation.incomplete.timeline.tablet",
+      "tenant-a.missing-citation.incomplete.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.desktop",
+      "tenant-a.missing-citation.incomplete.desktop",
+      "tenant-a.missing-citation.incomplete.drawer-summary.desktop",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.desktop",
+      "tenant-a.missing-citation.incomplete.record-identity.desktop",
+      "tenant-a.missing-citation.incomplete.skeleton.desktop",
+      "tenant-a.missing-citation.incomplete.sticky-summary.desktop",
+      "tenant-a.missing-citation.incomplete.tenant-scope.desktop",
+      "tenant-a.missing-citation.incomplete.timeline.desktop",
+      "tenant-a.missing-citation.incomplete.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.wide-desktop",
+      "tenant-a.missing-citation.incomplete.drawer-summary.wide-desktop",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.wide-desktop",
+      "tenant-a.missing-citation.incomplete.record-identity.wide-desktop",
+      "tenant-a.missing-citation.incomplete.skeleton.wide-desktop",
+      "tenant-a.missing-citation.incomplete.sticky-summary.wide-desktop",
+      "tenant-a.missing-citation.incomplete.tenant-scope.wide-desktop",
+      "tenant-a.missing-citation.incomplete.timeline.wide-desktop",
+      "tenant-a.missing-citation.incomplete.trust-posture.wide-desktop",
+      "tenant-a.missing-citation.incomplete.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.mobile",
+      "tenant-a.missing-citation.incomplete.drawer-summary.mobile",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.mobile",
+      "tenant-a.missing-citation.incomplete.mobile",
+      "tenant-a.missing-citation.incomplete.record-identity.mobile",
+      "tenant-a.missing-citation.incomplete.skeleton.mobile",
+      "tenant-a.missing-citation.incomplete.sticky-summary.mobile",
+      "tenant-a.missing-citation.incomplete.tenant-scope.mobile",
+      "tenant-a.missing-citation.incomplete.timeline.mobile",
+      "tenant-a.missing-citation.incomplete.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "MissingCitation_IncompleteEvidence",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.missing-citation.incomplete.command-eligibility.tablet",
+      "tenant-a.missing-citation.incomplete.drawer-summary.tablet",
+      "tenant-a.missing-citation.incomplete.evidence-completeness.tablet",
+      "tenant-a.missing-citation.incomplete.record-identity.tablet",
+      "tenant-a.missing-citation.incomplete.skeleton.tablet",
+      "tenant-a.missing-citation.incomplete.sticky-summary.tablet",
+      "tenant-a.missing-citation.incomplete.tablet",
+      "tenant-a.missing-citation.incomplete.tenant-scope.tablet",
+      "tenant-a.missing-citation.incomplete.timeline.tablet",
+      "tenant-a.missing-citation.incomplete.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.mobile",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.mobile",
+      "tenant-a.unresolved-participant.degraded.mobile",
+      "tenant-a.unresolved-participant.degraded.record-identity.mobile",
+      "tenant-a.unresolved-participant.degraded.skeleton.mobile",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.mobile",
+      "tenant-a.unresolved-participant.degraded.timeline.mobile",
+      "tenant-a.unresolved-participant.degraded.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.mobile",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.mobile",
+      "tenant-a.unresolved-participant.degraded.mobile",
+      "tenant-a.unresolved-participant.degraded.record-identity.mobile",
+      "tenant-a.unresolved-participant.degraded.skeleton.mobile",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.mobile",
+      "tenant-a.unresolved-participant.degraded.timeline.mobile",
+      "tenant-a.unresolved-participant.degraded.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.tablet",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.tablet",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.tablet",
+      "tenant-a.unresolved-participant.degraded.record-identity.tablet",
+      "tenant-a.unresolved-participant.degraded.skeleton.tablet",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.tablet",
+      "tenant-a.unresolved-participant.degraded.tablet",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.tablet",
+      "tenant-a.unresolved-participant.degraded.timeline.tablet",
+      "tenant-a.unresolved-participant.degraded.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.desktop",
+      "tenant-a.unresolved-participant.degraded.desktop",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.desktop",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.desktop",
+      "tenant-a.unresolved-participant.degraded.record-identity.desktop",
+      "tenant-a.unresolved-participant.degraded.skeleton.desktop",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.desktop",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.desktop",
+      "tenant-a.unresolved-participant.degraded.timeline.desktop",
+      "tenant-a.unresolved-participant.degraded.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.record-identity.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.skeleton.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.timeline.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.trust-posture.wide-desktop",
+      "tenant-a.unresolved-participant.degraded.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.mobile",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.mobile",
+      "tenant-a.unresolved-participant.degraded.mobile",
+      "tenant-a.unresolved-participant.degraded.record-identity.mobile",
+      "tenant-a.unresolved-participant.degraded.skeleton.mobile",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.mobile",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.mobile",
+      "tenant-a.unresolved-participant.degraded.timeline.mobile",
+      "tenant-a.unresolved-participant.degraded.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "UnresolvedParticipant_DegradedHydration",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.unresolved-participant.degraded.command-eligibility.tablet",
+      "tenant-a.unresolved-participant.degraded.drawer-summary.tablet",
+      "tenant-a.unresolved-participant.degraded.evidence-completeness.tablet",
+      "tenant-a.unresolved-participant.degraded.record-identity.tablet",
+      "tenant-a.unresolved-participant.degraded.skeleton.tablet",
+      "tenant-a.unresolved-participant.degraded.sticky-summary.tablet",
+      "tenant-a.unresolved-participant.degraded.tablet",
+      "tenant-a.unresolved-participant.degraded.tenant-scope.tablet",
+      "tenant-a.unresolved-participant.degraded.timeline.tablet",
+      "tenant-a.unresolved-participant.degraded.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.mobile",
+      "tenant-a.stale.rebuilding.drawer-summary.mobile",
+      "tenant-a.stale.rebuilding.evidence-completeness.mobile",
+      "tenant-a.stale.rebuilding.mobile",
+      "tenant-a.stale.rebuilding.record-identity.mobile",
+      "tenant-a.stale.rebuilding.skeleton.mobile",
+      "tenant-a.stale.rebuilding.sticky-summary.mobile",
+      "tenant-a.stale.rebuilding.tenant-scope.mobile",
+      "tenant-a.stale.rebuilding.timeline.mobile",
+      "tenant-a.stale.rebuilding.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.mobile",
+      "tenant-a.stale.rebuilding.drawer-summary.mobile",
+      "tenant-a.stale.rebuilding.evidence-completeness.mobile",
+      "tenant-a.stale.rebuilding.mobile",
+      "tenant-a.stale.rebuilding.record-identity.mobile",
+      "tenant-a.stale.rebuilding.skeleton.mobile",
+      "tenant-a.stale.rebuilding.sticky-summary.mobile",
+      "tenant-a.stale.rebuilding.tenant-scope.mobile",
+      "tenant-a.stale.rebuilding.timeline.mobile",
+      "tenant-a.stale.rebuilding.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.tablet",
+      "tenant-a.stale.rebuilding.drawer-summary.tablet",
+      "tenant-a.stale.rebuilding.evidence-completeness.tablet",
+      "tenant-a.stale.rebuilding.record-identity.tablet",
+      "tenant-a.stale.rebuilding.skeleton.tablet",
+      "tenant-a.stale.rebuilding.sticky-summary.tablet",
+      "tenant-a.stale.rebuilding.tablet",
+      "tenant-a.stale.rebuilding.tenant-scope.tablet",
+      "tenant-a.stale.rebuilding.timeline.tablet",
+      "tenant-a.stale.rebuilding.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.desktop",
+      "tenant-a.stale.rebuilding.desktop",
+      "tenant-a.stale.rebuilding.drawer-summary.desktop",
+      "tenant-a.stale.rebuilding.evidence-completeness.desktop",
+      "tenant-a.stale.rebuilding.record-identity.desktop",
+      "tenant-a.stale.rebuilding.skeleton.desktop",
+      "tenant-a.stale.rebuilding.sticky-summary.desktop",
+      "tenant-a.stale.rebuilding.tenant-scope.desktop",
+      "tenant-a.stale.rebuilding.timeline.desktop",
+      "tenant-a.stale.rebuilding.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.wide-desktop",
+      "tenant-a.stale.rebuilding.drawer-summary.wide-desktop",
+      "tenant-a.stale.rebuilding.evidence-completeness.wide-desktop",
+      "tenant-a.stale.rebuilding.record-identity.wide-desktop",
+      "tenant-a.stale.rebuilding.skeleton.wide-desktop",
+      "tenant-a.stale.rebuilding.sticky-summary.wide-desktop",
+      "tenant-a.stale.rebuilding.tenant-scope.wide-desktop",
+      "tenant-a.stale.rebuilding.timeline.wide-desktop",
+      "tenant-a.stale.rebuilding.trust-posture.wide-desktop",
+      "tenant-a.stale.rebuilding.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.mobile",
+      "tenant-a.stale.rebuilding.drawer-summary.mobile",
+      "tenant-a.stale.rebuilding.evidence-completeness.mobile",
+      "tenant-a.stale.rebuilding.mobile",
+      "tenant-a.stale.rebuilding.record-identity.mobile",
+      "tenant-a.stale.rebuilding.skeleton.mobile",
+      "tenant-a.stale.rebuilding.sticky-summary.mobile",
+      "tenant-a.stale.rebuilding.tenant-scope.mobile",
+      "tenant-a.stale.rebuilding.timeline.mobile",
+      "tenant-a.stale.rebuilding.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "TenantA_Stale_RebuildingProjection",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.stale.rebuilding.command-eligibility.tablet",
+      "tenant-a.stale.rebuilding.drawer-summary.tablet",
+      "tenant-a.stale.rebuilding.evidence-completeness.tablet",
+      "tenant-a.stale.rebuilding.record-identity.tablet",
+      "tenant-a.stale.rebuilding.skeleton.tablet",
+      "tenant-a.stale.rebuilding.sticky-summary.tablet",
+      "tenant-a.stale.rebuilding.tablet",
+      "tenant-a.stale.rebuilding.tenant-scope.tablet",
+      "tenant-a.stale.rebuilding.timeline.tablet",
+      "tenant-a.stale.rebuilding.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "mobile-360x780",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "mobile-390x844",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "tablet-768x1024",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "desktop-1280x800",
+    "TelemetryViewport": "desktop",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "wide-desktop-1440x1000",
+    "TelemetryViewport": "wide-desktop",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.wide-desktop",
+      "tenant-a.high-contrast.reduced-motion.zoom.wide-desktop"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "mobile-390x844-zoom-200",
+    "TelemetryViewport": "mobile",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.mobile",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.mobile"
+    ],
+    "ContainsForbiddenSentinel": false
+  },
+  {
+    "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
+    "Viewport": "desktop-1280x800-zoom-200",
+    "TelemetryViewport": "tablet",
+    "Labels": [
+      "tenant-a.high-contrast.reduced-motion.zoom.command-eligibility.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.drawer-summary.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.evidence-completeness.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.record-identity.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.skeleton.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.sticky-summary.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.tenant-scope.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.timeline.tablet",
+      "tenant-a.high-contrast.reduced-motion.zoom.trust-posture.tablet"
+    ],
+    "ContainsForbiddenSentinel": false
+  }
+]
