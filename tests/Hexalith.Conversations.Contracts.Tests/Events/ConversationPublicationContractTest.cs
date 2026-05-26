@@ -122,6 +122,9 @@ public sealed class ConversationPublicationContractTest
     [MemberData(nameof(AllPublicationEvents))]
     public void EveryPublicationEventShouldExcludeForbiddenPayloadTerms(string eventLabel, object publicEvent)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(eventLabel);
+        ArgumentNullException.ThrowIfNull(publicEvent);
+
         string json = JsonSerializer.Serialize(publicEvent, publicEvent.GetType(), WebOptions);
         foreach (string forbidden in ForbiddenPublicationTerms)
         {

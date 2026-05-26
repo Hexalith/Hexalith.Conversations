@@ -139,6 +139,38 @@ public sealed class ConversationClientTest
         result.Value.Details.ConversationId.ShouldBe(Conversation);
     }
 
+    [Fact]
+    public async Task ListConversationsShouldUseReadListRouteWithProjectFilterAndPaging()
+    {
+        using FakeHttpMessageHandler handler = new();
+        ConversationListResult response = ListResult(continuationCursor: "next-cursor-001");
+        handler.EnqueueJson(HttpStatusCode.OK, response);
+        ConversationClient client = CreateClient(handler);
+        ListConversationsQuery query = new(
+            SchemaVersion.Current,
+            Tenant,
+            "caller-001",
+            "corr-001",
+            new ConversationListFilterV1(ProjectId: new ProjectId("project-001")),
+            new ConversationPageRequest(10, "cursor-001"));
+
+        ConversationClientResult<ConversationListResult> result = await client
+            .ListConversationsAsync(query, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldNotBeNull();
+        result.Value!.FreshnessState.ShouldBe(response.FreshnessState);
+        result.Value.Page.ShouldBe(response.Page);
+        result.Value.Conversations.Single().ConversationId.ShouldBe(Conversation);
+        RecordedRequest request = handler.Requests.Single();
+        request.Method.ShouldBe(HttpMethod.Get);
+        request.PathAndQuery.ShouldBe("/api/v1/conversations?projectId=project-001&pageSize=10&cursor=cursor-001");
+        request.Header("X-Correlation-Id").ShouldBe("corr-001");
+        request.Header("X-Tenant-Id").ShouldBe("tenant-001");
+        request.Header("X-Caller-Principal-Id").ShouldBe("caller-001");
+        request.Body.ShouldBeEmpty();
+    }
+
     [Theory]
     [InlineData("Stale", "stale_threshold_exceeded", true, HttpStatusCode.OK)]
     [InlineData("Rebuilding", "rebuilding", false, HttpStatusCode.OK)]
@@ -379,6 +411,24 @@ public sealed class ConversationClientTest
     private static GetConversationQuery Query()
         => new(SchemaVersion.Current, Tenant, "caller-001", "corr-001", Conversation);
 
+    private static ConversationListResult ListResult(string? continuationCursor = null)
+        => new(
+            SchemaVersion.Current,
+            ProjectionTrustState.Current,
+            ProjectionFreshnessReasonCode.Current,
+            [
+                new ConversationSummaryV1(
+                    SchemaVersion.Current,
+                    Tenant,
+                    Conversation,
+                    Freshness(ProjectionTrustState.Current, ProjectionFreshnessReasonCode.Current, isStale: false),
+                    "Open",
+                    Label: "Case 123",
+                    ProjectId: new ProjectId("project-001")),
+            ],
+            new ConversationPageMetadata(1, continuationCursor),
+            "Use the cursor only with the same tenant, caller, filters, and ordering.");
+
     private static ConversationCreatedResult CreatedResult(string idempotencyKey)
         => new(
             SchemaVersion.Current,
@@ -427,6 +477,21 @@ public sealed class ConversationClientTest
             [
                 new ConversationTimelineMessageProjectionV1(Message, Actor, "Hello from the adopter.", Now),
             ]);
+
+    private static ProjectionFreshnessV1 Freshness(
+        ProjectionTrustState state,
+        ProjectionFreshnessReasonCode reason,
+        bool isStale)
+        => new(
+            SchemaVersion.Current,
+            "pos:0000000001",
+            1,
+            Now,
+            Now.AddSeconds(1),
+            TimeSpan.FromSeconds(1),
+            isStale,
+            state,
+            reason);
 
     private static ConversationErrorResult ErrorResult(
         ConversationErrorCode code,
@@ -477,7 +542,7 @@ public sealed class ConversationClientTest
         {
             string body = request.Content is null
                 ? string.Empty
-                : await request.Content.ReadAsStringAsync(cancellationToken);
+                : await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(true);
             Requests.Add(new RecordedRequest(
                 request.Method,
                 request.RequestUri?.PathAndQuery ?? string.Empty,

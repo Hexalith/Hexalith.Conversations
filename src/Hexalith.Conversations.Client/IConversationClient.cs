@@ -43,4 +43,14 @@ public interface IConversationClient
     Task<ConversationClientResult<ConversationDetailResult>> GetConversationAsync(
         GetConversationQuery query,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Lists tenant-scoped conversation summaries using supported v1 filters.
+    /// </summary>
+    /// <param name="query">The v1 list-conversations query contract.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A typed list result or typed Conversations errors.</returns>
+    Task<ConversationClientResult<ConversationListResult>> ListConversationsAsync(
+        ListConversationsQuery query,
+        CancellationToken cancellationToken = default);
 }

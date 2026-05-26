@@ -97,6 +97,19 @@ public sealed class ConversationClient : IConversationClient
         return SendAsync<ConversationDetailResult>(request, query.CorrelationId, cancellationToken);
     }
 
+    /// <inheritdoc />
+    public Task<ConversationClientResult<ConversationListResult>> ListConversationsAsync(
+        ListConversationsQuery query,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        HttpRequestMessage request = new(HttpMethod.Get, BuildListRoute(query));
+        AddHeader(request, CorrelationIdHeaderName, query.CorrelationId);
+        AddHeader(request, TenantIdHeaderName, query.TenantId.Value);
+        AddHeader(request, CallerPrincipalIdHeaderName, query.CallerPrincipalId);
+        return SendAsync<ConversationListResult>(request, query.CorrelationId, cancellationToken);
+    }
+
     private static ConversationCommandMetadata RequireMetadata(ConversationCommandMetadata? metadata)
         => metadata ?? throw new ArgumentException("Command metadata is required.", nameof(metadata));
 
@@ -122,6 +135,43 @@ public sealed class ConversationClient : IConversationClient
             request.Headers.TryAddWithoutValidation(name, value);
         }
     }
+
+    private static string BuildListRoute(ListConversationsQuery query)
+    {
+        List<string> parameters = [];
+        AddQuery(parameters, "businessSystem", query.Filter.BusinessReference?.System);
+        AddQuery(parameters, "businessValue", query.Filter.BusinessReference?.Value);
+        AddQuery(parameters, "projectId", query.Filter.ProjectId?.Value);
+        AddQuery(parameters, "folderId", query.Filter.FolderId?.Value);
+        AddQuery(parameters, "lifecycleState", query.Filter.LifecycleState);
+        AddQuery(parameters, "projectedAtFrom", FormatDate(query.Filter.ProjectedAtFrom));
+        AddQuery(parameters, "projectedAtTo", FormatDate(query.Filter.ProjectedAtTo));
+        AddQuery(parameters, "recentActivityAfter", FormatDate(query.Filter.RecentActivityAfter));
+        AddQuery(parameters, "participantPartyId", query.Filter.ParticipantPartyId?.Value);
+        AddQuery(parameters, "redactionState", query.Filter.RedactionState?.Value);
+        AddQuery(parameters, "freshnessState", query.Filter.FreshnessState?.Value);
+        AddQuery(parameters, "auditReadiness", query.Filter.AuditReadiness?.Value);
+        AddQuery(parameters, "verificationState", query.Filter.VerificationState?.Value);
+        AddQuery(parameters, "pageSize", query.Page.PageSize.ToString(CultureInfo.InvariantCulture));
+        AddQuery(parameters, "cursor", query.Page.ContinuationCursor);
+
+        return parameters.Count == 0
+            ? "api/v1/conversations"
+            : "api/v1/conversations?" + string.Join("&", parameters);
+    }
+
+    private static void AddQuery(List<string> parameters, string name, string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return;
+        }
+
+        parameters.Add(Uri.EscapeDataString(name) + "=" + Uri.EscapeDataString(value));
+    }
+
+    private static string? FormatDate(DateTimeOffset? value)
+        => value?.UtcDateTime.ToString("O", CultureInfo.InvariantCulture);
 
     private static ConversationErrorResult? ValidateCommandSchema(ConversationCommandMetadata metadata)
     {
@@ -156,7 +206,7 @@ public sealed class ConversationClient : IConversationClient
                 .ConfigureAwait(false);
 
             T? value = await TryReadAsync<T>(response.Content, cancellationToken).ConfigureAwait(false);
-            if (value is not null && (response.IsSuccessStatusCode || typeof(T) == typeof(ConversationDetailResult)))
+            if (value is not null && (response.IsSuccessStatusCode || IsReadResult<T>()))
             {
                 return ConversationClientResult<T>.Success(value, response.StatusCode);
             }
@@ -186,7 +236,7 @@ public sealed class ConversationClient : IConversationClient
     {
         try
         {
-            await using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             return await JsonSerializer.DeserializeAsync<T>(stream, JsonOptions, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) when (ex is JsonException or NotSupportedException or InvalidOperationException or ArgumentException)
@@ -201,7 +251,7 @@ public sealed class ConversationClient : IConversationClient
     {
         try
         {
-            await using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
+            using Stream stream = await content.ReadAsStreamAsync(cancellationToken).ConfigureAwait(false);
             return await JsonSerializer.DeserializeAsync<ConversationErrorResult>(stream, JsonOptions, cancellationToken)
                 .ConfigureAwait(false);
         }
@@ -254,4 +304,8 @@ public sealed class ConversationClient : IConversationClient
     private static bool IsUnknownOutcomeException(Exception exception, CancellationToken cancellationToken)
         => !cancellationToken.IsCancellationRequested
             && exception is HttpRequestException or TaskCanceledException or TimeoutException or IOException;
+
+    private static bool IsReadResult<T>()
+        => typeof(T) == typeof(ConversationDetailResult)
+            || typeof(T) == typeof(ConversationListResult);
 }

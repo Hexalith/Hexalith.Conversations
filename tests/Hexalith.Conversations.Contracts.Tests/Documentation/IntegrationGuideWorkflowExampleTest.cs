@@ -222,5 +222,20 @@ public sealed class IntegrationGuideWorkflowExampleTest
                 ConversationDetailResult.Visible(SchemaVersion.Current, details, "Use the current timeline."),
                 HttpStatusCode.OK));
         }
+
+        public Task<ConversationClientResult<ConversationListResult>> ListConversationsAsync(
+            ListConversationsQuery query,
+            CancellationToken cancellationToken = default)
+        {
+            ConversationListResult result = new(
+                SchemaVersion.Current,
+                ProjectionTrustState.Current,
+                ProjectionFreshnessReasonCode.Current,
+                [],
+                new ConversationPageMetadata(0),
+                "No accessible matches.");
+
+            return Task.FromResult(ConversationClientResult<ConversationListResult>.Success(result, HttpStatusCode.OK));
+        }
     }
 }
