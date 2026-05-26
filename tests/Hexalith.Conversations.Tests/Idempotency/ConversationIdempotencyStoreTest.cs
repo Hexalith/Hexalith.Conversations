@@ -48,12 +48,12 @@ public sealed class ConversationIdempotencyStoreTest
                 async () =>
                 {
                     barrier.SignalAndWait(token);
-                    return await store.ReserveAsync(fingerprint, Now, Retention, token);
+                    return await store.ReserveAsync(fingerprint, Now, Retention, token).ConfigureAwait(true);
                 },
                 token))
             .ToArray();
 
-        ConversationIdempotencyDecision[] decisions = await Task.WhenAll(attempts);
+        ConversationIdempotencyDecision[] decisions = await Task.WhenAll(attempts).ConfigureAwait(true);
 
         decisions.Count(d => d.Kind == ConversationIdempotencyDecisionKind.Reserved).ShouldBe(1);
         decisions.Count(d => d.Kind == ConversationIdempotencyDecisionKind.RetryableUncertainty).ShouldBe(callers - 1);

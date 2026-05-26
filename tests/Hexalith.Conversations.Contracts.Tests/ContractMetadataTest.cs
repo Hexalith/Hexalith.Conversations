@@ -35,6 +35,7 @@ public sealed class ContractMetadataTest
             typeof(AddParticipantCommand),
             typeof(AttachFileReferenceCommand),
             typeof(UpdateConversationMetadataCommand),
+            typeof(ReassignConversationProjectCommand),
             typeof(CloseConversationCommand),
             typeof(ArchiveConversationCommand),
         ];
@@ -78,6 +79,7 @@ public sealed class ContractMetadataTest
             typeof(ParticipantAdded),
             typeof(FileReferenceAttached),
             typeof(ConversationMetadataUpdated),
+            typeof(ConversationProjectChanged),
             typeof(ConversationClosed),
             typeof(ConversationArchived),
             typeof(ConversationLifecycleChanged),

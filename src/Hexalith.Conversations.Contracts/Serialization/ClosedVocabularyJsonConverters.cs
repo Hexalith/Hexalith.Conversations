@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Conformance;
+using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Diagnostics;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
@@ -41,6 +42,15 @@ internal sealed class ConversationCommandTypeJsonConverter : ConversationStringV
     protected override ConversationCommandType Create(string value) => ConversationCommandType.Parse(value);
 
     protected override string GetValue(ConversationCommandType value) => value.Value;
+}
+
+internal sealed class ConversationProjectAssignmentOperationJsonConverter :
+    ConversationStringValueJsonConverter<ConversationProjectAssignmentOperation>
+{
+    protected override ConversationProjectAssignmentOperation Create(string value)
+        => ConversationProjectAssignmentOperation.Parse(value);
+
+    protected override string GetValue(ConversationProjectAssignmentOperation value) => value.Value;
 }
 
 internal sealed class ConversationEventTypeJsonConverter : ConversationStringValueJsonConverter<ConversationEventType>

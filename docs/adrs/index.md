@@ -12,6 +12,7 @@ This tracker lists decisions required before dependent Conversations behavior is
 | Topic | Current source | Status |
 | --- | --- | --- |
 | Idempotency contract | [ADR 0001](0001-idempotency-contract.md) | Accepted |
+| Conversation project assignment ownership | [ADR 0002](0002-conversation-project-assignment-ownership.md) | Accepted |
 | Tenant projection freshness | Readiness gate decision plus ADR required for production durability | Proposed |
 | Governance audit pairing | ADR required before governance commands | Proposed |
 | Event schema evolution | ADR required before versioned events | Proposed |

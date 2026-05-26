@@ -88,7 +88,8 @@ public static class ConversationReplayVerifier
 
             if (!eventIds.Add(metadata.EventId))
             {
-                if (record.Event is ParticipantAddedDomainEvent or ParticipantAdded)
+                if (record.Event is ParticipantAddedDomainEvent or ParticipantAdded
+                    or ConversationProjectChangedDomainEvent or ConversationProjectChanged)
                 {
                     expectedPosition++;
                     continue;
@@ -131,6 +132,9 @@ public static class ConversationReplayVerifier
             case ParticipantAddedDomainEvent participant:
                 state.Apply(participant);
                 break;
+            case ConversationProjectChangedDomainEvent projectChanged:
+                state.Apply(projectChanged);
+                break;
             case RetentionPolicySetDomainEvent retentionSet:
                 state.Apply(retentionSet);
                 break;
@@ -148,6 +152,9 @@ public static class ConversationReplayVerifier
                 break;
             case ParticipantAdded participant:
                 state.Apply(participant);
+                break;
+            case ConversationProjectChanged projectChanged:
+                state.Apply(projectChanged);
                 break;
             case RetentionPolicySet retentionSet:
                 state.Apply(retentionSet);
@@ -189,6 +196,8 @@ public static class ConversationReplayVerifier
         {
             ConversationCreatedDomainEvent or ConversationCreated => eventType == ConversationEventType.ConversationCreated,
             ParticipantAddedDomainEvent or ParticipantAdded => eventType == ConversationEventType.ParticipantAdded,
+            ConversationProjectChangedDomainEvent or ConversationProjectChanged =>
+                eventType == ConversationEventType.ConversationProjectChanged,
             RetentionPolicySetDomainEvent or RetentionPolicySet => eventType == ConversationEventType.RetentionPolicySet,
             RetentionPolicyReplacedDomainEvent or RetentionPolicyReplaced => eventType == ConversationEventType.RetentionPolicyReplaced,
             ConversationContentMarkedSensitiveDomainEvent or ConversationContentMarkedSensitive =>
@@ -208,12 +217,14 @@ public static class ConversationReplayVerifier
         {
             ConversationCreatedDomainEvent created => created.Metadata,
             ParticipantAddedDomainEvent participant => participant.Metadata,
+            ConversationProjectChangedDomainEvent projectChanged => projectChanged.Metadata,
             RetentionPolicySetDomainEvent retentionSet => retentionSet.Metadata,
             RetentionPolicyReplacedDomainEvent retentionReplaced => retentionReplaced.Metadata,
             ConversationContentMarkedSensitiveDomainEvent sensitive => sensitive.Metadata,
             MessageContentRedactedDomainEvent redacted => redacted.Metadata,
             ConversationCreated created => created.Metadata,
             ParticipantAdded participant => participant.Metadata,
+            ConversationProjectChanged projectChanged => projectChanged.Metadata,
             RetentionPolicySet retentionSet => retentionSet.Metadata,
             RetentionPolicyReplaced retentionReplaced => retentionReplaced.Metadata,
             ConversationContentMarkedSensitive sensitive => sensitive.Metadata,

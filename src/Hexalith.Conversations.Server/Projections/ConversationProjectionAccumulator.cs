@@ -26,6 +26,7 @@ public sealed class ConversationProjectionAccumulator
     private readonly ConversationId _conversationId;
     private string? _label;
     private ConversationProjectionLifecycleState _lifecycle = ConversationProjectionLifecycleState.NotCreated;
+    private ProjectId? _projectId;
     private ConversationRetentionPolicyProjectionV1? _activeRetentionPolicy;
     private readonly Dictionary<string, ConversationSensitivityMarkProjectionV1> _sensitivityMarks = new(StringComparer.Ordinal);
     private readonly TenantId _tenantId;
@@ -51,6 +52,7 @@ public sealed class ConversationProjectionAccumulator
             _lifecycle,
             _label,
             _businessReference,
+            _projectId,
             _participants.Values.OrderBy(p => p.Value, StringComparer.Ordinal).ToArray(),
             _messages.Values.OrderBy(m => m.Value, StringComparer.Ordinal).ToArray(),
             _files.Values.OrderBy(f => f.Value, StringComparer.Ordinal).ToArray(),
@@ -80,6 +82,22 @@ public sealed class ConversationProjectionAccumulator
 
         _label ??= e.Label;
         _businessReference ??= e.BusinessReference;
+        _projectId ??= e.ProjectId;
+    }
+
+    /// <summary>
+    /// Applies a conversation project-changed event.
+    /// </summary>
+    /// <param name="e">The event to apply.</param>
+    public void Apply(ConversationProjectChanged e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        if (!TryMarkProcessed(e.Metadata))
+        {
+            return;
+        }
+
+        _projectId = e.CurrentProjectId;
     }
 
     /// <summary>

@@ -84,6 +84,25 @@ public sealed class ConversationClient : IConversationClient
     }
 
     /// <inheritdoc />
+    public Task<ConversationClientResult<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+        ReassignConversationProjectCommand command,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(command);
+        ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
+        ConversationErrorResult? compatibilityError = ValidateCommandSchema(metadata);
+        if (compatibilityError is not null)
+        {
+            return Task.FromResult(ConversationClientResult<ConversationCommandAcceptedResult>.Failure(compatibilityError));
+        }
+
+        string route = $"api/v1/conversations/{Uri.EscapeDataString(command.ConversationId.Value)}/project";
+        HttpRequestMessage request = CreateJsonRequest(HttpMethod.Post, route, command);
+        AddCommandHeaders(request, metadata);
+        return SendAsync<ConversationCommandAcceptedResult>(request, metadata.CorrelationId, cancellationToken);
+    }
+
+    /// <inheritdoc />
     public Task<ConversationClientResult<ConversationDetailResult>> GetConversationAsync(
         GetConversationQuery query,
         CancellationToken cancellationToken = default)

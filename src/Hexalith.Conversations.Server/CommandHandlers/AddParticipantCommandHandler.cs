@@ -91,6 +91,8 @@ public sealed class AddParticipantCommandHandler
             return DomainResult.Rejection(new IRejectionEvent[] { schemaRejection });
         }
 
+        ArgumentNullException.ThrowIfNull(command);
+
         // F4: do not fall back to the caller-controlled command body when the trusted
         // tenant binding is absent. A missing trusted tenant fails closed with the safe
         // tenant-binding rejection without recording caller-supplied correlation values

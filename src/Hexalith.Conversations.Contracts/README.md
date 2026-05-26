@@ -24,6 +24,14 @@ The supported v1 integration path is shared contracts plus the .NET client packa
 
 Direct HTTP examples are intentionally outside normal v1 adopter guidance unless a later buyer-approved diagnostics scope records that exception.
 
+## Conversation Project Assignment
+
+`ReassignConversationProjectCommand` is the additive v1 command for setting, changing, or explicitly clearing the Conversations-owned `ProjectId` after a conversation has been created. The matching public event is `ConversationProjectChanged`, which carries the previous and current `ProjectId` values as stable identifiers only.
+
+The command target is explicit: use `ConversationProjectAssignmentOperation.Assign` with a non-null target `ProjectId`, or `ConversationProjectAssignmentOperation.Clear` with no target `ProjectId`. Missing target fields are validation failures, not implicit clear requests.
+
+Adopters should call the aligned client method `IConversationClient.ReassignConversationProjectAsync(...)` and branch on `ConversationCommandAcceptedResult`, `idempotency_conflict`, `idempotency_outcome_unknown`, and the standard tenant/validation errors. The opt-in HTTP command route used by the client is `POST /api/v1/conversations/{conversationId}/project`; route and body conversation identities must match.
+
 ## Typed Errors
 
 `ConversationError` is the canonical adopter-safe error contract. It exposes structured fields only: `code`, `category`, `isRetryable`, `clientAction`, `safeMessage`, `correlationId`, optional allowed `auditHandle`, `safeFieldDiagnostics`, and an HTTPS `documentation` pointer. `developerGuidance` remains for backward-compatible safe text, but adopter applications should branch on `code`, `category`, and `clientAction`.
@@ -103,7 +111,7 @@ Conformance assertions and the fixture target Conversations contracts and the su
 
 ## Caller Metadata (Provenance Only)
 
-`CallerMetadata` is an optional, bounded, content-safe provenance bag adopters can attach to `CreateConversationCommand`, `AppendMessageCommand`, and `UpdateConversationMetadataCommand`. It carries client/composer/origin attribution for audit, downstream projection, and Hexalith front-end composition surfaces. Correlation and causation identifiers are NOT part of caller metadata; they remain first-class on `ConversationCommandMetadata` and propagate onto events through `ConversationEventMetadata`.
+`CallerMetadata` is an optional, bounded, content-safe provenance bag adopters can attach to `CreateConversationCommand`, `AppendMessageCommand`, `UpdateConversationMetadataCommand`, and `ReassignConversationProjectCommand`. It carries client/composer/origin attribution for audit, downstream projection, and Hexalith front-end composition surfaces. Correlation and causation identifiers are NOT part of caller metadata; they remain first-class on `ConversationCommandMetadata` and propagate onto events through `ConversationEventMetadata`.
 
 Caller metadata is **provenance only**. It is never authorization, tenant truth, governance truth, or UI-inferred trust state. Tenant access stays decided by the claims-derived tenant context and the local Tenants projection; caller-supplied values can never override tenant scope, command availability, or freshness/trust signals. Every displayed trust claim still maps to Conversations-owned projection freshness or command-availability metadata.
 

@@ -56,6 +56,8 @@ public sealed class ConversationCommandFingerprintTest
         ConversationCommandFingerprint addParticipantB = ConversationCommandFingerprint.Create(
             new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session-b")),
             Conversation);
+        ConversationCommandFingerprint projectA = ConversationCommandFingerprint.Create(ProjectCommand(), Conversation);
+        ConversationCommandFingerprint projectB = ConversationCommandFingerprint.Create(ProjectCommand(), Conversation);
         ConversationCommandFingerprint retentionA = ConversationCommandFingerprint.Create(RetentionCommand(), Conversation);
         ConversationCommandFingerprint retentionB = ConversationCommandFingerprint.Create(RetentionCommand(), Conversation);
 
@@ -67,6 +69,9 @@ public sealed class ConversationCommandFingerprintTest
 
         addParticipantA.Scope.ShouldBe(addParticipantB.Scope);
         addParticipantA.PayloadFingerprint.ShouldBe(addParticipantB.PayloadFingerprint);
+
+        projectA.Scope.ShouldBe(projectB.Scope);
+        projectA.PayloadFingerprint.ShouldBe(projectB.PayloadFingerprint);
 
         retentionA.Scope.ShouldBe(retentionB.Scope);
         retentionA.PayloadFingerprint.ShouldBe(retentionB.PayloadFingerprint);
@@ -121,6 +126,9 @@ public sealed class ConversationCommandFingerprintTest
                 ConversationIdempotencyScope.ConversationScopeKind),
             (new AddParticipantCommand(Metadata(), Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, Provider("session")),
                 ConversationCommandType.AddParticipantCommand,
+                ConversationIdempotencyScope.ConversationScopeKind),
+            (ProjectCommand(),
+                ConversationCommandType.ReassignConversationProjectCommand,
                 ConversationIdempotencyScope.ConversationScopeKind),
             (new AttachFileReferenceCommand(Metadata(), Conversation, File, Folder, Message),
                 ConversationCommandType.AttachFileReferenceCommand,
@@ -193,6 +201,26 @@ public sealed class ConversationCommandFingerprintTest
         ConversationCommandFingerprint.Create(first, Conversation).PayloadFingerprint
             .ShouldBe(ConversationCommandFingerprint.Create(second, Conversation).PayloadFingerprint);
         nullAttributes.PayloadFingerprint.ShouldBe(emptyAttributes.PayloadFingerprint);
+    }
+
+    /// <summary>
+    /// Project assignment meaning is canonicalized distinctly for assign, reassign guard, and explicit clear.
+    /// </summary>
+    [Fact]
+    public void ProjectAssignmentMeaningShouldAffectFingerprint()
+    {
+        ConversationCommandFingerprint assign = ConversationCommandFingerprint.Create(ProjectCommand(), Conversation);
+        ConversationCommandFingerprint reassignWithGuard = ConversationCommandFingerprint.Create(
+            ProjectCommand(expectedCurrentProjectId: new ProjectId("project-001")),
+            Conversation);
+        ConversationCommandFingerprint clear = ConversationCommandFingerprint.Create(
+            ProjectCommand(new ConversationProjectAssignment(ConversationProjectAssignmentOperation.Clear)),
+            Conversation);
+
+        assign.Scope.CommandType.ShouldBe(ConversationCommandType.ReassignConversationProjectCommand);
+        assign.PayloadFingerprint.ShouldNotBe(reassignWithGuard.PayloadFingerprint);
+        assign.PayloadFingerprint.ShouldNotBe(clear.PayloadFingerprint);
+        reassignWithGuard.PayloadFingerprint.ShouldNotBe(clear.PayloadFingerprint);
     }
 
     /// <summary>
@@ -282,6 +310,17 @@ public sealed class ConversationCommandFingerprintTest
             "Case 123",
             new BusinessReference("crm", "case-123"),
             attributes);
+
+    private static ReassignConversationProjectCommand ProjectCommand(
+        ConversationProjectAssignment? target = null,
+        ProjectId? expectedCurrentProjectId = null)
+        => new(
+            Metadata(),
+            Conversation,
+            target ?? new ConversationProjectAssignment(
+                ConversationProjectAssignmentOperation.Assign,
+                new ProjectId("project-002")),
+            expectedCurrentProjectId);
 
     private static SetConversationRetentionPolicyCommand RetentionCommand()
         => new(

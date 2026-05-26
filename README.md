@@ -23,6 +23,8 @@ Participant attribution follows the same rule: durable conversation events store
 
 Command-time participant validation is intentionally fail-closed. If Parties cannot prove that the target `PartyId` is valid and visible for the command tenant, the add-participant command returns a typed Conversations rejection such as `participant_validation_unavailable` or `tenant_context_mismatch` and no `ParticipantAdded` event is emitted. Read-time Party hydration can later degrade according to the readiness decisions, but write-side participant membership cannot compensate by storing hydrated Party data.
 
+Project assignment changes are owned by Conversations. Adopters use `ReassignConversationProjectCommand` through `IConversationClient.ReassignConversationProjectAsync(...)` to assign, move, or explicitly clear a conversation's `ProjectId`; the accepted fact is published as `ConversationProjectChanged`. The command target must carry `ConversationProjectAssignmentOperation.Assign` with a target `ProjectId`, or `ConversationProjectAssignmentOperation.Clear` with no target `ProjectId`. A missing target field is invalid and is never treated as unlink intent.
+
 ### JSON Wire Shape
 
 Strongly-typed identifiers serialize as URN-style prefixed strings to prevent silent cross-type substitution on the wire:
@@ -41,7 +43,7 @@ JSON payloads lacking the expected prefix are rejected with `JsonException` at d
 
 `SchemaVersion` serializes as a strict JSON integer. JS adopters must emit integers without trailing `.0` and without exponent notation; numbers like `1.0`, `1e0`, and JSON strings `"1"` are rejected.
 
-Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationErrorClientAction`, `ConversationEventType`, `ConversationCommandType`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
+Closed-vocabulary values (`ProjectionTrustState`, `ConversationErrorCode`, `ConversationErrorCategory`, `ConversationErrorClientAction`, `ConversationEventType`, `ConversationCommandType`, `ConversationProjectAssignmentOperation`, `ParticipantType`, `ParticipantRole`) serialize as plain strings in their canonical form. Matching on read is **case-sensitive** — `"Current"` is valid, `"current"` is not. The README and IntelliSense are the single source of canonical spellings.
 
 For `ParticipantType`, the canonical wire value diverges from the .NET property name for acronym-heavy entries. Use the wire value, not the property name, when serializing or matching by string:
 

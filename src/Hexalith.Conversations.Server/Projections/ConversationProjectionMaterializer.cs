@@ -707,6 +707,9 @@ public sealed class ConversationProjectionMaterializer
                 case ConversationMetadataUpdated update:
                     Apply(update);
                     break;
+                case ConversationProjectChanged projectChanged:
+                    Apply(projectChanged);
+                    break;
                 case ConversationClosed:
                     if (_lifecycleState != ArchivedState)
                     {
@@ -746,6 +749,7 @@ public sealed class ConversationProjectionMaterializer
                 MessageAppended message => message.Metadata,
                 FileReferenceAttached file => file.Metadata,
                 ConversationMetadataUpdated update => update.Metadata,
+                ConversationProjectChanged projectChanged => projectChanged.Metadata,
                 ConversationClosed closed => closed.Metadata,
                 ConversationArchived archived => archived.Metadata,
                 ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
@@ -772,6 +776,11 @@ public sealed class ConversationProjectionMaterializer
             ProjectId ??= e.ProjectId;
             FolderId ??= e.FolderId;
             ProviderCorrelation ??= e.ProviderCorrelation;
+        }
+
+        private void Apply(ConversationProjectChanged e)
+        {
+            ProjectId = e.CurrentProjectId;
         }
 
         public long? SourcePositionForFile(FileId fileId)

@@ -41,6 +41,11 @@ public sealed record ConversationEventType
     public static ConversationEventType ConversationMetadataUpdated { get; } = new(nameof(ConversationMetadataUpdated));
 
     /// <summary>
+    /// Gets the event type for a conversation project assignment change.
+    /// </summary>
+    public static ConversationEventType ConversationProjectChanged { get; } = new(nameof(ConversationProjectChanged));
+
+    /// <summary>
     /// Gets the event type for a conversation closure.
     /// </summary>
     public static ConversationEventType ConversationClosed { get; } = new(nameof(ConversationClosed));
@@ -83,6 +88,7 @@ public sealed record ConversationEventType
             ParticipantAdded,
             FileReferenceAttached,
             ConversationMetadataUpdated,
+            ConversationProjectChanged,
             ConversationClosed,
             ConversationArchived,
             ConversationLifecycleChanged,

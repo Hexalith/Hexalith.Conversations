@@ -95,6 +95,17 @@ internal static class ContractSamples
         Actor,
         "causation-001");
 
+    internal static readonly ConversationEventMetadata ProjectChangedEventMetadata = new(
+        Version,
+        "event-project-changed-001",
+        ConversationEventType.ConversationProjectChanged,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 0, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
+
     internal static readonly ConversationEventMetadata LifecycleChangedEventMetadata = new(
         Version,
         "event-lifecycle-001",
@@ -496,13 +507,17 @@ internal static class ContractSamples
                     "correlation-conformance-tenantbinding"),
             ]),
         ConversationCommandType.CreateConversationCommand,
+        ConversationCommandType.ReassignConversationProjectCommand,
         ConversationCommandType.SetConversationRetentionPolicyCommand,
         ConversationCommandType.MarkConversationContentSensitiveCommand,
         ConversationCommandType.RedactMessageContentCommand,
         ConversationEventType.ConversationCreated,
+        ConversationEventType.ConversationProjectChanged,
         ConversationEventType.RetentionPolicySet,
         ConversationEventType.ConversationContentMarkedSensitive,
         ConversationEventType.MessageContentRedacted,
+        ConversationProjectAssignmentOperation.Assign,
+        ConversationProjectAssignmentOperation.Clear,
         ConversationLifecycleStatus.Open,
         ParticipantType.Human,
         ParticipantRole.Member,
@@ -999,6 +1014,13 @@ internal static class ContractSamples
         new AddParticipantCommand(CommandMetadata, Conversation, Participant, ParticipantType.Human, ParticipantRole.Member, ProviderCorrelation),
         new AttachFileReferenceCommand(CommandMetadata, Conversation, File, Folder, Message),
         new UpdateConversationMetadataCommand(CommandMetadata, Conversation, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }, Caller),
+        new ConversationProjectAssignment(ConversationProjectAssignmentOperation.Assign, Project),
+        new ReassignConversationProjectCommand(
+            CommandMetadata,
+            Conversation,
+            new ConversationProjectAssignment(ConversationProjectAssignmentOperation.Assign, Project),
+            ExpectedCurrentProjectId: null,
+            CallerMetadata: Caller),
         new CloseConversationCommand(CommandMetadata, Conversation, "resolved"),
         new ArchiveConversationCommand(CommandMetadata, Conversation, "retained"),
         EventMetadata,
@@ -1007,6 +1029,7 @@ internal static class ContractSamples
         new ParticipantAdded(ParticipantEventMetadata, Participant, ParticipantType.Human, ParticipantRole.Member),
         new FileReferenceAttached(EventMetadata, File, Folder, Message),
         new ConversationMetadataUpdated(EventMetadata, "Case 123", Business, new Dictionary<string, string> { ["priority"] = "normal" }),
+        new ConversationProjectChanged(ProjectChangedEventMetadata, null, Project),
         new ConversationClosed(EventMetadata, "resolved"),
         new ConversationArchived(EventMetadata, "retained"),
         new ConversationLifecycleChanged(

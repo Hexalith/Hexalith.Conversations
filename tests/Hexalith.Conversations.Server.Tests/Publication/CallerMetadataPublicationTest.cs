@@ -278,10 +278,10 @@ public sealed class CallerMetadataPublicationTest
         context.Request.Body = new MemoryStream(requestBody);
         context.Response.Body = new MemoryStream();
 
-        await endpoint.RequestDelegate!(context);
+        await endpoint.RequestDelegate!(context).ConfigureAwait(true);
         context.Response.Body.Position = 0;
         using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
-        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         return new ApiResponse(context.Response.StatusCode, responseBody);
     }
 
@@ -336,5 +336,19 @@ public sealed class CallerMetadataPublicationTest
                     new ReadModelVisibility(ProjectionTrustState.Rebuilding, "Read model is catching up.")),
                 StatusCodes.Status202Accepted));
         }
+
+        public ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+            ReassignConversationProjectCommand command,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ConversationCommandApiOutcome<ConversationCommandAcceptedResult>.Success(
+                new ConversationCommandAcceptedResult(
+                    SchemaVersion.Current,
+                    Tenant,
+                    Conversation,
+                    ConversationCommandType.ReassignConversationProjectCommand,
+                    "corr-001",
+                    "idem-001",
+                    new ReadModelVisibility(ProjectionTrustState.Rebuilding, "Read model is catching up.")),
+                StatusCodes.Status202Accepted));
     }
 }

@@ -5,6 +5,7 @@
 
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.State;
 using Hexalith.Conversations.Validation;
@@ -15,6 +16,8 @@ using Hexalith.EventStore.Contracts.Results;
 using PublicCreateConversationCommand = Hexalith.Conversations.Contracts.Commands.CreateConversationCommand;
 using PublicConversationCommandMetadata = Hexalith.Conversations.Contracts.Commands.ConversationCommandMetadata;
 using PublicAddParticipantCommand = Hexalith.Conversations.Contracts.Commands.AddParticipantCommand;
+using PublicReassignConversationProjectCommand = Hexalith.Conversations.Contracts.Commands.ReassignConversationProjectCommand;
+using PublicConversationProjectAssignmentOperation = Hexalith.Conversations.Contracts.Commands.ConversationProjectAssignmentOperation;
 using PublicSetConversationRetentionPolicyCommand = Hexalith.Conversations.Contracts.Governance.SetConversationRetentionPolicyCommand;
 using PublicMarkConversationContentSensitiveCommand = Hexalith.Conversations.Contracts.Governance.MarkConversationContentSensitiveCommand;
 using PublicRedactMessageContentCommand = Hexalith.Conversations.Contracts.Governance.RedactMessageContentCommand;
@@ -40,6 +43,7 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             return DomainResult.Rejection(new IRejectionEvent[] { rejection });
         }
 
+        ArgumentNullException.ThrowIfNull(command);
         PublicCreateConversationCommand publicCommand = command.PublicCommand;
         PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
 
@@ -104,6 +108,51 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
     }
 
     /// <summary>
+    /// Assigns, reassigns, or clears the conversation project reference when state permits it.
+    /// </summary>
+    /// <param name="command">The project reassignment domain command.</param>
+    /// <param name="state">The current conversation state.</param>
+    /// <returns>A domain result containing one project-changed event, a no-op, or one typed rejection.</returns>
+    public static DomainResult Handle(ReassignConversationProject command, ConversationState? state)
+    {
+        ConversationRejectedDomainEvent? rejection = ReassignConversationProjectValidation.Validate(command, state);
+        if (rejection is not null)
+        {
+            return DomainResult.Rejection(new IRejectionEvent[] { rejection });
+        }
+
+        ArgumentNullException.ThrowIfNull(state);
+        PublicReassignConversationProjectCommand publicCommand = command.PublicCommand;
+        PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
+        ProjectId? currentProjectId = publicCommand.Target.Operation == PublicConversationProjectAssignmentOperation.Clear
+            ? null
+            : publicCommand.Target.ProjectId;
+
+        if (state.ProjectId == currentProjectId)
+        {
+            return DomainResult.NoOp();
+        }
+
+        ConversationEventMetadata eventMetadata = new(
+            commandMetadata.SchemaVersion,
+            command.EventId,
+            ConversationEventType.ConversationProjectChanged,
+            commandMetadata.TenantId,
+            publicCommand.ConversationId,
+            commandMetadata.CorrelationId,
+            command.ChangedAt,
+            commandMetadata.ActorPartyId,
+            commandMetadata.CausationId);
+
+        ConversationProjectChangedDomainEvent changed = new(
+            eventMetadata,
+            state.ProjectId,
+            currentProjectId);
+
+        return DomainResult.Success(new IEventPayload[] { changed });
+    }
+
+    /// <summary>
     /// Sets or replaces a governed retention policy when the current conversation state permits it.
     /// </summary>
     /// <param name="command">The retention policy domain command.</param>
@@ -117,9 +166,10 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             return DomainResult.Rejection(new IRejectionEvent[] { rejection });
         }
 
+        ArgumentNullException.ThrowIfNull(state);
         PublicSetConversationRetentionPolicyCommand publicCommand = command.PublicCommand;
         PublicConversationCommandMetadata commandMetadata = publicCommand.Metadata;
-        bool replacing = state!.ActiveRetentionPolicy is not null;
+        bool replacing = state.ActiveRetentionPolicy is not null;
 
         ConversationEventMetadata eventMetadata = new(
             commandMetadata.SchemaVersion,
@@ -167,9 +217,10 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             return DomainResult.Rejection(new IRejectionEvent[] { rejection });
         }
 
+        ArgumentNullException.ThrowIfNull(state);
         PublicMarkConversationContentSensitiveCommand publicCommand = command.PublicCommand;
         string targetKey = ConversationState.SensitivityTargetKey(publicCommand.Target);
-        if (state!.TryGetSensitivityMark(targetKey, out ConversationSensitivityMarkState? mark)
+        if (state.TryGetSensitivityMark(targetKey, out ConversationSensitivityMarkState? mark)
             && mark is not null
             && MarkConversationContentSensitiveValidation.IsCompatible(publicCommand, mark))
         {
@@ -213,9 +264,10 @@ public sealed class ConversationAggregate : EventStoreAggregate<ConversationStat
             return DomainResult.Rejection(new IRejectionEvent[] { rejection });
         }
 
+        ArgumentNullException.ThrowIfNull(state);
         PublicRedactMessageContentCommand publicCommand = command.PublicCommand;
         string targetKey = ConversationState.RedactionTargetKey(publicCommand.Target);
-        if (state!.TryGetRedaction(targetKey, out ConversationRedactionState? redaction)
+        if (state.TryGetRedaction(targetKey, out ConversationRedactionState? redaction)
             && redaction is not null
             && RedactMessageContentValidation.IsCompatible(publicCommand, redaction))
         {

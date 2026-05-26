@@ -16,6 +16,7 @@ namespace Hexalith.Conversations.Server.Projections;
 /// <param name="Lifecycle">The projected lifecycle state.</param>
 /// <param name="Label">The safe projected label.</param>
 /// <param name="BusinessReference">The safe projected business reference.</param>
+/// <param name="ProjectId">The current stable project reference, when assigned.</param>
 /// <param name="ParticipantPartyIds">The stable participant Party identities.</param>
 /// <param name="MessageIds">The stable message identities.</param>
 /// <param name="FileIds">The stable file reference identities.</param>
@@ -27,6 +28,7 @@ public sealed record ConversationProjectionSnapshot(
     ConversationProjectionLifecycleState Lifecycle,
     string? Label,
     BusinessReference? BusinessReference,
+    ProjectId? ProjectId,
     IReadOnlyList<PartyId> ParticipantPartyIds,
     IReadOnlyList<MessageId> MessageIds,
     IReadOnlyList<FileId> FileIds,

@@ -160,6 +160,23 @@ public sealed class ConversationProjectionAccumulatorTest
         first.Snapshot.Attributes.Count.ShouldBe(2);
     }
 
+    [Fact]
+    public void ProjectChangedEventsShouldOverwriteAndClearProjectReference()
+    {
+        ConversationProjectionAccumulator accumulator = Accumulator();
+        ProjectId reassigned = new("project-002");
+
+        accumulator.Apply(Created("event-create-001"));
+        accumulator.Apply(ProjectChanged("event-project-001", new ProjectId("project-001"), reassigned));
+        accumulator.Apply(ProjectChanged("event-project-001", new ProjectId("project-001"), reassigned));
+        accumulator.Apply(ProjectChanged("event-project-002", reassigned, current: null));
+
+        ConversationProjectionSnapshot snapshot = accumulator.Snapshot;
+
+        snapshot.ProjectId.ShouldBeNull();
+        snapshot.ProcessedEventIds.ShouldBe(["event-create-001", "event-project-001", "event-project-002"], ignoreOrder: false);
+    }
+
     /// <summary>
     /// Sensitivity marked events project target-keyed derived state without duplication.
     /// </summary>
@@ -223,6 +240,15 @@ public sealed class ConversationProjectionAccumulatorTest
                 ["owner"] = "support",
                 ["priority"] = "high",
             });
+
+    private static ConversationProjectChanged ProjectChanged(
+        string eventId,
+        ProjectId? previous,
+        ProjectId? current)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationProjectChanged),
+            previous,
+            current);
 
     private static ConversationClosed Closed(string eventId)
         => new(Metadata(eventId, ConversationEventType.ConversationClosed), "resolved");

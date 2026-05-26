@@ -186,6 +186,22 @@ public sealed class IntegrationGuideWorkflowExampleTest
             return Task.FromResult(ConversationClientResult<ConversationCommandAcceptedResult>.Success(result, HttpStatusCode.Accepted));
         }
 
+        public Task<ConversationClientResult<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+            ReassignConversationProjectCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            ConversationCommandAcceptedResult result = new(
+                SchemaVersion.Current,
+                command.Metadata.TenantId,
+                command.ConversationId,
+                ConversationCommandType.ReassignConversationProjectCommand,
+                command.Metadata.CorrelationId,
+                command.Metadata.IdempotencyKey,
+                new ReadModelVisibility(ProjectionTrustState.Current));
+
+            return Task.FromResult(ConversationClientResult<ConversationCommandAcceptedResult>.Success(result, HttpStatusCode.Accepted));
+        }
+
         public Task<ConversationClientResult<ConversationDetailResult>> GetConversationAsync(
             GetConversationQuery query,
             CancellationToken cancellationToken = default)

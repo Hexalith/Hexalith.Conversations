@@ -43,11 +43,14 @@ public sealed class ConversationCommandApiTest
 
         RouteEndpoint create = FindEndpoint(app, "/api/v1/conversations/");
         RouteEndpoint append = FindEndpoint(app, "/api/v1/conversations/{conversationId}/messages");
+        RouteEndpoint project = FindEndpoint(app, "/api/v1/conversations/{conversationId}/project");
 
         create.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         append.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
+        project.Metadata.GetMetadata<IAuthorizeData>().ShouldNotBeNull();
         create.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
         append.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
+        project.Metadata.GetMetadata<HttpMethodMetadata>()!.HttpMethods.ShouldBe([HttpMethods.Post], ignoreOrder: false);
     }
 
     [Fact]
@@ -76,6 +79,30 @@ public sealed class ConversationCommandApiTest
     }
 
     [Fact]
+    public async Task ReassignProjectShouldBindTrustedTenantAndReturnTypedAcceptedResult()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/{conversationId}/project",
+            ReassignProjectCommand(),
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status202Accepted);
+        response.Body.ShouldContain("\"commandType\":\"ReassignConversationProjectCommand\"");
+        handler.ProjectCalls.ShouldBe(1);
+        handler.LastProjectCommand.ShouldNotBeNull();
+        handler.LastProjectCommand!.Metadata.TenantId.ShouldBe(Tenant);
+        handler.LastProjectCommand.Metadata.IdempotencyKey.ShouldBe("idem-001");
+        handler.LastProjectCommand.ConversationId.ShouldBe(Conversation);
+        response.Body.ShouldNotContain("EventStore", Case.Insensitive);
+        response.Body.ShouldNotContain("stream", Case.Insensitive);
+    }
+
+    [Fact]
     public async Task AppendShouldRejectRouteAndBodyConversationMismatchBeforeHandler()
     {
         FakeCommandHandler handler = new();
@@ -93,6 +120,52 @@ public sealed class ConversationCommandApiTest
         response.Body.ShouldContain("correct-request");
         response.Body.ShouldNotContain("conversation-other", Case.Insensitive);
         handler.AppendCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task ReassignProjectShouldRejectRouteAndBodyConversationMismatchBeforeHandler()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/{conversationId}/project",
+            ReassignProjectCommand(),
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = "conversation-other" },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        response.Body.ShouldContain("command_validation_failed");
+        response.Body.ShouldContain("correct-request");
+        response.Body.ShouldNotContain("conversation-other", Case.Insensitive);
+        handler.ProjectCalls.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task ReassignProjectShouldRejectMissingBodyConversationIdBeforeHandler()
+    {
+        FakeCommandHandler handler = new();
+        using WebApplication app = BuildApp(handler);
+        ReassignConversationProjectCommand command = new(
+            Metadata("idem-001", Tenant),
+            null!,
+            new ConversationProjectAssignment(
+                ConversationProjectAssignmentOperation.Assign,
+                new ProjectId("project-001")));
+
+        ApiResponse response = await InvokeAsync(
+            app,
+            "/api/v1/conversations/{conversationId}/project",
+            command,
+            routeValues: new Dictionary<string, object?> { ["conversationId"] = Conversation.Value },
+            user: AuthenticatedUser());
+
+        response.StatusCode.ShouldBe(StatusCodes.Status400BadRequest);
+        response.Body.ShouldContain("command_validation_failed");
+        response.Body.ShouldContain("correct-request");
+        response.Body.ShouldNotContain("project-001", Case.Insensitive);
+        handler.ProjectCalls.ShouldBe(0);
     }
 
     [Fact]
@@ -315,10 +388,10 @@ public sealed class ConversationCommandApiTest
             }
         }
 
-        await endpoint.RequestDelegate!(context);
+        await endpoint.RequestDelegate!(context).ConfigureAwait(true);
         context.Response.Body.Position = 0;
         using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
-        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         return new ApiResponse(context.Response.StatusCode, responseBody);
     }
 
@@ -352,10 +425,10 @@ public sealed class ConversationCommandApiTest
             }
         }
 
-        await endpoint.RequestDelegate!(context);
+        await endpoint.RequestDelegate!(context).ConfigureAwait(true);
         context.Response.Body.Position = 0;
         using StreamReader reader = new(context.Response.Body, Encoding.UTF8);
-        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        string responseBody = await reader.ReadToEndAsync(TestContext.Current.CancellationToken).ConfigureAwait(true);
         return new ApiResponse(context.Response.StatusCode, responseBody);
     }
 
@@ -380,6 +453,14 @@ public sealed class ConversationCommandApiTest
     private static AppendMessageCommand AppendCommand()
         => new(Metadata("idem-001", Tenant), Conversation, Message, Actor, "Hello from the adopter.");
 
+    private static ReassignConversationProjectCommand ReassignProjectCommand()
+        => new(
+            Metadata("idem-001", Tenant),
+            Conversation,
+            new ConversationProjectAssignment(
+                ConversationProjectAssignmentOperation.Assign,
+                new ProjectId("project-001")));
+
     private static ConversationCommandMetadata Metadata(string idempotencyKey, TenantId tenant)
         => new(SchemaVersion.Current, tenant, Actor, "corr-001", "cause-001", idempotencyKey);
 
@@ -401,11 +482,17 @@ public sealed class ConversationCommandApiTest
 
         public int AppendCalls { get; private set; }
 
+        public int ProjectCalls { get; private set; }
+
         public CreateConversationCommand? LastCreateCommand { get; private set; }
+
+        public ReassignConversationProjectCommand? LastProjectCommand { get; private set; }
 
         public ConversationCommandApiOutcome<ConversationCreatedResult>? CreateOutcome { get; init; }
 
         public ConversationCommandApiOutcome<ConversationCommandAcceptedResult>? AppendOutcome { get; init; }
+
+        public ConversationCommandApiOutcome<ConversationCommandAcceptedResult>? ProjectOutcome { get; init; }
 
         public ValueTask<ConversationCommandApiOutcome<ConversationCreatedResult>> CreateConversationAsync(
             CreateConversationCommand command,
@@ -429,6 +516,24 @@ public sealed class ConversationCommandApiTest
                     Tenant,
                     Conversation,
                     ConversationCommandType.AppendMessageCommand,
+                    "corr-001",
+                    "idem-001",
+                    new ReadModelVisibility(ProjectionTrustState.Rebuilding, "Read model is catching up.")),
+                StatusCodes.Status202Accepted));
+        }
+
+        public ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+            ReassignConversationProjectCommand command,
+            CancellationToken cancellationToken = default)
+        {
+            ProjectCalls++;
+            LastProjectCommand = command;
+            return ValueTask.FromResult(ProjectOutcome ?? ConversationCommandApiOutcome<ConversationCommandAcceptedResult>.Success(
+                new ConversationCommandAcceptedResult(
+                    SchemaVersion.Current,
+                    Tenant,
+                    Conversation,
+                    ConversationCommandType.ReassignConversationProjectCommand,
                     "corr-001",
                     "idem-001",
                     new ReadModelVisibility(ProjectionTrustState.Rebuilding, "Read model is catching up.")),

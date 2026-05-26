@@ -269,6 +269,33 @@ public sealed class ConversationState
     }
 
     /// <summary>
+    /// Applies a project-changed event during deterministic replay.
+    /// </summary>
+    /// <remarks>
+    /// Replay is idempotent for duplicate delivery of the same accepted target. A mismatched
+    /// previous-project value indicates a corrupted event sequence and is surfaced as a replay
+    /// invariant violation by the verifier.
+    /// </remarks>
+    /// <param name="e">The project-changed event.</param>
+    public void Apply(ConversationProjectChangedDomainEvent e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+
+        if (ProjectId == e.CurrentProjectId)
+        {
+            return;
+        }
+
+        if (ProjectId != e.PreviousProjectId)
+        {
+            throw new InvalidOperationException("Conversation project assignment replay invariant violated.");
+        }
+
+        ProjectId = e.CurrentProjectId;
+        LastEventAt = e.Metadata.CommittedAt;
+    }
+
+    /// <summary>
     /// Applies a retention-policy-set event during deterministic replay.
     /// </summary>
     /// <param name="e">The retention policy event.</param>
@@ -405,6 +432,19 @@ public sealed class ConversationState
             e.ParticipantPartyId,
             e.ParticipantType,
             e.ParticipantRole));
+    }
+
+    /// <summary>
+    /// Applies a public project-changed event during deterministic replay.
+    /// </summary>
+    /// <param name="e">The public project-changed event.</param>
+    public void Apply(ConversationProjectChanged e)
+    {
+        ArgumentNullException.ThrowIfNull(e);
+        Apply(new ConversationProjectChangedDomainEvent(
+            e.Metadata,
+            e.PreviousProjectId,
+            e.CurrentProjectId));
     }
 
     /// <summary>
@@ -588,6 +628,8 @@ public sealed class ConversationState
     public void Apply(ConversationRejectedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        // Keep this as an instance replay overload so event dispatchers can route it uniformly.
+        _ = IsCreated;
     }
 
     /// <summary>

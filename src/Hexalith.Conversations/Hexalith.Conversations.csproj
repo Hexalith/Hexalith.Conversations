@@ -4,8 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
-    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" />
-    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
+    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Tests" />

@@ -942,6 +942,47 @@ public sealed class ConversationQueryHandlerTest
         result.Conversations[0].SearchTrustPreview.MatchSource.ShouldNotBe(ConversationSearchMatchSource.Unknown);
     }
 
+    [Fact]
+    public async Task ProjectFilterShouldUseCurrentProjectedProjectAfterReassignmentAndClear()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        ProjectId reassigned = new("project-reassigned");
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-old"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-new"), Business, reassigned, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-cleared"), Business, project: null, Folder, Participant),
+            ],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult oldProject = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                new ConversationListFilterV1(ProjectId: Project)),
+            TestContext.Current.CancellationToken);
+        ConversationListResult newProject = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                new ConversationListFilterV1(ProjectId: reassigned)),
+            TestContext.Current.CancellationToken);
+
+        oldProject.Conversations.Select(summary => summary.ConversationId)
+            .ShouldBe([new ConversationId("conv-old")], ignoreOrder: false);
+        newProject.Conversations.Select(summary => summary.ConversationId)
+            .ShouldBe([new ConversationId("conv-new")], ignoreOrder: false);
+        oldProject.Conversations.ShouldAllBe(summary => summary.ConversationId != new ConversationId("conv-cleared"));
+        newProject.Conversations.ShouldAllBe(summary => summary.ConversationId != new ConversationId("conv-cleared"));
+    }
+
     /// <summary>
     /// ProjectedAt range and RecentActivityAfter filter out rows outside the window.
     /// </summary>

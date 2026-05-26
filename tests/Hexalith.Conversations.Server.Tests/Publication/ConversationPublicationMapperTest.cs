@@ -196,6 +196,25 @@ public sealed class ConversationPublicationMapperTest
         first.GetPublishedEvent<ParticipantAdded>().Metadata.DeduplicationKey.ShouldBe(second.GetPublishedEvent<ParticipantAdded>().Metadata.DeduplicationKey);
     }
 
+    [Fact]
+    public void ProjectChangedDomainEventShouldMapToPublicProjectChangedEvent()
+    {
+        ProjectId reassigned = new("project-002");
+        ConversationProjectChangedDomainEvent domainEvent = new(
+            PublicationSamples.ProjectMetadata,
+            PublicationSamples.Project,
+            reassigned);
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, domainEvent));
+
+        result.IsPublished.ShouldBeTrue(result.Diagnostic?.Code.Value);
+        ConversationProjectChanged published = result.GetPublishedEvent<ConversationProjectChanged>();
+        published.Metadata.EventType.ShouldBe(ConversationEventType.ConversationProjectChanged);
+        published.PreviousProjectId.ShouldBe(PublicationSamples.Project);
+        published.CurrentProjectId.ShouldBe(reassigned);
+    }
+
     /// <summary>
     /// A durable sensitivity domain event maps to one public content-safe event.
     /// </summary>

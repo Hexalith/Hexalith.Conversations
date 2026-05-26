@@ -93,6 +93,34 @@ public sealed class ConversationClientTest
     }
 
     [Fact]
+    public async Task ReassignProjectShouldPostV1ContractBodyAndSafeHeaders()
+    {
+        using FakeHttpMessageHandler handler = new();
+        ConversationCommandAcceptedResult response = AcceptedResult(
+            ConversationCommandType.ReassignConversationProjectCommand,
+            "idem-project-001");
+        handler.EnqueueJson(HttpStatusCode.Accepted, response);
+        ConversationClient client = CreateClient(handler);
+        ReassignConversationProjectCommand command = ProjectCommand(idempotencyKey: "idem-project-001");
+
+        ConversationClientResult<ConversationCommandAcceptedResult> result = await client
+            .ReassignConversationProjectAsync(command, TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        result.Value.ShouldBe(response);
+        RecordedRequest request = handler.Requests.Single();
+        request.Method.ShouldBe(HttpMethod.Post);
+        request.PathAndQuery.ShouldBe("/api/v1/conversations/conversation-001/project");
+        request.Header("X-Correlation-Id").ShouldBe("corr-001");
+        request.Header("Idempotency-Key").ShouldBe("idem-project-001");
+        request.Body.ShouldContain("\"conversationId\":\"conv:conversation-001\"");
+        request.Body.ShouldContain("\"operation\":\"Assign\"");
+        request.Body.ShouldContain("\"projectId\":\"project:project-002\"");
+        request.Body.ShouldNotContain("EventStore", Case.Insensitive);
+        request.Body.ShouldNotContain("stream", Case.Insensitive);
+    }
+
+    [Fact]
     public async Task GetConversationShouldUseReadRouteAndPreserveCurrentFreshnessMetadata()
     {
         using FakeHttpMessageHandler handler = new();
@@ -398,6 +426,15 @@ public sealed class ConversationClientTest
                 "llm",
                 SchemaVersion.Current,
                 ProviderSessionReference: "provider-session-001"));
+
+    private static ReassignConversationProjectCommand ProjectCommand(string idempotencyKey = "idem-project-001")
+        => new(
+            Metadata(idempotencyKey),
+            Conversation,
+            new ConversationProjectAssignment(
+                ConversationProjectAssignmentOperation.Assign,
+                new ProjectId("project-002")),
+            ExpectedCurrentProjectId: new ProjectId("project-001"));
 
     private static ConversationCommandMetadata Metadata(string idempotencyKey, SchemaVersion? schemaVersion = null)
         => new(

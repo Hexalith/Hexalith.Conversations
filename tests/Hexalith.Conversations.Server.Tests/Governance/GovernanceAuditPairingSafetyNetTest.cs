@@ -149,9 +149,14 @@ public sealed class GovernanceAuditPairingSafetyNetTest
         {
             typeof(CreateConversation),
             typeof(AddParticipant),
+            typeof(ReassignConversationProject),
         }, ignoreOrder: true);
 
         typeof(AddParticipantCommandHandler).GetConstructors()
+            .SelectMany(constructor => constructor.GetParameters())
+            .Select(parameter => parameter.ParameterType)
+            .ShouldNotContain(typeof(IConversationGovernanceAuditService));
+        typeof(ReassignConversationProjectCommandHandler).GetConstructors()
             .SelectMany(constructor => constructor.GetParameters())
             .Select(parameter => parameter.ParameterType)
             .ShouldNotContain(typeof(IConversationGovernanceAuditService));
@@ -178,6 +183,7 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             typeof(MarkConversationContentSensitiveCommandHandler),
             typeof(RedactMessageContentCommandHandler),
             typeof(AddParticipantCommandHandler),
+            typeof(ReassignConversationProjectCommandHandler),
             typeof(IdempotentConversationCommandExecutor),
             typeof(ConversationGovernanceAuditGate),
         ];

@@ -41,6 +41,11 @@ public sealed record ConversationCommandType
     public static ConversationCommandType UpdateConversationMetadataCommand { get; } = new(nameof(UpdateConversationMetadataCommand));
 
     /// <summary>
+    /// Gets the command type for assigning, reassigning, or clearing a conversation project reference.
+    /// </summary>
+    public static ConversationCommandType ReassignConversationProjectCommand { get; } = new(nameof(ReassignConversationProjectCommand));
+
+    /// <summary>
     /// Gets the command type for closing a conversation.
     /// </summary>
     public static ConversationCommandType CloseConversationCommand { get; } = new(nameof(CloseConversationCommand));
@@ -74,6 +79,7 @@ public sealed record ConversationCommandType
             AddParticipantCommand,
             AttachFileReferenceCommand,
             UpdateConversationMetadataCommand,
+            ReassignConversationProjectCommand,
             CloseConversationCommand,
             ArchiveConversationCommand,
             SetConversationRetentionPolicyCommand,

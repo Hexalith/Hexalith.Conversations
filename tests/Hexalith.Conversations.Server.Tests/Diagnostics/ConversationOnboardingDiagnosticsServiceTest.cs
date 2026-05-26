@@ -400,7 +400,7 @@ public sealed class ConversationOnboardingDiagnosticsServiceTest
 
         await Should.ThrowAsync<ArgumentException>(async () => await service.RunAsync(
             Tenant, "caller-001", correlationId, Generated,
-            cancellationToken: TestContext.Current.CancellationToken));
+            cancellationToken: TestContext.Current.CancellationToken).ConfigureAwait(true)).ConfigureAwait(true);
     }
 
     [Fact]
@@ -412,7 +412,7 @@ public sealed class ConversationOnboardingDiagnosticsServiceTest
 
         await Should.ThrowAsync<OperationCanceledException>(async () => await service.RunAsync(
             Tenant, "caller-001", "correlation-001", Generated,
-            cancellationToken: cts.Token));
+            cancellationToken: cts.Token).ConfigureAwait(true)).ConfigureAwait(true);
     }
 
     [Fact]

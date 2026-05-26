@@ -54,6 +54,17 @@ internal static class PublicationSamples
         Actor,
         "causation-001");
 
+    internal static readonly ConversationEventMetadata ProjectMetadata = new(
+        Version,
+        "event-project-001",
+        ConversationEventType.ConversationProjectChanged,
+        Tenant,
+        Conversation,
+        "correlation-001",
+        new DateTimeOffset(2026, 5, 18, 11, 2, 0, TimeSpan.Zero),
+        Actor,
+        "causation-001");
+
     internal static readonly ConversationEventMetadata SensitivityMetadata = new(
         Version,
         "event-sensitive-001",

@@ -78,6 +78,8 @@ public sealed class SetConversationRetentionPolicyCommandHandler
             return DomainResult.Rejection(new IRejectionEvent[] { schemaRejection });
         }
 
+        ArgumentNullException.ThrowIfNull(command);
+
         if (trustedTenantId is null)
         {
             return DomainResult.Rejection(new IRejectionEvent[]

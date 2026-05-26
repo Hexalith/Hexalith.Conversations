@@ -131,6 +131,8 @@ public sealed class ScaffoldSmokeTest
     public void ProjectReferencesShouldFollowScaffoldBoundaryDirection()
     {
         string root = FindRepositoryRoot();
+        string eventStoreRoot = ResolveExpectedModuleReferenceRoot(root, "Hexalith.EventStore", "src/Hexalith.EventStore.Contracts");
+        string tenantsRoot = ResolveExpectedModuleReferenceRoot(root, "Hexalith.Tenants", "src/Hexalith.Tenants.Contracts");
 
         AssertProjectReferences(
             root,
@@ -143,15 +145,16 @@ public sealed class ScaffoldSmokeTest
             root,
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
-            "Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
-            "Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
-            "Hexalith.Tenants/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
-            "Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj");
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj",
+            $"{tenantsRoot}/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
+            $"{tenantsRoot}/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
@@ -233,13 +236,17 @@ public sealed class ScaffoldSmokeTest
         XDocument project = XDocument.Load(Path.Combine(root, projectPath));
         string projectDirectory = Path.GetDirectoryName(Path.Combine(root, projectPath))
             ?? throw new InvalidOperationException($"Could not locate project directory for {projectPath}.");
+        IReadOnlyDictionary<string, string> projectReferenceRoots = ResolveKnownProjectReferenceRoots(root);
 
         string[] actualReferences = [.. project
             .Descendants("ProjectReference")
+            .Where(reference => IsProjectReferenceConditionActive(
+                reference.Attribute("Condition")?.Value,
+                projectReferenceRoots))
             .Select(reference => reference.Attribute("Include")?.Value)
             .OfType<string>()
             .Where(path => !string.IsNullOrWhiteSpace(path))
-            .Select(path => NormalizePath(Path.GetRelativePath(root, Path.GetFullPath(path, projectDirectory))))
+            .Select(path => ResolveProjectReferencePath(root, projectDirectory, path, projectReferenceRoots))
             .Order(StringComparer.OrdinalIgnoreCase)];
         string[] expectedReferences = [.. expectedReferencePaths
             .Select(NormalizePath)
@@ -285,4 +292,74 @@ public sealed class ScaffoldSmokeTest
     }
 
     private static string NormalizePath(string path) => path.Replace('\\', '/');
+
+    private static IReadOnlyDictionary<string, string> ResolveKnownProjectReferenceRoots(string root)
+        => new Dictionary<string, string>(StringComparer.Ordinal)
+        {
+            ["HexalithEventStoreRoot"] = ResolveModuleRoot(root, "Hexalith.EventStore", "src/Hexalith.EventStore.Contracts"),
+            ["HexalithTenantsRoot"] = ResolveModuleRoot(root, "Hexalith.Tenants", "src/Hexalith.Tenants.Contracts"),
+        };
+
+    private static string ResolveExpectedModuleReferenceRoot(string root, string moduleName, string markerPath)
+    {
+        string moduleRoot = ResolveModuleRoot(root, moduleName, markerPath);
+
+        return string.IsNullOrWhiteSpace(moduleRoot)
+            ? moduleName
+            : NormalizePath(Path.GetRelativePath(root, moduleRoot));
+    }
+
+    private static string ResolveModuleRoot(string root, string moduleName, string markerPath)
+    {
+        string[] candidates =
+        [
+            Path.GetFullPath(Path.Combine(root, "..", moduleName)),
+            Path.GetFullPath(Path.Combine(root, moduleName)),
+        ];
+
+        return candidates.FirstOrDefault(candidate => Directory.Exists(Path.Combine(candidate, markerPath)))
+            ?? string.Empty;
+    }
+
+    private static bool IsProjectReferenceConditionActive(string? condition, IReadOnlyDictionary<string, string> projectReferenceRoots)
+    {
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            return true;
+        }
+
+        foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
+        {
+            if (string.Equals(condition, $"'$({projectReferenceRoot.Key})' != ''", StringComparison.Ordinal))
+            {
+                return !string.IsNullOrWhiteSpace(projectReferenceRoot.Value);
+            }
+
+            if (string.Equals(condition, $"'$({projectReferenceRoot.Key})' == ''", StringComparison.Ordinal))
+            {
+                return string.IsNullOrWhiteSpace(projectReferenceRoot.Value);
+            }
+        }
+
+        return true;
+    }
+
+    private static string ResolveProjectReferencePath(
+        string root,
+        string projectDirectory,
+        string includePath,
+        IReadOnlyDictionary<string, string> projectReferenceRoots)
+    {
+        string resolvedPath = includePath;
+
+        foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
+        {
+            resolvedPath = resolvedPath.Replace(
+                $"$({projectReferenceRoot.Key})",
+                projectReferenceRoot.Value,
+                StringComparison.Ordinal);
+        }
+
+        return NormalizePath(Path.GetRelativePath(root, Path.GetFullPath(resolvedPath, projectDirectory)));
+    }
 }

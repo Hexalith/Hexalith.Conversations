@@ -87,6 +87,25 @@ public sealed class ConversationReplayVerifierTest
         duplicateCreate.DiagnosticCode.ShouldBe("duplicate_event_identity");
     }
 
+    [Fact]
+    public void ProjectChangedReplayShouldUpdateCurrentProjectAndIgnoreDuplicateDelivery()
+    {
+        ProjectId reassigned = new("project-beta");
+
+        ConversationReplayResult replay = ConversationReplayVerifier.Replay(
+            Tenant,
+            Conversation,
+            [
+                Record(1, Created("event-create-001", 1)),
+                Record(2, ProjectChanged("event-project-001", 2, new ProjectId("project-alpha"), reassigned)),
+                Record(3, ProjectChanged("event-project-001", 2, new ProjectId("project-alpha"), reassigned)),
+                Record(4, ProjectChanged("event-project-002", 4, reassigned, current: null)),
+            ]);
+
+        replay.Outcome.ShouldBe(ConversationReplayOutcome.Replay);
+        replay.State!.ProjectId.ShouldBeNull();
+    }
+
     [Theory]
     [InlineData("future-version", "unsupported_schema_version")]
     [InlineData("tenant-mismatch", "tenant_mismatch")]
@@ -451,6 +470,16 @@ public sealed class ConversationReplayVerifierTest
             "Case 456",
             new BusinessReference("crm", "case-456"),
             new Dictionary<string, string> { ["priority"] = "high" });
+
+    private static ConversationProjectChanged ProjectChanged(
+        string eventId,
+        long position,
+        ProjectId? previous,
+        ProjectId? current)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationProjectChanged, position),
+            previous,
+            current);
 
     private static ConversationEventMetadata Metadata(
         string eventId,

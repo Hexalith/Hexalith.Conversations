@@ -82,6 +82,37 @@ public sealed class ConversationProjectionMaterializerTest
                 .ToArray());
     }
 
+    [Fact]
+    public void ProjectChangedEventsShouldReplaceAndClearProjectedProjectId()
+    {
+        ProjectId reassigned = new("project-002");
+        ConversationProjectedReadModels reassignedModels = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, ProjectChanged("event-project-001", 2, Project, reassigned)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+        ConversationProjectedReadModels clearedModels = Materializer().Project(
+            Tenant,
+            Conversation,
+            [
+                Event(1, Created("event-create-001", 1)),
+                Event(2, ProjectChanged("event-project-001", 2, Project, reassigned)),
+                Event(3, ProjectChanged("event-project-002", 3, reassigned, current: null)),
+            ],
+            Generated,
+            TimeSpan.FromMinutes(5));
+
+        reassignedModels.Summary.ProjectId.ShouldBe(reassigned);
+        reassignedModels.Detail.ProjectId.ShouldBe(reassigned);
+        clearedModels.Summary.ProjectId.ShouldBeNull();
+        clearedModels.Detail.ProjectId.ShouldBeNull();
+        clearedModels.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+    }
+
     /// <summary>
     /// Default command metadata is server-owned, governance-classified, unavailable, and rechecked across projection states.
     /// </summary>
@@ -750,6 +781,16 @@ public sealed class ConversationProjectionMaterializerTest
             null,
             null,
             new Dictionary<string, string> { ["priority"] = "high" });
+
+    private static ConversationProjectChanged ProjectChanged(
+        string eventId,
+        long position,
+        ProjectId? previous,
+        ProjectId? current)
+        => new(
+            Metadata(eventId, ConversationEventType.ConversationProjectChanged, position),
+            previous,
+            current);
 
     private static RetentionPolicySet RetentionSet(string eventId, long position)
         => new(

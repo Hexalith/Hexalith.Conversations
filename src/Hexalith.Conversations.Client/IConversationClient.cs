@@ -35,6 +35,16 @@ public interface IConversationClient
         CancellationToken cancellationToken = default);
 
     /// <summary>
+    /// Assigns, reassigns, or explicitly clears a conversation project reference.
+    /// </summary>
+    /// <param name="command">The v1 project reassignment command contract.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>A typed command-accepted result or typed Conversations errors.</returns>
+    Task<ConversationClientResult<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+        ReassignConversationProjectCommand command,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
     /// Reads a tenant-scoped conversation timeline and freshness metadata.
     /// </summary>
     /// <param name="query">The v1 get-conversation query contract.</param>

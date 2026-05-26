@@ -46,6 +46,7 @@ public sealed record ConversationCommandFingerprint(
             CreateConversationCommand create => CreateForCreateConversation(create, createAllocationScope),
             AppendMessageCommand append => CreateForAppendMessage(append),
             AddParticipantCommand add => CreateForAddParticipant(add),
+            ReassignConversationProjectCommand reassignProject => CreateForReassignConversationProject(reassignProject),
             AttachFileReferenceCommand attach => CreateForAttachFileReference(attach),
             UpdateConversationMetadataCommand update => CreateForUpdateMetadata(update),
             CloseConversationCommand close => CreateForClose(close),
@@ -107,6 +108,23 @@ public sealed record ConversationCommandFingerprint(
                     .Concat(Required("participant.party.id", command.ParticipantPartyId?.Value))
                     .Concat(Required("participant.type", command.ParticipantType?.Value))
                     .Concat(Required("participant.role", command.ParticipantRole?.Value))));
+    }
+
+    private static ConversationCommandFingerprint CreateForReassignConversationProject(
+        ReassignConversationProjectCommand command)
+    {
+        ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
+        return new ConversationCommandFingerprint(
+            BuildScope(
+                metadata,
+                ConversationCommandType.ReassignConversationProjectCommand,
+                ConversationIdempotencyScope.ConversationScopeKind,
+                RequireNonNull(command.ConversationId, nameof(command.ConversationId)).Value),
+            Fingerprint(
+                MetadataParts(metadata)
+                    .Concat(Required("project.assignment.operation", command.Target?.Operation?.Value))
+                    .Concat(Optional("project.target.id", command.Target?.ProjectId?.Value))
+                    .Concat(Optional("project.expected.current.id", command.ExpectedCurrentProjectId?.Value))));
     }
 
     private static ConversationCommandFingerprint CreateForAttachFileReference(AttachFileReferenceCommand command)
@@ -206,6 +224,7 @@ public sealed record ConversationCommandFingerprint(
 
     public static ConversationCommandFingerprint CreateForRedaction(RedactMessageContentCommand command)
     {
+        ArgumentNullException.ThrowIfNull(command);
         ConversationCommandMetadata metadata = RequireMetadata(command.Metadata);
         return new ConversationCommandFingerprint(
             BuildScope(

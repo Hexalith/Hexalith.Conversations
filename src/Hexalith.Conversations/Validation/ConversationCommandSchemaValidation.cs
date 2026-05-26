@@ -35,6 +35,7 @@ internal static class ConversationCommandSchemaValidation
             AddParticipantCommand add => add.Metadata,
             AttachFileReferenceCommand attach => attach.Metadata,
             UpdateConversationMetadataCommand update => update.Metadata,
+            ReassignConversationProjectCommand reassignProject => reassignProject.Metadata,
             CloseConversationCommand close => close.Metadata,
             ArchiveConversationCommand archive => archive.Metadata,
             _ => throw new ArgumentException($"Unsupported conversation command type '{command.GetType().FullName}'.", nameof(command)),
@@ -70,6 +71,7 @@ internal static class ConversationCommandSchemaValidation
             CreateConversationCommand create => create.CallerMetadata,
             AppendMessageCommand append => append.CallerMetadata,
             UpdateConversationMetadataCommand update => update.CallerMetadata,
+            ReassignConversationProjectCommand reassignProject => reassignProject.CallerMetadata,
             _ => null,
         };
 

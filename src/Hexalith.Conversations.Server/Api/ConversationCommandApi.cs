@@ -31,6 +31,7 @@ public static class ConversationCommandApi
         RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations").RequireAuthorization();
         group.MapPost("/", CreateConversationAsync);
         group.MapPost("/{conversationId}/messages", AppendMessageAsync);
+        group.MapPost("/{conversationId}/project", ReassignConversationProjectAsync);
         return endpoints;
     }
 
@@ -48,6 +49,34 @@ public static class ConversationCommandApi
 
         ConversationCommandApiOutcome<ConversationCreatedResult> outcome = await handler
             .CreateConversationAsync(command!, cancellationToken)
+            .ConfigureAwait(false);
+        return ToHttpResult(outcome);
+    }
+
+    private static async Task<IResult> ReassignConversationProjectAsync(
+        string conversationId,
+        HttpContext context,
+        IConversationCommandApiHandler handler,
+        CancellationToken cancellationToken)
+    {
+        ReassignConversationProjectCommand? command = await ReadBodyAsync<ReassignConversationProjectCommand>(context, cancellationToken)
+            .ConfigureAwait(false);
+        if (!TryValidateCommandContext(context, command?.Metadata, out IResult? rejection))
+        {
+            return rejection;
+        }
+
+        if (command?.ConversationId is null || !string.Equals(conversationId, command.ConversationId.Value, StringComparison.Ordinal))
+        {
+            return ErrorResult(
+                ConversationErrorCode.CommandValidationFailed,
+                command?.Metadata?.CorrelationId ?? CorrelationIdFrom(context),
+                StatusCodes.Status400BadRequest,
+                "Route and command conversation identity must match.");
+        }
+
+        ConversationCommandApiOutcome<ConversationCommandAcceptedResult> outcome = await handler
+            .ReassignConversationProjectAsync(command, cancellationToken)
             .ConfigureAwait(false);
         return ToHttpResult(outcome);
     }
@@ -214,6 +243,16 @@ public interface IConversationCommandApiHandler
     /// <returns>The typed API outcome.</returns>
     ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> AppendMessageAsync(
         AppendMessageCommand command,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Executes a project reassignment command.
+    /// </summary>
+    /// <param name="command">The public command contract.</param>
+    /// <param name="cancellationToken">The cancellation token.</param>
+    /// <returns>The typed API outcome.</returns>
+    ValueTask<ConversationCommandApiOutcome<ConversationCommandAcceptedResult>> ReassignConversationProjectAsync(
+        ReassignConversationProjectCommand command,
         CancellationToken cancellationToken = default);
 }
 
