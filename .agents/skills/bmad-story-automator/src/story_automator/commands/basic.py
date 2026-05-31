@@ -30,16 +30,6 @@ def _workflow_doc_relative(doc_name: str) -> str:
 
 
 def _stop_hook_command(command: str, project_root: Path) -> str:
-    if os.name == "nt":
-        project_literal = str(project_root).replace("'", "''")
-        src_literal = str(_workflow_root() / "src").replace("'", "''")
-        return (
-            "powershell -NoProfile -ExecutionPolicy Bypass -Command "
-            f"\"`$env:PROJECT_ROOT='{project_literal}'; "
-            f"`$env:PYTHONPATH='{src_literal}'; "
-            "python -m story_automator stop-hook\""
-        )
-
     command_parts = shlex.split(command)
     if not command_parts:
         return command

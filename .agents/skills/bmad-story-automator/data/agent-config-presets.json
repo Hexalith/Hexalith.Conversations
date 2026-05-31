@@ -1,35 +1,4 @@
 {
   "version": "1.0.0",
-  "presets": [
-    {
-      "name": "codex-55-claude-review",
-      "createdAt": "2026-05-22T06:37:02Z",
-      "config": {
-        "defaultPrimary": "codex",
-        "defaultFallback": false,
-        "perTask": {
-          "create": {
-            "primary": "codex",
-            "fallback": false
-          },
-          "dev": {
-            "primary": "codex",
-            "fallback": false
-          },
-          "auto": {
-            "primary": "codex",
-            "fallback": false
-          },
-          "review": {
-            "primary": "claude",
-            "fallback": false
-          },
-          "retro": {
-            "primary": "codex",
-            "fallback": false
-          }
-        }
-      }
-    }
-  ]
+  "presets": []
 }

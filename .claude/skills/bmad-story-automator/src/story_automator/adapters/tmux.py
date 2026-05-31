@@ -48,13 +48,14 @@ def tmux_new_session(session: str, root: str | Path, selected_agent: str) -> tup
         "200",
         "-y",
         "50",
+        "-c",
+        str(root),
         "-e",
         "STORY_AUTOMATOR_CHILD=true",
         "-e",
         f"AI_AGENT={selected_agent}",
         "-e",
         "CLAUDECODE=",
-        cwd=str(root),
     )
 
 

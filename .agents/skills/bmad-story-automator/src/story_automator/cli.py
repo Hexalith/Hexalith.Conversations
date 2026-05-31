@@ -23,21 +23,7 @@ from .core.epic_parser import epic_complete, parse_epic_file, parse_story, parse
 Command = Callable[[list[str]], int]
 
 
-def _force_utf8_io() -> None:
-    # On Windows the console defaults to a locale codec (e.g. cp1252) that cannot
-    # encode characters captured from agent TUIs (arrows, box drawing, etc.).
-    # Force UTF-8 with replacement so emitting captured output never crashes.
-    for stream in (sys.stdout, sys.stderr):
-        reconfigure = getattr(stream, "reconfigure", None)
-        if reconfigure is not None:
-            try:
-                reconfigure(encoding="utf-8", errors="replace")
-            except (ValueError, OSError):
-                pass
-
-
 def main(argv: list[str] | None = None) -> int:
-    _force_utf8_io()
     args = list(sys.argv[1:] if argv is None else argv)
     if not args:
         _usage(sys.stderr)
