@@ -207,6 +207,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory27StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story27StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story27StructuralDisposition disposition in register.Story27StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.7 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -305,7 +322,77 @@ public sealed class AtRiskTestRegisterGenerationTest
             Story24StructuralDispositions = BuildStory24StructuralDispositions(),
             Story25StructuralDispositions = BuildStory25StructuralDispositions(),
             Story26StructuralDispositions = BuildStory26StructuralDispositions(),
+            Story27StructuralDispositions = BuildStory27StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story27StructuralDisposition> BuildStory27StructuralDispositions() =>
+    [
+        new(
+            Subject: "FR-9 / Story 2.7 verified-gap finding: the three duplicate targets the epics names for consume "
+                + "- the shared DomainResultAssertions, the shared gateway-client fake, and InMemoryStateManager - have "
+                + "NO in-module re-implementation to remove",
+            Change: "Verified at the recorded commit that the test tree holds ZERO in-module duplicates of the three "
+                + "named shared types: no test class implements IActorStateManager (so no in-module InMemoryStateManager), "
+                + "no test class implements the gateway-client interface (so no in-module gateway-client fake - the "
+                + "module's tests exercise aggregates, handlers, projections and read stores, never the gateway "
+                + "transport), and there is no static *Assertions class or `this DomainResult` extension anywhere under "
+                + "tests/ or src/ (so no in-module DomainResultAssertions). The aggregate command/state/event tests assert "
+                + "DomainResult DIRECTLY (result.IsSuccess plus result.Events.Single().ShouldBeOfType<TEvent>() and "
+                + "rejection-field assertions). There is nothing to remove-and-replace for the three named types.",
+            Ac: "AC-1",
+            Rationale: "Recorded per the Story 1.5 escape hatch. FR-9 was framed as remove-and-replace, test-only; the "
+                + "honest finding is that the named duplicates do not exist in-module, so the value of the story is the "
+                + "verified-gap record itself, not a code swap. No src/ change; the public contract-shape diff stays empty.",
+            OwningStory: "Story 2.7 (FR-9, consume shared test-support assertions and fakes)",
+            GreenAfterChange: true),
+        new(
+            Subject: "FR-9 / Story 2.7 disposition correction: the inventory 'duplicate-test-fakes' Consume area (single "
+                + "file, the source-tree-root path-locator test record) is a misclassification - the file is genuinely "
+                + "Keep, with no shared equivalent to consume",
+            Change: "The inventory's duplicate-test-fakes area (Consume, FR-9, 51 LOC) attributes a single file: the "
+                + "source-tree-root path-locator test record (RootDirectory / SolutionPath / SourceDirectory / "
+                + "TestDirectory and a Locate() that walks up to the folder holding Directory.Packages.props plus the "
+                + ".slnx). The shared platform test-support library ships NO such path locator - its in-memory types are "
+                + "DATA-STORE fakes (an actor-state-manager fake, a read-model store fake, command-status and "
+                + "command-archive store fakes), not a source-tree path locator. The Story 1.4 inventory conflated two "
+                + "senses of the word 'repo' (the git source tree vs a data-store fake). So the file has no shared "
+                + "equivalent to swap to and is correctly Keep (domain/infra test scaffolding); its single "
+                + "integration-test consumer stays. The file is NOT deleted or modified.",
+            Ac: "AC-1 / AC-5",
+            Rationale: "Recorded per the Story 1.5 escape hatch. Because this CORRECTS an accepted Consume area (the "
+                + "area's named consume target does not match its single file), it takes an append-only inventory "
+                + "changeLog entry (CL-duplicate-test-fakes-challenge-1) per classification-change-procedure-v1, mirroring "
+                + "the two prior challenge/upheld notes. It is a challenge/upheld note with no from/to: the area keeps its "
+                + "literal Consume label (a real Consume->Keep relabel would drop the frozen plumbing baseline by 51 and "
+                + "break its Sigma(Consume)+Sigma(Promote) reconciliation), and its frozen approxLoc (51) and the paired "
+                + "Keep area's approxLoc (1704) are left byte-unchanged. The correction is recorded non-silently (FR-2).",
+            OwningStory: "Story 2.7 (FR-9, consume shared test-support assertions and fakes)",
+            GreenAfterChange: true),
+        new(
+            Subject: "FR-9 / Story 2.7: the genuine shared-fake consume already landed in Story 2.4 (preserved) and the "
+                + "AC-2 assertion-swap evaluation is a recorded negative finding (net zero swaps - the direct assertions "
+                + "are stronger)",
+            Change: "The one genuine in-module use of a shared platform test-support fake is Server.Tests consuming the "
+                + "canonical in-memory read-model store (adopted in Story 2.4 for the projection-persistence and "
+                + "fail-closed read tests); it is preserved, not reverted or re-wrapped. For AC-2 the shared "
+                + "DomainResultAssertions helpers were evaluated against the aggregate tests: ShouldBeSuccess(result, "
+                + "count) + ShouldContainEvent<TEvent> are NOT a strict superset of the in-module "
+                + "result.Events.Single().ShouldBeOfType<TEvent>() - ShouldContainEvent uses `e is TEvent` (assignable), "
+                + "strictly weaker than the exact-type-and-exactly-one Single().ShouldBeOfType<T>() check, and every "
+                + "success-path test also captures the typed event for payload-field assertions; ShouldBeRejection would "
+                + "DROP the ConversationRejectedDomainEvent field assertions (reason / code / message) the rejection-path "
+                + "tests make. So no swap qualifies as equal-or-stronger and the net is ZERO swaps; the direct assertions "
+                + "are kept. No test logic changed.",
+            Ac: "AC-2 / AC-4",
+            Rationale: "Never weaken the oracle to 'consume' a helper (Epic 1 L1/A1): a swap is allowed iff the shared "
+                + "helper asserts a superset of the direct check, which none here does. A net of zero swaps is an "
+                + "acceptable, honest outcome. Behavior preserved: no src/ change, the aggregate assertion strength is "
+                + "un-reduced versus the Story 1.1 baseline. No test is retired by this story; the new ledger validation "
+                + "fact (EveryStory27StructuralDispositionShouldBeAnchoredAndGreen) keeps the conformance count monotonic "
+                + "vs the Story 2.6 close of 356.",
+            OwningStory: "Story 2.7 (FR-9, consume shared test-support assertions and fakes)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story26StructuralDisposition> BuildStory26StructuralDispositions() =>
     [
@@ -937,6 +1024,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story25StructuralDisposition> Story25StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story26StructuralDisposition> Story26StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story27StructuralDisposition> Story27StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -1058,6 +1147,24 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story26StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.7 (FR-9) structural disposition: the verified-gap finding that FR-9's three
+    /// named shared duplicate targets (the shared <c>DomainResultAssertions</c>, the shared gateway-client fake, and
+    /// <c>InMemoryStateManager</c>) have no in-module re-implementation to remove; the correction that the inventory
+    /// <c>duplicate-test-fakes</c> Consume area's single file is a source-tree-root path locator with no shared
+    /// equivalent (genuinely Keep, recorded via an append-only inventory <c>changeLog</c> challenge/upheld note); and
+    /// the confirmation that the genuine shared-fake consume already landed in Story 2.4 (preserved) together with the
+    /// AC-2 assertion-swap negative finding (net zero swaps — the direct assertions are a strict superset of the shared
+    /// helpers) — recorded so no later test-count change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story27StructuralDisposition(
         string Subject,
         string Change,
         string Ac,

@@ -1,5 +1,25 @@
 # Test Automation Summary
 
+## Story 2.7 Consume Shared EventStore.Testing Assertions and Fakes
+
+Story 2.7 (FR-9, Consume — Epic 2's seventh and final consume story) is a **test-only verify-record-correct** story: **no `src/` change**. Its substantive deliverable (AC-1) is a *verified-gap finding* — the test tree holds **zero in-module re-implementations** of the three shared `EventStore.Testing` types FR-9 named for consume (`InMemoryStateManager`/`IActorStateManager`, `FakeEventStoreGatewayClient`/`IEventStoreGatewayClient`, and `DomainResultAssertions`). The genuine fake-consume (`InMemoryReadModelStore` in `Server.Tests`) already landed in Story 2.4 and is preserved; net **zero** assertion swaps (the direct aggregate assertions are strictly stronger). There is **no UI and no HTTP API in scope**, so the QA surface is a **regression guard** over the source tree, not an HTTP/E2E lane. Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (CPM; no new package, no new ProjectReference).
+
+### Discovered Gap → Applied (1 new test file, 3 facts)
+- [x] **Gap (AC-1 unguarded invariant)** — the "zero in-module duplicates" finding was established only by one-off greps recorded in the Dev Agent Record; nothing in the suite *enforced* it, so a later change could re-introduce an in-module duplicate (e.g. a bespoke `InMemoryStateManager` or a `DomainResultAssertions` extension that silently weakens the oracle) and re-open the FR-9 gap undetected. Closed by `NoInModuleSharedFakeDuplicateConformanceTest` — declaration-anchored source scans over the module's own `src/`+`tests/` trees that codify the three greps as durable assertions.
+
+Detectors are anchored to real C# declaration syntax (a class base-list implementing `IActorStateManager`/`IEventStoreGatewayClient`, a `*StateManager`/`*GatewayClient` class name, or a `(this DomainResult …)` extension receiver), so they match a genuine duplicate **declaration**, never a prose mention of the type name in the at-risk register's recorded findings. The guard exempts only its own meta-file (which legitimately names the patterns). Teeth proven against synthetic re-introduced duplicates; green on the clean tree.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/NoInModuleSharedFakeDuplicateConformanceTest.cs` — new file, 3 facts: `NoInModuleActorStateManagerDuplicateShouldExist`, `NoInModuleEventStoreGatewayClientDuplicateShouldExist`, `NoInModuleDomainResultAssertionsDuplicateShouldExist`.
+
+### API / E2E
+- N/A — test-only story, no API endpoint and no UI surface.
+
+### Coverage
+- Build: `Hexalith.Conversations.Conformance.Tests` Release — **0 Warning(s), 0 Error(s)** (warnings-as-errors).
+- Conformance suite: **360 passed**, 0 failed, 0 skipped (357 story-2.7 baseline **+3** new guard facts → monotonic; gate floor 356 holds).
+- New class is `*ConformanceTest` (not `*ConformanceSuiteTest`), so the "exactly 14 suite classes" FR-20 guard is unaffected. No `src/` change; public-contract-shape diff stays empty. The AC-5 inventory `changeLog` entry and `story27StructuralDispositions` ledger rows were already covered by the existing inventory/procedure/ledger validators (verified, not duplicated).
+
 ## Story 2.6 Adopt Shared Serialization Helpers for Generic Converters
 
 Story 2.6 (FR-8, Consume) is a **verify-record-defer** story — the dev step made **no `src/` change**: FR-8's named shared target (Commons generic value/identifier converters + a source-gen JSON-context base) does not exist in the Epic-2 consumable surface (verified at Commons `30620b9`), so the build + `NameTypeMapper` publicize is deferred to FR-14 / Story 3.6, and the five `generic-serialization-converters` files stay in place behavior-identical. There is **no UI or HTTP API in scope** (the feature is a Contracts-assembly serialization seam), so the QA surface is **contract-serialization behavior of the existing converters**, driven directly through `System.Text.Json` web defaults. Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (CPM; no new package). The shipped converter suite (`ContractSerializationTest` positive wire-shape oracle + `IdentifierValidationTest` identifier/schema-version negative paths) was strong; this run auto-applied the discovered token-type-guard gaps on the two genuinely-ruleless base skeletons that AC-3 names and AC-4 wants pinned as the FR-14/3.6 characterization oracle.
