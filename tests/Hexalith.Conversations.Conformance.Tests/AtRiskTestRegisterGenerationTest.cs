@@ -190,6 +190,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory26StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story26StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story26StructuralDisposition disposition in register.Story26StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.6 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -287,7 +304,82 @@ public sealed class AtRiskTestRegisterGenerationTest
             Story23StructuralDispositions = BuildStory23StructuralDispositions(),
             Story24StructuralDispositions = BuildStory24StructuralDispositions(),
             Story25StructuralDispositions = BuildStory25StructuralDispositions(),
+            Story26StructuralDispositions = BuildStory26StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story26StructuralDisposition> BuildStory26StructuralDispositions() =>
+    [
+        new(
+            Subject: "FR-8 / Story 2.6 disposition: the inventory Consume target for 'generic-serialization-converters' "
+                + "- 'Commons TypeMapper + generic value/identifier JSON converters + source-gen JSON-context base' - "
+                + "re-scoped (the generic-converter / JSON-context-base build + the NameTypeMapper publicize are deferred "
+                + "to FR-14 / Story 3.6)",
+            Change: "Verified at the recorded Commons gitlink 30620b9 that the named shared target does NOT exist as "
+                + "consumable surface: Commons exposes only the public static TypeMapper.GetMap<TMappable>() (plus "
+                + "GetObject / GetType / GetMappableTypes), all constrained where TMappable : IMappableType, and an "
+                + "internal NameTypeMapper<TMappable>. Commons ships NO generic value/identifier JSON converter and NO "
+                + "source-generated JSON-serialization-context base (a search for a generic JSON converter type across the "
+                + "Commons sources is empty), and Hexalith.PolymorphicSerializations is neither in Central Package "
+                + "Management nor referenced under src/. So nothing in the Epic-2 (Consume-only, no-Commons-edit) surface "
+                + "exists to remove-and-replace the 215-LOC generic converters with. Building that shared converter / "
+                + "context-base capability and publicizing NameTypeMapper is a Promote = FR-14 = Story 3.6, opened as an "
+                + "explicit Epic-3 dependency, not attempted here. The five converter files stay in place, "
+                + "behavior-identical.",
+            Ac: "AC-1 / AC-5",
+            Rationale: "Recorded per the Story 1.5 escape hatch. Because this RE-SCOPES an accepted Consume area (the "
+                + "consume is deferred to FR-14/3.6, not realized here), it differs from the Story 2.4 / 2.5 no-relabel "
+                + "corrections and DOES take an append-only inventory changeLog entry "
+                + "(CL-generic-serialization-converters-challenge-1) per classification-change-procedure-v1, mirroring "
+                + "CL-shared-host-api-challenge-1: the area stays literally labeled Consume (deletion is deferred, not "
+                + "reclassified) so it is a challenge/upheld note with no from/to, and its frozen approxLoc (215) is not "
+                + "mutated. The deferral is recorded non-silently (FR-2) so Story 3.6 inherits a clear dependency.",
+            OwningStory: "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Within-area reclassification of 'generic-serialization-converters': the prefixed-identifier "
+                + "converters encode a genuine domain rule (Keep-aligned); only the two value-base skeletons are ruleless "
+                + "machinery",
+            Change: "Classified each of the five files. (a) ConversationStringValueJsonConverter<T> and "
+                + "ConversationIntValueJsonConverter<T> are genuinely ruleless machinery - a token-type guard plus "
+                + "Create / GetValue delegation, no domain rule - the eventual FR-14/3.6 deletion target. (b) "
+                + "PrefixedIdentifierJsonConverter<T> plus the seven concrete identifier converters "
+                + "(conv: / tenant: / party: / project: / folder: / file: / message:) encode a genuine domain rule - the "
+                + "URN-style prefix prevents silent cross-type substitution between identifier families on the wire - so "
+                + "they are Keep-aligned, not generic-replaceable. (c) SchemaVersionJsonConverter's only validation "
+                + "(value >= 1) lives in the SchemaVersion value type, not the converter. Because no shared replacement "
+                + "exists yet, all five files remain in place behavior-unchanged pending FR-14/3.6.",
+            Ac: "AC-3",
+            Rationale: "Strict reading of FR-8 ('generic value converters with no domain rules are replaced; only "
+                + "converters encoding genuine domain rules remain'): the prefix invariant is a real correctness / "
+                + "security rule, so those converters belong with Keep, not the generic-replaceable machinery. No file is "
+                + "deleted now (no shared replacement exists). Recorded append-only; no area's frozen approxLoc (215 / 432) "
+                + "is mutated.",
+            OwningStory: "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+            GreenAfterChange: true),
+        new(
+            Subject: "AC-2 TypeMapper.GetMap() consume evaluation (negative finding) and the generic-converter "
+                + "wire-shape oracle confirmed pinned",
+            Change: "The only public Commons serialization helper, TypeMapper.GetMap<TMappable>(), is constrained "
+                + "where TMappable : IMappableType and instantiates each mapped type via a public parameterless "
+                + "constructor. The one hand-rolled type-name-to-Type map in the module "
+                + "(ConversationProjectionHandler.BuildPublicEventTypeMap(), 13 public events keyed by type.Name) cannot "
+                + "adopt it without making those public event records implement IMappableType (plus a parameterless "
+                + "constructor) - a public-contract reshape that would break the empty public-contract-shape diff and is "
+                + "exactly the polymorphic-registration concern FR-14/3.6 owns. No Conversations contract implements "
+                + "IMappableType at baseline. Conclusion: no clean Epic-2 consume of TypeMapper.GetMap() exists; the map "
+                + "is left as-is (no src/ change) and the negative finding recorded. The ContractSerializationTest "
+                + "exact-wire-shape oracle (the tenant: / conv: / party: / project: / folder: / file: / message: prefixes, "
+                + "schemaVersion:1, and the string / int encodings) is confirmed green and un-weakened - it is the "
+                + "byte-exact characterization the future FR-14/3.6 replacement must preserve.",
+            Ac: "AC-2 / AC-4 / AC-5",
+            Rationale: "Do NOT reshape public contracts to manufacture a consume (NFR8; the empty-diff gate). Behavior "
+                + "preserved: no source change, the wire-shape oracle stays intact as the FR-14/3.6 characterization "
+                + "target. No test is retired by this story; the new ledger validation fact "
+                + "(EveryStory26StructuralDispositionShouldBeAnchoredAndGreen) keeps the conformance count monotonic "
+                + "vs the Story 2.5 close of 355.",
+            OwningStory: "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story25StructuralDisposition> BuildStory25StructuralDispositions() =>
     [
@@ -843,6 +935,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story24StructuralDisposition> Story24StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story25StructuralDisposition> Story25StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story26StructuralDisposition> Story26StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -946,6 +1040,24 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// later test-count change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story25StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.6 (FR-8) structural disposition: the verified-gap finding that FR-8's named
+    /// shared target (Commons generic value/identifier converters + a source-gen JSON-context base) does not exist in
+    /// the Epic-2 consumable surface, so the build + the <c>NameTypeMapper</c> publicize are re-scoped to FR-14 /
+    /// Story 3.6 (an inventory <c>changeLog</c> entry accompanies this re-scope); the within-area reclassification of
+    /// the prefixed-identifier converters as a genuine domain rule (Keep-aligned) versus the two ruleless value-base
+    /// skeletons; and the AC-2 negative finding (the only public helper needs a public-contract reshape) with the
+    /// generic-converter wire-shape oracle confirmed pinned — recorded so no later test-count change is unaccounted for
+    /// (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story26StructuralDisposition(
         string Subject,
         string Change,
         string Ac,

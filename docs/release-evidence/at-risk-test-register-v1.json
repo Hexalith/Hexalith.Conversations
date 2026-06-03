@@ -287,5 +287,31 @@
       "owningStory": "Story 2.5 (FR-6, projection seam)",
       "greenAfterChange": true
     }
+  ],
+  "story26StructuralDispositions": [
+    {
+      "subject": "FR-8 / Story 2.6 disposition: the inventory Consume target for 'generic-serialization-converters' - 'Commons TypeMapper + generic value/identifier JSON converters + source-gen JSON-context base' - re-scoped (the generic-converter / JSON-context-base build + the NameTypeMapper publicize are deferred to FR-14 / Story 3.6)",
+      "change": "Verified at the recorded Commons gitlink 30620b9 that the named shared target does NOT exist as consumable surface: Commons exposes only the public static TypeMapper.GetMap<TMappable>() (plus GetObject / GetType / GetMappableTypes), all constrained where TMappable : IMappableType, and an internal NameTypeMapper<TMappable>. Commons ships NO generic value/identifier JSON converter and NO source-generated JSON-serialization-context base (a search for a generic JSON converter type across the Commons sources is empty), and Hexalith.PolymorphicSerializations is neither in Central Package Management nor referenced under src/. So nothing in the Epic-2 (Consume-only, no-Commons-edit) surface exists to remove-and-replace the 215-LOC generic converters with. Building that shared converter / context-base capability and publicizing NameTypeMapper is a Promote = FR-14 = Story 3.6, opened as an explicit Epic-3 dependency, not attempted here. The five converter files stay in place, behavior-identical.",
+      "ac": "AC-1 / AC-5",
+      "rationale": "Recorded per the Story 1.5 escape hatch. Because this RE-SCOPES an accepted Consume area (the consume is deferred to FR-14/3.6, not realized here), it differs from the Story 2.4 / 2.5 no-relabel corrections and DOES take an append-only inventory changeLog entry (CL-generic-serialization-converters-challenge-1) per classification-change-procedure-v1, mirroring CL-shared-host-api-challenge-1: the area stays literally labeled Consume (deletion is deferred, not reclassified) so it is a challenge/upheld note with no from/to, and its frozen approxLoc (215) is not mutated. The deferral is recorded non-silently (FR-2) so Story 3.6 inherits a clear dependency.",
+      "owningStory": "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+      "greenAfterChange": true
+    },
+    {
+      "subject": "Within-area reclassification of 'generic-serialization-converters': the prefixed-identifier converters encode a genuine domain rule (Keep-aligned); only the two value-base skeletons are ruleless machinery",
+      "change": "Classified each of the five files. (a) ConversationStringValueJsonConverter<T> and ConversationIntValueJsonConverter<T> are genuinely ruleless machinery - a token-type guard plus Create / GetValue delegation, no domain rule - the eventual FR-14/3.6 deletion target. (b) PrefixedIdentifierJsonConverter<T> plus the seven concrete identifier converters (conv: / tenant: / party: / project: / folder: / file: / message:) encode a genuine domain rule - the URN-style prefix prevents silent cross-type substitution between identifier families on the wire - so they are Keep-aligned, not generic-replaceable. (c) SchemaVersionJsonConverter's only validation (value >= 1) lives in the SchemaVersion value type, not the converter. Because no shared replacement exists yet, all five files remain in place behavior-unchanged pending FR-14/3.6.",
+      "ac": "AC-3",
+      "rationale": "Strict reading of FR-8 ('generic value converters with no domain rules are replaced; only converters encoding genuine domain rules remain'): the prefix invariant is a real correctness / security rule, so those converters belong with Keep, not the generic-replaceable machinery. No file is deleted now (no shared replacement exists). Recorded append-only; no area's frozen approxLoc (215 / 432) is mutated.",
+      "owningStory": "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+      "greenAfterChange": true
+    },
+    {
+      "subject": "AC-2 TypeMapper.GetMap() consume evaluation (negative finding) and the generic-converter wire-shape oracle confirmed pinned",
+      "change": "The only public Commons serialization helper, TypeMapper.GetMap<TMappable>(), is constrained where TMappable : IMappableType and instantiates each mapped type via a public parameterless constructor. The one hand-rolled type-name-to-Type map in the module (ConversationProjectionHandler.BuildPublicEventTypeMap(), 13 public events keyed by type.Name) cannot adopt it without making those public event records implement IMappableType (plus a parameterless constructor) - a public-contract reshape that would break the empty public-contract-shape diff and is exactly the polymorphic-registration concern FR-14/3.6 owns. No Conversations contract implements IMappableType at baseline. Conclusion: no clean Epic-2 consume of TypeMapper.GetMap() exists; the map is left as-is (no src/ change) and the negative finding recorded. The ContractSerializationTest exact-wire-shape oracle (the tenant: / conv: / party: / project: / folder: / file: / message: prefixes, schemaVersion:1, and the string / int encodings) is confirmed green and un-weakened - it is the byte-exact characterization the future FR-14/3.6 replacement must preserve.",
+      "ac": "AC-2 / AC-4 / AC-5",
+      "rationale": "Do NOT reshape public contracts to manufacture a consume (NFR8; the empty-diff gate). Behavior preserved: no source change, the wire-shape oracle stays intact as the FR-14/3.6 characterization target. No test is retired by this story; the new ledger validation fact (EveryStory26StructuralDispositionShouldBeAnchoredAndGreen) keeps the conformance count monotonic vs the Story 2.5 close of 355.",
+      "owningStory": "Story 2.6 (FR-8, adopt shared serialization helpers for generic converters)",
+      "greenAfterChange": true
+    }
   ]
 }

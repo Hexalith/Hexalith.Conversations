@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 2.6 Adopt Shared Serialization Helpers for Generic Converters
+
+Story 2.6 (FR-8, Consume) is a **verify-record-defer** story — the dev step made **no `src/` change**: FR-8's named shared target (Commons generic value/identifier converters + a source-gen JSON-context base) does not exist in the Epic-2 consumable surface (verified at Commons `30620b9`), so the build + `NameTypeMapper` publicize is deferred to FR-14 / Story 3.6, and the five `generic-serialization-converters` files stay in place behavior-identical. There is **no UI or HTTP API in scope** (the feature is a Contracts-assembly serialization seam), so the QA surface is **contract-serialization behavior of the existing converters**, driven directly through `System.Text.Json` web defaults. Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (CPM; no new package). The shipped converter suite (`ContractSerializationTest` positive wire-shape oracle + `IdentifierValidationTest` identifier/schema-version negative paths) was strong; this run auto-applied the discovered token-type-guard gaps on the two genuinely-ruleless base skeletons that AC-3 names and AC-4 wants pinned as the FR-14/3.6 characterization oracle.
+
+### Discovered Gaps → Applied (3 new [Theory]/[Fact] tests, 16 cases)
+- [x] Gap 1 (AC-3/AC-4 — `ConversationStringValueJsonConverter<T>` non-string token guard untested) — the string-value base skeleton's only negative test fed a *string* that fails the domain parse (`"current"` → `JsonException`); the prior `JsonTokenType.String` guard itself (reject a JSON number / object / array / boolean before any parse) was unpinned. A regression that dropped the token guard would still pass every existing test. Closed by `StringValueSkeletonShouldRejectNonStringTokens` (7 cases over `ProjectionTrustState` + `ProjectionFreshnessReasonCode`: `123`, `1.5`, `true`, `false`, `{}`, `[]`, `["Current"]` → `JsonException`).
+- [x] Gap 2 (AC-3/AC-4 — `ConversationIntValueJsonConverter<T>` non-number/overflow guard untested) — `SchemaVersion` covered fractional/exponent/string-wrapped and out-of-domain-range (`0`,`-1`), but the skeleton's `TokenType == Number && TryGetInt32` guard for non-number tokens and **Int32 overflow/underflow** was unpinned (a too-large number would otherwise risk a truncated/overflowing value rather than a clean `JsonException`). Closed by `IntValueSkeletonShouldRejectNonInt32Tokens` (8 cases over `SchemaVersion`: `true`, `{}`, `[]`, `[1]`, `"1"`, `2147483648`, `9999999999`, `-2147483649` → `JsonException`).
+- [x] Gap 3 (symmetry guard) — proves the new negative-path assertions characterize *rejection* without disturbing *acceptance*. Closed by `SkeletonsShouldStillRoundTripCanonicalValues` (canonical `ProjectionTrustState.Current` / `ProjectionFreshnessReasonCode.Current` / `SchemaVersion.Current` still round-trip to themselves).
+
+The skeletons are exercised through the public value types whose converters derive from them, so **no source under `src/Serialization` is modified** (the Keep domain-rule converters are not touched) and the positive wire-shape oracle is left intact.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/GenericValueConverterSkeletonTest.cs` — new file, 3 tests / 16 cases (Gaps 1–3 above), reusing the project's existing `System.Text.Json` + Shouldly conventions. Documents the file as the FR-14/3.6 behavior-exact characterization the future shared-helper replacement must preserve.
+
+### Implementation
+- No production source under `src/` changed by this QA run (verify-record-defer story; behavior preserved exactly). Only the one new test-only file was added; no test removed or weakened (no FR-20 ledger entry required for additions). The `ContractSerializationTest` wire-shape oracle is un-weakened (not modified).
+
+### Validation
+- [x] Submodule gitlinks verified at recorded commits before building (Commons `30620b9`, EventStore `ad2c957`, FrontComposer `451830b`, Parties `485616f`, Tenants `5b4424e`, …); non-recursive (CLAUDE.md compliant).
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/ -c Release --filter "FullyQualifiedName~GenericValueConverterSkeletonTest"` — **16 passed**, 0 failed, 0 skipped.
+- [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/ -c Release` — **603 passed** (587 baseline + 16 new), 0 failed, 0 skipped; `ContractSerializationTest` green & un-weakened.
+- [x] Release build: 0 warnings / 0 errors (warnings-as-errors). Additive `Contracts.Tests`-only change → conformance gate (monotonic, 356 after the dev step) untouched; public contract-shape diff empty (no `src/` change; no contract type touched).
+
+### Coverage
+- Generic ruleless skeletons (`ConversationStringValueJsonConverter<T>`, `ConversationIntValueJsonConverter<T>`): token-type guard (was the gap) **+** domain-parse rejection **+** happy-path round-trip — now fully characterized as the FR-14/3.6 oracle.
+- Prefixed-identifier converters (7 families): per-type prefix, cross-type-substitution rejection, malformed-payload rejection — already covered by `IdentifierValidationTest`; unchanged.
+- Closed-vocabulary / freshness / trust-state converters (Keep, 432 LOC): covered by existing contract tests; not touched (out of scope per AC-3).
+- Scope boundary: building the shared generic-converter / source-gen JSON-context base + publicizing `NameTypeMapper` is FR-14 / Story 3.6 (Promote), out of scope here; this file + `ContractSerializationTest` are the characterization that future replacement must keep green.
+
 ## Story 2.5 Implement Projections Against the SDK Projection Seam
 
 Story 2.5 (FR-6, Consume) serves the conversation full-replay projection through the platform `IDomainProjectionHandler` `/project` seam via a new `ConversationProjectionHandler` (`src/Hexalith.Conversations.Server/Projections/`), delegating the generic replay/dispatch/discovery orchestration to the SDK while the conversation-specific field selection, freshness formula, and evidence construction stay in the kept `ConversationProjectionMaterializer`. There is **no UI** in scope and the seam is a server-internal synchronous contract (`Project(ProjectionRequest) → ProjectionResponse`), so the automated-test surface is **behavior tests driving the feature end-to-end through its real entry point** (decode → kept materialization → serialized projection state) — asserting observable field/freshness/evidence values, not mocks or call-counts (Epic 1 L1/A1). Framework: xUnit v3 + Shouldly + NSubstitute (CPM; no new package). The shipped seam suite was strong; this run auto-applied the discovered degraded-state and replay-safety gaps.
