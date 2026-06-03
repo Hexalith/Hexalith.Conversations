@@ -88,6 +88,15 @@ public static class ConversationQueryServiceCollectionExtensions
         // Platform protected-cursor codec (Data Protection backed). TryAddSingleton-keyed by the codec so a
         // host that already registered it (or a test composition) is not overwritten.
         services.AddEventStoreQueryCursorCodec(CursorCodecPurpose);
+
+        // Persisted read-model substrate (FR-5). The SDK store (TryAddSingleton<IReadModelStore,
+        // DaprReadModelStore>) backs both the production read-store binding and the write-via-policy seam; it
+        // resolves a DaprClient (registered in Program.cs). TryAdd* leaves a test composition free to override
+        // IReadModelStore or IConversationProjectionReadStore with a fake.
+        services.AddEventStoreReadModelStore();
+        services.TryAddSingleton<IConversationProjectionReadStore, ConversationProjectionReadStore>();
+        services.TryAddSingleton<ConversationProjectionReadModelWriter>();
+
         services.TryAddSingleton<IConversationReferenceHydrationDirectory>(UnavailableConversationReferenceHydrationDirectory.Instance);
         services.AddScoped<ConversationReadHydrationService>();
         services.AddScoped<ConversationProjectionReadService>();

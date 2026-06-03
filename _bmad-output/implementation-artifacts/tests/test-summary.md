@@ -1,5 +1,34 @@
 # Test Automation Summary
 
+## Story 2.4 Persist Read Models via the Shared Store + Write Policy
+
+Story 2.4 (FR-5, greenfield-adopt) adds the read-model persistence **substrate**: registers the SDK `IReadModelStore` (`AddEventStoreReadModelStore()` + `AddDaprClient()`), implements the production `ConversationProjectionReadStore` (read) over `IReadModelStore`, and a `ConversationProjectionReadModelWriter` (write) through the SDK `ReadModelWritePolicy` (optimistic-concurrency, reload-and-merge), closing the `IConversationProjectionReadStore` binding deferred from Story 2.3. There is **no UI** in scope, so the automated-test surface is the production read-store/writer over the canonical SDK `InMemoryReadModelStore` double plus the DI host-composition test — not browser E2E. Framework: xUnit v3 + Shouldly + NSubstitute (CPM; only the additive `Hexalith.EventStore.Testing` project reference). The shipped persistence/concurrency/fail-closed suite was thorough; this run auto-applied the discovered behavioral coverage gaps.
+
+### Discovered Gaps → Applied (3 new [Fact] tests)
+- [x] Gap 1 (AC-2 / NFR5 — `MergeIndex` newest-generation-wins **supersede** untested) — the shipped idempotency test only covered the *equal*-position no-op; the `>` side of the `>=` merge branch (a re-materialization at a **higher** applied event position replacing the stale index entry in place) was unexercised. A regression that dropped the supersede branch would still pass every existing test. Closed by `RepersistingAtHigherGenerationSupersedesIndexEntry` (persist ConvA@pos1 then ConvA@pos5 → single entry, `LastAppliedEventPosition == 5`).
+- [x] Gap 2 (AC-2 / NFR5 — `MergeIndex` stale-write guard untested) — the *false* side of the merge branch (a late/out-of-order **lower**-position re-apply must NOT regress a newer persisted entry) had no test. Closed by `RepersistingAtLowerGenerationDoesNotOverwriteIndexEntry` (persist ConvA@pos5 then ConvA@pos1 → entry stays at `LastAppliedEventPosition == 5`).
+- [x] Gap 3 (AC-4 / NFR2 — `ListAsync` empty/absent path untested) — the `?? []` fail-soft branch (a fresh tenant with no persisted index) was only exercised on the populated path. Closed by `ListAsyncReturnsEmptyWhenNoIndexExists` (empty list from a **single** index read — no fan-out on the absent path).
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs` — +3 [Fact] tests (Gaps 1–3), reusing the file's existing `Models(conversationId, position)` and `CountingReadModelStore` fixtures.
+
+### Implementation
+- No production source under `src/` changed by this QA run (the persistence substrate was the dev-story step). Only the one existing test file was extended; no test removed or weakened (no FR-20 ledger entry required for additions).
+
+### Validation
+- [x] Release build: `dotnet build Hexalith.Conversations.slnx -c Release` — 0 warnings / 0 errors (warnings-as-errors).
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/ -c Release` — **548 passed** (545 baseline + 3 new), 0 failed, 0 skipped.
+- [x] The 3 new tests run green in isolation (Failed 0, Passed 3).
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/ -c Release` — **354 passed** (monotonic gate ≥ 353 holds, unchanged — additive test-only change in `Server.Tests`).
+- [x] Submodule gitlinks verified at recorded commits before building (EventStore `ad2c957`, FrontComposer `451830b`, Parties `485616f`, Tenants `5b4424e`); non-recursive (CLAUDE.md compliant).
+
+### Coverage
+- AC-2 / NFR5 write path (`ConversationProjectionReadModelWriter` / `MergeIndex`): per-conversation `UpdateAsync` + tenant-index `MergeAsync`, all three merge branches — **new entry** (pre-existing), **newer supersedes** (was Gap 1), **older ignored** (was Gap 2) — plus equal-position idempotency, no-lost-update reload-and-reapply, and fail-loud retry exhaustion (pre-existing).
+- AC-4 / NFR2 read path (`ConversationProjectionReadStore`): keyed `ReadAsync` (present) + `ListAsync` populated single-read no-N+1 (pre-existing) **+ absent/empty single-read** (was Gap 3).
+- AC-4 read boundary over the real store: Forbidden / Unavailable / PoisonEvent / Rebuilding / Current (pre-existing, unchanged).
+- AC-1 host composition: production `IReadModelStore` → `DaprReadModelStore`, `IConversationProjectionReadStore` → `ConversationProjectionReadStore`, full query/governance consumer graph builds (pre-existing).
+- Scope boundary: materializer→writer replay wiring and a full replay→persist→read integration loop are Story 2.5 / FR-6 concerns, not in scope here; the generation-precedence behavior proven here is the contract that wiring must honor.
+
 ## Story 2.3 Adopt the SDK Query-Handler + Cursor Codec, Remove Hand-Rolled HMAC Cursor
 
 Story 2.3 (FR-4, remove-and-replace) swaps the hand-rolled HMAC continuation-cursor codec for the SDK `IQueryCursorCodec` + `QueryCursorScope`, and exposes conversation list/detail queries through the SDK `IDomainQueryHandler` `/query` seam as thin adapters. There is **no UI or HTTP API in scope** (the live entrypoint is the SDK `/query` dispatch seam), so the automated-test surface is the dispatch seam and the `ConversationQueryHandler` cursor touch-points, driven directly. Framework: xUnit v3 + Shouldly + NSubstitute (CPM; no new package). The shipped cursor fail-closed suite and dispatch teeth tests were thorough; this run auto-applied the discovered coverage gaps.

@@ -10,10 +10,12 @@ using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Governance;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Handlers;
+using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.DomainService;
 
 using Microsoft.AspNetCore.Builder;
@@ -130,6 +132,45 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
         handlers.ShouldContain(handler =>
             handler.Domain == ConversationDomainQueryHandlerBase.ConversationsDomain
             && handler.QueryType == GetConversationDomainQueryHandler.ConversationDetailQueryType);
+    }
+
+    /// <summary>
+    /// Story 2.4 (AC-1) — with the production read-model-store registrations the deferred-from-2.3 binding gap
+    /// is closed: <see cref="IReadModelStore"/> resolves to the SDK <see cref="DaprReadModelStore"/>,
+    /// <see cref="IConversationProjectionReadStore"/> resolves to the production
+    /// <see cref="ConversationProjectionReadStore"/>, and the query/governance dependency graph that requires
+    /// the read store builds with no missing-service throw (no test fake supplies the binding).
+    /// </summary>
+    [Fact]
+    public async Task ProductionHostShouldResolveReadStoreBindingAndConsumerGraph()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+
+        // Mirror the production host wiring (Program.cs): tenant access, the DaprClient the SDK store resolves,
+        // and the query boundary that registers AddEventStoreReadModelStore + the production read-store binding.
+        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        builder.Services.AddDaprClient();
+        builder.Services.AddDataProtection();
+        builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+        builder.Services.AddConversationGovernanceVerification();
+
+        await using WebApplication app = builder.Build();
+        using IServiceScope scope = app.Services.CreateScope();
+        IServiceProvider services = scope.ServiceProvider;
+
+        // The deferred-from-2.3 production binding facts.
+        services.GetRequiredService<IReadModelStore>().ShouldBeOfType<DaprReadModelStore>();
+        services.GetRequiredService<IConversationProjectionReadStore>().ShouldBeOfType<ConversationProjectionReadStore>();
+        services.GetRequiredService<ConversationProjectionReadModelWriter>().ShouldNotBeNull();
+
+        // The query/governance consumers of the read store now build from the real host.
+        services.GetRequiredService<ConversationQueryHandler>().ShouldNotBeNull();
+        services.GetRequiredService<ConversationProjectionReadService>().ShouldNotBeNull();
+        services.GetRequiredService<ConversationAuditRecordAccessService>().ShouldNotBeNull();
+        services.GetRequiredService<ConversationGovernanceVerificationService>().ShouldNotBeNull();
     }
 
     private sealed class AllowAllTenantAccessService : IConversationTenantAccessService

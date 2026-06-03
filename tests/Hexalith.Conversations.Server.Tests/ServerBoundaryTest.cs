@@ -22,10 +22,19 @@ namespace Hexalith.Conversations.Server.Tests;
 /// fills the unbuilt host slot with the shared two-line domain-service host, so the guard is re-expressed to
 /// <b>permit</b> the <c>Hexalith.EventStore.DomainService</c> host SDK reference (and require it, so a silent
 /// removal of the host is caught) while still forbidding the genuinely out-of-bounds dependencies: the
-/// <c>Hexalith.EventStore.Server</c> gateway, <c>Hexalith.Tenants.Server</c>, <c>Hexalith.Parties</c>,
-/// <c>Hexalith.FrontComposer</c>, and a direct <c>Dapr.Client</c> reference (DAPR arrives transitively via
-/// <c>Dapr.AspNetCore</c>; the host must not take a direct gateway-style dependency on it). The change is
-/// recorded in <c>docs/release-evidence/at-risk-test-register-v1.{json,md}</c>.
+/// <c>Hexalith.EventStore.Server</c> gateway, <c>Hexalith.Tenants.Server</c>, <c>Hexalith.Parties</c>, and
+/// <c>Hexalith.FrontComposer</c>.
+/// <para>
+/// Story 2.4 (FR-5) refines the <c>Dapr.Client</c> clause: the Server host now registers the SDK persisted
+/// read-model store (<c>AddEventStoreReadModelStore</c> → <c>DaprReadModelStore</c>), which the SDK documents
+/// as requiring a registered <c>DaprClient</c>, so the host calls <c>AddDaprClient()</c>. That extension lives
+/// in <c>Dapr.AspNetCore</c> but its signature names a <c>Dapr.Client</c> type, which unavoidably introduces a
+/// <c>Dapr.Client</c> <i>assembly-metadata</i> reference. The architecturally-meaningful invariant — no
+/// <b>direct</b> <c>Dapr.Client</c> package/project reference in the Server csproj — is preserved and still
+/// asserted by <see cref="ServerProjectFileShouldDeclareDomainServiceHostAndNoForbiddenRuntimeReferences"/>;
+/// only the assembly-metadata absence assertion is dropped here. Recorded append-only in
+/// <c>docs/release-evidence/at-risk-test-register-v1.{json,md}</c> (story24StructuralDispositions).
+/// </para>
 /// </remarks>
 public sealed class ServerBoundaryTest
 {
@@ -50,13 +59,18 @@ public sealed class ServerBoundaryTest
         // Story 2.1: the Server is now a domain-service host — the SDK host reference is required, not forbidden.
         references.ShouldContain("Hexalith.EventStore.DomainService");
 
-        // Still genuinely out of bounds: the gateway, server-side Tenants, Parties, the UI shell, and a direct
-        // Dapr.Client dependency (DAPR is consumed transitively through Dapr.AspNetCore, not referenced directly).
+        // Still genuinely out of bounds: the gateway, server-side Tenants, Parties, and the UI shell.
         references.ShouldNotContain("Hexalith.EventStore.Server");
         references.ShouldNotContain("Hexalith.Tenants.Server");
         references.ShouldNotContain("Hexalith.Parties");
         references.ShouldNotContain("Hexalith.FrontComposer");
-        references.ShouldNotContain("Dapr.Client");
+
+        // Story 2.4 (FR-5): the host registers the SDK persisted read-model store, which requires a DaprClient
+        // (AddDaprClient, from Dapr.AspNetCore). The Dapr.AspNetCore extension's signature names a Dapr.Client
+        // type, so a Dapr.Client assembly-metadata reference is unavoidable here — assert it is present so a
+        // silent removal of the read-model-store registration is caught. The no-DIRECT-Dapr.Client-package
+        // invariant is enforced at the csproj level by the test below.
+        references.ShouldContain("Dapr.Client");
     }
 
     /// <summary>

@@ -156,6 +156,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory24StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story24StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story24StructuralDisposition disposition in register.Story24StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.4 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -251,7 +268,70 @@ public sealed class AtRiskTestRegisterGenerationTest
             Story21StructuralDispositions = BuildStory21StructuralDispositions(),
             Story22StructuralDispositions = BuildStory22StructuralDispositions(),
             Story23StructuralDispositions = BuildStory23StructuralDispositions(),
+            Story24StructuralDispositions = BuildStory24StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story24StructuralDisposition> BuildStory24StructuralDispositions() =>
+    [
+        new(
+            Subject: "FR-5 / Story 2.4 disposition correction: the epics' 'remove-and-replace' label -> 'greenfield-adopt'",
+            Change: "The epics labeled Story 2.4 remove-and-replace on the first-pass assumption that the module held "
+                + "hand-written Dapr state-store calls and merge-on-write loops to delete. Verified against the working "
+                + "tree: there was ZERO bespoke Dapr / state-store / ETag / merge-loop / optimistic-concurrency code under "
+                + "src for read-model persistence to remove. The work is purely additive adoption — register the platform "
+                + "persisted read-model store (the shared IReadModelStore, backed by DaprReadModelStore), implement the "
+                + "production IConversationProjectionReadStore over it, and add a thin write path through the platform "
+                + "ReadModelWritePolicy (optimistic-concurrency, reload-and-merge) — and it closes the production "
+                + "IConversationProjectionReadStore binding deferred from Story 2.3 (five query/governance services "
+                + "required it; only in-memory test fakes satisfied it before, so the host could not resolve the query "
+                + "graph).",
+            Ac: "AC-5",
+            Rationale: "Consume (FR-5): the platform owns persisted read-model integrity and optimistic concurrency, so "
+                + "no local state store or read-modify-write loop is hand-rolled — strengthening the technical-module "
+                + "boundary (NFR8). Behavior-preserving: the fail-closed read shapes the suite pins still hold through the "
+                + "real store-backed read path. The disposition correction is recorded per the Story 1.5 escape hatch; no "
+                + "inventory area is relabeled (there is no FR-5 area, and the projection-orchestration area stays a Story "
+                + "2.5 concern), so no inventory changeLog entry is required (mirrors Story 2.3's no-glob-empties reasoning). "
+                + "The persisted value rides the existing public Contracts shapes, so the public contract-shape baseline "
+                + "diff stays empty.",
+            OwningStory: "Story 2.4 (FR-5, persist read models via the shared store + write policy)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Server-boundary assembly-metadata guard (ServerBoundaryTest) — the Dapr.Client absence clause",
+            Change: "Re-expressed, not weakened. The host now registers the platform persisted read-model store, which "
+                + "the platform documents as requiring a registered DaprClient, so the host calls AddDaprClient() (from "
+                + "Dapr.AspNetCore). That extension's signature names a Dapr.Client type, which unavoidably introduces a "
+                + "Dapr.Client ASSEMBLY-METADATA reference, so the assembly-level absence assertion is replaced by a "
+                + "presence assertion (a silent removal of the read-model-store registration now turns the fact red). The "
+                + "architecturally-meaningful invariant — no DIRECT Dapr.Client package/project reference in the Server "
+                + "csproj — is preserved and still asserted at the csproj level by the companion guard "
+                + "(ServerProjectFileShouldDeclareDomainServiceHostAndNoForbiddenRuntimeReferences). All other "
+                + "forbidden-runtime clauses (the gateway, server-side Tenants, Parties, the UI shell) are unchanged.",
+            Ac: "AC-1 / AC-5",
+            Rationale: "Premise change driven by FR-5: registering the platform read-model store legitimately requires a "
+                + "DaprClient — the canonical domain-service host pattern. Recorded append-only per agreements A2/A3 rather "
+                + "than silently editing the assertion. Assertion strength is preserved or increased (assembly-level "
+                + "absence -> required presence; the direct-package-dependency guard stays fully intact). Mirrors the Story "
+                + "2.1 re-expression of this same guard.",
+            OwningStory: "Story 2.4 (FR-5, persist read models via the shared store + write policy)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Conversation read-model field-selection / freshness Contracts DTOs and the projection-read "
+                + "fail-closed boundary",
+            Change: "KEEP, unchanged (AC-4). The persisted value rides the existing public ConversationSummaryProjectionV1 "
+                + "/ ConversationDetailProjectionV1 / ProjectionFreshnessV1 shapes with no reshape, so the public "
+                + "contract-shape baseline diff stays empty. The new persistence/concurrency tests are additive (round-trip, "
+                + "no-lost-update, retry-exhaustion, idempotency) and the fail-closed read assertions (hidden / unavailable "
+                + "/ rebuilding / identity-mismatch) are re-expressed through the production read store over the shared "
+                + "IReadModelStore without weakening; the in-memory fake-backed read tests stay green unchanged.",
+            Ac: "AC-4 / AC-5",
+            Rationale: "Domain surface the platform store does not provide, so it is Keep, not consumed; persistence rides "
+                + "the existing shapes. Recorded append-only to clarify Story 2.4 scope without rewriting accepted rows. "
+                + "Verified green with no source edits to the Contracts projection DTOs or the read-service fail-closed "
+                + "branches.",
+            OwningStory: "Story 2.4 (FR-5, persist read models via the shared store + write policy)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story23StructuralDisposition> BuildStory23StructuralDispositions() =>
     [
@@ -668,6 +748,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story22StructuralDisposition> Story22StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story23StructuralDisposition> Story23StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story24StructuralDisposition> Story24StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -740,6 +822,21 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// later test-count reduction is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story23StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.4 (FR-5) structural disposition: the "remove-and-replace" -> "greenfield-adopt"
+    /// correction (no bespoke state-store/merge code existed; the work adds the shared persisted read-model store +
+    /// write policy and closes the deferred-from-2.3 read-store binding), the re-expressed Server-boundary
+    /// Dapr.Client clause, and the projection Contracts DTOs confirmed Keep — recorded so no later test-count
+    /// change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story24StructuralDisposition(
         string Subject,
         string Change,
         string Ac,
