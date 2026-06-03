@@ -7,7 +7,12 @@ using System.Reflection;
 
 using Hexalith.Conversations;
 using Hexalith.Conversations.Aggregates;
+using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Handlers;
 using Hexalith.EventStore.DomainService;
 
@@ -94,5 +99,68 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
         scope.ServiceProvider
             .GetKeyedService<IDomainProcessor>(ConversationDomainKey)
             .ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Story 2.3 (AC-3) — the SDK assembly scan over the Server boundary assembly discovers and registers the
+    /// conversation <see cref="IDomainQueryHandler"/> adapters (list + detail) the <c>/query</c> dispatch route
+    /// resolves. The host's query-boundary wiring then makes them constructible. The read store is faked here
+    /// (its production binding lands in Story 2.4); every other dependency comes from the real host wiring.
+    /// </summary>
+    [Fact]
+    public async Task ExplicitAssemblyScanShouldDiscoverConversationDomainQueryHandlers()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        builder.Services.AddSingleton<IConversationProjectionReadStore>(new EmptyProjectionReadStore());
+        builder.Services.AddDataProtection();
+        builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+
+        await using WebApplication app = builder.Build();
+        using IServiceScope scope = app.Services.CreateScope();
+
+        List<IDomainQueryHandler> handlers = scope.ServiceProvider.GetServices<IDomainQueryHandler>().ToList();
+
+        handlers.ShouldContain(handler =>
+            handler.Domain == ConversationDomainQueryHandlerBase.ConversationsDomain
+            && handler.QueryType == ListConversationsDomainQueryHandler.ConversationListQueryType);
+        handlers.ShouldContain(handler =>
+            handler.Domain == ConversationDomainQueryHandlerBase.ConversationsDomain
+            && handler.QueryType == GetConversationDomainQueryHandler.ConversationDetailQueryType);
+    }
+
+    private sealed class AllowAllTenantAccessService : IConversationTenantAccessService
+    {
+        public ValueTask<ConversationTenantAccessDecision> CheckAccessAsync(
+            ConversationTenantAccessRequirement requirement,
+            TenantId? trustedTenantId,
+            string? callerPrincipalId,
+            TenantId? routeTenantId = null,
+            TenantId? commandTenantId = null,
+            TenantId? aggregateTenantId = null,
+            TenantId? projectionTenantId = null,
+            TenantId? idempotencyTenantId = null,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ConversationTenantAccessDecision.Allowed(
+                requirement,
+                trustedTenantId ?? new TenantId("tenant-001"),
+                callerPrincipalId ?? "caller-001"));
+    }
+
+    private sealed class EmptyProjectionReadStore : IConversationProjectionReadStore
+    {
+        public ValueTask<ConversationProjectedReadModels?> ReadAsync(
+            TenantId tenantId,
+            ConversationId conversationId,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult<ConversationProjectedReadModels?>(null);
+
+        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+            TenantId tenantId,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult((IReadOnlyList<ConversationSummaryProjectionV1>)[]);
     }
 }

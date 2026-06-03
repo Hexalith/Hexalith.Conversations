@@ -3,8 +3,6 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
@@ -19,7 +17,9 @@ using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Queries;
 
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Tests.Queries;
@@ -38,6 +38,11 @@ public sealed class ConversationQueryHandlerTest
     private static readonly FolderId Folder = new("folder-001");
     private static readonly BusinessReference Business = new("crm", "case-123");
     private static readonly DateTimeOffset Now = new(2026, 5, 20, 9, 0, 0, TimeSpan.Zero);
+
+    // One ephemeral Data Protection provider for the whole fixture: building two codecs from it with
+    // different purposes gives deterministic cross-purpose isolation (the "different key" fail-closed case)
+    // without depending on on-disk key persistence.
+    private static readonly IDataProtectionProvider s_dataProtection = new EphemeralDataProtectionProvider();
 
     /// <summary>
     /// Tenant denial returns the same hidden shape as a missing record and never reads projection storage.
@@ -1164,14 +1169,15 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
-        ConversationQueryHandler handler = CreateHandler(access, store, cursor: cursorService);
-        string cursor = cursorService.EncodeForTests(
+        IQueryCursorCodec codec = CreateCodec();
+        ConversationQueryHandler handler = CreateHandler(access, store, cursor: codec);
+        string cursor = EncodeCursor(
+            codec,
             Tenant,
             "different-caller",
             ConversationListFilterV1.Empty,
             offset: 1,
-            projectionGenerationToken: "pos:1:1",
+            generationToken: "pos:1:1",
             issuedAt: Now);
 
         ConversationListResult result = await handler.ListAsync(
@@ -1185,6 +1191,9 @@ public sealed class ConversationQueryHandlerTest
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
         result.Conversations.ShouldBeEmpty();
+
+        // A caller mismatch is now caught at the codec scope boundary, before any projection read.
+        store.ListReads.ShouldBe(0);
     }
 
     /// <summary>
@@ -1198,16 +1207,14 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
-        string original = cursorService.EncodeForTests(
-            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+        IQueryCursorCodec codec = CreateCodec();
+        string original = EncodeCursor(
+            codec, Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
 
-        // Flip a byte of the base64 payload to break the HMAC.
-        byte[] bytes = Convert.FromBase64String(original);
-        bytes[^1] ^= 0xFF;
-        string tampered = Convert.ToBase64String(bytes);
+        // Corrupt a character so Data Protection Unprotect fails (tamper-or-key-rotation).
+        string tampered = TamperCursor(original);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1221,7 +1228,7 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
-    /// Cursors signed under a different deployment key are rejected.
+    /// Cursors protected under a different Data Protection purpose/key are rejected.
     /// </summary>
     [Fact]
     public async Task CursorSignedWithDifferentKeyShouldFailClosed()
@@ -1231,11 +1238,11 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor otherKeyCursor = CreateCursor(seed: 99, keyId: "other-key");
-        string foreign = otherKeyCursor.EncodeForTests(
-            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+        IQueryCursorCodec foreignCodec = CreateCodec("Hexalith.Conversations.QueryCursor.foreign");
+        string foreign = EncodeCursor(
+            foreignCodec, Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: CreateCursor()).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: CreateCodec()).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1259,12 +1266,12 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
+        IQueryCursorCodec codec = CreateCodec();
         FakeTimeProvider time = new(Now.AddHours(2));
-        string aged = cursorService.EncodeForTests(
-            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+        string aged = EncodeCursor(
+            codec, Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService, time: time).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec, time: time).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1274,6 +1281,7 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        store.ListReads.ShouldBe(0);
     }
 
     /// <summary>
@@ -1287,11 +1295,11 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
-        string futureCursor = cursorService.EncodeForTests(
-            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now.AddHours(1));
+        IQueryCursorCodec codec = CreateCodec();
+        string futureCursor = EncodeCursor(
+            codec, Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now.AddHours(1));
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService, time: new FakeTimeProvider(Now)).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec, time: new FakeTimeProvider(Now)).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1301,6 +1309,7 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        store.ListReads.ShouldBe(0);
     }
 
     /// <summary>
@@ -1314,11 +1323,11 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
-        string staleGen = cursorService.EncodeForTests(
-            Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:OLD:0", Now);
+        IQueryCursorCodec codec = CreateCodec();
+        string staleGen = EncodeCursor(
+            codec, Tenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:OLD:0", Now);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1328,6 +1337,10 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+
+        // The generation token rides in the protected position and is re-compared after the projection read,
+        // so a superseded-generation cursor fails closed only after the read (zero rows leak regardless).
+        store.ListReads.ShouldBe(1);
     }
 
     /// <summary>
@@ -1341,11 +1354,11 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursor cursorService = CreateCursor();
-        string foreign = cursorService.EncodeForTests(
-            OtherTenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
+        IQueryCursorCodec codec = CreateCodec();
+        string foreign = EncodeCursor(
+            codec, OtherTenant, "caller-001", ConversationListFilterV1.Empty, 0, "pos:1:1", Now);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1355,6 +1368,52 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+
+        // A tenant mismatch is caught at the codec scope boundary, before any projection read.
+        store.ListReads.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Cursors issued under a different filter set fail closed. The filter fingerprint is one of the four
+    /// scope bindings AC-2 pins (tenant / caller / filter / generation); this covers the filter binding the
+    /// tenant- and caller-mismatch cases do not.
+    /// </summary>
+    [Fact]
+    public async Task FilterMismatchedCursorShouldFailClosed()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+        };
+        IQueryCursorCodec codec = CreateCodec();
+
+        // Mint the cursor under a project-scoped filter, then present it against the empty filter: the filter
+        // fingerprint folded into the scope differs, so TryDecode returns wrong-scope before any projection read.
+        string foreignFilter = EncodeCursor(
+            codec,
+            Tenant,
+            "caller-001",
+            new ConversationListFilterV1(ProjectId: Project),
+            offset: 1,
+            generationToken: "pos:1:1",
+            issuedAt: Now);
+
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec).ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Filter: ConversationListFilterV1.Empty,
+                Page: new ConversationPageRequest(10, foreignFilter)),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        result.Conversations.ShouldBeEmpty();
+
+        // A filter mismatch is caught at the codec scope boundary, before any projection read.
+        store.ListReads.ShouldBe(0);
     }
 
     /// <summary>
@@ -1368,13 +1427,13 @@ public sealed class ConversationQueryHandlerTest
         {
             Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
         };
-        ConversationQueryCursorOptions options = OptionsFor(maxOffset: 10);
-        ConversationQueryCursor cursorService = new(Options.Create(options));
-        // Encode a cursor at the boundary and then manually craft a payload with offset > MaxOffset.
-        // Easiest path: bypass Encode and hand-craft. We re-use cursorService with offset 5 which is fine.
-        string oversize = ForgeCursorWithOffset(cursorService, options, offset: 999_999);
+        IQueryCursorCodec codec = CreateCodec();
+        // Forge a decodable cursor whose offset exceeds the configured MaxOffset; the handler re-applies the
+        // offset bound after a successful decode (the codec itself has no offset ceiling).
+        string oversize = EncodeCursor(
+            codec, Tenant, "caller-001", ConversationListFilterV1.Empty, offset: 999_999, generationToken: "pos:1:1", issuedAt: Now);
 
-        ConversationListResult result = await CreateHandler(access, store, cursor: cursorService).ListAsync(
+        ConversationListResult result = await CreateHandler(access, store, cursor: codec, maxOffset: 10).ListAsync(
             new ListConversationsQuery(
                 SchemaVersion.Current,
                 Tenant,
@@ -1384,6 +1443,59 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         result.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        store.ListReads.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// A continuation cursor issued by the SDK codec round-trips: presented with the same tenant, caller,
+    /// filters, and projection generation it resumes at the next page rather than failing closed — proving the
+    /// adopted codec preserves cursor identity (AC-4).
+    /// </summary>
+    [Fact]
+    public async Task IssuedContinuationCursorShouldRoundTripToNextPage()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-1"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-2"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-3"), Business, Project, Folder, Participant),
+            ],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult firstPage = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2)),
+            TestContext.Current.CancellationToken);
+
+        firstPage.Page.ReturnedCount.ShouldBe(2);
+        firstPage.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+
+        ConversationListResult secondPage = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2, firstPage.Page.ContinuationCursor)),
+            TestContext.Current.CancellationToken);
+
+        secondPage.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        secondPage.Page.ReturnedCount.ShouldBe(1);
+        secondPage.Page.ContinuationCursor.ShouldBeNull();
+
+        // The two pages partition the accessible set with no overlap and no skipped rows.
+        IEnumerable<string> ids = firstPage.Conversations
+            .Concat(secondPage.Conversations)
+            .Select(summary => summary.ConversationId.Value);
+        ids.ShouldBe(["conv-1", "conv-2", "conv-3"], ignoreOrder: true);
     }
 
     /// <summary>
@@ -1415,58 +1527,51 @@ public sealed class ConversationQueryHandlerTest
     private static ConversationQueryHandler CreateHandler(
         FakeTenantAccessService access,
         FakeProjectionReadStore store,
-        ConversationQueryCursor? cursor = null,
+        IQueryCursorCodec? cursor = null,
         TimeProvider? time = null,
         ConversationReadHydrationService? hydration = null,
-        ConversationPrivilegedJustificationReviewService? privilegedReview = null)
+        ConversationPrivilegedJustificationReviewService? privilegedReview = null,
+        int maxOffset = 100_000)
     {
-        ConversationQueryCursor cursorInstance = cursor ?? CreateCursor();
+        IQueryCursorCodec codec = cursor ?? CreateCodec();
         ConversationProjectionReadService readService = new(access, store);
         return new ConversationQueryHandler(
             access,
             store,
             readService,
-            cursorInstance,
+            codec,
+            Options.Create(new ConversationQueryCursorOptions { MaxOffset = maxOffset }),
             time ?? new FakeTimeProvider(Now),
             hydration,
             privilegedJustificationReviewService: privilegedReview);
     }
 
-    private static ConversationQueryCursor CreateCursor(int seed = 42, string keyId = "test-key-1")
-        => new(Options.Create(OptionsFor(seed, keyId)));
+    private static IQueryCursorCodec CreateCodec(string purpose = ConversationQueryServiceCollectionExtensions.CursorCodecPurpose)
+        => new QueryCursorCodec(s_dataProtection, purpose);
 
-    private static ConversationQueryCursorOptions OptionsFor(int seed = 42, string keyId = "test-key-1", int maxOffset = 100_000)
-    {
-        byte[] key = new byte[32];
-        Random rng = new(seed);
-        rng.NextBytes(key);
-        return new ConversationQueryCursorOptions
-        {
-            SigningKey = key,
-            KeyId = keyId,
-            MaxOffset = maxOffset,
-        };
-    }
+    // Forges a list continuation cursor via the SDK codec exactly as ConversationQueryHandler would issue one
+    // (scope = tenant/caller/filter/sort; position = offset/issued-at/generation). Re-expresses the retired
+    // ForgeCursorWithOffset helper that hand-built an HMAC payload.
+    private static string EncodeCursor(
+        IQueryCursorCodec codec,
+        TenantId tenant,
+        string caller,
+        ConversationListFilterV1 filter,
+        int offset,
+        string generationToken,
+        DateTimeOffset issuedAt)
+        => codec.Encode(
+            ConversationListCursor.QueryType,
+            ConversationListCursor.BuildScope(tenant, caller, filter),
+            ConversationListCursor.EncodePosition(offset, issuedAt, generationToken));
 
-    private static string ForgeCursorWithOffset(
-        ConversationQueryCursor cursorService,
-        ConversationQueryCursorOptions options,
-        int offset)
+    // Corrupts one character of a protected cursor so Data Protection Unprotect fails (tamper-or-key-rotation).
+    private static string TamperCursor(string cursor)
     {
-        ConversationQueryCursor.CursorPayload payload = new(
-            1,
-            options.KeyId,
-            Tenant.Value,
-            "caller-001",
-            ConversationQueryCursor.Fingerprint(ConversationListFilterV1.Empty),
-            ConversationQueryCursor.SortVersion,
-            "pos:1:1",
-            offset,
-            Now.UtcDateTime);
-        string payloadJson = JsonSerializer.Serialize(payload);
-        using HMACSHA256 hmac = new(options.SigningKey);
-        string signature = Convert.ToHexString(hmac.ComputeHash(Encoding.UTF8.GetBytes(payloadJson)));
-        return Convert.ToBase64String(Encoding.UTF8.GetBytes($"{payloadJson}.{signature}"));
+        char[] chars = cursor.ToCharArray();
+        int index = chars.Length / 2;
+        chars[index] = chars[index] == 'A' ? 'B' : 'A';
+        return new string(chars);
     }
 
     private static ConversationProjectedReadModels ProjectedModels(TenantId tenantId, ConversationId conversationId)

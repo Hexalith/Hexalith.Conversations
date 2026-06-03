@@ -55,6 +55,8 @@ project: Conversations
 # epic-2 backlog -> in-progress on 2026-06-03 (first story 2-1 created)
 # story 2-1 created (backlog -> ready-for-dev) on 2026-06-03
 # story 2-2 created (backlog -> ready-for-dev) on 2026-06-03 (FR-7 remove-and-replace; deletion-dominant: aggregate already on EventStoreAggregate<ConversationState>, story removes the dead EventStoreCommandStatusIdempotencyBridge shim + adds base-class dispatch/replay teeth test; keeps Idempotency/* + ConversationReplayVerifier)
+# story 2-3 created (backlog -> ready-for-dev) on 2026-06-03 (FR-4 remove-and-replace; delete hand-rolled HMAC ConversationQueryCursor -> SDK IQueryCursorCodec + QueryCursorScope (tenant/caller/filter/generation folded into scope; offset/issued-at in position; MaxAge/MaxOffset/clock-skew stay as domain guards); add thin IDomainQueryHandler adapter over existing ConversationQueryHandler (host already scans Server asm); KEEP filters/freshness/hydration + temporal:v1 permalink path + Contracts/Queries DTOs; re-express HMAC cursor tests against SDK codec; gate >=352 monotonic, contract-shape diff empty)
+# story 2-3 moved ready-for-dev -> in-progress -> review on 2026-06-03 (FR-4: deleted HMAC ConversationQueryCursor + crypto options -> SDK IQueryCursorCodec + QueryCursorScope via new ConversationListCursor helper; generation token rides in protected position (re-checked post-read) so integrity/tenant/caller fail closed with ZERO reads pre-read while preserving the generation fail-closed; added thin IDomainQueryHandler list/detail adapters discovered by the existing Server-asm scan + host query-boundary wiring (one host decision: register AddConversationQueries; projection read-store binding deferred to 2.4); re-expressed 9 HMAC cursor tests + added dispatch/discovery/round-trip teeth; FR-20 ledger story23StructuralDispositions regenerated; Release 0 warnings; conformance 353 >=352 monotonic; public-contract-shape diff empty; submodule drift restored to recorded gitlinks pre-build)
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
@@ -70,7 +72,7 @@ development_status:
   epic-2: in-progress
   2-1-wire-conversations-onto-the-shared-two-line-domain-service-host: done
   2-2-adopt-eventstoreaggregate-tstate-base-class-conventions: done
-  2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor: backlog
+  2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor: done
   2-4-persist-read-models-via-the-shared-store-write-policy: backlog
   2-5-implement-projections-against-the-sdk-projection-seam: backlog
   2-6-adopt-shared-serialization-helpers-for-generic-converters: backlog

@@ -5,7 +5,11 @@
 
 using Hexalith.Conversations;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
+
+using Microsoft.Extensions.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 
@@ -18,6 +22,13 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.AddEventStoreDomainService(
     typeof(ConversationsAssemblyMarker).Assembly,
     typeof(ServerAssemblyMarker).Assembly);
+
+// Register the conversation query boundary so the SDK-discovered IDomainQueryHandler adapter(s) (Story 2.3)
+// can resolve the ConversationQueryHandler, its tenant-access gate, and the protected list-cursor codec
+// (IQueryCursorCodec, Data Protection backed) the /query dispatch path constructs. The SDK assembly scan
+// discovers the adapter type itself; this registers its dependency graph.
+builder.Services.AddConversationTenantAccess();
+builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();
 

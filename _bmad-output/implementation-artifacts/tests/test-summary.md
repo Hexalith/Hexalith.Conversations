@@ -1,5 +1,33 @@
 # Test Automation Summary
 
+## Story 2.3 Adopt the SDK Query-Handler + Cursor Codec, Remove Hand-Rolled HMAC Cursor
+
+Story 2.3 (FR-4, remove-and-replace) swaps the hand-rolled HMAC continuation-cursor codec for the SDK `IQueryCursorCodec` + `QueryCursorScope`, and exposes conversation list/detail queries through the SDK `IDomainQueryHandler` `/query` seam as thin adapters. There is **no UI or HTTP API in scope** (the live entrypoint is the SDK `/query` dispatch seam), so the automated-test surface is the dispatch seam and the `ConversationQueryHandler` cursor touch-points, driven directly. Framework: xUnit v3 + Shouldly + NSubstitute (CPM; no new package). The shipped cursor fail-closed suite and dispatch teeth tests were thorough; this run auto-applied the discovered coverage gaps.
+
+### Discovered Gaps → Applied (5 new [Fact] tests)
+- [x] Gap 1 (AC-2 — filter scope binding untested) — the cursor binds four scope dimensions (tenant/caller/filter/generation); tenant, caller, and generation each had a fail-closed test but the **filter fingerprint** binding did not. A cursor minted under a different filter could regress to silently decoding if the filter dropped out of the scope and every other test would stay green. Closed by `FilterMismatchedCursorShouldFailClosed` (mint under a project filter, present under the empty filter → wrong-scope, zero reads).
+- [x] Gap 2 (AC-3 — exception containment untested) — AC-3 requires the adapter "never an exception leak" past the seam, but no test forced a fault. Closed by `QueryFaultShouldBeContainedAsCoarseFailureNotExceptionLeak` (undeserializable payload → coarse `QueryResult.Failure`, not the dispatcher's "No query handler" miss, no raw exception text).
+- [x] Gap 3 (AC-3 — envelope aggregate-id resolution untested) — the detail adapter resolves the conversation id from `EntityId ?? AggregateId` when the payload omits it (aggregate-routed gateway path); the shipped detail test always supplied the id in the body. Closed by `DetailQueryShouldResolveConversationIdFromAggregateIdWhenPayloadOmitsIt` (empty payload + aggregate id → reaches handler, projection read attempted).
+- [x] Gap 4 (AC-3 — unresolvable-id fail-closed untested) — defense in depth when no id is resolvable. Closed by `DetailQueryWithNoResolvableConversationIdShouldFailClosed` (coarse failure, zero reads).
+- [x] Gap 5 (AC-3 / project-context fail-closed — missing-user gate untested) — the adapter rejects a blank authenticated user before any state access; the `QueryEnvelope` contract enforces non-empty user id at construction, so the adapter's own defense-in-depth gate was unexercised. Closed by `MissingAuthenticatedUserShouldFailClosedBeforeProjectionRead` (zero reads). Gaps 4–5 drive degenerate envelope states via a record object-initializer the constructor otherwise forbids.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationDomainQueryDispatchTest.cs` — +4 dispatch-seam tests (Gaps 2–5); `EmptyProjectionReadStore` extended with `ListReads`/`DetailReads` counters to pin zero-read fail-closed behavior (the `store.ListReads.ShouldBe(0)` idiom from the handler suite).
+- [x] `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` — +1 cursor test (Gap 1), mirroring `TenantMismatchedCursorShouldFailClosed`.
+
+### Implementation
+- No production source under `src/` changed by this QA run (the cursor/handler swap was the dev-story step). Only the two existing test files were extended; no test removed or weakened (no FR-20 ledger entry required for additions).
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/ -c Release` — **535 passed** (530 baseline + 5 new), 0 failed, 0 skipped.
+- [x] Release build: 0 warnings / 0 errors (warnings-as-errors). New tests live in `Server.Tests`, so the conformance gate count (353, monotonic) and the public-contract-shape baseline (196 types) are untouched. Submodule gitlinks verified at recorded commits before building (EventStore `ad2c957`); no drift.
+
+### Coverage
+- AC-2 cursor scope bindings: tenant + caller + **filter (was the gap)** + generation, plus tamper / wrong-key / expired / future-dated / excessive-offset / malformed / round-trip — all four bindings now pinned, each fail-closed case asserting the safe shape and zero projection reads.
+- AC-3 adapter seam: matched dispatch + unmatched domain + unmatched query-type (pre-existing) **+ fault containment + aggregate-id resolution + unresolvable-id fail-closed + missing-user fail-closed** (the gaps).
+- AC-4 (filters/freshness/temporal/`Contracts` unchanged): pre-existing coverage; no source touched here.
+- Scope boundary: live `/query` round-trips over a DAPR sidecar are Tier-3 integration concerns, not in scope; the temporal/citation/audit/justification reads are not yet exposed as their own `IDomainQueryHandler` adapters ("as applicable" in AC-3) — out of scope for this run.
+
 ## Story 2.2 Adopt `EventStoreAggregate<TState>` Base-Class Conventions
 
 Story 2.2 (FR-7, remove-and-replace) is deletion-dominant: it deletes the dead `EventStoreCommandStatusIdempotencyBridge` shim and proves the SDK base-class **reflection dispatch** (`IDomainProcessor.ProcessAsync`) and **replay** (`IAggregateReplay.Replay` → `AggregateReplayer`) are the live route into `ConversationAggregate` / `ConversationState`. There is no UI or HTTP API in scope, so the automated-test surface is the SDK domain-processor entry points, driven directly. Framework: xUnit v3 + Shouldly (CPM; no new package introduced). This run treated the shipped teeth test `ConversationAggregateBaseClassDispatchTest` as the feature under test and auto-applied the discovered coverage gaps.

@@ -8,6 +8,7 @@ using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Queries;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -24,15 +25,15 @@ public sealed class ConversationQueryRegistrationTest
         ServiceCollection services = new();
         services.AddSingleton<IConversationTenantAccessService>(new FakeTenantAccessService());
         services.AddSingleton<IConversationProjectionReadStore>(new FakeProjectionReadStore());
-        services.AddConversationQueries(options =>
-        {
-            options.SigningKey = Enumerable.Repeat((byte)7, 32).ToArray();
-            options.KeyId = "test-key";
-        });
+
+        // Cursor integrity is now backed by ASP.NET Core Data Protection; no signing key / key id is bound.
+        services.AddDataProtection();
+        services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
         using ServiceProvider provider = services.BuildServiceProvider();
 
         provider.GetRequiredService<ConversationQueryHandler>().ShouldNotBeNull();
+        provider.GetRequiredService<IQueryCursorCodec>().ShouldNotBeNull();
         provider.GetRequiredService<IPrivilegedOperationalJustificationReviewSource>()
             .ShouldNotBeNull();
     }

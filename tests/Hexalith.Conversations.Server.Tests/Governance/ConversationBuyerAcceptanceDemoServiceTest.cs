@@ -19,7 +19,9 @@ using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.Testing.Fixtures;
+using Hexalith.EventStore.Client.Queries;
 
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.Server.Tests.Governance;
@@ -259,11 +261,8 @@ public sealed class ConversationBuyerAcceptanceDemoServiceTest
         ServiceCollection services = new();
         services.AddSingleton<IConversationTenantAccessService>(new FakeTenantAccessService(seed.AuthorizedTenantId));
         services.AddSingleton<IConversationProjectionReadStore>(new FakeProjectionReadStore(seed));
-        services.AddConversationQueries(options =>
-        {
-            options.SigningKey = Convert.FromBase64String("MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=");
-            options.KeyId = "test-key";
-        });
+        services.AddDataProtection();
+        services.AddConversationQueries(options => options.MaxOffset = 100_000);
         services.AddConversationGovernanceVerification();
         services.AddConversationBuyerAcceptanceDemo();
 
@@ -282,11 +281,9 @@ public sealed class ConversationBuyerAcceptanceDemoServiceTest
             access,
             store,
             projectionReadService,
-            new ConversationQueryCursor(Microsoft.Extensions.Options.Options.Create(new ConversationQueryCursorOptions
-            {
-                SigningKey = Convert.FromBase64String("MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="),
-                KeyId = "test-key",
-            })),
+            new QueryCursorCodec(
+                new EphemeralDataProtectionProvider(),
+                ConversationQueryServiceCollectionExtensions.CursorCodecPurpose),
             temporalReconstructionService: new ConversationTemporalReconstructionService(
                 access,
                 projectionReadService,

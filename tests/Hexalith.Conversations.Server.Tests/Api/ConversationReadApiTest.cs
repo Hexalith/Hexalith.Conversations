@@ -4,7 +4,6 @@
 // </copyright>
 
 using System.Security.Claims;
-using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 
@@ -19,13 +18,14 @@ using Hexalith.Conversations.Server.Api;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Queries;
 
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Tests.Api;
 
@@ -657,7 +657,7 @@ public sealed class ConversationReadApiTest
         builder.Services.AddSingleton(access);
         builder.Services.AddSingleton(store);
         builder.Services.AddSingleton(new ConversationProjectionReadService(access, store));
-        builder.Services.AddSingleton(CreateCursor());
+        builder.Services.AddSingleton<IQueryCursorCodec>(CreateCodec());
         builder.Services.AddSingleton<ConversationQueryHandler>();
 
         WebApplication app = builder.Build();
@@ -718,12 +718,10 @@ public sealed class ConversationReadApiTest
             Tenant,
             "caller-001"));
 
-    private static ConversationQueryCursor CreateCursor()
-    {
-        byte[] key = new byte[32];
-        RandomNumberGenerator.Fill(key);
-        return new ConversationQueryCursor(Options.Create(new ConversationQueryCursorOptions { SigningKey = key, KeyId = "api-test-key" }));
-    }
+    private static IQueryCursorCodec CreateCodec()
+        => new QueryCursorCodec(
+            new EphemeralDataProtectionProvider(),
+            ConversationQueryServiceCollectionExtensions.CursorCodecPurpose);
 
     private static ConversationSummaryProjectionV1 Summary(
         TenantId tenantId,

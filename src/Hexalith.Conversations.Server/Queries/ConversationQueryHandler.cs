@@ -10,6 +10,9 @@ using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.EventStore.Client.Queries;
+
+using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Queries;
 
@@ -21,7 +24,8 @@ public sealed class ConversationQueryHandler
     private readonly IConversationTenantAccessService _tenantAccessService;
     private readonly IConversationProjectionReadStore _projectionReadStore;
     private readonly ConversationProjectionReadService _projectionReadService;
-    private readonly ConversationQueryCursor _cursor;
+    private readonly IQueryCursorCodec _cursorCodec;
+    private readonly ConversationQueryCursorOptions _cursorOptions;
     private readonly TimeProvider _timeProvider;
     private readonly ConversationReadHydrationService _hydrationService;
     private readonly ConversationCitationAccessService _citationAccessService;
@@ -33,7 +37,8 @@ public sealed class ConversationQueryHandler
         IConversationTenantAccessService tenantAccessService,
         IConversationProjectionReadStore projectionReadStore,
         ConversationProjectionReadService projectionReadService,
-        ConversationQueryCursor cursor,
+        IQueryCursorCodec cursorCodec,
+        IOptions<ConversationQueryCursorOptions>? cursorOptions = null,
         TimeProvider? timeProvider = null,
         ConversationReadHydrationService? hydrationService = null,
         ConversationCitationAccessService? citationAccessService = null,
@@ -44,7 +49,8 @@ public sealed class ConversationQueryHandler
         _tenantAccessService = tenantAccessService ?? throw new ArgumentNullException(nameof(tenantAccessService));
         _projectionReadStore = projectionReadStore ?? throw new ArgumentNullException(nameof(projectionReadStore));
         _projectionReadService = projectionReadService ?? throw new ArgumentNullException(nameof(projectionReadService));
-        _cursor = cursor ?? throw new ArgumentNullException(nameof(cursor));
+        _cursorCodec = cursorCodec ?? throw new ArgumentNullException(nameof(cursorCodec));
+        _cursorOptions = cursorOptions?.Value ?? new ConversationQueryCursorOptions();
         _timeProvider = timeProvider ?? TimeProvider.System;
         _hydrationService = hydrationService ?? new ConversationReadHydrationService();
         _citationAccessService = citationAccessService ?? new ConversationCitationAccessService(_projectionReadService);
@@ -175,10 +181,31 @@ public sealed class ConversationQueryHandler
     {
         ArgumentNullException.ThrowIfNull(query);
 
-        ConversationQueryCursor.DecodedCursor? cursor = null;
+        ConversationListCursorPosition? cursor = null;
         if (query.Page.ContinuationCursor is not null)
         {
-            if (!_cursor.TryDecode(query.Page.ContinuationCursor, out ConversationQueryCursor.DecodedCursor decoded))
+            // Rebuild the pre-read scope identically to encode. A tamper/key-rotation integrity failure or a
+            // tenant/caller/filter/sort mismatch makes TryDecode fail closed here, before any projection read.
+            string scope = ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter);
+            if (!_cursorCodec.TryDecode(
+                    query.Page.ContinuationCursor,
+                    ConversationListCursor.QueryType,
+                    scope,
+                    out string? position,
+                    out _)
+                || !ConversationListCursor.TryParsePosition(position, out ConversationListCursorPosition decoded))
+            {
+                return ConversationListResult.Hidden(query.SchemaVersion);
+            }
+
+            // Re-apply the domain bounds the codec does not own: it has no wall-clock lifetime and no offset
+            // ceiling. An oversized offset, an expired cursor, or a future-dated cursor (clock skew or forged)
+            // fails closed exactly as the hand-rolled codec did.
+            DateTimeOffset now = _timeProvider.GetUtcNow();
+            TimeSpan age = now - decoded.IssuedAt;
+            if (decoded.Offset > _cursorOptions.MaxOffset
+                || age < TimeSpan.Zero
+                || age > _cursorOptions.MaxAge)
             {
                 return ConversationListResult.Hidden(query.SchemaVersion);
             }
@@ -233,13 +260,11 @@ public sealed class ConversationQueryHandler
 
         string projectionGenerationToken = ComputeGenerationToken(tenantScoped);
 
+        // Projection-generation binding is re-checked here rather than in the codec scope: the token is only
+        // knowable after the projection read. A cursor issued against a superseded generation fails closed,
+        // exactly as the prior DecodedCursor.Matches generation comparison did.
         if (cursor.HasValue
-            && !cursor.Value.Matches(
-                query.TenantId,
-                query.CallerPrincipalId,
-                query.Filter,
-                projectionGenerationToken,
-                _timeProvider.GetUtcNow()))
+            && !string.Equals(cursor.Value.ProjectionGenerationToken, projectionGenerationToken, StringComparison.Ordinal))
         {
             return ConversationListResult.Hidden(query.SchemaVersion);
         }
@@ -274,13 +299,10 @@ public sealed class ConversationQueryHandler
             .ConfigureAwait(false);
 
         string? nextCursor = issueContinuation
-            ? _cursor.Encode(
-                query.TenantId,
-                query.CallerPrincipalId,
-                query.Filter,
-                offset + page.Count,
-                projectionGenerationToken,
-                _timeProvider.GetUtcNow())
+            ? _cursorCodec.Encode(
+                ConversationListCursor.QueryType,
+                ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter),
+                ConversationListCursor.EncodePosition(offset + page.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
             : null;
 
         (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = AggregateFreshness(accessibleMatches);

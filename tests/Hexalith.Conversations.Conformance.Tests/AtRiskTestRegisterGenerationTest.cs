@@ -139,6 +139,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory23StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story23StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story23StructuralDisposition disposition in register.Story23StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.3 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -233,7 +250,66 @@ public sealed class AtRiskTestRegisterGenerationTest
                 OwningStory: "Story 3.3 (last of 2.2 / 2.5 / 3.2 / 3.3 to clear)"),
             Story21StructuralDispositions = BuildStory21StructuralDispositions(),
             Story22StructuralDispositions = BuildStory22StructuralDispositions(),
+            Story23StructuralDispositions = BuildStory23StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story23StructuralDisposition> BuildStory23StructuralDispositions() =>
+    [
+        new(
+            Subject: "Hand-rolled HMAC-SHA256 list continuation cursor codec (ConversationQueryCursor) and the "
+                + "crypto half of ConversationQueryCursorOptions (SigningKey / KeyId)",
+            Change: "Removed and replaced by the platform protected-cursor codec (IQueryCursorCodec, ASP.NET Core "
+                + "Data Protection backed) plus the QueryCursorScope binding builder. Tenant / caller / filter "
+                + "fingerprint / sort version bind into the scope; offset / issued-at / projection-generation token ride "
+                + "in the protected position; the MaxAge / MaxOffset / clock-skew guards stay as domain checks re-applied "
+                + "after decode (the platform codec has no wall-clock lifetime and no offset ceiling). No HMACSHA256 / "
+                + "FixedTimeEquals cursor-signing code remains under the Server query boundary. The codec is registered "
+                + "once via the platform helper under the stable purpose 'Hexalith.Conversations.QueryCursor.v1'.",
+            Ac: "AC-1 / AC-2 / AC-5",
+            Rationale: "Consume (FR-4): the platform owns cursor integrity, so the local HMAC codec is removed, "
+                + "strengthening the technical-module boundary. Behavior-preserving by re-expression: every fail-closed "
+                + "rejection the suite pins still fails closed. The public contract-shape baseline is unaffected — the "
+                + "codec lived in the Server assembly and the continuation cursor is an opaque string on the public "
+                + "ConversationPageMetadata / ConversationListResult Contracts surface.",
+            OwningStory: "Story 2.3 (FR-4, consume the platform query-handler seam and cursor codec)",
+            GreenAfterChange: true),
+        new(
+            Subject: "HMAC-specific cursor fail-closed tests (Tampered / CursorSignedWithDifferentKey / Expired / "
+                + "FutureDated / GenerationMismatched / TenantMismatched / CallerMismatched / Malformed / ExcessiveOffset) "
+                + "and the ForgeCursorWithOffset helper",
+            Change: "Re-expressed against the platform cursor codec, not deleted. Each test still asserts the same safe "
+                + "Hidden / Forbidden shape; the integrity cases (tampered, different purpose/key, malformed) still assert "
+                + "zero projection rows read, and the scope-binding cases (tenant, caller) now ALSO assert zero reads "
+                + "(caught at the scope boundary before any read — assertion strength increased, not reduced). The retired "
+                + "ForgeCursorWithOffset (which hand-built an HMAC payload) is rebuilt to forge via the codec position. A "
+                + "net-new cursor round-trip test (IssuedContinuationCursorShouldRoundTripToNextPage) and the query-seam "
+                + "reach tests (ConversationDomainQueryDispatchTest, ExplicitAssemblyScanShouldDiscoverConversationDomainQueryHandlers) "
+                + "were added, so the standing conformance count holds or grows.",
+            Ac: "AC-2 / AC-5",
+            Rationale: "Re-expressed, never weakened (agreements A2/A3). Assertion strength is preserved or increased "
+                + "versus the Story 1.1 baseline; no fail-closed behavior is dropped. Append-only record so no later "
+                + "count change is unaccounted for.",
+            OwningStory: "Story 2.3 (FR-4, consume the platform query-handler seam and cursor codec)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Conversation-specific query logic: filter dimensions, worst-case freshness aggregation, read-time "
+                + "hydration (citations / audit records / privileged-justification review), temporal reconstruction "
+                + "(ConversationTemporalReconstructionService and the temporal permalink / anchor contracts), and the "
+                + "Contracts/Queries DTOs",
+            Change: "KEEP, unchanged (AC-4). The story exposes this logic through the platform query-handler seam "
+                + "(IDomainQueryHandler) as a thin adapter (ConversationDomainQueryHandlerBase plus the list and detail "
+                + "handlers) that deserializes the envelope, delegates to the existing ConversationQueryHandler, and "
+                + "serializes the result — it reimplements none of the filter / freshness / hydration / temporal logic. No "
+                + "source edits to ConversationTemporalReconstructionService, the temporal permalink contracts, or the "
+                + "Contracts/Queries DTOs.",
+            Ac: "AC-3 / AC-4",
+            Rationale: "Domain surface the platform seam does not provide, so it is Keep, not consumed. The temporal "
+                + "permalink / anchor path is an unsigned domain contract on a separate path, left untouched, so temporal "
+                + "cursors and permalinks re-resolve to the same position. Verified green and unchanged (the temporal "
+                + "reconstruction and Contracts/Queries tests stay green with no source edits).",
+            OwningStory: "Story 2.3 (FR-4, consume the platform query-handler seam and cursor codec)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story22StructuralDisposition> BuildStory22StructuralDispositions() =>
     [
@@ -590,6 +666,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story21StructuralDisposition> Story21StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story22StructuralDisposition> Story22StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story23StructuralDisposition> Story23StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -648,6 +726,20 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story22StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.3 (FR-4) structural disposition: the hand-rolled cursor codec removed and
+    /// replaced by the platform codec, the HMAC-specific cursor tests re-expressed (not deleted), and the
+    /// conversation-specific query/filter/freshness/hydration/temporal surface confirmed Keep — recorded so no
+    /// later test-count reduction is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story23StructuralDisposition(
         string Subject,
         string Change,
         string Ac,
