@@ -32,6 +32,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// secrets, drive paths, and provider IDs are forbidden.
 /// </para>
 /// </remarks>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ConsumePromoteKeepInventoryValidationTest
 {
     private const string InventoryFileName = "consume-promote-keep-inventory-v1.json";

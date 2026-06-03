@@ -18,6 +18,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// Verifies <see cref="ConformanceManifestValidator"/> against the committed fixture manifest,
 /// duplicate detection, waiver enforcement, content-safety, stable serialization, and lifecycle stage coverage.
 /// </summary>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ConformanceManifestValidationTest
 {
     private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);

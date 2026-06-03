@@ -1,5 +1,31 @@
 # Test Automation Summary
 
+## Story 2.1 Wire Conversations onto the Shared Two-Line Domain-Service Host
+
+Story 2.1 is the first `src/` production change in the initiative: `Server/Program.cs` becomes the canonical two-line EventStore domain-service host (`builder.AddEventStoreDomainService(<domain>, <server>)` + `app.UseEventStoreDomainService()`). There is no UI in this slice, so the automated-test surface is host/API-composition level (no browser E2E applies). Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (project standard; `Microsoft.AspNetCore.Mvc.Testing` intentionally **not** introduced per the CPM/no-new-package guardrail — SDK minimal-host composition is driven directly). This run treated `ConversationsDomainServiceHostCompositionTest` as the feature under test and auto-applied the one substantive coverage gap.
+
+### Discovered Gap → Applied (2 new [Fact] tests)
+- [x] Gap (AC-1 explicit-assemblies wiring untested with teeth) — the pre-existing host-composition test asserts only **route presence**, but the SDK maps `/process`, `/query`, … unconditionally: the route table is byte-identical whether the host uses the mandated explicit-assemblies overload or the **forbidden** calling-assembly overload. A regression to calling-assembly would leave `/process` with no discoverable `ConversationAggregate` processor while every route still mapped — and every existing test would stay green ("prove behavior, not mirrors", Epic 1 L1/A1). Closed with a discovery test plus fault-injection teeth.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs` — 2 [Fact] tests:
+  - `ExplicitAssemblyScanShouldRegisterConversationDomainProcessor` — the exact `Program.cs` wiring (domain + Server boundary assemblies) discovers `ConversationAggregate` and registers it as the **keyed** `IDomainProcessor` (key `"conversation"`) the request router resolves for `POST /process`.
+  - `CallingAssemblyOverloadWouldNotDiscoverTheConversationDomainProcessor` — **teeth/contrast:** scanning only the Server host assembly (what the forbidden calling-assembly overload scans) registers **no** keyed `"conversation"` processor, proving the explicit domain-assembly argument is load-bearing — if `Program.cs` regressed to calling-assembly, the first fact turns RED.
+
+### Implementation
+- No production source under `src/` changed by this QA run (`Program.cs` host wiring was already implemented in the dev-story step). Only the one new test-only file above was added; pre-existing host-composition, governance-gate, boundary, and ledger tests are left untouched.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/ -c Release --filter "FullyQualifiedName~HostComposition"` — **12 passed** (10 baseline + 2 new), 0 failed, 0 skipped.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/ -c Release` — **527 passed** (525 baseline + 2 new), 0 failed, 0 skipped.
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/ -c Release` — **351 passed** (standing gate, monotonic ≥ 348), 0 failed, 0 skipped.
+
+### Coverage
+- AC-1 (explicit assembly-scanning, never calling-assembly): **now covered with behavioral teeth** (was the gap) — discovery proven via the keyed `IDomainProcessor` the router actually resolves, with a calling-assembly contrast that turns the test RED on regression.
+- AC-2 (canonical routes resolve + host composes): 6 canonical + 3 health routes (pre-existing route-presence facts), reinforced by proving `/process` has a real discoverable processor behind it.
+- AC-5 (audit gate surfaced with teeth): covered by pre-existing `GovernanceAuditSinkFailClosedConformanceTest` (not regenerated).
+- Scope boundary: live request round-trips for `/process` / `/query` / `/project` require a DAPR sidecar + EventStore gateway and are Tier-3 integration concerns deferred to Stories 2.3 / 2.5; not in scope here.
+
 ## Story 1.5 Establish Classification Dispute-Resolution and Reclassification Escape Hatch
 
 Story 1.5 is a documentation / governance-procedure / evidence story — **zero `src/` production code and no UI or HTTP API**, so the applicable automated-test surface is the read-only structural conformance validator that gives the committed procedure artifacts *teeth* (mirroring `ConsumePromoteKeepInventoryValidationTest`), not browser E2E. This run treated `ClassificationChangeProcedureValidationTest` as the feature under test and auto-applied all discovered AC1–AC5 coverage gaps. The validator only **reads** `docs/release-evidence/classification-change-procedure-v1.{json,md}` + the accepted `consume-promote-keep-inventory-v1.json`; it never mutates anything.

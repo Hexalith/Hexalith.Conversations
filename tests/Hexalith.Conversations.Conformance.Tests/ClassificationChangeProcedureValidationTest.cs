@@ -37,6 +37,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// provider IDs are forbidden.
 /// </para>
 /// </remarks>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ClassificationChangeProcedureValidationTest
 {
     private const string ProcedureFileName = "classification-change-procedure-v1.json";

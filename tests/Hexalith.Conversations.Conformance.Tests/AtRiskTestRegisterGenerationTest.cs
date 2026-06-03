@@ -31,6 +31,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// re-validate + content-safety scan in the same pass, so the committed file always round-trips and never
 /// leaks substrate mechanics.
 /// </remarks>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class AtRiskTestRegisterGenerationTest
 {
     private const string ReExpressNeverDelete = "re-express, never delete";
@@ -100,6 +101,23 @@ public sealed class AtRiskTestRegisterGenerationTest
         foreach (CarryForwardEntry carryForward in register.CarryForwardsFromStory12)
         {
             carryForward.Disposition.ShouldNotBeNullOrWhiteSpace();
+        }
+    }
+
+    [Fact]
+    public void EveryStory21StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story21StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story21StructuralDisposition disposition in register.Story21StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.1 structural disposition '{disposition.Subject}' must be green after the recorded change.");
         }
     }
 
@@ -196,7 +214,51 @@ public sealed class AtRiskTestRegisterGenerationTest
                     + "extract a Server-coupled fixtures sub-project). Tracked here so Story 5.1's oracle is structurally survivable.",
                 RemovedInThisStory: false,
                 OwningStory: "Story 3.3 (last of 2.2 / 2.5 / 3.2 / 3.3 to clear)"),
+            Story21StructuralDispositions = BuildStory21StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story21StructuralDisposition> BuildStory21StructuralDispositions() =>
+    [
+        new(
+            Subject: "tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs",
+            Change: "Premise re-expressed (not weakened). The scaffold-era guard asserted the Server referenced NO "
+                + "domain-service host SDK. Story 2.1 fills the unbuilt host slot, so the guard now REQUIRES the shared "
+                + "domain-service host SDK project reference (a positive assertion, so a silent removal of the host is "
+                + "caught) while still forbidding the genuinely out-of-bounds dependencies: the gateway, server-side "
+                + "Tenants, Parties, the UI shell, and a direct Dapr.Client reference (DAPR arrives transitively via "
+                + "Dapr.AspNetCore). Assertion strength increased, not reduced.",
+            Ac: "AC-4 / AC-7",
+            Rationale: "The story changes exactly the premise this guard encoded (Server is no longer a non-host "
+                + "scaffold). Recorded append-only per agreement A2 rather than silently editing the assertions.",
+            OwningStory: "Story 2.1 (FR-3, shared two-line domain-service host)",
+            GreenAfterChange: true),
+        new(
+            Subject: "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs"
+                + " [ProjectReferencesShouldFollowScaffoldBoundaryDirection]",
+            Change: "Expected Server reference set updated to include the shared domain-service host SDK project "
+                + "reference. The same scaffold-boundary premise as ServerBoundaryTest: the Server is now the host, so "
+                + "the host SDK reference is expected, not forbidden. Direction guard otherwise unchanged (still pins "
+                + "every other Conversations project's reference set).",
+            Ac: "AC-4 / AC-7",
+            Rationale: "Updated, not silently broken — adding the host reference would otherwise fail this exact-set "
+                + "guard. Recorded append-only per agreement A2.",
+            OwningStory: "Story 2.1 (FR-3, shared two-line domain-service host)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Residual internal governance audit gate (fail-closed-on-sink-failure)",
+            Change: "Surfaced into the conformance oracle (not retired). New oracle test "
+                + "GovernanceAuditSinkFailClosedConformanceTest drives the public governed command-handler surface with a "
+                + "throwing audit sink and asserts a fail-closed rejection (audit_unavailable) with no mutation event; a "
+                + "contrast fact asserts a healthy sink emits the mutation. The gate itself stays internal (exposing it "
+                + "would change the public contract shape, which the standing gate forbids).",
+            Ac: "AC-5 / AC-7",
+            Rationale: "Surface chosen over retire because the behavior is live and used by the governed handlers, so the "
+                + "shared host does not make it redundant. Fault-injection verified: bypassing the gate's catch turns the "
+                + "throwing-sink fact red, so green is real evidence (Epic 1 L1/A1). Resolves the Story 1.2 carry-forward "
+                + "'internal-governance-audit-gate' and Epic 1 retro action T3.",
+            OwningStory: "Story 2.1 (FR-3, shared two-line domain-service host)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<AtRiskTestEntry> BuildTestEntries() =>
     [
@@ -404,21 +466,26 @@ public sealed class AtRiskTestRegisterGenerationTest
             Id: "internal-governance-audit-gate",
             Description: "Story 1.2 carry-forward: the live fail-closed-on-sink-failure governance audit gate is internal "
                 + "(visible only to Server.Tests, unreachable from the oracle).",
-            Disposition: "Partially closed here. The publicly-observable half - every governance mutation event carries its "
-                + "audit evidence, and missing/mismatched evidence fails closed - is now pinned in the oracle by "
-                + "GovernanceAuditPairingSafetyNetConformanceTest. The internal sink-failure gate is enforced in the Server "
-                + "governance gate (not the aggregate) and stays internal; accepted-with-rationale and surfaced or retired "
-                + "when the governance audit service relocates.",
+            Disposition: "CLOSED by Story 2.1 (AC-5 / Epic 1 retro action T3). Surfaced, not retired: the "
+                + "fail-closed-on-sink-failure behavior is live and used by the governed command handlers, so the shared "
+                + "host does not make it redundant. The gate stays internal (making it public would change the public "
+                + "contract shape, which the standing conformance gate forbids); its behavior is now observable in the "
+                + "oracle through the public governed command-handler surface by "
+                + "GovernanceAuditSinkFailClosedConformanceTest, where a throwing audit sink yields a fail-closed "
+                + "rejection (audit_unavailable) with no mutation event, and a contrast fact proves a healthy sink emits "
+                + "the mutation. Fault-injection verified: bypassing the gate's catch turns the throwing-sink fact red.",
             OwningStory: "Story 2.1 (FR-3, shared host handler/service re-registration)"),
         new(
             Id: "test-parallelism-race",
             Description: "Story 1.2 carry-forward: an observed-once (not reproduced) race under test parallelism between the "
                 + "public contract-shape baseline generator (which writes a committed evidence file) and the release baseline "
                 + "validation test (which reads it).",
-            Disposition: "Accept-with-rationale. The committed evidence file stays byte-identical, so a read interleaving sees "
-                + "a consistent file. Not fixed in this test-and-evidence story to avoid destabilizing test ordering; if it "
-                + "recurs it can be serialized with an xUnit collection ordering the writer before the reader.",
-            OwningStory: null),
+            Disposition: "CLOSED by Story 2.1 (Epic 1 retro action T1). It recurred while running the standing gate (Epic 2 "
+                + "raised run frequency, as the retro predicted), so it was fixed test-only: every reader and writer of a "
+                + "committed release-evidence artifact now shares the non-parallel ReleaseEvidenceArtifactCollection, so a "
+                + "generation test never interleaves with a validation test of the same file. No assertion strength changed; "
+                + "the rest of the suite stays parallel. Verified green across repeated full-suite runs.",
+            OwningStory: "Story 2.1 (FR-3, shared two-line domain-service host)"),
     ];
 
     private static string FindRepositoryRoot()
@@ -461,6 +528,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<CarryForwardEntry> CarryForwardsFromStory12 { get; init; }
 
         public required ProjectReferenceDisposition ProjectReferenceDisposition { get; init; }
+
+        public required IReadOnlyList<Story21StructuralDisposition> Story21StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -500,4 +569,16 @@ public sealed class AtRiskTestRegisterGenerationTest
         string PathToGetThere,
         bool RemovedInThisStory,
         string OwningStory);
+
+    /// <summary>
+    /// Append-only record of a test/guard whose premise an owning story deliberately changed (per team
+    /// agreement A2: no test is silently weakened — every modification is recorded and traceable).
+    /// </summary>
+    internal sealed record Story21StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
 }

@@ -14,15 +14,27 @@ using Xunit;
 namespace Hexalith.Conversations.Server.Tests;
 
 /// <summary>
-/// Verifies the starter server boundary references only scaffold-safe Conversations projects.
+/// Verifies the Server boundary as a legitimate EventStore domain-service host (Story 2.1, FR-3).
 /// </summary>
+/// <remarks>
+/// Premise change recorded per AC-4/AC-7: before Story 2.1 the Server was a fail-closed scaffold that
+/// referenced <b>no</b> EventStore runtime/host packages, and this guard asserted exactly that. Story 2.1
+/// fills the unbuilt host slot with the shared two-line domain-service host, so the guard is re-expressed to
+/// <b>permit</b> the <c>Hexalith.EventStore.DomainService</c> host SDK reference (and require it, so a silent
+/// removal of the host is caught) while still forbidding the genuinely out-of-bounds dependencies: the
+/// <c>Hexalith.EventStore.Server</c> gateway, <c>Hexalith.Tenants.Server</c>, <c>Hexalith.Parties</c>,
+/// <c>Hexalith.FrontComposer</c>, and a direct <c>Dapr.Client</c> reference (DAPR arrives transitively via
+/// <c>Dapr.AspNetCore</c>; the host must not take a direct gateway-style dependency on it). The change is
+/// recorded in <c>docs/release-evidence/at-risk-test-register-v1.{json,md}</c>.
+/// </remarks>
 public sealed class ServerBoundaryTest
 {
     /// <summary>
-    /// Ensures server scaffold dependencies are explicit and do not yet include EventStore runtime packages.
+    /// Ensures the Server assembly references the domain-service host SDK and the Conversations domain/contracts,
+    /// without taking a direct dependency on any forbidden gateway/runtime assembly.
     /// </summary>
     [Fact]
-    public void ServerAssemblyShouldReferenceContractsAndDomainWithoutEventStoreRuntime()
+    public void ServerAssemblyShouldReferenceDomainServiceHostWithoutForbiddenRuntime()
     {
         string[] references = typeof(ServerAssemblyMarker)
             .Assembly
@@ -34,6 +46,12 @@ public sealed class ServerBoundaryTest
         references.ShouldContain("Hexalith.Conversations");
         references.ShouldContain("Hexalith.Tenants.Client");
         references.ShouldContain("Hexalith.Tenants.Contracts");
+
+        // Story 2.1: the Server is now a domain-service host — the SDK host reference is required, not forbidden.
+        references.ShouldContain("Hexalith.EventStore.DomainService");
+
+        // Still genuinely out of bounds: the gateway, server-side Tenants, Parties, the UI shell, and a direct
+        // Dapr.Client dependency (DAPR is consumed transitively through Dapr.AspNetCore, not referenced directly).
         references.ShouldNotContain("Hexalith.EventStore.Server");
         references.ShouldNotContain("Hexalith.Tenants.Server");
         references.ShouldNotContain("Hexalith.Parties");
@@ -42,10 +60,11 @@ public sealed class ServerBoundaryTest
     }
 
     /// <summary>
-    /// Ensures server project references stay explicit in XML and do not hide forbidden runtime dependencies.
+    /// Ensures the Server project declares the domain-service host reference explicitly in XML and does not
+    /// hide any forbidden gateway/runtime dependency.
     /// </summary>
     [Fact]
-    public void ServerProjectFileShouldNotDeclareForbiddenRuntimeReferences()
+    public void ServerProjectFileShouldDeclareDomainServiceHostAndNoForbiddenRuntimeReferences()
     {
         string projectPath = Path.Combine(
             FindRepositoryRoot(),
@@ -66,6 +85,12 @@ public sealed class ServerBoundaryTest
         references.ShouldContain(reference => reference.EndsWith(
             "Hexalith.Conversations.csproj",
             StringComparison.Ordinal));
+
+        // Story 2.1: the two-line host requires the domain-service SDK project reference.
+        references.ShouldContain(reference => reference.EndsWith(
+            "Hexalith.EventStore.DomainService.csproj",
+            StringComparison.Ordinal));
+
         references.ShouldNotContain(reference => reference.Contains("Hexalith.EventStore.Server", StringComparison.Ordinal));
         references.ShouldNotContain(reference => reference.Contains("Hexalith.Tenants.Server", StringComparison.Ordinal));
         references.ShouldNotContain(reference => reference.Contains("Hexalith.Parties", StringComparison.Ordinal));

@@ -17,6 +17,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// Verifies <see cref="ReleaseWaiverValidator"/> against the committed fixture waiver,
 /// each error token, content-safety, stable serialization, and lifecycle vocabulary coverage.
 /// </summary>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ReleaseWaiverValidationTest
 {
     private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);

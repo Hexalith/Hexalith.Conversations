@@ -39,8 +39,18 @@ This register is the **seed of the FR-20 removed-test justification ledger** tha
 
 ## Carry-forwards folded in from Story 1.2
 
-1. **Internal governance audit gate** — *partially closed here*: the publicly-observable audit-pairing invariant is now pinned in the oracle; the internal sink-failure gate stays internal (accepted-with-rationale, owning Story 2.1).
-2. **Test-parallelism race** — *accept-with-rationale*: observed once, not reproduced; the committed evidence file stays byte-identical. Left for the owning story if it recurs.
+1. **Internal governance audit gate** — **CLOSED by Story 2.1 (AC-5 / Epic 1 retro T3)**: *surfaced, not retired*. The fail-closed-on-sink-failure behavior is live and used by the governed command handlers, so the shared host does not make it redundant. The gate stays `internal` (making it public would change the public contract shape, which the standing gate forbids); its behavior is now observable in the oracle through the **public** governed command-handler surface by `GovernanceAuditSinkFailClosedConformanceTest` — a throwing audit sink yields a fail-closed rejection (`audit_unavailable`) with no mutation event, with a contrast fact for the healthy sink. Fault-injection verified (bypassing the gate's catch turns the throwing-sink fact red).
+2. **Test-parallelism race** — **CLOSED by Story 2.1 (Epic 1 retro T1)**: it recurred while running the standing gate (Epic 2 raised run frequency), so it was fixed test-only — every reader and writer of a committed `docs/release-evidence/*` artifact now shares the non-parallel `ReleaseEvidenceArtifactCollection`, so a generation test never interleaves with a validation test of the same file. No assertion strength changed; the rest of the suite stays parallel. Verified green across repeated full-suite runs.
+
+## Story 2.1 structural dispositions (append-only, agreement A2)
+
+Recorded when Story 2.1 (FR-3, shared two-line domain-service host) deliberately changed a test/guard premise. See `story21StructuralDispositions` in the JSON.
+
+| Subject | Change | AC | Green after |
+|---|---|---|---|
+| `ServerBoundaryTest.cs` | Premise re-expressed (**not** weakened): the guard now **requires** the shared domain-service host SDK project reference while still forbidding the gateway, server-side Tenants, Parties, the UI shell, and a direct `Dapr.Client` reference. Assertion strength increased. | AC-4 / AC-7 | ✅ |
+| `ScaffoldSmokeTest.cs` (`ProjectReferencesShouldFollowScaffoldBoundaryDirection`) | Expected Server reference set updated to include the shared domain-service host SDK project reference (Server is now the host). Direction guard otherwise unchanged. | AC-4 / AC-7 | ✅ |
+| Residual internal governance audit gate | **Surfaced** into the oracle via `GovernanceAuditSinkFailClosedConformanceTest` (public handler surface); gate stays internal. **Not** retired — behavior is live. Fault-injection proven. | AC-5 / AC-7 | ✅ |
 
 ## Project-reference disposition
 

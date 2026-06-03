@@ -35,6 +35,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// Story 5.1 behavior-preservation protection ("public contract shapes unchanged or explicitly approved").
 /// </para>
 /// </remarks>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ReleaseBaselineValidationTest
 {
     private const string ContractsNamespacePrefix = "Hexalith.Conversations.Contracts";

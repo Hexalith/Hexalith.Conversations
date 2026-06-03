@@ -27,6 +27,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// the committed baseline; non-determinism here would manifest as false contract drift, so ordering is enforced
 /// everywhere (types sorted by namespace then name; every member collection sorted by a stable signature key).
 /// </remarks>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class PublicContractShapeSnapshotGenerationTest
 {
     private const string ContractsAssemblyName = "Hexalith.Conversations.Contracts";

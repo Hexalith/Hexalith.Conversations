@@ -31,6 +31,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// at least one assertion here RED. See docs/release-evidence/oracle-blind-spot-analysis-v1.md for the
 /// recorded fault-injection experiment.
 /// </summary>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class LiveTenantFailClosedOracleCharacterizationTest
 {
     private const string Caller = "party-owner";

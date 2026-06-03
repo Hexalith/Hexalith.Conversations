@@ -6,6 +6,8 @@ Technical-how and grounding evidence that supports the PRD but belongs downstrea
 
 Total source ≈ 35,769 LOC; estimated plumbing (Consume + Promote) ≈ 18,000 LOC (~50%); domain logic (Keep) ≈ 17,000 LOC.
 
+> **Confirmed downstream (Story 1.4, 2026-06-03):** this first-pass plumbing estimate was measured and accepted as **13,289 LOC (37.15%)** in the canonical, FR-2-governed `docs/release-evidence/consume-promote-keep-inventory-v1.json` (`sourceTotalLoc` 35,769 verified exactly; governance + hydration resolved Keep-now per OQ-3 and Contracts/Testing domain surface attributed Keep moved ≈4.7k LOC out of plumbing). The inventory — not this estimate — is the SM-1 baseline Story 5.3 references. This first-pass figure is preserved as the historical estimate; see the inventory for the accepted value.
+
 | # | Area | ~LOC / files | Class | Target capability |
 |---|------|--------------|-------|-------------------|
 | 1 | Queries / cursor / read-model hydration boundary | 5,327 / 14 | Consume + Promote | SDK `IDomainQueryHandler`, `IQueryCursorCodec`, `QueryCursorScope`; keep query filters/response shapes |

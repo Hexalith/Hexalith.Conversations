@@ -147,13 +147,14 @@
     {
       "id": "internal-governance-audit-gate",
       "description": "Story 1.2 carry-forward: the live fail-closed-on-sink-failure governance audit gate is internal (visible only to Server.Tests, unreachable from the oracle).",
-      "disposition": "Partially closed here. The publicly-observable half - every governance mutation event carries its audit evidence, and missing/mismatched evidence fails closed - is now pinned in the oracle by GovernanceAuditPairingSafetyNetConformanceTest. The internal sink-failure gate is enforced in the Server governance gate (not the aggregate) and stays internal; accepted-with-rationale and surfaced or retired when the governance audit service relocates.",
+      "disposition": "CLOSED by Story 2.1 (AC-5 / Epic 1 retro action T3). Surfaced, not retired: the fail-closed-on-sink-failure behavior is live and used by the governed command handlers, so the shared host does not make it redundant. The gate stays internal (making it public would change the public contract shape, which the standing conformance gate forbids); its behavior is now observable in the oracle through the public governed command-handler surface by GovernanceAuditSinkFailClosedConformanceTest, where a throwing audit sink yields a fail-closed rejection (audit_unavailable) with no mutation event, and a contrast fact proves a healthy sink emits the mutation. Fault-injection verified: bypassing the gate's catch turns the throwing-sink fact red.",
       "owningStory": "Story 2.1 (FR-3, shared host handler/service re-registration)"
     },
     {
       "id": "test-parallelism-race",
       "description": "Story 1.2 carry-forward: an observed-once (not reproduced) race under test parallelism between the public contract-shape baseline generator (which writes a committed evidence file) and the release baseline validation test (which reads it).",
-      "disposition": "Accept-with-rationale. The committed evidence file stays byte-identical, so a read interleaving sees a consistent file. Not fixed in this test-and-evidence story to avoid destabilizing test ordering; if it recurs it can be serialized with an xUnit collection ordering the writer before the reader."
+      "disposition": "CLOSED by Story 2.1 (Epic 1 retro action T1). It recurred while running the standing gate (Epic 2 raised run frequency, as the retro predicted), so it was fixed test-only: every reader and writer of a committed release-evidence artifact now shares the non-parallel ReleaseEvidenceArtifactCollection, so a generation test never interleaves with a validation test of the same file. No assertion strength changed; the rest of the suite stays parallel. Verified green across repeated full-suite runs.",
+      "owningStory": "Story 2.1 (FR-3, shared two-line domain-service host)"
     }
   ],
   "projectReferenceDisposition": {
@@ -164,5 +165,31 @@
     "pathToGetThere": "Retarget the coupled telemetry/status suites in their owning stories (3.3 / 3.2) and the projection/idempotency couplings (2.5 / 2.2); the last owning story removes the reference (or extract a Server-coupled fixtures sub-project). Tracked here so Story 5.1's oracle is structurally survivable.",
     "removedInThisStory": false,
     "owningStory": "Story 3.3 (last of 2.2 / 2.5 / 3.2 / 3.3 to clear)"
-  }
+  },
+  "story21StructuralDispositions": [
+    {
+      "subject": "tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs",
+      "change": "Premise re-expressed (not weakened). The scaffold-era guard asserted the Server referenced NO domain-service host SDK. Story 2.1 fills the unbuilt host slot, so the guard now REQUIRES the shared domain-service host SDK project reference (a positive assertion, so a silent removal of the host is caught) while still forbidding the genuinely out-of-bounds dependencies: the gateway, server-side Tenants, Parties, the UI shell, and a direct Dapr.Client reference (DAPR arrives transitively via Dapr.AspNetCore). Assertion strength increased, not reduced.",
+      "ac": "AC-4 / AC-7",
+      "rationale": "The story changes exactly the premise this guard encoded (Server is no longer a non-host scaffold). Recorded append-only per agreement A2 rather than silently editing the assertions.",
+      "owningStory": "Story 2.1 (FR-3, shared two-line domain-service host)",
+      "greenAfterChange": true
+    },
+    {
+      "subject": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs [ProjectReferencesShouldFollowScaffoldBoundaryDirection]",
+      "change": "Expected Server reference set updated to include the shared domain-service host SDK project reference. The same scaffold-boundary premise as ServerBoundaryTest: the Server is now the host, so the host SDK reference is expected, not forbidden. Direction guard otherwise unchanged (still pins every other Conversations project's reference set).",
+      "ac": "AC-4 / AC-7",
+      "rationale": "Updated, not silently broken — adding the host reference would otherwise fail this exact-set guard. Recorded append-only per agreement A2.",
+      "owningStory": "Story 2.1 (FR-3, shared two-line domain-service host)",
+      "greenAfterChange": true
+    },
+    {
+      "subject": "Residual internal governance audit gate (fail-closed-on-sink-failure)",
+      "change": "Surfaced into the conformance oracle (not retired). New oracle test GovernanceAuditSinkFailClosedConformanceTest drives the public governed command-handler surface with a throwing audit sink and asserts a fail-closed rejection (audit_unavailable) with no mutation event; a contrast fact asserts a healthy sink emits the mutation. The gate itself stays internal (exposing it would change the public contract shape, which the standing gate forbids).",
+      "ac": "AC-5 / AC-7",
+      "rationale": "Surface chosen over retire because the behavior is live and used by the governed handlers, so the shared host does not make it redundant. Fault-injection verified: bypassing the gate's catch turns the throwing-sink fact red, so green is real evidence (Epic 1 L1/A1). Resolves the Story 1.2 carry-forward 'internal-governance-audit-gate' and Epic 1 retro action T3.",
+      "owningStory": "Story 2.1 (FR-3, shared two-line domain-service host)",
+      "greenAfterChange": true
+    }
+  ]
 }

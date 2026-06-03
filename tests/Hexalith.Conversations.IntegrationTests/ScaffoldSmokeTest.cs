@@ -153,6 +153,10 @@ public sealed class ScaffoldSmokeTest
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
             $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj",
+            // Story 2.1 (FR-3): the Server is now the shared two-line domain-service host, so it references the
+            // domain-service host SDK. Deliberate premise change recorded in the FR-20 ledger
+            // (docs/release-evidence/at-risk-test-register-v1.*, story21StructuralDispositions).
+            $"{eventStoreRoot}/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj",
             $"{tenantsRoot}/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
             $"{tenantsRoot}/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj");
         AssertProjectReferences(
@@ -350,7 +354,10 @@ public sealed class ScaffoldSmokeTest
         string includePath,
         IReadOnlyDictionary<string, string> projectReferenceRoots)
     {
-        string resolvedPath = includePath;
+        // MSBuild Include paths use Windows backslash separators; normalize to the forward slash so that
+        // Path.GetFullPath collapses the "../" segments on every platform (on Linux a literal backslash is not a
+        // path separator, so an un-normalized Include leaves "Client/../Contracts" uncollapsed).
+        string resolvedPath = includePath.Replace('\\', '/');
 
         foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
         {

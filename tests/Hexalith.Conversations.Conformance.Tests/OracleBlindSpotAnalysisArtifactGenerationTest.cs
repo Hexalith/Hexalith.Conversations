@@ -22,6 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// each of the five release-gate behaviors, the production path(s), the tests covering them, the measured gap,
 /// the fault-injection experiment and its result, and the disposition.
 /// </summary>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class OracleBlindSpotAnalysisArtifactGenerationTest
 {
     private const string ArtifactFileName = "oracle-blind-spot-analysis-v1.json";

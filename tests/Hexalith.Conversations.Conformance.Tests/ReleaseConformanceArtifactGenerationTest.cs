@@ -19,6 +19,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// content-safe <see cref="ReleaseConformanceArtifactV1"/> from the CORE fixture conformance run result,
 /// and generates the committed fixture artifact file.
 /// </summary>
+[Collection(ReleaseEvidenceArtifactCollection.Name)]
 public sealed class ReleaseConformanceArtifactGenerationTest
 {
     private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
