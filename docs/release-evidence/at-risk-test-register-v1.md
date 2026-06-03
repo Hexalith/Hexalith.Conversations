@@ -52,6 +52,15 @@ Recorded when Story 2.1 (FR-3, shared two-line domain-service host) deliberately
 | `ScaffoldSmokeTest.cs` (`ProjectReferencesShouldFollowScaffoldBoundaryDirection`) | Expected Server reference set updated to include the shared domain-service host SDK project reference (Server is now the host). Direction guard otherwise unchanged. | AC-4 / AC-7 | ✅ |
 | Residual internal governance audit gate | **Surfaced** into the oracle via `GovernanceAuditSinkFailClosedConformanceTest` (public handler surface); gate stays internal. **Not** retired — behavior is live. Fault-injection proven. | AC-5 / AC-7 | ✅ |
 
+## Story 2.2 structural dispositions (append-only, agreements A2/A3)
+
+Recorded when Story 2.2 (FR-7, adopt `EventStoreAggregate<TState>` base-class conventions) removed a redundant shim and confirmed the genuine domain subsystems as Keep. See `story22StructuralDispositions` in the JSON.
+
+| Subject | Change | AC | Green after |
+|---|---|---|---|
+| Redundant command-status idempotency-bridge shim (Server-side, `public static`) + its unit test | **Deleted** (shim + test + the now-empty directories holding only them). The shim returned the same retryable-uncertainty decision for every input and had **zero production references** (consumed only by its own test); the SDK base class already owns command status, so it bridged nothing — deleting it is behavior-preserving by construction. The net-new base-class reflection-dispatch/replay teeth test (`ConversationAggregateBaseClassDispatchTest`) offsets the removed test, keeping the suite count monotonic. Public contract-shape baseline unaffected (the shim lived in the Server assembly, outside the Contracts public-contract-shape surface). | AC-2 / AC-5 | ✅ |
+| Genuine idempotency contract + domain replay-verification (`IdempotentConversationCommandExecutor`, `Idempotency/*`, `ConversationReplayVerifier`) | **KEEP, unchanged** (AC-3). The seeded FR-7 "idempotency-bridge shims" wording refers to the dead command-status shim above, **not** these — the base class supplies command dispatch and whole-stream replay, not the Conversations idempotency reserve/replay/conflict lifecycle nor the content-safe per-event replay-verification. `ConversationReplayVerifier`'s inner per-event apply switch also stays (no usable public per-event apply seam on the SDK; a possible Epic 3 promote-later candidate). | AC-3 | ✅ |
+
 ## Project-reference disposition
 
 The `Hexalith.Conversations.Conformance.Tests → Hexalith.Conversations.Server` project reference is **deliberately left in place** in this story (removing it would break the still-coupled telemetry/status suites and the live characterization tests). Target end-state: the public-surface suites no longer transitively depend on the Server plumbing assembly; the last owning story (of 2.2 / 2.5 / 3.2 / 3.3) removes the reference. See `projectReferenceDisposition` in the JSON.

@@ -217,11 +217,28 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         foreach (JsonElement area in LoadAreas())
         {
             string id = area.GetProperty("areaId").GetString()!;
+            string classification = area.GetProperty("classification").GetString()!;
             foreach (JsonElement pathElement in area.GetProperty("paths").EnumerateArray())
             {
                 string spec = pathElement.GetString()!;
                 string[] files = ResolveCsFiles(repoRoot, spec).ToArray();
-                files.ShouldNotBeEmpty($"Area '{id}' path '{spec}' resolves to no .cs file (stale or mistyped path).");
+                if (files.Length == 0)
+                {
+                    // A Consume/Promote glob legitimately empties once its owning story consumes the code — that is the
+                    // Boilerplate Reduction refactor's GOAL (measured as a reduction by SM-1), not a stale/mistyped path.
+                    // Tolerate the empty resolution ONLY when an append-only changeLog entry accounts for THIS SPECIFIC
+                    // consumed glob (Story 1.5 classification-change-procedure-v1). Scope the tolerance to the exact spec —
+                    // not merely to the area — so a stale/mistyped SIBLING glob in an area that already logged an unrelated
+                    // consumption is still caught. Keep the hard failure for an unaccounted empty and for Keep areas
+                    // (vanishing Keep code is a regression, not a consumption). There is nothing to attribute when zero
+                    // files resolve, so the double-count check is skipped for this spec.
+                    bool consumptionLogged = classification is "Consume" or "Promote" && ChangeLogAccountsForConsumedSpec(id, spec);
+                    consumptionLogged.ShouldBeTrue(
+                        $"Area '{id}' path '{spec}' resolves to no .cs file. If this glob was consumed by its owning story, "
+                        + "record it (referencing this path) in the inventory's append-only changeLog; otherwise it is a "
+                        + "stale or mistyped path.");
+                    continue;
+                }
 
                 foreach (string file in files)
                 {
@@ -414,6 +431,47 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         // Clone each element so it survives the JsonDocument being disposed (detached copies).
         using JsonDocument doc = LoadCommittedJson();
         return doc.RootElement.GetProperty("areas").EnumerateArray().Select(e => e.Clone()).ToArray();
+    }
+
+    // True when the inventory's append-only changeLog carries an entry that targets this area AND references the specific
+    // now-empty path spec — the sanctioned record (Story 1.5 classification-change-procedure-v1) that THIS glob is an
+    // accounted-for consumption rather than a stale/mistyped path. Matching on the spec's literal (non-wildcard) prefix
+    // keeps the tolerance scoped to the exact consumed glob, so an unrelated stale sibling glob in the same area still fails.
+    private static bool ChangeLogAccountsForConsumedSpec(string areaId, string spec)
+    {
+        string specPrefix = SpecLiteralPrefix(spec);
+        using JsonDocument doc = LoadCommittedJson();
+        return doc.RootElement.GetProperty("changeLog").EnumerateArray()
+            .Where(e => e.TryGetProperty("areaId", out JsonElement a) && a.GetString() == areaId)
+            .Any(e => EntryReferencesPath(e, specPrefix));
+    }
+
+    // The fixed (pre-wildcard) portion of a path spec — e.g. "src/Foo/Bar/**" → "src/Foo/Bar/". Used to confirm a
+    // changeLog entry names the consumed glob without depending on the exact wildcard text.
+    private static string SpecLiteralPrefix(string spec)
+    {
+        int wildcard = spec.IndexOfAny(['*', '?']);
+        return wildcard < 0 ? spec : spec[..wildcard];
+    }
+
+    // True when any text field of the changeLog entry mentions the consumed spec's literal prefix.
+    private static bool EntryReferencesPath(JsonElement entry, string specPrefix)
+    {
+        if (specPrefix.Length == 0)
+        {
+            return false;
+        }
+
+        foreach (JsonProperty property in entry.EnumerateObject())
+        {
+            if (property.Value.ValueKind == JsonValueKind.String
+                && property.Value.GetString()!.Contains(specPrefix, StringComparison.OrdinalIgnoreCase))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static JsonDocument LoadCommittedJson()

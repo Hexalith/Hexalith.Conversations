@@ -1,5 +1,35 @@
 # Test Automation Summary
 
+## Story 2.2 Adopt `EventStoreAggregate<TState>` Base-Class Conventions
+
+Story 2.2 (FR-7, remove-and-replace) is deletion-dominant: it deletes the dead `EventStoreCommandStatusIdempotencyBridge` shim and proves the SDK base-class **reflection dispatch** (`IDomainProcessor.ProcessAsync`) and **replay** (`IAggregateReplay.Replay` → `AggregateReplayer`) are the live route into `ConversationAggregate` / `ConversationState`. There is no UI or HTTP API in scope, so the automated-test surface is the SDK domain-processor entry points, driven directly. Framework: xUnit v3 + Shouldly (CPM; no new package introduced). This run treated the shipped teeth test `ConversationAggregateBaseClassDispatchTest` as the feature under test and auto-applied the discovered coverage gaps.
+
+### Discovered Gaps → Applied (2 new [Fact] tests)
+- [x] Gap 1 (AC-1 dispatch with non-null state untested) — the shipped test drove all six `Handle` overloads through `ProcessAsync` **only with `currentState: null`**, so the five state-dependent commands proved only the rejection-on-null path. If the base class ever bound `null` into `parameters[1]` regardless of `currentState`, every existing case would stay green ("prove behavior, not mirrors", Epic 1 L1/A1). Closed by exercising the **success path** with a rehydrated created state.
+- [x] Gap 2 (AC-1 replay only single-event) — the shipped replay test applied a single `ConversationCreated` event; multi-event ordered accumulation through a **second** `Apply` overload was untested. Closed by replaying an ordered 2-event stream and asserting accumulation.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateBaseClassDispatchTest.cs` — extended from 10 to **12** cases (reusing the file's existing fixtures, same pure aggregate project):
+  - `ProcessAsyncDeliversRehydratedNonNullStateToTheHandlerSuccessPath` — drives `AddParticipant` through `ProcessAsync` against a created state; asserts the handler **succeeds** and emits `ParticipantAddedDomainEvent` (an outcome the null-state cases can never produce), proving reflection binds the live rehydrated state. Includes a fixture-sanity guard (direct handler must genuinely succeed) so the assertion is not vacuous.
+  - `ReplayAppliesAnOrderedEventSequenceThroughTheApplyConventionAccumulatingState` — replays `ConversationCreated` (seq 1) → `ParticipantAdded` (seq 2); asserts reconstruction advances to sequence 2 and the rebuilt `StateJson` carries the participant, proving the replay engine reaches >1 `Apply` overload and accumulates.
+
+### Implementation
+- No production source under `src/` changed by this QA run (the bridge removal + aggregate baseline were the dev-story step). Only the one existing test file was extended; pre-existing aggregate, idempotency, replay-verifier, and ledger tests are untouched. No test removed or weakened (no FR-20 ledger entry required for additions).
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Tests/ -c Release` — **185 passed** (183 baseline + 2 new), 0 failed, 0 skipped.
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/ -c Release` — **352 passed** (standing gate, unchanged, monotonic ≥ 351), 0 failed, 0 skipped.
+- [x] Release build: 0 warnings / 0 errors (warnings-as-errors). New tests live in the pure aggregate project, so the conformance gate count and the public-contract-shape baseline (196 types) are untouched.
+
+### Coverage
+- AC-1 (reflection dispatch is the live route): all 6 `Handle` overloads via `ProcessAsync` (null-state rejection paths, pre-existing) **+ success path with a rehydrated non-null state** (was the gap) — proves state is actually delivered through reflection, not a null placeholder.
+- AC-1 (replay via `Apply` convention): single-event happy path + unknown-event teeth (pre-existing) **+ ordered multi-event accumulation reaching a second `Apply` overload** (was the gap).
+- Teeth retained: unknown command → `InvalidOperationException("No Handle method found…")`; unknown event → `UnknownEventType`.
+- AC-4 (pure aggregate tests stay green, direct `Handle`/`Apply` style): unchanged; the new dispatch tests drive the SDK path, not the pure-function style.
+- Scope boundary: live `/process` round-trips over a DAPR sidecar are Tier-3 integration concerns, not in scope here.
+
+> Note: the dev-story Dev Agent Record cites the pure aggregate count as 183; it is **185** after these additions (conformance gate count unchanged at 352). Update that count if the story is re-validated.
+
 ## Story 2.1 Wire Conversations onto the Shared Two-Line Domain-Service Host
 
 Story 2.1 is the first `src/` production change in the initiative: `Server/Program.cs` becomes the canonical two-line EventStore domain-service host (`builder.AddEventStoreDomainService(<domain>, <server>)` + `app.UseEventStoreDomainService()`). There is no UI in this slice, so the automated-test surface is host/API-composition level (no browser E2E applies). Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (project standard; `Microsoft.AspNetCore.Mvc.Testing` intentionally **not** introduced per the CPM/no-new-package guardrail — SDK minimal-host composition is driven directly). This run treated `ConversationsDomainServiceHostCompositionTest` as the feature under test and auto-applied the one substantive coverage gap.

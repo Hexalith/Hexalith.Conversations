@@ -39,6 +39,9 @@
 generated: 2026-06-02
 last_updated: 2026-06-03
 project: Conversations
+# story 2-2 moved ready-for-dev -> in-progress on 2026-06-03 (FR-7 deletion-dominant: removing dead EventStoreCommandStatusIdempotencyBridge shim + adding base-class dispatch/replay teeth test)
+# story 2-2 moved in-progress -> review on 2026-06-03 (dead bridge + test deleted; ConversationAggregateBaseClassDispatchTest added (dispatch+replay teeth); FR-20 ledger story22StructuralDispositions regenerated; inventory consumed-glob accounted via append-only changeLog; Release 0 warnings; standing conformance gate 352 >=351 monotonic; public-contract-shape diff empty)
+# story 2-2 moved review -> done on 2026-06-03 (senior-dev review, adversarial+auto-fix: fixed CRITICAL build break from out-of-scope submodule working-tree drift (Tenants/Parties/FrontComposer restored to recorded gitlinks; drift had dropped Hexalith.Tenants.Client.Subscription -> CS0234); corrected Dev Agent Record count drift 183/+10 -> 185/+12; tightened consumed-glob validator from area-scoped to spec-scoped; re-verified Release 0 warnings, conformance gate 352 >=351 monotonic, contract-shape diff empty, full suite green)
 # story 1-1 moved ready-for-dev -> in-progress -> review on 2026-06-02
 # story 1-2 moved ready-for-dev -> in-progress -> review on 2026-06-03
 # story 1-3 created (backlog -> ready-for-dev) on 2026-06-03
@@ -51,6 +54,7 @@ project: Conversations
 # epic-1 retrospective completed on 2026-06-03 (autonomous YOLO run; doc=epic-1-retro-2026-06-03.md); epic-1 in-progress -> done (all 5 stories done); epic-1-retrospective optional -> done
 # epic-2 backlog -> in-progress on 2026-06-03 (first story 2-1 created)
 # story 2-1 created (backlog -> ready-for-dev) on 2026-06-03
+# story 2-2 created (backlog -> ready-for-dev) on 2026-06-03 (FR-7 remove-and-replace; deletion-dominant: aggregate already on EventStoreAggregate<ConversationState>, story removes the dead EventStoreCommandStatusIdempotencyBridge shim + adds base-class dispatch/replay teeth test; keeps Idempotency/* + ConversationReplayVerifier)
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
@@ -65,7 +69,7 @@ development_status:
   epic-1-retrospective: done
   epic-2: in-progress
   2-1-wire-conversations-onto-the-shared-two-line-domain-service-host: done
-  2-2-adopt-eventstoreaggregate-tstate-base-class-conventions: backlog
+  2-2-adopt-eventstoreaggregate-tstate-base-class-conventions: done
   2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor: backlog
   2-4-persist-read-models-via-the-shared-store-write-policy: backlog
   2-5-implement-projections-against-the-sdk-projection-seam: backlog

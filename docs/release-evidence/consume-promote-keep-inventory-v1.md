@@ -101,6 +101,12 @@ The addendum's first pass treated the governance/verification/audit area (4,337)
 
 `-v1` is **immutable once accepted**. Post-acceptance reclassifications / dispute resolutions (Story 1.5) **append** a logged entry to the JSON `changeLog`; they never rewrite an accepted row. A structurally new inventory would be `-v2`. This mirrors the sibling `docs/release-evidence/*-v1.*` artifacts (`release-baseline`, `oracle-blind-spot-analysis`, `at-risk-test-register`, `public-contract-shape-baseline`).
 
+### changeLog
+
+| entryId | type | areaId | by | resolution | summary |
+|---|---|---|---|---|---|
+| `CL-shared-host-api-challenge-1` | challenge | `shared-host-api` | Story 2.2 (FR-7) | upheld | Story 2.2 consumes (deletes) the dead command-status idempotency-bridge shim — the sole `.cs` file under this area's `Server/EventStore/**` glob. **Upheld:** the area stays **Consume**; consuming a Consume-classified file realizes the accepted call (it is not a reclassification), so `classification`, `approxLoc` (906), and `paths` are byte-unchanged. The append records that the now-empty glob is an accounted-for consumption, not a stale path. Cross-ref: `at-risk-test-register-v1` `story22StructuralDispositions`. |
+
 ## Open questions NOT resolved here
 
 - **OQ-1** per-promotion landing zone — downstream architecture run (gates Epic 3).

@@ -122,6 +122,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory22StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story22StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story22StructuralDisposition disposition in register.Story22StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.2 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -215,7 +232,48 @@ public sealed class AtRiskTestRegisterGenerationTest
                 RemovedInThisStory: false,
                 OwningStory: "Story 3.3 (last of 2.2 / 2.5 / 3.2 / 3.3 to clear)"),
             Story21StructuralDispositions = BuildStory21StructuralDispositions(),
+            Story22StructuralDispositions = BuildStory22StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story22StructuralDisposition> BuildStory22StructuralDispositions() =>
+    [
+        new(
+            Subject: "Redundant command-status idempotency-bridge shim (Server-side, public static) + its unit test "
+                + "(tests/Hexalith.Conversations.Server.Tests/.../...IdempotencyBridgeTest.cs)",
+            Change: "Deleted (shim + its test + the now-empty Server and Server.Tests directories holding only them). "
+                + "The shim's sole method interpreted a substrate command-status record into a Conversations idempotency "
+                + "decision and, for every possible input, returned the same retryable-uncertainty decision. It had ZERO "
+                + "production references (consumed only by its own unit test). The SDK base class the aggregate already "
+                + "extends owns command status and the command lifecycle, so the shim bridged nothing. Deleting it is "
+                + "behavior-preserving by construction (dead code). The net-new base-class reflection-dispatch / replay "
+                + "teeth test (ConversationAggregateBaseClassDispatchTest) offsets the removed unit test, so the standing "
+                + "conformance suite count stays monotonic.",
+            Ac: "AC-2 / AC-5",
+            Rationale: "Redundant: the base class / SDK already owns command status and the shim was dead with zero "
+                + "production references. Recorded append-only per agreements A2/A3 — a removed test carries a ledger "
+                + "justification. Classified redundant, not weakened: no release-gate behavior is lost because the path "
+                + "was never live. Traceable to the seeded 'Story 2.2 (FR-7)' register rows above. The public "
+                + "contract-shape baseline is unaffected (the shim lived in the Server assembly, outside the Contracts "
+                + "public-contract-shape surface).",
+            OwningStory: "Story 2.2 (FR-7, shared aggregate base-class dispatch / idempotency-bridge shims)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Genuine Conversations idempotency contract + domain replay-verification "
+                + "(IdempotentConversationCommandExecutor, Idempotency/*, ConversationReplayVerifier)",
+            Change: "KEEP, unchanged (AC-3). The seeded FR-7 'idempotency-bridge shims' wording refers to the dead "
+                + "command-status shim removed above, NOT these. The base class supplies command DISPATCH and whole-stream "
+                + "replay; it does not supply Conversations' explicit idempotency reserve/replay/conflict lifecycle nor the "
+                + "content-safe per-event replay-verification (tenant/conversation scope, position-gap/reorder detection, "
+                + "schema-version checks, duplicate-identity rules). ConversationReplayVerifier's inner per-event apply switch "
+                + "also stays: the SDK exposes no public per-event apply seam usable mid-verification (a reasonable Epic 3 "
+                + "promote-later candidate, logged via classification-change-procedure-v1 if pursued).",
+            Ac: "AC-3",
+            Rationale: "These encode domain logic the base class does not provide, so they are Keep, not redundant shims. "
+                + "Recorded append-only to clarify the actual Story 2.2 scope without rewriting the seeded rows. Verified "
+                + "green and unchanged by this story (no source edits to Idempotency/*, the executor, or the verifier).",
+            OwningStory: "Story 2.2 (FR-7, shared aggregate base-class dispatch / idempotency-bridge shims)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story21StructuralDisposition> BuildStory21StructuralDispositions() =>
     [
@@ -530,6 +588,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required ProjectReferenceDisposition ProjectReferenceDisposition { get; init; }
 
         public required IReadOnlyList<Story21StructuralDisposition> Story21StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story22StructuralDisposition> Story22StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -575,6 +635,19 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// agreement A2: no test is silently weakened — every modification is recorded and traceable).
     /// </summary>
     internal sealed record Story21StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.2 (FR-7) structural disposition: a shim removed as redundant, or a
+    /// genuine domain subsystem confirmed Keep, recorded so no later test-count reduction is unaccounted for
+    /// (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story22StructuralDisposition(
         string Subject,
         string Change,
         string Ac,

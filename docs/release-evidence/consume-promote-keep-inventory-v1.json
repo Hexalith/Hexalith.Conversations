@@ -489,5 +489,16 @@
     "keepSubtotal": 22480,
     "note": "Every .cs-bearing top-level source subtree of the eight Conversations src/ projects is attributed to exactly one area; no area is unclassified, dual-classified, or double-counted. Per-area LOC sums to 35769 exactly (Consume 7037 + Promote 6252 + Keep 22480). Intra-folder splits (Queries, Projections, Serialization, Publication, Client, Testing, core Aggregate) are made at real file/folder boundaries whose halves sum to the measured folder total, so reconciliation is exact and reproducible with the recorded counting method."
   },
-  "changeLog": []
+  "changeLog": [
+    {
+      "entryId": "CL-shared-host-api-challenge-1",
+      "type": "challenge",
+      "areaId": "shared-host-api",
+      "date": "2026-06-03",
+      "raisedBy": "Story 2.2 (FR-7) dev agent",
+      "rationale": "Story 2.2 consumes (deletes) the dead command-status idempotency-bridge shim at src/Hexalith.Conversations.Server/EventStore/EventStoreCommandStatusIdempotencyBridge.cs — the sole .cs file under this area's 'src/Hexalith.Conversations.Server/EventStore/**' path glob (the 'Server/EventStore glue (32)' counted in this Consume row). The shim had zero production references and is redundant under FR-7 (the SDK base class the aggregate already extends owns command status). With that file removed, the glob now resolves to no .cs file. Does 'shared-host-api' remain Consume?",
+      "resolution": "upheld",
+      "resolutionRationale": "Upheld — classification stays Consume. Consuming (deleting) a Consume-classified file is the realization of the accepted call, not a reclassification (so from/to do not apply); the area's classification, approxLoc (906), and paths are left byte-unchanged (LOC is frozen at baselineCommit and measured as a reduction by SM-1, never re-measured here). Logged append-only per Story 1.5 classification-change-procedure-v1 so the now-empty 'EventStore/**' glob is an accounted-for consumption, not a stale or mistyped path. Cross-reference: the at-risk-test-register-v1 story22StructuralDispositions records the same removal under FR-7 / Story 2.2."
+    }
+  ]
 }

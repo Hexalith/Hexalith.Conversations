@@ -191,5 +191,23 @@
       "owningStory": "Story 2.1 (FR-3, shared two-line domain-service host)",
       "greenAfterChange": true
     }
+  ],
+  "story22StructuralDispositions": [
+    {
+      "subject": "Redundant command-status idempotency-bridge shim (Server-side, public static) + its unit test (tests/Hexalith.Conversations.Server.Tests/.../...IdempotencyBridgeTest.cs)",
+      "change": "Deleted (shim + its test + the now-empty Server and Server.Tests directories holding only them). The shim's sole method interpreted a substrate command-status record into a Conversations idempotency decision and, for every possible input, returned the same retryable-uncertainty decision. It had ZERO production references (consumed only by its own unit test). The SDK base class the aggregate already extends owns command status and the command lifecycle, so the shim bridged nothing. Deleting it is behavior-preserving by construction (dead code). The net-new base-class reflection-dispatch / replay teeth test (ConversationAggregateBaseClassDispatchTest) offsets the removed unit test, so the standing conformance suite count stays monotonic.",
+      "ac": "AC-2 / AC-5",
+      "rationale": "Redundant: the base class / SDK already owns command status and the shim was dead with zero production references. Recorded append-only per agreements A2/A3 — a removed test carries a ledger justification. Classified redundant, not weakened: no release-gate behavior is lost because the path was never live. Traceable to the seeded 'Story 2.2 (FR-7)' register rows above. The public contract-shape baseline is unaffected (the shim lived in the Server assembly, outside the Contracts public-contract-shape surface).",
+      "owningStory": "Story 2.2 (FR-7, shared aggregate base-class dispatch / idempotency-bridge shims)",
+      "greenAfterChange": true
+    },
+    {
+      "subject": "Genuine Conversations idempotency contract + domain replay-verification (IdempotentConversationCommandExecutor, Idempotency/*, ConversationReplayVerifier)",
+      "change": "KEEP, unchanged (AC-3). The seeded FR-7 'idempotency-bridge shims' wording refers to the dead command-status shim removed above, NOT these. The base class supplies command DISPATCH and whole-stream replay; it does not supply Conversations' explicit idempotency reserve/replay/conflict lifecycle nor the content-safe per-event replay-verification (tenant/conversation scope, position-gap/reorder detection, schema-version checks, duplicate-identity rules). ConversationReplayVerifier's inner per-event apply switch also stays: the SDK exposes no public per-event apply seam usable mid-verification (a reasonable Epic 3 promote-later candidate, logged via classification-change-procedure-v1 if pursued).",
+      "ac": "AC-3",
+      "rationale": "These encode domain logic the base class does not provide, so they are Keep, not redundant shims. Recorded append-only to clarify the actual Story 2.2 scope without rewriting the seeded rows. Verified green and unchanged by this story (no source edits to Idempotency/*, the executor, or the verifier).",
+      "owningStory": "Story 2.2 (FR-7, shared aggregate base-class dispatch / idempotency-bridge shims)",
+      "greenAfterChange": true
+    }
   ]
 }
