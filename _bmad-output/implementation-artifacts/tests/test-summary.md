@@ -1,5 +1,38 @@
 # Test Automation Summary
 
+## Story 1.5 Establish Classification Dispute-Resolution and Reclassification Escape Hatch
+
+Story 1.5 is a documentation / governance-procedure / evidence story — **zero `src/` production code and no UI or HTTP API**, so the applicable automated-test surface is the read-only structural conformance validator that gives the committed procedure artifacts *teeth* (mirroring `ConsumePromoteKeepInventoryValidationTest`), not browser E2E. This run treated `ClassificationChangeProcedureValidationTest` as the feature under test and auto-applied all discovered AC1–AC5 coverage gaps. The validator only **reads** `docs/release-evidence/classification-change-procedure-v1.{json,md}` + the accepted `consume-promote-keep-inventory-v1.json`; it never mutates anything.
+
+### Discovered Gaps → Applied (8 new [Fact] tests)
+- [x] Gap 1 (AC5 "illustrative, NOT applied") — `WorkedExampleEntriesShouldNotLeakIntoTheRealInventoryChangeLog`: no worked-example `entryId` appears in the inventory's real `changeLog`; the top-level `note` declares not-applied. (Original validator folded examples but never asserted they were never applied.)
+- [x] Gap 2 (AC2/AC5e honesty-of-measurement) — `ProcedureRecordedBaselineShouldMatchTheGovernedInventory`: the procedure's frozen `acceptedInventoryBaseline` (`baselineCommit`/`plumbingBaselineLoc`/`sourceTotalLoc`) matches the governed inventory, so the fold teeth never measure against a stale baseline.
+- [x] Gap 3 (AC2 "flips the label only, never approxLoc/paths") — `ReclassificationEntriesShouldNotOverrideApproxLocOrPaths`: no reclassification entry (worked example or real) carries an `approxLoc`/`paths` override.
+- [x] Gap 4 (AC1 "a reclassified challenge IS a reclassification") — `EveryReclassifiedChallengeShouldHaveAMatchingReclassificationEntry`: every `resolution: reclassified` challenge has a matching `reclassification` entry on the same `areaId` (cross-entry consistency; vacuous now, guards future appends).
+- [x] Gap 5 (AC2 no-silent-change, real entries) — `EveryRealReclassificationEntryShouldBeAppliedToTheLiveClassification`: a real reclassification entry's `to` equals the live inventory classification (vacuous now — `changeLog` is `[]` — bites the moment Epic 2/3 appends an entry logged-but-not-applied).
+- [x] Gap 6 (AC4 bidirectional discoverability) — `GovernedInventoryShouldBackReferenceStoryOneFiveForBidirectionalDiscoverability`: the inventory's `versioningConvention` forward-references Story 1.5, so a reader landing on either artifact finds the other (the original validator only asserted procedure→inventory via `governsArtifact`).
+- [x] Gap 7 (AC4 copy-pasteable template) — `EntryTemplateShouldProvideCopyPasteableShapesForBothTypes`: `entryTemplate` supplies both entry shapes, each carrying every schema-required field.
+- [x] Gap 8 (AC4 documented procedure) — `ProcedureMarkdownShouldDocumentTheFiveStepProcedureAndCanonicalLog`: the `.md` documents Steps 1–5, the canonical `changeLog`, the append-only rule, the recompute rule, and both entry types (the original validator only asserted the `.md` was non-empty).
+
+### Generated/Extended Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ClassificationChangeProcedureValidationTest.cs` — extended from 9 pre-existing AC5(a)–(g) facts to **17 facts** (+8 gap-coverage facts above, added under a dedicated "QA gap-coverage facts" section mirroring the sibling inventory validator).
+
+### Implementation
+- No production source under `src/` changed (Story 1.5 is gate-zero, behavior-preservation scope). Only the one validator test file was extended; the committed release-evidence artifacts are read read-only. The accepted `consume-promote-keep-inventory-v1.{json,md}` is left byte-for-byte unchanged (`git diff --exit-code` clean); the procedure artifacts are unchanged by this QA run; no sibling submodule touched.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — **348 passed, 0 failed, 0 skipped** (340 baseline + 8 new). Duration ~240 ms.
+- [x] `git diff --exit-code -- docs/release-evidence/consume-promote-keep-inventory-v1.{json,md}` — no diff (accepted inventory byte-immutable).
+- [x] `git status --short -- src/` — empty (zero `src/` production changes).
+
+### Coverage
+- AC1 (challenge resolvable + recorded, never silent): schema(challenge) + upheld example + reclassified↔reclassification cross-entry consistency. ✅
+- AC2 (reclassification logged, label-only, no silent change): schema(reclassification) + fold teeth + approxLoc/paths-unchanged + applied-to-live + baseline parity. ✅
+- AC3 (FR-2 invariant re-holds after every change): fold-and-recheck teeth (every area once, single valid label, LOC reconciles to `sourceTotalLoc`). ✅
+- AC4 (procedure documented + discoverable): `.md` 5-step content + `entryTemplate` both types + bidirectional discoverability. ✅
+- AC5 (committed, schema+examples, validator with teeth, scope-clean): committed/accepted + governance fields + illustrative-not-applied + content-safety scan. ✅
+- Validator facts: 17 total (9 pre-existing + 8 added). Conformance suite 348 passed / 0 failed / 0 skipped.
+
 ## Story 1.1 Pin the Conformance Oracle Green on Main and Snapshot the Public Contract Shape
 
 Story 1.1 is an evidence-artifact story (no UI / no HTTP API), so the appropriate automated tests follow the project's established committed-artifact validation pattern (`ConformanceManifestValidationTest`), not browser E2E. Existing coverage (`PublicContractShapeSnapshotGenerationTest`, 4 tests) exercises only the in-memory snapshot; the committed evidence files were entirely unguarded. Gaps auto-applied per request.

@@ -1,0 +1,104 @@
+{
+  "artifact": "classification-change-procedure",
+  "version": 1,
+  "status": "accepted",
+  "acceptedDate": "2026-06-03",
+  "governsArtifact": "consume-promote-keep-inventory-v1.json",
+  "governingFr": "FR-2",
+  "owningStory": "1.5",
+  "appendOnlyLog": "consume-promote-keep-inventory-v1.json#changeLog",
+  "validClassifications": ["Consume", "Promote", "Keep"],
+  "plumbingClassifications": ["Consume", "Promote"],
+  "acceptedInventoryBaseline": {
+    "baselineCommit": "bf3d052",
+    "plumbingBaselineLoc": 13289,
+    "sourceTotalLoc": 35769,
+    "note": "Frozen reference values from consume-promote-keep-inventory-v1.json at acceptance. A reclassification recomputes plumbingBaselineLoc = Σ(Consume)+Σ(Promote) over the post-change set; it never re-measures approxLoc/paths (LOC is fixed at baselineCommit). sourceTotalLoc is invariant under any reclassification (a relabel never adds/removes/re-measures source)."
+  },
+  "versioningConvention": "The accepted inventory's '-v1' is immutable. Challenges and reclassifications APPEND an entry to its changeLog and flip only the target row's 'classification' (never approxLoc/paths, never history). A structurally new inventory would be '-v2'. This procedure artifact is itself '-v1'; a structural re-issue would be '-v2'.",
+  "noSilentChangeInvariant": "For every area whose live 'classification' differs from the value Story 1.4 accepted, there MUST exist a 'reclassification' changeLog entry whose 'to' equals the live value. No live classification may diverge from the accepted baseline without a matching logged entry. In this pilot zero areas differ (the inventory's changeLog is []), so the invariant is vacuously satisfied; the rule is machine-checked the moment Epic 2/3 appends.",
+  "changeLogEntrySchema": {
+    "challenge": {
+      "required": ["entryId", "type", "areaId", "date", "raisedBy", "rationale", "resolution", "resolutionRationale"],
+      "typeValue": "challenge",
+      "resolutionEnum": ["upheld", "reclassified"],
+      "note": "A review-time objection to a Consume/Promote/Keep call. An 'upheld' challenge leaves the area's classification UNCHANGED (the entry records that the original call was examined and stands). A 'reclassified' challenge IS a reclassification: it is accompanied by (or upgraded into) a 'reclassification' entry carrying from/to, and obeys the same logging + invariant rules per AC2."
+    },
+    "reclassification": {
+      "required": ["entryId", "type", "areaId", "date", "reclassifiedBy", "from", "to", "rationale"],
+      "typeValue": "reclassification",
+      "classificationEnum": ["Consume", "Promote", "Keep"],
+      "reclassifiedByPattern": "^[0-9]+\\.[0-9]+$",
+      "rules": [
+        "from != to",
+        "from must equal the area's classification as accepted by Story 1.4 (a reclassification is applied off the accepted baseline)",
+        "approxLoc and paths are NOT changed (a misclassification is a boundary/fate correction, not a re-measurement; LOC is fixed at baselineCommit)",
+        "the area's live 'classification' is set to 'to' AND this entry justifies it (no-silent-change invariant)",
+        "recompute plumbingBaselineLoc = Σ(Consume)+Σ(Promote) over the post-change set; record the result as 'expectedPlumbingAfter' (a Consume<->Promote flip leaves it unchanged; a Keep<->plumbing flip moves it)",
+        "if the target area is a promoteLaterCandidate (OQ-3) being flipped to Promote, the rationale MUST record that OQ-3's promote-later boundary was crossed deliberately"
+      ],
+      "optional": ["expectedPlumbingAfter"]
+    }
+  },
+  "workedExamples": [
+    {
+      "example": true,
+      "entryId": "EX-challenge-governance-upheld",
+      "type": "challenge",
+      "areaId": "governance-evidence-vocabulary",
+      "date": "2026-06-03",
+      "raisedBy": "reviewer (worked example)",
+      "rationale": "Could the generic check->evidence->verify governance flow be Promoted now (FR-15-adjacent) rather than left Keep-now?",
+      "resolution": "upheld",
+      "resolutionRationale": "OQ-3's promote-later boundary is open. Governance evidence/remediation vocabulary stays Keep-now (promoteLaterCandidate). The hatch records the question and leaves OQ-3 open; it does not dissolve an open question or silently move the row. classification is unchanged; plumbingBaselineLoc stays 13289."
+    },
+    {
+      "example": true,
+      "entryId": "EX-reclassify-serialization-consume-to-promote",
+      "type": "reclassification",
+      "areaId": "generic-serialization-converters",
+      "date": "2026-06-03",
+      "reclassifiedBy": "2.6",
+      "from": "Consume",
+      "to": "Promote",
+      "rationale": "Worked example per epics Story 2.6 / 3.6 forward-reference ('Commons TypeMapper / NameTypeMapper micro-promote — reclassification logged per Story 1.5'): if Commons cannot satisfy the generic value/identifier converters via the existing public TypeMapper.GetMap() surface, a NameTypeMapper micro-promote is opened additively and the row moves Consume->Promote. Within-plumbing flip: both Consume and Promote count toward plumbing, so plumbingBaselineLoc is unchanged at 13289.",
+      "expectedPlumbingAfter": 13289
+    },
+    {
+      "example": true,
+      "entryId": "EX-reclassify-client-surface-keep-to-promote",
+      "type": "reclassification",
+      "areaId": "client-surface-dtos",
+      "date": "2026-06-03",
+      "reclassifiedBy": "3.1",
+      "from": "Keep",
+      "to": "Promote",
+      "rationale": "Illustrative Keep<->plumbing flip that exercises the recompute teeth: suppose Story 3.1 finds the IConversationClient/ConversationClientResult surface is in fact generic typed-client plumbing the promoted registration absorbs, not domain surface. Crossing the Keep->plumbing line moves 140 LOC into the plumbing baseline, so plumbingBaselineLoc recomputes from 13289 to 13429 — the move is itself the audit trail SM-1/Story 5.3 reads. This example targets a non-promoteLaterCandidate Keep row, so no OQ-3 boundary is crossed. ILLUSTRATIVE ONLY — not applied to the accepted inventory.",
+      "expectedPlumbingAfter": 13429
+    }
+  ],
+  "entryTemplate": {
+    "challenge": {
+      "entryId": "<stable-id, e.g. CL-<areaId>-challenge-<n>>",
+      "type": "challenge",
+      "areaId": "<real areaId from consume-promote-keep-inventory-v1.json>",
+      "date": "<YYYY-MM-DD>",
+      "raisedBy": "<who raised the challenge>",
+      "rationale": "<why the call is being challenged>",
+      "resolution": "<upheld | reclassified>",
+      "resolutionRationale": "<reasoning for upholding, or pointer to the accompanying reclassification entry>"
+    },
+    "reclassification": {
+      "entryId": "<stable-id, e.g. CL-<areaId>-reclassify-<n>>",
+      "type": "reclassification",
+      "areaId": "<real areaId from consume-promote-keep-inventory-v1.json>",
+      "date": "<YYYY-MM-DD>",
+      "reclassifiedBy": "<epic>.<story> e.g. 2.6",
+      "from": "<accepted classification>",
+      "to": "<new classification, != from>",
+      "rationale": "<why reality diverged from the accepted call; if a promoteLaterCandidate->Promote, state OQ-3 boundary crossed deliberately>",
+      "expectedPlumbingAfter": "<recomputed Σ(Consume+Promote) over the post-change set>"
+    }
+  },
+  "note": "workedExamples are ILLUSTRATIVE and are NOT applied to the accepted inventory. The inventory's real changeLog is [] in this pilot (nothing real is challenged or reclassified). This procedure artifact governs HOW that changeLog is appended; it does not itself amend the inventory. The accepted consume-promote-keep-inventory-v1.json is left byte-for-byte unchanged by Story 1.5."
+}

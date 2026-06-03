@@ -45,6 +45,9 @@ project: Conversations
 # story 1-4 created (backlog -> ready-for-dev) on 2026-06-03
 # story 1-4 moved ready-for-dev -> in-progress -> review on 2026-06-03
 # story 1-4 moved review -> done on 2026-06-03 (senior-dev review: fixed AC1 file-level double-count + strengthened validator; conformance suite 331 green)
+# story 1-5 created (backlog -> ready-for-dev) on 2026-06-03
+# story 1-5 moved ready-for-dev -> in-progress -> review on 2026-06-03 (procedure artifact pair + read-only validator with fold-and-recheck teeth; conformance suite 340 green; accepted inventory byte-immutable)
+# story 1-5 moved review -> done on 2026-06-03 (senior-dev review: corrected stale 9-facts/340 record to 17 facts/348; hardened validator content-safety to scan .md + read schema-declared reclassifiedBy pattern; conformance suite 348 green; inventory byte-immutable)
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
@@ -55,7 +58,7 @@ development_status:
   1-2-measure-the-oracles-blind-spots-and-backfill-characterization-tests: done
   1-3-decouple-the-internal-coupled-tests-that-would-break-under-refactor: done
   1-4-accept-the-canonical-consume-promote-keep-inventory-and-record-baseline-plumbing-loc: done
-  1-5-establish-classification-dispute-resolution-and-reclassification-escape-hatch: backlog
+  1-5-establish-classification-dispute-resolution-and-reclassification-escape-hatch: done
   epic-1-retrospective: optional
   epic-2: backlog
   2-1-wire-conversations-onto-the-shared-two-line-domain-service-host: backlog
