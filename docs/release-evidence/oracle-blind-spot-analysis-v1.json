@@ -1,0 +1,199 @@
+{
+  "artifactKind": "oracle-blind-spot-analysis",
+  "version": "v1",
+  "purpose": "Story 1.2 oracle-strengthening record for the Conversations Boilerplate Reduction initiative. It measures where the Story 1.1 conformance oracle was blind on the five release-gate behaviors, proves each gap with a targeted fault-injection experiment, and records the characterization tests backfilled into the oracle to pin current observable behavior. The unifying finding: the 14 oracle suites assert a synthetic scenario engine, while the live server decision code was exercised only by the (non-oracle) server unit tests \u2014 so a fail-open mutation in live code rode green through the oracle.",
+  "baselineCommit": "06641240a01e745b5db299da361f81dd6d505e6d",
+  "branch": "main",
+  "workingTreeState": "src/ and tests/ clean at capture; all fault-injection edits were throwaway and reverted.",
+  "storyReference": "Story 1.2 \u2014 Measure the oracle\u0027s blind spots and backfill characterization tests",
+  "runDate": "2026-06-03",
+  "toolchain": {
+    "dotnetSdk": "10.0.300",
+    "targetFramework": "net10.0",
+    "testStack": "xUnit v3, Shouldly",
+    "coverageCollector": "coverlet.collector 8.0.1 (already in Directory.Packages.props; reused, no new tool added)",
+    "mutationApproach": "Targeted manual fault-injection (flip one safety-critical branch, run the oracle, revert). Stryker.NET was intentionally not introduced into this repo."
+  },
+  "commands": {
+    "conformanceOracle": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+    "coverage": "dotnet test \u003Cproject\u003E --collect:\u0022XPlat Code Coverage\u0022",
+    "faultInjection": "Flip one live deny/downgrade/dedup branch -\u003E run the oracle -\u003E observe the named backfill test go RED -\u003E revert."
+  },
+  "oracleStatus": {
+    "baselineBeforeBackfill": 260,
+    "backfillTestCount": 34,
+    "totalAfterBackfill": 294,
+    "result": "green",
+    "note": "294 = 260 Story 1.1 baseline tests \u002B 34 new tests added by this story (29 live-decision-code characterization test cases across 18 methods \u2014 including a 12-case fail-closed trigger-state theory \u2014 plus 5 artifact generator/validator tests), all passing on main. No existing suite was weakened, deleted, or had an assertion removed."
+  },
+  "behaviors": [
+    {
+      "id": 1,
+      "name": "Tenant fail-closed (NFR3)",
+      "risk": "HIGH",
+      "productionPaths": [
+        "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessService.cs",
+        "src/Hexalith.Conversations.Server/TenantAccess/ConversationTenantAccessGuard.cs"
+      ],
+      "coveringTestsBefore": [
+        "Oracle: TenantIsolationConformanceSuiteTest (asserts the synthetic scenario engine outcomes only)",
+        "Non-oracle: Server.Tests/TenantAccess/ConversationTenantAccessServiceTest \u002B ConversationTenantAccessGuardTest (live code, but not part of the oracle)"
+      ],
+      "measuredGap": "The oracle asserted the scenario-engine mirror; it never instantiated the live tenant access service or guard. A fail-open flip of the live cross-tenant / non-member deny was caught by nothing in the oracle.",
+      "faultInjection": {
+        "branchFlipped": "ConversationTenantAccessService.DecideFromProjectionState: the non-member deny (MissingMember) returned Allowed.",
+        "originalOracleResult": "GREEN \u2014 the original 260-test oracle stayed all-pass under the flip (blind spot confirmed).",
+        "result": "RED \u2014 LiveServiceShouldDenyCrossTenantMemberLeakage failed under the flip (fail-open now caught)."
+      },
+      "backfillTests": [
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState (unknown/disabled/stale/ambiguous/insufficient/unavailable \u002B gap/rollback/unmapped-role/unmapped-status/malformed-projection/member-poisoned)",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenTenantBindingIsMissing (missing)",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenTenantIdIsMalformed",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenCallerPrincipalIsMalformed",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldDenyCrossTenantMemberLeakage",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldDenyContradictoryTenantBindings",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveGuardShouldNotRunProtectedOperationWhenLiveServiceDenies",
+        "LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldAllowAuthorizedOwner (positive control)"
+      ],
+      "disposition": "backfilled",
+      "addressesAcceptanceCriteria": [
+        "AC2",
+        "AC3"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Governance audit-pairing",
+      "risk": "MEDIUM",
+      "productionPaths": [
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs (governed read-model pairing)",
+        "src/Hexalith.Conversations.Server/Governance/ (audit gate \u002B verification; gate is internal)"
+      ],
+      "coveringTestsBefore": [
+        "Oracle: governance covered at outcome level across the adopter/buyer/release-scope suites",
+        "Non-oracle: Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest (reflection inventory; flagged to Story 1.3)"
+      ],
+      "measuredGap": "The live audit gate that handlers route through is internal (visible only to the server unit-test assembly) and unreachable from the oracle. The reachable public surface is the materialized governed read model, which the oracle did not assert pairing on.",
+      "faultInjection": {
+        "branchFlipped": "ConversationProjectionMaterializer.Apply(RetentionPolicySet): dropped the audited retention mutation from the read model.",
+        "result": "RED \u2014 LiveMaterializerShouldPairEveryGovernanceMutationWithAuditEvidence failed under the flip (dropped pairing now caught)."
+      },
+      "backfillTests": [
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldPairEveryGovernanceMutationWithAuditEvidence (retention \u002B sensitivity \u002B redaction)"
+      ],
+      "disposition": "backfilled",
+      "addressesAcceptanceCriteria": [
+        "AC1",
+        "AC2"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Idempotency",
+      "risk": "MEDIUM",
+      "productionPaths": [
+        "src/Hexalith.Conversations.Server/CommandHandlers/IdempotentConversationCommandExecutor.cs",
+        "src/Hexalith.Conversations/Idempotency/ (decision, outcome, in-memory store)"
+      ],
+      "coveringTestsBefore": [
+        "Oracle: IdempotencyConformanceSuiteTest (synthetic scenario-engine outcomes only)",
+        "Non-oracle: Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest (live executor, not part of the oracle)"
+      ],
+      "measuredGap": "The oracle proved the synthetic dedup outcome but never ran the live executor; a broken dedup that re-executed a replay as new work was caught by nothing in the oracle.",
+      "faultInjection": {
+        "branchFlipped": "IdempotentConversationCommandExecutor.ExecuteAsync: the Duplicate arm re-executed the mutation instead of replaying the stored outcome.",
+        "result": "RED \u2014 LiveExecutorShouldReplayDuplicateWithoutReinvokingMutation failed under the flip (broken dedup now caught)."
+      },
+      "backfillTests": [
+        "LiveIdempotencyOracleCharacterizationTest.LiveExecutorShouldReplayDuplicateWithoutReinvokingMutation",
+        "LiveIdempotencyOracleCharacterizationTest.LiveExecutorShouldInvokeMutationOnceForFirstSubmission"
+      ],
+      "disposition": "backfilled",
+      "addressesAcceptanceCriteria": [
+        "AC1",
+        "AC2"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Redaction replay",
+      "risk": "MEDIUM",
+      "productionPaths": [
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs (redaction suppression on replay)",
+        "src/Hexalith.Conversations/State/ (target-keyed redaction state)"
+      ],
+      "coveringTestsBefore": [
+        "Oracle: RedactionConformanceSuiteTest (synthetic scenario-engine outcomes only)",
+        "Non-oracle: Server.Tests/Projections/ConversationProjectionMaterializerTest (live replay suppression, not part of the oracle)"
+      ],
+      "measuredGap": "The oracle did not exercise the live read-model rebuild; a regression that leaked redacted text when the message event replays after the redaction event was caught by nothing in the oracle.",
+      "faultInjection": {
+        "branchFlipped": "ConversationProjectionMaterializer.Apply(MessageAppended): projected the original text instead of the redaction placeholder.",
+        "result": "RED \u2014 LiveMaterializerShouldSuppressRedactedContentWhenMessageReplaysAfterRedaction failed under the flip (replay leak now caught)."
+      },
+      "backfillTests": [
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSuppressRedactedContentWhenMessageReplaysAfterRedaction"
+      ],
+      "disposition": "backfilled",
+      "addressesAcceptanceCriteria": [
+        "AC1",
+        "AC2"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "Projection freshness",
+      "risk": "HIGH",
+      "productionPaths": [
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs (freshness downgrade)",
+        "src/Hexalith.Conversations.Server/Diagnostics/ConversationProjectionFreshnessClassifier.cs"
+      ],
+      "coveringTestsBefore": [
+        "Oracle: AdopterConformanceSuite.CheckProjectionFreshness (proves the STALE state only, via one synthetic fixture)",
+        "Non-oracle: Server.Tests/Projections \u002B Diagnostics (rebuilding/unavailable/gap downgrades, not part of the oracle)"
+      ],
+      "measuredGap": "The oracle proved only that a stale projection is degraded; the live materializer\u0027s rebuilding / unavailable / gap downgrades and the only-Current-is-trust-bearing rule were unpinned in the oracle.",
+      "faultInjection": {
+        "branchFlipped": "ConversationProjectionMaterializer.CreateFreshness: suppressed the stale downgrade so an over-threshold projection stayed Current.",
+        "result": "RED \u2014 LiveMaterializerShouldSurfaceStaleProjectionAsNonTrustBearing failed under the flip (degraded-as-fresh now caught)."
+      },
+      "backfillTests": [
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldReportCurrentProjectionAsTrustBearing",
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceStaleProjectionAsNonTrustBearing",
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceGapAsRebuildingNonTrustBearing",
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceActiveRebuildAsNonTrustBearing",
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceMetadataWriteFailureAsUnavailable",
+        "LiveProjectionFreshnessOracleCharacterizationTest.LiveFreshnessClassifierShouldNeverPromoteDegradedStatesToCurrent"
+      ],
+      "disposition": "backfilled",
+      "addressesAcceptanceCriteria": [
+        "AC1",
+        "AC2"
+      ]
+    }
+  ],
+  "acceptedGaps": [
+    {
+      "area": "Governance audit gate (internal fail-closed-on-sink-failure path)",
+      "description": "The live audit gate that fails closed when the audit sink throws is internal and visible only to the server unit-test assembly, so the oracle cannot exercise it directly. The oracle backfill instead pins the public materialized pairing invariant; the internal gate stays covered by the server unit tests.",
+      "rationale": "Making the internal gate oracle-reachable is an internal-coupling change, which is out of scope for this measurement/backfill story (do not decouple here).",
+      "closingStory": "Story 1.3 (oracle survivability / decoupling triage)"
+    },
+    {
+      "area": "Line/branch coverage of every non-safety-critical projection branch",
+      "description": "Coverage was used to locate the per-behavior safety-critical branch; exhaustive branch coverage of every projection helper was not pursued where the branch is not a release-gate fail-open risk.",
+      "rationale": "This story pins the five release-gate behaviors against fail-open regressions, not 100% branch coverage; the non-gate branches are already exercised by the server unit tests.",
+      "closingStory": "Story 5.1 (full-suite run) keeps these exercised; no dedicated closing story required"
+    }
+  ],
+  "detectedVariances": [
+    {
+      "observation": "All five live decision paths were reachable from the oracle project only because it already references the server assembly; the backfilled tenant/idempotency tests touch server-internal construction. This is the same public-surface-vs-internal-coupling tension Story 1.1 flagged.",
+      "handoff": "Story 1.3 owns the public-surface-only survivability triage."
+    },
+    {
+      "observation": "Under heavy parallelism the pre-existing generator test that rewrites a committed evidence file races the validation test that reads it; observed once as a transient content-safety failure, not reproducible across reruns, and the committed file stays byte-identical. Not caused by this story\u0027s backfills.",
+      "handoff": "Recorded for Story 1.3; not fixed here (would modify an existing oracle test)."
+    }
+  ]
+}

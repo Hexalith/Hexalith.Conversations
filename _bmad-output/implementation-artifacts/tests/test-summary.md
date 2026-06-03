@@ -1134,3 +1134,34 @@ Story 1.1 is an evidence-artifact story (no UI / no HTTP API), so the appropriat
 - [x] `dotnet test tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj --no-build --no-restore` - 155 passed; this validates the existing compiled assembly only and does not compile the new QA follow-up tests.
 - [x] `dotnet test tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj --no-build --no-restore` - 132 passed; this validates the existing compiled assembly only and does not compile the new QA follow-up tests.
 - [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj --no-build --no-restore` - 237 passed; this validates the existing compiled assembly only and does not compile the new QA follow-up tests.
+
+## Story 1.2 Measure the Oracle's Blind Spots and Backfill Characterization Tests
+
+Story 1.2 is an oracle-strengthening story (no UI / no HTTP API), so the appropriate automated tests are live-decision-code characterization tests added **inside** the conformance oracle, following the project's xUnit v3 + Shouldly idiom (not browser E2E). The dev backfill pinned the five release-gate behaviors; this QA pass enumerated the live decision code's deny/downgrade branches to find any still-unpinned safety path, then auto-applied the gaps. Framework detected and reused: xUnit v3 + Shouldly + `coverlet.collector` on .NET 10 (no new tooling). Suite under test: `tests/Hexalith.Conversations.Conformance.Tests`.
+
+### Discovered Gaps → Applied
+`ConversationTenantAccessService` (behavior #1, tenant fail-closed, NFR3 — the dominant invariant) exposes **16 denial reasons**; the existing oracle backfill pinned only **7**. The remaining live deny branches are all release-gate fail-closed concerns per `project-context.md` yet were unpinned in the oracle (a fail-open mutation of any rode green). Eight auto-applied:
+- [x] Gap 1 (AC3) — projection **sequence gap** (`health.HasGap`) → `TenantAccessGapDetected` (Dapr at-least-once / out-of-order events fail closed).
+- [x] Gap 2 (AC3) — projection **watermark regression** (`health.HasRollback`) → `TenantAccessRolledBack`.
+- [x] Gap 3 (AC3) — caller's own role **outside the closed-world set** → `UnmappedRole` (partial Tenants SDK rollout must not widen access).
+- [x] Gap 4 (AC3) — non-active **`Unknown` status sentinel** → `UnmappedStatus` (missing status must never read as active, TEN-2).
+- [x] Gap 5 (AC3) — **non-canonical stored projection tenant id** → `MalformedProjection`.
+- [x] Gap 6 (AC3) — **member key with trim drift** → `TenantProjectionPoisoned` (poisoned/non-Ordinal membership map must not widen access, TEN-3).
+- [x] Gap 7 (AC3) — **non-canonical request tenant id** (reserved delimiter) → `MalformedTenant`.
+- [x] Gap 8 (AC3) — **caller principal with trim drift** → `MissingCaller`.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/LiveTenantFailClosedOracleCharacterizationTest.cs` — extended by 8 tests (6 new `[Theory]` rows on `FailClosedTriggerStates` + 2 new `[Fact]` for malformed tenant id / malformed caller). Each asserts `IsAllowed == false` and the exact current `DenialReason`, so any mutation that flips the branch to allow — or changes its classification — turns the oracle RED.
+
+### Implementation
+- No production source under `src/` changed (Story 1.2 behavior-preservation scope). Only the one existing test-only file was extended; no sibling submodule touched; no submodule recursed. Reused `Hexalith.Tenants` types and the existing in-file stub patterns; no new authorization fakes invented.
+
+### Validation
+- [x] `dotnet test ... --filter "FullyQualifiedName~LiveTenantFailClosedOracleCharacterizationTest"` — 19 passed (was 11; +8 new).
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — **294 passed, 0 failed, 0 skipped** (was 286; +8 new). All green on `main` (characterization — pins current behavior).
+- [x] `git status src/` clean — zero production changes.
+
+### Coverage
+- Tenant fail-closed denial reasons pinned in the oracle: **7/16 → 15/16** (the 16th, `None`, is the allow path, pinned by the positive control).
+- All five release-gate behaviors remain backfilled; behavior #1 materially strengthened. Behaviors #2–#5 (governance pairing, idempotency, redaction replay, projection freshness) were already pinned across their safety-critical branches — no high-confidence gap found.
+- AC2 traceability note: left `docs/release-evidence/oracle-blind-spot-analysis-v1.json` unchanged to preserve the dev's baseline-commit evidence verbatim; if these 8 tests are folded into the official record, add their method names to `behaviors[0].backfillTests` and bump the counts.
