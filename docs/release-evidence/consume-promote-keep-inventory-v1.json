@@ -1,0 +1,493 @@
+{
+  "artifact": "consume-promote-keep-inventory",
+  "version": 1,
+  "status": "accepted",
+  "acceptedDate": "2026-06-03",
+  "baselineCommit": "bf3d052",
+  "sourceTotalLoc": 35769,
+  "plumbingBaselineLoc": 13289,
+  "plumbingBaselinePctOfSource": 37.15,
+  "countingMethod": "find <paths> -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' | xargs wc -l",
+  "addendumReference": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md#A",
+  "fr2Governed": true,
+  "sm1BaselineFor": "Story 5.3",
+  "versioningConvention": "Immutable once accepted. The '-v1' suffix is fixed at acceptance; post-acceptance reclassifications and dispute resolutions (Story 1.5) APPEND a logged change entry to 'changeLog' and never rewrite an accepted row's history. A structurally new inventory would be '-v2'.",
+  "openQuestionsNotResolvedHere": [
+    "OQ-1 per-promotion landing zone (downstream architecture run, gates Epic 3)",
+    "OQ-2 confirm SM-1/SM-2 numeric targets (only the baseline is fixed here; target >=40% stays open)",
+    "OQ-3 governance/hydration promote-later boundary (recorded as Keep-now candidates, not decided here)"
+  ],
+  "classificationLegend": {
+    "Consume": "Plumbing that maps to an EXISTING technical-module capability the owning Epic 2 story adopts in place of the hand-rolled local code. Counts toward the plumbing-LOC baseline.",
+    "Promote": "Plumbing with no existing shared capability; the owning Epic 3 story extracts/promotes a generic capability and Conversations adopts it. Counts toward the plumbing-LOC baseline.",
+    "Keep": "Domain logic, not plumbing to move in this initiative. Excluded from the plumbing-LOC baseline. Keep != frozen (it may still change for domain reasons); it means 'not a boilerplate-reduction move target in this pilot'."
+  },
+  "areas": [
+    {
+      "areaId": "query-cursor-orchestration",
+      "name": "Queries / cursor orchestration (server)",
+      "classification": "Consume",
+      "paths": ["src/Hexalith.Conversations.Server/Queries/**"],
+      "approxLoc": 2076,
+      "addendumLoc": 5327,
+      "addendumArea": 1,
+      "targetCapability": "EventStore.Client IDomainQueryHandler + IQueryCursorCodec + QueryCursorScope",
+      "capabilityStatus": "existing",
+      "fr": "FR-4",
+      "owningStory": "2.3",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 1 (5327) is split by real source boundary: the server-side query-handler + hand-rolled HMAC cursor codec orchestration (this row, Consume) vs the Contracts query filters/response-shape DTOs ('query-filters-response-shapes', Keep). Server/Queries holds the orchestration the SDK query-handler + cursor codec replaces."
+    },
+    {
+      "areaId": "shared-host-api",
+      "name": "Domain-service host / HTTP API wiring (server)",
+      "classification": "Consume",
+      "paths": [
+        "src/Hexalith.Conversations.Server/Api/**",
+        "src/Hexalith.Conversations.Server/EventStore/**",
+        "src/Hexalith.Conversations.Server/*.cs"
+      ],
+      "approxLoc": 906,
+      "addendumLoc": 363,
+      "addendumArea": 9,
+      "targetCapability": "AddEventStoreDomainService shared two-line domain-service host",
+      "capabilityStatus": "existing",
+      "fr": "FR-3",
+      "owningStory": "2.1",
+      "promoteLaterCandidate": false,
+      "notes": "Server/Api endpoint mapping (843) + Server/EventStore glue (32) + Server root host wiring/Program-adjacent (31). The shared host owns routing/actor-identity/persistence/publication wiring; Story 2.1 replaces this hand-wired host with the shared two-line registration. Part of addendum's cross-cutting DI area 9 (the shared-host-discovery-DI slice); the per-pattern registration helpers within other subtrees are counted in their own rows to avoid double-counting."
+    },
+    {
+      "areaId": "server-command-dispatch-idempotency",
+      "name": "Command handlers / idempotency executor (server)",
+      "classification": "Consume",
+      "paths": ["src/Hexalith.Conversations.Server/CommandHandlers/**"],
+      "approxLoc": 1893,
+      "addendumLoc": null,
+      "addendumArea": 12,
+      "targetCapability": "EventStoreAggregate<TState> dispatch + shared idempotency-bridge shims",
+      "capabilityStatus": "existing",
+      "fr": "FR-7",
+      "owningStory": "2.2",
+      "promoteLaterCandidate": false,
+      "notes": "IdempotentConversationCommandExecutor + command-handler registration. Dominant fate is the FR-7/2.2 idempotency-bridge + aggregate-dispatch consume; the handler re-registration is also touched by FR-3/2.1 (shared host) - recorded here as the dominant 2.2 row, cross-noted to 2.1, never dual-labelled."
+    },
+    {
+      "areaId": "core-aggregate-dispatch-replay-idempotency",
+      "name": "Aggregate dispatch / replay / idempotency bridge (core)",
+      "classification": "Consume",
+      "paths": [
+        "src/Hexalith.Conversations/Replay/**",
+        "src/Hexalith.Conversations/Idempotency/**"
+      ],
+      "approxLoc": 1896,
+      "addendumLoc": null,
+      "addendumArea": 12,
+      "targetCapability": "EventStoreAggregate<TState> reflection dispatch + idempotency-bridge shims",
+      "capabilityStatus": "existing",
+      "fr": "FR-7",
+      "owningStory": "2.2",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 12 (aggregate scaffolding) split by real source boundary: Replay (357) + Idempotency (1539) are the dispatch/replay/idempotency-bridge shims FR-7 removes (this row, Consume); Aggregates + State + Events domain shape are kept ('aggregate-state-event-domain', Keep). Mirrors the Story 1.3 at-risk register, which routes the idempotency-bridge plumbing-only-retire to Story 2.2."
+    },
+    {
+      "areaId": "generic-serialization-converters",
+      "name": "Generic JSON converters (contracts)",
+      "classification": "Consume",
+      "paths": [
+        "src/Hexalith.Conversations.Contracts/Serialization/ConversationIntValueJsonConverter.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/ConversationStringValueJsonConverter.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/PrefixedIdentifierJsonConverter.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/IdentifierJsonConverters.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/SchemaVersionJsonConverter.cs"
+      ],
+      "approxLoc": 215,
+      "addendumLoc": 174,
+      "addendumArea": 10,
+      "targetCapability": "Commons TypeMapper + generic value/identifier JSON converters + source-gen JSON-context base",
+      "capabilityStatus": "existing",
+      "fr": "FR-8",
+      "owningStory": "2.6",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 10 (Serialization, 647) split by real file boundary: the generic value/identifier/schema-version converters (215, this Consume row -> Commons generic converters FR-8/2.6; the polymorphic JSON-context base is FR-14/3.6-adjacent) vs the domain-closed-vocabulary converters ('domain-rule-serialization-converters', Keep, 432). Measured split (215/432) supersedes the addendum first-pass estimate (174/473); divergence recorded per AC1."
+    },
+    {
+      "areaId": "duplicate-test-fakes",
+      "name": "Duplicate repository test fakes (testing)",
+      "classification": "Consume",
+      "paths": ["src/Hexalith.Conversations.Testing/Fixtures/RepositoryTestContext.cs"],
+      "approxLoc": 51,
+      "addendumLoc": 1755,
+      "addendumArea": 11,
+      "targetCapability": "Hexalith.EventStore.Testing assertions + in-memory repository fakes",
+      "capabilityStatus": "existing",
+      "fr": "FR-9",
+      "owningStory": "2.7",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 11 (Testing, 1755) split by real file boundary: the in-memory repository test harness that duplicates EventStore.Testing (51, this Consume row) vs the domain conformance fixtures ('domain-conformance-fixtures', Keep, 1704). The bulk of the Testing project is domain conformance fixtures (Keep), not duplicate plumbing - this corrects the addendum's blanket area-11 figure."
+    },
+    {
+      "areaId": "projection-orchestration",
+      "name": "Projection materializer / rebuild orchestration (server)",
+      "classification": "Promote",
+      "paths": ["src/Hexalith.Conversations.Server/Projections/**"],
+      "approxLoc": 1800,
+      "addendumLoc": 2975,
+      "addendumArea": 3,
+      "targetCapability": "EventStore IDomainProjectionHandler projection seam (generic replay/dispatch orchestration)",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-6",
+      "owningStory": "2.5",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 3 (Projections, 2975) split by real source boundary: the server materializer/rebuild orchestration (1800, this Promote row -> FR-6/2.5) vs the Contracts projection field-selection/freshness shape DTOs ('projection-field-selection-freshness-shape', Keep, 1175). Same split the Story 1.3 at-risk register named (materializer orchestration retires @ 2.5; freshness/redaction behavior stays)."
+    },
+    {
+      "areaId": "diagnostics-telemetry-scaffolding",
+      "name": "Diagnostics / telemetry / classifier scaffolding",
+      "classification": "Promote",
+      "paths": [
+        "src/Hexalith.Conversations.Server/Diagnostics/**",
+        "src/Hexalith.Conversations.Contracts/Diagnostics/**"
+      ],
+      "approxLoc": 2442,
+      "addendumLoc": 2442,
+      "addendumArea": 4,
+      "targetCapability": "Shared meter/counter/classifier telemetry scaffolding helper",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-15",
+      "owningStory": "3.3",
+      "promoteLaterCandidate": false,
+      "notes": "Server/Diagnostics (1815) + Contracts/Diagnostics (627). Reconciles to the addendum area 4 figure exactly. The Story 1.3 register's telemetry/status suites retarget to the promoted type in this same owning story (3.3)."
+    },
+    {
+      "areaId": "tenant-access-projection",
+      "name": "Tenant-access projection + DI (server)",
+      "classification": "Promote",
+      "paths": ["src/Hexalith.Conversations.Server/TenantAccess/**"],
+      "approxLoc": 1086,
+      "addendumLoc": 1086,
+      "addendumArea": 6,
+      "targetCapability": "Generic TenantAccessProjectionHandler<TEvent,TProjection> + AddXxxTenantAccess registration",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-11",
+      "owningStory": "3.2",
+      "promoteLaterCandidate": false,
+      "notes": "Reconciles to the addendum area 6 figure exactly. Fail-closed tenant-access decision logic is generic projection-handler plumbing; the Conversations-specific access policy stays expressed through the promoted generic handler's type parameters."
+    },
+    {
+      "areaId": "publication-transport-marshaling",
+      "name": "Publication transport marshaling (server)",
+      "classification": "Promote",
+      "paths": [
+        "src/Hexalith.Conversations.Server/Publication/ConversationPublicationMapper.cs",
+        "src/Hexalith.Conversations.Server/Publication/ConversationTransportMetadata.cs",
+        "src/Hexalith.Conversations.Server/Publication/ConversationPublicationMetadata.cs",
+        "src/Hexalith.Conversations.Server/Publication/PersistedConversationEvent.cs",
+        "src/Hexalith.Conversations.Server/Publication/ConversationPublicationService.cs",
+        "src/Hexalith.Conversations.Server/Publication/LocalConversationPublicationConsumer.cs"
+      ],
+      "approxLoc": 422,
+      "addendumLoc": 638,
+      "addendumArea": 8,
+      "targetCapability": "Shared Aspire/Dapr hosting + event-publication transport base",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-13",
+      "owningStory": "3.5",
+      "promoteLaterCandidate": false,
+      "notes": "Addendum area 8 (Publication, 638) split by real file boundary: the event-composition/transport-marshaling mapper + metadata + service + consumer (422, this Promote row) vs the domain failure-taxonomy outcome/result/diagnostic types ('publication-failure-taxonomy', Keep, 131). Transport marshaling is FR-13/3.5 with FR-3/2.1 (shared host publication) adjacency; recorded as Promote-partial per the addendum's 'Promote (partial)' label."
+    },
+    {
+      "areaId": "typed-client-registration",
+      "name": "Typed HttpClient registration (client)",
+      "classification": "Promote",
+      "paths": [
+        "src/Hexalith.Conversations.Client/ConversationClient.cs",
+        "src/Hexalith.Conversations.Client/ConversationClientServiceCollectionExtensions.cs",
+        "src/Hexalith.Conversations.Client/ConversationClientContext.cs",
+        "src/Hexalith.Conversations.Client/ConversationClientOptions.cs",
+        "src/Hexalith.Conversations.Client/ClientAssemblyMarker.cs"
+      ],
+      "approxLoc": 479,
+      "addendumLoc": 619,
+      "addendumArea": null,
+      "targetCapability": "Generic typed-HttpClient registration extension",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-12",
+      "owningStory": "3.1",
+      "promoteLaterCandidate": false,
+      "notes": "Client project (619) split by real file boundary: the typed-HttpClient implementation + DI registration + context/options (479, this Promote row -> FR-12/3.1) vs the Conversations client-surface DTOs ('client-surface-dtos', Keep, 140 = IConversationClient + ConversationClientResult)."
+    },
+    {
+      "areaId": "service-defaults-greenfield",
+      "name": "ServiceDefaults base (greenfield-adopt)",
+      "classification": "Promote",
+      "paths": ["src/Hexalith.Conversations.ServiceDefaults/**"],
+      "approxLoc": 13,
+      "addendumLoc": 13,
+      "addendumArea": null,
+      "targetCapability": "Shared ServiceDefaults base",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-10",
+      "owningStory": "3.4",
+      "promoteLaterCandidate": false,
+      "notes": "Empty marker project (13). Greenfield-adopt: there is no local copy to delete (FR-17 delete N/A); Story 3.4 adopts the shared ServiceDefaults base directly."
+    },
+    {
+      "areaId": "apphost-greenfield",
+      "name": "Aspire AppHost base (greenfield-adopt)",
+      "classification": "Promote",
+      "paths": ["src/Hexalith.Conversations.AppHost/**"],
+      "approxLoc": 10,
+      "addendumLoc": 10,
+      "addendumArea": null,
+      "targetCapability": "Shared Aspire/Dapr domain-module hosting base",
+      "capabilityStatus": "to-be-promoted",
+      "fr": "FR-13",
+      "owningStory": "3.5",
+      "promoteLaterCandidate": false,
+      "notes": "Placeholder project (10). Greenfield-adopt: Story 3.5 adopts the shared Aspire/Dapr hosting base; no local hosting copy to delete."
+    },
+    {
+      "areaId": "query-filters-response-shapes",
+      "name": "Query filters / response-shape DTOs (contracts)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations.Contracts/Queries/**"],
+      "approxLoc": 3251,
+      "addendumLoc": null,
+      "addendumArea": 1,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Conversation-specific query request/filter/response-shape DTOs are domain surface (what a conversation query asks and returns), not the generic query-handler/cursor orchestration that moves under FR-4.",
+      "notes": "Keep split-row paired with 'query-cursor-orchestration' (Consume). Together they account for addendum area 1 (5327 = 2076 + 3251)."
+    },
+    {
+      "areaId": "projection-field-selection-freshness-shape",
+      "name": "Projection field-selection / freshness shape DTOs (contracts)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations.Contracts/Projections/**"],
+      "approxLoc": 1175,
+      "addendumLoc": null,
+      "addendumArea": 3,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Projection read-model field-selection and freshness/redaction shape is domain behavior (which fields surface, how staleness is disclosed); only the materializer/rebuild orchestration is generic plumbing.",
+      "notes": "Keep split-row paired with 'projection-orchestration' (Promote). Together they account for addendum area 3 (2975 = 1800 + 1175)."
+    },
+    {
+      "areaId": "governance-evidence-vocabulary",
+      "name": "Governance / verification / audit",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Server/Governance/**",
+        "src/Hexalith.Conversations.Contracts/Governance/**"
+      ],
+      "approxLoc": 4337,
+      "addendumLoc": 4337,
+      "addendumArea": 2,
+      "promoteLaterCandidate": true,
+      "oq3Note": "OQ-3 boundary: the domain evidence/remediation vocabulary and audit-pairing rules stay (Keep now). The generic check->evidence->verify governance flow is a promote-LATER candidate, NOT a move target in this pilot. Classified-and-kept-now, not silently promoted; it does not become a Promote row here.",
+      "keepRationale": "Governance audit-pairing, evidence anchoring, and remediation vocabulary are release-gate domain rules (every governance mutation pairs a state-change event with audit evidence). Reconciles to addendum area 2 exactly.",
+      "notes": "Story 1.3's GovernanceAuditPairingSafetyNet re-expression pins the publicly-observable audit-pairing invariant; the internal sink-failure gate is owned by Story 2.1."
+    },
+    {
+      "areaId": "hydration-reference-resolution",
+      "name": "Hydration (reference resolution)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations.Server/Hydration/**"],
+      "approxLoc": 629,
+      "addendumLoc": 828,
+      "addendumArea": 7,
+      "promoteLaterCandidate": true,
+      "oq3Note": "OQ-3 boundary: cross-domain reference binding (Parties/Tenants reference resolution at read time) is a promote-LATER candidate, NOT a move target in this pilot. Kept now with the marker; not promoted here.",
+      "keepRationale": "Read-time reference resolution / hydration is Conversations-owned adapter behavior (degrade-on-read policy, fail-closed-on-write participant validation); the generic reference-binding pattern is promote-later, not this pilot.",
+      "notes": "Server/Hydration (629). The Contracts reference types the addendum folded into area 7 are counted under 'domain-contract-types' (Identifiers/Participants) to avoid double-counting."
+    },
+    {
+      "areaId": "validation-business-rules",
+      "name": "Validation logic (core)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations/Validation/**"],
+      "approxLoc": 2101,
+      "addendumLoc": 2663,
+      "addendumArea": 5,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Conversation business-rule validators are domain logic, not plumbing.",
+      "notes": "Measured Core/Validation (2101). The addendum area-5 figure (2663) folded in scattered Contracts-side validators; those are counted within their owning Contracts subtrees here ('domain-contract-types') to avoid double-counting - the measured 2101 supersedes the addendum's cross-project 2663 for this row."
+    },
+    {
+      "areaId": "aggregate-state-event-domain",
+      "name": "Aggregate state / event domain shape (core)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations/Aggregates/**",
+        "src/Hexalith.Conversations/State/**",
+        "src/Hexalith.Conversations/Events/**",
+        "src/Hexalith.Conversations/Commands/**",
+        "src/Hexalith.Conversations/*.cs"
+      ],
+      "approxLoc": 1769,
+      "addendumLoc": null,
+      "addendumArea": 12,
+      "promoteLaterCandidate": false,
+      "keepRationale": "ConversationAggregate domain definition, aggregate state, domain events and commands are the conversation domain shape - Keep (deterministic, replay-safe), not the dispatch/replay/idempotency bridge that moves under FR-7.",
+      "notes": "Keep split-row paired with 'core-aggregate-dispatch-replay-idempotency' (Consume). Aggregates (299) + State (831) + Events (503) + Commands (117) + core root (19)."
+    },
+    {
+      "areaId": "domain-rule-serialization-converters",
+      "name": "Domain closed-vocabulary JSON converters (contracts)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Contracts/Serialization/ClosedVocabularyJsonConverters.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/ProjectionFreshnessReasonCodeJsonConverter.cs",
+        "src/Hexalith.Conversations.Contracts/Serialization/ProjectionTrustStateJsonConverter.cs"
+      ],
+      "approxLoc": 432,
+      "addendumLoc": 473,
+      "addendumArea": 10,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Closed-vocabulary and projection-trust/freshness converters encode domain rules (which values are valid, how domain enums serialize); they are not the generic converter machinery.",
+      "notes": "Keep split-row paired with 'generic-serialization-converters' (Consume). Together they account for the Serialization folder (647 = 215 + 432)."
+    },
+    {
+      "areaId": "publication-failure-taxonomy",
+      "name": "Publication outcome / failure taxonomy (server)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Server/Publication/ConversationPersistenceOutcome.cs",
+        "src/Hexalith.Conversations.Server/Publication/ConversationPublicationResult.cs",
+        "src/Hexalith.Conversations.Server/Publication/ConversationPublicationDiagnostic.cs"
+      ],
+      "approxLoc": 131,
+      "addendumLoc": null,
+      "addendumArea": 8,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Persistence-outcome / publication-result / diagnostic failure taxonomy is Conversations-safe domain status mapping (do not leak substrate failure details), not transport plumbing.",
+      "notes": "Keep split-row paired with 'publication-transport-marshaling' (Promote). Together they account for the Publication folder (553 = 422 + 131)."
+    },
+    {
+      "areaId": "conformance-contract-types",
+      "name": "Conformance / release contract types (contracts)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations.Contracts/Conformance/**"],
+      "approxLoc": 2196,
+      "addendumLoc": null,
+      "addendumArea": null,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Conformance manifest / release-gate / provider-portability contract types are the public release-evidence surface this very initiative is gated by - domain/release surface, not movable plumbing.",
+      "notes": "Contracts/Conformance (2196)."
+    },
+    {
+      "areaId": "domain-contract-types",
+      "name": "Public domain contract DTOs (contracts)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Contracts/Commands/**",
+        "src/Hexalith.Conversations.Contracts/Events/**",
+        "src/Hexalith.Conversations.Contracts/Errors/**",
+        "src/Hexalith.Conversations.Contracts/Identifiers/**",
+        "src/Hexalith.Conversations.Contracts/Participants/**",
+        "src/Hexalith.Conversations.Contracts/Results/**",
+        "src/Hexalith.Conversations.Contracts/TrustStates/**",
+        "src/Hexalith.Conversations.Contracts/Versioning/**",
+        "src/Hexalith.Conversations.Contracts/*.cs"
+      ],
+      "approxLoc": 3738,
+      "addendumLoc": null,
+      "addendumArea": null,
+      "promoteLaterCandidate": false,
+      "keepRationale": "Commands, events, errors, identifiers, participants, results, trust-states, and schema-versioning DTOs are the adopter-facing Conversations domain surface - the public contract the whole behavior-preservation refactor must keep byte-shape-stable. Pure Keep.",
+      "notes": "Commands (358) + Events (802) + Errors (828) + Identifiers (597) + Participants (132) + Results (260) + TrustStates (87) + Versioning (661) + Contracts root (13). Schema-versioning DTOs are domain surface (Keep); the generic source-gen JSON-context base that FR-14/3.6 promotes is accounted under 'generic-serialization-converters', not here."
+    },
+    {
+      "areaId": "client-surface-dtos",
+      "name": "Conversations client-surface DTOs (client)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Client/IConversationClient.cs",
+        "src/Hexalith.Conversations.Client/ConversationClientResult.cs"
+      ],
+      "approxLoc": 140,
+      "addendumLoc": null,
+      "addendumArea": null,
+      "promoteLaterCandidate": false,
+      "keepRationale": "The IConversationClient contract and ConversationClientResult expose Conversations concepts (not raw EventStore envelopes); they are the adopter-facing client surface, Keep.",
+      "notes": "Keep split-row paired with 'typed-client-registration' (Promote). Together they account for the Client project (619 = 479 + 140)."
+    },
+    {
+      "areaId": "domain-conformance-fixtures",
+      "name": "Domain conformance fixtures (testing)",
+      "classification": "Keep",
+      "paths": [
+        "src/Hexalith.Conversations.Testing/Fixtures/BuyerAcceptanceDemoFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/ContractValidationConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/ConversationConformanceCoreFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/EventSchemaEvolutionConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/IdempotencyConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/PlatformEvidenceSeparationConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/ProviderPortabilityConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/RedactionConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Fixtures/TenantIsolationConformanceFixtures.cs",
+        "src/Hexalith.Conversations.Testing/Factories/**",
+        "src/Hexalith.Conversations.Testing/TestingAssemblyMarker.cs"
+      ],
+      "approxLoc": 1704,
+      "addendumLoc": null,
+      "addendumArea": 11,
+      "promoteLaterCandidate": false,
+      "keepRationale": "The conformance fixtures (idempotency, contract-validation, schema-evolution, provider-portability, redaction, platform-evidence-separation, tenant-isolation, buyer-acceptance, core) encode the Conversations domain scenarios the oracle asserts - domain conformance data, Keep.",
+      "notes": "Keep split-row paired with 'duplicate-test-fakes' (Consume). Testing project (1755) minus RepositoryTestContext (51) = 1704. Paths enumerate the nine conformance fixtures + Factories + the assembly marker EXPLICITLY (not a Fixtures/** glob) so RepositoryTestContext.cs - the single duplicate-fake file attributed to the Consume row - is not re-included; the two rows are disjoint at the file level (no double-count)."
+    },
+    {
+      "areaId": "admin-web-frontcomposer",
+      "name": "Admin web (FrontComposer-generated)",
+      "classification": "Keep",
+      "paths": ["src/Hexalith.Conversations.Admin.Web/**"],
+      "approxLoc": 877,
+      "addendumLoc": 877,
+      "addendumArea": null,
+      "promoteLaterCandidate": false,
+      "keepRationale": "The admin surface is FrontComposer contract-generated and preserved (not redesigned); it consumes Conversations commands/projections/freshness states. Keep.",
+      "notes": "Hexalith.Conversations.Admin.Web (877)."
+    }
+  ],
+  "plumbingDerivation": {
+    "formula": "plumbingBaselineLoc = sum(Consume rows approxLoc) + sum(Promote rows approxLoc); Keep excluded (domain logic).",
+    "consumeRows": [
+      {"areaId": "query-cursor-orchestration", "approxLoc": 2076},
+      {"areaId": "shared-host-api", "approxLoc": 906},
+      {"areaId": "server-command-dispatch-idempotency", "approxLoc": 1893},
+      {"areaId": "core-aggregate-dispatch-replay-idempotency", "approxLoc": 1896},
+      {"areaId": "generic-serialization-converters", "approxLoc": 215},
+      {"areaId": "duplicate-test-fakes", "approxLoc": 51}
+    ],
+    "consumeSubtotal": 7037,
+    "promoteRows": [
+      {"areaId": "projection-orchestration", "approxLoc": 1800},
+      {"areaId": "diagnostics-telemetry-scaffolding", "approxLoc": 2442},
+      {"areaId": "tenant-access-projection", "approxLoc": 1086},
+      {"areaId": "publication-transport-marshaling", "approxLoc": 422},
+      {"areaId": "typed-client-registration", "approxLoc": 479},
+      {"areaId": "service-defaults-greenfield", "approxLoc": 13},
+      {"areaId": "apphost-greenfield", "approxLoc": 10}
+    ],
+    "promoteSubtotal": 6252,
+    "plumbingBaselineLoc": 13289,
+    "plumbingBaselinePctOfSource": 37.15,
+    "countingMethod": "find <paths> -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' | xargs wc -l",
+    "baselineCommit": "bf3d052",
+    "addendumFirstPass": {
+      "plumbingLoc": 18000,
+      "pctOfSource": 50,
+      "verdict": "corrected",
+      "why": "The addendum's ~50%/~18k first pass treated the governance/verification/audit area (4337) and read-time hydration (629) as promotable plumbing and folded more of Contracts into the plumbing total. Resolving them as Keep-now per OQ-3 (governance + hydration = promoteLaterCandidate, not moved in this pilot) and attributing the Contracts query-filter/projection-shape/conformance/domain DTOs (and the Testing project's domain conformance fixtures) as domain surface moves ~4.7k LOC from plumbing to Keep, yielding a measured, single-label-resolved baseline of 13,289 (37.15%) rather than ~18,000 (~50%). The lower figure is the honest SM-1 denominator: it counts only what is actually classified as a move target in this pilot."
+    }
+  },
+  "reconciliation": {
+    "sumOfAreaLoc": 35769,
+    "sourceTotalLoc": 35769,
+    "unattributedRemainder": 0,
+    "consumeSubtotal": 7037,
+    "promoteSubtotal": 6252,
+    "keepSubtotal": 22480,
+    "note": "Every .cs-bearing top-level source subtree of the eight Conversations src/ projects is attributed to exactly one area; no area is unclassified, dual-classified, or double-counted. Per-area LOC sums to 35769 exactly (Consume 7037 + Promote 6252 + Keep 22480). Intra-folder splits (Queries, Projections, Serialization, Publication, Client, Testing, core Aggregate) are made at real file/folder boundaries whose halves sum to the measured folder total, so reconciliation is exact and reproducible with the recorded counting method."
+  },
+  "changeLog": []
+}

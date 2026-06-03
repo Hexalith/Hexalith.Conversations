@@ -1188,3 +1188,38 @@ Story 1.3 is a **test-and-evidence** story (zero `src/` production changes). The
 ### Coverage
 - AC2 degraded-state read-surface matrix: stale / rebuilding / **gap (new)** / mixed-tenant / unavailable — all fail closed through the public read surface.
 - Governance audit-pairing (AC1), idempotency conflict/pending/reason/payload (AC2), and register generation + content-safety (AC5) were already pinned across their release-gate branches — no further high-confidence gap found.
+
+## Story 1.4 Accept the Canonical Consume/Promote/Keep Inventory and Record Baseline Plumbing-LOC
+
+Story 1.4 is a documentation / analysis / evidence story (no UI, no HTTP API, zero `src/`). The only testable artifact is the committed decision-spine inventory `docs/release-evidence/consume-promote-keep-inventory-v1.{json,md}` and its read-only structural validator. The project-appropriate test type is therefore the existing xUnit v3 / Shouldly committed-artifact validation pattern — there is no API or browser E2E surface to script. This run extended the validator (`ConsumePromoteKeepInventoryValidationTest`) from 7 to 15 facts, closing AC-coverage gaps left by the original author. All new facts assert structural / internal-consistency invariants (relationships the artifact claims about itself), never the hand-curated per-area LOC values (per AC5).
+
+### Discovered Gaps → Applied
+- [x] Gap 1 (AC5) — only the `.json` was read back; the human-readable `.md` sibling was never asserted committed/non-empty.
+- [x] Gap 2 (AC1) — "no source double-counted" was not enforced at the path level (only unique `areaId`).
+- [x] Gap 3 (AC1) — `reconciliation.{consume,promote,keep}Subtotal` were never validated against the actual per-classification sums.
+- [x] Gap 4 (AC3) — `plumbingBaselinePctOfSource` was never checked against `100 * plumbingBaselineLoc / sourceTotalLoc`.
+- [x] Gap 5 (AC3) — `plumbingDerivation.{consume,promote}Rows` were only summed, never verified to enumerate exactly the Consume/Promote areas with matching LOC.
+- [x] Gap 6 (AC3) — the addendum ~18,000/~50% first-pass confirm-or-correct verdict (and the `why` on correction) was never asserted.
+- [x] Gap 7 (AC4) — the recorded versioning convention and OQ-1/OQ-2/OQ-3 "left open" guardrail were never asserted.
+- [x] Gap 8 (AC2) — `fr` / `owningStory` cross-references were checked non-empty but not well-formed (`FR-<n>`, `<epic>.<story>`).
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs` — 8 new [Fact] tests added beside the original 7: `BothJsonAndMarkdownSiblingArtifactsShouldBeCommitted`, `NoSourcePathShouldBeDoubleCountedAcrossAreas`, `ReconciliationPerClassificationSubtotalsShouldBeConsistent`, `RecordedPlumbingPercentageShouldMatchTheComputedRatio`, `PlumbingDerivationRowsShouldEnumerateExactlyTheConsumeAndPromoteAreas`, `AddendumFirstPassShouldBeExplicitlyConfirmedOrCorrected`, `InventoryShouldRecordVersioningConventionAndLeaveOpenQuestionsOpen`, `ConsumePromoteCrossReferencesShouldUseWellFormedFrAndStoryIdentifiers`.
+
+### Implementation
+- No production source under `src/` changed (gate-zero, behavior-preservation scope). Only the one existing test-only file was extended; the committed inventory artifact is read read-only. No sibling submodule touched or recursed.
+
+### Validation
+- [x] `dotnet test ... --filter "FullyQualifiedName~ConsumePromoteKeepInventoryValidationTest"` — 15 passed, 0 failed, 0 skipped.
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — 331 passed, 0 failed, 0 skipped (was 323; +8 new).
+
+### Coverage
+- AC1 (single classification, full reconciliation, no double-count): original facts + Gaps 2, 3.
+- AC2 (capability / FR / owning-story cross-reference): original fact + Gap 8.
+- AC3 (plumbing baseline derivation + addendum confirm/correct): original fact + Gaps 4, 5, 6.
+- AC4 (accepted marker, FR-2 governance, versioning, OQ open): original fact + Gap 7.
+- AC5 (committed `.json` + `.md`, reproducible, scope-clean, content-safe): original facts + Gap 1.
+- Validator facts: 7 → 15.
+
+### Known pre-existing issue (NOT introduced by this story — out of scope)
+- `ReleaseBaselineValidationTest.BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface` (Story 1.1's artifact validator) intermittently fails in the full-suite run with a JSON torn-read (`Expected end of string … reached end of data`) but passes in isolation. Root cause is a test-isolation race: `PublicContractShapeSnapshotGenerationTest` rewrites `public-contract-shape-baseline-v1.json` while `ReleaseBaselineValidationTest` reads the same file concurrently under xUnit v3 parallelism. Story 1.4's validator reads a file no generator writes, so it is not part of this race and did not introduce it. Recommend fixing separately (shared test collection to serialize the generate/read pair, or a torn-read retry). Did not reproduce in the final run above (331 passed).
