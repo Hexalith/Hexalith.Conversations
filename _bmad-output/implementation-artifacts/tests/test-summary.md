@@ -1,5 +1,32 @@
 # Test Automation Summary
 
+## Story 1.1 Pin the Conformance Oracle Green on Main and Snapshot the Public Contract Shape
+
+Story 1.1 is an evidence-artifact story (no UI / no HTTP API), so the appropriate automated tests follow the project's established committed-artifact validation pattern (`ConformanceManifestValidationTest`), not browser E2E. Existing coverage (`PublicContractShapeSnapshotGenerationTest`, 4 tests) exercises only the in-memory snapshot; the committed evidence files were entirely unguarded. Gaps auto-applied per request.
+
+### Discovered Gaps → Applied
+- [x] Gap 1 (AC1/AC4) — `release-baseline-v1.json` was never read back or shape-validated.
+- [x] Gap 2 (AC1/FR-20) — the 14 enumerated suite classes were not verified to exist, and the suite count was not pinned (no "no suite silently added/dropped" guard).
+- [x] Gap 3 (AC2) — no drift guard tying the committed contract-shape snapshot to the live exported Contracts surface (the Story 5.1 mechanic itself).
+- [x] Gap 4 (AC1/AC2) — no cross-artifact consistency check (baseline-reported 196 == snapshot `typeCount` == live exported-type count).
+- [x] Gap 5 (guardrail) — no content-safety scan over the committed on-disk snapshot surface.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs` — 8 [Fact] tests over the committed evidence: `CommittedBaselineRecordShouldExistAndDescribeAGreenAllPassOracle`, `BaselineCommitShouldBeAFullFortyCharacterHexShaOnMain`, `BaselineEnumeratedSuiteClassesShouldMatchTheActualSuiteClassesInTheAssembly`, `BaselineSurvivabilityClassificationShouldAccountForAllFourteenSuites`, `CommittedSnapshotShouldExistAndDeclareItsAssemblyAndTypeCount`, `CommittedSnapshotTypeCountShouldMatchTheLiveExportedContractSurface`, `CommittedSnapshotCapturedSurfaceShouldPassContentSafetyScan`, `BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface`.
+
+### Implementation
+- No production source under `src/` changed (Story 1.1 behavior-preservation scope). Only the one new test-only file above was added; the committed release-evidence artifacts are read read-only.
+
+### Validation
+- [x] `dotnet test ... --filter "FullyQualifiedName~ReleaseBaselineValidationTest"` — 8 passed.
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — 260 passed, 0 failed, 0 skipped (was 252; +8 new).
+
+### Coverage
+- AC1: committed baseline record exists, is shape-valid, reports all-pass/green, 40-char hex SHA on `main`, and its 14 enumerated suite classes match exactly the 14 `*ConformanceSuiteTest` classes present in the assembly.
+- AC2: committed contract-shape snapshot exists, its `typeCount` matches the captured payload and the live exported Contracts surface (drift guard), and its captured surface passes the content-safety scan on the on-disk bytes.
+- AC4: cross-artifact consistency — baseline-reported type count, committed snapshot `typeCount`, and live exported-type count all agree, and the baseline's snapshot pointer references a file that exists.
+- Scope boundary: AC3 survivability classification is asserted complete/consistent (all 14 suites accounted for); decoupling is deliberately left to Story 1.3 and not tested here.
+
 ## Story 3.8B Verify Accessibility Tree, Keyboard, and Screen-Reader Safety
 
 ### Generated Tests

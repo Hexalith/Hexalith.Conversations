@@ -1,19 +1,11 @@
-# generated: 2026-05-17T14:17:58.2822735+02:00
-# last_updated: 2026-05-23
-# Story 6.7 ready-for-dev 2026-05-23: docs/responsibility-boundaries.md (10 adjacent-system boundaries, 6 required sections), ResponsibilityBoundaryValidationTest.cs (~10 new tests), manifest entry 17; FR104
-# Story 6.6 ready-for-dev 2026-05-23: SecondAdopterStatus (4 values), SecondAdopterStatusEntryV1 (12 params), SecondAdopterStatusValidator (5 error tokens); SecondAdopterConformanceSuite, SecondAdopterConformanceSuiteTest; ~33 new tests; FR103
-# Story 6.5 ready-for-dev 2026-05-23: BuyerAcceptanceItemStatus (4 values), BuyerPartialAcceptanceItemV1, BuyerPartialAcceptanceItemValidator (5 error tokens); BuyerAcceptanceConformanceSuite, BuyerAcceptanceConformanceSuiteTest; ~34 new tests; FR102
-# Story 6.4 ready-for-dev 2026-05-23: CapabilityReleaseScope (7 values), SubstrateConsequenceArea (8 values), CapabilityReleaseScopeEntryV1, CapabilityReleaseScopeValidator (3 error tokens); ReleaseScopeConformanceSuite, ReleaseScopeConformanceSuiteTest; ~30 new tests; FR100 + FR101
-# Story 6.3 ready-for-dev 2026-05-23: ConversationConformanceStatusClass (8 values), ConversationConformanceStatusClassifier (Classify + ClassifyGate), IConversationConformanceTelemetry, ConversationConformanceTelemetry (counter conversations.conformance.outcomes); ConformanceStatusConformanceSuite, ConformanceStatusConformanceSuiteTest; ~38 new tests; FR99 + NFR59
-# Story 6.2 ready-for-dev 2026-05-23: ConversationProjectionFreshnessClass (5 values), ConversationProjectionLagClass (4 values), ConversationPublicationFailureClass (6 values), IConversationProjectionTelemetry, ConversationProjectionTelemetry (3 counters), ConversationPublicationService wrapper; wired into ConversationProjectionReadService; ~24 new Server tests; FR96 + FR97
-# Story 5.11 ready-for-dev 2026-05-23: PlatformEvidenceSeparationScenarioData (10 scenarios), PlatformEvidenceSeparationConformanceSeedData, PlatformEvidenceSeparationConformanceSuite, PlatformEvidenceSeparationConformanceSuiteTest; manifest fixture extended to 11 entries; releaseGateId → null (platform-evidence not in closed vocabulary); FR94
-# Story 5.8 ready-for-dev 2026-05-23: ProviderPortabilityConformanceSeedData (10 scenarios), ProviderPortabilityConformanceSuite, ProviderPortabilityConformanceSuiteTest; manifest fixture extended to 8 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → provider-portability
-# Story 5.7 ready-for-dev 2026-05-23: RedactionReplayScenarioData, RedactionConformanceSeedData (10 scenarios), RedactionConformanceSuite, RedactionConformanceSuiteTest; manifest fixture extended to 7 entries; carryForwardCommitmentRef → story-2-4; releaseGateId → redaction-non-leakage
-# Story 5.6 ready-for-dev 2026-05-23: IdempotencyConformanceSeedData (8 scenarios), IdempotencyConformanceSuite, IdempotencyConformanceSuiteTest; manifest fixture extended to 6 entries; carryForwardCommitmentRef → story-1-6
-# project: Hexalith.Conversations
+# generated: 2026-06-02
+# last_updated: 2026-06-02
+# project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
-# story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
+# story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
+# source_epics: _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md
+# initiative: Conversations Boilerplate Reduction (Behavior-Preservation Refactor)
 
 # STATUS DEFINITIONS:
 # ==================
@@ -32,7 +24,6 @@
 #   - in-progress: Developer actively working on implementation
 #   - review: Ready for code review (via Dev's code-review workflow)
 #   - done: Story completed
-#   - waived: Story closed by an approved named waiver instead of implementation (terminal; see readiness-gates.md + readiness-gate-decisions)
 #
 # Retrospective Status:
 #   - optional: Can be completed but not required
@@ -45,89 +36,46 @@
 # - Developer typically creates next story after previous one is 'done' to incorporate learnings
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
-generated: 2026-05-17T14:17:58.2822735+02:00
-last_updated: 2026-05-24
-# Decision 2026-05-24: v1 ships headless (no rendered UI host). Stories 3.8A/3.8B/3.8C waived for v1 under named waiver `waiver-story-3-8-investigation-workspace-ui-host` (DTO non-disclosure 3.1-3.7 + telemetry redaction/cardinality 6.8A/6.8B compensating control; review 2026-11-24, expiry 2027-05-24). epic-3 -> done. See readiness-gate-decisions-2026-05-24.md. First-party UI host recorded as a future epic.
-# Reopen 2026-05-24: Jerome explicitly reopened Stories 3.8A/3.8B/3.8C for implementation. The previous headless-v1 waiver is superseded for this rendered-UI verification set; all three stories require real rendered-surface evidence. epic-3 -> in-progress.
-# Story 3.8B regenerated 2026-05-24 (stays ready-for-dev): refreshed after 3.8A implemented the rendered Hexalith.Conversations.Admin.Web host + Hexalith.Conversations.Admin.Web.Tests Playwright lane. Story now extends the existing renderer (no Fluent UI/FrontComposer; hand-rendered HTML) to add heading outline, landmarks, aria-live, accessible blocked-reason descriptions, and a keyboard/accessibility Playwright evidence harness mirroring ResponsiveEvidenceHarnessTest; reuses BuyerAcceptanceInvestigationWorkspaceCatalog fixtures.
-# Story 6.1 ready-for-dev 2026-05-23: ConversationCommandRejectionClass (9 values), ConversationTenantDenialClass (6 values), ConversationPrivilegedAccessClass (3 values), ConversationCommandRejectionClassifier, IConversationRejectionTelemetry, ConversationRejectionTelemetry (Meter + ILogger); wired into TenantAccessGuard, IdempotentConversationCommandExecutor, and ConversationGovernanceAuditGate; ~22 new Server tests
-# Story 5.10 ready-for-dev 2026-05-23: ContractValidationScenarioData (10 scenarios), ContractValidationConformanceSeedData, ContractValidationConformanceSuite, ContractValidationConformanceSuiteTest; manifest fixture extended to 10 entries; carryForwardCommitmentRef → story-4-5; releaseGateId → contract-compatibility
-# Story 5.9 ready-for-dev 2026-05-23: EventSchemaEvolutionScenarioData (10 scenarios), EventSchemaEvolutionConformanceSeedData, EventSchemaEvolutionConformanceSuite, EventSchemaEvolutionConformanceSuiteTest; manifest fixture extended to 9 entries; carryForwardCommitmentRef → story-1-11; releaseGateId → unsupported-schema-rejection
-project: Hexalith.Conversations
-# Story 5.5 ready-for-dev 2026-05-23: TenantIsolationConformanceSeedData (12 scenarios), TenantIsolationConformanceSuite, TenantIsolationConformanceSuiteTest; manifest fixture extended to 5 entries; carryForwardCommitmentRef → story-1-5
-# Story 5.4 ready-for-dev 2026-05-23: ReleaseWaiverV1, WaiverLifecycleStatus (4 values), ReleaseWaiverValidator (4 error tokens), waiver.schema.json, release-waiver-v1-fixture.json; manifest fixture extended to 4 entries
-# Story 5.3 completed 2026-05-23: ConformanceManifestLifecycleStage, ConformanceManifestRowV1, ConformanceManifestChangeV1, ConformanceManifestV1, ConformanceManifestValidator, manifest.schema.json, fixture JSON, contract and validation tests; review auto-fixed 3 missing tests and enhanced round-trip assertions (+3 tests, 1124 total)
-# Story 5.2 completed 2026-05-23: ReleaseGateStatus, ReleaseGateId, ReleaseGateResultV1, ReleaseConformanceArtifactV1, ReleaseConformanceArtifactBuilder, contract and generation tests, fixture artifact
+generated: 2026-06-02
+last_updated: 2026-06-02
+project: Conversations
+# story 1-1 moved ready-for-dev -> in-progress -> review on 2026-06-02
 project_key: NOKEY
 tracking_system: file-system
-story_location: D:\Hexalith.Conversations\_bmad-output\implementation-artifacts
+story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
 
 development_status:
-  epic-1: done
-  1-1-set-up-initial-project-from-starter-template: done
-  1-2-define-conversation-identity-command-event-and-error-contracts: done
-  1-3-create-tenant-safe-conversation-aggregate: done
-  1-4-add-conversation-participants-with-stable-party-attribution: done
-  1-5-enforce-tenant-access-and-typed-fail-closed-rejections: done
-  1-6-add-idempotent-command-handling: done
-  1-7-project-conversation-read-models-with-freshness-metadata: done
-  1-8-retrieve-and-list-conversations-by-tenant-business-context: done
-  1-9-resolve-parties-and-upstream-references-at-read-time: done
-  1-10-publish-versioned-conversation-domain-events: done
-  1-11-prove-replay-schema-versioning-and-projection-rebuild-behavior: done
-  epic-1-retrospective: done
-  epic-2: done
-  2-1-define-governance-policy-and-audit-contracts: done
-  2-2-set-conversation-retention-policy-with-rationale: done
-  2-3-mark-conversation-content-as-sensitive: done
-  2-4-redact-message-content-with-audit-attribution: done
-  2-5-enforce-audit-pairing-and-audit-unavailable-fail-closed-behavior: done
-  2-6-reconstruct-point-in-time-governance-state: done
-  2-7-govern-audit-record-access-retention-and-redaction: done
-  2-8-record-and-review-privileged-operational-justification: done
-  epic-2-retrospective: done
-  epic-3: in-progress
-  3-1-find-tenant-scoped-conversations-safely: done
-  3-2-read-governed-conversation-evidence: done
-  3-3-inspect-redaction-attribution-and-governance-audit-trail: done
-  3-4-copy-citations-and-open-stable-temporal-evidence-links: done
-  3-5-preserve-read-only-compliance-workflows-and-safe-command-gates: done
-  3-6-run-governance-verification-and-return-structured-results: done
-  3-7-provide-self-serve-buyer-acceptance-demo: done
-  3-8a-verify-responsive-layout-and-mobile-safe-triage: done
-  3-8b-verify-accessibility-tree-keyboard-and-screen-reader-safety: review
-  3-8c-verify-leakage-clipboard-browser-and-telemetry-disclosure-safety: ready-for-dev
-  epic-3-retrospective: done
-  epic-4: done
-  4-1-publish-conversations-contract-package-and-compatibility-metadata: done
-  4-2-provide-supported-net-client-happy-path: done
-  4-3-expose-typed-sanitized-errors-and-remediation-guidance: done
-  4-4-define-core-preconditions-and-onboarding-diagnostics: done
-  4-5-provide-adopter-facing-conformance-tests-and-core-fixture: done
-  4-6-capture-caller-metadata-for-attribution-audit-and-composition: done
-  4-7-publish-developer-integration-guide-and-api-examples: done
-  epic-4-retrospective: done
-  epic-5: done
-  5-1-publish-contract-compatibility-and-deprecation-policy: done
-  5-2-generate-signed-release-conformance-artifact: done
-  5-3-maintain-versioned-conformance-manifest-with-traceability: done
-  5-4-support-named-waivers-for-release-gate-exceptions: done
-  5-5-verify-tenant-isolation-conformance: done
-  5-6-verify-idempotent-command-conformance: done
-  5-7-verify-redaction-replay-conformance: done
-  5-8-prove-provider-portability: done
-  5-9-prove-event-schema-evolution: done
-  5-10-validate-commands-queries-events-errors-and-version-discovery: done
-  5-11-separate-module-level-evidence-from-platform-controls: done
-  epic-5-retrospective: done
-  epic-6: done
-  6-1-observe-command-rejections-and-tenant-isolation-denials-safely: done
-  6-2-observe-projection-lag-rebuild-availability-and-publication-failures: done
-  6-3-surface-conformance-and-verification-status-for-incidents-and-ci: done
-  6-4-classify-release-scope-and-deferred-capability-consequences: done
-  6-5-support-buyer-partial-acceptance-and-waiver-review: done
-  6-6-track-second-adopter-status-and-downgrade-rule-milestones: done
-  6-7-publish-responsibility-boundary-documentation: done
-  6-8a-validate-operational-telemetry-redaction: done
-  6-8b-validate-operational-telemetry-cardinality-gates: done
-  epic-6-retrospective: done
+  epic-1: in-progress
+  1-1-pin-the-conformance-oracle-green-on-main-and-snapshot-the-public-contract-shape: done
+  1-2-measure-the-oracles-blind-spots-and-backfill-characterization-tests: backlog
+  1-3-decouple-the-internal-coupled-tests-that-would-break-under-refactor: backlog
+  1-4-accept-the-canonical-consume-promote-keep-inventory-and-record-baseline-plumbing-loc: backlog
+  1-5-establish-classification-dispute-resolution-and-reclassification-escape-hatch: backlog
+  epic-1-retrospective: optional
+  epic-2: backlog
+  2-1-wire-conversations-onto-the-shared-two-line-domain-service-host: backlog
+  2-2-adopt-eventstoreaggregate-tstate-base-class-conventions: backlog
+  2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor: backlog
+  2-4-persist-read-models-via-the-shared-store-write-policy: backlog
+  2-5-implement-projections-against-the-sdk-projection-seam: backlog
+  2-6-adopt-shared-serialization-helpers-for-generic-converters: backlog
+  2-7-consume-shared-eventstore-testing-assertions-and-fakes: backlog
+  epic-2-retrospective: optional
+  epic-3: backlog
+  3-1-promote-adopt-the-generic-typed-httpclient-registration: backlog
+  3-2-promote-adopt-the-generic-tenant-access-projection-handler-registration: backlog
+  3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper: backlog
+  3-4-promote-adopt-the-shared-servicedefaults-base: backlog
+  3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base: backlog
+  3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration: backlog
+  3-7-promote-adopt-compile-time-command-event-contract-metadata: backlog
+  epic-3-retrospective: optional
+  epic-4: backlog
+  4-1-document-the-thin-authoring-template-validated-against-post-refactor-conversations: backlog
+  4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline: backlog
+  epic-4-retrospective: optional
+  epic-5: backlog
+  5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff: backlog
+  5-2-reconcile-the-removed-test-justification-ledger: backlog
+  5-3-assemble-the-success-metric-report-and-signable-attestation: backlog
+  epic-5-retrospective: optional

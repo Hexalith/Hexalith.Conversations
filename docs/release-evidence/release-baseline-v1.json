@@ -1,0 +1,109 @@
+{
+  "artifactKind": "release-conformance-baseline",
+  "version": "v1",
+  "purpose": "FR-20 named behavior-preservation baseline for the Conversations Boilerplate Reduction initiative (Story 1.1). This is the trusted, unchanging behavioral reference that every later refactor (Epics 2-5) diffs against. It records the conformance oracle proven green on unmodified main, the public-contract-shape snapshot pointer, and the oracle survivability classification handed off to Story 1.3.",
+  "baselineCommit": "ceb7fbe958a6b89a3b1ad01a3c98252cc766b4fe",
+  "branch": "main",
+  "workingTreeState": "src/ and tests/ clean at capture time (no local edits to production or test sources)",
+  "runDate": "2026-06-02",
+  "toolchain": {
+    "dotnetSdk": "10.0.300",
+    "targetFramework": "net10.0",
+    "testStack": "xUnit v3, Shouldly"
+  },
+  "command": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+  "conformanceOracle": {
+    "suiteClassCount": 14,
+    "conformanceSuiteTestCount": 214,
+    "conformanceSuiteResult": "all-pass",
+    "suiteClasses": [
+      { "class": "TenantIsolationConformanceSuiteTest", "releaseGateBehavior": "tenant isolation / fail-closed (NFR3)" },
+      { "class": "IdempotencyConformanceSuiteTest", "releaseGateBehavior": "idempotency" },
+      { "class": "ContractValidationConformanceSuiteTest", "releaseGateBehavior": "contract validation / compatibility" },
+      { "class": "RedactionConformanceSuiteTest", "releaseGateBehavior": "redaction non-leakage" },
+      { "class": "EventSchemaEvolutionConformanceSuiteTest", "releaseGateBehavior": "unsupported-schema rejection / schema evolution" },
+      { "class": "ProviderPortabilityConformanceSuiteTest", "releaseGateBehavior": "provider portability" },
+      { "class": "ConformanceStatusConformanceSuiteTest", "releaseGateBehavior": "conformance-status gate" },
+      { "class": "PlatformEvidenceSeparationConformanceSuiteTest", "releaseGateBehavior": "platform/evidence separation" },
+      { "class": "BuyerAcceptanceConformanceSuiteTest", "releaseGateBehavior": "buyer-acceptance governance precondition" },
+      { "class": "ReleaseScopeConformanceSuiteTest", "releaseGateBehavior": "release-scope governance" },
+      { "class": "SecondAdopterConformanceSuiteTest", "releaseGateBehavior": "second-adopter governance precondition" },
+      { "class": "AdopterConformanceSuiteTest", "releaseGateBehavior": "adopter integration surface (tenant binding, idempotency, projection freshness, compatibility, error envelope)" },
+      { "class": "TelemetryCardinalityConformanceSuiteTest", "releaseGateBehavior": "operational telemetry cardinality budgets" },
+      { "class": "TelemetryRedactionConformanceSuiteTest", "releaseGateBehavior": "operational telemetry redaction" }
+    ]
+  },
+  "projectTotalAtBaseline": {
+    "note": "Full Hexalith.Conversations.Conformance.Tests project run on unmodified main (commit ceb7fbe), before Story 1.1 added the test-only PublicContractShapeSnapshotGenerationTest. The 248 total = the 214 suite-class tests + 34 tests across the 4 non-suite validation classes (ConformanceManifestValidationTest, CoreFixtureContentSafetyTest, ReleaseConformanceArtifactGenerationTest, ReleaseWaiverValidationTest).",
+    "totalTests": 248,
+    "passed": 248,
+    "failed": 0,
+    "skipped": 0,
+    "result": "green"
+  },
+  "publicContractShapeSnapshot": {
+    "artifact": "public-contract-shape-baseline-v1.json",
+    "assembly": "Hexalith.Conversations.Contracts",
+    "exportedPublicTypeCount": 196,
+    "generator": "PublicContractShapeSnapshotGenerationTest.GenerateAndSaveContractShapeSnapshotFile",
+    "diffConsumer": "Story 5.1",
+    "note": "Deterministic reflection snapshot of the exported public contract surface. Closed vocabularies (e.g. ConversationErrorCode) use the Hexalith smart-enum record pattern, captured as static properties rather than CLR enum members."
+  },
+  "oracleSurvivability": {
+    "description": "AC3 classification of each conformance suite as public-surface-only (depends only on Hexalith.Conversations.Contracts/.Client/.Testing public types, HTTP, or DomainResult) or internally-coupled (depends on Hexalith.Conversations.Server.* plumbing types or internal/reflection access). Verified by inspecting using-directives and instantiated types of each suite test class AND its companion engine/fixture files. Classification only - nothing was decoupled in Story 1.1.",
+    "publicSurfaceOnly": [
+      "TenantIsolationConformanceSuiteTest",
+      "IdempotencyConformanceSuiteTest",
+      "ContractValidationConformanceSuiteTest",
+      "RedactionConformanceSuiteTest",
+      "EventSchemaEvolutionConformanceSuiteTest",
+      "ProviderPortabilityConformanceSuiteTest",
+      "PlatformEvidenceSeparationConformanceSuiteTest",
+      "BuyerAcceptanceConformanceSuiteTest",
+      "ReleaseScopeConformanceSuiteTest",
+      "SecondAdopterConformanceSuiteTest",
+      "AdopterConformanceSuiteTest"
+    ],
+    "internallyCoupled": [
+      {
+        "suite": "TelemetryCardinalityConformanceSuiteTest",
+        "files": [
+          "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuiteTest.cs",
+          "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuite.cs"
+        ],
+        "coupling": "using Hexalith.Conversations.Server.Diagnostics and Hexalith.Conversations.Server.TenantAccess; instantiates server-internal types ConversationCommandRejectionClass and ConversationTenantDenialClass and the server-side TelemetryCardinalityConformanceSuite engine.",
+        "preAnalyzedInStory": true
+      },
+      {
+        "suite": "TelemetryRedactionConformanceSuiteTest",
+        "files": [
+          "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuiteTest.cs",
+          "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuite.cs"
+        ],
+        "coupling": "using Hexalith.Conversations.Server.Diagnostics and Hexalith.Conversations.Server.TenantAccess; instantiates ConversationCommandRejectionClass / ConversationTenantDenialClass and the server-side TelemetryRedactionConformanceSuite engine.",
+        "preAnalyzedInStory": true
+      },
+      {
+        "suite": "ConformanceStatusConformanceSuiteTest",
+        "files": [
+          "tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceSuite.cs",
+          "tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceFixtures.cs"
+        ],
+        "coupling": "The test class itself only uses Hexalith.Conversations.Testing.Fixtures, BUT its companion engine ConformanceStatusConformanceSuite.cs and fixtures ConformanceStatusConformanceFixtures.cs depend on Hexalith.Conversations.Server.Diagnostics, binding to the server-internal types ConversationConformanceStatusClassifier and ConversationConformanceStatusClass.",
+        "preAnalyzedInStory": false,
+        "discrepancyNote": "DISCREPANCY: Story 1.1's pre-analysis table classified this suite (#7) as public-surface-only. Verification per AC3 ('verify, do not trust it blindly') found it is internally coupled through its engine/fixtures. Recorded here and flagged to Story 1.3."
+      }
+    ],
+    "alsoCoupledSupportFile": {
+      "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryDisclosureConformanceFixtures.cs",
+      "coupling": "Shared fixture (not one of the 14 suite test classes) that also depends on Hexalith.Conversations.Server.Diagnostics / Server.TenantAccess (ConversationCommandRejectionClass, ConversationTenantDenialClass). Noted for completeness so Story 1.3 does not miss it when decoupling.",
+      "isSuiteTestClass": false
+    },
+    "projectLevelCoupling": {
+      "project": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+      "risk": "References Hexalith.Conversations.Server (in addition to Contracts, Client, Testing). This project-level reference is the structural reason the telemetry/conformance-status suites can compile against Server.Diagnostics. For a fully refactor-survivable oracle the public-surface suites must not transitively depend on the plumbing assembly being refactored.",
+      "action": "Recorded as a survivability risk for Story 1.3 triage. Deliberately NOT removed in Story 1.1 (removing it would break the coupled suites' compilation, which is Story 1.3's job to resolve)."
+    },
+    "handoffTo": "Story 1.3 (decouple the internally-coupled tests that would break under refactor)"
+  }
+}
