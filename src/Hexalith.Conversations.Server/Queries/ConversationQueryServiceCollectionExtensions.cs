@@ -97,6 +97,11 @@ public static class ConversationQueryServiceCollectionExtensions
         services.TryAddSingleton<IConversationProjectionReadStore, ConversationProjectionReadStore>();
         services.TryAddSingleton<ConversationProjectionReadModelWriter>();
 
+        // The conversation-specific materialization logic shared by the read/rebuild path and the platform
+        // projection seam handler (ConversationProjectionHandler, FR-6). Stateless, so a singleton; TryAdd keeps
+        // it idempotent with AddConversationGovernanceVerification, which also registers it.
+        services.TryAddSingleton<ConversationProjectionMaterializer>();
+
         services.TryAddSingleton<IConversationReferenceHydrationDirectory>(UnavailableConversationReferenceHydrationDirectory.Instance);
         services.AddScoped<ConversationReadHydrationService>();
         services.AddScoped<ConversationProjectionReadService>();

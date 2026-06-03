@@ -17,6 +17,13 @@ namespace Hexalith.Conversations.Server.Projections;
 /// <summary>
 /// Builds tenant-scoped conversation read models from public conversation events.
 /// </summary>
+/// <remarks>
+/// This is the conversation-specific kept logic (field selection, freshness formula, evidence construction, and
+/// the idempotent per-event accumulator) that survives the FR-6 projection-seam adoption. It is the single shared
+/// materialization entry point invoked by both the platform projection-seam handler
+/// (<see cref="ConversationProjectionHandler"/>) and <see cref="ConversationProjectionRebuildVerifier"/>; the
+/// generic replay/dispatch/discovery orchestration is owned by the platform SDK, not duplicated here.
+/// </remarks>
 public sealed class ConversationProjectionMaterializer
 {
     private const string ArchivedState = "Archived";

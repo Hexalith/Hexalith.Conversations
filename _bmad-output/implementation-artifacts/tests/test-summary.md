@@ -1,5 +1,32 @@
 # Test Automation Summary
 
+## Story 2.5 Implement Projections Against the SDK Projection Seam
+
+Story 2.5 (FR-6, Consume) serves the conversation full-replay projection through the platform `IDomainProjectionHandler` `/project` seam via a new `ConversationProjectionHandler` (`src/Hexalith.Conversations.Server/Projections/`), delegating the generic replay/dispatch/discovery orchestration to the SDK while the conversation-specific field selection, freshness formula, and evidence construction stay in the kept `ConversationProjectionMaterializer`. There is **no UI** in scope and the seam is a server-internal synchronous contract (`Project(ProjectionRequest) → ProjectionResponse`), so the automated-test surface is **behavior tests driving the feature end-to-end through its real entry point** (decode → kept materialization → serialized projection state) — asserting observable field/freshness/evidence values, not mocks or call-counts (Epic 1 L1/A1). Framework: xUnit v3 + Shouldly + NSubstitute (CPM; no new package). The shipped seam suite was strong; this run auto-applied the discovered degraded-state and replay-safety gaps.
+
+### Discovered Gaps → Applied (5 new [Fact] tests)
+- [x] Gap 1 (NFR5 / AC-3 — idempotency under at-least-once delivery untested **through the seam**) — the shipped suite proved gap/poison degraded states but never proved that a **re-delivered** event leaves the read model unchanged. A regression that dropped the per-event `_processedEventIds` dedup would still pass every existing test. Closed by `DuplicateEventDeliveryShouldProjectIdenticalReadModelThroughTheSeam` (deliver the same events once vs. with duplicates → byte-identical `ProjectionResponse.State`, stays `Current`).
+- [x] Gap 2 (NFR5 / AC-3 — `OutOfOrderEvent` reason code untested) — the existing gap test covered a *forward* gap (`GapDetected`), but the distinct **position-regression** branch (`OutOfOrderEvent → Rebuilding`) was unexercised. Closed by `OutOfOrderEventShouldSurfaceDegradedFreshnessThroughTheSeam` (positions 1,2,2 → `Rebuilding` / `OutOfOrderEvent`, not trust-bearing).
+- [x] Gap 3 (AC-3 — `StaleThresholdExceeded` degraded state untested) — the freshness formula's stale branch (`lag > staleAfter`) was reachable through the seam via the injected clock but unasserted. Closed by `StaleProjectionShouldSurfaceStaleThresholdThroughTheSeam` (clock 10 min past the last event → `Stale` / `StaleThresholdExceeded`).
+- [x] Gap 4 (AC-3 — empty / no-`ConversationCreated` stream untested) — an empty event sequence must project a **non-current** `Rebuilding` model, never empty-but-current. Closed by `EmptyEventSequenceShouldSurfaceRebuildingThroughTheSeam` (no events → `Rebuilding` / `Rebuilding`, `MessageCount == 0`, not trust-bearing).
+- [x] Gap 5 (robustness — null-request boundary untested) — the seam's `ArgumentNullException.ThrowIfNull(request)` fail-closed guard had no test. Closed by `NullRequestShouldThrowArgumentNullException`.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs` — +5 [Fact] tests (Gaps 1–5) + a `Handler(DateTimeOffset clock)` helper overload, reusing the file's existing `Request`/`Dto`/event-factory/`FixedTimeProvider` fixtures.
+
+### Implementation
+- No production source under `src/` changed by this QA run (the handler was the dev-story step). Only the one existing test file was extended; no test removed or weakened (no FR-20 ledger entry required for additions).
+
+### Validation
+- [x] Release build: 0 warnings / 0 errors (warnings-as-errors); submodule gitlinks verified at recorded commits before build (EventStore `ad2c957`, FrontComposer `451830b`, Parties `485616f`, Tenants `5b4424e`, Commons `30620b9`); non-recursive (CLAUDE.md compliant).
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/ -c Release` — **561 passed** (556 baseline + 5 new), 0 failed, 0 skipped. Handler class in isolation: **12/12** green.
+- [x] Additive `Server.Tests`-only change → conformance gate unaffected (monotonic ≥ 354 holds); public contract-shape diff empty (no `src/` change).
+
+### Coverage
+- Degraded-state reason codes now exercised **through the seam**: `Current`, `GapDetected`, `OutOfOrderEvent` (was Gap 2), `StaleThresholdExceeded` (was Gap 3), `Rebuilding` (was Gap 4), `PoisonEvent`/`Unavailable`, `Redacted` (suppression). Idempotency under duplicate delivery (was Gap 1) and the null-request boundary (was Gap 5) now pinned.
+- Not reachable through the steady-state seam **by design** (handler hardcodes `isRebuilding:false`, `metadataWriteFailed:false` — stateless full-replay): `MetadataWriteFailed`, `isRebuilding`-driven `Rebuilding`, `MetadataContradictory`, `UnsupportedVersion`. These stay exercised via `ConversationProjectionRebuildVerifier` and the read-service degraded-state path per the story's freshness-input sourcing decision — not a seam gap.
+- Scope boundary: the read-store-population thread (handler→`ConversationProjectionReadModelWriter`) is a flagged open thread in the Dev Agent Record (no sync-over-async inside the seam); a replay→persist→read integration loop belongs to that follow-on, not this QA run.
+
 ## Story 2.4 Persist Read Models via the Shared Store + Write Policy
 
 Story 2.4 (FR-5, greenfield-adopt) adds the read-model persistence **substrate**: registers the SDK `IReadModelStore` (`AddEventStoreReadModelStore()` + `AddDaprClient()`), implements the production `ConversationProjectionReadStore` (read) over `IReadModelStore`, and a `ConversationProjectionReadModelWriter` (write) through the SDK `ReadModelWritePolicy` (optimistic-concurrency, reload-and-merge), closing the `IConversationProjectionReadStore` binding deferred from Story 2.3. There is **no UI** in scope, so the automated-test surface is the production read-store/writer over the canonical SDK `InMemoryReadModelStore` double plus the DI host-composition test — not browser E2E. Framework: xUnit v3 + Shouldly + NSubstitute (CPM; only the additive `Hexalith.EventStore.Testing` project reference). The shipped persistence/concurrency/fail-closed suite was thorough; this run auto-applied the discovered behavioral coverage gaps.

@@ -135,6 +135,37 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
     }
 
     /// <summary>
+    /// Story 2.5 (AC-1) — the SDK assembly scan over the Server boundary assembly discovers and registers the
+    /// conversation <see cref="IDomainProjectionHandler"/> the <c>/project</c> dispatch route resolves, with no
+    /// <c>Program.cs</c> edit. Its <c>Domain</c> matches the aggregate domain key the projection actor routes on
+    /// (singular), and its dependency (<see cref="ConversationProjectionMaterializer"/>) resolves from the real
+    /// host query-boundary wiring — proving the production host can construct it.
+    /// </summary>
+    [Fact]
+    public async Task ExplicitAssemblyScanShouldDiscoverConversationProjectionHandler()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+
+        // Mirror the production host wiring (Program.cs): tenant access, the DaprClient the SDK store resolves,
+        // and the query boundary (which registers the shared ConversationProjectionMaterializer the handler needs).
+        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        builder.Services.AddDaprClient();
+        builder.Services.AddDataProtection();
+        builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+
+        await using WebApplication app = builder.Build();
+        using IServiceScope scope = app.Services.CreateScope();
+
+        IDomainProjectionHandler handler = scope.ServiceProvider.GetServices<IDomainProjectionHandler>().ShouldHaveSingleItem();
+
+        handler.ShouldBeOfType<ConversationProjectionHandler>();
+        handler.Domain.ShouldBe(ConversationDomainKey);
+    }
+
+    /// <summary>
     /// Story 2.4 (AC-1) — with the production read-model-store registrations the deferred-from-2.3 binding gap
     /// is closed: <see cref="IReadModelStore"/> resolves to the SDK <see cref="DaprReadModelStore"/>,
     /// <see cref="IConversationProjectionReadStore"/> resolves to the production

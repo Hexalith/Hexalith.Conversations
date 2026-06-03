@@ -173,6 +173,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory25StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story25StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story25StructuralDisposition disposition in register.Story25StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 2.5 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -269,7 +286,81 @@ public sealed class AtRiskTestRegisterGenerationTest
             Story22StructuralDispositions = BuildStory22StructuralDispositions(),
             Story23StructuralDispositions = BuildStory23StructuralDispositions(),
             Story24StructuralDispositions = BuildStory24StructuralDispositions(),
+            Story25StructuralDispositions = BuildStory25StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story25StructuralDisposition> BuildStory25StructuralDispositions() =>
+    [
+        new(
+            Subject: "FR-6 / Story 2.5 disposition correction: the inventory 'Promote' label for "
+                + "projection-orchestration -> 'Consume'",
+            Change: "The inventory labeled the projection-orchestration area Promote (FR-6) on the assumption that "
+                + "the full-replay projection seam had to be promoted into the platform. Verified against the "
+                + "platform working tree at the recorded gitlink: the seam (the projection-handler interface, the "
+                + "matching request router, the convention discovery/registration, and the shared /project endpoint) "
+                + "ALREADY ships in the platform - the reference counter sample and the platform widget test fixture "
+                + "both implement it. Nothing is promoted. The local orchestration is consumed-and-deleted: a new "
+                + "ConversationProjectionHandler implements the platform projection-handler interface and is "
+                + "auto-discovered by the Story 2.1 Server-assembly convention scan with NO host route/discovery edit, "
+                + "so the generic replay/routing/discovery orchestration and the /project endpoint are owned by the "
+                + "platform, not the module. Mirrors the Story 2.4 label correction.",
+            Ac: "AC-1 / AC-5",
+            Rationale: "Consume (FR-6): the platform owns the generic replay/routing/discovery and the /project "
+                + "endpoint, so the module keeps only its conversation-specific logic - strengthening the "
+                + "technical-module boundary (NFR8). Recorded per the Story 1.5 escape hatch. No inventory area is "
+                + "relabeled: the area paths are unchanged and its frozen approxLoc (1,800 / 1,175) is not mutated, so "
+                + "per the Story 2.3 / 2.4 no-relabel reasoning no inventory changeLog entry is required (the outcome "
+                + "is identical under either label; only the seam-pre-exists fact moved). The projected read model "
+                + "rides the existing public Contracts shapes, so the public contract-shape baseline diff stays empty.",
+            OwningStory: "Story 2.5 (FR-6, consume the platform projection-handler seam, keep the conversation logic)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Conversation-specific materialization logic (ConversationProjectionMaterializer: the idempotent "
+                + "per-event accumulator, the freshness formula, search-trust / trust-posture, default command "
+                + "eligibility, and evidence construction)",
+            Change: "KEEP, behavior-unchanged (AC-2). The new ConversationProjectionHandler decodes the request's "
+                + "events into the public conversation event vocabulary (reusing the existing attribute-based "
+                + "serialization, no new converter) and DELEGATES the replay loop, field selection, freshness formula, "
+                + "and evidence construction to ConversationProjectionMaterializer.Project(...), which stays the single "
+                + "shared materialization entry point invoked by BOTH the handler and ConversationProjectionRebuildVerifier "
+                + "- no second hand-rolled replay loop is introduced. The conversation-specific replay loop is preserved "
+                + "logic the handler calls, exactly as AC-1 frames it; only the generic replay / routing / discovery "
+                + "orchestration moved to the platform. The Contracts/Projections field-selection / freshness DTOs are "
+                + "not reshaped (Keep, in the 196-type baseline), so the public contract-shape diff is empty.",
+            Ac: "AC-1 / AC-2 / AC-4",
+            Rationale: "The materialization logic is conversation-specific domain surface the platform seam does not "
+                + "provide, so it is Keep, not consumed. Open-question resolution recorded: retaining the in-module "
+                + "Project(...) entry point is the AC-1-blessed structure (the requirement is that the GENERIC "
+                + "orchestration is the platform's, not that the materialization method vanish). Verified green with no "
+                + "behavior change to the kept logic.",
+            OwningStory: "Story 2.5 (FR-6, projection seam)",
+            GreenAfterChange: true),
+        new(
+            Subject: "ConversationProjectionMaterializerTest plumbing-only-retire @ 2.5 assertions and "
+                + "LiveProjectionFreshnessOracleCharacterizationTest coupled-by-design-retarget @ 2.5",
+            Change: "RETAINED, not retired or retargeted. The Story 1.3 register marked these for retirement / retarget "
+                + "on the premise that FR-6 would remove the in-module replay / routing orchestration (so the raw-output "
+                + "assertions would lose their reachable subject). Under the verified disposition correction the "
+                + "in-module materialization entry point is PRESERVED (it is the shared kept-logic seam the handler and "
+                + "the rebuild verifier both call), so the AC-4 precondition - 'when the local orchestration frame is "
+                + "removed' - did not occur. The plumbing-only ConversationProjectionMaterializerTest assertions "
+                + "therefore remain reachable behavior tests of the kept logic and are kept, not dropped (honoring "
+                + "'never silently drop a behavior assertion'); LiveProjectionFreshnessOracleCharacterizationTest still "
+                + "binds the live materializer it characterizes, so it needs no structural retarget and its assertion "
+                + "strength is unchanged. Net test count holds or grows: a new seam-level behavior test "
+                + "(ConversationProjectionHandlerTest) and a discovery fact assert the projected field / freshness / "
+                + "evidence values and a degraded reason code THROUGH the platform projection-handler seam, plus this "
+                + "ledger fact. Nothing is retired under this story, so no count reduction is left for Story 5.2 to "
+                + "reconcile here.",
+            Ac: "AC-3 / AC-4 / AC-5",
+            Rationale: "Behavior preservation (NFR1): retiring assertions that still cover reachable kept-logic "
+                + "behavior, with no equivalent replacement, would drop coverage - which AC-4 and the standing gate "
+                + "forbid. The register's plumbing-only / retarget rows stand for a future story that actually relocates "
+                + "or deletes the in-module materialization method, if ever; recorded append-only so no later count "
+                + "change is unaccounted for.",
+            OwningStory: "Story 2.5 (FR-6, projection seam)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story24StructuralDisposition> BuildStory24StructuralDispositions() =>
     [
@@ -750,6 +841,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story23StructuralDisposition> Story23StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story24StructuralDisposition> Story24StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story25StructuralDisposition> Story25StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -837,6 +930,22 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story24StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 2.5 (FR-6) structural disposition: the "Promote" -> "Consume" correction (the
+    /// full-replay projection seam pre-exists in the platform, so the local orchestration is consumed-and-deleted,
+    /// not promoted), the conversation-specific materialization logic confirmed Keep and delegated to behind the
+    /// platform seam, and the projection materializer / live-freshness tests retained (the AC-4 retire/retarget
+    /// precondition did not occur because the in-module materialization entry point is preserved) — recorded so no
+    /// later test-count change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
+    /// </summary>
+    internal sealed record Story25StructuralDisposition(
         string Subject,
         string Change,
         string Ac,
