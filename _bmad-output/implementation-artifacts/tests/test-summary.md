@@ -1165,3 +1165,26 @@ Story 1.2 is an oracle-strengthening story (no UI / no HTTP API), so the appropr
 - Tenant fail-closed denial reasons pinned in the oracle: **7/16 → 15/16** (the 16th, `None`, is the allow path, pinned by the positive control).
 - All five release-gate behaviors remain backfilled; behavior #1 materially strengthened. Behaviors #2–#5 (governance pairing, idempotency, redaction replay, projection freshness) were already pinned across their safety-critical branches — no high-confidence gap found.
 - AC2 traceability note: left `docs/release-evidence/oracle-blind-spot-analysis-v1.json` unchanged to preserve the dev's baseline-commit evidence verbatim; if these 8 tests are folded into the official record, add their method names to `behaviors[0].backfillTests` and bump the counts.
+
+## Story 1.3 Decouple the Internal-Coupled Tests That Would Break Under Refactor
+
+Story 1.3 is a **test-and-evidence** story (zero `src/` production changes). The QA pass verified the four re-expressed/conformance test classes run green against the existing xUnit v3 + Shouldly stack, validated them against `checklist.md`, and **auto-applied one discovered coverage gap**. No UI / no new HTTP endpoint in scope, so the appropriate automated tests are command/state/event + public read-service conformance tests, not browser E2E.
+
+### Discovered Gaps → Applied
+- [x] Gap 1 (AC2) — AC2 enumerates the degraded projection states the public read surface must fail closed on as `stale/rebuilding/gap/poison/unavailable`. The re-expression's `DegradedProjectionShouldNotExposeTrustBearingDetail` `[Theory]` covered `stale`, `rebuilding`, `unavailable`, and a mixed-tenant poison case but **omitted `gap`**, even though a position gap is observable through the public read surface (downgrades to `Rebuilding` / non-trust-bearing). Added an `[InlineData("gap")]` case (events at positions 1 and 3, none at 2) asserting `Projection == null`, `IsAvailableForTrustBearingActions == false`, `FreshnessState != Current`. Internal gap *reason code* stays plumbing-only; only the fail-closed *read outcome* is re-expressed — assertion strength increased only (AC4-safe).
+
+### Generated / Modified Tests
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/ConversationProjectionReadSurfaceConformanceTest.cs` — added the `gap` degraded-state read-surface case.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs` — register projection re-express entry now lists `(stale/rebuilding/gap/mixed-tenant/unavailable)`; the committed `docs/release-evidence/at-risk-test-register-v1.json` regenerated deterministically and passed the content-safety scan (avoided the forbidden term `poison`).
+
+### Implementation
+- No production source under `src/` changed; no sibling submodule touched; no test deleted. Changes are isolated to the conformance test project + the regenerated register artifact.
+
+### Validation
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/...csproj` — **316 passed, 0 failed, 0 skipped** (was 315; +1 gap case). Green on `main`.
+- [x] `dotnet test tests/Hexalith.Conversations.Server.Tests/...csproj` — 515 passed (untouched).
+- [x] `git status src/` clean — zero production changes.
+
+### Coverage
+- AC2 degraded-state read-surface matrix: stale / rebuilding / **gap (new)** / mixed-tenant / unavailable — all fail closed through the public read surface.
+- Governance audit-pairing (AC1), idempotency conflict/pending/reason/payload (AC2), and register generation + content-safety (AC5) were already pinned across their release-gate branches — no further high-confidence gap found.

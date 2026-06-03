@@ -41,6 +41,7 @@ last_updated: 2026-06-03
 project: Conversations
 # story 1-1 moved ready-for-dev -> in-progress -> review on 2026-06-02
 # story 1-2 moved ready-for-dev -> in-progress -> review on 2026-06-03
+# story 1-3 created (backlog -> ready-for-dev) on 2026-06-03
 project_key: NOKEY
 tracking_system: file-system
 story_location: /home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts
@@ -49,7 +50,7 @@ development_status:
   epic-1: in-progress
   1-1-pin-the-conformance-oracle-green-on-main-and-snapshot-the-public-contract-shape: done
   1-2-measure-the-oracles-blind-spots-and-backfill-characterization-tests: done
-  1-3-decouple-the-internal-coupled-tests-that-would-break-under-refactor: backlog
+  1-3-decouple-the-internal-coupled-tests-that-would-break-under-refactor: done
   1-4-accept-the-canonical-consume-promote-keep-inventory-and-record-baseline-plumbing-loc: backlog
   1-5-establish-classification-dispute-resolution-and-reclassification-escape-hatch: backlog
   epic-1-retrospective: optional
