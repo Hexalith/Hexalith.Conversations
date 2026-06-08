@@ -1,5 +1,40 @@
 # Test Automation Summary
 
+## Story 3.1 Promote & Adopt the Generic Typed-HttpClient Registration
+
+Story 3.1 is a .NET client-registration/API-surface story, not a browser UI story. The automated QA surface is the promoted Commons helper and the Conversations typed-client adoption facade. Frameworks detected: xUnit v3 + Shouldly for Conversations, xUnit v2 + Shouldly for the Commons helper tests.
+
+### Discovered Gap → Applied
+- [x] Gap (AC-1/AC-2: adoption facade did not prove returned builder chaining or endpoint use) — existing Conversations client tests covered valid registration and eager rejection of missing, relative, and non-http(s) endpoints, but only resolved the typed client. They did not prove `AddHexalithConversationsClient(...)` still returns a usable `IHttpClientBuilder` after delegating to the shared helper, nor that the configured endpoint is used by the resolved client. Closed by `ServiceCollectionExtensionShouldReturnBuilderForHandlerChainingAndUseConfiguredEndpoint`.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Client.Tests/ConversationClientTest.cs` — added 1 xUnit fact that chains a probe `DelegatingHandler` through the returned builder, configures a fake primary handler, resolves `IConversationClient`, executes `CreateConversationAsync`, and asserts:
+  - the chained handler observed `/api/v1/conversations`;
+  - the primary handler received `https://conversations.example.test/api/v1/conversations`;
+  - the probe header reached the primary handler.
+
+### Existing Story 3.1 Coverage Verified
+- [x] `tests/Hexalith.Conversations.Client.Tests/ConversationClientTest.cs` — valid endpoint registration, missing endpoint rejection, relative endpoint rejection, and non-http scheme rejection.
+- [x] `Hexalith.Commons/test/Hexalith.Commons.Http.Tests/HttpClientRegistrationTest.cs` — promoted helper tests for eager missing/relative/non-web rejection, valid endpoint acceptance, builder return for handler chaining, lazy missing rejection, permissive non-web absolute URI behavior, and configuration-section binding.
+- API endpoints: N/A — story scope is typed `HttpClient` DI registration, not an HTTP server endpoint.
+- UI E2E tests: N/A — no UI surface exists for this story.
+
+### Validation
+- [x] `dotnet build tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj --no-restore -m:1 /nr:false -p:UseSharedCompilation=false` — 0 warnings, 0 errors.
+- [x] `tests/Hexalith.Conversations.Client.Tests/bin/Debug/net10.0/Hexalith.Conversations.Client.Tests` — 29 passed, 0 failed, 0 skipped.
+- [x] `dotnet build Hexalith.Commons/test/Hexalith.Commons.Http.Tests/Hexalith.Commons.Http.Tests.csproj --no-restore -m:1 /nr:false -p:UseSharedCompilation=false` — 0 warnings, 0 errors.
+- [~] `dotnet test Hexalith.Commons/test/Hexalith.Commons.Http.Tests/Hexalith.Commons.Http.Tests.csproj --no-restore --no-build` — blocked by sandbox socket denial in VSTest (`SocketException (13): Permission denied` while opening the test communication listener). No local xUnit v2 console runner was available; the project builds cleanly.
+
+### Checklist Result
+- [x] API/registration tests generated where applicable.
+- [x] No UI E2E tests generated because story 3.1 has no UI.
+- [x] Tests use standard project APIs: xUnit + Shouldly + `IHttpClientBuilder`.
+- [x] Happy path covered: valid endpoint, typed client resolution, configured endpoint used.
+- [x] Critical error cases covered: missing endpoint, relative URI, non-http(s) scheme.
+- [x] Tests have clear descriptions and no hardcoded waits.
+- [x] Tests are independent.
+- [x] Summary includes coverage metrics and validation status.
+
 ## Story 2.7 Consume Shared EventStore.Testing Assertions and Fakes
 
 Story 2.7 (FR-9, Consume — Epic 2's seventh and final consume story) is a **test-only verify-record-correct** story: **no `src/` change**. Its substantive deliverable (AC-1) is a *verified-gap finding* — the test tree holds **zero in-module re-implementations** of the three shared `EventStore.Testing` types FR-9 named for consume (`InMemoryStateManager`/`IActorStateManager`, `FakeEventStoreGatewayClient`/`IEventStoreGatewayClient`, and `DomainResultAssertions`). The genuine fake-consume (`InMemoryReadModelStore` in `Server.Tests`) already landed in Story 2.4 and is preserved; net **zero** assertion swaps (the direct aggregate assertions are strictly stronger). There is **no UI and no HTTP API in scope**, so the QA surface is a **regression guard** over the source tree, not an HTTP/E2E lane. Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (CPM; no new package, no new ProjectReference).

@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Commons.Http;
+
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Hexalith.Conversations.Client;
@@ -15,6 +17,12 @@ public static class ConversationClientServiceCollectionExtensions
     /// <summary>
     /// Adds the supported typed Conversations v1 client.
     /// </summary>
+    /// <remarks>
+    /// Thin facade over the shared <see cref="HttpClientRegistration.AddTypedHttpClient{TClient, TImplementation, TOptions}(IServiceCollection, Action{TOptions}, Func{TOptions, Uri}, HttpClientEndpointValidation, bool)"/>
+    /// helper. The hand-rolled endpoint validation and registration logic has been removed (FR-17); the
+    /// shared helper preserves the Conversations behavior exactly — eager (registration-time) validation
+    /// that rejects a missing, relative, or non-http(s) endpoint.
+    /// </remarks>
     /// <param name="services">The service collection.</param>
     /// <param name="configure">The endpoint configuration action.</param>
     /// <returns>The HTTP client builder.</returns>
@@ -25,25 +33,10 @@ public static class ConversationClientServiceCollectionExtensions
         ArgumentNullException.ThrowIfNull(services);
         ArgumentNullException.ThrowIfNull(configure);
 
-        ConversationClientOptions options = new();
-        configure(options);
-        Uri endpoint = ValidateEndpoint(options.Endpoint);
-
-        return services.AddHttpClient<IConversationClient, ConversationClient>(client =>
-        {
-            client.BaseAddress = endpoint;
-        });
-    }
-
-    private static Uri ValidateEndpoint(Uri? endpoint)
-    {
-        if (endpoint is null || !endpoint.IsAbsoluteUri)
-        {
-            throw new InvalidOperationException("Conversations client endpoint must be an absolute URI.");
-        }
-
-        return endpoint.Scheme is "http" or "https"
-            ? endpoint
-            : throw new InvalidOperationException("Conversations client endpoint must use http or https.");
+        return services.AddTypedHttpClient<IConversationClient, ConversationClient, ConversationClientOptions>(
+            configure,
+            static options => options.Endpoint,
+            HttpClientEndpointValidation.OnRegistration,
+            requireWebScheme: true);
     }
 }

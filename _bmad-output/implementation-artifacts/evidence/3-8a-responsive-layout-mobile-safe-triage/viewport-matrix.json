@@ -11,7 +11,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-mobile-360x780.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-mobile-360x780.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -25,7 +25,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-mobile-390x844.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-mobile-390x844.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -39,7 +39,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-tablet-768x1024.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-tablet-768x1024.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -53,7 +53,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-desktop-1280x800.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-desktop-1280x800.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -67,7 +67,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-wide-desktop-1440x1000.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-wide-desktop-1440x1000.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -81,7 +81,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_Admin_FullTrust",
@@ -95,7 +95,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Admin_FullTrust-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Admin_FullTrust-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_Reviewer_RedactedParticipants",
@@ -174,7 +174,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Reviewer_RedactedParticipants-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Reviewer_RedactedParticipants-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_Reviewer_RedactedParticipants",
@@ -188,7 +188,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Reviewer_RedactedParticipants-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Reviewer_RedactedParticipants-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_MobileTriage_ReadOnly",
@@ -267,7 +267,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_MobileTriage_ReadOnly-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_MobileTriage_ReadOnly-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_MobileTriage_ReadOnly",
@@ -281,7 +281,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_MobileTriage_ReadOnly-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_MobileTriage_ReadOnly-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -295,7 +295,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-mobile-360x780.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-mobile-360x780.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -309,7 +309,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-mobile-390x844.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-mobile-390x844.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -323,7 +323,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-tablet-768x1024.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-tablet-768x1024.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -337,7 +337,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-desktop-1280x800.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-desktop-1280x800.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -351,7 +351,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-wide-desktop-1440x1000.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-wide-desktop-1440x1000.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -365,7 +365,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "TenantB_NoAccess_CrossTenantPoison",
@@ -379,7 +379,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantB_NoAccess_CrossTenantPoison-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantB_NoAccess_CrossTenantPoison-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
@@ -458,7 +458,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\MixedTimeline_PartialLoad_RedactedEvents-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/MixedTimeline_PartialLoad_RedactedEvents-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "MixedTimeline_PartialLoad_RedactedEvents",
@@ -472,7 +472,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\MixedTimeline_PartialLoad_RedactedEvents-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/MixedTimeline_PartialLoad_RedactedEvents-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
@@ -551,7 +551,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows",
@@ -565,7 +565,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/VirtualizedTimeline_RestrictedRowsAdjacentToVisibleRows-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
@@ -644,7 +644,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\UnauthorizedExisting_IndistinguishableFromMissing-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/UnauthorizedExisting_IndistinguishableFromMissing-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "UnauthorizedExisting_IndistinguishableFromMissing",
@@ -658,7 +658,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 0,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\UnauthorizedExisting_IndistinguishableFromMissing-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/UnauthorizedExisting_IndistinguishableFromMissing-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
@@ -737,7 +737,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\PermissionDowngrade_WhileDrawerOpen-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/PermissionDowngrade_WhileDrawerOpen-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "PermissionDowngrade_WhileDrawerOpen",
@@ -751,7 +751,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\PermissionDowngrade_WhileDrawerOpen-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/PermissionDowngrade_WhileDrawerOpen-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "MissingCitation_IncompleteEvidence",
@@ -830,7 +830,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\MissingCitation_IncompleteEvidence-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/MissingCitation_IncompleteEvidence-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "MissingCitation_IncompleteEvidence",
@@ -844,7 +844,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\MissingCitation_IncompleteEvidence-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/MissingCitation_IncompleteEvidence-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "UnresolvedParticipant_DegradedHydration",
@@ -923,7 +923,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\UnresolvedParticipant_DegradedHydration-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/UnresolvedParticipant_DegradedHydration-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "UnresolvedParticipant_DegradedHydration",
@@ -937,7 +937,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\UnresolvedParticipant_DegradedHydration-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/UnresolvedParticipant_DegradedHydration-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_Stale_RebuildingProjection",
@@ -1016,7 +1016,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Stale_RebuildingProjection-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Stale_RebuildingProjection-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "TenantA_Stale_RebuildingProjection",
@@ -1030,7 +1030,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\TenantA_Stale_RebuildingProjection-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/TenantA_Stale_RebuildingProjection-desktop-1280x800-zoom-200.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1044,7 +1044,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-mobile-360x780.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-mobile-360x780.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1058,7 +1058,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-mobile-390x844.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-mobile-390x844.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1072,7 +1072,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-tablet-768x1024.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-tablet-768x1024.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1086,7 +1086,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-desktop-1280x800.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-desktop-1280x800.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1100,7 +1100,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-wide-desktop-1440x1000.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-wide-desktop-1440x1000.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1114,7 +1114,7 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-mobile-390x844-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-mobile-390x844-zoom-200.png"
   },
   {
     "FixtureId": "HighContrast_ReducedMotion_BrowserZoom",
@@ -1128,6 +1128,6 @@
     "MobileReadOnlyTriagePassed": true,
     "GovernanceControlCount": 1,
     "PoisonSentinelScanPassed": true,
-    "ScreenshotPath": "_bmad-output\\implementation-artifacts\\evidence\\3-8a-responsive-layout-mobile-safe-triage\\screenshots\\HighContrast_ReducedMotion_BrowserZoom-desktop-1280x800-zoom-200.png"
+    "ScreenshotPath": "_bmad-output/implementation-artifacts/evidence/3-8a-responsive-layout-mobile-safe-triage/screenshots/HighContrast_ReducedMotion_BrowserZoom-desktop-1280x800-zoom-200.png"
   }
 ]

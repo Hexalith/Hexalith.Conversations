@@ -393,6 +393,63 @@ public sealed class ConversationClientTest
         client.ShouldBeOfType<ConversationClient>();
     }
 
+    [Fact]
+    public void ServiceCollectionExtensionShouldRejectMissingEndpoint()
+    {
+        ServiceCollection services = new();
+
+        Should.Throw<InvalidOperationException>(() =>
+            services.AddHexalithConversationsClient(options => options.Endpoint = null));
+    }
+
+    [Fact]
+    public void ServiceCollectionExtensionShouldRejectRelativeEndpoint()
+    {
+        ServiceCollection services = new();
+
+        Should.Throw<InvalidOperationException>(() =>
+            services.AddHexalithConversationsClient(options => options.Endpoint = new Uri("/relative", UriKind.Relative)));
+    }
+
+    [Fact]
+    public void ServiceCollectionExtensionShouldRejectNonHttpScheme()
+    {
+        ServiceCollection services = new();
+
+        Should.Throw<InvalidOperationException>(() =>
+            services.AddHexalithConversationsClient(options => options.Endpoint = new Uri("ftp://conversations.example.test/")));
+    }
+
+    [Fact]
+    public async Task ServiceCollectionExtensionShouldReturnBuilderForHandlerChainingAndUseConfiguredEndpoint()
+    {
+        ServiceCollection services = new();
+        using FakeHttpMessageHandler primaryHandler = new();
+        primaryHandler.EnqueueJson(HttpStatusCode.Created, CreatedResult("idem-create-001"));
+        HandlerProbe probe = new();
+
+        IHttpClientBuilder builder = services.AddHexalithConversationsClient(options =>
+        {
+            options.Endpoint = new Uri("https://conversations.example.test/");
+        });
+
+        builder.ShouldNotBeNull();
+        builder.AddHttpMessageHandler(() => new ProbeDelegatingHandler(probe));
+        builder.ConfigurePrimaryHttpMessageHandler(() => primaryHandler);
+
+        using ServiceProvider provider = services.BuildServiceProvider();
+        IConversationClient client = provider.GetRequiredService<IConversationClient>();
+
+        ConversationClientResult<ConversationCreatedResult> result = await client
+            .CreateConversationAsync(CreateCommand(), TestContext.Current.CancellationToken);
+
+        result.IsSuccess.ShouldBeTrue();
+        probe.Paths.ShouldBe(["/api/v1/conversations"]);
+        RecordedRequest request = primaryHandler.Requests.Single();
+        request.AbsoluteUri.ShouldBe("https://conversations.example.test/api/v1/conversations");
+        request.Header(ProbeDelegatingHandler.HeaderName).ShouldBe("observed");
+    }
+
     private static ConversationClient CreateClient(FakeHttpMessageHandler handler)
         => new(new HttpClient(handler)
         {
@@ -582,6 +639,7 @@ public sealed class ConversationClientTest
                 : await request.Content.ReadAsStringAsync(cancellationToken).ConfigureAwait(true);
             Requests.Add(new RecordedRequest(
                 request.Method,
+                request.RequestUri?.ToString() ?? string.Empty,
                 request.RequestUri?.PathAndQuery ?? string.Empty,
                 request.Headers.ToDictionary(h => h.Key, h => h.Value.ToArray(), StringComparer.Ordinal),
                 body));
@@ -598,12 +656,30 @@ public sealed class ConversationClientTest
 
     private sealed record RecordedRequest(
         HttpMethod Method,
+        string AbsoluteUri,
         string PathAndQuery,
         IReadOnlyDictionary<string, string[]> Headers,
         string Body)
     {
         public string? Header(string name)
             => Headers.TryGetValue(name, out string[]? values) ? values.SingleOrDefault() : null;
+    }
+
+    private sealed class HandlerProbe
+    {
+        public List<string> Paths { get; } = [];
+    }
+
+    private sealed class ProbeDelegatingHandler(HandlerProbe probe) : DelegatingHandler
+    {
+        public const string HeaderName = "X-Builder-Probe";
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        {
+            probe.Paths.Add(request.RequestUri?.PathAndQuery ?? string.Empty);
+            request.Headers.Add(HeaderName, "observed");
+            return base.SendAsync(request, cancellationToken);
+        }
     }
 
     private sealed class NonSeekableMemoryStream(byte[] buffer) : MemoryStream(buffer)

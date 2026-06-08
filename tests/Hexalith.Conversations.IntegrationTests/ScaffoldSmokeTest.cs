@@ -32,6 +32,7 @@ public sealed class ScaffoldSmokeTest
         "tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj",
         "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
         "tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj",
+        "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
         "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
     ];
 
@@ -81,6 +82,8 @@ public sealed class ScaffoldSmokeTest
             .OfType<string>()
             .Where(path => !string.IsNullOrWhiteSpace(path))
             .Select(NormalizePath)
+            .Where(path => path.StartsWith("src/", StringComparison.Ordinal)
+                || path.StartsWith("tests/", StringComparison.Ordinal))
             .Order(StringComparer.OrdinalIgnoreCase)];
 
         string[] diskProjectPaths = [.. Directory
@@ -131,6 +134,7 @@ public sealed class ScaffoldSmokeTest
     public void ProjectReferencesShouldFollowScaffoldBoundaryDirection()
     {
         string root = FindRepositoryRoot();
+        string commonsRoot = ResolveExpectedModuleReferenceRoot(root, "Hexalith.Commons", "src/libraries/Hexalith.Commons.Http");
         string eventStoreRoot = ResolveExpectedModuleReferenceRoot(root, "Hexalith.EventStore", "src/Hexalith.EventStore.Contracts");
         string tenantsRoot = ResolveExpectedModuleReferenceRoot(root, "Hexalith.Tenants", "src/Hexalith.Tenants.Contracts");
 
@@ -140,6 +144,7 @@ public sealed class ScaffoldSmokeTest
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj",
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj");
         AssertProjectReferences(
             root,
@@ -300,6 +305,7 @@ public sealed class ScaffoldSmokeTest
     private static IReadOnlyDictionary<string, string> ResolveKnownProjectReferenceRoots(string root)
         => new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["HexalithCommonsRoot"] = ResolveModuleRoot(root, "Hexalith.Commons", "src/libraries/Hexalith.Commons.Http"),
             ["HexalithEventStoreRoot"] = ResolveModuleRoot(root, "Hexalith.EventStore", "src/Hexalith.EventStore.Contracts"),
             ["HexalithTenantsRoot"] = ResolveModuleRoot(root, "Hexalith.Tenants", "src/Hexalith.Tenants.Contracts"),
         };

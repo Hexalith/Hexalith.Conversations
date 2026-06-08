@@ -2,7 +2,7 @@
 
 Hexalith.Conversations is a tenant-scoped conversations module scaffold for the Hexalith ecosystem.
 
-This initial scaffold is intentionally non-operative. It establishes project boundaries, central package management, smoke tests, and ADR tracking for future stories without implementing conversation persistence, tenant authorization, provider integrations, workers, read models, governance commands, or FrontComposer runtime behavior.
+This module began as an intentionally non-operative scaffold establishing project boundaries, central package management, smoke tests, and ADR tracking. As of the Epic 2 boilerplate-reduction work, the `Hexalith.Conversations.Server` host is now wired onto the shared EventStore domain-service host (`AddEventStoreDomainService` / `UseEventStoreDomainService`), and the core domain behavior is implemented and conformance-gated: aggregate command dispatch/replay on `EventStoreAggregate<TState>`, query handling via the SDK query-handler + cursor-codec seams, read-model persistence via the shared read-model store + write policy, projections via the SDK projection seam, and fail-closed tenant authorization. Provider integrations, workers, and FrontComposer runtime behavior are still out of scope, and full local runtime topology — the Aspire/Dapr host wiring and the shared ServiceDefaults base — remains a scaffold placeholder pending Epic 3.
 
 ## Contract Package Guidance
 

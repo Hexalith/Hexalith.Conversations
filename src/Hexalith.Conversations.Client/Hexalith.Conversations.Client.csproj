@@ -7,6 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Http\Hexalith.Commons.Http.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
+    <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Http\Hexalith.Commons.Http.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.Http" />
