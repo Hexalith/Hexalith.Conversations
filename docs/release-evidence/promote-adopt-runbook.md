@@ -17,6 +17,10 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2�
   submodule (`Hexalith.Commons/src/libraries/Hexalith.Commons.Http/`). Commons is the domain-agnostic
   infrastructure home and had no existing HTTP-client registration helper. EventStore was rejected as the
   wrong altitude (event-sourcing-specific).
+- **Ratified for Story 3.2:** a new library **`Hexalith.Commons.TenantAccess`** in the
+  `Hexalith.Commons` submodule (`Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/`).
+  Commons is the domain-agnostic home for module tenant-access projection, fail-closed evaluation, and
+  registration helpers; Conversations keeps its public tenant-access vocabulary as thin facades/adapters.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 
@@ -46,6 +50,10 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
 - Keep the API **additive/backward-compatible** (NFR6): do not modify or break existing sibling signatures.
 - Add unit tests **in the module** covering the capability's contract (3.1: missing endpoint, relative URI,
   non-http(s) scheme, valid endpoint, builder-returned-for-chaining).
+- 3.2: module tests cover replay/deduplication, divergent duplicate replay conflict, out-of-order no-op,
+  future/malformed evidence, configuration-key filtering/tombstoning, retryable persistence failures, and
+  fail-closed evaluator states for missing/malformed tenant, missing/malformed caller, projection health,
+  store exception, status/role mapping, poisoned member map, and role-to-requirement mapping.
 
 ## 2. Test-in-module — prove the helper green where it lives
 
@@ -71,6 +79,12 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
 - 3.1: deleted the hand-rolled `ValidateEndpoint` + inline `AddHttpClient`; kept
   `AddHexalithConversationsClient(IServiceCollection, Action<ConversationClientOptions>)` (byte-identical
   public signature) as a thin facade.
+- 3.2: deleted the hand-written decision mechanics from `ConversationTenantAccessService`; kept
+  `ConversationTenantAccessDecision`, `ConversationTenantAccessRequirement`,
+  `ConversationTenantAccessDenialReason`, `IConversationTenantAccessService`, and
+  `ConversationTenantAccessGuard` as Conversations-owned vocabulary. The service now maps Tenants local
+  projection state and Conversations health into the shared evaluator, then maps neutral denial kinds back
+  into the existing Conversations-safe decision type.
 
 ## 5. Re-express / extend the guard tests (behavior preserved or strengthened — FR-20)
 
@@ -91,6 +105,10 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
   close) and the public-contract-shape baseline diff must be **empty** (the baseline enumerates the
   **Contracts** assembly only; Client/helper changes must not alter it).
 - 3.1 baseline: 357 at 2.7 close → **360 passed** at 3.1; contract-shape diff empty.
+- 3.2 local evidence: Conformance project builds 0-warning and the public Contracts assembly is untouched.
+  VSTest execution in this sandbox is blocked before discovery by `SocketException (13): Permission denied`
+  when the test platform opens its local listener, so the pass count and generated contract-shape diff must
+  be re-run in an environment that permits the VSTest socket.
 
 ## 7. Additive sibling-CI build — dependent modules compile green (NFR6)
 
@@ -100,6 +118,10 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
 - 3.1: `Hexalith.Projects.Server` (consumer of `AddHexalithConversationsClient` at
   `ProjectsServerServiceCollectionExtensions.cs:146`) builds **0-warning** against the modified Conversations
   source; `Hexalith.Folders.Client` builds green transitively. Full umbrella Release build: 0 warnings.
+- 3.2: full Conversations Release build is 0-warning. `Hexalith.Projects.Server` builds 0-warning against
+  explicit root-level sibling paths. Full sibling `.slnx` builds are not a valid umbrella check here because
+  they reference nested sibling paths under their own submodule directories; `Hexalith.Folders.Server`/core
+  were additionally blocked by missing assets plus silent restore-graph failure in this sandbox.
 
 ## 8. Submodule commit + root pointer bump (root-only, never recursive)
 

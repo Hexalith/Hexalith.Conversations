@@ -3,10 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Commons.TenantAccess;
 using Hexalith.Tenants.Client.Registration;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Hexalith.Conversations.Server.TenantAccess;
 
@@ -24,14 +24,10 @@ public static class ConversationTenantAccessServiceCollectionExtensions
     {
         ArgumentNullException.ThrowIfNull(services);
 
-        services.AddHexalithTenants();
-
-        // Register a Conversations-owned signal that delegates to a signal-capable
-        // ITenantProjectionStore when one is present, and otherwise emits a one-shot
-        // warning so the absence of freshness/poisoning detection is visible to operators
-        // (F12: optional-interface fail-open is now an explicit, logged dependency).
-        services.TryAddScoped<IConversationTenantProjectionSignal, DefaultConversationTenantProjectionSignal>();
-        services.TryAddScoped<IConversationTenantAccessService, ConversationTenantAccessService>();
-        return services;
+        return services.AddTenantAccess<
+            IConversationTenantProjectionSignal,
+            DefaultConversationTenantProjectionSignal,
+            IConversationTenantAccessService,
+            ConversationTenantAccessService>(static services => services.AddHexalithTenants());
     }
 }

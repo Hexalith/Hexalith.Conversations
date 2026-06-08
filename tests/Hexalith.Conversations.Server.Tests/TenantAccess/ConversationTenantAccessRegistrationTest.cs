@@ -4,8 +4,8 @@
 // </copyright>
 
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Tenants.Client.Handlers;
 using Hexalith.Tenants.Client.Projections;
-using Hexalith.Tenants.Client.Subscription;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -32,12 +32,30 @@ public sealed class ConversationTenantAccessRegistrationTest
         provider.GetRequiredService<IConversationTenantAccessService>()
             .ShouldBeOfType<ConversationTenantAccessService>();
         provider.GetRequiredService<ITenantProjectionStore>().ShouldNotBeNull();
-        provider.GetRequiredService<TenantEventProcessor>().ShouldNotBeNull();
+        provider.GetRequiredService<TenantProjectionEventHandler>().ShouldNotBeNull();
 
         // F12: the projection signal is registered explicitly so freshness/poisoning checks
         // remain a first-class dependency, not a silent cast against the store.
         provider.GetRequiredService<IConversationTenantProjectionSignal>()
             .ShouldBeOfType<DefaultConversationTenantProjectionSignal>();
+    }
+
+    /// <summary>
+    /// Calling the shared registration twice keeps the Conversations facade registrations singular.
+    /// </summary>
+    [Fact]
+    public void AddConversationTenantAccessShouldKeepFacadeRegistrationsSingularWhenCalledTwice()
+    {
+        ServiceCollection services = new();
+        services.AddLogging();
+
+        services.AddConversationTenantAccess();
+        services.AddConversationTenantAccess();
+
+        services.Count(static descriptor => descriptor.ServiceType == typeof(IConversationTenantAccessService))
+            .ShouldBe(1);
+        services.Count(static descriptor => descriptor.ServiceType == typeof(IConversationTenantProjectionSignal))
+            .ShouldBe(1);
     }
 
     /// <summary>
