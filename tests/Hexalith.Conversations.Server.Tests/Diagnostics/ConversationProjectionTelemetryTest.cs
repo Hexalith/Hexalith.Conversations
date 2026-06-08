@@ -130,6 +130,24 @@ public sealed class ConversationProjectionTelemetryTest
     }
 
     [Fact]
+    public void RecordProjectionRebuildProgress_LogMessageContainsStableEventName()
+    {
+        using FakeMeterFactory meterFactory = new();
+        CapturingLogger<ConversationProjectionTelemetry> logger = new();
+        ConversationProjectionTelemetry telemetry = new(meterFactory, logger);
+
+        telemetry.RecordProjectionRebuildProgress(
+            ConversationProjectionFreshnessClass.Rebuilding,
+            CorrelationId);
+
+        string message = logger.Messages.Single();
+        message.ShouldContain("ConversationProjectionRebuild");
+        message.ShouldContain("corr=");
+        message.ShouldNotContain("TenantId");
+        message.ShouldNotContain("ConversationId");
+    }
+
+    [Fact]
     public void RecordProjectionRebuildProgress_NoneClass_ThrowsArgumentException()
     {
         using FakeMeterFactory meterFactory = new();

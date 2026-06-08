@@ -5,6 +5,8 @@
 
 using System.Diagnostics.Metrics;
 
+using Hexalith.Commons.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace Hexalith.Conversations.Server.Diagnostics;
@@ -14,10 +16,10 @@ namespace Hexalith.Conversations.Server.Diagnostics;
 /// </summary>
 public sealed class ConversationProjectionTelemetry : IConversationProjectionTelemetry
 {
-    private readonly Counter<long> _freshnessCounter;
+    private readonly BoundedTelemetryCounter _freshnessCounter;
     private readonly ILogger<ConversationProjectionTelemetry> _logger;
-    private readonly Counter<long> _publicationFailureCounter;
-    private readonly Counter<long> _rebuildCounter;
+    private readonly BoundedTelemetryCounter _publicationFailureCounter;
+    private readonly BoundedTelemetryCounter _rebuildCounter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConversationProjectionTelemetry"/> class.
@@ -31,16 +33,10 @@ public sealed class ConversationProjectionTelemetry : IConversationProjectionTel
 
         _logger = logger;
 
-        Meter meter = meterFactory.Create("Hexalith.Conversations");
-        _freshnessCounter = meter.CreateCounter<long>(
-            "conversations.projection.freshness",
-            description: "Number of projection freshness state observations by class and lag class");
-        _rebuildCounter = meter.CreateCounter<long>(
-            "conversations.projection.rebuild",
-            description: "Number of projection rebuild progress observations by rebuild class");
-        _publicationFailureCounter = meter.CreateCounter<long>(
-            "conversations.publication.failures",
-            description: "Number of publication failures by bounded failure class");
+        BoundedTelemetryMeter meter = new(meterFactory, ConversationTelemetryDefinitions.MeterName);
+        _freshnessCounter = meter.CreateCounter(ConversationTelemetryDefinitions.ProjectionFreshness);
+        _rebuildCounter = meter.CreateCounter(ConversationTelemetryDefinitions.ProjectionRebuild);
+        _publicationFailureCounter = meter.CreateCounter(ConversationTelemetryDefinitions.PublicationFailures);
     }
 
     /// <inheritdoc />
@@ -49,24 +45,14 @@ public sealed class ConversationProjectionTelemetry : IConversationProjectionTel
         ConversationProjectionLagClass lagClass,
         string correlationId)
     {
-        if (freshnessClass == ConversationProjectionFreshnessClass.None)
-        {
-            throw new ArgumentException("None is not a valid freshness class for telemetry signals.", nameof(freshnessClass));
-        }
-
-        if (lagClass == ConversationProjectionLagClass.None)
-        {
-            throw new ArgumentException("None is not a valid lag class for telemetry signals.", nameof(lagClass));
-        }
-
+        BoundedMetricDimension freshnessDimension = BoundedMetricDimension.EnumToken("freshness_class", freshnessClass, nameof(freshnessClass));
+        BoundedMetricDimension lagDimension = BoundedMetricDimension.EnumToken("lag_class", lagClass, nameof(lagClass));
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _freshnessCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("freshness_class", freshnessClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("lag_class", lagClass.ToString().ToLowerInvariant()));
+        _freshnessCounter.AddOne(freshnessDimension, lagDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationProjectionFreshness: freshness={FreshnessClass} lag={LagClass} corr={CorrelationId}",
             freshnessClass,
             lagClass,
@@ -78,18 +64,13 @@ public sealed class ConversationProjectionTelemetry : IConversationProjectionTel
         ConversationProjectionFreshnessClass rebuildClass,
         string correlationId)
     {
-        if (rebuildClass == ConversationProjectionFreshnessClass.None)
-        {
-            throw new ArgumentException("None is not a valid rebuild class for telemetry signals.", nameof(rebuildClass));
-        }
-
+        BoundedMetricDimension rebuildDimension = BoundedMetricDimension.EnumToken("rebuild_class", rebuildClass, nameof(rebuildClass));
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _rebuildCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("rebuild_class", rebuildClass.ToString().ToLowerInvariant()));
+        _rebuildCounter.AddOne(rebuildDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationProjectionRebuild: rebuild={RebuildClass} corr={CorrelationId}",
             rebuildClass,
             correlationId);
@@ -100,18 +81,13 @@ public sealed class ConversationProjectionTelemetry : IConversationProjectionTel
         ConversationPublicationFailureClass failureClass,
         string correlationId)
     {
-        if (failureClass == ConversationPublicationFailureClass.None)
-        {
-            throw new ArgumentException("None is not a valid failure class for telemetry signals.", nameof(failureClass));
-        }
-
+        BoundedMetricDimension failureDimension = BoundedMetricDimension.EnumToken("failure_class", failureClass, nameof(failureClass));
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _publicationFailureCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("failure_class", failureClass.ToString().ToLowerInvariant()));
+        _publicationFailureCounter.AddOne(failureDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationPublicationFailure: class={FailureClass} corr={CorrelationId}",
             failureClass,
             correlationId);

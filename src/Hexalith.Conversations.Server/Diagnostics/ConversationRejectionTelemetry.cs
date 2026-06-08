@@ -5,6 +5,7 @@
 
 using System.Diagnostics.Metrics;
 
+using Hexalith.Commons.Diagnostics;
 using Hexalith.Conversations.Server.TenantAccess;
 
 using Microsoft.Extensions.Logging;
@@ -16,10 +17,10 @@ namespace Hexalith.Conversations.Server.Diagnostics;
 /// </summary>
 public sealed class ConversationRejectionTelemetry : IConversationRejectionTelemetry
 {
-    private readonly Counter<long> _commandRejectionCounter;
+    private readonly BoundedTelemetryCounter _commandRejectionCounter;
     private readonly ILogger<ConversationRejectionTelemetry> _logger;
-    private readonly Counter<long> _privilegedAccessCounter;
-    private readonly Counter<long> _tenantDenialCounter;
+    private readonly BoundedTelemetryCounter _privilegedAccessCounter;
+    private readonly BoundedTelemetryCounter _tenantDenialCounter;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ConversationRejectionTelemetry"/> class.
@@ -33,16 +34,10 @@ public sealed class ConversationRejectionTelemetry : IConversationRejectionTelem
 
         _logger = logger;
 
-        Meter meter = meterFactory.Create("Hexalith.Conversations");
-        _commandRejectionCounter = meter.CreateCounter<long>(
-            "conversations.command.rejections",
-            description: "Number of command rejections by bounded reason class");
-        _tenantDenialCounter = meter.CreateCounter<long>(
-            "conversations.tenant.denials",
-            description: "Number of tenant isolation denials by bounded denial class");
-        _privilegedAccessCounter = meter.CreateCounter<long>(
-            "conversations.privileged.access",
-            description: "Number of privileged access attempts by access class");
+        BoundedTelemetryMeter meter = new(meterFactory, ConversationTelemetryDefinitions.MeterName);
+        _commandRejectionCounter = meter.CreateCounter(ConversationTelemetryDefinitions.CommandRejections);
+        _tenantDenialCounter = meter.CreateCounter(ConversationTelemetryDefinitions.TenantDenials);
+        _privilegedAccessCounter = meter.CreateCounter(ConversationTelemetryDefinitions.PrivilegedAccess);
     }
 
     /// <inheritdoc />
@@ -52,20 +47,15 @@ public sealed class ConversationRejectionTelemetry : IConversationRejectionTelem
         bool isRetryable,
         string correlationId)
     {
-        if (rejectionClass == ConversationCommandRejectionClass.None)
-        {
-            throw new ArgumentException("None is not a valid rejection class for telemetry signals.", nameof(rejectionClass));
-        }
-
+        BoundedMetricDimension rejectionDimension = BoundedMetricDimension.EnumToken("rejection_class", rejectionClass, nameof(rejectionClass));
+        BoundedMetricDimension operationDimension = BoundedMetricDimension.EnumToken("operation_class", operationClass, nameof(operationClass));
+        BoundedMetricDimension retryableDimension = BoundedMetricDimension.BooleanToken("retryable", isRetryable);
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _commandRejectionCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("rejection_class", rejectionClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("operation_class", operationClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("retryable", isRetryable ? "true" : "false"));
+        _commandRejectionCounter.AddOne(rejectionDimension, operationDimension, retryableDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationCommandRejected: class={RejectionClass} operation={OperationClass} retryable={IsRetryable} corr={CorrelationId}",
             rejectionClass,
             operationClass,
@@ -80,20 +70,15 @@ public sealed class ConversationRejectionTelemetry : IConversationRejectionTelem
         bool isRetryable,
         string correlationId)
     {
-        if (denialClass == ConversationTenantDenialClass.None)
-        {
-            throw new ArgumentException("None is not a valid denial class for telemetry signals.", nameof(denialClass));
-        }
-
+        BoundedMetricDimension denialDimension = BoundedMetricDimension.EnumToken("denial_class", denialClass, nameof(denialClass));
+        BoundedMetricDimension operationDimension = BoundedMetricDimension.EnumToken("operation_class", operationClass, nameof(operationClass));
+        BoundedMetricDimension retryableDimension = BoundedMetricDimension.BooleanToken("retryable", isRetryable);
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _tenantDenialCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("denial_class", denialClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("operation_class", operationClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("retryable", isRetryable ? "true" : "false"));
+        _tenantDenialCounter.AddOne(denialDimension, operationDimension, retryableDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationTenantDenied: class={DenialClass} operation={OperationClass} retryable={IsRetryable} corr={CorrelationId}",
             denialClass,
             operationClass,
@@ -107,19 +92,14 @@ public sealed class ConversationRejectionTelemetry : IConversationRejectionTelem
         ConversationTenantAccessRequirement operationClass,
         string correlationId)
     {
-        if (accessClass == ConversationPrivilegedAccessClass.None)
-        {
-            throw new ArgumentException("None is not a valid access class for telemetry signals.", nameof(accessClass));
-        }
-
+        BoundedMetricDimension accessDimension = BoundedMetricDimension.EnumToken("access_class", accessClass, nameof(accessClass));
+        BoundedMetricDimension operationDimension = BoundedMetricDimension.EnumToken("operation_class", operationClass, nameof(operationClass));
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId);
 
-        _privilegedAccessCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("access_class", accessClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("operation_class", operationClass.ToString().ToLowerInvariant()));
+        _privilegedAccessCounter.AddOne(accessDimension, operationDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationPrivilegedAccess: class={AccessClass} operation={OperationClass} corr={CorrelationId}",
             accessClass,
             operationClass,

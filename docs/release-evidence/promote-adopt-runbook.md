@@ -21,6 +21,16 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2â€
   `Hexalith.Commons` submodule (`Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/`).
   Commons is the domain-agnostic home for module tenant-access projection, fail-closed evaluation, and
   registration helpers; Conversations keeps its public tenant-access vocabulary as thin facades/adapters.
+- **Ratified for Story 3.3 (FR-15, user "Commons, all Epic-3", 2026-06-08):** a new library
+  **`Hexalith.Commons.Diagnostics`** in the `Hexalith.Commons` submodule
+  (`Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/`, self-contained `Directory.Build.props`).
+  Commons is the right altitude for domain-agnostic metric/counter/bounded-tag/`None`-sentinel/content-safe-log
+  scaffolding (`BoundedTelemetryMeter`/`BoundedTelemetryCounter`/`BoundedTelemetryCounterDefinition`/
+  `BoundedMetricDimension`/`BoundedTelemetryLog`). EventStore's `EventStoreDomainTelemetry` only owns domain
+  instrument naming and Tenants/FrontComposer/Parties telemetry is module-specific, so neither was a fit.
+  Conversations keeps its meter name, seven counter names, dimension-key sets, classifier enums, and safe log
+  event text as thin wrappers (`ConversationProjectionTelemetry`, `ConversationRejectionTelemetry`,
+  `ConversationConformanceTelemetry`) over the helper, with a `ConversationTelemetryDefinitions` contract manifest.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 

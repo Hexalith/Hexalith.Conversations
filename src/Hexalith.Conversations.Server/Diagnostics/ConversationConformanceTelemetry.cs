@@ -5,6 +5,8 @@
 
 using System.Diagnostics.Metrics;
 
+using Hexalith.Commons.Diagnostics;
+
 using Microsoft.Extensions.Logging;
 
 namespace Hexalith.Conversations.Server.Diagnostics;
@@ -14,7 +16,7 @@ namespace Hexalith.Conversations.Server.Diagnostics;
 /// </summary>
 public sealed class ConversationConformanceTelemetry : IConversationConformanceTelemetry
 {
-    private readonly Counter<long> _conformanceCounter;
+    private readonly BoundedTelemetryCounter _conformanceCounter;
     private readonly ILogger<ConversationConformanceTelemetry> _logger;
 
     /// <summary>
@@ -29,10 +31,8 @@ public sealed class ConversationConformanceTelemetry : IConversationConformanceT
 
         _logger = logger;
 
-        Meter meter = meterFactory.Create("Hexalith.Conversations");
-        _conformanceCounter = meter.CreateCounter<long>(
-            "conversations.conformance.outcomes",
-            description: "Number of conformance outcome observations by status class and gate");
+        BoundedTelemetryMeter meter = new(meterFactory, ConversationTelemetryDefinitions.MeterName);
+        _conformanceCounter = meter.CreateCounter(ConversationTelemetryDefinitions.ConformanceOutcomes);
     }
 
     /// <inheritdoc />
@@ -42,21 +42,15 @@ public sealed class ConversationConformanceTelemetry : IConversationConformanceT
         bool isBlocking,
         string correlationId)
     {
-        if (statusClass == ConversationConformanceStatusClass.None)
-        {
-            throw new ArgumentException("None is not a valid status class for telemetry signals.", nameof(statusClass));
-        }
-
-        ArgumentException.ThrowIfNullOrWhiteSpace(safeGateId, nameof(safeGateId));
+        BoundedMetricDimension statusDimension = BoundedMetricDimension.EnumToken("status_class", statusClass, nameof(statusClass));
+        BoundedMetricDimension gateDimension = BoundedMetricDimension.SafeToken("gate_id", safeGateId, nameof(safeGateId));
+        BoundedMetricDimension blockingDimension = BoundedMetricDimension.BooleanToken("blocking", isBlocking);
         ArgumentException.ThrowIfNullOrWhiteSpace(correlationId, nameof(correlationId));
 
-        _conformanceCounter.Add(
-            1,
-            new KeyValuePair<string, object?>("status_class", statusClass.ToString().ToLowerInvariant()),
-            new KeyValuePair<string, object?>("gate_id", safeGateId),
-            new KeyValuePair<string, object?>("blocking", isBlocking ? "true" : "false"));
+        _conformanceCounter.AddOne(statusDimension, gateDimension, blockingDimension);
 
-        _logger.LogInformation(
+        BoundedTelemetryLog.Information(
+            _logger,
             "ConversationConformanceOutcome: status={StatusClass} gate={GateId} blocking={IsBlocking} corr={CorrelationId}",
             statusClass,
             safeGateId,

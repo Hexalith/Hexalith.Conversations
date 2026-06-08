@@ -145,6 +145,26 @@ public sealed class ConversationRejectionTelemetryTest
     }
 
     [Fact]
+    public void RecordPrivilegedAccessAttempt_LogMessageContainsStableEventName()
+    {
+        using FakeMeterFactory meterFactory = new();
+        CapturingLogger<ConversationRejectionTelemetry> logger = new();
+        ConversationRejectionTelemetry telemetry = new(meterFactory, logger);
+
+        telemetry.RecordPrivilegedAccessAttempt(
+            ConversationPrivilegedAccessClass.AuthorizedPrivilegedOperation,
+            ConversationTenantAccessRequirement.Admin,
+            CorrelationId);
+
+        string message = logger.Messages.Single();
+        message.ShouldContain("ConversationPrivilegedAccess");
+        message.ShouldContain("corr=");
+        message.ShouldNotContain("tenant-");
+        message.ShouldNotContain("party:");
+        message.ShouldNotContain("TenantId");
+    }
+
+    [Fact]
     public void RecordCommandRejection_NullOrEmptyCorrelationId_ThrowsArgumentException()
     {
         using FakeMeterFactory meterFactory = new();

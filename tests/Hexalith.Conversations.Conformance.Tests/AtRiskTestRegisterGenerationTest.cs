@@ -224,6 +224,23 @@ public sealed class AtRiskTestRegisterGenerationTest
     }
 
     [Fact]
+    public void EveryStory33StructuralDispositionShouldBeAnchoredAndGreen()
+    {
+        AtRiskTestRegisterV1 register = BuildRegister();
+
+        register.Story33StructuralDispositions.ShouldNotBeEmpty();
+        foreach (Story33StructuralDisposition disposition in register.Story33StructuralDispositions)
+        {
+            disposition.Subject.ShouldNotBeNullOrWhiteSpace();
+            disposition.Change.ShouldNotBeNullOrWhiteSpace();
+            disposition.Ac.ShouldNotBeNullOrWhiteSpace();
+            disposition.OwningStory.ShouldNotBeNullOrWhiteSpace();
+            disposition.GreenAfterChange.ShouldBeTrue(
+                $"Story 3.3 structural disposition '{disposition.Subject}' must be green after the recorded change.");
+        }
+    }
+
+    [Fact]
     public void RegisterShouldBeContentSafe()
     {
         // The emitted artifact must contain ONLY public Conversations concepts and test/behavior/type names —
@@ -306,16 +323,16 @@ public sealed class AtRiskTestRegisterGenerationTest
             ProjectReferenceDisposition = new ProjectReferenceDisposition(
                 Reference: "tests/Hexalith.Conversations.Conformance.Tests -> src/Hexalith.Conversations.Server",
                 Classification: CoupledRetarget,
-                Rationale: "The public-surface conformance suites and the live characterization tests transitively "
-                    + "depend on the Server plumbing assembly. Removing the reference now would break the still-coupled "
-                    + "telemetry/status suites, the Story 1.2 live characterization tests, and the Story 1.3 read-surface "
-                    + "and idempotency re-expressions. Removal is the owning stories' job, not this story's.",
+                Rationale: "Story 3.3 retargeted the telemetry emitters to the shared Commons diagnostics helper, but "
+                    + "the conformance project still has live release-gate dependencies on Server-owned tenant access, "
+                    + "projection, command-handler, governance, and diagnostics-classifier types. Removing the reference "
+                    + "now would break those still-live checks rather than prove structural survivability.",
                 TargetEndState: "Public-surface suites no longer transitively depend on the Server plumbing assembly.",
-                PathToGetThere: "Retarget the coupled telemetry/status suites in their owning stories (3.3 / 3.2) and "
-                    + "the projection/idempotency couplings (2.5 / 2.2); the last owning story removes the reference (or "
-                    + "extract a Server-coupled fixtures sub-project). Tracked here so Story 5.1's oracle is structurally survivable.",
+                PathToGetThere: "Keep the reference until the remaining live Server-bound conformance checks are either "
+                    + "moved behind public Contracts/Testing surfaces or split into an explicit Server-coupled conformance "
+                    + "fixture project. Story 3.3 does not claim the project-reference dependency is closed.",
                 RemovedInThisStory: false,
-                OwningStory: "Story 3.3 (last of 2.2 / 2.5 / 3.2 / 3.3 to clear)"),
+                OwningStory: "Story 3.3 (FR-15, diagnostics/telemetry promotion)"),
             Story21StructuralDispositions = BuildStory21StructuralDispositions(),
             Story22StructuralDispositions = BuildStory22StructuralDispositions(),
             Story23StructuralDispositions = BuildStory23StructuralDispositions(),
@@ -323,7 +340,48 @@ public sealed class AtRiskTestRegisterGenerationTest
             Story25StructuralDispositions = BuildStory25StructuralDispositions(),
             Story26StructuralDispositions = BuildStory26StructuralDispositions(),
             Story27StructuralDispositions = BuildStory27StructuralDispositions(),
+            Story33StructuralDispositions = BuildStory33StructuralDispositions(),
         };
+
+    private static IReadOnlyList<Story33StructuralDisposition> BuildStory33StructuralDispositions() =>
+    [
+        new(
+            Subject: "FR-15 telemetry scaffolding helper promoted to Hexalith.Commons.Diagnostics and adopted through "
+                + "Conversations thin wrappers",
+            Change: "Promoted the repeated IMeterFactory / Meter / Counter<long> / fixed-dimension / enum-token / "
+                + "boolean-token / None-sentinel / safe-log mechanics into Hexalith.Commons.Diagnostics. "
+                + "ConversationProjectionTelemetry, ConversationRejectionTelemetry, and ConversationConformanceTelemetry "
+                + "now delegate to the helper while preserving the Conversations-owned interfaces, metric names, "
+                + "dimension keys, classifier enums, and safe log event text.",
+            Ac: "AC-1 / AC-2 / AC-3 / AC-4",
+            Rationale: "The helper is generic scaffolding only; Conversations keeps classifier policy and vocabulary. "
+                + "The new ConversationTelemetryContractTest pins the exact meter, seven counter names, and dimension-key "
+                + "sets so dashboards and conformance guards cannot drift silently.",
+            OwningStory: "Story 3.3 (FR-15, diagnostics/telemetry promotion)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Story 1.3 telemetry/status retarget obligation",
+            Change: "TelemetryCardinalityConformanceSuite and TelemetryRedactionConformanceSuite still drive the live "
+                + "Conversations telemetry wrappers, but those wrappers now exercise the promoted Commons helper. "
+                + "ConformanceStatusConformanceSuite remains intentionally bound to Conversations-owned classifier policy "
+                + "because the helper does not move domain classification behavior.",
+            Ac: "AC-3 / AC-4 / AC-5",
+            Rationale: "Retargeted the scaffolding without weakening the release gates: high-cardinality load, forbidden-value "
+                + "scan, fixed enum budgets, approved gate-id vocabulary, and exact dimension-key assertions remain in the "
+                + "conformance suite. No telemetry/status test is silently removed.",
+            OwningStory: "Story 3.3 (FR-15, diagnostics/telemetry promotion)",
+            GreenAfterChange: true),
+        new(
+            Subject: "Conformance.Tests -> Server project-reference disposition after Story 3.3",
+            Change: "The project reference is deliberately retained. The telemetry scaffolding moved behind Commons, but the "
+                + "conformance project still directly uses Server-owned tenant access, projection, command-handler, governance, "
+                + "and diagnostics-classifier types for live release-gate behavior.",
+            Ac: "AC-5 / AC-6",
+            Rationale: "Removing the reference now would be a false structural-closure claim. The exact remaining live coupling "
+                + "is recorded in projectReferenceDisposition and this Story 3.3 ledger section for Story 5.1 / 5.2 reconciliation.",
+            OwningStory: "Story 3.3 (FR-15, diagnostics/telemetry promotion)",
+            GreenAfterChange: true),
+    ];
 
     private static IReadOnlyList<Story27StructuralDisposition> BuildStory27StructuralDispositions() =>
     [
@@ -1026,6 +1084,8 @@ public sealed class AtRiskTestRegisterGenerationTest
         public required IReadOnlyList<Story26StructuralDisposition> Story26StructuralDispositions { get; init; }
 
         public required IReadOnlyList<Story27StructuralDisposition> Story27StructuralDispositions { get; init; }
+
+        public required IReadOnlyList<Story33StructuralDisposition> Story33StructuralDispositions { get; init; }
     }
 
     internal sealed record ClassificationLegend(
@@ -1165,6 +1225,20 @@ public sealed class AtRiskTestRegisterGenerationTest
     /// helpers) — recorded so no later test-count change is unaccounted for (agreements A2/A3; Story 5.2 reconciliation).
     /// </summary>
     internal sealed record Story27StructuralDisposition(
+        string Subject,
+        string Change,
+        string Ac,
+        string Rationale,
+        string OwningStory,
+        bool GreenAfterChange);
+
+    /// <summary>
+    /// Append-only record of a Story 3.3 (FR-15) structural disposition: the diagnostics/telemetry scaffolding helper
+    /// promoted into Commons and adopted by Conversations thin wrappers; the Story 1.3 telemetry/status suites
+    /// retargeted without weakening; and the conformance project-reference disposition retained honestly because live
+    /// Server-owned conformance behavior still remains.
+    /// </summary>
+    internal sealed record Story33StructuralDisposition(
         string Subject,
         string Change,
         string Ac,

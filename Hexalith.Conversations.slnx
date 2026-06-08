@@ -12,6 +12,8 @@
   <Folder Name="/Hexalith.Commons/">
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj" />
+    <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj" />
+    <Project Path="Hexalith.Commons/test/Hexalith.Commons.Diagnostics.Tests/Hexalith.Commons.Diagnostics.Tests.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/Hexalith.Commons.UniqueIds.csproj" />
   </Folder>
   <Folder Name="/Hexalith.EventStore/">
