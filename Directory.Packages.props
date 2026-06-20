@@ -3,7 +3,7 @@
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
   </PropertyGroup>
   <ItemGroup Label="Aspire">
-    <PackageVersion Include="Aspire.Hosting" Version="13.4.5" />
+    <PackageVersion Include="Aspire.Hosting" Version="13.4.6" />
   </ItemGroup>
   <ItemGroup Label="Aspire ServiceDefaults">
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.9" />
