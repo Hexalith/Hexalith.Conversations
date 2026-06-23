@@ -33,7 +33,7 @@ public sealed class ConversationConformanceTelemetryTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", captured);
+        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", meterFactory, captured);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.Pass,
@@ -59,7 +59,7 @@ public sealed class ConversationConformanceTelemetryTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", captured);
+        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", meterFactory, captured);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.Fail,
@@ -81,7 +81,7 @@ public sealed class ConversationConformanceTelemetryTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", captured);
+        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", meterFactory, captured);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.Waived,
@@ -103,7 +103,7 @@ public sealed class ConversationConformanceTelemetryTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", captured);
+        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", meterFactory, captured);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.InfrastructureFailure,
@@ -125,7 +125,7 @@ public sealed class ConversationConformanceTelemetryTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", captured);
+        using MeterListener listener = StartListening<long>("conversations.conformance.outcomes", meterFactory, captured);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.StaleEvidence,
@@ -224,20 +224,21 @@ public sealed class ConversationConformanceTelemetryTest
 
     private static MeterListener StartListening<T>(
         string instrumentName,
+        FakeMeterFactory meterFactory,
         List<MeasurementRecord<T>> captured)
         where T : struct
     {
         MeterListener listener = new();
         listener.InstrumentPublished = (instrument, l) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 l.EnableMeasurementEvents(instrument, null);
             }
         };
         listener.SetMeasurementEventCallback<T>((instrument, measurement, tags, _) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 captured.Add(new MeasurementRecord<T>(measurement, tags.ToArray()));
             }

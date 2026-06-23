@@ -13,7 +13,9 @@
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj" />
+    <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/Hexalith.Commons.ServiceDefaults.csproj" />
     <Project Path="Hexalith.Commons/test/Hexalith.Commons.Diagnostics.Tests/Hexalith.Commons.Diagnostics.Tests.csproj" />
+    <Project Path="Hexalith.Commons/test/Hexalith.Commons.ServiceDefaults.Tests/Hexalith.Commons.ServiceDefaults.Tests.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/Hexalith.Commons.UniqueIds.csproj" />
   </Folder>
   <Folder Name="/Hexalith.EventStore/">
@@ -44,6 +46,7 @@
     <Project Path="tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj" />
   </Folder>

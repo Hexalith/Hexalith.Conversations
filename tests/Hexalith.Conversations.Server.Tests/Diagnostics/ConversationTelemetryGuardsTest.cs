@@ -116,7 +116,7 @@ public sealed class ConversationTelemetryGuardsTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<string> meterNames = [];
-        using MeterListener listener = StartListeningForMeterName("conversations.projection.freshness", meterNames);
+        using MeterListener listener = StartListeningForMeterName("conversations.projection.freshness", meterFactory, meterNames);
 
         telemetry.RecordProjectionFreshnessState(
             ConversationProjectionFreshnessClass.Current,
@@ -135,7 +135,7 @@ public sealed class ConversationTelemetryGuardsTest
             NullLogger<ConversationRejectionTelemetry>.Instance);
 
         List<string> meterNames = [];
-        using MeterListener listener = StartListeningForMeterName("conversations.command.rejections", meterNames);
+        using MeterListener listener = StartListeningForMeterName("conversations.command.rejections", meterFactory, meterNames);
 
         telemetry.RecordCommandRejection(
             ConversationCommandRejectionClass.Validation,
@@ -155,7 +155,7 @@ public sealed class ConversationTelemetryGuardsTest
             NullLogger<ConversationConformanceTelemetry>.Instance);
 
         List<string> meterNames = [];
-        using MeterListener listener = StartListeningForMeterName("conversations.conformance.outcomes", meterNames);
+        using MeterListener listener = StartListeningForMeterName("conversations.conformance.outcomes", meterFactory, meterNames);
 
         telemetry.RecordConformanceOutcome(
             ConversationConformanceStatusClass.Pass,
@@ -166,19 +166,22 @@ public sealed class ConversationTelemetryGuardsTest
         meterNames.Single().ShouldBe(MeterName);
     }
 
-    private static MeterListener StartListeningForMeterName(string instrumentName, List<string> meterNames)
+    private static MeterListener StartListeningForMeterName(
+        string instrumentName,
+        FakeMeterFactory meterFactory,
+        List<string> meterNames)
     {
         MeterListener listener = new();
         listener.InstrumentPublished = (instrument, l) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 l.EnableMeasurementEvents(instrument, null);
             }
         };
         listener.SetMeasurementEventCallback<long>((instrument, _, _, _) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 meterNames.Add(instrument.Meter.Name);
             }

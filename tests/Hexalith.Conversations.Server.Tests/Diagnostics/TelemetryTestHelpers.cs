@@ -21,6 +21,15 @@ internal sealed class FakeMeterFactory : IMeterFactory
         return meter;
     }
 
+    /// <summary>
+    /// Returns whether the supplied meter was created by this factory. Used to scope the process-global
+    /// <see cref="MeterListener"/> to this test's own instruments so that measurements emitted by sibling
+    /// telemetry tests running in parallel (which share the same instrument names) are not captured here.
+    /// </summary>
+    /// <param name="meter">The meter reported by the listener.</param>
+    /// <returns><c>true</c> when this factory created the meter; otherwise <c>false</c>.</returns>
+    public bool Owns(Meter meter) => _meters.Contains(meter);
+
     public void Dispose()
     {
         foreach (Meter meter in _meters)

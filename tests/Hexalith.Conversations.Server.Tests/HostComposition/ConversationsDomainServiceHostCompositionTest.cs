@@ -6,9 +6,14 @@
 using Hexalith.Conversations;
 using Hexalith.Conversations.Server;
 using Hexalith.EventStore.DomainService;
+using Hexalith.EventStore.ServiceDefaults;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Microsoft.Extensions.Options;
 
 using Shouldly;
 
@@ -95,5 +100,83 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         await using WebApplication app = ComposeHost();
 
         MappedRoutes(app).ShouldContain(route);
+    }
+
+    /// <summary>
+    /// The ServiceDefaults status-code mapping remains serving for Healthy/Degraded and unavailable for Unhealthy.
+    /// </summary>
+    [Fact]
+    public void ServiceDefaultsHealthStatusCodesShouldPreserveCurrentMapping()
+    {
+        IDictionary<HealthStatus, int> statusCodes =
+            Hexalith.Commons.ServiceDefaults.HexalithServiceDefaults.CreateHealthStatusCodes();
+
+        statusCodes[HealthStatus.Healthy].ShouldBe(StatusCodes.Status200OK);
+        statusCodes[HealthStatus.Degraded].ShouldBe(StatusCodes.Status200OK);
+        statusCodes[HealthStatus.Unhealthy].ShouldBe(StatusCodes.Status503ServiceUnavailable);
+    }
+
+    /// <summary>
+    /// Development health responses stay detailed JSON for /health and /ready.
+    /// </summary>
+    [Fact]
+    public async Task ServiceDefaultsDevelopmentHealthWriterShouldProduceDetailedJson()
+    {
+        DefaultHttpContext context = new();
+        context.Response.Body = new MemoryStream();
+        HealthReport report = new(
+            new Dictionary<string, HealthReportEntry>
+            {
+                ["self"] = new(HealthStatus.Healthy, "ok", TimeSpan.FromMilliseconds(1), exception: null, data: new Dictionary<string, object>()),
+            },
+            TimeSpan.FromMilliseconds(1));
+
+        await Extensions.WriteHealthCheckJsonResponse(context, report);
+
+        context.Response.ContentType.ShouldBe("application/json; charset=utf-8");
+        context.Response.Body.Position = 0;
+        using StreamReader reader = new(context.Response.Body);
+        string json = await reader.ReadToEndAsync(TestContext.Current.CancellationToken);
+        json.ShouldContain("\"status\"");
+        json.ShouldContain("\"results\"");
+        json.ShouldContain("\"self\"");
+    }
+
+    /// <summary>
+    /// Health probes are excluded from ASP.NET Core tracing while application traffic remains traced.
+    /// </summary>
+    [Theory]
+    [InlineData("/health", false)]
+    [InlineData("/alive", false)]
+    [InlineData("/ready", false)]
+    [InlineData("/process", true)]
+    public void ServiceDefaultsShouldExcludeHealthProbesFromTracing(string path, bool expected)
+    {
+        DefaultHttpContext context = new();
+        context.Request.Path = path;
+
+        Extensions.ShouldTraceHttpRequest(context).ShouldBe(expected);
+    }
+
+    /// <summary>
+    /// The current EventStore runtime ServiceDefaults path still registers the expected side effects once.
+    /// </summary>
+    [Fact]
+    public void AddEventStoreDomainServiceShouldRegisterServiceDefaultsSideEffects()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+
+        using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        HealthCheckServiceOptions healthOptions = provider.GetRequiredService<IOptions<HealthCheckServiceOptions>>().Value;
+        healthOptions.Registrations.Count(static registration => registration.Name == "self").ShouldBe(1);
+
+        string descriptorText = string.Join(Environment.NewLine, builder.Services.Select(static descriptor => descriptor.ToString()));
+        descriptorText.ShouldContain("ServiceDiscovery");
+        descriptorText.ShouldContain("Resilience");
+        descriptorText.ShouldContain("OpenTelemetry");
     }
 }

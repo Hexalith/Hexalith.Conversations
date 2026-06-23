@@ -31,6 +31,13 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2â€
   Conversations keeps its meter name, seven counter names, dimension-key sets, classifier enums, and safe log
   event text as thin wrappers (`ConversationProjectionTelemetry`, `ConversationRejectionTelemetry`,
   `ConversationConformanceTelemetry`) over the helper, with a `ConversationTelemetryDefinitions` contract manifest.
+- **Ratified for Story 3.4 (FR-10):** a new library **`Hexalith.Commons.ServiceDefaults`** in the
+  `Hexalith.Commons` submodule (`Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/`,
+  self-contained `Directory.Build.props`). Commons is the right altitude for domain-agnostic service defaults:
+  OpenTelemetry logging/metrics/tracing, health endpoint mapping, service discovery, and HTTP resilience with
+  module-owned resource names, activity sources, meters, health tags/paths, readiness checks, and response-writer
+  hooks. EventStore's existing `AddServiceDefaults`/`MapDefaultEndpoints` symbols remain thin facades over the
+  shared base so Conversations preserves the current runtime path through `AddEventStoreDomainService`.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 
