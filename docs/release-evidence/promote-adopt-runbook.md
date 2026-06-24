@@ -57,6 +57,17 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2â€
   identifier converters remain local because their fixed-prefix cross-type-substitution guard is a
   Conversations domain rule. FR-17 delete is N/A for a pre-existing Conversations JSON context because no
   such context existed before Story 3.6.
+- **Ratified for Story 3.7 (FR-16, 2026-06-24):** in-pilot additive metadata belongs in
+  **`Hexalith.EventStore.Contracts`** and related EventStore contract/client tests, because the workspace
+  already contains `ICommandContract` and the complete query precedent (`IQueryContract`,
+  `QueryContractMetadata`, and `QueryContractResolver`) there. The safe build subset is limited to
+  domain-neutral command/event contract metadata that Conversations can consume without public wire/API
+  reshaping. The confirmed gap is event parity and validated metadata/resolver mechanics; command contract
+  adoption must preserve the existing `ICommandContract` surface. Conversations public PascalCase command
+  and event vocabularies remain separate from EventStore kebab-case routing metadata, and
+  `CreateConversationCommand` must not grow a public aggregate id. Root-level submodule pointers were
+  checked before source edits with `git submodule status`; nested/recursive submodule initialization remains
+  forbidden.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 
@@ -183,3 +194,16 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
 7. [ ] Dependent siblings compile green (NFR6).
 8. [ ] Submodule commit + root gitlink pointer bump (root-only).
 9. [ ] Root submodule gitlinks verified pre-build.
+
+### Story 3.7 disposition note (FR-16)
+
+- **Built:** additive EventStore command/event contract metadata support in the ratified landing zone:
+  `ICommandContract` remains source-compatible, `IEventContract` is added as a domain-neutral event
+  counterpart, and command/event metadata resolvers validate cached kebab-case routing metadata.
+- **Deferred from Conversations public DTO adoption:** direct command/event implementation is blocked by
+  the public `Hexalith.Conversations.Contracts` boundary, which must not reference `Hexalith.EventStore`.
+  Adapter-based adoption that invents a second aggregate identity mapping would also risk confusing
+  Conversations' prefixed public IDs with EventStore actor-id components. Therefore the public command/event
+  DTOs keep their current shape, `CreateConversationCommand` still has no public aggregate id, and the
+  PascalCase public `ConversationCommandType` / `ConversationEventType` vocabularies remain closed and
+  separate from EventStore kebab-case routing metadata.

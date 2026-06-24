@@ -7,6 +7,7 @@ using System.Reflection;
 
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
 using Hexalith.Conversations.Contracts.Versioning;
@@ -38,6 +39,9 @@ public sealed class ContractMetadataTest
             typeof(ReassignConversationProjectCommand),
             typeof(CloseConversationCommand),
             typeof(ArchiveConversationCommand),
+            typeof(SetConversationRetentionPolicyCommand),
+            typeof(MarkConversationContentSensitiveCommand),
+            typeof(RedactMessageContentCommand),
         ];
 
         foreach (Type commandType in commandTypes)
@@ -83,6 +87,10 @@ public sealed class ContractMetadataTest
             typeof(ConversationClosed),
             typeof(ConversationArchived),
             typeof(ConversationLifecycleChanged),
+            typeof(RetentionPolicySet),
+            typeof(RetentionPolicyReplaced),
+            typeof(ConversationContentMarkedSensitive),
+            typeof(MessageContentRedacted),
         ];
 
         foreach (Type eventType in eventTypes)
@@ -123,6 +131,23 @@ public sealed class ContractMetadataTest
             nameof(ConversationCommandAcceptedResult.CommandType));
         AssertNonNullableProperty<ConversationCreatedResult, ConversationCommandType>(
             nameof(ConversationCreatedResult.CommandType));
+    }
+
+    /// <summary>
+    /// Pins Story 3.7 FR-16 stop conditions: shared EventStore metadata may not reshape public
+    /// Conversations DTOs or vocabularies.
+    /// </summary>
+    [Fact]
+    public void Story37SharedMetadataAdoptionStopConditionsShouldRemainPinned()
+    {
+        typeof(CreateConversationCommand).GetProperty("ConversationId").ShouldBeNull();
+        typeof(CreateConversationCommand).GetProperty("AggregateId").ShouldBeNull();
+
+        Should.Throw<ArgumentException>(() => ConversationCommandType.Parse("create-conversation"));
+        Should.Throw<ArgumentException>(() => ConversationEventType.Parse("conversation-created"));
+
+        ConversationCommandType.CreateConversationCommand.Value.ShouldBe("CreateConversationCommand");
+        ConversationEventType.ConversationCreated.Value.ShouldBe("ConversationCreated");
     }
 
     private static void AssertNonNullableProperty<TContract, TProperty>(string propertyName)

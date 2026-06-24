@@ -1,5 +1,31 @@
 # Test Automation Summary
 
+## Story 3.7 Promote & Adopt Compile-Time Command/Event Contract Metadata
+
+Story 3.7 is a compile-time contract metadata story, not a browser UI story. The automated QA surface is the shared EventStore command/event metadata resolver API and the Conversations public contract guardrails that prevent public wire-shape drift. Framework: xUnit v3 + Shouldly; no Playwright/UI E2E applies.
+
+### Discovered Gaps -> Applied
+- [x] Conversations contract metadata coverage named only 9 of the 13 public Story 3.7 event contracts. Added `RetentionPolicySet`, `RetentionPolicyReplaced`, `ConversationContentMarkedSensitive`, and `MessageContentRedacted`.
+- [x] Conversations command metadata coverage missed governance mutation commands carrying `ConversationCommandMetadata`. Added `SetConversationRetentionPolicyCommand`, `MarkConversationContentSensitiveCommand`, and `RedactMessageContentCommand`.
+- [x] EventStore resolver tests rejected colons in command/event type names but not in `Domain`. Added domain-colon rejection tests for command and event resolvers.
+- [x] EventStore resolver assertions used raw `Assert` in the new metadata tests. Converted the touched resolver assertions to Shouldly and kept tests independent with resolver-cache cleanup.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/ContractMetadataTest.cs` - extended command/event contract metadata coverage for Story 3.7 governance and all 13 public event contracts.
+- [x] `Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Commands/CommandContractResolverTests.cs` - added invalid domain-colon and null-domain cases; converted touched assertions to Shouldly.
+- [x] `Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Events/EventContractResolverTests.cs` - added invalid domain-colon and null-domain cases; converted touched assertions to Shouldly.
+
+### Validation
+- [x] `tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests -class Hexalith.Conversations.Contracts.Tests.ContractMetadataTest` -> **3 passed**, 0 failed, 0 skipped.
+- [x] `Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/bin/Release/net10.0/Hexalith.EventStore.Client.Tests -class ...CommandContractResolverTests -class ...EventContractResolverTests` -> **16 passed**, 0 failed, 0 skipped.
+- [x] `Hexalith.EventStore/tests/Hexalith.EventStore.Contracts.Tests/bin/Release/net10.0/Hexalith.EventStore.Contracts.Tests -class ...CommandContractMetadataTests -class ...EventContractMetadataTests -class ...ICommandContractTests -class ...IEventContractTests` -> **10 passed**, 0 failed, 0 skipped.
+- [~] `dotnet test` compiled the affected projects under Release with `-m:1 /nr:false`, then VSTest execution was blocked by sandbox `SocketException (13): Permission denied`; direct xUnit v3 executables were used for execution.
+
+### Coverage
+- API/library metadata tests: shared EventStore command/event metadata happy path, invalid kebab-case, empty/null values, colon rejection on both type and domain fields, and resolver cache behavior.
+- Public Conversations contract tests: command metadata presence, event metadata presence across all 13 public event contracts, public PascalCase vocabulary preservation, and `CreateConversationCommand` no-public-aggregate-id stop condition.
+- UI E2E: N/A for this story; no UI route or workflow was introduced.
+
 ## Story 3.6 Promote & Adopt the Shared JSON-Context Base / Polymorphic Registration
 
 Story 3.6 (FR-14) promotes domain-neutral JSON ceremony into `Hexalith.Commons.Serialization` (`JsonSerializationOptions` resolver composition, the `PolymorphicTypeRegistry` discriminator→type registry, and the ruleless `String/IntValueJsonConverter<T>` bases), adopts a source-generated `ConversationsJsonContext`, replaces the projection handler's hand-built 13-event map with the shared registry, and reduces the two local converter skeletons to thin adapters — all behavior-preserving, **no UI / no new HTTP endpoint**. The QA surface is therefore the **library public API**, the **source-generated context's wire compatibility**, and the **projection decode/fail-closed seam**, not browser E2E. Framework: xUnit v3 `3.2.2` + Shouldly (CPM; no new package). `dotnet test`/VSTest is blocked in this sandbox by `SocketException (13): Permission denied`, so suites were built in Release and run via the native xUnit v3 executable (per the Dev Agent Record convention). No production source, public contract, or `Directory.Packages.props` pin was changed by this QA run — only test code was added.
