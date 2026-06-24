@@ -4,7 +4,7 @@ baseline_commit: 29adba4db23f6ebca8383adfcb32ef75f6519828
 
 # Story 3.6: Promote & adopt the shared JSON-context base / polymorphic registration
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
@@ -230,7 +230,7 @@ GPT-5 Codex (Tasks 0-4 and initial 5-6); Claude Opus 4.8 (1M context) (Task 5 th
 - Added module-owned Commons tests covering resolver ordering/fallback guards, registry duplicate and discriminator validation, suffix lookup, and value converter behavior; direct xUnit execution passed despite VSTest socket restrictions in this sandbox.
 - Added an internal Conversations source-generated `ConversationsJsonContext` covering public contract samples and collection shapes, and adopted the Commons JSON options helper in server command-body serialization without changing the exported public contract type count.
 - Replaced `ConversationProjectionHandler`'s hand-built event map with the Commons polymorphic registry while preserving the existing 13 public event names and exact-before-suffix lookup behavior; added focused projection tests for the key set and suffix resolution.
-- Kept `Hexalith.Conversations.Contracts` free of a Commons.Serialization project reference and kept the generated context internal via `InternalsVisibleTo` for server/test adoption; the two local ruleless converter skeletons remain local, while the Commons equivalents are promoted and tested.
+- Adopted the promoted `Hexalith.Commons.Serialization` bases via an additive `ProjectReference` in `Hexalith.Conversations.Contracts` (dual `HexalithCommonsRoot` conditional, mirroring the repository-root resolution) so the two local ruleless converter skeletons could be reduced to thin adapters; kept the generated `ConversationsJsonContext` internal via `InternalsVisibleTo` for server/test adoption. (Corrects an earlier draft note that mistakenly said Contracts stayed free of a Commons.Serialization reference — the Task 5 thin-adapter closure requires it.)
 - Kept prefixed identifier converters local as domain-rule converters; no public contract discriminator members, `IMappableType` requirements, parameterless constructors, payload text, authority data, provider details, or UI DTO metadata were introduced.
 - Committed the additive Commons promotion as its own submodule commit (`2dc8358`, submodule `main`) and bumped only the root-level `Hexalith.Commons` gitlink in the umbrella story commit. No other submodule was edited, so none was committed separately. No nested submodule was initialized.
 
@@ -264,7 +264,27 @@ GPT-5 Codex (Tasks 0-4 and initial 5-6); Claude Opus 4.8 (1M context) (Task 5 th
 - `Hexalith.Commons/test/Hexalith.Commons.Serialization.Tests/PolymorphicTypeRegistryTest.cs`
 - `Hexalith.Commons/test/Hexalith.Commons.Serialization.Tests/ValueJsonConverterTest.cs`
 
+## Senior Developer Review (AI)
+
+**Reviewer:** Jerome Piquot (autonomous story-automator review) on 2026-06-24
+**Outcome:** Approve — story moved to `done`.
+
+### What was verified
+
+- **AC-2/AC-3 (Commons promotion):** `JsonSerializationOptions.CreateWeb` builds web-default options with explicit, ordered `TypeInfoResolverChain`, guards null/empty resolver sets, and appends `DefaultJsonTypeInfoResolver` only when `includeReflectionFallback` is requested. `PolymorphicTypeRegistry` maps bounded (`<= 128`, ASCII-letter/digit/`.`/`_`/`-`) discriminators to `Type`, rejects duplicates/open generics, and exposes exact-then-suffix ordinal resolution. The API is domain-neutral (no Conversations/EventStore/Dapr/UI references).
+- **AC-5 (projection behavior preserved):** `ConversationProjectionHandler` now resolves through the shared registry, but the 13 public event names and the exact-then-suffix ordinal resolution are byte-faithful to the prior `BuildPublicEventTypeMap`/`TryResolvePublicEventType`. Non-positive sequence numbers, empty payloads, and unknown types are still skipped (fail-closed, never falsely Current); malformed known payloads still throw out of the seam.
+- **AC-6 (ruleless-only promotion):** The Commons `StringValueJsonConverter<T>`/`IntValueJsonConverter<T>` bases are logic-identical to the original Conversations skeletons (same token guards, exception type/messages, round-trip). The skeletons are reduced to thin adapters; prefixed-identifier cross-type-substitution rule stayed local and unchanged.
+- **AC-4/AC-8 (gates):** Contract-shape baseline diff empty; Release builds of every touched project are 0-warning; test gates re-run from compiled xUnit v3 executables — Commons serialization **21/21**, Contracts **604/604**, Server **610/610**, Conformance **361/361** (monotonic `>= 361`).
+
+### Findings and dispositions
+
+1. **[HIGH → fixed] AC-8 submodule/transparency violation.** Review-hardening tests added after the dev commit were left uncommitted: the `Hexalith.Commons` submodule was `2dc8358-dirty` (two strengthened serialization test files, +8 tests) and the umbrella carried three uncommitted `ConversationProjectionHandlerTest` AC-5 cases — contradicting the "everything committed / story COMPLETE" claims. **Fix:** committed the Commons tests as a separate submodule commit (`a1b9546`), bumped the root `Hexalith.Commons` gitlink, and committed the umbrella test additions with the story finalization. All added tests pass.
+2. **[LOW → fixed] Stale completion note.** A Completion Notes bullet claimed Contracts stayed "free of a Commons.Serialization project reference," contradicting the committed `Hexalith.Conversations.Contracts.csproj` (which adds the additive reference for the thin adapters). **Fix:** note corrected.
+3. **[LOW → accepted] Test-project reference shape.** `Hexalith.Conversations.Contracts.Tests.csproj` references `Hexalith.Commons.Serialization` with a single hard-coded relative path rather than the dual `HexalithCommonsRoot` conditional used by the product csprojs. Harmless because the submodule sits at that relative path in both umbrella and standalone layouts, and all builds are green; left as-is to avoid churn.
+
 ### Change Log
 
 - 2026-06-24: Started Story 3.6 implementation, promoted Commons serialization helpers, adopted the internal Conversations JSON context and projection registry, passed Conversations direct test gates, and recorded the remaining Memories NU1900/submodule finalization blockers. Story remained `in-progress`.
 - 2026-06-24: Completed Story 3.6. Closed the FR-8 deferral honestly by reducing the two ruleless Conversations converter skeletons to thin adapters over the promoted Commons bases (Contracts now references the additive `Hexalith.Commons.Serialization`), keeping behavior byte-identical and the frozen inventory untouched. Passed the full `Hexalith.Conversations.slnx` Release (warnings-as-errors) gate and the Memories sibling Release build (NuGet audit disabled to bypass the offline-only NU1900 block). Re-verified all test gates (Commons 13, Contracts 604, Server 607, Conformance 361) and the empty contract-shape baseline diff. Committed the Commons promotion (`2dc8358`), bumped the root gitlink, and moved the story to `review`.
+- 2026-06-24: Senior Developer Review (AI) — Approve. Committed the uncommitted review-hardening tests (Commons submodule `a1b9546` + umbrella projection tests), bumped the root `Hexalith.Commons` gitlink to `a1b9546`, corrected a stale completion note, re-verified all gates (Commons 21, Contracts 604, Server 610, Conformance 361; baseline diff empty; 0-warning Release). Status `review` → `done`.
+- 2026-06-24 (Senior Developer Review, AI): Reconciled review-hardening tests that had been left uncommitted after the dev commit. Committed the two strengthened Commons serialization test files as a separate submodule commit (`a1b9546`) and bumped the root `Hexalith.Commons` gitlink to it; committed the three added `ConversationProjectionHandlerTest` AC-5 cases in the umbrella. Re-ran every gate from the compiled xUnit v3 executables (VSTest still socket-blocked in this sandbox): Commons serialization **21/21**, Contracts **604/604**, Server **610/610**, Conformance **361/361** (monotonic >= 361); contract-shape baseline diff empty; touched projects rebuild Release with 0 warnings. Corrected the stale "Contracts free of a Commons.Serialization reference" completion note. Outcome: **Approve** — story moved to `done`.

@@ -325,6 +325,73 @@ public sealed class ConversationProjectionHandlerTest
     public void NullRequestShouldThrowArgumentNullException()
         => Should.Throw<ArgumentNullException>(() => Handler().Project(null!));
 
+    /// <summary>
+    /// A known event type carrying an empty payload is skipped during decode (the zero-length payload branch),
+    /// so the seam never materializes it. With no decodable <see cref="ConversationCreated"/>, freshness stays
+    /// non-trust-bearing (Rebuilding) rather than falsely reporting Current off an undecoded position (AC-5).
+    /// </summary>
+    [Fact]
+    public void KnownEventWithEmptyPayloadShouldBeSkippedAndNeverFalselyCurrent()
+    {
+        ProjectionEventDto emptyPayload = new(
+            nameof(ConversationCreated),
+            [],
+            "json",
+            1,
+            Started.AddSeconds(1),
+            "correlation-001");
+
+        ProjectionResponse response = Handler().Project(Request(emptyPayload));
+
+        ConversationProjectedReadModels models = Decode(response);
+
+        models.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// A non-positive (malformed, contract is 1-based) sequence number is dropped before type resolution and
+    /// decode, so the event is never applied — here the dropped <see cref="ParticipantAdded"/> at sequence 0 adds
+    /// no participant, and the lone valid position stays Current without the skipped position degrading it (AC-5).
+    /// </summary>
+    [Fact]
+    public void NonPositiveSequenceNumberShouldBeSkippedBeforeDecode()
+    {
+        ProjectionEventDto nonPositive = new(
+            nameof(ParticipantAdded),
+            JsonSerializer.SerializeToUtf8Bytes(ParticipantAdded(2), Options),
+            "json",
+            0,
+            Started,
+            "correlation-001");
+
+        ProjectionResponse response = Handler().Project(Request(Dto(1, Created(1)), nonPositive));
+
+        ConversationProjectedReadModels models = Decode(response);
+
+        models.Detail.Participants.ShouldBeEmpty();
+        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// A known event type carrying a syntactically malformed payload fails closed: the decode throws a
+    /// <see cref="JsonException"/> out of the seam rather than silently dropping the event and serving a
+    /// falsely-current projection. This pins the "no more permissive than today" malformed-event rule (AC-5).
+    /// </summary>
+    [Fact]
+    public void MalformedKnownEventPayloadShouldFailClosedThroughTheSeam()
+    {
+        ProjectionEventDto malformed = new(
+            nameof(MessageAppended),
+            [(byte)'{'],
+            "json",
+            2,
+            Started.AddSeconds(2),
+            "correlation-001");
+
+        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), malformed)));
+    }
+
     private static ConversationProjectionHandler Handler()
         => new(new ConversationProjectionMaterializer(), new FixedTimeProvider(Generated));
 

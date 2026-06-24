@@ -1,5 +1,38 @@
 # Test Automation Summary
 
+## Story 3.6 Promote & Adopt the Shared JSON-Context Base / Polymorphic Registration
+
+Story 3.6 (FR-14) promotes domain-neutral JSON ceremony into `Hexalith.Commons.Serialization` (`JsonSerializationOptions` resolver composition, the `PolymorphicTypeRegistry` discriminator→type registry, and the ruleless `String/IntValueJsonConverter<T>` bases), adopts a source-generated `ConversationsJsonContext`, replaces the projection handler's hand-built 13-event map with the shared registry, and reduces the two local converter skeletons to thin adapters — all behavior-preserving, **no UI / no new HTTP endpoint**. The QA surface is therefore the **library public API**, the **source-generated context's wire compatibility**, and the **projection decode/fail-closed seam**, not browser E2E. Framework: xUnit v3 `3.2.2` + Shouldly (CPM; no new package). `dotnet test`/VSTest is blocked in this sandbox by `SocketException (13): Permission denied`, so suites were built in Release and run via the native xUnit v3 executable (per the Dev Agent Record convention). No production source, public contract, or `Directory.Packages.props` pin was changed by this QA run — only test code was added.
+
+### Discovered Gaps → Applied (11 new cases across 3 existing files)
+- [x] Gap 1 (AC-5, headline invariant) — `PolymorphicTypeRegistry.TryResolveExactThenSuffix` exact-before-suffix precedence was never pinned: a discriminator that is both an exact key and a suffix of a longer name must resolve to the exact registration.
+- [x] Gap 2 (AC-5/AC-7) — ordinal (case-sensitive) resolution on both exact and suffix passes was untested (no silent type coercion off the wire).
+- [x] Gap 3 (AC-3) — `PolymorphicTypeRegistry.Create` construction guards (null collection, empty collection, null entry, open-generic type) were untested.
+- [x] Gap 4 (AC-7) — acceptance of the bounded safe-char discriminator set (`. _ -`) was untested; `FromTypeNames` null-guard and simple-name keying were untested.
+- [x] Gap 5 (AC-2) — `JsonSerializationOptions.CreateWeb` `params` overload (resolver order) and the web camelCase + case-insensitive defaults (wire-compat) were untested.
+- [x] Gap 6 (AC-5) — projection decode malformed-event paths were unpinned: known event with empty payload (skipped, never falsely Current), non-positive sequence (dropped before decode), and corrupt known payload (fail closed via `JsonException`).
+
+### Generated Tests
+- [x] `Hexalith.Commons/test/Hexalith.Commons.Serialization.Tests/PolymorphicTypeRegistryTest.cs` — **+6 cases**: exact-over-suffix precedence; ordinal case-sensitivity; invalid-collection guards; open-generic rejection; dotted/underscore/hyphen acceptance; `FromTypeNames` null-guard + simple-name keying.
+- [x] `Hexalith.Commons/test/Hexalith.Commons.Serialization.Tests/JsonSerializationOptionsTest.cs` — **+2 cases**: `params` overload preserves resolver order; web camelCase + case-insensitive defaults preserved.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs` — **+3 cases**: empty-payload known event skipped & non-trust-bearing; non-positive sequence skipped before decode; malformed known payload fails closed.
+
+### Implementation
+- Test code only (3 files extended, +11 cases). No existing test removed or weakened. The public-contract-shape baseline and the conformance floor (≥ 361) are unaffected (no production change).
+
+### Validation
+- [x] `Hexalith.Commons.Serialization.Tests` (Release, warnings-as-errors) → **0 warnings / 0 errors**; native runner → **21 passed** (was 13, +8), 0 failed, 0 skipped.
+- [x] `Hexalith.Conversations.Server.Tests` (Release) → **0 warnings / 0 errors**; native runner → **610 passed** (was 607, +3), 0 failed, 0 skipped.
+- [x] `Hexalith.Conversations.Contracts.Tests` (Release, unmodified regression check) → **604 passed**, 0 failed, 0 skipped.
+
+### Coverage
+- Commons `JsonSerializationOptions`: resolver order (enumerable + `params`), opt-in reflection fallback, null/empty/null-entry guards, **and now** the `params` overload + web camelCase/case-insensitive defaults.
+- Commons `PolymorphicTypeRegistry`: explicit resolve, duplicate/unsafe/oversized rejection, fail-closed lookup, **and now** exact-over-suffix precedence, ordinal case-sensitivity, all `Create`/`FromTypeNames` guards, safe-char acceptance, simple-name keying.
+- Commons `String/IntValueJsonConverter<T>`: token guards + round-trip (existing) — already strong; mirrored by the Conversations `GenericValueConverterSkeletonTest` thin-adapter oracle.
+- Conversations `ConversationProjectionHandler`: ordered/gap/out-of-order/stale/duplicate/mixed-tenant/unknown-type/suffix/null (existing), **and now** empty-payload skip, non-positive sequence skip, and malformed-payload fail-closed.
+- Conversations `ConversationsJsonContext`: every public sample has source-generated metadata and re-serializes byte/shape-stable — already fully covered by the `ContractSerializationTest` oracles (no reflection fallback on the contract path).
+- Out of scope for this QA run: full `Hexalith.Conversations.slnx` Release build, conformance `>= 361` re-run, public-contract-shape diff, sibling builds, and submodule/gitlink mechanics (dev-story gates; unaffected because no production code changed). No UI/E2E (Playwright) applies — Story 3.6 has no UI surface.
+
 ## Story 3.5 Promote & Adopt the Shared Aspire/Dapr Domain-Module Hosting Base
 
 Story 3.5 (FR-13) promotes the per-module Aspire/Dapr hosting topology into `Hexalith.Commons.Aspire`, promotes the generic publication-transport mechanics into `Hexalith.Commons.Publication`, and adopts both into Conversations: the AppHost now models the server as an Aspire project resource with a shared Dapr sidecar (`ConversationsAppHostTopology`/`ConversationsAppHostResources`), and the publication files (`ConversationPublicationMapper`, `ConversationTransportMetadata`, `ConversationPublicationService`, `LocalConversationPublicationConsumer`, `PersistedConversationEvent`) became thin adapters over the shared helpers while keeping the domain mapping + failure taxonomy local (FR-20 behavior-preserving, **no UI / no new HTTP endpoint**). The QA surface is therefore the **Aspire resource model** (verified without a live Dapr sidecar/secrets/external services) and the **publication mapping/transport/idempotency contract**, not browser E2E. Framework: xUnit v3 `3.2.2` + Shouldly (CPM; no new package). The shared `Hexalith.Commons.*` libraries carry their own module-owned tests inside the submodule and were out of scope for this Conversations-side pass. `dotnet test`/VSTest is blocked in this sandbox by `SocketException (13): Permission denied`, so suites were built in Release and run via the native xUnit v3 executable (per the Dev Agent Record).
