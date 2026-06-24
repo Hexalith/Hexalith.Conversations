@@ -5,6 +5,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

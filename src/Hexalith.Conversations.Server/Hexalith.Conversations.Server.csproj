@@ -19,6 +19,8 @@
     <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Diagnostics\Hexalith.Commons.Diagnostics.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
     <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
     <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
+    <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />

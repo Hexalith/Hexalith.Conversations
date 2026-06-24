@@ -6,10 +6,12 @@
 using System.Security.Claims;
 using System.Text.Json;
 
+using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.Contracts.Versioning;
 
 namespace Hexalith.Conversations.Server.Api;
@@ -19,6 +21,9 @@ namespace Hexalith.Conversations.Server.Api;
 /// </summary>
 public static class ConversationCommandApi
 {
+    private static readonly JsonSerializerOptions CommandJsonOptions =
+        JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default]);
+
     /// <summary>
     /// Maps versioned conversation command endpoints.
     /// </summary>
@@ -116,7 +121,7 @@ public static class ConversationCommandApi
         {
             return await JsonSerializer.DeserializeAsync<T>(
                 context.Request.Body,
-                new JsonSerializerOptions(JsonSerializerDefaults.Web),
+                CommandJsonOptions,
                 cancellationToken)
                 .ConfigureAwait(false);
         }

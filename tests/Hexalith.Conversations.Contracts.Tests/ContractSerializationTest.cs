@@ -7,12 +7,14 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 
+using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Commands;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Results;
+using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 
@@ -27,7 +29,8 @@ namespace Hexalith.Conversations.Contracts.Tests;
 /// </summary>
 public sealed class ContractSerializationTest
 {
-    private static readonly JsonSerializerOptions WebOptions = new(JsonSerializerDefaults.Web);
+    private static readonly JsonSerializerOptions WebOptions =
+        JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default]);
 
     /// <summary>
     /// Ensures every public sample contract survives System.Text.Json web-default round-trip serialization.
@@ -47,6 +50,21 @@ public sealed class ContractSerializationTest
 
             deserialized.ShouldNotBeNull(sample.GetType().FullName);
             AssertJsonEquivalent(json, deserialized);
+        }
+    }
+
+    /// <summary>
+    /// Ensures the source-generated context declares metadata for every public fixture type the wire-shape
+    /// oracle exercises. This keeps the generated context honest and avoids silent reflection fallback in
+    /// contract tests.
+    /// </summary>
+    [Fact]
+    public void SourceGeneratedContextShouldCoverEveryPublicContractSample()
+    {
+        foreach (object sample in ContractSamples.AllContracts)
+        {
+            ConversationsJsonContext.Default.GetTypeInfo(sample.GetType())
+                .ShouldNotBeNull($"Missing source-generated JSON metadata for {sample.GetType().FullName}.");
         }
     }
 

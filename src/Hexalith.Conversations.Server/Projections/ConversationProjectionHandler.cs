@@ -3,12 +3,13 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
+using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 
@@ -48,15 +49,15 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
     // steady-state threshold the projection tests already pin.
     private static readonly TimeSpan DefaultStaleAfter = TimeSpan.FromMinutes(5);
 
-    // Reuse the existing Conversations serialization path: the public events and their value objects carry
-    // attribute-based JSON converters, so the Web defaults round-trip them with no new converter (new generic
-    // serialization helpers are Story 2.6, out of scope here).
-    private static readonly JsonSerializerOptions EventJsonOptions = new(JsonSerializerDefaults.Web);
+    // Public events and value objects carry attribute-based JSON converters. The generated context is queried
+    // first; reflection fallback is limited to the server-owned projection wrapper.
+    private static readonly JsonSerializerOptions EventJsonOptions =
+        JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default], includeReflectionFallback: true);
 
-    // The public conversation event vocabulary the kept materializer consumes, keyed by simple type name. The
-    // platform delivers the event type name (short or fully qualified) on each event DTO; resolution is
-    // exact-then-suffix, mirroring the platform's reference projection handlers.
-    private static readonly FrozenDictionary<string, Type> PublicEventTypes = BuildPublicEventTypeMap();
+    // The public conversation event vocabulary the kept materializer consumes, keyed by simple type name.
+    // The platform delivers the event type name (short or fully qualified) on each event DTO; resolution
+    // remains exact-then-suffix through the shared registry.
+    private static readonly PolymorphicTypeRegistry PublicEventTypes = BuildPublicEventTypeRegistry();
 
     private readonly ConversationProjectionMaterializer _materializer;
     private readonly TimeProvider _timeProvider;
@@ -77,6 +78,8 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
 
     /// <inheritdoc/>
     public string Domain => ConversationDomain;
+
+    internal static IReadOnlyDictionary<string, Type> PublicEventTypeEntries => PublicEventTypes.Entries;
 
     /// <inheritdoc/>
     public ProjectionResponse Project(ProjectionRequest request)
@@ -151,31 +154,9 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
     }
 
     private static bool TryResolvePublicEventType(string? eventTypeName, [NotNullWhen(true)] out Type? eventType)
-    {
-        eventType = null;
-        if (string.IsNullOrWhiteSpace(eventTypeName))
-        {
-            return false;
-        }
+        => PublicEventTypes.TryResolveExactThenSuffix(eventTypeName, out eventType);
 
-        if (PublicEventTypes.TryGetValue(eventTypeName, out eventType))
-        {
-            return true;
-        }
-
-        foreach (KeyValuePair<string, Type> entry in PublicEventTypes)
-        {
-            if (eventTypeName.EndsWith(entry.Key, StringComparison.Ordinal))
-            {
-                eventType = entry.Value;
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    private static FrozenDictionary<string, Type> BuildPublicEventTypeMap()
+    private static PolymorphicTypeRegistry BuildPublicEventTypeRegistry()
     {
         Type[] types =
         [
@@ -193,6 +174,6 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
             typeof(ConversationContentMarkedSensitive),
             typeof(MessageContentRedacted),
         ];
-        return types.ToFrozenDictionary(static type => type.Name, StringComparer.Ordinal);
+        return PolymorphicTypeRegistry.FromTypeNames(types);
     }
 }

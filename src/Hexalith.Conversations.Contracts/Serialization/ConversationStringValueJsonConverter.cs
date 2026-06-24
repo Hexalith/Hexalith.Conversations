@@ -3,36 +3,21 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Hexalith.Commons.Serialization;
 
 namespace Hexalith.Conversations.Contracts.Serialization;
 
-internal abstract class ConversationStringValueJsonConverter<T> : JsonConverter<T>
+/// <summary>
+/// Thin local adapter over the promoted ruleless Commons string-value converter base
+/// (FR-14 / Story 3.6, closing the Story 2.6 FR-8 deferral). The load-bearing token-type
+/// guard, malformed-payload rejection, and round-trip skeleton now live once in
+/// <see cref="StringValueJsonConverter{T}"/>; this adapter only preserves the
+/// Conversation-prefixed derivation surface the closed-vocabulary converters bind to,
+/// keeping the inventoried file path stable. Behavior is identical and pinned by
+/// <c>GenericValueConverterSkeletonTest</c> and <c>ContractSerializationTest</c>.
+/// </summary>
+/// <typeparam name="T">The string-encoded value type.</typeparam>
+internal abstract class ConversationStringValueJsonConverter<T> : StringValueJsonConverter<T>
     where T : notnull
 {
-    public sealed override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        if (reader.TokenType != JsonTokenType.String)
-        {
-            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON string.");
-        }
-
-        string raw = reader.GetString() ?? throw new JsonException($"{typeToConvert.Name} cannot be null.");
-        try
-        {
-            return Create(raw);
-        }
-        catch (ArgumentException)
-        {
-            throw new JsonException($"{typeToConvert.Name} payload is malformed.");
-        }
-    }
-
-    public sealed override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        => writer.WriteStringValue(GetValue(value));
-
-    protected abstract T Create(string value);
-
-    protected abstract string GetValue(T value);
 }

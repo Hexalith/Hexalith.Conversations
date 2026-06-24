@@ -47,6 +47,16 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2â€
   FR-17 delete N/A; `publication-transport-marshaling` is promote/adopt, with Conversations retaining its
   domain failure taxonomy and reducing local transport mechanics to thin adapters over the shared helper.
   Root-level submodule pointers are verified before build; nested submodule initialization remains forbidden.
+- **Ratified for Story 3.6 (FR-14):** a new additive Commons library **`Hexalith.Commons.Serialization`**
+  in the `Hexalith.Commons` submodule
+  (`Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/`, with self-contained
+  `Directory.Build.props`). Commons is the right altitude for domain-neutral System.Text.Json resolver
+  composition, optional reflection fallback, bounded discriminator-to-`Type` registries, and ruleless
+  generic value converter bases. This story closes the Story 2.6 FR-8 deferral: the two ruleless
+  Conversations value converter skeletons can reduce to thin adapters over Commons, while prefixed
+  identifier converters remain local because their fixed-prefix cross-type-substitution guard is a
+  Conversations domain rule. FR-17 delete is N/A for a pre-existing Conversations JSON context because no
+  such context existed before Story 3.6.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 

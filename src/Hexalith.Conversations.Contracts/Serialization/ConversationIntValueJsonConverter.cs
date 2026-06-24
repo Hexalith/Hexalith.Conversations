@@ -3,35 +3,22 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using Hexalith.Commons.Serialization;
 
 namespace Hexalith.Conversations.Contracts.Serialization;
 
-internal abstract class ConversationIntValueJsonConverter<T> : JsonConverter<T>
+/// <summary>
+/// Thin local adapter over the promoted ruleless Commons integer-value converter base
+/// (FR-14 / Story 3.6, closing the Story 2.6 FR-8 deferral). The load-bearing integer
+/// token guard (<c>TryGetInt32</c>, no fractional/exponent/string values), out-of-range
+/// rejection, and round-trip skeleton now live once in <see cref="IntValueJsonConverter{T}"/>;
+/// this adapter only preserves the Conversation-prefixed derivation surface
+/// <c>SchemaVersionJsonConverter</c> binds to, keeping the inventoried file path stable.
+/// Behavior is identical and pinned by <c>GenericValueConverterSkeletonTest</c> and
+/// <c>ContractSerializationTest</c>.
+/// </summary>
+/// <typeparam name="T">The integer-encoded value type.</typeparam>
+internal abstract class ConversationIntValueJsonConverter<T> : IntValueJsonConverter<T>
     where T : notnull
 {
-    public sealed override T Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
-    {
-        if (reader.TokenType != JsonTokenType.Number || !reader.TryGetInt32(out int value))
-        {
-            throw new JsonException($"{typeToConvert.Name} must be encoded as a JSON integer (no fractional, exponent, or string values).");
-        }
-
-        try
-        {
-            return Create(value);
-        }
-        catch (ArgumentOutOfRangeException ex)
-        {
-            throw new JsonException($"{typeToConvert.Name} payload is out of range: {ex.Message}", ex);
-        }
-    }
-
-    public sealed override void Write(Utf8JsonWriter writer, T value, JsonSerializerOptions options)
-        => writer.WriteNumberValue(GetValue(value));
-
-    protected abstract T Create(int value);
-
-    protected abstract int GetValue(T value);
 }

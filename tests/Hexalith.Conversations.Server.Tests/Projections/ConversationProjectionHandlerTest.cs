@@ -51,6 +51,35 @@ public sealed class ConversationProjectionHandlerTest
     }
 
     /// <summary>
+    /// The shared registry must expose exactly the legacy public event map: 13 entries keyed by simple type name.
+    /// </summary>
+    [Fact]
+    public void PublicEventRegistryShouldExposeTheLegacyThirteenEventNames()
+    {
+        ConversationProjectionHandler.PublicEventTypeEntries.Keys.Order(StringComparer.Ordinal).ShouldBe(
+            new[]
+            {
+                "ConversationArchived",
+                "ConversationClosed",
+                "ConversationContentMarkedSensitive",
+                "ConversationCreated",
+                "ConversationLifecycleChanged",
+                "ConversationMetadataUpdated",
+                "ConversationProjectChanged",
+                "FileReferenceAttached",
+                "MessageAppended",
+                "MessageContentRedacted",
+                "ParticipantAdded",
+                "RetentionPolicyReplaced",
+                "RetentionPolicySet",
+            },
+            ignoreOrder: false);
+
+        ConversationProjectionHandler.PublicEventTypeEntries["ConversationCreated"].ShouldBe(typeof(ConversationCreated));
+        ConversationProjectionHandler.PublicEventTypeEntries["MessageContentRedacted"].ShouldBe(typeof(MessageContentRedacted));
+    }
+
+    /// <summary>
     /// An ordered, in-order event sequence decoded through the seam produces a current, trust-bearing projection
     /// with the expected field selection and evidence — the same behavior the kept materializer produces directly.
     /// </summary>
@@ -160,6 +189,25 @@ public sealed class ConversationProjectionHandlerTest
         // decoded event — proving the unknown type was skipped without throwing.
         models.Summary.MessageCount.ShouldBe(0);
         models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+    }
+
+    /// <summary>
+    /// Fully-qualified event names continue to resolve by suffix after the shared registry exact-name pass.
+    /// </summary>
+    [Fact]
+    public void FullyQualifiedEventTypeNameShouldResolveBySuffix()
+    {
+        ProjectionEventDto qualified = new(
+            "Hexalith.Conversations.Contracts.Events.ConversationCreated",
+            JsonSerializer.SerializeToUtf8Bytes(Created(1), Options),
+            "json",
+            1,
+            Started.AddSeconds(1),
+            "correlation-001");
+
+        ProjectionResponse response = Handler().Project(Request(qualified));
+
+        Decode(response).Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Current);
     }
 
     /// <summary>
