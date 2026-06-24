@@ -38,6 +38,7 @@
 
 generated: 2026-06-02
 last_updated: 2026-06-24
+# story 4-1 created (backlog -> ready-for-dev) on 2026-06-24 (FR-18 documented thin authoring template. Context created as documentation-and-validation story, not a refactor: author docs/domain-module-authoring-template.md and docs/release-evidence/thin-authoring-template-validation-v1.md from live post-refactor Conversations, enumerate real one-liner adoption paths for shared host, aggregate base, query/cursor, read-model store/write policy, projection seam, tenant access, typed client, Aspire/Dapr, ServiceDefaults, serialization/JSON context, telemetry, and testing/evidence; mark Admin.Web/FrontComposer and FR-16 public DTO metadata adoption as optional/deferred where appropriate; add focused documentation tests; hand Story 4.2 a measurable minimal-module boundary; keep public-contract-shape diff empty and root-only submodule mechanics.)
 # story 3-7 created (backlog -> ready-for-dev) on 2026-06-24 (FR-16 compile-time command/event contract metadata, conditional OQ-4. Current discovery: ICommandContract already exists in EventStore.Contracts, IEventContract is missing, and direct adoption is only safe if it preserves Conversations public PascalCase command/event vocabularies, CreateConversation boundary-owned aggregate identity, contract-shape diff empty, conformance >=361, sibling builds, and root-only submodule mechanics. Unsafe portions must be deferred with rationale rather than reshaping public contracts.)
 # story 3-6 created (backlog -> ready-for-dev) on 2026-06-24 (FR-14 shared JSON-context base / polymorphic registration, greenfield-adopt with FR-17 delete N/A. Closes the Story-2.6 FR-8 deferral: build/adopt shared source-generated JSON options/context helper, expose an additive public polymorphic registry surface without forcing public contracts to implement IMappableType or grow parameterless constructors/discriminator members, preserve Conversations Web-default wire shapes, keep prefixed identifier converters as domain-rule unless equal-or-stronger fixed-prefix support exists, preserve ConversationProjectionHandler 13-event exact-then-suffix resolution and fail-closed freshness behavior, keep content-safe bounded discriminator/metadata behavior, conformance >=361, contract-shape diff empty, Memories/sibling builds green, root-only submodule mechanics.)
 # story 3-5 created (backlog -> ready-for-dev) on 2026-06-24 (FR-13 shared Aspire/Dapr domain-module hosting base. Scope split captured: apphost-greenfield is true greenfield-adopt with FR-17 delete N/A; publication-transport-marshaling is also owned by 3.5 and must promote/adopt generic transport mechanics while keeping Conversations-owned failure taxonomy local. Recommended OQ-1 default follows Epic-3 ratification: new Hexalith.Commons.Aspire with self-contained props; EventStore.Aspire helpers remain additive facades/delegates. Preserve AppHost local orchestration only, stable app/component names, shared-vs-isolated Dapr modes, state-store/pubsub wiring, safe publication topic/type/source/subject/header contracts, duplicate/replay tolerance, no caller provenance leaks, conformance >=361, contract-shape diff empty, NFR6 sibling builds, root-only submodule mechanics.)
@@ -67,6 +68,7 @@ project: Conversations
 # story 1-5 moved review -> done on 2026-06-03 (senior-dev review: corrected stale 9-facts/340 record to 17 facts/348; hardened validator content-safety to scan .md + read schema-declared reclassifiedBy pattern; conformance suite 348 green; inventory byte-immutable)
 # epic-1 retrospective completed on 2026-06-03 (autonomous YOLO run; doc=epic-1-retro-2026-06-03.md); epic-1 in-progress -> done (all 5 stories done); epic-1-retrospective optional -> done
 # epic-2 retrospective completed on 2026-06-03 (autonomous YOLO run; doc=epic-2-retro-2026-06-03.md); epic-2 in-progress -> done (all 7 stories 2.1-2.7 done); epic-2-retrospective optional -> done. Key findings: conformance 348->360 monotonic, contract-shape diff empty every story, 4/7 disposition corrections absorbed by the Story-1.5 spine, 1 CRITICAL (2.2 submodule build-break). Continuity: Epic-1 P1/P2 (count-drift) recurred 7/7 -> mechanize (A4); T1/T3 closed, A1-A3 held. Carry into Epic 3: OQ-1 landing zones (hard pre-kickoff gate), read-store population gap (2.4 writer built-but-unwired, HIGH), submodule-edit risk (NFR6 sibling-CI gate)
+# epic-3 retrospective completed on 2026-06-24 (autonomous data-driven run; doc=epic-3-retro-2026-06-24.md); epic-3 in-progress -> done (all 7 stories done); epic-3-retrospective optional -> done. Key findings: promote/adopt pipeline held across Commons/EventStore surfaces, conformance stable at 361, contract-shape diff empty, thin facades preserved public entrypoints, FR-16 public DTO adoption correctly deferred, but final story records/submodule gitlinks still needed review correction. Carry into Epic 4/5: mechanize final evidence generation, add blocking submodule completion gate, clarify read-store population status, keep FR-16 metadata optional until it has a production consumer.
 # epic-2 backlog -> in-progress on 2026-06-03 (first story 2-1 created)
 # story 2-1 created (backlog -> ready-for-dev) on 2026-06-03
 # story 2-2 created (backlog -> ready-for-dev) on 2026-06-03 (FR-7 remove-and-replace; deletion-dominant: aggregate already on EventStoreAggregate<ConversationState>, story removes the dead EventStoreCommandStatusIdempotencyBridge shim + adds base-class dispatch/replay teeth test; keeps Idempotency/* + ConversationReplayVerifier)
@@ -96,7 +98,7 @@ development_status:
   2-6-adopt-shared-serialization-helpers-for-generic-converters: done
   2-7-consume-shared-eventstore-testing-assertions-and-fakes: done
   epic-2-retrospective: done
-  epic-3: in-progress
+  epic-3: done
   3-1-promote-adopt-the-generic-typed-httpclient-registration: done
   3-2-promote-adopt-the-generic-tenant-access-projection-handler-registration: done
   3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper: done
@@ -104,9 +106,9 @@ development_status:
   3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base: done
   3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration: done
   3-7-promote-adopt-compile-time-command-event-contract-metadata: done
-  epic-3-retrospective: optional
-  epic-4: backlog
-  4-1-document-the-thin-authoring-template-validated-against-post-refactor-conversations: backlog
+  epic-3-retrospective: done
+  epic-4: in-progress
+  4-1-document-the-thin-authoring-template-validated-against-post-refactor-conversations: done
   4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline: backlog
   epic-4-retrospective: optional
   epic-5: backlog
@@ -114,3 +116,37 @@ development_status:
   5-2-reconcile-the-removed-test-justification-ledger: backlog
   5-3-assemble-the-success-metric-report-and-signable-attestation: backlog
   epic-5-retrospective: optional
+
+action_items:
+  - epic: 3
+    action: "Make final story record generation mechanical from final test counts, file list, submodule state, and root gitlink state."
+    owner: "Dev workflow"
+    status: open
+  - epic: 3
+    action: "Add a blocking completion gate for submodule promotions so dirty submodules or uncaptured root gitlinks cannot reach done."
+    owner: "Dev workflow"
+    status: open
+  - epic: 3
+    action: "Document the approved VSTest fallback: build affected projects and run compiled xUnit v3 executables when socket creation is blocked."
+    owner: "Test workflow"
+    status: open
+  - epic: 3
+    action: "Resolve or explicitly defer the read-store population gap with evidence before final attestation."
+    owner: "Developer/Architect"
+    status: open
+  - epic: 3
+    action: "Reconcile the retained Conformance.Tests to Server reference during Epic 5 ledger work."
+    owner: "Developer/Quality"
+    status: open
+  - epic: 3
+    action: "Keep EventStore command/event metadata resolvers optional in the template until a production consumer exists."
+    owner: "Architect/EventStore owner"
+    status: open
+  - epic: 3
+    action: "Complete Story 4.1 review with attention to optional/deferred surfaces and read-model wording."
+    owner: "Tech writer/Reviewer"
+    status: open
+  - epic: 3
+    action: "Execute Story 4.2 against the accepted Story 4.1 measurement boundary without adding optional surfaces into SM-2."
+    owner: "Developer/Release owner"
+    status: open
