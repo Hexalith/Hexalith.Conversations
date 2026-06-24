@@ -10,10 +10,14 @@
     <File Path="README.md" />
   </Folder>
   <Folder Name="/Hexalith.Commons/">
+    <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Aspire/Hexalith.Commons.Aspire.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj" />
+    <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/Hexalith.Commons.Publication.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.ServiceDefaults/Hexalith.Commons.ServiceDefaults.csproj" />
+    <Project Path="Hexalith.Commons/test/Hexalith.Commons.Aspire.Tests/Hexalith.Commons.Aspire.Tests.csproj" />
+    <Project Path="Hexalith.Commons/test/Hexalith.Commons.Publication.Tests/Hexalith.Commons.Publication.Tests.csproj" />
     <Project Path="Hexalith.Commons/test/Hexalith.Commons.Diagnostics.Tests/Hexalith.Commons.Diagnostics.Tests.csproj" />
     <Project Path="Hexalith.Commons/test/Hexalith.Commons.ServiceDefaults.Tests/Hexalith.Commons.ServiceDefaults.Tests.csproj" />
     <Project Path="Hexalith.Commons/src/libraries/Hexalith.Commons.UniqueIds/Hexalith.Commons.UniqueIds.csproj" />
@@ -42,6 +46,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj" />
+    <Project Path="tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />

@@ -269,4 +269,106 @@ public sealed class ConversationPublicationMapperTest
         published.PolicyReference.ShouldBe("redaction-policy-standard");
         published.ToString().ShouldNotContain("customer-request", Case.Insensitive);
     }
+
+    /// <summary>
+    /// Ensures the mapper fails closed against a null persisted candidate rather than publishing.
+    /// </summary>
+    [Fact]
+    public void NullPersistedCandidateShouldThrow()
+        => Should.Throw<ArgumentNullException>(() => ConversationPublicationMapper.TryMap(null!));
+
+    /// <summary>
+    /// Ensures a successful outcome carrying a payload the mapper does not recognize fails closed with a bounded
+    /// command-validation diagnostic and never publishes an unmapped object.
+    /// </summary>
+    [Fact]
+    public void UnsupportedPayloadShouldReturnBoundedDiagnosticWithoutPublication()
+    {
+        PersistedConversationEvent persisted = PersistedConversationEvent.Success(
+            PublicationSamples.Tenant,
+            "unsupported-payload");
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(persisted);
+
+        result.IsPublished.ShouldBeFalse();
+        result.Diagnostic.ShouldNotBeNull();
+        result.Diagnostic.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+    }
+
+    /// <summary>
+    /// Ensures a public event whose declared metadata event type contradicts its payload type fails closed with a
+    /// bounded command-validation diagnostic instead of publishing a mislabeled event.
+    /// </summary>
+    [Fact]
+    public void EventTypeMetadataMismatchShouldReturnBoundedDiagnosticWithoutPublication()
+    {
+        ParticipantAdded mismatched = new(
+            PublicationSamples.ParticipantMetadata with
+            {
+                EventType = ConversationEventType.MessageAppended,
+            },
+            PublicationSamples.Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member);
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, mismatched));
+
+        result.IsPublished.ShouldBeFalse();
+        result.Diagnostic.ShouldNotBeNull();
+        result.Diagnostic.Code.ShouldBe(ConversationErrorCode.CommandValidationFailed);
+        result.Diagnostic.EventType.ShouldBe(ConversationEventType.MessageAppended);
+        result.Diagnostic.TenantId.ShouldBe(PublicationSamples.Tenant);
+    }
+
+    /// <summary>
+    /// Ensures a closed conversation maps to a bounded lifecycle-changed public event (Open -> Closed) with the
+    /// rewritten lifecycle event type and the original safe reason code preserved.
+    /// </summary>
+    [Fact]
+    public void ConversationClosedShouldMapToLifecycleChangedOpenToClosed()
+    {
+        ConversationClosed closed = new(
+            PublicationSamples.CreatedMetadata with
+            {
+                EventType = ConversationEventType.ConversationClosed,
+                EventId = "event-closed-001",
+            },
+            "case-resolved");
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, closed));
+
+        result.IsPublished.ShouldBeTrue(result.Diagnostic?.Code.Value);
+        ConversationLifecycleChanged published = result.GetPublishedEvent<ConversationLifecycleChanged>();
+        published.Metadata.EventType.ShouldBe(ConversationEventType.ConversationLifecycleChanged);
+        published.PreviousState.ShouldBe(ConversationLifecycleStatus.Open);
+        published.CurrentState.ShouldBe(ConversationLifecycleStatus.Closed);
+        published.ReasonCode.ShouldBe("case-resolved");
+    }
+
+    /// <summary>
+    /// Ensures an archived conversation maps to a bounded lifecycle-changed public event (Closed -> Archived).
+    /// </summary>
+    [Fact]
+    public void ConversationArchivedShouldMapToLifecycleChangedClosedToArchived()
+    {
+        ConversationArchived archived = new(
+            PublicationSamples.CreatedMetadata with
+            {
+                EventType = ConversationEventType.ConversationArchived,
+                EventId = "event-archived-001",
+            },
+            "retention-window-elapsed");
+
+        ConversationPublicationResult result = ConversationPublicationMapper.TryMap(
+            PersistedConversationEvent.Success(PublicationSamples.Tenant, archived));
+
+        result.IsPublished.ShouldBeTrue(result.Diagnostic?.Code.Value);
+        ConversationLifecycleChanged published = result.GetPublishedEvent<ConversationLifecycleChanged>();
+        published.Metadata.EventType.ShouldBe(ConversationEventType.ConversationLifecycleChanged);
+        published.PreviousState.ShouldBe(ConversationLifecycleStatus.Closed);
+        published.CurrentState.ShouldBe(ConversationLifecycleStatus.Archived);
+        published.ReasonCode.ShouldBe("retention-window-elapsed");
+    }
 }

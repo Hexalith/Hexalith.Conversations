@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Server.Diagnostics;
+using Hexalith.Commons.Publication;
 
 namespace Hexalith.Conversations.Server.Publication;
 
@@ -26,12 +27,14 @@ public sealed class ConversationPublicationService(IConversationProjectionTeleme
 
         ConversationPublicationResult result = ConversationPublicationMapper.TryMap(persisted);
 
-        if (!result.IsPublished && _telemetry is not null && result.Diagnostic is not null)
+        if (_telemetry is not null)
         {
-            string safeCorrelationId = correlationId ?? Guid.NewGuid().ToString("N")[..8];
-            ConversationPublicationFailureClass failureClass =
-                ConversationPublicationFailureClassifier.Classify(result.Diagnostic.Code);
-            _telemetry.RecordPublicationFailure(failureClass, safeCorrelationId);
+            PublicationFailureTelemetry.RecordRejected(
+                result.IsPublished,
+                result.Diagnostic,
+                static diagnostic => ConversationPublicationFailureClassifier.Classify(diagnostic.Code),
+                _telemetry.RecordPublicationFailure,
+                correlationId);
         }
 
         return result;

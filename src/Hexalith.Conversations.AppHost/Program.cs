@@ -3,8 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.AppHost;
+
 IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder(args);
 
-builder.AddProject<Projects.Hexalith_Conversations_Admin_Web>("conversations-admin-web");
+_ = ConversationsAppHostTopology.AddConversations(builder);
 
 builder.Build().Run();

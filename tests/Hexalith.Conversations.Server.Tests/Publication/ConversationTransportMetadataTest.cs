@@ -49,4 +49,56 @@ public sealed class ConversationTransportMetadataTest
         combined.ShouldNotContain("Dapr", Case.Insensitive);
         combined.ShouldNotContain("SignalR", Case.Insensitive);
     }
+
+    /// <summary>
+    /// Ensures the stable default deduplication key is published as a transport header so at-least-once consumers can
+    /// suppress duplicate/replayed deliveries.
+    /// </summary>
+    [Fact]
+    public void TransportMetadataShouldCarryStableDeduplicationKeyHeader()
+    {
+        ConversationCreated e = new(
+            PublicationSamples.CreatedMetadata,
+            PublicationSamples.Business,
+            PublicationSamples.Project,
+            PublicationSamples.Folder,
+            "Case 123",
+            PublicationSamples.ProviderCorrelation);
+
+        ConversationTransportMetadata metadata = ConversationTransportMetadata.FromEvent(e);
+
+        metadata.Headers["deduplicationKey"].ShouldBe(PublicationSamples.CreatedMetadata.DeduplicationKey);
+    }
+
+    /// <summary>
+    /// Ensures the optional causation header is omitted when no causation identifier is present, rather than emitting
+    /// an empty value.
+    /// </summary>
+    [Fact]
+    public void TransportMetadataShouldOmitCausationHeaderWhenAbsent()
+    {
+        ConversationCreated e = new(
+            PublicationSamples.CreatedMetadata with
+            {
+                CausationId = null,
+            },
+            PublicationSamples.Business,
+            PublicationSamples.Project,
+            PublicationSamples.Folder,
+            "Case 123",
+            PublicationSamples.ProviderCorrelation);
+
+        ConversationTransportMetadata metadata = ConversationTransportMetadata.FromEvent(e);
+
+        metadata.Headers.ContainsKey("causationId").ShouldBeFalse();
+        metadata.Headers["correlationId"].ShouldBe("correlation-001");
+    }
+
+    /// <summary>
+    /// Ensures an unsupported payload fails closed with a bounded argument exception instead of composing transport
+    /// metadata from an unknown event.
+    /// </summary>
+    [Fact]
+    public void UnsupportedEventShouldThrow()
+        => Should.Throw<ArgumentException>(() => ConversationTransportMetadata.FromEvent(new object()));
 }

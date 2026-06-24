@@ -7,6 +7,13 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
-    <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" IsAspireProjectResource="false" />
+    <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
+    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Aspire\Hexalith.Commons.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithCommonsRoot)' != ''" />
+    <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Aspire\Hexalith.Commons.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithCommonsRoot)' == ''" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\Hexalith.EventStore\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" />
   </ItemGroup>
 </Project>

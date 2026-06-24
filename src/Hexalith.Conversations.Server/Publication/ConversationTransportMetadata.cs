@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Commons.Publication;
 
 namespace Hexalith.Conversations.Server.Publication;
 
@@ -54,11 +55,18 @@ public sealed record ConversationTransportMetadata(
             headers["causationId"] = causation;
         }
 
-        return new ConversationTransportMetadata(
+        PublicationTransportMetadata transport = PublicationTransportMetadataComposer.Compose(
             $"{tenant}.conversations.events",
             $"Hexalith.Conversations.{eventType}.v{schema}",
             $"hexalith-conversations/{tenant}",
             $"conversations/{conversation}/events/{eventId}",
             headers);
+
+        return new ConversationTransportMetadata(
+            transport.Topic,
+            transport.Type,
+            transport.Source,
+            transport.Subject,
+            transport.Headers);
     }
 }

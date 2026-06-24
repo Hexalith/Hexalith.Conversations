@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Commons.Publication;
 
 namespace Hexalith.Conversations.Server.Publication;
 
@@ -26,4 +27,11 @@ public sealed record PersistedConversationEvent(
     /// <returns>The persisted event candidate.</returns>
     public static PersistedConversationEvent Success(TenantId tenantId, object payload)
         => new(ConversationPersistenceOutcome.Succeeded, tenantId, payload);
+
+    /// <summary>
+    /// Converts the Conversations envelope to the shared publication candidate shape.
+    /// </summary>
+    /// <returns>The shared publication candidate.</returns>
+    public PersistedPublicationCandidate<ConversationPersistenceOutcome, TenantId> ToPublicationCandidate()
+        => new(Outcome, TenantId, Payload);
 }

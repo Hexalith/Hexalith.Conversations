@@ -6,6 +6,7 @@
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
+using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Publication;
 
 using Shouldly;
@@ -62,6 +63,41 @@ public sealed class ConversationPublicationConsumerTest
             ParticipantRole.Member);
 
         consumer.TryApply(wrongTenant).ShouldBeFalse();
+
+        consumer.AppliedEffectCount.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// Ensures events declaring an unsupported schema version are rejected before any local state mutation.
+    /// </summary>
+    [Fact]
+    public void FakeConsumerShouldRejectUnsupportedSchemaVersionBeforeMutation()
+    {
+        LocalConversationPublicationConsumer consumer = new(PublicationSamples.Tenant);
+        ParticipantAdded unsupportedVersion = new(
+            PublicationSamples.ParticipantMetadata with
+            {
+                SchemaVersion = new SchemaVersion(SchemaVersion.Current.Value + 1),
+            },
+            PublicationSamples.Participant,
+            ParticipantType.Human,
+            ParticipantRole.Member);
+
+        consumer.TryApply(unsupportedVersion).ShouldBeFalse();
+
+        consumer.AppliedEffectCount.ShouldBe(0);
+        consumer.ParticipantIds.ShouldBeEmpty();
+    }
+
+    /// <summary>
+    /// Ensures unsupported payloads with no readable metadata are rejected without throwing or mutating state.
+    /// </summary>
+    [Fact]
+    public void FakeConsumerShouldRejectUnsupportedPayloadWithoutMutation()
+    {
+        LocalConversationPublicationConsumer consumer = new(PublicationSamples.Tenant);
+
+        consumer.TryApply(new object()).ShouldBeFalse();
 
         consumer.AppliedEffectCount.ShouldBe(0);
     }

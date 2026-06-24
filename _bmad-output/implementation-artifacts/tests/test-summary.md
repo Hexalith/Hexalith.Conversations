@@ -1,5 +1,40 @@
 # Test Automation Summary
 
+## Story 3.5 Promote & Adopt the Shared Aspire/Dapr Domain-Module Hosting Base
+
+Story 3.5 (FR-13) promotes the per-module Aspire/Dapr hosting topology into `Hexalith.Commons.Aspire`, promotes the generic publication-transport mechanics into `Hexalith.Commons.Publication`, and adopts both into Conversations: the AppHost now models the server as an Aspire project resource with a shared Dapr sidecar (`ConversationsAppHostTopology`/`ConversationsAppHostResources`), and the publication files (`ConversationPublicationMapper`, `ConversationTransportMetadata`, `ConversationPublicationService`, `LocalConversationPublicationConsumer`, `PersistedConversationEvent`) became thin adapters over the shared helpers while keeping the domain mapping + failure taxonomy local (FR-20 behavior-preserving, **no UI / no new HTTP endpoint**). The QA surface is therefore the **Aspire resource model** (verified without a live Dapr sidecar/secrets/external services) and the **publication mapping/transport/idempotency contract**, not browser E2E. Framework: xUnit v3 `3.2.2` + Shouldly (CPM; no new package). The shared `Hexalith.Commons.*` libraries carry their own module-owned tests inside the submodule and were out of scope for this Conversations-side pass. `dotnet test`/VSTest is blocked in this sandbox by `SocketException (13): Permission denied`, so suites were built in Release and run via the native xUnit v3 executable (per the Dev Agent Record).
+
+### Discovered Gaps → Applied (1 new file with 6 cases, 4 existing files extended with 11 cases)
+- [x] Gap 1 (AC-6 — `ConversationPublicationService` had **zero** coverage) — the Story 3.5 telemetry-emitting wrapper around the mapper was entirely untested. Closed by a new dedicated test file beside the existing publication tests.
+- [x] Gap 2 (AC-6 mapper fail-closed) — null-candidate guard, unsupported payload → `CommandValidationFailed`, and event-type/metadata mismatch → bounded `CommandValidationFailed` diagnostic were unexercised.
+- [x] Gap 3 (AC-6 / FR-20 lifecycle remapping) — `ConversationClosed` → `ConversationLifecycleChanged` (Open→Closed) and `ConversationArchived` → (Closed→Archived), preserving the safe reason code, had no test.
+- [x] Gap 4 (AC-6 transport header contract) — stable `deduplicationKey` header presence, optional `causationId` omission-when-absent, and the unsupported-event `ArgumentException` guard were unpinned.
+- [x] Gap 5 (AC-6 consumer idempotency) — unsupported schema version and unsupported (no-metadata) payload rejection before mutation were uncovered.
+- [x] Gap 6 (AC-4 AppHost guard) — `AddConversations(null)` fail-closed guard was untested.
+
+### Generated Tests
+- [x] `tests/Hexalith.Conversations.Server.Tests/Publication/ConversationPublicationServiceTest.cs` — new file, **6 cases**: success records no failure signal; tenant-mismatch → `TenantViolation` with caller correlation id; unsupported-schema → `UnsupportedSchema`; idempotency-conflict outcome → `ReplayRequired`; missing telemetry sink does not throw on rejection; null candidate → `ArgumentNullException`.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Publication/ConversationPublicationMapperTest.cs` — **+5 cases**: null guard; unsupported payload; event-type mismatch; ConversationClosed→LifecycleChanged; ConversationArchived→LifecycleChanged.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Publication/ConversationTransportMetadataTest.cs` — **+3 cases**: dedup-key header published; causation header omitted when absent; unsupported event throws.
+- [x] `tests/Hexalith.Conversations.Server.Tests/Publication/ConversationPublicationConsumerTest.cs` — **+2 cases**: unsupported schema version rejected; unsupported payload rejected — both before any state mutation.
+- [x] `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs` — **+1 case**: `AddConversations(null)` fails closed.
+
+### Implementation
+- No production source, public contract, or `Directory.Packages.props` pin changed by this QA run — the promote/adopt was the dev-story step. Only test code added/extended (5 files, +17 cases). No existing test removed or weakened. The public-contract-shape baseline and the conformance floor (>= 361) are unaffected by this pass.
+
+### Validation
+- [x] `dotnet build tests/Hexalith.Conversations.Server.Tests -c Release` → **0 warnings / 0 errors**; native runner → **605 passed** (was 589, +16), 0 failed, 0 skipped.
+- [x] `dotnet build tests/Hexalith.Conversations.AppHost.Tests -c Release` → **0 warnings / 0 errors**; native runner → **5 passed** (was 4, +1), 0 failed, 0 skipped.
+- [x] Combined Story 3.5 surface: **610 passed, 0 failed, 0 skipped** under warnings-as-errors (Release).
+
+### Coverage
+- AppHost topology (AC-4): stable names, resource modeling, shared Dapr sidecar + wait-for-EventStore, admin-web reference/wait, **and now** the null-builder guard.
+- Publication mapper (AC-5/AC-6): success/non-success outcomes, tenant mismatch, unsupported schema, sentinel non-leak, retry identity, project/sensitivity/redaction mapping, **and now** null guard, unsupported payload, event-type mismatch, both lifecycle remappings.
+- Publication service (AC-6): rejection→telemetry classification, success silence, missing-sink tolerance, null guard — newly covered.
+- Transport metadata (AC-6): bounded identifiers / caller-provenance non-leak, **and now** dedup-key header, optional-causation omission, unsupported-event guard.
+- Local consumer (AC-6): dedupe/replay/reorder, tenant mismatch, **and now** unsupported-schema and unsupported-payload rejection.
+- Out of scope for this QA run: the shared `Hexalith.Commons.Aspire`/`Hexalith.Commons.Publication` module-owned tests (submodule), full `Hexalith.Conversations.slnx` Release build, conformance `>= 361`, public-contract-shape diff, sibling Aspire builds, and submodule commit + root gitlink bump (dev gates). No UI/E2E (Playwright) applies — Story 3.5 has no UI surface.
+
 ## Story 3.4 Promote & Adopt the Shared ServiceDefaults Base
 
 Story 3.4 (FR-10, Promote) lifts the duplicated per-module Aspire ServiceDefaults file (OpenTelemetry logging/metrics/tracing, `/health`·`/alive`·`/ready` endpoints, status-code mapping, dev JSON health writer, health-probe trace exclusion, service discovery, HTTP resilience, OTLP env gate) into a new domain-neutral `Hexalith.Commons.ServiceDefaults` base (`HexalithServiceDefaults` + `HexalithServiceDefaultsOptions`), makes `Hexalith.EventStore.ServiceDefaults` a backward-compatible facade over it, and adopts it into the previously-empty Conversations slot via a thin `ConversationsServiceDefaults` wrapper. There is **no UI and no new HTTP endpoint** (internal developer-platform refactor, PRD FR-20) so the automated-test surface is the **registration/extension API** of the base and the Conversations wrapper, plus the existing host-composition route/behavior guardrails — not browser E2E. Framework: xUnit v3 `3.2.2` + Shouldly `4.3.0` (CPM; no new package). The dev-story shipped its tests **unverified** (its sandbox blocked VSTest with `SocketException (13) Permission denied`); the runner works in this environment, which surfaced one real failure and one untested AC.

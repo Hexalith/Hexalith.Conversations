@@ -6,6 +6,7 @@
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
+using Hexalith.Commons.Publication;
 
 namespace Hexalith.Conversations.Server.Publication;
 
@@ -14,7 +15,7 @@ namespace Hexalith.Conversations.Server.Publication;
 /// </summary>
 public sealed class LocalConversationPublicationConsumer(TenantId tenantId)
 {
-    private readonly HashSet<string> _appliedIdentities = new(StringComparer.Ordinal);
+    private readonly PublicationDeduplicationSet _appliedIdentities = new();
     private readonly HashSet<string> _participantIds = new(StringComparer.Ordinal);
 
     /// <summary>
@@ -40,7 +41,7 @@ public sealed class LocalConversationPublicationConsumer(TenantId tenantId)
             return false;
         }
 
-        if (!_appliedIdentities.Add(metadata.DeduplicationKey))
+        if (!_appliedIdentities.TryApply(metadata.DeduplicationKey))
         {
             return false;
         }

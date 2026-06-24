@@ -38,6 +38,15 @@ Conversations. Follow it for each subsequent capability promotion (Stories 3.2â€
   module-owned resource names, activity sources, meters, health tags/paths, readiness checks, and response-writer
   hooks. EventStore's existing `AddServiceDefaults`/`MapDefaultEndpoints` symbols remain thin facades over the
   shared base so Conversations preserves the current runtime path through `AddEventStoreDomainService`.
+- **Ratified for Story 3.5 (FR-13):** new additive Commons libraries **`Hexalith.Commons.Aspire`** and
+  **`Hexalith.Commons.Publication`** in the `Hexalith.Commons` submodule
+  (`Hexalith.Commons/src/libraries/Hexalith.Commons.Aspire/` and
+  `Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/`, both with self-contained
+  `Directory.Build.props`). Commons is the right altitude for domain-agnostic Aspire/Dapr domain-module
+  hosting and publication transport mechanics. Scope split: `apphost-greenfield` is greenfield-adopt with
+  FR-17 delete N/A; `publication-transport-marshaling` is promote/adopt, with Conversations retaining its
+  domain failure taxonomy and reducing local transport mechanics to thin adapters over the shared helper.
+  Root-level submodule pointers are verified before build; nested submodule initialization remains forbidden.
 
 ### Build-infrastructure caveat discovered in 3.1 (read before promoting into Commons again)
 

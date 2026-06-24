@@ -7,6 +7,7 @@ using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
+using Hexalith.Commons.Publication;
 
 namespace Hexalith.Conversations.Server.Publication;
 
@@ -24,41 +25,24 @@ public static class ConversationPublicationMapper
     {
         ArgumentNullException.ThrowIfNull(persisted);
 
-        if (persisted.Outcome != ConversationPersistenceOutcome.Succeeded)
-        {
-            return ConversationPublicationResult.Rejected(new ConversationPublicationDiagnostic(
-                DiagnosticCodeFor(persisted.Outcome)));
-        }
+        PublicationMappingDecision<ConversationPublicationDiagnostic> decision =
+            PublicationMappingPipeline.TryMap(
+                persisted.ToPublicationCandidate(),
+                static outcome => outcome == ConversationPersistenceOutcome.Succeeded,
+                static outcome => new ConversationPublicationDiagnostic(DiagnosticCodeFor(outcome)),
+                TryCreatePublicEvent,
+                ConversationPublicationMetadata.GetMetadata,
+                static metadata => metadata.TenantId,
+                static metadata => metadata.SchemaVersion.Value == SchemaVersion.Current.Value,
+                static (publicEvent, metadata) => ConversationPublicationMetadata.EventTypeMatches(publicEvent, metadata.EventType),
+                static () => new ConversationPublicationDiagnostic(ConversationErrorCode.CommandValidationFailed),
+                static metadata => CreateDiagnostic(ConversationErrorCode.TenantContextMismatch, metadata),
+                static metadata => CreateDiagnostic(ConversationErrorCode.SchemaVersionUnsupported, metadata),
+                static metadata => CreateDiagnostic(ConversationErrorCode.CommandValidationFailed, metadata));
 
-        return TryCreatePublicEvent(persisted.Payload) is { } publicEvent
-            ? ValidateAndPublish(persisted, publicEvent)
-            : ConversationPublicationResult.Rejected(new ConversationPublicationDiagnostic(ConversationErrorCode.CommandValidationFailed));
-    }
-
-    private static ConversationPublicationResult ValidateAndPublish(PersistedConversationEvent persisted, object publicEvent)
-    {
-        ConversationEventMetadata? metadata = ConversationPublicationMetadata.GetMetadata(publicEvent);
-        if (metadata is null)
-        {
-            return ConversationPublicationResult.Rejected(new ConversationPublicationDiagnostic(ConversationErrorCode.CommandValidationFailed));
-        }
-
-        if (!persisted.TenantId.Equals(metadata.TenantId))
-        {
-            return ConversationPublicationResult.Rejected(CreateDiagnostic(ConversationErrorCode.TenantContextMismatch, metadata));
-        }
-
-        if (metadata.SchemaVersion.Value != SchemaVersion.Current.Value)
-        {
-            return ConversationPublicationResult.Rejected(CreateDiagnostic(ConversationErrorCode.SchemaVersionUnsupported, metadata));
-        }
-
-        if (!ConversationPublicationMetadata.EventTypeMatches(publicEvent, metadata.EventType))
-        {
-            return ConversationPublicationResult.Rejected(CreateDiagnostic(ConversationErrorCode.CommandValidationFailed, metadata));
-        }
-
-        return ConversationPublicationResult.Published(publicEvent);
+        return decision.IsPublished
+            ? ConversationPublicationResult.Published(decision.PublishedEvent!)
+            : ConversationPublicationResult.Rejected(decision.Diagnostic!);
     }
 
     private static object? TryCreatePublicEvent(object payload)

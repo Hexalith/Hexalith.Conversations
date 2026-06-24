@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup Label="Aspire">
     <PackageVersion Include="Aspire.Hosting" Version="13.4.6" />
+    <PackageVersion Include="CommunityToolkit.Aspire.Hosting.Dapr" Version="13.4.0-preview.1.260602-0230" />
   </ItemGroup>
   <ItemGroup Label="Aspire ServiceDefaults">
     <PackageVersion Include="Microsoft.Extensions.Http" Version="10.0.9" />
