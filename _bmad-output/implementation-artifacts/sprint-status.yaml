@@ -101,7 +101,7 @@ development_status:
   3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper: done
   3-4-promote-adopt-the-shared-servicedefaults-base: done
   3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base: done
-  3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration: review
+  3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration: done
   3-7-promote-adopt-compile-time-command-event-contract-metadata: backlog
   epic-3-retrospective: optional
   epic-4: backlog
