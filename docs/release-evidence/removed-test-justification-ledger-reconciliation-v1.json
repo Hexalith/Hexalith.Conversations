@@ -1,0 +1,613 @@
+{
+  "artifact": "removed-test-justification-ledger-reconciliation",
+  "version": "1",
+  "status": "pass-with-residual-coupling",
+  "story": "5.2",
+  "generatedAtUtc": "2026-06-26T15:32:05Z",
+  "sourceArtifacts": {
+    "atRiskTestRegisterJson": "docs/release-evidence/at-risk-test-register-v1.json",
+    "atRiskTestRegisterMarkdown": "docs/release-evidence/at-risk-test-register-v1.md",
+    "consumePromoteKeepInventoryJson": "docs/release-evidence/consume-promote-keep-inventory-v1.json",
+    "consumePromoteKeepInventoryMarkdown": "docs/release-evidence/consume-promote-keep-inventory-v1.md",
+    "classificationChangeProcedure": "docs/release-evidence/classification-change-procedure-v1.md",
+    "releaseBaselineMarkdown": "docs/release-evidence/release-baseline-v1.md",
+    "story51FinalEvidenceJson": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+    "story51FinalEvidenceMarkdown": "docs/release-evidence/final-conformance-contract-diff-v1.md",
+    "structuralDispositionSections": [
+      { "name": "story21StructuralDispositions", "count": 3 },
+      { "name": "story22StructuralDispositions", "count": 2 },
+      { "name": "story23StructuralDispositions", "count": 3 },
+      { "name": "story24StructuralDispositions", "count": 3 },
+      { "name": "story25StructuralDispositions", "count": 3 },
+      { "name": "story26StructuralDispositions", "count": 3 },
+      { "name": "story27StructuralDispositions", "count": 3 },
+      { "name": "story33StructuralDispositions", "count": 3 }
+    ],
+    "structuralDispositions": [
+      {
+        "section": "story21StructuralDispositions",
+        "subject": "ServerBoundaryTest shared domain-service host reference guard",
+        "owningStory": "Story 2.1",
+        "actualDisposition": "re-expressed-strengthened",
+        "rationale": "The scaffold-era no-host premise became a positive shared-host assertion while forbidden dependency checks remained.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story21StructuralDispositions",
+        "subject": "ScaffoldSmokeTest project-reference boundary direction guard",
+        "owningStory": "Story 2.1",
+        "actualDisposition": "re-expressed-strengthened",
+        "rationale": "The exact-set guard was updated to require the shared host SDK reference without relaxing unrelated boundaries.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story21StructuralDispositions",
+        "subject": "Residual internal governance audit gate fail-closed-on-sink-failure",
+        "owningStory": "Story 2.1",
+        "actualDisposition": "re-expressed",
+        "rationale": "The live fail-closed behavior was surfaced into GovernanceAuditSinkFailClosedConformanceTest instead of retired.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story22StructuralDispositions",
+        "subject": "Redundant command-status idempotency bridge shim and its unit test",
+        "owningStory": "Story 2.2",
+        "actualDisposition": "removed-dead-plumbing",
+        "rationale": "The shim had zero production references and returned the same retryable uncertainty decision for every input; the base-class dispatch/replay teeth test offsets the removed unit test.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story22StructuralDispositions",
+        "subject": "Genuine Conversations idempotency contract and replay verification",
+        "owningStory": "Story 2.2",
+        "actualDisposition": "retained",
+        "rationale": "The explicit reserve/replay/conflict lifecycle and replay-verification rules remain domain logic not supplied by the base class.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story23StructuralDispositions",
+        "subject": "Hand-rolled HMAC-SHA256 list continuation cursor codec",
+        "owningStory": "Story 2.3",
+        "actualDisposition": "removed-and-replaced",
+        "rationale": "Cursor integrity moved to the platform protected-cursor codec while domain lifetime, offset, and generation guards remained.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story23StructuralDispositions",
+        "subject": "HMAC-specific cursor fail-closed tests and ForgeCursorWithOffset helper",
+        "owningStory": "Story 2.3",
+        "actualDisposition": "re-expressed",
+        "rationale": "The same safe Hidden or Forbidden outcomes are asserted through the platform cursor codec; scope-binding checks gained zero-read assertions.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story23StructuralDispositions",
+        "subject": "Conversation-specific query logic and Contracts/Queries DTOs",
+        "owningStory": "Story 2.3",
+        "actualDisposition": "retained",
+        "rationale": "Filter, freshness, hydration, temporal reconstruction, and public query DTO behavior remained Conversations-owned.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story24StructuralDispositions",
+        "subject": "FR-5 disposition correction from remove-and-replace to greenfield-adopt",
+        "owningStory": "Story 2.4",
+        "actualDisposition": "corrected-no-op-removal",
+        "rationale": "There was no bespoke read-model persistence code to delete; the story added the platform store and production binding.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story24StructuralDispositions",
+        "subject": "ServerBoundaryTest Dapr.Client assembly-metadata clause",
+        "owningStory": "Story 2.4",
+        "actualDisposition": "re-expressed-strengthened",
+        "rationale": "The shared store legitimately requires DaprClient registration, so the guard became a required-presence assertion while the direct package-reference prohibition stayed.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story24StructuralDispositions",
+        "subject": "Projection read model field-selection, freshness DTOs, and fail-closed boundary",
+        "owningStory": "Story 2.4",
+        "actualDisposition": "retained",
+        "rationale": "The persisted value rides existing public projection DTOs and the fail-closed read assertions remain green through the production store path.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story25StructuralDispositions",
+        "subject": "FR-6 projection-orchestration inventory label correction",
+        "owningStory": "Story 2.5",
+        "actualDisposition": "corrected-no-op-removal",
+        "rationale": "The platform projection seam already existed, so the story consumed it without relabeling or remeasuring the accepted inventory area.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story25StructuralDispositions",
+        "subject": "ConversationProjectionMaterializer conversation-specific materialization logic",
+        "owningStory": "Story 2.5",
+        "actualDisposition": "retained",
+        "rationale": "Conversation-specific replay, freshness, search trust, command eligibility, and evidence construction stayed as the shared in-module materialization entry point.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story25StructuralDispositions",
+        "subject": "ConversationProjectionMaterializerTest plumbing-only rows and live freshness oracle",
+        "owningStory": "Story 2.5",
+        "actualDisposition": "retained",
+        "rationale": "Because the materializer entry point stayed reachable, retiring these assertions would have dropped still-live coverage.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story26StructuralDispositions",
+        "subject": "FR-8 generic serialization converters consume target re-scoped",
+        "owningStory": "Story 2.6",
+        "actualDisposition": "corrected-no-op-removal",
+        "rationale": "The named shared converter and source-generation context surfaces did not yet exist and were deferred to Story 3.6 through the changeLog.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story26StructuralDispositions",
+        "subject": "Within-area reclassification of generic serialization converters",
+        "owningStory": "Story 2.6",
+        "actualDisposition": "retained",
+        "rationale": "Prefixed identifier converters encode a domain rule, while value-base skeletons remain the future generic replacement target.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story26StructuralDispositions",
+        "subject": "TypeMapper consume evaluation and wire-shape oracle",
+        "owningStory": "Story 2.6",
+        "actualDisposition": "corrected-no-op-removal",
+        "rationale": "Adopting TypeMapper would require public contract changes, so the exact wire-shape oracle stayed as the future replacement target.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story27StructuralDispositions",
+        "subject": "FR-9 verified gap for named shared test-support duplicate targets",
+        "owningStory": "Story 2.7",
+        "actualDisposition": "corrected-no-op-removal",
+        "rationale": "The named duplicates did not exist in-module, so there was nothing to delete or replace.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story27StructuralDispositions",
+        "subject": "duplicate-test-fakes inventory correction for RepositoryTestContext",
+        "owningStory": "Story 2.7",
+        "actualDisposition": "retained",
+        "rationale": "RepositoryTestContext is a source-tree path locator with no shared data-store fake equivalent; the correction is recorded through the inventory changeLog.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story27StructuralDispositions",
+        "subject": "Shared fake consume preservation and DomainResultAssertions negative finding",
+        "owningStory": "Story 2.7",
+        "actualDisposition": "retained",
+        "rationale": "The genuine InMemoryReadModelStore consume from Story 2.4 is preserved, and shared assertion helpers were weaker than the existing exact assertions.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story33StructuralDispositions",
+        "subject": "FR-15 telemetry scaffolding helper promoted to Commons diagnostics",
+        "owningStory": "Story 3.3",
+        "actualDisposition": "retargeted",
+        "rationale": "Conversations telemetry wrappers now delegate generic scaffolding to the shared helper while retaining metric names and domain vocabulary.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story33StructuralDispositions",
+        "subject": "Story 1.3 telemetry/status retarget obligation",
+        "owningStory": "Story 3.3",
+        "actualDisposition": "retargeted",
+        "rationale": "Telemetry suites exercise the promoted helper through live wrappers, while status classification remains Conversations-owned.",
+        "greenAfterChange": true
+      },
+      {
+        "section": "story33StructuralDispositions",
+        "subject": "Conformance.Tests to Server project-reference disposition after Story 3.3",
+        "owningStory": "Story 3.3",
+        "actualDisposition": "retained-residual-coupling",
+        "rationale": "The project reference remains necessary because release-gate checks still use Server-owned tenant access, projection, command-handler, governance, and diagnostics-classifier types.",
+        "greenAfterChange": true
+      }
+    ]
+  },
+  "removedTests": [
+    {
+      "id": "at-risk-001",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[0]"
+      },
+      "owningStory": "Story 1.3",
+      "classification": "re-express, never delete",
+      "actualDisposition": "re-expressed-retained",
+      "actuallyRemoved": false,
+      "rationale": "Behavior-bearing governance audit pairing must survive the refactor.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/GovernanceAuditPairingSafetyNetConformanceTest.cs",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-002",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs [assertion group: ReadOnlyWorkspaceBoundariesShouldNotReferenceMutationExecutionTypes, PrivilegedJustificationShouldBeImplementedAsPreconditionAuditBoundary, and the handler-type / handler-constructor structural fragments of ImplementedGovernanceMutationPathsShouldRemainExplicit and NonGovernanceConversationActivityShouldRemainOutsideAuditDegradationHandling]",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[1]"
+      },
+      "owningStory": "Story 2.1",
+      "classification": "plumbing-only-retire",
+      "actualDisposition": "retained-pending-structural-premise",
+      "actuallyRemoved": false,
+      "rationale": "The row concerns structural reflection over handler/service wiring; no behavior-bearing test was deleted under Story 5.2.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/GovernanceAuditSinkFailClosedConformanceTest.cs",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-003",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs [behavior assertions: redaction non-leakage on replay; freshness downgrade surfacing (stale/rebuilding/gap/mixed-tenant/unavailable); governance evidence anchoring; field selection]",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[2]"
+      },
+      "owningStory": "Story 2.5",
+      "classification": "re-express",
+      "actualDisposition": "re-expressed",
+      "actuallyRemoved": false,
+      "rationale": "Behavior is observable through the public projection-read surface and remains covered.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/ConversationProjectionReadSurfaceConformanceTest.cs and LiveProjectionFreshnessOracleCharacterizationTest.cs",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-004",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionMaterializerTest.cs [plumbing-only assertions: command-eligibility internal posture (AssertCommands); unknown-event-type downgrade; contradictory-metadata downgrade; gap / out-of-order internal reason codes; mixed-tenant and malformed-content rejection internals]",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[3]"
+      },
+      "owningStory": "Story 2.5",
+      "classification": "plumbing-only-retire",
+      "actualDisposition": "retained",
+      "actuallyRemoved": false,
+      "rationale": "Story 2.5 kept the materializer entry point, so the retirement precondition did not occur.",
+      "replacementOrOffsetEvidence": "Story 2.5 structural disposition retained the materializer tests and added seam-level coverage.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-005",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest.cs [behavior assertions: completed-duplicate replay-without-mutation; conflicting-key rejection before mutation; pending-key retryable uncertainty; duplicate-rejection reason-code preservation; replay-payload secret exclusion]",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[4]"
+      },
+      "owningStory": "Story 2.2",
+      "classification": "re-express",
+      "actualDisposition": "re-expressed",
+      "actuallyRemoved": false,
+      "rationale": "Observable idempotency behavior remains covered by live characterization tests.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/LiveIdempotencyConflictOracleCharacterizationTest.cs and LiveIdempotencyOracleCharacterizationTest.cs",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-006",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/Idempotency/IdempotentConversationCommandExecutorTest.cs [plumbing-only assertions: reservation invalidation lifecycle on retryable/throwing outcomes; injected clock completion-timestamp wiring; raw store record status; audit-handle canonical length-prefixed encoding internals]",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[5]"
+      },
+      "owningStory": "Story 2.2",
+      "classification": "plumbing-only-retire",
+      "actualDisposition": "retained-domain-contract",
+      "actuallyRemoved": false,
+      "rationale": "Story 2.2 clarified that genuine idempotency lifecycle checks remain Conversations domain logic.",
+      "replacementOrOffsetEvidence": "Story 2.2 structural disposition retained the idempotency contract and replay verification tests.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-007",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuiteTest.cs (+ engine TelemetryCardinalityConformanceSuite.cs)",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[6]"
+      },
+      "owningStory": "Story 3.3",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retargeted",
+      "actuallyRemoved": false,
+      "rationale": "The suite still drives live telemetry wrappers, which now delegate shared scaffolding to Commons diagnostics.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuiteTest.cs remains in the 14-suite release gate.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-008",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuiteTest.cs (+ engine TelemetryRedactionConformanceSuite.cs)",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[7]"
+      },
+      "owningStory": "Story 3.3",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retargeted",
+      "actuallyRemoved": false,
+      "rationale": "Telemetry redaction behavior is retained through live Conversations wrappers.",
+      "replacementOrOffsetEvidence": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuiteTest.cs remains in the 14-suite release gate.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-009",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceSuite.cs + tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceFixtures.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[8]"
+      },
+      "owningStory": "Story 3.3",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retained-residual-coupling",
+      "actuallyRemoved": false,
+      "rationale": "Conformance status classification remains Conversations-owned domain policy.",
+      "replacementOrOffsetEvidence": "ConformanceStatusConformanceSuiteTest remains in the 14-suite release gate.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-010",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryDisclosureConformanceFixtures.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[9]"
+      },
+      "owningStory": "Story 3.3 and Story 3.2",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retained-residual-coupling",
+      "actuallyRemoved": false,
+      "rationale": "The shared fixture still binds diagnostics and tenant-access types used by release-gate telemetry tests.",
+      "replacementOrOffsetEvidence": "TelemetryCardinalityConformanceSuiteTest and TelemetryRedactionConformanceSuiteTest remain green.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-011",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/LiveTenantFailClosedOracleCharacterizationTest.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[10]"
+      },
+      "owningStory": "Story 3.2",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retained-residual-coupling",
+      "actuallyRemoved": false,
+      "rationale": "The fail-closed tenant guard characterization remains live release-gate coverage.",
+      "replacementOrOffsetEvidence": "LiveTenantFailClosedOracleCharacterizationTest.cs remains present in the conformance project.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-012",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/LiveProjectionFreshnessOracleCharacterizationTest.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[11]"
+      },
+      "owningStory": "Story 2.5",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retained-residual-coupling",
+      "actuallyRemoved": false,
+      "rationale": "The live materializer/classifier characterization still covers fail-open freshness and redaction mutations.",
+      "replacementOrOffsetEvidence": "LiveProjectionFreshnessOracleCharacterizationTest.cs remains present in the conformance project.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "at-risk-013",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Conformance.Tests/LiveIdempotencyOracleCharacterizationTest.cs",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#tests[12]"
+      },
+      "owningStory": "Story 2.2",
+      "classification": "coupled-by-design-retarget-in-owning-story",
+      "actualDisposition": "retained-residual-coupling",
+      "actuallyRemoved": false,
+      "rationale": "The live executor characterization still catches duplicate replay mutation regressions.",
+      "replacementOrOffsetEvidence": "LiveIdempotencyOracleCharacterizationTest.cs remains present in the conformance project.",
+      "greenAfterChange": true
+    },
+    {
+      "id": "structural-actual-removal-001",
+      "source": {
+        "sourceFileOrAssertionGroup": "tests/Hexalith.Conversations.Server.Tests/EventStore/EventStoreCommandStatusIdempotencyBridgeTest.cs",
+        "removedShimSource": "src/Hexalith.Conversations.Server/EventStore/EventStoreCommandStatusIdempotencyBridge.cs",
+        "removedInCommit": "48160d6",
+        "register": "docs/release-evidence/at-risk-test-register-v1.json#story22StructuralDispositions[0]"
+      },
+      "owningStory": "Story 2.2",
+      "classification": "plumbing-only-retire",
+      "actualDisposition": "removed-dead-plumbing",
+      "actuallyRemoved": true,
+      "rationale": "The removed unit test covered a dead command-status bridge shim with zero production references.",
+      "replacementOrOffsetEvidence": "ConversationAggregateBaseClassDispatchTest plus standing conformance gate growth.",
+      "greenAfterChange": true
+    }
+  ],
+  "reexpressedNeverDeleteTests": [
+    {
+      "source": "tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs",
+      "classification": "re-express, never delete",
+      "reExpression": "tests/Hexalith.Conversations.Conformance.Tests/GovernanceAuditPairingSafetyNetConformanceTest.cs",
+      "presentInCurrentTree": true,
+      "includedInConformanceProject": true,
+      "proof": "The file exists under the SDK-style conformance project and is compiled by default."
+    }
+  ],
+  "conformanceSuiteContinuity": {
+    "baselineFacts": {
+      "suiteClassCount": 14,
+      "baselineSuiteTests": 214,
+      "baselineProjectTests": 248,
+      "exportedPublicContractTypes": 196
+    },
+    "story51FinalFacts": {
+      "total": 365,
+      "passed": 365,
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "suiteClassCount": 14,
+      "exportedPublicContractTypes": 196
+    },
+    "currentVerification": {
+      "suiteClassCount": 14,
+      "suiteClassNames": [
+        "AdopterConformanceSuiteTest",
+        "BuyerAcceptanceConformanceSuiteTest",
+        "ConformanceStatusConformanceSuiteTest",
+        "ContractValidationConformanceSuiteTest",
+        "EventSchemaEvolutionConformanceSuiteTest",
+        "IdempotencyConformanceSuiteTest",
+        "PlatformEvidenceSeparationConformanceSuiteTest",
+        "ProviderPortabilityConformanceSuiteTest",
+        "RedactionConformanceSuiteTest",
+        "ReleaseScopeConformanceSuiteTest",
+        "SecondAdopterConformanceSuiteTest",
+        "TelemetryCardinalityConformanceSuiteTest",
+        "TelemetryRedactionConformanceSuiteTest",
+        "TenantIsolationConformanceSuiteTest"
+      ],
+      "releaseGateSuiteMissing": [],
+      "fullConformanceTotal": 374,
+      "deltaFromStory51": 9,
+      "deltaExplanation": "The +9 net change from the Story 5.1 365/365 baseline is fully accounted for by the nine added RemovedTestJustificationLedgerReconciliationValidationTest facts; no release-gate test was removed.",
+      "explanation": "The 14 release-gate suite class names match Story 1.1 and Story 5.1. The project count grew through additive validation and re-expression facts; no release-gate suite class is missing."
+    }
+  },
+  "projectReferenceDisposition": {
+    "reference": "tests/Hexalith.Conversations.Conformance.Tests -> src/Hexalith.Conversations.Server",
+    "currentReferenceState": "retained",
+    "decision": "retain-residual-coupling",
+    "safeRemovalAttempt": {
+      "attempted": false,
+      "reason": "A source inventory shows live release-gate tests still use Server diagnostics, tenant access, projections, command handlers, and governance types. Removing the reference would weaken or break live checks rather than prove survivability."
+    },
+    "residualCouplingInventory": [
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceFixtures.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics" ],
+        "rationale": "Uses Conversations-owned status classifier fixtures."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/ConformanceStatusConformanceSuite.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics" ],
+        "rationale": "Asserts conformance status classification policy."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/ConversationProjectionReadSurfaceConformanceTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Projections", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Drives projection read-surface fail-closed behavior through live server projection and tenant-access types."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/GovernanceAuditSinkFailClosedConformanceTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.CommandHandlers", "Hexalith.Conversations.Server.Governance", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Fault-injects the live governed command-handler surface and audit sink."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/LiveIdempotencyConflictOracleCharacterizationTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.CommandHandlers" ],
+        "rationale": "Covers conflict, pending, rejection, and replay-secret idempotency outcomes on the live executor."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/LiveIdempotencyOracleCharacterizationTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.CommandHandlers" ],
+        "rationale": "Catches duplicate replay mutation regressions in the live executor."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/LiveProjectionFreshnessOracleCharacterizationTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics", "Hexalith.Conversations.Server.Projections" ],
+        "rationale": "Drives live materializer and freshness classifier fail-closed branches."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/LiveTenantFailClosedOracleCharacterizationTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Drives live tenant fail-closed guard branches."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuite.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Asserts telemetry cardinality budgets through live wrappers and tenant-denial classes."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryCardinalityConformanceSuiteTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Release-gate suite entry point for telemetry cardinality."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryDisclosureConformanceFixtures.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Shared telemetry fixture for disclosure/cardinality/redaction checks."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuite.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics", "Hexalith.Conversations.Server.TenantAccess" ],
+        "rationale": "Asserts telemetry redaction through live wrappers."
+      },
+      {
+        "file": "tests/Hexalith.Conversations.Conformance.Tests/TelemetryRedactionConformanceSuiteTest.cs",
+        "namespaces": [ "Hexalith.Conversations.Server.Diagnostics" ],
+        "rationale": "Release-gate suite entry point for telemetry redaction."
+      }
+    ],
+    "risk": "The conformance project remains structurally coupled to Server internals, but the coupling is visible and guarded instead of claimed closed.",
+    "followUpPath": "Move the remaining live checks behind public Contracts or Testing surfaces, or split them into an explicitly Server-coupled conformance fixture project."
+  },
+  "inventoryChangeLogReconciliation": {
+    "sourceChangeLogEntryIds": [
+      "CL-shared-host-api-challenge-1",
+      "CL-generic-serialization-converters-challenge-1",
+      "CL-duplicate-test-fakes-challenge-1"
+    ],
+    "sourceChangeLogEntryCount": 3,
+    "newInventoryChangeRequired": false,
+    "rationale": "Story 5.2 records reconciliation evidence only. No accepted inventory row, classification, path glob, or frozen LOC value changes, so the append-only inventory changeLog does not need a new entry."
+  },
+  "contractShapeImpact": {
+    "expected": "none",
+    "publicContractShapeBaseline": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+    "publicContractShapeBaselineDiff": "empty",
+    "productRuntimeChanged": false,
+    "publicContractsChanged": false,
+    "packageVersionsChanged": false,
+    "appHostTopologyChanged": false,
+    "siblingSubmoduleSourceChanged": false
+  },
+  "validation": {
+    "actualRemovalCount": 1,
+    "preferredTestRunner": {
+      "command": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --filter FullyQualifiedName~RemovedTestJustificationLedgerReconciliationValidationTest /nr:false",
+      "result": "aborted-before-test-execution",
+      "reason": "Sandbox socket creation failed before tests executed."
+    },
+    "build": {
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1",
+      "warnings": 0,
+      "errors": 0
+    },
+    "focusedValidation": {
+      "command": "compiled xUnit v3 executable with -class Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest",
+      "total": 9,
+      "passed": 9,
+      "failed": 0,
+      "skipped": 0
+    },
+    "fullConformance": {
+      "command": "compiled xUnit v3 executable for the full conformance project",
+      "total": 374,
+      "passed": 374,
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0
+    },
+    "publicContractShapeBaselineDiff": "empty",
+    "intendedFileSet": [
+      "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+      "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+      "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs",
+      "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml"
+    ]
+  },
+  "environmentLimitations": [
+    {
+      "area": "test-runner",
+      "limitation": "The preferred dotnet test runner could not create a local socket in this sandbox.",
+      "mitigation": "Built the Release test project with one MSBuild node and ran the compiled xUnit v3 executable directly."
+    },
+    {
+      "area": "submodules",
+      "limitation": "Root submodules are present but reported with leading '-' in git submodule status.",
+      "mitigation": "No root or nested submodule was initialized, reset, cleaned, or modified by this story."
+    }
+  ],
+  "story5Reference": "Story 5.3"
+}
