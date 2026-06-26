@@ -1,0 +1,153 @@
+{
+  "artifact": "final-conformance-contract-diff",
+  "version": "1",
+  "status": "pass",
+  "story": "5.1",
+  "generatedAtUtc": "2026-06-26T14:49:36Z",
+  "commit": {
+    "sha": "f7cee22495eb6eecec97e97a11adb580805edae5",
+    "branch": "main",
+    "baselineCommit": "f7cee22495eb6eecec97e97a11adb580805edae5"
+  },
+  "worktreeState": {
+    "preImplementationStatus": [
+      "M _bmad-output/implementation-artifacts/sprint-status.yaml",
+      "?? _bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md"
+    ],
+    "submoduleState": {
+      "status": "not-initialized-in-this-checkout",
+      "evidence": "git submodule status showed '-' for each root submodule. No root or nested submodules were initialized, reset, cleaned, or modified by Story 5.1."
+    },
+    "intendedStoryChanges": [
+      "docs/release-evidence/final-conformance-contract-diff-v1.json",
+      "docs/release-evidence/final-conformance-contract-diff-v1.md",
+      "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs",
+      "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/tests/test-summary.md"
+    ],
+    "productRuntimeChanged": false,
+    "publicContractsChanged": false,
+    "packageVersionsChanged": false,
+    "appHostTopologyChanged": false,
+    "generatedOutputChanged": false,
+    "siblingSubmoduleSourceChanged": false
+  },
+  "toolchain": {
+    "dotnetSdkRequestedByGlobalJson": "10.0.300",
+    "dotnetSdkResolved": "10.0.301",
+    "dotnetHostRuntime": "10.0.9",
+    "targetFramework": "net10.0",
+    "msBuild": "18.6.4",
+    "testStack": {
+      "xunit": "3.2.2",
+      "shouldly": "4.3.0",
+      "microsoftNetTestSdk": "18.7.0"
+    }
+  },
+  "conformanceRun": {
+    "buildCommand": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1",
+    "buildResult": {
+      "warnings": 0,
+      "errors": 0
+    },
+    "preferredTestCommand": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build /nr:false",
+    "preferredTestResult": {
+      "status": "aborted-before-test-execution",
+      "reason": "VSTest socket creation failed with System.Net.Sockets.SocketException (13): Permission denied"
+    },
+    "fallbackCommand": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
+    "fallbackRunner": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01",
+    "executedAtUtc": "2026-06-26T14:49:36Z",
+    "total": 365,
+    "passed": 365,
+    "errors": 0,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "suiteClassCount": 14,
+    "suiteClassNames": [
+      "AdopterConformanceSuiteTest",
+      "BuyerAcceptanceConformanceSuiteTest",
+      "ConformanceStatusConformanceSuiteTest",
+      "ContractValidationConformanceSuiteTest",
+      "EventSchemaEvolutionConformanceSuiteTest",
+      "IdempotencyConformanceSuiteTest",
+      "PlatformEvidenceSeparationConformanceSuiteTest",
+      "ProviderPortabilityConformanceSuiteTest",
+      "RedactionConformanceSuiteTest",
+      "ReleaseScopeConformanceSuiteTest",
+      "SecondAdopterConformanceSuiteTest",
+      "TelemetryCardinalityConformanceSuiteTest",
+      "TelemetryRedactionConformanceSuiteTest",
+      "TenantIsolationConformanceSuiteTest"
+    ],
+    "releaseGateResult": "pass"
+  },
+  "releaseGateBehaviors": {
+    "tenantIsolation": "covered by TenantIsolationConformanceSuiteTest and adopter tenant-binding checks",
+    "idempotency": "covered by IdempotencyConformanceSuiteTest and live idempotency characterization tests",
+    "contractValidation": "covered by ContractValidationConformanceSuiteTest and baseline contract-shape validation",
+    "redactionReplay": "covered by RedactionConformanceSuiteTest and telemetry redaction checks",
+    "providerPortability": "covered by ProviderPortabilityConformanceSuiteTest",
+    "projectionFreshness": "covered by AdopterConformanceSuiteTest and live projection freshness characterization tests",
+    "governanceAuditPairing": "covered by BuyerAcceptance, ReleaseScope, SecondAdopter, GovernanceAuditPairingSafetyNet, and GovernanceAuditSinkFailClosed conformance tests"
+  },
+  "contractShapeDiff": {
+    "baselineArtifact": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+    "baselineGeneratedBy": "PublicContractShapeSnapshotGenerationTest.GenerateAndSaveContractShapeSnapshotFile",
+    "finalSnapshotMethod": "Temporary Story 5.1 reflection utility mirroring PublicContractShapeSnapshotGenerationTest ordering and serialization; output was outside the repository and not committed.",
+    "baselineTypeCount": 196,
+    "finalTypeCount": 196,
+    "comparison": "byte-for-byte JSON comparison",
+    "diffStatus": "empty",
+    "changedEntries": [],
+    "approvalReferences": [],
+    "baselineGitDiff": "empty"
+  },
+  "baselineReferences": {
+    "story": "_bmad-output/implementation-artifacts/1-1-pin-the-conformance-oracle-green-on-main-and-snapshot-the-public-contract-shape.md",
+    "releaseBaselineJson": "docs/release-evidence/release-baseline-v1.json",
+    "releaseBaselineMarkdown": "docs/release-evidence/release-baseline-v1.md",
+    "publicContractShapeBaseline": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+    "baselineFacts": {
+      "suiteClassCount": 14,
+      "baselineSuiteTests": 214,
+      "baselineProjectTests": 248,
+      "exportedPublicContractTypes": 196
+    }
+  },
+  "priorGateEvidence": {
+    "summary": "Story 5.1 confirms the behavior and contract-shape gate held across the initiative; it is not the first green run.",
+    "references": [
+      "_bmad-output/implementation-artifacts/epic-3-retro-2026-06-24.md",
+      "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md",
+      "_bmad-output/implementation-artifacts/4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline.md"
+    ],
+    "latestPriorConformanceCount": {
+      "source": "Story 4.2 verification results",
+      "total": 361,
+      "passed": 361,
+      "failed": 0,
+      "skipped": 0
+    }
+  },
+  "environmentLimitations": [
+    {
+      "area": "test-runner",
+      "limitation": "VSTest could not create its local socket in this sandbox and aborted before executing tests.",
+      "mitigation": "Built the Release test project and ran the compiled xUnit v3 executable directly."
+    },
+    {
+      "area": "submodules",
+      "limitation": "Root submodules were not initialized in this checkout.",
+      "mitigation": "Recorded the state and did not initialize, reset, clean, or modify root or nested submodules."
+    },
+    {
+      "area": "carry-forward",
+      "limitation": "OQ-2 target confirmation, removed-test ledger reconciliation, retained Conformance.Tests to Server reference reconciliation, and projection read-store population proof remain adjacent Epic 5 items.",
+      "mitigation": "Recorded conformance and contract-shape evidence only; did not claim those adjacent items are resolved."
+    }
+  ],
+  "story5Reference": "Story 5.3"
+}

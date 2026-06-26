@@ -2,42 +2,39 @@
 
 ## Story
 
-Story 4.2 - Measure and record the minimal-module authoring cost (SM-2 baseline).
+Story 5.1 - Final full-module conformance run + consolidated public-contract-shape diff.
 
 ## Generated Tests
 
 ### API Tests
 
-- [x] Not applicable: Story 4.2 adds release evidence and documentation validation only. It does not add API endpoints, services, runtime behavior, or public Conversations contracts.
+- [x] Not applicable: Story 5.1 is an evidence and release-gate validation story. It does not add API endpoints, services, runtime behavior, or public Conversations contracts.
 
 ### E2E Tests
 
-- [x] `tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs` - Validates the Story 4.2 SM-2 evidence artifacts end to end from committed JSON/Markdown files.
-- [x] Added QA gap coverage that derives comparison percentages from recorded values and confirms the Markdown summary remains aligned with the machine-readable JSON totals.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs` - Validates the Story 5.1 final conformance and public contract-shape diff evidence end to end from the committed JSON/Markdown artifacts.
 
 ## Coverage
 
-- SM-2 evidence artifacts: 2/2 covered (`docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json`, `docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md`).
-- Story 4.1 source references: 2/2 covered (`docs/domain-module-authoring-template.md`, `docs/release-evidence/thin-authoring-template-validation-v1.md`).
-- Included category boundary: 8/8 covered.
-- Excluded category boundary: 8/8 covered.
-- Manifest/totals reconciliation: covered for file count, LOC, and per-category totals.
-- Story 5.3-readable fields: covered for `templateMinimal`, `preInitiativeEquivalent`, `comparison`, `oq2Status`, `measurementDate`, and `sourceArtifactReferences`.
-- Critical error/guard cases: covered for build output paths, generated output references, local absolute paths, optional Admin/Web and FrontComposer surfaces, comparison math drift, and Markdown/JSON total drift.
+- Story 5.1 evidence artifacts: 2/2 covered (`docs/release-evidence/final-conformance-contract-diff-v1.json`, `docs/release-evidence/final-conformance-contract-diff-v1.md`).
+- Story 1.1 baseline references: 3/3 covered (`docs/release-evidence/release-baseline-v1.json`, `docs/release-evidence/release-baseline-v1.md`, `docs/release-evidence/public-contract-shape-baseline-v1.json`).
+- Final conformance counts: covered for 365 total, 365 passed, 0 errors, 0 failed, 0 skipped, and 0 not run.
+- Contract-shape diff: covered for baseline/final type counts, byte-for-byte comparison, empty diff status, changed entries, and approval-reference requirements.
+- Critical error/guard cases: covered for missing artifacts, Markdown/JSON drift, missing baseline files, count drift, non-empty unapproved contract diff, local absolute paths, `obj/` evidence, generated output evidence, and improper `bin/` source-of-truth evidence.
 
 ## Validation
 
-- [x] `dotnet build tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj -c Release --no-restore /nr:false /m:1`
+- [x] `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1`
   - Result: passed, 0 warnings, 0 errors.
-- [x] `tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests -class Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest`
-  - Result: passed, 7 total, 0 failed.
-- [x] `tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests`
-  - Result: passed, 618 total, 0 failed.
-- [x] `git diff -- docs/release-evidence/public-contract-shape-baseline-v1.json`
-  - Result: empty.
+- [x] `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build /nr:false`
+  - Result: aborted before test execution because VSTest socket creation failed with `System.Net.Sockets.SocketException (13): Permission denied`.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.FinalConformanceContractDiffEvidenceValidationTest`
+  - Result: passed, 4 total, 0 errors, 0 failed, 0 skipped, 0 not run.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests`
+  - Result: passed, 365 total, 0 errors, 0 failed, 0 skipped, 0 not run.
 
 ## Notes
 
 - No browser UI exists for this story, so no Playwright suite was added.
 - No API runtime surface exists for this story, so API tests are not applicable.
-- The applicable E2E/release-evidence lane is a documentation validation test that reads the committed artifacts as a reviewer or Story 5.3 consumer would.
+- The applicable E2E/release-evidence lane is a conformance validation test that reads the final Story 5.1 evidence artifacts as a reviewer or Story 5.3 consumer would.
