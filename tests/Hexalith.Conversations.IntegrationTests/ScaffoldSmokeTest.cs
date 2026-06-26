@@ -140,7 +140,10 @@ public sealed class ScaffoldSmokeTest
 
         AssertProjectReferences(
             root,
-            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj");
+            "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+            // Story 3.6 (FR-14): Contracts consumes the promoted shared serialization bases while preserving
+            // the public contract boundary and wire shape.
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj");
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
@@ -162,6 +165,11 @@ public sealed class ScaffoldSmokeTest
             // domain-service host SDK. Deliberate premise change recorded in the FR-20 ledger
             // (docs/release-evidence/at-risk-test-register-v1.*, story21StructuralDispositions).
             $"{eventStoreRoot}/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj",
+            // Stories 3.2, 3.3, 3.5, and 3.6 promoted shared Commons helpers consumed by Server.
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj",
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Publication/Hexalith.Commons.Publication.csproj",
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj",
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj",
             $"{tenantsRoot}/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
             $"{tenantsRoot}/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj");
         AssertProjectReferences(
@@ -177,6 +185,9 @@ public sealed class ScaffoldSmokeTest
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+            // Story 3.5 (FR-13): AppHost consumes shared Aspire/Dapr hosting helpers.
+            $"{commonsRoot}/src/libraries/Hexalith.Commons.Aspire/Hexalith.Commons.Aspire.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj",
             "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj");
     }

@@ -1,0 +1,389 @@
+{
+  "artifact": "minimal-module-authoring-cost-sm2-baseline",
+  "version": 1,
+  "status": "accepted",
+  "measurementDate": "2026-06-26",
+  "templateReference": {
+    "path": "docs/domain-module-authoring-template.md",
+    "anchor": "Minimal Project Skeleton"
+  },
+  "boundaryReference": {
+    "path": "docs/release-evidence/thin-authoring-template-validation-v1.md",
+    "anchor": "Story 4.2 handoff"
+  },
+  "countingMethod": {
+    "kind": "manifest-only-logical-skeleton",
+    "locMetric": "physical non-blank logical lines in the minimal hand-authored file bodies represented by each manifest row",
+    "fileMetric": "one hand-authored module-owned file per manifest row",
+    "deterministicSteps": [
+      "Use the includedCategories and excludedCategories arrays from this artifact without redefining scope.",
+      "Count only manifest rows under templateMinimal.manifest where counted is true.",
+      "Sum templateMinimal.manifest[*].loc for total LOC.",
+      "Group manifest rows by category to reproduce templateMinimal.categoryTotals.",
+      "Ignore bin/, obj/, generated output, package caches, local IDE artifacts, local machine paths, shared platform libraries, and sibling submodule source."
+    ],
+    "reconciliationFormula": "templateMinimal.fileCount = count(templateMinimal.manifest); templateMinimal.loc = sum(templateMinimal.manifest[*].loc)"
+  },
+  "includedCategories": [
+    "Contracts",
+    "Client",
+    "domain/core",
+    "Server",
+    "AppHost",
+    "ServiceDefaults",
+    "Testing",
+    "focused test projects"
+  ],
+  "excludedCategories": [
+    "Admin.Web",
+    "FrontComposer trust components",
+    "publication subscribers",
+    "governance workflows",
+    "generated output",
+    "local developer artifacts",
+    "shared platform libraries",
+    "sibling submodule source"
+  ],
+  "sourceArtifactReferences": [
+    "docs/domain-module-authoring-template.md#Minimal-Project-Skeleton",
+    "docs/release-evidence/thin-authoring-template-validation-v1.md#Story-42-handoff",
+    "docs/release-evidence/consume-promote-keep-inventory-v1.md#Plumbing-derivation",
+    "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md#SM-2-New-module-authoring-cost",
+    "_bmad-output/planning-artifacts/implementation-readiness-report-2026-06-08.md#Major-Issues-go-forward-readiness"
+  ],
+  "templateMinimal": {
+    "basis": "Logical manifest for a minimal do-nothing-but-valid domain module on the Story 4.1 authoring template.",
+    "validityProof": "Manifest-only measurement. No product module was added under src/. The skeleton is considered valid for SM-2 because every counted row maps to the accepted Story 4.1 minimal project categories and every optional/deferred category is excluded. This story did not create and compile a throwaway project, so the build-validity claim is limited to the accepted template boundary rather than a committed source tree.",
+    "fileCount": 29,
+    "loc": 468,
+    "categoryTotals": [
+      {
+        "category": "Contracts",
+        "fileCount": 7,
+        "loc": 90
+      },
+      {
+        "category": "Client",
+        "fileCount": 4,
+        "loc": 57
+      },
+      {
+        "category": "domain/core",
+        "fileCount": 4,
+        "loc": 72
+      },
+      {
+        "category": "Server",
+        "fileCount": 7,
+        "loc": 117
+      },
+      {
+        "category": "AppHost",
+        "fileCount": 3,
+        "loc": 56
+      },
+      {
+        "category": "ServiceDefaults",
+        "fileCount": 0,
+        "loc": 0
+      },
+      {
+        "category": "Testing",
+        "fileCount": 0,
+        "loc": 0
+      },
+      {
+        "category": "focused test projects",
+        "fileCount": 4,
+        "loc": 76
+      }
+    ],
+    "manifest": [
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Hexalith.ExampleModule.Contracts.csproj",
+        "fileType": "project",
+        "loc": 10,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/ExampleModuleAssemblyMarker.cs",
+        "fileType": "source",
+        "loc": 8,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Identifiers/ExampleItemId.cs",
+        "fileType": "source",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Commands/CreateExampleItem.cs",
+        "fileType": "source",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Events/ExampleItemCreated.cs",
+        "fileType": "source",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Queries/ExampleItemProjection.cs",
+        "fileType": "source",
+        "loc": 18,
+        "counted": true
+      },
+      {
+        "category": "Contracts",
+        "logicalPath": "src/Hexalith.ExampleModule.Contracts/Serialization/ExampleModuleJsonContext.cs",
+        "fileType": "source",
+        "loc": 12,
+        "counted": true
+      },
+      {
+        "category": "Client",
+        "logicalPath": "src/Hexalith.ExampleModule.Client/Hexalith.ExampleModule.Client.csproj",
+        "fileType": "project",
+        "loc": 10,
+        "counted": true
+      },
+      {
+        "category": "Client",
+        "logicalPath": "src/Hexalith.ExampleModule.Client/ExampleModuleClientOptions.cs",
+        "fileType": "source",
+        "loc": 16,
+        "counted": true
+      },
+      {
+        "category": "Client",
+        "logicalPath": "src/Hexalith.ExampleModule.Client/IExampleModuleClient.cs",
+        "fileType": "source",
+        "loc": 13,
+        "counted": true
+      },
+      {
+        "category": "Client",
+        "logicalPath": "src/Hexalith.ExampleModule.Client/ExampleModuleClientServiceCollectionExtensions.cs",
+        "fileType": "source",
+        "loc": 18,
+        "counted": true
+      },
+      {
+        "category": "domain/core",
+        "logicalPath": "src/Hexalith.ExampleModule/Hexalith.ExampleModule.csproj",
+        "fileType": "project",
+        "loc": 12,
+        "counted": true
+      },
+      {
+        "category": "domain/core",
+        "logicalPath": "src/Hexalith.ExampleModule/Aggregates/ExampleItemAggregate.cs",
+        "fileType": "source",
+        "loc": 30,
+        "counted": true
+      },
+      {
+        "category": "domain/core",
+        "logicalPath": "src/Hexalith.ExampleModule/Aggregates/ExampleItemState.cs",
+        "fileType": "source",
+        "loc": 16,
+        "counted": true
+      },
+      {
+        "category": "domain/core",
+        "logicalPath": "src/Hexalith.ExampleModule/Validation/ExampleItemValidation.cs",
+        "fileType": "source",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/Hexalith.ExampleModule.Server.csproj",
+        "fileType": "project",
+        "loc": 15,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/Program.cs",
+        "fileType": "source",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/ServerAssemblyMarker.cs",
+        "fileType": "source",
+        "loc": 8,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/ExampleModuleServiceCollectionExtensions.cs",
+        "fileType": "source",
+        "loc": 16,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/TenantAccess/ExampleTenantAccessServiceCollectionExtensions.cs",
+        "fileType": "source",
+        "loc": 18,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/Projections/ExampleProjectionHandler.cs",
+        "fileType": "source",
+        "loc": 24,
+        "counted": true
+      },
+      {
+        "category": "Server",
+        "logicalPath": "src/Hexalith.ExampleModule.Server/Queries/ExampleQueryHandler.cs",
+        "fileType": "source",
+        "loc": 22,
+        "counted": true
+      },
+      {
+        "category": "AppHost",
+        "logicalPath": "src/Hexalith.ExampleModule.AppHost/Hexalith.ExampleModule.AppHost.csproj",
+        "fileType": "project",
+        "loc": 12,
+        "counted": true
+      },
+      {
+        "category": "AppHost",
+        "logicalPath": "src/Hexalith.ExampleModule.AppHost/Program.cs",
+        "fileType": "source",
+        "loc": 20,
+        "counted": true
+      },
+      {
+        "category": "AppHost",
+        "logicalPath": "src/Hexalith.ExampleModule.AppHost/ExampleModuleAppHostTopology.cs",
+        "fileType": "source",
+        "loc": 24,
+        "counted": true
+      },
+      {
+        "category": "focused test projects",
+        "logicalPath": "tests/Hexalith.ExampleModule.Tests/Hexalith.ExampleModule.Tests.csproj",
+        "fileType": "project",
+        "loc": 14,
+        "counted": true
+      },
+      {
+        "category": "focused test projects",
+        "logicalPath": "tests/Hexalith.ExampleModule.Tests/MinimalModuleContractShapeTest.cs",
+        "fileType": "test",
+        "loc": 18,
+        "counted": true
+      },
+      {
+        "category": "focused test projects",
+        "logicalPath": "tests/Hexalith.ExampleModule.Tests/ExampleAggregateTest.cs",
+        "fileType": "test",
+        "loc": 24,
+        "counted": true
+      },
+      {
+        "category": "focused test projects",
+        "logicalPath": "tests/Hexalith.ExampleModule.Tests/ExampleServerCompositionTest.cs",
+        "fileType": "test",
+        "loc": 20,
+        "counted": true
+      }
+    ]
+  },
+  "preInitiativeEquivalent": {
+    "basis": "Estimated from the accepted Story 1.4 Consume/Promote/Keep inventory and Story 4.1 live capability mapping. No accepted artifact reconstructs an exact buildable pre-template minimal skeleton, so this is not a measured value.",
+    "measurementType": "estimated",
+    "confidence": "low",
+    "fileCount": 58,
+    "loc": 1460,
+    "limitation": "The comparison is directional evidence only. It must not be used to close OQ-2 or claim the assumed SM-2 target is met without a later approved decision.",
+    "incrementalLocalCapabilityEstimate": [
+      {
+        "capability": "shared host/API wiring",
+        "sourceInventoryArea": "shared-host-api",
+        "additionalFiles": 4,
+        "additionalLoc": 120
+      },
+      {
+        "capability": "query handler and cursor orchestration",
+        "sourceInventoryArea": "query-cursor-orchestration",
+        "additionalFiles": 4,
+        "additionalLoc": 170
+      },
+      {
+        "capability": "read model store/write policy wiring",
+        "sourceInventoryArea": "Story 2.4 read-model adoption evidence",
+        "additionalFiles": 3,
+        "additionalLoc": 110
+      },
+      {
+        "capability": "projection replay seam",
+        "sourceInventoryArea": "projection-orchestration",
+        "additionalFiles": 4,
+        "additionalLoc": 160
+      },
+      {
+        "capability": "tenant access projection",
+        "sourceInventoryArea": "tenant-access-projection",
+        "additionalFiles": 4,
+        "additionalLoc": 150
+      },
+      {
+        "capability": "typed client registration",
+        "sourceInventoryArea": "typed-client-registration",
+        "additionalFiles": 2,
+        "additionalLoc": 70
+      },
+      {
+        "capability": "Aspire and service defaults hosting glue",
+        "sourceInventoryArea": "apphost-greenfield plus service-defaults-greenfield",
+        "additionalFiles": 3,
+        "additionalLoc": 80
+      },
+      {
+        "capability": "serialization/context helper",
+        "sourceInventoryArea": "generic-serialization-converters",
+        "additionalFiles": 2,
+        "additionalLoc": 62
+      },
+      {
+        "capability": "diagnostics telemetry scaffolding",
+        "sourceInventoryArea": "diagnostics-telemetry-scaffolding",
+        "additionalFiles": 3,
+        "additionalLoc": 70
+      }
+    ]
+  },
+  "comparison": {
+    "templateMinimalFileCount": 29,
+    "templateMinimalLoc": 468,
+    "preInitiativeFileCount": 58,
+    "preInitiativeLoc": 1460,
+    "fileReductionPercentage": 50.0,
+    "locReductionPercentage": 67.95,
+    "targetAssumption": ">=50% fewer files for a minimal module",
+    "targetStatus": "unconfirmed-estimate-only",
+    "reductionPercentageFormula": "(preInitiativeEquivalent - templateMinimal) / preInitiativeEquivalent * 100",
+    "limitations": [
+      "The template minimal value is a manifest baseline, not a committed throwaway module build.",
+      "The pre-initiative equivalent is estimated because no accepted artifact preserves an exact buildable pre-template skeleton.",
+      "OQ-2 remains unconfirmed even though the directional estimate shows a thinner authoring surface."
+    ]
+  },
+  "oq2Status": "unconfirmed",
+  "story5Reference": "Story 5.3"
+}
