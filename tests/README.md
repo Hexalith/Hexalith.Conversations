@@ -56,6 +56,23 @@ Collect coverage:
 dotnet test Hexalith.Conversations.slnx --collect:"XPlat Code Coverage"
 ```
 
+## VSTest Socket Fallback
+
+Some restricted sandboxes block VSTest from creating local sockets even when the test assembly itself is valid. When that happens, build the affected test project and run the compiled xUnit v3 executable directly:
+
+```powershell
+dotnet build tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj -c Release --no-restore /nr:false /m:1
+tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests
+```
+
+For focused documentation lanes, pass the xUnit class filter to the executable:
+
+```powershell
+tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests -class Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest
+```
+
+Record both facts in story evidence: the VSTest socket failure and the direct xUnit executable result. If a test host needs to allocate a local port, classify socket permission failures as environment-limited unless another failure proves a product regression.
+
 ## Architecture
 
 Test projects mirror production package boundaries:
@@ -93,4 +110,3 @@ Upload `TestResults/` as the coverage artifact when CI is configured.
 ## Knowledge References
 
 This scaffold applies Murat knowledge fragments: `fixture-architecture`, `test-levels-framework`, `test-quality`, and `playwright-config` for future UI expansion.
-

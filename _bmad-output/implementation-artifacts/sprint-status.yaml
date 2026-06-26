@@ -38,7 +38,8 @@
 
 generated: 2026-06-02
 last_updated: 2026-06-26
-# story 4-2 moved ready-for-dev -> in-progress -> review on 2026-06-26 (SM-2 minimal-module authoring-cost baseline recorded as manifest-only evidence: template minimal = 29 files / 468 LOC; pre-initiative equivalent = estimated low-confidence 58 files / 1,460 LOC; directional reductions = 50.00% files / 67.95% LOC; OQ-2 remains unconfirmed. Added docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.{json,md} and focused Contracts documentation validator. Release contracts build 0 warnings; focused validator 5/5; Contracts 616/616; non-Admin Release xUnit lanes green including Integration 8/8 after stale scaffold project-reference expectations were aligned to current Epic 3 promotion refs; public-contract-shape diff empty. Admin.Web lane remains sandbox-limited by socket permission during local port allocation.)
+# epic-4 retrospective completed on 2026-06-26 (autonomous YOLO run; doc=epic-4-retro-2026-06-26.md); epic-4 in-progress -> done (both stories 4.1-4.2 done); epic-4-retrospective optional -> done. Key findings: FR-18/FR-19 delivered through template + SM-2 artifacts, template minimal baseline accepted at 29 files / 468 LOC, pre-initiative equivalent remains low-confidence estimated at 58 files / 1,460 LOC, OQ-2 remains unconfirmed, public-contract-shape diff empty, stale verification-count corrections recurred in both stories. Carry into Epic 5: mechanical final-record gate, canonical VSTest fallback guidance, OQ-2 target decision/deferral, projection read-store population proof/deferral, scaffold-reference reconciliation, and Conformance.Tests->Server ledger reconciliation.
+# story 4-2 moved ready-for-dev -> in-progress -> review on 2026-06-26 (SM-2 minimal-module authoring-cost baseline recorded as manifest-only evidence: template minimal = 29 files / 468 LOC; pre-initiative equivalent = estimated low-confidence 58 files / 1,460 LOC; directional reductions = 50.00% files / 67.95% LOC; OQ-2 remains unconfirmed. Added docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.{json,md} and focused Contracts documentation validator. Release contracts build 0 warnings; focused validator 7/7; Contracts 618/618; non-Admin Release xUnit lanes green including Integration 8/8 after stale scaffold project-reference expectations were aligned to current Epic 3 promotion refs; public-contract-shape diff empty. Admin.Web lane remains sandbox-limited by socket permission during local port allocation.)
 # story 4-2 created (backlog -> ready-for-dev) on 2026-06-26 (FR-19 / SM-2 minimal-module authoring-cost baseline. Context created as docs/evidence story: create docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.{json,md}, measure only the Story 4.1 accepted minimal boundary, exclude Admin.Web/FrontComposer trust components/publication/governance/generated/local/sibling-source surfaces, compare against pre-initiative equivalent without claiming OQ-2 resolved, expose machine-readable fields for Story 5.3, add focused documentation validation tests, preserve public-contract-shape diff empty, and keep existing dirty Commons/story-automator state out of scope.)
 # story 4-1 created (backlog -> ready-for-dev) on 2026-06-24 (FR-18 documented thin authoring template. Context created as documentation-and-validation story, not a refactor: author docs/domain-module-authoring-template.md and docs/release-evidence/thin-authoring-template-validation-v1.md from live post-refactor Conversations, enumerate real one-liner adoption paths for shared host, aggregate base, query/cursor, read-model store/write policy, projection seam, tenant access, typed client, Aspire/Dapr, ServiceDefaults, serialization/JSON context, telemetry, and testing/evidence; mark Admin.Web/FrontComposer and FR-16 public DTO metadata adoption as optional/deferred where appropriate; add focused documentation tests; hand Story 4.2 a measurable minimal-module boundary; keep public-contract-shape diff empty and root-only submodule mechanics.)
 # story 3-7 created (backlog -> ready-for-dev) on 2026-06-24 (FR-16 compile-time command/event contract metadata, conditional OQ-4. Current discovery: ICommandContract already exists in EventStore.Contracts, IEventContract is missing, and direct adoption is only safe if it preserves Conversations public PascalCase command/event vocabularies, CreateConversation boundary-owned aggregate identity, contract-shape diff empty, conformance >=361, sibling builds, and root-only submodule mechanics. Unsafe portions must be deferred with rationale rather than reshaping public contracts.)
@@ -109,10 +110,10 @@ development_status:
   3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration: done
   3-7-promote-adopt-compile-time-command-event-contract-metadata: done
   epic-3-retrospective: done
-  epic-4: in-progress
+  epic-4: done
   4-1-document-the-thin-authoring-template-validated-against-post-refactor-conversations: done
   4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline: done
-  epic-4-retrospective: optional
+  epic-4-retrospective: done
   epic-5: backlog
   5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff: backlog
   5-2-reconcile-the-removed-test-justification-ledger: backlog
@@ -131,7 +132,7 @@ action_items:
   - epic: 3
     action: "Document the approved VSTest fallback: build affected projects and run compiled xUnit v3 executables when socket creation is blocked."
     owner: "Test workflow"
-    status: open
+    status: in-progress
   - epic: 3
     action: "Resolve or explicitly defer the read-store population gap with evidence before final attestation."
     owner: "Developer/Architect"
@@ -143,12 +144,40 @@ action_items:
   - epic: 3
     action: "Keep EventStore command/event metadata resolvers optional in the template until a production consumer exists."
     owner: "Architect/EventStore owner"
-    status: open
+    status: done
   - epic: 3
     action: "Complete Story 4.1 review with attention to optional/deferred surfaces and read-model wording."
     owner: "Tech writer/Reviewer"
-    status: open
+    status: done
   - epic: 3
     action: "Execute Story 4.2 against the accepted Story 4.1 measurement boundary without adding optional surfaces into SM-2."
     owner: "Developer/Release owner"
+    status: done
+  - epic: 4
+    action: "Add a mechanical final-record check for Epic 5 story completion that verifies test counts, file lists, changed docs/evidence, and public-contract-shape diff state from the final working tree."
+    owner: "Dev workflow"
+    status: open
+  - epic: 4
+    action: "Promote the xUnit v3 executable fallback from story-local notes into reusable test workflow guidance."
+    owner: "Test workflow"
+    status: open
+  - epic: 4
+    action: "Resolve OQ-2 or explicitly record it as unresolved in Story 5.3 before interpreting SM-1 or SM-2 target status."
+    owner: "Product/Release owner"
+    status: open
+  - epic: 4
+    action: "Consume minimal-module-authoring-cost-sm2-baseline-v1.json directly in the Story 5.3 success-metric report."
+    owner: "Release owner"
+    status: open
+  - epic: 4
+    action: "Prove or explicitly defer the projection read-store population gap before final attestation."
+    owner: "Developer/Architect"
+    status: open
+  - epic: 4
+    action: "Reconcile exact scaffold/project-reference guards against live project files as part of final attestation."
+    owner: "Developer/Quality"
+    status: open
+  - epic: 4
+    action: "Reconcile the retained Conformance.Tests to Server reference during Story 5.2 ledger work."
+    owner: "Developer/Quality"
     status: open

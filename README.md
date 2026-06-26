@@ -2,7 +2,7 @@
 
 Hexalith.Conversations is a tenant-scoped conversations module scaffold for the Hexalith ecosystem.
 
-This module began as an intentionally non-operative scaffold establishing project boundaries, central package management, smoke tests, and ADR tracking. As of the Epic 2 boilerplate-reduction work, the `Hexalith.Conversations.Server` host is now wired onto the shared EventStore domain-service host (`AddEventStoreDomainService` / `UseEventStoreDomainService`), and the core domain behavior is implemented and conformance-gated: aggregate command dispatch/replay on `EventStoreAggregate<TState>`, query handling via the SDK query-handler + cursor-codec seams, read-model persistence via the shared read-model store + write policy, projections via the SDK projection seam, and fail-closed tenant authorization. Provider integrations, workers, and FrontComposer runtime behavior are still out of scope, and full local runtime topology — the Aspire/Dapr host wiring and the shared ServiceDefaults base — remains a scaffold placeholder pending Epic 3.
+This module began as an intentionally non-operative scaffold establishing project boundaries, central package management, smoke tests, and ADR tracking. As of the boilerplate-reduction work through Epic 4, the `Hexalith.Conversations.Server` host is wired onto the shared EventStore domain-service host (`AddEventStoreDomainService` / `UseEventStoreDomainService`), and the core domain behavior is implemented and conformance-gated: aggregate command dispatch/replay on `EventStoreAggregate<TState>`, query handling via the SDK query-handler + cursor-codec seams, read-model persistence via the shared read-model store + write policy, projections via the SDK projection seam, and fail-closed tenant authorization. The local Aspire/Dapr topology now consumes the shared domain-module hosting helper, and the ServiceDefaults project provides a module-owned hook over the shared ServiceDefaults base. Provider integrations, workers, and FrontComposer runtime behavior remain out of scope.
 
 ## Contract Package Guidance
 
@@ -130,6 +130,8 @@ dotnet restore Hexalith.Conversations.slnx
 dotnet build Hexalith.Conversations.slnx
 dotnet test Hexalith.Conversations.slnx
 ```
+
+If the local sandbox blocks VSTest socket creation, build the affected test project and run its compiled xUnit v3 executable directly. See [test framework guidance](tests/README.md#vstest-socket-fallback).
 
 The scaffold smoke checks must not require Aspire runtime launch, Dapr sidecars, tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization.
 
