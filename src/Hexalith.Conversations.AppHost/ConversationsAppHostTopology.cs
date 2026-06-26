@@ -16,6 +16,8 @@ using Hexalith.EventStore.Aspire;
 /// </summary>
 public static class ConversationsAppHostTopology
 {
+    private const string KeycloakRealmsDirectoryName = "KeycloakRealms";
+
     /// <summary>
     /// The local EventStore command-gateway resource name and Dapr app id.
     /// </summary>
@@ -50,6 +52,12 @@ public static class ConversationsAppHostTopology
     {
         ArgumentNullException.ThrowIfNull(builder);
 
+        HexalithEventStoreSecurityResources? security = builder.AddHexalithEventStoreSecurity(
+            new HexalithEventStoreSecurityOptions
+            {
+                RealmImportPath = ResolveKeycloakRealmImportPath(builder.AppHostDirectory),
+            });
+
         IResourceBuilder<ProjectResource> eventStoreProject = builder.AddHexalithEventStoreGatewayProject(EventStoreResourceName);
         HexalithEventStoreResources eventStoreResources = builder.AddHexalithEventStore(
             eventStoreProject,
@@ -64,6 +72,12 @@ public static class ConversationsAppHostTopology
             WaitFor = [eventStoreResources.EventStore],
         });
 
+        if (security is not null)
+        {
+            _ = eventStoreResources.EventStore.WithJwtBearerSecurity(security);
+            _ = conversationsServer.WithJwtBearerSecurity(security);
+        }
+
         IResourceBuilder<ProjectResource> adminWeb = builder
             .AddProject<Projects.Hexalith_Conversations_Admin_Web>(AdminWebResourceName)
             .WithReference(conversationsServer)
@@ -74,6 +88,30 @@ public static class ConversationsAppHostTopology
             eventStoreResources.PubSub,
             eventStoreResources.EventStore,
             conversationsServer,
-            adminWeb);
+            adminWeb,
+            security);
+    }
+
+    private static string ResolveKeycloakRealmImportPath(string appHostDirectory)
+    {
+        string[] candidates =
+        [
+            Path.Combine(appHostDirectory, KeycloakRealmsDirectoryName),
+            Path.Combine(Directory.GetCurrentDirectory(), KeycloakRealmsDirectoryName),
+            Path.Combine(Directory.GetCurrentDirectory(), "src", "Hexalith.Conversations.AppHost", KeycloakRealmsDirectoryName),
+            Path.GetFullPath(Path.Combine(
+                AppContext.BaseDirectory,
+                "..",
+                "..",
+                "..",
+                "..",
+                "..",
+                "src",
+                "Hexalith.Conversations.AppHost",
+                KeycloakRealmsDirectoryName)),
+        ];
+
+        string? existingPath = candidates.FirstOrDefault(Directory.Exists);
+        return existingPath ?? Path.Combine(appHostDirectory, KeycloakRealmsDirectoryName);
     }
 }

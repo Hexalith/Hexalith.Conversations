@@ -9,6 +9,9 @@ using Aspire.Hosting.ApplicationModel;
 using CommunityToolkit.Aspire.Hosting.Dapr;
 
 using Hexalith.Conversations.AppHost;
+using Hexalith.EventStore.Aspire;
+
+using Microsoft.Extensions.Configuration;
 
 namespace Hexalith.Conversations.AppHost.Tests;
 
@@ -27,7 +30,7 @@ public sealed class ConversationsAppHostTopologyTest
     [Fact]
     public void ConversationsAppHostShouldModelEventStoreServerAdminAndSharedDaprResources()
     {
-        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder();
+        IDistributedApplicationBuilder builder = CreateBuilder();
 
         ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
 
@@ -36,6 +39,8 @@ public sealed class ConversationsAppHostTopologyTest
         resources.AdminWeb.Resource.Name.ShouldBe(ConversationsAppHostTopology.AdminWebResourceName);
         resources.StateStore.Resource.Name.ShouldBe(ConversationsAppHostTopology.StateStoreComponentName);
         resources.PubSub.Resource.Name.ShouldBe(ConversationsAppHostTopology.PubSubComponentName);
+        resources.Security.ShouldNotBeNull();
+        resources.Security!.Keycloak.Resource.Name.ShouldBe(HexalithEventStoreSecurityOptions.DefaultResourceName);
 
         string[] projectNames = [.. builder.Resources.OfType<ProjectResource>().Select(static resource => resource.Name).Order(StringComparer.Ordinal)];
         projectNames.ShouldBe(
@@ -51,12 +56,15 @@ public sealed class ConversationsAppHostTopologyTest
             ConversationsAppHostTopology.PubSubComponentName,
             ConversationsAppHostTopology.StateStoreComponentName,
         ]);
+
+        string[] resourceNames = [.. builder.Resources.Select(static resource => resource.Name).Order(StringComparer.Ordinal)];
+        resourceNames.ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
     }
 
     [Fact]
     public void ConversationsServerShouldUseSharedDaprSidecarAndWaitForEventStore()
     {
-        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder();
+        IDistributedApplicationBuilder builder = CreateBuilder();
 
         ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
 
@@ -67,12 +75,26 @@ public sealed class ConversationsAppHostTopologyTest
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.PubSubComponentName);
         ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.EventStoreResourceName);
         ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.EventStoreResourceName);
+        ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+    }
+
+    [Fact]
+    public void EventStoreShouldUseSharedSecurityWhenKeycloakIsEnabled()
+    {
+        IDistributedApplicationBuilder builder = CreateBuilder();
+
+        ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
+
+        resources.Security.ShouldNotBeNull();
+        ResourceNamesReferencedBy(resources.EventStore.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesWaitedOnBy(resources.EventStore.Resource).ShouldContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
     }
 
     [Fact]
     public void AdminWebShouldReferenceAndWaitForConversationsServer()
     {
-        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder();
+        IDistributedApplicationBuilder builder = CreateBuilder();
 
         ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
 
@@ -83,6 +105,35 @@ public sealed class ConversationsAppHostTopologyTest
     [Fact]
     public void AddConversationsShouldFailClosedAgainstNullBuilder()
         => Should.Throw<ArgumentNullException>(() => ConversationsAppHostTopology.AddConversations(null!));
+
+    [Fact]
+    public void AddConversationsShouldOmitSecurityWhenKeycloakIsDisabled()
+    {
+        IDistributedApplicationBuilder builder = CreateBuilder(enableKeycloak: false);
+
+        ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
+
+        resources.Security.ShouldBeNull();
+        builder.Resources.Select(static resource => resource.Name).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesReferencedBy(resources.EventStore.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesReferencedBy(resources.ConversationsServer.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesWaitedOnBy(resources.EventStore.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+        ResourceNamesWaitedOnBy(resources.ConversationsServer.Resource).ShouldNotContain(HexalithEventStoreSecurityOptions.DefaultResourceName);
+    }
+
+    private static IDistributedApplicationBuilder CreateBuilder(bool enableKeycloak = true)
+    {
+        IDistributedApplicationBuilder builder = DistributedApplication.CreateBuilder();
+        if (!enableKeycloak)
+        {
+            _ = builder.Configuration.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                [HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey] = "false",
+            });
+        }
+
+        return builder;
+    }
 
     private static DaprSidecarOptions GetSidecarOptions(ProjectResource resource)
         => resource.Annotations

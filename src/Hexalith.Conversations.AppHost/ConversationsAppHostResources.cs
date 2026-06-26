@@ -9,6 +9,8 @@ using Aspire.Hosting.ApplicationModel;
 
 using CommunityToolkit.Aspire.Hosting.Dapr;
 
+using Hexalith.EventStore.Aspire;
+
 /// <summary>
 /// Contains the Conversations AppHost resources composed for local development.
 /// </summary>
@@ -17,9 +19,11 @@ using CommunityToolkit.Aspire.Hosting.Dapr;
 /// <param name="EventStore">The local EventStore command gateway project.</param>
 /// <param name="ConversationsServer">The Conversations domain server project.</param>
 /// <param name="AdminWeb">The Conversations admin web project.</param>
+/// <param name="Security">The optional local security resources used when Keycloak is enabled.</param>
 public sealed record ConversationsAppHostResources(
     IResourceBuilder<IDaprComponentResource> StateStore,
     IResourceBuilder<IDaprComponentResource> PubSub,
     IResourceBuilder<ProjectResource> EventStore,
     IResourceBuilder<ProjectResource> ConversationsServer,
-    IResourceBuilder<ProjectResource> AdminWeb);
+    IResourceBuilder<ProjectResource> AdminWeb,
+    HexalithEventStoreSecurityResources? Security);
