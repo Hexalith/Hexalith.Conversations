@@ -1,6 +1,6 @@
 # Contract Compatibility and Deprecation Policy
 
-This policy is the FR81 adopter-facing compatibility policy for Conversations contracts. It defines how release owners classify contract changes before later release-evidence stories create signed artifacts, versioned manifests, waiver aggregation, or release-gate decisions.
+This policy is the FR81 adopter-facing compatibility policy for Conversations contracts. It defines how release owners classify contract changes and how those classifications feed release evidence, versioned manifests, waiver aggregation, and release-gate decisions.
 
 The policy applies to the public contract surfaces adopters consume: commands, projections, published events, typed errors, version discovery, the contracts package, and the .NET client package. Persisted event history remains replay-safe and authoritative for conversation state, but it is not the same surface as published events, command contracts, projection contracts, typed errors, version discovery metadata, or client package compatibility.
 
@@ -24,7 +24,7 @@ The v1 minimum supported schema and package versions can be tightened or extende
 | Policy ID | FR81 surface | Classification | Release-owner rule | Metadata and diagnostic alignment |
 | --- | --- | --- | --- | --- |
 | `POLICY-FR81-COMPAT-ADD` | Commands, projections, published events, typed errors, version discovery, contracts package, .NET client package | `additive` | Older supported consumers must continue to deserialize and use required v1 fields. Unknown optional fields are ignorable where the contract allows it. | Keep `ConversationContractCompatibility.Current` at `supported` and prove additive tolerance in tests. |
-| `POLICY-FR81-COMPAT-BREAK` | Commands, projections, published events, typed errors, version discovery, contracts package, .NET client package | `breaking` | Removing or renaming required fields, changing field meanings, changing closed vocabulary semantics, weakening tenant, audit, redaction, freshness, idempotency, diagnostics, or client behavior is breaking. | Requires release evidence in later stories and cannot be hidden behind documentation-only changes. |
+| `POLICY-FR81-COMPAT-BREAK` | Commands, projections, published events, typed errors, version discovery, contracts package, .NET client package | `breaking` | Removing or renaming required fields, changing field meanings, changing closed vocabulary semantics, weakening tenant, audit, redaction, freshness, idempotency, diagnostics, or client behavior is breaking. | Requires release evidence and cannot be hidden behind documentation-only changes. |
 | `POLICY-FR81-COMPAT-DEPRECATE` | Contracts package and .NET client package | `deprecated` | Deprecated versions remain recognized but must guide adopters to the active v1 package. | `Evaluate(...)` returns `deprecated` with bounded remediation such as `upgrade-to-active-v1`. |
 | `POLICY-FR81-COMPAT-UNSUPPORTED` | Schema and package inputs | `unsupported` | Unsupported or invalid inputs fail with typed, content-safe compatibility diagnostics. | `Evaluate(...)` maps to `schema_version_unsupported`, `versioning`, `use-supported-version`, safe field diagnostics, and remediation such as `use-supported-v1-package`. |
 | `POLICY-FR81-COMPAT-WAIVER` | Release evidence classification only | `waiver-dependent` | A compatibility break can only proceed under the later named-waiver story; this story records the category but does not approve waivers. | No signed artifact, manifest row, waiver approval, or release-gate pass/fail is created by this policy. |
@@ -69,6 +69,6 @@ Persisted conversation event history is the replay-safe authority for conversati
 
 This policy intentionally avoids internal persistence mechanics, replay implementation details, cursor internals, and private read-model wiring. Event schema evolution proof remains owned by later release-evidence work.
 
-## Story 5.1 Evidence Boundary
+## Release Evidence Boundary
 
-Story 5.1 publishes this policy and executable policy checks only. Later stories own signed release conformance artifacts, versioned manifests, waiver aggregation, release-gate signing, provider portability proof, event schema evolution proof, and module/platform evidence separation.
+This policy does not approve waivers or signatures by itself. Epic 5 release evidence records the final behavior-preservation and public-contract-shape facts in `final-conformance-contract-diff-v1.*`, reconciles removed-test survivability in `removed-test-justification-ledger-reconciliation-v1.*`, and assembles the release-owner decision input in `success-metric-report-and-attestation-v1.*`. The attestation is signable but remains unsigned until a real release-owner decision is recorded.

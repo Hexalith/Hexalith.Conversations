@@ -1,6 +1,6 @@
 # Hexalith Conversations Developer Integration Guide
 
-This guide is the adopter-facing path for using Conversations through `Hexalith.Conversations.Client` and `Hexalith.Conversations.Contracts`. It consolidates the shipped Epic 4 contract, client, typed-error, CORE precondition, conformance, and caller-metadata surfaces. The canonical catalog tables remain in [the root README](../README.md#contract-package-guidance) and [the contracts README](../src/Hexalith.Conversations.Contracts/README.md); this guide links to them instead of duplicating drift-prone tables.
+This guide is the adopter-facing path for using Conversations through `Hexalith.Conversations.Client` and `Hexalith.Conversations.Contracts`. It consolidates the shipped v1 contract, client, typed-error, CORE precondition, conformance, caller-metadata, and release-evidence surfaces. The canonical catalog tables remain in [the root README](../README.md#contract-package-guidance) and [the contracts README](../src/Hexalith.Conversations.Contracts/README.md); this guide links to them instead of duplicating drift-prone tables.
 
 ## Responsibility Boundaries
 

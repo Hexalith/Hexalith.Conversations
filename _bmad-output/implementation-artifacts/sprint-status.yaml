@@ -37,7 +37,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-06-26
+last_updated: 2026-06-27
+# epic-5 retrospective completed on 2026-06-27 (autonomous YOLO run; doc=epic-5-retro-2026-06-27.md); epic-5 in-progress -> done (all 3 stories done); epic-5-retrospective optional -> done. Key findings: FR-20 capstone evidence is ready for release-owner decision, final conformance 384/384, public contract-shape diff empty, removed-test ledger reconciled with one dead-plumbing removal and no missing release-gate suite, SM-1 directional reduction 70.43%, SM-2 directional 50.00% files / 67.95% LOC, OQ-2 remains unconfirmed, projection read-store population is explicitly deferred, Conformance.Tests->Server coupling remains accepted residual risk, and the attestation is ready-for-signature but unsigned. Documentation verification updated README.md, docs/integration-guide.md, and docs/release-evidence/contract-compatibility-policy.md; tests/README.md, docs/responsibility-boundaries.md, and architecture docs did not need changes after comparison against implementation evidence.)
 # story 5-3 moved review -> done on 2026-06-27 (Senior Developer Review, auto-fix). Review found and fixed evidence-boundary blockers: accidental root submodule gitlink changes were removed from the final Story 5.3 diff; current-commit wording no longer claims a self-referential final SHA; SM-1 row evidence is included in the hashed source manifest/evidence bundle; greenfield disposition values now use the AC-2 allowed promoted-adopted vocabulary; focused validation recomputes source hashes, verifies signable payload hash, guards path containment, proves exact final changed-file set, excludes submodule gitlinks, and checks SM-1 row IDs against the accepted inventory. Release build 0 warnings; focused fallback 10/10; full conformance 384/384; final baseline..HEAD diff contains only the intended five Story 5.3 files and no 160000 gitlink entries. Local uninitialized submodule working-tree status remains out of scope.)
 # story 5-3 created (backlog -> ready-for-dev) on 2026-06-26 (Final success-metric report and signable attestation. Context created as release-evidence story: produce docs/release-evidence/success-metric-report-and-attestation-v1.{json,md}; consume SM-1 inventory baseline, SM-2 minimal-module baseline, Story 5.1 final conformance/contract-diff evidence, and Story 5.2 removed-test ledger reconciliation; compute SM-1 honestly from row-level evidence; carry OQ-2, projection read-store population proof/deferral, and residual Conformance.Tests->Server coupling explicitly; add focused Conformance.Tests validation; rerun final conformance and public-contract-shape diff guard; do not fake human/platform compliance sign-off or change product runtime, public contracts, package versions, AppHost topology, generated output, accepted baselines, or sibling submodule source.)
 # story 5-3 moved ready-for-dev -> in-progress -> review on 2026-06-26 (Final success-metric report and signable attestation complete. Added docs/release-evidence/success-metric-report-and-attestation-v1.{json,md} plus focused Conformance.Tests validation. SM-1 records 13,289 baseline plumbing LOC, 3,929 current module-owned plumbing LOC, 9,360 removed/externalized LOC, 70.43% directional reduction, with target status unknown-accepted because OQ-2 remains unconfirmed. SM-2 consumes Story 4.2 baseline directly: 29 files / 468 LOC vs estimated 58 files / 1,460 LOC, directional 50.00% files / 67.95% LOC, oq2Status unconfirmed. Residual risks carried: OQ-2, projection read-store population deferral, retained Conformance.Tests->Server coupling, inherited platform controls, and environment limits. Release build 0 warnings; preferred dotnet test runner socket-blocked; focused fallback 10/10; full conformance 384/384; public-contract-shape baseline diff empty. No product runtime/public contract/package/AppHost/generated/baseline/submodule changes.)
@@ -123,17 +124,17 @@ development_status:
   4-1-document-the-thin-authoring-template-validated-against-post-refactor-conversations: done
   4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline: done
   epic-4-retrospective: done
-  epic-5: in-progress
+  epic-5: done
   5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff: done
   5-2-reconcile-the-removed-test-justification-ledger: done
   5-3-assemble-the-success-metric-report-and-signable-attestation: done
-  epic-5-retrospective: optional
+  epic-5-retrospective: done
 
 action_items:
   - epic: 3
     action: "Make final story record generation mechanical from final test counts, file list, submodule state, and root gitlink state."
     owner: "Dev workflow"
-    status: open
+    status: in-progress
   - epic: 3
     action: "Add a blocking completion gate for submodule promotions so dirty submodules or uncaptured root gitlinks cannot reach done."
     owner: "Dev workflow"
@@ -141,15 +142,15 @@ action_items:
   - epic: 3
     action: "Document the approved VSTest fallback: build affected projects and run compiled xUnit v3 executables when socket creation is blocked."
     owner: "Test workflow"
-    status: in-progress
+    status: done
   - epic: 3
     action: "Resolve or explicitly defer the read-store population gap with evidence before final attestation."
     owner: "Developer/Architect"
-    status: open
+    status: done
   - epic: 3
     action: "Reconcile the retained Conformance.Tests to Server reference during Epic 5 ledger work."
     owner: "Developer/Quality"
-    status: open
+    status: done
   - epic: 3
     action: "Keep EventStore command/event metadata resolvers optional in the template until a production consumer exists."
     owner: "Architect/EventStore owner"
@@ -165,28 +166,52 @@ action_items:
   - epic: 4
     action: "Add a mechanical final-record check for Epic 5 story completion that verifies test counts, file lists, changed docs/evidence, and public-contract-shape diff state from the final working tree."
     owner: "Dev workflow"
-    status: open
+    status: in-progress
   - epic: 4
     action: "Promote the xUnit v3 executable fallback from story-local notes into reusable test workflow guidance."
     owner: "Test workflow"
-    status: open
+    status: done
   - epic: 4
     action: "Resolve OQ-2 or explicitly record it as unresolved in Story 5.3 before interpreting SM-1 or SM-2 target status."
     owner: "Product/Release owner"
-    status: open
+    status: done
   - epic: 4
     action: "Consume minimal-module-authoring-cost-sm2-baseline-v1.json directly in the Story 5.3 success-metric report."
     owner: "Release owner"
-    status: open
+    status: done
   - epic: 4
     action: "Prove or explicitly defer the projection read-store population gap before final attestation."
     owner: "Developer/Architect"
-    status: open
+    status: done
   - epic: 4
     action: "Reconcile exact scaffold/project-reference guards against live project files as part of final attestation."
     owner: "Developer/Quality"
-    status: open
+    status: done
   - epic: 4
     action: "Reconcile the retained Conformance.Tests to Server reference during Story 5.2 ledger work."
     owner: "Developer/Quality"
+    status: done
+  - epic: 5
+    action: "Record the release-owner decision for success-metric-report-and-attestation-v1 without changing the implementation-generated evidence."
+    owner: "Release owner"
+    status: open
+  - epic: 5
+    action: "Make an explicit OQ-2 decision for SM-1 and SM-2 target interpretation."
+    owner: "Product/Release owner"
+    status: open
+  - epic: 5
+    action: "Create or approve an architecture decision for projection read-store population proof versus accepted deferral."
+    owner: "Architect/Developer"
+    status: open
+  - epic: 5
+    action: "Decide the long-term path for residual Conformance.Tests to Server coupling."
+    owner: "Architect/Quality"
+    status: open
+  - epic: 5
+    action: "Promote the Story 5.3 evidence-boundary validation pattern into reusable dev/review guidance."
+    owner: "Dev workflow"
+    status: open
+  - epic: 5
+    action: "Keep release-facing documentation aligned with Epic 5 attestation state without claiming approval."
+    owner: "Tech writer/Release owner"
     status: open
