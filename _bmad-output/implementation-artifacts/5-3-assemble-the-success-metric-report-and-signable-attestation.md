@@ -4,7 +4,7 @@ baseline_commit: 2ab26d8ab3b61186c82ebe5d4776f6c223817126
 
 # Story 5.3: Assemble the success-metric report and signable attestation
 
-Status: review
+Status: done
 
 <!-- Note: Validation is optional. Run validate-create-story for quality check before dev-story. -->
 
