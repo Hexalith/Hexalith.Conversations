@@ -3,7 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Diagnostics;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using Shouldly;
@@ -53,6 +56,16 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         "environment-limitations",
     ];
 
+    private static readonly string[] AllowedSmOneDispositions =
+    [
+        "consumed",
+        "promoted-adopted",
+        "reduced-to-thin-facade",
+        "retained",
+        "deferred",
+        "residual",
+    ];
+
     [Fact]
     public void JsonAndMarkdownArtifactsShouldExistAndExposeRequiredFields()
     {
@@ -90,13 +103,17 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         {
             string path = entry.GetProperty("path").GetString() ?? string.Empty;
             string sha256 = entry.GetProperty("sha256").GetString() ?? string.Empty;
+            string fullPath = Path.GetFullPath(Path.Combine(root, path));
 
             path.ShouldNotBeNullOrWhiteSpace();
             Path.IsPathRooted(path).ShouldBeFalse($"Source artifact path '{path}' must be repository-relative.");
-            File.Exists(Path.Combine(root, path)).ShouldBeTrue($"Source artifact '{path}' must exist.");
+            fullPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                .ShouldBeTrue($"Source artifact path '{path}' must stay inside the repository root.");
+            File.Exists(fullPath).ShouldBeTrue($"Source artifact '{path}' must exist.");
 
             sha256.Length.ShouldBe(64);
             sha256.ShouldAllBe(character => Uri.IsHexDigit(character));
+            ComputeFileSha256(fullPath).ShouldBe(sha256, $"Source artifact '{path}' hash must match current file content.");
 
             path.ShouldNotContain("bin/", Case.Insensitive);
             path.ShouldNotContain("obj/", Case.Insensitive);
@@ -124,13 +141,33 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         JsonElement rowDispositions = sm1.GetProperty("rowDispositions");
         rowDispositions.GetArrayLength().ShouldBe(13);
 
+        string[] expectedAreaIds = inventory.GetProperty("areas")
+            .EnumerateArray()
+            .Where(area =>
+            {
+                string classification = area.GetProperty("classification").GetString() ?? string.Empty;
+                return string.Equals(classification, "Consume", StringComparison.Ordinal)
+                    || string.Equals(classification, "Promote", StringComparison.Ordinal);
+            })
+            .Select(area => area.GetProperty("areaId").GetString() ?? string.Empty)
+            .OrderBy(static areaId => areaId, StringComparer.Ordinal)
+            .ToArray();
+
+        string[] actualAreaIds = rowDispositions
+            .EnumerateArray()
+            .Select(row => row.GetProperty("areaId").GetString() ?? string.Empty)
+            .OrderBy(static areaId => areaId, StringComparer.Ordinal)
+            .ToArray();
+
+        actualAreaIds.ShouldBe(expectedAreaIds);
+
         int rowBaseline = 0;
         int rowCurrent = 0;
         int rowReduced = 0;
         foreach (JsonElement row in rowDispositions.EnumerateArray())
         {
             row.GetProperty("areaId").GetString().ShouldNotBeNullOrWhiteSpace();
-            row.GetProperty("disposition").GetString().ShouldNotBeNullOrWhiteSpace();
+            AllowedSmOneDispositions.ShouldContain(row.GetProperty("disposition").GetString() ?? string.Empty);
             row.GetProperty("evidence").GetArrayLength().ShouldBeGreaterThan(0);
 
             int baseline = row.GetProperty("baselineLoc").GetInt32();
@@ -147,6 +184,55 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         rowCurrent.ShouldBe(sm1.GetProperty("currentModuleOwnedPlumbingLoc").GetInt32());
         rowReduced.ShouldBe(sm1.GetProperty("removedOrExternalizedPlumbingLoc").GetInt32());
         Math.Round(rowReduced * 100.0 / rowBaseline, 2).ShouldBe(sm1.GetProperty("reductionPercentage").GetDouble());
+    }
+
+    [Fact]
+    public void SmOneRowEvidenceShouldBePartOfSignedSourceManifest()
+    {
+        using JsonDocument doc = LoadStoryArtifact();
+        JsonElement root = doc.RootElement;
+        string[] sourcePaths = root.GetProperty("sourceArtifacts")
+            .EnumerateArray()
+            .Select(artifact => artifact.GetProperty("path").GetString() ?? string.Empty)
+            .ToArray();
+        string[] evidenceBundle = root.GetProperty("attestation")
+            .GetProperty("evidenceBundle")
+            .EnumerateArray()
+            .Select(path => path.GetString() ?? string.Empty)
+            .ToArray();
+
+        evidenceBundle.ShouldBe(sourcePaths);
+
+        JsonElement rows = root.GetProperty("successMetrics").GetProperty("sm1").GetProperty("rowDispositions");
+        foreach (JsonElement row in rows.EnumerateArray())
+        {
+            foreach (JsonElement evidence in row.GetProperty("evidence").EnumerateArray())
+            {
+                string evidencePath = (evidence.GetString() ?? string.Empty).Split('#')[0];
+                sourcePaths.ShouldContain(evidencePath, $"SM-1 row evidence '{evidencePath}' must be included in the signed source manifest.");
+            }
+        }
+    }
+
+    [Fact]
+    public void SignablePayloadHashShouldMatchSourceArtifactManifest()
+    {
+        using JsonDocument doc = LoadStoryArtifact();
+        JsonElement root = doc.RootElement;
+        StringBuilder manifest = new();
+
+        foreach (JsonElement artifact in root.GetProperty("sourceArtifacts").EnumerateArray())
+        {
+            manifest.Append(artifact.GetProperty("path").GetString());
+            manifest.Append('\t');
+            manifest.Append(artifact.GetProperty("sha256").GetString());
+            manifest.Append('\t');
+            manifest.Append(artifact.GetProperty("role").GetString());
+            manifest.Append('\n');
+        }
+
+        string actualHash = ComputeTextSha256(manifest.ToString());
+        root.GetProperty("attestation").GetProperty("signablePayloadHash").GetString().ShouldBe(actualHash);
     }
 
     [Fact]
@@ -237,11 +323,39 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         attestation.GetProperty("approvalReference").ValueKind.ShouldBe(JsonValueKind.Null);
 
         attestation.GetProperty("signatureStatus").GetString().ShouldNotBe("signed");
+        JsonElement decisionFields = attestation.GetProperty("decisionFields");
+        decisionFields.GetProperty("releaseOwnerDecision").GetString().ShouldBe("pending");
+        decisionFields.GetProperty("residualRiskAcceptance").GetString().ShouldBe("pending");
+        decisionFields.GetProperty("platformControlDependencyAcknowledgement").GetString().ShouldBe("pending");
+        decisionFields.GetProperty("notes").ValueKind.ShouldBe(JsonValueKind.Null);
+
         string statement = attestation.GetProperty("statement").GetString() ?? string.Empty;
         statement.ShouldNotContain("CISO sign-off", Case.Insensitive);
         statement.ShouldNotContain("SOC2", Case.Insensitive);
         statement.ShouldNotContain("ISO 27001 attestation", Case.Insensitive);
         statement.ShouldNotContain("pen-test approval", Case.Insensitive);
+    }
+
+    [Fact]
+    public void FinalDiffShouldMatchIntendedEvidenceBoundaryAndExcludeSubmoduleGitlinks()
+    {
+        using JsonDocument doc = LoadStoryArtifact();
+        JsonElement root = doc.RootElement;
+        string baselineCommit = root.GetProperty("baselineCommit").GetString() ?? string.Empty;
+        string[] expectedChangedFiles = root.GetProperty("validation")
+            .GetProperty("intendedFileSet")
+            .EnumerateArray()
+            .Select(path => path.GetString() ?? string.Empty)
+            .OrderBy(static path => path, StringComparer.Ordinal)
+            .ToArray();
+
+        string[] actualChangedFiles = RunGit("diff", "--name-only", $"{baselineCommit}..HEAD")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .OrderBy(static path => path, StringComparer.Ordinal)
+            .ToArray();
+
+        actualChangedFiles.ShouldBe(expectedChangedFiles);
+        RunGit("diff", "--raw", $"{baselineCommit}..HEAD").ShouldNotContain("160000");
     }
 
     [Fact]
@@ -311,6 +425,35 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         }
 
         throw new DirectoryNotFoundException("Could not find the repository root.");
+    }
+
+    private static string ComputeFileSha256(string path)
+        => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+
+    private static string ComputeTextSha256(string content)
+        => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))).ToLowerInvariant();
+
+    private static string RunGit(params string[] arguments)
+    {
+        ProcessStartInfo startInfo = new()
+        {
+            FileName = "git",
+            WorkingDirectory = FindRepositoryRoot(),
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+        };
+
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start git.");
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        process.ExitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
+        return output;
     }
 
     private static void CollectStringValues(JsonElement element, string path, List<(string Path, string Value)> values)

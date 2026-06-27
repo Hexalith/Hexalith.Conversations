@@ -5,15 +5,17 @@
   "story": "5.3",
   "generatedAtUtc": "2026-06-26T16:01:21Z",
   "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
-  "currentCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
   "boundaryEvidence": {
     "capturedBeforeEvidenceGeneration": true,
-    "head": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
-    "gitStatusShort": [
+    "boundaryDecision": "Evidence assembly and validation only; no product runtime, public contracts, package versions, AppHost topology, generated output, accepted baselines, or sibling submodule source changed.",
+    "evidenceGenerationHead": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+    "reviewInputHead": "9d99b26dfff0581541688a00d089a65f663dc3e9",
+    "containingCommit": "Read from the Git commit that contains this artifact; self-referential final commit SHA is intentionally not embedded.",
+    "gitStatusShortCapturedBeforeEvidenceGeneration": [
       " M _bmad-output/implementation-artifacts/sprint-status.yaml",
       "?? _bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md"
     ],
-    "submoduleStatus": [
+    "submoduleStatusCapturedBeforeEvidenceGeneration": [
       "-993169659a7aa8f1b1dc8444a49d876bbb7175f7 Hexalith.AI.Tools",
       "-f0750ca703cc3ada6eb25050cb6b287e83ce3938 Hexalith.Builds",
       "-353e96e5b12989159ae04499ac628811790c0d8b Hexalith.Commons",
@@ -25,7 +27,7 @@
       "-688bda86c7e1a9254bda3fe9230ac7531ff369ae Hexalith.Projects",
       "-e202f3b3c50949f9ac6da432d4f26f78b999d0e0 Hexalith.Tenants"
     ],
-    "boundaryDecision": "Evidence assembly and validation only; no product runtime, public contracts, package versions, AppHost topology, generated output, accepted baselines, or sibling submodule source changed."
+    "reviewFixBoundary": "Review fix removes accidental root submodule gitlink changes from the final Story 5.3 diff."
   },
   "sourceArtifacts": [
     {
@@ -117,6 +119,76 @@
       "path": "_bmad-output/planning-artifacts/architecture.md",
       "sha256": "711567324244261899e3a356ad92ef9e6c1fd8cb4d0e4a1abb1b007a36528418",
       "role": "testing and release-evidence architecture constraints"
+    },
+    {
+      "path": "docs/release-evidence/at-risk-test-register-v1.json",
+      "sha256": "5463ccc24cf2c34cf0a44a79f3d5de39c13986419661f77e05e41f263f08b4a8",
+      "role": "SM-1 structural disposition row evidence"
+    },
+    {
+      "path": "docs/release-evidence/promote-adopt-runbook.md",
+      "sha256": "08a9d53f9857ffbdaf4b7d6336e6ed95ff24a0cd6f953fba1aa293c0dd5c15bb",
+      "role": "Epic 3 promote/adopt row evidence"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-1-wire-conversations-onto-the-shared-two-line-domain-service-host.md",
+      "sha256": "7d6f011177d5f1995f30d8e799709089365e0a3705f450dd1dc8b0a776eeac66",
+      "role": "SM-1 row evidence for shared-host-api"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-2-adopt-eventstoreaggregate-tstate-base-class-conventions.md",
+      "sha256": "e6c37ec1cff4e03d3ec4f82e37ae244bce8461dbe5282a2019aadd54322e1f12",
+      "role": "SM-1 row evidence for aggregate/idempotency residual rows"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor.md",
+      "sha256": "e00d934ad63222ddc466bc3f3646e59a277fcaa5d473c30397ecc941ea512aff",
+      "role": "SM-1 row evidence for query cursor orchestration"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-5-implement-projections-against-the-sdk-projection-seam.md",
+      "sha256": "4f915d89aa1181239135af2ad2dcc9c2f96f7d55da641690cc59f2bb69f6c233",
+      "role": "SM-1 row evidence for projection orchestration"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-6-adopt-shared-serialization-helpers-for-generic-converters.md",
+      "sha256": "44d8eb08c564a028344fb1802ea002016b16e34b1ab149ba9ff9165c104ac1ef",
+      "role": "SM-1 row evidence for generic serialization converters"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/2-7-consume-shared-eventstore-testing-assertions-and-fakes.md",
+      "sha256": "6f250a5c09cf77491cbb760fb3fc40b71d2ed7c8bf556510cae0f6477c88128c",
+      "role": "SM-1 row evidence for duplicate test fakes"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-1-promote-adopt-the-generic-typed-httpclient-registration.md",
+      "sha256": "4aa956fb6085a78a45e1ed7610f91d2c20cbddc6e055dc3fd2cc18e32c8e61d9",
+      "role": "SM-1 row evidence for typed client registration"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-2-promote-adopt-the-generic-tenant-access-projection-handler-registration.md",
+      "sha256": "5982e2262a4ddf8eaac4f8c6e5853c4dbf543f017a2d6418719768ca9273517a",
+      "role": "SM-1 row evidence for tenant access projection"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper.md",
+      "sha256": "9e20291a87409c7a642a9da96a5fa6269d5555be71e579e68b151aaa120328a4",
+      "role": "SM-1 row evidence for diagnostics telemetry scaffolding"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-4-promote-adopt-the-shared-servicedefaults-base.md",
+      "sha256": "84ae4993e70627ae4870d320d9074e1d4239137afc818d589ca7e4deeeaf10c5",
+      "role": "SM-1 row evidence for service defaults adoption"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base.md",
+      "sha256": "5fc4ea773b843d7877e74bdfd6c9b189a6c2215d88580fa98762720d6a03bee3",
+      "role": "SM-1 row evidence for Aspire/Dapr hosting and publication transport"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration.md",
+      "sha256": "e516b7d650c84578e5112a04b415d20144c4cd9a574391d2fce7f60a0dcff589",
+      "role": "SM-1 row evidence for shared JSON context adoption"
     }
   ],
   "successMetrics": {
@@ -325,8 +397,8 @@
           "baselineLoc": 13,
           "currentModuleOwnedPlumbingLoc": 0,
           "removedOrExternalizedPlumbingLoc": 13,
-          "disposition": "greenfield-adopted",
-          "rationale": "No local ServiceDefaults implementation existed to delete; shared base was adopted directly.",
+          "disposition": "promoted-adopted",
+          "rationale": "No local ServiceDefaults implementation existed to delete; shared base was adopted directly. Recorded with the AC-2 allowed promoted/adopted disposition vocabulary.",
           "evidence": [
             "_bmad-output/implementation-artifacts/3-4-promote-adopt-the-shared-servicedefaults-base.md",
             "docs/release-evidence/promote-adopt-runbook.md"
@@ -341,8 +413,8 @@
           "baselineLoc": 10,
           "currentModuleOwnedPlumbingLoc": 0,
           "removedOrExternalizedPlumbingLoc": 10,
-          "disposition": "greenfield-adopted",
-          "rationale": "No local AppHost base existed to delete; shared Aspire/Dapr topology base was adopted directly.",
+          "disposition": "promoted-adopted",
+          "rationale": "No local AppHost base existed to delete; shared Aspire/Dapr topology base was adopted directly. Recorded with the AC-2 allowed promoted/adopted disposition vocabulary.",
           "evidence": [
             "_bmad-output/implementation-artifacts/3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base.md",
             "docs/release-evidence/promote-adopt-runbook.md"
@@ -429,15 +501,15 @@
       "fallbackRunner": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01",
       "fallbackCommand": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
       "conformance": {
-        "total": 381,
-        "passed": 381,
+        "total": 384,
+        "passed": 384,
         "errors": 0,
         "failed": 0,
         "skipped": 0,
         "notRun": 0
       },
-      "deltaFromStory52": 7,
-      "deltaExplanation": "The +7 net change from Story 5.2 is fully accounted for by SuccessMetricReportAndAttestationValidationTest facts.",
+      "deltaFromStory52": 10,
+      "deltaExplanation": "The +10 net change from Story 5.2 is fully accounted for by SuccessMetricReportAndAttestationValidationTest facts, including review-fix evidence-boundary guards.",
       "publicContractShapeBaselineDiff": "empty"
     }
   },
@@ -525,8 +597,8 @@
   "attestation": {
     "signatureStatus": "ready-for-signature",
     "decision": "pending",
-    "signablePayloadHash": "0add68427a08eae2adc9483b0e3ce293ac6be9b41c7505f0e9ca64158dd67264",
-    "hashAlgorithm": "SHA-256 over canonical JSON manifest of source artifact hashes and summarized metric facts",
+    "signablePayloadHash": "331e92a1fbc8492b08586d7b785e38c536c640a24a20f16ec2ea8f24cf22710f",
+    "hashAlgorithm": "SHA-256 over newline-delimited source artifact path, sha256, and role manifest in sourceArtifacts order",
     "evidenceBundle": [
       "docs/release-evidence/consume-promote-keep-inventory-v1.json",
       "docs/release-evidence/consume-promote-keep-inventory-v1.md",
@@ -545,7 +617,21 @@
       "_bmad-output/implementation-artifacts/epic-3-retro-2026-06-24.md",
       "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md",
       "_bmad-output/planning-artifacts/prd.md",
-      "_bmad-output/planning-artifacts/architecture.md"
+      "_bmad-output/planning-artifacts/architecture.md",
+      "docs/release-evidence/at-risk-test-register-v1.json",
+      "docs/release-evidence/promote-adopt-runbook.md",
+      "_bmad-output/implementation-artifacts/2-1-wire-conversations-onto-the-shared-two-line-domain-service-host.md",
+      "_bmad-output/implementation-artifacts/2-2-adopt-eventstoreaggregate-tstate-base-class-conventions.md",
+      "_bmad-output/implementation-artifacts/2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor.md",
+      "_bmad-output/implementation-artifacts/2-5-implement-projections-against-the-sdk-projection-seam.md",
+      "_bmad-output/implementation-artifacts/2-6-adopt-shared-serialization-helpers-for-generic-converters.md",
+      "_bmad-output/implementation-artifacts/2-7-consume-shared-eventstore-testing-assertions-and-fakes.md",
+      "_bmad-output/implementation-artifacts/3-1-promote-adopt-the-generic-typed-httpclient-registration.md",
+      "_bmad-output/implementation-artifacts/3-2-promote-adopt-the-generic-tenant-access-projection-handler-registration.md",
+      "_bmad-output/implementation-artifacts/3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper.md",
+      "_bmad-output/implementation-artifacts/3-4-promote-adopt-the-shared-servicedefaults-base.md",
+      "_bmad-output/implementation-artifacts/3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base.md",
+      "_bmad-output/implementation-artifacts/3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration.md"
     ],
     "signer": null,
     "signedAtUtc": null,
@@ -572,16 +658,16 @@
     },
     "focusedValidation": {
       "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest",
-      "total": 7,
-      "passed": 7,
+      "total": 10,
+      "passed": 10,
       "failed": 0,
       "skipped": 0,
       "result": "passed"
     },
     "fullConformance": {
       "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
-      "total": 381,
-      "passed": 381,
+      "total": 384,
+      "passed": 384,
       "errors": 0,
       "failed": 0,
       "skipped": 0,
@@ -595,7 +681,19 @@
       "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs",
       "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
       "_bmad-output/implementation-artifacts/sprint-status.yaml"
-    ]
+    ],
+    "submoduleGitlinkDiffStatus": "empty-after-review-fix",
+    "finalDiffBoundary": {
+      "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "expectedChangedFiles": [
+        "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+        "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+        "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs",
+        "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml"
+      ],
+      "submoduleGitlinksAllowed": false
+    }
   },
   "environmentLimitations": [
     {

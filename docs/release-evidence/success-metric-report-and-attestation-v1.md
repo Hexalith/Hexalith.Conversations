@@ -9,10 +9,10 @@ The JSON artifact is authoritative. This Markdown summarizes the same facts for 
 
 ## Source Bundle
 
-- Source artifact count: 18
-- Signable payload hash: `0add68427a08eae2adc9483b0e3ce293ac6be9b41c7505f0e9ca64158dd67264`
+- Source artifact count: 32
+- Signable payload hash: `331e92a1fbc8492b08586d7b785e38c536c640a24a20f16ec2ea8f24cf22710f`
 - Baseline commit: `2ab26d8ab3b61186c82ebe5d4776f6c223817126`
-- Current commit: `2ab26d8ab3b61186c82ebe5d4776f6c223817126`
+- Containing commit: read from the Git commit that contains this artifact; the self-referential final commit SHA is intentionally not embedded.
 
 ## SM-1 Boilerplate / Plumbing Reduction
 
@@ -44,8 +44,8 @@ Target interpretation remains `unknown-accepted` because OQ-2 is not confirmed.
 | `tenant-access-projection` | 1,086 | 0 | 1,086 | promoted-adopted | Story 3.2 |
 | `publication-transport-marshaling` | 422 | 0 | 422 | promoted-adopted | Story 3.5 |
 | `typed-client-registration` | 479 | 42 | 437 | reduced-to-thin-facade | Story 3.1 |
-| `service-defaults-greenfield` | 13 | 0 | 13 | greenfield-adopted | Story 3.4 |
-| `apphost-greenfield` | 10 | 0 | 10 | greenfield-adopted | Story 3.5 |
+| `service-defaults-greenfield` | 13 | 0 | 13 | promoted-adopted | Story 3.4 |
+| `apphost-greenfield` | 10 | 0 | 10 | promoted-adopted | Story 3.5 |
 
 ## SM-2 New Module Authoring Cost
 
@@ -95,6 +95,6 @@ No human approval, security approval, external audit approval, or platform compl
 - Focused validation test added and red phase confirmed before artifact generation.
 - Release build passed with 0 warnings and 0 errors.
 - Preferred `dotnet test` runner aborted before test execution due socket permission in this sandbox.
-- Focused Story 5.3 validation passed: 7 total, 7 passed.
-- Full conformance fallback passed: 381 total, 381 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
+- Focused Story 5.3 validation passed: 10 total, 10 passed.
+- Full conformance fallback passed: 384 total, 384 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
 - Public-contract-shape baseline diff: empty.

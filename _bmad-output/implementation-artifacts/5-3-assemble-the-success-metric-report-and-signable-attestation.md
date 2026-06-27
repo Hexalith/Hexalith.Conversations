@@ -140,6 +140,16 @@ And any pre-existing dirty working-tree or submodule state is recorded as out-of
   - [x] Run `git diff -- docs/release-evidence/public-contract-shape-baseline-v1.json` and record `empty`.
   - [x] Update Dev Agent Record, File List, validation counts, and `sprint-status.yaml` last.
 
+### Review Findings
+
+- [x] [Review][Patch] Unexpected root submodule gitlink changes violated the evidence-only boundary [Hexalith.EventStore:1] — fixed by reverting the Story 5.3 diff back to the baseline root submodule gitlinks and adding validation that the final story diff contains no `160000` submodule entries.
+- [x] [Review][Patch] Commit/boundary evidence used the baseline commit as the current commit [docs/release-evidence/success-metric-report-and-attestation-v1.json:8] — fixed by removing the misleading self-referential current-commit claim, recording review-fix boundary notes, and updating Markdown to avoid a false current commit.
+- [x] [Review][Patch] SM-1 row evidence cited files outside the signed source manifest [docs/release-evidence/success-metric-report-and-attestation-v1.json:142] — fixed by adding every row-disposition evidence file to the hashed source artifact manifest and evidence bundle.
+- [x] [Review][Patch] SM-1 used disposition values outside the AC-2 vocabulary [docs/release-evidence/success-metric-report-and-attestation-v1.json:328] — fixed by changing the greenfield rows to an allowed deferred disposition with rationale preserved.
+- [x] [Review][Patch] Focused validation did not recompute source hashes, guard path traversal, or verify the signable payload hash [tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs:80] — fixed by recomputing hashes, validating repository containment, and recomputing the manifest hash.
+- [x] [Review][Patch] Focused validation did not prove the final changed-file boundary or current submodule exclusion [tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs:107] — fixed by adding a git diff guard against the baseline and by asserting the intended file set exactly.
+- [x] [Review][Patch] Focused validation did not prove SM-1 row IDs exactly match the inventory Consume/Promote rows [tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs:124] — fixed by comparing row-disposition IDs to the inventory rows.
+
 ## Dev Notes
 
 ### Implementation scope
@@ -297,8 +307,8 @@ GPT-5 Codex
 - 2026-06-26: Red phase confirmed: Release build passed with 0 warnings / 0 errors; focused `SuccessMetricReportAndAttestationValidationTest` failed 7/7 because `success-metric-report-and-attestation-v1.json` did not yet exist.
 - 2026-06-26: Generated `success-metric-report-and-attestation-v1.{json,md}` from 18 hashed source artifacts. SM-1 records baseline 13,289 LOC, current module-owned plumbing 3,929 LOC, removed/externalized 9,360 LOC, directional reduction 70.43%, target status `unknown-accepted`. SM-2 records 29 files / 468 LOC vs estimated 58 files / 1,460 LOC, with `oq2Status: unconfirmed`.
 - 2026-06-26: Preferred runner `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build /nr:false` aborted before executing tests due `System.Net.Sockets.SocketException (13): Permission denied`.
-- 2026-06-26: Focused fallback command `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest` passed: 7 total, 7 passed, 0 failed, 0 skipped.
-- 2026-06-26: Full fallback command `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests` passed: 381 total, 381 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
+- 2026-06-26: Focused fallback command `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest` passed after review fixes: 10 total, 10 passed, 0 failed, 0 skipped.
+- 2026-06-26: Full fallback command `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests` passed after review fixes: 384 total, 384 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
 - 2026-06-26: `git diff -- docs/release-evidence/public-contract-shape-baseline-v1.json` was empty.
 
 ### Completion Notes List
@@ -322,4 +332,4 @@ GPT-5 Codex
 
 | Date | Version | Description | Author |
 |------|---------|-------------|--------|
-| 2026-06-26 | 0.1 | Implemented Story 5.3 final release-evidence report and signable attestation; added focused validation; recorded final conformance 381/381, preferred runner socket limitation, xUnit executable fallback, empty public-contract-shape baseline diff, and explicit residual risks. Status -> review. | GPT-5 Codex |
+| 2026-06-26 | 0.1 | Implemented Story 5.3 final release-evidence report and signable attestation; added focused validation; recorded final conformance 384/384 after review fixes, preferred runner socket limitation, xUnit executable fallback, empty public-contract-shape baseline diff, and explicit residual risks. Status -> review. | GPT-5 Codex |
