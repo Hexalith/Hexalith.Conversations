@@ -341,21 +341,23 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     {
         using JsonDocument doc = LoadStoryArtifact();
         JsonElement root = doc.RootElement;
-        string baselineCommit = root.GetProperty("baselineCommit").GetString() ?? string.Empty;
-        string[] expectedChangedFiles = root.GetProperty("validation")
-            .GetProperty("intendedFileSet")
+        JsonElement finalDiffBoundary = root.GetProperty("validation").GetProperty("finalDiffBoundary");
+        string baselineCommit = finalDiffBoundary.GetProperty("baselineCommit").GetString() ?? string.Empty;
+        string storyDoneCommit = finalDiffBoundary.GetProperty("storyDoneCommit").GetString() ?? string.Empty;
+        string[] expectedChangedFiles = finalDiffBoundary
+            .GetProperty("expectedChangedFiles")
             .EnumerateArray()
             .Select(path => path.GetString() ?? string.Empty)
             .OrderBy(static path => path, StringComparer.Ordinal)
             .ToArray();
 
-        string[] actualChangedFiles = RunGit("diff", "--name-only", $"{baselineCommit}..HEAD")
+        string[] actualChangedFiles = RunGit("diff", "--name-only", $"{baselineCommit}..{storyDoneCommit}")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .OrderBy(static path => path, StringComparer.Ordinal)
             .ToArray();
 
         actualChangedFiles.ShouldBe(expectedChangedFiles);
-        RunGit("diff", "--raw", $"{baselineCommit}..HEAD").ShouldNotContain("160000");
+        RunGit("diff", "--raw", $"{baselineCommit}..{storyDoneCommit}").ShouldNotContain("160000");
     }
 
     [Fact]
