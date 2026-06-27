@@ -1,0 +1,618 @@
+{
+  "artifact": "success-metric-report-and-attestation",
+  "version": "1",
+  "status": "ready-for-signature",
+  "story": "5.3",
+  "generatedAtUtc": "2026-06-26T16:01:21Z",
+  "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+  "currentCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+  "boundaryEvidence": {
+    "capturedBeforeEvidenceGeneration": true,
+    "head": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+    "gitStatusShort": [
+      " M _bmad-output/implementation-artifacts/sprint-status.yaml",
+      "?? _bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md"
+    ],
+    "submoduleStatus": [
+      "-993169659a7aa8f1b1dc8444a49d876bbb7175f7 Hexalith.AI.Tools",
+      "-f0750ca703cc3ada6eb25050cb6b287e83ce3938 Hexalith.Builds",
+      "-353e96e5b12989159ae04499ac628811790c0d8b Hexalith.Commons",
+      "-35ff5eff17ac271a82b9e74b5ba66f11fc593465 Hexalith.EventStore",
+      "-bbec254fda54e7ca92865e82a1e8c67e196087e3 Hexalith.Folders",
+      "-ade7b2fef609bf6761fbf0eab9abe3d77bd62013 Hexalith.FrontComposer",
+      "-88303a810b9614d47b753612003b43910c99c738 Hexalith.Memories",
+      "-8b7d4248d53afa3406e5f8d598c6b08a2fc8c9fa Hexalith.Parties",
+      "-688bda86c7e1a9254bda3fe9230ac7531ff369ae Hexalith.Projects",
+      "-e202f3b3c50949f9ac6da432d4f26f78b999d0e0 Hexalith.Tenants"
+    ],
+    "boundaryDecision": "Evidence assembly and validation only; no product runtime, public contracts, package versions, AppHost topology, generated output, accepted baselines, or sibling submodule source changed."
+  },
+  "sourceArtifacts": [
+    {
+      "path": "docs/release-evidence/consume-promote-keep-inventory-v1.json",
+      "sha256": "20bbedb5d0aa1dcd35729aac6a8500f7cf75d8f0c0719b8e1364da5e19fa22b7",
+      "role": "SM-1 accepted inventory JSON authority"
+    },
+    {
+      "path": "docs/release-evidence/consume-promote-keep-inventory-v1.md",
+      "sha256": "6ac706a7c26c72c257f2cfb71d3719ecb3418b9392a35c71ff0a82b00a7e6b37",
+      "role": "SM-1 human-readable inventory summary"
+    },
+    {
+      "path": "docs/release-evidence/classification-change-procedure-v1.md",
+      "sha256": "0551e9751c4881eca8a33e55b1280cc63b60c2a0eeb5aa6e85faa3aed836979f",
+      "role": "inventory change governance procedure"
+    },
+    {
+      "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+      "sha256": "14de3c86628cb4f900008be42d086a7699ae0869b3b791f92c810ab921192e03",
+      "role": "SM-2 accepted baseline JSON authority"
+    },
+    {
+      "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+      "sha256": "1cb37b3ddbc9186748c7556a87e5c08feb15d8dee30f4a1b0362bcd5536297fd",
+      "role": "SM-2 human-readable baseline summary"
+    },
+    {
+      "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+      "sha256": "7bf087b2dc6e457eb89a5d3d385d7e8bda9c6624fde7c9e4ad60afb032488f9d",
+      "role": "Story 5.1 behavior and public contract evidence JSON authority"
+    },
+    {
+      "path": "docs/release-evidence/final-conformance-contract-diff-v1.md",
+      "sha256": "2ce6fdf24c8596f130e4198dce3fe309b48aa9b935de7d9cae08ce0c9b4f538a",
+      "role": "Story 5.1 human-readable evidence summary"
+    },
+    {
+      "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+      "sha256": "a462b6a3d3f740451def4c4d21e123ecd252ea4856eb340b08bcfece6f5a8782",
+      "role": "Story 5.2 removed-test ledger JSON authority"
+    },
+    {
+      "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+      "sha256": "aef6dab291ed3529e671ece4b9c27daee53f4f1215e1eb7ea357a25b53aa3a2d",
+      "role": "Story 5.2 human-readable ledger summary"
+    },
+    {
+      "path": "docs/release-evidence/release-baseline-v1.json",
+      "sha256": "a3f0b4a76aa99226dfb6a7d9a0c930f30705c4d4f8d8c32f97a5b3124a335932",
+      "role": "Story 1.1 release baseline reference"
+    },
+    {
+      "path": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "sha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca",
+      "role": "accepted public contract shape baseline"
+    },
+    {
+      "path": "docs/domain-module-authoring-template.md",
+      "sha256": "3e82479b3be4ba70b9affa4e155fef7cfc0c24e8b2d16e0eebdc7e211bec76f0",
+      "role": "Story 4.1 module authoring template reference"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+      "sha256": "f0b53ed9188db23797c41af0e4d6c756a00001de4c6c8a6323808b4eb38d9804",
+      "role": "Story 5.1 implementation record"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+      "sha256": "ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21",
+      "role": "Story 5.2 implementation record"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/epic-3-retro-2026-06-24.md",
+      "sha256": "dddf3191ae9d69a6bba956f65239a2e2d4316a89b9ffeaa1c7e42efbc376facf",
+      "role": "Epic 3 carry-forward risks"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md",
+      "sha256": "79c2911365f40b894bf34d5654994ff822906ba88749f0ba6c352de6310c972b",
+      "role": "Epic 4 carry-forward risks and SM-2 caveats"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prd.md",
+      "sha256": "a5d0ebef4f6565a87ae29cf378a811ff0d1b30423dcb71ecde180775bb373abb",
+      "role": "module-level compliance and open-question scope"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/architecture.md",
+      "sha256": "711567324244261899e3a356ad92ef9e6c1fd8cb4d0e4a1abb1b007a36528418",
+      "role": "testing and release-evidence architecture constraints"
+    }
+  ],
+  "successMetrics": {
+    "sm1": {
+      "name": "Boilerplate/plumbing LOC reduction",
+      "sourceTotalLoc": 35769,
+      "baselinePlumbingLoc": 13289,
+      "consumeLoc": 7037,
+      "promoteLoc": 6252,
+      "keepLoc": 22480,
+      "currentModuleOwnedPlumbingLoc": 3929,
+      "removedOrExternalizedPlumbingLoc": 9360,
+      "reductionPercentage": 70.43,
+      "targetAssumption": ">=40%",
+      "targetStatus": "unknown-accepted",
+      "targetStatusReason": "The measured reduction is directional evidence, but OQ-2 target confirmation remains unconfirmed and is not converted into a pass claim.",
+      "countingBasis": "Frozen accepted inventory rows plus owning-story disposition evidence; raw current row globs are not reinterpreted as all-plumbing because they contain retained domain logic.",
+      "changeLogEntryIds": [
+        "CL-shared-host-api-challenge-1",
+        "CL-generic-serialization-converters-challenge-1",
+        "CL-duplicate-test-fakes-challenge-1"
+      ],
+      "rowDispositions": [
+        {
+          "areaId": "query-cursor-orchestration",
+          "name": "Queries / cursor orchestration (server)",
+          "classification": "Consume",
+          "fr": "FR-4",
+          "owningStory": "2.3",
+          "baselineLoc": 2076,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 2076,
+          "disposition": "consumed",
+          "rationale": "Platform query handler and cursor codec own generic query/cursor mechanics; Conversations retains domain query behavior outside this plumbing count.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-3-adopt-the-sdk-query-handler-cursor-codec-remove-hand-rolled-hmac-cursor.md",
+            "docs/release-evidence/at-risk-test-register-v1.json#story23StructuralDispositions"
+          ]
+        },
+        {
+          "areaId": "shared-host-api",
+          "name": "Domain-service host / HTTP API wiring (server)",
+          "classification": "Consume",
+          "fr": "FR-3",
+          "owningStory": "2.1",
+          "baselineLoc": 906,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 906,
+          "disposition": "consumed",
+          "rationale": "Shared domain-service host owns generic routing, actor identity, persistence, publication, and route mapping; retained REST/API surface is domain/adopter compatibility.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-1-wire-conversations-onto-the-shared-two-line-domain-service-host.md"
+          ]
+        },
+        {
+          "areaId": "server-command-dispatch-idempotency",
+          "name": "Command handlers / idempotency executor (server)",
+          "classification": "Consume",
+          "fr": "FR-7",
+          "owningStory": "2.2",
+          "baselineLoc": 1893,
+          "currentModuleOwnedPlumbingLoc": 1893,
+          "removedOrExternalizedPlumbingLoc": 0,
+          "disposition": "residual",
+          "rationale": "The dead command-status bridge was removed, but Story 2.2 explicitly preserved Conversations command handlers and domain idempotency behavior.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-2-adopt-eventstoreaggregate-tstate-base-class-conventions.md",
+            "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json"
+          ]
+        },
+        {
+          "areaId": "core-aggregate-dispatch-replay-idempotency",
+          "name": "Aggregate dispatch / replay / idempotency bridge (core)",
+          "classification": "Consume",
+          "fr": "FR-7",
+          "owningStory": "2.2",
+          "baselineLoc": 1896,
+          "currentModuleOwnedPlumbingLoc": 1896,
+          "removedOrExternalizedPlumbingLoc": 0,
+          "disposition": "residual",
+          "rationale": "Aggregate base-class dispatch was adopted where applicable, while the Conversations replay verifier and idempotency contract remain domain-owned.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-2-adopt-eventstoreaggregate-tstate-base-class-conventions.md",
+            "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json"
+          ]
+        },
+        {
+          "areaId": "generic-serialization-converters",
+          "name": "Generic JSON converters (contracts)",
+          "classification": "Consume",
+          "fr": "FR-8",
+          "owningStory": "2.6",
+          "baselineLoc": 215,
+          "currentModuleOwnedPlumbingLoc": 47,
+          "removedOrExternalizedPlumbingLoc": 168,
+          "disposition": "reduced-to-thin-facade",
+          "rationale": "Story 3.6 reduced the two ruleless generic value converter skeletons to thin Commons.Serialization adapters; domain-rule identifier converters remain outside the plumbing count.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-6-adopt-shared-serialization-helpers-for-generic-converters.md",
+            "docs/release-evidence/at-risk-test-register-v1.json#story26StructuralDispositions",
+            "_bmad-output/implementation-artifacts/3-6-promote-adopt-the-shared-json-context-base-polymorphic-registration.md"
+          ]
+        },
+        {
+          "areaId": "duplicate-test-fakes",
+          "name": "Duplicate repository test fakes (testing)",
+          "classification": "Consume",
+          "fr": "FR-9",
+          "owningStory": "2.7",
+          "baselineLoc": 51,
+          "currentModuleOwnedPlumbingLoc": 51,
+          "removedOrExternalizedPlumbingLoc": 0,
+          "disposition": "retained",
+          "rationale": "Story 2.7 corrected this row as a git repository path-locator with no EventStore.Testing equivalent; frozen row kept as residual for honest SM-1 accounting.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-7-consume-shared-eventstore-testing-assertions-and-fakes.md",
+            "docs/release-evidence/at-risk-test-register-v1.json#story27StructuralDispositions"
+          ]
+        },
+        {
+          "areaId": "projection-orchestration",
+          "name": "Projection materializer / rebuild orchestration (server)",
+          "classification": "Promote",
+          "fr": "FR-6",
+          "owningStory": "2.5",
+          "baselineLoc": 1800,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 1800,
+          "disposition": "consumed",
+          "rationale": "Platform projection-handler seam owns generic replay/routing/discovery; ConversationProjectionMaterializer remains domain logic and is excluded from current plumbing.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/2-5-implement-projections-against-the-sdk-projection-seam.md",
+            "docs/release-evidence/at-risk-test-register-v1.json#story25StructuralDispositions"
+          ]
+        },
+        {
+          "areaId": "diagnostics-telemetry-scaffolding",
+          "name": "Diagnostics / telemetry / classifier scaffolding",
+          "classification": "Promote",
+          "fr": "FR-15",
+          "owningStory": "3.3",
+          "baselineLoc": 2442,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 2442,
+          "disposition": "promoted-adopted",
+          "rationale": "Commons diagnostics owns meter/counter scaffolding; Conversations retains classifier policy and metric vocabulary.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-3-promote-adopt-the-diagnostics-telemetry-scaffolding-helper.md",
+            "docs/release-evidence/at-risk-test-register-v1.json#story33StructuralDispositions"
+          ]
+        },
+        {
+          "areaId": "tenant-access-projection",
+          "name": "Tenant-access projection + DI (server)",
+          "classification": "Promote",
+          "fr": "FR-11",
+          "owningStory": "3.2",
+          "baselineLoc": 1086,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 1086,
+          "disposition": "promoted-adopted",
+          "rationale": "Commons tenant-access evaluator/projection handler owns generic fail-closed mechanics; Conversations keeps vocabulary adapters.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-2-promote-adopt-the-generic-tenant-access-projection-handler-registration.md",
+            "docs/release-evidence/promote-adopt-runbook.md"
+          ]
+        },
+        {
+          "areaId": "publication-transport-marshaling",
+          "name": "Publication transport marshaling (server)",
+          "classification": "Promote",
+          "fr": "FR-13",
+          "owningStory": "3.5",
+          "baselineLoc": 422,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 422,
+          "disposition": "promoted-adopted",
+          "rationale": "Commons publication owns domain-neutral pipeline, metadata, telemetry, and idempotency mechanics; Conversations keeps mapping and failure taxonomy.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base.md",
+            "docs/release-evidence/promote-adopt-runbook.md"
+          ]
+        },
+        {
+          "areaId": "typed-client-registration",
+          "name": "Typed HttpClient registration (client)",
+          "classification": "Promote",
+          "fr": "FR-12",
+          "owningStory": "3.1",
+          "baselineLoc": 479,
+          "currentModuleOwnedPlumbingLoc": 42,
+          "removedOrExternalizedPlumbingLoc": 437,
+          "disposition": "reduced-to-thin-facade",
+          "rationale": "Story 3.1 retained the public AddHexalithConversationsClient entrypoint as a thin facade over Commons.Http.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-1-promote-adopt-the-generic-typed-httpclient-registration.md",
+            "docs/release-evidence/promote-adopt-runbook.md"
+          ]
+        },
+        {
+          "areaId": "service-defaults-greenfield",
+          "name": "ServiceDefaults base (greenfield-adopt)",
+          "classification": "Promote",
+          "fr": "FR-10",
+          "owningStory": "3.4",
+          "baselineLoc": 13,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 13,
+          "disposition": "greenfield-adopted",
+          "rationale": "No local ServiceDefaults implementation existed to delete; shared base was adopted directly.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-4-promote-adopt-the-shared-servicedefaults-base.md",
+            "docs/release-evidence/promote-adopt-runbook.md"
+          ]
+        },
+        {
+          "areaId": "apphost-greenfield",
+          "name": "Aspire AppHost base (greenfield-adopt)",
+          "classification": "Promote",
+          "fr": "FR-13",
+          "owningStory": "3.5",
+          "baselineLoc": 10,
+          "currentModuleOwnedPlumbingLoc": 0,
+          "removedOrExternalizedPlumbingLoc": 10,
+          "disposition": "greenfield-adopted",
+          "rationale": "No local AppHost base existed to delete; shared Aspire/Dapr topology base was adopted directly.",
+          "evidence": [
+            "_bmad-output/implementation-artifacts/3-5-promote-adopt-the-shared-aspire-dapr-domain-module-hosting-base.md",
+            "docs/release-evidence/promote-adopt-runbook.md"
+          ]
+        }
+      ]
+    },
+    "sm2": {
+      "name": "New module authoring cost",
+      "templateMinimalFileCount": 29,
+      "templateMinimalLoc": 468,
+      "preInitiativeFileCount": 58,
+      "preInitiativeLoc": 1460,
+      "fileReductionPercentage": 50.0,
+      "locReductionPercentage": 67.95,
+      "measurementDate": "2026-06-26",
+      "measurementType": "estimated",
+      "confidence": "low",
+      "oq2Status": "unconfirmed",
+      "targetStatus": "unconfirmed-estimate-only",
+      "limitations": [
+        "The template minimal value is a manifest baseline, not a committed throwaway module build.",
+        "The pre-initiative equivalent is estimated because no accepted artifact preserves an exact buildable pre-template skeleton.",
+        "OQ-2 remains unconfirmed even though the directional estimate shows a thinner authoring surface."
+      ],
+      "sourceArtifactReferences": [
+        "docs/domain-module-authoring-template.md#Minimal-Project-Skeleton",
+        "docs/release-evidence/thin-authoring-template-validation-v1.md#Story-42-handoff",
+        "docs/release-evidence/consume-promote-keep-inventory-v1.md#Plumbing-derivation",
+        "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md#SM-2-New-module-authoring-cost",
+        "_bmad-output/planning-artifacts/implementation-readiness-report-2026-06-08.md#Major-Issues-go-forward-readiness"
+      ]
+    }
+  },
+  "behaviorPreservation": {
+    "story51": {
+      "artifact": "final-conformance-contract-diff-v1",
+      "status": "pass",
+      "conformance": {
+        "total": 365,
+        "passed": 365,
+        "errors": 0,
+        "failed": 0,
+        "skipped": 0,
+        "notRun": 0
+      },
+      "releaseGateSuiteClassCount": 14,
+      "releaseGateSuiteClassNames": [
+        "AdopterConformanceSuiteTest",
+        "BuyerAcceptanceConformanceSuiteTest",
+        "ConformanceStatusConformanceSuiteTest",
+        "ContractValidationConformanceSuiteTest",
+        "EventSchemaEvolutionConformanceSuiteTest",
+        "IdempotencyConformanceSuiteTest",
+        "PlatformEvidenceSeparationConformanceSuiteTest",
+        "ProviderPortabilityConformanceSuiteTest",
+        "RedactionConformanceSuiteTest",
+        "ReleaseScopeConformanceSuiteTest",
+        "SecondAdopterConformanceSuiteTest",
+        "TelemetryCardinalityConformanceSuiteTest",
+        "TelemetryRedactionConformanceSuiteTest",
+        "TenantIsolationConformanceSuiteTest"
+      ],
+      "contractShape": {
+        "baselineTypeCount": 196,
+        "finalTypeCount": 196,
+        "diffStatus": "empty",
+        "baselineGitDiff": "empty",
+        "approvalReferences": []
+      }
+    },
+    "story53FinalVerification": {
+      "status": "pass",
+      "build": {
+        "command": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1",
+        "warnings": 0,
+        "errors": 0
+      },
+      "preferredTestRunner": {
+        "command": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build /nr:false",
+        "result": "aborted-before-test-execution",
+        "reason": "VSTest socket creation failed with System.Net.Sockets.SocketException (13): Permission denied"
+      },
+      "fallbackRunner": "xUnit.net v3 In-Process Runner v3.2.2+728c1dce01",
+      "fallbackCommand": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
+      "conformance": {
+        "total": 381,
+        "passed": 381,
+        "errors": 0,
+        "failed": 0,
+        "skipped": 0,
+        "notRun": 0
+      },
+      "deltaFromStory52": 7,
+      "deltaExplanation": "The +7 net change from Story 5.2 is fully accounted for by SuccessMetricReportAndAttestationValidationTest facts.",
+      "publicContractShapeBaselineDiff": "empty"
+    }
+  },
+  "removedTestLedger": {
+    "artifact": "removed-test-justification-ledger-reconciliation-v1",
+    "status": "pass-with-residual-coupling",
+    "currentConformance": {
+      "command": "compiled xUnit v3 executable for the full conformance project",
+      "total": 374,
+      "passed": 374,
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0
+    },
+    "releaseGateSuiteClassCount": 14,
+    "releaseGateSuiteMissing": [],
+    "actualDeadPlumbingRemovalCount": 1,
+    "noSilentlyRemovedReleaseGateTest": true,
+    "residualCoupling": {
+      "reference": "tests/Hexalith.Conversations.Conformance.Tests -> src/Hexalith.Conversations.Server",
+      "currentReferenceState": "retained",
+      "decision": "retain-residual-coupling",
+      "residualCouplingFileCount": 13,
+      "risk": "The conformance project remains structurally coupled to Server internals, but the coupling is visible and guarded instead of claimed closed.",
+      "followUpPath": "Move the remaining live checks behind public Contracts or Testing surfaces, or split them into an explicitly Server-coupled conformance fixture project."
+    }
+  },
+  "residualRisks": [
+    {
+      "id": "oq-2-target-confirmation",
+      "status": "unconfirmed",
+      "owner": "Product / Release owner",
+      "decision": "Carry as unresolved; SM-1 and SM-2 values are accepted measurement evidence but not a target-pass approval.",
+      "evidence": [
+        "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+        "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md#A3"
+      ],
+      "requiredBefore": "Treating SM-1 or SM-2 target interpretation as pass."
+    },
+    {
+      "id": "projection-read-store-population",
+      "status": "deferred-for-explicit-architecture-decision",
+      "owner": "Developer / Architect",
+      "decision": "Not proven by this evidence story; final sign-off must either accept the deferral or require a separate production projection-write proof.",
+      "evidence": [
+        "_bmad-output/implementation-artifacts/epic-3-retro-2026-06-24.md#A4",
+        "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md#A5"
+      ],
+      "requiredBefore": "Claiming production projection read-store population is fully proven."
+    },
+    {
+      "id": "conformance-tests-server-coupling",
+      "status": "residual-coupling-retained",
+      "owner": "Developer / Quality",
+      "decision": "Retain and disclose; Story 5.2 showed safe removal would weaken or break live release-gate assertions.",
+      "evidence": [
+        "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json#projectReferenceDisposition"
+      ],
+      "acceptedBy": "Release owner signature if accepted for this release."
+    },
+    {
+      "id": "inherited-platform-controls",
+      "status": "outside-module-scope",
+      "owner": "Platform / Security program",
+      "decision": "Do not claim Conversations module approval for SOC2, ISO, vulnerability disclosure, key management, penetration testing, or platform CISO approval.",
+      "evidence": [
+        "_bmad-output/planning-artifacts/prd.md#Journey-7-Helen-the-CISO-Pre-procurement-Module-Level-Review",
+        "_bmad-output/planning-artifacts/prd.md#Compliance-Retention-And-Release-Evidence"
+      ],
+      "requiredBefore": "Any platform-level compliance approval claim."
+    },
+    {
+      "id": "environment-limitations",
+      "status": "mitigated-for-local-validation",
+      "owner": "Developer / Test workflow",
+      "decision": "Preferred dotnet test runner may be socket-blocked in this sandbox; use Release build plus compiled xUnit executable fallback and record both attempts.",
+      "evidence": [
+        "docs/release-evidence/final-conformance-contract-diff-v1.json#environmentLimitations",
+        "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json#environmentLimitations"
+      ],
+      "acceptedBy": "Release owner signature if accepted for this release."
+    }
+  ],
+  "attestation": {
+    "signatureStatus": "ready-for-signature",
+    "decision": "pending",
+    "signablePayloadHash": "0add68427a08eae2adc9483b0e3ce293ac6be9b41c7505f0e9ca64158dd67264",
+    "hashAlgorithm": "SHA-256 over canonical JSON manifest of source artifact hashes and summarized metric facts",
+    "evidenceBundle": [
+      "docs/release-evidence/consume-promote-keep-inventory-v1.json",
+      "docs/release-evidence/consume-promote-keep-inventory-v1.md",
+      "docs/release-evidence/classification-change-procedure-v1.md",
+      "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+      "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+      "docs/release-evidence/final-conformance-contract-diff-v1.json",
+      "docs/release-evidence/final-conformance-contract-diff-v1.md",
+      "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+      "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+      "docs/release-evidence/release-baseline-v1.json",
+      "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "docs/domain-module-authoring-template.md",
+      "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+      "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+      "_bmad-output/implementation-artifacts/epic-3-retro-2026-06-24.md",
+      "_bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md",
+      "_bmad-output/planning-artifacts/prd.md",
+      "_bmad-output/planning-artifacts/architecture.md"
+    ],
+    "signer": null,
+    "signedAtUtc": null,
+    "approvalReference": null,
+    "statement": "Prepared for release-owner signature; no human, security, platform compliance, or external audit approval is asserted by the implementation agent.",
+    "decisionFields": {
+      "releaseOwnerDecision": "pending",
+      "residualRiskAcceptance": "pending",
+      "platformControlDependencyAcknowledgement": "pending",
+      "notes": null
+    }
+  },
+  "validation": {
+    "build": {
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1",
+      "warnings": 0,
+      "errors": 0,
+      "result": "passed"
+    },
+    "preferredTestRunner": {
+      "command": "dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build /nr:false",
+      "result": "aborted-before-test-execution",
+      "reason": "VSTest socket creation failed with System.Net.Sockets.SocketException (13): Permission denied"
+    },
+    "focusedValidation": {
+      "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest",
+      "total": 7,
+      "passed": 7,
+      "failed": 0,
+      "skipped": 0,
+      "result": "passed"
+    },
+    "fullConformance": {
+      "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
+      "total": 381,
+      "passed": 381,
+      "errors": 0,
+      "failed": 0,
+      "skipped": 0,
+      "notRun": 0,
+      "result": "passed"
+    },
+    "publicContractShapeBaselineDiff": "empty",
+    "intendedFileSet": [
+      "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+      "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+      "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs",
+      "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml"
+    ]
+  },
+  "environmentLimitations": [
+    {
+      "area": "test-runner",
+      "limitation": "The preferred dotnet test runner has previously failed to create a local socket in this sandbox.",
+      "mitigation": "Build the Release test project and run the compiled xUnit v3 executable directly if the preferred runner aborts before executing tests."
+    },
+    {
+      "area": "submodules",
+      "limitation": "Root submodules were reported with leading dash status at the boundary capture.",
+      "mitigation": "No root or nested submodule was initialized, reset, cleaned, or modified for this evidence story."
+    },
+    {
+      "area": "platform-compliance",
+      "limitation": "Module evidence does not include broader platform approvals for security certifications, vulnerability disclosure, penetration testing, key management, or external audit.",
+      "mitigation": "Residual risks separate module-level evidence from inherited platform control obligations."
+    }
+  ],
+  "story5Reference": "Epic 5 final release-evidence attestation"
+}
