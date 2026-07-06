@@ -5,6 +5,8 @@
 
 using Hexalith.Conversations;
 using Hexalith.Conversations.Server;
+using Hexalith.Conversations.Server.Queries;
+using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.ServiceDefaults;
 
@@ -46,6 +48,10 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         builder.AddEventStoreDomainService(
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
+        builder.Services.AddConversationTenantAccess();
+        builder.Services.AddDaprClient();
+        builder.Services.AddDataProtection();
+        builder.Services.AddConversationQueries(builder.Configuration);
 
         WebApplication app = builder.Build();
         app.UseEventStoreDomainService();

@@ -33,7 +33,7 @@ public sealed class ConversationProjectionTelemetryTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.projection.freshness", captured);
+        using MeterListener listener = StartListening<long>("conversations.projection.freshness", meterFactory, captured);
 
         telemetry.RecordProjectionFreshnessState(
             ConversationProjectionFreshnessClass.Current,
@@ -57,7 +57,7 @@ public sealed class ConversationProjectionTelemetryTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.projection.freshness", captured);
+        using MeterListener listener = StartListening<long>("conversations.projection.freshness", meterFactory, captured);
 
         telemetry.RecordProjectionFreshnessState(
             ConversationProjectionFreshnessClass.Stale,
@@ -78,7 +78,7 @@ public sealed class ConversationProjectionTelemetryTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.projection.freshness", captured);
+        using MeterListener listener = StartListening<long>("conversations.projection.freshness", meterFactory, captured);
 
         telemetry.RecordProjectionFreshnessState(
             ConversationProjectionFreshnessClass.Rebuilding,
@@ -119,7 +119,7 @@ public sealed class ConversationProjectionTelemetryTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.projection.rebuild", captured);
+        using MeterListener listener = StartListening<long>("conversations.projection.rebuild", meterFactory, captured);
 
         telemetry.RecordProjectionRebuildProgress(
             ConversationProjectionFreshnessClass.Rebuilding,
@@ -170,7 +170,7 @@ public sealed class ConversationProjectionTelemetryTest
             NullLogger<ConversationProjectionTelemetry>.Instance);
 
         List<MeasurementRecord<long>> captured = new();
-        using MeterListener listener = StartListening<long>("conversations.publication.failures", captured);
+        using MeterListener listener = StartListening<long>("conversations.publication.failures", meterFactory, captured);
 
         telemetry.RecordPublicationFailure(
             ConversationPublicationFailureClass.UnsupportedSchema,
@@ -258,20 +258,21 @@ public sealed class ConversationProjectionTelemetryTest
 
     private static MeterListener StartListening<T>(
         string instrumentName,
+        FakeMeterFactory meterFactory,
         List<MeasurementRecord<T>> captured)
         where T : struct
     {
         MeterListener listener = new();
         listener.InstrumentPublished = (instrument, l) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 l.EnableMeasurementEvents(instrument, null);
             }
         };
         listener.SetMeasurementEventCallback<T>((instrument, measurement, tags, _) =>
         {
-            if (instrument.Name == instrumentName)
+            if (instrument.Name == instrumentName && meterFactory.Owns(instrument.Meter))
             {
                 captured.Add(new MeasurementRecord<T>(measurement, tags.ToArray()));
             }

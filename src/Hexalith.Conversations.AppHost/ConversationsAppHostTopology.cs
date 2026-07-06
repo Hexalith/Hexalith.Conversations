@@ -11,6 +11,11 @@ using Aspire.Hosting.ApplicationModel;
 using Hexalith.Commons.Aspire;
 using Hexalith.EventStore.Aspire;
 
+using CommonsAspireDaprDomainModuleExtensions = Hexalith.Commons.Aspire.AspireDaprDomainModuleExtensions;
+using CommonsAspireDaprDomainModuleOptions = Hexalith.Commons.Aspire.AspireDaprDomainModuleOptions;
+using CommonsAspireDaprInfrastructureMode = Hexalith.Commons.Aspire.AspireDaprInfrastructureMode;
+using CommonsAspireDaprSharedComponents = Hexalith.Commons.Aspire.AspireDaprSharedComponents;
+
 /// <summary>
 /// Composes the local Conversations Aspire topology.
 /// </summary>
@@ -65,12 +70,14 @@ public static class ConversationsAppHostTopology
             adminUI: null);
 
         IResourceBuilder<ProjectResource> conversationsServer = builder.AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName);
-        _ = conversationsServer.AddAspireDaprDomainModule(new AspireDaprDomainModuleOptions(ConversationsResourceName, AspireDaprInfrastructureMode.Shared)
-        {
-            SharedComponents = new AspireDaprSharedComponents(eventStoreResources.StateStore, eventStoreResources.PubSub),
-            References = [eventStoreResources.EventStore],
-            WaitFor = [eventStoreResources.EventStore],
-        });
+        _ = CommonsAspireDaprDomainModuleExtensions.AddAspireDaprDomainModule(
+            conversationsServer,
+            new CommonsAspireDaprDomainModuleOptions(ConversationsResourceName, CommonsAspireDaprInfrastructureMode.Shared)
+            {
+                SharedComponents = new CommonsAspireDaprSharedComponents(eventStoreResources.StateStore, eventStoreResources.PubSub),
+                References = [eventStoreResources.EventStore],
+                WaitFor = [eventStoreResources.EventStore],
+            });
 
         if (security is not null)
         {

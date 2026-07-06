@@ -431,3 +431,5 @@ FodyWeavers.xsd
 .claude/.story-automator-active
 .claude\.story-automator-active
 .agents/.story-automator-active
+.bmad-loop/runs/
+.bmad-loop/cache/
