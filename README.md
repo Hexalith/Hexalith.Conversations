@@ -137,4 +137,4 @@ The scaffold smoke checks must not require Aspire runtime launch, Dapr sidecars,
 
 ## Submodules
 
-Root-level sibling modules are preserved through `.gitmodules`. Do not run recursive submodule initialization for this repository unless nested submodules are explicitly requested.
+Root-declared sibling modules are preserved under `references/` through `.gitmodules`. Initialize only the needed `references/Hexalith.*` submodules and do not run recursive submodule initialization unless nested submodules are explicitly requested.

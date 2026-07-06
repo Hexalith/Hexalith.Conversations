@@ -251,6 +251,32 @@ public sealed class ScaffoldSmokeTest
         readme.ShouldContain("external cloud resources", Case.Insensitive);
     }
 
+    /// <summary>
+    /// Ensures sibling module submodules are root-declared but physically stored under references/.
+    /// </summary>
+    [Fact]
+    public void SubmodulePathsShouldLiveUnderReferences()
+    {
+        string root = FindRepositoryRoot();
+        string gitModulesPath = Path.Combine(root, ".gitmodules");
+
+        string[] submodulePaths = [.. File
+            .ReadLines(gitModulesPath)
+            .Select(line => line.Trim())
+            .Where(line => line.StartsWith("path = ", StringComparison.Ordinal))
+            .Select(line => line["path = ".Length..])
+            .Order(StringComparer.Ordinal)];
+
+        submodulePaths.Length.ShouldBe(10);
+        foreach (string submodulePath in submodulePaths)
+        {
+            submodulePath.ShouldStartWith("references/");
+            Directory.Exists(Path.Combine(root, submodulePath)).ShouldBeTrue(submodulePath);
+        }
+
+        Directory.GetDirectories(root, "Hexalith.*", SearchOption.TopDirectoryOnly).ShouldBeEmpty();
+    }
+
     private static void AssertProjectReferences(string root, string projectPath, params string[] expectedReferencePaths)
     {
         XDocument project = XDocument.Load(Path.Combine(root, projectPath));
@@ -326,7 +352,7 @@ public sealed class ScaffoldSmokeTest
         string moduleRoot = ResolveModuleRoot(root, moduleName, markerPath);
 
         return string.IsNullOrWhiteSpace(moduleRoot)
-            ? moduleName
+            ? NormalizePath(Path.Combine("references", moduleName))
             : NormalizePath(Path.GetRelativePath(root, moduleRoot));
     }
 
@@ -334,8 +360,7 @@ public sealed class ScaffoldSmokeTest
     {
         string[] candidates =
         [
-            Path.GetFullPath(Path.Combine(root, "..", moduleName)),
-            Path.GetFullPath(Path.Combine(root, moduleName)),
+            Path.GetFullPath(Path.Combine(root, "references", moduleName)),
         ];
 
         return candidates.FirstOrDefault(candidate => Directory.Exists(Path.Combine(candidate, markerPath)))

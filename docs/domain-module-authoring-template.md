@@ -50,7 +50,8 @@ Story 4.2 can measure the minimal authoring cost by counting the SM-2 baseline c
 - Do not fail open on tenant access. Missing, stale, disabled, ambiguous, unavailable, or insufficient projection state denies access.
 - Do not persist Party personal data in durable domain events unless a governance decision explicitly approves an immutable audit snapshot.
 - Do not put unbounded replay on hot read/write paths. Use EventStore snapshots, query-side read models, and bounded cursor policy.
-- Do not initialize nested submodules recursively. Initialize only root-level submodules when needed.
+- Use central package management and keep project package references versionless. For Hexalith modules, import the shared `references/Hexalith.Builds/Props/Directory.Packages.props` baseline through the module `Directory.Packages.props`; add local `PackageVersion` entries only as documented exceptions.
+- Do not initialize nested submodules recursively. Initialize only root-declared submodules under `references/` when needed.
 - Do not use generated build output as evidence or documentation source of truth.
 
 ## Release-Gate Obligations

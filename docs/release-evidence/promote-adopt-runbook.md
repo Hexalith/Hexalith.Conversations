@@ -166,14 +166,14 @@ Test projects live under `Hexalith.Commons/test/` (whose `Directory.Build.props`
   `ProjectsServerServiceCollectionExtensions.cs:146`) builds **0-warning** against the modified Conversations
   source; `Hexalith.Folders.Client` builds green transitively. Full umbrella Release build: 0 warnings.
 - 3.2: full Conversations Release build is 0-warning. `Hexalith.Projects.Server` builds 0-warning against
-  explicit root-level sibling paths. Full sibling `.slnx` builds are not a valid umbrella check here because
+  explicit `references/` sibling paths. Full sibling `.slnx` builds are not a valid umbrella check here because
   they reference nested sibling paths under their own submodule directories; `Hexalith.Folders.Server`/core
   were additionally blocked by missing assets plus silent restore-graph failure in this sandbox.
 
-## 8. Submodule commit + root pointer bump (root-only, never recursive)
+## 8. Submodule commit + root-declared pointer bump (never recursive)
 
 - The promotion is a **separate technical-module submodule commit** (in the module that received the helper)
-  **plus** a **root-level gitlink (pointer) bump** in the umbrella. Each promotion is its own commit + bump.
+  **plus** a **root-declared `references/` gitlink (pointer) bump** in the umbrella. Each promotion is its own commit + bump.
 - **Never** `git submodule update --init --recursive`; never initialize/update nested submodules.
 
 ## 9. Verify gitlinks before building (recurring hazard from Stories 2.2–2.7)

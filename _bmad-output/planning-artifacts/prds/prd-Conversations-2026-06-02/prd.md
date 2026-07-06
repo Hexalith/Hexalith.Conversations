@@ -328,7 +328,7 @@ The full release-gate conformance suite passes on the refactored module and publ
 
 - **Public surface / breaking-change policy:** promoted technical-module APIs are new public surface; they must be designed additive and versioned so existing domain modules compile unchanged. Conversations' own public contracts are unchanged.
 - **Versioning & deprecation:** any Conversations-local type that is superseded by a promoted capability is removed within this initiative (greenfield); for the technical modules, additions follow normal semver-additive rules. `[ASSUMPTION: no deprecation window needed inside Conversations because it is the pilot consumer.]`
-- **Language/runtime targets:** unchanged — net10.0, nullable, implicit usings, warnings-as-errors, Central Package Management (per project-context).
+- **Language/runtime targets:** unchanged — net10.0, nullable, implicit usings, warnings-as-errors, Central Package Management through the shared Hexalith.Builds package-version baseline, with module-local package versions treated as explicit exceptions.
 - **Performance budgets:** see NFRs / SM-C2.
 
 ## 11. Risks & Mitigations

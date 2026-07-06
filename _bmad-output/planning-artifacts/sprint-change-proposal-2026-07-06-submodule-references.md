@@ -5,7 +5,8 @@
 **Requested by:** Jerome  
 **Workflow:** bmad-correct-course  
 **Mode:** Batch  
-**Status:** Draft, awaiting review
+**Status:** Approved and implemented
+**Approved by:** Jerome on 2026-07-06
 
 ## 1. Issue Summary
 
@@ -373,14 +374,21 @@ Success criteria:
 
 - [x] 6.1 Checklist complete.
 - [x] 6.2 Proposal drafted.
-- [!] 6.3 User approval pending.
-- [N/A] 6.4 Sprint status update pending approval.
-- [!] 6.5 Handoff pending approval.
+- [x] 6.3 User approval received on 2026-07-06.
+- [x] 6.4 Sprint status corrective action added.
+- [x] 6.5 Handoff routed to Developer / Release owner.
 
-## 7. Approval Request
+## 7. Approval Result
 
-Review this proposal and choose:
+Jerome approved this proposal and requested implementation to continue.
 
-- Continue: approve this proposal for implementation.
-- Edit: provide changes to the proposal before implementation.
+## 8. Implementation Result
 
+The submodule layout correction was implemented on 2026-07-06:
+
+- Moved all ten root-declared sibling submodules to `references/Hexalith.*`.
+- Preserved the recorded submodule SHAs; no sibling submodule source changes were introduced.
+- The working tree still reports an existing local change inside `references/Hexalith.Tenants/Directory.Packages.props` (`ByteAether.Ulid` 1.3.7 -> 1.3.8); the Tenants gitlink remains pinned at `c707cb8a08506a398be6cd8d5670fa2a28ca48b3`.
+- Updated `.gitmodules`, build/package path discovery, project-reference fallbacks, scaffold tests, and agent/project documentation to use `references/`.
+- Verified no root-level `Hexalith.*` directories remain and no old `..\..\Hexalith.*` fallback project-reference paths remain under `src` or `tests`.
+- Validation passed with `dotnet restore Hexalith.Conversations.slnx`, `dotnet build Hexalith.Conversations.slnx --configuration Release --no-restore`, and `dotnet test tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj --configuration Release --no-restore`.

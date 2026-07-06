@@ -1198,6 +1198,9 @@ Hexalith.Conversations/
 
 - `Hexalith.Conversations.slnx` is the solution entry point.
 - Central package management controls dependency versions.
+- `Directory.Packages.props` imports `references/Hexalith.Builds/Props/Directory.Packages.props` as the shared Hexalith package-version baseline when the root-declared `references/Hexalith.Builds` submodule is present.
+- Local `PackageVersion` entries are exception-only and must be justified by module-specific tooling or compatibility needs.
+- Project files must use versionless `PackageReference` entries; package additions or bumps must not add inline `Version` attributes.
 - CI runs contracts, domain, server, integration, and conformance test lanes separately.
 
 **Deployment Structure:**

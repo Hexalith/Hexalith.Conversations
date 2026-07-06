@@ -215,3 +215,11 @@ action_items:
     action: "Keep release-facing documentation aligned with Epic 5 attestation state without claiming approval."
     owner: "Tech writer/Release owner"
     status: open
+  - epic: 5
+    action: "Move root-declared sibling submodules under references/, update build/test/documentation path assumptions, and prove the migration preserves all submodule SHAs without initializing nested submodules."
+    owner: "Developer/Release owner"
+    status: done
+  - epic: 5
+    action: "Verify and document that NuGet package versions resolve from the shared Hexalith.Builds Directory.Packages.props baseline, with local PackageVersion entries treated as justified exceptions and no inline PackageReference Version attributes in project files."
+    owner: "Developer/Release owner"
+    status: done

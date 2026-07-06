@@ -12,10 +12,10 @@
   </ItemGroup>
   <ItemGroup>
     <!-- Consume the promoted ruleless value-converter bases from Commons (FR-14 / Story 3.6).
-         Resolves Commons from source as a root-level submodule; the dual condition mirrors the
+         Resolves Commons from source as a root-declared submodule under references/; the dual condition mirrors the
          HexalithCommonsRoot resolution in the repository-root Directory.Build.props. -->
     <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
+    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Contracts.Tests" />

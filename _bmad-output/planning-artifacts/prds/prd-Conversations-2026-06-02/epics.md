@@ -84,7 +84,7 @@ NFR5: **Replay safety** — promoted projection/event handling remains idempoten
 
 NFR6: **Additive, versioned shared APIs** — promoted technical-module APIs are new public surface designed additive and semver-additive so existing domain modules (Folders/Projects/Memories/Parties/Tenants) compile unchanged; dependent modules are built in CI to prove it.
 
-NFR7: **Language/runtime targets unchanged** — net10.0, nullable enabled, implicit usings, warnings-as-errors, Central Package Management (per project-context).
+NFR7: **Language/runtime targets unchanged** — net10.0, nullable enabled, implicit usings, warnings-as-errors, Central Package Management through the shared Hexalith.Builds package-version baseline, with module-local package versions treated as explicit exceptions.
 
 NFR8: **Public-surface stability** — adopter-facing Conversations contracts and the EventStore-concept boundary (no raw envelopes leaked) are preserved.
 

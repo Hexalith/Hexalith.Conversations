@@ -5,7 +5,7 @@
 **Requested by:** Jerome
 **Workflow:** bmad-correct-course
 **Mode:** Batch
-**Status:** Draft, awaiting review
+**Status:** Approved and implemented
 
 ## 1. Issue Summary
 
@@ -13,10 +13,11 @@ The requested course correction is to ensure Hexalith.Conversations uses the Hex
 
 Current evidence:
 
-- `Directory.Packages.props` already imports `Hexalith.Builds/Props/Directory.Packages.props` through a fallback chain and keeps only one local override: `Microsoft.Playwright` version `1.61.0`.
+- `Directory.Packages.props` imports `references/Hexalith.Builds/Props/Directory.Packages.props` through a fallback chain.
 - A scan of `src` and `tests` found no inline `PackageReference Version=` entries. Package references are versionless and central package management is active.
-- `Hexalith.Builds/Samples/Module.Directory.Packages.props` shows the intended module template: import the shared `Hexalith.Builds/Props/Directory.Packages.props` file, then define module-specific versions only when needed.
-- The local `Hexalith.Tenants/Directory.Packages.props` snapshot is self-contained and does not currently import `Hexalith.Builds`. If "like tenants" means the current local Tenants file literally, that conflicts with the requested Hexalith.Builds source-of-truth direction.
+- `references/Hexalith.Builds/Samples/Module.Directory.Packages.props` shows the intended module template: import the shared `Hexalith.Builds/Props/Directory.Packages.props` file, then define module-specific versions only when needed.
+- Restore exposed and the implementation removed a redundant local `Microsoft.Playwright` `PackageVersion`; the shared Hexalith.Builds baseline already defines `Microsoft.Playwright` version `1.61.0`.
+- Restore also exposed a Tenants source-consumption drift: `references/Hexalith.Tenants/Directory.Packages.props` pinned `ByteAether.Ulid` `1.3.7` while the shared dependency graph requires `1.3.8`. The implementation aligned only that blocker instead of replacing the whole Tenants package file.
 
 The issue is therefore not a current inline-version defect. It is a planning and governance gap: the sprint artifacts do not explicitly state that Hexalith.Builds is the baseline package-version source, local package versions are exceptions, and validation must protect that rule.
 
@@ -42,11 +43,12 @@ No completed story must be rolled back. Recommended direct adjustment is a new f
 
 Scope:
 
-- Confirm `Directory.Packages.props` imports `Hexalith.Builds/Props/Directory.Packages.props`.
+- Confirm `Directory.Packages.props` imports `references/Hexalith.Builds/Props/Directory.Packages.props`.
 - Confirm project files contain no inline `PackageReference Version=` entries.
-- Confirm local `PackageVersion` entries are exception-only and justified.
+- Confirm local `PackageVersion` entries are absent unless exception-only and justified.
+- Confirm source-consumed sibling modules do not pin lower package versions that conflict with the shared graph.
 - Update the authoring template and sprint status action items with this build-governance rule.
-- Do not change public contracts, runtime behavior, package versions, AppHost topology, generated output, or sibling submodule source.
+- Do not change public contracts, runtime behavior, AppHost topology, or generated output.
 
 ### Artifact Conflicts
 
@@ -65,7 +67,7 @@ Scope:
 - Low implementation effort.
 - Low runtime risk: this is build configuration and documentation.
 - Restore/build validation is still required because Central Package Management changes can affect all projects.
-- The Tenants comparison needs an explicit wording decision because the local Tenants snapshot is self-contained, not Hexalith.Builds-imported.
+- Tenants remains self-contained, but its `ByteAether.Ulid` pin is aligned to the shared graph so source restore can complete.
 
 ## 3. Recommended Approach
 
@@ -103,7 +105,7 @@ NEW:
 ```md
 - `Hexalith.Conversations.slnx` is the solution entry point.
 - Central package management controls dependency versions.
-- `Directory.Packages.props` imports `Hexalith.Builds/Props/Directory.Packages.props` as the shared Hexalith package-version baseline when the root-level `Hexalith.Builds` submodule is present.
+- `Directory.Packages.props` imports `references/Hexalith.Builds/Props/Directory.Packages.props` as the shared Hexalith package-version baseline when the root-declared `references/Hexalith.Builds` submodule is present.
 - Local `PackageVersion` entries are exception-only and must be justified by module-specific tooling or compatibility needs.
 - Project files must use versionless `PackageReference` entries; package additions or bumps must not add inline `Version` attributes.
 - CI runs contracts, domain, server, integration, and conformance test lanes separately.
@@ -194,7 +196,7 @@ dotnet build Hexalith.Conversations.slnx --configuration Release --no-restore
 Expected result:
 
 - The scan reports no inline `PackageReference Version=` entries.
-- Any `<PackageVersion>` output is limited to central package files and justified local exceptions.
+- Any `<PackageVersion>` output is limited to shared central package files and justified local exceptions.
 - Restore and Release build pass without package downgrade or central-package-management errors.
 
 ## 5. Implementation Handoff
@@ -207,7 +209,7 @@ Responsibilities:
 
 - Apply the approved documentation/action-item updates.
 - Avoid package version bumps unless explicitly requested.
-- Avoid modifying `Hexalith.Builds`, `Hexalith.Tenants`, or other sibling submodule source unless separately approved.
+- Avoid modifying `Hexalith.Builds` or other sibling submodule source beyond the approved minimal Tenants `ByteAether.Ulid` alignment.
 - Run the package-version scan and restore/build validation.
 - Record any Tenants comparison ambiguity as a note rather than copying the local Tenants self-contained version file.
 
@@ -217,6 +219,7 @@ Success criteria:
 - It continues to import `Hexalith.Builds/Props/Directory.Packages.props`.
 - `.csproj` files remain versionless for NuGet package references.
 - Local `PackageVersion` entries are documented exceptions.
+- Source-consumed sibling module pins do not create package downgrade restore failures.
 - Restore/build validation passes or any failure is reported with exact package diagnostics.
 
 ## 6. Checklist Progress
@@ -261,14 +264,19 @@ Success criteria:
 
 - [x] 6.1 Checklist complete.
 - [x] 6.2 Proposal drafted.
-- [!] 6.3 User approval pending.
-- [N/A] 6.4 Sprint status update pending approval.
-- [!] 6.5 Handoff pending approval.
+- [x] 6.3 User approval received.
+- [x] 6.4 Sprint status update applied.
+- [x] 6.5 Handoff plan confirmed.
 
 ## 7. Approval Request
 
-Review this proposal and choose:
+Approved for implementation on 2026-07-06 and implemented as a minor package-governance correction.
 
-- Continue: approve the proposal for implementation.
-- Edit: provide changes to the proposal before implementation.
+## 8. Validation Results
 
+- Package scan: no inline `PackageReference Version=` entries under `src` or `tests`; no local `PackageVersion` entries remain in Conversations `Directory.Packages.props`.
+- Shared baseline: `Microsoft.Playwright` and `ByteAether.Ulid` resolve from `references/Hexalith.Builds/Props/Directory.Packages.props`.
+- Source path alignment: `Hexalith.Conversations.slnx` now points sibling projects at the root-declared `references/` submodules.
+- Tenants source alignment: `references/Hexalith.Tenants/Directory.Packages.props` now pins `ByteAether.Ulid` `1.3.8`, matching the shared baseline and avoiding the source-restore downgrade.
+- `dotnet restore Hexalith.Conversations.slnx`: passed.
+- `dotnet build Hexalith.Conversations.slnx --configuration Release --no-restore`: passed with 0 warnings and 0 errors.
