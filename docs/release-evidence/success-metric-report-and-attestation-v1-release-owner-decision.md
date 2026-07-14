@@ -1,10 +1,10 @@
 # Release-Owner Decision for Success Metric Report and Attestation v1
 
-**Decision artifact:** `success-metric-report-and-attestation-v1-release-owner-decision.json`
-**Status:** signed
-**Decision:** approved with recorded residual risks
-**Signer:** Jerome
-**Signed:** 2026-07-14T12:17:38Z
+**Decision artifact:** `success-metric-report-and-attestation-v1-release-owner-decision.json`  
+**Status:** signed  
+**Decision:** approved with recorded residual risks  
+**Signer:** Jerome  
+**Signed:** 2026-07-14T12:17:38Z  
 **Approval reference:** `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14.md`
 
 The JSON decision artifact is authoritative. This Markdown record is a human-readable summary.

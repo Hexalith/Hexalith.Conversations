@@ -1,0 +1,2 @@
+# Preserve intentional CommonMark hard breaks in the signed release-owner summary.
+docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.md whitespace=-blank-at-eol
