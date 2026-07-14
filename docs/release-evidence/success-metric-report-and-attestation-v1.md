@@ -10,7 +10,7 @@ The JSON artifact is authoritative. This Markdown summarizes the same facts for 
 ## Source Bundle
 
 - Source artifact count: 32
-- Signable payload hash: `331e92a1fbc8492b08586d7b785e38c536c640a24a20f16ec2ea8f24cf22710f`
+- Signable payload hash: `d6c61737d3b937f1142f77f81c82eb7b13607a1d923c173095cb1ffef2f2fe73`
 - Baseline commit: `2ab26d8ab3b61186c82ebe5d4776f6c223817126`
 - Containing commit: read from the Git commit that contains this artifact; the self-referential final commit SHA is intentionally not embedded.
 

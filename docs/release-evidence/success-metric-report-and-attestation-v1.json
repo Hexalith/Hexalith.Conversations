@@ -87,7 +87,7 @@
     },
     {
       "path": "docs/domain-module-authoring-template.md",
-      "sha256": "3e82479b3be4ba70b9affa4e155fef7cfc0c24e8b2d16e0eebdc7e211bec76f0",
+      "sha256": "3e64ceb6eb8fd960675d9b305c68aed2a1885362d2b99c9661bdddd1d66c6696",
       "role": "Story 4.1 module authoring template reference"
     },
     {
@@ -117,7 +117,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/architecture.md",
-      "sha256": "711567324244261899e3a356ad92ef9e6c1fd8cb4d0e4a1abb1b007a36528418",
+      "sha256": "d4e32e7ea89729ba435d4cd01e2fc50564c2e39d3f6c4c2cd7fd0f34d3eb8d5c",
       "role": "testing and release-evidence architecture constraints"
     },
     {
@@ -127,7 +127,7 @@
     },
     {
       "path": "docs/release-evidence/promote-adopt-runbook.md",
-      "sha256": "08a9d53f9857ffbdaf4b7d6336e6ed95ff24a0cd6f953fba1aa293c0dd5c15bb",
+      "sha256": "2ae308e82f159b3f152077d6946ff220108266806668c6dfb0921f3df0920ce1",
       "role": "Epic 3 promote/adopt row evidence"
     },
     {
@@ -597,7 +597,7 @@
   "attestation": {
     "signatureStatus": "ready-for-signature",
     "decision": "pending",
-    "signablePayloadHash": "331e92a1fbc8492b08586d7b785e38c536c640a24a20f16ec2ea8f24cf22710f",
+    "signablePayloadHash": "d6c61737d3b937f1142f77f81c82eb7b13607a1d923c173095cb1ffef2f2fe73",
     "hashAlgorithm": "SHA-256 over newline-delimited source artifact path, sha256, and role manifest in sourceArtifacts order",
     "evidenceBundle": [
       "docs/release-evidence/consume-promote-keep-inventory-v1.json",
