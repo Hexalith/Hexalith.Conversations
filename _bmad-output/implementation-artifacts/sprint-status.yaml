@@ -37,7 +37,9 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-07-14
+last_updated: 2026-07-15
+# Major corrective scope approved on 2026-07-15 through sprint-change-proposal-2026-07-15.md. Epics 1-5 remain immutable historical delivery records. Epic 6 reconciles architecture ownership, platform-host migration, preservation traceability, UX provenance, thin-template evidence, and superseding release attestation before implementation readiness is reassessed.
+# Submodule-promotion completion gate approved on 2026-07-15 through sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md and reconciled append-only with the major correction. Story 6.7 is sequenced after 6.1 and before 6.2; Epics 1-5 remain unchanged and retrospective action A2 remains open until independent gate verification passes.
 # OQ-2 target interpretation resolved on 2026-07-14 through approved Sprint Change Proposal sprint-change-proposal-2026-07-14-oq-2-target-interpretation.md. SM-1 target >=40% inclusive is met at 70.43%. SM-2 target >=50% fewer hand-authored, module-owned files inclusive is met-on-accepted-estimate at 50.00% files with 67.95% LOC supporting evidence and low confidence preserved. Historical accepted/signed evidence remains byte-identical; current authority is docs/release-evidence/oq-2-target-interpretation-decision-v1.json. Validation: Release conformance test-project build 0 warnings/errors; focused OQ-2 validation 4/4; full conformance 388/388.
 # Epic 5 final-record workflow correction completed on 2026-07-14 through approved Sprint Change Proposal sprint-change-proposal-2026-07-14-epic-5-final-record-check.md. Added a reusable live/historical gate for final TRX counts, exact completion-record File Lists, changed docs/evidence, frozen dirty state, gitlinks, and non-mutating full public-contract-shape equality. Historical consistency: Story 5.1 365/365, Story 5.2 374/374 with separate approved test-summary File List amendment, Story 5.3 384/384. Current Release conformance: 389/389; PowerShell adversarial fixtures: 8/8; public-contract-shape diff empty. Signed evidence remains byte-identical.
 # epic-5 retrospective completed on 2026-06-27 (autonomous YOLO run; doc=epic-5-retro-2026-06-27.md); epic-5 in-progress -> done (all 3 stories done); epic-5-retrospective optional -> done. Key findings: FR-20 capstone evidence is ready for release-owner decision, final conformance 384/384, public contract-shape diff empty, removed-test ledger reconciled with one dead-plumbing removal and no missing release-gate suite, SM-1 directional reduction 70.43%, SM-2 directional 50.00% files / 67.95% LOC, OQ-2 remains unconfirmed, projection read-store population is explicitly deferred, Conformance.Tests->Server coupling remains accepted residual risk, and the attestation is ready-for-signature but unsigned. Documentation verification updated README.md, docs/integration-guide.md, and docs/release-evidence/contract-compatibility-policy.md; tests/README.md, docs/responsibility-boundaries.md, and architecture docs did not need changes after comparison against implementation evidence.)
@@ -131,6 +133,15 @@ development_status:
   5-2-reconcile-the-removed-test-justification-ledger: done
   5-3-assemble-the-success-metric-report-and-signable-attestation: done
   epic-5-retrospective: done
+  epic-6: backlog
+  6-1-rebaseline-architecture-and-planning-authority: backlog
+  6-2-migrate-conversations-to-platform-owned-hosting: backlog
+  6-3-create-complete-preservation-traceability-manifest: backlog
+  6-4-repair-ux-provenance-and-preservation-governance: backlog
+  6-5-correct-thin-authoring-template-and-reproduce-sm-2: backlog
+  6-6-revalidate-and-issue-superseding-attestation: backlog
+  6-7-mechanically-block-incomplete-submodule-promotions-from-completion: backlog
+  epic-6-retrospective: optional
 
 action_items:
   - epic: 3
