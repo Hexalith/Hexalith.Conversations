@@ -1,6 +1,6 @@
 ---
 title: "Conversations Boilerplate Reduction — A Thinner Domain-Authoring Surface"
-status: draft
+status: final
 created: "2026-06-02"
 updated: "2026-07-14"
 ---
