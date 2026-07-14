@@ -9,7 +9,7 @@ updated: "2026-07-14"
 
 ## 0. Document Purpose
 
-This PRD defines a **refactoring initiative**, not a feature, for the owners of Hexalith.Conversations, shared technical modules, genuinely affected `Hexalith.Tenants` contracts, architecture, epics/stories, and implementation. It states what plumbing leaves Conversations, what remains, scope, sequencing, and acceptance evidence. Package ownership, extracted API shapes, migration mechanics, the grounded inventory, and duplication evidence live in the companion [addendum.md](addendum.md). §14 embeds the authoritative preserved product-contract baseline: it constrains the refactor without adding feature-delivery scope or asserting that legacy roadmap items shipped. Refactoring requirements use stable `FR-*` IDs; preserved product requirements use `Feature-FR*` and `Feature-NFR*`; `[ASSUMPTION]` entries are indexed in §13.
+This PRD defines a **refactoring initiative**, not a feature. Its audience includes the owners of Hexalith.Conversations and shared technical modules, as well as those responsible for genuinely affected `Hexalith.Tenants` contracts, architecture, epics/stories, and implementation. It states what plumbing leaves Conversations, what remains, scope, sequencing, and acceptance evidence. Package ownership, extracted API shapes, migration mechanics, the grounded inventory, and duplication evidence live in the companion [addendum.md](addendum.md). §14 embeds the authoritative preserved product-contract baseline: it constrains the refactor without adding feature-delivery scope or asserting that legacy roadmap items shipped. Refactoring requirements use stable `FR-*` IDs; preserved product requirements use `Feature-FR*` and `Feature-NFR*`; `[ASSUMPTION]` entries are indexed in §13.
 
 ## 1. Vision
 
@@ -32,7 +32,7 @@ The payoff is two-sided and both sides matter equally. Conversations itself shed
 
 ## 3. Target User
 
-The "users" of this initiative are developers, not end customers. Stakes are an **internal developer-platform** effort. `[ASSUMPTION: internal developer-platform stakes; no external/customer-facing surface in scope.]`
+The "users" of this initiative are developers, not end customers. This is an **internal developer-platform** effort. `[ASSUMPTION: internal developer-platform stakes; no external/customer-facing surface in scope.]`
 
 ### 3.1 Jobs To Be Done
 
@@ -54,11 +54,11 @@ The "users" of this initiative are developers, not end customers. Stakes are an 
 
 - **UJ-2. Sam promotes the tenant-access handler everyone copied.** Sam notices that the tenant-access projection behavior is duplicated in Folders and Projects and re-implemented in Conversations. He moves the domain-agnostic behavior into a shared technical capability with its own tests, then has Conversations supply only its domain-specific contracts. The Conversations copy disappears; the shared implementation is the single source of truth. *Realizes FR-11; technical mapping in addendum §E.*
 
-- **UJ-3. Priya stands up a brand-new domain module on the thin template.** Priya needs a new business-domain module. She follows the documented authoring template, supplies the required domain contracts and behavior, and consumes the platform-owned hosting and runtime capabilities. She reaches a working module in a fraction of the files Conversations originally needed. The template, proven by Conversations, is what makes this trivial. *Realizes FR-17, FR-18, FR-19; technical grounding in addendum §§D–F.*
+- **UJ-3. Priya stands up a brand-new domain module on the thin template.** Priya needs a new business-domain module. She follows the documented authoring template, supplies the required domain contracts and behavior, and consumes the platform-owned hosting and runtime capabilities. She reaches a working module with a fraction of the files Conversations originally needed. The template, proven by Conversations, is what makes this trivial. *Realizes FR-17, FR-18, FR-19; technical grounding in addendum §§D–F.*
 
 ## 4. Glossary
 
-- **Business-domain module** — a Hexalith module that owns a bounded domain (e.g. Conversations, Folders, Projects, Tenants). Should contain domain logic, not infrastructure plumbing.
+- **Business-domain module** — a Hexalith module that owns a bounded domain (e.g. Conversations, Folders, Projects, Tenants). It should contain domain logic, not infrastructure plumbing.
 - **Technical module** — a shared Hexalith infrastructure module that domain modules depend on, including `Hexalith.EventStore` (+ its Client/DomainService/ServiceDefaults/Aspire/Testing packages), `Hexalith.Commons`, and `Hexalith.FrontComposer`.
 - **Domain dependency** — another business-domain module whose contracts or behavior are consumed. `Hexalith.Tenants` is the multi-tenancy domain module and a dependency/consumer, never a landing zone for generic hosting or runtime boilerplate.
 - **Boilerplate** — code that is **not specific to the Conversations domain, or that can be generalized for reuse** (user's definition). The target of this initiative.
@@ -70,6 +70,7 @@ The "users" of this initiative are developers, not end customers. Stakes are an 
 - **Promotion landing zone** — the technical module a promoted capability is moved into. `[ASSUMPTION: existing technical modules unless architecture proves a new shared module is warranted — Open Question OQ-1.]`
 - **Release-gate behavior** — the externally-observable behaviors that must be preserved: tenant isolation (fail-closed), governance/audit-pairing, command idempotency, redaction replay/auditability, projection freshness/degraded-state signaling, public contract shape.
 - **Conformance suite** — the existing tests that prove release-gate behavior (tenant isolation, idempotency, contract validation, redaction, provider portability, etc.).
+- **CORE** — the minimum non-cuttable capability and Foundation Gate set required for credible substrate behavior across all eight preserved acceptance journeys.
 - **Plumbing-only test** — a test that exists solely to cover hand-rolled infrastructure being removed; may be deleted with the code it covers.
 
 ## 5. MVP Scope and Boundaries
@@ -155,7 +156,7 @@ Conversations delegates domain-agnostic query execution and pagination-token pro
 **Consequences (testable):**
 - Local domain-agnostic query-orchestration and pagination-token machinery is removed; conversation-specific query behavior remains.
 - Accepted and rejected pagination tokens, page ordering, continuation, and response shapes remain contract-compatible.
-- Cursor round-trip and pagination behavior re-resolve identically under the release-gate behavior.
+- Cursor round-trip and pagination behavior remain identical in release-gate scenarios.
 
 #### FR-5: Read-model persistence via shared store + write policy
 
@@ -232,7 +233,7 @@ A domain module consumes a shared tenant-access projection capability for domain
 **Consequences (testable):**
 - The copied Conversations tenant-access processing and registration infrastructure is replaced by the shared capability.
 - Fail-closed behavior on missing/stale/unavailable/disabled/ambiguous/insufficient projection state is preserved (tenant-isolation conformance green).
-- Duplicate/out-of-order/replay tolerance preserved.
+- Duplicate/out-of-order/replay tolerance is preserved.
 
 #### FR-12: Shared client registration
 
@@ -343,7 +344,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 - **Behavior preservation:** FR-20 / SM-C1 are authoritative for the dominant NFR and its frozen denominator.
 - **Performance:** SM-C2 is authoritative. Shared capabilities must not introduce synchronous cross-service calls on hot paths or unbounded history loads; snapshot/projection behavior is preserved.
 - **Fail-closed invariants:** promoted tenant-access and authorization capabilities must preserve fail-closed semantics by construction; cross-tenant access remains impossible and adversarially tested.
-- **Observability:** metric names, dimensions, and health endpoints preserved through platform-owned shared telemetry/ServiceDefaults so existing dashboards/alerts keep working.
+- **Observability:** metric names, dimensions, and health endpoints are preserved through platform-owned shared telemetry/ServiceDefaults so existing dashboards/alerts keep working.
 - **Replay safety:** promoted projection/event handling must remain idempotent and tolerant of duplicate/out-of-order delivery (Dapr at-least-once).
 
 ## 9. Constraints & Guardrails
@@ -371,7 +372,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 
 | ID | Status and decision | Owner / revisit |
 |---|---|---|
-| OQ-1 | **Architecture dependency; non-blocking for PRD.** Resolve each FR-10 through FR-15 landing zone to Commons, EventStore.*, FrontComposer, or an explicitly justified new shared technical module. Host, AppHost, Aspire, DAPR, ServiceDefaults, projection/query runtime, and subscription plumbing remain platform/domain-service SDK owned, never Conversations. | Platform architect, before the corresponding implementation story starts. |
+| OQ-1 | **Architecture dependency; non-blocking for PRD.** Determine whether the landing zone for each of FR-10 through FR-15 is Commons, EventStore.*, FrontComposer, or an explicitly justified new shared technical module. Host, AppHost, Aspire, DAPR, ServiceDefaults, projection/query runtime, and subscription plumbing remain platform/domain-service SDK owned, never Conversations. | Platform architect, before the corresponding implementation story starts. |
 | OQ-2 | **Resolved 2026-07-14.** SM-1 is ≥40% classified-plumbing LOC removed or externalized; SM-2 is ≥50% fewer hand-authored, module-owned files within the frozen boundary. Both comparisons are inclusive; file count decides SM-2 and LOC supports it. Current SM-2 evidence remains provisional until the FR-19 reproducible fixture and artifact exist. See `docs/release-evidence/oq-2-target-interpretation-decision-v1.json`. | Pilot acceptance owner reviews the versioned FR-19 artifact at pilot close. |
 | OQ-3 | **Resolved 2026-07-14.** Governance orchestration, temporal reconstruction, and upstream hydration remain Conversations-owned. Only already-demonstrated generic SDK seams may be consumed; new extraction is follow-on work requiring a separate decision. | Reopen only through a separately approved follow-on decision. |
 | OQ-4 | **Resolved 2026-07-14.** FR-16 shared compile-time command/event metadata is backlog and excluded from pilot scope and acceptance. | Reopen only through a separately approved initiative. |
@@ -382,7 +383,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 | Source | Current assumption | Owner / revisit |
 |---|---|---|
 | §3 | Internal developer-platform stakes; no external/customer-facing surface is in scope. | Product owner validates before any external-tenant or customer-facing release claim. |
-| §4 / §9 | Promotions land in existing technical modules unless architecture proves a new module is needed. | Platform architect resolves OQ-1 before each FR-10 through FR-15 implementation story starts. |
+| §4 / §9 | Promotions land in existing technical modules unless architecture proves a new module is needed. | The platform architect resolves OQ-1 before the implementation story for each of FR-10 through FR-15 starts. |
 | §6.2 | Each consumed capability is functionally sufficient; shortfalls become Promote items. | Technical lead verifies during architecture and records any shortfall before implementation. |
 | §5.3 | Delivery is phased. | Product/platform owner confirms sequencing during sprint planning; scope gates remain authoritative if sequencing changes. |
 | §7 / SM-4 | Maintainer signal is a light qualitative check, not a survey instrument. | Pilot acceptance owner reviews the maintainer signal at pilot close. |
@@ -396,7 +397,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 
 This section is the normative product-contract baseline reconciled from the [archived May 2026 feature contract](../../../archive/conversations-product-contract-2026-05-31.md). It replaces the former live dependency on that legacy root document. Refactoring requirements FR-1 through FR-20 remain the scope of this initiative; the preserved product requirements use the distinct Feature-FR1 through Feature-FR104 and Feature-NFR1 through Feature-NFR77 namespaces.
 
-Every Feature-FR and Feature-NFR below has disposition **preserved** as a behavioral or quality constraint on FR-20 and SM-C1. “Preserved” does not mean implemented, shipped, accepted, or scheduled. Any requirement whose text is conditional on an active release remains conditional, and the current delivery state of every legacy v1/v1.1/vNext item is **open pending evidence or an explicit release decision**. This baseline does not expand the boilerplate-refactor scope, authorize customer-visible work, or override the initiative's non-goals.
+Every Feature-FR and Feature-NFR below has the disposition **preserved** as a behavioral or quality constraint on FR-20 and SM-C1. “Preserved” does not mean implemented, shipped, accepted, or scheduled. Any requirement whose text is conditional on an active release remains conditional, and the current delivery state of every legacy v1/v1.1/vNext item is **open pending evidence or an explicit release decision**. This baseline does not expand the boilerplate-refactor scope, authorize customer-visible work, or override the initiative's non-goals.
 
 ### 14.2 Product intent
 
@@ -448,7 +449,7 @@ The archived contract also carried the following release-governance terms. They 
 
 - **Feature-FR1:** Adopter systems can create a tenant-scoped conversation record.
 - **Feature-FR2:** Each conversation has a stable tenant-scoped internal identity distinct from external business identifiers, provider identifiers, UI labels, or thread names.
-- **Feature-FR3:** The system can represent conversation lifecycle state and allowed transitions, including active, archived or closed, and any release-approved reopening or sealing behavior.
+- **Feature-FR3:** The system can represent conversation lifecycle state and allowed transitions, including active, archived, or closed states and any release-approved behavior for reopening or sealing.
 - **Feature-FR4:** Adopter systems can append ordered messages to an existing conversation.
 - **Feature-FR5:** Adopter systems can add human users, AI agents, and LLMs as conversation participants.
 - **Feature-FR6:** Adopter systems can submit idempotent commands and receive stable outcomes for duplicate submissions.
@@ -513,7 +514,7 @@ The archived contract also carried the following release-governance terms. They 
 - **Feature-FR50:** The system can reconstruct message state and governance state as they existed at a prior point in time.
 - **Feature-FR51:** The system can make audit records citeable with stable identifiers, timestamps, actor attribution, tenant identity, conversation identity, and integrity metadata.
 - **Feature-FR52:** The system can apply retention and redaction policy treatment to governance audit records themselves.
-- **Feature-FR53:** The system can define which actions on audit records are allowed, denied, redacted, exported, or separately logged.
+- **Feature-FR53:** The system can define which actions on audit records are allowed or denied and when the records can be redacted, exported, or separately logged.
 - **Feature-FR54:** The system can record structured justification for privileged operational actions that touch tenant-scoped conversation data.
 - **Feature-FR55:** Operators can review privileged-action justification, actor, timestamp, tenant, affected conversation, policy basis, and resulting audit event as one coherent record.
 
@@ -590,7 +591,7 @@ Numeric targets below preserve their target definitions but do not assert that e
 - **Feature-NFR1:** Each NFR must identify its verification artifact type and responsible lifecycle stage: design review, automated test, load/performance test, operational drill, release evidence, or accessibility validation.
 - **Feature-NFR2:** Every release-gated NFR must map to at least one automated verification artifact, one evidence file, and one release decision status: `pass`, `fail`, `waived`, or `unknown-accepted`.
 - **Feature-NFR3:** Every NFR with a numeric target must name the measurement method, test environment class, and pass/fail interpretation before it can be used as a release gate.
-- **Feature-NFR4:** GA implementation cannot begin until unresolved capacity and latency targets are converted into explicit numeric thresholds or marked as buyer-accepted unknowns with named owner and review date.
+- **Feature-NFR4:** Implementation for GA cannot begin until unresolved capacity and latency targets are converted into explicit numeric thresholds or marked as buyer-accepted unknowns with a named owner and review date.
 - **Feature-NFR5:** Numeric targets must be classified as `Release blocker`, `Validation target`, or `Capacity discovery target` before implementation kickoff.
 - **Feature-NFR6:** Any missed numeric threshold or untested risk requires named approver, expiry date, compensating control, and buyer acceptance if customer-facing.
 - **Feature-NFR7:** A shared NFR measurement envelope must define data volume, tenant count, concurrent users, event count per conversation, projection state, cache state, deployment shape, storage backend, and network locality. Latency and capacity NFRs must reference this envelope.
@@ -604,7 +605,7 @@ Numeric targets below preserve their target definitions but do not assert that e
 - **Feature-NFR12:** Operator/admin search workflows must complete within 90 seconds for defined investigation scenarios, including user interaction steps.
 - **Feature-NFR13:** Backend query latency, projection freshness, and result explainability thresholds that support the 90-second operator workflow must be defined separately.
 - **Feature-NFR14:** Append-message latency must be benchmarked under duplicate/idempotent command load with tenant validation, persistence, audit behavior where applicable, and publication boundary included as defined by architecture.
-- **Feature-NFR15:** Append timing must distinguish command accepted, event persisted, audit recorded, publication enqueued, and projection visible rather than collapsing all stops into one ambiguous number.
+- **Feature-NFR15:** Append timing must distinguish command accepted, event persisted, audit recorded, publication enqueued, and projection visible rather than collapsing all stages into one ambiguous number.
 
 #### Security And Privacy
 
@@ -649,7 +650,7 @@ Numeric targets below preserve their target definitions but do not assert that e
 #### Projection Freshness
 
 - **Feature-NFR44:** Projection freshness metadata must be exposed consistently across consumer APIs, operator views, diagnostics, and verification output.
-- **Feature-NFR45:** Projection freshness metadata must use a standard shape such as `lastAppliedEventPosition`, `lastAppliedEventTimestamp`, `projectionGeneratedAt`, `isStale`, and `lagDuration`, or document why an equivalent shape is not available.
+- **Feature-NFR45:** Projection freshness metadata must use a standard shape such as `lastAppliedEventPosition`, `lastAppliedEventTimestamp`, `projectionGeneratedAt`, `isStale`, and `lagDuration`; otherwise, the system must document why an equivalent shape is not available.
 - **Feature-NFR46:** The system must define projection consistency and freshness semantics, including current, stale, rebuilding, unavailable, and intentionally hidden by tenant isolation.
 - **Feature-NFR47:** Operator/admin surfaces must clearly distinguish normal, delayed, degraded, blocked, redacted, replaying, and partially rebuilt states without requiring log access. Each state must expose tenant scope, freshness timestamp, and recommended next action.
 - **Feature-NFR48:** During projection lag, rebuild, replay, retry, dead-letter, or audit-sink degradation, the system must show stable trust signals: last known good state, current processing status, whether user-visible data is complete, and whether operator action is required.
@@ -669,14 +670,14 @@ Numeric targets below preserve their target definitions but do not assert that e
 - **Feature-NFR56:** Operational signals must be tenant-safe and content-safe by default.
 - **Feature-NFR57:** Observability cardinality must be bounded so tenant, conversation, Party, provider, and error dimensions do not create unbounded metrics or logs.
 - **Feature-NFR58:** Observability dimensions must not include conversation ID, user free-text, raw business record identifiers, prompt/content fragments, or unbounded error strings. Tenant ID may be used only when approved by privacy/governance policy.
-- **Feature-NFR59:** `governance verify` / conformance verification output must be machine-readable and suitable for CI and incident workflows.
+- **Feature-NFR59:** Output from `governance verify` and other conformance verification must be machine-readable and suitable for CI and incident workflows.
 - **Feature-NFR60:** Privileged operational actions must include structured justification and produce reviewable audit records.
 - **Feature-NFR61:** Privileged operational access must be reviewed periodically, with stale justifications or unexplained access attempts treated as audit findings.
 
 #### Compliance, Retention, And Release Evidence
 
 - **Feature-NFR62:** Tenant isolation, audit integrity, redaction non-leakage, unsupported schema rejection, projection rebuild determinism, and contract breakage are automatic release blockers unless explicitly waived through the named-waiver process.
-- **Feature-NFR63:** Every release must produce a signed conformance artifact and versioned manifest mapping tests to FRs, NFRs, carry-forward commitments, pass criteria, waiver status, measurement method, and environment.
+- **Feature-NFR63:** Every release must produce a signed conformance artifact and a versioned manifest that maps tests to FRs, NFRs, carry-forward commitments, and pass criteria and records waiver status, measurement method, and environment.
 - **Feature-NFR64:** Module-level compliance evidence must clearly identify which controls belong to Conversations and which are inherited from Hexalith platform controls.
 - **Feature-NFR65:** Audit-record access, export, redaction, tamper attempts, and privileged-view behavior must be covered by explicit tests.
 - **Feature-NFR66:** The system must define retention, archival, deletion, and legal-hold behavior for conversation events, projections, audit records, redaction records, and derived materializations.

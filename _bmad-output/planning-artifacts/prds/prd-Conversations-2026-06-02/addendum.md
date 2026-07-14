@@ -1,10 +1,10 @@
 # Addendum — Conversations Boilerplate Reduction
 
-Technical-how and grounding evidence that supports the PRD but belongs downstream (architecture / solution design). The PRD stays at capability altitude; this file carries the library mappings, the gap catalog, and the cross-module duplication evidence gathered during Discovery (3 Explore subagents, 2026-06-02). Figures are first-pass and approximate — confirm during architecture.
+This addendum contains technical-how and grounding evidence that support the PRD but belong downstream (architecture / solution design). The PRD stays at capability altitude; this file carries the library mappings, the gap catalog, and the cross-module duplication evidence gathered during Discovery (3 Explore subagents, 2026-06-02). Figures are first-pass and approximate — confirm during architecture.
 
 ## A. Current baseline and implementation guardrail
 
-**Authoritative SM-1 baseline:** Story 1.4 measured and accepted **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed `docs/release-evidence/consume-promote-keep-inventory-v1.json`. Its `sourceTotalLoc` verifies 35,769 exactly; governance + hydration resolved Keep-now per OQ-3, and Contracts/Testing domain surface attributed Keep moved ≈4.7k LOC out of plumbing. This inventory is the baseline Story 5.3 references.
+**Authoritative SM-1 baseline:** Story 1.4 measured and accepted **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed `docs/release-evidence/consume-promote-keep-inventory-v1.json`. Its `sourceTotalLoc` verifies exactly 35,769 LOC. Under OQ-3, governance and hydration were classified as Keep now. The classification of the Contracts/Testing domain surface as Keep moved ≈4.7k LOC out of plumbing. This inventory is the baseline Story 5.3 references.
 
 **Historical Discovery estimate:** Total source ≈ 35,769 LOC; plumbing (Consume + Promote) ≈ 18,000 LOC (~50%); domain logic (Keep) ≈ 17,000 LOC. This first-pass estimate is preserved as provenance, not as the accepted baseline.
 
@@ -16,7 +16,7 @@ Technical-how and grounding evidence that supports the PRD but belongs downstrea
 
 - Landing zone per promotion: existing module (Commons vs EventStore.*) vs a new dedicated shared abstractions module.
 - Additive/backward-compatible API design so Folders/Projects/Memories/Parties/Tenants keep compiling.
-- Whether governance/temporal/hydration orchestration (areas 2,3,7) generalize cleanly enough to promote in a follow-on.
+- Whether governance/temporal/hydration orchestration (areas 2, 3, and 7) generalizes cleanly enough to be promoted in a follow-on phase.
 
 ### Legacy technical-how provenance
 
@@ -51,13 +51,13 @@ The table preserves the first-pass area estimates and classifications; §A defin
 | # | Area | ~LOC / files | Class | Target capability |
 |---|------|--------------|-------|-------------------|
 | 1 | Queries / cursor / read-model hydration boundary | 5,327 / 14 | Consume + Promote | SDK `IDomainQueryHandler`, `IQueryCursorCodec`, `QueryCursorScope`; keep query filters/response shapes |
-| 2 | Governance / verification / audit | 4,337 / 10 | Keep now, promote-later candidate | generic check→evidence→verify→result flow could promote; domain evidence/remediation vocab stays |
+| 2 | Governance / verification / audit | 4,337 / 10 | Keep now, promote-later candidate | generic check→evidence→verify→result flow could be promoted; domain evidence/remediation vocabulary remains domain-owned |
 | 3 | Projections (materializer, rebuild, state) | 2,975 / 12 | Promote orchestration, Keep logic | SDK `IDomainProjectionHandler`; keep field selection / freshness formula |
 | 4 | Diagnostics / telemetry / classifiers | 2,442 / 24 | Promote | shared meter/counter/classifier scaffolding (FR-15) |
 | 5 | Validation logic | 2,663 / 13 | Keep | conversation business rules |
 | 6 | Tenant-access projection + DI | 1,086 / 9 | Promote | generic `TenantAccessProjectionHandler<TEvent,TProjection>` + registration (FR-11) |
 | 7 | Hydration (reference resolution) | 828 / 8 | Keep now, promote-later candidate | cross-domain reference binding pattern |
-| 8 | Publication / event composition | 638 / 8 | Promote (partial) | transport marshaling generic; failure taxonomy domain |
+| 8 | Publication / event composition | 638 / 8 | Promote (partial) | transport marshaling is generic; the failure taxonomy remains domain-specific |
 | 9 | DI / ServiceCollection extensions | 363 / 9 | Promote / Consume | shared host (FR-3) + shared registration helpers |
 | 10 | Serialization converters | 174 / 6 | Consume | Commons `TypeMapper` / generic converters / source-gen context base (FR-8, FR-14) |
 | 11 | Test scaffolding / fixtures | 1,755 / 11 | Mixed | consume EventStore.Testing assertions/fakes; keep domain conformance scenarios |
@@ -82,13 +82,13 @@ Concrete implementation mappings remain here rather than in the normative PRD. F
 | EventStore.Aspire | `AddHexalithEventStore`, `AddEventStoreDomainModule` | Consume existing platform AppHost capabilities, including shared versus isolated DAPR infrastructure modes and platform-owned sidecar health behavior. Conversations owns no AppHost or Aspire project. | FR-13 |
 | EventStore.Testing | `DomainResultAssertions`, envelope/sequence/isolation assertions, `FakeEventStoreGatewayClient`, `InMemoryStateManager`, terminatable compliance | Consume the existing test surface. | FR-9 |
 | Commons | `TypeMapper`/`NameTypeMapper` (under-used polymorphic registry), `FluentValidateOptions<T>`, `IEquatableObject`/`EquatableHelper`, `UniqueIdHelper`/Ulid, `ISettings`/`SettingsHelper` | Consume the existing common helpers. | FR-8/FR-14 |
-| FrontComposer | `FrontComposerGenerator` (source-gen for `[Command]`/`[Projection]`), `FrontComposerTestBase`/host builder | Preserve generated behavior. | FR in feature PRD |
+| FrontComposer | `FrontComposerGenerator` (source-gen for `[Command]`/`[Projection]`), `FrontComposerTestBase`/host builder | Preserve generated behavior. | Feature-FR76 |
 
 ## E. Cross-module duplication → shared-capability candidates (FR-10..FR-15)
 
 Modules compared: Conversations, Folders, Projects, Memories, Tenants, Parties.
 
-`Hexalith.Tenants` appears here only as a compared **domain module and dependency/consumer**. It is not a technical-module landing zone; generic hosting/runtime behavior belongs in EventStore, Commons, FrontComposer, or another genuine shared technical module.
+`Hexalith.Tenants` appears here only as a **domain module included in the comparison and as a dependency/consumer**. It is not a technical-module landing zone; generic hosting/runtime behavior belongs in EventStore, Commons, FrontComposer, or another genuine shared technical module.
 
 | Rank | Pattern | Where | Similarity | Recommendation | FR |
 |------|---------|-------|-----------|----------------|----|
@@ -113,7 +113,7 @@ Build only capabilities Conversations consumes in-pilot; all others remain follo
 | 1 | `ICommandContract` / `IEventContract` compile-time metadata, parallel to existing `IQueryContract` | **Backlog.** Explicitly deferred from the pilot on 2026-07-14 because contract reshaping is unnecessary for the core boilerplate-reduction proof. | FR-16 |
 | 2 | Polymorphic JSON registration helper / source-gen catalog | Publicize `TypeMapper` for in-pilot consumption. | FR-14 |
 | 3 | Generic tenant-access projection handler | Build for in-pilot consumption. | FR-11 |
-| 4 | Generic observability/health hook | **Consume/extend.** `EventStore.ServiceDefaults` already supplies `AddServiceDefaults`, `ConfigureOpenTelemetry`, `AddDefaultHealthChecks`, and `MapDefaultEndpoints`; `EventStore.DomainService` supplies `AddEventStoreDomainTelemetry`. Consume these. If Conversations exposes a still-unsupported generic hook, extend that platform-owned surface; do not create a Conversations ServiceDefaults or hosting module. | FR-10 |
+| 4 | Generic observability/health hook | **Consume/extend.** `EventStore.ServiceDefaults` already supplies `AddServiceDefaults`, `ConfigureOpenTelemetry`, `AddDefaultHealthChecks`, and `MapDefaultEndpoints`; `EventStore.DomainService` supplies `AddEventStoreDomainTelemetry`. Consume these. If Conversations requires a generic hook that the platform-owned surface does not yet support, extend that surface; do not create a Conversations ServiceDefaults or hosting module. | FR-10 |
 | 5 | Generic typed-HttpClient registration | Build for in-pilot consumption. | FR-12 |
 | 6 | Generic naming, mode, component, or sidecar behavior for Aspire/DAPR topology | **Consume/extend.** `EventStore.Aspire` already supplies `AddHexalithEventStore` and `AddEventStoreDomainModule` for platform-owned shared/isolated DAPR topology. Consume these. If required generic behavior is unsupported, extend `EventStore.Aspire`; do not create a Conversations AppHost/Aspire/hosting module. | FR-13 |
 | 7 | Tier-3 integration test harness (command→event→projection→query) | **Backlog.** | — |
