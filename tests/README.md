@@ -73,6 +73,25 @@ tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conver
 
 Record both facts in story evidence: the VSTest socket failure and the direct xUnit executable result. If a test host needs to allocate a local port, classify socket permission failures as environment-limited unless another failure proves a product regression.
 
+## Final-Record Completion Gate
+
+Evidence stories must close their final record from the final working tree, after every executable and test change is complete. Capture the baseline commit and exact pre-existing dirty state before implementation, then run the canonical validation with TRX output. Finalize the story's `### File List` and count-bearing records without changing executable/test inputs, and invoke:
+
+```powershell
+pwsh -NoProfile -File tests/Test-StoryFinalRecord.ps1 `
+  -InputPath _bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json
+```
+
+The gate fails unless all of these agree:
+
+- TRX total, passed, failed, and skipped counts and the configured count-bearing records;
+- the story File List and the tracked, staged, baseline-relative committed, and untracked non-ignored path inventory;
+- changed documentation/evidence existence, configured hashes, and required JSON/Markdown pairs;
+- unchanged exact pre-existing file hashes and gitlink/index/worktree identities; and
+- the non-mutating full public-contract-shape comparison and unchanged baseline artifact.
+
+The generated JSON is authoritative; Markdown is rendered from it. Reviewers must inspect exclusions, amendments, and approval references rather than accepting the summary alone. Historical mode proves committed path, artifact, and count-claim consistency, but never claims to reconstruct a former uncommitted working tree. A failure blocks `review -> done` until the record is corrected or the release owner approves a separate amendment; signed evidence must not be rewritten to make the gate pass.
+
 ## Architecture
 
 Test projects mirror production package boundaries:

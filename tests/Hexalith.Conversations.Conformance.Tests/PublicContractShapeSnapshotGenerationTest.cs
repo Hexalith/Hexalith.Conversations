@@ -94,6 +94,20 @@ public sealed class PublicContractShapeSnapshotGenerationTest
     }
 
     [Fact]
+    public void CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting()
+    {
+        string root = FindRepositoryRoot();
+        string baselinePath = Path.Combine(root, "docs", "release-evidence", "public-contract-shape-baseline-v1.json");
+        string committedBaseline = File.ReadAllText(baselinePath);
+        string currentSnapshot = JsonSerializer.Serialize(BuildSnapshot(), SnapshotOptions);
+
+        currentSnapshot.ShouldBe(
+            committedBaseline,
+            "The full live public contract shape differs from the immutable Story 1.1 baseline. "
+            + "Review the member-level diff and obtain explicit approval instead of regenerating the baseline.");
+    }
+
+    [Fact]
     public void SnapshotShouldCoverAllSixReleaseGateBehaviorAreas()
     {
         PublicContractShapeSnapshotV1 snapshot = BuildSnapshot();

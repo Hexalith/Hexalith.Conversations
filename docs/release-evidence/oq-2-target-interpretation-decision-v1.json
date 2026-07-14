@@ -1,0 +1,90 @@
+{
+  "artifact": "oq-2-target-interpretation-decision",
+  "version": 1,
+  "status": "approved",
+  "decisionDate": "2026-07-14",
+  "effectiveAtUtc": "2026-07-14T14:17:09Z",
+  "approvedBy": "Jerome",
+  "approvalReference": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-oq-2-target-interpretation.md",
+  "oq2Status": "resolved-confirmed",
+  "scope": "SM-1 and SM-2 target interpretation for the Conversations Boilerplate Reduction initiative.",
+  "sm1": {
+    "name": "Conversations classified-plumbing LOC reduction",
+    "decisiveDimension": "classified-plumbing-loc-reduction",
+    "thresholdPercentage": 40.0,
+    "comparisonOperator": ">=",
+    "comparisonRule": "inclusive",
+    "formula": "removedOrExternalizedPlumbingLoc / baselinePlumbingLoc * 100",
+    "baselinePlumbingLoc": 13289,
+    "removedOrExternalizedPlumbingLoc": 9360,
+    "reductionPercentage": 70.43,
+    "result": "met",
+    "interpretation": "The frozen Story 1.4 accepted classified-plumbing baseline is the denominator and is not re-estimated after implementation. Equality meets the target."
+  },
+  "sm2": {
+    "name": "Minimal-module hand-authored file reduction",
+    "decisiveDimension": "file-count-reduction",
+    "supportingDimension": "loc-reduction",
+    "thresholdPercentage": 50.0,
+    "comparisonOperator": ">=",
+    "comparisonRule": "inclusive",
+    "formula": "(preInitiativeFileCount - templateMinimalFileCount) / preInitiativeFileCount * 100",
+    "templateMinimalFileCount": 29,
+    "templateMinimalLoc": 468,
+    "preInitiativeFileCount": 58,
+    "preInitiativeLoc": 1460,
+    "fileReductionPercentage": 50.0,
+    "locReductionPercentage": 67.95,
+    "measurementType": "estimated",
+    "confidence": "low",
+    "result": "met-on-accepted-estimate",
+    "interpretation": "The inclusive file-count threshold is met exactly. LOC reduction is mandatory supporting evidence, not a second numeric pass/fail threshold because the PRD pre-specified only a file-count target.",
+    "limitations": [
+      "The template-minimal value is an accepted manifest baseline, not a committed throwaway-module build.",
+      "The pre-initiative equivalent is a low-confidence estimate because no accepted artifact reconstructs an exact buildable pre-template minimal skeleton.",
+      "The result must remain labeled met-on-accepted-estimate and must not be presented as unconditional or high-confidence proof."
+    ]
+  },
+  "historicalEvidenceBindings": [
+    {
+      "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json",
+      "sha256": "14de3c86628cb4f900008be42d086a7699ae0869b3b791f92c810ab921192e03",
+      "role": "Accepted SM-2 machine-readable baseline at measurement time"
+    },
+    {
+      "path": "docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md",
+      "sha256": "1cb37b3ddbc9186748c7556a87e5c08feb15d8dee30f4a1b0362bcd5536297fd",
+      "role": "Accepted SM-2 human-readable baseline at measurement time"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+      "sha256": "062ca0c7bc94279007077bda59eae867d21c12da2ffc0b59a0f389b99067e0fe",
+      "role": "Signed release decision's bound success-metric report"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+      "sha256": "aa7e52c11ce36fc2c9ea953e275c654e7f312016c990cb20be16666d87f9a2cd",
+      "role": "Signed release decision's bound success-metric summary"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json",
+      "sha256": "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856",
+      "role": "Historical signed release-owner decision authority"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.md",
+      "sha256": "a73077c0b5416c5085796c2e808a45efe09f5eb6a4ddf852214ecc93a9209e0b",
+      "role": "Historical signed release-owner decision summary"
+    }
+  ],
+  "preservationRules": [
+    "The historical evidence bindings remain byte-identical; their unconfirmed wording is a point-in-time statement.",
+    "This decision is the current authority for OQ-2 target interpretation and prospectively supersedes the unresolved interpretation without rewriting the earlier release decision.",
+    "The earlier signed release-owner decision remains historically valid for the evidence hashes and conditions it approved at signing time."
+  ],
+  "nonClaims": [
+    "This decision does not re-sign, replace, or expand the earlier release-owner attestation.",
+    "This decision does not claim high-confidence or build-reconstructed SM-2 comparison evidence.",
+    "This decision does not approve inherited platform controls, security certifications, penetration testing, key management, external audit, or platform compliance."
+  ]
+}

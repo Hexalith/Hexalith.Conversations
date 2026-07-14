@@ -1,0 +1,43 @@
+{
+  "artifact": "success-metric-report-and-attestation-release-owner-decision",
+  "version": "1",
+  "status": "signed",
+  "decisionId": "success-metric-report-and-attestation-v1-release-owner-decision-2026-07-14",
+  "sourceAttestation": {
+    "artifact": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+    "artifactSha256": "062ca0c7bc94279007077bda59eae867d21c12da2ffc0b59a0f389b99067e0fe",
+    "summary": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+    "summarySha256": "aa7e52c11ce36fc2c9ea953e275c654e7f312016c990cb20be16666d87f9a2cd",
+    "sourceCommit": "c6670fac7347ecd7240f7bab7e5e23147c8dfc65",
+    "signablePayloadHash": "d6c61737d3b937f1142f77f81c82eb7b13607a1d923c173095cb1ffef2f2fe73",
+    "implementationEvidenceStatus": "ready-for-signature"
+  },
+  "decision": {
+    "releaseOwnerDecision": "approved-with-recorded-residual-risks",
+    "scope": "Conversations Boilerplate Reduction initiative attestation and its module-level release evidence only.",
+    "residualRiskAcceptance": "accepted-for-this-release-with-follow-up",
+    "acceptedRiskIds": [
+      "oq-2-target-confirmation",
+      "projection-read-store-population",
+      "conformance-tests-server-coupling",
+      "environment-limitations"
+    ],
+    "platformControlDependencyAcknowledgement": "acknowledged-not-approved",
+    "conditions": [
+      "SM-1 and SM-2 measurements are accepted as directional evidence; this decision does not mark their unconfirmed target interpretations as passed.",
+      "Projection read-store population remains deferred and is not represented as proven by this decision.",
+      "The retained Conformance.Tests to Server coupling remains disclosed and requires its documented follow-up path.",
+      "The compiled xUnit v3 executable fallback is accepted for the recorded sandbox validation where the preferred dotnet test runner aborted before executing tests.",
+      "This decision does not approve or assert inherited platform controls, security certifications, penetration testing, key management, vulnerability disclosure, external audit, or platform compliance.",
+      "Any change to either bound source file, the source commit, or the signable payload hash invalidates this decision and requires a new release-owner decision record."
+    ]
+  },
+  "signature": {
+    "signatureStatus": "signed",
+    "signatureMechanism": "Repository-recorded release-owner attestation; no PKI or cryptographic-signature claim.",
+    "signer": "Jerome",
+    "signedAtUtc": "2026-07-14T12:17:38Z",
+    "approvalReference": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14.md",
+    "statement": "The release owner approves the bound success-metric report and attestation for this release with the recorded residual risks and scope limitations."
+  }
+}

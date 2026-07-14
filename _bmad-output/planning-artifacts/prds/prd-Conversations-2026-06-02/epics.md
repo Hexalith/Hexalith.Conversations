@@ -112,9 +112,9 @@ NFR8: **Public-surface stability** — adopter-facing Conversations contracts an
 
 **Phasing (PRD §6.3) — story sequencing should respect this:** Phase 0 Baseline (FR-1, FR-2, FR-19 baseline) → Phase 1 Consume (FR-3..FR-9, low-risk, Conversations-internal, conformance-gated) → Phase 2 Promote (FR-10..FR-16, extract/generalize with own tests) → Phase 3 Adopt & Prove (FR-17..FR-20, template + measurement + final gate).
 
-**Success-metric baselines to capture (drive specific stories):** SM-1 plumbing-LOC reduction target [ASSUMPTION ≥40%, OQ-2]; SM-2 minimal-module file/LOC reduction [ASSUMPTION ≥50% fewer files, OQ-2]; SM-3 duplication-eliminated count (one source of truth per promoted pattern); SM-4 qualitative maintainer signal.
+**Success-metric baselines to capture (drive specific stories):** SM-1 target ≥40% and SM-2 target ≥50% fewer hand-authored, module-owned files were confirmed by the 2026-07-14 OQ-2 decision. Both comparisons are inclusive; SM-2 file count is decisive, LOC is supporting evidence, and the current SM-2 result remains estimate-qualified. SM-3 is the duplication-eliminated count (one source of truth per promoted pattern); SM-4 is the qualitative maintainer signal.
 
-**Open questions that gate or shape stories:** OQ-1 landing zone per promotion (existing module vs new shared module — for architecture); OQ-2 confirm SM-1/SM-2 numeric targets; OQ-3 confirm governance/temporal/hydration classified-and-kept-now / promote-later boundary; OQ-4 FR-16 in-pilot or deferred; OQ-5 explicit hot-path performance budget vs "no regression".
+**Open questions that gate or shape stories:** OQ-1 landing zone per promotion (existing module vs new shared module — for architecture); OQ-3 confirm governance/temporal/hydration classified-and-kept-now / promote-later boundary; OQ-4 FR-16 in-pilot or deferred; OQ-5 explicit hot-path performance budget vs "no regression". **Resolved:** OQ-2 confirmed the SM-1/SM-2 target interpretation on 2026-07-14; see `docs/release-evidence/oq-2-target-interpretation-decision-v1.json`.
 
 ### UX Design Requirements
 
@@ -648,7 +648,7 @@ So that SM-2 has a concrete baseline proving the authoring surface is thinner.
 
 **Given** the measurement
 **Then** it is traceable to the template
-**And** it is compared against the pre-initiative equivalent (the SM-2 target — assumed ≥50% fewer files, to be confirmed via OQ-2).
+**And** it is compared against the pre-initiative equivalent (the SM-2 target is confirmed at ≥50% fewer hand-authored, module-owned files, inclusive; the result remains estimate-qualified under the 2026-07-14 OQ-2 decision).
 
 **And** the figure is recorded as the SM-2 baseline referenced by Epic 5's success-metric report.
 
@@ -703,7 +703,7 @@ So that I can ship the initiative with documented confidence.
 
 **Given** the Story 1.4 baseline plumbing-LOC and the post-refactor module
 **When** SM-1 is computed
-**Then** plumbing-LOC reduction is reported against target (assumed ≥40% of classified plumbing removed/delegated — confirm via OQ-2).
+**Then** plumbing-LOC reduction is reported against the confirmed inclusive target of ≥40% of the frozen classified-plumbing baseline removed or externalized (OQ-2 resolved 2026-07-14).
 
 **Given** the in-scope promoted patterns (Epic 3)
 **When** SM-3 is computed

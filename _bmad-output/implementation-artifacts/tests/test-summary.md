@@ -1,28 +1,25 @@
 # Test Automation Summary
 
-## Generated Tests
+## Scope
 
-### API Tests
-- [x] Not applicable for Story 5.2; the story produces release-evidence artifacts and conformance validation, not API endpoints.
+Epic 5 final-record workflow verification: live final-tree reconciliation, historical Story 5.1–5.3 audit, exact dirty-state exclusion, and non-mutating public-contract-shape equality.
 
-### E2E Tests
-- [x] `tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs` - strengthened Story 5.2 release-evidence validation with durable source-artifact checks, at-risk classification fidelity, and exact residual Server namespace coupling.
+## Added Coverage
 
-## Coverage
+- `PublicContractShapeSnapshotGenerationTest.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting` compares the full regenerated public contract serialization with the immutable Story 1.1 baseline without writing it.
+- `tests/Test-StoryFinalRecord.Tests.ps1` exercises eight disposable-repository scenarios: live pass, stale count, missing File List entry, evidence hash drift, changed untracked frozen state, changed tracked frozen state, new gitlink, and contract drift.
+- `tests/Test-StoryFinalRecord.ps1` checks live and historical counts, exact paths, evidence identities/pairs, frozen state, input fingerprints, TRX contract-test outcome, and contract-baseline state.
 
-- Release-evidence artifact fields: 15/15 required Story 5.3 fields covered.
-- At-risk register rows: 13/13 reconciled with classification checks.
-- Structural disposition sections: 8/8 covered.
-- Release-gate suite classes: 14/14 covered.
-- Actual removed-test rows: 1/1 justified as dead/plumbing-only.
+## Historical Audit Counts
 
-## Validation
+- Story 5.1: 365 / 365 passed, 0 failed, 0 skipped.
+- Story 5.2: 374 / 374 passed, 0 failed, 0 skipped; the omitted historical `test-summary.md` path is covered by a separate approved amendment.
+- Story 5.3: 384 / 384 passed, 0 failed, 0 skipped.
 
-- `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-restore /nr:false /m:1` - passed with 0 warnings, 0 errors.
-- `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release --no-build --filter "FullyQualifiedName~RemovedTestJustificationLedgerReconciliationValidationTest" /nr:false` - aborted before executing tests because the sandbox denied VSTest socket creation.
-- `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -class Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest` - passed: 9 total, 9 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
-- `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests` - passed: 374 total, 374 passed, 0 errors, 0 failed, 0 skipped, 0 not run.
+## Current Validation
 
-## Next Steps
-
-- Keep the Story 5.2 validation in the full conformance lane for Story 5.3 release attestation.
+- PowerShell fault-injection fixtures: 8 / 8 scenarios passed.
+- Release conformance build: 0 warnings, 0 errors.
+- Release conformance run: 389 total, 389 passed, 0 failed, 0 skipped.
+- Full non-mutating public-contract-shape comparison: passed; expected diff state `empty`.
+- Final live/historical record gate: pending final record generation.

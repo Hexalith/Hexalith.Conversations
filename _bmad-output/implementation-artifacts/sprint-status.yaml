@@ -37,7 +37,9 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-06-27
+last_updated: 2026-07-14
+# OQ-2 target interpretation resolved on 2026-07-14 through approved Sprint Change Proposal sprint-change-proposal-2026-07-14-oq-2-target-interpretation.md. SM-1 target >=40% inclusive is met at 70.43%. SM-2 target >=50% fewer hand-authored, module-owned files inclusive is met-on-accepted-estimate at 50.00% files with 67.95% LOC supporting evidence and low confidence preserved. Historical accepted/signed evidence remains byte-identical; current authority is docs/release-evidence/oq-2-target-interpretation-decision-v1.json. Validation: Release conformance test-project build 0 warnings/errors; focused OQ-2 validation 4/4; full conformance 388/388.
+# Epic 5 final-record workflow correction completed on 2026-07-14 through approved Sprint Change Proposal sprint-change-proposal-2026-07-14-epic-5-final-record-check.md. Added a reusable live/historical gate for final TRX counts, exact completion-record File Lists, changed docs/evidence, frozen dirty state, gitlinks, and non-mutating full public-contract-shape equality. Historical consistency: Story 5.1 365/365, Story 5.2 374/374 with separate approved test-summary File List amendment, Story 5.3 384/384. Current Release conformance: 389/389; PowerShell adversarial fixtures: 8/8; public-contract-shape diff empty. Signed evidence remains byte-identical.
 # epic-5 retrospective completed on 2026-06-27 (autonomous YOLO run; doc=epic-5-retro-2026-06-27.md); epic-5 in-progress -> done (all 3 stories done); epic-5-retrospective optional -> done. Key findings: FR-20 capstone evidence is ready for release-owner decision, final conformance 384/384, public contract-shape diff empty, removed-test ledger reconciled with one dead-plumbing removal and no missing release-gate suite, SM-1 directional reduction 70.43%, SM-2 directional 50.00% files / 67.95% LOC, OQ-2 remains unconfirmed, projection read-store population is explicitly deferred, Conformance.Tests->Server coupling remains accepted residual risk, and the attestation is ready-for-signature but unsigned. Documentation verification updated README.md, docs/integration-guide.md, and docs/release-evidence/contract-compatibility-policy.md; tests/README.md, docs/responsibility-boundaries.md, and architecture docs did not need changes after comparison against implementation evidence.)
 # story 5-3 moved review -> done on 2026-06-27 (Senior Developer Review, auto-fix). Review found and fixed evidence-boundary blockers: accidental root submodule gitlink changes were removed from the final Story 5.3 diff; current-commit wording no longer claims a self-referential final SHA; SM-1 row evidence is included in the hashed source manifest/evidence bundle; greenfield disposition values now use the AC-2 allowed promoted-adopted vocabulary; focused validation recomputes source hashes, verifies signable payload hash, guards path containment, proves exact final changed-file set, excludes submodule gitlinks, and checks SM-1 row IDs against the accepted inventory. Release build 0 warnings; focused fallback 10/10; full conformance 384/384; final baseline..HEAD diff contains only the intended five Story 5.3 files and no 160000 gitlink entries. Local uninitialized submodule working-tree status remains out of scope.)
 # story 5-3 created (backlog -> ready-for-dev) on 2026-06-26 (Final success-metric report and signable attestation. Context created as release-evidence story: produce docs/release-evidence/success-metric-report-and-attestation-v1.{json,md}; consume SM-1 inventory baseline, SM-2 minimal-module baseline, Story 5.1 final conformance/contract-diff evidence, and Story 5.2 removed-test ledger reconciliation; compute SM-1 honestly from row-level evidence; carry OQ-2, projection read-store population proof/deferral, and residual Conformance.Tests->Server coupling explicitly; add focused Conformance.Tests validation; rerun final conformance and public-contract-shape diff guard; do not fake human/platform compliance sign-off or change product runtime, public contracts, package versions, AppHost topology, generated output, accepted baselines, or sibling submodule source.)
@@ -166,7 +168,7 @@ action_items:
   - epic: 4
     action: "Add a mechanical final-record check for Epic 5 story completion that verifies test counts, file lists, changed docs/evidence, and public-contract-shape diff state from the final working tree."
     owner: "Dev workflow"
-    status: in-progress
+    status: done
   - epic: 4
     action: "Promote the xUnit v3 executable fallback from story-local notes into reusable test workflow guidance."
     owner: "Test workflow"
@@ -198,7 +200,7 @@ action_items:
   - epic: 5
     action: "Make an explicit OQ-2 decision for SM-1 and SM-2 target interpretation."
     owner: "Product/Release owner"
-    status: open
+    status: done
   - epic: 5
     action: "Create or approve an architecture decision for projection read-store population proof versus accepted deferral."
     owner: "Architect/Developer"

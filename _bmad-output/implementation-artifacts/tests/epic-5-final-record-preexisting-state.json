@@ -1,0 +1,119 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-07-14T15:40:40Z",
+  "baselineCommit": "c029b34e1848e6afaf7ac2f5dedd54357229e25c",
+  "description": "Exact pre-existing root state excluded from the Epic 5 final-record workflow change. An entry is excludable only while every recorded identity remains unchanged.",
+  "inScopeAtCapture": [
+    "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md"
+  ],
+  "concurrentStateAmendments": [
+    {
+      "approvedAtUtc": "2026-07-14T15:56:58Z",
+      "approvedBy": "Jerome",
+      "reason": "The mechanical gate detected a concurrent OQ-2 implementation and Memories checkout advance after the original capture. Jerome explicitly approved pinning their exact current state as separately owned, out-of-scope work.",
+      "paths": [
+        "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/.decision-log.md",
+        "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+        "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+        "docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+        "docs/release-evidence/oq-2-target-interpretation-decision-v1.md",
+        "references/Hexalith.Memories",
+        "tests/Hexalith.Conversations.Conformance.Tests/OqTwoTargetInterpretationDecisionValidationTest.cs"
+      ]
+    }
+  ],
+  "excludedEntries": [
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-ship-breaking-submodule-updates.md",
+      "kind": "untracked-file",
+      "sha256": "890bd6fa3c632cb80bbd73d2a989d554a3b9c3a170f53f2a5fe8101b2d0e5090"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-oq-2-target-interpretation.md",
+      "kind": "untracked-file",
+      "sha256": "d2a817716ff305b319c30fe83716ebea13063aacf210422d652f06ee20ae0b1f"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14.md",
+      "kind": "untracked-file",
+      "sha256": "d1eeccd8586056a6e2b18bb8ff33f6041991633e54d4b3a1e3d41a7c6a452f1f"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json",
+      "kind": "untracked-file",
+      "sha256": "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.md",
+      "kind": "untracked-file",
+      "sha256": "a73077c0b5416c5085796c2e808a45efe09f5eb6a4ddf852214ecc93a9209e0b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/.decision-log.md",
+      "kind": "tracked-file",
+      "status": "M",
+      "baselineBlobOid": "1a092f1c8a15524331c766d4804249b6747f4b22",
+      "indexBlobOid": "1a092f1c8a15524331c766d4804249b6747f4b22",
+      "sha256": "83240266be85df11cb77b9e4a09709c5ea744adb904228054c01a8bf2e1a2ec4"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+      "kind": "tracked-file",
+      "status": "M",
+      "baselineBlobOid": "556c0a11c5e21490db2cbc22dc8e4bc493851115",
+      "indexBlobOid": "556c0a11c5e21490db2cbc22dc8e4bc493851115",
+      "sha256": "bd437b802513591c4af299ff0997bb694ced40304e1a178c3d53e95f88f0e8a8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "kind": "tracked-file",
+      "status": "M",
+      "baselineBlobOid": "332f2392c2aaaa69edf01f57bd79a73c30500ef5",
+      "indexBlobOid": "332f2392c2aaaa69edf01f57bd79a73c30500ef5",
+      "sha256": "bd2513c757ef80f72cb9e6dc4898fd5e546eb5dc95b8d9f725f1024d4566aefb"
+    },
+    {
+      "path": "docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+      "kind": "untracked-file",
+      "sha256": "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06"
+    },
+    {
+      "path": "docs/release-evidence/oq-2-target-interpretation-decision-v1.md",
+      "kind": "untracked-file",
+      "sha256": "ebc4a4b1a5bd9ce7110a5eb3069f94952eea9b97df83d80370e2edb0e2a838b8"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/OqTwoTargetInterpretationDecisionValidationTest.cs",
+      "kind": "untracked-file",
+      "sha256": "eb2616b264cf34dc9d3d4b3533a9cdb5fabddbcfab8dcb4e0f125e1065400438"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "kind": "gitlink",
+      "baselineCommit": "3fa4be938460a6e49f7652e36a08f2c7ec2d0199",
+      "indexCommit": "3fa4be938460a6e49f7652e36a08f2c7ec2d0199",
+      "worktreeCommit": "9a870d07ddf8c919e33f272cb3e17eb63dc040b8",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "kind": "gitlink",
+      "baselineCommit": "f68cb82b8a33aaa0c92d73d2c249a677d94dca80",
+      "indexCommit": "f68cb82b8a33aaa0c92d73d2c249a677d94dca80",
+      "originalWorktreeCommit": "5934e98c28b3fa685187b87f4bdb6134b7693e5a",
+      "worktreeCommit": "31f443f3328392ddcfa4313fc3d2104e088fd6b5",
+      "refrozenAtUtc": "2026-07-14T15:56:58Z",
+      "refrozenWithApproval": true,
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "kind": "gitlink",
+      "baselineCommit": "8caa19bbccfabb237654c8a81bc00e0a886cbce9",
+      "indexCommit": "8caa19bbccfabb237654c8a81bc00e0a886cbce9",
+      "worktreeCommit": "786f75ab6ee66a836b4b9077c68ab9c845331468",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

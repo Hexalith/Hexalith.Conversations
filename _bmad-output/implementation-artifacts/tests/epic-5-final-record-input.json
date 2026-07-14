@@ -1,0 +1,165 @@
+{
+  "schemaVersion": 1,
+  "approvedProposal": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+  "preexistingStatePath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-preexisting-state.json",
+  "output": {
+    "json": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+    "markdown": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md"
+  },
+  "live": {
+    "id": "epic-5-final-record-workflow",
+    "baselineCommit": "c029b34e1848e6afaf7ac2f5dedd54357229e25c",
+    "recordPath": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+    "expectedChangedPaths": [
+      "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+      "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-preexisting-state.json",
+      "_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md",
+      "_bmad-output/implementation-artifacts/tests/test-summary.md",
+      "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+      "tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs",
+      "tests/README.md",
+      "tests/Test-StoryFinalRecord.Tests.ps1",
+      "tests/Test-StoryFinalRecord.ps1"
+    ],
+    "testResultPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record.trx",
+    "expectedCounts": {
+      "total": 389,
+      "passed": 389,
+      "failed": 0,
+      "skipped": 0
+    },
+    "contractTestName": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+    "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+    "executableInputs": [
+      "Directory.Build.props",
+      "Directory.Packages.props",
+      "global.json",
+      "tests/Test-StoryFinalRecord.Tests.ps1",
+      "tests/Test-StoryFinalRecord.ps1"
+    ],
+    "executableInputRoots": [
+      {
+        "path": "src",
+        "extensions": [".cs", ".csproj", ".props", ".targets"]
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests",
+        "extensions": [".cs", ".csproj", ".props", ".targets"]
+      },
+      {
+        "path": "references/Hexalith.Commons/src",
+        "extensions": [".cs", ".csproj", ".props", ".targets"]
+      },
+      {
+        "path": "references/Hexalith.EventStore/src",
+        "extensions": [".cs", ".csproj", ".props", ".targets"]
+      },
+      {
+        "path": "references/Hexalith.Tenants/src",
+        "extensions": [".cs", ".csproj", ".props", ".targets"]
+      }
+    ],
+    "executableInputFingerprint": "PENDING_FINAL_RUN",
+    "countClaims": [
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "kind": "regex",
+        "pattern": "389 / 389 passed",
+        "revision": "WORKTREE"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "kind": "regex",
+        "pattern": "389 total, 389 passed|389 / 389 passed",
+        "revision": "WORKTREE"
+      }
+    ],
+    "evidencePaths": [
+      "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+      "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json",
+      "_bmad-output/implementation-artifacts/tests/epic-5-final-record-preexisting-state.json",
+      "_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md",
+      "_bmad-output/implementation-artifacts/tests/test-summary.md",
+      "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md"
+    ],
+    "evidencePairs": [
+      [
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md"
+      ]
+    ]
+  },
+  "historical": [
+    {
+      "id": "5.1",
+      "baselineCommit": "f7cee22495eb6eecec97e97a11adb580805edae5",
+      "finalCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "storyPath": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+      "fileListAmendments": [],
+      "expectedCounts": { "total": 365, "passed": 365, "failed": 0, "skipped": 0 },
+      "countClaims": [
+        { "path": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md", "kind": "regex", "pattern": "365/365|365 / 365" },
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.json", "kind": "json", "jsonPath": "conformanceRun.total", "expected": 365 },
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.json", "kind": "json", "jsonPath": "conformanceRun.passed", "expected": 365 },
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.json", "kind": "json", "jsonPath": "conformanceRun.failed", "expected": 0 },
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.json", "kind": "json", "jsonPath": "conformanceRun.skipped", "expected": 0 },
+        { "path": "_bmad-output/implementation-artifacts/tests/test-summary.md", "kind": "regex", "pattern": "365 total" }
+      ],
+      "evidence": [
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.json", "blobOid": "3a0d59e0fabe6a6bf2f2d9f56150cb8b78a61b8f" },
+        { "path": "docs/release-evidence/final-conformance-contract-diff-v1.md", "blobOid": "d3b1f8eef1f7d10a4ab8889567bb92ef0d8ee683" }
+      ],
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json"
+    },
+    {
+      "id": "5.2",
+      "baselineCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "finalCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "storyPath": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+      "fileListAmendments": ["_bmad-output/implementation-artifacts/tests/test-summary.md"],
+      "amendmentRecordPath": "_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md",
+      "amendmentPattern": "FINAL-RECORD-AMENDMENT-5.2-TEST-SUMMARY",
+      "expectedCounts": { "total": 374, "passed": 374, "failed": 0, "skipped": 0 },
+      "countClaims": [
+        { "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md", "kind": "regex", "pattern": "374/374|374 / 374" },
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.total", "expected": 374 },
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.passed", "expected": 374 },
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.failed", "expected": 0 },
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.skipped", "expected": 0 },
+        { "path": "_bmad-output/implementation-artifacts/tests/test-summary.md", "kind": "regex", "pattern": "374 total" }
+      ],
+      "evidence": [
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json", "blobOid": "e67c3cae29edc16d7ddf25d24c4e21eb93e08761" },
+        { "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md", "blobOid": "63a340b9f5494ebffe3b520f52d78bdf73438fde" }
+      ],
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json"
+    },
+    {
+      "id": "5.3",
+      "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "finalCommit": "ba01c4fc8addfef777b2da5e2f96c0184deeeb3e",
+      "storyPath": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+      "fileListAmendments": [],
+      "expectedCounts": { "total": 384, "passed": 384, "failed": 0, "skipped": 0 },
+      "countClaims": [
+        { "path": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md", "kind": "regex", "pattern": "384/384|384 / 384" },
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.total", "expected": 384 },
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.passed", "expected": 384 },
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.failed", "expected": 0 },
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "kind": "json", "jsonPath": "validation.fullConformance.skipped", "expected": 0 }
+      ],
+      "evidence": [
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "blobOid": "1ee038462839a6f669138afd3d3462bcd6b90dbe" },
+        { "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md", "blobOid": "b86c215d2713c4a404fc3986ca2bdfa447dad983" }
+      ],
+      "contractBaselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json"
+    }
+  ]
+}
