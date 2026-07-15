@@ -717,3 +717,157 @@ So that I can ship the initiative with documented confidence.
 **When** the attestation is assembled
 **Then** it is a single signable artifact the release owner signs off
 **And** SM-C1 (100% conformance pass rate, public contract shapes unchanged) and SM-C2 (no hot-path latency regression) are explicitly affirmed.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version=epic-6-authority-2026-07-15-v1 prefix-bytes=55536 prefix-sha256=bd437b802513591c4af299ff0997bb694ced40304e1a178c3d53e95f88f0e8a8 -->
+
+## Appendix: 2026-07-15 Append-Only Corrective Authority Overlay
+
+**Overlay version:** `epic-6-authority-2026-07-15-v1`
+**Architecture authority:** `conversations-architecture-2026-07-15-v1`
+**Status:** active corrective plan; Epics 1-5 above remain immutable historical execution records.
+
+This appendix applies the finalized initiative PRD/addendum and the approved July 15 correction proposals without rewriting completed history. The original 55,536-byte epic-plan prefix is preserved byte-for-byte. Its 24 stories, Epics 1-5, retrospectives, `done` states, and signed v1 evidence remain historical facts; this overlay alone assigns current corrective disposition.
+
+### Requirement Authority And Denominators
+
+The initiative surface is exactly: `FR-1, FR-2, FR-3, FR-4, FR-5, FR-6, FR-7, FR-8, FR-9, FR-10, FR-11, FR-12, FR-13, FR-14, FR-15, FR-16, FR-17, FR-18, FR-19, FR-20`.
+
+Pilot activation covers FR-1 through FR-15 and FR-17 through FR-20. **FR-16 is the only initiative non-activation** and remains deferred. The complete preservation denominator remains literal and cannot shrink: **all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and all UX acceptance criteria**. Preserved feature scope constrains behavior but is not activated for new delivery by this corrective epic.
+
+A delivered-to-inactive disposition or compatible public-contract change requires all three: **named owner approval, recorded rationale, and compatibility evidence**. The accepted **13,289-LOC SM-1 baseline** and all signed v1 evidence remain immutable. Current corrected evidence is versioned separately and cannot substitute this workflow baseline for historical v1 provenance.
+
+### Exact Historical Story Dispositions
+
+| Story | Current finding | Epic 6 disposition |
+| --- | --- | --- |
+| 1.1 | Critical: no finalized frozen manifest contract. | Superseded for current readiness by 6.3. |
+| 1.2 | Major: blind-spot analysis is unbounded. | Retain historical output; register bounded evidence/dispositions through 6.3. |
+| 1.3 | Structurally sound. | Retain and map its register into the v2 manifest. |
+| 1.4 | Major: story wording retains obsolete ~18,000-LOC uncertainty. | Preserve accepted 13,289-LOC baseline; add historical correction note. |
+| 1.5 | Structurally sound. | Retain; apply its approval model to v2 manifest governance. |
+| 2.1 | Critical: local host framing. | Superseded by platform-host migration in 6.2. |
+| 2.2 | Mostly sound. | Revalidate under 6.6. |
+| 2.3 | Mostly sound. | Revalidate under 6.6. |
+| 2.4 | Major: no measurable SM-C2 gate. | Revalidate with the reproducible <=5% P95 gate in 6.6. |
+| 2.5 | Mostly sound. | Revalidate under 6.6. |
+| 2.6 | Critical: forward dependency on 3.6. | Record historical closure; current surface fixed by 6.1 and revalidated by 6.6. |
+| 2.7 | Major: ambiguous ServiceDefaults dependency. | Remove local defaults scope in 6.2; revalidate testing evidence in 6.6. |
+| 3.1 | Mostly sound. | Retain; reflect its landing zone in corrected architecture. |
+| 3.2 | Major: oversized cross-repository slice. | Retain delivered capability; revalidate fail-closed behavior through 6.6. |
+| 3.3 | Mostly sound. | Retain; bind metric-name/cardinality evidence through 6.3 and 6.6. |
+| 3.4 | Critical: Conversations-owned ServiceDefaults facade/project. | Superseded by 6.2. |
+| 3.5 | Critical: Conversations-owned AppHost/topology. | Superseded by 6.2. |
+| 3.6 | Major: uncertain extension boundary. | Record exact shared public surface in 6.1; revalidate in 6.6. |
+| 3.7 | Critical: FR-16 remained conditionally executable. | Mark deferred/non-adopted for Conversations; additive platform metadata remains outside pilot acceptance. |
+| 4.1 | Critical: template teaches prohibited project ownership. | Superseded by 6.5. |
+| 4.2 | Major: evidence lacks a reproducible fixture and full metadata. | Superseded by 6.5 v2 evidence. |
+| 5.1 | Critical: final proof lacks finalized manifest governance. | Preserve v1; supersede through 6.6. |
+| 5.2 | Critical: loose removal-ledger model. | Preserve v1; supersede through v2 manifest mutation governance. |
+| 5.3 | Critical: missing SM-C2 threshold and complete traceability. | Preserve v1; supersede through 6.6. |
+
+Exactly one row exists for each historical story; no row changes the historical story text or status.
+
+### Corrective Initiative-FR Coverage
+
+| Initiative requirement | Current corrective landing |
+| --- | --- |
+| FR-1, FR-2 | Accepted inventory and 13,289-LOC baseline remain frozen; 6.3 carries them into the complete manifest. |
+| FR-3 | 6.1 establishes platform-owned host authority; 6.2 migrates; 6.6 revalidates. |
+| FR-4 through FR-9 | Delivered surfaces remain historical and are revalidated through 6.3/6.6 without feature expansion. |
+| FR-10 | 6.1 fixes EventStore ServiceDefaults/DomainService ownership; 6.2 removes local defaults drift; 6.6 verifies. |
+| FR-11, FR-12, FR-14, FR-15 | 6.1 fixes public landing zones; 6.3 binds evidence; 6.6 revalidates. |
+| FR-13 | 6.1 fixes platform AppHost/EventStore.Aspire ownership; 6.2 migrates topology; 6.6 verifies. |
+| FR-16 | Deferred and non-activated; no Conversations adoption. |
+| FR-17 | 6.2 establishes the platform-hosted module; 6.5 corrects the authoring template. |
+| FR-18 | 6.5 produces the corrected thin template and reproducible fixture. |
+| FR-19 | 6.5 produces versioned, reproducible SM-2 evidence; 6.6 reports final results. |
+| FR-20 | 6.3 defines the complete preservation denominator; 6.6 runs it and issues superseding evidence. |
+
+## Epic 6: PRD Alignment And Preservation Reconciliation
+
+Epic 6 is the only active corrective epic. It does not activate preserved feature scope or rewrite prior delivery. Architecture status remains `READY FOR CORRECTIVE IMPLEMENTATION ONLY` until all Epic 6 gates pass and readiness is reassessed.
+
+### Story 6.1: Rebaseline architecture and planning authority
+
+As a platform architect, I want architecture and epic authority reconciled to the finalized PRD, so corrective implementation starts from one ownership and decision model.
+
+**Acceptance Criteria:**
+
+1. Architecture distinguishes 20 initiative FRs from 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and all UX acceptance criteria; preserves the 13,289-LOC baseline; and defers only FR-16.
+2. FR-10 through FR-15 have verified public platform landing zones; OQ-1 through OQ-5 each have one resolved row; the canonical host pair is `AddEventStoreDomainService(...)` plus `UseEventStoreDomainService()`.
+3. A nonempty versioned hot-path inventory is frozen before baseline capture and enforces `post P95 <= 1.05 x baseline P95` under an identical reproducible envelope.
+4. The target tree contains no Conversations-owned AppHost, Aspire, ServiceDefaults, or equivalent runtime project; current local projects are labeled pre-6.2 migration input only.
+5. This overlay preserves the original epic prefix and signed v1 evidence byte-for-byte, carries all 24 dispositions, Stories 6.1-6.7, and the promotion-completion invariant.
+
+### Story 6.2: Migrate Conversations to platform-owned hosting
+
+As a Conversations maintainer, I want Conversations composed exclusively by the platform host, so the domain module contains no platform-owned hosting boilerplate.
+
+**Acceptance Criteria:**
+
+1. The versioned pre-correction SM-C2 benchmark is captured before topology changes, or reproducibly reconstructed from the preserved source commit.
+2. Local AppHost/ServiceDefaults projects, tests, and solution entries are removed only in this story; platform-host registration preserves topology, security, health, publication, admin composition, and public contracts.
+3. Generic gaps are implemented in their owning platform public surface, not a Conversations facade, and all affected promotions pass Story 6.7's completion gate.
+
+### Story 6.3: Create the complete preservation traceability manifest
+
+As a release owner, I want a frozen, versioned preservation manifest with complete requirement dispositions, so preservation claims are exact and resistant to denominator drift.
+
+**Acceptance Criteria:**
+
+1. The manifest covers all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, all UX acceptance criteria, current controls, and preserved public contracts with zero gaps.
+2. Every obligation has evidence or named-owner approved non-activation with rationale; delivered-to-inactive and compatible changes include required approval and compatibility evidence.
+3. Source/build/test/baseline hashes, versioned mutation governance, module/platform control separation, and automated zero-gap validation are recorded.
+
+### Story 6.4: Repair UX provenance and preservation governance
+
+As a UX governance owner, I want the UX specification treated as a preservation reference with reliable evidence mappings, so it constrains behavior without silently authorizing UI delivery.
+
+**Acceptance Criteria:**
+
+1. Finalized provenance, a preservation-only banner, non-activated component roadmap, and reliable manifest/evidence/disposition mappings replace stale current story-number authority.
+2. Historical mappings remain labeled provenance; preserved absolute targets activate only through separate approval; current FrontComposer, Fluent UI V5, Fluent 2 token, reuse-first, and page-section accordion rules remain binding.
+3. No production UI change is authorized.
+
+### Story 6.5: Correct the thin authoring template and reproduce SM-2
+
+As a domain-module author, I want a platform-hosted thin template with reproducible authoring-cost evidence, so SM-2 measures only code a domain module owns.
+
+**Acceptance Criteria:**
+
+1. The template/fixture contains no domain-owned AppHost, Aspire, ServiceDefaults, or equivalent project and uses verified live public platform APIs.
+2. A reproducible minimal fixture and versioned v2 measurement record frozen inclusion rules, source paths, commands/tool versions, commit/build identity, file count, LOC, evidence confidence, and named acceptance.
+3. The 13,289-LOC SM-1 baseline remains unchanged and validators reject prohibited target ownership.
+
+### Story 6.6: Revalidate and issue superseding attestation
+
+As a release owner, I want the corrected implementation revalidated against the complete preservation contract, so a new readiness decision rests on current evidence.
+
+**Acceptance Criteria:**
+
+1. One post result exists for every frozen SM-C2 row and each satisfies `post P95 <= 1.05 x baseline P95` under the same evidence envelope.
+2. The v2 manifest passes 100%; public contracts are equal or have approved compatible-change evidence; topology/security/health/publication/admin composition, SM-1, reproducible SM-2, and SM-3 are evidenced.
+3. Versioned v2 attestation, separate supersession record, and new release-owner decision preserve signed v1 evidence unchanged; the readiness rerun returns `READY`. This story is last.
+
+### Story 6.7: Mechanically block incomplete submodule promotions from completion
+
+As a Hexalith development-workflow maintainer, I want promotion-bearing work to pass a mechanical submodule completion gate, so dirty submodules and uncaptured umbrella gitlinks cannot reach `done`.
+
+**Acceptance Criteria:**
+
+1. Promotion-bearing work declares exact root `references/...` paths and whether remote commit availability is required; affected scope also includes gitlinks changed since baseline.
+2. Each affected submodule is initialized, clean including untracked files, satisfies its availability policy, and is represented by the exact mode-`160000` gitlink in the committed umbrella revision.
+3. Stable machine-readable blockers prevent review/completion workflows from writing `review`/`done`; unrelated state warns without blocking.
+4. Discovery uses root `.gitmodules` only and never initializes or traverses nested submodules; isolated Git fixtures prove success, failure, and concurrency cases.
+
+### Binding Dependency Order
+
+`6.1 -> 6.7 -> 6.2`
+
+- Story 6.1 establishes authority before any other corrective completion.
+- Story 6.7 and the frozen SM-C2 benchmark both precede Story 6.2 completion.
+- Stories 6.3 and 6.4 may proceed after 6.1 where dependencies allow.
+- Story 6.2 precedes Story 6.5.
+- Story 6.6 remains last and triggers readiness reassessment.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY:END version=epic-6-authority-2026-07-15-v1 -->

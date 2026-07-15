@@ -1,11 +1,20 @@
 ---
 stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 lastStep: 8
-status: 'complete'
+status: 'corrective-implementation-only'
 completedAt: '2026-05-14'
-sessionResumedAt: '2026-05-14'
-sessionExitedAt: '2026-05-14'
+rebaselinedAt: '2026-07-15'
+authorityVersion: 'conversations-architecture-2026-07-15-v1'
+initiativeAuthority:
+  prd: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md'
+  addendum: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md'
+correctionAuthority:
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md'
+baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/product-brief-Hexalith.Conversations.md
   - _bmad-output/planning-artifacts/product-brief-Hexalith.Conversations-distillate.md
@@ -26,6 +35,90 @@ date: '2026-05-14'
 # Architecture Decision Document
 
 _This document builds collaboratively through step-by-step discovery. Sections are appended as we work through each architectural decision together._
+
+## 2026-07-15 Authority Rebaseline
+
+This section is the current initiative architecture authority. It applies the finalized boilerplate-reduction PRD and addendum plus the approved July 15 correction proposals. Where the May 14 historical analysis below describes a different starter, target ownership, project tree, workflow, performance rule, or readiness conclusion, this rebaseline and the amended sections control. The historical analysis remains useful for all unaffected domain and runtime decisions.
+
+### Scope And Preservation Denominators
+
+The initiative has exactly **20 initiative requirements (`FR-1` through `FR-20`)**. These are distinct from the preserved product contract: **104 `Feature-FR`s**, **77 `Feature-NFR`s**, **52 UX decisions**, and every UX acceptance criterion. The refactor activates FR-1 through FR-15 and FR-17 through FR-20; **FR-16 alone is deferred and non-activated**. Preserved feature requirements constrain behavior but do not become new feature-delivery scope.
+
+The accepted SM-1 baseline is the immutable **13,289 LOC** classified-plumbing denominator. Completed Epics 1-5, their 24 stories and `done` states, retrospectives, and signed v1 evidence remain historical records. A delivered item can become inactive, or a public contract can receive a compatible change, only with a named owner approval, rationale, and compatibility evidence. Legal or policy obligations may require approved compensating events, tombstones, or source-event treatment; those named exceptions do not authorize silent mutation of immutable history.
+
+### Target Ownership And Current Migration Input
+
+The target Conversations domain module owns contracts, deterministic aggregate behavior, validators, handlers, projections/read-model semantics, domain adapters, domain telemetry definitions, client/testing assets, and optional domain UI. The platform AppHost owns topology and deployment composition. `Hexalith.EventStore.DomainService`, `Hexalith.EventStore.ServiceDefaults`, and `Hexalith.EventStore.Aspire` own generic hosting, endpoints, defaults, DAPR resources, health, telemetry wiring, projection/query runtime, and subscription plumbing. Missing generic capability is added to its public platform surface and is never hidden behind a Conversations facade.
+
+`src/Hexalith.Conversations.AppHost/` and `src/Hexalith.Conversations.ServiceDefaults/`, together with their tests and solution entries, are **pre-Story-6.2 drift and migration input only**. They are not target architecture and remain untouched by Story 6.1. Story 6.2 removes them only after the versioned SM-C2 baseline is frozen.
+
+The canonical domain host integration is the pair:
+
+```csharp
+builder.AddEventStoreDomainService(/* domain assemblies/options */);
+app.UseEventStoreDomainService();
+```
+
+`UseEventStoreDomainService()` includes default health endpoints and canonical domain endpoints. Domain-module authoring guidance must never teach direct `MapEventStoreDomainService()` use.
+
+### Initiative Landing-Zone Register
+
+| Requirement | Decision state | Public owner and surface | Conversations responsibility |
+| --- | --- | --- | --- |
+| FR-10 | resolved-consume-extend | `Hexalith.EventStore.ServiceDefaults` (`AddServiceDefaults`, `MapDefaultEndpoints`) and `Hexalith.EventStore.DomainService` (`AddEventStoreDomainService`, `UseEventStoreDomainService`, `AddEventStoreDomainTelemetry`) | Supply domain assemblies and domain telemetry definitions only. |
+| FR-11 | resolved-promote-adopt | `Hexalith.Commons.TenantAccess` public generic tenant-access projection and registration surface | Supply Conversations-specific events, policy, and adapter. |
+| FR-12 | resolved-promote-adopt | `Hexalith.Commons.Http` public `AddTypedHttpClient<TClient,TImplementation,TOptions>` surface | Supply Conversations client/options and domain-safe errors. |
+| FR-13 | resolved-consume-extend | Platform AppHost plus `Hexalith.EventStore.Aspire` public `AddHexalithEventStore` and `AddEventStoreDomainModule` surfaces | Supply module project metadata; own no AppHost, Aspire, DAPR, or publication facade. |
+| FR-14 | resolved-promote-adopt | `Hexalith.Commons.Serialization` public JSON-context/type-mapping surface | Supply Conversations serialization context and domain-specific converters only. |
+| FR-15 | resolved-consume-extend | `Hexalith.Commons.Diagnostics` public diagnostics primitives plus EventStore domain telemetry registration | Define bounded domain instruments; own no generic telemetry scaffold. |
+| FR-16 | deferred-non-activated | Optional additive platform command/event metadata remains outside pilot acceptance | Do not adopt or reshape Conversations contracts in this initiative. |
+
+Every named landing zone must exist as a public, consumer-callable platform surface before the corresponding implementation is accepted. Source-signature conformance tests enforce these landing zones; a source token alone is not evidence.
+
+### Open-Question Disposition Register
+
+| ID | State | Binding decision | Reopen condition |
+| --- | --- | --- | --- |
+| OQ-1 | resolved-2026-07-15 | FR-10 through FR-15 land on the public platform surfaces in the register above; no new shared module or Conversations facade is authorized. | A named platform owner documents that a required public surface cannot host the capability. |
+| OQ-2 | resolved-2026-07-14 | SM-1 uses the inclusive >=40% LOC threshold; SM-2 uses the inclusive >=50% file threshold, remains estimate-qualified, and requires reproducible v2 evidence. | Product/release owner approves a versioned target change. |
+| OQ-3 | resolved-2026-07-14 | Governance orchestration, temporal reconstruction, and upstream hydration stay domain-owned; only demonstrated generic seams are consumed. | Separately approved follow-on extraction. |
+| OQ-4 | resolved-2026-07-14 | FR-16 is deferred and non-activated for the pilot. | Separately approved initiative activates it. |
+| OQ-5 | resolved-2026-07-14 | SM-C2 permits no more than 5% P95 regression under an identical reproducible envelope; preserved absolute targets activate only through a current release decision. | Release owner names an additional active absolute gate. |
+
+There is exactly one authoritative row for each OQ-1 through OQ-5; prose elsewhere cannot reopen or contradict a row.
+
+### SM-C2 Versioned Hot-Path Inventory And Gate
+
+Inventory version `sm-c2-hot-path-inventory-v1` is frozen by Story 6.1 before baseline capture and before Story 6.2 changes topology:
+
+| Hot-path ID | Classification | Operation | Required envelope evidence | Post disposition |
+| --- | --- | --- | --- | --- |
+| HP-CREATE | command-warm | Create a tenant-authorized conversation through the canonical command path. | workload/data shape, concurrency, environment/runtime, tooling, warm classification, repetitions, raw samples, commit | Same operation through platform-owned host; compare P95. |
+| HP-APPEND | command-warm-idempotent | Append a message, including duplicate replay and payload-mismatch rejection. | workload/data shape, duplicate mix, concurrency, environment/runtime, tooling, warm classification, repetitions, raw samples, commit | Same success/replay/mismatch mix; compare P95 and retain unknown-outcome semantics. |
+| HP-LIST | read-warm | List authorized conversations with filters, stable ordering, and cursor continuation. | seeded tenant/read-model shape, concurrency, environment/runtime, tooling, warm classification, repetitions, raw samples, commit | Same filters/order/page shape through canonical query path; compare P95. |
+| HP-OPEN | read-warm | Open conversation detail with freshness, redaction filtering, evidence metadata, and batched Party hydration. | message/participant shape, concurrency, environment/runtime, tooling, warm classification, repetitions, raw samples, commit | Same response/trust envelope through platform-owned host; compare P95. |
+
+The baseline artifact records this exact nonempty inventory version and one baseline result for every row. The post artifact records exactly one disposition and result for every baseline row; rows cannot be selected after measurement. For each row:
+
+`post P95 <= 1.05 x baseline P95`
+
+Baseline and post runs use identical workload and data, concurrency, environment and runtime, benchmark tool/version, warm/cold classification, repetition policy, and raw-result processing. Both bind raw evidence and the measured commit. Cold results are reported separately and cannot be substituted for warm rows. If a pre-change run cannot be captured before Story 6.2, it must be reconstructed from the preserved source commit with the same versioned fixture; an invented or incomparable baseline blocks completion.
+
+### Still-Binding Domain And Runtime Decisions
+
+- Events are immutable, explicitly versioned Conversations contracts. Mixed-version streams must replay deterministically through compatible readers/upcasters; unsupported versions fail with a typed, documented error rather than being skipped.
+- EventStore history has precedence over every derived store. Projection/cache/export disagreement marks derived state stale, quarantined, invalid, or rebuilding; rebuild starts from EventStore and does not re-emit external side effects.
+- Tenants access fails closed before any read, write, rebuild, export, tool, UI, or background operation. Parties validation fails closed for participant writes. Authorized reads may degrade only to a policy-defined non-personal hydration placeholder while preserving explicit degraded state.
+- Idempotency preserves a stable outcome for equivalent retries, rejects the same key with a different payload, and represents an unknown client/provider outcome explicitly so blind retry cannot duplicate effects.
+- Governance changes require paired auditable domain evidence. History remains append-only except for named, approved legal-policy mechanisms whose owner, rationale, scope, and evidence are recorded.
+
+### Promotion Completion Invariant
+
+Story 6.7 implements this declarative invariant before Story 6.2 can complete: promotion-bearing work declares exact root `references/...` paths; every affected root-declared submodule is initialized, clean including untracked files, at a commit satisfying its declared availability policy, and represented by the exact mode-`160000` gitlink in the committed umbrella revision. The gate also includes gitlinks changed since the work baseline. It reads only root `.gitmodules`, never initializes or traverses nested submodules, blocks only declared promotions and changed gitlinks, and reports unrelated state as warnings.
+
+### Corrective Readiness
+
+**Overall Status: READY FOR CORRECTIVE IMPLEMENTATION ONLY.** Story order is `6.1 -> 6.7 -> 6.2`; the frozen SM-C2 baseline is also required before 6.2 completes. Story 6.2 precedes 6.5, and Story 6.6 is last. No final readiness or release claim is authorized until all Epic 6 gates pass, v2 evidence supersedes v1 without mutating it, and a new implementation-readiness assessment returns `READY`.
 
 ## Project Context Analysis
 
@@ -169,13 +262,13 @@ Each feature story should identify:
 - Audit/disclosure impact.
 - Required tests.
 
-Project boundary guardrails:
+Historical project-boundary guardrails (superseded for target hosting ownership by the 2026-07-15 rebaseline):
 
 - `Contracts`: public commands, events, DTOs, result contracts, and version metadata.
 - `Client`: typed adopter/client access; no domain decisions.
 - `Server` or `CommandApi`: HTTP/gRPC/minimal API boundary, auth binding, and request mapping.
 - `Server`: handlers, validators, policies, adapters, and projections.
-- `Aspire`, `AppHost`, and `ServiceDefaults`: composition, observability, and hosting defaults only.
+- The May 14 draft assigned local `Aspire`, `AppHost`, and `ServiceDefaults` composition; these assets are now pre-6.2 migration input, not target domain ownership.
 - `Testing`: fixtures, contract tests, aggregate tests, and adapter fakes.
 
 Non-negotiable implementation rules:
@@ -209,7 +302,9 @@ If not, it is likely either post-v1 scope, an implementation detail, or a risk t
 
 The system must treat conversation records as governed evidence, not application content. Architecture decisions should preserve auditability, tenant isolation, privacy minimization, and replay safety ahead of UI convenience or query simplicity.
 
-## Starter Template Evaluation
+## Historical Starter Template Evaluation (Superseded)
+
+This section records the May 14 starting point. It is not current authoring guidance. The current target is the platform-composed domain-module starter in the authority rebaseline above.
 
 ### Primary Technology Domain
 
@@ -231,7 +326,7 @@ API/backend bounded-context module with Aspire orchestration and generated/compo
 4. **Composite Hexalith .NET/Aspire scaffold**
    - Selected. Use standard .NET SDK templates plus sibling Hexalith project layout.
 
-### Selected Starter: Composite Hexalith .NET/Aspire Scaffold
+### Historical Selection: Composite Hexalith .NET/Aspire Scaffold (Superseded)
 
 **Rationale for Selection:**
 
@@ -315,7 +410,7 @@ Hexalith.Conversations adopts SDK `10.0.300` with `rollForward=latestPatch` as i
 
 - Use ASP.NET Core Web API for server edge, but expose Conversations contracts, not EventStore internals.
 - Use FrontComposer as the initial UI delivery mechanism for generated baseline admin surfaces, with custom-reviewed trust components for evidence review.
-- Use Aspire AppHost and ServiceDefaults for local orchestration, observability, and service composition.
+- Consume platform AppHost, EventStore DomainService, ServiceDefaults, and Aspire surfaces for orchestration, observability, and service composition; Conversations owns none of that generic runtime plumbing.
 - Use xUnit v3, Shouldly, NSubstitute, Testcontainers, and conformance packs for verification.
 - Keep Hexalith.Conversations version-aligned with sibling Hexalith modules unless an ADR records a deliberate divergence.
 
@@ -511,9 +606,9 @@ Candidate trust states: `Unknown`, `Pending`, `Verified`, `Contradicted`, `Stale
 - Screen readers, keyboard flows, clipboard payloads, hidden DOM, responsive duplicates, browser titles, routes, telemetry, and exports are disclosure surfaces.
 - Mobile defaults to safe triage unless full governance action is explicitly designed and tested.
 
-### Infrastructure & Deployment
+### Historical Infrastructure & Deployment Decision (Superseded For Target Ownership)
 
-**Decision:** Use Aspire AppHost and ServiceDefaults for local orchestration and observability; keep deployment target decisions ADR-gated.
+**Historical decision:** The May 14 draft used module-local Aspire AppHost and ServiceDefaults. The authority rebaseline supersedes that ownership: the platform AppHost and EventStore SDK own orchestration, defaults, health, and deployment composition.
 
 **Rationale:** Sibling modules already use Aspire and Dapr. Aspire AppHost gives code-first local orchestration and service relationship modeling.
 
@@ -979,7 +1074,34 @@ When a stop condition is triggered, the implementer must not continue with a loc
 
 ## Project Structure & Boundaries
 
-### Complete Project Directory Structure
+### Corrected Target Directory Structure
+
+The target structure below is authoritative. Generic runtime-host projects are absent by design; the platform composes the domain service through the canonical host pair and `EventStore.Aspire`.
+
+```text
+Hexalith.Conversations/
+├── src/
+│   ├── Hexalith.Conversations.Contracts/       # commands, versioned events, DTOs, errors
+│   ├── Hexalith.Conversations.Client/          # adopter-facing typed client
+│   ├── Hexalith.Conversations/                 # aggregate, state, invariants
+│   ├── Hexalith.Conversations.Server/          # handlers, validators, projections, adapters
+│   ├── Hexalith.Conversations.Admin.Web/       # optional domain UI composition
+│   └── Hexalith.Conversations.Testing/          # domain fixtures and helpers
+├── tests/
+│   ├── Hexalith.Conversations.Contracts.Tests/
+│   ├── Hexalith.Conversations.Tests/
+│   ├── Hexalith.Conversations.Server.Tests/
+│   ├── Hexalith.Conversations.IntegrationTests/
+│   └── Hexalith.Conversations.Conformance.Tests/
+├── docs/
+│   ├── adrs/
+│   └── release-evidence/
+└── references/                                  # root-declared submodules only
+```
+
+The current local AppHost and ServiceDefaults directories and tests are deliberately omitted from the target. Their presence before Story 6.2 is migration evidence, not an alternative target.
+
+### Historical May 14 Directory Structure (Superseded)
 
 ```text
 Hexalith.Conversations/
@@ -1166,7 +1288,7 @@ Hexalith.Conversations/
 **Configuration Files:**
 
 - Root build and package files live at repository root.
-- Runtime configuration lives under `Server/Configuration`, `AppHost`, and `ServiceDefaults`.
+- Domain runtime configuration lives under `Server/Configuration`; platform-owned AppHost and ServiceDefaults hold generic topology/defaults configuration.
 - No package versions are added directly to project files.
 
 **Source Organization:**
@@ -1189,10 +1311,9 @@ Hexalith.Conversations/
 
 ### Development Workflow Integration
 
-**Development Server Structure:**
+**Historical development-server structure (superseded):**
 
-- `AppHost` composes local EventStore, Tenants, Parties, server, admin UI, Dapr, and observability resources.
-- `ServiceDefaults` owns shared OpenTelemetry, health, discovery, and resilience defaults.
+- The May 14 draft assigned local AppHost and ServiceDefaults responsibilities. Current composition is platform-owned as defined by the corrected target tree and landing-zone register.
 
 **Build Process Structure:**
 
@@ -1203,12 +1324,12 @@ Hexalith.Conversations/
 - Project files must use versionless `PackageReference` entries; package additions or bumps must not add inline `Version` attributes.
 - CI runs contracts, domain, server, integration, and conformance test lanes separately.
 
-**Deployment Structure:**
+**Corrected deployment structure:**
 
 - `Server` is the runtime API/domain service.
 - `Admin` is the operator/governance UI composition surface.
 - `Conformance` is release/verification tooling.
-- AppHost remains local/development orchestration unless a deployment ADR promotes specific deployment targets.
+- The platform AppHost owns local/deployment orchestration; the domain module supplies only platform-consumable metadata and domain behavior.
 
 ## Architecture Validation Results
 
@@ -1224,13 +1345,13 @@ Implementation patterns reinforce the decisions with enforceable rules for namin
 
 **Structure Alignment:**
 
-The project structure supports the architecture: Contracts, Client, domain, Server, Admin, Conformance, Testing, ServiceDefaults, and AppHost each have clear responsibility. EventStore-specific code is isolated to the approved server write boundary.
+The corrected target structure supports the architecture: Conversations owns Contracts, Client, domain, Server, optional Admin, Conformance, and Testing; the platform owns ServiceDefaults and AppHost. EventStore-specific code is isolated to the approved server write boundary.
 
 ### Requirements Coverage Validation
 
 **Functional Requirements Coverage:**
 
-FR1-FR104 are architecturally mapped through lifecycle, attribution, references, tenant isolation, EventStore/projections, governance/audit, operator workflows, developer contracts, evidence gates, observability, and scope lifecycle directories.
+The 20 initiative FRs are governed by the authority rebaseline and landing-zone register. The preserved 104 Feature-FRs remain architecturally mapped through lifecycle, attribution, references, tenant isolation, EventStore/projections, governance/audit, operator workflows, developer contracts, evidence gates, observability, and scope lifecycle directories.
 
 **Non-Functional Requirements Coverage:**
 
@@ -1310,9 +1431,11 @@ None blocking the architecture workflow.
 - [x] Integration points mapped
 - [x] Requirements to structure mapping complete
 
-### Architecture Readiness Assessment
+### Historical Architecture Readiness Assessment (Superseded)
 
-**Overall Status:** READY FOR IMPLEMENTATION
+**Historical status (superseded):** READY FOR IMPLEMENTATION
+
+**Current status:** READY FOR CORRECTIVE IMPLEMENTATION ONLY, as established by the 2026-07-15 authority rebaseline.
 
 **Confidence Level:** High for foundation implementation; medium for GA release evidence until ADRs, numeric envelopes, and conformance artifacts are completed.
 
@@ -1331,7 +1454,7 @@ None blocking the architecture workflow.
 - Define CI architecture scans after project scaffolding.
 - Add diagrams and adopter sample fixture.
 
-### Implementation Handoff
+### Corrective Implementation Handoff
 
 **AI Agent Guidelines:**
 
@@ -1341,6 +1464,6 @@ None blocking the architecture workflow.
 - Treat ADR triggers and stop conditions as blocking.
 - Add conformance evidence with implementation slices.
 
-**First Implementation Priority:**
+**First corrective priority:**
 
-Scaffold the Hexalith.Conversations solution and foundation projects, then implement the first governed slice: tenant-scoped `CreateConversation` / `AppendMessage`, EventStore persistence, idempotency behavior, fail-closed tenant access, projection freshness, read-time Party hydration boundary, and conformance placeholders.
+Complete Story 6.1, then Story 6.7 and the frozen benchmark before Story 6.2 removes pre-target local hosting drift. Existing domain behavior remains governed by the still-binding decisions above; no product feature is activated by this handoff.
