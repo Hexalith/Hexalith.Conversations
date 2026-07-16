@@ -187,7 +187,7 @@ The disaster this story prevents is a future story quietly flipping `query-curso
 
 ### How to run / verify (tech stack)
 
-- .NET `10.0`, `net10.0`, SDK pinned `10.0.300`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3**, **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector`.
+- .NET `10.0`, `net10.0`, SDK pinned `10.0.302`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3**, **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector`.
 - Conformance oracle: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — Story 1.4 post-review baseline **331 passed**; expect 331 + new validator methods, **0 failed / 0 skipped**.
 - Immutability check: `git diff --exit-code -- docs/release-evidence/consume-promote-keep-inventory-v1.json docs/release-evidence/consume-promote-keep-inventory-v1.md` must report **no diff**.
 - Solution: `Hexalith.Conversations.slnx` at repo root.

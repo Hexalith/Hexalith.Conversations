@@ -272,7 +272,7 @@ ledger justification. [Source: epics.md#Epic-2 standing-conformance-gate]
 
 ### Technical Requirements (dev agent guardrails)
 
-- .NET 10 (`net10.0`), SDK pinned `10.0.300` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors**
+- .NET 10 (`net10.0`), SDK pinned `10.0.302` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors**
   — do not suppress broadly. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF.
 - Central Package Management (`Directory.Packages.props`) — never put package versions in `.csproj`.
 - Keep the change scoped to Conversations artifacts + the test/evidence updates this story mandates. **Do not edit**

@@ -17,7 +17,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ## Technology Stack & Versions
 
-- C# / .NET `10.0`; sibling Hexalith modules pin SDK `10.0.300` and target `net10.0`.
+- C# / .NET `10.0`; sibling Hexalith modules pin SDK `10.0.302` and target `net10.0`.
 - New Conversations projects should mirror sibling module defaults: nullable enabled, implicit usings enabled, warnings as errors.
 - Use Central Package Management through `Directory.Packages.props`; do not add package versions directly in `.csproj` files unless matching an existing local exception.
 - Core Hexalith dependencies: `Hexalith.EventStore` for event-sourced persistence, `Hexalith.Tenants` for tenant source of truth, `Hexalith.Parties` for stable participant identity, and `Hexalith.FrontComposer` for admin UI contracts.

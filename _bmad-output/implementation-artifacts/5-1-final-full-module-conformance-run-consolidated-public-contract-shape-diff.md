@@ -153,7 +153,7 @@ The Markdown artifact should summarize the same data for human reviewers and poi
 
 ### Testing and verification guidance
 
-The repository uses .NET SDK `10.0.300`, target `net10.0`, Central Package Management, xUnit v3 `3.2.2`, Shouldly `4.3.0`, and Microsoft.NET.Test.Sdk `18.7.0`. Use the versions pinned in the repo; do not chase newer package versions for this evidence story. [Source: global.json; Directory.Packages.props; _bmad-output/project-context.md#Technology-Stack--Versions]
+The repository uses .NET SDK `10.0.302`, target `net10.0`, Central Package Management, xUnit v3 `3.2.2`, Shouldly `4.3.0`, and Microsoft.NET.Test.Sdk `18.7.0`. Use the versions pinned in the repo; do not chase newer package versions for this evidence story. [Source: global.json; Directory.Packages.props; _bmad-output/project-context.md#Technology-Stack--Versions]
 
 VSTest may fail in this sandbox due to socket or named-pipe restrictions. The accepted fallback is: build the affected test project, then run the compiled xUnit v3 executable directly, and record both facts. Story 4.2 used this pattern successfully. [Source: _bmad-output/implementation-artifacts/4-2-measure-and-record-the-minimal-module-authoring-cost-sm-2-baseline.md#Verification-guidance; _bmad-output/implementation-artifacts/epic-4-retro-2026-06-26.md#Test-fallback-became-operational-practice]
 
@@ -179,7 +179,7 @@ Epic 5 still has adjacent carry-forwards that Story 5.1 must not overclaim:
 
 ### Latest Technical Specifics
 
-No external web research is required for this story. The implementation should use local repository-pinned tooling and existing evidence patterns rather than upgrading frameworks or packages: .NET SDK `10.0.300`, `net10.0`, xUnit v3 `3.2.2`, Shouldly `4.3.0`, Microsoft.NET.Test.Sdk `18.7.0`, and the existing release-evidence generator/validator tests. [Source: global.json; Directory.Packages.props; tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs]
+No external web research is required for this story. The implementation should use local repository-pinned tooling and existing evidence patterns rather than upgrading frameworks or packages: .NET SDK `10.0.302`, `net10.0`, xUnit v3 `3.2.2`, Shouldly `4.3.0`, Microsoft.NET.Test.Sdk `18.7.0`, and the existing release-evidence generator/validator tests. [Source: global.json; Directory.Packages.props; tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs]
 
 ### References
 
@@ -230,7 +230,7 @@ GPT-5 Codex
 
 ### Completion Notes List
 
-- Task 0 complete: established the evidence boundary and preserved existing user/submodule state. Local SDK resolves to `10.0.301` from `global.json` `10.0.300` with `rollForward: latestPatch`; package pins remain unchanged.
+- Task 0 complete: established the evidence boundary and preserved existing user/submodule state. Local SDK resolves to `10.0.302` from `global.json` `10.0.302` with `rollForward: latestPatch`; package pins remain unchanged.
 - Task 1 complete: final conformance run confirms the standing gate held rather than discovering green for the first time. The direct xUnit v3 fallback reproduced the prior 361/361 green conformance count with 0 failures and 0 skipped tests.
 - Task 2 complete: current contract snapshot is byte-identical to the Story 1.1 baseline, with empty member-level diff and unchanged 196 exported public contract types.
 - Task 3 complete: release-evidence JSON and Markdown artifacts created with stable Story 5.3 inputs, prior-gate continuity, environment limitations, and empty contract-shape diff evidence.

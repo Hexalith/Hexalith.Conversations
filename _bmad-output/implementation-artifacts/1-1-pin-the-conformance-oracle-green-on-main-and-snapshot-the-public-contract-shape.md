@@ -142,7 +142,7 @@ contract validation → `Versioning.*`, `Conformance.ContractValidation*`, `Erro
 
 ### How to run / verify (Tech stack)
 
-- .NET `10.0`, target `net10.0`, SDK pinned `10.0.300` (see `global.json` / `Directory.Build.props`); nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`.
+- .NET `10.0`, target `net10.0`, SDK pinned `10.0.302` (see `global.json` / `Directory.Build.props`); nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`.
 - Test stack: **xUnit v3** (`xunit.v3`), **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector`.
 - Run the oracle: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj`.
 - The solution is `Hexalith.Conversations.slnx` at repo root.

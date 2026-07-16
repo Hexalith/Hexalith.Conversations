@@ -157,7 +157,7 @@ Each entry: `file`, `coupling` (type/namespace), `classification`, `rationale`, 
 
 ### How to run / verify (Tech stack)
 
-- .NET `10.0`, target `net10.0`, SDK pinned `10.0.300`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3** (`xunit.v3`), **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector 8.0.1`.
+- .NET `10.0`, target `net10.0`, SDK pinned `10.0.302`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3** (`xunit.v3`), **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector 8.0.1`.
 - Oracle: `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` (Story 1.2 baseline: **294 passed**).
 - Affected unit project: `dotnet test tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj` (capture its current tally in Task 1).
 - Solution: `Hexalith.Conversations.slnx` at repo root.

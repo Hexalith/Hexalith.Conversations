@@ -184,7 +184,7 @@ Place it with its siblings under `docs/release-evidence/` (the established home 
 
 ### How to run / verify (tech stack)
 
-- .NET `10.0`, `net10.0`, SDK pinned `10.0.300`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3**, **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector 8.0.1`.
+- .NET `10.0`, `net10.0`, SDK pinned `10.0.302`; nullable enabled, implicit usings, warnings-as-errors; Central Package Management via `Directory.Packages.props`. Test stack: **xUnit v3**, **Shouldly**, `Microsoft.NET.Test.Sdk`, `coverlet.collector 8.0.1`.
 - LOC measurement: `find src -name '*.cs' -not -path '*/obj/*' -not -path '*/bin/*' | xargs wc -l | tail -1` (and per-subtree for areas).
 - Conformance oracle (only if the validator test is added): `dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj` — Story 1.3 baseline **316 passed**; expect 316 + new case(s), 0 failed/skipped.
 - Solution: `Hexalith.Conversations.slnx` at repo root.

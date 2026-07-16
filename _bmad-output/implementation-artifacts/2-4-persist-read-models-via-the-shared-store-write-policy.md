@@ -174,7 +174,7 @@ Suite 100% green on the branch; public contract-shape diff vs the Story 1.1 snap
 
 ### Technical Requirements (dev agent guardrails)
 
-- .NET 10 (`net10.0`), SDK pinned `10.0.300` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress broadly. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
+- .NET 10 (`net10.0`), SDK pinned `10.0.302` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress broadly. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
 - Central Package Management (`Directory.Packages.props`) — never put package versions in `.csproj`; never introduce a new package version. The only new reference is the **project** reference to `Hexalith.EventStore.Testing` in `Server.Tests` (mirror the existing conditional `HexalithEventStoreRoot` reference pattern used for `Hexalith.EventStore.Client`).
 - Keep the change scoped to Conversations artifacts + the test/ledger updates this story mandates. **Do not edit** EventStore/Tenants/Parties/FrontComposer sources (the SDK seams already exist — pure consume).
 - This is **greenfield-adopt persistence plumbing**: register the store, implement the read adapter + write-via-policy seam, prove concurrency. Resist building the projection handler or wiring replay-to-write (2.5).
