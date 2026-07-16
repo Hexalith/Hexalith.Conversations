@@ -35,7 +35,7 @@ refactor-survivability.
   → **248 tests, 248 passed, 0 failed, 0 skipped** (the other 34 tests are the 4 non-suite validation classes:
   `ConformanceManifestValidationTest`, `CoreFixtureContentSafetyTest`, `ReleaseConformanceArtifactGenerationTest`,
   `ReleaseWaiverValidationTest`).
-- **Toolchain:** .NET SDK `10.0.302`, target `net10.0`, xUnit v3 + Shouldly.
+- **Toolchain:** .NET SDK `10.0.300`, target `net10.0`, xUnit v3 + Shouldly.
 
 > A red oracle would invalidate the entire baseline premise. The suite was **not** modified, weakened, or
 > "fixed" to make it pass — it was already green on unmodified `main`.

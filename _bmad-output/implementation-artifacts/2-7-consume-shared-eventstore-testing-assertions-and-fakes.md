@@ -165,7 +165,7 @@ Suite 100% green on the branch; public contract-shape diff vs the Story 1.1 snap
 
 ### Technical Requirements (dev agent guardrails)
 
-- .NET 10 (`net10.0`), SDK pinned `10.0.302` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code (test methods are exempt from CA2007 only where the analyzer is configured so — match the surrounding test file). ITANEO copyright header on every created/edited source file.
+- .NET 10 (`net10.0`), SDK pinned `10.0.300` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code (test methods are exempt from CA2007 only where the analyzer is configured so — match the surrounding test file). ITANEO copyright header on every created/edited source file.
 - Central Package Management (`Directory.Packages.props`) — never put package versions in `.csproj`; never introduce a new package or version. Any EventStore.Testing adoption rides an existing/new **ProjectReference** (mirror the Server.Tests conditional pattern), not a package version.
 - Keep the change **test-only** and scoped to Conversations test artifacts + the ledger/inventory updates this story mandates. **Do not edit** any `src/` production code, and **do not edit** EventStore/Tenants/Parties/FrontComposer/Commons sources (Epic 2 is Consume-only).
 

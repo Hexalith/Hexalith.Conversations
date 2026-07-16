@@ -7,7 +7,7 @@
   "workingTreeState": "src/ and tests/ clean at capture time (no local edits to production or test sources)",
   "runDate": "2026-06-02",
   "toolchain": {
-    "dotnetSdk": "10.0.302",
+    "dotnetSdk": "10.0.300",
     "targetFramework": "net10.0",
     "testStack": "xUnit v3, Shouldly"
   },

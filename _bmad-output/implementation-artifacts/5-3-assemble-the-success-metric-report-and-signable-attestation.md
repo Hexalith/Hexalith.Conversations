@@ -262,7 +262,7 @@ Use these as pattern references only; derive final counts and file lists from th
 
 ### Testing and verification guidance
 
-Use local pinned tooling and existing validation styles rather than upgrading packages: .NET SDK `10.0.302` with roll-forward to installed patch, `net10.0`, central package management, xUnit v3 `3.2.2`, Shouldly `4.3.0`, and Microsoft.NET.Test.Sdk `18.7.0` in this module. [Source: _bmad-output/project-context.md#Technology-Stack--Versions; Directory.Packages.props; global.json]
+Use local pinned tooling and existing validation styles rather than upgrading packages: .NET SDK `10.0.300` with roll-forward to installed patch, `net10.0`, central package management, xUnit v3 `3.2.2`, Shouldly `4.3.0`, and Microsoft.NET.Test.Sdk `18.7.0` in this module. [Source: _bmad-output/project-context.md#Technology-Stack--Versions; Directory.Packages.props; global.json]
 
 The focused validation test should mirror `FinalConformanceContractDiffEvidenceValidationTest` and `RemovedTestJustificationLedgerReconciliationValidationTest`: parse JSON with `System.Text.Json`, use Shouldly assertions, find repository root from `AppContext.BaseDirectory`, and assert durable artifact invariants rather than narrative text alone. [Source: tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs; tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs]
 

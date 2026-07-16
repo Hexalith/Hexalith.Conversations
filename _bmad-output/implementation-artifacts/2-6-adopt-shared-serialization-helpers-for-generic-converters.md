@@ -151,7 +151,7 @@ Suite 100% green on the branch; public contract-shape diff vs the Story 1.1 snap
 
 ### Technical Requirements (dev agent guardrails)
 
-- .NET 10 (`net10.0`), SDK pinned `10.0.302` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
+- .NET 10 (`net10.0`), SDK pinned `10.0.300` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
 - Central Package Management (`Directory.Packages.props`) — never put package versions in `.csproj`; never introduce a new package or version. No new package/project reference is expected (this is largely a verify-record-and-defer story; any `TypeMapper` consume rides existing transitive Commons availability).
 - Keep the change scoped to Conversations artifacts + the ledger/inventory updates this story mandates. **Do not edit** EventStore/Tenants/Parties/FrontComposer/Commons sources (Epic 2 is Consume-only; the shared helper is FR-14/3.6).
 

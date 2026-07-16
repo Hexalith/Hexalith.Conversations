@@ -183,7 +183,7 @@ Suite 100% green on the branch; public contract-shape diff vs the Story 1.1 snap
 
 ### Technical Requirements (dev agent guardrails)
 
-- .NET 10 (`net10.0`), SDK pinned `10.0.302` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress broadly. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
+- .NET 10 (`net10.0`), SDK pinned `10.0.300` (`global.json`). Nullable enabled, implicit usings, **warnings-as-errors** — do not suppress broadly. File-scoped namespaces, Allman braces, `_camelCase` private fields, `Async` suffix, CRLF, `.ConfigureAwait(false)` on awaits in library code. ITANEO copyright header on every created/edited source file.
 - Central Package Management (`Directory.Packages.props`) — never put package versions in `.csproj`; never introduce a new package version. No new package or project reference is expected (the EventStore.DomainService seam is already referenced transitively by the Server host).
 - Keep the change scoped to Conversations artifacts + the test/ledger updates this story mandates. **Do not edit** EventStore/Tenants/Parties/FrontComposer sources (the seam exists — pure consume).
 - Inject `TimeProvider`; never call `DateTimeOffset.UtcNow`/`Date.now`-equivalents directly (deterministic replay). The handler is a registered singleton (stateless seam) — keep it stateless except for injected `TimeProvider`/config.

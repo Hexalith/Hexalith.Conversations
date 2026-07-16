@@ -151,7 +151,7 @@ FR-16 is intentionally not a blanket template requirement. EventStore now has ad
 
 ### Latest Technical Specifics
 
-No external technology research is required for this story because it authors documentation from live repository code and already-ratified local evidence. Use the repository-pinned baseline: .NET SDK `10.0.302` with `rollForward=latestPatch`, target `net10.0`, nullable/implicit usings/warnings-as-errors, central package management, Aspire `13.4.6`, and xUnit v3 `3.2.2`. [Source: global.json; Directory.Build.props; Directory.Packages.props]
+No external technology research is required for this story because it authors documentation from live repository code and already-ratified local evidence. Use the repository-pinned baseline: .NET SDK `10.0.300` with `rollForward=latestPatch`, target `net10.0`, nullable/implicit usings/warnings-as-errors, central package management, Aspire `13.4.6`, and xUnit v3 `3.2.2`. [Source: global.json; Directory.Build.props; Directory.Packages.props]
 
 ### Previous Story Intelligence
 

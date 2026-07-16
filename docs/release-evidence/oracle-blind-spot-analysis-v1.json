@@ -8,7 +8,7 @@
   "storyReference": "Story 1.2 \u2014 Measure the oracle\u0027s blind spots and backfill characterization tests",
   "runDate": "2026-06-03",
   "toolchain": {
-    "dotnetSdk": "10.0.302",
+    "dotnetSdk": "10.0.300",
     "targetFramework": "net10.0",
     "testStack": "xUnit v3, Shouldly",
     "coverageCollector": "coverlet.collector 8.0.1 (already in Directory.Packages.props; reused, no new tool added)",

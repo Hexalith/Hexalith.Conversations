@@ -379,9 +379,9 @@ Aspire AppHost for local orchestration, ServiceDefaults for observability/resili
 
 **Version Note:**
 
-Local SDK is `10.0.302-preview.0.26177.108`. Installed templates default to `net10.0`; Aspire templates locally expose Aspire `13.0`, while current public Aspire documentation shows newer Aspire `13.3`. Package versions should be pinned through Central Package Management after an explicit architecture/package decision, not embedded in project files.
+Architecture research captured local SDK `10.0.300-preview.0.26177.108`; the repository now pins stable SDK `10.0.302`. Installed templates default to `net10.0`; Aspire templates locally expose Aspire `13.0`, while current public Aspire documentation shows newer Aspire `13.3`. Package versions should be pinned through Central Package Management after an explicit architecture/package decision, not embedded in project files.
 
-Hexalith.Conversations adopts SDK `10.0.302` with `rollForward=latestPatch` as its baseline (Story 1.1 code review, 2026-05-18). This deviates from the sibling `10.0.103` historical pin and is the formally approved baseline for this module.
+Hexalith.Conversations originally adopted SDK `10.0.300` with `rollForward=latestPatch` as its baseline (Story 1.1 code review, 2026-05-18); the current repository pin is `10.0.302`. This deviates from the sibling `10.0.103` historical pin and remains the approved feature-band policy for this module.
 
 **Sources:**
 
@@ -614,7 +614,7 @@ Candidate trust states: `Unknown`, `Pending`, `Verified`, `Contradicted`, `Stale
 
 **Version Position:**
 
-- Local SDK: `10.0.302-preview.0.26177.108`.
+- Architecture-research local SDK: `10.0.300-preview.0.26177.108`; current repository pin: `10.0.302`.
 - Current public Aspire docs show Aspire 13.3.
 - Sibling modules pin Aspire mainly around 13.2.x and Dapr client packages at 1.17.7.
 - Decision: align with sibling module pins first; evaluate upgrades separately.

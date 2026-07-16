@@ -152,7 +152,7 @@ public sealed class OracleBlindSpotAnalysisArtifactGenerationTest
         StoryReference: "Story 1.2 — Measure the oracle's blind spots and backfill characterization tests",
         RunDate: "2026-06-03",
         Toolchain: new ToolchainV1(
-            DotnetSdk: "10.0.302",
+            DotnetSdk: "10.0.300",
             TargetFramework: "net10.0",
             TestStack: "xUnit v3, Shouldly",
             CoverageCollector: "coverlet.collector 8.0.1 (already in Directory.Packages.props; reused, no new tool added)",

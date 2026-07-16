@@ -68,7 +68,7 @@ context:
 
 ## Validation Results
 
-**Execution identity:** `2026-07-14T13:47:26+02:00`; baseline/HEAD `c6670fac7347ecd7240f7bab7e5e23147c8dfc65`; SDK `10.0.302`; initial tracked worktree and gitlink diff clean.
+**Execution identity:** `2026-07-14T13:47:26+02:00`; baseline/HEAD `c6670fac7347ecd7240f7bab7e5e23147c8dfc65`; SDK `10.0.301`; initial tracked worktree and gitlink diff clean.
 
 | Project | Passed | Failed | Skipped |
 |---------|-------:|-------:|--------:|
