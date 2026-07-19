@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class PlatformEvidenceSeparationConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/compliance/v1/platform-evidence");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/compliance/v1/platform-evidence");
 
     /// <summary>
     /// Runs every platform evidence separation scenario and aggregates the results into a machine-readable run result.
@@ -74,7 +74,7 @@ public sealed class PlatformEvidenceSeparationConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(PlatformEvidenceSeparationScenarioData scenario)
+    private ConformanceCheckResultV1 BuildCheck(PlatformEvidenceSeparationScenarioData scenario)
     {
         string checkCorrelationId = $"corr-pe-{scenario.ScenarioToken}";
         ConversationError? error = scenario.ExpectedErrorCode is not null
@@ -98,7 +98,7 @@ public sealed class PlatformEvidenceSeparationConformanceSuite
             ["platform-evidence"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

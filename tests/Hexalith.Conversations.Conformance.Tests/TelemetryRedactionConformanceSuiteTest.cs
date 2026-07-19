@@ -19,7 +19,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </summary>
 public sealed class TelemetryRedactionConformanceSuiteTest
 {
-    private static readonly TelemetryCaptureResult Capture = new TelemetryRedactionConformanceSuite().Run();
+    private static readonly TelemetryCaptureResult Capture = TelemetryRedactionConformanceSuite.Run();
 
     [Fact]
     public void RunShouldEmitAtLeastOneMeasurementPerCounter()

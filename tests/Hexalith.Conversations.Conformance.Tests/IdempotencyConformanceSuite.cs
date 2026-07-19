@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class IdempotencyConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
 
     /// <summary>
     /// Runs every idempotency scenario and aggregates the results into a machine-readable run result.
@@ -74,7 +74,7 @@ public sealed class IdempotencyConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(IdempotencyScenarioData scenario)
+    private ConformanceCheckResultV1 BuildCheck(IdempotencyScenarioData scenario)
     {
         string checkCorrelationId = $"corr-idp-{scenario.ScenarioToken}";
         ConversationError? error = scenario.ExpectedErrorCode is not null
@@ -98,7 +98,7 @@ public sealed class IdempotencyConformanceSuite
             ["idempotency"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

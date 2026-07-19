@@ -116,7 +116,7 @@ public sealed class ConversationAggregateBaseClassDispatchTest
             JsonSerializer.SerializeToUtf8Bytes(new { ignored = true }, CommandOptions));
 
         InvalidOperationException ex = await Should.ThrowAsync<InvalidOperationException>(
-            async () => await new ConversationAggregate().ProcessAsync(envelope, currentState: null));
+            async () => await new ConversationAggregate().ProcessAsync(envelope, currentState: null).ConfigureAwait(true)).ConfigureAwait(true);
 
         ex.Message.ShouldContain("No Handle method found");
     }

@@ -158,7 +158,7 @@ public sealed class ConversationProjectionReadSurfaceConformanceTest
                 Tenant,
                 "user-001")),
             new FakeProjectionReadStore { Models = models });
-        return await service.ReadDetailAsync(Tenant, "user-001", Tenant, Conversation, TestContext.Current.CancellationToken);
+        return await service.ReadDetailAsync(Tenant, "user-001", Tenant, Conversation, TestContext.Current.CancellationToken).ConfigureAwait(true);
     }
 
     private static ConversationProjectedReadModels Materialize(ConversationProjectionEventRecord[] events)

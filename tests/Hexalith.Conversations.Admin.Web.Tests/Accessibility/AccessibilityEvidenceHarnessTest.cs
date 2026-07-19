@@ -71,8 +71,9 @@ public sealed class AccessibilityEvidenceHarnessTest(
         {
             foreach (AccessibilityScenario scenario in scenarios)
             {
-                await using IBrowserContext context = await playwright.Browser.NewContextAsync(
-                    CreateContextOptions(scenario));
+                IBrowserContext context = await playwright.Browser.NewContextAsync(
+                    CreateContextOptions(scenario)).ConfigureAwait(true);
+                await using System.Runtime.CompilerServices.ConfiguredAsyncDisposable contextScope = context.ConfigureAwait(true);
                 IPage page = await context.NewPageAsync();
 
                 string url = $"{host.BaseAddress}/investigations?fixture={Uri.EscapeDataString(scenario.FixtureId)}";
@@ -238,7 +239,7 @@ public sealed class AccessibilityEvidenceHarnessTest(
                 document.querySelectorAll('[aria-live],[role="status"],[role="alert"]').forEach(e => parts.push((e.innerText || e.textContent) || ''));
                 return parts.join('\n');
             }
-            """);
+            """).ConfigureAwait(true);
 
     private static async Task<List<string>> CaptureFocusOrderAsync(IPage page)
     {
@@ -246,13 +247,13 @@ public sealed class AccessibilityEvidenceHarnessTest(
         List<string> trace = [];
 
         // Reset focus to the document start so the first Tab lands on the skip link.
-        await page.EvaluateAsync("() => { if (document.activeElement) { document.activeElement.blur(); } window.focus(); }");
+        await page.EvaluateAsync("() => { if (document.activeElement) { document.activeElement.blur(); } window.focus(); }").ConfigureAwait(true);
 
         for (int i = 0; i < maxTabStops; i++)
         {
-            await page.Keyboard.PressAsync("Tab");
+            await page.Keyboard.PressAsync("Tab").ConfigureAwait(true);
             string descriptor = await page.EvaluateAsync<string>(
-                "() => { const e = document.activeElement; if (!e || e === document.body) { return 'body'; } return [e.tagName.toLowerCase(), e.getAttribute('data-testid') || '', e.getAttribute('role') || '', ((e.innerText || e.textContent) || '').trim().slice(0, 60)].join('|'); }");
+                "() => { const e = document.activeElement; if (!e || e === document.body) { return 'body'; } return [e.tagName.toLowerCase(), e.getAttribute('data-testid') || '', e.getAttribute('role') || '', ((e.innerText || e.textContent) || '').trim().slice(0, 60)].join('|'); }").ConfigureAwait(true);
 
             if (descriptor == "body" && trace.Count > 0)
             {

@@ -23,7 +23,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class BuyerAcceptanceConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/compliance/v1/buyer-acceptance");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/compliance/v1/buyer-acceptance");
 
     /// <summary>
     /// Runs every buyer acceptance scenario and aggregates the results into a machine-readable run result.
@@ -75,7 +75,7 @@ public sealed class BuyerAcceptanceConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(BuyerAcceptanceScenarioData scenario, DateTimeOffset evaluatedAt)
+    private ConformanceCheckResultV1 BuildCheck(BuyerAcceptanceScenarioData scenario, DateTimeOffset evaluatedAt)
     {
         string checkCorrelationId = $"corr-ba-{scenario.ScenarioId}";
 
@@ -110,7 +110,7 @@ public sealed class BuyerAcceptanceConformanceSuite
             ["buyer-acceptance"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

@@ -33,7 +33,7 @@ public sealed class TelemetryRedactionConformanceSuite
     /// Runs every operational scenario against the real telemetry surfaces and returns the captured signals.
     /// </summary>
     /// <returns>The captured metric measurements and log messages per telemetry surface.</returns>
-    public TelemetryCaptureResult Run()
+    public static TelemetryCaptureResult Run()
     {
         using FakeMeterFactory meterFactory = new();
 

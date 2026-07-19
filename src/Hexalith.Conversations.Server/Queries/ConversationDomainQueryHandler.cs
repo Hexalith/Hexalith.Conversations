@@ -116,7 +116,11 @@ public abstract class ConversationDomainQueryHandlerBase : IDomainQueryHandler
     /// <summary>Resolves the trusted tenant binding from the envelope.</summary>
     /// <param name="query">The query envelope.</param>
     /// <returns>The tenant identifier.</returns>
-    protected static TenantId TenantOf(QueryEnvelope query) => new(query.TenantId);
+    protected static TenantId TenantOf(QueryEnvelope query)
+    {
+        ArgumentNullException.ThrowIfNull(query);
+        return new TenantId(query.TenantId);
+    }
 }
 
 /// <summary>

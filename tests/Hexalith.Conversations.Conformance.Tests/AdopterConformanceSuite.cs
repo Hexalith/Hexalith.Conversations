@@ -257,7 +257,7 @@ public sealed class AdopterConformanceSuite
             ConversationErrorCatalog.CreateError(ConversationErrorCode.TenantProjectionStale, "conformance-projection-freshness"));
     }
 
-    private ConformanceCheckResultV1 CheckEventPublication()
+    private static ConformanceCheckResultV1 CheckEventPublication()
     {
         // Published event schema versions must remain supported by the active contract.
         ContractCompatibilityResult evaluation = ConversationContractCompatibility.Evaluate(
@@ -275,7 +275,7 @@ public sealed class AdopterConformanceSuite
             "conformance-event-publication");
     }
 
-    private ConformanceCheckResultV1 CheckGovernancePrecondition()
+    private static ConformanceCheckResultV1 CheckGovernancePrecondition()
     {
         // Every documented CORE precondition must require trust-bearing Current state and a typed unmet error.
         bool conformant = ConversationCorePreconditionCatalog.All.Count > 0
@@ -294,7 +294,7 @@ public sealed class AdopterConformanceSuite
             "conformance-governance-precondition");
     }
 
-    private ConformanceCheckResultV1 CheckCompatibilityDiscovery()
+    private static ConformanceCheckResultV1 CheckCompatibilityDiscovery()
     {
         // An unsupported version must produce a typed versioning error and bounded remediation rather than
         // being processed under an incompatible contract.

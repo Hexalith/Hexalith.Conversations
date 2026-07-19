@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class ReleaseScopeConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/compliance/v1/release-scope");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/compliance/v1/release-scope");
 
     /// <summary>
     /// Runs every release scope scenario and aggregates the results into a machine-readable run result.
@@ -74,7 +74,7 @@ public sealed class ReleaseScopeConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(ReleaseScopeScenarioData scenario, DateTimeOffset evaluatedAt)
+    private ConformanceCheckResultV1 BuildCheck(ReleaseScopeScenarioData scenario, DateTimeOffset evaluatedAt)
     {
         string checkCorrelationId = $"corr-rs-{scenario.ScenarioId}";
 
@@ -109,7 +109,7 @@ public sealed class ReleaseScopeConformanceSuite
             ["release-scope"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

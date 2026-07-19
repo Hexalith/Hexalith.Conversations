@@ -31,7 +31,7 @@ public sealed class TelemetryCardinalityConformanceSuite
     /// Runs every closed-vocabulary value many times across all surfaces and returns the captured signals.
     /// </summary>
     /// <returns>The captured metric measurements grouped under all instruments.</returns>
-    public IReadOnlyList<CapturedMeasurement> RunHighCardinalityLoad()
+    public static IReadOnlyList<CapturedMeasurement> RunHighCardinalityLoad()
     {
         using FakeMeterFactory meterFactory = new();
 

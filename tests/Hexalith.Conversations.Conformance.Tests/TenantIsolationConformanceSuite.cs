@@ -23,7 +23,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class TenantIsolationConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
 
     /// <summary>
     /// Runs every tenant isolation scenario and aggregates the results into a machine-readable run result.
@@ -75,7 +75,7 @@ public sealed class TenantIsolationConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(TenantIsolationScenarioData scenario)
+    private ConformanceCheckResultV1 BuildCheck(TenantIsolationScenarioData scenario)
     {
         string checkCorrelationId = $"corr-ti-{scenario.ScenarioToken}";
         ConversationError? error = scenario.ExpectedErrorCode is not null
@@ -99,7 +99,7 @@ public sealed class TenantIsolationConformanceSuite
             ["tenant-isolation"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

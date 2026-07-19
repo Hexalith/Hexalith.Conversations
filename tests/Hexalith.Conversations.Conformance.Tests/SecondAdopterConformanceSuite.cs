@@ -23,7 +23,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class SecondAdopterConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/compliance/v1/second-adopter");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/compliance/v1/second-adopter");
 
     /// <summary>
     /// Runs every second-adopter scenario and aggregates the results into a machine-readable run result.
@@ -75,7 +75,7 @@ public sealed class SecondAdopterConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(SecondAdopterScenarioData scenario, DateTimeOffset evaluatedAt)
+    private ConformanceCheckResultV1 BuildCheck(SecondAdopterScenarioData scenario, DateTimeOffset evaluatedAt)
     {
         string checkCorrelationId = $"corr-sa-{scenario.ScenarioId}";
 
@@ -110,7 +110,7 @@ public sealed class SecondAdopterConformanceSuite
             ["second-adopter"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

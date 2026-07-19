@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class ConformanceStatusConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/compliance/v1/conformance-status");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/compliance/v1/conformance-status");
 
     /// <summary>
     /// Runs every conformance status scenario and aggregates the results into a machine-readable run result.
@@ -74,7 +74,7 @@ public sealed class ConformanceStatusConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(ConformanceStatusScenarioData scenario)
+    private ConformanceCheckResultV1 BuildCheck(ConformanceStatusScenarioData scenario)
     {
         string checkCorrelationId = $"corr-cs-{scenario.ScenarioId}";
 
@@ -113,7 +113,7 @@ public sealed class ConformanceStatusConformanceSuite
             ["conformance-status"],
             safeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }

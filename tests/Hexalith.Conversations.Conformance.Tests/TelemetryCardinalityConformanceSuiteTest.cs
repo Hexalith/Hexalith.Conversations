@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 public sealed class TelemetryCardinalityConformanceSuiteTest
 {
     private static readonly IReadOnlyList<CapturedMeasurement> Load =
-        new TelemetryCardinalityConformanceSuite().RunHighCardinalityLoad();
+        TelemetryCardinalityConformanceSuite.RunHighCardinalityLoad();
 
     // ---- Cardinality budgets: each closed-vocabulary enum member count is small and fixed. ----
 

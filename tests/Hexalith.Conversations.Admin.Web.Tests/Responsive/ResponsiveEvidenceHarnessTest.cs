@@ -74,8 +74,9 @@ public sealed class ResponsiveEvidenceHarnessTest(
                     int effectiveWidth = viewport.Width * 100 / viewport.ZoomPercent;
                     int effectiveHeight = viewport.Height * 100 / viewport.ZoomPercent;
 
-                    await using IBrowserContext context = await playwright.Browser.NewContextAsync(
-                        CreateContextOptions(fixture, effectiveWidth, effectiveHeight));
+                    IBrowserContext context = await playwright.Browser.NewContextAsync(
+                        CreateContextOptions(fixture, effectiveWidth, effectiveHeight)).ConfigureAwait(true);
+                    await using System.Runtime.CompilerServices.ConfiguredAsyncDisposable contextScope = context.ConfigureAwait(true);
                     IPage page = await context.NewPageAsync();
 
                     string url = $"{host.BaseAddress}/investigations?fixture={Uri.EscapeDataString(fixture.FixtureId)}";
@@ -224,7 +225,7 @@ public sealed class ResponsiveEvidenceHarnessTest(
             @"selector => Array.from(document.querySelectorAll(selector))
                 .flatMap(e => Array.from(e.attributes).map(a => a.name + '=' + a.value))
                 .join('\n')",
-            selector);
+            selector).ConfigureAwait(true);
 
     private static bool IsTrustOrderPreserved(string[] trustOrder)
     {

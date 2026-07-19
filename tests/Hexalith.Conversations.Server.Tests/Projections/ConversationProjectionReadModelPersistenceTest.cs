@@ -132,7 +132,7 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         };
 
         await Should.ThrowAsync<InvalidOperationException>(
-            async () => await writer.PersistAsync(models, TestContext.Current.CancellationToken));
+            async () => await writer.PersistAsync(models, TestContext.Current.CancellationToken).ConfigureAwait(true)).ConfigureAwait(true);
     }
 
     /// <summary>

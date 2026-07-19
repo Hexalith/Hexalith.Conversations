@@ -22,7 +22,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class ProviderPortabilityConformanceSuite
 {
-    private static readonly Uri Documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
+    private readonly Uri _documentation = new("https://docs.hexalith.local/conversations/contracts/v1/conformance");
 
     /// <summary>
     /// Runs every provider portability scenario and aggregates the results into a machine-readable run result.
@@ -74,7 +74,7 @@ public sealed class ProviderPortabilityConformanceSuite
             results);
     }
 
-    private static ConformanceCheckResultV1 BuildCheck(ProviderPortabilityScenarioData scenario)
+    private ConformanceCheckResultV1 BuildCheck(ProviderPortabilityScenarioData scenario)
     {
         string checkCorrelationId = $"corr-prt-{scenario.ScenarioToken}";
         ConversationError? error = scenario.ExpectedErrorCode is not null
@@ -98,7 +98,7 @@ public sealed class ProviderPortabilityConformanceSuite
             ["provider-portability"],
             scenario.SafeMessage,
             remediationCode,
-            Documentation,
+            _documentation,
             checkCorrelationId,
             error);
     }
