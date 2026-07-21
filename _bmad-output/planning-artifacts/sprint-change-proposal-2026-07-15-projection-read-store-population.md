@@ -1,16 +1,24 @@
 ---
 title: "Require production proof of projection read-store population"
 date: 2026-07-15
-status: proposed
+status: approved
 change_scope: moderate
 workflow: bmad-correct-course
 mode: batch
 decision: require-proof
-approval: requested
+approval: approved
+approved_by: Administrator
+approved_on: 2026-07-15
 reconciles_with: sprint-change-proposal-2026-07-15.md
 ---
 
 # Sprint Change Proposal: Require Production Proof of Projection Read-Store Population
+
+## Approval State
+
+Administrator approved ADR 0003, the mandatory production-proof decision, every detailed
+change in this proposal, and the moderate Epic 6 correction on 2026-07-15. The proposal
+is authorized for planning materialization and Story 6.2 implementation handoff.
 
 ## 1. Issue Summary
 
@@ -124,7 +132,7 @@ retry-after-partial-write, tenant-isolation, failure, deletion, and replay behav
 - [x] Scope is moderate and implementation-ready after approval.
 - [x] Ownership, sequencing, proof artifacts, and release gate are named.
 - [x] Historical evidence preservation and non-goals are explicit.
-- [x] Approval remains pending.
+- [x] Approval received from Administrator on 2026-07-15.
 
 ## 4. Recommended Approach
 
@@ -157,7 +165,7 @@ and creates the missing evidence before the final attestation.
 
 **Artifact:** `docs/adrs/0003-projection-read-store-population-proof.md`
 
-Create the proposed ADR supplied with this change proposal. On approval:
+Create the ADR supplied with this change proposal. Approval materializes these states:
 
 - change `Status: Proposed` to `Status: Accepted`;
 - record the approval reference and approver;
@@ -221,7 +229,7 @@ Add ADR 0003 to the decision authority and record these invariants:
 
 **Artifact:** `_bmad-output/implementation-artifacts/sprint-status.yaml`
 
-After approval, add a dated reconciliation comment linking this proposal and ADR 0003.
+Add a dated reconciliation comment linking this proposal and ADR 0003.
 Mark only the Epic 5 decision action A3 `done`; its done-when condition is then satisfied
 by an accepted decision with a named proof boundary and owner. Keep Story 6.2 `backlog`
 until normal story creation and implementation. Story 6.6 remains `backlog` and last.
@@ -276,10 +284,11 @@ affected.
 - The v1 signed evidence remains byte-identical and honestly scoped.
 - Story 6.6 and readiness cannot pass by citing the historical deferral.
 
-## 7. Approval Request
+## 7. Approval Record
 
-**Recommendation:** approve the proposal and ADR 0003, selecting mandatory production
-proof and rejecting continued generic deferral for Epic 6/v2 readiness.
+**Decision:** approved by Administrator on 2026-07-15. ADR 0003 selects mandatory
+production proof and rejects continued generic deferral for Epic 6/v2 readiness.
 
-No implementation, epic-plan, architecture-authority, sprint-status, or signed-evidence
-change is authorized until explicit approval is recorded.
+Planning and architecture changes are authorized and materialized by this approval.
+Runtime implementation and proof remain owned by Story 6.2; v2 consumption remains
+owned by Story 6.6.

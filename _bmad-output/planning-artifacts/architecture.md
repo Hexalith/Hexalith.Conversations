@@ -112,6 +112,32 @@ Baseline and post runs use identical workload and data, concurrency, environment
 - Idempotency preserves a stable outcome for equivalent retries, rejects the same key with a different payload, and represents an unknown client/provider outcome explicitly so blind retry cannot duplicate effects.
 - Governance changes require paired auditable domain evidence. History remains append-only except for named, approved legal-policy mechanisms whose owner, rationale, scope, and evidence are recorded.
 
+### Projection Read-Store Population Decision
+
+[ADR 0003](../../docs/adrs/0003-projection-read-store-population-proof.md) is accepted
+architecture authority for Stories 6.2 and 6.6. Production population of the Conversations
+query read store is mandatory proof; the signed July 14 v1 residual-risk acceptance remains
+valid only for its immutable bound scope and cannot satisfy Epic 6 or v2 readiness.
+
+EventStore owns ordered delivery, stable dispatch identity, and canonical named-projection
+routing. Conversations owns event materialization, tenant-scoped read-model keys, use of
+the shared write policy/store, freshness, and query semantics. A scoped named
+`IAsyncDomainProjectionHandler` is the production population owner for the persisted query
+store. The legacy synchronous `IDomainProjectionHandler` remains version-1 compatibility
+only and its opaque gateway response is not query-store population evidence.
+
+Queries never replay, materialize, or silently backfill projection state. A durable
+completed projection outcome requires both the per-conversation summary/detail record and
+the tenant index write to complete. Partial-write uncertainty is non-completion and must
+converge through idempotent retry.
+
+Story 6.2 proves the production named-dispatch path, configured integration state-store
+end state, production query read, duplicate and partial-write retry convergence, tenant
+isolation, bounded failure outcomes, projection deletion, and full replay equivalence.
+Direct writer invocation, DI resolution, mock call counts, HTTP acceptance, or the legacy
+projection response are supporting evidence only. Story 6.6 hash-validates and reruns the
+accepted proof before issuing the v2 attestation.
+
 ### Promotion Completion Invariant
 
 Story 6.7 implements this declarative invariant before Story 6.2 can complete: promotion-bearing work declares exact root `references/...` paths; every affected root-declared submodule is initialized, clean including untracked files, at a commit satisfying its declared availability policy, and represented by the exact mode-`160000` gitlink in the committed umbrella revision. The gate also includes gitlinks changed since the work baseline. It reads only root `.gitmodules`, never initializes or traverses nested submodules, blocks only declared promotions and changed gitlinks, and reports unrelated state as warnings.
@@ -672,6 +698,7 @@ Testing and release evidence are architectural constraints for this module. Each
 - Zero known tenant isolation failures.
 - Tenant fail-closed matrix green across REST, typed client, admin UI, workers, exports, MCP/tools, verification, and rebuild jobs.
 - Replay determinism and projection deletion/rebuild proof green.
+- Production named-dispatch population of both Conversations query read-store records, actual state-store end-state readback, and query-path verification green per ADR 0003.
 - Redaction/audit evidence pack green.
 - Boundary contract pack green.
 - No event schema change without migration/compatibility proof.

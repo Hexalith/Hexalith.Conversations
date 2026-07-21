@@ -808,6 +808,9 @@ As a Conversations maintainer, I want Conversations composed exclusively by the 
 1. The versioned pre-correction SM-C2 benchmark is captured before topology changes, or reproducibly reconstructed from the preserved source commit.
 2. Local AppHost/ServiceDefaults projects, tests, and solution entries are removed only in this story; platform-host registration preserves topology, security, health, publication, admin composition, and public contracts.
 3. Generic gaps are implemented in their owning platform public surface, not a Conversations facade, and all affected promotions pass Story 6.7's completion gate.
+4. Conversations exposes a canonical named `IAsyncDomainProjectionHandler` route that reuses the existing materializer and persists both the tenant-scoped per-conversation summary/detail model and tenant index through `ConversationProjectionReadModelWriter`, `ReadModelWritePolicy`, and the configured `IReadModelStore`; completion is reported only after both writes are durable.
+5. Versioned `projection-read-store-population-proof-v2` evidence demonstrates an accepted append or authorized replay crossing the production EventStore named-dispatch boundary into the Conversations handler, asserts the actual integration state-store end state and production query result, and does not call the writer directly.
+6. Focused integration tests prove duplicate delivery, retry after partial write, tenant isolation, bounded failure outcomes, derived-state deletion, and full replay converge to an equivalent per-conversation record and duplicate-free tenant index. The legacy opaque projection response, DI resolution, mock calls, and HTTP acceptance alone are insufficient proof.
 
 ### Story 6.3: Create the complete preservation traceability manifest
 
@@ -848,6 +851,7 @@ As a release owner, I want the corrected implementation revalidated against the 
 1. One post result exists for every frozen SM-C2 row and each satisfies `post P95 <= 1.05 x baseline P95` under the same evidence envelope.
 2. The v2 manifest passes 100%; public contracts are equal or have approved compatible-change evidence; topology/security/health/publication/admin composition, SM-1, reproducible SM-2, and SM-3 are evidenced.
 3. Versioned v2 attestation, separate supersession record, and new release-owner decision preserve signed v1 evidence unchanged; the readiness rerun returns `READY`. This story is last.
+4. The v2 attestation consumes and hash-validates accepted ADR 0003 and the Story 6.2 `projection-read-store-population-proof-v2` artifacts, reruns their focused conformance and rebuild gates, and does not inherit the signed v1 projection-population deferral as proof or as a waiver for current readiness.
 
 ### Story 6.7: Mechanically block incomplete submodule promotions from completion
 

@@ -1,9 +1,10 @@
 # ADR 0003: Projection Read-Store Population Proof
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-07-15
 - Decision owners: Conversations Architect / Developer
-- Required approver: Administrator
+- Approved by: Administrator
+- Approval reference: `sprint-change-proposal-2026-07-15-projection-read-store-population.md`
 - Related readiness gate: Stories 6.2 and 6.6; FR-5, FR-6, FR33-FR37; NFR22, NFR38, and NFR62; Epic 5 retrospective action A3
 
 ## Context
