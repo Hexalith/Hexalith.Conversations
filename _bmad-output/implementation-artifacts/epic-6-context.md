@@ -1,8 +1,9 @@
 ---
 epic: 6
-generated: '2026-07-15'
-overlay_version: 'epic-6-authority-2026-07-15-v1'
-architecture_version: 'conversations-architecture-2026-07-15-v1'
+generated: '2026-07-26'
+overlay_version: 'epic-6-authority-2026-07-15-v2'
+architecture_version: 'conversations-architecture-2026-07-15-v2'
+supersedes_overlay_version: 'epic-6-authority-2026-07-15-v1'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
 source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY:BEGIN'
 status: 'active-corrective-context'
@@ -10,7 +11,9 @@ status: 'active-corrective-context'
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the versioned append-only Epic 6 overlay in the amended epic plan. The overlay and this context share version `epic-6-authority-2026-07-15-v1`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved July 15 proposals remain the authority above this derived context.
+This developer context is derived from the versioned append-only Epic 6 overlay in the amended epic plan. The overlay and this context share version `epic-6-authority-2026-07-15-v2`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved July 15 proposals remain the authority above this derived context.
+
+Regenerated 2026-07-26 from overlay `epic-6-authority-2026-07-15-v2`, which added the mandatory production projection read-store population proof (Story 6.2 AC 4-6, Story 6.6 AC 4) under accepted ADR 0003.
 
 ## Authority And Immutable History
 
@@ -56,6 +59,16 @@ OQ-1 through OQ-5 are resolved in architecture. Governance/temporal/hydration be
 - Idempotency preserves equivalent retry outcomes, rejects payload mismatch, and records unknown outcome explicitly rather than blindly retrying.
 - Governance mutations require paired audit/domain evidence. Approved legal-policy exceptions require named owner, rationale, scope, and evidence.
 
+## Projection Read-Store Population (ADR 0003)
+
+[ADR 0003](../../docs/adrs/0003-projection-read-store-population-proof.md) is accepted architecture authority for Stories 6.2 and 6.6. Production population of the Conversations query read store is **mandatory proof**. The signed July 14 v1 residual-risk acceptance remains valid only for its immutable bound scope and cannot satisfy Epic 6 or v2 readiness, nor act as a waiver.
+
+- EventStore owns ordered delivery, stable dispatch identity, and canonical named-projection routing. Conversations owns event materialization, tenant-scoped read-model keys, use of the shared write policy/store, freshness, and query semantics.
+- A scoped named `IAsyncDomainProjectionHandler` is the production population owner for the persisted query store. The legacy synchronous `IDomainProjectionHandler` is version-1 compatibility only, and its opaque gateway response is **not** query-store population evidence.
+- Queries never replay, materialize, or silently backfill projection state.
+- A durable completed projection outcome requires **both** the per-conversation summary/detail record and the tenant index write to complete. Partial-write uncertainty is non-completion and must converge through idempotent retry.
+- Direct writer invocation, DI resolution, mock call counts, and HTTP acceptance are supporting evidence only.
+
 ## SM-C2 Contract
 
 Frozen inventory version: `sm-c2-hot-path-inventory-v1`.
@@ -82,6 +95,9 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 - Freeze/reconstruct the versioned benchmark before topology changes.
 - Remove local hosting/defaults projects and tests, compose through platform surfaces, preserve topology/security/health/publication/admin behavior and public contracts.
 - Put generic gaps in the owning platform surface and pass Story 6.7 for promotions.
+- Expose a canonical named `IAsyncDomainProjectionHandler` route that reuses the existing materializer and persists both the tenant-scoped per-conversation summary/detail model and the tenant index through `ConversationProjectionReadModelWriter`, `ReadModelWritePolicy`, and the configured `IReadModelStore`. Report completion only after both writes are durable.
+- Produce versioned `projection-read-store-population-proof-v2` evidence for an accepted append or authorized replay crossing the production EventStore named-dispatch boundary into the Conversations handler, asserting the actual integration state-store end state and the production query result. Do not call the writer directly.
+- Prove duplicate delivery, retry after partial write, tenant isolation, bounded failure outcomes, derived-state deletion, and full replay converge to an equivalent per-conversation record and a duplicate-free tenant index. The legacy opaque projection response, DI resolution, mock calls, and HTTP acceptance alone are insufficient.
 
 ### 6.3 Create the complete preservation traceability manifest
 
@@ -102,6 +118,7 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 
 - Run the complete manifest, public-contract, SM-C2, SM-1/SM-2/SM-3, and platform-composition gates.
 - Issue versioned v2 evidence, a separate supersession record, and a new release-owner decision without mutating v1.
+- Consume and hash-validate accepted ADR 0003 and the Story 6.2 `projection-read-store-population-proof-v2` artifacts, and rerun their focused conformance and rebuild gates. Do not inherit the signed v1 projection-population deferral as proof or as a waiver for current readiness.
 - Run last and require readiness `READY` before release closure.
 
 ### 6.7 Mechanically block incomplete submodule promotions from completion

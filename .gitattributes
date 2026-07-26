@@ -1,2 +1,22 @@
 # Preserve intentional CommonMark hard breaks in the signed release-owner summary.
 docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.md whitespace=-blank-at-eol
+
+# Planning authority and signed release evidence are hashed and parsed byte-for-byte by the conformance
+# gate (frozen epic prefix, signed v1 manifest, append-only overlay boundary). Without an explicit eol
+# policy, a clone with core.autocrlf=true checks these out as CRLF and every hash and boundary assertion
+# fails for a reason unrelated to planning authority -- CRLF would be reported as evidence tampering.
+# Scoped deliberately by extension: the repository's shared agent entry points are intentionally CRLF and
+# are excluded, and a directory-wide rule would force text conversion on binary evidence screenshots,
+# corrupting PNG bytes that happen to contain CRLF sequences.
+_bmad-output/**/*.md text eol=lf
+_bmad-output/**/*.json text eol=lf
+_bmad-output/**/*.yaml text eol=lf
+_bmad-output/**/*.yml text eol=lf
+docs/release-evidence/**/*.md text eol=lf
+docs/release-evidence/**/*.json text eol=lf
+
+# Never line-ending-convert binary evidence.
+*.png binary
+*.jpg binary
+*.pdf binary
+*.zip binary

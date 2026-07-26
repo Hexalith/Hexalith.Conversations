@@ -27,6 +27,38 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     private const string MinimalModuleFileName = "minimal-module-authoring-cost-sm2-baseline-v1.json";
     private const string FinalConformanceFileName = "final-conformance-contract-diff-v1.json";
     private const string RemovedTestLedgerFileName = "removed-test-justification-ledger-reconciliation-v1.json";
+    private const string ReleaseOwnerDecisionFileName = "success-metric-report-and-attestation-v1-release-owner-decision.json";
+    private const string OqTwoDecisionFileName = "oq-2-target-interpretation-decision-v1.json";
+    private const string SignedEvidenceDirectory = "docs/release-evidence/";
+
+    /// <summary>
+    /// The signed source identity is pinned here rather than read from evidence alone. A commit read
+    /// out of the manifest can be replaced with an unresolvable value, which would silently route every
+    /// superseded-artifact check into the unavailable-history path and disable the binding entirely.
+    /// </summary>
+    private const string SignedV1SourceCommit = "c6670fac7347ecd7240f7bab7e5e23147c8dfc65";
+
+    /// <summary>
+    /// Root of trust for the compensating manifest guard. Without pinning these in source, a coordinated
+    /// edit of the report plus the decision that declares its hash would satisfy every assertion.
+    /// </summary>
+    private const string ReleaseOwnerDecisionSha256 = "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856";
+
+    private const string OqTwoDecisionSha256 = "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06";
+
+    /// <summary>Bounded wait so a blocked git (index.lock, credential prompt, hook) fails instead of hanging the suite.</summary>
+    private const int GitTimeout = 60_000;
+
+    /// <summary>
+    /// Signed v1 source artifacts that later corrective authority lawfully supersedes. Every other declared
+    /// artifact must still equal its manifest hash in the working tree: the historical fallback compares two
+    /// values that were both derived from the signed commit, so it can never fail for a drifted file and is
+    /// not a substitute for current-content equality. Keep this list exact and reviewed.
+    /// </summary>
+    private static readonly string[] SupersededByCorrectiveAuthority =
+    [
+        "_bmad-output/planning-artifacts/architecture.md",
+    ];
 
     private static readonly string[] RequiredRootProperties =
     [
@@ -91,18 +123,62 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     }
 
     [Fact]
-    public void SourceArtifactsShouldBeRepositoryRelativeExistingFilesWithHashes()
+    public void SignedReleaseOwnerDecisionShouldStillBindTheImmutableV1ReportAndSourceIdentity()
+    {
+        // Terminate the trust chain in source. Without this, editing the report and the decision that
+        // declares its hash together satisfies every assertion in the suite.
+        ComputeFileSha256(Path.Combine(ReleaseEvidenceDirectory(), ReleaseOwnerDecisionFileName))
+            .ShouldBe(ReleaseOwnerDecisionSha256, "The signed release-owner decision must remain byte-identical to the pinned record.");
+        ComputeFileSha256(Path.Combine(ReleaseEvidenceDirectory(), OqTwoDecisionFileName))
+            .ShouldBe(OqTwoDecisionSha256, "The OQ-2 target-interpretation decision must remain byte-identical to the pinned record.");
+
+        using JsonDocument decisionDoc = LoadEvidenceArtifact(ReleaseOwnerDecisionFileName);
+        JsonElement signedSource = decisionDoc.RootElement.GetProperty("sourceAttestation");
+
+        decisionDoc.RootElement.GetProperty("status").GetString().ShouldBe("signed");
+        signedSource.GetProperty("artifact").GetString().ShouldBe(SignedEvidenceDirectory + JsonArtifactFileName);
+        signedSource.GetProperty("summary").GetString().ShouldBe(SignedEvidenceDirectory + MarkdownArtifactFileName);
+
+        ComputeFileSha256(Path.Combine(ReleaseEvidenceDirectory(), JsonArtifactFileName))
+            .ShouldBe(
+                signedSource.GetProperty("artifactSha256").GetString(),
+                "The signed v1 report must remain byte-identical to the record the release owner signed.");
+        ComputeFileSha256(Path.Combine(ReleaseEvidenceDirectory(), MarkdownArtifactFileName))
+            .ShouldBe(
+                signedSource.GetProperty("summarySha256").GetString(),
+                "The signed v1 summary must remain byte-identical to the record the release owner signed.");
+
+        using JsonDocument reportDoc = LoadStoryArtifact();
+        reportDoc.RootElement.GetProperty("attestation").GetProperty("signablePayloadHash").GetString()
+            .ShouldBe(
+                signedSource.GetProperty("signablePayloadHash").GetString(),
+                "The signed decision and the v1 report must agree on the signable payload hash.");
+
+        DeclaredV1SourceCommit().Length.ShouldBe(40);
+    }
+
+    [Fact]
+    public void SourceArtifactsShouldBindToSignedV1ContentAtItsDeclaredSourceIdentity()
     {
         using JsonDocument doc = LoadStoryArtifact();
         string root = FindRepositoryRoot();
-        JsonElement sourceArtifacts = doc.RootElement.GetProperty("sourceArtifacts");
 
+        // Provenance for superseded inputs comes from the immutable signed decision, never from the
+        // baseline revision of whatever workflow happens to be running this suite.
+        string declaredSourceCommit = DeclaredV1SourceCommit();
+        declaredSourceCommit.ShouldBe(
+            SignedV1SourceCommit,
+            "The signed decision must declare the pinned v1 source identity; a substituted commit would disable the historical binding.");
+
+        JsonElement sourceArtifacts = doc.RootElement.GetProperty("sourceArtifacts");
         sourceArtifacts.GetArrayLength().ShouldBeGreaterThanOrEqualTo(18);
+
+        int supersededVerifiedAgainstHistory = 0;
 
         foreach (JsonElement entry in sourceArtifacts.EnumerateArray())
         {
             string path = entry.GetProperty("path").GetString() ?? string.Empty;
-            string sha256 = entry.GetProperty("sha256").GetString() ?? string.Empty;
+            string sha256 = (entry.GetProperty("sha256").GetString() ?? string.Empty).ToLowerInvariant();
             string fullPath = Path.GetFullPath(Path.Combine(root, path));
 
             path.ShouldNotBeNullOrWhiteSpace();
@@ -113,11 +189,53 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
 
             sha256.Length.ShouldBe(64);
             sha256.ShouldAllBe(character => Uri.IsHexDigit(character));
-            ComputeFileSha256(fullPath).ShouldBe(sha256, $"Source artifact '{path}' hash must match current file content.");
 
             path.ShouldNotContain("bin/", Case.Insensitive);
             path.ShouldNotContain("obj/", Case.Insensitive);
             path.ShouldNotContain("/generated/", Case.Insensitive);
+
+            if (string.Equals(ComputeFileSha256(fullPath), sha256, StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            // Current-content equality is the default for every declared artifact. Only an explicitly
+            // reviewed supersession may drift, and only to its content at the signed source identity.
+            // Signed release evidence can never appear in that list.
+            string normalizedPath = NormalizeRepositoryRelativePath(path);
+            normalizedPath.StartsWith(SignedEvidenceDirectory, StringComparison.OrdinalIgnoreCase).ShouldBeFalse(
+                $"Signed release evidence '{path}' must remain byte-identical to the signed v1 manifest.");
+            SupersededByCorrectiveAuthority.ShouldContain(
+                normalizedPath,
+                $"Source artifact '{path}' drifted from the signed v1 manifest but is not a reviewed supersession. Add it to SupersededByCorrectiveAuthority only with recorded corrective authority.");
+
+            TryReadGitBlobSha256(SignedV1SourceCommit, path, out string historicalSha256).ShouldBeTrue(
+                $"Superseded source artifact '{path}' must exist at signed source commit {SignedV1SourceCommit}.");
+            historicalSha256.ShouldBe(
+                sha256,
+                $"Superseded source artifact '{path}' must match the signed v1 manifest hash at commit {SignedV1SourceCommit}.");
+            supersededVerifiedAgainstHistory++;
+        }
+
+        // A run that verified nothing against history must not look like a run that verified everything.
+        supersededVerifiedAgainstHistory.ShouldBe(
+            SupersededByCorrectiveAuthority.Length,
+            "Every reviewed supersession must actually be verified against the signed source commit.");
+    }
+
+    [Fact]
+    public void SupersessionAllowlistShouldStayNarrowAndExcludeSignedEvidence()
+    {
+        SupersededByCorrectiveAuthority.Length.ShouldBeLessThanOrEqualTo(
+            4,
+            "The supersession allowlist is a reviewed exception list, not a general escape hatch.");
+
+        foreach (string path in SupersededByCorrectiveAuthority)
+        {
+            path.ShouldBe(NormalizeRepositoryRelativePath(path), "Allowlist entries must already be normalized.");
+            path.StartsWith(SignedEvidenceDirectory, StringComparison.OrdinalIgnoreCase).ShouldBeFalse(
+                $"Signed release evidence '{path}' may never be superseded in place.");
+            File.Exists(Path.Combine(FindRepositoryRoot(), path)).ShouldBeTrue($"Allowlisted supersession '{path}' must exist.");
         }
     }
 
@@ -351,13 +469,36 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
             .OrderBy(static path => path, StringComparer.Ordinal)
             .ToArray();
 
+        AssertCommitIdentity(baselineCommit, nameof(baselineCommit));
+        AssertCommitIdentity(storyDoneCommit, nameof(storyDoneCommit));
+
+        // The recorded boundary is historical. A shallow or partial clone cannot resolve it, and missing
+        // history must not be reported as a boundary violation — but it must also not be reported as a
+        // pass. Skipping keeps an unverified run visibly distinct from a verified one.
+        if (!GitRevisionIsAvailable(baselineCommit) || !GitRevisionIsAvailable(storyDoneCommit))
+        {
+            Assert.Skip(
+                $"Cannot verify the recorded evidence boundary: history for {baselineCommit}..{storyDoneCommit} is unavailable in this clone (shallow, partial, or non-repository checkout).");
+        }
+
         string[] actualChangedFiles = RunGit("diff", "--name-only", $"{baselineCommit}..{storyDoneCommit}")
             .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .OrderBy(static path => path, StringComparer.Ordinal)
             .ToArray();
 
         actualChangedFiles.ShouldBe(expectedChangedFiles);
-        RunGit("diff", "--raw", $"{baselineCommit}..{storyDoneCommit}").ShouldNotContain("160000");
+
+        // Isolate the mode columns instead of substring-matching the whole raw diff: a blob hash or a
+        // file name can legitimately contain "160000".
+        foreach (string rawLine in RunGit("diff", "--raw", $"{baselineCommit}..{storyDoneCommit}")
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            // Raw format: :<srcmode> <dstmode> <srcsha> <dstsha> <status>\t<path>
+            string[] fields = rawLine.TrimStart(':').Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            fields.Length.ShouldBeGreaterThanOrEqualTo(2, $"Unexpected git raw diff line: '{rawLine}'.");
+            fields[0].ShouldNotBe("160000", $"Recorded evidence boundary must exclude submodule gitlinks: '{rawLine}'.");
+            fields[1].ShouldNotBe("160000", $"Recorded evidence boundary must exclude submodule gitlinks: '{rawLine}'.");
+        }
     }
 
     [Fact]
@@ -429,13 +570,150 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         throw new DirectoryNotFoundException("Could not find the repository root.");
     }
 
+    /// <summary>
+    /// Normalizes a declared repository-relative path so a spelling difference cannot move an artifact out
+    /// of the signed-evidence strictness branch.
+    /// </summary>
+    private static string NormalizeRepositoryRelativePath(string path)
+    {
+        string normalized = path.Replace('\\', '/').Trim();
+
+        while (normalized.StartsWith("./", StringComparison.Ordinal))
+        {
+            normalized = normalized[2..];
+        }
+
+        return normalized.TrimStart('/');
+    }
+
     private static string ComputeFileSha256(string path)
         => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
 
     private static string ComputeTextSha256(string content)
         => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(content))).ToLowerInvariant();
 
+    private static void AssertCommitIdentity(string commit, string name)
+    {
+        commit.ShouldNotBeNullOrWhiteSpace($"{name} must be recorded.");
+        commit.Length.ShouldBe(40, $"{name} must be a full 40-character commit id so it cannot resolve ambiguously.");
+        commit.ShouldAllBe(character => Uri.IsHexDigit(character));
+    }
+
+    private static string DeclaredV1SourceCommit()
+    {
+        using JsonDocument decisionDoc = LoadEvidenceArtifact(ReleaseOwnerDecisionFileName);
+        string commit = decisionDoc.RootElement
+            .GetProperty("sourceAttestation")
+            .GetProperty("sourceCommit")
+            .GetString() ?? string.Empty;
+
+        AssertCommitIdentity(commit, "The signed release-owner decision source commit");
+        return commit;
+    }
+
+    private static bool GitRevisionIsAvailable(string revision)
+        => TryRunGit(out _, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
+
+    private static bool TryReadGitBlobSha256(string revision, string repositoryRelativePath, out string sha256)
+    {
+        sha256 = string.Empty;
+
+        if (!TryStartGit(CreateGitStartInfo("cat-file", "blob", $"{revision}:{repositoryRelativePath}"), out Process? process, out _))
+        {
+            return false;
+        }
+
+        using Process started = process;
+        using MemoryStream buffer = new();
+
+        // Drain stderr concurrently: reading stdout to completion first deadlocks whenever git fills
+        // the stderr pipe (warnings are emitted per file and can exceed the pipe buffer).
+        Task<string> errorTask = started.StandardError.ReadToEndAsync();
+        started.StandardOutput.BaseStream.CopyTo(buffer);
+        WaitForGitExit(started, "cat-file", "blob", $"{revision}:{repositoryRelativePath}");
+        errorTask.Wait(GitTimeout);
+
+        if (started.ExitCode != 0)
+        {
+            return false;
+        }
+
+        sha256 = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();
+        return true;
+    }
+
     private static string RunGit(params string[] arguments)
+    {
+        bool succeeded = TryRunGit(out string output, out string error, arguments);
+        succeeded.ShouldBeTrue($"git {string.Join(' ', arguments)} failed: {error}");
+        return output;
+    }
+
+    private static bool TryRunGit(out string output, params string[] arguments)
+        => TryRunGit(out output, out _, arguments);
+
+    private static bool TryRunGit(out string output, out string error, params string[] arguments)
+    {
+        output = string.Empty;
+
+        if (!TryStartGit(CreateGitStartInfo(arguments), out Process? process, out error))
+        {
+            return false;
+        }
+
+        using Process started = process;
+        Task<string> outputTask = started.StandardOutput.ReadToEndAsync();
+        Task<string> errorTask = started.StandardError.ReadToEndAsync();
+        WaitForGitExit(started, arguments);
+        output = outputTask.Wait(GitTimeout) ? outputTask.Result : string.Empty;
+        error = errorTask.Wait(GitTimeout) ? errorTask.Result : string.Empty;
+        return started.ExitCode == 0;
+    }
+
+    private static bool TryStartGit(ProcessStartInfo startInfo, [System.Diagnostics.CodeAnalysis.NotNullWhen(true)] out Process? process, out string error)
+    {
+        process = null;
+        error = string.Empty;
+
+        try
+        {
+            process = Process.Start(startInfo);
+        }
+        catch (System.ComponentModel.Win32Exception exception)
+        {
+            // git is absent from PATH (source tarball, minimal container). Report unavailable history
+            // rather than letting an unhandled exception escape the graceful-degradation path.
+            error = $"git could not be started: {exception.Message}";
+            return false;
+        }
+
+        if (process is null)
+        {
+            error = "git could not be started.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private static void WaitForGitExit(Process process, params string[] arguments)
+    {
+        if (!process.WaitForExit(GitTimeout))
+        {
+            try
+            {
+                process.Kill(entireProcessTree: true);
+            }
+            catch (InvalidOperationException)
+            {
+                // Already exited between the timeout and the kill.
+            }
+
+            throw new TimeoutException($"git {string.Join(' ', arguments)} did not complete within {GitTimeout}ms.");
+        }
+    }
+
+    private static ProcessStartInfo CreateGitStartInfo(params string[] arguments)
     {
         ProcessStartInfo startInfo = new()
         {
@@ -443,19 +721,24 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
             WorkingDirectory = FindRepositoryRoot(),
             RedirectStandardError = true,
             RedirectStandardOutput = true,
+
+            // Decode git output as UTF-8 rather than the ambient console codepage, which on Windows would
+            // corrupt non-ASCII paths before they are ever compared.
+            StandardOutputEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
+            StandardErrorEncoding = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false),
         };
+
+        // Emit raw UTF-8 paths instead of octal-escaped, locale-decoded ones, so a non-ASCII changed path
+        // compares correctly against the recorded boundary.
+        startInfo.ArgumentList.Add("-c");
+        startInfo.ArgumentList.Add("core.quotepath=false");
 
         foreach (string argument in arguments)
         {
             startInfo.ArgumentList.Add(argument);
         }
 
-        using Process process = Process.Start(startInfo) ?? throw new InvalidOperationException("Could not start git.");
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
-        process.ExitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
-        return output;
+        return startInfo;
     }
 
     private static void CollectStringValues(JsonElement element, string path, List<(string Path, string Value)> values)

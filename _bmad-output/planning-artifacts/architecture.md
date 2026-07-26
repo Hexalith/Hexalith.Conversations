@@ -1,16 +1,20 @@
 ---
-stepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
-lastStep: 8
+historicalStepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
+historicalLastStep: 8
+historicalCompletedAt: '2026-05-14'
 status: 'corrective-implementation-only'
-completedAt: '2026-05-14'
 rebaselinedAt: '2026-07-15'
-authorityVersion: 'conversations-architecture-2026-07-15-v1'
+authorityVersion: 'conversations-architecture-2026-07-15-v2'
+supersededAuthorityVersions:
+  - 'conversations-architecture-2026-07-15-v1'
 initiativeAuthority:
   prd: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md'
   addendum: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md'
 correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-projection-read-store-population.md'
+  - 'docs/adrs/0003-projection-read-store-population-proof.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
@@ -44,7 +48,9 @@ This section is the current initiative architecture authority. It applies the fi
 
 The initiative has exactly **20 initiative requirements (`FR-1` through `FR-20`)**. These are distinct from the preserved product contract: **104 `Feature-FR`s**, **77 `Feature-NFR`s**, **52 UX decisions**, and every UX acceptance criterion. The refactor activates FR-1 through FR-15 and FR-17 through FR-20; **FR-16 alone is deferred and non-activated**. Preserved feature requirements constrain behavior but do not become new feature-delivery scope.
 
-The accepted SM-1 baseline is the immutable **13,289 LOC** classified-plumbing denominator. Completed Epics 1-5, their 24 stories and `done` states, retrospectives, and signed v1 evidence remain historical records. A delivered item can become inactive, or a public contract can receive a compatible change, only with a named owner approval, rationale, and compatibility evidence. Legal or policy obligations may require approved compensating events, tombstones, or source-event treatment; those named exceptions do not authorize silent mutation of immutable history.
+The accepted SM-1 baseline is the immutable **13,289 LOC** classified-plumbing denominator. This denominator is not renegotiable inside this initiative; only a versioned, separately approved target change may restate it. Completed Epics 1-5, their 24 stories and `done` states, retrospectives, and signed v1 evidence remain historical records. A delivered item can become inactive, or a public contract can receive a compatible change, only with a named owner approval, rationale, and compatibility evidence. Legal or policy obligations may require approved compensating events, tombstones, or source-event treatment; those named exceptions do not authorize silent mutation of immutable history.
+
+These denominators are the single authoritative statement of initiative scope. Prose elsewhere in this document, including the preserved May 14 analysis, cannot restate, widen, or reduce them.
 
 ### Target Ownership And Current Migration Input
 
@@ -150,23 +156,25 @@ Story 6.7 implements this declarative invariant before Story 6.2 can complete: p
 
 ### Requirements Overview
 
+> **Namespace note (2026-07-15 rebaseline).** This section describes the **preserved feature product contract**, not the initiative. Requirement labels here belong to the `Feature-FR` / `Feature-NFR` namespace (`Feature-FR1` through `Feature-FR104`) and are distinct from the 20 initiative requirements `FR-1` through `FR-20` defined in the rebaseline above. Where this section names counts, targets, or components, they constrain preserved behavior and do not restate initiative scope or target ownership.
+
 **Functional Requirements:**
 
-Hexalith.Conversations is a high-governance backend/API module for tenant-scoped, event-sourced AI conversation records. The PRD defines 104 functional requirements across conversation lifecycle, participant attribution, business references, tenant isolation, event sourcing and publication, governance and audit, operator workflows, developer contracts, release evidence, observability, and scope tracking.
+Hexalith.Conversations is a high-governance backend/API module for tenant-scoped, event-sourced AI conversation records. The preserved feature PRD defines 104 `Feature-FR`s across conversation lifecycle, participant attribution, business references, tenant isolation, event sourcing and publication, governance and audit, operator workflows, developer contracts, release evidence, observability, and scope tracking.
 
 Architecturally, the core system must expose adopter-friendly Conversations contracts while hiding EventStore internals. The first implementation pressure is the chatbot create -> append -> attach -> govern -> resume loop, but the contract must remain broader than the chatbot.
 
 **Non-Functional Requirements:**
 
-The PRD defines 77 non-functional requirements. The strongest architectural drivers are fail-closed tenant isolation, audit integrity, redaction non-leakage, deterministic projection rebuilds, schema/version handling, content-safe observability, WCAG 2.1 AA admin UX, and signed conformance evidence.
+The preserved feature PRD defines 77 `Feature-NFR`s. The strongest architectural drivers are fail-closed tenant isolation, audit integrity, redaction non-leakage, deterministic projection rebuilds, schema/version handling, content-safe observability, WCAG 2.1 AA admin UX, and signed conformance evidence.
 
-Performance has a notable warm-cache target: P95 <= 500ms for opening conversations up to 500 messages under the defined load envelope. Projection rebuild, redaction propagation, tenant-event lag, and capacity thresholds still need architectural measurement envelopes or buyer-accepted unknown status.
+Performance has a notable preserved warm-cache target: P95 <= 500ms for opening conversations up to 500 messages under the defined load envelope. Per OQ-5 this preserved absolute target is **not an active gate for this initiative**; it activates only through a current release decision. The active initiative performance gate is SM-C2 (`post P95 <= 1.05 x baseline P95` over the frozen hot-path inventory). Projection rebuild, redaction propagation, tenant-event lag, and capacity thresholds still need architectural measurement envelopes or buyer-accepted unknown status.
 
 **Scale & Complexity:**
 
 - Primary domain: API/backend bounded-context module with operator/admin UI composition.
 - Complexity level: enterprise/high.
-- Estimated architectural components: contracts/client, aggregate/domain, command API/server edge, tenant access projection, Parties adapter, read projections, governance/audit services, FrontComposer/admin UI, conformance/verification tooling, observability, Aspire/AppHost integration, and focused test projects.
+- Estimated architectural components: contracts/client, aggregate/domain, command API/server edge, tenant access projection, Parties adapter, read projections, governance/audit services, FrontComposer/admin UI, conformance/verification tooling, observability, platform-owned hosting and deployment composition (consumed, never module-owned — see the rebaseline target ownership above), and focused test projects.
 
 ### Technical Constraints & Dependencies
 
@@ -702,7 +710,7 @@ Testing and release evidence are architectural constraints for this module. Each
 - Redaction/audit evidence pack green.
 - Boundary contract pack green.
 - No event schema change without migration/compatibility proof.
-- Performance smoke baseline captured and compared for reference dataset.
+- SM-C2 green: for every row of the frozen `sm-c2-hot-path-inventory-v1` inventory, `post P95 <= 1.05 x baseline P95` under an identical reproducible envelope, with the baseline captured before Story 6.2 changes topology.
 - Chaos/degradation scenarios documented and tested.
 
 **Architecture Evidence Bundle:**
@@ -729,6 +737,7 @@ Performance targets are architectural only when backed by named read-model and m
 - Projection lag, query latency, and hydration latency are measured separately so failures are diagnosable.
 - Temporal reconstruction, export, verification, and rebuild use asynchronous workflows with status projections instead of blocking ordinary reads.
 - The v1 performance anchor is deterministic replay and projection rebuild for bounded tenant-scoped datasets before optimizing hot-path query latency.
+- The active initiative performance gate is SM-C2, defined in the rebaseline above: `post P95 <= 1.05 x baseline P95` for every row of the frozen `sm-c2-hot-path-inventory-v1` inventory. Preserved absolute `Feature-NFR` latency targets, including the P95 <= 500ms open-conversation target, are not active initiative gates and activate only through a current release decision (OQ-5).
 
 ### First Slice Scope Guard
 
@@ -1265,7 +1274,9 @@ Hexalith.Conversations/
 
 ### Requirements to Structure Mapping
 
-**Feature / FR Mapping:**
+> **Namespace and ownership note (2026-07-15 rebaseline).** The labels below are `Feature-FR`s (`Feature-FR1` through `Feature-FR104`), not initiative requirements `FR-1` through `FR-20`. The directory names are the **May 14 historical** layout; the authoritative target tree is `### Corrected Target Directory Structure` above. In particular the `ServiceDefaults` target below is **superseded**: observability defaults are consumed from `Hexalith.EventStore.ServiceDefaults`, and no Conversations-owned ServiceDefaults, AppHost, or Aspire project is target architecture.
+
+**Feature / FR Mapping (historical labels and layout):**
 
 - FR1-FR12 Conversation lifecycle -> `Contracts/Commands`, `Hexalith.Conversations/Conversations`, `Server/CommandHandlers`, `Server/Projections`.
 - FR13-FR18 Participant attribution -> `Contracts/Events`, `Participants`, `Server/Hydration`, `Server/Validation`.

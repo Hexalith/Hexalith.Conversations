@@ -718,15 +718,23 @@ So that I can ship the initiative with documented confidence.
 **Then** it is a single signable artifact the release owner signs off
 **And** SM-C1 (100% conformance pass rate, public contract shapes unchanged) and SM-C2 (no hot-path latency regression) are explicitly affirmed.
 
-<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version=epic-6-authority-2026-07-15-v1 prefix-bytes=55536 prefix-sha256=bd437b802513591c4af299ff0997bb694ced40304e1a178c3d53e95f88f0e8a8 -->
+<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version=epic-6-authority-2026-07-15-v2 prefix-bytes=55536 prefix-sha256=bd437b802513591c4af299ff0997bb694ced40304e1a178c3d53e95f88f0e8a8 supersedes=epic-6-authority-2026-07-15-v1 -->
 
 ## Appendix: 2026-07-15 Append-Only Corrective Authority Overlay
 
-**Overlay version:** `epic-6-authority-2026-07-15-v1`
-**Architecture authority:** `conversations-architecture-2026-07-15-v1`
+**Overlay version:** `epic-6-authority-2026-07-15-v2`
+**Architecture authority:** `conversations-architecture-2026-07-15-v2`
+**Supersedes:** `epic-6-authority-2026-07-15-v1`
 **Status:** active corrective plan; Epics 1-5 above remain immutable historical execution records.
 
 This appendix applies the finalized initiative PRD/addendum and the approved July 15 correction proposals without rewriting completed history. The original 55,536-byte epic-plan prefix is preserved byte-for-byte. Its 24 stories, Epics 1-5, retrospectives, `done` states, and signed v1 evidence remain historical facts; this overlay alone assigns current corrective disposition.
+
+**Overlay amendment log.** Every amendment to this overlay after its initial freeze must bump the overlay version and be recorded here, so a derived context can never claim correspondence with an overlay it does not match.
+
+| Overlay version | Date | Amendment | Authority |
+| --- | --- | --- | --- |
+| `epic-6-authority-2026-07-15-v1` | 2026-07-15 | Initial append-only corrective authority overlay. | `sprint-change-proposal-2026-07-15.md` and `sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md` |
+| `epic-6-authority-2026-07-15-v2` | 2026-07-21 | Added the mandatory production projection read-store population proof to Story 6.2 (AC 4-6) and its consumption to Story 6.6 (AC 4). | `sprint-change-proposal-2026-07-15-projection-read-store-population.md` and accepted `docs/adrs/0003-projection-read-store-population-proof.md` |
 
 ### Requirement Authority And Denominators
 
@@ -874,4 +882,4 @@ As a Hexalith development-workflow maintainer, I want promotion-bearing work to 
 - Story 6.2 precedes Story 6.5.
 - Story 6.6 remains last and triggers readiness reassessment.
 
-<!-- EPIC-6-AUTHORITY-OVERLAY:END version=epic-6-authority-2026-07-15-v1 -->
+<!-- EPIC-6-AUTHORITY-OVERLAY:END version=epic-6-authority-2026-07-15-v2 -->
