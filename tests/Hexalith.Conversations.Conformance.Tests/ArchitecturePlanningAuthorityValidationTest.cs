@@ -90,24 +90,58 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         "consumed, never module-owned",
     ];
 
-    /// <summary>Terms that make an AppHost reference explicitly test-only or non-production.</summary>
+    /// <summary>
+    /// Terms that make an AppHost reference explicitly test-only or non-production.
+    /// Every entry must carry non-shipping semantics on its own. Generic words that
+    /// merely co-occur with a test AppHost today ("end-to-end", "local user",
+    /// "module-scoped", "focused tests", "ownership and treatment") were removed on
+    /// 2026-07-27 (code review pass 2): they let a line such as "Hexalith.Conversations.AppHost
+    /// owns the production end-to-end deployment topology" satisfy a guard whose whole
+    /// job is to reject exactly that claim. This is the "5% P95" is-a-substring-of
+    /// "45% P95" failure Story 6.1's review pass 2 established as a standing lesson.
+    /// </summary>
     private static readonly string[] TestAppHostBoundaryMarkers =
     [
-        "ownership and treatment",
-        "module-scoped",
         "test apphost",
         "test-boundary",
         "test-only",
         "test harness",
         "test infrastructure",
         "user-test harness",
-        "focused tests",
         "non-packable",
         "non-publishable",
         "non-shipping",
         "not a production",
-        "local user",
-        "end-to-end",
+        "never shipped",
+        "not shipped",
+
+        // Line-wrap accommodation, not a semantic marker: the v3 amendment paragraph
+        // wraps so that the only physical line naming the AppHost is "...supersedes v2
+        // only for the ownership and treatment of `Hexalith.Conversations.AppHost`.",
+        // while "non-packable, non-publishable" lands on the following line. Scoped to
+        // the exact wrapped phrase so it cannot qualify an arbitrary sentence, and
+        // backstopped by ProductionOwnershipAssertions below.
+        "only for the ownership and treatment of",
+    ];
+
+    /// <summary>
+    /// Affirmative production/deployment ownership claims. A line asserting any of these
+    /// can never be a qualified test-AppHost line, no matter which boundary marker it also
+    /// contains — this is what stops a marker from being smuggled into a sentence that says
+    /// the opposite of what the guard is checking for. Phrased to affirm ownership, so the
+    /// amendment's own "It is not a production or deployment composition root." is unaffected.
+    /// </summary>
+    private static readonly string[] ProductionOwnershipAssertions =
+    [
+        "owns the production",
+        "owns production",
+        "owns the deployment",
+        "owns deployment",
+        "production deployment",
+        "production topology",
+        "deployment topology",
+        "production composition root",
+        "production runtime",
     ];
 
     private static readonly string[] ExpectedHistoricalStories =
@@ -967,7 +1001,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         => LineSupersessionMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsQualifiedTestAppHostLine(string line)
-        => TestAppHostBoundaryMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
+        => TestAppHostBoundaryMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase))
+        && !ProductionOwnershipAssertions.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     private static void AssertYamlScalar(string frontmatter, string key, string expected)
     {

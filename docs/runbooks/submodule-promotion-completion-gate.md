@@ -25,10 +25,18 @@ submodule_promotions:
     require_remote: true
 ```
 
+Set `require_remote: true` for every submodule shared with other clones — that is
+the default for `references/...` paths, because an unpushed submodule commit leaves
+the umbrella recording a gitlink no other clone can resolve. Use `false` only for a
+submodule deliberately kept local to this workspace, and state why in the plan.
+
 A missing declaration may be filled automatically only when it is an exact
 transcription of already-approved scope. Ambiguous or expanded scope requires
 Product Owner or user approval. The gate evaluates the union of the declaration
 and root gitlinks changed between the baseline and candidate revisions.
+
+An **absent** `submodule_promotions` field is not the same as an empty one: every
+gated workflow treats a missing field as `INVALID_SCOPE` and refuses to complete.
 
 ## 2. Prepare each affected submodule
 
@@ -84,6 +92,7 @@ Treat the emitted stable blocker codes as the authority for remediation:
 | `GITLINK_MISSING_IN_CANDIDATE` | Commit the affected root gitlink in the umbrella candidate. |
 | `GITLINK_MODE_NOT_160000` | Restore the path as a root submodule and commit its mode-`160000` gitlink. |
 | `GITLINK_COMMIT_MISMATCH` | Commit the umbrella gitlink that exactly records the affected submodule `HEAD`. |
+| `UNCAPTURED_SUBMODULE_PROMOTION` | A root submodule outside the declared scope has a checkout strictly ahead of its recorded gitlink — real commits the umbrella never captured. Declare the path in `submodule_promotions` and commit the gitlink, or restore the checkout to the recorded commit. |
 
 For exit `2` (including `BASELINE_NOT_ANCESTOR` when the baseline is not an
 ancestor of the candidate, and `INTERNAL_ERROR` for any unexpected failure),
@@ -106,10 +115,31 @@ Never initialize, update, fetch, enter, or traverse nested submodules to satisfy
 this gate. The checker itself must not initialize, update, fetch, pull, push,
 commit, add, checkout, reset, or mutate repository state.
 
-Unrelated root-submodule dirt and gitlink drift are warnings, not blockers. A git
-failure while inspecting an unrelated submodule also warns (`UNRELATED_SUBMODULE_INSPECTION_FAILED`)
+Unrelated root-submodule dirt is a warning, not a blocker. A checkout that is
+behind or diverged from its recorded gitlink warns as `UNRELATED_GITLINK_DRIFT`; a
+checkout strictly **ahead** of it blocks as `UNCAPTURED_SUBMODULE_PROMOTION`,
+because that is an uncaptured promotion rather than concurrent drift. A git failure
+while inspecting an unrelated submodule warns (`UNRELATED_SUBMODULE_INSPECTION_FAILED`)
 rather than aborting the run. Do not alter unrelated state as remediation for
 scoped promotion work.
+
+`SCOPE_NOT_EVALUATED` is emitted when nothing was declared **and** no usable
+baseline was supplied (absent, or equal to the candidate), meaning no submodule was
+evaluated at all. Every gated workflow treats it as a blocker when version control
+is available: an exit-zero run that evaluated nothing proves nothing. The default
+`--format text` output always names what was declared, what changed, and what was
+evaluated, so a vacuous pass can never be mistaken for a verified one.
+
+### Known limitations
+
+- The gate reads the **committed** candidate. A promotion that is left uncommitted
+  in the working tree is only visible through `UNCAPTURED_SUBMODULE_PROMOTION`
+  (checkout ahead of the recorded gitlink); a declared path whose gitlink is not yet
+  committed reports `GITLINK_COMMIT_MISMATCH`. Commit the scoped gitlink — never
+  initialize, update, or fetch — to remediate.
+- Nothing runs this gate automatically. There is no CI workflow or hook in this
+  repository, so the gate is only as strong as the workflow prose that invokes it.
+  Tracked in `_bmad-output/implementation-artifacts/deferred-work.md`.
 
 ## Ordered checklist (copy per story)
 

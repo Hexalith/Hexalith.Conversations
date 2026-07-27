@@ -346,7 +346,7 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
 
   <action>Initialize from template.md:
   {default_output_file}</action>
-  <action>Populate YAML frontmatter `submodule_promotions`: use `[]` for non-promotion work; otherwise list every affected root-declared `references/...` path exactly once as `{ path, require_remote }`, transcribing only scope already approved by the story authority.</action>
+  <action>Populate YAML frontmatter `submodule_promotions`: use `[]` for non-promotion work; otherwise list every affected root-declared `references/...` path exactly once as `{ path, require_remote }`, transcribing only scope already approved by the story authority. Set `require_remote` to `true` for any submodule shared with other clones, which is the default for `references/...` paths. Fill in a missing declaration automatically only as an exact transcription of already-approved scope; ambiguous or expanded scope requires Product Owner or user approval before you write it.</action>
   <template-output file="{default_output_file}">story_header</template-output>
 
   <!-- Story foundation from epics analysis -->

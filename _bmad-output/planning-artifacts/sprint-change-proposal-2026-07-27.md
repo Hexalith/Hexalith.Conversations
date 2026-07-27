@@ -202,4 +202,3 @@ UX, new-story, or cross-repository baseline change is required.
   projection/query, publication, or subscription facade remains.
 - Production append/replay/projection/state-store/query proof and all preservation
   gates remain unchanged.
-

@@ -62,7 +62,7 @@ If version control is available and the tree is dirty, create a local convention
 
 When version control is available, invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding the trustworthy `--baseline <baseline_commit>`, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Gating is activated when the declaration or `changed_gitlinks` is non-empty; for activated work, `NO_VCS`, missing baseline, or `BASELINE_NOT_PROVIDED` is a blocker.
 
-Any nonzero exit, any result other than `pass`, or the activated missing-baseline condition fails the gate. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, synchronize `review`, initialize/update/fetch submodules, or silently expand scope after failure.
+Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, synchronize `review`, initialize/update/fetch submodules, or silently expand scope after failure.
 
 ### Complete Trace and Commit Completion Record
 

@@ -6,6 +6,7 @@
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -15,6 +16,29 @@ from typing import Any, NoReturn, Sequence
 
 SCHEMA = "submodule-promotion-gate/v1"
 GIT_TIMEOUT_SECONDS = 20
+
+# Ambient Git configuration that would otherwise silently change the verdict.
+# diff.ignoreSubmodules=all makes every gitlink change invisible to
+# changed_gitlinks(); diff.renames=false decomposes a submodule rename into
+# delete+add and produces a false PATH_NOT_ROOT_DECLARED on the vanished path.
+GIT_CONFIG_OVERRIDES = (
+    "core.quotepath=false",
+    "diff.ignoreSubmodules=none",
+    "diff.renames=true",
+)
+
+# Git environment variables that redirect a `git -C <submodule>` invocation back
+# at the umbrella repository. Inheriting these from a hook or `rebase --exec`
+# makes every submodule report the umbrella's HEAD, index and worktree.
+GIT_ENVIRONMENT_OVERRIDES = (
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_COMMON_DIR",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_NAMESPACE",
+)
 BLOCKER_REMEDIATION = {
     "PATH_NOT_ROOT_DECLARED": "Declare only paths listed by the root .gitmodules file.",
     "SUBMODULE_NOT_INITIALIZED": "Initialize this root-declared submodule without using recursive submodule commands.",
@@ -25,6 +49,10 @@ BLOCKER_REMEDIATION = {
     "GITLINK_MISSING_IN_CANDIDATE": "Commit the root gitlink for this submodule in the candidate umbrella revision.",
     "GITLINK_MODE_NOT_160000": "Record this path as a Git submodule entry with mode 160000.",
     "GITLINK_COMMIT_MISMATCH": "Commit the root gitlink that exactly matches the checked-out submodule HEAD.",
+    "UNCAPTURED_SUBMODULE_PROMOTION": (
+        "Declare this path in submodule_promotions and commit the root gitlink, "
+        "or restore the submodule checkout to the recorded commit."
+    ),
 }
 
 
@@ -80,24 +108,29 @@ def empty_document(repository: Path | None = None) -> dict[str, Any]:
     }
 
 
+def git_environment() -> dict[str, str]:
+    environment = dict(os.environ)
+    for name in GIT_ENVIRONMENT_OVERRIDES:
+        environment.pop(name, None)
+    return environment
+
+
 def run_git(
     repository: Path,
     *arguments: str,
     allowed_returncodes: tuple[int, ...] = (0,),
 ) -> subprocess.CompletedProcess[bytes]:
+    command: list[str] = ["git"]
+    for override in GIT_CONFIG_OVERRIDES:
+        command.extend(("-c", override))
+    command.extend(("-C", str(repository), *arguments))
     try:
         result = subprocess.run(
-            [
-                "git",
-                "-c",
-                "core.quotepath=false",
-                "-C",
-                str(repository),
-                *arguments,
-            ],
+            command,
             check=False,
             capture_output=True,
             timeout=GIT_TIMEOUT_SECONDS,
+            env=git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise GateError("GIT_COMMAND_FAILED", f"git command failed: {error}") from error
@@ -128,7 +161,12 @@ def validate_repository(repository: Path) -> Path:
     except GateError as error:
         raise GateError("NOT_A_GIT_REPOSITORY", str(error)) from error
     if result.returncode != 0:
-        raise GateError("NOT_A_GIT_REPOSITORY", f"not a Git repository: {repository}")
+        # Exit 128 also covers safe.directory dubious-ownership refusal, which is
+        # common in CI containers and WSL mounts; git's own stderr carries the
+        # only actionable instruction, so never discard it.
+        detail = decode(result.stderr).strip()
+        suffix = f": {detail}" if detail else ""
+        raise GateError("NOT_A_GIT_REPOSITORY", f"not a Git repository: {repository}{suffix}")
 
     root = Path(decode(result.stdout).strip()).resolve()
     if root != repository.resolve():
@@ -143,8 +181,12 @@ def validate_repository(repository: Path) -> Path:
 
 def safe_relative_path(value: str) -> str:
     path = PurePosixPath(value)
+    # PurePosixPath(".").parts is (), so the per-part guard below never sees a
+    # bare "." — it has to be rejected explicitly or the umbrella root itself
+    # becomes scopeable as a submodule.
     if (
         not value
+        or value in (".", "..")
         or "\\" in value
         or path.is_absolute()
         or path.as_posix() != value
@@ -197,11 +239,25 @@ def root_submodule_paths(repository: Path) -> list[str]:
             continue
         text = decode(entry)
         if "\n" not in text:
-            raise GateError("GIT_COMMAND_FAILED", "could not parse root .gitmodules discovery output")
+            raise GateError(
+                "INVALID_SCOPE",
+                f"root .gitmodules declares {text!r} with no path value",
+            )
         _, value = text.split("\n", 1)
         paths.append(safe_relative_path(value))
     if len(paths) != len(set(paths)):
         raise GateError("INVALID_SCOPE", "root .gitmodules declares a submodule path more than once")
+    # A root declaration nested under another root declaration would make the
+    # checker descend into a nested submodule, which AC 4a forbids outright.
+    for path in paths:
+        for other in paths:
+            if path != other and path.startswith(f"{other}/"):
+                raise GateError(
+                    "INVALID_SCOPE",
+                    f"root .gitmodules declares {path} inside {other}; "
+                    "nested submodule paths must never be root-declared",
+                    path,
+                )
     return paths
 
 
@@ -256,15 +312,27 @@ def changed_gitlinks(repository: Path, baseline: str, candidate: str) -> list[st
         if len(fields) < 5 or index >= len(tokens):
             raise GateError("GIT_COMMAND_FAILED", "incomplete git diff --raw record")
         source_mode, destination_mode, _, _, status = fields[:5]
-        source_path = safe_relative_path(decode(tokens[index]))
+        # Only gitlink records are scope inputs. Validating every changed path
+        # here would let an ordinary file whose name is merely unusual (a
+        # backslash, a control character) abort the entire run with exit 2 --
+        # blocking on state that AC 3d requires to be ignored.
+        raw_source_path = decode(tokens[index])
         index += 1
-        destination_path = source_path
+        raw_destination_path = raw_source_path
         is_rename_or_copy = status[:1] in ("R", "C")
         if is_rename_or_copy:
             if index >= len(tokens):
                 raise GateError("GIT_COMMAND_FAILED", "incomplete renamed git diff record")
-            destination_path = safe_relative_path(decode(tokens[index]))
+            raw_destination_path = decode(tokens[index])
             index += 1
+        if source_mode != "160000" and destination_mode != "160000":
+            continue
+        source_path = safe_relative_path(raw_source_path)
+        destination_path = (
+            safe_relative_path(raw_destination_path)
+            if raw_destination_path != raw_source_path
+            else source_path
+        )
         paths: list[str] = []
         if is_rename_or_copy:
             # The source path was renamed away, not left behind as a gitlink to
@@ -484,11 +552,35 @@ def evaluate_path(
     return item
 
 
+def checkout_is_ahead(worktree: Path, recorded: str, head: str) -> bool:
+    """True when the submodule checkout is a strict descendant of the recorded gitlink.
+
+    That combination is an uncaptured promotion: real submodule commits exist that
+    the umbrella never recorded. A checkout that is merely behind or diverged is
+    ordinary concurrent state and stays non-blocking under AC 3d.
+    """
+    if recorded == head:
+        return False
+    result = run_git(
+        worktree,
+        "merge-base",
+        "--is-ancestor",
+        recorded,
+        head,
+        allowed_returncodes=(0, 1, 128),
+    )
+    # Exit 128 means the recorded commit is not in this submodule's object
+    # database, so the relationship is unknowable without fetching. Never fetch;
+    # fall back to the non-blocking warning.
+    return result.returncode == 0
+
+
 def inspect_unrelated(
     repository: Path,
     candidate: str,
     path: str,
     warnings: list[dict[str, Any]],
+    blockers: list[dict[str, Any]],
 ) -> None:
     worktree = repository / path
     if not own_worktree(worktree):
@@ -506,16 +598,35 @@ def inspect_unrelated(
         )
     mode, object_id = recorded_gitlink(repository, candidate, path)
     if head is not None and (mode != "160000" or object_id != head):
-        warnings.append(
-            diagnostic(
-                "UNRELATED_GITLINK_DRIFT",
-                f"unrelated root submodule {path} HEAD differs from the candidate gitlink",
-                path,
+        if (
+            mode == "160000"
+            and object_id is not None
+            and checkout_is_ahead(worktree, object_id, head)
+        ):
+            blockers.append(
+                diagnostic(
+                    "UNCAPTURED_SUBMODULE_PROMOTION",
+                    f"{path} checkout {head} is ahead of the candidate gitlink {object_id}; "
+                    "submodule commits exist that the umbrella never captured",
+                    path,
+                    BLOCKER_REMEDIATION["UNCAPTURED_SUBMODULE_PROMOTION"],
+                )
             )
-        )
+        else:
+            warnings.append(
+                diagnostic(
+                    "UNRELATED_GITLINK_DRIFT",
+                    f"unrelated root submodule {path} HEAD differs from the candidate gitlink",
+                    path,
+                )
+            )
 
 
 def verify(args: argparse.Namespace) -> dict[str, Any]:
+    # Path("") is Path("."), so an unset shell variable would silently gate
+    # whatever directory the process happened to start in.
+    if not args.repository.strip():
+        raise GateError("INVALID_SCOPE", "--repository must not be empty")
     repository = validate_repository(Path(args.repository).expanduser().resolve())
     declared_paths, remote_paths = validate_scope(args.submodule, args.require_remote)
     root_paths = root_submodule_paths(repository)
@@ -553,6 +664,20 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         if path not in affected:
             affected.append(path)
 
+    if not affected and (baseline is None or baseline == candidate):
+        # Nothing was declared and no usable baseline was supplied, so no path
+        # was evaluated at all. Without this signal an exit-0 "pass" is
+        # indistinguishable from a fully verified promotion, and the callers'
+        # "missing baseline is a blocker when activated" rule can never fire --
+        # the missing baseline is exactly what keeps changed_gitlinks empty.
+        warnings.append(
+            diagnostic(
+                "SCOPE_NOT_EVALUATED",
+                "no declared scope and no usable baseline, so no submodule was evaluated; "
+                "this run proves nothing about promotion completeness",
+            )
+        )
+
     blockers: list[dict[str, Any]] = []
     evaluated = [
         evaluate_path(
@@ -568,7 +693,7 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
     for path in root_paths:
         if path not in affected:
             try:
-                inspect_unrelated(repository, candidate, path, warnings)
+                inspect_unrelated(repository, candidate, path, warnings, blockers)
             except GateError as error:
                 warnings.append(
                     diagnostic(
@@ -596,6 +721,15 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
 
 
 def write_output(document: dict[str, Any], output_format: str) -> None:
+    # decode() preserves undecodable bytes as surrogates, so a strict stdout
+    # would raise UnicodeEncodeError here -- outside main()'s handlers, turning
+    # a deliberate exit 2 into exit 1 with an empty, unparseable stdout.
+    if getattr(sys.stdout, "errors", None) not in ("surrogateescape", "backslashreplace"):
+        try:
+            sys.stdout.reconfigure(errors="backslashreplace")
+        except (AttributeError, ValueError):  # pragma: no cover - exotic stdout
+            pass
+
     if output_format == "json":
         sys.stdout.write(json.dumps(document, indent=2, ensure_ascii=False) + "\n")
         return
@@ -603,6 +737,16 @@ def write_output(document: dict[str, Any], output_format: str) -> None:
     sys.stdout.write(f"Submodule promotion gate: {document['result'].upper()}\n")
     if document.get("repository"):
         sys.stdout.write(f"Repository: {document['repository']}\n")
+    # State the scope explicitly: a pass that evaluated nothing must never look
+    # the same as a pass that verified every declared promotion.
+    declared_paths = [item["path"] for item in document["declared"]]
+    sys.stdout.write(
+        "Declared: {} | Changed gitlinks: {} | Evaluated: {}\n".format(
+            ", ".join(declared_paths) or "none",
+            ", ".join(document["changed_gitlinks"]) or "none",
+            ", ".join(item["path"] for item in document["evaluated"]) or "none",
+        )
+    )
     for item in document["blockers"]:
         location = f" ({item['path']})" if item.get("path") else ""
         sys.stdout.write(f"BLOCKER [{item['code']}]{location}: {item['message']}\n")
@@ -624,14 +768,21 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def is_format_option(token: str) -> bool:
+    """argparse accepts any unambiguous prefix, so --forma and --f mean --format too."""
+    return len(token) > 2 and token.startswith("--") and "--format".startswith(token)
+
+
 def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
     """Best-effort output format, used only if a GateError occurs before argparse succeeds."""
     for index, token in enumerate(raw_arguments):
-        if token == "--format":
-            following = raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None
-            return "json" if following == "json" else "text"
-        if token.startswith("--format="):
-            return "json" if token.split("=", 1)[1] == "json" else "text"
+        option, separator, inline_value = token.partition("=")
+        if not is_format_option(option):
+            continue
+        if separator:
+            return "json" if inline_value == "json" else "text"
+        following = raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None
+        return "json" if following == "json" else "text"
     return "text"
 
 

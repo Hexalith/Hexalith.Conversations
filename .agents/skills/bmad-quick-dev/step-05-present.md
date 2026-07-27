@@ -50,7 +50,7 @@ When there is only one concern, omit the bold label — just list the stops dire
 
 ### Prepare Committed Candidate
 
-1. Re-read `{spec_file}` frontmatter. Preserve its `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy. Read `submodule_promotions` without expanding its approved scope.
+1. Re-read `{spec_file}` frontmatter. Preserve its `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy. Read `submodule_promotions` without expanding its approved scope; if the field is absent entirely, record `INVALID_SCOPE`, return the spec to `in-progress`, and HALT for an approved scope declaration.
 2. Keep the spec at `status: in-review`. Do not write `done` or synchronize `review` yet.
 3. If version control is available and the tree is dirty, create a local commit with a conventional message derived from the spec title. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never sweep in unrelated changes with `git add -A` or `git commit -a`.
 4. Resolve committed `HEAD` as `candidate_revision`. If version control is unavailable and `submodule_promotions` is non-empty, return the spec to `in-progress`, synchronize only `in-progress`, and HALT with the unavailable VCS condition.
@@ -59,7 +59,7 @@ When there is only one concern, omit the bold label — just list the stops dire
 
 When version control is available, invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding `--baseline <value>` when trustworthy, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Gating is activated when the declaration or `changed_gitlinks` is non-empty; for activated work, missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker.
 
-Any nonzero exit, any result other than `pass`, or the activated missing-baseline condition fails the gate. Append the stable blocker codes and actionable diagnostics to `{spec_file}`, return its status to `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, never synchronize `review`, and never initialize, update, fetch, commit, or silently expand submodule scope as remediation.
+Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to `{spec_file}`, return its status to `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, never synchronize `review`, and never initialize, update, fetch, commit, or silently expand submodule scope as remediation.
 
 ### Mark Spec Done and Synchronize
 
