@@ -195,7 +195,7 @@
       "schema": "submodule-promotion-gate/v1",
       "result": "pass",
       "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-      "candidate": "953bf71a5ad23c16c416db13ed7cea046abf58d0",
+      "candidate": "c398ea2167ed7b9a2ae7cab256637882db6cca82",
       "recordedGitlink": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
       "recordedMode": "160000",
       "declaredScope": [
@@ -211,7 +211,7 @@
       "evaluated": [
         {"path": "references/Hexalith.EventStore", "recordedGitlink": "c8c7003052a7f811d3b821f3442379ca5f3a9c65", "recordedMode": "160000", "head": "c8c7003052a7f811d3b821f3442379ca5f3a9c65", "initialized": true, "clean": true, "remoteAvailable": true},
         {"path": "references/Hexalith.Builds", "recordedGitlink": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "recordedMode": "160000", "head": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "initialized": true, "clean": true, "remoteAvailable": true},
-        {"path": "references/Hexalith.Tenants", "recordedGitlink": "0ded4a1701ccc24cc27d7cd0748fba40e04bdd51", "recordedMode": "160000", "head": "0ded4a1701ccc24cc27d7cd0748fba40e04bdd51", "initialized": true, "clean": true, "remoteAvailable": true}
+        {"path": "references/Hexalith.Tenants", "recordedGitlink": "f1053a31136105fe8659b50e9a136e4921cb3e70", "recordedMode": "160000", "head": "f1053a31136105fe8659b50e9a136e4921cb3e70", "initialized": true, "clean": true, "remoteAvailable": true}
       ],
       "blockers": [],
       "warnings": []

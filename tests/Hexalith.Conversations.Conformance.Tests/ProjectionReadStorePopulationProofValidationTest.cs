@@ -93,7 +93,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
         promotionGate.GetProperty("result").GetString().ShouldBe("pass");
         promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        promotionGate.GetProperty("candidate").GetString().ShouldBe("953bf71a5ad23c16c416db13ed7cea046abf58d0");
+        promotionGate.GetProperty("candidate").GetString().ShouldBe("c398ea2167ed7b9a2ae7cab256637882db6cca82");
         promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
         promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
         promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
@@ -340,7 +340,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         markdown.ShouldContain("`projection:conversations:{tenantId}:{conversationId}`", Case.Sensitive);
         markdown.ShouldContain("`projection:conversations-index:{tenantId}`", Case.Sensitive);
         markdown.ShouldContain("c8c7003052a7f811d3b821f3442379ca5f3a9c65", Case.Sensitive);
-        markdown.ShouldContain("953bf71a5ad23c16c416db13ed7cea046abf58d0", Case.Sensitive);
+        markdown.ShouldContain("c398ea2167ed7b9a2ae7cab256637882db6cca82", Case.Sensitive);
         markdown.ShouldContain("no blockers and no warnings", Case.Sensitive);
         markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
         markdown.ShouldContain("The companion JSON is authoritative", Case.Sensitive);
