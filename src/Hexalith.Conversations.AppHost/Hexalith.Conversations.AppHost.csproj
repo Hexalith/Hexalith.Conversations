@@ -2,18 +2,15 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <IsPackable>false</IsPackable>
-    <IsPublishable>true</IsPublishable>
+    <IsPublishable>false</IsPublishable>
     <UserSecretsId>hexalith-conversations</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
-    <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Aspire\Hexalith.Commons.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithCommonsRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Aspire\Hexalith.Commons.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithCommonsRoot)' == ''" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommunityToolkit.Aspire.Hosting.Dapr" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(Configuration)' == 'Debug' and '$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(Configuration)' == 'Debug' and '$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
 </Project>

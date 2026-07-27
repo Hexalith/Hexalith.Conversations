@@ -25,15 +25,9 @@ namespace Hexalith.Conversations.Server.Tests;
 /// <c>Hexalith.EventStore.Server</c> gateway, <c>Hexalith.Tenants.Server</c>, <c>Hexalith.Parties</c>, and
 /// <c>Hexalith.FrontComposer</c>.
 /// <para>
-/// Story 2.4 (FR-5) refines the <c>Dapr.Client</c> clause: the Server host now registers the SDK persisted
-/// read-model store (<c>AddEventStoreReadModelStore</c> → <c>DaprReadModelStore</c>), which the SDK documents
-/// as requiring a registered <c>DaprClient</c>, so the host calls <c>AddDaprClient()</c>. That extension lives
-/// in <c>Dapr.AspNetCore</c> but its signature names a <c>Dapr.Client</c> type, which unavoidably introduces a
-/// <c>Dapr.Client</c> <i>assembly-metadata</i> reference. The architecturally-meaningful invariant — no
-/// <b>direct</b> <c>Dapr.Client</c> package/project reference in the Server csproj — is preserved and still
-/// asserted by <see cref="ServerProjectFileShouldDeclareDomainServiceHostAndNoForbiddenRuntimeReferences"/>;
-/// only the assembly-metadata absence assertion is dropped here. Recorded append-only in
-/// <c>docs/release-evidence/at-risk-test-register-v1.{json,md}</c> (story24StructuralDispositions).
+/// Story 6.2 moves generic Dapr client ownership into the canonical EventStore host. Conversations consumes
+/// the platform registration through <c>AddEventStoreDomainService</c> and therefore has no direct Dapr
+/// package or assembly dependency.
 /// </para>
 /// </remarks>
 public sealed class ServerBoundaryTest
@@ -65,12 +59,7 @@ public sealed class ServerBoundaryTest
         references.ShouldNotContain("Hexalith.Parties");
         references.ShouldNotContain("Hexalith.FrontComposer");
 
-        // Story 2.4 (FR-5): the host registers the SDK persisted read-model store, which requires a DaprClient
-        // (AddDaprClient, from Dapr.AspNetCore). The Dapr.AspNetCore extension's signature names a Dapr.Client
-        // type, so a Dapr.Client assembly-metadata reference is unavoidable here — assert it is present so a
-        // silent removal of the read-model-store registration is caught. The no-DIRECT-Dapr.Client-package
-        // invariant is enforced at the csproj level by the test below.
-        references.ShouldContain("Dapr.Client");
+        references.ShouldNotContain("Dapr.Client");
     }
 
     /// <summary>

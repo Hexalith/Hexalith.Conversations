@@ -56,7 +56,7 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken);
 
         listed.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
-        store.GetCalls.ShouldBe(1, "ListAsync must perform a single tenant-index read, never a per-conversation fan-out (NFR2).");
+        store.GetCalls.ShouldBe(2, "ListAsync must verify the candidate index row against its detail generation.");
     }
 
     /// <summary>
@@ -217,16 +217,16 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     /// never null and never a per-conversation fan-out.
     /// </summary>
     [Fact]
-    public async Task ListAsyncReturnsEmptyWhenNoIndexExists()
+    public async Task ListAsyncRejectsAnAbsentIndexAsAnUnprovenGeneration()
     {
         InMemoryReadModelStore inner = new();
         CountingReadModelStore store = new(inner);
         ConversationProjectionReadStore readStore = new(store);
 
-        IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken);
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
+            async () => await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken));
 
-        listed.ShouldBeEmpty();
-        store.GetCalls.ShouldBe(1, "an absent index must still resolve via a single tenant-index read (no fan-out).");
+        store.GetCalls.ShouldBe(1, "an absent index is rejected after the tenant-index read.");
     }
 
     private static ConversationProjectedReadModels Models(ConversationId conversationId, long position)

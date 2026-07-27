@@ -3,11 +3,9 @@
 // Licensed under the MIT License.
 // </copyright>
 
-using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
 using Hexalith.Commons.Serialization;
-using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Serialization;
 using Hexalith.EventStore.Contracts.Projections;
@@ -54,11 +52,6 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
     private static readonly JsonSerializerOptions EventJsonOptions =
         JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default], includeReflectionFallback: true);
 
-    // The public conversation event vocabulary the kept materializer consumes, keyed by simple type name.
-    // The platform delivers the event type name (short or fully qualified) on each event DTO; resolution
-    // remains exact-then-suffix through the shared registry.
-    private static readonly PolymorphicTypeRegistry PublicEventTypes = BuildPublicEventTypeRegistry();
-
     private readonly ConversationProjectionMaterializer _materializer;
     private readonly TimeProvider _timeProvider;
 
@@ -79,7 +72,8 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
     /// <inheritdoc/>
     public string Domain => ConversationDomain;
 
-    internal static IReadOnlyDictionary<string, Type> PublicEventTypeEntries => PublicEventTypes.Entries;
+    internal static IReadOnlyDictionary<string, Type> PublicEventTypeEntries
+        => ConversationProjectionEventDecoder.PublicEventTypeEntries;
 
     /// <inheritdoc/>
     public ProjectionResponse Project(ProjectionRequest request)
@@ -101,7 +95,7 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
         ConversationProjectedReadModels models = _materializer.Project(
             tenantId,
             conversationId,
-            DecodeEvents(request.Events),
+            ConversationProjectionEventDecoder.Decode(request.Events),
             _timeProvider.GetUtcNow(),
             DefaultStaleAfter,
             isRebuilding: false,
@@ -112,68 +106,4 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
             JsonSerializer.SerializeToElement(models, EventJsonOptions));
     }
 
-    private static IReadOnlyList<ConversationProjectionEventRecord> DecodeEvents(ProjectionEventDto[]? events)
-    {
-        if (events is null || events.Length == 0)
-        {
-            return [];
-        }
-
-        List<ConversationProjectionEventRecord> records = new(events.Length);
-        foreach (ProjectionEventDto? evt in events)
-        {
-            // SequenceNumber is 1-based by contract; a non-positive value is malformed. Skip it rather than throw
-            // out of the seam — the source-position gap detection below then surfaces the omission as a degraded
-            // (never falsely Current) freshness state.
-            if (evt is null || evt.SequenceNumber < 1)
-            {
-                continue;
-            }
-
-            if (!TryResolvePublicEventType(evt.EventTypeName, out Type? eventType))
-            {
-                // Event type outside the conversation projection vocabulary: skipped (the platform reference
-                // handlers skip events that do not affect the projection). The materializer's source-position gap
-                // detection still operates over the decoded sequence, so a skipped position can only degrade
-                // freshness (never falsely report Current) — fail-closed by construction.
-                continue;
-            }
-
-            object? decoded = evt.Payload is { Length: > 0 }
-                ? JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
-                : null;
-            if (decoded is null)
-            {
-                continue;
-            }
-
-            records.Add(new ConversationProjectionEventRecord(evt.SequenceNumber, decoded));
-        }
-
-        return records;
-    }
-
-    private static bool TryResolvePublicEventType(string? eventTypeName, [NotNullWhen(true)] out Type? eventType)
-        => PublicEventTypes.TryResolveExactThenSuffix(eventTypeName, out eventType);
-
-    private static PolymorphicTypeRegistry BuildPublicEventTypeRegistry()
-    {
-        Type[] types =
-        [
-            typeof(ConversationCreated),
-            typeof(MessageAppended),
-            typeof(ParticipantAdded),
-            typeof(FileReferenceAttached),
-            typeof(ConversationMetadataUpdated),
-            typeof(ConversationProjectChanged),
-            typeof(ConversationClosed),
-            typeof(ConversationArchived),
-            typeof(ConversationLifecycleChanged),
-            typeof(RetentionPolicySet),
-            typeof(RetentionPolicyReplaced),
-            typeof(ConversationContentMarkedSensitive),
-            typeof(MessageContentRedacted),
-        ];
-        return PolymorphicTypeRegistry.FromTypeNames(types);
-    }
 }

@@ -29,11 +29,6 @@ builder.AddEventStoreDomainService(
 // discovers the adapter type itself; this registers its dependency graph.
 builder.Services.AddConversationTenantAccess();
 
-// The shared domain-service host (AddEventStoreDomainService) does not register a DaprClient, but the SDK
-// persisted read-model store (DaprReadModelStore, registered by AddConversationQueries -> FR-5) resolves one.
-// Register it here (mirroring the Tenants host); DAPR arrives transitively via Dapr.AspNetCore, so the Server
-// takes no direct Dapr.Client reference. TryAdd semantics make this safe even if a future host already does it.
-builder.Services.AddDaprClient();
 builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();

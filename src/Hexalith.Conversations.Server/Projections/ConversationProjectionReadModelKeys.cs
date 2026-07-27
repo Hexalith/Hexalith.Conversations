@@ -39,7 +39,7 @@ internal static class ConversationProjectionReadModelKeys
         => $"{ConversationKeyPrefix}{tenantId.Value}:{conversationId.Value}";
 
     /// <summary>
-    /// Builds the per-tenant summary-index key read as a single store entry by the list boundary (no N+1).
+    /// Builds the per-tenant summary-index key used to locate the candidate summary set.
     /// </summary>
     /// <param name="tenantId">The tenant binding.</param>
     /// <returns>The tenant-scoped index key.</returns>

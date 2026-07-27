@@ -48,7 +48,39 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 cancellationToken)
             .ConfigureAwait(false);
 
-        return entry.Value;
+        ConversationProjectedReadModels? models = entry.Value;
+        if (models is null)
+        {
+            return null;
+        }
+
+        // Preserve the higher-level poison guard: return an identity-mismatched pair so the read service can
+        // classify it without consulting a key derived from the poisoned payload.
+        if (models.Summary.TenantId != tenantId
+            || models.Detail.TenantId != tenantId
+            || models.Summary.ConversationId != conversationId
+            || models.Detail.ConversationId != conversationId)
+        {
+            return models;
+        }
+
+        ReadModelEntry<ConversationProjectionIndexReadModel> indexEntry = await _store
+            .GetAsync<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        ConversationSummaryProjectionV1? indexedSummary = indexEntry.Value?.Summaries.SingleOrDefault(
+            summary => summary.TenantId == tenantId && summary.ConversationId == conversationId);
+
+        if (indexedSummary is null
+            || !SameGeneration(models.Summary.Freshness, models.Detail.Freshness)
+            || !SameGeneration(indexedSummary.Freshness, models.Detail.Freshness))
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        return models;
     }
 
     /// <inheritdoc/>
@@ -58,7 +90,6 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     {
         ArgumentNullException.ThrowIfNull(tenantId);
 
-        // Single tenant-scoped index read — never a per-conversation fan-out (NFR2, no N+1).
         ReadModelEntry<ConversationProjectionIndexReadModel> entry = await _store
             .GetAsync<ConversationProjectionIndexReadModel>(
                 ConversationProjectionReadModelKeys.StateStoreName,
@@ -66,6 +97,44 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 cancellationToken)
             .ConfigureAwait(false);
 
-        return entry.Value?.Summaries ?? [];
+        if (entry.Value is null)
+        {
+            throw new ConversationProjectionConsistencyException();
+        }
+
+        IReadOnlyList<ConversationSummaryProjectionV1> summaries = entry.Value.Summaries;
+        foreach (ConversationSummaryProjectionV1 summary in summaries)
+        {
+            if (summary.TenantId != tenantId)
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+
+            ReadModelEntry<ConversationProjectedReadModels> detailEntry = await _store
+                .GetAsync<ConversationProjectedReadModels>(
+                    ConversationProjectionReadModelKeys.StateStoreName,
+                    ConversationProjectionReadModelKeys.ConversationKey(tenantId, summary.ConversationId),
+                    cancellationToken)
+                .ConfigureAwait(false);
+            ConversationProjectedReadModels? models = detailEntry.Value;
+            if (models is null
+                || models.Summary.TenantId != tenantId
+                || models.Detail.TenantId != tenantId
+                || models.Summary.ConversationId != summary.ConversationId
+                || models.Detail.ConversationId != summary.ConversationId
+                || !SameGeneration(summary.Freshness, models.Summary.Freshness)
+                || !SameGeneration(summary.Freshness, models.Detail.Freshness))
+            {
+                throw new ConversationProjectionConsistencyException();
+            }
+        }
+
+        return summaries;
     }
+
+    private static bool SameGeneration(ProjectionFreshnessV1 first, ProjectionFreshnessV1 second)
+        => first.ProjectionCursor == second.ProjectionCursor
+            && first.LastAppliedEventPosition == second.LastAppliedEventPosition
+            && first.LastAppliedEventTimestamp.UtcTicks == second.LastAppliedEventTimestamp.UtcTicks
+            && first.ProjectionGeneratedAt.UtcTicks == second.ProjectionGeneratedAt.UtcTicks;
 }

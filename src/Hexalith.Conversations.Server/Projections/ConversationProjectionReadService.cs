@@ -72,6 +72,14 @@ public sealed class ConversationProjectionReadService(
                 .ReadAsync(routeTenantId, conversationId, cancellationToken)
                 .ConfigureAwait(false);
         }
+        catch (ConversationProjectionConsistencyException)
+        {
+            return EmitFreshnessTelemetryAndReturn(new ConversationProjectionReadResult(
+                ProjectionTrustState.Rebuilding,
+                ProjectionFreshnessReasonCode.MixedGeneration,
+                null,
+                false));
+        }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
             return EmitFreshnessTelemetryAndReturn(Unavailable());

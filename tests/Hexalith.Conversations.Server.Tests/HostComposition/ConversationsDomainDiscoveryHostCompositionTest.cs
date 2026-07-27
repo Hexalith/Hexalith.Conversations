@@ -149,10 +149,9 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
 
-        // Mirror the production host wiring (Program.cs): tenant access, the DaprClient the SDK store resolves,
-        // and the query boundary (which registers the shared ConversationProjectionMaterializer the handler needs).
+        // Mirror the production host wiring (Program.cs): tenant access and the query boundary (which registers
+        // the shared ConversationProjectionMaterializer the handler needs). The platform host owns DaprClient.
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
-        builder.Services.AddDaprClient();
         builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
@@ -163,6 +162,33 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
 
         handler.ShouldBeOfType<ConversationProjectionHandler>();
         handler.Domain.ShouldBe(ConversationDomainKey);
+    }
+
+    /// <summary>
+    /// The same explicit scan discovers the rebuild-capable named production read-model handler.
+    /// </summary>
+    [Fact]
+    public async Task ExplicitAssemblyScanShouldDiscoverNamedConversationReadModelHandler()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+        builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
+        builder.Services.AddDataProtection();
+        builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
+
+        await using WebApplication app = builder.Build();
+        using IServiceScope scope = app.Services.CreateScope();
+
+        IAsyncDomainProjectionHandler handler = scope.ServiceProvider
+            .GetServices<IAsyncDomainProjectionHandler>()
+            .ShouldHaveSingleItem();
+
+        handler.ShouldBeOfType<ConversationAsyncProjectionHandler>();
+        handler.Domain.ShouldBe(ConversationDomainKey);
+        handler.ProjectionType.ShouldBe(ConversationAsyncProjectionHandler.ConversationReadModelProjectionType);
+        handler.ShouldBeAssignableTo<IAsyncDomainProjectionRebuildHandler>();
     }
 
     /// <summary>
@@ -180,10 +206,9 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
 
-        // Mirror the production host wiring (Program.cs): tenant access, the DaprClient the SDK store resolves,
-        // and the query boundary that registers AddEventStoreReadModelStore + the production read-store binding.
+        // Mirror the production host wiring (Program.cs): tenant access and the query boundary that registers
+        // AddEventStoreReadModelStore + the production read-store binding. The platform host owns DaprClient.
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
-        builder.Services.AddDaprClient();
         builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
         builder.Services.AddConversationGovernanceVerification();

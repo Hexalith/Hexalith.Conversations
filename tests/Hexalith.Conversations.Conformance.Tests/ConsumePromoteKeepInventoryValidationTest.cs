@@ -232,7 +232,8 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
                     // consumption is still caught. Keep the hard failure for an unaccounted empty and for Keep areas
                     // (vanishing Keep code is a regression, not a consumption). There is nothing to attribute when zero
                     // files resolve, so the double-count check is skipped for this spec.
-                    bool consumptionLogged = classification is "Consume" or "Promote" && ChangeLogAccountsForConsumedSpec(id, spec);
+                    bool consumptionLogged = classification is "Consume" or "Promote"
+                        && (ChangeLogAccountsForConsumedSpec(id, spec) || CorrectiveProofAccountsForConsumedSpec(id, spec));
                     consumptionLogged.ShouldBeTrue(
                         $"Area '{id}' path '{spec}' resolves to no .cs file. If this glob was consumed by its owning story, "
                         + "record it (referencing this path) in the inventory's append-only changeLog; otherwise it is a "
@@ -249,6 +250,25 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
                 }
             }
         }
+    }
+
+    private static bool CorrectiveProofAccountsForConsumedSpec(string areaId, string spec)
+    {
+        if (!string.Equals(areaId, "service-defaults-greenfield", StringComparison.Ordinal)
+            || !string.Equals(spec, "src/Hexalith.Conversations.ServiceDefaults/**", StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        string proofPath = Path.Combine(ReleaseEvidenceDirectory(), "projection-read-store-population-proof-v2.json");
+        if (!File.Exists(proofPath))
+        {
+            return false;
+        }
+
+        using JsonDocument proof = JsonDocument.Parse(File.ReadAllText(proofPath));
+        return proof.RootElement.GetProperty("story").GetString() == "6.2"
+            && proof.RootElement.GetProperty("hostingEvidence").GetProperty("conversationsServiceDefaultsRemoved").GetBoolean();
     }
 
     [Fact]

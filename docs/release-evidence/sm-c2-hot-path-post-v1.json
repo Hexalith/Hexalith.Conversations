@@ -1,0 +1,63 @@
+{
+  "artifactVersion": "sm-c2-hot-path-post-v1",
+  "inventoryVersion": "sm-c2-hot-path-inventory-v1",
+  "capturedAtUtc": "2026-07-27T13:33:00Z",
+  "baselineArtifact": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+  "sourceCommit": "working-tree-candidate-from-29def441408becfbbbdc5c59b9af14a7717cb21f",
+  "fixture": {
+    "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+    "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",
+    "warmupRepetitions": 5,
+    "repetitions": 30,
+    "operationsPerSample": 2000,
+    "concurrency": 1,
+    "processing": "elapsed Stopwatch ticks converted to microseconds per operation; P95 is nearest-rank ceil(0.95*n)"
+  },
+  "environment": {
+    "runtime": ".NET 10.0.10",
+    "sdk": "10.0.302",
+    "testRunner": "xUnit.net v3 In-Process Runner 3.2.2",
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "processor": "AMD Ryzen 9 9950X3D 16-Core Processor",
+    "logicalProcessorsAvailable": 24,
+    "configuration": "Release",
+    "classification": "warm in-process module boundary"
+  },
+  "command": "./tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests -class Hexalith.Conversations.IntegrationTests.Performance.SmC2HotPathBenchmark -parallel none -maxThreads 1 -showLiveOutput -reporter verbose -noColor",
+  "comparisonRule": "postP95Microseconds <= 1.05 * baselineP95Microseconds",
+  "rows": [
+    {
+      "hotPathId": "HP-CREATE",
+      "rawMicrosecondsPerOperation": [0.448550, 0.463250, 0.446650, 0.434600, 0.419400, 0.402150, 0.432250, 0.403350, 0.419400, 0.413750, 0.418950, 0.416550, 0.402550, 0.391100, 0.399250, 0.408850, 0.408150, 0.391350, 0.397100, 0.404550, 0.408500, 0.401100, 0.387500, 0.401450, 0.401150, 0.398200, 0.412100, 0.406350, 0.394350, 0.420600],
+      "p95Microseconds": 0.448550,
+      "baselineP95Microseconds": 0.436000,
+      "maximumAllowedP95Microseconds": 0.457800,
+      "result": "pass"
+    },
+    {
+      "hotPathId": "HP-APPEND",
+      "rawMicrosecondsPerOperation": [7.120800, 6.530100, 6.431300, 6.850750, 6.374650, 6.380350, 6.407400, 6.623500, 7.859750, 9.263650, 9.982850, 9.511050, 9.326950, 8.929750, 9.125450, 8.837300, 6.520000, 5.315100, 4.431900, 3.835650, 3.110750, 3.226300, 3.017150, 3.109500, 3.202150, 3.027950, 2.973800, 3.201000, 3.040500, 2.965150],
+      "p95Microseconds": 9.511050,
+      "baselineP95Microseconds": 9.585550,
+      "maximumAllowedP95Microseconds": 10.064828,
+      "result": "pass"
+    },
+    {
+      "hotPathId": "HP-LIST",
+      "rawMicrosecondsPerOperation": [3.049200, 3.068350, 3.234250, 3.073300, 3.034900, 3.064750, 3.080300, 3.085950, 3.331050, 3.061300, 3.064050, 3.116800, 3.075150, 3.088400, 3.062000, 3.059450, 3.046000, 3.151250, 3.276600, 3.048250, 3.019800, 3.002000, 3.032150, 3.012000, 3.012000, 3.070400, 2.984650, 3.046200, 3.346400, 3.085550],
+      "p95Microseconds": 3.331050,
+      "baselineP95Microseconds": 3.273800,
+      "maximumAllowedP95Microseconds": 3.437490,
+      "result": "pass"
+    },
+    {
+      "hotPathId": "HP-OPEN",
+      "rawMicrosecondsPerOperation": [0.027150, 0.025500, 0.025300, 0.029950, 0.026900, 0.029750, 0.025550, 0.025650, 0.025600, 0.025700, 0.025450, 0.025600, 0.025700, 0.025450, 0.025500, 0.025600, 0.025050, 0.025300, 0.025450, 0.025600, 0.025300, 0.025450, 0.025550, 0.031100, 0.025450, 0.025200, 0.025750, 0.026750, 0.025550, 0.025750],
+      "p95Microseconds": 0.029950,
+      "baselineP95Microseconds": 0.030550,
+      "maximumAllowedP95Microseconds": 0.032078,
+      "result": "pass"
+    }
+  ],
+  "result": "pass"
+}

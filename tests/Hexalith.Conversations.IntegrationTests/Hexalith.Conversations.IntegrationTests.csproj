@@ -4,7 +4,10 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Testing\Hexalith.EventStore.Testing.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Testing\Hexalith.EventStore.Testing.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

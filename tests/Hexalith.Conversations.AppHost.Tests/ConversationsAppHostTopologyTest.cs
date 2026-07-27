@@ -12,11 +12,28 @@ using Hexalith.Conversations.AppHost;
 using Hexalith.EventStore.Aspire;
 
 using Microsoft.Extensions.Configuration;
+using System.Xml.Linq;
 
 namespace Hexalith.Conversations.AppHost.Tests;
 
 public sealed class ConversationsAppHostTopologyTest
 {
+    [Fact]
+    public void ConversationsAppHostShouldBeMechanicallyNonShipping()
+    {
+        XDocument project = XDocument.Load(Path.Combine(
+            FindRepositoryRoot(),
+            "src",
+            "Hexalith.Conversations.AppHost",
+            "Hexalith.Conversations.AppHost.csproj"));
+
+        string? isPackable = project.Descendants().Single(element => element.Name.LocalName == "IsPackable").Value;
+        string? isPublishable = project.Descendants().Single(element => element.Name.LocalName == "IsPublishable").Value;
+
+        isPackable.ShouldBe("false");
+        isPublishable.ShouldBe("false");
+    }
+
     [Fact]
     public void ConversationsAppHostShouldExposeStableResourceNames()
     {
@@ -62,7 +79,7 @@ public sealed class ConversationsAppHostTopologyTest
     }
 
     [Fact]
-    public void ConversationsServerShouldUseSharedDaprSidecarAndWaitForEventStore()
+    public async Task ConversationsServerShouldUseSharedDaprSidecarAndWaitForEventStore()
     {
         IDistributedApplicationBuilder builder = CreateBuilder();
 
@@ -70,6 +87,22 @@ public sealed class ConversationsAppHostTopologyTest
 
         DaprSidecarOptions options = GetSidecarOptions(resources.ConversationsServer.Resource);
         options.AppId.ShouldBe(ConversationsAppHostTopology.ConversationsResourceName);
+        options.EnableAppHealthCheck.ShouldBe(true);
+        options.AppHealthCheckPath.ShouldBe("/alive");
+
+        Dictionary<string, object> environment = new(StringComparer.Ordinal);
+        EnvironmentCallbackContext environmentContext = new(
+            new DistributedApplicationExecutionContext(DistributedApplicationOperation.Run),
+            resources.ConversationsServer.Resource,
+            environment,
+            TestContext.Current.CancellationToken);
+        foreach (EnvironmentCallbackAnnotation annotation in resources.ConversationsServer.Resource.Annotations.OfType<EnvironmentCallbackAnnotation>())
+        {
+            await annotation.Callback(environmentContext);
+        }
+
+        environment["EventStore__DomainService__AppId"].ShouldBe(ConversationsAppHostTopology.ConversationsResourceName);
+        environment["EventStore__DomainService__ServiceVersion"].ShouldBe("v1");
 
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.StateStoreComponentName);
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.PubSubComponentName);
@@ -160,4 +193,20 @@ public sealed class ConversationsAppHostTopologyTest
             .OfType<WaitAnnotation>()
             .Select(static annotation => annotation.Resource.Name)
             .Order(StringComparer.Ordinal)];
+
+    private static string FindRepositoryRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not find the repository root.");
+    }
 }

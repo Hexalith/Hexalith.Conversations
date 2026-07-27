@@ -1,0 +1,55 @@
+{
+  "artifactVersion": "sm-c2-hot-path-baseline-v1",
+  "inventoryVersion": "sm-c2-hot-path-inventory-v1",
+  "capturedAtUtc": "2026-07-27T13:02:00Z",
+  "sourceCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+  "fixture": {
+    "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+    "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",
+    "warmupRepetitions": 5,
+    "repetitions": 30,
+    "operationsPerSample": 2000,
+    "concurrency": 1,
+    "processing": "elapsed Stopwatch ticks converted to microseconds per operation; P95 is nearest-rank ceil(0.95*n)"
+  },
+  "environment": {
+    "runtime": ".NET 10.0.10",
+    "sdk": "10.0.302",
+    "testRunner": "xUnit.net v3 In-Process Runner 3.2.2",
+    "os": "Linux 6.6.87.2-microsoft-standard-WSL2 x86_64",
+    "processor": "AMD Ryzen 9 9950X3D 16-Core Processor",
+    "logicalProcessorsAvailable": 24,
+    "configuration": "Release",
+    "classification": "warm in-process module boundary"
+  },
+  "rows": [
+    {
+      "hotPathId": "HP-CREATE",
+      "operation": "Create a tenant-bound conversation through ConversationAggregate.Handle after command construction.",
+      "dataShape": "one v1 command with business, project, folder, label, correlation, causation, and idempotency metadata",
+      "rawMicrosecondsPerOperation": [0.436000, 0.446400, 0.419050, 0.420500, 0.388150, 0.402000, 0.385150, 0.396700, 0.405400, 0.395550, 0.408850, 0.382550, 0.383250, 0.392900, 0.389750, 0.385700, 0.381800, 0.380200, 0.419050, 0.377450, 0.379300, 0.397400, 0.378250, 0.404850, 0.375550, 0.377350, 0.384950, 0.385400, 0.382600, 0.389650],
+      "p95Microseconds": 0.436000
+    },
+    {
+      "hotPathId": "HP-APPEND",
+      "operation": "Fingerprint the fixed accepted append, equivalent duplicate, and payload-mismatch command mix.",
+      "dataShape": "one conversation, one message, one actor, two equivalent payloads, and one mismatched payload",
+      "rawMicrosecondsPerOperation": [7.435700, 6.421750, 6.231900, 6.540050, 6.253400, 6.307100, 6.246900, 6.414550, 6.214200, 6.211550, 8.926750, 9.585550, 9.744550, 9.183200, 9.068350, 8.826350, 8.677500, 8.194300, 5.136450, 4.522850, 3.978700, 3.293000, 2.763550, 2.738950, 2.879900, 2.710000, 2.704200, 2.858050, 2.681800, 2.677300],
+      "p95Microseconds": 9.585550
+    },
+    {
+      "hotPathId": "HP-LIST",
+      "operation": "Filter, ordinally order, and page the fixed warm tenant summary shape.",
+      "dataShape": "100 tenant-scoped summary identities and a 25-row page",
+      "rawMicrosecondsPerOperation": [3.086600, 3.021200, 3.011550, 3.032400, 3.032100, 3.047650, 3.006750, 3.008800, 3.650300, 3.002050, 3.008500, 3.019950, 3.007250, 3.056600, 3.014350, 3.043100, 3.013150, 2.994900, 3.273800, 2.990150, 3.060100, 3.176500, 2.959450, 2.955750, 2.932300, 2.929950, 2.909300, 3.101850, 2.899600, 2.893050],
+      "p95Microseconds": 3.273800
+    },
+    {
+      "hotPathId": "HP-OPEN",
+      "operation": "Open one warm conversation state by stable identity and read its trust-bearing scope fields.",
+      "dataShape": "one tenant-bound created conversation in a warm ordinal dictionary",
+      "rawMicrosecondsPerOperation": [0.031000, 0.030550, 0.026000, 0.025850, 0.025850, 0.025950, 0.025850, 0.026100, 0.025900, 0.026000, 0.026050, 0.026050, 0.025550, 0.025650, 0.025650, 0.025600, 0.025750, 0.025600, 0.025450, 0.025750, 0.025600, 0.025700, 0.025600, 0.025650, 0.025650, 0.025800, 0.025400, 0.026500, 0.025800, 0.026350],
+      "p95Microseconds": 0.030550
+    }
+  ]
+}

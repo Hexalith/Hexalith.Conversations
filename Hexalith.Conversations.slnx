@@ -42,7 +42,6 @@
     <Project Path="src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj" />
     <Project Path="src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj" />
     <Project Path="src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj" />
-    <Project Path="src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj" />
     <Project Path="src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj" />
     <Project Path="src/Hexalith.Conversations/Hexalith.Conversations.csproj" />
   </Folder>
@@ -53,7 +52,6 @@
     <Project Path="tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj" />
-    <Project Path="tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj" />
     <Project Path="tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj" />
   </Folder>

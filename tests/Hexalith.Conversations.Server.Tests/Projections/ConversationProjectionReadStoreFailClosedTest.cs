@@ -118,10 +118,8 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
     public async Task CurrentPersistedModelShouldEnableTrustBearingDetail()
     {
         InMemoryReadModelStore store = new();
-        store.SeedRaw(
-            ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationA),
-            Models(ConversationA, Now.AddSeconds(1)));
+        await new ConversationProjectionReadModelWriter(store)
+            .PersistAsync(Models(ConversationA, Now.AddSeconds(1)), TestContext.Current.CancellationToken);
 
         ConversationProjectionReadService service = new(AllowAll(), new ConversationProjectionReadStore(store));
 

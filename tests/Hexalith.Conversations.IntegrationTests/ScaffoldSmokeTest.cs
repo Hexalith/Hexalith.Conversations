@@ -26,7 +26,6 @@ public sealed class ScaffoldSmokeTest
         "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
         "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
         "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
-        "src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj",
         "tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj",
         "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj",
         "tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj",
@@ -64,6 +63,17 @@ public sealed class ScaffoldSmokeTest
         {
             File.Exists(Path.Combine(root, projectPath)).ShouldBeTrue(projectPath);
         }
+
+        File.Exists(Path.Combine(
+            root,
+            "src",
+            "Hexalith.Conversations.ServiceDefaults",
+            "Hexalith.Conversations.ServiceDefaults.csproj")).ShouldBeFalse();
+        File.Exists(Path.Combine(
+            root,
+            "tests",
+            "Hexalith.Conversations.ServiceDefaults.Tests",
+            "Hexalith.Conversations.ServiceDefaults.Tests.csproj")).ShouldBeFalse();
     }
 
     /// <summary>
@@ -185,9 +195,11 @@ public sealed class ScaffoldSmokeTest
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
-            // Story 3.5 (FR-13): AppHost consumes shared Aspire/Dapr hosting helpers.
-            $"{commonsRoot}/src/libraries/Hexalith.Commons.Aspire/Hexalith.Commons.Aspire.csproj",
+            // Story 6.2: the non-shipping test harness consumes only the public EventStore Aspire helper and
+            // keeps both conditional Debug build-forcing gateway edges visible to the structural inventory.
             $"{eventStoreRoot}/src/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore/Hexalith.EventStore.csproj",
+            $"{eventStoreRoot}/src/Hexalith.EventStore/Hexalith.EventStore.csproj",
             "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj");
     }

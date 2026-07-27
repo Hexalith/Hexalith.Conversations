@@ -10,6 +10,8 @@ using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.ServiceDefaults;
 
+using Dapr.Client;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
@@ -49,7 +51,6 @@ public sealed class ConversationsDomainServiceHostCompositionTest
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddConversationTenantAccess();
-        builder.Services.AddDaprClient();
         builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(builder.Configuration);
 
@@ -184,5 +185,20 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         descriptorText.ShouldContain("ServiceDiscovery");
         descriptorText.ShouldContain("Resilience");
         descriptorText.ShouldContain("OpenTelemetry");
+    }
+
+    /// <summary>
+    /// The canonical platform host owns the single generic Dapr client registration required by read models.
+    /// </summary>
+    [Fact]
+    public void AddEventStoreDomainServiceShouldOwnDaprClientRegistration()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+
+        builder.Services.Count(static descriptor => descriptor.ServiceType == typeof(DaprClient)).ShouldBe(1);
     }
 }

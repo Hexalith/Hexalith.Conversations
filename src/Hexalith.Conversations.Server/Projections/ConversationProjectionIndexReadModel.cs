@@ -8,8 +8,8 @@ using Hexalith.Conversations.Contracts.Projections;
 namespace Hexalith.Conversations.Server.Projections;
 
 /// <summary>
-/// Cross-conversation, per-tenant summary index persisted as a single state-store value so the list boundary
-/// reads the tenant's visible summaries with one store read rather than a per-conversation fan-out (NFR2).
+/// Cross-conversation, per-tenant summary index persisted as one state-store value. The list boundary treats
+/// these as candidates and verifies each candidate against its detail key before reporting it current.
 /// </summary>
 /// <remarks>
 /// This is a Server-internal persistence shape; the persisted elements are the existing public

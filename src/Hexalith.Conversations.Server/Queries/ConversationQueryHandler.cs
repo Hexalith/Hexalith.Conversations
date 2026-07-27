@@ -87,9 +87,22 @@ public sealed class ConversationQueryHandler
 
         if (result.Projection is null)
         {
-            return result.FreshnessState == ProjectionTrustState.Unavailable
-                ? ConversationDetailResult.Unavailable(query.SchemaVersion)
-                : ConversationDetailResult.Hidden(query.SchemaVersion);
+            if (result.FreshnessState == ProjectionTrustState.Unavailable)
+            {
+                return ConversationDetailResult.Unavailable(query.SchemaVersion);
+            }
+
+            if (result.FreshnessState != ProjectionTrustState.Rebuilding)
+            {
+                return ConversationDetailResult.Hidden(query.SchemaVersion);
+            }
+
+            return new ConversationDetailResult(
+                query.SchemaVersion,
+                result.FreshnessState,
+                result.ReasonCode,
+                null,
+                "Retry after the read model finishes rebuilding.");
         }
 
         ConversationDetailsV1 details = await _hydrationService
@@ -232,6 +245,16 @@ public sealed class ConversationQueryHandler
         try
         {
             candidates = await _projectionReadStore.ListAsync(query.TenantId, cancellationToken).ConfigureAwait(false);
+        }
+        catch (ConversationProjectionConsistencyException)
+        {
+            return new ConversationListResult(
+                query.SchemaVersion,
+                ProjectionTrustState.Rebuilding,
+                ProjectionFreshnessReasonCode.MixedGeneration,
+                [],
+                new ConversationPageMetadata(0),
+                "Retry after the read model finishes rebuilding.");
         }
         catch (Exception) when (!cancellationToken.IsCancellationRequested)
         {
