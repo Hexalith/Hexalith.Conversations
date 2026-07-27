@@ -3,16 +3,24 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'ready-for-dev'
+status: 'in-progress'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
-# ^ Exact transcription of the already-approved scope declared in
+  - path: 'references/Hexalith.Builds'
+    require_remote: true
+  - path: 'references/Hexalith.Tenants'
+    require_remote: true
+# ^ The first entry is the exact transcription of the already-approved scope declared in
 #   spec-6-2-migrate-conversations-to-platform-owned-hosting-2.md frontmatter (AC 1c).
-#   NOT expanded. Two further root gitlinks (Builds, Tenants) have moved since the
-#   baseline and currently surface as non-blocking UNDECLARED_GITLINK_CHANGE warnings;
-#   see Dev Notes -> Open decision D1. Do not add them without Jerome's approval.
+#   Builds and Tenants are an APPROVED SCOPE EXPANSION: Jerome approved declaring all three
+#   paths on 2026-07-27 when resolving Dev Notes -> Open decision D1 (option 2). Both moved
+#   inside the baseline -> candidate window, both are initialized, clean, captured at mode
+#   160000, and both recorded commits are present on their origin/main, so require_remote:
+#   true is satisfiable. Declaring them converts two non-blocking UNDECLARED_GITLINK_CHANGE
+#   warnings into evaluated declared scope, matching the Story 6.7 "undisclosed scope"
+#   review precedent. Do not expand further without a new approval.
 authority:
   overlay: 'epic-6-authority-2026-07-27-v3'
   architecture: 'conversations-architecture-2026-07-27-v3'
@@ -28,7 +36,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: ready-for-dev
+Status: in-progress
 
 ## ⚠️ Read this first — most of this story is already implemented
 

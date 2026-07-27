@@ -57,8 +57,31 @@ internal static class ConversationProjectionEventDecoder
         return records;
     }
 
-    private static bool TryResolvePublicEventType(string? eventTypeName, [NotNullWhen(true)] out Type? eventType)
+    /// <summary>
+    /// Resolves one persisted or public event discriminator to the public contract type the projection consumes.
+    /// </summary>
+    /// <param name="eventTypeName">The discriminator carried by the projection envelope.</param>
+    /// <param name="eventType">The resolved public contract event type.</param>
+    /// <returns><see langword="true"/> when the discriminator resolves.</returns>
+    /// <remarks>
+    /// Exposed so the durable-stream coverage guard exercises this resolution rather than re-deriving the rule,
+    /// which would let the guard agree with a broken decoder.
+    /// </remarks>
+    internal static bool TryResolvePublicEventType(string? eventTypeName, [NotNullWhen(true)] out Type? eventType)
         => PublicEventTypes.TryResolveExactThenSuffix(eventTypeName, out eventType);
+
+    /// <summary>
+    /// The suffix the durable domain event types carry over their public contract counterparts.
+    /// </summary>
+    /// <remarks>
+    /// A persisted envelope names the event by the CLR type the aggregate emitted, which is the domain event
+    /// (for example <c>Hexalith.Conversations.Events.ConversationCreatedDomainEvent</c>), not the public
+    /// contract type the projection consumes. The suffix resolution matches on the END of the discriminator, so
+    /// the public name alone can never match a domain-event name. Registering the suffixed alias is what lets a
+    /// real production stream decode; without it every replayed event is silently dropped, the builder never
+    /// observes a creation, and the read model persists as Rebuilding forever.
+    /// </remarks>
+    private const string DomainEventSuffix = "DomainEvent";
 
     private static PolymorphicTypeRegistry BuildPublicEventTypeRegistry()
     {
@@ -78,6 +101,16 @@ internal static class ConversationProjectionEventDecoder
             typeof(ConversationContentMarkedSensitive),
             typeof(MessageContentRedacted),
         ];
-        return PolymorphicTypeRegistry.FromTypeNames(types);
+
+        // Every public contract event is registered twice: under its own name, which is what an already-decoded
+        // public envelope carries, and under the durable domain-event name a persisted stream carries. The two
+        // shapes are wire-compatible by construction because each domain event repeats its public counterpart's
+        // members verbatim and only adds the domain-side idempotency key, which the public type ignores.
+        return PolymorphicTypeRegistry.Create(
+            types.SelectMany(static type => new PolymorphicTypeRegistration[]
+            {
+                new(type.Name, type),
+                new($"{type.Name}{DomainEventSuffix}", type),
+            }));
     }
 }

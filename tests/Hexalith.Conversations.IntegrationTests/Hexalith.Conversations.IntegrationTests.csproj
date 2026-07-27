@@ -8,6 +8,16 @@
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Testing\Hexalith.EventStore.Testing.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Testing\Hexalith.EventStore.Testing.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
+    <!-- Story 6.2 (AC5 / ADR 0003 Verification 1-2): the production-boundary proof drives the platform
+         gateway (ProjectionUpdateOrchestrator -> NamedProjectionDispatchCoordinator) against a DAPR-backed
+         state store. Both are platform-owned, so the test lane consumes the platform's public server and
+         integration-harness packages instead of re-implementing sidecar bootstrap in this module. This is a
+         TEST-ONLY edge: src/Hexalith.Conversations.Server must never reference Hexalith.EventStore.Server,
+         which ScaffoldSmokeTest.ScaffoldProjectsShouldNotReferenceForbiddenInfrastructurePackages enforces. -->
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Server\Hexalith.EventStore.Server.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Server\Hexalith.EventStore.Server.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Testing.Integration\Hexalith.EventStore.Testing.Integration.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Testing.Integration\Hexalith.EventStore.Testing.Integration.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

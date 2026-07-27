@@ -3,6 +3,31 @@
   "inventoryVersion": "sm-c2-hot-path-inventory-v1",
   "capturedAtUtc": "2026-07-27T13:02:00Z",
   "sourceCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+  "reconstruction": {
+    "required": true,
+    "reason": "The versioned fixture does not exist at sourceCommit 29def441408becfbbbdc5c59b9af14a7717cb21f. It was added alongside the Story 6.2 production edits, so the baseline could not have been captured by checking out that commit and running it. AC1 permits a reconstruction from the preserved source commit with the same versioned fixture; this block records how, so the baseline is auditable rather than asserted.",
+    "method": "overlay-versioned-fixture-onto-preserved-source-commit",
+    "fixtureOverlay": {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+      "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",
+      "presentAtSourceCommit": false,
+      "identicalInPostRun": true
+    },
+    "measuredProductionClosure": {
+      "projects": [
+        "src/Hexalith.Conversations",
+        "src/Hexalith.Conversations.Contracts"
+      ],
+      "rationale": "Every type the fixture exercises resolves to these two projects: ConversationAggregate.Handle, ConversationCommandFingerprint, ConversationState and the Contracts command, event, identifier and versioning types. It touches no Server, Client, Admin or platform assembly, so those two projects are the entire production surface under measurement.",
+      "verification": {
+        "command": "git diff --name-only 29def441408becfbbbdc5c59b9af14a7717cb21f..<post-run-revision> -- src/Hexalith.Conversations src/Hexalith.Conversations.Contracts",
+        "changedFileCount": 0,
+        "result": "identical"
+      }
+    },
+    "equivalence": "Because the measured production closure is byte-identical between the preserved source commit and the post-run tree, overlaying the versioned fixture onto 29def44 and running it produces the same compilation closure as the post run. The baseline and the post therefore measure the same production sources under one envelope, which is what makes the row-by-row comparison meaningful.",
+    "residualLimitation": "This also bounds what the SM-C2 gate can prove for Story 6.2: the story changed no source inside the measured closure, so the comparison confirms no regression rather than exercising the changed hosting and projection code. A future story that edits the domain or contracts projects gets a gate that can genuinely fail; this one does not."
+  },
   "fixture": {
     "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
     "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",

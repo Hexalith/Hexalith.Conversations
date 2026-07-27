@@ -2,8 +2,16 @@
 title: 'Migrate Conversations to platform-owned hosting'
 type: 'refactor'
 created: '2026-07-27T14:49:16+02:00'
-status: 'in-review'
-baseline_revision: '29def441408becfbbbdc5c59b9af14a7717cb21f'
+status: 'superseded'
+superseded_on: '2026-07-27'
+superseded_by:
+  - '_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md'
+supersession_note: >-
+  This spec route implemented the bulk of Story 6.2 before the story record existed, and was never code reviewed
+  (warnings oversized, multiple-goals; review_loop_iteration 0). Its acceptance is now owned by the Story 6.2
+  record, which binds the same work to the epic's acceptance criteria, carries the five open gaps as tasks T1-T5,
+  and routes completion through the Story 6.7 promotion gate. Closed as superseded so it cannot be mistaken for a
+  second live authority; the intent contract below is retained unchanged as the implementation's origin record.
 review_loop_iteration: 0
 followup_review_recommended: false
 context:

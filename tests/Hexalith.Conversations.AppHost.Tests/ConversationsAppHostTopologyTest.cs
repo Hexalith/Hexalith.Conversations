@@ -12,26 +12,103 @@ using Hexalith.Conversations.AppHost;
 using Hexalith.EventStore.Aspire;
 
 using Microsoft.Extensions.Configuration;
-using System.Xml.Linq;
+
+using System.Diagnostics;
+using System.Text.Json;
 
 namespace Hexalith.Conversations.AppHost.Tests;
 
 public sealed class ConversationsAppHostTopologyTest
 {
+    /// <summary>
+    /// Asserts the non-shipping boundary from the values MSBuild actually evaluates.
+    /// </summary>
+    /// <remarks>
+    /// Reading the raw <c>&lt;IsPackable&gt;</c> and <c>&lt;IsPublishable&gt;</c> elements out of the project XML
+    /// is a shape check, not a mechanical one: an imported <c>.props</c> or <c>.targets</c> could set either
+    /// property to <c>true</c> with the project XML unchanged, and the assertion would stay green while the
+    /// harness became packable. Evaluating the properties measures what the build does.
+    /// </remarks>
     [Fact]
     public void ConversationsAppHostShouldBeMechanicallyNonShipping()
     {
-        XDocument project = XDocument.Load(Path.Combine(
-            FindRepositoryRoot(),
-            "src",
-            "Hexalith.Conversations.AppHost",
-            "Hexalith.Conversations.AppHost.csproj"));
+        IReadOnlyDictionary<string, string> evaluated = EvaluateProjectProperties(
+            Path.Combine(
+                FindRepositoryRoot(),
+                "src",
+                "Hexalith.Conversations.AppHost",
+                "Hexalith.Conversations.AppHost.csproj"),
+            "IsPackable",
+            "IsPublishable");
 
-        string? isPackable = project.Descendants().Single(element => element.Name.LocalName == "IsPackable").Value;
-        string? isPublishable = project.Descendants().Single(element => element.Name.LocalName == "IsPublishable").Value;
+        evaluated.Keys.Order(StringComparer.Ordinal).ShouldBe(["IsPackable", "IsPublishable"]);
+        evaluated["IsPackable"].ShouldBe("false", StringCompareShould.IgnoreCase);
+        evaluated["IsPublishable"].ShouldBe("false", StringCompareShould.IgnoreCase);
+    }
 
-        isPackable.ShouldBe("false");
-        isPublishable.ShouldBe("false");
+    /// <summary>
+    /// Evaluates MSBuild properties for one project and returns the values the build would use.
+    /// </summary>
+    /// <param name="projectPath">The absolute project path to evaluate.</param>
+    /// <param name="propertyNames">The properties to read.</param>
+    /// <returns>The evaluated property values keyed by property name.</returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown when evaluation cannot run or does not return every requested property. Failing here rather than
+    /// skipping is deliberate: an unevaluated guard proves nothing about the shipping boundary.
+    /// </exception>
+    private static IReadOnlyDictionary<string, string> EvaluateProjectProperties(
+        string projectPath,
+        params string[] propertyNames)
+    {
+        ProcessStartInfo startInfo = new("dotnet")
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            WorkingDirectory = FindRepositoryRoot(),
+        };
+        startInfo.ArgumentList.Add("msbuild");
+        startInfo.ArgumentList.Add(projectPath);
+        foreach (string propertyName in propertyNames)
+        {
+            startInfo.ArgumentList.Add($"-getProperty:{propertyName}");
+        }
+
+        startInfo.ArgumentList.Add("-nologo");
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException("MSBuild evaluation could not be started.");
+        string standardOutput = process.StandardOutput.ReadToEnd();
+        string standardError = process.StandardError.ReadToEnd();
+        if (!process.WaitForExit(milliseconds: 180_000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new InvalidOperationException("MSBuild evaluation did not complete within 180 seconds.");
+        }
+
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"MSBuild evaluation failed with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
+        }
+
+        // A single -getProperty prints the bare value; several print a JSON envelope. Only the multi-property
+        // form is used here so the parse stays unambiguous.
+        using JsonDocument document = JsonDocument.Parse(standardOutput);
+        Dictionary<string, string> values = new(StringComparer.Ordinal);
+        JsonElement properties = document.RootElement.GetProperty("Properties");
+        foreach (string propertyName in propertyNames)
+        {
+            if (!properties.TryGetProperty(propertyName, out JsonElement value))
+            {
+                throw new InvalidOperationException(
+                    $"MSBuild evaluation did not return the '{propertyName}' property.");
+            }
+
+            values[propertyName] = value.GetString() ?? string.Empty;
+        }
+
+        return values;
     }
 
     [Fact]

@@ -2,7 +2,15 @@
 title: 'Migrate Conversations to platform-owned hosting'
 type: 'refactor'
 created: '2026-07-26T21:00:00+02:00'
-status: 'blocked'
+status: 'superseded'
+superseded_on: '2026-07-27'
+superseded_by:
+  - '_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting-2.md'
+  - '_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md'
+supersession_note: >-
+  Authored before Story 6.7 shipped the submodule-promotion completion gate, and blocked on it. The gate is now
+  done, the work was carried out through the -2 spec route, and the Story 6.2 record is the binding authority for
+  acceptance. Closed as superseded rather than left blocked so exactly one 6.2 spec lineage is live.
 review_loop_iteration: 0
 followup_review_recommended: false
 context:
