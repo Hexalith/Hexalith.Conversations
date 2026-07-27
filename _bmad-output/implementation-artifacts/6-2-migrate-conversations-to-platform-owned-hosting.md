@@ -123,7 +123,7 @@ boundaries without becoming a deployment artifact.
 - [x] **T1 — Rebind the v2 proof's promotion evidence to the final story candidate** (AC: 3, 5) — **BLOCKING**
   - [x] `docs/release-evidence/projection-read-store-population-proof-v2.json` →
         `eventStorePromotion.commit` and `.requiredUmbrellaGitlinkCommit` are now `c8c7003`;
-        `.umbrellaMechanicalGate.candidate` is `953bf71`, `.recordedGitlink` is `c8c7003`,
+        `.umbrellaMechanicalGate.candidate` is `c398ea2`, `.recordedGitlink` is `c8c7003`,
         `warnings: []` and `blockers: []` are what the gate actually returned. The recorded
         gate result also carries `declaredScope` (3 paths), `changedGitlinks`, and the full
         `evaluated` array rather than a single summarised path.
@@ -639,10 +639,12 @@ The `ServiceDefaults` entries are deletions (AC3).
 
 | Date | Change |
 | --- | --- |
-| 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `953bf71`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
+| 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `c398ea2`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
 | 2026-07-27 | T2 closed by strengthening the fixture (Jerome's decision): gateway lane crosses `ProjectionUpdateOrchestrator` and `NamedProjectionDispatchCoordinator` into a DAPR/Redis `statestore`; recorded as `gatewayBoundaryEvidence` with `residualGap: "none"` and mechanically asserted. |
 | 2026-07-27 | T3 closed: non-shipping AppHost boundary asserted from evaluated MSBuild properties and fault-injected to prove it fails when an import flips `IsPackable`. |
 | 2026-07-27 | T4 closed: SM-C2 reconstruction provenance recorded in both artifacts and validated by git with an anti-vacuity check; residual limitation stated. |
 | 2026-07-27 | T5 closed: both 6.2 specs marked `superseded`; File List derived mechanically at 49 paths. |
 | 2026-07-27 | Fixed a public contract regression introduced by `953bf71`: durable `…DomainEvent` aliases had widened `PublicEventTypeEntries` from 13 to 26 names. Split into a separate durable registry and guarded. |
 | 2026-07-27 | Resolved a `SUBMODULE_DIRTY_UNTRACKED` gate blocker by parking an unrelated concurrent-session draft out of `references/Hexalith.Tenants` byte-identically, with no submodule commit, push, or gitlink move. |
+| 2026-07-27 | Corrected an out-of-scope gitlink capture (`c398ea2`). Commit `953bf71` had swept an unrelated `references/Hexalith.Tenants` fast-forward (`f1053a3` → `0ded4a1`, a tenant search-page change) into the story after it drifted into the working tree mid-session. Per the release owner's decision on D1 the recorded gitlink is restored to `f1053a3` — the value this story's own promotion window established — instead of promoting an unrelated commit. `0ded4a1` remains on the submodule's `main`/`origin/main`. `references/Hexalith.Memories` had drifted the same way and was restored in the working tree only (it was never captured). |
+| 2026-07-27 | Rebound the promotion evidence to candidate `c398ea2` (`39b9206`). The story's own git-backed validator rejected the stale binding, which is the behaviour T1 added it for. Gate at final `HEAD`: `pass`, 0 blockers, 0 warnings, 3/3 declared paths evaluated clean, remote-available, exact at mode `160000`. |
