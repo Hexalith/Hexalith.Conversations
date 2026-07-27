@@ -174,8 +174,6 @@ def validate_repository(repository: Path) -> Path:
             "NOT_A_GIT_REPOSITORY",
             f"--repository must name the repository root: {root}",
         )
-    if not (root / ".gitmodules").is_file():
-        raise GateError("MISSING_GITMODULES", f"root .gitmodules is missing from {root}")
     return root
 
 
@@ -201,9 +199,21 @@ def safe_relative_path(value: str) -> str:
     return value
 
 
+def promotion_path(value: str) -> str:
+    """Return a normalized path in the root references/ submodule namespace."""
+    path = safe_relative_path(value)
+    if not path.startswith("references/"):
+        raise GateError(
+            "INVALID_SCOPE",
+            f"root submodule scope must be below references/: {value!r}",
+            value,
+        )
+    return path
+
+
 def validate_scope(declared: Sequence[str], require_remote: Sequence[str]) -> tuple[list[str], set[str]]:
-    normalized_declared = [safe_relative_path(path) for path in declared]
-    normalized_remote = [safe_relative_path(path) for path in require_remote]
+    normalized_declared = [promotion_path(path) for path in declared]
+    normalized_remote = [promotion_path(path) for path in require_remote]
     if len(set(normalized_declared)) != len(normalized_declared):
         raise GateError("INVALID_SCOPE", "each --submodule path must be declared exactly once")
     if len(set(normalized_remote)) != len(normalized_remote):
@@ -219,13 +229,27 @@ def validate_scope(declared: Sequence[str], require_remote: Sequence[str]) -> tu
     return normalized_declared, remote_set
 
 
-def root_submodule_paths(repository: Path) -> list[str]:
+def root_submodule_paths(repository: Path, candidate: str) -> list[str]:
+    candidate_gitmodules = f"{candidate}:.gitmodules"
+    exists = run_git(
+        repository,
+        "cat-file",
+        "-e",
+        candidate_gitmodules,
+        allowed_returncodes=(0, 128),
+    )
+    if exists.returncode != 0:
+        raise GateError(
+            "MISSING_GITMODULES",
+            f"candidate commit {candidate} has no root .gitmodules blob",
+        )
+
     result = run_git(
         repository,
         "config",
         "--null",
-        "--file",
-        str(repository / ".gitmodules"),
+        "--blob",
+        candidate_gitmodules,
         "--get-regexp",
         r"^submodule\..*\.path$",
         allowed_returncodes=(0, 1),
@@ -244,7 +268,7 @@ def root_submodule_paths(repository: Path) -> list[str]:
                 f"root .gitmodules declares {text!r} with no path value",
             )
         _, value = text.split("\n", 1)
-        paths.append(safe_relative_path(value))
+        paths.append(promotion_path(value))
     if len(paths) != len(set(paths)):
         raise GateError("INVALID_SCOPE", "root .gitmodules declares a submodule path more than once")
     # A root declaration nested under another root declaration would make the
@@ -350,13 +374,33 @@ def changed_gitlinks(repository: Path, baseline: str, candidate: str) -> list[st
     return changed
 
 
-def own_worktree(path: Path) -> bool:
+def own_worktree(repository: Path, path: Path) -> bool:
+    repository_root = repository.resolve()
+    try:
+        relative = path.relative_to(repository)
+    except ValueError:
+        return False
+
+    # Reject the declared path and every parent component when any is a
+    # symlink. Merely comparing resolved Git toplevels accepts a symlink to an
+    # arbitrary external checkout as though it were the umbrella submodule.
+    current = repository
+    for part in relative.parts:
+        current = current / part
+        if current.is_symlink():
+            return False
+    try:
+        resolved_path = path.resolve()
+        resolved_path.relative_to(repository_root)
+    except (OSError, ValueError):
+        return False
+
     if not path.is_dir() or not (path / ".git").exists():
         return False
     result = run_git(path, "rev-parse", "--show-toplevel", allowed_returncodes=(0, 128))
     if result.returncode != 0:
         return False
-    return Path(decode(result.stdout).strip()).resolve() == path.resolve()
+    return Path(decode(result.stdout).strip()).resolve() == resolved_path
 
 
 def submodule_head(path: Path) -> str | None:
@@ -463,7 +507,7 @@ def evaluate_path(
         return item
 
     worktree = repository / path
-    initialized = own_worktree(worktree)
+    initialized = own_worktree(repository, worktree)
     item["initialized"] = initialized
     if not initialized:
         blockers.append(
@@ -583,7 +627,7 @@ def inspect_unrelated(
     blockers: list[dict[str, Any]],
 ) -> None:
     worktree = repository / path
-    if not own_worktree(worktree):
+    if not own_worktree(repository, worktree):
         return
     head = submodule_head(worktree)
     tracked, untracked = submodule_dirt(worktree, head)
@@ -628,9 +672,9 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
     if not args.repository.strip():
         raise GateError("INVALID_SCOPE", "--repository must not be empty")
     repository = validate_repository(Path(args.repository).expanduser().resolve())
-    declared_paths, remote_paths = validate_scope(args.submodule, args.require_remote)
-    root_paths = root_submodule_paths(repository)
     candidate = resolve_commit(repository, args.candidate, "CANDIDATE_UNRESOLVABLE")
+    declared_paths, remote_paths = validate_scope(args.submodule, args.require_remote)
+    root_paths = root_submodule_paths(repository, candidate)
     baseline = None
     warnings: list[dict[str, Any]] = []
     changed: list[str] = []

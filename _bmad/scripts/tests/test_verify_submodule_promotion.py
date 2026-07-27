@@ -31,16 +31,36 @@ AUTHORIZED_BOUNDARY_EXCEPTIONS = {
     "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
     "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
 }
-GIT_ENV = {
-    **os.environ,
-    "GIT_AUTHOR_NAME": "Fixture Author",
-    "GIT_AUTHOR_EMAIL": "fixture-author@example.invalid",
-    "GIT_COMMITTER_NAME": "Fixture Committer",
-    "GIT_COMMITTER_EMAIL": "fixture-committer@example.invalid",
-    "GIT_CONFIG_GLOBAL": os.devnull,
-    "GIT_CONFIG_NOSYSTEM": "1",
-    "GIT_TERMINAL_PROMPT": "0",
+GIT_ENVIRONMENT_OVERRIDES = {
+    "GIT_DIR",
+    "GIT_WORK_TREE",
+    "GIT_INDEX_FILE",
+    "GIT_OBJECT_DIRECTORY",
+    "GIT_COMMON_DIR",
+    "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+    "GIT_NAMESPACE",
 }
+
+
+def fixture_git_environment(source: dict[str, str] | None = None) -> dict[str, str]:
+    environment = dict(os.environ if source is None else source)
+    for name in GIT_ENVIRONMENT_OVERRIDES:
+        environment.pop(name, None)
+    environment.update(
+        {
+            "GIT_AUTHOR_NAME": "Fixture Author",
+            "GIT_AUTHOR_EMAIL": "fixture-author@example.invalid",
+            "GIT_COMMITTER_NAME": "Fixture Committer",
+            "GIT_COMMITTER_EMAIL": "fixture-committer@example.invalid",
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+        }
+    )
+    return environment
+
+
+GIT_ENV = fixture_git_environment()
 
 
 def run_git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
@@ -107,6 +127,23 @@ def create_umbrella(tmp_path: Path, submodule_path: str = "references/Example") 
     return umbrella, candidate
 
 
+def add_fixture_submodule(
+    umbrella: Path,
+    tmp_path: Path,
+    name: str,
+    submodule_path: str,
+) -> str:
+    source = tmp_path / f"{name}-source"
+    create_source(source)
+    origin = tmp_path / f"{name}-origin.git"
+    origin.mkdir()
+    run_git(origin, "init", "--bare")
+    run_git(source, "remote", "add", "origin", str(origin))
+    run_git(source, "push", "--set-upstream", "origin", "main")
+    run_git(umbrella, "submodule", "add", str(origin), submodule_path)
+    return commit_all(umbrella, f"add {name} root submodule")
+
+
 @pytest.fixture
 def clean_umbrella(tmp_path: Path) -> tuple[Path, str]:
     return create_umbrella(tmp_path)
@@ -170,19 +207,44 @@ def story_baseline_commit() -> str:
     return match.group(1)
 
 
-def story_declared_promotions() -> set[str]:
-    """Root paths the story itself declares as promotion-bearing scope."""
-    block = story_frontmatter().split("submodule_promotions:", 1)
+def story_file_list_commit() -> str:
+    match = re.search(
+        r"^file_list_commit:\s*'([0-9a-f]{40})'", story_frontmatter(), re.MULTILINE
+    )
+    assert match is not None, "story frontmatter must carry a stable file_list_commit"
+    return match.group(1)
+
+
+def yaml_string_scalar(raw_value: str) -> str:
+    """Parse the small YAML string subset used by promotion path entries."""
+    value = raw_value.strip()
+    if value.startswith("'"):
+        assert value.endswith("'"), f"unterminated single-quoted YAML scalar: {value}"
+        return value[1:-1].replace("''", "'")
+    if value.startswith('"'):
+        parsed = json.loads(value)
+        assert isinstance(parsed, str)
+        return parsed
+    return value.split(" #", 1)[0].rstrip()
+
+
+def declared_promotions_from_frontmatter(frontmatter: str) -> set[str]:
+    block = frontmatter.split("submodule_promotions:", 1)
     if len(block) == 1:
         return set()
     declared: set[str] = set()
     for line in block[1].splitlines()[1:]:
         if line and not line[0].isspace():
             break
-        match = re.match(r"\s*-\s*path:\s*['\"]?([^'\"\s]+)['\"]?", line)
+        match = re.match(r"\s*-\s*path:\s*(.*?)\s*$", line)
         if match:
-            declared.add(match.group(1))
+            declared.add(yaml_string_scalar(match.group(1)))
     return declared
+
+
+def story_declared_promotions() -> set[str]:
+    """Root paths the story itself declares as promotion-bearing scope."""
+    return declared_promotions_from_frontmatter(story_frontmatter())
 
 
 def story_file_list() -> list[str]:
@@ -191,23 +253,35 @@ def story_file_list() -> list[str]:
     return [line.split("`", 2)[1] for line in section.splitlines() if line.startswith("- `")]
 
 
-def workspace_changed_paths() -> set[str]:
-    """Every path this story actually changed, straight from git.
-
-    Diffing the story's own baseline against the working tree (not against HEAD)
-    keeps the comparison honest while a review pass has uncommitted edits in
-    flight, and makes the File List check impossible to satisfy by editing a
-    hand-maintained constant.
-    """
+def committed_changed_paths(repository: Path, baseline: str, candidate: str) -> set[str]:
+    """Paths changed by one immutable baseline/candidate commit pair."""
     result = subprocess.run(
-        ["git", "-C", str(WORKSPACE), "diff", "--name-only", story_baseline_commit()],
+        [
+            "git",
+            "-C",
+            str(repository),
+            "diff",
+            "--name-only",
+            "-z",
+            baseline,
+            candidate,
+            "--",
+        ],
         check=True,
         capture_output=True,
         env=GIT_ENV,
-        text=True,
         timeout=20,
     )
-    return {line for line in result.stdout.splitlines() if line}
+    return {os.fsdecode(path) for path in result.stdout.split(b"\0") if path}
+
+
+def story_candidate_changed_paths() -> set[str]:
+    """Stable story evidence, unaffected by later commits or workspace files."""
+    return committed_changed_paths(
+        WORKSPACE,
+        story_baseline_commit(),
+        story_file_list_commit(),
+    )
 
 
 def boundary_violations(paths: list[str]) -> list[str]:
@@ -458,8 +532,9 @@ def test_candidate_with_no_gitlink_entry_blocks(clean_umbrella: tuple[Path, str]
     assert "GITLINK_MISSING_IN_CANDIDATE" in blocker_codes(result)
 
 
-def test_candidate_mode_is_parsed_as_a_field(clean_umbrella: tuple[Path, str]) -> None:
-    repository, baseline = clean_umbrella
+def test_candidate_mode_is_parsed_as_a_field(tmp_path: Path) -> None:
+    path = "references/Example-160000"
+    repository, baseline = create_umbrella(tmp_path, path)
     marker = repository / "mode-160000-marker.txt"
     marker.write_text("the filename and content contain 160000\n", encoding="utf-8")
     blob = run_git(repository, "hash-object", "-w", str(marker)).stdout.strip()
@@ -470,9 +545,12 @@ def test_candidate_mode_is_parsed_as_a_field(clean_umbrella: tuple[Path, str]) -
         "--cacheinfo",
         "100644",
         blob,
-        "references/Example",
+        path,
     )
     candidate = commit_index(repository, "replace gitlink with blob mode")
+    tree_record = run_git(repository, "ls-tree", candidate, "--", path).stdout
+    assert "160000" in tree_record
+    assert tree_record.startswith("100644 blob ")
 
     result = run_checker(
         repository,
@@ -481,7 +559,7 @@ def test_candidate_mode_is_parsed_as_a_field(clean_umbrella: tuple[Path, str]) -
         "--candidate",
         candidate,
         "--submodule",
-        "references/Example",
+        path,
     )
 
     assert result.returncode == 1
@@ -902,12 +980,34 @@ WORKFLOW_GATE_CONTRACTS = {
 }
 
 
+def promotion_gate_span(content: str, markers: tuple[str, ...]) -> tuple[int, int]:
+    gate_index = next(
+        index
+        for index, marker in enumerate(markers)
+        if "promotion completion gate" in marker.lower()
+        or "verify_submodule_promotion.py" in marker
+    )
+    start = content.find(markers[gate_index])
+    if start < 0:
+        return -1, -1
+    if gate_index + 1 == len(markers):
+        return start, len(content)
+    end = content.find(markers[gate_index + 1], start + len(markers[gate_index]))
+    return (start, end) if end >= 0 else (-1, -1)
+
+
 def gate_contract_violations(
     content: str, markers: tuple[str, ...], clauses: tuple[str, ...]
 ) -> list[str]:
-    """Ordering AND enforcement language. Ordering alone passes a gutted gate."""
+    """Validate ordering and enforcement inside the bounded gate section."""
     violations = ordering_violations(content, markers)
-    violations.extend(f"missing enforcement clause: {clause}" for clause in clauses if clause not in content)
+    start, end = promotion_gate_span(content, markers)
+    gate_section = content[start:end] if start >= 0 else ""
+    violations.extend(
+        f"missing enforcement clause: {clause}"
+        for clause in clauses
+        if clause not in gate_section
+    )
     return violations
 
 
@@ -949,6 +1049,24 @@ def test_workflow_contract_check_catches_gutted_gate(relative_path: str) -> None
         )
 
 
+@pytest.mark.parametrize("relative_path", sorted(WORKFLOW_GATE_CONTRACTS))
+def test_workflow_contract_rejects_enforcement_clause_outside_gate(relative_path: str) -> None:
+    """Matching prose elsewhere in a skill must not satisfy the gate contract."""
+    markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
+    content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
+    start, end = promotion_gate_span(content, markers)
+    assert start >= 0
+
+    for clause in clauses:
+        gate_section = content[start:end]
+        assert clause in gate_section, f"{relative_path}: fixture clause is outside gate"
+        mutated_gate = gate_section.replace(clause, "the gate is advisory")
+        mutated = content[:start] + mutated_gate + content[end:] + f"\n{clause}\n"
+        assert f"missing enforcement clause: {clause}" in gate_contract_violations(
+            mutated, markers, clauses
+        )
+
+
 def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
     """Parity must cover every skill file this story touched, not just the gated five."""
     skill_paths = [
@@ -973,10 +1091,9 @@ def test_story_file_list_is_complete_and_unique() -> None:
     paths = story_file_list()
 
     assert len(paths) == len(set(paths))
-    # Compared against git, never against a constant in this file: a hand-kept
-    # expected set can only detect divergence between two hand-kept lists, so it
-    # cannot catch a File List that omits a path the story really changed.
-    assert set(paths) == workspace_changed_paths()
+    # Compare two immutable commits. Using the ever-moving HEAD or working tree
+    # makes this permanent Story 6.7 test fail for every subsequent story.
+    assert set(paths) == story_candidate_changed_paths()
 
 
 def test_story_boundary_check_catches_reference_mutation() -> None:
@@ -1102,7 +1219,9 @@ def test_declared_scope_suppresses_the_unevaluated_warning(
     )
 
     assert result.returncode == 0
+    assert warning_codes(result) == {"BASELINE_NOT_PROVIDED"}
     assert "SCOPE_NOT_EVALUATED" not in warning_codes(result)
+    assert [item["path"] for item in payload(result)["evaluated"]] == ["references/Example"]
 
 
 def test_uncaptured_promotion_blocks_even_when_undeclared(
@@ -1293,8 +1412,9 @@ def test_nested_root_declaration_is_rejected(tmp_path: Path) -> None:
         + '[submodule "nested"]\n\tpath = references/Example/nested/Child\n\turl = ../origin.git\n',
         encoding="utf-8",
     )
+    candidate = commit_all(repository, "declare nested root submodule")
 
-    result = run_checker(repository)
+    result = run_checker(repository, "--candidate", candidate)
 
     document = payload(result)
     assert result.returncode == 2
@@ -1404,6 +1524,151 @@ def test_surrogate_escaped_output_does_not_crash_strict_stdout(tmp_path: Path) -
     document = json.loads(result.stdout.decode("utf-8", errors="surrogateescape"))
     assert document["blockers"][0]["code"] == "PATH_NOT_ROOT_DECLARED"
     assert module.SCHEMA == document["schema"]
+
+
+def test_candidate_gitmodules_is_authoritative_over_working_tree(tmp_path: Path) -> None:
+    repository, baseline = create_umbrella(tmp_path)
+    working_gitmodules = (repository / ".gitmodules").read_bytes()
+    run_git(repository, "rm", ".gitmodules")
+    candidate = commit_index(repository, "remove candidate declarations")
+    (repository / ".gitmodules").write_bytes(working_gitmodules)
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        baseline,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "references/Example",
+    )
+
+    assert result.returncode == 2
+    assert blocker_codes(result) == {"MISSING_GITMODULES"}
+
+
+def test_symlinked_submodule_checkout_outside_umbrella_is_rejected(tmp_path: Path) -> None:
+    repository, candidate = create_umbrella(tmp_path)
+    worktree = repository / "references/Example"
+    run_git(repository, "submodule", "deinit", "--force", "references/Example")
+    worktree.rmdir()
+    external_checkout = create_source(tmp_path / "external-checkout")
+    worktree.symlink_to(external_checkout, target_is_directory=True)
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        candidate,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "references/Example",
+    )
+
+    assert result.returncode == 1
+    assert blocker_codes(result) == {"SUBMODULE_NOT_INITIALIZED"}
+    assert payload(result)["evaluated"][0]["initialized"] is False
+
+
+def test_declared_scope_outside_references_is_an_error(
+    clean_umbrella: tuple[Path, str],
+) -> None:
+    repository, candidate = clean_umbrella
+
+    result = run_checker(
+        repository,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "modules/Example",
+    )
+
+    assert result.returncode == 2
+    assert blocker_codes(result) == {"INVALID_SCOPE"}
+
+
+def test_candidate_root_declaration_outside_references_is_an_error(tmp_path: Path) -> None:
+    repository, candidate = create_umbrella(tmp_path, "modules/Example")
+
+    result = run_checker(repository, "--baseline", candidate, "--candidate", candidate)
+
+    assert result.returncode == 2
+    assert blocker_codes(result) == {"INVALID_SCOPE"}
+
+
+def test_fixture_environment_scrubs_git_repository_redirects() -> None:
+    hostile = {name: f"/ambient/{name.lower()}" for name in GIT_ENVIRONMENT_OVERRIDES}
+    hostile["PATH"] = os.environ["PATH"]
+
+    environment = fixture_git_environment(hostile)
+
+    assert GIT_ENVIRONMENT_OVERRIDES.isdisjoint(environment)
+    assert environment["PATH"] == hostile["PATH"]
+
+
+def test_promotion_frontmatter_parser_preserves_quoted_space_paths() -> None:
+    frontmatter = """submodule_promotions:
+  - path: 'references/Café Module'
+    require_remote: true
+  - path: \"references/Quoted Module\"
+    require_remote: false
+authority:
+  overlay: example
+"""
+
+    assert declared_promotions_from_frontmatter(frontmatter) == {
+        "references/Café Module",
+        "references/Quoted Module",
+    }
+
+
+def test_file_list_candidate_is_stable_after_future_commit_and_untracked_file(
+    tmp_path: Path,
+) -> None:
+    repository = tmp_path / "history"
+    repository.mkdir()
+    run_git(repository, "init")
+    (repository / "baseline.txt").write_text("baseline\n", encoding="utf-8")
+    baseline = commit_all(repository, "baseline")
+    (repository / "story-change.txt").write_text("story\n", encoding="utf-8")
+    candidate = commit_all(repository, "story candidate")
+    (repository / "future-change.txt").write_text("future\n", encoding="utf-8")
+    commit_all(repository, "future story")
+    (repository / "future-untracked.txt").write_text("untracked\n", encoding="utf-8")
+
+    assert committed_changed_paths(repository, baseline, candidate) == {"story-change.txt"}
+
+
+def test_declared_and_unrelated_ahead_root_submodules_are_both_enforced(
+    tmp_path: Path,
+) -> None:
+    repository, _ = create_umbrella(tmp_path)
+    candidate = add_fixture_submodule(
+        repository,
+        tmp_path,
+        "unrelated",
+        "references/Unrelated",
+    )
+    promoted = advance_submodule(repository, "references/Unrelated")
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        candidate,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "references/Example",
+    )
+
+    document = payload(result)
+    assert result.returncode == 1
+    assert [item["path"] for item in document["evaluated"]] == ["references/Example"]
+    blocker = next(
+        item for item in document["blockers"] if item["code"] == "UNCAPTURED_SUBMODULE_PROMOTION"
+    )
+    assert blocker["path"] == "references/Unrelated"
+    assert promoted[:8] in blocker["message"]
 
 
 if __name__ == "__main__":

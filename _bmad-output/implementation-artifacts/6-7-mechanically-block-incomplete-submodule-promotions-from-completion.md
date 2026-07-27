@@ -3,8 +3,9 @@ story_key: '6-7-mechanically-block-incomplete-submodule-promotions-from-completi
 epic: 6
 story_id: '6.7'
 created: '2026-07-27'
-status: 'review'
+status: 'done'
 baseline_commit: 'f3b827a80f87a85223eaf34e8fe1183a454a6c12'
+file_list_commit: 'aa2b6b7d05d277e1c083252462b9c8244914970e'
 submodule_promotions:
   - path: 'references/Hexalith.Builds'
     require_remote: true
@@ -35,7 +36,7 @@ context:
 
 # Story 6.7: Mechanically block incomplete submodule promotions from completion
 
-Status: review
+Status: done
 
 ## Story
 
@@ -199,6 +200,24 @@ Layers: Blind Hunter, Edge Case Hunter, Verification Gap Reviewer, Acceptance Au
 - [x] [Review][Defer] `own_worktree()` failure makes `inspect_unrelated()` return silently with no warning [_bmad/scripts/verify_submodule_promotion.py:494] — deferred, extends the pass-1 uninitialized-unrelated defer to the broken-gitdir case
 - [x] [Review][Defer] Both `bmad-quick-dev` routes stage only *declared* gitlinks, so `UNDECLARED_GITLINK_CHANGE` is structurally unreachable there [.claude/skills/bmad-quick-dev/step-05-present.md:55; step-oneshot.md:59] — deferred, inherent tension with non-negotiable constraint #5 ("stage only declared files"), which is a hard rule from Stories 2.2/3.3
 - [x] [Review][Defer] Nothing executes the gate automatically [repository-wide] — deferred, already in the ledger from Story 6.1; no `.github/workflows`, no hook, and no .NET test invokes the checker, so AC3's "mechanically block" rests entirely on agent compliance with prose
+
+#### Review chunk 1 (2026-07-27, checker and pytest)
+
+Scope: `_bmad/scripts/verify_submodule_promotion.py` and `_bmad/scripts/tests/test_verify_submodule_promotion.py` from diff `f3b827a`..`aa2b6b7`. Four independent layers (Blind Hunter, Edge Case Hunter, Verification Gap Reviewer, Acceptance Auditor) plus direct reproduction. At triage the focused suite was green (`72 passed`) despite the gaps; after applying all patches it passes `85/85` with regressions for every item below.
+
+- [x] [Review][Patch] (HIGH, applied) Candidate authority is read from the mutable working-tree `.gitmodules`, so a candidate commit that removed its declaration can pass when the checkout restores it; reproduced with exit 0 and `result: pass`. Resolve the candidate before discovery and parse its `.gitmodules` blob (or require an exact candidate/working-tree match). [_bmad/scripts/verify_submodule_promotion.py:177]
+- [x] [Review][Patch] (HIGH, applied) A declared submodule path may be a symlink to a Git checkout outside the umbrella, and that external repository is accepted as the promoted checkout. Reject symlinks and prove the resolved checkout remains the intended direct child of the umbrella. [_bmad/scripts/verify_submodule_promotion.py:353]
+- [x] [Review][Patch] (MEDIUM, applied) Promotion scope and discovered root declarations are not restricted to the required `references/...` namespace. Enforce the root `references/` prefix for both declared scope and root `.gitmodules` entries. [_bmad/scripts/verify_submodule_promotion.py:182]
+- [x] [Review][Patch] (HIGH, applied) The permanent File List test compares the story's fixed list with `<story-baseline>..current HEAD`, so the next legitimate story commit makes Story 6.7's suite fail forever; reproduced with one unrelated future commit. Bind the assertion to a stable final candidate revision or move the transient review check outside the permanent suite. [_bmad/scripts/tests/test_verify_submodule_promotion.py:194]
+- [x] [Review][Patch] (HIGH, applied) Fixture subprocesses inherit ambient Git redirection variables such as `GIT_DIR`, `GIT_WORK_TREE`, `GIT_INDEX_FILE`, and `GIT_OBJECT_DIRECTORY`, allowing tests to inspect or mutate the caller's repository instead of the fixture. Scrub the same Git environment variables that the checker scrubs. [_bmad/scripts/tests/test_verify_submodule_promotion.py:34]
+- [x] [Review][Patch] (MEDIUM, applied) `workspace_changed_paths()` omits untracked files, so the File List completeness proof can pass while a newly created story artifact is absent. Include `git ls-files --others --exclude-standard -z` in the transient review comparison, or cover it through the stable-candidate model. [_bmad/scripts/tests/test_verify_submodule_promotion.py:194]
+- [x] [Review][Patch] (MEDIUM, applied) The frontmatter parser truncates quoted YAML promotion paths containing spaces even though the checker explicitly supports such paths. Parse the YAML scalar robustly and add a quoted-space fixture. [_bmad/scripts/tests/test_verify_submodule_promotion.py:173]
+- [x] [Review][Patch] (MEDIUM, applied) Workflow-contract assertions search required clauses across the entire skill file, so matching prose outside the promotion-gate section can mask a broken gate. Slice and validate each bounded gate section before asserting its markers and clauses. [_bmad/scripts/tests/test_verify_submodule_promotion.py:905]
+- [x] [Review][Patch] (MEDIUM, applied) No fixture combines one affected declared root submodule with a separate unrelated checkout that is ahead of its gitlink, leaving Jerome's D2 rule unprotected whenever affected scope is non-empty. Add a two-root fixture proving both the declared evaluation and the unrelated-ahead blocker. [_bmad/scripts/tests/test_verify_submodule_promotion.py:87]
+- [x] [Review][Patch] (MEDIUM, applied) No test pins `BASELINE_NOT_PROVIDED` when scope is declared, although all completion workflows rely on that warning to fail closed. Assert the warning code, evaluated path, and checker exit contract for declared scope without `--baseline`. [_bmad/scripts/tests/test_verify_submodule_promotion.py:1095]
+- [x] [Review][Patch] (MEDIUM, applied) The T-3 `ls-tree` trap fixture never places the literal `160000` in the actual candidate record, so a naive substring implementation would still pass the test. Construct a candidate tree record with `160000` in a non-mode field and prove mode is parsed structurally. [_bmad/scripts/tests/test_verify_submodule_promotion.py:461]
+
+Applied result: candidate declarations now come from the candidate blob; promotion paths are confined to `references/`; symlink escapes are rejected; File List evidence is pinned to immutable `file_list_commit`; fixture Git redirection is scrubbed; YAML-space, bounded-gate, two-root, declared/no-baseline, and structural-mode regressions are active. The live gate at candidate `aa2b6b7` passed with zero blockers and zero warnings across all four declared promotions.
 
 ## Dev Notes
 
@@ -540,7 +559,7 @@ Codex (GPT-5)
 - T7 complete: dev-story now validates approved scope and committed HEAD before review, preserves blocker diagnostics, and explicitly restores both story and sprint tracking to `in-progress` on failure; code-review remains the final `done` authority.
 - T8 complete under the owner-approved preservation design: added a live versioned operational runbook with the exact scope, candidate, exit, remediation, workflow-state, root-only safety, and three-item closing-checklist rules; signed-v1 evidence remains byte-identical.
 - T9 complete: checker, workflow ordering, operational-runbook preservation/content, live-workspace, fault-injection, and boundary proofs all pass without touching unrelated state.
-- T10 implementation evidence is complete, but Epic 3 action A2 remains `open` by the code-review decision until Story 6.7 itself reaches `done`; no other action item changed.
+- T10 complete: independent code review applied all 11 chunk-1 patches, the focused suite passed 85/85, the live promotion gate passed with zero blockers/warnings, Story 6.7 reached `done`, and Epic 3 action A2 advanced `open` → `done`; no other action item changed.
 - Expanded completion repair complete: owner-authorized v3 architecture, append-only epic amendment, derived context, and Conformance contracts now agree without weakening the signed-v1, historical-prefix, v2-overlay, projection, performance, or platform-ownership guards.
 - Completion revalidation: all tasks are checked, the exact 41-path baseline-to-HEAD record is now listed, and focused/source-reference regression validation passes; the story is not ready for review while the recorded `GITLINK_COMMIT_MISMATCH` blocker remains.
 - Final completion repair: reconciled the story-specific expected File List with the already-disclosed 41-path committed diff, then revalidated 1,887/1,887 .NET tests and 38/38 checker/workflow tests. Candidate `a3fe7b1692c056874609f346716647831e0dd2db` captures all four changed gitlinks exactly, so the former Memories mismatch is resolved and the promotion gate passes with warnings only.
@@ -620,6 +639,7 @@ These are not the drift the story pledged not to touch; the submodule worktrees 
 - 2026-07-27 — Dev-story completion revalidation at candidate `cc87744`: closed review pass 2's sole outstanding item by running the previously-unverifiable `.NET`/Conformance suite through the approved source-reference fallback — Conformance 408/408 and all nine projects 1,887/1,887, so the pass-2 Conformance guard change is now test-confirmed rather than hand-verified. Re-proved the full definition of done at the shipped candidate (Release 0 warnings/0 errors, pytest 72/72, File List 41/41 derived from git, skill parity, signed-v1 hash, `git diff --check`), re-verified that the BMad 6.10.1 reinstall in that same commit left all five skill-tree gate bodies and all three templates intact in both trees, and ran the promotion completion gate over the four declared paths with zero blockers and zero warnings. Moved Story 6.7 from `in-progress` to `review`.
 
 - 2026-07-27 — Code review pass 2 (adversarial four-layer, patches applied): resolved 4 owner decisions and applied 23 patches. The gate can now fail on work that declares nothing (`SCOPE_NOT_EVALUATED`) and on an uncaptured submodule promotion (`UNCAPTURED_SUBMODULE_PROMOTION`); Story 6.7 now declares its own four root gitlinks as promotion scope and is the gate's first real consumer; `bmad-dev-story` commits before gating; the checker no longer depends on ambient git config or a clean `GIT_DIR`; and the three story-owned guards that could not fail (boundary allowlist, File List constant, heading-only workflow contract) were rebuilt so they can. Checker/workflow pytest 72/72 (was 38/38). The `.NET`/Conformance suite remains unverifiable here (`NU1102`), so the Conformance guard change is hand-verified only and a full `dotnet test` is required before `done`.
+- 2026-07-27 — Code review chunk 1 follow-up: applied all 11 checker/pytest patches selected by Jerome. Candidate `.gitmodules` is now authoritative, checkout symlink escapes and non-`references/` scope are rejected, permanent File List evidence is commit-pinned, fixture Git redirection is scrubbed, and the identified parser/contract/coverage gaps have executable regressions. Focused suite 85/85; `git diff --check` clean; live promotion gate at `aa2b6b7` passed with zero blockers/warnings. Moved Story 6.7 `review` → `done` and closed Epic 3 action A2.
 
 ## Open Questions for the Story Owner
 
