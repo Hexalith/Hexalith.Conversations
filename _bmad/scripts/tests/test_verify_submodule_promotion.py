@@ -24,6 +24,14 @@ AUTHORIZED_BOUNDARY_EXCEPTIONS = {
     "_bmad-output/planning-artifacts/architecture.md",
     "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
     "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+    # Undeclared-but-clean root gitlink bumps disclosed by the 2026-07-27 code review
+    # (Boundary Confirmation correction): the checker's own UNDECLARED_GITLINK_CHANGE
+    # warning is the live authority for these; this allowlist only keeps the story's
+    # own File List check from flagging what has already been disclosed and reviewed.
+    "references/Hexalith.Builds",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Tenants",
 }
 EXPECTED_STORY_FILES = {
     "_bmad/scripts/verify_submodule_promotion.py",
@@ -61,6 +69,10 @@ EXPECTED_STORY_FILES = {
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-26.md",
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-27.md",
     "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+    "references/Hexalith.Builds",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Tenants",
 }
 GIT_ENV = {
     **os.environ,
@@ -664,6 +676,136 @@ def test_git_unavailable_is_a_stable_error(clean_umbrella: tuple[Path, str]) -> 
     assert blocker_codes(result) == {"GIT_UNAVAILABLE"}
 
 
+def test_renamed_declared_submodule_is_evaluated_only_at_its_new_path(
+    tmp_path: Path,
+) -> None:
+    repository, baseline = create_umbrella(tmp_path, "references/Example")
+    run_git(repository, "mv", "references/Example", "references/Renamed")
+    candidate = commit_index(repository, "rename declared submodule")
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        baseline,
+        "--candidate",
+        candidate,
+        "--submodule",
+        "references/Renamed",
+    )
+
+    document = payload(result)
+    assert result.returncode == 0, document
+    assert document["changed_gitlinks"] == ["references/Renamed"]
+    assert blocker_codes(result) == set()
+    assert document["evaluated"][0]["path"] == "references/Renamed"
+    assert document["evaluated"][0]["clean"] is True
+
+
+def test_baseline_not_ancestor_of_candidate_is_an_error(tmp_path: Path) -> None:
+    repository, base = create_umbrella(tmp_path)
+    run_git(repository, "checkout", "-q", "-b", "branch-a")
+    (repository / "a.txt").write_text("a\n", encoding="utf-8")
+    branch_a = commit_all(repository, "branch a")
+    run_git(repository, "checkout", "-q", base)
+    run_git(repository, "checkout", "-q", "-b", "branch-b")
+    (repository / "b.txt").write_text("b\n", encoding="utf-8")
+    branch_b = commit_all(repository, "branch b")
+
+    result = run_checker(repository, "--baseline", branch_a, "--candidate", branch_b)
+
+    assert result.returncode == 2
+    assert blocker_codes(result) == {"BASELINE_NOT_ANCESTOR"}
+
+
+def test_git_failure_inspecting_unrelated_submodule_warns_without_erroring(
+    tmp_path: Path,
+) -> None:
+    repository, candidate = create_umbrella(tmp_path, "references/Example")
+    submodule = repository / "references/Example"
+    git_dir = Path(
+        run_git(submodule, "rev-parse", "--git-dir").stdout.strip()
+    )
+    if not git_dir.is_absolute():
+        git_dir = (submodule / git_dir).resolve()
+    (git_dir / "index").write_bytes(os.urandom(200))
+
+    result = run_checker(repository, "--baseline", candidate, "--candidate", candidate)
+
+    document = payload(result)
+    assert result.returncode == 0, document
+    assert blocker_codes(result) == set()
+    assert warning_codes(result) == {"UNRELATED_SUBMODULE_INSPECTION_FAILED"}
+
+
+def test_format_equals_syntax_still_emits_json_on_argument_error() -> None:
+    result = subprocess.run(
+        [sys.executable, str(SCRIPT), "--format=json", "--bogus-flag"],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=20,
+    )
+
+    assert result.returncode == 2
+    document = json.loads(result.stdout)
+    assert document["blockers"][0]["code"] == "INVALID_SCOPE"
+
+
+def test_default_text_format_is_human_readable(clean_umbrella: tuple[Path, str]) -> None:
+    repository, candidate = clean_umbrella
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(repository),
+            "--baseline",
+            candidate,
+            "--candidate",
+            candidate,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=20,
+    )
+
+    assert result.returncode == 0
+    assert result.stdout.startswith("Submodule promotion gate: PASS\n")
+    assert "BLOCKER" not in result.stdout
+    with pytest.raises(json.JSONDecodeError):
+        json.loads(result.stdout)
+
+
+def test_decode_uses_surrogateescape_not_lossy_replacement() -> None:
+    raw = b"references/broken-\xffpath"
+    from importlib import util as importlib_util
+
+    spec = importlib_util.spec_from_file_location("verify_submodule_promotion", SCRIPT)
+    module = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+
+    decoded = module.decode(raw)
+    assert decoded.encode("utf-8", errors="surrogateescape") == raw
+
+
+def test_safe_relative_path_rejects_embedded_control_characters() -> None:
+    from importlib import util as importlib_util
+
+    spec = importlib_util.spec_from_file_location("verify_submodule_promotion", SCRIPT)
+    module = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+
+    with pytest.raises(module.GateError) as excinfo:
+        module.safe_relative_path("references/bad\npath")
+    assert excinfo.value.code == "INVALID_SCOPE"
+
+
 def test_completion_workflows_gate_before_success_status_writes() -> None:
     contracts = {
         "bmad-code-review/steps/step-04-present.md": (
@@ -733,9 +875,12 @@ def test_story_file_list_is_complete_and_unique() -> None:
 
 
 def test_story_boundary_check_catches_reference_mutation() -> None:
-    mutated = [*story_file_list(), "references/Hexalith.EventStore"]
+    # Hexalith.Parties is a real root-declared submodule but is not one of the
+    # four gitlinks the 2026-07-27 code review disclosed and authorized above,
+    # so it must still be caught as an unauthorized boundary mutation.
+    mutated = [*story_file_list(), "references/Hexalith.Parties"]
 
-    assert boundary_violations(mutated) == ["references/Hexalith.EventStore"]
+    assert boundary_violations(mutated) == ["references/Hexalith.Parties"]
 
 
 def test_operational_runbook_preserves_signed_v1_and_exposes_the_completion_gate() -> None:

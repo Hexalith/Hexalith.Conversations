@@ -85,8 +85,10 @@ Treat the emitted stable blocker codes as the authority for remediation:
 | `GITLINK_MODE_NOT_160000` | Restore the path as a root submodule and commit its mode-`160000` gitlink. |
 | `GITLINK_COMMIT_MISMATCH` | Commit the umbrella gitlink that exactly records the affected submodule `HEAD`. |
 
-For exit `2`, correct the reported invocation, repository, baseline, candidate, or
-scope error before relying on the result. Never reinterpret an error as a pass.
+For exit `2` (including `BASELINE_NOT_ANCESTOR` when the baseline is not an
+ancestor of the candidate, and `INTERNAL_ERROR` for any unexpected failure),
+correct the reported invocation, repository, baseline, candidate, or scope error
+before relying on the result. Never reinterpret an error as a pass.
 
 ## 6. Workflow behavior on failure
 
@@ -104,18 +106,24 @@ Never initialize, update, fetch, enter, or traverse nested submodules to satisfy
 this gate. The checker itself must not initialize, update, fetch, pull, push,
 commit, add, checkout, reset, or mutate repository state.
 
-Unrelated root-submodule dirt and gitlink drift are warnings, not blockers. Do not
-alter unrelated state as remediation for scoped promotion work.
+Unrelated root-submodule dirt and gitlink drift are warnings, not blockers. A git
+failure while inspecting an unrelated submodule also warns (`UNRELATED_SUBMODULE_INSPECTION_FAILED`)
+rather than aborting the run. Do not alter unrelated state as remediation for
+scoped promotion work.
 
 ## Ordered checklist (copy per story)
 
-1. [ ] Exact promotion/adoption boundary agreed before coding.
-2. [ ] Candidate API drafted in the owning technical module.
-3. [ ] Direct affected-project build and compiled xUnit v3 execution green.
-4. [ ] Helper is domain-neutral and tenant-aware where applicable.
-5. [ ] Conversations duplicate deleted or reduced to a thin facade.
-6. [ ] Behavior preserved or strengthened; guard tests remain equal or stronger.
-7. [ ] Dependent sibling projects compile green.
+1. [ ] Every affected root-declared submodule identified; confirm the change belongs
+      in the submodule's own repository, not the umbrella working tree.
+2. [ ] Each affected path confirmed against the root `.gitmodules` file (no
+      ad hoc or non-root paths).
+3. [ ] Each affected submodule initialized without recursive or nested submodule
+      commands.
+4. [ ] The change made and committed inside each affected submodule's own repository.
+5. [ ] Each submodule commit pushed and available via a local remote-tracking ref
+      where the declared policy requires remote availability.
+6. [ ] Each affected submodule worktree confirmed clean, including untracked files.
+7. [ ] No nested submodule initialized, updated, or traversed while preparing the promotion.
 8. [ ] Exact `submodule_promotions` scope recorded; remote requirements identified.
 9. [ ] Each affected submodule committed separately, clean, and available remotely where required.
 10. [ ] Root-only gitlinks committed in the umbrella repository and the mechanical completion gate passes.

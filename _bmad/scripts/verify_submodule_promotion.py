@@ -46,7 +46,7 @@ class GateError(Exception):
 
 
 def decode(value: bytes) -> str:
-    return value.decode("utf-8", errors="replace")
+    return value.decode("utf-8", errors="surrogateescape")
 
 
 def default_repository() -> Path:
@@ -149,6 +149,7 @@ def safe_relative_path(value: str) -> str:
         or path.is_absolute()
         or path.as_posix() != value
         or any(part in ("", ".", "..") for part in path.parts)
+        or any(ord(character) < 0x20 for character in value)
     ):
         raise GateError(
             "INVALID_SCOPE",
@@ -217,6 +218,18 @@ def resolve_commit(repository: Path, revision: str, code: str) -> str:
     return decode(result.stdout).strip()
 
 
+def is_ancestor(repository: Path, ancestor: str, descendant: str) -> bool:
+    result = run_git(
+        repository,
+        "merge-base",
+        "--is-ancestor",
+        ancestor,
+        descendant,
+        allowed_returncodes=(0, 1),
+    )
+    return result.returncode == 0
+
+
 def changed_gitlinks(repository: Path, baseline: str, candidate: str) -> list[str]:
     result = run_git(
         repository,
@@ -246,16 +259,23 @@ def changed_gitlinks(repository: Path, baseline: str, candidate: str) -> list[st
         source_path = safe_relative_path(decode(tokens[index]))
         index += 1
         destination_path = source_path
-        if status[:1] in ("R", "C"):
+        is_rename_or_copy = status[:1] in ("R", "C")
+        if is_rename_or_copy:
             if index >= len(tokens):
                 raise GateError("GIT_COMMAND_FAILED", "incomplete renamed git diff record")
             destination_path = safe_relative_path(decode(tokens[index]))
             index += 1
         paths: list[str] = []
-        if source_mode == "160000":
-            paths.append(source_path)
-        if destination_mode == "160000":
-            paths.append(destination_path)
+        if is_rename_or_copy:
+            # The source path was renamed away, not left behind as a gitlink to
+            # evaluate; only the destination path reflects real candidate state.
+            if destination_mode == "160000":
+                paths.append(destination_path)
+        else:
+            if source_mode == "160000":
+                paths.append(source_path)
+            if destination_mode == "160000":
+                paths.append(destination_path)
         for path in paths:
             if path not in changed:
                 changed.append(path)
@@ -512,6 +532,12 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
         )
     else:
         baseline = resolve_commit(repository, args.baseline, "BASELINE_UNRESOLVABLE")
+        if not is_ancestor(repository, baseline, candidate):
+            raise GateError(
+                "BASELINE_NOT_ANCESTOR",
+                f"baseline {baseline} is not an ancestor of candidate {candidate}; "
+                "changed-gitlink detection would be unreliable",
+            )
         changed = changed_gitlinks(repository, baseline, candidate)
 
     affected = list(declared_paths)
@@ -541,7 +567,16 @@ def verify(args: argparse.Namespace) -> dict[str, Any]:
     ]
     for path in root_paths:
         if path not in affected:
-            inspect_unrelated(repository, candidate, path, warnings)
+            try:
+                inspect_unrelated(repository, candidate, path, warnings)
+            except GateError as error:
+                warnings.append(
+                    diagnostic(
+                        "UNRELATED_SUBMODULE_INSPECTION_FAILED",
+                        f"could not inspect unrelated root submodule {path}: {error.message}",
+                        path,
+                    )
+                )
 
     return {
         "schema": SCHEMA,
@@ -589,9 +624,20 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
+def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
+    """Best-effort output format, used only if a GateError occurs before argparse succeeds."""
+    for index, token in enumerate(raw_arguments):
+        if token == "--format":
+            following = raw_arguments[index + 1] if index + 1 < len(raw_arguments) else None
+            return "json" if following == "json" else "text"
+        if token.startswith("--format="):
+            return "json" if token.split("=", 1)[1] == "json" else "text"
+    return "text"
+
+
 def main(arguments: Sequence[str] | None = None) -> int:
     raw_arguments = list(arguments) if arguments is not None else sys.argv[1:]
-    output_format = "json" if "json" in raw_arguments and "--format" in raw_arguments else "text"
+    output_format = pre_parse_output_format(raw_arguments)
     repository: Path | None = None
     try:
         args = build_parser().parse_args(raw_arguments)
@@ -601,6 +647,13 @@ def main(arguments: Sequence[str] | None = None) -> int:
     except GateError as error:
         document = empty_document(repository)
         document["blockers"].append(diagnostic(error.code, error.message, error.path))
+        write_output(document, output_format)
+        return 2
+    except Exception as error:  # noqa: BLE001 - always emit a parseable error document
+        document = empty_document(repository)
+        document["blockers"].append(
+            diagnostic("INTERNAL_ERROR", f"unexpected internal error: {error}")
+        )
         write_output(document, output_format)
         return 2
 

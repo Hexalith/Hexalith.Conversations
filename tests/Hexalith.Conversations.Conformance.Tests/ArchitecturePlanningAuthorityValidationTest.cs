@@ -651,7 +651,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         flatContext.ShouldContain("non-packable, non-publishable module-scoped AppHost");
         flatContext.ShouldContain("not a production or deployment composition root");
-        flatContext.ShouldContain("production deployment composition remain platform-owned");
+        flatContext.ShouldContain("Platform deployment owns production topology and composition");
+        flatContext.ShouldContain("platform libraries own reusable runtime capability");
 
         flatContext.ShouldNotContain("activates all preserved feature scope");
     }
