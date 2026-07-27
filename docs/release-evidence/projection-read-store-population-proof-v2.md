@@ -15,7 +15,7 @@ After both derived keys were conditionally erased, detail/list queries did not b
 
 The Conversations AppHost remains an explicitly non-packable, non-publishable module user/E2E harness with exactly three project resources: EventStore, Conversations Server, and Admin Web. The public EventStore helper supplies platform identity, `/alive` Dapr health, and EventStore reference/wait topology. Conversations' reusable ServiceDefaults facade and its tests are removed.
 
-EventStore commit `0eb365797d06207e42b517375664f46405a7ad7d` owns idempotent Dapr client registration and the domain-module reference/wait helper. It is clean and reachable from `origin/main`. The umbrella candidate must record that exact commit as a mode-`160000` gitlink and run the mechanical promotion checker after the umbrella commit exists.
+EventStore commit `0eb365797d06207e42b517375664f46405a7ad7d` owns idempotent Dapr client registration and the domain-module reference/wait helper. It is clean and reachable from `origin/main`. The Story 6.7 mechanical checker passed against umbrella candidate `b11b0c73523362b61c6afe823112b655732da47e`: the candidate records that exact EventStore commit as a mode-`160000` gitlink, with no blockers or warnings.
 
 Aspire source-mode startup reached `eventstore`, `conversations`, and `conversations-admin-web`. The tool environment reaped the detached child after `aspire start` returned, so later live description was unavailable; deterministic topology tests independently cover the resource contract.
 

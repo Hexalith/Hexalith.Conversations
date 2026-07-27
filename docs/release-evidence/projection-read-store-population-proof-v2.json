@@ -1,6 +1,6 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-27T13:34:00Z",
+  "capturedAtUtc": "2026-07-27T13:52:22Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "result": "pass",
@@ -113,7 +113,16 @@
     "submoduleWorktreeClean": true,
     "requiredGitlinkMode": "160000",
     "requiredUmbrellaGitlinkCommit": "0eb365797d06207e42b517375664f46405a7ad7d",
-    "umbrellaMechanicalGate": "run-after-umbrella-candidate-commit"
+    "umbrellaMechanicalGate": {
+      "schema": "submodule-promotion-gate/v1",
+      "result": "pass",
+      "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+      "candidate": "b11b0c73523362b61c6afe823112b655732da47e",
+      "recordedGitlink": "0eb365797d06207e42b517375664f46405a7ad7d",
+      "recordedMode": "160000",
+      "blockers": [],
+      "warnings": []
+    }
   },
   "commands": [
     {

@@ -79,6 +79,15 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         promotion.GetProperty("requiredGitlinkMode").GetString().ShouldBe("160000");
         promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString().ShouldBe(
             promotion.GetProperty("commit").GetString());
+        JsonElement promotionGate = promotion.GetProperty("umbrellaMechanicalGate");
+        promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
+        promotionGate.GetProperty("result").GetString().ShouldBe("pass");
+        promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
+        promotionGate.GetProperty("candidate").GetString().ShouldBe("b11b0c73523362b61c6afe823112b655732da47e");
+        promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
+        promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
+        promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
+        promotionGate.GetProperty("warnings").GetArrayLength().ShouldBe(0);
     }
 
     [Fact]
