@@ -346,6 +346,7 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
 
   <action>Initialize from template.md:
   {default_output_file}</action>
+  <action>Populate YAML frontmatter `submodule_promotions`: use `[]` for non-promotion work; otherwise list every affected root-declared `references/...` path exactly once as `{ path, require_remote }`, transcribing only scope already approved by the story authority.</action>
   <template-output file="{default_output_file}">story_header</template-output>
 
   <!-- Story foundation from epics analysis -->

@@ -25,11 +25,15 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class ArchitecturePlanningAuthorityValidationTest
 {
-    private const string ArchitectureVersion = "conversations-architecture-2026-07-15-v2";
+    private const string ArchitectureVersion = "conversations-architecture-2026-07-27-v3";
     private const string BaselineRevision = "f31aa5ada2e37e1ec5f3e4b8e907525b37da863f";
-    private const string OverlayVersion = "epic-6-authority-2026-07-15-v2";
+    private const string OverlayVersion = "epic-6-authority-2026-07-27-v3";
+    private const string PreviousOverlayVersion = "epic-6-authority-2026-07-15-v2";
+    private const string ModuleTestAppHost = "Hexalith.Conversations.AppHost";
     private const int HistoricalEpicPrefixLength = 55536;
     private const string HistoricalEpicPrefixSha256 = "bd437b802513591c4af299ff0997bb694ced40304e1a178c3d53e95f88f0e8a8";
+    private const int HistoricalV2OverlayLength = 14843;
+    private const string HistoricalV2OverlaySha256 = "8825a7a2fe21c9d9ae99b3193911bc9ca0186275528235a4f222781d0d463baa";
 
     private const string ArchitecturePath = "_bmad-output/planning-artifacts/architecture.md";
     private const string EpicsPath = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md";
@@ -46,10 +50,9 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
     private const string AddendumSha256 = "5a0caab66c9eb4b0469d79e77a6c265dd24136e46cc980eeaf58a79cee53e96b";
 
-    /// <summary>Runtime projects the domain module must never own in target state, including equivalent names.</summary>
+    /// <summary>Reusable runtime projects the domain module must never own in target state.</summary>
     private static readonly string[] ProhibitedModuleOwnedRuntimeProjects =
     [
-        "Hexalith.Conversations.AppHost",
         "Hexalith.Conversations.Aspire",
         "Hexalith.Conversations.ServiceDefaults",
         "Hexalith.Conversations.Hosting",
@@ -87,6 +90,26 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         "consumed, never module-owned",
     ];
 
+    /// <summary>Terms that make an AppHost reference explicitly test-only or non-production.</summary>
+    private static readonly string[] TestAppHostBoundaryMarkers =
+    [
+        "ownership and treatment",
+        "module-scoped",
+        "test apphost",
+        "test-boundary",
+        "test-only",
+        "test harness",
+        "test infrastructure",
+        "user-test harness",
+        "focused tests",
+        "non-packable",
+        "non-publishable",
+        "non-shipping",
+        "not a production",
+        "local user",
+        "end-to-end",
+    ];
+
     private static readonly string[] ExpectedHistoricalStories =
     [
         "1.1", "1.2", "1.3", "1.4", "1.5",
@@ -118,7 +141,7 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         string frontmatter = ExtractFrontmatter(ReadRepositoryFile(ArchitecturePath));
 
         AssertYamlScalar(frontmatter, "status", "corrective-implementation-only");
-        AssertYamlScalar(frontmatter, "rebaselinedAt", "2026-07-15");
+        AssertYamlScalar(frontmatter, "rebaselinedAt", "2026-07-27");
         AssertYamlScalar(frontmatter, "authorityVersion", ArchitectureVersion);
         AssertYamlScalar(frontmatter, "baselineRevision", BaselineRevision);
 
@@ -126,6 +149,7 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         frontmatter.ShouldContain(AddendumPath);
         frontmatter.ShouldContain("sprint-change-proposal-2026-07-15.md");
         frontmatter.ShouldContain("sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md");
+        frontmatter.ShouldContain("sprint-change-proposal-2026-07-27.md");
 
         // Provenance must be complete: an entire binding architecture section derives from the projection
         // read-store proposal and ADR 0003, so omitting them from correctionAuthority understates authority.
@@ -286,6 +310,9 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         targetTree.ShouldContain("Hexalith.Conversations.Contracts/");
         targetTree.ShouldContain("Hexalith.Conversations.Server/");
+        targetTree.ShouldContain("Hexalith.Conversations.AppHost/");
+        targetTree.ShouldContain("Hexalith.Conversations.AppHost.Tests/");
+        targetTree.ShouldContain("non-packable/non-publishable module user-test harness");
 
         foreach (string prohibited in ProhibitedModuleOwnedRuntimeProjects)
         {
@@ -296,7 +323,10 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         CountOccurrences(targetTreeSection, "```").ShouldBe(2, "The corrected target tree section must contain exactly one fenced block.");
 
         string flatArchitecture = NormalizeWhitespace(architecture);
-        flatArchitecture.ShouldContain("pre-Story-6.2 drift and migration input only");
+        flatArchitecture.ShouldContain("`IsPackable=false`, `IsPublishable=false`");
+        flatArchitecture.ShouldContain("remains pre-Story-6.2 drift and is removed");
+        flatArchitecture.ShouldContain("is not a production/deployment composition root");
+        flatArchitecture.ShouldContain("Platform deployment owns production topology and composition");
         flatReadiness.ShouldContain("READY FOR CORRECTIVE IMPLEMENTATION ONLY");
         flatReadiness.ShouldContain("6.1 -> 6.7 -> 6.2");
         flatReadiness.ShouldContain("Story 6.2 precedes 6.5");
@@ -341,6 +371,12 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
             bool inSupersededSection = IsSupersededSectionHeading(currentHeading);
             bool lineIsQualified = IsQualifiedLine(line);
+
+            if (line.Contains(ModuleTestAppHost, StringComparison.OrdinalIgnoreCase))
+            {
+                (inSupersededSection || IsQualifiedTestAppHostLine(line)).ShouldBeTrue(
+                    $"'{ModuleTestAppHost}' at line {index + 1} is not explicitly constrained to a non-shipping test boundary: '{line.Trim()}'.");
+            }
 
             foreach (string prohibited in ProhibitedModuleOwnedRuntimeProjects)
             {
@@ -389,8 +425,10 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     public void EpicPlanShouldPreserveHistoricalPrefixAndContainExactDispositionRows()
     {
         byte[] epicBytes = File.ReadAllBytes(RepositoryPath(EpicsPath));
-        epicBytes.Length.ShouldBeGreaterThan(HistoricalEpicPrefixLength);
+        epicBytes.Length.ShouldBeGreaterThan(HistoricalEpicPrefixLength + HistoricalV2OverlayLength);
         ComputeSha256(epicBytes.AsSpan(0, HistoricalEpicPrefixLength)).ShouldBe(HistoricalEpicPrefixSha256);
+        ComputeSha256(epicBytes.AsSpan(HistoricalEpicPrefixLength, HistoricalV2OverlayLength))
+            .ShouldBe(HistoricalV2OverlaySha256, "The approved v2 overlay must remain byte-identical while v3 is appended.");
 
         // The frozen boundary must be anchored to the baseline commit, not only to this document's own
         // self-declared constants; otherwise a wrong freeze stays self-consistently green forever.
@@ -403,15 +441,24 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         // Append-only is a byte property: the historical prefix contains multi-byte characters, so a
         // character index into the decoded document cannot be compared against the frozen prefix length.
         string appended = Encoding.UTF8.GetString(epicBytes.AsSpan(HistoricalEpicPrefixLength));
+        string previousOverlayEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY:END version={PreviousOverlayVersion} -->";
+        string amendmentBegin = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN version={OverlayVersion} supersedes={PreviousOverlayVersion} -->";
+        string amendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END version={OverlayVersion} -->";
         appended.ShouldStartWith(
-            $"\n<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version={OverlayVersion} prefix-bytes={HistoricalEpicPrefixLength} prefix-sha256={HistoricalEpicPrefixSha256}",
+            $"\n<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version={PreviousOverlayVersion} prefix-bytes={HistoricalEpicPrefixLength} prefix-sha256={HistoricalEpicPrefixSha256}",
             Case.Sensitive,
             "The Epic 6 overlay must start immediately after the frozen historical prefix and declare the boundary it appends to.");
-        appended.TrimEnd().ShouldEndWith($"<!-- EPIC-6-AUTHORITY-OVERLAY:END version={OverlayVersion} -->");
+        int previousOverlayEndIndex = appended.IndexOf(previousOverlayEnd, StringComparison.Ordinal);
+        previousOverlayEndIndex.ShouldBeGreaterThan(0, "The v2 authority must remain present before its v3 amendment.");
+        string amendment = appended[(previousOverlayEndIndex + previousOverlayEnd.Length)..].TrimStart('\r', '\n');
+        amendment.ShouldStartWith(amendmentBegin, Case.Sensitive);
+        amendment.TrimEnd().ShouldEndWith(amendmentEnd);
 
         string epics = Encoding.UTF8.GetString(epicBytes);
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY:BEGIN").ShouldBe(1, "Exactly one append-only authority overlay may exist.");
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY:END").ShouldBe(1, "Exactly one append-only authority overlay may exist.");
+        CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN").ShouldBe(1, "Exactly one v3 authority amendment may exist.");
+        CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END").ShouldBe(1, "Exactly one v3 authority amendment may exist.");
 
         AssertSingleOccurrence(epics, "### Exact Historical Story Dispositions");
         string dispositionSection = ExtractSection(epics, "### Exact Historical Story Dispositions", "### Corrective Initiative-FR Coverage");
@@ -432,6 +479,14 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
             cells[2].ShouldNotContain("Retain the Conversations-owned", Case.Insensitive, $"Disposition row {story} must not reinstate module-owned hosting.");
             cells[2].ShouldNotContain("as target architecture", Case.Insensitive, $"Disposition row {story} must not reinstate module-owned hosting.");
         }
+
+        string dispositionAmendment = ExtractSection(amendment, "### Superseding Story Dispositions", "### Story 6.2 Corrected Acceptance");
+        string[] amendmentRows = MarkdownDataRows(dispositionAmendment, "6.");
+        amendmentRows.Select(GetFirstTableCell).ShouldBe(["6.1", "6.2", "6.3", "6.4", "6.5", "6.6", "6.7"]);
+        AssertCell(amendmentRows, "6.2", 1, "Retain and constrain the existing AppHost as test-only");
+        AssertCell(amendmentRows, "6.2", 1, "Do not select or modify FrontComposer.AppHost or EventStore.AppHost");
+        AssertCell(amendmentRows, "6.5", 1, "non-shipping module test AppHost");
+        AssertCell(amendmentRows, "6.7", 1, "No change");
     }
 
     [Fact]
@@ -495,27 +550,36 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     public void EpicOverlayShouldBindTheDependencyOrderItAuthorizes()
     {
         string epics = ReadRepositoryFile(EpicsPath);
-        string overlay = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY:BEGIN", "EPIC-6-AUTHORITY-OVERLAY:END");
+        string previousOverlay = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY:BEGIN", "EPIC-6-AUTHORITY-OVERLAY:END");
+        string amendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END");
 
         // The overlay is the artifact a story's dev agent reads. Asserting the order only in architecture
         // lets the epic plan authorize the sequence AC4 forbids.
-        AssertSingleOccurrence(overlay, "### Binding Dependency Order");
-        string order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(overlay, "### Binding Dependency Order"));
+        AssertSingleOccurrence(previousOverlay, "### Binding Dependency Order");
+        AssertSingleOccurrence(amendment, "### Binding Dependency Order");
+        string previousOrder = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(previousOverlay, "### Binding Dependency Order"));
+        string order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(amendment, "### Binding Dependency Order"));
 
-        order.ShouldContain("6.1 -> 6.7 -> 6.2");
-        order.ShouldContain("Story 6.7 and the frozen SM-C2 benchmark both precede Story 6.2 completion");
-        order.ShouldContain("Story 6.2 precedes Story 6.5");
-        order.ShouldContain("Story 6.6 remains last");
+        previousOrder.ShouldContain("6.1 -> 6.7 -> 6.2");
+        previousOrder.ShouldContain("Story 6.7 and the frozen SM-C2 benchmark both precede Story 6.2 completion");
+        previousOrder.ShouldContain("Story 6.2 precedes Story 6.5");
+        previousOrder.ShouldContain("Story 6.6 remains last");
+        order.ShouldContain("6.1 authority correction -> 6.7 -> 6.2 -> 6.5 -> 6.6");
+        order.ShouldContain("SM-C2 baseline remains a pre-change gate for 6.2");
 
         order.ShouldNotContain("6.1 -> 6.2 -> 6.7");
         order.ShouldNotContain("6.2 may complete before Story 6.7");
         order.ShouldNotContain("Story 6.5 may precede Story 6.2");
 
         // The overlay must record its own amendment history so a post-freeze change cannot be invisible.
-        string overlayFlat = NormalizeWhitespace(overlay);
-        overlayFlat.ShouldContain($"**Overlay version:** `{OverlayVersion}`");
-        overlayFlat.ShouldContain($"**Architecture authority:** `{ArchitectureVersion}`");
-        overlayFlat.ShouldContain("Overlay amendment log");
+        string previousOverlayFlat = NormalizeWhitespace(previousOverlay);
+        string amendmentFlat = NormalizeWhitespace(amendment);
+        previousOverlayFlat.ShouldContain($"**Overlay version:** `{PreviousOverlayVersion}`");
+        previousOverlayFlat.ShouldContain("Overlay amendment log");
+        amendmentFlat.ShouldContain($"**Overlay version:** `{OverlayVersion}`");
+        amendmentFlat.ShouldContain($"**Architecture authority:** `{ArchitectureVersion}`");
+        amendmentFlat.ShouldContain("non-packable, non-publishable composition harness");
+        amendmentFlat.ShouldContain("not a production or deployment composition root");
     }
 
     [Fact]
@@ -578,12 +642,16 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
             }
         }
 
-        // Obligations the v2 overlay added must be carried forward, or the dev agent reading the context
+        // Obligations the v2 overlay added must be carried forward through v3, or the dev agent reading the context
         // never sees them.
         foreach (string obligation in new[] { "ADR 0003", "IAsyncDomainProjectionHandler", "projection-read-store-population-proof-v2" })
         {
             flatContext.ShouldContain(obligation, Case.Sensitive, $"The derived context must carry the overlay obligation '{obligation}'.");
         }
+
+        flatContext.ShouldContain("non-packable, non-publishable module-scoped AppHost");
+        flatContext.ShouldContain("not a production or deployment composition root");
+        flatContext.ShouldContain("production deployment composition remain platform-owned");
 
         flatContext.ShouldNotContain("activates all preserved feature scope");
     }
@@ -896,6 +964,9 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
     private static bool IsQualifiedLine(string line)
         => LineSupersessionMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsQualifiedTestAppHostLine(string line)
+        => TestAppHostBoundaryMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     private static void AssertYamlScalar(string frontmatter, string key, string expected)
     {

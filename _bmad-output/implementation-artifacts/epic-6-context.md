@@ -1,34 +1,34 @@
 ---
 epic: 6
-generated: '2026-07-26'
-overlay_version: 'epic-6-authority-2026-07-15-v2'
-architecture_version: 'conversations-architecture-2026-07-15-v2'
-supersedes_overlay_version: 'epic-6-authority-2026-07-15-v1'
+generated: '2026-07-27'
+overlay_version: 'epic-6-authority-2026-07-27-v3'
+architecture_version: 'conversations-architecture-2026-07-27-v3'
+supersedes_overlay_version: 'epic-6-authority-2026-07-15-v2'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
-source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY:BEGIN'
+source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN'
 status: 'active-corrective-context'
 ---
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the versioned append-only Epic 6 overlay in the amended epic plan. The overlay and this context share version `epic-6-authority-2026-07-15-v2`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved July 15 proposals remain the authority above this derived context.
+This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3 amendment. It shares version `epic-6-authority-2026-07-27-v3` with the active amendment and aligns with `conversations-architecture-2026-07-27-v3`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
 
-Regenerated 2026-07-26 from overlay `epic-6-authority-2026-07-15-v2`, which added the mandatory production projection read-store population proof (Story 6.2 AC 4-6, Story 6.6 AC 4) under accepted ADR 0003.
+Regenerated 2026-07-27 after the approved test-harness ownership amendment. V3 supersedes v2 only for the treatment of `Hexalith.Conversations.AppHost`; every preservation, projection-population, promotion, performance, signed-evidence, and readiness obligation remains binding.
 
 ## Authority And Immutable History
 
 - The initiative has 20 FRs: FR-1 through FR-20. FR-16 is the only non-activation and is deferred.
 - The preservation denominator is all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and all UX acceptance criteria.
 - The accepted SM-1 baseline remains 13,289 LOC.
-- Epics 1-5, all 24 completed stories, retrospectives, `done` states, and signed v1 evidence remain immutable historical records.
+- Epics 1-5, all 24 completed stories, retrospectives, `done` states, the original epic-plan prefix, the v1/v2 authority overlays, and signed v1 evidence remain immutable historical records.
 - A delivered-to-inactive disposition or compatible public-contract change requires named owner approval, rationale, and compatibility evidence.
 - Epic 6 is the only active corrective plan. It does not activate preserved feature scope.
 
 ## Corrected Ownership Spine
 
-Conversations owns contracts, aggregate/domain behavior, validators, handlers, projections/read-model semantics, domain adapters, domain telemetry definitions, client/testing assets, and optional domain UI. The platform AppHost owns topology. EventStore DomainService, ServiceDefaults, and Aspire own generic hosting, endpoints, DAPR resources, health, telemetry wiring, query/projection runtime, and subscriptions.
+Conversations owns contracts, aggregate/domain behavior, validators, handlers, projections/read-model semantics, domain adapters, domain telemetry definitions, client/testing assets, optional domain UI, and one non-packable, non-publishable module-scoped AppHost limited to local Conversations user and end-to-end tests. It is not a production or deployment composition root. Platform libraries own reusable runtime capability, and production deployment composition remain platform-owned. EventStore DomainService, ServiceDefaults, and Aspire own generic hosting, endpoints, DAPR resources, health, telemetry wiring, query/projection runtime, and subscriptions.
 
-Current `Hexalith.Conversations.AppHost` and `Hexalith.Conversations.ServiceDefaults` projects are pre-6.2 migration input, not target architecture. Story 6.1 does not remove them. Story 6.2 removes them after the benchmark is frozen.
+`Hexalith.Conversations.AppHost` and its focused tests are target test infrastructure. Story 6.2 makes the non-shipping boundary mechanical and retains their solution entries. `Hexalith.Conversations.ServiceDefaults` remains pre-6.2 migration input and is removed when it has no independently justified domain responsibility. No reusable Conversations Aspire, DAPR, publication, health, telemetry, projection/query, or subscription facade is authorized.
 
 The canonical domain-host pair is:
 
@@ -44,7 +44,7 @@ Do not teach direct `MapEventStoreDomainService()` use.
 | FR-10 | EventStore.ServiceDefaults + EventStore.DomainService |
 | FR-11 | Hexalith.Commons.TenantAccess |
 | FR-12 | Hexalith.Commons.Http |
-| FR-13 | Platform AppHost + EventStore.Aspire |
+| FR-13 | Platform deployment + EventStore.Aspire |
 | FR-14 | Hexalith.Commons.Serialization |
 | FR-15 | Hexalith.Commons.Diagnostics + EventStore domain telemetry |
 | FR-16 | deferred, non-activated |
@@ -67,7 +67,7 @@ OQ-1 through OQ-5 are resolved in architecture. Governance/temporal/hydration be
 - A scoped named `IAsyncDomainProjectionHandler` is the production population owner for the persisted query store. The legacy synchronous `IDomainProjectionHandler` is version-1 compatibility only, and its opaque gateway response is **not** query-store population evidence.
 - Queries never replay, materialize, or silently backfill projection state.
 - A durable completed projection outcome requires **both** the per-conversation summary/detail record and the tenant index write to complete. Partial-write uncertainty is non-completion and must converge through idempotent retry.
-- Direct writer invocation, DI resolution, mock call counts, and HTTP acceptance are supporting evidence only.
+- Story 6.2 produces `projection-read-store-population-proof-v2` from an accepted append or authorized replay crossing the production named-dispatch boundary, the actual integration state-store end state, and the production query result. Direct writer invocation, DI resolution, mock call counts, and HTTP acceptance are supporting evidence only.
 
 ## SM-C2 Contract
 
@@ -80,24 +80,24 @@ Frozen inventory version: `sm-c2-hot-path-inventory-v1`.
 | HP-LIST | read-warm | authorized filtered/cursored list |
 | HP-OPEN | read-warm | detail with freshness, redaction, evidence, and Party hydration |
 
-Every baseline row has exactly one post disposition. Each must satisfy `post P95 <= 1.05 x baseline P95` with identical workload/data, concurrency, environment/runtime, tooling, warm/cold classification, repetitions, raw evidence processing, and commit-bound evidence.
+Every baseline row has exactly one post disposition. Each must satisfy `post P95 <= 1.05 x baseline P95` with identical workload/data, concurrency, environment/runtime, tooling, warm/cold classification, repetitions, raw evidence processing, and commit-bound evidence. The module test AppHost exercises the same production code boundaries before and after; it does not become production topology.
 
 ## Stories
 
 ### 6.1 Rebaseline architecture and planning authority
 
-- Reconcile architecture/epic authority, public landing zones, OQs, SM-C2, target tree, and corrective-only readiness.
-- Append rather than rewrite history; preserve signed v1 evidence and the original epic prefix.
-- Add Story 6.7 and the promotion invariant.
+- Preserve the v2 authority as historical corrective provenance.
+- Apply the v3 exception only to the non-shipping module test AppHost; production composition and reusable runtime capability remain platform-owned.
+- Preserve signed v1 evidence and the original epic prefix.
 
 ### 6.2 Migrate Conversations to platform-owned hosting
 
-- Freeze/reconstruct the versioned benchmark before topology changes.
-- Remove local hosting/defaults projects and tests, compose through platform surfaces, preserve topology/security/health/publication/admin behavior and public contracts.
-- Put generic gaps in the owning platform surface and pass Story 6.7 for promotions.
-- Expose a canonical named `IAsyncDomainProjectionHandler` route that reuses the existing materializer and persists both the tenant-scoped per-conversation summary/detail model and the tenant index through `ConversationProjectionReadModelWriter`, `ReadModelWritePolicy`, and the configured `IReadModelStore`. Report completion only after both writes are durable.
-- Produce versioned `projection-read-store-population-proof-v2` evidence for an accepted append or authorized replay crossing the production EventStore named-dispatch boundary into the Conversations handler, asserting the actual integration state-store end state and the production query result. Do not call the writer directly.
-- Prove duplicate delivery, retry after partial write, tenant isolation, bounded failure outcomes, derived-state deletion, and full replay converge to an equivalent per-conversation record and a duplicate-free tenant index. The legacy opaque projection response, DI resolution, mock calls, and HTTP acceptance alone are insufficient.
+- Freeze or reconstruct the versioned benchmark before runtime, projection, or topology changes.
+- Retain the existing AppHost and its tests solely as non-packable, non-publishable module test infrastructure; do not select or modify FrontComposer.AppHost or EventStore.AppHost.
+- Remove the local ServiceDefaults facade when it has no domain responsibility. Put generic gaps in the owning public platform surface and pass Story 6.7 for promotions.
+- Expose a canonical named `IAsyncDomainProjectionHandler` route that reuses the materializer and persists both the tenant-scoped per-conversation summary/detail model and tenant index through `ConversationProjectionReadModelWriter`, `ReadModelWritePolicy`, and the configured `IReadModelStore`. Report completion only after both writes are durable.
+- Produce versioned `projection-read-store-population-proof-v2` evidence for an accepted append or authorized replay crossing the production EventStore named-dispatch boundary into the Conversations handler, asserting the actual integration state-store end state and production query result. Do not call the writer directly.
+- Prove duplicate delivery, partial-write retry, tenant isolation, bounded failure outcomes, derived-state deletion, and full replay converge to an equivalent per-conversation record and duplicate-free tenant index.
 
 ### 6.3 Create the complete preservation traceability manifest
 
@@ -111,12 +111,13 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 
 ### 6.5 Correct the thin authoring template and reproduce SM-2
 
-- Prohibit domain-owned AppHost/Aspire/ServiceDefaults from the template.
+- Include one non-packable, non-publishable module test AppHost in the template and count its hand-authored files and LOC.
+- Prohibit reusable module-owned Aspire, generic ServiceDefaults, DAPR, health, telemetry, projection/query, publication, or subscription capability.
 - Use live public platform APIs and a reproducible fixture/versioned v2 measurement while preserving the 13,289-LOC baseline.
 
 ### 6.6 Revalidate and issue superseding attestation
 
-- Run the complete manifest, public-contract, SM-C2, SM-1/SM-2/SM-3, and platform-composition gates.
+- Run the complete manifest, public-contract, SM-C2, SM-1/SM-2/SM-3, test-AppHost boundary, and platform-composition gates.
 - Issue versioned v2 evidence, a separate supersession record, and a new release-owner decision without mutating v1.
 - Consume and hash-validate accepted ADR 0003 and the Story 6.2 `projection-read-store-population-proof-v2` artifacts, and rerun their focused conformance and rebuild gates. Do not inherit the signed v1 projection-population deferral as proof or as a waiver for current readiness.
 - Run last and require readiness `READY` before release closure.
@@ -143,4 +144,4 @@ Before promotion-bearing work reaches `done`, every affected root-declared submo
 
 ## Story 6.1 Verification Boundary
 
-Story 6.1 changes planning authority and conformance validation only. It must not modify the finalized PRD/addendum, historical epic prefix, retrospectives, signed v1 evidence, runtime source, solution membership, submodule contents/gitlinks, UX governance, thin template, release evidence, or the Story 6.7 gate implementation.
+The v3 amendment changes planning authority, generated context, and conformance validation only. It must not modify the finalized PRD/addendum, historical epic prefix, v1/v2 overlay content, retrospectives, signed v1 evidence, runtime source, solution membership, submodule contents/gitlinks, UX governance, thin-template evidence, or release evidence.

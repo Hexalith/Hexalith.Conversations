@@ -413,6 +413,16 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
     <action>Run the full regression suite (do not skip)</action>
     <action>Confirm File List includes every changed file</action>
     <action>Execute enhanced definition-of-done validation</action>
+    <action>Read approved `submodule_promotions` from story frontmatter without adding or expanding paths. If the field is missing, record `INVALID_SCOPE`, keep story and sprint state `in-progress`, and HALT for approved scope declaration.</action>
+    <action>Read the baseline from frontmatter `baseline_commit`, falling back to `baseline_revision`; missing or `NO_VCS` is not trustworthy. Resolve committed `HEAD` as the candidate revision.</action>
+    <action>Run `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate HEAD --format json`, adding a trustworthy `--baseline &lt;value&gt;`, one `--submodule &lt;path&gt;` per declaration, and `--require-remote &lt;path&gt;` when requested. Parse the JSON result.</action>
+    <action>Set promotion gating active when the declaration or checker `changed_gitlinks` is non-empty. For active work, missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker.</action>
+    <check if="checker exits nonzero, result is not pass, approved scope is missing, or active work has an untrustworthy baseline">
+      <action>Record every stable blocker code and actionable diagnostic in Dev Agent Record → Debug Log References; preserve `BASELINE_NOT_PROVIDED` when caller-promoted.</action>
+      <action>Set story frontmatter status and Status section to `in-progress`</action>
+      <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
+      <action>HALT: "Submodule promotion completion gate failed; remediate the recorded diagnostics without initializing, updating, fetching, or silently expanding scope"</action>
+    </check>
     <action>Update the story Status to: "review"</action>
 
     <!-- Enhanced Definition of Done Validation -->

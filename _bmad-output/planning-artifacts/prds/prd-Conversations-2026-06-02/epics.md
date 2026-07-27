@@ -883,3 +883,95 @@ As a Hexalith development-workflow maintainer, I want promotion-bearing work to 
 - Story 6.6 remains last and triggers readiness reassessment.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY:END version=epic-6-authority-2026-07-15-v2 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN version=epic-6-authority-2026-07-27-v3 supersedes=epic-6-authority-2026-07-15-v2 -->
+
+## Appendix: 2026-07-27 Module Test-AppHost Authority Amendment
+
+**Overlay version:** `epic-6-authority-2026-07-27-v3`
+**Architecture authority:** `conversations-architecture-2026-07-27-v3`
+**Supersedes:** `epic-6-authority-2026-07-15-v2` only for the ownership and
+treatment of `Hexalith.Conversations.AppHost`
+**Status:** active corrective amendment; the v1/v2 overlays, completed history,
+and signed evidence remain immutable historical records.
+
+### Corrected Ownership Decision
+
+`src/Hexalith.Conversations.AppHost/` remains in the module solely as a
+non-packable, non-publishable composition harness for Conversations-limited
+local user and end-to-end tests. It is not a production or deployment
+composition root. Platform deployment owns production composition, and public
+EventStore/Commons surfaces own reusable hosting, DAPR, health, telemetry,
+projection/query, publication, and subscription capability.
+
+This amendment does not authorize a Conversations-owned reusable Aspire library
+or generic ServiceDefaults facade. `Hexalith.Conversations.ServiceDefaults`
+remains removable when it only wraps shared platform defaults. The canonical
+runtime host remains `AddEventStoreDomainService(...)` plus
+`UseEventStoreDomainService()`.
+
+### Superseding Story Dispositions
+
+| Story | v3 disposition |
+| --- | --- |
+| 6.1 | Remains completed historical authority. AC 4 is superseded only to permit the non-shipping module test AppHost; reusable runtime capability and production composition remain platform-owned. |
+| 6.2 | Retain and constrain the existing AppHost as test-only, remove generic hosting drift, and preserve every production projection/evidence gate. Do not select or modify FrontComposer.AppHost or EventStore.AppHost. |
+| 6.3 | No semantic change; bind the v3 architecture and corrected topology evidence in the preservation manifest. |
+| 6.4 | No change. |
+| 6.5 | Include one non-shipping module test AppHost in the thin fixture and count its hand-authored files/LOC in SM-2. |
+| 6.6 | Verify the test-only AppHost boundary and the unchanged production runtime/projection evidence. |
+| 6.7 | No change; it remains prerequisite authority for promotion-bearing work. |
+
+### Story 6.2 Corrected Acceptance
+
+Story 6.2 keeps the title **Migrate Conversations to platform-owned hosting**:
+production runtime capability and deployment composition remain platform-owned,
+while the local AppHost is retained only as test infrastructure.
+
+1. Capture the versioned pre-correction SM-C2 benchmark before runtime,
+   projection, or topology changes, or reproducibly reconstruct it from the
+   preserved source commit.
+2. Retain `src/Hexalith.Conversations.AppHost/`,
+   `tests/Hexalith.Conversations.AppHost.Tests/`, and their solution entries.
+   Make the project mechanically non-packable and non-publishable, and limit it
+   to Conversations Server/Admin Web plus required platform dependencies for
+   local module user and end-to-end testing.
+3. Remove `Hexalith.Conversations.ServiceDefaults` when it has no independently
+   justified domain responsibility. Do not introduce a Conversations Aspire,
+   DAPR, publication, health, telemetry, projection/query, or subscription
+   facade. Generic gaps land on approved public platform surfaces and every
+   affected promotion passes Story 6.7.
+4. Preserve v2 AC 4-6 and ADR 0003 unchanged: the scoped named asynchronous
+   projection handler must durably populate both tenant-scoped read-model keys,
+   and production-boundary append/replay, state-store, query, retry, isolation,
+   deletion, and rebuild proof remains mandatory.
+5. AppHost composition tests prove the harness consumes public platform helpers,
+   cannot be published or packed, and exercises production Server/EventStore
+   boundaries without becoming a deployment artifact.
+
+### Story 6.5 Corrected Acceptance
+
+The thin authoring template contains one non-packable, non-publishable
+module-scoped AppHost for local user/end-to-end tests and includes its
+hand-authored files and LOC in SM-2. It contains no reusable module-owned Aspire
+library, generic ServiceDefaults facade, DAPR implementation, projection/query
+runtime, publication, health, telemetry, or subscription plumbing. Validators
+reject those duplicated capabilities and reject a publishable module AppHost.
+
+### Story 6.6 Corrected Evidence
+
+Final evidence proves the Conversations AppHost is test-only and uses public
+platform capability; production deployment remains platform-owned. All v2
+manifest, contract, topology behavior, projection-population, SM-C1, SM-C2,
+SM-2, SM-3, promotion, signed-v1 immutability, supersession, and readiness gates
+remain unchanged.
+
+### Binding Dependency Order
+
+`6.1 authority correction -> 6.7 -> 6.2 -> 6.5 -> 6.6`
+
+Stories 6.3 and 6.4 may still proceed after 6.1 where dependencies allow. The
+SM-C2 baseline remains a pre-change gate for 6.2. No sprint-status change or new
+story identifier is introduced by this amendment.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END version=epic-6-authority-2026-07-27-v3 -->

@@ -84,10 +84,21 @@ If `{spec_file}` is **not** set, present only options 1 and 2 (omit "Leave as ac
 
 Skip this section if `{spec_file}` is not set.
 
+#### Promotion completion gate
+
+Run this gate before determining `{new_status}`:
+
+1. Read `submodule_promotions` from `{spec_file}` without expanding its approved scope. Read the baseline from `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy.
+2. Resolve committed `HEAD` as the candidate. Invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate HEAD --format json`, adding a `--submodule <path>` for every declared item, `--require-remote <path>` when its `require_remote` value is true, and `--baseline <value>` only when the baseline is trustworthy.
+3. Parse the JSON result. Promotion gating is activated when the declaration is non-empty or `changed_gitlinks` is non-empty. When activated, a missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker even if the checker otherwise exits zero.
+4. Any nonzero checker exit, any `result` other than `pass`, or the activated missing-baseline condition fails the gate. Preserve every `blockers[].code` in the review record; for the caller-promoted missing-baseline condition preserve `BASELINE_NOT_PROVIDED` as the blocker code with its diagnostic text.
+5. On gate failure, set `promotion_gate_failed = true`, force `{new_status}` = `in-progress`, update the story Status section to `in-progress`, forbid the `done` branch below, and synchronize only `in-progress`. Report the actionable checker diagnostics. Do not modify, initialize, update, fetch, commit, or silently expand submodule scope while remediating.
+
 #### Determine new status based on review outcome
 
-- If all `decision-needed` and `patch` findings were resolved (fixed or dismissed) AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
+- If `promotion_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or dismissed), AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
 - If `patch` findings were left as action items, or unresolved issues remain: set `{new_status}` = `in-progress`. Update the story file Status section to `in-progress`.
+- If `promotion_gate_failed` is true: preserve `{new_status}` = `in-progress`; never write or synchronize `done` regardless of review outcome.
 
 Save the story file.
 

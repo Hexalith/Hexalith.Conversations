@@ -1,3 +1,11 @@
+---
+submodule_promotions: []
+# Example:
+# submodule_promotions:
+#   - path: references/Hexalith.EventStore
+#     require_remote: true
+---
+
 # Story {{epic_num}}.{{story_num}}: {{story_title}}
 
 Status: ready-for-dev

@@ -88,6 +88,14 @@ Set `{spec_file}` frontmatter `followup_review_recommended` from the computation
 
 If version control is available, commit every file in the reviewed diff — tracked and untracked. Do not push. After committing, verify the commit contains each file from the reviewed diff; if any is missing, add it and amend before proceeding. Anything still visible in `git status --porcelain` is by definition not part of the change: leave it in place — do not commit, delete, or gitignore it — and list it under `Auto Run Result` as residual artifacts.
 
+### Promotion Completion Gate
+
+Read `submodule_promotions` from `{spec_file}` without expanding its approved scope. A missing field is an untrustworthy input and blocks unattended completion. Read the baseline from `baseline_revision`, falling back to `baseline_commit`; a missing value or `NO_VCS` is not trustworthy.
+
+When version control is available, resolve committed `HEAD` as `candidate_revision` and run `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding a trustworthy `--baseline <value>`, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Promotion gating is activated when the declaration or `changed_gitlinks` is non-empty; for activated work, unavailable VCS, missing/untrustworthy baseline, or `BASELINE_NOT_PROVIDED` is a blocker.
+
+Any nonzero checker exit, any result other than `pass`, missing `submodule_promotions`, or any activated missing-input condition fails the gate. Record all stable blocker codes and actionable diagnostics in `Auto Run Result`, set `{spec_file}` status to `blocked`, and HALT with status `blocked` and blocking condition `submodule promotion completion gate failed`. Never capture a successful `final_revision`, write `done`, initialize/update/fetch submodules, or silently expand scope after failure. Non-promotion work with unavailable VCS preserves the existing `NO_VCS` completion behavior.
+
 Capture `final_revision` (current HEAD after committing, or `NO_VCS` if version control is unavailable) into `{spec_file}` frontmatter.
 
 Set `{spec_file}` frontmatter `status: done`.
