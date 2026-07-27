@@ -1,6 +1,6 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-27T13:52:22Z",
+  "capturedAtUtc": "2026-07-27T19:43:02Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "result": "pass",
@@ -88,6 +88,66 @@
       "queryResultsEquivalentToPreDeletion": true
     }
   ],
+  "gatewayBoundaryEvidence": {
+    "adr": "docs/adrs/0003-projection-read-store-population-proof.md",
+    "satisfies": ["ADR 0003 Verification 1", "ADR 0003 Verification 2", "AC5", "AC6"],
+    "resolution": "strengthened-fixture",
+    "resolutionOwner": "Jerome",
+    "resolutionDecidedOn": "2026-07-27",
+    "resolutionNote": "Story 6.2 task T2 offered two closures: (a) strengthen the fixture to cross the gateway coordinator against a DAPR-backed state store, or (b) record a named-owner justification narrowing ADR 0003's own verification wording. Jerome chose (a). No part of ADR 0003 Verification 1-2 is narrowed, waived, or carried as a residual gap.",
+    "test": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs",
+    "fixture": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+    "deliveryDriver": "Hexalith.EventStore.Server.Projections.IProjectionUpdateOrchestrator.UpdateProjectionAsync",
+    "componentsCrossed": [
+      "Hexalith.EventStore.Server.Projections.ProjectionUpdateOrchestrator",
+      "Hexalith.EventStore.Server.Projections.NamedProjectionDispatchCoordinator",
+      "EventStore domain-service named-projection dispatcher",
+      "Hexalith.Conversations.Server.Projections.ConversationAsyncProjectionHandler"
+    ],
+    "componentsCrossedObservedFrom": "Structured host logs emitted during the passing run carry Category values 'Hexalith.EventStore.Server.Projections.ProjectionUpdateOrchestrator' and 'Hexalith.EventStore.Server.Projections.NamedProjectionDispatchCoordinator', so the gateway-side stages are observed rather than asserted by construction.",
+    "integrationStateStore": {
+      "configuredReadModelStoreType": "Hexalith.EventStore.Client.Projections.DaprReadModelStore",
+      "assertedInTest": true,
+      "sidecar": "daprd",
+      "componentName": "statestore",
+      "componentType": "state.redis",
+      "actorStateStore": true,
+      "inMemoryFakeUsed": false
+    },
+    "immediateDelivery": {
+      "projectionRefreshIntervalMs": 0,
+      "why": "A non-zero refresh interval would make UpdateProjectionAsync register polling work and return without dispatching, so the persistence assertions would pass against an empty store for the wrong reason. The lane asserts the interval is 0 before dispatching."
+    },
+    "routeDiscovery": {
+      "source": "domain-service operational-index metadata",
+      "discoveredNamedProjectionType": "conversation-read-model",
+      "why": "The gateway learns the route from the product's own advertised metadata, so AC4's canonical named route is proven by the running system rather than restated by the fixture."
+    },
+    "scenarios": [
+      {
+        "scenario": "gateway-accepted-append",
+        "tenantId": "tenant-gateway-001",
+        "detailPersisted": true,
+        "tenantIndexPersisted": true,
+        "tenantIndexRows": 1,
+        "detailQueryState": "Current",
+        "listQueryState": "Current",
+        "crossKeyGenerationAgreement": true,
+        "productionQueryAsserted": true
+      },
+      {
+        "scenario": "gateway-duplicate-delivery",
+        "tenantId": "tenant-gateway-002",
+        "secondDeliveryChangedPersistedState": false,
+        "tenantIndexRows": 1,
+        "detailQueryState": "Current",
+        "productionQueryAsserted": true
+      }
+    ],
+    "run": {"passed": 2, "failed": 0, "skipped": 0},
+    "skipSemantics": "The fixture skips when no DAPR sidecar prerequisite is reachable. A skipped run does not satisfy AC5, so the recorded run above is asserted to have executed with skipped = 0.",
+    "residualGap": "none"
+  },
   "hostingEvidence": {
     "appHostRole": "non-shipping module user/E2E test harness",
     "isPackable": false,
@@ -106,22 +166,60 @@
   },
   "eventStorePromotion": {
     "submodule": "references/Hexalith.EventStore",
-    "commit": "0eb365797d06207e42b517375664f46405a7ad7d",
+    "commit": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
     "branch": "main",
     "remoteTrackingRef": "origin/main",
     "remoteContainsCommit": true,
     "submoduleWorktreeClean": true,
     "requiredGitlinkMode": "160000",
-    "requiredUmbrellaGitlinkCommit": "0eb365797d06207e42b517375664f46405a7ad7d",
+    "requiredUmbrellaGitlinkCommit": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
+    "promotedCapabilityDelta": {
+      "previouslyRecordedCommit": "0eb365797d06207e42b517375664f46405a7ad7d",
+      "currentCommit": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
+      "commits": [
+        "e77c84da docs(story-2.12): close the package-byte audit with GitHub Packages proof",
+        "c8c70030 fix: ensure expected package count validation and forwarding in publication preflight"
+      ],
+      "changedPaths": [
+        "_bmad-output/implementation-artifacts/2-12-tenants-runtime-identity-adoption-and-package-mode-validation.md",
+        "_bmad-output/implementation-artifacts/evidence/story-2-12/prerequisites.md",
+        "_bmad-output/implementation-artifacts/spec-gh-30266494848-fix-ci-cd.md",
+        "references/Hexalith.Tenants",
+        "scripts/validate-publication-preflight.sh",
+        "tests/Hexalith.EventStore.Contracts.Tests/Packaging/ContainerPublishingGovernanceTests.cs"
+      ],
+      "promotedCapabilityFilesChanged": [],
+      "finding": "The two commits touch publication preflight, story documentation, a nested submodule pointer inside EventStore, and container publishing governance tests only. Neither file carrying the capability this story promoted changed: EventStoreDomainServiceExtensions.cs still registers the idempotent AddDaprClient() at line 310, and HexalithEventStoreDomainModuleExtensions.cs is byte-identical. The gitlink move therefore does not disturb the promoted capability, and both files remain hash-bound in sourceBindings below."
+    },
     "umbrellaMechanicalGate": {
       "schema": "submodule-promotion-gate/v1",
       "result": "pass",
       "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-      "candidate": "b11b0c73523362b61c6afe823112b655732da47e",
-      "recordedGitlink": "0eb365797d06207e42b517375664f46405a7ad7d",
+      "candidate": "953bf71a5ad23c16c416db13ed7cea046abf58d0",
+      "recordedGitlink": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
       "recordedMode": "160000",
+      "declaredScope": [
+        {"path": "references/Hexalith.EventStore", "requireRemote": true},
+        {"path": "references/Hexalith.Builds", "requireRemote": true},
+        {"path": "references/Hexalith.Tenants", "requireRemote": true}
+      ],
+      "changedGitlinks": [
+        "references/Hexalith.Builds",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Tenants"
+      ],
+      "evaluated": [
+        {"path": "references/Hexalith.EventStore", "recordedGitlink": "c8c7003052a7f811d3b821f3442379ca5f3a9c65", "recordedMode": "160000", "head": "c8c7003052a7f811d3b821f3442379ca5f3a9c65", "initialized": true, "clean": true, "remoteAvailable": true},
+        {"path": "references/Hexalith.Builds", "recordedGitlink": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "recordedMode": "160000", "head": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "initialized": true, "clean": true, "remoteAvailable": true},
+        {"path": "references/Hexalith.Tenants", "recordedGitlink": "0ded4a1701ccc24cc27d7cd0748fba40e04bdd51", "recordedMode": "160000", "head": "0ded4a1701ccc24cc27d7cd0748fba40e04bdd51", "initialized": true, "clean": true, "remoteAvailable": true}
+      ],
       "blockers": [],
       "warnings": []
+    },
+    "candidateBinding": {
+      "rule": "The recorded candidate is the last revision that moved any root gitlink or any production source in this story. Revisions after it carry evidence, tests, and the story record only.",
+      "rationale": "A gate result cannot name the commit that contains it without being self-referential, which is how the Story 6.7 review-pass-2 defect arose in the opposite direction: evidence pinned to a revision that was never the candidate. Pinning an immutable candidate and re-deriving its continued validity from git on every conformance run binds the evidence to a single real revision and keeps that binding falsifiable.",
+      "mechanicalReverification": "ProjectionReadStorePopulationProofValidationTest re-derives the gitlinks from the working tree: the recorded candidate must be an ancestor of (or equal to) HEAD, `git diff --name-only <candidate>..HEAD -- references/` must be empty, and `git rev-parse HEAD:references/<path>` must equal each recorded gitlink. Any later revision that moves a declared gitlink turns this proof red instead of leaving it stale."
     }
   },
   "commands": [
@@ -154,6 +252,20 @@
       "passed": 2,
       "failed": 0,
       "skipped": 0
+    },
+    {
+      "command": "tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests -class Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests",
+      "lane": "gateway production boundary (ADR 0003 Verification 1-2)",
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
+    {
+      "command": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests",
+      "lane": "full module conformance",
+      "passed": 418,
+      "failed": 0,
+      "skipped": 0
     }
   ],
   "environment": {
@@ -168,7 +280,7 @@
   "sourceBindings": [
     {"path": "src/Hexalith.Conversations.Server/Program.cs", "sha256": "be4755e88f931f0e39bfba51e73950ff94e1893fcfec589d1112094d2b6013e7"},
     {"path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs", "sha256": "0a29ec35275c4cf03c6b7580b3266048d9a3fba3b33bee02cc11513e5b2ca3cf"},
-    {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs", "sha256": "476fddd53542274863bd15c84516f09e8cb8639dd261f02c200c106a65c11406"},
+    {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs", "sha256": "26a558710416782f9901ddf1ddda28486df67bb3fee0a19ecd50e19f8605851f"},
     {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs", "sha256": "eed56fbecebb3c8f862b31b38bec2463ce82ba614b544f81f1eba6a3d42105c8"},
     {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs", "sha256": "ccc075c278c7cff3e0d14c6d70c59e467038f45c392daadef29db35a8622dfe1"},
     {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs", "sha256": "8026ff5b42993f28ed499c2b6fa4a8c2f3ae634969bfcbcd62af4af97ce9b866"},
@@ -177,12 +289,15 @@
     {"path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj", "sha256": "576d2a6887242e34715bf63978a10330b2b5c55ef7922ddd9f3b86120f6c93f2"},
     {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs", "sha256": "c39360e7aaabe359364edc8b5bb278d3eba64048c2a563a19a0e44a613699564"},
     {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs", "sha256": "5ae04d8dcdb2120ea4ac35d588c846edc2181c2d17e39584df8150b6d150c774"},
-    {"path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs", "sha256": "25309107b556302602214b8797bfeee423971a107843cfd525a80b62eb852d10"},
+    {"path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs", "sha256": "9332be1edc290646264ac2ce7a57525dd2fe9bc6204d2ac0763413096fdede35"},
+    {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs", "sha256": "284f2834bf7aad2eada359256c0af205fbab7ca75a487fa094c619109e8b15de"},
+    {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs", "sha256": "6e9ce4618ef7c9dc541a3549d987bf6ca747c15fb80852723758dbe24ef3150d"},
+    {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs", "sha256": "b438b9ee92683e08307bcce0024df82bfe0c4a951166fe026fb036bd52550c05"},
     {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs", "sha256": "b929dbea060832dcddb03bc7045814662f96e5d50843006de769f9d07f63725d"},
     {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Aspire/HexalithEventStoreDomainModuleExtensions.cs", "sha256": "6d05726fef549661f8aac6fb50148885b463a0114cd9ae7b72e043668de1b650"}
   ],
   "performanceEvidence": {
-    "baseline": {"path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json", "sha256": "b825254b3189ed96c6a5385e23942e79a33ab4749c949a40060aac094122ca38"},
+    "baseline": {"path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json", "sha256": "d8530afbe33360cc8dbbf944efcb724834c040d78e3451b4662e7a36b8991ea6"},
     "post": {"path": "docs/release-evidence/sm-c2-hot-path-post-v1.json", "sha256": "22053f47752f8e2a93bdcf0102838ae48d61a00ba38657693bb1584b7625e528"},
     "comparisonRule": "postP95Microseconds <= 1.05 * baselineP95Microseconds",
     "rowsPassing": 4,

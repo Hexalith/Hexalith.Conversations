@@ -132,4 +132,36 @@ public sealed class ConversationProjectionDurableEventCoverageTest
             .ShouldBeFalse();
         ConversationProjectionEventDecoder.TryResolvePublicEventType(null, out _).ShouldBeFalse();
     }
+
+    /// <summary>
+    /// The durable aliases must stay out of the module's public event vocabulary.
+    /// </summary>
+    /// <remarks>
+    /// Registering the durable names alongside the public ones in a single registry is the obvious way to make
+    /// persisted streams decode, and it silently widened the public vocabulary from 13 names to 26 — a public
+    /// contract change. Keeping the two registries disjoint is the invariant; this asserts it directly so the
+    /// shortcut cannot be reintroduced without a red test.
+    /// </remarks>
+    [Fact]
+    public void DurableAliasesShouldNotWidenThePublicEventVocabulary()
+    {
+        IReadOnlyDictionary<string, Type> publicEntries = ConversationProjectionEventDecoder.PublicEventTypeEntries;
+        IReadOnlyDictionary<string, Type> durableEntries = ConversationProjectionEventDecoder.DurableEventTypeEntries;
+
+        publicEntries.Count.ShouldBe(13);
+        durableEntries.Count.ShouldBe(13);
+        publicEntries.Keys.ShouldAllBe(name => !name.EndsWith("DomainEvent", StringComparison.Ordinal));
+        durableEntries.Keys.ShouldAllBe(name => name.EndsWith("DomainEvent", StringComparison.Ordinal));
+        publicEntries.Keys.Intersect(durableEntries.Keys, StringComparer.Ordinal).ShouldBeEmpty();
+
+        durableEntries.Keys.Order(StringComparer.Ordinal).ShouldBe(
+            [.. publicEntries.Keys.Select(name => name + "DomainEvent").Order(StringComparer.Ordinal)]);
+
+        // Each alias must point at the public contract type it is named after, not merely at some public type.
+        foreach ((string durableName, Type mappedType) in durableEntries)
+        {
+            mappedType.Name.ShouldBe(durableName[..^"DomainEvent".Length]);
+            publicEntries[mappedType.Name].ShouldBe(mappedType);
+        }
+    }
 }

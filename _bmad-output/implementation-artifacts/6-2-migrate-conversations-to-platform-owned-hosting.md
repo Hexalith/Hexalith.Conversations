@@ -120,83 +120,94 @@ boundaries without becoming a deployment artifact.
 
 ### Open work
 
-- [ ] **T1 — Rebind the v2 proof's promotion evidence to the final story candidate** (AC: 3, 5) — **BLOCKING**
-  - [ ] `docs/release-evidence/projection-read-store-population-proof-v2.json` →
-        `eventStorePromotion.commit`, `.requiredUmbrellaGitlinkCommit`, and
-        `.umbrellaMechanicalGate.{candidate,recordedGitlink,warnings}` are bound to
-        `b11b0c7` / `0eb3657` / `warnings: []`. The umbrella has since moved:
-        commit `48069d7` re-pointed `references/Hexalith.EventStore` to `c8c7003`,
-        and `04edf99` moved `references/Hexalith.Builds`. Re-run the gate against the
-        **final committed candidate** and rewrite these fields to what it actually returns.
-  - [ ] `docs/release-evidence/projection-read-store-population-proof-v2.md` → update the
-        *Hosting and promotion* paragraph to the same commit/candidate.
-  - [ ] `tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:76-89`
-        hard-codes `0eb3657`, `b11b0c7`, and `warnings.GetArrayLength() == 0`. Update to the
-        final values. **Do not relax the assertions to make them pass** — pin the real ones.
-  - [ ] Confirm the EventStore delta `0eb3657..c8c7003` does not disturb the promoted
-        capability. Measured: 2 commits, touching CI/publication preflight, story docs, and
-        `ContainerPublishingGovernanceTests` only — `EventStoreDomainServiceExtensions.cs`
-        and `HexalithEventStoreDomainModuleExtensions.cs` are unchanged. Record that finding.
-  - [ ] Precedent: Story 6.7 review pass 2 caught this exact defect
-        ("*Completion evidence does not correspond to any single revision*"). Do not repeat it.
+- [x] **T1 — Rebind the v2 proof's promotion evidence to the final story candidate** (AC: 3, 5) — **BLOCKING**
+  - [x] `docs/release-evidence/projection-read-store-population-proof-v2.json` →
+        `eventStorePromotion.commit` and `.requiredUmbrellaGitlinkCommit` are now `c8c7003`;
+        `.umbrellaMechanicalGate.candidate` is `953bf71`, `.recordedGitlink` is `c8c7003`,
+        `warnings: []` and `blockers: []` are what the gate actually returned. The recorded
+        gate result also carries `declaredScope` (3 paths), `changedGitlinks`, and the full
+        `evaluated` array rather than a single summarised path.
+  - [x] `docs/release-evidence/projection-read-store-population-proof-v2.md` → *Hosting and
+        promotion* rewritten to the same commit/candidate, and states explicitly that the
+        `0eb3657` / `b11b0c7` pair is superseded and why.
+  - [x] `ProjectionReadStorePopulationProofValidationTest.cs` pinned to the real values —
+        **not relaxed**. Assertions were added, not weakened: declared scope must equal the
+        set of gitlinks that actually changed, every evaluated path must be
+        initialized/clean/remote-available at mode `160000` with `recordedGitlink == head`,
+        and `promotedCapabilityFilesChanged` must be empty.
+  - [x] EventStore delta `0eb3657..c8c7003` confirmed against the submodule: exactly 2 commits
+        (`e77c84da`, `c8c70030`) touching publication preflight, story docs, a nested pointer,
+        and `ContainerPublishingGovernanceTests`. `EventStoreDomainServiceExtensions.cs` and
+        `HexalithEventStoreDomainModuleExtensions.cs` are unchanged, and `AddDaprClient()` is
+        still at line 310. Recorded as `eventStorePromotion.promotedCapabilityDelta`.
+  - [x] Precedent closed and hardened. A gate result cannot name the commit containing it, so
+        the evidence pins the last revision that moved a gitlink or production source, and a
+        new test `RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks` re-derives
+        that binding from git on every run: candidate must be an ancestor of `HEAD`,
+        `git diff --name-only <candidate>..HEAD -- references/` must be empty, and each
+        recorded gitlink must equal `git rev-parse HEAD:references/<path>`. The evidence can
+        now go red instead of going stale.
 
-- [ ] **T2 — Close the production-boundary proof-strength question** (AC: 5, 6) — **BLOCKING**
-  - [ ] `ConversationProjectionReadStorePopulationLiveTests` currently composes
-        `InMemoryReadModelStore` (from `Hexalith.EventStore.Testing.Fakes`) as the configured
-        `IReadModelStore` and calls `DomainProjectionDispatcher.DispatchAsync(...)` in-process.
-        It therefore crosses the **domain-service** dispatcher but **not** the gateway-side
-        `ProjectionUpdateOrchestrator` / `NamedProjectionDispatchCoordinator` (both live in
-        `Hexalith.EventStore.Server`), and not a DAPR-backed state store.
-  - [ ] ADR 0003 → *Verification* items 1 and 2 require the append/replay to reach "*the
-        EventStore named-projection coordinator, the domain-service dispatcher, and the
-        Conversations named asynchronous handler*" and require "*the configured integration
-        state-store adapter*" to contain the exact keys.
-  - [ ] Choose **one** and record it explicitly in the evidence JSON:
-        **(a)** strengthen the fixture to run through the retained AppHost harness against a
-        DAPR-backed state store and the gateway coordinator, **or**
-        **(b)** record a named-owner justification that the platform's own `IReadModelStore`
-        fake plus the domain-service dispatcher is the approved integration boundary, with the
-        residual gap stated in plain terms.
-  - [ ] Option (b) requires Jerome or the Product Owner — it narrows ADR 0003's own
-        verification wording. **Do not choose (b) silently.**
-  - [ ] Story 6.6 hash-validates and reruns this proof. A gap left implicit here surfaces
-        there as a release blocker.
+- [x] **T2 — Close the production-boundary proof-strength question** (AC: 5, 6) — **BLOCKING**
+  - [x] Diagnosis confirmed: `ConversationProjectionReadStorePopulationLiveTests` composes
+        `InMemoryReadModelStore` and calls `DomainProjectionDispatcher.DispatchAsync(...)`
+        in-process. It is retained as the deterministic edge-case matrix, not as the AC5 proof.
+  - [x] **Option (a) chosen by Jerome** — the fixture was strengthened; ADR 0003 Verification
+        items 1 and 2 are satisfied as written, not narrowed. No residual gap is carried.
+  - [x] `ConversationProjectionGatewayDispatchLiveTests` + `ConversationGatewayLiveFixture`
+        drive delivery through `IProjectionUpdateOrchestrator` against a real `daprd` sidecar
+        with a Redis-backed `statestore` component. The lane asserts the configured
+        `IReadModelStore` really is `DaprReadModelStore`, that the projection refresh interval
+        is `0` so `UpdateProjectionAsync` dispatches instead of registering polling work and
+        returning against an empty store, and that the gateway discovered the
+        `conversation-read-model` route from the domain service's own operational-index
+        metadata. Structured logs from the passing run carry `ProjectionUpdateOrchestrator`
+        and `NamedProjectionDispatchCoordinator` categories, so the gateway-side stages are
+        observed rather than assumed. **2 passed, 0 failed, 0 skipped.**
+  - [x] Recorded explicitly in the evidence JSON as `gatewayBoundaryEvidence`, with
+        `resolution: "strengthened-fixture"` and `residualGap: "none"`, and mechanically
+        asserted by `GatewayBoundaryEvidenceShouldCrossTheCoordinatorAndTheDaprStateStore`.
+  - [x] Story 6.6 will hash-validate and rerun this proof; nothing is left implicit for it.
 
-- [ ] **T3 — Prove the non-shipping AppHost boundary from evaluated MSBuild properties** (AC: 2, 7)
-  - [ ] `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:30-31`
-        reads raw `<IsPackable>` / `<IsPublishable>` XML elements out of the csproj. That is a
-        shape check, not a mechanical one: an imported `.props`/`.targets` could flip either
-        property with the XML unchanged, and the test would stay green.
-  - [ ] Assert the **evaluated** values instead (`dotnet msbuild -getProperty:` or an
-        equivalent evaluation), so the assertion measures what the build actually does.
-  - [ ] Both evaluate to `false` today (verified at HEAD) — this hardens the guard, it does
-        not change behavior.
-  - [ ] Precedent: the repeated `"5% P95"` ⊂ `"45% P95"` class of defect. A guard that cannot
-        fail is the failure.
+- [x] **T3 — Prove the non-shipping AppHost boundary from evaluated MSBuild properties** (AC: 2, 7)
+  - [x] `ConversationsAppHostShouldBeMechanicallyNonShipping` now spawns
+        `dotnet msbuild -getProperty:IsPackable -getProperty:IsPublishable` and asserts the
+        **evaluated** values, failing loudly rather than skipping if evaluation cannot run.
+  - [x] Both evaluate to `false` at HEAD; behaviour unchanged, guard hardened.
+  - [x] **Fault-injected to prove it can fail.** A temporary
+        `src/Hexalith.Conversations.AppHost/Directory.Build.targets` setting
+        `<IsPackable>true</IsPackable>` — leaving the csproj XML reading `false` — flipped the
+        evaluated value to `true` and turned the guard **red**. The previous XML-reading
+        assertion would have stayed green through exactly that change. The injected file was
+        removed and the guard returned green with the worktree clean.
 
-- [ ] **T4 — Make the SM-C2 baseline reconstruction auditable** (AC: 1)
-  - [ ] `sm-c2-hot-path-baseline-v1.json` declares `sourceCommit: 29def44`, but
-        `tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs`
-        did not exist at `29def44` — it was added by `b11b0c7` alongside the production edits.
-  - [ ] AC1 explicitly permits reconstruction from the preserved source commit with the same
-        versioned fixture, so this is **legitimate if and only if** the baseline run actually
-        executed against the `29def44` production sources. Neither the JSON nor the MD states
-        how.
-  - [ ] Record the reconstruction method in both artifacts: the exact tree the baseline ran
-        against, how the fixture was overlaid onto it, and the confirmation that the post run
-        used the byte-identical fixture (`sha256 fd2c6184…`) and envelope.
-  - [ ] If the reconstruction cannot be evidenced, AC1's *Block If* applies — say so rather
-        than asserting the baseline.
+- [x] **T4 — Make the SM-C2 baseline reconstruction auditable** (AC: 1)
+  - [x] Both artifacts now carry the reconstruction provenance: method
+        (`overlay-versioned-fixture-onto-preserved-source-commit`), the fixture overlay with
+        `sha256 fd2c6184…` and `presentAtSourceCommit: false`, the measured production closure
+        (`src/Hexalith.Conversations` + `src/Hexalith.Conversations.Contracts`), the
+        equivalence argument, and the residual limitation.
+  - [x] The reconstruction **is** evidenced, so AC1's *Block If* does not apply, and it is
+        evidenced mechanically rather than asserted: `SmC2BaselineReconstructionValidationTest`
+        uses git to confirm the fixture is absent at `29def44`, that the declared closure is
+        unchanged between `29def44` and `HEAD`, and that the declared `changedFileCount`
+        matches the real diff — with an `executedChecks == 3` guard so a skipped check cannot
+        read as a pass. It also analyses the fixture's namespaces to confirm it depends only
+        on the declared closure.
+  - [x] The residual limitation is stated plainly in both artifacts rather than glossed:
+        Story 6.2 changed no source inside the measured closure, so this gate confirms no
+        regression rather than exercising the changed hosting and projection code. It is not a
+        gate that could have failed for this story.
 
-- [ ] **T5 — Reconcile the story record, spec route, and sprint tracking** (AC: all)
-  - [ ] Two 6.2 specs exist: `spec-6-2-…-hosting.md` (`status: blocked`, superseded by the
-        2026-07-27 resolution) and `spec-6-2-…-hosting-2.md` (`status: in-review`,
-        `review_loop_iteration: 0`, `warnings: [oversized, multiple-goals]` — **never code
-        reviewed**). Reconcile them against this story record; do not leave two live specs.
-  - [ ] This story's File List must be derived from `git diff --name-only <baseline>..HEAD`,
-        not hand-maintained (Story 6.7 review-pass-2 finding).
-  - [ ] Sprint-status transitions are owned by the dev/review workflows; record the evidence
-        that justifies each one.
+- [x] **T5 — Reconcile the story record, spec route, and sprint tracking** (AC: all)
+  - [x] Both 6.2 specs are closed as `status: superseded` with `superseded_on`,
+        `superseded_by`, and a `supersession_note` explaining the lineage. Exactly one live
+        authority remains: this story record. Neither spec's intent contract was rewritten.
+  - [x] File List derived mechanically from
+        `git diff --name-only 29def44..HEAD` unioned with the working-tree changes staged in
+        this session — **49 paths**, not hand-maintained.
+  - [x] Sprint-status transitions carry the evidence that justifies each one, including the
+        `SUBMODULE_DIRTY_UNTRACKED` blocker and its resolution.
 
 ### Already landed — verify, do not re-implement
 
@@ -281,7 +292,14 @@ FR-16 deferred.
 - Never `git add -A` / `git commit -a`. Stage only declared File List paths — this is the
   failure that required review correction in Stories 2.2, 3.3, and 6.1.
 
-### Open decision D1 — undeclared changed gitlinks (needs Jerome)
+### Open decision D1 — undeclared changed gitlinks — **RESOLVED 2026-07-27 (option 2)**
+
+Jerome approved declaring all three changed root gitlinks with `require_remote: true`. The
+frontmatter records this as an approved AC-1c scope expansion. The two warnings below became
+evaluated declared scope, and the final gate returns **zero blockers and zero warnings**.
+
+The original decision text is kept below unchanged for the audit trail.
+
 
 The gate at baseline `29def44` → HEAD returns `pass` with **two non-blocking warnings**:
 
@@ -462,8 +480,169 @@ Run the full nine-project regression before completion; the Story 6.1/6.7 baseli
 
 ### Agent Model Used
 
+`claude-opus-5` (BMAD `dev-story` workflow, 2026-07-27).
+
 ### Debug Log References
+
+**Blocker encountered and resolved — `SUBMODULE_DIRTY_UNTRACKED` (`references/Hexalith.Tenants`).**
+With the approved three-path declaration the gate returned `result: blocked`, exit `1`:
+`references/Hexalith.Tenants contains untracked files`. The untracked file was
+`_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`, a draft
+bugfix spec for the Tenants release-version floor, written at `21:27:48` — under a minute
+before it was found, by a concurrent session working in that repository. It was unrelated to
+Story 6.2. Verified empirically that narrowing the declaration would **not** have avoided it:
+with only `references/Hexalith.EventStore` declared, Tenants still joined the affected set and
+still blocked, adding two `UNDECLARED_GITLINK_CHANGE` warnings on top. Jerome chose to park the
+draft outside the submodule rather than commit, delete, or halt. It was moved byte-identically
+(`sha256 9b0bc8c2…`, verified before and after) to
+`<session-scratchpad>/parked-from-Hexalith.Tenants/`. No Tenants commit, push, or gitlink move
+was made. Committing it there instead would have advanced the Tenants `HEAD` past the recorded
+gitlink `0ded4a1` and dragged unrelated Tenants work into this story's promotion scope.
+
+**Regression found and fixed — public event vocabulary widened from 13 to 26 names.**
+The full regression caught `ConversationProjectionHandlerTest.PublicEventRegistryShouldExposeTheLegacyThirteenEventNames`
+failing at `953bf71`. Commit `953bf71` fixed a real production defect — a persisted envelope
+names events by the durable CLR type (`…DomainEvent`), which suffix resolution can never match
+against the public name, so every replayed event was silently dropped — but it fixed it by
+registering both names in the *same* registry, which widened the public
+`PublicEventTypeEntries` map from 13 entries to 26. That is a public contract change this story
+is prohibited from making. Fixed by splitting the durable aliases into a separate
+`DurableEventTypes` registry consulted only by `TryResolvePublicEventType`, leaving the public
+vocabulary at exactly 13. New guard `DurableAliasesShouldNotWidenThePublicEventVocabulary`
+asserts the two registries stay disjoint, 13 each, and correctly paired.
+
+**Fault injection — one mutation per guard, all confirmed able to fail.**
+
+| Mutation | Target | Result |
+| --- | --- | --- |
+| Candidate repointed to the baseline `29def44` | T1 live re-derivation | **2 failed** |
+| `residualGap: "gateway coordinator not crossed"` | T2 gateway evidence | **1 failed** |
+| `inMemoryFakeUsed: true` | T2 DAPR store claim | **1 failed** |
+| `references/Hexalith.Tenants` dropped from declared scope | T1 declared-vs-changed scope | **1 failed** |
+| `Directory.Build.targets` setting `IsPackable=true`, csproj XML untouched | T3 non-shipping boundary | **1 failed** |
+
+Evidence file restored byte-identically after each injection (`diff` confirmed), and the
+injected `Directory.Build.targets` was removed with the worktree left clean.
+
+**Promotion gate at candidate `953bf71`** — exit `0`, `result: pass`, **0 blockers, 0 warnings**;
+`changed_gitlinks` exactly equal to the declared set; all three paths initialized, clean,
+remote-available, `recorded_mode 160000`, `recorded_gitlink == head`.
+
+**Environment notes.** Every restore/build/test used `-p:UseHexalithProjectReferences=true`;
+package-mode restore remains independently broken by the documented `NU1102` unpublished
+EventStore proof versions. Test projects were run as built xUnit v3 executables.
 
 ### Completion Notes List
 
+- **T1 (blocking) closed.** Evidence rebound from the stale `0eb3657` / `b11b0c7` pair to
+  `c8c7003` / candidate `953bf71` with the real gate output. Assertions were **added, not
+  relaxed**: declared scope must equal the gitlinks that actually changed, every evaluated path
+  must be clean/initialized/remote-available at mode `160000`, and the promoted-capability
+  delta must be empty. The EventStore delta `0eb3657..c8c7003` was measured directly in the
+  submodule — 2 commits, neither promoted-capability file touched, `AddDaprClient()` still at
+  line 310 — and recorded. The self-reference problem (a gate result cannot name the commit
+  containing it) is handled by pinning the last revision that moved a gitlink or production
+  source and re-deriving that binding from git on every conformance run, so the evidence goes
+  **red** rather than stale if a declared gitlink moves later.
+- **T2 (blocking) closed by strengthening, not by narrowing.** Jerome chose option (a). The
+  gateway lane crosses `ProjectionUpdateOrchestrator` and `NamedProjectionDispatchCoordinator`
+  into a real `daprd` sidecar with a Redis-backed `statestore`, and asserts the production
+  query result. ADR 0003 Verification 1-2 is satisfied as written; `residualGap: "none"`.
+- **T3 closed and proven falsifiable** by the `Directory.Build.targets` injection — the exact
+  scenario the old XML-reading assertion could not catch.
+- **T4 closed.** Reconstruction provenance recorded in both artifacts and validated by git
+  rather than asserted, with an anti-vacuity `executedChecks == 3` guard. The residual
+  limitation is stated plainly: this gate could not have failed for this story.
+- **T5 closed.** Both 6.2 specs are `superseded`; one live authority remains. File List derived
+  mechanically (49 paths).
+- **Regression suite: 1,908 passed, 0 failed, 0 skipped** across 8 test projects. The
+  Story 6.1/6.7 baseline of 1,887 across *nine* projects is superseded: AC3 removed
+  `Hexalith.Conversations.ServiceDefaults.Tests`, so eight projects is the correct count now.
+  Conformance is **418** (was 412; +4 SM-C2 reconstruction, +2 promotion re-derivation and
+  gateway evidence, and the durable-vocabulary guard lands in Server.Tests).
+- **Release build: 0 warnings, 0 errors.**
+- **Honest exceptions, not silently absorbed:**
+  - `git diff --check` is **not** clean in the working tree. Both findings
+    (`_bmad/render/bmad-quick-dev/step-05-present.md:88`,
+    `step-oneshot.md:95`, new blank line at EOF) are in files modified **before this session
+    started** and outside this story's File List. They were left untouched rather than
+    "fixed", per the preserve-user-changes rule. The committed range is clean.
+  - An untracked
+    `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+    (7,059 bytes, `sha256 feb883e2…`) appeared in the umbrella at `21:45:43` from the same
+    concurrent session. It is a different, later revision of the parked Tenants draft. It was
+    **not staged** and does not affect the promotion gate, which evaluates submodule state.
+  - AC1's SM-C2 gate confirms no regression but could not have failed for this story, because
+    no source inside the measured closure changed. Recorded in the evidence, not glossed.
+
 ### File List
+
+Derived from `git diff --name-only 29def441408becfbbbdc5c59b9af14a7717cb21f..HEAD` unioned
+with the working-tree changes committed in this session — **49 paths**.
+
+```
+Hexalith.Conversations.slnx
+README.md
+_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md
+_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting-2.md
+_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting.md
+_bmad-output/implementation-artifacts/sprint-status.yaml
+docs/release-evidence/projection-read-store-population-proof-v2.json
+docs/release-evidence/projection-read-store-population-proof-v2.md
+docs/release-evidence/sm-c2-hot-path-baseline-v1.json
+docs/release-evidence/sm-c2-hot-path-baseline-v1.md
+docs/release-evidence/sm-c2-hot-path-post-v1.json
+docs/release-evidence/sm-c2-hot-path-post-v1.md
+references/Hexalith.Builds
+references/Hexalith.EventStore
+references/Hexalith.Tenants
+src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs
+src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj
+src/Hexalith.Conversations.Server/Program.cs
+src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs
+src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs
+src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs
+src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj
+src/Hexalith.Conversations.ServiceDefaults/ServiceDefaultsAssemblyMarker.cs
+tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs
+tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj
+tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs
+tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs
+tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs
+tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs
+tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
+tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs
+tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs
+tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs
+tests/Hexalith.Conversations.ServiceDefaults.Tests/ConversationsServiceDefaultsTest.cs
+tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj
+```
+
+The three `references/…` entries are gitlink promotions declared in `submodule_promotions`.
+The `ServiceDefaults` entries are deletions (AC3).
+
+## Change Log
+
+| Date | Change |
+| --- | --- |
+| 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `953bf71`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
+| 2026-07-27 | T2 closed by strengthening the fixture (Jerome's decision): gateway lane crosses `ProjectionUpdateOrchestrator` and `NamedProjectionDispatchCoordinator` into a DAPR/Redis `statestore`; recorded as `gatewayBoundaryEvidence` with `residualGap: "none"` and mechanically asserted. |
+| 2026-07-27 | T3 closed: non-shipping AppHost boundary asserted from evaluated MSBuild properties and fault-injected to prove it fails when an import flips `IsPackable`. |
+| 2026-07-27 | T4 closed: SM-C2 reconstruction provenance recorded in both artifacts and validated by git with an anti-vacuity check; residual limitation stated. |
+| 2026-07-27 | T5 closed: both 6.2 specs marked `superseded`; File List derived mechanically at 49 paths. |
+| 2026-07-27 | Fixed a public contract regression introduced by `953bf71`: durable `…DomainEvent` aliases had widened `PublicEventTypeEntries` from 13 to 26 names. Split into a separate durable registry and guarded. |
+| 2026-07-27 | Resolved a `SUBMODULE_DIRTY_UNTRACKED` gate blocker by parking an unrelated concurrent-session draft out of `references/Hexalith.Tenants` byte-identically, with no submodule commit, push, or gitlink move. |

@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
 
@@ -73,21 +74,186 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         hosting.GetProperty("conversationsServiceDefaultsRemoved").GetBoolean().ShouldBeTrue();
 
         JsonElement promotion = proof.GetProperty("eventStorePromotion");
-        promotion.GetProperty("commit").GetString().ShouldBe("0eb365797d06207e42b517375664f46405a7ad7d");
+        promotion.GetProperty("commit").GetString().ShouldBe("c8c7003052a7f811d3b821f3442379ca5f3a9c65");
         promotion.GetProperty("remoteContainsCommit").GetBoolean().ShouldBeTrue();
         promotion.GetProperty("submoduleWorktreeClean").GetBoolean().ShouldBeTrue();
         promotion.GetProperty("requiredGitlinkMode").GetString().ShouldBe("160000");
         promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString().ShouldBe(
             promotion.GetProperty("commit").GetString());
+
+        // The gitlink moved from 0eb3657 to c8c7003 after the first capture. The delta is recorded so the
+        // rebinding is auditable, and the claim that matters -- neither promoted-capability file changed --
+        // is asserted here rather than left as prose.
+        JsonElement delta = promotion.GetProperty("promotedCapabilityDelta");
+        delta.GetProperty("previouslyRecordedCommit").GetString().ShouldBe("0eb365797d06207e42b517375664f46405a7ad7d");
+        delta.GetProperty("currentCommit").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
+        delta.GetProperty("promotedCapabilityFilesChanged").GetArrayLength().ShouldBe(0);
+
         JsonElement promotionGate = promotion.GetProperty("umbrellaMechanicalGate");
         promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
         promotionGate.GetProperty("result").GetString().ShouldBe("pass");
         promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        promotionGate.GetProperty("candidate").GetString().ShouldBe("b11b0c73523362b61c6afe823112b655732da47e");
+        promotionGate.GetProperty("candidate").GetString().ShouldBe("953bf71a5ad23c16c416db13ed7cea046abf58d0");
         promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
         promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
         promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
         promotionGate.GetProperty("warnings").GetArrayLength().ShouldBe(0);
+
+        string[] declaredScope =
+        [
+            .. promotionGate.GetProperty("declaredScope")
+                .EnumerateArray()
+                .Select(entry => entry.GetProperty("path").GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        declaredScope.ShouldBe(
+            ["references/Hexalith.Builds", "references/Hexalith.EventStore", "references/Hexalith.Tenants"],
+            "the approved scope expansion declares exactly three root gitlinks");
+        promotionGate.GetProperty("declaredScope")
+            .EnumerateArray()
+            .ShouldAllBe(entry => entry.GetProperty("requireRemote").GetBoolean());
+
+        // Declared scope must equal what actually moved. A declaration that omits a changed gitlink is the
+        // Story 6.7 "undisclosed scope" defect; one that adds an unchanged path proves nothing.
+        string[] changedGitlinks =
+        [
+            .. promotionGate.GetProperty("changedGitlinks")
+                .EnumerateArray()
+                .Select(value => value.GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        changedGitlinks.ShouldBe(declaredScope);
+
+        foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
+        {
+            string path = evaluated.GetProperty("path").GetString()!;
+            evaluated.GetProperty("initialized").GetBoolean().ShouldBeTrue(path);
+            evaluated.GetProperty("clean").GetBoolean().ShouldBeTrue(path);
+            evaluated.GetProperty("remoteAvailable").GetBoolean().ShouldBeTrue(path);
+            evaluated.GetProperty("recordedMode").GetString().ShouldBe("160000", path);
+            evaluated.GetProperty("recordedGitlink").GetString().ShouldBe(evaluated.GetProperty("head").GetString(), path);
+        }
+    }
+
+    /// <summary>
+    /// Re-derives the recorded promotion from the working tree so the evidence cannot go quietly stale.
+    /// </summary>
+    /// <remarks>
+    /// A gate result cannot name the commit that contains it, so the evidence pins the last revision that moved
+    /// a gitlink or production source. That pin is only worth something if a later revision moving a declared
+    /// gitlink turns it red, which is what this test enforces. Story 6.7 review pass 2 recorded the opposite
+    /// failure: completion evidence that corresponded to no single revision, with nothing able to notice.
+    /// </remarks>
+    [Fact]
+    public void RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks()
+    {
+        using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
+        JsonElement promotion = proofDocument.RootElement.GetProperty("eventStorePromotion");
+        JsonElement promotionGate = promotion.GetProperty("umbrellaMechanicalGate");
+        string candidate = promotionGate.GetProperty("candidate").GetString()!;
+
+        Git("merge-base", "--is-ancestor", candidate, "HEAD")
+            .ShouldBe(string.Empty, $"recorded candidate {candidate} must be an ancestor of HEAD");
+
+        Git("diff", "--name-only", $"{candidate}..HEAD", "--", "references/")
+            .ShouldBeEmpty("no root gitlink may move after the recorded promotion candidate");
+
+        foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
+        {
+            string path = evaluated.GetProperty("path").GetString()!;
+            Git("rev-parse", $"HEAD:{path}")
+                .ShouldBe(evaluated.GetProperty("recordedGitlink").GetString(), path);
+        }
+
+        Git("rev-parse", "HEAD:references/Hexalith.EventStore")
+            .ShouldBe(promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString());
+    }
+
+    /// <summary>
+    /// Asserts the ADR 0003 Verification 1-2 gateway lane is recorded as crossed, not narrowed.
+    /// </summary>
+    [Fact]
+    public void GatewayBoundaryEvidenceShouldCrossTheCoordinatorAndTheDaprStateStore()
+    {
+        using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
+        JsonElement gateway = proofDocument.RootElement.GetProperty("gatewayBoundaryEvidence");
+
+        // Task T2 allowed a named-owner justification that would have narrowed ADR 0003's own verification
+        // wording. It was not taken, so the evidence must not read as though it were.
+        gateway.GetProperty("resolution").GetString().ShouldBe("strengthened-fixture");
+        gateway.GetProperty("residualGap").GetString().ShouldBe("none");
+        gateway.GetProperty("satisfies").EnumerateArray().Select(value => value.GetString()).ShouldContain("ADR 0003 Verification 1");
+        gateway.GetProperty("satisfies").EnumerateArray().Select(value => value.GetString()).ShouldContain("ADR 0003 Verification 2");
+
+        gateway.GetProperty("deliveryDriver").GetString()
+            .ShouldBe("Hexalith.EventStore.Server.Projections.IProjectionUpdateOrchestrator.UpdateProjectionAsync");
+        string[] crossed = [.. gateway.GetProperty("componentsCrossed").EnumerateArray().Select(value => value.GetString()!)];
+        crossed.ShouldContain("Hexalith.EventStore.Server.Projections.ProjectionUpdateOrchestrator");
+        crossed.ShouldContain("Hexalith.EventStore.Server.Projections.NamedProjectionDispatchCoordinator");
+        crossed.ShouldContain("Hexalith.Conversations.Server.Projections.ConversationAsyncProjectionHandler");
+
+        JsonElement store = gateway.GetProperty("integrationStateStore");
+        store.GetProperty("configuredReadModelStoreType").GetString()
+            .ShouldBe("Hexalith.EventStore.Client.Projections.DaprReadModelStore");
+        store.GetProperty("inMemoryFakeUsed").GetBoolean().ShouldBeFalse();
+        store.GetProperty("componentName").GetString().ShouldBe("statestore");
+        store.GetProperty("componentType").GetString().ShouldBe("state.redis");
+
+        // A non-zero refresh interval would let UpdateProjectionAsync return without dispatching, so the
+        // persistence assertions could pass against an empty store.
+        gateway.GetProperty("immediateDelivery").GetProperty("projectionRefreshIntervalMs").GetInt32().ShouldBe(0);
+        gateway.GetProperty("routeDiscovery").GetProperty("discoveredNamedProjectionType").GetString()
+            .ShouldBe("conversation-read-model");
+
+        Dictionary<string, JsonElement> scenarios = gateway.GetProperty("scenarios")
+            .EnumerateArray()
+            .ToDictionary(element => element.GetProperty("scenario").GetString()!, StringComparer.Ordinal);
+        scenarios.Keys.Order(StringComparer.Ordinal).ShouldBe(["gateway-accepted-append", "gateway-duplicate-delivery"]);
+        scenarios["gateway-accepted-append"].GetProperty("detailPersisted").GetBoolean().ShouldBeTrue();
+        scenarios["gateway-accepted-append"].GetProperty("tenantIndexPersisted").GetBoolean().ShouldBeTrue();
+        scenarios["gateway-accepted-append"].GetProperty("crossKeyGenerationAgreement").GetBoolean().ShouldBeTrue();
+        scenarios["gateway-accepted-append"].GetProperty("productionQueryAsserted").GetBoolean().ShouldBeTrue();
+        scenarios["gateway-duplicate-delivery"].GetProperty("secondDeliveryChangedPersistedState").GetBoolean().ShouldBeFalse();
+        scenarios["gateway-duplicate-delivery"].GetProperty("tenantIndexRows").GetInt32().ShouldBe(1);
+
+        // AC5 is not satisfied by a skipped test.
+        JsonElement run = gateway.GetProperty("run");
+        run.GetProperty("passed").GetInt32().ShouldBe(2);
+        run.GetProperty("failed").GetInt32().ShouldBe(0);
+        run.GetProperty("skipped").GetInt32().ShouldBe(0);
+    }
+
+    private static string Git(params string[] arguments)
+    {
+        ProcessStartInfo startInfo = new("git")
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            WorkingDirectory = FindRepositoryRoot(),
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException("git could not be started.");
+        string standardOutput = process.StandardOutput.ReadToEnd();
+        string standardError = process.StandardError.ReadToEnd();
+        if (!process.WaitForExit(milliseconds: 120_000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new InvalidOperationException("git did not complete within 120 seconds.");
+        }
+
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"git {string.Join(' ', arguments)} failed with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
+        }
+
+        return standardOutput.Trim();
     }
 
     [Fact]
@@ -173,7 +339,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         markdown.ShouldContain("`conversation/conversation-read-model`", Case.Sensitive);
         markdown.ShouldContain("`projection:conversations:{tenantId}:{conversationId}`", Case.Sensitive);
         markdown.ShouldContain("`projection:conversations-index:{tenantId}`", Case.Sensitive);
-        markdown.ShouldContain("0eb365797d06207e42b517375664f46405a7ad7d", Case.Sensitive);
+        markdown.ShouldContain("c8c7003052a7f811d3b821f3442379ca5f3a9c65", Case.Sensitive);
+        markdown.ShouldContain("953bf71a5ad23c16c416db13ed7cea046abf58d0", Case.Sensitive);
+        markdown.ShouldContain("no blockers and no warnings", Case.Sensitive);
+        markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
         markdown.ShouldContain("The companion JSON is authoritative", Case.Sensitive);
     }
 
