@@ -3,7 +3,7 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'in-progress'
+status: 'review'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
@@ -36,7 +36,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: in-progress
+Status: review
 
 ## ⚠️ Read this first — most of this story is already implemented
 
