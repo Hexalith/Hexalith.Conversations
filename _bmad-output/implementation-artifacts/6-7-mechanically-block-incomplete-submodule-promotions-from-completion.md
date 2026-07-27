@@ -3,7 +3,7 @@ story_key: '6-7-mechanically-block-incomplete-submodule-promotions-from-completi
 epic: 6
 story_id: '6.7'
 created: '2026-07-27'
-status: 'in-progress'
+status: 'review'
 baseline_commit: 'f3b827a80f87a85223eaf34e8fe1183a454a6c12'
 submodule_promotions: []
 # ^ This story introduces this field. Story 6.7 itself is NOT promotion-bearing: it
@@ -21,7 +21,7 @@ context:
 
 # Story 6.7: Mechanically block incomplete submodule promotions from completion
 
-Status: in-progress
+Status: review
 
 ## Story
 
@@ -446,6 +446,8 @@ Codex (GPT-5)
 - 2026-07-27 — Dev-story completion revalidation at candidate `623a3e636d66974c6081174fdaa35be6d9ae97f7`: the normal `dotnet restore Hexalith.Conversations.slnx` broad gate remains blocked by `NU1102` because the checked-out EventStore dependency graph requests unpublished `999.1.20-proof.fa2d1c9910f8` packages (nearest NuGet version `3.82.0`). The approved local-source fallback restored and built Release with `-p:UseHexalithProjectReferences=true`; build result was 0 warnings/errors and all nine test projects passed 1,887/1,887 with 0 failed/skipped (Contracts 618, Client 29, Domain 185, Server 610, Conformance 408, Admin Web 14, AppHost 7, Integration 9, ServiceDefaults 7). The checker/workflow pytest suite passed 38/38; workflow XML parsing, Python compilation, skill-tree parity, signed-v1 SHA-256 `2ae308e82f159b3f152077d6946ff220108266806668c6dfb0921f3df0920ce1`, and `git diff --check` passed.
 - 2026-07-27 — Current promotion completion gate BLOCKED: `python3 _bmad/scripts/verify_submodule_promotion.py --repository . --baseline f3b827a80f87a85223eaf34e8fe1183a454a6c12 --candidate HEAD --format json` resolved candidate `623a3e636d66974c6081174fdaa35be6d9ae97f7` and returned exit 1 / `GITLINK_COMMIT_MISMATCH` for `references/Hexalith.Memories`: committed gitlink `fe19a27cf1b60457aa05f45dd075b37c1038b3e3` does not match the clean checkout HEAD `000af15600c7ecbbb5a7c48c73746221f185ae58`. Actionable remediation: commit the root gitlink that exactly matches the checked-out submodule HEAD, or otherwise restore an owner-approved captured state; do not initialize, update, fetch, or silently expand scope. Four `UNDECLARED_GITLINK_CHANGE` warnings remain for Builds, EventStore, Memories, and Tenants. Story and sprint state remain `in-progress`.
 - 2026-07-27 — Completion File List audit against `f3b827a80f87a85223eaf34e8fe1183a454a6c12..HEAD` found 41 changed paths, not the previously claimed 35/39. Added the two omitted committed paths (`deferred-work.md` and the Story 6.2 spec) to the File List without modifying either artifact.
+- 2026-07-27 — Final dev-story completion revalidation at candidate `a3fe7b1692c056874609f346716647831e0dd2db`: package-mode restore reproduced the documented `NU1102` unpublished proof-version blocker; the approved `UseHexalithProjectReferences=true` fallback restored and built Release with 0 warnings/errors, and all nine .NET test projects passed 1,887/1,887 with 0 failed/skipped. The story-specific pytest gate first exposed a stale 39-path expected set after the prior 41-path File List correction; adding the two already-disclosed committed paths made the focused test and full suite pass (38/38). Python compilation, workflow XML parsing, skill-tree parity, signed-v1 SHA-256, `git diff --check`, and exact 41/41 File List comparison passed.
+- 2026-07-27 — Final promotion completion gate at candidate `a3fe7b1692c056874609f346716647831e0dd2db`: exit 0 / `result: pass`, zero blockers, and four `UNDECLARED_GITLINK_CHANGE` warnings for Builds, EventStore, Memories, and Tenants. All four affected submodules are initialized and clean, and each committed mode-`160000` gitlink exactly matches its checkout HEAD. Story and sprint state may advance to `review`.
 
 ### Completion Notes List
 
@@ -461,6 +463,7 @@ Codex (GPT-5)
 - T10 implementation evidence is complete, but Epic 3 action A2 remains `open` by the code-review decision until Story 6.7 itself reaches `done`; no other action item changed.
 - Expanded completion repair complete: owner-authorized v3 architecture, append-only epic amendment, derived context, and Conformance contracts now agree without weakening the signed-v1, historical-prefix, v2-overlay, projection, performance, or platform-ownership guards.
 - Completion revalidation: all tasks are checked, the exact 41-path baseline-to-HEAD record is now listed, and focused/source-reference regression validation passes; the story is not ready for review while the recorded `GITLINK_COMMIT_MISMATCH` blocker remains.
+- Final completion repair: reconciled the story-specific expected File List with the already-disclosed 41-path committed diff, then revalidated 1,887/1,887 .NET tests and 38/38 checker/workflow tests. Candidate `a3fe7b1692c056874609f346716647831e0dd2db` captures all four changed gitlinks exactly, so the former Memories mismatch is resolved and the promotion gate passes with warnings only.
 
 ### File List
 
@@ -520,6 +523,7 @@ Story 6.7 changes `_bmad/scripts/`, the five named BMad skill families in both l
 - 2026-07-27 — Passed the full definition of done and moved Story 6.7 from `in-progress` to `review`.
 - 2026-07-27 — Code review (adversarial four-layer): disclosed 4 previously-undisclosed undeclared root gitlink changes in the shipped candidate and corrected the self-referential T9 live-gate evidence; reverted Epic 3 action A2 to `open`; reconciled the story's own contradicted "no architecture.md/epics.md/tests-dotnet" constraints against its later expanded-scope authorization; applied 9 checker/runbook robustness patches (exception handling, `--format=json` parsing, rename handling, baseline-ancestor check, unrelated-submodule failure isolation, `epic-6-context.md` grammar/drift fix + matching Conformance assertion, lossy decode, control-character rejection, default-text-format test coverage) with 7 new regression tests (38/38 pytest passing); deferred 6 lower-priority findings to the ledger, including `bmad-dev-story`'s inability to detect an uncommitted undeclared promotion. Moved Story 6.7 back to `in-progress`: the pytest/checker suite is independently re-verified, but the full dotnet/Conformance suite could not be re-run in this environment (pre-existing `NU1102` package-restore failure, unrelated to this story), so the `ArchitecturePlanningAuthorityValidationTest.cs` edit made during this pass is unconfirmed by an actual test run.
 - 2026-07-27 — Dev-story completion revalidation passed Release/source-reference build and all 1,887 .NET tests plus 38 checker/workflow tests, corrected the File List to the exact 41-path baseline-to-HEAD set, and kept Story 6.7 `in-progress` because the live gate returned `GITLINK_COMMIT_MISMATCH` for the pre-existing Memories checkout/gitlink drift; the normal package-mode restore remains independently blocked by the documented `NU1102` proof-version dependency.
+- 2026-07-27 — Reconciled the checker test's stale expected File List, revalidated the full definition of done, confirmed the committed candidate captures all affected gitlinks exactly, and moved Story 6.7 from `in-progress` to `review`.
 
 ## Open Questions for the Story Owner
 
