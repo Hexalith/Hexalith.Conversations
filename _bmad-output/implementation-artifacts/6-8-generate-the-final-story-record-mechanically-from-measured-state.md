@@ -3,9 +3,10 @@ story_key: '6-8-generate-the-final-story-record-mechanically-from-measured-state
 epic: 6
 story_id: '6.8'
 created: '2026-07-28'
-status: 'ready-for-dev'
+status: 'review'
 baseline_commit: 'bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd'
-# file_list_commit: SET THIS AT COMPLETION to the exact revision the File List was derived from.
+file_list_commit: '33d2cac0a148ee798c840b1ec1bc88a4d0060317'
+# ^ The exact revision the File List was derived from.
 #   Story 6.7 review chunk 1 established the rule: a fixed File List compared against a moving
 #   `HEAD` makes the story's own suite fail forever on the next legitimate commit. Story 6.2
 #   omitted the field, which is why its recorded "49 paths" cannot be reproduced today. This is
@@ -50,7 +51,7 @@ context:
 
 # Story 6.8: Generate the final story record mechanically from measured state
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -293,17 +294,17 @@ Verbatim from `epics.md:1043-1048`. Note this list is **broader** than the one i
         automatically" entry in `_bmad-output/implementation-artifacts/deferred-work.md`. Do not
         resolve it. (That ledger has no IDs and no status field — match the existing bullet shape;
         do not invent a `DW-n` reference.)
-- [ ] **T11 — Self-application** (AC: 1, 5, 6)
-  - [ ] Story 6.8 completes after Story 6.2, so its own completion record must be produced by the
+- [x] **T11 — Self-application** (AC: 1, 5, 6)
+  - [x] Story 6.8 completes after Story 6.2, so its own completion record must be produced by the
         generator it builds. Run it against this story and paste the output verbatim. A hand-typed
         6.8 record would falsify the story's own AC5 on delivery.
-  - [ ] Set `file_list_commit` in this file's frontmatter at completion.
-- [ ] **T12 — Boundary confirmation and final validation**
-  - [ ] Full .NET suite with `-p:UseHexalithProjectReferences=true` (see Dev Notes → environment).
-  - [ ] `uv run --with pytest pytest _bmad/scripts/tests/ -q`.
-  - [ ] `diff -rq .agents/skills .claude/skills` — expect only `Only in .agents/skills: aspire`.
-  - [ ] `git diff --check` in **both** forms: bare working-tree and over the committed range.
-  - [ ] Write the `### Boundary Confirmation` section naming what this story changed and what it did
+  - [x] Set `file_list_commit` in this file's frontmatter at completion.
+- [x] **T12 — Boundary confirmation and final validation**
+  - [x] Full .NET suite with `-p:UseHexalithProjectReferences=true` (see Dev Notes → environment).
+  - [x] `uv run --with pytest pytest _bmad/scripts/tests/ -q`.
+  - [x] `diff -rq .agents/skills .claude/skills` — expect only `Only in .agents/skills: aspire`.
+  - [x] `git diff --check` in **both** forms: bare working-tree and over the committed range.
+  - [x] Write the `### Boundary Confirmation` section naming what this story changed and what it did
         not.
 
 ## Dev Notes
@@ -746,12 +747,252 @@ submodule was initialized, updated, or fetched.
 
 ### Completion Notes List
 
+**AC1 — one generator, one source of truth.** `_bmad/scripts/generate_story_record.py` (mode 755,
+PEP-723 `requires-python = ">=3.11"`, stdlib only) emits `"schema": "story-final-record-v1"` with
+the flags the operational contract names. It ports the sibling checker's structural spine — `SCHEMA`,
+`GateError`, `GateArgumentParser`, `diagnostic()`, `empty_document()`, hardened `run_git()` with the
+`GIT_*` var-popping environment, `verify()` → dict, `main(argv) -> int`, `write_output()` — so both
+halves of the completion gate share one runtime, one document shape, and one code vocabulary. Exit
+`0`/`1`/`2`; a parseable document reaches stdout on every path including exit `2`, verified by
+`test_an_invocation_error_still_emits_a_parseable_document`.
+
+**AC2 — counts come only from artifacts.** TRX is parsed with `{*}` wildcards; a literal
+`/TestRun/...` XPath matches nothing against the `…/TeamTest/2010` namespace. `skipped` is read from
+`notExecuted`. Beyond parsing the summary the generator **recomputes** the counts from the
+`<UnitTestResult>` outcomes and blocks when the two disagree, which is what makes "computed rather
+than transcribed" mechanical rather than aspirational. Totals are summed across projects; no caller
+total is accepted. Each artifact's SHA-256 and mtime are recorded.
+
+**AC3 — File List derived, singular, boundary-correct.** Derived from
+`git diff --name-status --no-renames <baseline>..<candidate>` unioned with the tracked working-tree
+delta and `git ls-files --others --exclude-standard`, self-accounting for the generator's own output
+targets. Gitlinks are routed to `### Gitlink Promotions` with recorded commit and mode and never
+appear as file entries. `SUBMODULE_INTERNAL_PATH` is asserted against the **record's declared list**,
+not only the derived set — a first implementation checked only the derived set and could not fail,
+because `git status --ignore-submodules=all` means the umbrella's own delta can never surface a path
+inside an initialized submodule. That gap was found by the fault injection, which is the point of AC8.
+
+**AC4 — candidate binding.** Mode-`160000` entries are resolved by parsing the mode **column** of
+`git diff --raw --no-abbrev -z` and `git ls-tree -z`; the substring test the Epic 5 PowerShell asset
+uses was deliberately not ported, and a decoy file named `blob-160000-not-a-gitlink.txt` proves the
+difference. The candidate must be an ancestor of the committed head with no affected gitlink moved
+after it. The Story 6.7 checker is invoked in-process and its document embedded verbatim; the branch
+is on its `result` field, never on its return code or on `blockers[].code`, because exit 1 and exit 2
+both emit valid JSON.
+
+**AC5 — the four surfaces generate.** All four now invoke the generator and insert its rendered block
+verbatim, in **both** skill trees (eight files). `diff -rq` reports only the approved
+`Only in .agents/skills: aspire`.
+
+**AC6 — anti-vacuity and non-deletability.** `RECORD_NOT_DERIVED` fires when no artifact was parsed,
+no candidate resolved, or no replaceable record section found, and the document can never report
+`pass` while it is present. The Markdown renderer names what it derived on every run, so a vacuous
+run is not byte-comparable to a measured one (`test_a_nothing_derived_run_renders_visibly_differently`).
+`StoryFinalRecordGenerationValidationTest` (7 tests, executing in the Conformance lane) holds each of
+the four surfaces to a span-bounded contract and proves three mutations fail: heading removed, body
+gutted, clause displaced outside the span.
+
+**AC7 — historical mode.** Read-only, no writes of any kind, and the promotion checker is **not** run
+because it inspects live submodule worktrees and would amount to reconstructing a former working tree.
+Classification is derived from the record's own shape, never from a baked story table.
+
+| Closed record | Result | Classification | Declared | Re-derived | Missing | Unexpected | Promotions | Findings |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `spec-6-1-…-planning-authority.md` | pass | pre-generator | 9 in 1 list | — | 0 | 0 | 0 | `CANDIDATE_NOT_FINAL` (no `file_list_commit`) |
+| `6-2-…-platform-owned-hosting.md` | pass | pre-generator | 67 in **2 lists** | — | 0 | 0 | 0 | 10 × `SUBMODULE_INTERNAL_PATH`, `FILE_LIST_DRIFT`, `CANDIDATE_NOT_FINAL` |
+| `6-7-…-from-completion.md` | pass | pre-generator | 41 in 1 list | 37 | **0** | **0** | 4 | none beyond the pre-generator notice |
+
+Story 6.7's File List **reproduces exactly**: 37 derived paths plus the 4 root gitlinks the generator
+routes to the promotions section, accounting for all 41 recorded entries with zero missing and zero
+unexpected. Story 6.2's record legitimately carries a second hand-appended list and ten
+submodule-internal paths; per D4 these are reported as warnings, the record is not rewritten, and the
+run does not block. All three files were SHA-256-verified byte-identical before and after
+(`ad0f819e…dedf`, `c18fc3ad…a609`, `bf58ac6a…7efd`).
+
+**AC8 — every guard proven able to fail.** See the fault-injection table below. Run against the
+**live** record and the live artifacts, not only against fixtures.
+
+**Self-application (T11/D6).** This story's own completion record was produced by the generator it
+builds and pasted verbatim; nothing between the markers was typed. The run is non-vacuous: 8 artifacts
+parsed, 18 file-list paths, 2 gitlink promotions evaluated, all three derivation inputs true, zero
+drift, zero blockers.
+
+**Final measured state at candidate `33d2cac`:** Release build of the full solution 0 warnings / 0
+errors with `-p:UseHexalithProjectReferences=true`. Eight test projects, **1,925 total / 1,922 passed
+/ 2 failed / 1 skipped**, computed by summation from eight TRX artifacts, never transcribed. Promotion
+completion gate **pass, 0 blockers, 0 warnings**, both declared gitlinks initialized, clean,
+remote-available, exactly captured at mode `160000`. Checker/workflow/story pytest **129/129**.
+
+**The 2 failures are pre-existing and not attributable to this story.** Both are in
+`ProjectionReadStorePopulationProofValidationTest` — `ProofSourceAndSignedV1BindingsShouldRemainByteIdentical`
+and `RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks` — and belong to Story 6.2's open
+evidence state. They were confirmed present at baseline `bb5b777` **before** any file was written, with
+the identical failure set and the identical 418-test denominator. Conformance is now 425 because this
+story added 7 tests; 418 + 7 = 425 with zero regressions. The 1 skipped test is the AppHost opt-in live
+lane, unchanged.
+
+**Reviewer-facing honesty note on the artifacts.** The eight TRX files live in the gitignored
+`TestResults/` directory and are therefore **not** committed, diverging from the Epic 5 precedent which
+committed one. Reason, stated rather than glossed: a TRX embeds fresh GUIDs and timestamps on every
+run, so committing one preserves it but does not make it reproducible, while putting 3.6 MB of
+per-run XML inside the record's own File List makes the list churn on every regeneration. The record
+binds to each artifact by SHA-256, so the counts are bound to the exact bytes measured; re-verification
+is by re-running the suite and comparing counts, which the runbook states.
+
+**A defect this story found in its own scope and fixed.** The first staleness implementation compared
+every artifact against the newest derived path *including the other artifacts*. A suite takes minutes
+to run, so the project finishing first is always older than the project finishing last, and the guard
+would have reported a correct 8-project run as stale. Artifacts are now excluded from their own
+comparand alongside the D3 output targets, and
+`test_staleness_exclusion_does_not_hide_a_genuinely_stale_artifact` proves the exclusion is exactly
+that narrow: touching only an output target does not report staleness, touching any ordinary derived
+path still does.
+
+**A scope decision made mechanically visible.** The record excludes seven paths that are dirty in the
+working tree but absent from the committed range, each named by an `UNRELATED_WORKTREE_DIRT` warning
+rather than dropped silently. All seven belong to a concurrent `correct-course` session that published
+authority v5 and Story 6.9 during this window. A record binds to `file_list_commit`; a path that
+revision does not contain cannot be re-derived from it, which is precisely the defect that makes
+Story 6.2's recorded "49 paths" unreproducible today. Nothing belonging to that session was staged or
+committed by this story — including `sprint-status.yaml`, where the two sessions' edits interleave in
+one file, so **only this story's own status line was staged**, by writing the exact blob to the index
+rather than by `git add`.
+
+<!-- STORY-FINAL-RECORD:BEGIN -->
+
+**Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
+
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 18 file-list path(s) · 2 gitlink promotion(s) evaluated.
+
+Baseline `bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd` → candidate `33d2cac0a148ee798c840b1ec1bc88a4d0060317`.
+
 ### File List
 
+- `.agents/skills/bmad-code-review/steps/step-04-present.md` (modified)
+- `.agents/skills/bmad-dev-story/SKILL.md` (modified)
+- `.agents/skills/bmad-quick-dev/step-05-present.md` (modified)
+- `.agents/skills/bmad-quick-dev/step-oneshot.md` (modified)
+- `.claude/skills/bmad-code-review/steps/step-04-present.md` (modified)
+- `.claude/skills/bmad-dev-story/SKILL.md` (modified)
+- `.claude/skills/bmad-quick-dev/step-05-present.md` (modified)
+- `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
+- `_bmad-output/implementation-artifacts/6-8-generate-the-final-story-record-mechanically-from-measured-state.md` (modified)
+- `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md` (new)
+- `_bmad/scripts/generate_story_record.py` (new)
+- `_bmad/scripts/tests/test_generate_story_record.py` (new)
+- `_bmad/scripts/tests/test_verify_submodule_promotion.py` (modified)
+- `docs/runbooks/story-final-record-generation.md` (new)
+- `tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs` (new)
+- `tests/README.md` (modified)
+
+### Gitlink Promotions
+
+| Path | Declared | Recorded mode | Recorded commit | Baseline commit |
+| --- | --- | --- | --- | --- |
+| `references/Hexalith.Memories` | yes | `160000` | `115d30b59101910d0fd30717f49a5fb7f1782547` | `1868c8f94ca1ec723a30b256a29c7c8495bc8cca` |
+| `references/Hexalith.Tenants` | yes | `160000` | `8d64563c75423c861b0be0e3a7cc4de18f673d37` | `f9e51c66745557da4f267ab40f32294f2f27fae7` |
+
+### Test Results
+
+| Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Conformance | PARSED | 425 | 423 | 2 | 0 | `c0ff4c1512e290c7` |
+| Server | PARSED | 631 | 631 | 0 | 0 | `e7dcb50b892082c7` |
+| Contracts | PARSED | 618 | 618 | 0 | 0 | `f564c4d643e85c18` |
+| Domain | PARSED | 185 | 185 | 0 | 0 | `2237f18ca11fa972` |
+| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `8dd881945ad8e9b0` |
+| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `baa7216a7d6fb3a5` |
+| Client | PARSED | 29 | 29 | 0 | 0 | `f48a1e7bc94e03ee` |
+| AppHost | PARSED | 9 | 8 | 0 | 1 | `9c6d3fe83ca2712d` |
+| **Total (computed)** | **8 parsed** | **1925** | **1922** | **2** | **1** | — |
+
+**This suite is not fully green: 2 failed, 1 skipped.**
+
+### Candidate Binding
+
+- Candidate `33d2cac0a148ee798c840b1ec1bc88a4d0060317` · committed head `33d2cac0a148ee798c840b1ec1bc88a4d0060317` · ancestor of head: **yes**
+- Gitlinks moved after the candidate: none
+
+### Promotion Completion Gate
+
+- Result **PASS** · declared: references/Hexalith.Memories, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.Memories, references/Hexalith.Tenants
+
+### Record Diagnostics
+
+- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/implementation-artifacts/epic-6-context.md`): _bmad-output/implementation-artifacts/epic-6-context.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/architecture.md`): _bmad-output/planning-artifacts/architecture.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md`): _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md`): _bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`docs/release-evidence/conformance-oracle-tiering-decision-v2.json`): docs/release-evidence/conformance-oracle-tiering-decision-v2.json is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`docs/release-evidence/conformance-oracle-tiering-decision-v2.md`): docs/release-evidence/conformance-oracle-tiering-decision-v2.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs`): tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+
+<!-- STORY-FINAL-RECORD:END -->
+
+**Fault injection — one mutation per guard, all confirmed able to fail.** Run against the live record
+and the live artifacts at candidate `33d2cac`, not against fixtures. The generator returned `pass`
+with zero blockers immediately before the first injection and immediately after the last.
+
+| Mutation | Target | Result |
+| --- | --- | --- |
+| `TestResults/6-8-conformance.trx` Counters `passed="423"` → `"422"` | AC2 `TEST_COUNT_INCONSISTENT` | **blocked — TEST_COUNT_INCONSISTENT** |
+| `- \`references/Hexalith.EventStore/src/Leaked.cs\`` appended to the record's File List | AC3 `SUBMODULE_INTERNAL_PATH` | **blocked — SUBMODULE_INTERNAL_PATH + FILE_LIST_DRIFT** |
+| `--candidate` repointed from `33d2cac` to baseline `bb5b777` | AC4 `CANDIDATE_NOT_FINAL` | **blocked — CANDIDATE_NOT_FINAL ×2 + FILE_LIST_DRIFT + PROMOTION_GATE_NOT_PASS** |
+| `references/Hexalith.Memories` dropped from `--submodule`, kept in `--require-remote` | AC4 `PROMOTION_GATE_NOT_PASS` | **blocked — PROMOTION_GATE_NOT_PASS, embedded `INVALID_SCOPE`** |
+| `TestResults/6-8-conformance.trx` removed | AC2 `TEST_RESULTS_MISSING` | **blocked — TEST_RESULTS_MISSING, project state `NOT_RUN`** |
+| `TestResults/6-8-conformance.trx` mtime backdated 86,400 s | AC2 `TEST_RESULTS_STALE` | **blocked — TEST_RESULTS_STALE** |
+
+Artifacts restored byte-identically after each injection (SHA-256-verified before and after, not by
+inspection), worktree left clean, and the generator re-verified `pass` with zero blockers afterwards.
+The candidate-repoint and dropped-gitlink mutations change arguments rather than files, so no
+restoration applies; the repository head and the record hash were confirmed unchanged. Each mutation
+is also encoded as a permanent hermetic regression in
+`_bmad/scripts/tests/test_generate_story_record.py`, so a future change that silently removes a guard
+turns the suite red rather than passing quietly.
+
 ### Boundary Confirmation
+
+**This story changed** the workflow tooling and its documentation only: the new generator
+`_bmad/scripts/generate_story_record.py` and its pytest suite; the four completion surfaces in both
+`.claude/skills/` and `.agents/skills/`; `WORKFLOW_GATE_CONTRACTS` in
+`_bmad/scripts/tests/test_verify_submodule_promotion.py`, repaired in the same change that broke it;
+one new Conformance test file; the new runbook; the `tests/README.md` final-record section; and the
+deferred-work ledger. Eighteen paths, every one derived.
+
+**This story did not change** production source, public contracts, package versions, generated
+output, accepted baselines, signed evidence, or sibling submodule source. It did not rewrite any
+closed story record — the three verified historically are SHA-256-identical before and after. It did
+not initialize, update, fetch, or traverse any submodule, and committed nothing inside one. It did
+not edit `epics.md`, `architecture.md`, or `epic-6-context.md`; the frozen v4 acceptance criteria are
+quoted in this file, never modified in their source. It did not touch `_bmad/render/`. It did not
+flip the Epic 3 action item, which stays `in-progress` until Story 6.8 itself reaches `done`, per the
+Story 6.7 review precedent. It did not delete or re-mark the Epic 5 PowerShell asset
+(`tests/Test-StoryFinalRecord.ps1`), which `tests/README.md` retains as the historical record, and it
+did not re-mark Epic 4 action A1.
+
+**It does not claim** that anything executes these gates automatically. No CI workflow or hook runs
+the generator; `StoryFinalRecordGenerationValidationTest` proves the invocation prose is present and
+still enforcing, which is not the same as proving the generator ran. That remains the standing
+deferred item, now recorded for a third time.
+
+**It does not claim** `bmad-dev-auto/step-04-review.md` is gated. Per D5 it was deliberately left out
+of scope because the frozen text names four surfaces, and it is disclosed in `deferred-work.md` as a
+live bypass route to `done` rather than silently absorbed.
+
+**Two root gitlinks in this story's declared scope were not moved by this story.**
+`references/Hexalith.Memories` and `references/Hexalith.Tenants` advanced in the concurrent commit
+`e74c09a`, which sits between the baseline and every candidate this story can produce. They are
+declared as inherited affected scope under Jerome's approval recorded in the frontmatter, not claimed
+as this story's promotions. That same commit also placed
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md`
+into the committed range, so the derived File List correctly contains it although this story did not
+author it.
 
 ## Change Log
 
 | Date | Change |
 | --- | --- |
 | 2026-07-28 | Story created from the v4 authority amendment and the approved 2026-07-28 correction proposal. Status `backlog` → `ready-for-dev`. |
+| 2026-07-28 | Implemented T1–T12. Added the final-record generator, its pytest suite with six live fault injections, the C# non-deletability guard, the runbook, and the four gated completion surfaces in both skill trees; repaired the Story 6.7 gate-span coupling in the same change. `submodule_promotions` expanded from `[]` to two inherited root gitlinks under recorded owner approval. Record generated from measured state and inserted verbatim. Status `in-progress` → `review`. |
