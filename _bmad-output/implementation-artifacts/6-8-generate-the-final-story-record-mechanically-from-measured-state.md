@@ -5,13 +5,22 @@ story_id: '6.8'
 created: '2026-07-28'
 status: 'review'
 baseline_commit: 'bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd'
-file_list_commit: '33d2cac0a148ee798c840b1ec1bc88a4d0060317'
+file_list_commit: 'f954202206bc3e2ccb941ca9e257c4856d1f0c53'
 # ^ The exact revision the File List was derived from.
 #   Story 6.7 review chunk 1 established the rule: a fixed File List compared against a moving
 #   `HEAD` makes the story's own suite fail forever on the next legitimate commit. Story 6.2
 #   omitted the field, which is why its recorded "49 paths" cannot be reproduced today. This is
 #   the same defect AC4 (`CANDIDATE_NOT_FINAL`) generalizes from one story to every record.
+#
+#   RE-ANCHORED from `33d2cac` to `f954202` on 2026-07-28. This is AC4 doing its job, not a
+#   correction of an error: a declared gitlink (`references/Hexalith.Tenants`) moved in the
+#   concurrent commit `f954202`, which lands AFTER `33d2cac`, so that binding became superseded and
+#   the record went red rather than stale. The whole record was re-derived at the new candidate —
+#   suite re-run, File List re-derived, gate re-embedded, guards re-injected. Nothing was carried
+#   forward from the `33d2cac` pass.
 submodule_promotions:
+  - path: 'references/Hexalith.EventStore'
+    require_remote: true
   - path: 'references/Hexalith.Memories'
     require_remote: true
   - path: 'references/Hexalith.Tenants'
@@ -30,13 +39,27 @@ submodule_promotions:
 #     references/Hexalith.Tenants   f9e51c66...fae7 -> 8d64563c...3d37
 #   Story 6.8 did not cause either move. Both are inherited affected scope.
 #
-#   APPROVED SCOPE EXPANSION: Jerome approved declaring both paths with require_remote: true on
-#   2026-07-28, after the condition was reported and before this field was edited, choosing the
-#   Story 6.2 D1 precedent (declare every changed gitlink) over leaving them as non-blocking
-#   UNDECLARED_GITLINK_CHANGE warnings. Both are initialized, clean, captured at mode 160000, and
-#   both recorded commits are contained by their own `refs/remotes/origin/main`, so the stricter
-#   declaration is satisfiable rather than aspirational. Never expand this declaration silently, and
+#   APPROVED SCOPE EXPANSION (first, two paths): Jerome approved declaring Memories and Tenants with
+#   require_remote: true on 2026-07-28, after the condition was reported and before this field was
+#   edited, choosing the Story 6.2 D1 precedent (declare every changed gitlink) over leaving them as
+#   non-blocking UNDECLARED_GITLINK_CHANGE warnings. Never expand this declaration silently, and
 #   never commit inside a submodule to make the gate pass.
+#
+#   APPROVED SCOPE EXPANSION (second, one path): the same condition recurred. A concurrent
+#   correct-course session committed `f954202` ("feat: add Conformance Oracle Tiering Change Proposal
+#   and Decision Artifacts", authority v5 / Story 6.9) after this story's first completion candidate
+#   `33d2cac`, moving a third root gitlink and moving Tenants a second time:
+#     references/Hexalith.EventStore  5a1d277e...2487 -> 589da8b9...a56d6   (newly affected)
+#     references/Hexalith.Tenants     8d64563c...3d37 -> 2e61f57b...6b11d   (moved again)
+#   The Tenants move is *after* `33d2cac`, so that candidate became a superseded binding and AC4
+#   `CANDIDATE_NOT_FINAL` forced re-anchoring to the committed head. Story 6.8 caused neither move.
+#   Jerome approved declaring `references/Hexalith.EventStore` with require_remote: true on
+#   2026-07-28, again after the condition was reported and before this field was edited.
+#
+#   All three declared paths were verified before the field was edited: initialized, worktree clean,
+#   submodule HEAD equal to the recorded gitlink, captured at mode 160000, and each recorded commit
+#   contained by its own `refs/remotes/origin/main` — so the stricter declaration is satisfiable
+#   rather than aspirational. All three are INHERITED AFFECTED SCOPE, not this story's promotions.
 authority:
   overlay: 'epic-6-authority-2026-07-28-v4'
   architecture: 'conversations-architecture-2026-07-28-v4'
@@ -745,6 +768,44 @@ so they are affected scope for this story's record whether or not this story cau
 completion gate; see Completion Notes. Nothing was committed inside either submodule, and neither
 submodule was initialized, updated, or fetched.
 
+**(SUPERSEDED IN PART, 2026-07-28 — the `Current e74c09a` column above is no longer current for
+`references/Hexalith.Tenants`, which moved again to `2e61f57bda6379192007d1bc6fabbde61996b11d` in
+`f954202`. The entry is preserved because it is the true record of the condition as found at that
+moment; see the next entry for the state that superseded it.)**
+
+**SECOND CONCURRENT COMMIT — the same condition recurred, and AC4 caught it (2026-07-28).** After
+this story's first completion candidate `33d2cac`, a concurrent `correct-course` session committed
+`f954202` ("feat: add Conformance Oracle Tiering Change Proposal and Decision Artifacts" — authority
+v5, Story 6.9). Three consequences, each verified in the tree rather than inferred:
+
+| Path | Baseline `bb5b777` | Candidate `f954202` | Moved by | Worktree state |
+| --- | --- | --- | --- | --- |
+| `references/Hexalith.EventStore` | `5a1d277ec0583e304986488d299eb3e6e5022487` | `589da8b91bbf443b39f48fbc0aa7ac30286a56d6` | `f954202` | initialized, clean, HEAD == gitlink, on `origin/main` |
+| `references/Hexalith.Memories` | `1868c8f94ca1ec723a30b256a29c7c8495bc8cca` | `115d30b59101910d0fd30717f49a5fb7f1782547` | `e74c09a` | initialized, clean, HEAD == gitlink, on `origin/main` |
+| `references/Hexalith.Tenants` | `f9e51c66745557da4f267ab40f32294f2f27fae7` | `2e61f57bda6379192007d1bc6fabbde61996b11d` | `e74c09a`, then `f954202` | initialized, clean, HEAD == gitlink, on `origin/main` |
+
+1. **The `33d2cac` binding was superseded, exactly as AC4 requires.** `Hexalith.Tenants` is a
+   *declared* gitlink and it moved *after* the candidate, so the record went red
+   (`CANDIDATE_NOT_FINAL`) rather than quietly stale. The remedy the runbook names — re-run against
+   the committed head — is what was done. This is the guard working, not a defect being patched.
+2. **The 15:35 measurement was invalidated by something no file-content check would catch.** The
+   `EventStore` and `Tenants` submodule *worktrees* were re-checked-out at 17:50, three hours after
+   the suite ran. Because this repository builds with `-p:UseHexalithProjectReferences=true`, those
+   worktrees are compile inputs, so the recorded counts no longer described the tree at `HEAD`. The
+   full suite was re-run from a clean restore before anything was regenerated. Recorded here because
+   `TEST_RESULTS_STALE` compares mtimes of files in the *derived list*, and a gitlink is routed to
+   the promotions section instead — so this particular invalidation is caught by a human reading the
+   checkout times, not by the gate. It is a real residual limitation, not a hypothetical.
+3. **`sprint-status.yaml` was clobbered by the concurrent write.** `f954202` reverted this story's
+   line from `review` to `in-progress` and replaced its generated completion comment with the Story
+   6.9 comment. That is the shared-file collision the Story 6.2 precedent warns about, not a
+   deliberate reopening of the story. Both were restored from generated state, and again only this
+   story's own status line was staged.
+
+`submodule_promotions` was again **not** edited until Jerome approved the expansion; see the
+frontmatter. Nothing was committed inside any submodule, and no submodule was initialized, updated,
+fetched, or traversed.
+
 ### Completion Notes List
 
 **AC1 — one generator, one source of truth.** `_bmad/scripts/generate_story_record.py` (mode 755,
@@ -810,18 +871,29 @@ run does not block. All three files were SHA-256-verified byte-identical before 
 (`ad0f819e…dedf`, `c18fc3ad…a609`, `bf58ac6a…7efd`).
 
 **AC8 — every guard proven able to fail.** See the fault-injection table below. Run against the
-**live** record and the live artifacts, not only against fixtures.
+**live** record and the live artifacts, not only against fixtures. The table was re-executed in full
+against the re-anchored record at candidate `f954202` and its freshly measured artifacts; the earlier
+`33d2cac` run was not carried forward, because a guard demonstrated against artifacts that no longer
+exist has not been demonstrated against the record being shipped.
 
 **Self-application (T11/D6).** This story's own completion record was produced by the generator it
 builds and pasted verbatim; nothing between the markers was typed. The run is non-vacuous: 8 artifacts
-parsed, 18 file-list paths, 2 gitlink promotions evaluated, all three derivation inputs true, zero
+parsed, 25 file-list paths, 3 gitlink promotions evaluated, all three derivation inputs true, zero
 drift, zero blockers.
 
-**Final measured state at candidate `33d2cac`:** Release build of the full solution 0 warnings / 0
-errors with `-p:UseHexalithProjectReferences=true`. Eight test projects, **1,925 total / 1,922 passed
-/ 2 failed / 1 skipped**, computed by summation from eight TRX artifacts, never transcribed. Promotion
-completion gate **pass, 0 blockers, 0 warnings**, both declared gitlinks initialized, clean,
+**Final measured state at candidate `f954202`:** Release build of the full solution 0 warnings / 0
+errors with `-p:UseHexalithProjectReferences=true`, from a clean restore against the submodule
+worktrees `f954202` checked out. Eight test projects, **1,925 total / 1,922 passed / 2 failed / 1
+skipped**, computed by summation from eight TRX artifacts, never transcribed. Promotion completion
+gate **pass, 0 blockers, 0 warnings**, all three declared gitlinks initialized, clean,
 remote-available, exactly captured at mode `160000`. Checker/workflow/story pytest **129/129**.
+
+**The counts are unchanged from the `33d2cac` pass, and that is a measurement, not an assumption.**
+Per-project totals came out identical (425 / 631 / 618 / 185 / 14 / 14 / 29 / 9) after the EventStore
+and Tenants source moved underneath the build. The artifacts are nonetheless different files with
+different SHA-256 values, and the record binds to the new ones. Nothing was reused: had the counts
+been carried forward instead of re-measured, this record would be asserting a number nobody measured
+against this tree — the exact defect the story exists to remove.
 
 **The 2 failures are pre-existing and not attributable to this story.** Both are in
 `ProjectionReadStorePopulationProofValidationTest` — `ProofSourceAndSignedV1BindingsShouldRemainByteIdentical`
@@ -848,23 +920,34 @@ comparand alongside the D3 output targets, and
 that narrow: touching only an output target does not report staleness, touching any ordinary derived
 path still does.
 
-**A scope decision made mechanically visible.** The record excludes seven paths that are dirty in the
-working tree but absent from the committed range, each named by an `UNRELATED_WORKTREE_DIRT` warning
-rather than dropped silently. All seven belong to a concurrent `correct-course` session that published
-authority v5 and Story 6.9 during this window. A record binds to `file_list_commit`; a path that
-revision does not contain cannot be re-derived from it, which is precisely the defect that makes
-Story 6.2's recorded "49 paths" unreproducible today. Nothing belonging to that session was staged or
-committed by this story — including `sprint-status.yaml`, where the two sessions' edits interleave in
-one file, so **only this story's own status line was staged**, by writing the exact blob to the index
-rather than by `git add`.
+**The File List is a derived range, not a claim of authorship — and it now proves the difference.**
+At the `33d2cac` pass those seven authority-v5 paths were dirty-but-uncommitted, so the record
+excluded them and named each in an `UNRELATED_WORKTREE_DIRT` warning. The concurrent session then
+committed them in `f954202`, which is now inside `bb5b777..f954202`, so the same unchanged derivation
+rule pulls all seven **into** the list: 18 paths became 25. Both outcomes are correct, and the
+transition is the clearest available demonstration of what AC3 actually specifies. The File List is
+"the git-derived path set between the work baseline and the committed candidate", nothing more. It
+answers *what changed in this range*, never *who wrote it*. The seven foreign paths are named
+individually in Boundary Confirmation so no reader mistakes range membership for authorship, and they
+are the reason a derived list must never be hand-trimmed to look tidier than the range it binds to.
+
+A record binds to `file_list_commit`; a path that revision does not contain cannot be re-derived from
+it, which is precisely the defect that makes Story 6.2's recorded "49 paths" unreproducible today.
+One path remains dirty-but-uncommitted at this candidate — a third concurrent session's
+`sprint-change-proposal-2026-07-28-evidence-boundary-validation-pattern.md` — and it is excluded and
+named by the surviving `UNRELATED_WORKTREE_DIRT` warning rather than dropped silently. Nothing
+belonging to any concurrent session was staged or committed by this story, including
+`sprint-status.yaml`, where the sessions' edits interleave in one file: **only this story's own status
+line and its own comment were staged**, by writing the exact blob to the index rather than by
+`git add`.
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 
 **Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
-Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 18 file-list path(s) · 2 gitlink promotion(s) evaluated.
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 25 file-list path(s) · 3 gitlink promotion(s) evaluated.
 
-Baseline `bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd` → candidate `33d2cac0a148ee798c840b1ec1bc88a4d0060317`.
+Baseline `bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd` → candidate `f954202206bc3e2ccb941ca9e257c4856d1f0c53`.
 
 ### File List
 
@@ -878,12 +961,19 @@ Baseline `bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd` → candidate `33d2cac0a148e
 - `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
 - `_bmad-output/implementation-artifacts/6-8-generate-the-final-story-record-mechanically-from-measured-state.md` (modified)
 - `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
+- `_bmad-output/implementation-artifacts/epic-6-context.md` (modified)
 - `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
+- `_bmad-output/planning-artifacts/architecture.md` (modified)
+- `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md` (modified)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` (new)
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md` (new)
 - `_bmad/scripts/generate_story_record.py` (new)
 - `_bmad/scripts/tests/test_generate_story_record.py` (new)
 - `_bmad/scripts/tests/test_verify_submodule_promotion.py` (modified)
+- `docs/release-evidence/conformance-oracle-tiering-decision-v2.json` (new)
+- `docs/release-evidence/conformance-oracle-tiering-decision-v2.md` (new)
 - `docs/runbooks/story-final-record-generation.md` (new)
+- `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs` (modified)
 - `tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs` (new)
 - `tests/README.md` (modified)
 
@@ -891,56 +981,53 @@ Baseline `bb5b777f9b8e6932b1bae93c14b7d456a0e3c5cd` → candidate `33d2cac0a148e
 
 | Path | Declared | Recorded mode | Recorded commit | Baseline commit |
 | --- | --- | --- | --- | --- |
+| `references/Hexalith.EventStore` | yes | `160000` | `589da8b91bbf443b39f48fbc0aa7ac30286a56d6` | `5a1d277ec0583e304986488d299eb3e6e5022487` |
 | `references/Hexalith.Memories` | yes | `160000` | `115d30b59101910d0fd30717f49a5fb7f1782547` | `1868c8f94ca1ec723a30b256a29c7c8495bc8cca` |
-| `references/Hexalith.Tenants` | yes | `160000` | `8d64563c75423c861b0be0e3a7cc4de18f673d37` | `f9e51c66745557da4f267ab40f32294f2f27fae7` |
+| `references/Hexalith.Tenants` | yes | `160000` | `2e61f57bda6379192007d1bc6fabbde61996b11d` | `f9e51c66745557da4f267ab40f32294f2f27fae7` |
 
 ### Test Results
 
 | Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Conformance | PARSED | 425 | 423 | 2 | 0 | `c0ff4c1512e290c7` |
-| Server | PARSED | 631 | 631 | 0 | 0 | `e7dcb50b892082c7` |
-| Contracts | PARSED | 618 | 618 | 0 | 0 | `f564c4d643e85c18` |
-| Domain | PARSED | 185 | 185 | 0 | 0 | `2237f18ca11fa972` |
-| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `8dd881945ad8e9b0` |
-| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `baa7216a7d6fb3a5` |
-| Client | PARSED | 29 | 29 | 0 | 0 | `f48a1e7bc94e03ee` |
-| AppHost | PARSED | 9 | 8 | 0 | 1 | `9c6d3fe83ca2712d` |
+| Conformance | PARSED | 425 | 423 | 2 | 0 | `bdb07ef4cf37dbba` |
+| Server | PARSED | 631 | 631 | 0 | 0 | `d8fb713f35570f31` |
+| Contracts | PARSED | 618 | 618 | 0 | 0 | `ed986554c12fbd08` |
+| Domain | PARSED | 185 | 185 | 0 | 0 | `33959cf744279498` |
+| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `f401b4924ae58154` |
+| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `a0c09485fdd69a31` |
+| Client | PARSED | 29 | 29 | 0 | 0 | `bc072d9bf3a4f723` |
+| AppHost | PARSED | 9 | 8 | 0 | 1 | `503e8208eb83e7e7` |
 | **Total (computed)** | **8 parsed** | **1925** | **1922** | **2** | **1** | — |
 
 **This suite is not fully green: 2 failed, 1 skipped.**
 
 ### Candidate Binding
 
-- Candidate `33d2cac0a148ee798c840b1ec1bc88a4d0060317` · committed head `33d2cac0a148ee798c840b1ec1bc88a4d0060317` · ancestor of head: **yes**
+- Candidate `f954202206bc3e2ccb941ca9e257c4856d1f0c53` · committed head `f954202206bc3e2ccb941ca9e257c4856d1f0c53` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 
 ### Promotion Completion Gate
 
-- Result **PASS** · declared: references/Hexalith.Memories, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.Memories, references/Hexalith.Tenants
+- Result **PASS** · declared: references/Hexalith.EventStore, references/Hexalith.Memories, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.EventStore, references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.EventStore, references/Hexalith.Memories, references/Hexalith.Tenants
 
 ### Record Diagnostics
 
-- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/implementation-artifacts/epic-6-context.md`): _bmad-output/implementation-artifacts/epic-6-context.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/architecture.md`): _bmad-output/planning-artifacts/architecture.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md`): _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md`): _bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`docs/release-evidence/conformance-oracle-tiering-decision-v2.json`): docs/release-evidence/conformance-oracle-tiering-decision-v2.json is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`docs/release-evidence/conformance-oracle-tiering-decision-v2.md`): docs/release-evidence/conformance-oracle-tiering-decision-v2.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
-- WARNING `UNRELATED_WORKTREE_DIRT` (`tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs`): tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
+- WARNING `UNRELATED_WORKTREE_DIRT` (`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-evidence-boundary-validation-pattern.md`): _bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-evidence-boundary-validation-pattern.md is dirty in the working tree but absent from the committed range, so it is outside this record's derived scope
 
 <!-- STORY-FINAL-RECORD:END -->
 
 **Fault injection — one mutation per guard, all confirmed able to fail.** Run against the live record
-and the live artifacts at candidate `33d2cac`, not against fixtures. The generator returned `pass`
-with zero blockers immediately before the first injection and immediately after the last.
+and the live artifacts at candidate `f954202`, not against fixtures. The generator returned `pass`
+with zero blockers immediately before the first injection and immediately after the last. Record
+SHA-256 `abb4fb60…dc2f`, conformance artifact SHA-256 `bdb07ef4…7c6e`, both re-verified unchanged
+after the last restoration.
 
 | Mutation | Target | Result |
 | --- | --- | --- |
 | `TestResults/6-8-conformance.trx` Counters `passed="423"` → `"422"` | AC2 `TEST_COUNT_INCONSISTENT` | **blocked — TEST_COUNT_INCONSISTENT** |
 | `- \`references/Hexalith.EventStore/src/Leaked.cs\`` appended to the record's File List | AC3 `SUBMODULE_INTERNAL_PATH` | **blocked — SUBMODULE_INTERNAL_PATH + FILE_LIST_DRIFT** |
-| `--candidate` repointed from `33d2cac` to baseline `bb5b777` | AC4 `CANDIDATE_NOT_FINAL` | **blocked — CANDIDATE_NOT_FINAL ×2 + FILE_LIST_DRIFT + PROMOTION_GATE_NOT_PASS** |
-| `references/Hexalith.Memories` dropped from `--submodule`, kept in `--require-remote` | AC4 `PROMOTION_GATE_NOT_PASS` | **blocked — PROMOTION_GATE_NOT_PASS, embedded `INVALID_SCOPE`** |
+| `--candidate` repointed from `f954202` to baseline `bb5b777` | AC4 `CANDIDATE_NOT_FINAL` | **blocked — CANDIDATE_NOT_FINAL ×3 + FILE_LIST_DRIFT + PROMOTION_GATE_NOT_PASS, embedded `GITLINK_COMMIT_MISMATCH` ×3** |
+| `references/Hexalith.EventStore` dropped from `--submodule`, kept in `--require-remote` | AC4 `PROMOTION_GATE_NOT_PASS` | **blocked — PROMOTION_GATE_NOT_PASS, embedded `INVALID_SCOPE`** |
 | `TestResults/6-8-conformance.trx` removed | AC2 `TEST_RESULTS_MISSING` | **blocked — TEST_RESULTS_MISSING, project state `NOT_RUN`** |
 | `TestResults/6-8-conformance.trx` mtime backdated 86,400 s | AC2 `TEST_RESULTS_STALE` | **blocked — TEST_RESULTS_STALE** |
 
@@ -952,23 +1039,51 @@ is also encoded as a permanent hermetic regression in
 `_bmad/scripts/tests/test_generate_story_record.py`, so a future change that silently removes a guard
 turns the suite red rather than passing quietly.
 
+The mutation counts scale with the declaration and that is worth reading rather than skimming: with
+three declared gitlinks instead of two, the candidate repoint now trips `CANDIDATE_NOT_FINAL` three
+times and the embedded checker reports three `GITLINK_COMMIT_MISMATCH` entries. A guard whose output
+did **not** change when the declared scope grew would be evaluating the declaration rather than the
+repository.
+
 ### Boundary Confirmation
 
-**This story changed** the workflow tooling and its documentation only: the new generator
-`_bmad/scripts/generate_story_record.py` and its pytest suite; the four completion surfaces in both
-`.claude/skills/` and `.agents/skills/`; `WORKFLOW_GATE_CONTRACTS` in
-`_bmad/scripts/tests/test_verify_submodule_promotion.py`, repaired in the same change that broke it;
-one new Conformance test file; the new runbook; the `tests/README.md` final-record section; and the
-deferred-work ledger. Eighteen paths, every one derived.
+**This story authored** the workflow tooling and its documentation only — eighteen of the twenty-five
+derived paths: the new generator `_bmad/scripts/generate_story_record.py` and its pytest suite; the
+four completion surfaces in both `.claude/skills/` and `.agents/skills/`; `WORKFLOW_GATE_CONTRACTS`
+in `_bmad/scripts/tests/test_verify_submodule_promotion.py`, repaired in the same change that broke
+it; one new Conformance test file; the new runbook; the `tests/README.md` final-record section; the
+deferred-work ledger; this story file; and its own `sprint-status.yaml` line.
+
+**Seven of the twenty-five derived paths were authored by concurrent sessions, not by this story.**
+The File List is the git-derived path set across `bb5b777..f954202`; membership in that range is not
+a claim of authorship, and the derivation is deliberately not trimmed to flatter the story. The seven
+are named individually so nothing is absorbed silently:
+
+| Foreign path | Authored by |
+| --- | --- |
+| `_bmad-output/implementation-artifacts/epic-6-context.md` | `f954202` — authority v5 correct-course |
+| `_bmad-output/planning-artifacts/architecture.md` | `f954202` — authority v5 correct-course |
+| `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md` | `f954202` — authority v5 correct-course |
+| `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` | `f954202` — authority v5 correct-course |
+| `docs/release-evidence/conformance-oracle-tiering-decision-v2.json` | `f954202` — authority v5 correct-course |
+| `docs/release-evidence/conformance-oracle-tiering-decision-v2.md` | `f954202` — authority v5 correct-course |
+| `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs` | `f954202` — authority v5 correct-course |
+
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md`
+is an eighth such path, authored by the earlier concurrent commit `e74c09a` and already disclosed in
+the `33d2cac` pass.
 
 **This story did not change** production source, public contracts, package versions, generated
 output, accepted baselines, signed evidence, or sibling submodule source. It did not rewrite any
 closed story record — the three verified historically are SHA-256-identical before and after. It did
-not initialize, update, fetch, or traverse any submodule, and committed nothing inside one. It did
-not edit `epics.md`, `architecture.md`, or `epic-6-context.md`; the frozen v4 acceptance criteria are
-quoted in this file, never modified in their source. It did not touch `_bmad/render/`. It did not
-flip the Epic 3 action item, which stays `in-progress` until Story 6.8 itself reaches `done`, per the
-Story 6.7 review precedent. It did not delete or re-mark the Epic 5 PowerShell asset
+not initialize, update, fetch, or traverse any submodule, and committed nothing inside one. **It did
+not edit `epics.md`, `architecture.md`, `epic-6-context.md`, or
+`ArchitecturePlanningAuthorityValidationTest.cs`, which appear in the derived list solely as
+range members** — verified by `git diff` between `33d2cac` and this candidate attributing every byte
+of those four files to `f954202`; the frozen v4 acceptance criteria are quoted in this file and were
+never modified in their source. It did not touch `_bmad/render/`. It did not flip the Epic 3 action
+item, which stays `in-progress` until Story 6.8 itself reaches `done`, per the Story 6.7 review
+precedent. It did not delete or re-mark the Epic 5 PowerShell asset
 (`tests/Test-StoryFinalRecord.ps1`), which `tests/README.md` retains as the historical record, and it
 did not re-mark Epic 4 action A1.
 
@@ -981,14 +1096,22 @@ deferred item, now recorded for a third time.
 of scope because the frozen text names four surfaces, and it is disclosed in `deferred-work.md` as a
 live bypass route to `done` rather than silently absorbed.
 
-**Two root gitlinks in this story's declared scope were not moved by this story.**
-`references/Hexalith.Memories` and `references/Hexalith.Tenants` advanced in the concurrent commit
-`e74c09a`, which sits between the baseline and every candidate this story can produce. They are
-declared as inherited affected scope under Jerome's approval recorded in the frontmatter, not claimed
-as this story's promotions. That same commit also placed
-`_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md`
-into the committed range, so the derived File List correctly contains it although this story did not
-author it.
+**All three root gitlinks in this story's declared scope were moved by other sessions, not by this
+story.** `references/Hexalith.Memories` and `references/Hexalith.Tenants` advanced in `e74c09a`;
+`references/Hexalith.EventStore` advanced in `f954202`, which also advanced `Hexalith.Tenants` a
+second time. Both commits sit between the baseline and every candidate this story can produce. All
+three are declared as **inherited affected scope** under Jerome's approvals recorded in the
+frontmatter — the first two on the `33d2cac` pass, EventStore on this one — and none is claimed as
+this story's promotion. Declaring a gitlink here asserts that its recorded state was evaluated, never
+that this story advanced it.
+
+**This story has now been through the failure mode it was written to prevent, from the other side.**
+Its first record bound to `33d2cac` with counts measured at 15:35. A concurrent commit then moved a
+declared gitlink and re-checked-out two submodule worktrees, and had that record been left in place
+it would have been exactly the artifact this story exists to make impossible: real numbers, correctly
+derived, bound to a tree that no longer existed. `CANDIDATE_NOT_FINAL` turned it red instead of
+letting it go stale, which is the entire point of AC4 and the direct generalization of Story 6.2's
+bespoke `RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks` guard.
 
 ## Change Log
 
@@ -996,3 +1119,4 @@ author it.
 | --- | --- |
 | 2026-07-28 | Story created from the v4 authority amendment and the approved 2026-07-28 correction proposal. Status `backlog` → `ready-for-dev`. |
 | 2026-07-28 | Implemented T1–T12. Added the final-record generator, its pytest suite with six live fault injections, the C# non-deletability guard, the runbook, and the four gated completion surfaces in both skill trees; repaired the Story 6.7 gate-span coupling in the same change. `submodule_promotions` expanded from `[]` to two inherited root gitlinks under recorded owner approval. Record generated from measured state and inserted verbatim. Status `in-progress` → `review`. |
+| 2026-07-28 | Re-anchored the record from candidate `33d2cac` to `f954202` after a concurrent correct-course session moved a declared gitlink past the candidate, tripping AC4 `CANDIDATE_NOT_FINAL`, and re-checked-out two submodule worktrees that are compile inputs under `-p:UseHexalithProjectReferences=true`. Nothing was carried forward: full suite re-run from a clean restore (identical counts, new artifacts), File List re-derived (18 → 25 paths as the concurrent session's work entered the committed range), promotion gate re-embedded, and all six AC8 fault injections re-executed against the new record and artifacts. `submodule_promotions` expanded to a third inherited root gitlink (`references/Hexalith.EventStore`) under recorded owner approval. Restored this story's `sprint-status.yaml` line and completion comment, which the concurrent write had reverted to `in-progress`. No implementation code changed. Status `in-progress` → `review`. |
