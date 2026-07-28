@@ -1,9 +1,9 @@
 ---
 epic: 6
-generated: '2026-07-27'
-overlay_version: 'epic-6-authority-2026-07-27-v3'
-architecture_version: 'conversations-architecture-2026-07-27-v3'
-supersedes_overlay_version: 'epic-6-authority-2026-07-15-v2'
+generated: '2026-07-28'
+overlay_version: 'epic-6-authority-2026-07-28-v4'
+architecture_version: 'conversations-architecture-2026-07-28-v4'
+supersedes_overlay_version: 'epic-6-authority-2026-07-27-v3'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
 source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN'
 status: 'active-corrective-context'
@@ -11,9 +11,9 @@ status: 'active-corrective-context'
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3 amendment. It shares version `epic-6-authority-2026-07-27-v3` with the active amendment and aligns with `conversations-architecture-2026-07-27-v3`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
+This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3 and v4 amendments. It shares version `epic-6-authority-2026-07-28-v4` with the active amendment and aligns with `conversations-architecture-2026-07-28-v4`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
 
-Regenerated 2026-07-27 after the approved test-harness ownership amendment. V3 supersedes v2 only for the treatment of `Hexalith.Conversations.AppHost`; every preservation, projection-population, promotion, performance, signed-evidence, and readiness obligation remains binding.
+Regenerated 2026-07-28 after the approved mechanical final-record amendment. V4 supersedes v3 only by adding Story 6.8 and amending the binding order; V3 superseded v2 only for the treatment of `Hexalith.Conversations.AppHost`. Every preservation, projection-population, promotion, performance, signed-evidence, and readiness obligation remains binding.
 
 ## Authority And Immutable History
 
@@ -129,14 +129,29 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 - Block review/completion with stable codes; warn on unrelated state.
 - Read root `.gitmodules` only. Never initialize, update, or traverse nested submodules.
 
+### 6.8 Generate the final story record mechanically from measured state
+
+- Emit the completion record from four derived sources only: parsed machine-readable test-result artifacts, the git-derived path set between the work baseline and the committed candidate unioned with the tracked working-tree delta, mode-`160000` root gitlink entries from that candidate, and the Story 6.7 promotion-checker document embedded verbatim.
+- Take counts only from result artifacts. A declared project with no artifact is not run and blocks; totals are computed, not transcribed; an artifact older than the newest file in the derived list blocks as stale instead of being carried forward.
+- Derive one file list. Reject any path inside a root-declared submodule and emit gitlink promotions in a separate labeled section with recorded commit and mode.
+- Bind gitlink state to the final candidate: it must be an ancestor of the committed head with no declared gitlink movement after it, so a superseded binding goes red rather than stale.
+- Make the four completion surfaces generate rather than author, block `review` and `done` on generator blockers, refuse a pass that derived nothing, and guard the invocation against silent removal.
+- Verify closed records read-only in historical mode, without claiming to reconstruct a former uncommitted working tree, and fault-inject every guard.
+- Do not modify production source, public contracts, signed evidence, or submodule content, and do not claim to have wired any gate into continuous integration.
+
 ## Binding Sequence
 
-`6.1 -> 6.7 -> 6.2`
+`6.1 -> 6.7 -> 6.2 -> 6.8`
 
 - 6.7 and the frozen benchmark precede 6.2 completion.
 - 6.3/6.4 may proceed after 6.1 where dependencies allow.
 - 6.2 precedes 6.5.
+- 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6.
 - 6.6 is last.
+
+## Final Record Invariant
+
+Counts, file paths, submodule state, and root gitlink state in a completion record are derived outputs. For every story completing after Story 6.2 they are produced by the record generator and inserted verbatim. Narrative prose may surround a generated record but may not restate its numbers, a second hand-maintained file list is a conformance failure, and a record that no longer describes the final candidate must go red rather than stale.
 
 ## Promotion Completion Invariant
 

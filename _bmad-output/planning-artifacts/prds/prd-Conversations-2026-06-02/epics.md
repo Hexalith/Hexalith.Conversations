@@ -975,3 +975,100 @@ SM-C2 baseline remains a pre-change gate for 6.2. No sprint-status change or new
 story identifier is introduced by this amendment.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END version=epic-6-authority-2026-07-27-v3 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:BEGIN version=epic-6-authority-2026-07-28-v4 supersedes=epic-6-authority-2026-07-27-v3 -->
+
+## Appendix: 2026-07-28 Mechanical Final-Record Authority Amendment
+
+**Overlay version:** `epic-6-authority-2026-07-28-v4`
+**Architecture authority:** `conversations-architecture-2026-07-28-v4`
+**Supersedes:** `epic-6-authority-2026-07-27-v3` only by adding Story 6.8 and
+amending the binding dependency order
+**Status:** active corrective amendment; the v1, v2, and v3 overlays, completed
+history, and signed evidence remain immutable historical records.
+
+### Mechanical Final-Record Decision
+
+A story completion record states four families of fact: final test counts, the
+file list, affected submodule state, and root gitlink state. Every one of them
+is observable from the repository at completion time, and one of them is already
+produced mechanically by the Story 6.7 promotion checker. From this amendment
+forward, those facts are **derived outputs of a generator**, not prose composed
+by the agent that performed the work.
+
+A completion record whose counts, paths, or gitlink binding are typed by hand,
+carried forward from an earlier pass, or restated in a second hand-maintained
+list is a conformance failure. Narrative prose may surround a generated record;
+it may not restate the generated numbers.
+
+Derivation sources are exactly four: parsed machine-readable test-result
+artifacts; the git-derived path set between the work baseline and the committed
+candidate unioned with the tracked working-tree delta; mode-`160000` root
+gitlink entries resolved from the committed candidate; and the Story 6.7
+promotion-checker document embedded verbatim. A record that could not derive any
+of them reports a blocker rather than a pass.
+
+### Story 6.8: Generate the final story record mechanically from measured state
+
+**Goal.** Close the standing action item "make final story record generation
+mechanical from final test counts, file list, submodule state, and root gitlink
+state" for every Epic 6 story that completes after Story 6.2.
+
+**Acceptance criteria.**
+
+1. One generator emits a versioned final-record document whose every field is
+   derived from the four sources named above. No count, path, or commit may be
+   supplied as caller-authored text.
+2. Test counts come only from machine-readable result artifacts. A declared test
+   project with no artifact is recorded as not run and blocks; totals are
+   computed rather than transcribed; an artifact older than the newest file in
+   the derived file list blocks as stale rather than being carried forward.
+3. The file list is derived, singular, and boundary-correct. A path inside a
+   root-declared submodule blocks: it belongs to that repository's own record.
+   Gitlink promotions appear in a separate labeled section with recorded commit
+   and mode.
+4. Submodule and gitlink state binds to the candidate that is actually final.
+   The candidate must be an ancestor of the committed head with no declared
+   gitlink movement after it, so a superseded binding goes red rather than
+   stale.
+5. The four completion surfaces generate rather than author, and generator
+   blockers block `review` and `done` exactly as the promotion gate does.
+6. The generator cannot report a pass having derived nothing, and the
+   invocation cannot be silently removed from a completion workflow.
+7. A read-only historical mode verifies already-closed records without mutating
+   them, and does not claim to reconstruct a former uncommitted working tree.
+8. Every guard is fault-injected and proven able to fail, with each mutated
+   artifact restored byte-identically.
+
+**Prohibitions.** Story 6.8 does not modify production source, public contracts,
+package versions, generated output, accepted baselines, signed evidence, or
+sibling submodule source. It does not rewrite closed story records. It does not
+initialize, update, fetch, or traverse submodules. It does not claim to have
+wired any gate into continuous integration; automatic execution of the planning,
+promotion, and final-record gates remains a single recorded deferred item.
+
+### Superseding Story Dispositions
+
+| Story | v4 disposition |
+| --- | --- |
+| 6.1 | No change. Completed historical authority; this amendment appends and does not rewrite it. |
+| 6.2 | No change. It completes under the pre-6.8 process and is afterwards verified read-only in historical mode. |
+| 6.3 | No semantic change; its completion record is generated rather than authored. |
+| 6.4 | No semantic change; its completion record is generated rather than authored. |
+| 6.5 | No semantic change; its completion record is generated rather than authored, and its SM-2 measurement remains story-owned evidence. |
+| 6.6 | No semantic change; it consumes generated records for every prior Epic 6 story and reruns the final-record gate. |
+| 6.7 | No change; its checker becomes an embedded input to the final-record generator instead of a separately transcribed step. |
+| 6.8 | New corrective story, defined above. |
+
+### Binding Dependency Order
+
+`6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6`
+
+Story 6.8 follows Story 6.2 and precedes the completion of Stories 6.3, 6.4,
+6.5, and 6.6: no story completing after Story 6.2 may reach `done` without a
+mechanically generated final record. Stories 6.3 and 6.4 may still begin after
+6.1 where dependencies allow. The SM-C2 baseline remains a pre-change gate for
+6.2, and Story 6.6 remains last. This amendment introduces one new story
+identifier and one sprint-status entry.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:END version=epic-6-authority-2026-07-28-v4 -->

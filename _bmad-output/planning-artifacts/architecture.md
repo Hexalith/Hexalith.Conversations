@@ -4,8 +4,9 @@ historicalLastStep: 8
 historicalCompletedAt: '2026-05-14'
 status: 'corrective-implementation-only'
 rebaselinedAt: '2026-07-27'
-authorityVersion: 'conversations-architecture-2026-07-27-v3'
+authorityVersion: 'conversations-architecture-2026-07-28-v4'
 supersededAuthorityVersions:
+  - 'conversations-architecture-2026-07-27-v3'
   - 'conversations-architecture-2026-07-15-v2'
   - 'conversations-architecture-2026-07-15-v1'
 initiativeAuthority:
@@ -16,6 +17,7 @@ correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-projection-read-store-population.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-27.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md'
   - 'docs/adrs/0003-projection-read-store-population-proof.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
@@ -56,6 +58,31 @@ deployment composition root. Platform libraries continue to own reusable
 runtime capability, and platform deployment continues to own production
 composition. All other July 15 authority, preservation, projection-population,
 promotion, performance, and readiness decisions remain binding.
+
+### 2026-07-28 Mechanical Final-Record Amendment
+
+Architecture version `conversations-architecture-2026-07-28-v4` supersedes v3
+only by adding the mechanical final-record obligation and amending the binding
+story order to include Story 6.8. Every ownership, runtime, projection,
+topology, promotion, performance, evidence, and readiness decision in v3 remains
+in force unchanged.
+
+A story completion record states final test counts, the file list, affected
+submodule state, and root gitlink state. From this amendment forward those facts
+are derived outputs of a generator, not prose composed by the agent that
+performed the work. Derivation sources are exactly four: parsed machine-readable
+test-result artifacts; the git-derived path set between the work baseline and
+the committed candidate unioned with the tracked working-tree delta;
+mode-`160000` root gitlink entries resolved from the committed candidate; and
+the promotion-checker document embedded verbatim. A record whose counts, paths,
+or gitlink binding are hand-typed, carried forward from an earlier pass, or
+restated in a second hand-maintained list is a conformance failure, and a
+binding that no longer describes the final candidate goes red rather than stale.
+
+This amendment changes planning authority, generated context, completion
+workflows, and conformance validation only. It authorizes no change to
+production source, public contracts, package versions, generated output,
+accepted baselines, signed evidence, or submodule content.
 
 ### Scope And Preservation Denominators
 
@@ -163,7 +190,7 @@ Story 6.7 implements this declarative invariant before Story 6.2 can complete: p
 
 ### Corrective Readiness
 
-**Overall Status: READY FOR CORRECTIVE IMPLEMENTATION ONLY.** Story order is `6.1 -> 6.7 -> 6.2`; the frozen SM-C2 baseline is also required before 6.2 completes. Story 6.2 precedes 6.5, and Story 6.6 is last. No final readiness or release claim is authorized until all Epic 6 gates pass, v2 evidence supersedes v1 without mutating it, and a new implementation-readiness assessment returns `READY`.
+**Overall Status: READY FOR CORRECTIVE IMPLEMENTATION ONLY.** Story order is `6.1 -> 6.7 -> 6.2 -> 6.8`; the frozen SM-C2 baseline is also required before 6.2 completes. Story 6.2 precedes 6.5, Story 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6, and Story 6.6 is last. No story completing after Story 6.2 reaches `done` without a mechanically generated final record. No final readiness or release claim is authorized until all Epic 6 gates pass, v2 evidence supersedes v1 without mutating it, and a new implementation-readiness assessment returns `READY`.
 
 ## Project Context Analysis
 
