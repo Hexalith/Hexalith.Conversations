@@ -913,10 +913,17 @@ def test_safe_relative_path_rejects_embedded_control_characters() -> None:
 # inside the gate block). Ordering alone only proves a heading exists in the
 # right place -- it passes just as happily when the gate body has been replaced
 # with "the gate is optional", so the enforcement language is asserted too.
+#
+# The marker that FOLLOWS the promotion gate bounds its span. Story 6.8 inserted
+# a final-record generation section between each promotion gate and its former
+# follower; without naming the new section here, the span would silently widen
+# to swallow it, keeping the positive test green while weakening
+# test_workflow_contract_rejects_enforcement_clause_outside_gate.
 WORKFLOW_GATE_CONTRACTS = {
     "bmad-code-review/steps/step-04-present.md": (
         (
             "#### Promotion completion gate",
+            "#### Final record generation gate",
             "If `promotion_gate_failed` is not true",
             "set `{new_status}` = `done`",
         ),
@@ -930,6 +937,7 @@ WORKFLOW_GATE_CONTRACTS = {
         (
             "### Prepare Committed Candidate",
             "### Promotion Completion Gate",
+            "### Final Record Generation Gate",
             "### Mark Spec Done and Synchronize",
             "### Commit Completion Record and Open",
         ),
@@ -945,6 +953,7 @@ WORKFLOW_GATE_CONTRACTS = {
             "status: 'in-review'",
             "### Commit Candidate",
             "### Promotion Completion Gate",
+            "### Final Record Generation Gate",
             "### Complete Trace and Commit Completion Record",
         ),
         (
@@ -969,6 +978,7 @@ WORKFLOW_GATE_CONTRACTS = {
     "bmad-dev-story/SKILL.md": (
         (
             "verify_submodule_promotion.py",
+            "generate_story_record.py",
             "Update the story Status to: \"review\"",
         ),
         (

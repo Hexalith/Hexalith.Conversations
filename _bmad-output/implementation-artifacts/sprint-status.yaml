@@ -157,7 +157,7 @@ development_status:
   6-5-correct-thin-authoring-template-and-reproduce-sm-2: backlog
   6-6-revalidate-and-issue-superseding-attestation: backlog
   6-7-mechanically-block-incomplete-submodule-promotions-from-completion: done
-  6-8-generate-the-final-story-record-mechanically-from-measured-state: ready-for-dev
+  6-8-generate-the-final-story-record-mechanically-from-measured-state: in-progress
   epic-6-retrospective: optional
 
 action_items:

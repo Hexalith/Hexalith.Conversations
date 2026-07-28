@@ -94,11 +94,20 @@ Run this gate before determining `{new_status}`:
 4. Any nonzero checker exit, any `result` other than `pass`, or the activated missing-baseline condition fails the gate. Preserve every `blockers[].code` in the review record; for the caller-promoted missing-baseline condition preserve `BASELINE_NOT_PROVIDED` as the blocker code with its diagnostic text.
 5. On gate failure, set `promotion_gate_failed = true`, force `{new_status}` = `in-progress`, update the story Status section to `in-progress`, forbid the `done` branch below, and synchronize only `in-progress`; never write or synchronize `done`. Report the actionable checker diagnostics. Do not modify, initialize, update, fetch, commit, or silently expand submodule scope while remediating.
 
+#### Final record generation gate
+
+Run this gate after every patch is applied and before determining `{new_status}`. The review changes the tree, so the record must be regenerated from the tree that is actually final.
+
+1. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate HEAD --format json`, adding `--baseline <value>` only when the baseline is trustworthy, one `--test-results <Project>=<artifact-path>` per declared test project, one `--submodule <path>` for every declared item, and `--require-remote <path>` when its `require_remote` value is true.
+2. Parse the JSON result. Any nonzero exit or any `result` other than `pass` fails the gate. A `RECORD_NOT_DERIVED` blocker means the run parsed no artifact, resolved no candidate, or found no record section to replace — it proves nothing, so it can never be read as a pass. Preserve every `blockers[].code` in the review record.
+3. On gate failure, set `record_gate_failed = true`, force `{new_status}` = `in-progress`, update the story Status section to `in-progress`, forbid the `done` branch below, and synchronize only `in-progress`; never write or synchronize `done`. Never hand-edit a count, path, or commit into agreement with the record as remediation.
+4. On success, re-run with `--format markdown` and insert the rendered block VERBATIM into `{spec_file}`, replacing the existing block between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers when one is present, or the region between `### File List` and `### Boundary Confirmation` when it is not. Set frontmatter `file_list_commit` to the revision the block was derived from, and quote the generator's derived totals in the sprint-status comment.
+
 #### Determine new status based on review outcome
 
-- If `promotion_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or dismissed), AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
+- If `promotion_gate_failed` is not true, `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or dismissed), AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
 - If `patch` findings were left as action items, or unresolved issues remain: set `{new_status}` = `in-progress`. Update the story file Status section to `in-progress`.
-- If `promotion_gate_failed` is true: preserve `{new_status}` = `in-progress`; never write or synchronize `done` regardless of review outcome.
+- If `promotion_gate_failed` or `record_gate_failed` is true: preserve `{new_status}` = `in-progress`; never write or synchronize `done` regardless of review outcome.
 
 Save the story file.
 

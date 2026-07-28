@@ -64,9 +64,17 @@ When version control is available, invoke `python3 {project-root}/_bmad/scripts/
 
 Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, synchronize `review`, initialize/update/fetch submodules, or silently expand scope after failure.
 
+### Final Record Generation Gate
+
+When version control is available, invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format json`, adding the trustworthy `--baseline <baseline_commit>`, one `--test-results <Project>=<artifact-path>` per declared test project, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Every count, path, and commit in the trace comes from this document; never author one yourself.
+
+Any nonzero exit, or any `result` other than `pass`, fails the gate — a `RECORD_NOT_DERIVED` blocker means the run derived nothing, so it proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, and never hand-edit a count, path, or commit into agreement with the record.
+
+Once it passes, re-run with `--format markdown` and insert the rendered block VERBATIM into the trace, replacing the existing block between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers when one is present, or appending it under `## Verification` when it is not. Set frontmatter `file_list_commit` to the revision the block was derived from.
+
 ### Complete Trace and Commit Completion Record
 
-Only after the gate passes (or non-promotion work has no VCS and preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`. If version control is available, create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
+Only after both gates pass (or non-promotion work has no VCS and preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`. If version control is available, create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
 
 ### Present
 

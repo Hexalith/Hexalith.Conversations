@@ -425,6 +425,19 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
       <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
       <action>HALT: "Submodule promotion completion gate failed; remediate the recorded diagnostics without initializing, updating, fetching, or silently expanding scope"</action>
     </check>
+    <!-- Final Record Generation Gate -->
+    <action>Run `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story &lt;story-file&gt; --candidate HEAD --format json`, adding the trustworthy `--baseline &lt;value&gt;`, one `--test-results &lt;Project&gt;=&lt;artifact-path&gt;` per declared test project, one `--submodule &lt;path&gt;` per declaration, and `--require-remote &lt;path&gt;` when requested. Parse the JSON result. Never hand-author a count, path, or commit that this generator did not derive.</action>
+    <action>Any nonzero exit, or any `result` other than `pass`, fails this gate. A `RECORD_NOT_DERIVED` blocker means the run derived nothing and therefore proves nothing.</action>
+    <check if="the generator exits nonzero or its result is not pass">
+      <action>Record every stable blocker code and actionable diagnostic in Dev Agent Record → Debug Log References</action>
+      <action>Set story frontmatter status and Status section to `in-progress`</action>
+      <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
+      <action>HALT: "Story final-record generation gate failed; remediate the recorded diagnostics without hand-editing counts, paths, or commits into agreement"</action>
+    </check>
+    <action>Re-run the generator with `--format markdown` and insert the rendered block VERBATIM into the story record, replacing everything between `### File List` and `### Boundary Confirmation`, or replacing the existing block between the `&lt;!-- STORY-FINAL-RECORD:BEGIN --&gt;` and `&lt;!-- STORY-FINAL-RECORD:END --&gt;` markers when one is already present. Do not edit the inserted text.</action>
+    <action>Set story frontmatter `file_list_commit` to the exact revision the block was derived from, so the record's File List stays comparable against a fixed revision rather than a moving `HEAD`.</action>
+    <action>Quote the generator's derived totals in the sprint-status comment; never transcribe a count from an earlier pass.</action>
+
     <action>Update the story Status to: "review"</action>
 
     <!-- Enhanced Definition of Done Validation -->
@@ -436,7 +449,8 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
       - End-to-end tests for critical flows added when story demands them
       - All tests pass (no regressions, new tests successful)
       - Code quality checks pass (linting, static analysis if configured)
-      - File List includes every new/modified/deleted file (relative paths)
+      - File List is the generator-derived list inserted verbatim, not a hand-authored one
+      - Every reported test count traces to a parsed result artifact named in the generated record
       - Dev Agent Record contains implementation notes
       - Change Log includes summary of changes
       - Only permitted story sections were modified

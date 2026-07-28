@@ -75,22 +75,43 @@ Record both facts in story evidence: the VSTest socket failure and the direct xU
 
 ## Final-Record Completion Gate
 
-Evidence stories must close their final record from the final working tree, after every executable and test change is complete. Capture the baseline commit and exact pre-existing dirty state before implementation, then run the canonical validation with TRX output. Finalize the story's `### File List` and count-bearing records without changing executable/test inputs, and invoke:
+Completion records are **generated from measured state, not authored**. A record may not contain a count, path, or commit that nobody measured. Close the record from the final working tree, after every executable, test, and documentation change is complete: finalize the tree, run the tests, then generate.
+
+Emit TRX from the built xUnit v3 executable — `-trx <file>` on the executable itself:
 
 ```powershell
-pwsh -NoProfile -File tests/Test-StoryFinalRecord.ps1 `
-  -InputPath _bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json
+tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests `
+  -noLogo -trx $PWD/TestResults/conformance.trx
 ```
 
-The gate fails unless all of these agree:
+`dotnet test --report-trx` is **rejected as an unknown option** on this lane; use the executable form above. See § VSTest Socket Fallback for building the executable.
 
-- TRX total, passed, failed, and skipped counts and the configured count-bearing records;
-- the story File List and the tracked, staged, baseline-relative committed, and untracked non-ignored path inventory;
-- changed documentation/evidence existence, configured hashes, and required JSON/Markdown pairs;
-- unchanged exact pre-existing file hashes and gitlink/index/worktree identities; and
-- the non-mutating full public-contract-shape comparison and unchanged baseline artifact.
+Then invoke the generator once per completion, repeating `--test-results` for every declared test project:
 
-The generated JSON is authoritative; Markdown is rendered from it. Reviewers must inspect exclusions, amendments, and approval references rather than accepting the summary alone. Historical mode proves committed path, artifact, and count-claim consistency, but never claims to reconstruct a former uncommitted working tree. A failure blocks `review -> done` until the record is corrected or the release owner approves a separate amendment; signed evidence must not be rewritten to make the gate pass.
+```powershell
+python3 _bmad/scripts/generate_story_record.py `
+  --repository . `
+  --story _bmad-output/implementation-artifacts/<story>.md `
+  --baseline <story-baseline-commit> `
+  --candidate HEAD `
+  --test-results Conformance=<path>.trx `
+  --format json
+```
+
+The gate fails on any nonzero exit or any `result` other than `pass`. It derives, rather than compares against hand-authored expectations:
+
+- test counts parsed from `/TestRun/ResultSummary/Counters`, recomputed from the recorded results, and totalled by summation — a declared project with no artifact is `NOT_RUN` and blocks;
+- the File List, from the committed baseline→candidate range unioned with the tracked working-tree delta and untracked non-ignored files — exactly one list, no submodule-internal path;
+- root gitlink promotions with recorded commit and mode, in their own labelled section, bound to a candidate proven to be the revision that is actually final; and
+- the Story 6.7 promotion-checker document, embedded verbatim.
+
+The generated JSON is authoritative; Markdown is rendered from it and inserted verbatim. A run that parsed no artifact, resolved no candidate, or found no record section reports `RECORD_NOT_DERIVED` and can never be read as a pass. Historical mode (`--historical`) verifies an already-closed record read-only, and never claims to reconstruct a former uncommitted working tree. A failure blocks `review -> done` until the record is corrected; never hand-edit a count, path, or commit into agreement, and never rewrite signed evidence to make the gate pass.
+
+Full operating procedure, blocker→remediation table, exit codes, and safety boundary: `docs/runbooks/story-final-record-generation.md`.
+
+### Epic 5 historical asset
+
+`tests/Test-StoryFinalRecord.ps1` and `tests/Test-StoryFinalRecord.Tests.ps1` are the Epic 4 action A1 asset and the record of the Epic 5 final-record check. They verify a **hand-authored** manifest — the defect the generator above exists to remove — and are bound to Epic 5 artifacts. They are retained as the historical record and are not invoked by any workflow. Do not delete them, and do not re-mark Epic 4 action A1.
 
 ## Architecture
 
