@@ -112,14 +112,143 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
     }
 
     /// <summary>
+    /// An index reference without its named detail generation is incomplete rather than absent.
+    /// </summary>
+    [Fact]
+    public async Task IndexPresentWithoutDetailShouldReturnRebuilding()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels models = Models(ConversationA, Now.AddSeconds(1));
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            Index(models.Summary, models.DispatchId));
+
+        ConversationProjectionReadService service = new(AllowAll(), new ConversationProjectionReadStore(store));
+
+        ConversationProjectionReadResult result = await service.ReadDetailAsync(
+            Tenant,
+            "user-001",
+            Tenant,
+            ConversationA,
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Projection.ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Equal freshness metadata cannot hide a content mismatch between the detail pair and tenant index.
+    /// </summary>
+    [Fact]
+    public async Task SummaryContentMismatchShouldReturnRebuilding()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels models = Models(ConversationA, Now.AddSeconds(1));
+        ConversationSummaryProjectionV1 mismatched = CopySummary(models.Summary, label: "tampered label");
+        SeedCompletedGeneration(store, models, mismatched);
+
+        ConversationProjectionReadService service = new(AllowAll(), new ConversationProjectionReadStore(store));
+
+        ConversationProjectionReadResult result = await service.ReadDetailAsync(
+            Tenant,
+            "user-001",
+            Tenant,
+            ConversationA,
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Projection.ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Generation comparison includes the cursor and every other freshness field, not only position and time.
+    /// </summary>
+    [Fact]
+    public async Task FreshnessCursorMismatchShouldReturnRebuilding()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels original = Models(ConversationA, Now.AddSeconds(1));
+        ProjectionFreshnessV1 freshness = original.Summary.Freshness;
+        ProjectionFreshnessV1 mismatchedFreshness = new(
+            freshness.ProjectionContractSchemaVersion,
+            "cursor-tampered",
+            freshness.LastAppliedEventPosition,
+            freshness.LastAppliedEventTimestamp,
+            freshness.ProjectionGeneratedAt,
+            freshness.LagDuration,
+            freshness.IsStale,
+            freshness.FreshnessState,
+            freshness.ReasonCode);
+        ConversationProjectedReadModels mismatched = new(
+            CopySummary(original.Summary, freshness: mismatchedFreshness),
+            original.Detail)
+        {
+            DispatchId = original.DispatchId,
+        };
+        SeedCompletedGeneration(store, mismatched, mismatched.Summary);
+
+        ConversationProjectionReadService service = new(AllowAll(), new ConversationProjectionReadStore(store));
+
+        ConversationProjectionReadResult result = await service.ReadDetailAsync(
+            Tenant,
+            "user-001",
+            Tenant,
+            ConversationA,
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Projection.ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Duplicate index rows are ambiguous even when both rows are byte-identical.
+    /// </summary>
+    [Fact]
+    public async Task DuplicateTenantIndexSummariesShouldFailClosed()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels models = Models(ConversationA, Now.AddSeconds(1));
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = [models.Summary, models.Summary],
+                Dispatches = Index(models.Summary, models.DispatchId).Dispatches,
+            });
+
+        ConversationProjectionReadStore readStore = new(store);
+
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
+            async () => await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken));
+    }
+
+    /// <summary>
     /// A current persisted pair read through the real store path enables trust-bearing detail.
     /// </summary>
     [Fact]
     public async Task CurrentPersistedModelShouldEnableTrustBearingDetail()
     {
         InMemoryReadModelStore store = new();
-        await new ConversationProjectionReadModelWriter(store)
-            .PersistAsync(Models(ConversationA, Now.AddSeconds(1)), TestContext.Current.CancellationToken);
+        ConversationProjectedReadModels models = Models(ConversationA, Now.AddSeconds(1));
+        ConversationProjectionReadModelWriter writer = new(store);
+        await writer.MarkPendingAsync(models, TestContext.Current.CancellationToken);
+        await writer.PersistAsync(models, TestContext.Current.CancellationToken);
+        await store.SaveAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(models.DispatchId),
+            new ConversationProjectionDispatchLedger(
+                models.DispatchId,
+                "fingerprint-current",
+                Tenant,
+                ConversationA,
+                models.Summary.Freshness.ProjectionGeneratedAt,
+                ConversationProjectionDispatchStatus.Completed),
+            TestContext.Current.CancellationToken);
 
         ConversationProjectionReadService service = new(AllowAll(), new ConversationProjectionReadStore(store));
 
@@ -152,7 +281,67 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
                     Label: $"Case {conversationId.Value}")),
             ],
             generatedAt,
-            TimeSpan.FromMinutes(5));
+            TimeSpan.FromMinutes(5)) with
+        {
+            DispatchId = $"dispatch-{conversationId.Value}-{generatedAt.UtcTicks}",
+        };
+
+    private static ConversationProjectionIndexReadModel Index(
+        ConversationSummaryProjectionV1 summary,
+        string dispatchId)
+        => new()
+        {
+            Summaries = [summary],
+            Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+            {
+                [summary.ConversationId.Value] = new(dispatchId, summary.Freshness.LastAppliedEventPosition),
+            },
+        };
+
+    private static void SeedCompletedGeneration(
+        InMemoryReadModelStore store,
+        ConversationProjectedReadModels models,
+        ConversationSummaryProjectionV1 indexedSummary)
+    {
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationA),
+            models);
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            Index(indexedSummary, models.DispatchId));
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(models.DispatchId),
+            new ConversationProjectionDispatchLedger(
+                models.DispatchId,
+                $"fingerprint-{models.DispatchId}",
+                Tenant,
+                ConversationA,
+                models.Summary.Freshness.ProjectionGeneratedAt,
+                ConversationProjectionDispatchStatus.Completed));
+    }
+
+    private static ConversationSummaryProjectionV1 CopySummary(
+        ConversationSummaryProjectionV1 source,
+        string? label = null,
+        ProjectionFreshnessV1? freshness = null)
+        => new(
+            source.SchemaVersion,
+            source.TenantId,
+            source.ConversationId,
+            freshness ?? source.Freshness,
+            source.LifecycleState,
+            label ?? source.Label,
+            source.BusinessReference,
+            source.ProjectId,
+            source.FolderId,
+            source.ParticipantPartyIds,
+            source.MessageCount,
+            source.FileReferenceCount,
+            source.ProviderCorrelation,
+            source.SearchTrustPreview);
 
     private sealed class FakeTenantAccessService(ConversationTenantAccessDecision decision) : IConversationTenantAccessService
     {

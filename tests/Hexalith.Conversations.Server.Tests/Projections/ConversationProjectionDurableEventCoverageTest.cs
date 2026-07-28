@@ -7,7 +7,9 @@ using System.Reflection;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.Projections;
@@ -76,47 +78,93 @@ public sealed class ConversationProjectionDurableEventCoverageTest
     }
 
     [Fact]
-    public void DurableDomainEventPayloadShouldDecodeIntoItsPublicContractShape()
+    public void EveryDurableDomainEventPayloadShouldDecodeIntoItsPublicContractShape()
     {
         DateTimeOffset occurredAt = DateTimeOffset.UtcNow;
-        ConversationCreatedDomainEvent durable = new(
-            new ConversationEventMetadata(
+        TenantId tenantId = new("tenant-durable-001");
+        ConversationId conversationId = new("conversation-durable-001");
+        PartyId actor = new("party-durable-001");
+        GovernanceAuditEvidenceReference evidence = new(
+            new AuditEvidenceHandle("audit-durable-001"),
+            "policy-durable-001",
+            occurredAt);
+        object[] durableEvents =
+        [
+            new ConversationCreatedDomainEvent(
+                Metadata(ConversationEventType.ConversationCreated),
+                new BusinessReference("crm", "case-durable-001"),
+                new ProjectId("project-durable-001"),
+                new FolderId("folder-durable-001"),
+                "Durable decode proof",
+                "idempotency-durable-001"),
+            new ParticipantAddedDomainEvent(
+                Metadata(ConversationEventType.ParticipantAdded),
+                new PartyId("party-participant-001"),
+                ParticipantType.Human,
+                ParticipantRole.Member),
+            new ConversationProjectChangedDomainEvent(
+                Metadata(ConversationEventType.ConversationProjectChanged),
+                new ProjectId("project-previous-001"),
+                new ProjectId("project-current-001")),
+            new RetentionPolicySetDomainEvent(
+                Metadata(ConversationEventType.RetentionPolicySet),
+                "policy-durable-001",
+                "retention-set",
+                evidence,
+                "idempotency-retention-set"),
+            new RetentionPolicyReplacedDomainEvent(
+                Metadata(ConversationEventType.RetentionPolicyReplaced),
+                "policy-durable-002",
+                "policy-durable-001",
+                "retention-replaced",
+                evidence,
+                "idempotency-retention-replaced"),
+            new ConversationContentMarkedSensitiveDomainEvent(
+                Metadata(ConversationEventType.ConversationContentMarkedSensitive),
+                new GovernanceTarget(GovernedTargetKind.Conversation),
+                SensitivityCategory.Restricted,
+                "policy-durable-001",
+                "sensitivity-marked",
+                evidence,
+                "idempotency-sensitive"),
+            new MessageContentRedactedDomainEvent(
+                Metadata(ConversationEventType.MessageContentRedacted),
+                new GovernanceTarget(GovernedTargetKind.Message, MessageId: new MessageId("message-durable-001")),
+                RedactionCategory.ContentSuppression,
+                "policy-durable-001",
+                "message-redacted",
+                evidence,
+                "idempotency-redacted"),
+        ];
+
+        foreach (object durable in durableEvents)
+        {
+            IReadOnlyList<ConversationProjectionEventRecord> decoded = ConversationProjectionEventDecoder.Decode(
+            [
+                new ProjectionEventDto(
+                    durable.GetType().FullName!,
+                    JsonSerializer.SerializeToUtf8Bytes(durable, durable.GetType(), DomainEventWireOptions),
+                    "json",
+                    1,
+                    occurredAt,
+                    "correlation-durable-001"),
+            ]);
+
+            decoded.ShouldHaveSingleItem().Event.GetType().Name.ShouldBe(
+                durable.GetType().Name[..^"DomainEvent".Length]);
+        }
+
+        ConversationEventMetadata Metadata(ConversationEventType eventType)
+            => new(
                 SchemaVersion.Current,
-                "event-durable-decode-001",
-                ConversationEventType.ConversationCreated,
-                new TenantId("tenant-durable-001"),
-                new ConversationId("conversation-durable-001"),
+                $"event-durable-{eventType.Value}",
+                eventType,
+                tenantId,
+                conversationId,
                 "correlation-durable-001",
                 occurredAt,
-                new PartyId("party-durable-001"),
-                "causation-durable-001"),
-            new BusinessReference("crm", "case-durable-001"),
-            new ProjectId("project-durable-001"),
-            new FolderId("folder-durable-001"),
-            "Durable decode proof",
-            "idempotency-durable-001");
-
-        IReadOnlyList<ConversationProjectionEventRecord> decoded = ConversationProjectionEventDecoder.Decode(
-        [
-            new ProjectionEventDto(
-                durable.GetType().FullName!,
-                JsonSerializer.SerializeToUtf8Bytes(durable, DomainEventWireOptions),
-                "json",
-                1,
-                occurredAt,
-                "correlation-durable-001"),
-        ]);
-
-        ConversationCreated created = decoded
-            .ShouldHaveSingleItem()
-            .Event
-            .ShouldBeOfType<ConversationCreated>();
-        created.Metadata.ConversationId.ShouldBe(durable.Metadata.ConversationId);
-        created.Metadata.TenantId.ShouldBe(durable.Metadata.TenantId);
-        created.Label.ShouldBe(durable.Label);
-        created.ProjectId.ShouldBe(durable.ProjectId);
-        created.FolderId.ShouldBe(durable.FolderId);
-        created.BusinessReference.ShouldBe(durable.BusinessReference);
+                actor,
+                "causation-durable-001");
     }
 
     [Fact]
@@ -126,6 +174,9 @@ public sealed class ConversationProjectionDurableEventCoverageTest
         // otherwise a poisoned envelope would be decoded as some arbitrary contract type.
         ConversationProjectionEventDecoder
             .TryResolvePublicEventType("Hexalith.Conversations.Events.SomethingElseDomainEvent", out _)
+            .ShouldBeFalse();
+        ConversationProjectionEventDecoder
+            .TryResolvePublicEventType("EvilConversationCreatedDomainEvent", out _)
             .ShouldBeFalse();
         ConversationProjectionEventDecoder
             .TryResolvePublicEventType("DomainEvent", out _)
@@ -149,13 +200,13 @@ public sealed class ConversationProjectionDurableEventCoverageTest
         IReadOnlyDictionary<string, Type> durableEntries = ConversationProjectionEventDecoder.DurableEventTypeEntries;
 
         publicEntries.Count.ShouldBe(13);
-        durableEntries.Count.ShouldBe(13);
+        durableEntries.Count.ShouldBe(DurableProjectedEventTypes.Count);
         publicEntries.Keys.ShouldAllBe(name => !name.EndsWith("DomainEvent", StringComparison.Ordinal));
         durableEntries.Keys.ShouldAllBe(name => name.EndsWith("DomainEvent", StringComparison.Ordinal));
         publicEntries.Keys.Intersect(durableEntries.Keys, StringComparer.Ordinal).ShouldBeEmpty();
 
         durableEntries.Keys.Order(StringComparer.Ordinal).ShouldBe(
-            [.. publicEntries.Keys.Select(name => name + "DomainEvent").Order(StringComparer.Ordinal)]);
+            [.. DurableProjectedEventTypes.Select(type => type.Name).Order(StringComparer.Ordinal)]);
 
         // Each alias must point at the public contract type it is named after, not merely at some public type.
         foreach ((string durableName, Type mappedType) in durableEntries)

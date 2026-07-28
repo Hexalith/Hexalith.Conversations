@@ -63,7 +63,9 @@ public static class ConversationsAppHostTopology
             adminServer: null,
             adminUI: null);
 
-        IResourceBuilder<ProjectResource> conversationsServer = builder.AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName);
+        IResourceBuilder<ProjectResource> conversationsServer = builder
+            .AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName)
+            .WithHttpEndpoint();
         _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsResourceName);
 
         if (security is not null)

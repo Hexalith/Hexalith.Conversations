@@ -9,6 +9,7 @@ using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.DomainService;
 
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
 
 WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
@@ -29,6 +30,7 @@ builder.AddEventStoreDomainService(
 // discovers the adapter type itself; this registers its dependency graph.
 builder.Services.AddConversationTenantAccess();
 
+builder.Services.AddDataProtection();
 builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();

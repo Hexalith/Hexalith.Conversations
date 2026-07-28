@@ -9,6 +9,7 @@ using System.Text.Json;
 using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Serialization;
+using Hexalith.Conversations.Events;
 using Hexalith.EventStore.Contracts.Projections;
 
 namespace Hexalith.Conversations.Server.Projections;
@@ -20,11 +21,6 @@ internal static class ConversationProjectionEventDecoder
 {
     private static readonly JsonSerializerOptions EventJsonOptions =
         JsonSerializationOptions.CreateWeb([ConversationsJsonContext.Default], includeReflectionFallback: true);
-
-    /// <summary>
-    /// The suffix the durable domain event types carry over their public contract counterparts.
-    /// </summary>
-    private const string DomainEventSuffix = "DomainEvent";
 
     private static readonly Type[] PublicContractEventTypes =
     [
@@ -41,6 +37,17 @@ internal static class ConversationProjectionEventDecoder
         typeof(RetentionPolicyReplaced),
         typeof(ConversationContentMarkedSensitive),
         typeof(MessageContentRedacted),
+    ];
+
+    private static readonly (Type DurableType, Type PublicType)[] DurableProjectedEventTypes =
+    [
+        (typeof(ConversationCreatedDomainEvent), typeof(ConversationCreated)),
+        (typeof(ParticipantAddedDomainEvent), typeof(ParticipantAdded)),
+        (typeof(ConversationProjectChangedDomainEvent), typeof(ConversationProjectChanged)),
+        (typeof(RetentionPolicySetDomainEvent), typeof(RetentionPolicySet)),
+        (typeof(RetentionPolicyReplacedDomainEvent), typeof(RetentionPolicyReplaced)),
+        (typeof(ConversationContentMarkedSensitiveDomainEvent), typeof(ConversationContentMarkedSensitive)),
+        (typeof(MessageContentRedactedDomainEvent), typeof(MessageContentRedacted)),
     ];
 
     private static readonly PolymorphicTypeRegistry PublicEventTypes = BuildPublicEventTypeRegistry();
@@ -64,23 +71,34 @@ internal static class ConversationProjectionEventDecoder
         List<ConversationProjectionEventRecord> records = new(events.Length);
         foreach (ProjectionEventDto? evt in events)
         {
-            if (evt is null || evt.SequenceNumber < 1)
+            if (evt is null)
             {
-                continue;
+                throw new JsonException("The projection event envelope is missing.");
+            }
+
+            if (evt.SequenceNumber < 1)
+            {
+                throw new JsonException("The projection event sequence is invalid.");
+            }
+
+            if (!string.Equals(evt.SerializationFormat, "json", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new JsonException("The projection event serialization format is unsupported.");
             }
 
             if (!TryResolvePublicEventType(evt.EventTypeName, out Type? eventType))
             {
-                continue;
+                throw new JsonException("The projection event discriminator is unsupported.");
             }
 
-            object? decoded = evt.Payload is { Length: > 0 }
-                ? JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
-                : null;
-            if (decoded is not null)
+            if (evt.Payload is not { Length: > 0 })
             {
-                records.Add(new ConversationProjectionEventRecord(evt.SequenceNumber, decoded));
+                throw new JsonException("The projection event payload is missing.");
             }
+
+            object decoded = JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
+                ?? throw new JsonException("The projection event payload decoded to null.");
+            records.Add(new ConversationProjectionEventRecord(evt.SequenceNumber, decoded));
         }
 
         return records;
@@ -97,8 +115,8 @@ internal static class ConversationProjectionEventDecoder
     /// which would let the guard agree with a broken decoder.
     /// </remarks>
     internal static bool TryResolvePublicEventType(string? eventTypeName, [NotNullWhen(true)] out Type? eventType)
-        => PublicEventTypes.TryResolveExactThenSuffix(eventTypeName, out eventType)
-            || DurableEventTypes.TryResolveExactThenSuffix(eventTypeName, out eventType);
+        => TryResolveExactOrQualified(PublicEventTypes, eventTypeName, out eventType)
+            || TryResolveExactOrQualified(DurableEventTypes, eventTypeName, out eventType);
 
     private static PolymorphicTypeRegistry BuildPublicEventTypeRegistry()
         => PolymorphicTypeRegistry.FromTypeNames(PublicContractEventTypes);
@@ -111,18 +129,49 @@ internal static class ConversationProjectionEventDecoder
     /// A persisted envelope names the event by the CLR type the aggregate emitted, which is the domain event
     /// (for example <c>Hexalith.Conversations.Events.ConversationCreatedDomainEvent</c>), not the public contract
     /// type the projection consumes. Suffix resolution matches the END of the discriminator, so the public name
-    /// alone can never match a domain-event name; without these aliases every replayed event is silently
-    /// dropped, the builder never observes a creation, and the read model stays Rebuilding forever. The two
+    /// alone can never match a domain-event name; without these aliases every replayed durable event would be
+    /// rejected before materialization. The two
     /// shapes are wire-compatible by construction because each domain event repeats its public counterpart's
     /// members verbatim and only adds the domain-side idempotency key, which the public type ignores.
     /// <para>
     /// These aliases are deliberately a separate registry rather than extra entries in the public one:
-    /// <see cref="PublicEventTypeEntries"/> is the module's public event vocabulary, and widening it to 26 names
-    /// would be a public contract change this story is not permitted to make.
+    /// <see cref="PublicEventTypeEntries"/> remains the module's 13-name public event vocabulary, while this
+    /// registry contains only the seven domain-event types the aggregate actually persists and projects.
     /// </para>
     /// </remarks>
     private static PolymorphicTypeRegistry BuildDurableEventTypeRegistry()
         => PolymorphicTypeRegistry.Create(
-            PublicContractEventTypes.Select(static type =>
-                new PolymorphicTypeRegistration($"{type.Name}{DomainEventSuffix}", type)));
+            DurableProjectedEventTypes.Select(static pair =>
+                new PolymorphicTypeRegistration(pair.DurableType.Name, pair.PublicType)));
+
+    private static bool TryResolveExactOrQualified(
+        PolymorphicTypeRegistry registry,
+        string? discriminator,
+        [NotNullWhen(true)] out Type? eventType)
+    {
+        eventType = null;
+        if (string.IsNullOrWhiteSpace(discriminator))
+        {
+            return false;
+        }
+
+        if (registry.Entries.TryGetValue(discriminator, out eventType))
+        {
+            return true;
+        }
+
+        foreach ((string alias, Type registeredType) in registry.Entries)
+        {
+            int separatorIndex = discriminator.Length - alias.Length - 1;
+            if (separatorIndex >= 0
+                && discriminator.EndsWith(alias, StringComparison.Ordinal)
+                && discriminator[separatorIndex] is '.' or '+')
+            {
+                eventType = registeredType;
+                return true;
+            }
+        }
+
+        return false;
+    }
 }

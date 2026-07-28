@@ -25,4 +25,9 @@ public sealed record ConversationProjectedReadModels(
     /// Gets the projected conversation detail.
     /// </summary>
     public ConversationDetailProjectionV1 Detail { get; } = Detail ?? throw new ArgumentNullException(nameof(Detail));
+
+    /// <summary>
+    /// Gets the stable dispatch identity that produced this internal persisted generation.
+    /// </summary>
+    public string DispatchId { get; init; } = string.Empty;
 }

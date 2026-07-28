@@ -3,7 +3,7 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'review'
+status: 'in-progress'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
@@ -36,7 +36,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: review
+Status: in-progress
 
 ## ⚠️ Read this first — most of this story is already implemented
 
@@ -240,6 +240,31 @@ Committed by `b11b0c7` ("refactor(hosting): adopt platform runtime"), `65c7699`,
       (AC: 5) — 14 source bindings and 4 signed-v1 bindings all hash-verified against the
       working tree with **zero drift**; signed v1 artifacts byte-identical.
 
+> Review note (2026-07-28): the patch set below intentionally changes bound production sources, so the
+> historical v2 proof now detects source drift. Signed v1 evidence was not mutated. Story status remains
+> `in-progress` until evidence is regenerated and the EventStore promotion is committed and captured.
+
+### Review Findings
+
+- [x] [Review][Patch] Detail-only partial writes remain invisible to tenant list consistency checks (HIGH) — When the detail write for a new conversation succeeds and the tenant-index write fails, `ListAsync` validates only conversations already named by the old index. Existing rows can therefore be returned as `Current` while the newly accepted conversation is omitted, violating AC6's rule that neither query may report a partial generation as current. Resolution: add an internal pending/completed dispatch ledger keyed by `dispatchId`; queries remain `Rebuilding` while the dispatch is pending.
+- [x] [Review][Patch] Cross-key validation introduces an unbounded HP-LIST N+1 fan-out (HIGH) — `ListAsync` changed from one tenant-index read to one sequential detail-store read per indexed conversation. This conflicts with the prior explicit no-N+1 contract and the active SM-C2 HP-LIST gate, while the recorded benchmark excludes the changed Server path. Resolution: add bounded bulk/page reads for the candidate detail records and retain fail-closed cross-key consistency validation without an unbounded per-conversation fan-out.
+- [x] [Review][Patch] Stable dispatch identity is ignored by handler persistence (HIGH) — `ProjectAsync` validates but never uses `dispatchId`, and materialization uses the current clock. A retry after both writes complete but before platform completion is recorded can therefore rewrite freshness timestamps and transiently split the keys instead of producing a stable idempotent result. Resolution: use the internal `dispatchId` ledger to make completed retries no-ops and prevent projection freshness timestamps from being rewritten.
+- [x] [Review][Patch] Reject undecodable envelopes instead of silently dropping trailing events (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:65]
+- [x] [Review][Patch] Do not acknowledge non-current materializations as completed dispatches (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:85]
+- [x] [Review][Patch] Map deterministic rebuild decode failures to a terminal typed outcome (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:110]
+- [x] [Review][Patch] Require qualified discriminator segment boundaries instead of arbitrary suffix matches (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:99]
+- [x] [Review][Patch] Restrict durable aliases to actual persisted Conversations domain-event types (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:124]
+- [x] [Review][Patch] Surface index-present/detail-missing state as mixed-generation rebuilding (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:51]
+- [x] [Review][Patch] Compare summary content and complete freshness across detail and index keys (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:73]
+- [x] [Review][Patch] Reject duplicate conversation summaries in the tenant index (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:105]
+- [x] [Review][Patch] Sanitize foreign and duplicate sibling rows when preparing rebuild indexes (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:141]
+- [x] [Review][Patch] Reject empty full-replay histories before preparing a replacement model (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:123]
+- [x] [Review][Patch] Validate the projection envelope serialization format before JSON decoding (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:77]
+- [x] [Review][Patch] Drain MSBuild stdout and stderr concurrently so the test timeout cannot deadlock (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:79]
+- [x] [Review][Patch] Cover populated multi-conversation rebuild plans and persisted ETag concurrency (MEDIUM) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:132]
+- [x] [Review][Patch] Exercise durable payload decoding for every actual projected domain-event type (MEDIUM) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs:79]
+- [x] [Review][Patch] Exercise the retained AppHost through a running Server/EventStore production boundary (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:124]
+
 ## Dev Notes
 
 ### Binding sequence — check before starting
@@ -280,9 +305,10 @@ FR-16 deferred.
   health, telemetry, query, projection, publication, or subscription plumbing.
 - Never hide a generic platform gap behind Conversations — fix it in the owning public surface.
 - Never introduce direct DAPR state writes, query-time replay, or silent backfill.
-- Never claim atomic multi-key persistence. ADR 0003 deliberately keeps **two idempotent
-  policy writes**; second-write uncertainty is **non-completion**, and queries must expose
-  cross-key generation inconsistency rather than repair it on read.
+- Never claim atomic immediate multi-key persistence. The dispatch ledger and index marker make
+  sequential partial progress observable; uncertainty is **non-completion**, and queries must expose
+  cross-key generation inconsistency rather than repair it on read. Coordinated rebuild promotion remains
+  platform-owned through the batch protocol.
 - Never treat direct writer calls, DI resolution, mock counts, HTTP acceptance, or the legacy
   opaque `ProjectionResponse` as population proof.
 - Never mutate signed v1 evidence, frozen Epic 1–5 history, retrospectives, the historical
@@ -482,6 +508,8 @@ Run the full nine-project regression before completion; the Story 6.1/6.7 baseli
 
 `claude-opus-5` (BMAD `dev-story` workflow, 2026-07-27).
 
+`Codex (GPT-5)` (BMAD `code-review` workflow, 2026-07-28).
+
 ### Debug Log References
 
 **Blocker encountered and resolved — `SUBMODULE_DIRTY_UNTRACKED` (`references/Hexalith.Tenants`).**
@@ -533,6 +561,24 @@ package-mode restore remains independently broken by the documented `NU1102` unp
 EventStore proof versions. Test projects were run as built xUnit v3 executables.
 
 ### Completion Notes List
+
+- **Code-review patch pass (2026-07-28): all 18 selected findings implemented.** Added a stable
+  pending/completed dispatch ledger, fail-closed cross-key/ledger validation, bounded 100-key platform bulk
+  pages, strict envelope decoding, typed deterministic rebuild rejection, sanitized three-key rebuild plans,
+  and complete discriminator/event coverage. The real AppHost launch exposed and fixed two additional
+  production blockers hidden by model-only tests: Conversations had no Aspire HTTP endpoint and Program did
+  not register the Data Protection provider required by the cursor codec.
+- **Review validation:** Conversations Server **631/631**; focused projection suite **121/121**; full Dapr-backed
+  integration **14/14**; opt-in real AppHost Server/EventStore boundary **1/1**; ordinary AppHost suite **8 passed,
+  1 opt-in skipped**; EventStore dispatcher **30/30**. Relevant builds completed with 0 warnings/errors when
+  project references were isolated from the repository's existing mixed package/source graph.
+- **Honest review blockers:** full Conformance is **417/418** because the immutable v2 proof correctly detects
+  changed source hashes; full EventStore DomainService is **146/147** because its nested Tenants subject is not
+  initialized and repository policy forbids initializing nested submodules; EventStore Client tests remain
+  unbuildable due their pre-existing references to source folders excluded by the current aggregate project.
+  The promotion gate is `blocked` by `SUBMODULE_DIRTY_TRACKED` and `SUBMODULE_DIRTY_UNTRACKED` in
+  `references/Hexalith.EventStore`, as expected for an uncommitted promotion. No commit, push, staging, signed
+  evidence rewrite, dependency update, or nested-submodule initialization was performed.
 
 - **T1 (blocking) closed.** Evidence rebound from the stale `0eb3657` / `b11b0c7` pair to
   `c8c7003` / candidate `953bf71` with the real gate output. Assertions were **added, not
@@ -635,10 +681,52 @@ tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.Servic
 The three `references/…` entries are gitlink promotions declared in `submodule_promotions`.
 The `ServiceDefaults` entries are deletions (AC3).
 
+Review patch working-tree delta (2026-07-28; uncommitted and therefore not folded into the historical
+49-path committed list):
+
+```text
+_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md
+_bmad-output/implementation-artifacts/sprint-status.yaml
+references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/DaprReadModelStore.cs
+references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/IReadModelBulkStore.cs
+references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Registration/ReadModelStoreServiceCollectionExtensions.cs
+references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs
+references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionRebuildRejectedException.cs
+references/Hexalith.EventStore/src/Hexalith.EventStore.Testing/Fakes/InMemoryReadModelStore.cs
+references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Projections/DaprReadModelStoreTests.cs
+references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Projections/RecordingDaprClient.cs
+references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Registration/ReadModelAndCursorRegistrationTests.cs
+references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/DomainProjectionDispatcherV2Tests.cs
+src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs
+src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj
+src/Hexalith.Conversations.Server/Program.cs
+src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs
+src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs
+tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs
+tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs
+tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj
+tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj
+tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs
+tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs
+```
+
 ## Change Log
 
 | Date | Change |
 | --- | --- |
+| 2026-07-28 | Code review: implemented all 18 selected adversarial findings; added stable dispatch-ledger consistency, bounded bulk reads, strict decode/rebuild behavior, real AppHost runtime coverage, and the production endpoint/Data Protection fixes revealed by that launch. Returned story to `in-progress` pending evidence regeneration and EventStore promotion capture. |
 | 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `c398ea2`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
 | 2026-07-27 | T2 closed by strengthening the fixture (Jerome's decision): gateway lane crosses `ProjectionUpdateOrchestrator` and `NamedProjectionDispatchCoordinator` into a DAPR/Redis `statestore`; recorded as `gatewayBoundaryEvidence` with `residualGap: "none"` and mechanically asserted. |
 | 2026-07-27 | T3 closed: non-shipping AppHost boundary asserted from evaluated MSBuild properties and fault-injected to prove it fails when an import flips `IsPackable`. |

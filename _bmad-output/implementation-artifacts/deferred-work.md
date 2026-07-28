@@ -31,3 +31,31 @@ Real findings that are not actionable in the story that surfaced them. Each entr
 - **Both `bmad-quick-dev` routes stage only *declared* gitlinks, so `UNDECLARED_GITLINK_CHANGE` is structurally unreachable on that path.** `step-05-present.md:55` and `step-oneshot.md:59` both say "Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks". An undeclared bump is therefore never committed, never appears in `changed_gitlinks`, and never activates the gate. Proven on a throwaway repo: with no `--submodule`, `result: pass`, `changed_gitlinks: []`, exit 0; with `--submodule refsub`, `result: blocked`, `GITLINK_COMMIT_MISMATCH`, exit 1. This is an inherent tension with non-negotiable constraint #5 ("stage only declared files; never `git add -A`"), which is itself a hard rule carried forward from the Stories 2.2 and 3.3 review corrections — resolving it means changing one of the two rules, which is an owner decision, not a defect fix.
 
 - **Nothing executes the promotion gate automatically.** No `.github/workflows` exists outside `references/`, no git hook invokes the checker, and `grep -rn "verify_submodule_promotion\|submodule_promotions" tests/ --include=*.cs` returns nothing. The pytest suite is manual-only and requires `uv` (system `python3` has no pytest). AC3's "mechanically block review/completion workflows" therefore rests entirely on agent compliance with markdown prose. The story acknowledges this at Dev Notes → Git intelligence, and Story 6.1 already logged the same condition for the planning gate — recorded here so a single future sweep can wire both into CI together.
+
+## Deferred from: spec-gh-actions-30291329462-90061623240 (Hexalith.Tenants release version floor, 2026-07-28)
+
+All items are in `references/Hexalith.Tenants`; surfaced by the review layers over the floor change, not caused by it.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: `recover-partial-release.yml` bypasses the publication version floor entirely, and its documented `3.3.0` example would mix package lines.
+  evidence: `scripts/validate-partial-release-recovery.sh` and `publish-partial-release.sh` never call `validate-publication-preflight.sh`; their only version check is a SemVer regex. The workflow input description names `3.3.0`, whose Contracts/Server/Aspire packages were published 2026-05-02 from unrelated source — run 30291329462 published nothing. Dispatching recovery for it would ship Client/Testing `3.3.0` from current source alongside three May-2026 packages at the same version. Also, `publish-partial-release.sh` gates on `gh release view`, not tag existence, so `gh release create --target` would silently ignore its target on an existing tag.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: The floor is a static constant, so the same incident recurs silently once the version line is inside 4.x.
+  evidence: `minimum_release_version=4.0.0` never rises. After 4.9.0 ships, deleting tags again makes semantic-release resume at a 4.0.x proposal — above the floor, so the guard passes and the collision returns at push time. A floor derived from the highest published NuGet version or highest reachable release tag would track it.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: Nothing fails in CI when the release-config option names or the tag line drift.
+  evidence: `PackageGovernanceTests.cs` pins `successCommentCondition`/`releasedLabels`/`labels` as JSON substrings, but `package.json` allows `@semantic-release/github` `^12.0.8`, so a renamed option in a later major keeps the suite green while the write returns. Likewise no test asserts that the highest reachable semver tag is at or above the floor, so a repeat tag deletion is invisible until a release is dispatched.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: `CHANGELOG.md` is frozen at 3.2.18 and will never record 4.x.
+  evidence: `@semantic-release/changelog` and `@semantic-release/git` were deliberately removed in 6cc9eb3 (the git plugin pushes to main during prepare and strands the publish-phase source proof), and `PackageGovernanceTests.cs` asserts their absence. Release notes live only in GitHub Releases. Either freeze `CHANGELOG.md` with a pointer or restore generation on a path that cannot advance main mid-release.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: `CONTRIBUTING.md` still tells contributors that merging to `main` releases automatically.
+  evidence: Step 7 of the Pull Request Process predates 6cc9eb3, which replaced `workflow_run` with `workflow_dispatch` plus an operator-owned `verify-source` gate. Releases now require an explicit dispatch.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md`
+  summary: The preflight's SemVer regex admits leading zeros, which `sort -V` then mis-ranks.
+  evidence: `04.0.0` passes `^[0-9]+\.[0-9]+\.[0-9]+...` and is rejected as below the `4.0.0` floor. Unreachable from semantic-release, which never emits such a version, so the regex was left as-is rather than tightened inside a release-gate fix.

@@ -30,9 +30,9 @@ public sealed class ConversationsAppHostTopologyTest
     /// harness became packable. Evaluating the properties measures what the build does.
     /// </remarks>
     [Fact]
-    public void ConversationsAppHostShouldBeMechanicallyNonShipping()
+    public async Task ConversationsAppHostShouldBeMechanicallyNonShipping()
     {
-        IReadOnlyDictionary<string, string> evaluated = EvaluateProjectProperties(
+        IReadOnlyDictionary<string, string> evaluated = await EvaluateProjectPropertiesAsync(
             Path.Combine(
                 FindRepositoryRoot(),
                 "src",
@@ -56,7 +56,7 @@ public sealed class ConversationsAppHostTopologyTest
     /// Thrown when evaluation cannot run or does not return every requested property. Failing here rather than
     /// skipping is deliberate: an unevaluated guard proves nothing about the shipping boundary.
     /// </exception>
-    private static IReadOnlyDictionary<string, string> EvaluateProjectProperties(
+    private static async Task<IReadOnlyDictionary<string, string>> EvaluateProjectPropertiesAsync(
         string projectPath,
         params string[] propertyNames)
     {
@@ -78,13 +78,21 @@ public sealed class ConversationsAppHostTopologyTest
 
         using Process process = Process.Start(startInfo)
             ?? throw new InvalidOperationException("MSBuild evaluation could not be started.");
-        string standardOutput = process.StandardOutput.ReadToEnd();
-        string standardError = process.StandardError.ReadToEnd();
-        if (!process.WaitForExit(milliseconds: 180_000))
+        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
+        using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(3));
+        try
+        {
+            await process.WaitForExitAsync(timeout.Token);
+        }
+        catch (OperationCanceledException) when (timeout.IsCancellationRequested)
         {
             process.Kill(entireProcessTree: true);
             throw new InvalidOperationException("MSBuild evaluation did not complete within 180 seconds.");
         }
+
+        string standardOutput = await standardOutputTask;
+        string standardError = await standardErrorTask;
 
         if (process.ExitCode != 0)
         {
@@ -166,6 +174,10 @@ public sealed class ConversationsAppHostTopologyTest
         options.AppId.ShouldBe(ConversationsAppHostTopology.ConversationsResourceName);
         options.EnableAppHealthCheck.ShouldBe(true);
         options.AppHealthCheckPath.ShouldBe("/alive");
+        resources.ConversationsServer.Resource.Annotations
+            .OfType<EndpointAnnotation>()
+            .Select(static endpoint => endpoint.Name)
+            .ShouldContain("http");
 
         Dictionary<string, object> environment = new(StringComparer.Ordinal);
         EnvironmentCallbackContext environmentContext = new(

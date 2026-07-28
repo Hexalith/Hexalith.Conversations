@@ -48,15 +48,26 @@ Format each stop as framing first, link on the next indented line:
 
 When there is only one concern, omit the bold label — just list the stops directly.
 
-### Mark Spec Done
+### Prepare Committed Candidate
 
-Change `{spec_file}` status to `done` in the frontmatter.
+1. Re-read `{spec_file}` frontmatter. Preserve its `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy. Read `submodule_promotions` without expanding its approved scope; if the field is absent entirely, record `INVALID_SCOPE`, return the spec to `in-progress`, and HALT for an approved scope declaration.
+2. Keep the spec at `status: in-review`. Do not write `done` or synchronize `review` yet.
+3. If version control is available and the tree is dirty, create a local commit with a conventional message derived from the spec title. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never sweep in unrelated changes with `git add -A` or `git commit -a`.
+4. Resolve committed `HEAD` as `candidate_revision`. If version control is unavailable and `submodule_promotions` is non-empty, return the spec to `in-progress`, synchronize only `in-progress`, and HALT with the unavailable VCS condition.
 
-Follow `./sync-sprint-status.md` with `target_status` = `review`.
+### Promotion Completion Gate
 
-### Commit and Open
+When version control is available, invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding `--baseline <value>` when trustworthy, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Gating is activated when the declaration or `changed_gitlinks` is non-empty; for activated work, missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker.
 
-1. If version control is available and the tree is dirty, create a local commit with a conventional message derived from the spec title.
+Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to `{spec_file}`, return its status to `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, never synchronize `review`, and never initialize, update, fetch, commit, or silently expand submodule scope as remediation.
+
+### Mark Spec Done and Synchronize
+
+Only after the promotion gate passes (or non-promotion work has no version control and therefore preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`.
+
+### Commit Completion Record and Open
+
+1. If version control is available and the completion record is dirty, create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
 2. Open the spec in the user's editor so they can click through the Suggested Review Order:
    - Resolve two absolute paths: (1) the repository root (`git rev-parse --show-toplevel` — returns the worktree root when in a worktree, project root otherwise; if this fails, fall back to the current working directory), (2) `{spec_file}`. Run `code -r "{absolute-root}" "{absolute-spec-file}"` — the root first so VS Code opens in the right context, then the spec file. Always double-quote paths to handle spaces and special characters.
    - If `code` is not available (command fails), skip gracefully and tell the user the spec file path instead.
@@ -74,3 +85,5 @@ Workflow complete.
 ## On Complete
 
 If anything appears below, follow it as the final terminal instruction before exiting; otherwise exit normally.
+
+

@@ -171,6 +171,8 @@ public sealed class ScaffoldSmokeTest
             "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
             "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
             $"{eventStoreRoot}/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj",
+            // Story 6.2: Server directly consumes the platform read-model store and bounded bulk-read seams.
+            $"{eventStoreRoot}/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
             // Story 2.1 (FR-3): the Server is now the shared two-line domain-service host, so it references the
             // domain-service host SDK. Deliberate premise change recorded in the FR-20 ledger
             // (docs/release-evidence/at-risk-test-register-v1.*, story21StructuralDispositions).

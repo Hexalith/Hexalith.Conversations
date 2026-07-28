@@ -3,6 +3,9 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Security.Cryptography;
+using System.Text;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 
 namespace Hexalith.Conversations.Server.Projections;
@@ -26,8 +29,12 @@ internal static class ConversationProjectionReadModelKeys
     /// <summary>The diagnostic category for the per-tenant conversation summary index.</summary>
     internal const string TenantIndexKeyCategory = "conversation index";
 
+    /// <summary>The diagnostic category for stable projection dispatch ledgers.</summary>
+    internal const string DispatchLedgerKeyCategory = "conversation dispatch ledger";
+
     private const string ConversationKeyPrefix = "projection:conversations:";
     private const string TenantIndexKeyPrefix = "projection:conversations-index:";
+    private const string DispatchLedgerKeyPrefix = "projection:conversations-dispatch:";
 
     /// <summary>
     /// Builds the per-conversation key holding the persisted summary/detail pair.
@@ -45,4 +52,14 @@ internal static class ConversationProjectionReadModelKeys
     /// <returns>The tenant-scoped index key.</returns>
     internal static string TenantIndexKey(TenantId tenantId)
         => $"{TenantIndexKeyPrefix}{tenantId.Value}";
+
+    /// <summary>Builds the bounded storage key for one stable projection dispatch identity.</summary>
+    /// <param name="dispatchId">The stable platform dispatch identity.</param>
+    /// <returns>A non-disclosing fixed-length dispatch-ledger key.</returns>
+    internal static string DispatchLedgerKey(string dispatchId)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(dispatchId);
+        byte[] digest = SHA256.HashData(Encoding.UTF8.GetBytes(dispatchId));
+        return $"{DispatchLedgerKeyPrefix}{Convert.ToHexStringLower(digest)}";
+    }
 }

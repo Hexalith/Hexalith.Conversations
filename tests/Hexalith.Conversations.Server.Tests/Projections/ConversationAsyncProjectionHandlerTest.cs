@@ -46,6 +46,11 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant));
         index.ShouldNotBeNull();
         index!.Summaries.ShouldHaveSingleItem().ConversationId.ShouldBe(Conversation);
+        index.Dispatches[Conversation.Value].DispatchId.ShouldBe("dispatch-001");
+        store.Snapshot<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-001"))!
+            .Status.ShouldBe(ConversationProjectionDispatchStatus.Completed);
     }
 
     [Fact]
@@ -56,11 +61,36 @@ public sealed class ConversationAsyncProjectionHandlerTest
         ProjectionRequest request = Request(Tenant, Conversation);
 
         DomainProjectionHandlerResult first = await handler.ProjectAsync(request, "dispatch-duplicate", TestContext.Current.CancellationToken);
+        ReadModelEntry<ConversationProjectedReadModels> detailBefore = await store.GetAsync<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            TestContext.Current.CancellationToken);
+        ReadModelEntry<ConversationProjectionIndexReadModel> indexBefore = await store.GetAsync<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            TestContext.Current.CancellationToken);
+        ReadModelEntry<ConversationProjectionDispatchLedger> ledgerBefore = await store.GetAsync<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-duplicate"),
+            TestContext.Current.CancellationToken);
+
         DomainProjectionHandlerResult duplicate = await handler.ProjectAsync(request, "dispatch-duplicate", TestContext.Current.CancellationToken);
 
         first.Status.ShouldBe(ProjectionDispatchStatus.Completed);
         duplicate.Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        store.Count.ShouldBe(2);
+        store.Count.ShouldBe(3);
+        (await store.GetAsync<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            TestContext.Current.CancellationToken)).ETag.ShouldBe(detailBefore.ETag);
+        (await store.GetAsync<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            TestContext.Current.CancellationToken)).ETag.ShouldBe(indexBefore.ETag);
+        (await store.GetAsync<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-duplicate"),
+            TestContext.Current.CancellationToken)).ETag.ShouldBe(ledgerBefore.ETag);
         store.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
@@ -71,7 +101,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
     public async Task SecondWriteFailureShouldBeRetryableAndRetryShouldConverge()
     {
         InMemoryReadModelStore inner = new();
-        FailSecondSaveOnceReadModelStore store = new(inner);
+        FailCompletedIndexSaveOnceReadModelStore store = new(inner);
         ConversationAsyncProjectionHandler handler = Handler(store);
         ProjectionRequest request = Request(Tenant, Conversation);
 
@@ -82,14 +112,26 @@ public sealed class ConversationAsyncProjectionHandlerTest
         inner.Snapshot<ConversationProjectedReadModels>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldNotBeNull();
-        inner.Snapshot<ConversationProjectionIndexReadModel>(
+        ConversationProjectionIndexReadModel? pendingIndex = inner.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
-            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant)).ShouldBeNull();
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant));
+        pendingIndex.ShouldNotBeNull();
+        pendingIndex!.Summaries.ShouldBeEmpty();
+        pendingIndex.Dispatches[Conversation.Value].DispatchId.ShouldBe("dispatch-partial");
+        inner.Snapshot<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-partial"))!
+            .Status.ShouldBe(ConversationProjectionDispatchStatus.Pending);
+        ConversationProjectionReadStore readStore = new(inner);
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
+            async () => await readStore.ReadAsync(Tenant, Conversation, TestContext.Current.CancellationToken));
+        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
+            async () => await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken));
 
         DomainProjectionHandlerResult retried = await handler.ProjectAsync(request, "dispatch-partial", TestContext.Current.CancellationToken);
 
         retried.Status.ShouldBe(ProjectionDispatchStatus.Completed);
-        inner.Count.ShouldBe(2);
+        inner.Count.ShouldBe(3);
         inner.Snapshot<ConversationProjectionIndexReadModel>(
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
@@ -129,7 +171,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
     }
 
     [Fact]
-    public async Task FullReplayPlanShouldContainBothExactKeysWithoutMutatingLiveState()
+    public async Task FullReplayPlanShouldContainExactGenerationAndLedgerKeysWithoutMutatingLiveState()
     {
         InMemoryReadModelStore store = new();
         ConversationAsyncProjectionHandler handler = Handler(store);
@@ -144,9 +186,121 @@ public sealed class ConversationAsyncProjectionHandlerTest
         [
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("rebuild-001"),
         ]);
         plan.Operations.ShouldAllBe(operation => operation.Kind == ReadModelBatchOperationKind.Write);
         store.Count.ShouldBe(0, "rebuild preparation must remain side-effect free until coordinated promotion");
+    }
+
+    [Fact]
+    public async Task NonCurrentMaterializationShouldFailWithoutPublishingDispatchState()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ProjectionRequest gap = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [EventDto(Created(Tenant, Conversation), sequence: 2)]);
+
+        DomainProjectionHandlerResult result = await handler.ProjectAsync(
+            gap,
+            "dispatch-gap",
+            TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        store.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task EmptyRebuildHistoryShouldBeRejectedAsTerminalInput()
+    {
+        ConversationAsyncProjectionHandler handler = Handler(new InMemoryReadModelStore());
+        ProjectionRequest empty = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            []);
+
+        DomainProjectionRebuildRejectedException exception = await Should.ThrowAsync<DomainProjectionRebuildRejectedException>(
+            () => handler.PrepareRebuildAsync(empty, "rebuild-empty", TestContext.Current.CancellationToken));
+
+        exception.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.HandlerFailure);
+    }
+
+    [Fact]
+    public async Task PopulatedRebuildPlanShouldRetainValidSiblingAndUsePersistedEtags()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        await handler.ProjectAsync(
+            Request(Tenant, ConversationB()),
+            "dispatch-sibling",
+            TestContext.Current.CancellationToken);
+        await handler.ProjectAsync(
+            Request(Tenant, Conversation),
+            "dispatch-existing",
+            TestContext.Current.CancellationToken);
+
+        ReadModelEntry<ConversationProjectionIndexReadModel> validIndex = await store.GetAsync<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            TestContext.Current.CancellationToken);
+        TenantId foreignTenant = new("tenant-foreign");
+        ConversationId foreignConversation = new("conversation-foreign");
+        ConversationProjectedReadModels foreign = new ConversationProjectionMaterializer().Project(
+            foreignTenant,
+            foreignConversation,
+            [new ConversationProjectionEventRecord(1, Created(foreignTenant, foreignConversation))],
+            Started.AddSeconds(2),
+            TimeSpan.FromMinutes(5)) with
+        {
+            DispatchId = "dispatch-foreign-index",
+        };
+        Dictionary<string, ConversationProjectionDispatchReference> corruptedDispatches = new(
+            validIndex.Value!.Dispatches,
+            StringComparer.Ordinal)
+        {
+            [foreignConversation.Value] = new("dispatch-foreign-index", 1),
+        };
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = [.. validIndex.Value.Summaries, validIndex.Value.Summaries[0], foreign.Summary],
+                Dispatches = corruptedDispatches,
+            });
+
+        ReadModelEntry<ConversationProjectedReadModels> detailBefore = await store.GetAsync<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            TestContext.Current.CancellationToken);
+        ReadModelEntry<ConversationProjectionIndexReadModel> indexBefore = await store.GetAsync<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            TestContext.Current.CancellationToken);
+
+        DomainProjectionRebuildPlan plan = await handler.PrepareRebuildAsync(
+            Request(Tenant, Conversation),
+            "rebuild-populated",
+            TestContext.Current.CancellationToken);
+
+        ReadModelBatchOperation detailOperation = plan.Operations[0];
+        ReadModelBatchOperation indexOperation = plan.Operations[1];
+        detailOperation.Concurrency.ExpectedETag.ShouldBe(detailBefore.ETag);
+        indexOperation.Concurrency.ExpectedETag.ShouldBe(indexBefore.ETag);
+        plan.Operations[2].Concurrency.ShouldBe(ReadModelBatchConcurrency.CreateOnly);
+
+        ConversationProjectionIndexReadModel rebuiltIndex = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
+            indexOperation.CanonicalValue.Span,
+            JsonOptions)!;
+        rebuiltIndex.Summaries.Select(summary => summary.ConversationId.Value).ShouldBe(
+            [Conversation.Value, ConversationB().Value],
+            ignoreOrder: true);
+        rebuiltIndex.Dispatches.Keys.ShouldBe(
+            [Conversation.Value, ConversationB().Value],
+            ignoreOrder: true);
     }
 
     private static ConversationAsyncProjectionHandler Handler(IReadModelStore store)
@@ -166,14 +320,19 @@ public sealed class ConversationAsyncProjectionHandlerTest
             tenantId.Value,
             ConversationProjectionHandler.ConversationDomain,
             conversationId.Value,
-            [new ProjectionEventDto(
-                nameof(ConversationCreated),
-                JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions),
-                "json",
-                1,
-                Started,
-                "correlation-001")]);
+            [EventDto(@event, sequence: 1)]);
     }
+
+    private static ProjectionEventDto EventDto(ConversationCreated @event, long sequence)
+        => new(
+            nameof(ConversationCreated),
+            JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions),
+            "json",
+            sequence,
+            Started,
+            "correlation-001");
+
+    private static ConversationId ConversationB() => new("conversation-002");
 
     private static ConversationCreated Created(TenantId tenantId, ConversationId conversationId)
         => new(
@@ -194,9 +353,9 @@ public sealed class ConversationAsyncProjectionHandlerTest
         public override DateTimeOffset GetUtcNow() => now;
     }
 
-    private sealed class FailSecondSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore
+    private sealed class FailCompletedIndexSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore
     {
-        private int _saveAttempts;
+        private int _failed;
 
         public Task<ReadModelEntry<TValue>> GetAsync<TValue>(
             string storeName,
@@ -221,9 +380,10 @@ public sealed class ConversationAsyncProjectionHandlerTest
             CancellationToken cancellationToken = default)
             where TValue : class
         {
-            if (Interlocked.Increment(ref _saveAttempts) == 2)
+            if (value is ConversationProjectionIndexReadModel { Summaries.Count: > 0 }
+                && Interlocked.Exchange(ref _failed, 1) == 0)
             {
-                throw new InvalidOperationException("injected second-write failure");
+                throw new InvalidOperationException("injected completed-index failure");
             }
 
             return inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);

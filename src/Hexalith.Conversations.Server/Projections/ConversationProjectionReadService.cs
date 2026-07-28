@@ -125,10 +125,7 @@ public sealed class ConversationProjectionReadService(
             false);
 
     private static bool SameGeneration(ProjectionFreshnessV1 summary, ProjectionFreshnessV1 detail)
-        => summary.ProjectionCursor == detail.ProjectionCursor
-            && summary.LastAppliedEventPosition == detail.LastAppliedEventPosition
-            && summary.LastAppliedEventTimestamp.UtcTicks == detail.LastAppliedEventTimestamp.UtcTicks
-            && summary.ProjectionGeneratedAt.UtcTicks == detail.ProjectionGeneratedAt.UtcTicks;
+        => summary == detail;
 
     private static bool ProjectionMatchesRequest(
         ConversationProjectedReadModels models,

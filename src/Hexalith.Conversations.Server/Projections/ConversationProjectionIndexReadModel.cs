@@ -23,4 +23,11 @@ public sealed class ConversationProjectionIndexReadModel
     /// Gets the visible conversation summaries for the tenant scope.
     /// </summary>
     public IReadOnlyList<ConversationSummaryProjectionV1> Summaries { get; init; } = [];
+
+    /// <summary>
+    /// Gets the latest dispatch reference per conversation. A reference without a matching summary deliberately
+    /// exposes pending work to fail-closed list readers before the detail write starts.
+    /// </summary>
+    public IReadOnlyDictionary<string, ConversationProjectionDispatchReference> Dispatches { get; init; }
+        = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal);
 }

@@ -5,6 +5,11 @@ created: '{date}'
 status: 'draft' # draft | ready-for-dev | in-progress | in-review | done
 review_loop_iteration: 0 # incremented by step-04 before each review loopback
 context: [] # optional: `{project-root}/`-prefixed paths to project-wide standards/docs the implementation agent should load. Keep short — only what isn't already distilled into the spec body.
+submodule_promotions: []
+# Example:
+# submodule_promotions:
+#   - path: references/Hexalith.EventStore
+#     require_remote: true
 ---
 
 <!-- Target: 900–1300 tokens. Above 1600 = high risk of context rot.

@@ -31,8 +31,8 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     private static readonly DateTimeOffset Now = new(2026, 5, 20, 9, 0, 0, TimeSpan.Zero);
 
     /// <summary>
-    /// A persisted summary/detail pair reads back identically, and the list boundary returns it from a single
-    /// tenant-scoped index read (no per-conversation fan-out, NFR2).
+    /// A persisted summary/detail pair reads back identically, and the list boundary validates it with one
+    /// tenant-index read plus bounded platform bulk reads (no per-conversation remote fan-out, NFR2).
     /// </summary>
     [Fact]
     public async Task PersistedReadModelsRoundTripThroughStoreAndIndex()
@@ -44,6 +44,7 @@ public sealed class ConversationProjectionReadModelPersistenceTest
 
         ConversationProjectedReadModels models = Models(ConversationA, position: 1);
         await writer.PersistAsync(models, TestContext.Current.CancellationToken);
+        await SeedCompletedLedgerAsync(inner, models);
 
         ConversationProjectedReadModels? readBack = await readStore.ReadAsync(Tenant, ConversationA, TestContext.Current.CancellationToken);
         readBack.ShouldNotBeNull();
@@ -56,7 +57,60 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken);
 
         listed.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
-        store.GetCalls.ShouldBe(2, "ListAsync must verify the candidate index row against its detail generation.");
+        store.GetCalls.ShouldBe(1, "ListAsync must issue only the tenant-index scalar read.");
+        store.BulkGetCalls.ShouldBe(2, "ListAsync must bulk-read detail generations and completion ledgers.");
+    }
+
+    /// <summary>
+    /// A list larger than one platform page is validated in bounded chunks for both details and ledgers.
+    /// </summary>
+    [Fact]
+    public async Task ListValidationShouldUseBoundedBulkPages()
+    {
+        const int ConversationCount = 205;
+        InMemoryReadModelStore inner = new();
+        CountingReadModelStore store = new(inner);
+        ConversationProjectionReadStore readStore = new(store);
+        var summaries = new List<ConversationSummaryProjectionV1>(ConversationCount);
+        var dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(
+            ConversationCount,
+            StringComparer.Ordinal);
+
+        for (int index = 0; index < ConversationCount; index++)
+        {
+            ConversationProjectedReadModels models = Models(new ConversationId($"conversation-{index:D3}"), position: 1);
+            summaries.Add(models.Summary);
+            dispatches[models.Summary.ConversationId.Value] = new(
+                models.DispatchId,
+                models.Summary.Freshness.LastAppliedEventPosition);
+            inner.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ConversationKey(Tenant, models.Summary.ConversationId),
+                models);
+            inner.SeedRaw(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(models.DispatchId),
+                CompletedLedger(models));
+        }
+
+        inner.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = summaries,
+                Dispatches = dispatches,
+            });
+
+        IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+
+        listed.Count.ShouldBe(ConversationCount);
+        store.GetCalls.ShouldBe(1);
+        store.BulkGetCalls.ShouldBe(6, "205 details and 205 ledgers require three bounded pages each.");
+        store.MaximumBulkKeyCount.ShouldBe(100);
+        store.ObservedParallelism.ShouldBe([8]);
     }
 
     /// <summary>
@@ -248,15 +302,44 @@ public sealed class ConversationProjectionReadModelPersistenceTest
                     Label: $"Case {conversationId.Value}")),
             ],
             Now.AddSeconds(1),
-            TimeSpan.FromMinutes(5));
+            TimeSpan.FromMinutes(5)) with
+        {
+            DispatchId = $"dispatch-{conversationId.Value}-{position}",
+        };
+
+    private static Task SeedCompletedLedgerAsync(
+        InMemoryReadModelStore store,
+        ConversationProjectedReadModels models)
+        => store.SaveAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(models.DispatchId),
+            CompletedLedger(models),
+            TestContext.Current.CancellationToken);
+
+    private static ConversationProjectionDispatchLedger CompletedLedger(ConversationProjectedReadModels models)
+        => new(
+            models.DispatchId,
+            $"fingerprint-{models.DispatchId}",
+            models.Summary.TenantId,
+            models.Summary.ConversationId,
+            models.Summary.Freshness.ProjectionGeneratedAt,
+            ConversationProjectionDispatchStatus.Completed);
 
     /// <summary>
     /// A thin <see cref="IReadModelStore"/> decorator that counts underlying reads so a test can prove the list
     /// boundary issues exactly one store read.
     /// </summary>
-    private sealed class CountingReadModelStore(InMemoryReadModelStore inner) : IReadModelStore
+    private sealed class CountingReadModelStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelBulkStore
     {
         public int GetCalls { get; private set; }
+
+        public int BulkGetCalls { get; private set; }
+
+        public int MaximumBulkKeyCount { get; private set; }
+
+        public IReadOnlyList<int> ObservedParallelism => [.. _observedParallelism.Order()];
+
+        private readonly HashSet<int> _observedParallelism = [];
 
         public int Count => inner.Count;
 
@@ -281,10 +364,29 @@ public sealed class ConversationProjectionReadModelPersistenceTest
             where TValue : class
             => inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
 
+        public Task<IReadOnlyList<ReadModelBulkEntry<TValue>>> GetManyAsync<TValue>(
+            string storeName,
+            IReadOnlyList<string> keys,
+            int parallelism,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+        {
+            BulkGetCalls++;
+            MaximumBulkKeyCount = Math.Max(MaximumBulkKeyCount, keys.Count);
+            _observedParallelism.Add(parallelism);
+            return inner.GetManyAsync<TValue>(storeName, keys, parallelism, cancellationToken);
+        }
+
         public void SeedRaw<TValue>(string storeName, string key, TValue value)
             where TValue : class
             => inner.SeedRaw(storeName, key, value);
 
-        public void ResetCounters() => GetCalls = 0;
+        public void ResetCounters()
+        {
+            GetCalls = 0;
+            BulkGetCalls = 0;
+            MaximumBulkKeyCount = 0;
+            _observedParallelism.Clear();
+        }
     }
 }

@@ -9,6 +9,10 @@
 
 ## INSTRUCTIONS
 
+### Capture Baseline and Promotion Scope
+
+Before implementation, capture `baseline_commit` as committed `HEAD`, or `NO_VCS` when version control is unavailable. Derive `submodule_promotions` from the clarified, already-approved intent: use `[]` for non-promotion work or list every affected root-declared `references/...` path exactly once with `require_remote`. Ambiguous or expanded scope requires human approval; HALT rather than inventing it.
+
 ### Implement
 
 Follow `./sync-sprint-status.md` with `target_status` = `in-progress`.
@@ -23,7 +27,7 @@ Execute these review layers in parallel wherever their execution methods allow, 
 
 Launch a subagent with no prior conversation context, with this prompt:
 
-> Invoke the `bmad-review-adversarial-general` skill on the changed files.
+> Invoke the `bmad-review` skill with only the `adversarial` lens on the changed files.
 
 If a layer's instruction requires subagents and none are available, generate one review prompt file per such layer in `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts` and HALT. Ask the human to run each in a separate session and paste back the findings.
 
@@ -48,15 +52,25 @@ Set `title` = a concise title derived from the clarified intent.
 
 Write `{spec_file}` using `./spec-template.md`. Fill only these sections — delete all others:
 
-1. **Frontmatter** — set `title: '{title}'`, `type`, `created`, `status: 'done'`. Add `route: 'one-shot'`.
+1. **Frontmatter** — set `title: '{title}'`, `type`, `created`, `status: 'in-review'`, the captured `baseline_commit`, and `submodule_promotions`. Add `route: 'one-shot'`.
 2. **Title and Intent** — `# {title}` heading and `## Intent` with **Problem** and **Approach** lines. Reuse the summary you already generated for the terminal.
 3. **Suggested Review Order** — append after Intent. Build using the same convention as `./step-05-present.md` § "Generate Suggested Review Order" (spec-file-relative links, concern-based ordering, ultra-concise framing).
 
-Follow `./sync-sprint-status.md` with `target_status` = `review`.
+Do not synchronize `review` yet.
 
-### Commit
+### Commit Candidate
 
-If version control is available and the tree is dirty, create a local commit with a conventional message derived from the intent. If VCS is unavailable, skip.
+If version control is available and the tree is dirty, create a local conventional commit derived from the intent. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never use `git add -A` or `git commit -a`. Resolve committed `HEAD` as `candidate_revision`. If VCS is unavailable and `submodule_promotions` is non-empty, change the trace to `in-progress`, synchronize only `in-progress`, and HALT.
+
+### Promotion Completion Gate
+
+When version control is available, invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding the trustworthy `--baseline <baseline_commit>`, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the JSON result. Gating is activated when the declaration or `changed_gitlinks` is non-empty; for activated work, `NO_VCS`, missing baseline, or `BASELINE_NOT_PROVIDED` is a blocker.
+
+Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, synchronize `review`, initialize/update/fetch submodules, or silently expand scope after failure.
+
+### Complete Trace and Commit Completion Record
+
+Only after the gate passes (or non-promotion work has no VCS and preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`. If version control is available, create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
 
 ### Present
 
@@ -78,3 +92,5 @@ Workflow complete.
 ## On Complete
 
 If anything appears below, follow it as the final terminal instruction before exiting; otherwise exit normally.
+
+

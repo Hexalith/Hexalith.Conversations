@@ -164,13 +164,11 @@ public sealed class ConversationProjectionHandlerTest
     }
 
     /// <summary>
-    /// Event type names outside the conversation vocabulary are skipped during decode rather than throwing out of
-    /// the seam. Here the skipped foreign event is the trailing position, so no gap forms against a later applied
-    /// event and the projection stays current — the skip never falsely degrades (the gap-forming case is covered by
-    /// <see cref="GapInRequestShouldSurfaceDegradedFreshnessThroughTheSeam"/>).
+    /// Event type names outside the conversation vocabulary are rejected so a trailing unknown position can never
+    /// disappear while the preceding generation is reported current.
     /// </summary>
     [Fact]
-    public void UnknownEventTypeNameShouldBeSkippedDuringDecodeWithoutThrowing()
+    public void UnknownEventTypeNameShouldFailClosedDuringDecode()
     {
         ProjectionEventDto unknown = new(
             "SomeForeignDomainEvent",
@@ -180,15 +178,7 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        ProjectionResponse response = Handler().Project(Request(Dto(1, Created(1)), unknown));
-
-        ConversationProjectedReadModels models = Decode(response);
-
-        // The known ConversationCreated at position 1 still materializes; the foreign event at position 2 is
-        // dropped, so the projection stays current (no later positions to gap against) but carries only the
-        // decoded event — proving the unknown type was skipped without throwing.
-        models.Summary.MessageCount.ShouldBe(0);
-        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), unknown)));
     }
 
     /// <summary>
@@ -326,12 +316,10 @@ public sealed class ConversationProjectionHandlerTest
         => Should.Throw<ArgumentNullException>(() => Handler().Project(null!));
 
     /// <summary>
-    /// A known event type carrying an empty payload is skipped during decode (the zero-length payload branch),
-    /// so the seam never materializes it. With no decodable <see cref="ConversationCreated"/>, freshness stays
-    /// non-trust-bearing (Rebuilding) rather than falsely reporting Current off an undecoded position (AC-5).
+    /// A known event type carrying an empty payload is rejected instead of disappearing from the accepted history.
     /// </summary>
     [Fact]
-    public void KnownEventWithEmptyPayloadShouldBeSkippedAndNeverFalselyCurrent()
+    public void KnownEventWithEmptyPayloadShouldFailClosed()
     {
         ProjectionEventDto emptyPayload = new(
             nameof(ConversationCreated),
@@ -341,21 +329,14 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(1),
             "correlation-001");
 
-        ProjectionResponse response = Handler().Project(Request(emptyPayload));
-
-        ConversationProjectedReadModels models = Decode(response);
-
-        models.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
-        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+        Should.Throw<JsonException>(() => Handler().Project(Request(emptyPayload)));
     }
 
     /// <summary>
-    /// A non-positive (malformed, contract is 1-based) sequence number is dropped before type resolution and
-    /// decode, so the event is never applied — here the dropped <see cref="ParticipantAdded"/> at sequence 0 adds
-    /// no participant, and the lone valid position stays Current without the skipped position degrading it (AC-5).
+    /// A non-positive (malformed, contract is 1-based) sequence number is rejected before decode.
     /// </summary>
     [Fact]
-    public void NonPositiveSequenceNumberShouldBeSkippedBeforeDecode()
+    public void NonPositiveSequenceNumberShouldFailClosedBeforeDecode()
     {
         ProjectionEventDto nonPositive = new(
             nameof(ParticipantAdded),
@@ -365,12 +346,24 @@ public sealed class ConversationProjectionHandlerTest
             Started,
             "correlation-001");
 
-        ProjectionResponse response = Handler().Project(Request(Dto(1, Created(1)), nonPositive));
+        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), nonPositive)));
+    }
 
-        ConversationProjectedReadModels models = Decode(response);
+    /// <summary>
+    /// A payload cannot be interpreted as JSON merely because its bytes happen to contain valid JSON.
+    /// </summary>
+    [Fact]
+    public void UnsupportedSerializationFormatShouldFailClosedBeforeDecode()
+    {
+        ProjectionEventDto unsupported = new(
+            nameof(ParticipantAdded),
+            JsonSerializer.SerializeToUtf8Bytes(ParticipantAdded(2), Options),
+            "application/x-protobuf",
+            2,
+            Started.AddSeconds(2),
+            "correlation-001");
 
-        models.Detail.Participants.ShouldBeEmpty();
-        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeTrue();
+        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), unsupported)));
     }
 
     /// <summary>

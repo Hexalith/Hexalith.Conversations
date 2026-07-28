@@ -24,7 +24,7 @@ Execute these review layers in parallel wherever their execution methods allow: 
 
 Launch a subagent with no prior conversation context, with this prompt:
 
-> Invoke the `bmad-review-adversarial-general` skill on this diff:
+> Invoke the `bmad-review` skill with only the `adversarial` lens on this diff:
 >
 > {diff_output}
 
@@ -32,7 +32,7 @@ Launch a subagent with no prior conversation context, with this prompt:
 
 Launch a subagent with no prior conversation context, with this prompt:
 
-> Invoke the `bmad-review-edge-case-hunter` skill on this diff:
+> Invoke the `bmad-review` skill with only the `edge-case-hunter` lens on this diff:
 >
 > {diff_output}
 
@@ -40,7 +40,7 @@ Launch a subagent with no prior conversation context, with this prompt:
 
 Launch a subagent with no prior conversation context, with this prompt:
 
-> Invoke the `bmad-review-verification-gap` skill on this diff:
+> Invoke the `bmad-review` skill with only the `verification-gap` lens on this diff:
 >
 > {diff_output}
 

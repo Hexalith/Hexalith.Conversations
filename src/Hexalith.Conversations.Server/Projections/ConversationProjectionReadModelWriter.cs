@@ -25,8 +25,9 @@ namespace Hexalith.Conversations.Server.Projections;
 /// generation wins). Re-applying the same materialization yields the same persisted value (NFR5).
 /// </para>
 /// <para>
-/// The materializer-to-writer wiring (driving this on replay) is Story 2.5 (FR-6); this writer is the
-/// documented seam that story will call. It is not invoked on a production hot path yet.
+/// The production named projection handler publishes a pending dispatch reference through this writer before
+/// the detail key changes, then persists the detail and completed index generation. This ordering lets readers
+/// detect every partial generation and fail closed until the dispatch ledger is completed.
 /// </para>
 /// </remarks>
 public sealed class ConversationProjectionReadModelWriter
@@ -58,6 +59,7 @@ public sealed class ConversationProjectionReadModelWriter
     public async Task PersistAsync(ConversationProjectedReadModels models, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(models);
+        ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
 
         ConversationSummaryProjectionV1 summary = models.Summary;
         string conversationKey = ConversationProjectionReadModelKeys.ConversationKey(summary.TenantId, summary.ConversationId);
@@ -81,7 +83,56 @@ public sealed class ConversationProjectionReadModelWriter
         // Tenant index: merge this conversation's summary into the per-tenant index. On an ETag conflict the
         // policy reloads the competing index and re-merges, so concurrent writers do not lose each other's
         // entries (no lost update). The merge is idempotent and returns a new instance.
-        ConversationProjectionIndexReadModel incoming = new() { Summaries = [summary] };
+        ConversationProjectionIndexReadModel incoming = new()
+        {
+            Summaries = [summary],
+            Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+            {
+                [summary.ConversationId.Value] = new(
+                    models.DispatchId,
+                    summary.Freshness.LastAppliedEventPosition),
+            },
+        };
+        _ = await ReadModelWritePolicy
+            .MergeAsync(
+                _store,
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(summary.TenantId),
+                incoming,
+                static () => new ConversationProjectionIndexReadModel(),
+                MergeIndex,
+                new ReadModelWriteContext(
+                    ConversationProjectionReadModelKeys.TenantIndexKeyCategory,
+                    nameof(ConversationProjectionIndexReadModel)),
+                _logger,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+    }
+
+    /// <summary>
+    /// Publishes the pending dispatch reference before either generation key is mutated, making every later
+    /// partial write observable to fail-closed readers.
+    /// </summary>
+    /// <param name="models">The materialized generation about to be persisted.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns>A task representing the index-marker update.</returns>
+    public async Task MarkPendingAsync(
+        ConversationProjectedReadModels models,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(models);
+        ArgumentException.ThrowIfNullOrWhiteSpace(models.DispatchId);
+
+        ConversationSummaryProjectionV1 summary = models.Summary;
+        ConversationProjectionIndexReadModel incoming = new()
+        {
+            Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+            {
+                [summary.ConversationId.Value] = new(
+                    models.DispatchId,
+                    summary.Freshness.LastAppliedEventPosition),
+            },
+        };
         _ = await ReadModelWritePolicy
             .MergeAsync(
                 _store,
@@ -129,9 +180,22 @@ public sealed class ConversationProjectionReadModelWriter
             }
         }
 
+        Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(
+            persisted.Dispatches,
+            StringComparer.Ordinal);
+        foreach ((string conversationId, ConversationProjectionDispatchReference reference) in incoming.Dispatches)
+        {
+            if (!dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? existing)
+                || reference.LastAppliedEventPosition >= existing.LastAppliedEventPosition)
+            {
+                dispatches[conversationId] = reference;
+            }
+        }
+
         return new ConversationProjectionIndexReadModel
         {
             Summaries = [.. byConversation.Values.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
+            Dispatches = dispatches,
         };
     }
 }
