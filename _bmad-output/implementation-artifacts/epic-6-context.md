@@ -1,9 +1,9 @@
 ---
 epic: 6
 generated: '2026-07-28'
-overlay_version: 'epic-6-authority-2026-07-28-v4'
-architecture_version: 'conversations-architecture-2026-07-28-v4'
-supersedes_overlay_version: 'epic-6-authority-2026-07-27-v3'
+overlay_version: 'epic-6-authority-2026-07-28-v5'
+architecture_version: 'conversations-architecture-2026-07-28-v5'
+supersedes_overlay_version: 'epic-6-authority-2026-07-28-v4'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
 source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN'
 status: 'active-corrective-context'
@@ -139,6 +139,17 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 - Verify closed records read-only in historical mode, without claiming to reconstruct a former uncommitted working tree, and fault-inject every guard.
 - Do not modify production source, public contracts, signed evidence, or submodule content, and do not claim to have wired any gate into continuous integration.
 
+### 6.9 Tier the conformance oracle and make the portable tier structural
+
+- Triage every conformance file binding a `Hexalith.Conversations.Server` namespace. Re-express it against public Contracts/Client/Testing surfaces at unchanged assertion strength, or assign it to the module-internal tier with the exact type and reason it cannot move.
+- Widening the public contract is not an available resolution. Weakening an assertion to make it portable is a conformance failure. An assertion that cannot move at full strength belongs in the module-internal tier and that is a correct outcome, not a deferral.
+- Assert the portable tier's freedom from non-packable module assemblies from the resolved compile surface, not from project-file text.
+- Remove, skip, rename away, and weaken nothing. Executed conformance test count is monotonic against the pre-split figure computed across both tiers, and that figure is derived from a machine-readable result artifact rather than transcribed.
+- Record named-owner approval, rationale, and a versioned manifest update for the reclassification of the three manifested denominator suites. Frozen denominator membership is unchanged; only recorded tier changes.
+- Supersede the v1 `projectReferenceDisposition` target end-state with a versioned v2 disposition artifact. Do not edit v1 artifacts.
+- Declare both tiers to the Story 6.8 generator and the solution file so neither is silently unrun.
+- A single portable project with the reference removed is a valid successful outcome if the triage proves the assertions re-express at unchanged strength. The commitment is to tier the oracle, not to produce two projects.
+
 ## Binding Sequence
 
 `6.1 -> 6.7 -> 6.2 -> 6.8`
@@ -147,6 +158,7 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 - 6.3/6.4 may proceed after 6.1 where dependencies allow.
 - 6.2 precedes 6.5.
 - 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6.
+- 6.9 may proceed after 6.1 and precedes the completion of 6.3 and 6.6. It is outside the `6.1 -> 6.7 -> 6.2 -> 6.8` spine because it changes no production source, performs no promotion, and depends on neither the hosting migration nor the record generator.
 - 6.6 is last.
 
 ## Final Record Invariant
@@ -156,6 +168,10 @@ Counts, file paths, submodule state, and root gitlink state in a completion reco
 ## Promotion Completion Invariant
 
 Before promotion-bearing work reaches `done`, every affected root-declared submodule must be clean including untracked files, satisfy the declared availability policy, and be represented by its exact commit in a mode-`160000` gitlink in the committed umbrella revision. The affected set is the declaration plus gitlinks changed since the work baseline. Unrelated state warns; only affected state blocks. Nested submodules are never initialized or traversed.
+
+## Conformance Oracle Tier Invariant
+
+The conformance oracle has two declared tiers. The portable tier binds only Contracts, Client, and Testing and references no non-packable module assembly; this is asserted by a test over the resolved compile surface, not claimed in prose. The module-internal tier binds `Hexalith.Conversations.Server` legitimately and by design. Tier membership governs what an assertion may bind, never whether it runs. Making a public contract wider, or an assertion weaker, in order to move a check into the portable tier is a conformance failure. An assertion that cannot be re-expressed at full strength belongs in the module-internal tier, and recording it there is a correct outcome rather than a deferral.
 
 ## Story 6.1 Verification Boundary
 

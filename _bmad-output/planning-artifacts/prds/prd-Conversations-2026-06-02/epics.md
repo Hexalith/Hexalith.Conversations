@@ -1072,3 +1072,145 @@ mechanically generated final record. Stories 6.3 and 6.4 may still begin after
 identifier and one sprint-status entry.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:END version=epic-6-authority-2026-07-28-v4 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:BEGIN version=epic-6-authority-2026-07-28-v5 supersedes=epic-6-authority-2026-07-28-v4 -->
+
+## Appendix: 2026-07-28 Conformance Oracle Tiering Authority Amendment
+
+**Overlay version:** `epic-6-authority-2026-07-28-v5`
+**Architecture authority:** `conversations-architecture-2026-07-28-v5`
+**Supersedes:** `epic-6-authority-2026-07-28-v4` only by adding Story 6.9,
+amending the acceptance of Stories 6.3 and 6.6, and amending the binding
+dependency order
+**Status:** active corrective amendment; the v1, v2, v3, and v4 overlays,
+completed history, and signed evidence remain immutable historical records.
+
+### Conformance Oracle Tiering Decision
+
+The conformance oracle asserts two different contracts and has never
+distinguished them. One tier is reproducible by any consumer of the shipped
+Conversations packages. The other drives Conversations-owned decision code —
+tenant-access guards, the idempotent command executor, the governance audit
+sink, the projection materializer, and the diagnostics classifiers — which has
+no public surface and must not acquire one merely to be testable.
+
+The `Hexalith.Conversations.Conformance.Tests -> Hexalith.Conversations.Server`
+project reference was recorded by Story 1.1 as an oracle-survivability risk
+because the oracle compiled against the plumbing assembly the refactor was about
+to move. Epics 2 and 3 moved that plumbing to `Hexalith.EventStore.DomainService`,
+`Hexalith.Commons.*`, and platform deployment. What remains in
+`Hexalith.Conversations.Server` is the domain-owned behavior this epic's
+corrected ownership spine assigns to Conversations. The original premise has
+expired; the residual coupling is a mislabeling, not a defect awaiting removal.
+
+From this amendment forward the oracle is **two declared tiers**:
+
+- **Portable tier** — binds `Hexalith.Conversations.Contracts`,
+  `Hexalith.Conversations.Client`, and `Hexalith.Conversations.Testing` only.
+  It references no non-packable module assembly. This property is asserted by a
+  test over the resolved compile surface, not claimed in prose.
+- **Module-internal tier** — explicitly binds
+  `Hexalith.Conversations.Server`. Its coupling is a declared and correct
+  property, not a defect scheduled for removal.
+
+Binding consequences:
+
+- Widening the Conversations public contract so an assertion can move to the
+  portable tier is **prohibited**. Test reachability is not a reason to expose a
+  domain implementation type.
+- Weakening or deleting an assertion so it can move to the portable tier is a
+  **conformance failure**. An assertion that cannot be re-expressed at full
+  strength belongs in the module-internal tier, and that is a correct outcome,
+  not a deferral.
+- Both tiers are release-gate. Tier membership governs what an assertion may
+  bind, never whether it runs. The frozen FR-20 denominator is unchanged.
+
+### Story 6.9: Tier the conformance oracle and make the portable tier structural
+
+**Goal.** Close the standing Epic 5 action item "Decide the long-term path for
+residual Conformance.Tests to Server coupling," open since the Epic 3
+retrospective and deferred through Stories 3.3 and 5.2.
+
+**Acceptance criteria.**
+
+1. Every file in the conformance project that binds a
+   `Hexalith.Conversations.Server` namespace is triaged in a versioned record.
+   Each is either re-expressed against public Contracts, Client, or Testing
+   surfaces with its assertion strength preserved, or assigned to the
+   module-internal tier with the exact type and reason it cannot be
+   re-expressed. Widening the public contract is not an available resolution.
+2. The portable tier carries no project reference to a non-packable module
+   assembly, and a test in that tier asserts this from the resolved compile
+   surface rather than from project-file text.
+3. No manifested test is removed, skipped, renamed away, or weakened. The
+   executed conformance test count is monotonic against the pre-split figure,
+   computed across both tiers. The pre-split figure is derived from a
+   machine-readable result artifact, never transcribed.
+4. Reclassification of the three manifested denominator suites
+   (`TelemetryCardinalityConformanceSuiteTest`,
+   `TelemetryRedactionConformanceSuiteTest`,
+   `ConformanceStatusConformanceSuiteTest`) records named-owner approval,
+   rationale, and a versioned manifest update per FR-20. Frozen denominator
+   membership is unchanged; only the recorded tier changes.
+5. A versioned v2 disposition artifact supersedes the v1
+   `projectReferenceDisposition` target end-state. The v1 artifacts are not
+   edited.
+6. Both tiers are declared to the Story 6.8 final-record generator and to the
+   solution file, so neither tier is silently unrun.
+
+**Prohibitions.** Story 6.9 does not modify production source under `src/`, does
+not add, remove, or change any public contract type, does not alter the frozen
+FR-20 denominator membership, does not edit signed or immutable v1 evidence, and
+does not perform any submodule promotion.
+
+**Permitted outcome.** If the triage finds that the coupled assertions
+re-express publicly at unchanged strength, a single portable project with the
+reference removed is a valid and successful result. This amendment commits to
+tiering the oracle, not to producing two projects.
+
+### Superseding Story Dispositions
+
+| Story | v5 disposition |
+| --- | --- |
+| 6.1 | No change. Completed historical authority; this amendment appends and does not rewrite it. |
+| 6.2 | No change. Story 6.9 touches only test projects and evidence artifacts and does not constrain the hosting migration. |
+| 6.3 | Amended acceptance below. Manifest must record oracle tiering as a current control. |
+| 6.4 | No change. |
+| 6.5 | No change. |
+| 6.6 | Amended evidence below. The v2 attestation consumes the tiering decision and reruns both tiers. |
+| 6.7 | No change. |
+| 6.8 | No change. Its declared-project list is the mechanism by which Story 6.9 AC6 is enforced; a forgotten declaration blocks under existing Story 6.8 AC2. |
+| 6.9 | New corrective story, defined above. |
+
+### Story 6.3 Amended Acceptance
+
+In addition to its v2 acceptance criteria, the preservation traceability
+manifest records the declared tier of every conformance assertion and binds
+`conformance-oracle-tiering-decision-v2` by hash. The portable tier's freedom
+from non-packable module bindings is recorded as a validated test outcome, not
+as an assertion of the manifest author. Tier structure is a current control;
+omitting it is a zero-gap validation failure.
+
+### Story 6.6 Amended Evidence
+
+In addition to its v2 and v3 evidence obligations, the v2 attestation consumes
+and hash-validates `conformance-oracle-tiering-decision-v2` and the Story 6.9
+triage record, reruns both conformance tiers, and reports their counts
+separately and summed. It states the portable tier's structural property as a
+test result rather than as prose. It does not inherit the v1
+`projectReferenceDisposition` target end-state as either a met obligation or a
+waiver.
+
+### Binding Dependency Order
+
+`6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6`, with
+`6.9 -> 6.3` and `6.9 -> 6.6`.
+
+Story 6.9 may proceed after Story 6.1 and precedes the completion of Stories 6.3
+and 6.6. It is not placed inside the `6.1 -> 6.7 -> 6.2 -> 6.8` spine because it
+changes no production source, performs no promotion, and has no dependency on
+the hosting migration or the record generator; serializing it behind them is
+what deferred this item three times. Story 6.6 remains last. This amendment
+introduces one new story identifier and one sprint-status entry.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:END version=epic-6-authority-2026-07-28-v5 -->

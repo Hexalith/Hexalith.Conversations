@@ -1,0 +1,104 @@
+{
+  "artifact": "conformance-oracle-tiering-decision",
+  "version": 2,
+  "status": "approved",
+  "decisionDate": "2026-07-28",
+  "approvedBy": "Jerome",
+  "approvalReference": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md",
+  "authorityVersion": "epic-6-authority-2026-07-28-v5",
+  "architectureVersion": "conversations-architecture-2026-07-28-v5",
+  "scope": "Long-term disposition of the tests/Hexalith.Conversations.Conformance.Tests -> src/Hexalith.Conversations.Server project reference and the conformance oracle's tier structure.",
+  "closesActionItem": {
+    "epic": 5,
+    "action": "Decide the long-term path for residual Conformance.Tests to Server coupling.",
+    "owner": "Architect/Quality",
+    "openedBy": "Story 1.1 AC3",
+    "deferredThrough": ["Story 1.3", "Story 3.3", "Story 5.2"]
+  },
+  "supersedes": {
+    "artifact": "at-risk-test-register-v1.projectReferenceDisposition",
+    "supersededField": "targetEndState",
+    "supersededText": "Public-surface suites no longer transitively depend on the Server plumbing assembly.",
+    "reason": "The target end-state was written when Hexalith.Conversations.Server held the plumbing being refactored out by Epics 2-3. That plumbing has since moved to Hexalith.EventStore.DomainService, Hexalith.Commons.*, and platform deployment. What remains in Server is Conversations-owned decision code that the Epic 6 corrected ownership spine assigns to the module and that must not become public. The end-state as written is therefore no longer the correct target, and retaining it would keep an unmeetable promise on the record.",
+    "v1ArtifactsMutated": false
+  },
+  "decision": "tier-the-oracle",
+  "decisionSummary": "The residual coupling is a mislabeling, not a defect. The oracle asserts two different contracts and has never distinguished them. Declare two tiers, make the portable tier's property structural and test-asserted, and stop pursuing removal of a reference whose original justification has expired.",
+  "rejectedAlternatives": [
+    {
+      "option": "Publicize Server seams and delete the project reference",
+      "rejectedBecause": "Widens the 196-type public contract solely for test reachability, triggering FR-20 contract-shape approval and permanently worsening the adopter surface to solve a test-structure problem."
+    },
+    {
+      "option": "Accept the coupling permanently with no structural change",
+      "rejectedBecause": "Leaves the architecture's adopter-verifiability intent unmeetable for the whole oracle and keeps the portable/coupled distinction as prose, which is exactly the form that let this item be deferred three times."
+    },
+    {
+      "option": "Defer to post-initiative backlog",
+      "rejectedBecause": "Story 6.6 is last and must attest on current evidence. An open Architect/Quality decision at attestation time is the failure mode Epic 6 exists to correct."
+    }
+  ],
+  "tiers": {
+    "portable": {
+      "project": "tests/Hexalith.Conversations.Conformance.Tests",
+      "permittedBindings": [
+        "Hexalith.Conversations.Contracts",
+        "Hexalith.Conversations.Client",
+        "Hexalith.Conversations.Testing"
+      ],
+      "prohibitedBindings": ["any IsPackable=false module assembly"],
+      "assertedBy": "structural test over the resolved compile surface",
+      "releaseGate": true
+    },
+    "moduleInternal": {
+      "project": "tests/Hexalith.Conversations.Conformance.Server.Tests",
+      "permittedBindings": ["Hexalith.Conversations.Server"],
+      "couplingStatus": "declared-and-correct",
+      "releaseGate": true
+    }
+  },
+  "invariants": [
+    "Tier membership governs what an assertion may bind, never whether it runs.",
+    "Widening the public contract to relocate an assertion is prohibited.",
+    "Weakening an assertion to relocate it is a conformance failure.",
+    "Executed conformance test count is monotonic across both tiers.",
+    "The pre-split count is derived from a machine-readable result artifact, never transcribed."
+  ],
+  "fr20Reclassification": {
+    "obligation": "prd.md FR-20 consequence 4",
+    "obligationText": "Removing, replacing, or reclassifying any manifested test requires explicit named-owner approval, rationale, replacement evidence where applicable, and a versioned manifest update; no conformance test is silently dropped.",
+    "manifestedSuitesReclassified": [
+      "TelemetryCardinalityConformanceSuiteTest",
+      "TelemetryRedactionConformanceSuiteTest",
+      "ConformanceStatusConformanceSuiteTest"
+    ],
+    "manifestSource": "docs/release-evidence/release-baseline-v1.json",
+    "denominatorMembershipChanged": false,
+    "testsRemoved": 0,
+    "testsWeakened": 0,
+    "namedOwnerApproval": "Jerome",
+    "manifestUpdateRequired": true
+  },
+  "triageInput": {
+    "source": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json#projectReferenceDisposition.residualCouplingInventory",
+    "fileCount": 13,
+    "couplednamespaces": [
+      "Hexalith.Conversations.Server.Diagnostics",
+      "Hexalith.Conversations.Server.TenantAccess",
+      "Hexalith.Conversations.Server.Projections",
+      "Hexalith.Conversations.Server.CommandHandlers",
+      "Hexalith.Conversations.Server.Governance"
+    ],
+    "note": "Input set only. Per-file outcomes are emitted by Story 6.9, never hand-authored."
+  },
+  "triageResults": null,
+  "executionStory": "Story 6.9",
+  "permittedAlternateOutcome": "If the triage proves the coupled assertions re-express against public surfaces at unchanged strength, a single portable project with the reference removed is a valid successful result. This decision commits to tiering the oracle, not to producing two projects.",
+  "nonClaims": [
+    "This decision does not assert the split has been executed.",
+    "This decision does not assert any file is re-expressible; the triage decides.",
+    "This decision does not waive, weaken, or reduce the FR-20 denominator.",
+    "This decision does not authorize any production source change.",
+    "This decision does not edit, mutate, or reinterpret any immutable v1 evidence artifact."
+  ]
+}

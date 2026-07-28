@@ -4,8 +4,9 @@ historicalLastStep: 8
 historicalCompletedAt: '2026-05-14'
 status: 'corrective-implementation-only'
 rebaselinedAt: '2026-07-27'
-authorityVersion: 'conversations-architecture-2026-07-28-v4'
+authorityVersion: 'conversations-architecture-2026-07-28-v5'
 supersededAuthorityVersions:
+  - 'conversations-architecture-2026-07-28-v4'
   - 'conversations-architecture-2026-07-27-v3'
   - 'conversations-architecture-2026-07-15-v2'
   - 'conversations-architecture-2026-07-15-v1'
@@ -18,6 +19,7 @@ correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-15-projection-read-store-population.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-27.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md'
   - 'docs/adrs/0003-projection-read-store-population-proof.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
@@ -83,6 +85,56 @@ This amendment changes planning authority, generated context, completion
 workflows, and conformance validation only. It authorizes no change to
 production source, public contracts, package versions, generated output,
 accepted baselines, signed evidence, or submodule content.
+
+### 2026-07-28 Conformance Oracle Tiering Amendment
+
+Architecture version `conversations-architecture-2026-07-28-v5` supersedes v4
+only by declaring the conformance oracle's tier structure and adding Story 6.9.
+Every ownership, runtime, projection, topology, promotion, performance,
+evidence, and readiness decision in v4 remains in force unchanged.
+
+The conformance oracle asserts two contracts that this architecture had not
+distinguished. The first is the contract a consumer of the shipped Conversations
+packages can exercise. The second is Conversations-owned decision code — tenant
+access guards, the idempotent command executor, the governance audit sink, the
+projection materializer, and the diagnostics classifiers — which is deliberately
+not public and must not become public in order to be tested.
+
+Both are legitimate. Conflating them is what produced a standing structural
+promise the module could not keep: the recorded target end-state "public-surface
+suites no longer transitively depend on the Server plumbing assembly" was
+written when that assembly held the plumbing Epics 2-3 were about to move. That
+plumbing has since moved to `Hexalith.EventStore.DomainService`,
+`Hexalith.Commons.*`, and platform deployment. What remains is domain-owned
+behavior that the target ownership section above assigns to Conversations.
+
+The oracle is therefore **two declared tiers**:
+
+- **Portable tier** — binds `Hexalith.Conversations.Contracts`,
+  `Hexalith.Conversations.Client`, and `Hexalith.Conversations.Testing` only. It
+  references no non-packable module assembly. This is a structural property
+  asserted from the resolved compile surface by a test in that tier, not a prose
+  claim.
+- **Module-internal tier** — explicitly binds `Hexalith.Conversations.Server`.
+  Its coupling is declared and correct, not a defect scheduled for removal.
+
+Binding consequences:
+
+- Widening the Conversations public contract so an assertion can move to the
+  portable tier is **prohibited**. Test reachability is not a reason to expose a
+  domain implementation type.
+- Weakening or deleting an assertion so it can move to the portable tier is a
+  **conformance failure**. A check that cannot be re-expressed at full strength
+  belongs in the module-internal tier, and that is the correct outcome.
+- `Hexalith.Conversations.Server` is `IsPackable=false`. Any oracle asset that
+  binds it is non-portable by construction; the adopter-verifiability intent
+  stated later in this document applies to the portable tier alone.
+- Both tiers are release-gate. Tier membership changes what an assertion may
+  bind, never whether it runs. The frozen FR-20 denominator is unchanged.
+
+This amendment changes planning authority, test-project structure, and evidence
+artifacts only. It authorizes no change to production source, public contracts,
+package versions, accepted baselines, signed evidence, or submodule content.
 
 ### Scope And Preservation Denominators
 
@@ -1170,7 +1222,8 @@ Hexalith.Conversations/
 │   ├── Hexalith.Conversations.Tests/
 │   ├── Hexalith.Conversations.Server.Tests/
 │   ├── Hexalith.Conversations.IntegrationTests/
-│   └── Hexalith.Conversations.Conformance.Tests/
+│   ├── Hexalith.Conversations.Conformance.Tests/          # oracle: portable tier
+│   └── Hexalith.Conversations.Conformance.Server.Tests/   # oracle: module-internal tier
 ├── docs/
 │   ├── adrs/
 │   └── release-evidence/
@@ -1270,7 +1323,8 @@ Hexalith.Conversations/
 │   ├── Hexalith.Conversations.Tests/
 │   ├── Hexalith.Conversations.Server.Tests/
 │   ├── Hexalith.Conversations.Admin.Tests/
-│   ├── Hexalith.Conversations.Conformance.Tests/
+│   ├── Hexalith.Conversations.Conformance.Tests/          # oracle: portable tier
+│   ├── Hexalith.Conversations.Conformance.Server.Tests/   # oracle: module-internal tier
 │   ├── Hexalith.Conversations.IntegrationTests/
 │   └── fixtures/
 │       ├── adopter-happy-path/
