@@ -560,6 +560,17 @@ remote-available, `recorded_mode 160000`, `recorded_gitlink == head`.
 package-mode restore remains independently broken by the documented `NU1102` unpublished
 EventStore proof versions. Test projects were run as built xUnit v3 executables.
 
+**Stale proof binding repaired (2026-07-29).** The fresh regression correctly turned red
+because root gitlinks moved after the proof's recorded candidate. The current promotion
+checker run from baseline `29def44` to committed candidate `7472632` passes with zero
+blockers under the existing three approved declarations. It reports three
+`UNDECLARED_GITLINK_CHANGE` warnings for later unrelated Commons, FrontComposer, and
+Memories movements; those paths were evaluated clean and exactly captured without silently
+expanding this story's scope. The proof JSON, Markdown summary, and conformance pins were
+rebound to that measured state, the focused proof validator returned green, and a fresh
+Release build plus all eight test-project artifacts completed green, including the opt-in
+live AppHost boundary with no skip.
+
 **Final-record generation gate blocked (2026-07-28).** Candidate
 `65b3ed4180b7ab105763b2a8f491e1a899466c33` passed the promotion checker with zero blockers
 and two disclosed `UNDECLARED_GITLINK_CHANGE` warnings. The final-record generator parsed all
@@ -577,6 +588,12 @@ record section, but returned `blocked` with these stable diagnostics:
   so completion remains halted without hand-editing counts, paths, or commits into agreement.
 
 ### Completion Notes List
+
+- **2026-07-29 completion revalidation:** repaired the proof's stale candidate binding from
+  live gate output without widening the approved promotion scope. Fresh Release restore/build,
+  all eight Conversations test projects, DAPR/Redis production-boundary integration, and the
+  opt-in live AppHost boundary completed successfully and produced new TRX artifacts for the
+  mechanical final record.
 
 - **Code-review patch pass (2026-07-28): all 18 selected findings implemented.** Added a stable
   pending/completed dispatch ledger, fail-closed cross-key/ledger validation, bounded 100-key platform bulk
@@ -742,6 +759,7 @@ tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionRead
 
 | Date | Change |
 | --- | --- |
+| 2026-07-29 | Rebound stale projection proof evidence to the current committed gitlink state without expanding the approved three-path promotion scope; refreshed its validator pins and reran the Release build plus all eight test-project lanes, including the opt-in live AppHost boundary. |
 | 2026-07-28 | Code review: implemented all 18 selected adversarial findings; added stable dispatch-ledger consistency, bounded bulk reads, strict decode/rebuild behavior, real AppHost runtime coverage, and the production endpoint/Data Protection fixes revealed by that launch. Returned story to `in-progress` pending evidence regeneration and EventStore promotion capture. |
 | 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `c398ea2`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
 | 2026-07-27 | T2 closed by strengthening the fixture (Jerome's decision): gateway lane crosses `ProjectionUpdateOrchestrator` and `NamedProjectionDispatchCoordinator` into a DAPR/Redis `statestore`; recorded as `gatewayBoundaryEvidence` with `residualGap: "none"` and mechanically asserted. |

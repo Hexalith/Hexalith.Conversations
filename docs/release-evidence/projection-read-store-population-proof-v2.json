@@ -1,6 +1,6 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-28T21:59:30Z",
+  "capturedAtUtc": "2026-07-29T05:04:28Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "result": "pass",
@@ -166,16 +166,16 @@
   },
   "eventStorePromotion": {
     "submodule": "references/Hexalith.EventStore",
-    "commit": "7ab1f08d345464cab192de37e4f6eac817e4dd25",
+    "commit": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e",
     "branch": "main",
     "remoteTrackingRef": "origin/main",
     "remoteContainsCommit": true,
     "submoduleWorktreeClean": true,
     "requiredGitlinkMode": "160000",
-    "requiredUmbrellaGitlinkCommit": "7ab1f08d345464cab192de37e4f6eac817e4dd25",
+    "requiredUmbrellaGitlinkCommit": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e",
     "promotedCapabilityDelta": {
       "previouslyRecordedCommit": "c8c7003052a7f811d3b821f3442379ca5f3a9c65",
-      "currentCommit": "7ab1f08d345464cab192de37e4f6eac817e4dd25",
+      "currentCommit": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e",
       "storyCapabilityCommit": "150216c3831370146814fc23d6b1437e3c97a6d5",
       "commits": [
         "49987454 feat: add re-scope decision record and sprint change proposal for Story 2.12",
@@ -185,9 +185,10 @@
         "e7de0da9 feat: add integration and unit test logs for Hexalith.Tenants projects",
         "5a1d277e feat: add focused delta identity receipt for Tenants f9e51c66745557da4f267ab40f32294f2f27fae7",
         "589da8b9 feat: enhance run-lanes.sh for better error handling and logging",
-        "7ab1f08d Docs/story 3 1 closure (#334)"
+        "7ab1f08d Docs/story 3 1 closure (#334)",
+        "b1d08dac docs: record story 3.1 post-merge code review and close to done (#335)"
       ],
-      "changedPathCount": 81,
+      "changedPathCount": 78,
       "promotedCapabilityFilesChanged": [
         "src/Hexalith.EventStore.Client/Projections/DaprReadModelStore.cs",
         "src/Hexalith.EventStore.Client/Projections/IReadModelBulkStore.cs",
@@ -196,14 +197,14 @@
         "src/Hexalith.EventStore.DomainService/DomainProjectionRebuildRejectedException.cs",
         "src/Hexalith.EventStore.Testing/Fakes/InMemoryReadModelStore.cs"
       ],
-      "finding": "The current pointer includes the platform bulk-read and deterministic rebuild-rejection surfaces required by the review patch at commit 150216c3, plus seven later unrelated EventStore commits. The six story-relevant platform files and their focused tests are hash-bound below. The original hosting capability remains intact: EventStoreDomainServiceExtensions.cs still owns idempotent AddDaprClient() registration and HexalithEventStoreDomainModuleExtensions.cs still owns the public domain-module topology helper."
+      "finding": "The current pointer includes the platform bulk-read and deterministic rebuild-rejection surfaces required by the review patch at commit 150216c3, plus eight other EventStore commits. The six story-relevant platform files and their focused tests are hash-bound below. The original hosting capability remains intact: EventStoreDomainServiceExtensions.cs still owns idempotent AddDaprClient() registration and HexalithEventStoreDomainModuleExtensions.cs still owns the public domain-module topology helper."
     },
     "umbrellaMechanicalGate": {
       "schema": "submodule-promotion-gate/v1",
       "result": "pass",
       "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-      "candidate": "cfdddbe54c2a4c48802edebaeae695ca53d0cabc",
-      "recordedGitlink": "7ab1f08d345464cab192de37e4f6eac817e4dd25",
+      "candidate": "747263286da796003a73ecaa1b22d2b36263e568",
+      "recordedGitlink": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e",
       "recordedMode": "160000",
       "declaredScope": [
         {"path": "references/Hexalith.EventStore", "requireRemote": true},
@@ -212,20 +213,23 @@
       ],
       "changedGitlinks": [
         "references/Hexalith.Builds",
+        "references/Hexalith.Commons",
         "references/Hexalith.EventStore",
         "references/Hexalith.FrontComposer",
         "references/Hexalith.Memories",
         "references/Hexalith.Tenants"
       ],
       "evaluated": [
-        {"path": "references/Hexalith.EventStore", "recordedGitlink": "7ab1f08d345464cab192de37e4f6eac817e4dd25", "recordedMode": "160000", "head": "7ab1f08d345464cab192de37e4f6eac817e4dd25", "initialized": true, "clean": true, "remoteAvailable": true},
+        {"path": "references/Hexalith.EventStore", "recordedGitlink": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e", "recordedMode": "160000", "head": "b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e", "initialized": true, "clean": true, "remoteAvailable": true},
         {"path": "references/Hexalith.Builds", "recordedGitlink": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "recordedMode": "160000", "head": "1b1c0b0360715b82de48b618fc4e94e7e01e8092", "initialized": true, "clean": true, "remoteAvailable": true},
-        {"path": "references/Hexalith.Tenants", "recordedGitlink": "536596f484a503ce12f026ad3060719dfac2e7de", "recordedMode": "160000", "head": "536596f484a503ce12f026ad3060719dfac2e7de", "initialized": true, "clean": true, "remoteAvailable": true},
+        {"path": "references/Hexalith.Tenants", "recordedGitlink": "96bdfd8a485d5fbee76cd660ce5257bb5fd54f1d", "recordedMode": "160000", "head": "96bdfd8a485d5fbee76cd660ce5257bb5fd54f1d", "initialized": true, "clean": true, "remoteAvailable": true},
+        {"path": "references/Hexalith.Commons", "recordedGitlink": "f2b5f1b12b478dce902756876138a60cde4fde65", "recordedMode": "160000", "head": "f2b5f1b12b478dce902756876138a60cde4fde65", "initialized": true, "clean": true, "remoteAvailable": null},
         {"path": "references/Hexalith.FrontComposer", "recordedGitlink": "b6efcad5b293017f9805e4fc7dc982b92abff678", "recordedMode": "160000", "head": "b6efcad5b293017f9805e4fc7dc982b92abff678", "initialized": true, "clean": true, "remoteAvailable": null},
-        {"path": "references/Hexalith.Memories", "recordedGitlink": "a4517654e7993237c3bfba473fae6b6a027e3ad1", "recordedMode": "160000", "head": "a4517654e7993237c3bfba473fae6b6a027e3ad1", "initialized": true, "clean": true, "remoteAvailable": null}
+        {"path": "references/Hexalith.Memories", "recordedGitlink": "0c351ff970b39a80a90821020feb0e6e8faf0183", "recordedMode": "160000", "head": "0c351ff970b39a80a90821020feb0e6e8faf0183", "initialized": true, "clean": true, "remoteAvailable": null}
       ],
       "blockers": [],
       "warnings": [
+        {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.Commons", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons"},
         {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.FrontComposer", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer"},
         {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.Memories", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories"}
       ]

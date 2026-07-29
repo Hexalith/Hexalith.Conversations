@@ -74,7 +74,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         hosting.GetProperty("conversationsServiceDefaultsRemoved").GetBoolean().ShouldBeTrue();
 
         JsonElement promotion = proof.GetProperty("eventStorePromotion");
-        promotion.GetProperty("commit").GetString().ShouldBe("7ab1f08d345464cab192de37e4f6eac817e4dd25");
+        promotion.GetProperty("commit").GetString().ShouldBe("b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e");
         promotion.GetProperty("remoteContainsCommit").GetBoolean().ShouldBeTrue();
         promotion.GetProperty("submoduleWorktreeClean").GetBoolean().ShouldBeTrue();
         promotion.GetProperty("requiredGitlinkMode").GetString().ShouldBe("160000");
@@ -105,11 +105,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
         promotionGate.GetProperty("result").GetString().ShouldBe("pass");
         promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        promotionGate.GetProperty("candidate").GetString().ShouldBe("cfdddbe54c2a4c48802edebaeae695ca53d0cabc");
+        promotionGate.GetProperty("candidate").GetString().ShouldBe("747263286da796003a73ecaa1b22d2b36263e568");
         promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
         promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
         promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
-        promotionGate.GetProperty("warnings").GetArrayLength().ShouldBe(2);
+        promotionGate.GetProperty("warnings").GetArrayLength().ShouldBe(3);
 
         string[] declaredScope =
         [
@@ -135,6 +135,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         changedGitlinks.ShouldBe(
         [
             "references/Hexalith.Builds",
+            "references/Hexalith.Commons",
             "references/Hexalith.EventStore",
             "references/Hexalith.FrontComposer",
             "references/Hexalith.Memories",
@@ -149,6 +150,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
                 StringComparer.Ordinal);
         warnings.ShouldBe(new Dictionary<string, string>(StringComparer.Ordinal)
         {
+            ["references/Hexalith.Commons"] = "UNDECLARED_GITLINK_CHANGE",
             ["references/Hexalith.FrontComposer"] = "UNDECLARED_GITLINK_CHANGE",
             ["references/Hexalith.Memories"] = "UNDECLARED_GITLINK_CHANGE",
         });
@@ -376,9 +378,9 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         markdown.ShouldContain("`conversation/conversation-read-model`", Case.Sensitive);
         markdown.ShouldContain("`projection:conversations:{tenantId}:{conversationId}`", Case.Sensitive);
         markdown.ShouldContain("`projection:conversations-index:{tenantId}`", Case.Sensitive);
-        markdown.ShouldContain("7ab1f08d345464cab192de37e4f6eac817e4dd25", Case.Sensitive);
-        markdown.ShouldContain("cfdddbe54c2a4c48802edebaeae695ca53d0cabc", Case.Sensitive);
-        markdown.ShouldContain("zero blockers and two undeclared-gitlink warnings", Case.Sensitive);
+        markdown.ShouldContain("b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e", Case.Sensitive);
+        markdown.ShouldContain("747263286da796003a73ecaa1b22d2b36263e568", Case.Sensitive);
+        markdown.ShouldContain("zero blockers and three undeclared-gitlink warnings", Case.Sensitive);
         markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
         markdown.ShouldContain("The companion JSON is authoritative", Case.Sensitive);
     }
