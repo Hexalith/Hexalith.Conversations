@@ -2,28 +2,26 @@
 
 - Inventory: `sm-c2-hot-path-inventory-v1`
 - Source commit: `29def441408becfbbbdc5c59b9af14a7717cb21f`
-- Fixture: `tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs`
-- Fixture SHA-256: `fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f`
-- Classification: warm in-process module boundary
+- Baseline EventStore commit: `b2d3402552fbadf529c220fcc739da9d06d285fe`
+- Fixture SHA-256: `a01d182cf195cc1a4db3f50fcdd76051d97ccb9fe2d25fc109dfabfaac2de6bf`
+- Project overlay SHA-256: `e88f942c2b8eb45d5a168bc832d77698a9073baac88033023fe1b6181ea68d1e`
 - Envelope: Release, .NET 10.0.10 / SDK 10.0.302, xUnit v3 3.2.2, one worker, five warmups, 30 repetitions, 2,000 operations per sample
 - Host: Linux 6.6.87.2-microsoft-standard-WSL2 x86_64; AMD Ryzen 9 9950X3D; 24 logical processors available
-- Processing: elapsed `Stopwatch` ticks converted to microseconds per operation; P95 is nearest-rank `ceil(0.95 * n)`.
 
-| Hot path | Frozen workload | P95 (microseconds/op) |
+| Hot path | Frozen production workload | P95 (microseconds/op) |
 | --- | --- | ---: |
-| HP-CREATE | Tenant-bound v1 create through `ConversationAggregate.Handle`. | 0.436000 |
-| HP-APPEND | Accepted append plus equivalent replay and payload-mismatch fingerprint mix. | 9.585550 |
-| HP-LIST | Filter/order/page 100 warm tenant summary identities to 25 rows. | 3.273800 |
-| HP-OPEN | Warm identity lookup and tenant/conversation/lifecycle/message-count read. | 0.030550 |
+| HP-CREATE | Tenant-bound v1 create through `ConversationAggregate.Handle`. | 0.450850 |
+| HP-APPEND | Reserve, complete, duplicate replay, and payload conflict through the production idempotency store. | 12.821500 |
+| HP-LIST | Two cursor-linked 25-row pages through the production query and projection-read paths. | 541.500000 |
+| HP-OPEN | Rich detail through the production query, consistency, and hydration paths. | 22.588900 |
 
 ## Reconstruction provenance
 
-The versioned fixture does **not** exist at source commit `29def441408becfbbbdc5c59b9af14a7717cb21f`; it was added alongside the Story 6.2 production edits. This baseline is therefore a reconstruction, which AC1 permits from the preserved source commit with the same versioned fixture. How it is anchored:
+The production-path fixture does **not** exist at source commit `29def441408becfbbbdc5c59b9af14a7717cb21f`, so this is the AC1-permitted reconstruction:
 
-- **Method:** overlay the versioned fixture (`SHA-256 fd2c6184…`, byte-identical to the one the post run used) onto the preserved `29def44` production sources.
-- **Measured production closure:** `src/Hexalith.Conversations` and `src/Hexalith.Conversations.Contracts`. The fixture exercises `ConversationAggregate.Handle`, `ConversationCommandFingerprint`, `ConversationState`, and the Contracts command/event/identifier/versioning types, and touches no Server, Client, Admin, or platform assembly.
-- **Verification:** `git diff --name-only 29def44..<post-run-revision> -- src/Hexalith.Conversations src/Hexalith.Conversations.Contracts` reports **0 changed files**, so the overlaid closure at `29def44` and the closure at the post-run tree are byte-identical.
-- **Why that makes the comparison meaningful:** both runs compile and measure the same production sources under one envelope, so the row-by-row P95 comparison reflects the envelope and the machine, not a source difference.
-- **Residual limitation, stated plainly:** Story 6.2 changed no source inside the measured closure, so this gate confirms no regression rather than exercising the changed hosting and projection code. It is not a gate that could have failed for this story.
+- The versioned fixture and IntegrationTests project file were overlaid onto the preserved commit; both are byte-identical to the post run.
+- Only root-declared submodules were initialized. EventStore resolved to the baseline gitlink `b2d3402552fbadf529c220fcc739da9d06d285fe`.
+- The measured closure includes Conversations domain, contracts, Server query/projection code, and the EventStore Client/Testing read-model implementation.
+- The same Release toolchain, worker count, data shape, warmups, repetitions, and operation count were used for baseline and post. The production sources intentionally differ; that is what the regression gate measures.
 
-The companion JSON is authoritative for all raw samples, data shapes, repetitions, and processing. The post run must execute the byte-identical fixture envelope and compare every row against `post P95 <= 1.05 * baseline P95`.
+Residual limitation: this remains an in-process warm-path benchmark, not a sidecar/network latency test. The companion JSON is authoritative for raw samples and exact provenance.

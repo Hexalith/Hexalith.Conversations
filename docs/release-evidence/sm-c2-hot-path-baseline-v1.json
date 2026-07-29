@@ -1,36 +1,48 @@
 {
   "artifactVersion": "sm-c2-hot-path-baseline-v1",
   "inventoryVersion": "sm-c2-hot-path-inventory-v1",
-  "capturedAtUtc": "2026-07-27T13:02:00Z",
+  "capturedAtUtc": "2026-07-29T13:40:30Z",
   "sourceCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "reconstruction": {
     "required": true,
-    "reason": "The versioned fixture does not exist at sourceCommit 29def441408becfbbbdc5c59b9af14a7717cb21f. It was added alongside the Story 6.2 production edits, so the baseline could not have been captured by checking out that commit and running it. AC1 permits a reconstruction from the preserved source commit with the same versioned fixture; this block records how, so the baseline is auditable rather than asserted.",
+    "reason": "The production-path fixture does not exist at the preserved source commit. AC1 permits a reconstruction from that commit with the exact versioned fixture and project overlay used by the post run; both overlays and the baseline EventStore gitlink are recorded here.",
     "method": "overlay-versioned-fixture-onto-preserved-source-commit",
     "fixtureOverlay": {
       "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
-      "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",
+      "sha256": "a01d182cf195cc1a4db3f50fcdd76051d97ccb9fe2d25fc109dfabfaac2de6bf",
       "presentAtSourceCommit": false,
       "identicalInPostRun": true
     },
+    "projectOverlay": {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
+      "sha256": "e88f942c2b8eb45d5a168bc832d77698a9073baac88033023fe1b6181ea68d1e",
+      "presentAtSourceCommit": true,
+      "identicalInPostRun": true
+    },
+    "baselineEventStoreCommit": "b2d3402552fbadf529c220fcc739da9d06d285fe",
     "measuredProductionClosure": {
       "projects": [
         "src/Hexalith.Conversations",
-        "src/Hexalith.Conversations.Contracts"
+        "src/Hexalith.Conversations.Contracts",
+        "src/Hexalith.Conversations.Server",
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.Client",
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.Testing"
       ],
-      "rationale": "Every type the fixture exercises resolves to these two projects: ConversationAggregate.Handle, ConversationCommandFingerprint, ConversationState and the Contracts command, event, identifier and versioning types. It touches no Server, Client, Admin or platform assembly, so those two projects are the entire production surface under measurement.",
+      "rationale": "The fixture executes ConversationAggregate.Handle, the production idempotency store, ConversationQueryHandler, ConversationProjectionReadStore, hydration, and the platform in-memory read-model implementation. These projects are the application/platform code directly exercised by those paths.",
       "verification": {
-        "command": "git diff --name-only 29def441408becfbbbdc5c59b9af14a7717cb21f..<post-run-revision> -- src/Hexalith.Conversations src/Hexalith.Conversations.Contracts",
-        "changedFileCount": 0,
-        "result": "identical"
+        "baselineRootCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+        "baselineEventStoreCommit": "b2d3402552fbadf529c220fcc739da9d06d285fe",
+        "fixtureAndProjectOverlaysByteIdentical": true,
+        "result": "comparable-workload-with-intentional-production-source-delta"
       }
     },
-    "equivalence": "Because the measured production closure is byte-identical between the preserved source commit and the post-run tree, overlaying the versioned fixture onto 29def44 and running it produces the same compilation closure as the post run. The baseline and the post therefore measure the same production sources under one envelope, which is what makes the row-by-row comparison meaningful.",
-    "residualLimitation": "This also bounds what the SM-C2 gate can prove for Story 6.2: the story changed no source inside the measured closure, so the comparison confirms no regression rather than exercising the changed hosting and projection code. A future story that edits the domain or contracts projects gets a gate that can genuinely fail; this one does not."
+    "equivalence": "The baseline and post runs use byte-identical benchmark and project overlays, the same Release toolchain, one worker, and the same frozen data/operation counts. Only the preserved baseline production sources versus the reviewed post working tree differ, which is the source delta the gate is intended to detect.",
+    "residualLimitation": "This is an in-process warm-path gate and does not measure network or sidecar latency. Unlike the superseded toy fixture, it exercises the changed production query and projection-read code and can expose a Story 6.2 regression."
   },
   "fixture": {
     "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
-    "sha256": "fd2c61842a7c254f786f3165b9848b404473e114bcd7514a688f9d73807df26f",
+    "sha256": "a01d182cf195cc1a4db3f50fcdd76051d97ccb9fe2d25fc109dfabfaac2de6bf",
+    "projectSha256": "e88f942c2b8eb45d5a168bc832d77698a9073baac88033023fe1b6181ea68d1e",
     "warmupRepetitions": 5,
     "repetitions": 30,
     "operationsPerSample": 2000,
@@ -45,36 +57,37 @@
     "processor": "AMD Ryzen 9 9950X3D 16-Core Processor",
     "logicalProcessorsAvailable": 24,
     "configuration": "Release",
-    "classification": "warm in-process module boundary"
+    "classification": "warm in-process production path"
   },
+  "command": "./tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests -class Hexalith.Conversations.IntegrationTests.Performance.SmC2HotPathBenchmark -parallel none -maxThreads 1 -showLiveOutput -reporter verbose -noColor",
   "rows": [
     {
       "hotPathId": "HP-CREATE",
       "operation": "Create a tenant-bound conversation through ConversationAggregate.Handle after command construction.",
       "dataShape": "one v1 command with business, project, folder, label, correlation, causation, and idempotency metadata",
-      "rawMicrosecondsPerOperation": [0.436000, 0.446400, 0.419050, 0.420500, 0.388150, 0.402000, 0.385150, 0.396700, 0.405400, 0.395550, 0.408850, 0.382550, 0.383250, 0.392900, 0.389750, 0.385700, 0.381800, 0.380200, 0.419050, 0.377450, 0.379300, 0.397400, 0.378250, 0.404850, 0.375550, 0.377350, 0.384950, 0.385400, 0.382600, 0.389650],
-      "p95Microseconds": 0.436000
+      "rawMicrosecondsPerOperation": [0.448850, 0.435350, 0.450850, 0.408900, 0.411350, 0.419650, 0.422750, 0.442700, 0.406700, 0.406500, 0.414250, 0.413700, 0.413900, 0.390000, 0.406300, 0.419850, 0.463550, 0.407050, 0.394750, 0.405150, 0.393500, 0.397350, 0.413450, 0.395250, 0.399700, 0.392300, 0.416850, 0.405250, 0.383950, 0.395500],
+      "p95Microseconds": 0.450850
     },
     {
       "hotPathId": "HP-APPEND",
-      "operation": "Fingerprint the fixed accepted append, equivalent duplicate, and payload-mismatch command mix.",
-      "dataShape": "one conversation, one message, one actor, two equivalent payloads, and one mismatched payload",
-      "rawMicrosecondsPerOperation": [7.435700, 6.421750, 6.231900, 6.540050, 6.253400, 6.307100, 6.246900, 6.414550, 6.214200, 6.211550, 8.926750, 9.585550, 9.744550, 9.183200, 9.068350, 8.826350, 8.677500, 8.194300, 5.136450, 4.522850, 3.978700, 3.293000, 2.763550, 2.738950, 2.879900, 2.710000, 2.704200, 2.858050, 2.681800, 2.677300],
-      "p95Microseconds": 9.585550
+      "operation": "Reserve, complete, replay, and conflict through InMemoryConversationIdempotencyStore using production fingerprints.",
+      "dataShape": "one accepted append, one equivalent duplicate, and one same-key payload mismatch",
+      "rawMicrosecondsPerOperation": [7.338800, 7.380300, 7.863250, 7.418450, 7.472350, 7.617650, 7.312850, 11.482350, 13.023400, 12.821500, 12.490250, 12.339250, 12.313750, 11.867650, 11.650200, 11.674950, 11.609650, 9.320400, 6.183950, 5.024750, 4.127050, 3.968100, 3.371400, 3.099750, 3.344000, 2.977100, 2.987300, 3.197900, 2.900800, 2.952700],
+      "p95Microseconds": 12.821500
     },
     {
       "hotPathId": "HP-LIST",
-      "operation": "Filter, ordinally order, and page the fixed warm tenant summary shape.",
-      "dataShape": "100 tenant-scoped summary identities and a 25-row page",
-      "rawMicrosecondsPerOperation": [3.086600, 3.021200, 3.011550, 3.032400, 3.032100, 3.047650, 3.006750, 3.008800, 3.650300, 3.002050, 3.008500, 3.019950, 3.007250, 3.056600, 3.014350, 3.043100, 3.013150, 2.994900, 3.273800, 2.990150, 3.060100, 3.176500, 2.959450, 2.955750, 2.932300, 2.929950, 2.909300, 3.101850, 2.899600, 2.893050],
-      "p95Microseconds": 3.273800
+      "operation": "Run two cursor-linked pages through ConversationQueryHandler and ConversationProjectionReadStore.",
+      "dataShape": "100 matching production summary/detail/dispatch records, one business filter, and two 25-row pages",
+      "rawMicrosecondsPerOperation": [525.609100, 527.646150, 524.379550, 526.254950, 521.129350, 522.906200, 521.869950, 539.095950, 590.744650, 540.779400, 533.118700, 541.500000, 527.779700, 519.887250, 520.763550, 536.225200, 526.158550, 517.415100, 523.175800, 521.476650, 526.005550, 528.952300, 540.123350, 533.283850, 536.513550, 527.659150, 525.889200, 520.640850, 523.438650, 537.002000],
+      "p95Microseconds": 541.500000
     },
     {
       "hotPathId": "HP-OPEN",
-      "operation": "Open one warm conversation state by stable identity and read its trust-bearing scope fields.",
-      "dataShape": "one tenant-bound created conversation in a warm ordinal dictionary",
-      "rawMicrosecondsPerOperation": [0.031000, 0.030550, 0.026000, 0.025850, 0.025850, 0.025950, 0.025850, 0.026100, 0.025900, 0.026000, 0.026050, 0.026050, 0.025550, 0.025650, 0.025650, 0.025600, 0.025750, 0.025600, 0.025450, 0.025750, 0.025600, 0.025700, 0.025600, 0.025650, 0.025650, 0.025800, 0.025400, 0.026500, 0.025800, 0.026350],
-      "p95Microseconds": 0.030550
+      "operation": "Open a rich conversation through the production query, projection-read, consistency, and hydration path.",
+      "dataShape": "10 messages including a redaction placeholder, two participants, one file reference, evidence metadata, and batched hydration",
+      "rawMicrosecondsPerOperation": [29.614800, 22.588900, 16.944400, 16.924400, 16.807900, 16.773750, 16.788900, 16.712500, 16.858600, 16.682450, 16.495700, 16.795700, 16.951950, 17.312650, 16.915350, 16.727800, 17.090500, 16.778500, 16.792350, 16.650750, 16.772900, 18.861550, 16.793650, 16.871400, 16.597600, 16.797850, 16.731550, 16.759550, 16.837500, 16.959550],
+      "p95Microseconds": 22.588900
     }
   ]
 }

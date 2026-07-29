@@ -17,8 +17,8 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// The versioned SM-C2 fixture did not exist at the declared source commit, so the baseline is a reconstruction.
 /// AC1 allows that only when the reconstruction is evidenced. This guard checks the recorded claims against git
 /// rather than against the artifact's own prose: the fixture really is absent at the declared source commit, the
-/// measured production closure really is unchanged between that commit and the working revision, and the fixture
-/// really does depend on nothing outside that closure.
+/// test project and EventStore baseline are pinned, the overlays match the post run byte-for-byte, and the fixture
+/// depends on nothing outside its declared measured closure.
 /// </para>
 /// <para>
 /// When git history is unavailable the git-backed assertions are skipped rather than silently passing, and the
@@ -47,11 +47,11 @@ public sealed class SmC2BaselineReconstructionValidationTest
         reconstruction.GetProperty("reason").GetString().ShouldNotBeNullOrWhiteSpace();
         reconstruction.GetProperty("equivalence").GetString().ShouldNotBeNullOrWhiteSpace();
 
-        // The limitation must stay stated. A reconstruction that quietly drops it reads as a gate that could
-        // have failed for this story, which it could not.
+        // The limitation must stay stated, while the production-path closure must make clear that this gate
+        // can now expose the query/projection regressions the former toy workload could not observe.
         reconstruction.GetProperty("residualLimitation").GetString()
             .ShouldNotBeNull()
-            .ShouldContain("changed no source inside the measured closure", Case.Sensitive);
+            .ShouldContain("can expose a Story 6.2 regression", Case.Sensitive);
 
         // The declared overlay must be the file on disk, byte for byte.
         string fixturePath = Path.Combine(FindRepositoryRoot(), overlay.GetProperty("path").GetString()!);
@@ -59,6 +59,12 @@ public sealed class SmC2BaselineReconstructionValidationTest
         ComputeSha256(fixturePath).ShouldBe(overlay.GetProperty("sha256").GetString());
         document.RootElement.GetProperty("fixture").GetProperty("sha256").GetString()
             .ShouldBe(overlay.GetProperty("sha256").GetString());
+
+        JsonElement projectOverlay = reconstruction.GetProperty("projectOverlay");
+        projectOverlay.GetProperty("presentAtSourceCommit").GetBoolean().ShouldBeTrue();
+        projectOverlay.GetProperty("identicalInPostRun").GetBoolean().ShouldBeTrue();
+        string projectPath = Path.Combine(FindRepositoryRoot(), projectOverlay.GetProperty("path").GetString()!);
+        ComputeSha256(projectPath).ShouldBe(projectOverlay.GetProperty("sha256").GetString());
     }
 
     [Fact]
@@ -75,7 +81,13 @@ public sealed class SmC2BaselineReconstructionValidationTest
         ];
 
         declaredProjects.Order(StringComparer.Ordinal).ShouldBe(
-            ["src/Hexalith.Conversations", "src/Hexalith.Conversations.Contracts"]);
+        [
+            "references/Hexalith.EventStore/src/Hexalith.EventStore.Client",
+            "references/Hexalith.EventStore/src/Hexalith.EventStore.Testing",
+            "src/Hexalith.Conversations",
+            "src/Hexalith.Conversations.Contracts",
+            "src/Hexalith.Conversations.Server",
+        ]);
 
         string fixturePath = Path.Combine(
             FindRepositoryRoot(),
@@ -91,42 +103,26 @@ public sealed class SmC2BaselineReconstructionValidationTest
         hexalithNamespaces.ShouldNotBeEmpty(
             "the fixture scan found no Hexalith usings, so the closure claim would pass without being checked");
 
-        // The measured closure is exactly the domain and contracts projects. A using that reached the Server,
-        // Client, Admin, or platform assemblies would mean the baseline measures code the declared closure does
-        // not cover, and the git equality check below would no longer justify the comparison.
+        hexalithNamespaces.ShouldContain("Hexalith.Conversations.Server.Queries");
+        hexalithNamespaces.ShouldContain("Hexalith.EventStore.Testing.Fakes");
+
+        string[] allowedPrefixes = ["Hexalith.Conversations", "Hexalith.EventStore.Client", "Hexalith.EventStore.Testing"];
         foreach (string usedNamespace in hexalithNamespaces)
         {
-            usedNamespace.ShouldStartWith("Hexalith.Conversations", Case.Sensitive);
-            foreach (string forbidden in new[]
-                     {
-                         "Hexalith.Conversations.Server",
-                         "Hexalith.Conversations.Client",
-                         "Hexalith.Conversations.Admin",
-                         "Hexalith.Conversations.Testing",
-                         "Hexalith.EventStore",
-                         "Hexalith.Commons",
-                     })
-            {
-                usedNamespace.StartsWith(forbidden, StringComparison.Ordinal).ShouldBeFalse(
-                    $"'{usedNamespace}' is outside the declared measured production closure");
-            }
+            allowedPrefixes.Any(prefix => usedNamespace.StartsWith(prefix, StringComparison.Ordinal)).ShouldBeTrue(
+                $"'{usedNamespace}' is outside the declared measured production closure");
         }
     }
 
     [Fact]
-    public void GitShouldConfirmTheFixtureIsAbsentAtTheSourceCommitAndTheClosureIsUnchanged()
+    public void GitShouldConfirmTheFixtureIsAbsentAndTheBaselineSubmoduleIsPinned()
     {
         using JsonDocument document = LoadEvidence(BaselineJsonFileName);
         string sourceCommit = document.RootElement.GetProperty("sourceCommit").GetString()!;
         JsonElement reconstruction = document.RootElement.GetProperty("reconstruction");
         string fixtureRelativePath = reconstruction.GetProperty("fixtureOverlay").GetProperty("path").GetString()!;
-        string[] closureProjects =
-        [
-            .. reconstruction.GetProperty("measuredProductionClosure")
-                .GetProperty("projects")
-                .EnumerateArray()
-                .Select(static project => project.GetString()!),
-        ];
+        string projectRelativePath = reconstruction.GetProperty("projectOverlay").GetProperty("path").GetString()!;
+        string baselineEventStoreCommit = reconstruction.GetProperty("baselineEventStoreCommit").GetString()!;
 
         if (!TryRunGit(out _, "rev-parse", "--verify", $"{sourceCommit}^{{commit}}"))
         {
@@ -143,24 +139,13 @@ public sealed class SmC2BaselineReconstructionValidationTest
             "the fixture is present at the source commit, so the recorded reconstruction is not the honest method");
         executedChecks++;
 
-        // The measured closure must be unchanged between the source commit and this revision, which is what
-        // makes the overlaid baseline comparable to the post run.
-        string[] arguments = ["diff", "--name-only", $"{sourceCommit}..HEAD", "--", .. closureProjects];
-        TryRunGit(out string changed, arguments).ShouldBeTrue("the closure comparison could not be executed");
-        string[] changedFiles =
-        [
-            .. changed.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries),
-        ];
-        changedFiles.ShouldBeEmpty(
-            "the measured production closure changed since the declared source commit, so the reconstructed "
-            + "baseline no longer measures the same sources as the post run");
+        TryRunGit(out _, "cat-file", "-e", $"{sourceCommit}:{projectRelativePath}").ShouldBeTrue(
+            "the project overlay claims to replace a file that was not present at the source commit");
         executedChecks++;
 
-        reconstruction.GetProperty("measuredProductionClosure")
-            .GetProperty("verification")
-            .GetProperty("changedFileCount")
-            .GetInt32()
-            .ShouldBe(changedFiles.Length);
+        TryRunGit(out string eventStoreCommit, "rev-parse", $"{sourceCommit}:references/Hexalith.EventStore")
+            .ShouldBeTrue("the baseline EventStore gitlink could not be resolved");
+        eventStoreCommit.Trim().ShouldBe(baselineEventStoreCommit);
         executedChecks++;
 
         executedChecks.ShouldBe(3, "every git-backed reconstruction check must have executed");
@@ -174,9 +159,9 @@ public sealed class SmC2BaselineReconstructionValidationTest
 
         markdown.ShouldContain("## Reconstruction provenance", Case.Sensitive);
         markdown.ShouldContain("does **not** exist at source commit", Case.Sensitive);
-        markdown.ShouldContain("overlay the versioned fixture", Case.Sensitive);
-        markdown.ShouldContain("**0 changed files**", Case.Sensitive);
-        markdown.ShouldContain("Residual limitation", Case.Sensitive);
+        markdown.ShouldContain("byte-identical to the post run", Case.Sensitive);
+        markdown.ShouldContain("baseline gitlink", Case.Sensitive);
+        markdown.ShouldContain("Residual limitation", Case.Insensitive);
     }
 
     private static bool TryRunGit(out string standardOutput, params string[] arguments)

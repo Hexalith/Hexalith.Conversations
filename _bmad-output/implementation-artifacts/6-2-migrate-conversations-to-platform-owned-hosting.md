@@ -303,8 +303,8 @@ the code at HEAD before triage; subagent severities were discarded and reassigne
 - [x] [Review][Patch] BulkReadAsync validates chunk membership with an O(chunk²) linear scan [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:227] — APPLIED 2026-07-29
 - [x] [Review][Patch] ProjectAsync accepts an empty event batch where PrepareRebuildAsync rejects it [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:81] — APPLIED 2026-07-29
 - [ ] [Review][Patch] Evidence `batchOperationCount: 2` contradicts the shipped three-operation rebuild plan, and the validator pins the stale constant [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:66]
-- [ ] [Review][Patch] ExecutedLiveBoundaryAssertions is incremented but never read — the documented anti-skip guard cannot fail [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs:53]
-- [ ] [Review][Patch] SM-C2 post evidence `sourceCommit` is the literal string `working-tree-candidate-from-29def44…`, bound to no revision [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:322]
+- [x] [Review][Patch] ExecutedLiveBoundaryAssertions is incremented but never read — the documented anti-skip guard cannot fail [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs:53] — APPLIED 2026-07-29
+- [x] [Review][Patch] SM-C2 post evidence `sourceCommit` is the literal string `working-tree-candidate-from-29def44…`, bound to no revision [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:322] — APPLIED 2026-07-29
 - [ ] [Review][Patch] SmC2BaselineReconstructionValidationTest skips when the source commit is unresolvable, and its `executedChecks == 3` anti-vacuity guard sits after the skip [tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs:130]
 - [ ] [Review][Patch] The consumed-spec inventory exemption is satisfied by a self-attested flag in this story's own evidence [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:255]
 - [x] [Review][Patch] The derived-state-deletion scenario deletes only two of the three derived key families, so the surviving-ledger path is never exercised [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:4446] — APPLIED 2026-07-29
@@ -358,6 +358,43 @@ remaining coverage gaps (P16 cross-tenant read, P19 detail Rebuilding branch, P2
 P31 non-bulk store), the AppHost csproj conditions (P28, P29), plus decisions D3 (SM-C2 re-measure), D7
 (re-anchor + regenerate) and D8 (AC7 lane + ledger TTL). D6's source change is applied on both sides with
 ownership tests, but the EventStore submodule commit and push are **not** made.
+
+### Review Findings — pass 3, chunk 1 (2026-07-29, `bmad-code-review`, four blind layers)
+
+Scope reviewed: runtime/production sources and focused tests in the baseline-to-`1b7a06b` diff. The four
+layers raised 27 raw findings, deduplicated to 19 and re-verified against the code. One was dismissed:
+foreign-tenant summaries are deliberately filtered before pagination, as the tenant-isolation test requires.
+The live-boundary anti-skip finding is already the open pass-2 item beginning
+`ExecutedLiveBoundaryAssertions is incremented but never read`; it counts in this pass's 18 patches and is
+not duplicated below.
+
+- [x] [Review][Patch] Advance list continuation by candidates consumed, not consistent rows returned (HIGH) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:343] — APPLIED 2026-07-29
+- [x] [Review][Patch] Bind continuation tokens to the complete ordered index generation (HIGH) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:467] — APPLIED 2026-07-29
+- [x] [Review][Patch] Encode opaque tenant and conversation identifiers instead of rejecting legal colon values (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs:45] — APPLIED 2026-07-29
+- [x] [Review][Patch] Validate an existing rebuild ledger against operation identity before overwriting it (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:224] — APPLIED 2026-07-29
+- [x] [Review][Patch] Preserve summary-less pending sibling dispatch references during rebuild (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:231] — APPLIED 2026-07-29
+- [x] [Review][Patch] Require the completed-ledger fast path to prove matching detail and index generations (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:448] — APPLIED 2026-07-29
+- [x] [Review][Patch] Prevent equal-position concurrent dispatches from splitting detail and index identities (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs:73] — APPLIED 2026-07-29
+- [x] [Review][Patch] Fail live gateway tests on product startup and route-discovery faults instead of converting them to skips (HIGH) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:166] — APPLIED 2026-07-29
+- [x] [Review][Patch] Remove the released-ephemeral-port race from the live gateway fixture (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:144] — APPLIED 2026-07-29
+- [x] [Review][Patch] Isolate process-global DAPR port environment mutations from every test collection (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:152] — APPLIED 2026-07-29
+- [x] [Review][Patch] Require a successful health response before declaring the gateway app ready (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:482] — APPLIED 2026-07-29
+- [x] [Review][Patch] Make the AppHost boundary lane enforce a real Server-to-EventStore dispatch instead of optional liveness only (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:31] — APPLIED 2026-07-29
+- [x] [Review][Patch] Measure production create, append, list, and open paths in SM-C2 instead of toy substitutes (HIGH) [tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs:55] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cover matching detail/index data with a pending ledger through the real read-store validator (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:241] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cover privileged-query mapping of projection consistency failures (MEDIUM) [src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs:92] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cover the governance verifier's second-read foreign-record poison guard (MEDIUM) [src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs:355] — APPLIED 2026-07-29
+- [x] [Review][Patch] Add bounded retention for dispatch-ledger keys using the approved platform-redelivery-window TTL (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs:83] — APPLIED 2026-07-29
+
+#### Patch application status — 2026-07-29
+
+**18 of 18 chunk-1 patches are applied. Story stays `in-progress`.** The mandatory DAPR gateway lane passes
+2/2 with zero skips. The mandatory AppHost runtime lane passes 1/1 after its real command exposed and fixed
+the plural-resource/singular-DAPR-app-id topology mismatch. The production-path SM-C2 reconstruction is now
+truthful and mechanically bound: CREATE and APPEND pass, while LIST (+297.19%) and OPEN (+1126.17%) fail the
+5% Release threshold, so performance remains an open release blocker. Dispatch-ledger retention uses the
+platform's validated 24-hour redelivery window; expired ledgers no longer expire matching durable
+detail/index projections, while any present pending or poisoned ledger still fails closed.
 
 #### Deferred
 
@@ -924,6 +961,8 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 
 | Date | Change |
 | --- | --- |
+| 2026-07-29 | Re-anchored the SM-C2 and projection proof to implementation commit `28e217e` and EventStore `4c63f5d3`; the promotion gate passes from an isolated clean checkout with 0 blockers and 4 disclosed undeclared-gitlink warnings, without moving or capturing concurrent Builds, Memories, or Tenants worktrees. |
+| 2026-07-29 | Code review pass 3 chunk 1: applied all 18 selected patches, made gateway/AppHost lanes mandatory, fixed the canonical `conversation` DAPR app-id topology, added bounded dispatch-ledger TTL semantics, and replaced the toy SM-C2 closure with production paths. Functional lanes pass; LIST/OPEN fail the 5% SM-C2 gate, so the story remains `in-progress`. |
 | 2026-07-29 | Re-anchored the final record at candidate `dc69719` after committing the historical-record guard; reran the Release build and all eight test projects before regenerating the bound record. |
 | 2026-07-29 | Updated the historical-record regression from the obsolete pre-generator Story 6.2 expectation to strict generated-record verification; generator/promotion workflow suite is 129/129. |
 | 2026-07-29 | Replaced the legacy File List with the mechanically derived 86-path inventory, inserted the passing final record verbatim, bound `file_list_commit`, and moved the story to `review`. |
