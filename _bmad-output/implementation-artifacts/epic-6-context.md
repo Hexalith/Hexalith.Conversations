@@ -131,11 +131,11 @@ Every baseline row has exactly one post disposition. Each must satisfy `post P95
 
 ### 6.8 Generate the final story record mechanically from measured state
 
-- Emit the completion record from four derived sources only: parsed machine-readable test-result artifacts, the git-derived path set between the work baseline and the committed candidate unioned with the tracked working-tree delta, mode-`160000` root gitlink entries from that candidate, and the Story 6.7 promotion-checker document embedded verbatim.
-- Take counts only from result artifacts. A declared project with no artifact is not run and blocks; totals are computed, not transcribed; an artifact older than the newest file in the derived list blocks as stale instead of being carried forward.
+- Emit the completion record from four derived sources only: parsed machine-readable test-result artifacts, the git-derived path set between the work baseline and the committed candidate with source-tree dirt blocked outside record outputs and declared TRX inputs, mode-`160000` root gitlink entries from that candidate, and the Story 6.7 promotion-checker document embedded verbatim.
+- Take counts only from result artifacts. The root `.slnx` defines required root-owned test projects; a missing or zero-test artifact blocks, totals are computed, failures block, skips require exact versioned identity-and-reason policy, and stale artifacts are never carried forward.
 - Derive one file list. Reject any path inside a root-declared submodule and emit gitlink promotions in a separate labeled section with recorded commit and mode.
-- Bind gitlink state to the final candidate: it must be an ancestor of the committed head with no declared gitlink movement after it, so a superseded binding goes red rather than stale.
-- Make the four completion surfaces generate rather than author, block `review` and `done` on generator blockers, refuse a pass that derived nothing, and guard the invocation against silent removal.
+- Bind state to the final candidate: it must be an ancestor of the committed head, only record-output paths may follow it, and no gitlink may move, so a superseded binding goes red rather than stale.
+- Make the four completion surfaces emit one document-and-Markdown bundle rather than author, verify the inserted digest, block `review` and `done` on generator blockers, refuse a pass that derived nothing, and guard the invocation against silent removal.
 - Verify closed records read-only in historical mode, without claiming to reconstruct a former uncommitted working tree, and fault-inject every guard.
 - Do not modify production source, public contracts, signed evidence, or submodule content, and do not claim to have wired any gate into continuous integration.
 

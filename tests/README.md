@@ -75,7 +75,7 @@ Record both facts in story evidence: the VSTest socket failure and the direct xU
 
 ## Final-Record Completion Gate
 
-Completion records are **generated from measured state, not authored**. A record may not contain a count, path, or commit that nobody measured. Close the record from the final working tree, after every executable, test, and documentation change is complete: finalize the tree, run the tests, then generate.
+Completion records are **generated from measured state, not authored**. A record may not contain a count, path, or commit that nobody measured. Commit every story-owned source path and require the remaining source tree clean outside record outputs and declared TRX artifacts; then run the tests and generate.
 
 Emit TRX from the built xUnit v3 executable — `-trx <file>` on the executable itself:
 
@@ -86,7 +86,7 @@ tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conv
 
 `dotnet test --report-trx` is **rejected as an unknown option** on this lane; use the executable form above. See § VSTest Socket Fallback for building the executable.
 
-Then invoke the generator once per completion, repeating `--test-results` for every declared test project:
+Then invoke the generator once per completion, repeating `--test-results` with the full project name for every root-owned test project declared by the root `.slnx`:
 
 ```powershell
 python3 _bmad/scripts/generate_story_record.py `
@@ -94,18 +94,18 @@ python3 _bmad/scripts/generate_story_record.py `
   --story _bmad-output/implementation-artifacts/<story>.md `
   --baseline <story-baseline-commit> `
   --candidate HEAD `
-  --test-results Conformance=<path>.trx `
-  --format json
+  --test-results Hexalith.Conversations.Conformance.Tests=<path>.trx `
+  --format bundle
 ```
 
-The gate fails on any nonzero exit or any `result` other than `pass`. It derives, rather than compares against hand-authored expectations:
+The gate fails on any nonzero exit or any nested `document.result` other than `pass`. It derives, rather than compares against hand-authored expectations:
 
-- test counts parsed from `/TestRun/ResultSummary/Counters`, recomputed from the recorded results, and totalled by summation — a declared project with no artifact is `NOT_RUN` and blocks;
-- the File List, from the committed baseline→candidate range unioned with the tracked working-tree delta and untracked non-ignored files — exactly one list, no submodule-internal path;
+- test counts parsed from `/TestRun/ResultSummary/Counters`, recomputed from the recorded results, and totalled by summation — required scope comes from the root solution; missing, empty, failed, or unapproved-skipped results block;
+- the File List, from the committed baseline→candidate range with other source-tree dirt blocked — exactly one list, no submodule-internal path;
 - root gitlink promotions with recorded commit and mode, in their own labelled section, bound to a candidate proven to be the revision that is actually final; and
 - the Story 6.7 promotion-checker document, embedded verbatim.
 
-The generated JSON is authoritative; Markdown is rendered from it and inserted verbatim. A run that parsed no artifact, resolved no candidate, or found no record section reports `RECORD_NOT_DERIVED` and can never be read as a pass. Historical mode (`--historical`) verifies an already-closed record read-only, and never claims to reconstruct a former uncommitted working tree. A failure blocks `review -> done` until the record is corrected; never hand-edit a count, path, or commit into agreement, and never rewrite signed evidence to make the gate pass.
+The generated bundle's JSON document is authoritative; its Markdown is inserted verbatim and verified with `--verify-record-sha256 <markdown_sha256>`. A run that parsed no artifact, resolved no candidate, found no record section, or failed the insertion digest reports a blocker and can never be read as a pass. Historical mode (`--historical`) structurally parses already-closed generated records read-only, and never claims to reconstruct a former uncommitted working tree. A failure blocks `review -> done` until the record is corrected; never hand-edit a count, path, or commit into agreement, and never rewrite signed evidence to make the gate pass.
 
 Full operating procedure, blocker→remediation table, exit codes, and safety boundary: `docs/runbooks/story-final-record-generation.md`.
 

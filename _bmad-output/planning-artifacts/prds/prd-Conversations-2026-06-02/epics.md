@@ -1003,7 +1003,8 @@ it may not restate the generated numbers.
 
 Derivation sources are exactly four: parsed machine-readable test-result
 artifacts; the git-derived path set between the work baseline and the committed
-candidate unioned with the tracked working-tree delta; mode-`160000` root
+candidate with source-tree dirt blocked outside record outputs and declared TRX
+inputs; mode-`160000` root
 gitlink entries resolved from the committed candidate; and the Story 6.7
 promotion-checker document embedded verbatim. A record that could not derive any
 of them reports a blocker rather than a pass.
@@ -1022,17 +1023,20 @@ state" for every Epic 6 story that completes after Story 6.2.
 2. Test counts come only from machine-readable result artifacts. A declared test
    project with no artifact is recorded as not run and blocks; totals are
    computed rather than transcribed; an artifact older than the newest file in
-   the derived file list blocks as stale rather than being carried forward.
+   the derived file list blocks as stale rather than being carried forward. The
+   root `.slnx` defines required root-owned test projects; failures block and
+   skips require exact versioned identity-and-reason policy.
 3. The file list is derived, singular, and boundary-correct. A path inside a
    root-declared submodule blocks: it belongs to that repository's own record.
    Gitlink promotions appear in a separate labeled section with recorded commit
    and mode.
 4. Submodule and gitlink state binds to the candidate that is actually final.
-   The candidate must be an ancestor of the committed head with no declared
-   gitlink movement after it, so a superseded binding goes red rather than
-   stale.
-5. The four completion surfaces generate rather than author, and generator
-   blockers block `review` and `done` exactly as the promotion gate does.
+   The candidate must be an ancestor of the committed head; only record-output
+   paths may change after it and no gitlink may move, so a superseded binding
+   goes red rather than stale.
+5. The four completion surfaces generate one document-and-Markdown bundle rather
+   than author, verify the inserted Markdown digest, and let generator blockers
+   block `review` and `done` exactly as the promotion gate does.
 6. The generator cannot report a pass having derived nothing, and the
    invocation cannot be silently removed from a completion workflow.
 7. A read-only historical mode verifies already-closed records without mutating

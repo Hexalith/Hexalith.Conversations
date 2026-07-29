@@ -74,7 +74,8 @@ submodule state, and root gitlink state. From this amendment forward those facts
 are derived outputs of a generator, not prose composed by the agent that
 performed the work. Derivation sources are exactly four: parsed machine-readable
 test-result artifacts; the git-derived path set between the work baseline and
-the committed candidate unioned with the tracked working-tree delta;
+the committed candidate, with source-tree dirt blocked outside record outputs
+and declared TRX inputs;
 mode-`160000` root gitlink entries resolved from the committed candidate; and
 the promotion-checker document embedded verbatim. A record whose counts, paths,
 or gitlink binding are hand-typed, carried forward from an earlier pass, or
