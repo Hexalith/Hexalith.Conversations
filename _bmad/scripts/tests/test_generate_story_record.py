@@ -695,9 +695,14 @@ def test_historical_mode_verifies_closed_records_without_mutating_them(name: str
     code, document = historical(record)
     assert sha256_file(record) == before, f"{name} was mutated by a read-only verification"
     assert document["mode"] == "historical"
-    assert document["classification"] == "pre-generator"
-    # D4: a record predating the generator reports its findings without blocking
-    # and without being rewritten.
+    expected_classification = (
+        "generated"
+        if name == "6-2-migrate-conversations-to-platform-owned-hosting.md"
+        else "pre-generator"
+    )
+    assert document["classification"] == expected_classification
+    # D4: historical verification is read-only. A sound generated record stays
+    # green, while pre-generator findings are reported without rewriting history.
     assert code == 0, document["blockers"]
     assert document["result"] == "pass"
     assert "former uncommitted working tree is not reconstructed" in document["boundary"]
@@ -718,13 +723,17 @@ def test_historical_mode_reproduces_story_6_7s_recorded_file_list() -> None:
     }
 
 
-def test_historical_mode_reports_story_6_2s_authorised_ac3_findings_as_warnings() -> None:
+def test_historical_mode_verifies_story_6_2s_generated_record() -> None:
     record = WORKSPACE / "_bmad-output/implementation-artifacts" / CLOSED_RECORDS[1]
     code, document = historical(record)
-    warning_codes = {item["code"] for item in document["warnings"]}
-    assert "SUBMODULE_INTERNAL_PATH" in warning_codes
-    assert "FILE_LIST_DRIFT" in warning_codes
-    assert document["record"]["declared_list_count"] > 1
+    assert document["classification"] == "generated"
+    assert document["record"]["anchor"] == "generated-block"
+    assert document["record"]["generated_block"] is True
+    assert document["record"]["declared_list_count"] == 1
+    assert document["file_list"]["derived"] == document["file_list"]["declared"]
+    assert document["file_list"]["missing"] == []
+    assert document["file_list"]["unexpected"] == []
+    assert document["warnings"] == []
     assert document["blockers"] == []
     assert code == 0
 

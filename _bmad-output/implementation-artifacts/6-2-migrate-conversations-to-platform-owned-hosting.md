@@ -3,8 +3,9 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'in-progress'
+status: 'review'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
+file_list_commit: 'e74e542f2b87ecadd87b40e15052bcedb3866c59'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -36,7 +37,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: in-progress
+Status: review
 
 ## ⚠️ Read this first — most of this story is already implemented
 
@@ -510,6 +511,8 @@ Run the full nine-project regression before completion; the Story 6.1/6.7 baseli
 
 `Codex (GPT-5)` (BMAD `code-review` workflow, 2026-07-28).
 
+`Codex (GPT-5)` (BMAD `dev-story` workflow, 2026-07-29).
+
 ### Debug Log References
 
 **Blocker encountered and resolved — `SUBMODULE_DIRTY_UNTRACKED` (`references/Hexalith.Tenants`).**
@@ -587,7 +590,30 @@ record section, but returned `blocked` with these stable diagnostics:
   rendered block. The workflow forbids that insertion until the JSON pre-gate returns `pass`,
   so completion remains halted without hand-editing counts, paths, or commits into agreement.
 
+**Final-record remediation completed (2026-07-29).** The legacy two-list inventory was
+replaced from the generator's derived entries and committed at candidate `e74e542`. The
+promotion checker returned `pass` with zero blockers under the unchanged three-path approved
+scope; Commons, FrontComposer, and Memories remain disclosed non-blocking changed-gitlink
+warnings. The final-record generator then returned `pass`: all three derivation inputs true,
+eight TRX artifacts parsed, 86 paths with zero missing or unexpected entries, and computed
+totals of 1,925 passed, 0 failed, and 0 skipped. Its Markdown block below is inserted verbatim.
+
+**Historical-record regression repaired (2026-07-29).** The Story 6.8 workflow tests still
+classified Story 6.2 as a pre-generator record and required the two legacy File List warnings.
+Those expectations turned red after the mandatory current workflow generated this record.
+They now require the stronger generated-record invariants: one generated block, a derived list
+identical to the declared list, no drift, no warnings, and read-only historical verification.
+The generator and promotion workflow suite passes 129/129.
+
 ### Completion Notes List
+
+- **2026-07-29 workflow compatibility:** updated the historical verifier regression to treat
+  this completed Story 6.2 record as generated while preserving strict blocking behavior for
+  malformed generated records; all 129 generator/promotion tests pass.
+
+- **2026-07-29 review handoff:** the mechanical final record now passes at fixed candidate
+  `e74e542f2b87ecadd87b40e15052bcedb3866c59`, with the generator-derived File List and
+  test totals embedded verbatim. Story 6.2 is ready for independent code review.
 
 - **2026-07-29 completion revalidation:** repaired the proof's stale candidate binding from
   live gate output without widening the approved promotion scope. Fresh Release restore/build,
@@ -654,6 +680,14 @@ record section, but returned `blocked` with these stable diagnostics:
   - AC1's SM-C2 gate confirms no regression but could not have failed for this story, because
     no source inside the measured closure changed. Recorded in the evidence, not glossed.
 
+<!-- STORY-FINAL-RECORD:BEGIN -->
+
+**Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
+
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 86 file-list path(s) · 6 gitlink promotion(s) evaluated.
+
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `e74e542f2b87ecadd87b40e15052bcedb3866c59`.
+
 ### File List
 
 - `.agents/skills/bmad-code-review/steps/step-04-present.md` (modified)
@@ -666,7 +700,7 @@ record section, but returned `blocked` with these stable diagnostics:
 - `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
 - `Hexalith.Conversations.slnx` (modified)
 - `README.md` (modified)
-- `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` (new)
+- `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` (modified)
 - `_bmad-output/implementation-artifacts/6-8-generate-the-final-story-record-mechanically-from-measured-state.md` (new)
 - `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
 - `_bmad-output/implementation-artifacts/epic-6-context.md` (modified)
@@ -743,10 +777,51 @@ record section, but returned `blocked` with these stable diagnostics:
 - `tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj` (deleted)
 - `tests/README.md` (modified)
 
+### Gitlink Promotions
+
+| Path | Declared | Recorded mode | Recorded commit | Baseline commit |
+| --- | --- | --- | --- | --- |
+| `references/Hexalith.Builds` | yes | `160000` | `1b1c0b0360715b82de48b618fc4e94e7e01e8092` | `0b8f0c83263b7150c98341ceca8cd3cd8404a375` |
+| `references/Hexalith.Commons` | no | `160000` | `f2b5f1b12b478dce902756876138a60cde4fde65` | `427530e27eab40b12e85832698da6962fd0c5a48` |
+| `references/Hexalith.EventStore` | yes | `160000` | `b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e` | `b2d3402552fbadf529c220fcc739da9d06d285fe` |
+| `references/Hexalith.FrontComposer` | no | `160000` | `b6efcad5b293017f9805e4fc7dc982b92abff678` | `7870526090a8596082e3df034ecacf4c07881a04` |
+| `references/Hexalith.Memories` | no | `160000` | `0c351ff970b39a80a90821020feb0e6e8faf0183` | `b073aa577ad3006300a5d7192392bb0ca656944b` |
+| `references/Hexalith.Tenants` | yes | `160000` | `96bdfd8a485d5fbee76cd660ce5257bb5fd54f1d` | `4a9124ec174179652d9480ea56e70f97f8a45a37` |
+
+### Test Results
+
+| Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| Conformance | PARSED | 425 | 425 | 0 | 0 | `404057b5152d48aa` |
+| Server | PARSED | 631 | 631 | 0 | 0 | `f419fcdad8976d9c` |
+| Contracts | PARSED | 618 | 618 | 0 | 0 | `feff3811ee9cb640` |
+| Domain | PARSED | 185 | 185 | 0 | 0 | `086dbaeb569fea33` |
+| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `8b467c22473c85c8` |
+| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `7bda3a7c2985547e` |
+| Client | PARSED | 29 | 29 | 0 | 0 | `5e0127943d2996c9` |
+| AppHost | PARSED | 9 | 9 | 0 | 0 | `c92b55a01598bb12` |
+| **Total (computed)** | **8 parsed** | **1925** | **1925** | **0** | **0** | — |
+
+### Candidate Binding
+
+- Candidate `e74e542f2b87ecadd87b40e15052bcedb3866c59` · committed head `e74e542f2b87ecadd87b40e15052bcedb3866c59` · ancestor of head: **yes**
+- Gitlinks moved after the candidate: none
+
+### Promotion Completion Gate
+
+- Result **PASS** · declared: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.Builds, references/Hexalith.Commons, references/Hexalith.EventStore, references/Hexalith.FrontComposer, references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants, references/Hexalith.Commons, references/Hexalith.FrontComposer, references/Hexalith.Memories
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories
+
+<!-- STORY-FINAL-RECORD:END -->
+
 ## Change Log
 
 | Date | Change |
 | --- | --- |
+| 2026-07-29 | Updated the historical-record regression from the obsolete pre-generator Story 6.2 expectation to strict generated-record verification; generator/promotion workflow suite is 129/129. |
+| 2026-07-29 | Replaced the legacy File List with the mechanically derived 86-path inventory, inserted the passing final record verbatim at candidate `e74e542`, bound `file_list_commit`, and moved the story to `review`. |
 | 2026-07-29 | Rebound stale projection proof evidence to the current committed gitlink state without expanding the approved three-path promotion scope; refreshed its validator pins and reran the Release build plus all eight test-project lanes, including the opt-in live AppHost boundary. |
 | 2026-07-28 | Code review: implemented all 18 selected adversarial findings; added stable dispatch-ledger consistency, bounded bulk reads, strict decode/rebuild behavior, real AppHost runtime coverage, and the production endpoint/Data Protection fixes revealed by that launch. Returned story to `in-progress` pending evidence regeneration and EventStore promotion capture. |
 | 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `c398ea2`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |
