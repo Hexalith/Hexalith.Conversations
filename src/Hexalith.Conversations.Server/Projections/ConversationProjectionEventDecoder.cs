@@ -83,34 +83,36 @@ internal static class ConversationProjectionEventDecoder
         List<ConversationProjectionEventRecord> records = new(events.Length);
         foreach (ProjectionEventDto? evt in events)
         {
-            if (evt is null)
-            {
-                throw new JsonException("The projection event envelope is missing.");
-            }
+            records.Add(Decode(evt));
+        }
 
-            if (evt.SequenceNumber < 1)
-            {
-                throw new JsonException("The projection event sequence is invalid.");
-            }
+        return records;
+    }
 
-            if (!string.Equals(evt.SerializationFormat, "json", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new JsonException("The projection event serialization format is unsupported.");
-            }
+    /// <summary>
+    /// Decodes every valid envelope and reports whether any individual envelope was rejected.
+    /// </summary>
+    internal static IReadOnlyList<ConversationProjectionEventRecord> DecodePermissive(
+        ProjectionEventDto[]? events,
+        out bool decodeFailed)
+    {
+        decodeFailed = false;
+        if (events is null || events.Length == 0)
+        {
+            return [];
+        }
 
-            if (!TryResolvePublicEventType(evt.EventTypeName, out Type? eventType))
+        List<ConversationProjectionEventRecord> records = new(events.Length);
+        foreach (ProjectionEventDto? evt in events)
+        {
+            try
             {
-                throw new JsonException("The projection event discriminator is unsupported.");
+                records.Add(Decode(evt));
             }
-
-            if (evt.Payload is not { Length: > 0 })
+            catch (Exception exception) when (exception is ArgumentException or JsonException)
             {
-                throw new JsonException("The projection event payload is missing.");
+                decodeFailed = true;
             }
-
-            object decoded = JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
-                ?? throw new JsonException("The projection event payload decoded to null.");
-            records.Add(new ConversationProjectionEventRecord(evt.SequenceNumber, decoded));
         }
 
         return records;
@@ -135,6 +137,7 @@ internal static class ConversationProjectionEventDecoder
             .Select(static type => type.Namespace)
             .Concat(DurableProjectedEventTypes.Select(static pair => pair.DurableType.Namespace))
             .Concat(DurableProjectedEventTypes.Select(static pair => pair.PublicType.Namespace))
+            .Append(typeof(ConversationRejectedDomainEvent).Namespace)
             .Where(static candidate => !string.IsNullOrEmpty(candidate))
             .Select(static candidate => candidate!)
             .ToFrozenSet(StringComparer.Ordinal);
@@ -164,6 +167,65 @@ internal static class ConversationProjectionEventDecoder
         => PolymorphicTypeRegistry.Create(
             DurableProjectedEventTypes.Select(static pair =>
                 new PolymorphicTypeRegistration(pair.DurableType.Name, pair.PublicType)));
+
+    private static ConversationProjectionEventRecord Decode(ProjectionEventDto? evt)
+    {
+        if (evt is null)
+        {
+            throw new JsonException("The projection event envelope is missing.");
+        }
+
+        if (evt.SequenceNumber < 1)
+        {
+            throw new JsonException("The projection event sequence is invalid.");
+        }
+
+        if (!string.Equals(evt.SerializationFormat, "json", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new JsonException("The projection event serialization format is unsupported.");
+        }
+
+        if (evt.Payload is not { Length: > 0 })
+        {
+            throw new JsonException("The projection event payload is missing.");
+        }
+
+        if (IsRejectedDomainEvent(evt.EventTypeName))
+        {
+            _ = JsonSerializer.Deserialize<ConversationRejectedDomainEvent>(evt.Payload, EventJsonOptions)
+                ?? throw new JsonException("The projection event payload decoded to null.");
+            return new(evt.SequenceNumber, new ConversationProjectionPositionOnlyEvent(evt.Timestamp));
+        }
+
+        if (!TryResolvePublicEventType(evt.EventTypeName, out Type? eventType))
+        {
+            throw new JsonException("The projection event discriminator is unsupported.");
+        }
+
+        object decoded = JsonSerializer.Deserialize(evt.Payload, eventType, EventJsonOptions)
+            ?? throw new JsonException("The projection event payload decoded to null.");
+        return new(evt.SequenceNumber, decoded);
+    }
+
+    private static bool IsRejectedDomainEvent(string? discriminator)
+    {
+        if (string.IsNullOrWhiteSpace(discriminator))
+        {
+            return false;
+        }
+
+        string alias = nameof(ConversationRejectedDomainEvent);
+        if (string.Equals(discriminator, alias, StringComparison.Ordinal))
+        {
+            return true;
+        }
+
+        int separatorIndex = discriminator.Length - alias.Length - 1;
+        return separatorIndex >= 0
+            && discriminator.EndsWith(alias, StringComparison.Ordinal)
+            && discriminator[separatorIndex] is '.' or '+'
+            && QualifyingNamespaces.Contains(discriminator[..separatorIndex]);
+    }
 
     private static bool TryResolveExactOrQualified(
         PolymorphicTypeRegistry registry,

@@ -401,6 +401,50 @@ detail/index projections, while any present pending or poisoned ledger still fai
 - [x] [Review][Defer] The tenant index remains a single state-store value, now also carrying a per-conversation dispatch map, with no size guard [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs:26] — deferred, pre-existing single-key index design
 - [x] [Review][Defer] SameSummary compares serialized form, so any `[JsonIgnore]` or non-public member compares equal [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:273] — deferred, pre-existing comparison approach
 
+### Review Findings — pass 4, chunk 1 (2026-07-29, `bmad-code-review`, four blind layers)
+
+Scope reviewed: production/runtime sources in `git diff 29def441408becfbbbdc5c59b9af14a7717cb21f..966ed26 -- src/`.
+The four layers raised 26 raw findings, deduplicated to 22 and re-verified against the code and platform
+callers. Ten were dismissed as noise, previously resolved decisions, or unreachable under the platform's
+dispatch invariants. Runtime tests, evidence/conformance, and workflow/generator/planning changes remain
+separate review chunks.
+
+#### Decisions
+
+All decision-needed findings were resolved by Jerome on 2026-07-29 and converted to patch items below.
+
+#### Patches
+
+- [x] [Review][Patch] Add authoritative platform reconciliation for expired or terminally abandoned dispatch markers (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs:130] — APPLIED 2026-07-29 (decision option a)
+- [x] [Review][Patch] Prebuild the EventStore gateway in the boundary test's exact configuration and verify revision provenance (HIGH) [src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj:13] — APPLIED 2026-07-29 (decision option b)
+- [x] [Review][Patch] Handle persisted `ConversationRejectedDomainEvent` records as position-advancing projection no-ops (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:43] — APPLIED 2026-07-29
+- [x] [Review][Patch] Bound non-cancellable dispatch-ledger completion with an independent timeout (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:158] — APPLIED 2026-07-29
+- [x] [Review][Patch] Revalidate dispatch-ledger identity and status before marking the reloaded record completed (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:418] — APPLIED 2026-07-29
+- [x] [Review][Patch] Preserve valid legacy-v1 events when one envelope is undecodable instead of replacing the entire generation with empty state (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs:103] — APPLIED 2026-07-29
+- [x] [Review][Patch] Replace sequential per-sibling ledger reads in rebuild planning with a bounded bulk operation (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:270] — APPLIED 2026-07-29
+- [x] [Review][Patch] Pin full freshness-record generation equality, not only cursor mismatch, in read-store and read-service tests (MEDIUM) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs:170] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cover the detail-query `Rebuilding` result when projection content is withheld (MEDIUM) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:91] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cover list consistency and infrastructure exception mappings from both list and page validation (MEDIUM) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:247] — APPLIED 2026-07-29
+- [x] [Review][Patch] Prove unsupported-route, empty-history, and decode-failure handler outcomes write no projection keys (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:86] — APPLIED 2026-07-29
+- [x] [Review][Patch] Move `ConversationProjectionDispatchStatus` to its own C# file (LOW) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs:19] — APPLIED 2026-07-29
+
+#### Patch application status — pass 4, chunk 1 (2026-07-29)
+
+**12 of 12 selected patches are applied. Story stays `in-progress`.** The authoritative reconciliation
+contract was added to EventStore and exercised through the durable named-dispatch retry ledger; Conversations
+retries convergence first and compensates only a still-pending marker whose detail generation did not advance.
+The AppHost boundary now prebuilds the gateway in the active test configuration and verifies a clean commit SHA
+or a dirty-worktree SHA plus content hash before launch.
+
+Validation: Conversations Server **668/668**; AppHost Debug **9/9**; AppHost Release live boundary **1/1**;
+EventStore DomainService focused **72/72** and broad non-nested-submodule lane **111/111**; EventStore Server
+**2,870 passed, 25 pre-existing ATDD skips, 0 failed**. Relevant Debug and Release builds completed with
+0 warnings/errors, both repository diffs pass `git diff --check`, and root affected-project formatting passes.
+Full EventStore DomainService remains **147 passed / 1 failed** only because the forbidden-to-initialize nested
+`references/Hexalith.Tenants` authoring-guard subject is absent. EventStore-wide `dotnet format` remains noisy
+from its pre-existing `.editorconfig` CRLF versus `.gitattributes` LF conflict and unrelated naming diagnostics;
+the compiled analyzers and focused tests are clean.
+
 ## Dev Notes
 
 ### Binding sequence — check before starting

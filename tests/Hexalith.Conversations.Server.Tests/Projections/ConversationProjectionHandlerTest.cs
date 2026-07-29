@@ -178,7 +178,9 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), unknown));
+        ConversationProjectedReadModels models = ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), unknown));
+        models.Summary.Label.ShouldBe("Case 123");
+        models.Summary.Freshness.LastAppliedEventPosition.ShouldBe(1);
     }
 
     /// <summary>
@@ -382,7 +384,9 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), malformed));
+        ConversationProjectedReadModels models = ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), malformed));
+        models.Summary.Label.ShouldBe("Case 123");
+        models.Summary.Freshness.LastAppliedEventPosition.ShouldBe(1);
     }
 
     private static ConversationProjectionHandler Handler()
@@ -405,7 +409,7 @@ public sealed class ConversationProjectionHandlerTest
     /// the gateway projection actor, and would make introducing any new event type hard-fail every v1 stream
     /// carrying it.
     /// </remarks>
-    private static void ShouldDegradeRatherThanFault(ProjectionRequest request)
+    private static ConversationProjectedReadModels ShouldDegradeRatherThanFault(ProjectionRequest request)
     {
         ConversationProjectedReadModels models = Decode(Handler().Project(request));
 
@@ -413,6 +417,7 @@ public sealed class ConversationProjectionHandlerTest
             "an undecodable envelope must never yield a trust-bearing generation.");
         models.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
         models.Detail.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+        return models;
     }
 
     private static ConversationProjectedReadModels Decode(ProjectionResponse response)

@@ -629,6 +629,12 @@ public sealed class ConversationProjectionMaterializer
 
         public void Apply(ConversationProjectionEventRecord record)
         {
+            if (record.Event is ConversationProjectionPositionOnlyEvent positionOnly)
+            {
+                AdvancePosition(record.Position, positionOnly.Timestamp);
+                return;
+            }
+
             ConversationEventMetadata? metadata = TryGetMetadata(record.Event);
             if (metadata is null)
             {
@@ -656,32 +662,12 @@ public sealed class ConversationProjectionMaterializer
                 return;
             }
 
-            if (LastAppliedPosition == 0)
-            {
-                if (record.Position != 1)
-                {
-                    HasGap = true;
-                }
-            }
-            else if (record.Position != LastAppliedPosition + 1)
-            {
-                if (record.Position <= LastAppliedPosition)
-                {
-                    HasOutOfOrderEvent = true;
-                }
-                else
-                {
-                    HasGap = true;
-                }
-            }
-
             if (!WasCreated && record.Event is not ConversationCreated)
             {
                 HasOutOfOrderEvent = true;
             }
 
-            LastAppliedPosition = Math.Max(LastAppliedPosition, record.Position);
-            LastAppliedTimestamp = MaxTimestamp(LastAppliedTimestamp, metadata.CommittedAt);
+            AdvancePosition(record.Position, metadata.CommittedAt);
 
             try
             {
@@ -693,6 +679,31 @@ public sealed class ConversationProjectionMaterializer
                 // treat as poison rather than crashing the projection pass.
                 Poisoned = true;
             }
+        }
+
+        private void AdvancePosition(long position, DateTimeOffset timestamp)
+        {
+            if (LastAppliedPosition == 0)
+            {
+                if (position != 1)
+                {
+                    HasGap = true;
+                }
+            }
+            else if (position != LastAppliedPosition + 1)
+            {
+                if (position <= LastAppliedPosition)
+                {
+                    HasOutOfOrderEvent = true;
+                }
+                else
+                {
+                    HasGap = true;
+                }
+            }
+
+            LastAppliedPosition = Math.Max(LastAppliedPosition, position);
+            LastAppliedTimestamp = MaxTimestamp(LastAppliedTimestamp, timestamp);
         }
 
         private void Dispatch(ConversationProjectionEventRecord record)

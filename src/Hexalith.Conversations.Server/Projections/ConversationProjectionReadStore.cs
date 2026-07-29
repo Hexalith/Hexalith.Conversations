@@ -115,7 +115,8 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             tenantId,
             conversationId,
             cancellationToken).ConfigureAwait(false);
-        if (!string.Equals(models.DispatchId, dispatchReference.DispatchId, StringComparison.Ordinal)
+        if (dispatchReference.IsPending
+            || !string.Equals(models.DispatchId, dispatchReference.DispatchId, StringComparison.Ordinal)
             || dispatchReference.LastAppliedEventPosition != indexedSummary.Freshness.LastAppliedEventPosition
             || !SameSummary(indexedSummary, models.Summary)
             || !SameGeneration(models.Summary.Freshness, models.Detail.Freshness)
@@ -170,6 +171,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         bool hasIncompleteDispatch = dispatches.Any(pair =>
             !positions.TryGetValue(pair.Key, out long position)
             || position != pair.Value.LastAppliedEventPosition
+            || pair.Value.IsPending
             || string.IsNullOrWhiteSpace(pair.Value.DispatchId));
 
         return new ConversationProjectionIndexSnapshot
@@ -206,6 +208,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 || !snapshot.Dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? reference)
                 || reference is null
                 || string.IsNullOrWhiteSpace(reference.DispatchId)
+                || reference.IsPending
                 || reference.LastAppliedEventPosition != summary.Freshness.LastAppliedEventPosition)
             {
                 _ = inconsistent.Add(conversationId);

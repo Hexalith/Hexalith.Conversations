@@ -28,17 +28,22 @@ namespace Hexalith.Conversations.Server.Projections;
 /// and an already-completed dispatch is a no-op. Coordinated rebuild uses the platform batch plan so the detail,
 /// tenant index, and completed dispatch ledger are promoted as one visible generation.
 /// </remarks>
-public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionRebuildHandler
+public sealed class ConversationAsyncProjectionHandler :
+    IAsyncDomainProjectionRebuildHandler,
+    IAsyncDomainProjectionReconciliationHandler
 {
     /// <summary>The named production projection route.</summary>
     public const string ConversationReadModelProjectionType = "conversation-read-model";
 
     private static readonly TimeSpan DefaultStaleAfter = TimeSpan.FromMinutes(5);
     private static readonly byte[] FingerprintSeparator = [0x1F];
+    private const int BulkReadChunkSize = 100;
+    private const int BulkReadParallelism = 8;
     private const int DispatchLedgerRetryCount = 5;
     private const int DispatchLedgerBackoffMilliseconds = 5;
 
     private readonly ConversationProjectionMaterializer _materializer;
+    private readonly TimeSpan _completionTimeout;
     private readonly IReadModelExpiringStore? _expiringStore;
     private readonly TimeSpan _ledgerTimeToLive;
     private readonly IReadModelStore _store;
@@ -61,6 +66,7 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         _expiringStore = expiringStore ?? store as IReadModelExpiringStore;
         ProjectionDispatchOptions options = dispatchOptions?.Value ?? new ProjectionDispatchOptions();
         options.Validate();
+        _completionTimeout = options.RetryLeaseDuration;
         _ledgerTimeToLive = options.RedeliveryWindow;
     }
 
@@ -72,6 +78,30 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
 
     /// <inheritdoc/>
     public DomainProjectionRebuildSemantics RebuildSemantics => DomainProjectionRebuildSemantics.FullReplay;
+
+    /// <inheritdoc/>
+    public async Task<DomainProjectionHandlerResult> ReconcileAsync(
+        ProjectionRequest request,
+        string dispatchId,
+        CancellationToken cancellationToken)
+    {
+        DomainProjectionHandlerResult retried = await ProjectAsync(request, dispatchId, cancellationToken)
+            .ConfigureAwait(false);
+        if (retried.Status is ProjectionDispatchStatus.Completed or ProjectionDispatchStatus.AlreadyCompleted)
+        {
+            return retried;
+        }
+
+        bool reconciled = await _writer.TryReconcileTerminalDispatchAsync(
+                new TenantId(request.TenantId),
+                new ConversationId(request.AggregateId),
+                dispatchId,
+                cancellationToken)
+            .ConfigureAwait(false);
+        return reconciled
+            ? DomainProjectionHandlerResult.Completed()
+            : DomainProjectionHandlerResult.Retryable(ProjectionDispatchReasonCodes.PartialRetry);
+    }
 
     /// <inheritdoc/>
     public async Task<DomainProjectionHandlerResult> ProjectAsync(
@@ -103,6 +133,11 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         catch (Exception exception) when (exception is ArgumentException or JsonException)
         {
             return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.HandlerFailure);
+        }
+
+        if (events.All(static record => record.Event is ConversationProjectionPositionOnlyEvent))
+        {
+            return DomainProjectionHandlerResult.Completed();
         }
 
         string requestFingerprint = ComputeRequestFingerprint(request);
@@ -155,14 +190,20 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             await _writer.MarkPendingAsync(models, cancellationToken).ConfigureAwait(false);
             await _writer.PersistAsync(models, cancellationToken).ConfigureAwait(false);
 
-            // Both keys are durable at this point. Completing the ledger under an already-cancelled token would
-            // leave a correct generation that every reader refuses, so completion is not cancellable.
-            await CompleteDispatchAsync(ledger, CancellationToken.None).ConfigureAwait(false);
+            // Both keys are durable at this point. Completion is independent of caller cancellation so a late
+            // disconnect cannot strand a correct generation, but it is still bounded by the delivery lease.
+            using CancellationTokenSource completionTimeout =
+                new(_completionTimeout, _timeProvider);
+            await CompleteDispatchAsync(ledger, completionTimeout.Token).ConfigureAwait(false);
             return DomainProjectionHandlerResult.Completed();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw;
+        }
+        catch (OperationCanceledException)
+        {
+            return DomainProjectionHandlerResult.Retryable(ProjectionDispatchReasonCodes.PartialRetry);
         }
         catch (ArgumentException)
         {
@@ -268,6 +309,7 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 .First())
             .ToDictionary(summary => summary.ConversationId.Value, StringComparer.Ordinal);
         Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(StringComparer.Ordinal);
+        Dictionary<string, ConversationProjectionDispatchReference> unverifiedDispatches = new(StringComparer.Ordinal);
         foreach ((string conversationId, ConversationProjectionDispatchReference reference)
             in persistedIndex.Value?.Dispatches ?? new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal))
         {
@@ -284,15 +326,18 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 continue;
             }
 
+            unverifiedDispatches[conversationId] = reference;
+        }
+
+        IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> siblingLedgers =
+            await BulkReadSiblingLedgersAsync(unverifiedDispatches.Values, cancellationToken).ConfigureAwait(false);
+        foreach ((string conversationId, ConversationProjectionDispatchReference reference) in unverifiedDispatches)
+        {
             // A reference without a summary is either an accepted sibling mid-dispatch or corrupt debris.
             // Prove its tenant/conversation binding from its ledger before retaining it in the replacement
             // index; dropping a valid pending reference makes that accepted conversation invisible forever.
-            ConversationProjectionDispatchLedger? siblingLedger = (await _store
-                .GetAsync<ConversationProjectionDispatchLedger>(
-                    ConversationProjectionReadModelKeys.StateStoreName,
-                    ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId),
-                    cancellationToken)
-                .ConfigureAwait(false)).Value;
+            ConversationProjectionDispatchLedger? siblingLedger = siblingLedgers[
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId)];
             if (siblingLedger is not null
                 && string.Equals(siblingLedger.DispatchId, reference.DispatchId, StringComparison.Ordinal)
                 && siblingLedger.TenantId == models.Summary.TenantId
@@ -301,6 +346,7 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 dispatches[conversationId] = reference;
             }
         }
+
         retained[models.Summary.ConversationId.Value] = models.Summary;
         dispatches[models.Summary.ConversationId.Value] = new(
             operationId,
@@ -417,6 +463,7 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 .ConfigureAwait(false);
             ConversationProjectionDispatchLedger current = entry.Value
                 ?? throw new InvalidOperationException("The projection dispatch ledger disappeared before completion.");
+            ValidateCompletionIdentity(ledger, current);
             if (current.Status == ConversationProjectionDispatchStatus.Completed)
             {
                 return;
@@ -444,6 +491,76 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         }
 
         throw new InvalidOperationException("The projection dispatch completion concurrency budget was exhausted.");
+    }
+
+    private async Task<IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?>> BulkReadSiblingLedgersAsync(
+        IEnumerable<ConversationProjectionDispatchReference> references,
+        CancellationToken cancellationToken)
+    {
+        string[] keys = [.. references
+            .Select(static reference => ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId))
+            .Distinct(StringComparer.Ordinal)];
+        if (keys.Length == 0)
+        {
+            return new Dictionary<string, ConversationProjectionDispatchLedger?>(StringComparer.Ordinal);
+        }
+
+        if (_store is not IReadModelBulkStore bulkStore)
+        {
+            throw new InvalidOperationException("The configured read-model store does not support bounded bulk reads.");
+        }
+
+        var values = new Dictionary<string, ConversationProjectionDispatchLedger?>(keys.Length, StringComparer.Ordinal);
+        foreach (string[] chunk in keys.Chunk(BulkReadChunkSize))
+        {
+            HashSet<string> requested = new(chunk, StringComparer.Ordinal);
+            IReadOnlyList<ReadModelBulkEntry<ConversationProjectionDispatchLedger>> entries = await bulkStore
+                .GetManyAsync<ConversationProjectionDispatchLedger>(
+                    ConversationProjectionReadModelKeys.StateStoreName,
+                    chunk,
+                    BulkReadParallelism,
+                    cancellationToken)
+                .ConfigureAwait(false);
+            if (entries.Count != chunk.Length
+                || entries.Select(static item => item.Key).Distinct(StringComparer.Ordinal).Count() != entries.Count)
+            {
+                throw new InvalidOperationException("The sibling dispatch-ledger bulk read returned an invalid result set.");
+            }
+
+            foreach (ReadModelBulkEntry<ConversationProjectionDispatchLedger> entry in entries)
+            {
+                if (!requested.Contains(entry.Key))
+                {
+                    throw new InvalidOperationException("The sibling dispatch-ledger bulk read returned an unrequested key.");
+                }
+
+                values[entry.Key] = entry.Value;
+            }
+        }
+
+        if (values.Count != keys.Length)
+        {
+            throw new InvalidOperationException("The sibling dispatch-ledger bulk read omitted a requested key.");
+        }
+
+        return values;
+    }
+
+    private static void ValidateCompletionIdentity(
+        ConversationProjectionDispatchLedger expected,
+        ConversationProjectionDispatchLedger current)
+    {
+        if (!Enum.IsDefined(current.Status)
+            || current.Status is not (ConversationProjectionDispatchStatus.Pending
+                or ConversationProjectionDispatchStatus.Completed)
+            || !string.Equals(current.DispatchId, expected.DispatchId, StringComparison.Ordinal)
+            || !string.Equals(current.RequestFingerprint, expected.RequestFingerprint, StringComparison.Ordinal)
+            || current.TenantId != expected.TenantId
+            || current.ConversationId != expected.ConversationId
+            || current.ProjectionGeneratedAt.UtcTicks != expected.ProjectionGeneratedAt.UtcTicks)
+        {
+            throw new ArgumentException("The projection dispatch ledger changed identity before completion.", nameof(current));
+        }
     }
 
     private static Task BackoffAsync(int attempt, CancellationToken cancellationToken)

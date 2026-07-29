@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Governance;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
@@ -41,9 +42,6 @@ public sealed class ConversationProjectionDurableEventCoverageTest
     /// <summary>
     /// Gets every durable domain event a persisted Conversations stream can carry into a projection.
     /// </summary>
-    /// <remarks>
-    /// Rejection events are excluded: they are never persisted as projected history.
-    /// </remarks>
     private static IReadOnlyList<Type> DurableProjectedEventTypes =>
     [
         .. typeof(ConversationCreatedDomainEvent).Assembly
@@ -52,6 +50,16 @@ public sealed class ConversationProjectionDurableEventCoverageTest
                 && typeof(IEventPayload).IsAssignableFrom(type)
                 && type.Name.EndsWith("DomainEvent", StringComparison.Ordinal)
                 && !type.Name.Contains("Rejected", StringComparison.Ordinal))
+            .OrderBy(static type => type.Name, StringComparer.Ordinal),
+    ];
+
+    private static IReadOnlyList<Type> AllDurableEventTypes =>
+    [
+        .. typeof(ConversationCreatedDomainEvent).Assembly
+            .GetTypes()
+            .Where(static type => type is { IsClass: true, IsAbstract: false, IsPublic: true }
+                && typeof(IEventPayload).IsAssignableFrom(type)
+                && type.Name.EndsWith("DomainEvent", StringComparison.Ordinal))
             .OrderBy(static type => type.Name, StringComparer.Ordinal),
     ];
 
@@ -165,6 +173,32 @@ public sealed class ConversationProjectionDurableEventCoverageTest
                 occurredAt,
                 actor,
                 "causation-durable-001");
+    }
+
+    [Fact]
+    public void DurableRejectionShouldDecodeAsAnExplicitPositionOnlyEvent()
+    {
+        AllDurableEventTypes.ShouldBe(
+            [.. DurableProjectedEventTypes.Append(typeof(ConversationRejectedDomainEvent)).OrderBy(static type => type.Name, StringComparer.Ordinal)]);
+        DateTimeOffset persistedAt = new(2026, 7, 29, 8, 30, 0, TimeSpan.Zero);
+        ConversationRejectedDomainEvent rejection = new(
+            ConversationErrorCode.CommandValidationFailed,
+            "invalid-command");
+
+        IReadOnlyList<ConversationProjectionEventRecord> decoded = ConversationProjectionEventDecoder.Decode(
+        [
+            new ProjectionEventDto(
+                typeof(ConversationRejectedDomainEvent).FullName!,
+                JsonSerializer.SerializeToUtf8Bytes(rejection, DomainEventWireOptions),
+                "json",
+                7,
+                persistedAt,
+                "correlation-rejected"),
+        ]);
+
+        ConversationProjectionEventRecord record = decoded.ShouldHaveSingleItem();
+        record.Position.ShouldBe(7);
+        record.Event.ShouldBe(new ConversationProjectionPositionOnlyEvent(persistedAt));
     }
 
     [Fact]

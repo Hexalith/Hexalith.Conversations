@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.EventStore.Client.Projections;
 
@@ -101,7 +102,8 @@ public sealed class ConversationProjectionReadModelWriter
             {
                 [summary.ConversationId.Value] = new(
                     models.DispatchId,
-                    summary.Freshness.LastAppliedEventPosition),
+                    summary.Freshness.LastAppliedEventPosition,
+                    IsPending: false),
             },
         };
         _ = await ReadModelWritePolicy
@@ -141,7 +143,8 @@ public sealed class ConversationProjectionReadModelWriter
             {
                 [summary.ConversationId.Value] = new(
                     models.DispatchId,
-                    summary.Freshness.LastAppliedEventPosition),
+                    summary.Freshness.LastAppliedEventPosition,
+                    IsPending: true),
             },
         };
         _ = await ReadModelWritePolicy
@@ -192,7 +195,7 @@ public sealed class ConversationProjectionReadModelWriter
                     existing.LastAppliedEventPosition,
                     existing.DispatchId) >= 0)
             {
-                dispatches[conversationId] = reference;
+                dispatches[conversationId] = PrepareWinningReference(reference, existing);
             }
         }
 
@@ -229,6 +232,139 @@ public sealed class ConversationProjectionReadModelWriter
         {
             Summaries = [.. byConversation.Values.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
             Dispatches = dispatches,
+        };
+    }
+
+    /// <summary>
+    /// Removes one terminal pending marker only when it has not advanced the durable conversation generation.
+    /// </summary>
+    /// <param name="tenantId">The authoritative tenant identity.</param>
+    /// <param name="conversationId">The authoritative conversation identity.</param>
+    /// <param name="dispatchId">The terminal stable dispatch identity.</param>
+    /// <param name="cancellationToken">A cancellation token.</param>
+    /// <returns><see langword="true"/> when the marker is absent, superseded, or safely compensated.</returns>
+    public async Task<bool> TryReconcileTerminalDispatchAsync(
+        TenantId tenantId,
+        ConversationId conversationId,
+        string dispatchId,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(tenantId);
+        ArgumentNullException.ThrowIfNull(conversationId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(dispatchId);
+
+        ReadModelEntry<ConversationProjectedReadModels> detail = await _store
+            .GetAsync<ConversationProjectedReadModels>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        ReadModelEntry<ConversationProjectionIndexReadModel> current = await _store
+            .GetAsync<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        if (current.Value is null
+            || !current.Value.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? marker)
+            || !string.Equals(marker.DispatchId, dispatchId, StringComparison.Ordinal)
+            || !marker.IsPending)
+        {
+            return true;
+        }
+
+        ConversationSummaryProjectionV1? indexedSummary = current.Value.Summaries
+            .SingleOrDefault(summary => summary.ConversationId == conversationId);
+        if (string.Equals(detail.Value?.DispatchId, dispatchId, StringComparison.Ordinal)
+            || (indexedSummary?.Freshness.LastAppliedEventPosition == marker.LastAppliedEventPosition
+                && marker.PreviousLastAppliedEventPosition != marker.LastAppliedEventPosition))
+        {
+            return false;
+        }
+
+        ConversationProjectionIndexReadModel reconciled = await ReadModelWritePolicy
+            .UpdateAsync<ConversationProjectionIndexReadModel>(
+                _store,
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                existing => ReconcilePendingReference(existing, conversationId.Value, dispatchId),
+                new ReadModelWriteContext(
+                    ConversationProjectionReadModelKeys.TenantIndexKeyCategory,
+                    nameof(ConversationProjectionIndexReadModel)),
+                _logger,
+                cancellationToken: cancellationToken)
+            .ConfigureAwait(false);
+        return !reconciled.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? remaining)
+            || !string.Equals(remaining.DispatchId, dispatchId, StringComparison.Ordinal)
+            || !remaining.IsPending;
+    }
+
+    private static ConversationProjectionIndexReadModel ReconcilePendingReference(
+        ConversationProjectionIndexReadModel? existing,
+        string conversationId,
+        string dispatchId)
+    {
+        ConversationProjectionIndexReadModel current = existing ?? new ConversationProjectionIndexReadModel();
+        if (!current.Dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? marker)
+            || !string.Equals(marker.DispatchId, dispatchId, StringComparison.Ordinal)
+            || !marker.IsPending)
+        {
+            return current;
+        }
+
+        var dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(current.Dispatches, StringComparer.Ordinal);
+        if (!string.IsNullOrWhiteSpace(marker.PreviousDispatchId)
+            && marker.PreviousLastAppliedEventPosition is > 0)
+        {
+            dispatches[conversationId] = new ConversationProjectionDispatchReference(
+                marker.PreviousDispatchId,
+                marker.PreviousLastAppliedEventPosition.Value);
+        }
+        else
+        {
+            _ = dispatches.Remove(conversationId);
+        }
+
+        return new ConversationProjectionIndexReadModel
+        {
+            Summaries = current.Summaries,
+            Dispatches = dispatches,
+        };
+    }
+
+    private static ConversationProjectionDispatchReference PrepareWinningReference(
+        ConversationProjectionDispatchReference incoming,
+        ConversationProjectionDispatchReference? existing)
+    {
+        if (!incoming.IsPending)
+        {
+            return incoming with
+            {
+                PreviousDispatchId = null,
+                PreviousLastAppliedEventPosition = null,
+            };
+        }
+
+        if (existing is null)
+        {
+            return incoming;
+        }
+
+        if (SameGeneration(existing, incoming))
+        {
+            return incoming with
+            {
+                PreviousDispatchId = existing.PreviousDispatchId,
+                PreviousLastAppliedEventPosition = existing.PreviousLastAppliedEventPosition,
+            };
+        }
+
+        return incoming with
+        {
+            PreviousDispatchId = existing.IsPending ? existing.PreviousDispatchId : existing.DispatchId,
+            PreviousLastAppliedEventPosition = existing.IsPending
+                ? existing.PreviousLastAppliedEventPosition
+                : existing.LastAppliedEventPosition,
         };
     }
 

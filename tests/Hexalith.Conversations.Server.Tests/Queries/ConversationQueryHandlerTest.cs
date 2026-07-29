@@ -111,6 +111,34 @@ public sealed class ConversationQueryHandlerTest
         result.SafeNextAction.ShouldBe("The requested conversation is not available.");
     }
 
+    [Fact]
+    public async Task DetailMixedGenerationShouldReturnRebuildingWithoutDetails()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                Summary(
+                    Tenant,
+                    Conversation,
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    freshnessState: ProjectionTrustState.Rebuilding,
+                    reason: ProjectionFreshnessReasonCode.Rebuilding),
+                Detail(Tenant, Conversation)),
+        };
+
+        ConversationDetailResult result = await CreateHandler(AllowedAccess(), store).GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldBe("Retry after the read model finishes rebuilding.");
+    }
+
     /// <summary>
     /// Authorized detail reads hydrate stable references after projection data is accepted.
     /// </summary>
@@ -655,6 +683,59 @@ public sealed class ConversationQueryHandlerTest
         result.Conversations.ShouldBeEmpty();
         result.SafeNextAction.ShouldNotContain("raw", Case.Insensitive);
         store.ListReads.ShouldBe(1);
+    }
+
+    [Fact]
+    public async Task ListConsistencyFailureShouldReturnRebuilding()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            ListException = new ConversationProjectionConsistencyException(),
+        };
+
+        ConversationListResult result = await CreateHandler(AllowedAccess(), store).ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Conversations.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task PageValidationConsistencyFailureShouldReturnRebuilding()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+            ValidationException = new ConversationProjectionConsistencyException(),
+        };
+
+        ConversationListResult result = await CreateHandler(AllowedAccess(), store).ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Conversations.ShouldBeEmpty();
+    }
+
+    [Fact]
+    public async Task PageValidationInfrastructureFailureShouldReturnUnavailable()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant)],
+            ValidationException = new IOException("raw projection backend path"),
+        };
+
+        ConversationListResult result = await CreateHandler(AllowedAccess(), store).ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Conversations.ShouldBeEmpty();
+        result.SafeNextAction.ShouldNotContain("raw", Case.Insensitive);
     }
 
     /// <summary>
@@ -2201,6 +2282,8 @@ public sealed class ConversationQueryHandlerTest
 
         public Exception? ListException { get; set; }
 
+        public Exception? ValidationException { get; set; }
+
         public int DetailReads { get; private set; }
 
         public int ListReads { get; private set; }
@@ -2233,6 +2316,11 @@ public sealed class ConversationQueryHandlerTest
         {
             ValidatePageCalls++;
             ValidatedPage = page;
+            if (ValidationException is not null)
+            {
+                throw ValidationException;
+            }
+
             return ValueTask.FromResult<IReadOnlySet<string>>(
                 new HashSet<string>(InconsistentConversationIds, StringComparer.Ordinal));
         }

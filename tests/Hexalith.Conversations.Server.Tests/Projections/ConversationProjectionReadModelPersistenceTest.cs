@@ -73,6 +73,88 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         store.BulkGetCalls.ShouldBe(2, "page verification bulk-reads detail generations and completion ledgers.");
     }
 
+    [Fact]
+    public async Task TerminalPendingMarkerShouldRestoreTheDisplacedCompletedReference()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectionReadModelWriter writer = new(store);
+        ConversationProjectedReadModels completed = Models(
+            ConversationA,
+            position: 1,
+            dispatchId: "dispatch-a-completed");
+        await writer.PersistAsync(completed, TestContext.Current.CancellationToken);
+        ConversationProjectedReadModels terminal = completed with { DispatchId = "dispatch-z-terminal" };
+        await writer.MarkPendingAsync(terminal, TestContext.Current.CancellationToken);
+
+        bool reconciled = await writer.TryReconcileTerminalDispatchAsync(
+            Tenant,
+            ConversationA,
+            terminal.DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reconciled.ShouldBeTrue();
+        ConversationProjectionDispatchReference restored = store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[ConversationA.Value];
+        restored.DispatchId.ShouldBe(completed.DispatchId);
+        restored.IsPending.ShouldBeFalse();
+    }
+
+    [Fact]
+    public async Task TerminalPendingMarkerForAnUnbuiltConversationShouldBeRemoved()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectionReadModelWriter writer = new(store);
+        ConversationProjectedReadModels terminal = Models(
+            ConversationA,
+            position: 1,
+            dispatchId: "dispatch-terminal-new");
+        await writer.MarkPendingAsync(terminal, TestContext.Current.CancellationToken);
+
+        bool reconciled = await writer.TryReconcileTerminalDispatchAsync(
+            Tenant,
+            ConversationA,
+            terminal.DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reconciled.ShouldBeTrue();
+        store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches.ShouldNotContainKey(ConversationA.Value);
+    }
+
+    [Fact]
+    public async Task TerminalMarkerShouldRemainWhenItsDetailGenerationAdvanced()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectionReadModelWriter writer = new(store);
+        ConversationProjectedReadModels completed = Models(
+            ConversationA,
+            position: 1,
+            dispatchId: "dispatch-a-completed");
+        await writer.PersistAsync(completed, TestContext.Current.CancellationToken);
+        ConversationProjectedReadModels terminal = completed with { DispatchId = "dispatch-z-terminal" };
+        await writer.MarkPendingAsync(terminal, TestContext.Current.CancellationToken);
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationA),
+            terminal);
+
+        bool reconciled = await writer.TryReconcileTerminalDispatchAsync(
+            Tenant,
+            ConversationA,
+            terminal.DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reconciled.ShouldBeFalse();
+        store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[ConversationA.Value].IsPending.ShouldBeTrue();
+    }
+
     /// <summary>
     /// A list larger than one platform page is validated in bounded chunks for both details and ledgers.
     /// </summary>

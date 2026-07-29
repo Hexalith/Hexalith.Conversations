@@ -98,17 +98,8 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
         // change a documented fail-open-degrade contract into an unhandled fault, and would make adding any
         // new event type hard-fail every v1 stream that carries it. A degraded generation can never report
         // Current, so the skip still never falsely degrades.
-        IReadOnlyList<ConversationProjectionEventRecord> events;
-        bool decodeFailed = false;
-        try
-        {
-            events = ConversationProjectionEventDecoder.Decode(request.Events);
-        }
-        catch (Exception exception) when (exception is ArgumentException or JsonException)
-        {
-            events = [];
-            decodeFailed = true;
-        }
+        IReadOnlyList<ConversationProjectionEventRecord> events =
+            ConversationProjectionEventDecoder.DecodePermissive(request.Events, out bool decodeFailed);
 
         ConversationProjectedReadModels models = _materializer.Project(
             tenantId,

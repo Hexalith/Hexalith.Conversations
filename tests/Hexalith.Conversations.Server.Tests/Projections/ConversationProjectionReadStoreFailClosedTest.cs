@@ -204,6 +204,44 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
         result.Projection.ShouldBeNull();
     }
 
+    [Fact]
+    public async Task FreshnessLagMismatchShouldReturnRebuildingWhenAllOtherFieldsMatch()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels original = Models(ConversationA, Now.AddSeconds(1));
+        ProjectionFreshnessV1 freshness = original.Summary.Freshness;
+        ProjectionFreshnessV1 mismatchedFreshness = new(
+            freshness.ProjectionContractSchemaVersion,
+            freshness.ProjectionCursor,
+            freshness.LastAppliedEventPosition,
+            freshness.LastAppliedEventTimestamp,
+            freshness.ProjectionGeneratedAt,
+            freshness.LagDuration + TimeSpan.FromMilliseconds(1),
+            freshness.IsStale,
+            freshness.FreshnessState,
+            freshness.ReasonCode);
+        ConversationProjectedReadModels mismatched = new(
+            CopySummary(original.Summary, freshness: mismatchedFreshness),
+            original.Detail)
+        {
+            DispatchId = original.DispatchId,
+        };
+        SeedCompletedGeneration(store, mismatched, mismatched.Summary);
+
+        ConversationProjectionReadResult result = await new ConversationProjectionReadService(
+            AllowAll(),
+            new ConversationProjectionReadStore(store)).ReadDetailAsync(
+                Tenant,
+                "user-001",
+                Tenant,
+                ConversationA,
+                TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Projection.ShouldBeNull();
+    }
+
     /// <summary>
     /// Duplicate index rows are ambiguous even when both rows are byte-identical.
     /// </summary>

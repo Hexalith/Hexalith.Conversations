@@ -14,6 +14,7 @@ using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.EventStore.Aspire;
 
+using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -42,6 +43,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     public async Task RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary()
     {
         using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(5));
+        await BuildEventStoreGatewayWithProvenanceAsync(timeout.Token);
         IDistributedApplicationTestingBuilder builder =
             await DistributedApplicationTestingBuilder.CreateAsync<Projects.Hexalith_Conversations_AppHost>(
                 [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"],
@@ -206,4 +208,173 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
 
     private static string Base64UrlEncode(byte[] value)
         => Convert.ToBase64String(value).TrimEnd('=').Replace('+', '-').Replace('/', '_');
+
+    private static async Task BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
+    {
+        string repositoryRoot = FindRepositoryRoot();
+        string eventStoreRoot = Path.Combine(repositoryRoot, "references", "Hexalith.EventStore");
+        string configuration = FindTestBuildConfiguration();
+        ProcessResult revision = await RunProcessAsync(
+            "git",
+            ["rev-parse", "HEAD"],
+            eventStoreRoot,
+            cancellationToken);
+        revision.ExitCode.ShouldBe(0, revision.StandardError);
+        string headRevision = revision.StandardOutput.Trim();
+        headRevision.ShouldNotBeNullOrWhiteSpace();
+        string sourceRevision = await ComputeWorkspaceRevisionAsync(
+            eventStoreRoot,
+            headRevision,
+            cancellationToken);
+
+        string projectPath = Path.Combine(
+            eventStoreRoot,
+            "src",
+            "Hexalith.EventStore",
+            "Hexalith.EventStore.csproj");
+        ProcessResult build = await RunProcessAsync(
+            "dotnet",
+            [
+                "build",
+                projectPath,
+                "--configuration",
+                configuration,
+                "-m:1",
+                $"-p:SourceRevisionId={sourceRevision}",
+                $"-p:InformationalVersion=1.0.0+{sourceRevision}",
+            ],
+            eventStoreRoot,
+            cancellationToken);
+        build.ExitCode.ShouldBe(
+            0,
+            $"The exact-configuration EventStore gateway prebuild failed.{Environment.NewLine}"
+            + $"{build.StandardOutput}{Environment.NewLine}{build.StandardError}");
+
+        string gatewayAssembly = Path.Combine(
+            eventStoreRoot,
+            "src",
+            "Hexalith.EventStore",
+            "bin",
+            configuration,
+            "net10.0",
+            "Hexalith.EventStore.dll");
+        File.Exists(gatewayAssembly).ShouldBeTrue(gatewayAssembly);
+        string? productVersion = FileVersionInfo.GetVersionInfo(gatewayAssembly).ProductVersion;
+        productVersion.ShouldNotBeNullOrWhiteSpace();
+        productVersion.ShouldContain(
+            sourceRevision,
+            Case.Insensitive,
+            "the gateway binary launched by Aspire must carry the reviewed EventStore revision");
+        productVersion.ShouldContain(headRevision, Case.Insensitive);
+    }
+
+    private static async Task<string> ComputeWorkspaceRevisionAsync(
+        string repositoryRoot,
+        string headRevision,
+        CancellationToken cancellationToken)
+    {
+        ProcessResult diff = await RunProcessAsync(
+            "git",
+            ["diff", "--binary", "--no-ext-diff", "HEAD", "--", "."],
+            repositoryRoot,
+            cancellationToken);
+        diff.ExitCode.ShouldBe(0, diff.StandardError);
+        ProcessResult untracked = await RunProcessAsync(
+            "git",
+            ["ls-files", "--others", "--exclude-standard", "-z"],
+            repositoryRoot,
+            cancellationToken);
+        untracked.ExitCode.ShouldBe(0, untracked.StandardError);
+        string[] untrackedPaths = untracked.StandardOutput
+            .Split('\0', StringSplitOptions.RemoveEmptyEntries)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        if (diff.StandardOutput.Length == 0 && untrackedPaths.Length == 0)
+        {
+            return headRevision;
+        }
+
+        using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        hash.AppendData(Encoding.UTF8.GetBytes(diff.StandardOutput));
+        foreach (string relativePath in untrackedPaths)
+        {
+            hash.AppendData(Encoding.UTF8.GetBytes(relativePath));
+            hash.AppendData([0]);
+            hash.AppendData(await File.ReadAllBytesAsync(
+                Path.Combine(repositoryRoot, relativePath),
+                cancellationToken));
+        }
+
+        string workspaceHash = Convert.ToHexStringLower(hash.GetHashAndReset())[..12];
+        return $"{headRevision}.dirty.{workspaceHash}";
+    }
+
+    private static string FindTestBuildConfiguration()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory?.Parent is not null)
+        {
+            if (string.Equals(directory.Parent.Name, "bin", StringComparison.OrdinalIgnoreCase))
+            {
+                return directory.Name;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not infer the active test build configuration.");
+    }
+
+    private static string FindRepositoryRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null)
+        {
+            if (File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx")))
+            {
+                return directory.FullName;
+            }
+
+            directory = directory.Parent;
+        }
+
+        throw new DirectoryNotFoundException("Could not find the repository root.");
+    }
+
+    private static async Task<ProcessResult> RunProcessAsync(
+        string fileName,
+        IReadOnlyList<string> arguments,
+        string workingDirectory,
+        CancellationToken cancellationToken)
+    {
+        ProcessStartInfo startInfo = new(fileName)
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            WorkingDirectory = workingDirectory,
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException($"Could not start '{fileName}'.");
+        Task<string> standardOutput = process.StandardOutput.ReadToEndAsync(cancellationToken);
+        Task<string> standardError = process.StandardError.ReadToEndAsync(cancellationToken);
+        try
+        {
+            await process.WaitForExitAsync(cancellationToken);
+        }
+        catch (OperationCanceledException)
+        {
+            process.Kill(entireProcessTree: true);
+            throw;
+        }
+
+        return new(process.ExitCode, await standardOutput, await standardError);
+    }
+
+    private sealed record ProcessResult(int ExitCode, string StandardOutput, string StandardError);
 }

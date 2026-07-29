@@ -6,14 +6,18 @@
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
+using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Projections;
+using Hexalith.Conversations.Events;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 using Hexalith.EventStore.Testing.Fakes;
+
+using Microsoft.Extensions.Options;
 
 namespace Hexalith.Conversations.Server.Tests.Projections;
 
@@ -179,6 +183,79 @@ public sealed class ConversationAsyncProjectionHandlerTest
         result.Status.ShouldBe(ProjectionDispatchStatus.Failed);
         result.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.HandlerFailure);
         store.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task UnsupportedEmptyAndMalformedInputsShouldFailWithoutAnyWrite()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ProjectionRequest unsupported = Request(Tenant, Conversation) with { Domain = "unsupported" };
+        ProjectionRequest empty = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            []);
+        ProjectionRequest malformed = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [new ProjectionEventDto("UnknownEvent", [0x7B, 0x7D], "json", 1, Started, "correlation")]);
+
+        (await handler.ProjectAsync(unsupported, "dispatch-unsupported", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        (await handler.ProjectAsync(empty, "dispatch-empty", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        (await handler.ProjectAsync(malformed, "dispatch-malformed", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        store.Count.ShouldBe(0);
+    }
+
+    [Fact]
+    public async Task PersistedRejectionShouldAdvancePositionWithoutMutatingOrWritingARejectionOnlyStream()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ConversationRejectedDomainEvent rejection = new(
+            ConversationErrorCode.CommandValidationFailed,
+            "invalid-command");
+        ProjectionEventDto rejectionDto = new(
+            nameof(ConversationRejectedDomainEvent),
+            JsonSerializer.SerializeToUtf8Bytes(rejection, JsonOptions),
+            "json",
+            1,
+            Started,
+            "correlation");
+        ProjectionRequest rejectionOnly = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [rejectionDto]);
+
+        DomainProjectionHandlerResult noOp = await handler.ProjectAsync(
+            rejectionOnly,
+            "dispatch-rejection-only",
+            TestContext.Current.CancellationToken);
+
+        noOp.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        store.Count.ShouldBe(0, "a rejection-only history has no conversation state to publish");
+
+        ProjectionRequest mixed = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [EventDto(Created(Tenant, Conversation), 1), rejectionDto with { SequenceNumber = 2 }]);
+        DomainProjectionHandlerResult projected = await handler.ProjectAsync(
+            mixed,
+            "dispatch-created-then-rejected",
+            TestContext.Current.CancellationToken);
+
+        projected.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        ConversationProjectedReadModels models = store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldNotBeNull();
+        models.Summary.Label.ShouldBe("Production path conversation");
+        models.Summary.Freshness.LastAppliedEventPosition.ShouldBe(2);
     }
 
     [Fact]
@@ -383,6 +460,94 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
         rebuilt.Dispatches[ConversationB().Value].DispatchId.ShouldBe(siblingDispatch);
         rebuilt.Summaries.ShouldNotContain(summary => summary.ConversationId == ConversationB());
+    }
+
+    [Fact]
+    public async Task RebuildShouldBulkReadSummarylessSiblingLedgers()
+    {
+        InMemoryReadModelStore inner = new();
+        const string siblingDispatch = "dispatch-sibling-bulk";
+        inner.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [ConversationB().Value] = new(siblingDispatch, 1, IsPending: true),
+                },
+            });
+        inner.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(siblingDispatch),
+            new ConversationProjectionDispatchLedger(
+                siblingDispatch,
+                "sibling-fingerprint",
+                Tenant,
+                ConversationB(),
+                Started,
+                ConversationProjectionDispatchStatus.Pending));
+        RejectSiblingScalarReadsStore store = new(inner, siblingDispatch);
+
+        DomainProjectionRebuildPlan plan = await Handler(store).PrepareRebuildAsync(
+            Request(Tenant, Conversation),
+            "rebuild-bulk-siblings",
+            TestContext.Current.CancellationToken);
+
+        store.BulkCalls.ShouldBe(1);
+        ConversationProjectionIndexReadModel rebuilt = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
+            plan.Operations[1].CanonicalValue.Span,
+            JsonOptions)!;
+        rebuilt.Dispatches.ShouldContainKey(ConversationB().Value);
+    }
+
+    [Fact]
+    public async Task CompletionTimeoutShouldReturnRetryableAfterDurableModelWrites()
+    {
+        InMemoryReadModelStore inner = new();
+        StallCompletionLedgerReadStore store = new(inner);
+        var options = new ProjectionDispatchOptions
+        {
+            RetryLeaseDuration = TimeSpan.FromMilliseconds(25),
+            RetryBaseDelay = TimeSpan.FromMilliseconds(1),
+            RetryMaxDelay = TimeSpan.FromMilliseconds(1),
+            RedeliveryWindow = TimeSpan.FromMinutes(1),
+        };
+        ConversationAsyncProjectionHandler handler = new(
+            new ConversationProjectionMaterializer(),
+            new ConversationProjectionReadModelWriter(store),
+            store,
+            TimeProvider.System,
+            store,
+            Options.Create(options));
+
+        DomainProjectionHandlerResult result = await handler.ProjectAsync(
+            Request(Tenant, Conversation),
+            "dispatch-completion-timeout",
+            TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(ProjectionDispatchStatus.Retryable);
+        result.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.PartialRetry);
+        inner.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldNotBeNull();
+    }
+
+    [Fact]
+    public async Task CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt()
+    {
+        InMemoryReadModelStore inner = new();
+        SubstituteCompletionLedgerStore store = new(inner);
+        ConversationAsyncProjectionHandler handler = Handler(store);
+
+        DomainProjectionHandlerResult result = await handler.ProjectAsync(
+            Request(Tenant, Conversation),
+            "dispatch-replaced-ledger",
+            TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        store.SubstitutedLedger.ShouldNotBeNull();
+        store.SubstitutedLedger!.Status.ShouldBe(ConversationProjectionDispatchStatus.Pending);
     }
 
     private static ConversationAsyncProjectionHandler Handler(IReadModelStore store)
@@ -685,6 +850,154 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
             return inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
         }
+
+        public Task<bool> TrySaveWithTimeToLiveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            TimeSpan timeToLive,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveWithTimeToLiveAsync(storeName, key, value, etag, timeToLive, cancellationToken);
+    }
+
+    private sealed class RejectSiblingScalarReadsStore(
+        InMemoryReadModelStore inner,
+        string siblingDispatchId) : IReadModelStore, IReadModelBulkStore
+    {
+        public int BulkCalls { get; private set; }
+
+        public Task<ReadModelEntry<TValue>> GetAsync<TValue>(
+            string storeName,
+            string key,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+        {
+            if (typeof(TValue) == typeof(ConversationProjectionDispatchLedger)
+                && string.Equals(
+                    key,
+                    ConversationProjectionReadModelKeys.DispatchLedgerKey(siblingDispatchId),
+                    StringComparison.Ordinal))
+            {
+                throw new InvalidOperationException("Sibling ledgers must be read through the bounded bulk API.");
+            }
+
+            return inner.GetAsync<TValue>(storeName, key, cancellationToken);
+        }
+
+        public Task<IReadOnlyList<ReadModelBulkEntry<TValue>>> GetManyAsync<TValue>(
+            string storeName,
+            IReadOnlyList<string> keys,
+            int parallelism,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+        {
+            BulkCalls++;
+            return inner.GetManyAsync<TValue>(storeName, keys, parallelism, cancellationToken);
+        }
+
+        public Task SaveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.SaveAsync(storeName, key, value, cancellationToken);
+
+        public Task<bool> TrySaveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
+    }
+
+    private sealed class StallCompletionLedgerReadStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
+    {
+        private int _ledgerReads;
+
+        public async Task<ReadModelEntry<TValue>> GetAsync<TValue>(
+            string storeName,
+            string key,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+        {
+            if (typeof(TValue) == typeof(ConversationProjectionDispatchLedger)
+                && Interlocked.Increment(ref _ledgerReads) > 1)
+            {
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            }
+
+            return await inner.GetAsync<TValue>(storeName, key, cancellationToken);
+        }
+
+        public Task SaveAsync<TValue>(string storeName, string key, TValue value, CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.SaveAsync(storeName, key, value, cancellationToken);
+
+        public Task<bool> TrySaveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
+
+        public Task<bool> TrySaveWithTimeToLiveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            TimeSpan timeToLive,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveWithTimeToLiveAsync(storeName, key, value, etag, timeToLive, cancellationToken);
+    }
+
+    private sealed class SubstituteCompletionLedgerStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
+    {
+        private int _ledgerReads;
+
+        public ConversationProjectionDispatchLedger? SubstitutedLedger { get; private set; }
+
+        public async Task<ReadModelEntry<TValue>> GetAsync<TValue>(
+            string storeName,
+            string key,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+        {
+            if (typeof(TValue) == typeof(ConversationProjectionDispatchLedger)
+                && Interlocked.Increment(ref _ledgerReads) > 1)
+            {
+                SubstitutedLedger = new ConversationProjectionDispatchLedger(
+                    "alien-dispatch",
+                    "alien-fingerprint",
+                    Tenant,
+                    Conversation,
+                    Started.AddHours(1),
+                    ConversationProjectionDispatchStatus.Pending);
+                inner.SeedRaw(storeName, key, SubstitutedLedger);
+            }
+
+            return await inner.GetAsync<TValue>(storeName, key, cancellationToken);
+        }
+
+        public Task SaveAsync<TValue>(string storeName, string key, TValue value, CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.SaveAsync(storeName, key, value, cancellationToken);
+
+        public Task<bool> TrySaveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
 
         public Task<bool> TrySaveWithTimeToLiveAsync<TValue>(
             string storeName,

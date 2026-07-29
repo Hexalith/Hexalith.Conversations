@@ -112,6 +112,33 @@ public sealed class ConversationProjectionReadServiceTest
         result.IsAvailableForTrustBearingActions.ShouldBeFalse();
     }
 
+    [Fact]
+    public async Task CorrelatedFreshnessStateFieldsMustMatchExactlyAcrossSummaryAndDetail()
+    {
+        FakeTenantAccessService access = new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Read,
+            Tenant,
+            "user-001"));
+        ConversationProjectedReadModels models = ProjectedModels();
+        ProjectionFreshnessV1 rebuilding = FreshnessAtPosition(
+            1,
+            ProjectionTrustState.Rebuilding,
+            ProjectionFreshnessReasonCode.Rebuilding);
+        FakeProjectionReadStore store = new()
+        {
+            Models = new ConversationProjectedReadModels(
+                SummaryWithFreshness(models.Summary, rebuilding),
+                models.Detail),
+        };
+
+        ConversationProjectionReadResult result = await new ConversationProjectionReadService(access, store)
+            .ReadDetailAsync(Tenant, "user-001", Tenant, Conversation, TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Projection.ShouldBeNull();
+    }
+
     /// <summary>
     /// Non-current detail projections never become trust-bearing detail reads.
     /// </summary>
