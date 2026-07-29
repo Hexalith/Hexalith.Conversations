@@ -4,6 +4,7 @@
 # ///
 """Hermetic tests for the story final-record generator."""
 
+import ast
 import hashlib
 import json
 import os
@@ -100,12 +101,25 @@ def sha256_file(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def write_trx(path: Path, passed: int = 3, failed: int = 0, skipped: int = 0) -> None:
+def write_trx(
+    path: Path,
+    passed: int = 3,
+    failed: int = 0,
+    skipped: int = 0,
+    project: str = "Fixture",
+) -> None:
     """Write a TRX whose summary agrees with the results it contains."""
-    results = [f'<UnitTestResult testName="P{index}" outcome="Passed" />' for index in range(passed)]
-    results += [f'<UnitTestResult testName="F{index}" outcome="Failed" />' for index in range(failed)]
+    results = [
+        f'<UnitTestResult testName="{project}.P{index}" outcome="Passed" />'
+        for index in range(passed)
+    ]
     results += [
-        f'<UnitTestResult testName="S{index}" outcome="NotExecuted" />' for index in range(skipped)
+        f'<UnitTestResult testName="{project}.F{index}" outcome="Failed" />'
+        for index in range(failed)
+    ]
+    results += [
+        f'<UnitTestResult testName="{project}.S{index}" outcome="NotExecuted" />'
+        for index in range(skipped)
     ]
     executed = passed + failed
     total = executed + skipped
@@ -114,6 +128,9 @@ def write_trx(path: Path, passed: int = 3, failed: int = 0, skipped: int = 0) ->
         '<?xml version="1.0" encoding="utf-8"?>\n'
         f'<TestRun id="fixture" name="fixture" xmlns="{TRX_NAMESPACE}">\n'
         "  <Results>\n    " + "\n    ".join(results) + "\n  </Results>\n"
+        "  <TestDefinitions>\n"
+        f'    <UnitTest name="fixture"><TestMethod codeBase="/fixture/{project}.dll" /></UnitTest>\n'
+        "  </TestDefinitions>\n"
         '  <ResultSummary outcome="Completed">\n'
         f'    <Counters total="{total}" executed="{executed}" passed="{passed}" '
         f'failed="{failed}" error="0" timeout="0" aborted="0" inconclusive="0" '
@@ -162,6 +179,15 @@ def build_umbrella(tmp_path: Path) -> dict[str, object]:
     run_git(umbrella, "init")
     (umbrella / "seed.txt").write_text("seed\n", encoding="utf-8")
     (umbrella / "_bmad-output/implementation-artifacts").mkdir(parents=True)
+    (umbrella / "tests/Fixture").mkdir(parents=True)
+    (umbrella / "tests/Fixture/Fixture.csproj").write_text(
+        "<Project />\n", encoding="utf-8"
+    )
+    (umbrella / "Fixture.slnx").write_text(
+        '<Solution><Folder Name="/tests/"><Project Path="tests/Fixture/Fixture.csproj" />'
+        "</Folder></Solution>\n",
+        encoding="utf-8",
+    )
     run_git(umbrella, "add", "--all")
     run_git(umbrella, "commit", "-m", "seed")
     run_git(umbrella, "submodule", "add", str(source), "references/Example")
@@ -169,7 +195,9 @@ def build_umbrella(tmp_path: Path) -> dict[str, object]:
     baseline = run_git(umbrella, "rev-parse", "HEAD").stdout.strip()
 
     story = "_bmad-output/implementation-artifacts/fixture-story.md"
-    (umbrella / story).write_text(STORY_TEMPLATE.format(baseline=baseline), encoding="utf-8")
+    (umbrella / story).write_text(
+        STORY_TEMPLATE.format(baseline=baseline), encoding="utf-8"
+    )
     (umbrella / "changed.txt").write_text("changed\n", encoding="utf-8")
     run_git(umbrella, "add", story, "changed.txt")
     run_git(umbrella, "commit", "-m", "story and change")
@@ -222,6 +250,39 @@ def measured(fixture: dict[str, object], *extra: str) -> tuple[int, dict]:
     return invoke(fixture, "--test-results", f"Fixture={fixture['artifact']}", *extra)
 
 
+def bundled(fixture: dict[str, object], *extra: str) -> tuple[int, dict]:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "bundle",
+            "--test-results",
+            f"Fixture={fixture['artifact']}",
+            *extra,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.returncode, json.loads(result.stdout)
+
+
+def insert_generated_block(fixture: dict[str, object], block: str) -> None:
+    story_file = fixture["repository"] / fixture["story"]
+    content = story_file.read_text(encoding="utf-8")
+    module = load_generator()
+    anchor, start, end = module.record_anchor(content)
+    assert anchor is not None
+    story_file.write_text(content[:start] + block + content[end:], encoding="utf-8")
+
+
 def set_file_list(fixture: dict[str, object], paths: list[str]) -> None:
     story_file = fixture["repository"] / fixture["story"]
     bullets = "\n".join(f"- `{path}` (modified)" for path in paths)
@@ -230,6 +291,22 @@ def set_file_list(fixture: dict[str, object], paths: list[str]) -> None:
         f"### File List\n\n{bullets}\n\n### Boundary Confirmation",
     )
     story_file.write_text(content, encoding="utf-8")
+
+
+def add_test_project(fixture: dict[str, object], name: str) -> None:
+    repository = fixture["repository"]
+    project = repository / f"tests/{name}/{name}.csproj"
+    project.parent.mkdir(parents=True)
+    project.write_text("<Project />\n", encoding="utf-8")
+    solution = repository / "Fixture.slnx"
+    solution.write_text(
+        solution.read_text(encoding="utf-8").replace(
+            "</Folder>", f'<Project Path="tests/{name}/{name}.csproj" /></Folder>'
+        ),
+        encoding="utf-8",
+    )
+    run_git(repository, "add", "Fixture.slnx", str(project.relative_to(repository)))
+    run_git(repository, "commit", "-m", f"add {name} test project")
 
 
 # --------------------------------------------------------------------------- #
@@ -256,22 +333,25 @@ def test_a_fully_derived_record_passes(umbrella: dict[str, object]) -> None:
     }
 
 
-def test_totals_are_summed_across_projects_not_transcribed(umbrella: dict[str, object]) -> None:
-    write_trx(umbrella["repository"] / "results/second.trx", passed=5, failed=1, skipped=2)
+def test_totals_are_summed_across_projects_not_transcribed(
+    umbrella: dict[str, object],
+) -> None:
+    add_test_project(umbrella, "Second")
+    write_trx(umbrella["repository"] / "results/second.trx", passed=5, project="Second")
     code, document = invoke(
         umbrella,
         "--test-results",
-        f"First={umbrella['artifact']}",
+        f"Fixture={umbrella['artifact']}",
         "--test-results",
         "Second=results/second.trx",
     )
     assert code == 0, document["blockers"]
     assert document["test_results"]["totals"] == {
-        "total": 11,
-        "executed": 9,
+        "total": 8,
+        "executed": 8,
         "passed": 8,
-        "failed": 1,
-        "skipped": 2,
+        "failed": 0,
+        "skipped": 0,
     }
 
 
@@ -284,18 +364,31 @@ def test_a_run_that_derives_no_test_artifact_cannot_report_a_pass(
     assert "RECORD_NOT_DERIVED" in codes(document)
 
 
-def test_a_record_with_no_replaceable_section_blocks(umbrella: dict[str, object]) -> None:
+def test_a_record_with_no_replaceable_section_blocks(
+    umbrella: dict[str, object],
+) -> None:
     story_file = umbrella["repository"] / umbrella["story"]
-    story_file.write_text("---\nstory_key: 'x'\n---\n\n# Nothing here\n", encoding="utf-8")
+    story_file.write_text(
+        "---\nstory_key: 'x'\n---\n\n# Nothing here\n", encoding="utf-8"
+    )
     code, document = measured(umbrella)
     assert code == 1
     assert "RECORD_NOT_DERIVED" in codes(document)
     assert document["derived"]["record_section"] is False
 
 
-def test_an_invocation_error_still_emits_a_parseable_document(umbrella: dict[str, object]) -> None:
+def test_an_invocation_error_still_emits_a_parseable_document(
+    umbrella: dict[str, object],
+) -> None:
     result = subprocess.run(
-        [sys.executable, str(SCRIPT), "--repository", str(umbrella["repository"]), "--format", "json"],
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--format",
+            "json",
+        ],
         check=False,
         capture_output=True,
         env=GIT_ENV,
@@ -316,7 +409,125 @@ def test_a_gate_error_honours_the_requested_format_before_argparse_succeeds() ->
     assert module.pre_parse_output_format(["--format", "markdown"]) == "markdown"
     assert module.pre_parse_output_format(["--format=markdown"]) == "markdown"
     assert module.pre_parse_output_format(["--f", "markdown"]) == "markdown"
+    assert module.pre_parse_output_format(["--format", "bundle"]) == "bundle"
     assert module.pre_parse_output_format([]) == "json"
+
+
+def test_one_bundle_is_inserted_and_verified_by_digest(
+    umbrella: dict[str, object],
+) -> None:
+    code, bundle = bundled(umbrella)
+    assert code == 0, bundle["document"]["blockers"]
+    assert bundle["schema"] == "story-final-record-bundle-v1"
+    assert (
+        hashlib.sha256(bundle["markdown"].encode()).hexdigest()
+        == bundle["markdown_sha256"]
+    )
+    insert_generated_block(umbrella, bundle["markdown"])
+
+    verification = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--story",
+            str(umbrella["story"]),
+            "--verify-record-sha256",
+            bundle["markdown_sha256"],
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=60,
+    )
+    assert verification.returncode == 0, verification.stdout
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "Fixture | PARSED", "Fixture | NOT_RUN"
+        ),
+        encoding="utf-8",
+    )
+    code, document = invoke(
+        umbrella,
+        "--verify-record-sha256",
+        bundle["markdown_sha256"],
+    )
+    assert code == 1
+    assert "RECORD_CONTENT_DRIFT" in codes(document)
+
+
+def test_test_project_scope_is_exact_and_artifacts_bind_to_assemblies(
+    umbrella: dict[str, object],
+) -> None:
+    code, document = invoke(
+        umbrella,
+        "--test-results",
+        f"Fixture={umbrella['artifact']}",
+        "--test-results",
+        f"Fixture={umbrella['artifact']}",
+    )
+    assert code == 1
+    assert "TEST_PROJECT_SCOPE_MISMATCH" in codes(document)
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], project="Foreign")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_PROJECT_SCOPE_MISMATCH" in codes(document)
+
+
+def test_zero_failed_and_unapproved_skipped_results_block(
+    umbrella: dict[str, object],
+) -> None:
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=0)
+    assert "TEST_RESULTS_EMPTY" in codes(measured(umbrella)[1])
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, failed=1)
+    assert "TEST_RESULTS_FAILED" in codes(measured(umbrella)[1])
+
+    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, skipped=1)
+    assert "TEST_SKIP_NOT_ALLOWED" in codes(measured(umbrella)[1])
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "---\n\n# Fixture Story",
+            "allowed_skipped_tests:\n"
+            "  - test: 'Fixture.S0'\n"
+            "    reason: 'requires the opt-in live service lane'\n"
+            "---\n\n# Fixture Story",
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+
+
+def test_valid_error_counter_mapping_and_unknown_outcomes(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    write_trx(artifact, passed=2, failed=1)
+    content = (
+        artifact.read_text(encoding="utf-8")
+        .replace('outcome="Failed"', 'outcome="Error"')
+        .replace('failed="1" error="0"', 'failed="0" error="1"')
+    )
+    artifact.write_text(content, encoding="utf-8")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_RESULTS_FAILED" in codes(document)
+    assert "TEST_COUNT_INCONSISTENT" not in codes(document)
+
+    artifact.write_text(
+        content.replace('outcome="Passed"', 'outcome="Mystery"', 1), encoding="utf-8"
+    )
+    assert "TEST_COUNT_INCONSISTENT" in codes(measured(umbrella)[1])
 
 
 # --------------------------------------------------------------------------- #
@@ -324,13 +535,16 @@ def test_a_gate_error_honours_the_requested_format_before_argparse_succeeds() ->
 # --------------------------------------------------------------------------- #
 
 
-def test_injection_altered_parsed_count_trips_the_count_guard(umbrella: dict[str, object]) -> None:
+def test_injection_altered_parsed_count_trips_the_count_guard(
+    umbrella: dict[str, object],
+) -> None:
     artifact = umbrella["repository"] / umbrella["artifact"]
     before = sha256_file(artifact)
     original = artifact.read_bytes()
 
     artifact.write_text(
-        artifact.read_text(encoding="utf-8").replace('passed="3"', 'passed="2"'), encoding="utf-8"
+        artifact.read_text(encoding="utf-8").replace('passed="3"', 'passed="2"'),
+        encoding="utf-8",
     )
     code, document = measured(umbrella)
     assert code == 1
@@ -353,7 +567,8 @@ def test_injection_submodule_internal_path_trips_the_boundary_guard(
     assert "SUBMODULE_INTERNAL_PATH" in codes(document)
     # The path is refused, never quietly carried into the derived list.
     assert not any(
-        path.startswith("references/Example/") for path in document["file_list"]["derived"]
+        path.startswith("references/Example/")
+        for path in document["file_list"]["derived"]
     )
 
     story_file.write_bytes(original)
@@ -370,11 +585,15 @@ def test_injection_repointed_candidate_trips_the_binding_guard(
 
     # Move the declared gitlink after the candidate: the record would otherwise
     # bind to a superseded promotion.
-    run_git(repository / "references/Example", "commit", "--allow-empty", "-m", "advance")
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
     run_git(repository, "add", "references/Example")
     run_git(repository, "commit", "-m", "advance gitlink")
 
-    code, document = measured(umbrella, "--candidate", head, "--submodule", "references/Example")
+    code, document = measured(
+        umbrella, "--candidate", head, "--submodule", "references/Example"
+    )
     assert code == 1
     assert "CANDIDATE_NOT_FINAL" in codes(document)
     assert document["candidate_binding"]["gitlinks_moved_after_candidate"] == [
@@ -420,7 +639,9 @@ def test_injection_deleted_result_artifact_trips_the_not_run_guard(
     code, document = measured(umbrella)
     assert code == 1
     assert "TEST_RESULTS_MISSING" in codes(document)
-    assert [item["state"] for item in document["test_results"]["projects"]] == ["NOT_RUN"]
+    assert [item["state"] for item in document["test_results"]["projects"]] == [
+        "NOT_RUN"
+    ]
 
     artifact.write_bytes(original)
     assert sha256_file(artifact) == before
@@ -470,6 +691,7 @@ def commit_decoy(fixture: dict[str, object], name: str, content: str) -> None:
     (fixture["repository"] / name).write_text(content, encoding="utf-8")
     run_git(fixture["repository"], "add", "--", name)
     run_git(fixture["repository"], "commit", "-m", "decoy")
+    write_trx(fixture["repository"] / fixture["artifact"])
 
 
 def test_a_filename_containing_the_literal_digits_160000_is_not_a_gitlink(
@@ -493,16 +715,181 @@ def test_a_filename_containing_a_backslash_does_not_abort_the_run(
     assert "back\\slash.txt" in document["file_list"]["derived"]
 
 
-def test_worktree_dirt_outside_the_committed_range_is_named_and_excluded(
+def test_worktree_dirt_outside_the_committed_range_blocks(
     umbrella: dict[str, object],
 ) -> None:
     """A record binds to a revision, so it cannot claim a path that revision lacks."""
-    (umbrella["repository"] / "someone-elses-file.txt").write_text("theirs\n", encoding="utf-8")
+    (umbrella["repository"] / "someone-elses-file.txt").write_text(
+        "theirs\n", encoding="utf-8"
+    )
     code, document = measured(umbrella)
-    assert code == 0, document["blockers"]
+    assert code == 1
     assert "someone-elses-file.txt" not in document["file_list"]["derived"]
-    dirt = {item["path"] for item in document["warnings"] if item["code"] == "UNRELATED_WORKTREE_DIRT"}
-    assert "someone-elses-file.txt" in dirt
+    assert "WORKTREE_NOT_CLEAN" in codes(document)
+
+
+def test_dirty_in_range_source_also_blocks(umbrella: dict[str, object]) -> None:
+    (umbrella["repository"] / "changed.txt").write_text(
+        "dirty after candidate\n", encoding="utf-8"
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "WORKTREE_NOT_CLEAN" in codes(document)
+
+
+def test_ordinary_post_candidate_commit_blocks_but_output_only_commit_is_allowed(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    (repository / "ordinary.txt").write_text("source\n", encoding="utf-8")
+    run_git(repository, "add", "ordinary.txt")
+    run_git(repository, "commit", "-m", "ordinary source commit")
+    code, document = measured(umbrella, "--candidate", candidate)
+    assert code == 1
+    assert (
+        "ordinary.txt" in document["candidate_binding"]["changed_paths_after_candidate"]
+    )
+    assert "CANDIDATE_NOT_FINAL" in codes(document)
+
+
+def test_output_only_post_candidate_commit_is_allowed(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    story_file = repository / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8") + "\nOutput note.\n", encoding="utf-8"
+    )
+    run_git(repository, "add", str(umbrella["story"]))
+    run_git(repository, "commit", "-m", "record output")
+    code, document = measured(umbrella, "--candidate", candidate)
+    assert code == 0, document["blockers"]
+    assert document["candidate_binding"]["changed_paths_after_candidate"] == [
+        umbrella["story"]
+    ]
+
+
+def test_nanosecond_staleness_detects_a_later_edit_in_the_same_second(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    artifact = repository / umbrella["artifact"]
+    second = artifact.stat().st_mtime_ns // 1_000_000_000 + 10
+    os.utime(artifact, ns=(second * 1_000_000_000 + 100, second * 1_000_000_000 + 100))
+    source = repository / "changed.txt"
+    os.utime(source, ns=(second * 1_000_000_000 + 200, second * 1_000_000_000 + 200))
+    assert "TEST_RESULTS_STALE" in codes(measured(umbrella)[1])
+
+
+def test_symlinked_result_artifact_cannot_escape_the_repository(
+    umbrella: dict[str, object], tmp_path: Path
+) -> None:
+    outside = tmp_path / "outside.trx"
+    write_trx(outside)
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    artifact.unlink()
+    artifact.symlink_to(outside)
+    code, document = measured(umbrella)
+    assert code == 2
+    assert codes(document) == {"INVALID_SCOPE"}
+
+
+def test_one_artifact_snapshot_supplies_both_counts_and_hash(
+    umbrella: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    module = load_generator()
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    snapshot = artifact.read_bytes()
+    artifact.write_bytes(snapshot.replace(b'passed="3"', b'passed="2"'))
+    monkeypatch.setattr(module, "read_file_snapshot", lambda _: (snapshot, 123456789))
+    blockers: list[dict] = []
+    result = module.derive_test_results(
+        umbrella["repository"],
+        [("Fixture", umbrella["artifact"])],
+        {"Fixture": "tests/Fixture/Fixture.csproj"},
+        {},
+        blockers,
+        [],
+    )
+    assert blockers == []
+    assert result["projects"][0]["counts"]["passed"] == 3
+    assert result["projects"][0]["sha256"] == hashlib.sha256(snapshot).hexdigest()
+
+
+def test_removed_gitlink_is_structural_promotion_state_not_a_file(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "rm", "-f", "references/Example")
+    (repository / ".gitmodules").write_text("", encoding="utf-8")
+    run_git(repository, "add", ".gitmodules")
+    run_git(repository, "commit", "-m", "remove gitlink declaration and entry")
+    _, document = measured(umbrella)
+    assert "references/Example" not in document["file_list"]["derived"]
+    assert "references/Example" in {item["path"] for item in document["promotions"]}
+
+
+def test_gitlink_detection_overrides_ambient_ignore_configuration(
+    umbrella: dict[str, object], monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "config", "submodule.Example.ignore", "all")
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
+    run_git(repository, "add", "references/Example")
+    run_git(repository, "commit", "-m", "advance hidden gitlink")
+    monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
+    monkeypatch.setenv("GIT_CONFIG_KEY_0", "submodule.Example.ignore")
+    monkeypatch.setenv("GIT_CONFIG_VALUE_0", "all")
+    module = load_generator()
+    hardened = module.git_environment()
+    assert "GIT_CONFIG_COUNT" not in hardened
+    code, document = measured(umbrella, "--submodule", "references/Example")
+    assert code == 0, document["blockers"]
+    assert "references/Example" in {
+        item["path"] for item in document["promotions"] if item["changed_in_range"]
+    }
+
+
+def test_worktree_column_rename_consumes_the_original_path_token(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    module = load_generator()
+    outputs = iter((b" R new.txt\0old.txt\0", b"", b""))
+
+    def fake_git(*_args, **_kwargs):
+        return subprocess.CompletedProcess([], 0, next(outputs), b"")
+
+    monkeypatch.setattr(module, "run_git", fake_git)
+    assert module.worktree_path_status(Path("/fixture")) == {"new.txt": "R"}
+
+
+def test_unmatched_generated_marker_fails_closed(umbrella: dict[str, object]) -> None:
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "### File List", "<!-- STORY-FINAL-RECORD:BEGIN -->\n### File List"
+        ),
+        encoding="utf-8",
+    )
+    code, document = measured(umbrella)
+    assert code == 1
+    assert document["record"]["anchor"] is None
+    assert "RECORD_NOT_DERIVED" in codes(document)
+
+
+def test_markdown_rendering_escapes_legal_delimiters() -> None:
+    module = load_generator()
+    assert module.markdown_code("tick`file.txt") == "``tick`file.txt``"
+    assert module.markdown_table_text("Pipe|Project") == r"Pipe\|Project"
+    record = (
+        "<!-- STORY-FINAL-RECORD:BEGIN -->\n\n### File List\n\n"
+        "- ``tick`file.txt`` (new)\n\n<!-- STORY-FINAL-RECORD:END -->\n"
+    )
+    assert module.declared_file_list(record) == (["tick`file.txt"], 1)
 
 
 # --------------------------------------------------------------------------- #
@@ -510,7 +897,9 @@ def test_worktree_dirt_outside_the_committed_range_is_named_and_excluded(
 # --------------------------------------------------------------------------- #
 
 
-def test_a_disagreeing_declared_file_list_blocks_as_drift(umbrella: dict[str, object]) -> None:
+def test_a_disagreeing_declared_file_list_blocks_as_drift(
+    umbrella: dict[str, object],
+) -> None:
     set_file_list(umbrella, ["a-path-that-never-changed.txt"])
     code, document = measured(umbrella)
     assert code == 1
@@ -518,7 +907,9 @@ def test_a_disagreeing_declared_file_list_blocks_as_drift(umbrella: dict[str, ob
     assert "a-path-that-never-changed.txt" in document["file_list"]["unexpected"]
 
 
-def test_an_agreeing_declared_file_list_does_not_block(umbrella: dict[str, object]) -> None:
+def test_an_agreeing_declared_file_list_does_not_block(
+    umbrella: dict[str, object],
+) -> None:
     derived = measured(umbrella)[1]["file_list"]["derived"]
     set_file_list(umbrella, derived)
     code, document = measured(umbrella)
@@ -527,7 +918,9 @@ def test_an_agreeing_declared_file_list_does_not_block(umbrella: dict[str, objec
     assert document["file_list"]["unexpected"] == []
 
 
-def test_a_second_file_list_is_a_conformance_failure(umbrella: dict[str, object]) -> None:
+def test_a_second_file_list_is_a_conformance_failure(
+    umbrella: dict[str, object],
+) -> None:
     story_file = umbrella["repository"] / umbrella["story"]
     story_file.write_text(
         story_file.read_text(encoding="utf-8").replace(
@@ -566,7 +959,9 @@ def test_gitlinks_are_reported_as_promotions_and_never_as_file_list_paths(
     umbrella: dict[str, object],
 ) -> None:
     repository = umbrella["repository"]
-    run_git(repository / "references/Example", "commit", "--allow-empty", "-m", "advance")
+    run_git(
+        repository / "references/Example", "commit", "--allow-empty", "-m", "advance"
+    )
     run_git(repository, "add", "references/Example")
     run_git(repository, "commit", "-m", "promote")
 
@@ -616,7 +1011,9 @@ def test_the_renderer_names_what_it_derived(umbrella: dict[str, object]) -> None
     assert "1 test artifact(s) parsed" in derived
 
 
-def test_a_nothing_derived_run_renders_visibly_differently(umbrella: dict[str, object]) -> None:
+def test_a_nothing_derived_run_renders_visibly_differently(
+    umbrella: dict[str, object],
+) -> None:
     """A vacuous run must never be byte-identical to a fully measured one."""
     derived = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
     vacuous = render(umbrella)
@@ -648,8 +1045,12 @@ def test_the_rendered_block_is_delimited_so_a_rerun_replaces_its_own_output(
     assert code == 0, document["blockers"]
 
 
-def test_a_red_suite_is_legible_in_the_rendered_block(umbrella: dict[str, object]) -> None:
-    write_trx(umbrella["repository"] / umbrella["artifact"], passed=2, failed=1, skipped=1)
+def test_a_red_suite_is_legible_in_the_rendered_block(
+    umbrella: dict[str, object],
+) -> None:
+    write_trx(
+        umbrella["repository"] / umbrella["artifact"], passed=2, failed=1, skipped=1
+    )
     rendered = render(umbrella, "--test-results", f"Fixture={umbrella['artifact']}")
     assert "**This suite is not fully green: 1 failed, 1 skipped.**" in rendered
 
@@ -681,6 +1082,43 @@ def historical(story: Path) -> tuple[int, dict]:
     return result.returncode, json.loads(result.stdout)
 
 
+def historical_fixture(fixture: dict[str, object]) -> tuple[int, dict]:
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(fixture["repository"]),
+            "--historical",
+            "--story",
+            str(fixture["story"]),
+            "--format",
+            "json",
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    return result.returncode, json.loads(result.stdout)
+
+
+def prepare_generated_record(fixture: dict[str, object]) -> dict:
+    story_file = fixture["repository"] / fixture["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "baseline_commit:",
+            f"file_list_commit: '{fixture['candidate']}'\nbaseline_commit:",
+        ),
+        encoding="utf-8",
+    )
+    code, bundle = bundled(fixture)
+    assert code == 0, bundle["document"]["blockers"]
+    insert_generated_block(fixture, bundle["markdown"])
+    return bundle
+
+
 CLOSED_RECORDS = (
     "spec-6-1-rebaseline-architecture-and-planning-authority.md",
     "6-2-migrate-conversations-to-platform-owned-hosting.md",
@@ -689,11 +1127,15 @@ CLOSED_RECORDS = (
 
 
 @pytest.mark.parametrize("name", CLOSED_RECORDS)
-def test_historical_mode_verifies_closed_records_without_mutating_them(name: str) -> None:
+def test_historical_mode_verifies_closed_records_without_mutating_them(
+    name: str,
+) -> None:
     record = WORKSPACE / "_bmad-output/implementation-artifacts" / name
     before = sha256_file(record)
     code, document = historical(record)
-    assert sha256_file(record) == before, f"{name} was mutated by a read-only verification"
+    assert sha256_file(record) == before, (
+        f"{name} was mutated by a read-only verification"
+    )
     assert document["mode"] == "historical"
     expected_classification = (
         "generated"
@@ -705,7 +1147,9 @@ def test_historical_mode_verifies_closed_records_without_mutating_them(name: str
     # green, while pre-generator findings are reported without rewriting history.
     assert code == 0, document["blockers"]
     assert document["result"] == "pass"
-    assert "former uncommitted working tree is not reconstructed" in document["boundary"]
+    assert (
+        "former uncommitted working tree is not reconstructed" in document["boundary"]
+    )
     assert document["promotion_gate"] is None
 
 
@@ -715,12 +1159,7 @@ def test_historical_mode_reproduces_story_6_7s_recorded_file_list() -> None:
     assert document["file_list"]["missing"] == []
     assert document["file_list"]["unexpected"] == []
     assert len(document["file_list"]["derived"]) == 37
-    assert {item["path"] for item in document["promotions"]} == {
-        "references/Hexalith.Builds",
-        "references/Hexalith.EventStore",
-        "references/Hexalith.Memories",
-        "references/Hexalith.Tenants",
-    }
+    assert document["promotions"] == []
 
 
 def test_historical_mode_verifies_story_6_2s_generated_record() -> None:
@@ -736,6 +1175,81 @@ def test_historical_mode_verifies_story_6_2s_generated_record() -> None:
     assert document["warnings"] == []
     assert document["blockers"] == []
     assert code == 0
+
+
+def test_historical_mode_parses_generated_counts_and_rejects_tampering(
+    umbrella: dict[str, object],
+) -> None:
+    prepare_generated_record(umbrella)
+    code, document = historical_fixture(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["test_results"]["totals"]["total"] == 3
+    assert document["derived"]["test_results"] is True
+
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "| Fixture | PARSED | 3 | 3 | 3 | 0 | 0 |",
+            "| Fixture | PARSED | 4 | 3 | 3 | 0 | 0 |",
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "TEST_COUNT_INCONSISTENT" in codes(document)
+
+
+def test_historical_mode_rejects_schema_demotion_and_promotion_tampering(
+    umbrella: dict[str, object],
+) -> None:
+    bundle = prepare_generated_record(umbrella)
+    story_file = umbrella["repository"] / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            "story-final-record-v1", "removed-schema", 1
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert document["classification"] == "malformed-generated"
+
+    insert_generated_block(umbrella, bundle["markdown"])
+    content = story_file.read_text(encoding="utf-8")
+    content = content.replace(
+        "_None. No root gitlink changed between the baseline and the candidate._",
+        "| Path | Declared | Recorded mode | Recorded commit | Baseline commit |\n"
+        "| --- | --- | --- | --- | --- |\n"
+        "| `references/Example` | yes | `160000` | `deadbeef` | `deadbeef` |",
+    )
+    story_file.write_text(content, encoding="utf-8")
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "RECORD_CONTENT_DRIFT" in codes(document)
+
+
+def test_historical_mode_blocks_a_resolved_nonancestor_baseline(
+    umbrella: dict[str, object],
+) -> None:
+    repository = umbrella["repository"]
+    run_git(repository, "checkout", "-b", "side", umbrella["baseline"])
+    (repository / "side.txt").write_text("side\n", encoding="utf-8")
+    run_git(repository, "add", "side.txt")
+    run_git(repository, "commit", "-m", "side")
+    divergent = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+    run_git(repository, "checkout", "main")
+    write_trx(repository / umbrella["artifact"])
+    prepare_generated_record(umbrella)
+    story_file = repository / umbrella["story"]
+    story_file.write_text(
+        story_file.read_text(encoding="utf-8").replace(
+            str(umbrella["baseline"]), divergent
+        ),
+        encoding="utf-8",
+    )
+    code, document = historical_fixture(umbrella)
+    assert code == 1
+    assert "BASELINE_NOT_TRUSTWORTHY" in codes(document)
 
 
 def test_historical_mode_blocks_on_a_generated_record(tmp_path: Path) -> None:
@@ -777,7 +1291,7 @@ def test_historical_mode_blocks_on_a_generated_record(tmp_path: Path) -> None:
         timeout=60,
     )
     document = json.loads(result.stdout)
-    assert document["classification"] == "generated"
+    assert document["classification"] == "malformed-generated"
     assert result.returncode == 1
     assert "SUBMODULE_INTERNAL_PATH" in codes(document)
 
@@ -798,16 +1312,30 @@ def story_file_list() -> list[str]:
 def test_every_completion_surface_invokes_the_generator(relative_path: str) -> None:
     for tree in (".agents/skills", ".claude/skills"):
         content = (WORKSPACE / tree / relative_path).read_text(encoding="utf-8")
-        assert "generate_story_record.py" in content, f"{tree}/{relative_path}"
-        assert "RECORD_NOT_DERIVED" in content, f"{tree}/{relative_path}"
+        assert completion_surface_violations(content) == [], f"{tree}/{relative_path}"
+
+
+def completion_surface_violations(content: str) -> list[str]:
+    required = (
+        "generate_story_record.py",
+        "--format bundle",
+        "markdown_sha256",
+        "--verify-record-sha256",
+        "RECORD_NOT_DERIVED",
+    )
+    return [value for value in required if value not in content]
 
 
 @pytest.mark.parametrize("relative_path", GENERATOR_WORKFLOWS)
-def test_the_generator_invocation_cannot_be_silently_removed(relative_path: str) -> None:
-    """The positive check above must be able to fail when the invocation goes."""
-    content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
-    gutted = content.replace("generate_story_record.py", "the record is optional")
-    assert "generate_story_record.py" not in gutted
+def test_the_generator_invocation_cannot_be_silently_removed(
+    relative_path: str,
+) -> None:
+    """The same executable contract checker must reject a displaced invocation."""
+    for tree in (".agents/skills", ".claude/skills"):
+        content = (WORKSPACE / tree / relative_path).read_text(encoding="utf-8")
+        assert completion_surface_violations(content) == []
+        gutted = content.replace("generate_story_record.py", "the record is optional")
+        assert "generate_story_record.py" in completion_surface_violations(gutted)
 
 
 def test_the_promotion_gate_span_still_excludes_the_final_record_section() -> None:
@@ -817,27 +1345,28 @@ def test_the_promotion_gate_span_still_excludes_the_final_record_section() -> No
     displacement guard weakens: a promotion clause moved into the final-record
     section would count as "inside the gate".
     """
-    sibling_path = Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
-    spec = importlib_util.spec_from_file_location("sibling_promotion_tests", sibling_path)
+    sibling_path = (
+        Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
+    )
+    spec = importlib_util.spec_from_file_location(
+        "sibling_promotion_tests", sibling_path
+    )
     sibling = importlib_util.module_from_spec(spec)
     assert spec.loader is not None
     spec.loader.exec_module(sibling)
 
     for relative_path in GENERATOR_WORKFLOWS:
         markers, _ = sibling.WORKFLOW_GATE_CONTRACTS[relative_path]
-        content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
+        content = (WORKSPACE / ".agents/skills" / relative_path).read_text(
+            encoding="utf-8"
+        )
         start, end = sibling.promotion_gate_span(content, markers)
         assert start >= 0, relative_path
         assert "generate_story_record.py" not in content[start:end], relative_path
 
 
 def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
-    skill_paths = [
-        path for path in story_file_list() if path.startswith((".claude/skills/", ".agents/skills/"))
-    ]
-    assert skill_paths, "story must list the skill files it changed"
-    for path in skill_paths:
-        relative_path = path.split("/skills/", 1)[1]
+    for relative_path in GENERATOR_WORKFLOWS:
         agent_file = WORKSPACE / ".agents/skills" / relative_path
         claude_file = WORKSPACE / ".claude/skills" / relative_path
         assert agent_file.read_bytes() == claude_file.read_bytes(), relative_path
@@ -850,7 +1379,18 @@ def test_every_emitted_code_is_documented_in_the_runbook() -> None:
     source = SCRIPT.read_text(encoding="utf-8")
     for code in module.BLOCKER_REMEDIATION:
         assert f"`{code}`" in runbook, code
-    emitted = set(re.findall(r'diagnostic\(\s*"([A-Z_]+)"', source))
+    tree = ast.parse(source)
+    emitted = {
+        node.args[0].value
+        for node in ast.walk(tree)
+        if isinstance(node, ast.Call)
+        and isinstance(node.func, ast.Name)
+        and node.func.id in {"GateError", "diagnostic", "blocker"}
+        and node.args
+        and isinstance(node.args[0], ast.Constant)
+        and isinstance(node.args[0].value, str)
+        and re.fullmatch(r"[A-Z_]+", node.args[0].value)
+    }
     for code in emitted:
         assert f"`{code}`" in runbook, code
 

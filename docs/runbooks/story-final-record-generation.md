@@ -24,7 +24,8 @@ Exactly four, and no others:
 
 1. Parsed machine-readable test-result artifacts (TRX).
 2. The git-derived path set between the work baseline and the committed
-   candidate, unioned with the tracked working-tree delta.
+   candidate. Source-tree dirt outside the two record outputs and declared TRX
+   inputs blocks rather than being mixed into a commit-bound record.
 3. Mode-`160000` root gitlink entries resolved from the committed candidate.
 4. The Story 6.7 promotion-checker document, embedded verbatim.
 
@@ -43,16 +44,19 @@ violation.
 
 ## 2. Finalize the tree before you measure
 
-Complete every executable, test, and documentation change first. Then run the
-tests, then generate the record. An artifact older than the newest file the
+Complete every executable, test, and documentation change first, commit every
+story-owned source path, and require the remaining source tree clean. Then run
+the tests and generate the record. An artifact older than the newest file the
 record binds to blocks as `TEST_RESULTS_STALE`, because its counts describe an
 earlier tree.
 
 The generator's own write targets — the story/spec record and the sprint-tracking
-file — are excluded from that comparison. Without the exclusion every correct
-re-run would report itself stale, since the record is written into a file that is
-itself in the derived file list. The exclusion covers those two paths and nothing
-else; a genuinely stale artifact still blocks.
+file — and declared TRX evidence inputs are allowed to remain uncommitted. The
+record outputs and the TRX artifacts themselves are excluded from the freshness
+comparison. Without the output exclusion every correct re-run would report itself
+stale, since the record is written into a file that is itself in the derived file
+list. Every ordinary committed path remains in the comparison; timestamps are
+compared at nanosecond precision and a genuinely stale artifact still blocks.
 
 ## 3. Emit machine-readable test results
 
@@ -74,8 +78,17 @@ the `notExecuted` attribute; there is no `skipped` attribute. The generator also
 recomputes the counts from the `<UnitTestResult>` outcomes and blocks when the
 artifact's own summary disagrees with the results it contains.
 
-Totals are computed by summation across declared projects. A caller-supplied total
-is never accepted.
+The required project set is derived from root-owned projects under `tests/` in
+the single root `.slnx`; projects beneath root submodules are excluded. Each TRX
+must identify the matching full project assembly, and declarations must match
+that set exactly without duplicate names or reused artifacts. Totals are computed
+by summation. A caller-supplied total is never accepted, and a zero-test artifact
+measures nothing.
+
+Every failed test blocks completion. A skipped test blocks unless its exact test
+identity and a non-empty reason appear under the record's versioned
+`allowed_skipped_tests` frontmatter policy. Unused allowances are reported so
+stale exceptions remain visible.
 
 ## 4. Run the generator
 
@@ -85,20 +98,23 @@ python3 _bmad/scripts/generate_story_record.py \
   --story <story-or-spec-record> \
   --baseline <story-baseline-commit> \
   --candidate <committed-umbrella-revision> \
-  --test-results Conformance=<path>.trx \
-  --test-results Server=<path>.trx \
+  --test-results Hexalith.Conversations.Conformance.Tests=<path>.trx \
+  --test-results Hexalith.Conversations.Server.Tests=<path>.trx \
   --submodule references/Hexalith.EventStore \
   --require-remote references/Hexalith.EventStore \
-  --format json
+  --format bundle
 ```
 
-`--test-results` takes `NAME=PATH`, repeated once per declared test project, with a
-repository-relative artifact path. A declared project with no artifact is recorded
-as `NOT_RUN` and blocks; it is never silently omitted and its count is never
-carried forward from an earlier pass.
+`--test-results` takes `FULL_PROJECT_NAME=PATH`, repeated once per root-owned test
+project in the root solution, with a repository-relative artifact path. A required
+project with no artifact is recorded as `NOT_RUN` and blocks; it is never silently
+omitted, relabelled, or carried forward from an earlier pass.
 
-Re-run with `--format markdown` to obtain the block the completion surfaces insert
-verbatim. The JSON document is authoritative; the Markdown is rendered from it.
+The bundle contains one authoritative `document`, its exact rendered `markdown`,
+and `markdown_sha256`. Insert that Markdown verbatim, then run
+`--verify-record-sha256 <markdown_sha256> --format json`. Completion cannot advance
+until this second mode confirms that the bytes in the record match the passing
+bundle.
 
 ## 5. Interpret the result
 
@@ -113,17 +129,22 @@ A parseable document is written to stdout on every path, including exit `2`.
 | `TEST_RESULTS_MISSING` | A declared project has no artifact, or its artifact yields no counters | Run the project and pass the artifact it emitted. Never carry a count forward. |
 | `TEST_RESULTS_STALE` | An artifact predates the newest file in the derived list, excluding the generator's own write targets | Re-run the tests after the last file change. |
 | `TEST_COUNT_INCONSISTENT` | An artifact's summary disagrees with the results it contains, or with TRX arithmetic | Re-run the project and pass the artifact it emitted; never edit an artifact. |
+| `TEST_PROJECT_SCOPE_MISMATCH` | Declarations omit, duplicate, relabel, reuse, or add a project outside the root solution's root-owned test set | Declare exactly one matching artifact per authoritative project. |
+| `TEST_RESULTS_EMPTY` | A parsed artifact contains zero tests | Run the project without an empty filter and emit a non-vacuous artifact. |
+| `TEST_RESULTS_FAILED` | One or more tests failed | Fix the failures and emit a new artifact. |
+| `TEST_SKIP_NOT_ALLOWED` | A skipped test has no exact versioned identity/reason allowance | Run it or add an approved, reasoned policy entry. |
 | `FILE_LIST_DRIFT` | The record's list disagrees with the derived set, or the record carries more than one list | Replace the record's File List with the generated one. Never hand-edit either side into agreement. |
 | `SUBMODULE_INTERNAL_PATH` | A path under a root-declared submodule appears in the record's File List | Remove it: it belongs to that repository's own record, and the gitlink belongs in the promotions section. |
-| `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of the committed head, or an affected gitlink moved after it | Re-run against the committed head, or restore the gitlink that moved. |
+| `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of HEAD, a non-output path changed after it, or any gitlink moved | Re-run against the committed head; only the story and sprint-status output commits may follow it. |
 | `PROMOTION_GATE_NOT_PASS` | The embedded Story 6.7 checker document reports a result other than `pass` | Remediate the embedded checker's own blockers per `submodule-promotion-completion-gate.md`. |
 | `BASELINE_NOT_TRUSTWORTHY` | The baseline is missing, `NO_VCS`, unresolvable, or not an ancestor of the candidate | Record a resolvable `baseline_commit` that is an ancestor of the candidate. |
 | `RECORD_NOT_DERIVED` | No artifact was parsed, no candidate resolved, or no replaceable record section found | Supply the missing input. A run that derived nothing proves nothing and can never be read as a pass. |
+| `RECORD_CONTENT_DRIFT` | The inserted block differs from its bundle digest, or a generated historical section is malformed | Insert the bundle Markdown verbatim and verify it before completion. |
+| `WORKTREE_NOT_CLEAN` | Source-tree dirt remains outside record outputs and declared TRX artifacts | Commit story-owned work or remove unrelated dirt before measurement. |
 
 | Warning | Condition |
 | --- | --- |
-| `UNRELATED_WORKTREE_DIRT` | Dirty tracked or untracked state outside the derived scope |
-| `TEST_PROJECT_UNDECLARED` | A result artifact exists beside a declared one for a project the record does not declare |
+| `UNUSED_TEST_SKIP_ALLOWANCE` | A versioned skipped-test exception was not exercised by the measured run |
 
 `NOT_RUN` is a per-project **state**, not a diagnostic code.
 
@@ -138,7 +159,7 @@ The blocker and warning code strings are defined by
 `sprint-change-proposal-2026-07-28.md:423-427`, not by the frozen Epic 6 overlay,
 which names blocking conditions only and enumerates no code strings.
 
-## 6. Insert the record verbatim
+## 6. Insert and verify the record verbatim
 
 The Markdown renderer emits one contiguous block delimited by
 `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->`.
@@ -152,6 +173,12 @@ The Markdown renderer emits one contiguous block delimited by
 Do not edit the inserted text. Gitlink promotions appear in their own labelled
 `### Gitlink Promotions` section with recorded commit and mode; they never appear
 as File List entries.
+
+After insertion, pass the bundle's `markdown_sha256` to
+`--verify-record-sha256`. This mode performs no test or Git remeasurement; it
+proves that the final block is byte-identical to the one measurement bundle that
+passed. An absent, duplicated, truncated, or edited marker span blocks as
+`RECORD_CONTENT_DRIFT`.
 
 Set frontmatter `file_list_commit` to the revision the block was derived from. A
 fixed File List compared against a moving `HEAD` makes the record's own suite fail
@@ -220,9 +247,9 @@ in either mode.
 2. [ ] Scoped commit created; committed `HEAD` resolved as the candidate.
 3. [ ] Baseline read from frontmatter `baseline_commit` (or `baseline_revision`) and confirmed resolvable and an ancestor.
 4. [ ] Every declared test project run, each emitting its own TRX artifact.
-5. [ ] Generator run with `--format json`; exit `0` and `result: pass`.
-6. [ ] `derived` reports `test_results`, `candidate`, and `record_section` all true.
-7. [ ] Generator re-run with `--format markdown`; block inserted verbatim, unedited.
-8. [ ] Frontmatter `file_list_commit` set to the revision the block was derived from.
-9. [ ] Sprint-status comment quotes the generator's derived totals, not an earlier pass.
-10. [ ] No count, path, or commit anywhere in the record was typed by hand.
+5. [ ] Generator run once with `--format bundle`; nested `document.result` is `pass` and all `derived` fields are true.
+6. [ ] Bundle field `markdown` inserted verbatim and unedited; `markdown_sha256` retained from that same bundle.
+7. [ ] Frontmatter `file_list_commit` set to the immutable candidate revision the bundle measured.
+8. [ ] Inserted block verified with `--verify-record-sha256 <markdown_sha256> --format json`; exit `0`, result `pass`.
+9. [ ] Sprint-status comment references the generated record without restating any count, path total, promotion total, or commit.
+10. [ ] No count, path, or commit anywhere in completion narrative was typed by hand.
