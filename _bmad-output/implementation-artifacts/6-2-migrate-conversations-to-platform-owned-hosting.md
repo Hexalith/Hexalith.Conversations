@@ -656,104 +656,92 @@ record section, but returned `blocked` with these stable diagnostics:
 
 ### File List
 
-Derived from `git diff --name-only 29def441408becfbbbdc5c59b9af14a7717cb21f..HEAD` unioned
-with the working-tree changes committed in this session — **49 paths**.
-
-```
-Hexalith.Conversations.slnx
-README.md
-_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md
-_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting-2.md
-_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting.md
-_bmad-output/implementation-artifacts/sprint-status.yaml
-docs/release-evidence/projection-read-store-population-proof-v2.json
-docs/release-evidence/projection-read-store-population-proof-v2.md
-docs/release-evidence/sm-c2-hot-path-baseline-v1.json
-docs/release-evidence/sm-c2-hot-path-baseline-v1.md
-docs/release-evidence/sm-c2-hot-path-post-v1.json
-docs/release-evidence/sm-c2-hot-path-post-v1.md
-references/Hexalith.Builds
-references/Hexalith.EventStore
-references/Hexalith.Tenants
-src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs
-src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj
-src/Hexalith.Conversations.Server/Program.cs
-src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs
-src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs
-src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs
-src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj
-src/Hexalith.Conversations.ServiceDefaults/ServiceDefaultsAssemblyMarker.cs
-tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs
-tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs
-tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs
-tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs
-tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj
-tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs
-tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs
-tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs
-tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs
-tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
-tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs
-tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs
-tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs
-tests/Hexalith.Conversations.ServiceDefaults.Tests/ConversationsServiceDefaultsTest.cs
-tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj
-```
-
-The three `references/…` entries are gitlink promotions declared in `submodule_promotions`.
-The `ServiceDefaults` entries are deletions (AC3).
-
-Review patch working-tree delta (2026-07-28; uncommitted and therefore not folded into the historical
-49-path committed list):
-
-```text
-_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md
-_bmad-output/implementation-artifacts/sprint-status.yaml
-references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/DaprReadModelStore.cs
-references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Projections/IReadModelBulkStore.cs
-references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Registration/ReadModelStoreServiceCollectionExtensions.cs
-references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs
-references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionRebuildRejectedException.cs
-references/Hexalith.EventStore/src/Hexalith.EventStore.Testing/Fakes/InMemoryReadModelStore.cs
-references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Projections/DaprReadModelStoreTests.cs
-references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Projections/RecordingDaprClient.cs
-references/Hexalith.EventStore/tests/Hexalith.EventStore.Client.Tests/Registration/ReadModelAndCursorRegistrationTests.cs
-references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/DomainProjectionDispatcherV2Tests.cs
-src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs
-src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj
-src/Hexalith.Conversations.Server/Program.cs
-src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs
-src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs
-tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs
-tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs
-tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj
-tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj
-tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs
-tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs
-```
+- `.agents/skills/bmad-code-review/steps/step-04-present.md` (modified)
+- `.agents/skills/bmad-dev-story/SKILL.md` (modified)
+- `.agents/skills/bmad-quick-dev/step-05-present.md` (modified)
+- `.agents/skills/bmad-quick-dev/step-oneshot.md` (modified)
+- `.claude/skills/bmad-code-review/steps/step-04-present.md` (modified)
+- `.claude/skills/bmad-dev-story/SKILL.md` (modified)
+- `.claude/skills/bmad-quick-dev/step-05-present.md` (modified)
+- `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
+- `Hexalith.Conversations.slnx` (modified)
+- `README.md` (modified)
+- `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` (new)
+- `_bmad-output/implementation-artifacts/6-8-generate-the-final-story-record-mechanically-from-measured-state.md` (new)
+- `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
+- `_bmad-output/implementation-artifacts/epic-6-context.md` (modified)
+- `_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting-2.md` (new)
+- `_bmad-output/implementation-artifacts/spec-6-2-migrate-conversations-to-platform-owned-hosting.md` (modified)
+- `_bmad-output/implementation-artifacts/spec-gh-actions-30291329462-90061623240.md` (new)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
+- `_bmad-output/planning-artifacts/architecture.md` (modified)
+- `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md` (modified)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` (new)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-evidence-boundary-validation-pattern.md` (new)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md` (new)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md` (new)
+- `_bmad/render/bmad-quick-dev/spec-template.md` (modified)
+- `_bmad/render/bmad-quick-dev/step-02-plan.md` (modified)
+- `_bmad/render/bmad-quick-dev/step-04-review.md` (modified)
+- `_bmad/render/bmad-quick-dev/step-05-present.md` (modified)
+- `_bmad/render/bmad-quick-dev/step-oneshot.md` (modified)
+- `_bmad/scripts/generate_story_record.py` (new)
+- `_bmad/scripts/tests/test_generate_story_record.py` (new)
+- `_bmad/scripts/tests/test_verify_submodule_promotion.py` (modified)
+- `docs/release-evidence/conformance-oracle-tiering-decision-v2.json` (new)
+- `docs/release-evidence/conformance-oracle-tiering-decision-v2.md` (new)
+- `docs/release-evidence/projection-read-store-population-proof-v2.json` (new)
+- `docs/release-evidence/projection-read-store-population-proof-v2.md` (new)
+- `docs/release-evidence/sm-c2-hot-path-baseline-v1.json` (new)
+- `docs/release-evidence/sm-c2-hot-path-baseline-v1.md` (new)
+- `docs/release-evidence/sm-c2-hot-path-post-v1.json` (new)
+- `docs/release-evidence/sm-c2-hot-path-post-v1.md` (new)
+- `docs/runbooks/story-final-record-generation.md` (new)
+- `src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs` (modified)
+- `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj` (modified)
+- `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj` (modified)
+- `src/Hexalith.Conversations.Server/Program.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs` (modified)
+- `src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs` (modified)
+- `src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs` (deleted)
+- `src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj` (deleted)
+- `src/Hexalith.Conversations.ServiceDefaults/ServiceDefaultsAssemblyMarker.cs` (deleted)
+- `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs` (new)
+- `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs` (modified)
+- `tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj` (modified)
+- `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs` (modified)
+- `tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs` (modified)
+- `tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs` (new)
+- `tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs` (new)
+- `tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs` (new)
+- `tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj` (modified)
+- `tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs` (new)
+- `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs` (new)
+- `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs` (new)
+- `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs` (new)
+- `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs` (new)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs` (new)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs` (modified)
+- `tests/Hexalith.Conversations.ServiceDefaults.Tests/ConversationsServiceDefaultsTest.cs` (deleted)
+- `tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj` (deleted)
+- `tests/README.md` (modified)
 
 ## Change Log
 
