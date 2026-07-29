@@ -759,6 +759,50 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// An inconsistent row still consumes its ordered slot. Advancing by only the returned rows would present
+    /// the proven sibling again on the next page and could keep a continuation from ever moving forward.
+    /// </summary>
+    [Fact]
+    public async Task ListCursorShouldAdvancePastWithheldCandidates()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-1"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-2"), Business, Project, Folder, Participant),
+                Summary(Tenant, new ConversationId("conv-3"), Business, Project, Folder, Participant),
+            ],
+            InconsistentConversationIds = ["conv-1"],
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationListResult first = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2)),
+            TestContext.Current.CancellationToken);
+
+        first.Conversations.Select(summary => summary.ConversationId.Value).ShouldBe(["conv-2"]);
+        first.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+
+        ConversationListResult second = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(2, first.Page.ContinuationCursor)),
+            TestContext.Current.CancellationToken);
+
+        second.Conversations.Select(summary => summary.ConversationId.Value).ShouldBe(["conv-3"]);
+        second.Page.ContinuationCursor.ShouldBeNull();
+    }
+
+    /// <summary>
     /// A dispatch in flight anywhere in the tenant means an accepted conversation may be missing from the page,
     /// so the page cannot claim to be current — but the rows that are proven are still returned rather than the
     /// whole tenant going dark.
@@ -1595,6 +1639,56 @@ public sealed class ConversationQueryHandlerTest
             .Concat(secondPage.Conversations)
             .Select(summary => summary.ConversationId.Value);
         ids.ShouldBe(["conv-1", "conv-2", "conv-3"], ignoreOrder: true);
+    }
+
+    /// <summary>
+    /// Continuations bind the entire logical index, including mutations that leave the maximum event position
+    /// unchanged. Otherwise a reorder between pages can skip or duplicate a conversation.
+    /// </summary>
+    [Fact]
+    public async Task ContinuationShouldFailClosedWhenANonMaximumIndexRowChanges()
+    {
+        ConversationSummaryProjectionV1 first = Summary(
+            Tenant,
+            new ConversationId("conv-1"),
+            Business,
+            Project,
+            Folder,
+            Participant,
+            cursor: "pos:1");
+        ConversationSummaryProjectionV1 maximum = Summary(
+            Tenant,
+            new ConversationId("conv-2"),
+            Business,
+            Project,
+            Folder,
+            Participant,
+            cursor: "pos:2");
+        FakeProjectionReadStore store = new() { Summaries = [first, maximum] };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationListResult page = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(1)),
+            TestContext.Current.CancellationToken);
+        page.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
+
+        store.Summaries = [first with { Label = "Changed without advancing the maximum position" }, maximum];
+        ConversationListResult continued = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(1, page.Page.ContinuationCursor)),
+            TestContext.Current.CancellationToken);
+
+        continued.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        continued.Conversations.ShouldBeEmpty();
     }
 
     /// <summary>

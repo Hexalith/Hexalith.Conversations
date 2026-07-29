@@ -23,9 +23,19 @@ public static class ConversationsAppHostTopology
     public const string EventStoreResourceName = "eventstore";
 
     /// <summary>
-    /// The Conversations server resource name and Dapr app id.
+    /// The Conversations server resource name.
     /// </summary>
     public const string ConversationsResourceName = "conversations";
+
+    /// <summary>
+    /// The Conversations domain module's canonical Dapr app id.
+    /// </summary>
+    /// <remarks>
+    /// EventStore routes the canonical <c>conversation</c> domain to the same app id by convention. The Aspire
+    /// resource remains plural for display and dependency references, but the service-invocation identity must
+    /// match that domain route.
+    /// </remarks>
+    public const string ConversationsDaprAppId = "conversation";
 
     /// <summary>
     /// The Conversations admin web resource name.
@@ -66,7 +76,7 @@ public static class ConversationsAppHostTopology
         IResourceBuilder<ProjectResource> conversationsServer = builder
             .AddProject<Projects.Hexalith_Conversations_Server>(ConversationsResourceName)
             .WithHttpEndpoint();
-        _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsResourceName);
+        _ = conversationsServer.AddEventStoreDomainModule(eventStoreResources, ConversationsDaprAppId);
 
         if (security is not null)
         {

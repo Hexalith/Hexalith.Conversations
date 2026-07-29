@@ -4,6 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.AppHost\Hexalith.Conversations.AppHost.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations\Hexalith.Conversations.csproj" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" />
   </ItemGroup>
   <ItemGroup>

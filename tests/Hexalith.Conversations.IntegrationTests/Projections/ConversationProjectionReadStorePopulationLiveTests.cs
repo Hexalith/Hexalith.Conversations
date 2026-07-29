@@ -231,10 +231,16 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
     }
 
     private static string ConversationKey()
-        => $"projection:conversations:{Tenant.Value}:{Conversation.Value}";
+        => $"projection:conversations:{EncodeKeySegment(Tenant.Value)}:{EncodeKeySegment(Conversation.Value)}";
 
     private static string TenantIndexKey()
-        => $"projection:conversations-index:{Tenant.Value}";
+        => $"projection:conversations-index:{EncodeKeySegment(Tenant.Value)}";
+
+    private static string EncodeKeySegment(string value)
+        => Convert.ToBase64String(Encoding.UTF8.GetBytes(value))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
 
     /// <summary>
     /// Builds the third derived key family this route writes, derived the same way production does so the test

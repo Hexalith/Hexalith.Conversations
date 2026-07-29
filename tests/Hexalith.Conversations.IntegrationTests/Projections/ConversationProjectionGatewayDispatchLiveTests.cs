@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Commands;
@@ -46,16 +47,10 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
 {
     private static readonly JsonSerializerOptions CommandPayloadOptions = new();
 
-    /// <summary>
-    /// Counts the assertions executed on the live boundary so a skipped or short-circuited run cannot be
-    /// mistaken for a green one. Story 6.1 review precedent: a skip must not read as a pass.
-    /// </summary>
-    public static int ExecutedLiveBoundaryAssertions { get; private set; }
-
     [Fact]
     public async Task GatewayDeliveryShouldPopulateConfiguredStateStoreAndProductionQueries()
     {
-        fixture.SkipIfUnavailable();
+        fixture.RequireAvailable();
 
         string tenantId = "tenant-gateway-001";
         string conversationId = $"conversation-gateway-{Guid.NewGuid():N}";
@@ -121,13 +116,13 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
         detailResult.Details!.Freshness.LastAppliedEventPosition.ShouldBe(persisted.SequenceNumber);
         listResult.Conversations.ShouldHaveSingleItem().ConversationId.Value.ShouldBe(conversationId);
 
-        ExecutedLiveBoundaryAssertions++;
+        fixture.RecordBoundaryAssertion();
     }
 
     [Fact]
     public async Task DuplicateGatewayDeliveryShouldConvergeWithoutChangingPersistedState()
     {
-        fixture.SkipIfUnavailable();
+        fixture.RequireAvailable();
 
         string tenantId = "tenant-gateway-002";
         string conversationId = $"conversation-gateway-{Guid.NewGuid():N}";
@@ -169,14 +164,20 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
         detailResult.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         listResult.Conversations.ShouldHaveSingleItem();
 
-        ExecutedLiveBoundaryAssertions++;
+        fixture.RecordBoundaryAssertion();
     }
 
     private static string ConversationKey(string tenantId, string conversationId)
-        => $"projection:conversations:{tenantId}:{conversationId}";
+        => $"projection:conversations:{EncodeKeySegment(tenantId)}:{EncodeKeySegment(conversationId)}";
 
     private static string TenantIndexKey(string tenantId)
-        => $"projection:conversations-index:{tenantId}";
+        => $"projection:conversations-index:{EncodeKeySegment(tenantId)}";
+
+    private static string EncodeKeySegment(string value)
+        => Convert.ToBase64String(Encoding.UTF8.GetBytes(value))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
 
     private async Task<EventEnvelope> AppendConversationAsync(AggregateIdentity identity, string label)
     {
@@ -244,7 +245,7 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
 /// <summary>
 /// Serializes every live gateway test onto one sidecar so parallel classes cannot fight over the DAPR runtime.
 /// </summary>
-[CollectionDefinition(Name)]
+[CollectionDefinition(Name, DisableParallelization = true)]
 public sealed class ConversationGatewayLiveCollection : ICollectionFixture<ConversationGatewayLiveFixture>
 {
     /// <summary>The collection name shared by the live gateway tests.</summary>

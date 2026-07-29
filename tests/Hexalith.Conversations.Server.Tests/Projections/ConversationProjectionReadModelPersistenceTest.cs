@@ -306,6 +306,67 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     }
 
     /// <summary>
+    /// Equal-position deliveries converge on one deterministic dispatch winner regardless of arrival order,
+    /// so the separately persisted detail and tenant-index keys cannot settle on different identities.
+    /// </summary>
+    [Fact]
+    public async Task EqualPositionDispatchesShouldChooseTheSameWinnerInEitherOrder()
+    {
+        ConversationProjectedReadModels lower = Models(
+            ConversationA,
+            position: 1,
+            dispatchId: "dispatch-a",
+            label: "lower tie-break identity");
+        ConversationProjectedReadModels higher = Models(
+            ConversationA,
+            position: 1,
+            dispatchId: "dispatch-z",
+            label: "higher tie-break identity");
+
+        foreach (ConversationProjectedReadModels[] order in new[]
+        {
+            new[] { lower, higher },
+            new[] { higher, lower },
+        })
+        {
+            InMemoryReadModelStore store = new();
+            ConversationProjectionReadModelWriter writer = new(store);
+            foreach (ConversationProjectedReadModels generation in order)
+            {
+                await writer.PersistAsync(generation, TestContext.Current.CancellationToken);
+            }
+
+            ConversationProjectedReadModels detail = store.Snapshot<ConversationProjectedReadModels>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationA))!;
+            ConversationProjectionIndexReadModel index = store.Snapshot<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+
+            detail.DispatchId.ShouldBe("dispatch-z");
+            detail.Summary.Label.ShouldBe("higher tie-break identity");
+            index.Dispatches[ConversationA.Value].DispatchId.ShouldBe(detail.DispatchId);
+            index.Summaries.ShouldHaveSingleItem().Label.ShouldBe(detail.Summary.Label);
+        }
+    }
+
+    /// <summary>Opaque public identifiers remain legal and cannot collide when composed into state keys.</summary>
+    [Fact]
+    public void ProjectionKeysShouldEncodeOpaqueIdentifierSegments()
+    {
+        string first = ConversationProjectionReadModelKeys.ConversationKey(
+            new TenantId("tenant:a"),
+            new ConversationId("b"));
+        string second = ConversationProjectionReadModelKeys.ConversationKey(
+            new TenantId("tenant"),
+            new ConversationId("a:b"));
+
+        first.ShouldNotBe(second);
+        ConversationProjectionReadModelKeys.TenantIndexKey(new TenantId("tenant:a"))
+            .ShouldNotBe(ConversationProjectionReadModelKeys.TenantIndexKey(new TenantId("tenant")));
+    }
+
+    /// <summary>
     /// AC-4 (fail-soft empty): a tenant with nothing persisted lists an empty set from the single index read,
     /// never null and never a per-conversation fan-out.
     /// </summary>
@@ -390,7 +451,72 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         snapshot.Summaries.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
     }
 
-    private static ConversationProjectedReadModels Models(ConversationId conversationId, long position)
+    /// <summary>
+    /// Matching detail and index payloads are not sufficient while their dispatch ledger is pending; the real
+    /// bulk validator must withhold the row until completion becomes durable.
+    /// </summary>
+    [Fact]
+    public async Task ValidatePageShouldRejectAnOtherwiseMatchingPendingLedger()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels models = Models(ConversationA, position: 1);
+        await new ConversationProjectionReadModelWriter(store)
+            .PersistAsync(models, TestContext.Current.CancellationToken);
+        await store.SaveAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(models.DispatchId),
+            CompletedLedger(models) with { Status = ConversationProjectionDispatchStatus.Pending },
+            TestContext.Current.CancellationToken);
+        ConversationProjectionReadStore readStore = new(store);
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+
+        IReadOnlySet<string> inconsistent = await readStore.ValidatePageAsync(
+            Tenant,
+            snapshot,
+            snapshot.Summaries,
+            TestContext.Current.CancellationToken);
+
+        inconsistent.ShouldBe([ConversationA.Value]);
+    }
+
+    /// <summary>
+    /// A completed ledger is retained only for the supported redelivery window. Once it expires, matching
+    /// durable detail/index generations remain readable; this bounds ledger growth without expiring projections.
+    /// </summary>
+    [Fact]
+    public async Task MatchingProjectionShouldRemainReadableAfterDispatchLedgerExpires()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectedReadModels models = Models(ConversationA, position: 1);
+        await new ConversationProjectionReadModelWriter(store)
+            .PersistAsync(models, TestContext.Current.CancellationToken);
+        ConversationProjectionReadStore readStore = new(store);
+
+        ConversationProjectedReadModels? read = await readStore.ReadAsync(
+            Tenant,
+            ConversationA,
+            TestContext.Current.CancellationToken);
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+        IReadOnlySet<string> inconsistent = await readStore.ValidatePageAsync(
+            Tenant,
+            snapshot,
+            snapshot.Summaries,
+            TestContext.Current.CancellationToken);
+
+        read.ShouldNotBeNull();
+        read!.DispatchId.ShouldBe(models.DispatchId);
+        inconsistent.ShouldBeEmpty();
+    }
+
+    private static ConversationProjectedReadModels Models(
+        ConversationId conversationId,
+        long position,
+        string? dispatchId = null,
+        string? label = null)
         => new ConversationProjectionMaterializer().Project(
             Tenant,
             conversationId,
@@ -406,12 +532,12 @@ public sealed class ConversationProjectionReadModelPersistenceTest
                         Now,
                         Actor,
                         $"causation-{conversationId.Value}"),
-                    Label: $"Case {conversationId.Value}")),
+                    Label: label ?? $"Case {conversationId.Value}")),
             ],
             Now.AddSeconds(1),
             TimeSpan.FromMinutes(5)) with
         {
-            DispatchId = $"dispatch-{conversationId.Value}-{position}",
+            DispatchId = dispatchId ?? $"dispatch-{conversationId.Value}-{position}",
         };
 
     private static Task SeedCompletedLedgerAsync(

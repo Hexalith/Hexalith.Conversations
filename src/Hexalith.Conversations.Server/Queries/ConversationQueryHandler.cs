@@ -3,6 +3,9 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Security.Cryptography;
+using System.Text.Json;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Projections;
 using Hexalith.Conversations.Contracts.Queries;
@@ -344,7 +347,7 @@ public sealed class ConversationQueryHandler
             ? _cursorCodec.Encode(
                 ConversationListCursor.QueryType,
                 ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter),
-                ConversationListCursor.EncodePosition(offset + page.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
+                ConversationListCursor.EncodePosition(offset + selected.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
             : null;
 
         (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = partialGeneration
@@ -471,12 +474,12 @@ public sealed class ConversationQueryHandler
             return "empty";
         }
 
-        // Same-generation guard ensures every row shares ProjectionCursor; use the first row's cursor
-        // and the maximum applied event position as the binding token. Cursor encoding will reject
-        // continuation when the token changes between page requests.
-        ProjectionFreshnessV1 freshness = summaries[0].Freshness;
-        long maxPosition = summaries.Max(s => s.Freshness.LastAppliedEventPosition);
-        return $"{freshness.ProjectionCursor}:{maxPosition}";
+        // Bind continuation to the complete logical tenant index rather than one row plus the maximum
+        // position. Different conversations legitimately carry different cursors, and a mutation below the
+        // prior maximum must still invalidate a continuation that could otherwise skip or duplicate rows.
+        byte[] canonicalIndex = JsonSerializer.SerializeToUtf8Bytes(
+            summaries.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal));
+        return Convert.ToHexStringLower(SHA256.HashData(canonicalIndex));
     }
 
     private static (ProjectionTrustState State, ProjectionFreshnessReasonCode Reason) AggregateFreshness(

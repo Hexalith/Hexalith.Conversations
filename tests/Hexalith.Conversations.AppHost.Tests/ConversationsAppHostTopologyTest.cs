@@ -124,6 +124,7 @@ public sealed class ConversationsAppHostTopologyTest
     {
         ConversationsAppHostTopology.EventStoreResourceName.ShouldBe("eventstore");
         ConversationsAppHostTopology.ConversationsResourceName.ShouldBe("conversations");
+        ConversationsAppHostTopology.ConversationsDaprAppId.ShouldBe("conversation");
         ConversationsAppHostTopology.AdminWebResourceName.ShouldBe("conversations-admin-web");
         ConversationsAppHostTopology.StateStoreComponentName.ShouldBe("statestore");
         ConversationsAppHostTopology.PubSubComponentName.ShouldBe("pubsub");
@@ -171,7 +172,7 @@ public sealed class ConversationsAppHostTopologyTest
         ConversationsAppHostResources resources = ConversationsAppHostTopology.AddConversations(builder);
 
         DaprSidecarOptions options = GetSidecarOptions(resources.ConversationsServer.Resource);
-        options.AppId.ShouldBe(ConversationsAppHostTopology.ConversationsResourceName);
+        options.AppId.ShouldBe(ConversationsAppHostTopology.ConversationsDaprAppId);
         options.EnableAppHealthCheck.ShouldBe(true);
         options.AppHealthCheckPath.ShouldBe("/alive");
         resources.ConversationsServer.Resource.Annotations
@@ -190,7 +191,7 @@ public sealed class ConversationsAppHostTopologyTest
             await annotation.Callback(environmentContext);
         }
 
-        environment["EventStore__DomainService__AppId"].ShouldBe(ConversationsAppHostTopology.ConversationsResourceName);
+        environment["EventStore__DomainService__AppId"].ShouldBe(ConversationsAppHostTopology.ConversationsDaprAppId);
         environment["EventStore__DomainService__ServiceVersion"].ShouldBe("v1");
 
         ResourceNamesReferencedBySidecar(resources.ConversationsServer.Resource).ShouldContain(ConversationsAppHostTopology.StateStoreComponentName);

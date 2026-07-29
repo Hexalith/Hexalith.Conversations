@@ -43,7 +43,7 @@ internal static class ConversationProjectionReadModelKeys
     /// <param name="conversationId">The conversation identity.</param>
     /// <returns>The tenant-scoped conversation key.</returns>
     internal static string ConversationKey(TenantId tenantId, ConversationId conversationId)
-        => $"{ConversationKeyPrefix}{RequireKeySegment(tenantId.Value)}:{RequireKeySegment(conversationId.Value)}";
+        => $"{ConversationKeyPrefix}{EncodeKeySegment(tenantId.Value)}:{EncodeKeySegment(conversationId.Value)}";
 
     /// <summary>
     /// Builds the per-tenant summary-index key used to locate the candidate summary set.
@@ -51,31 +51,23 @@ internal static class ConversationProjectionReadModelKeys
     /// <param name="tenantId">The tenant binding.</param>
     /// <returns>The tenant-scoped index key.</returns>
     internal static string TenantIndexKey(TenantId tenantId)
-        => $"{TenantIndexKeyPrefix}{RequireKeySegment(tenantId.Value)}";
+        => $"{TenantIndexKeyPrefix}{EncodeKeySegment(tenantId.Value)}";
 
     /// <summary>
-    /// Rejects an identifier that would make the composed key ambiguous.
+    /// Encodes one opaque identifier into an unambiguous state-key segment.
     /// </summary>
     /// <param name="value">The identifier segment.</param>
-    /// <returns>The validated segment.</returns>
+    /// <returns>An unpadded base64url segment.</returns>
     /// <remarks>
-    /// <see cref="TenantId"/> and <see cref="ConversationId"/> validate only that a value is non-blank, so the
-    /// separator is legal inside them. Tenant <c>a:b</c> with conversation <c>c</c> and tenant <c>a</c> with
-    /// conversation <c>b:c</c> would otherwise compose the same key, and the write happens before the reader's
-    /// tenant re-check can notice. Failing closed here keeps the "a different tenant resolves to a different
-    /// key" property this module's cross-tenant isolation is built on.
+    /// <see cref="TenantId"/> and <see cref="ConversationId"/> are opaque non-blank values, so rejecting a legal
+    /// separator character narrows their public contract. Base64url preserves every UTF-8 value while keeping
+    /// separators unambiguous and state keys transport-safe.
     /// </remarks>
-    private static string RequireKeySegment(string value)
-    {
-        if (value.Contains(':', StringComparison.Ordinal))
-        {
-            throw new ArgumentException(
-                "A projection key segment must not contain the key separator.",
-                nameof(value));
-        }
-
-        return value;
-    }
+    private static string EncodeKeySegment(string value)
+        => Convert.ToBase64String(Encoding.UTF8.GetBytes(value))
+            .TrimEnd('=')
+            .Replace('+', '-')
+            .Replace('/', '_');
 
     /// <summary>Builds the bounded storage key for one stable projection dispatch identity.</summary>
     /// <param name="dispatchId">The stable platform dispatch identity.</param>

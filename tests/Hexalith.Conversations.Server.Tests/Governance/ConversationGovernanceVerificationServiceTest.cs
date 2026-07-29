@@ -166,6 +166,35 @@ public sealed class ConversationGovernanceVerificationServiceTest
     }
 
     [Fact]
+    public async Task ProjectionRebuildShouldRejectAForeignRecordReturnedByItsSecondRead()
+    {
+        ConversationProjectedReadModels current = Materialize(OrderedEvents());
+        ConversationProjectedReadModels foreign = new ConversationProjectionMaterializer().Project(
+            OtherTenant,
+            Conversation,
+            [Event(1, Created("event-create-foreign", 1, tenantId: OtherTenant))],
+            Generated,
+            TimeSpan.FromMinutes(5));
+        FakeProjectionReadStore store = new(current, foreign);
+        ConversationGovernanceVerificationService service = Service(
+            store,
+            new StaticTemporalEventSource(ConversationTemporalEventSourceResult.Available(ReplayEvents())));
+
+        ConversationGovernanceVerificationRunResultV1 result = await service.VerifyAsync(
+            Request([ConversationGovernanceVerificationSuite.ProjectionRebuild]),
+            Tenant,
+            "caller-001",
+            VerifyJustification,
+            Generated,
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        result.Classification.ShouldBe(ConversationGovernanceVerificationFailureClassification.DependencyUnavailable);
+        result.Checks.Single().SafeDetail.ShouldBe("Derived read evidence does not belong to the verified conversation.");
+        result.ToString().ShouldNotContain(OtherTenant.Value, Case.Insensitive);
+        store.ReadCount.ShouldBe(2);
+    }
+
+    [Fact]
     public async Task UnsupportedSchemaShouldBeClassifiedSeparately()
     {
         ConversationGovernanceVerificationService service = Service(
@@ -701,7 +730,9 @@ public sealed class ConversationGovernanceVerificationServiceTest
                     ConversationTenantAccessDenialReason.MissingTenant));
     }
 
-    private sealed class FakeProjectionReadStore(ConversationProjectedReadModels models) : IConversationProjectionReadStore
+    private sealed class FakeProjectionReadStore(
+        ConversationProjectedReadModels models,
+        ConversationProjectedReadModels? secondReadModels = null) : IConversationProjectionReadStore
     {
         public int ReadCount { get; private set; }
 
@@ -711,7 +742,8 @@ public sealed class ConversationGovernanceVerificationServiceTest
             CancellationToken cancellationToken = default)
         {
             ReadCount++;
-            return ValueTask.FromResult<ConversationProjectedReadModels?>(models);
+            return ValueTask.FromResult<ConversationProjectedReadModels?>(
+                ReadCount > 1 && secondReadModels is not null ? secondReadModels : models);
         }
 
         public ValueTask<IReadOnlySet<string>> ValidatePageAsync(

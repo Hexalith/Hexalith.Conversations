@@ -256,6 +256,40 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
         delegateCalls.ShouldBe(0);
     }
 
+    [Fact]
+    public async Task ProjectionConsistencyFailureShouldMapToMixedGenerationWithoutAuditingOrExecuting()
+    {
+        FakeGovernanceAuditService audit = new();
+        FakeProjectionReadStore store = new()
+        {
+            ReadException = new ConversationProjectionConsistencyException(),
+        };
+        ConversationPrivilegedOperationalJustificationService service = new(
+            new FakeTenantAccessService(ConversationTenantAccessDecision.Allowed(
+                ConversationTenantAccessRequirement.Admin,
+                Tenant,
+                CallerPrincipalId)),
+            store,
+            audit,
+            new FakeTimeProvider(Now));
+        int delegateCalls = 0;
+
+        PrivilegedOperationalJustificationResult result = await service.ExecuteAsync(
+            Command(PrivilegedOperationalActionClass.Read),
+            (_, _) =>
+            {
+                delegateCalls++;
+                return ValueTask.FromResult(PrivilegedOperationalActionOutcome.Succeeded());
+            },
+            CallerPrincipalId,
+            TestContext.Current.CancellationToken);
+
+        result.VisibilityState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        audit.RecordCalls.ShouldBe(0);
+        delegateCalls.ShouldBe(0);
+    }
+
     [Theory]
     [InlineData(ConversationGovernanceAuditStatus.AuditUnavailable)]
     [InlineData(ConversationGovernanceAuditStatus.UnsafeEvidence)]
@@ -446,6 +480,8 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
     {
         public ConversationProjectedReadModels? Models { get; set; }
 
+        public Exception? ReadException { get; set; }
+
         public int DetailReads { get; private set; }
 
         public ValueTask<ConversationProjectedReadModels?> ReadAsync(
@@ -454,6 +490,11 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
+            if (ReadException is not null)
+            {
+                throw ReadException;
+            }
+
             return ValueTask.FromResult(Models);
         }
 

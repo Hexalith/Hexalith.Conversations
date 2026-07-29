@@ -67,16 +67,20 @@ public sealed class ConversationProjectionReadModelWriter
         // Newest generation wins, matching the tenant index's merge rule. Both keys must agree on which
         // generation is authoritative: an unconditional overwrite here would let a retried older dispatch
         // clobber a newer detail while the index rejected its summary, splitting the two keys permanently.
-        // An equal position still writes, so a same-position redelivery under a new dispatch identity brings
-        // the detail into agreement with the index reference instead of diverging from it. Re-applying the
-        // same materialization remains a no-op (NFR5).
+        // Equal-position deliveries use the dispatch identity as a deterministic tie-breaker. Both the detail
+        // and index independently choose the same winner even when their two writes interleave across replicas.
+        // Re-applying the same materialization remains a no-op (NFR5).
         _ = await ReadModelWritePolicy
             .UpdateAsync<ConversationProjectedReadModels>(
                 _store,
                 ConversationProjectionReadModelKeys.StateStoreName,
                 conversationKey,
                 existing => existing is not null
-                    && existing.Summary.Freshness.LastAppliedEventPosition > summary.Freshness.LastAppliedEventPosition
+                    && CompareGeneration(
+                        summary.Freshness.LastAppliedEventPosition,
+                        models.DispatchId,
+                        existing.Summary.Freshness.LastAppliedEventPosition,
+                        existing.DispatchId) < 0
                         ? existing
                         : models,
                 new ReadModelWriteContext(
@@ -176,26 +180,48 @@ public sealed class ConversationProjectionReadModelWriter
             byConversation[summary.ConversationId.Value] = summary;
         }
 
-        foreach (ConversationSummaryProjectionV1 summary in incoming.Summaries)
-        {
-            // Newest generation wins: a higher applied event position supersedes the persisted entry; an equal
-            // or older one leaves the persisted entry intact, so re-applying the same materialization is a no-op.
-            if (!byConversation.TryGetValue(summary.ConversationId.Value, out ConversationSummaryProjectionV1? existing)
-                || summary.Freshness.LastAppliedEventPosition >= existing.Freshness.LastAppliedEventPosition)
-            {
-                byConversation[summary.ConversationId.Value] = summary;
-            }
-        }
-
         Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(
             persisted.Dispatches,
             StringComparer.Ordinal);
         foreach ((string conversationId, ConversationProjectionDispatchReference reference) in incoming.Dispatches)
         {
             if (!dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? existing)
-                || reference.LastAppliedEventPosition >= existing.LastAppliedEventPosition)
+                || CompareGeneration(
+                    reference.LastAppliedEventPosition,
+                    reference.DispatchId,
+                    existing.LastAppliedEventPosition,
+                    existing.DispatchId) >= 0)
             {
                 dispatches[conversationId] = reference;
+            }
+        }
+
+        foreach (ConversationSummaryProjectionV1 summary in incoming.Summaries)
+        {
+            string conversationId = summary.ConversationId.Value;
+            if (incoming.Dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? incomingReference))
+            {
+                if (incomingReference.LastAppliedEventPosition != summary.Freshness.LastAppliedEventPosition)
+                {
+                    throw new ArgumentException("An index summary and dispatch reference must describe the same position.", nameof(incoming));
+                }
+
+                // Only the summary belonging to the winning reference may move. Merging the two fields
+                // independently lets equal-position A/B dispatches leave a permanently split index.
+                if (dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? winner)
+                    && SameGeneration(winner, incomingReference))
+                {
+                    byConversation[conversationId] = summary;
+                }
+
+                continue;
+            }
+
+            // Compatibility for callers that merge a summary-only index: positions still advance monotonically.
+            if (!byConversation.TryGetValue(conversationId, out ConversationSummaryProjectionV1? existingSummary)
+                || summary.Freshness.LastAppliedEventPosition >= existingSummary.Freshness.LastAppliedEventPosition)
+            {
+                byConversation[conversationId] = summary;
             }
         }
 
@@ -205,4 +231,22 @@ public sealed class ConversationProjectionReadModelWriter
             Dispatches = dispatches,
         };
     }
+
+    private static int CompareGeneration(
+        long incomingPosition,
+        string incomingDispatchId,
+        long existingPosition,
+        string existingDispatchId)
+    {
+        int positionComparison = incomingPosition.CompareTo(existingPosition);
+        return positionComparison != 0
+            ? positionComparison
+            : StringComparer.Ordinal.Compare(incomingDispatchId, existingDispatchId);
+    }
+
+    private static bool SameGeneration(
+        ConversationProjectionDispatchReference first,
+        ConversationProjectionDispatchReference second)
+        => first.LastAppliedEventPosition == second.LastAppliedEventPosition
+            && string.Equals(first.DispatchId, second.DispatchId, StringComparison.Ordinal);
 }

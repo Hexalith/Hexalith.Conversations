@@ -15,6 +15,8 @@ using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.Contracts.Projections;
 using Hexalith.EventStore.DomainService;
 
+using Microsoft.Extensions.Options;
+
 namespace Hexalith.Conversations.Server.Projections;
 
 /// <summary>
@@ -37,6 +39,8 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
     private const int DispatchLedgerBackoffMilliseconds = 5;
 
     private readonly ConversationProjectionMaterializer _materializer;
+    private readonly IReadModelExpiringStore? _expiringStore;
+    private readonly TimeSpan _ledgerTimeToLive;
     private readonly IReadModelStore _store;
     private readonly TimeProvider _timeProvider;
     private readonly ConversationProjectionReadModelWriter _writer;
@@ -46,12 +50,18 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         ConversationProjectionMaterializer materializer,
         ConversationProjectionReadModelWriter writer,
         IReadModelStore store,
-        TimeProvider? timeProvider = null)
+        TimeProvider? timeProvider = null,
+        IReadModelExpiringStore? expiringStore = null,
+        IOptions<ProjectionDispatchOptions>? dispatchOptions = null)
     {
         _materializer = materializer ?? throw new ArgumentNullException(nameof(materializer));
         _writer = writer ?? throw new ArgumentNullException(nameof(writer));
         _store = store ?? throw new ArgumentNullException(nameof(store));
         _timeProvider = timeProvider ?? TimeProvider.System;
+        _expiringStore = expiringStore ?? store as IReadModelExpiringStore;
+        ProjectionDispatchOptions options = dispatchOptions?.Value ?? new ProjectionDispatchOptions();
+        options.Validate();
+        _ledgerTimeToLive = options.RedeliveryWindow;
     }
 
     /// <inheritdoc/>
@@ -119,16 +129,6 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 requestFingerprint,
                 candidateGeneratedAt,
                 cancellationToken).ConfigureAwait(false);
-            // A completed ledger is only a completion if the generation it describes is still readable. The
-            // ledger lives under a third key family, so derived-state deletion or a store rollback can leave it
-            // behind after both read-model keys are gone. Reporting Completed from the ledger alone would then
-            // claim a durable generation no reader can observe; re-persisting instead converges idempotently.
-            if (ledger.Status == ConversationProjectionDispatchStatus.Completed
-                && await GenerationIsDurableAsync(request, dispatchId, cancellationToken).ConfigureAwait(false))
-            {
-                return DomainProjectionHandlerResult.Completed();
-            }
-
             ConversationProjectedReadModels models = Materialize(
                 request,
                 events,
@@ -136,6 +136,16 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             {
                 DispatchId = dispatchId,
             };
+            // A completed ledger is only a completion if the generation it describes is still readable. The
+            // ledger lives under a third key family, so derived-state deletion or a store rollback can leave it
+            // behind after both read-model keys are gone. Reporting Completed from the ledger alone would then
+            // claim a durable generation no reader can observe; re-persisting instead converges idempotently.
+            if (ledger.Status == ConversationProjectionDispatchStatus.Completed
+                && await GenerationIsDurableAsync(models, ledger, cancellationToken).ConfigureAwait(false))
+            {
+                return DomainProjectionHandlerResult.Completed();
+            }
+
             if (!AllowsPersistence(models.Detail.Freshness)
                 || !AllowsPersistence(models.Summary.Freshness))
             {
@@ -187,21 +197,43 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.HandlerFailure);
         }
 
-        ConversationProjectedReadModels models;
+        IReadOnlyList<ConversationProjectionEventRecord> events;
         try
         {
-            models = Materialize(
-                request,
-                ConversationProjectionEventDecoder.Decode(request.Events),
-                _timeProvider.GetUtcNow()) with
-            {
-                DispatchId = operationId,
-            };
+            events = ConversationProjectionEventDecoder.Decode(request.Events);
         }
         catch (Exception exception) when (exception is ArgumentException or JsonException)
         {
             throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.HandlerFailure);
         }
+
+        string requestFingerprint = ComputeRequestFingerprint(request);
+        ReadModelEntry<ConversationProjectionDispatchLedger> persistedLedger = await _store
+            .GetAsync<ConversationProjectionDispatchLedger>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(operationId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        ConversationProjectionDispatchLedger? existingLedger = persistedLedger.Value;
+        if (existingLedger is not null)
+        {
+            try
+            {
+                _ = ValidateDispatchIdentity(existingLedger, request, operationId, requestFingerprint);
+            }
+            catch (ArgumentException)
+            {
+                throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.DeliveryIdentityConflict);
+            }
+        }
+
+        ConversationProjectedReadModels models = Materialize(
+            request,
+            events,
+            existingLedger?.ProjectionGeneratedAt ?? _timeProvider.GetUtcNow()) with
+        {
+            DispatchId = operationId,
+        };
 
         if (!AllowsPersistence(models.Detail.Freshness)
             || !AllowsPersistence(models.Summary.Freshness))
@@ -221,13 +253,6 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 ConversationProjectionReadModelKeys.TenantIndexKey(models.Summary.TenantId),
                 cancellationToken)
             .ConfigureAwait(false);
-        ReadModelEntry<ConversationProjectionDispatchLedger> persistedLedger = await _store
-            .GetAsync<ConversationProjectionDispatchLedger>(
-                ConversationProjectionReadModelKeys.StateStoreName,
-                ConversationProjectionReadModelKeys.DispatchLedgerKey(operationId),
-                cancellationToken)
-            .ConfigureAwait(false);
-
         // Rebuilding one conversation replaces the whole index value, so every sibling must survive it intact.
         // Foreign-tenant rows and duplicate entries are sanitized because they are corruption; a sibling whose
         // dispatch reference does not currently match its summary is mid-flight, not corrupt, and dropping it
@@ -246,7 +271,32 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         foreach ((string conversationId, ConversationProjectionDispatchReference reference)
             in persistedIndex.Value?.Dispatches ?? new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal))
         {
-            if (retained.ContainsKey(conversationId) && !string.IsNullOrWhiteSpace(reference.DispatchId))
+            if (string.Equals(conversationId, models.Summary.ConversationId.Value, StringComparison.Ordinal)
+                || string.IsNullOrWhiteSpace(conversationId)
+                || string.IsNullOrWhiteSpace(reference.DispatchId))
+            {
+                continue;
+            }
+
+            if (retained.ContainsKey(conversationId))
+            {
+                dispatches[conversationId] = reference;
+                continue;
+            }
+
+            // A reference without a summary is either an accepted sibling mid-dispatch or corrupt debris.
+            // Prove its tenant/conversation binding from its ledger before retaining it in the replacement
+            // index; dropping a valid pending reference makes that accepted conversation invisible forever.
+            ConversationProjectionDispatchLedger? siblingLedger = (await _store
+                .GetAsync<ConversationProjectionDispatchLedger>(
+                    ConversationProjectionReadModelKeys.StateStoreName,
+                    ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId),
+                    cancellationToken)
+                .ConfigureAwait(false)).Value;
+            if (siblingLedger is not null
+                && string.Equals(siblingLedger.DispatchId, reference.DispatchId, StringComparison.Ordinal)
+                && siblingLedger.TenantId == models.Summary.TenantId
+                && string.Equals(siblingLedger.ConversationId.Value, conversationId, StringComparison.Ordinal))
             {
                 dispatches[conversationId] = reference;
             }
@@ -260,13 +310,15 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             Summaries = [.. retained.Values.OrderBy(summary => summary.ConversationId.Value, StringComparer.Ordinal)],
             Dispatches = dispatches,
         };
-        ConversationProjectionDispatchLedger completedLedger = new(
-            operationId,
-            ComputeRequestFingerprint(request),
-            models.Summary.TenantId,
-            models.Summary.ConversationId,
-            models.Summary.Freshness.ProjectionGeneratedAt,
-            ConversationProjectionDispatchStatus.Completed);
+        ConversationProjectionDispatchLedger completedLedger = existingLedger is null
+            ? new(
+                operationId,
+                requestFingerprint,
+                models.Summary.TenantId,
+                models.Summary.ConversationId,
+                models.Summary.Freshness.ProjectionGeneratedAt,
+                ConversationProjectionDispatchStatus.Completed)
+            : existingLedger with { Status = ConversationProjectionDispatchStatus.Completed };
 
         return new DomainProjectionRebuildPlan(
             ConversationProjectionReadModelKeys.StateStoreName,
@@ -282,7 +334,8 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 ReadModelBatchOperation.Write(
                     ConversationProjectionReadModelKeys.DispatchLedgerKey(operationId),
                     completedLedger,
-                    WriteConcurrency(persistedLedger)),
+                    WriteConcurrency(persistedLedger),
+                    _ledgerTimeToLive),
             ]);
     }
 
@@ -327,11 +380,14 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 new ConversationId(request.AggregateId),
                 projectionGeneratedAt,
                 ConversationProjectionDispatchStatus.Pending);
-            if (await _store.TrySaveAsync(
+            IReadModelExpiringStore expiringStore = _expiringStore
+                ?? throw new InvalidOperationException("The read-model store does not support expiring dispatch ledgers.");
+            if (await expiringStore.TrySaveWithTimeToLiveAsync(
                     ConversationProjectionReadModelKeys.StateStoreName,
                     ledgerKey,
                     pending,
                     string.Empty,
+                    _ledgerTimeToLive,
                     cancellationToken)
                 .ConfigureAwait(false))
             {
@@ -370,11 +426,14 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             {
                 Status = ConversationProjectionDispatchStatus.Completed,
             };
-            if (await _store.TrySaveAsync(
+            IReadModelExpiringStore expiringStore = _expiringStore
+                ?? throw new InvalidOperationException("The read-model store does not support expiring dispatch ledgers.");
+            if (await expiringStore.TrySaveWithTimeToLiveAsync(
                     ConversationProjectionReadModelKeys.StateStoreName,
                     ledgerKey,
                     completed,
                     entry.ETag ?? string.Empty,
+                    _ledgerTimeToLive,
                     cancellationToken)
                 .ConfigureAwait(false))
             {
@@ -446,12 +505,12 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 || freshness.ReasonCode == ProjectionFreshnessReasonCode.StaleThresholdExceeded);
 
     private async Task<bool> GenerationIsDurableAsync(
-        ProjectionRequest request,
-        string dispatchId,
+        ConversationProjectedReadModels expected,
+        ConversationProjectionDispatchLedger ledger,
         CancellationToken cancellationToken)
     {
-        TenantId tenantId = new(request.TenantId);
-        ConversationId conversationId = new(request.AggregateId);
+        TenantId tenantId = expected.Summary.TenantId;
+        ConversationId conversationId = expected.Summary.ConversationId;
         ReadModelEntry<ConversationProjectedReadModels> detail = await _store
             .GetAsync<ConversationProjectedReadModels>(
                 ConversationProjectionReadModelKeys.StateStoreName,
@@ -459,7 +518,19 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 cancellationToken)
             .ConfigureAwait(false);
         if (detail.Value is null
-            || !string.Equals(detail.Value.DispatchId, dispatchId, StringComparison.Ordinal))
+            || !string.Equals(detail.Value.DispatchId, ledger.DispatchId, StringComparison.Ordinal)
+            || detail.Value.Summary.TenantId != tenantId
+            || detail.Value.Detail.TenantId != tenantId
+            || detail.Value.Summary.ConversationId != conversationId
+            || detail.Value.Detail.ConversationId != conversationId
+            || detail.Value.Summary.Freshness != detail.Value.Detail.Freshness
+            || detail.Value.Summary.Freshness.ProjectionGeneratedAt.UtcTicks != ledger.ProjectionGeneratedAt.UtcTicks
+            || !JsonElement.DeepEquals(
+                JsonSerializer.SerializeToElement(detail.Value.Summary),
+                JsonSerializer.SerializeToElement(expected.Summary))
+            || !JsonElement.DeepEquals(
+                JsonSerializer.SerializeToElement(detail.Value.Detail),
+                JsonSerializer.SerializeToElement(expected.Detail)))
         {
             return false;
         }
@@ -472,8 +543,13 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             .ConfigureAwait(false);
         return index.Value is not null
             && index.Value.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? reference)
-            && string.Equals(reference.DispatchId, dispatchId, StringComparison.Ordinal)
-            && index.Value.Summaries.Any(summary => summary.ConversationId == conversationId);
+            && string.Equals(reference.DispatchId, ledger.DispatchId, StringComparison.Ordinal)
+            && reference.LastAppliedEventPosition == detail.Value.Summary.Freshness.LastAppliedEventPosition
+            && index.Value.Summaries.Any(summary =>
+                summary.ConversationId == conversationId
+                && JsonElement.DeepEquals(
+                    JsonSerializer.SerializeToElement(summary),
+                    JsonSerializer.SerializeToElement(detail.Value.Summary)));
     }
 
     private static ConversationProjectionDispatchLedger ValidateDispatchIdentity(

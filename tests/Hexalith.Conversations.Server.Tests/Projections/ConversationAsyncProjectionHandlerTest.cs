@@ -51,6 +51,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-001"))!
             .Status.ShouldBe(ConversationProjectionDispatchStatus.Completed);
+        store.LastTimeToLive.ShouldBe(ProjectionDispatchOptions.DefaultRedeliveryWindow);
     }
 
     [Fact]
@@ -199,6 +200,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.DispatchLedgerKey("rebuild-001"),
         ]);
         plan.Operations.ShouldAllBe(operation => operation.Kind == ReadModelBatchOperationKind.Write);
+        plan.Operations[2].TimeToLive.ShouldBe(ProjectionDispatchOptions.DefaultRedeliveryWindow);
         store.Count.ShouldBe(0, "rebuild preparation must remain side-effect free until coordinated promotion");
     }
 
@@ -313,6 +315,76 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ignoreOrder: true);
     }
 
+    /// <summary>A rebuild operation identity cannot be reused for another tenant or conversation.</summary>
+    [Fact]
+    public async Task RebuildShouldRejectAnExistingLedgerWithDifferentIdentity()
+    {
+        InMemoryReadModelStore store = new();
+        await store.SaveAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("rebuild-reused"),
+            new ConversationProjectionDispatchLedger(
+                "rebuild-reused",
+                "different-fingerprint",
+                Tenant,
+                ConversationB(),
+                Started,
+                ConversationProjectionDispatchStatus.Completed),
+            TestContext.Current.CancellationToken);
+        int keysBefore = store.Count;
+
+        DomainProjectionRebuildRejectedException exception = await Should.ThrowAsync<DomainProjectionRebuildRejectedException>(
+            () => Handler(store).PrepareRebuildAsync(
+                Request(Tenant, Conversation),
+                "rebuild-reused",
+                TestContext.Current.CancellationToken));
+
+        exception.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.DeliveryIdentityConflict);
+        store.Count.ShouldBe(keysBefore, "rebuild preparation must not overwrite a conflicting operation ledger.");
+    }
+
+    /// <summary>
+    /// A sibling accepted just before its first summary write is represented only by a dispatch reference and
+    /// ledger. Rebuilding another conversation must retain that in-flight evidence.
+    /// </summary>
+    [Fact]
+    public async Task RebuildShouldPreserveASummarylessPendingSiblingReference()
+    {
+        InMemoryReadModelStore store = new();
+        const string siblingDispatch = "dispatch-sibling-pending";
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [ConversationB().Value] = new(siblingDispatch, 1),
+                },
+            });
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey(siblingDispatch),
+            new ConversationProjectionDispatchLedger(
+                siblingDispatch,
+                "sibling-fingerprint",
+                Tenant,
+                ConversationB(),
+                Started,
+                ConversationProjectionDispatchStatus.Pending));
+
+        DomainProjectionRebuildPlan plan = await Handler(store).PrepareRebuildAsync(
+            Request(Tenant, Conversation),
+            "rebuild-with-pending-sibling",
+            TestContext.Current.CancellationToken);
+        ConversationProjectionIndexReadModel rebuilt = JsonSerializer.Deserialize<ConversationProjectionIndexReadModel>(
+            plan.Operations[1].CanonicalValue.Span,
+            JsonOptions)!;
+
+        rebuilt.Dispatches[ConversationB().Value].DispatchId.ShouldBe(siblingDispatch);
+        rebuilt.Summaries.ShouldNotContain(summary => summary.ConversationId == ConversationB());
+    }
+
     private static ConversationAsyncProjectionHandler Handler(IReadModelStore store)
         => new(
             new ConversationProjectionMaterializer(),
@@ -373,6 +445,55 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))
             .ShouldNotBeNull("completion must mean the tenant index is durable, not that the ledger says so.");
+    }
+
+    /// <summary>
+    /// A completed ledger is not a shortcut around payload verification: matching key identities with the
+    /// wrong materialized content must be repaired from the fingerprint-bound request.
+    /// </summary>
+    [Fact]
+    public async Task CompletedLedgerWithAConflictingGenerationShouldRePersistExpectedContent()
+    {
+        InMemoryReadModelStore store = new();
+        ProjectionRequest request = Request(Tenant, Conversation);
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        (await handler.ProjectAsync(request, "dispatch-conflicting", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        ConversationProjectedReadModels corrupt = new ConversationProjectionMaterializer().Project(
+            Tenant,
+            Conversation,
+            [new ConversationProjectionEventRecord(1, Created(Tenant, Conversation) with { Label = "Corrupted generation" })],
+            Started.AddSeconds(2),
+            TimeSpan.FromMinutes(5)) with
+        {
+            DispatchId = "dispatch-conflicting",
+        };
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            corrupt);
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = [corrupt.Summary],
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [Conversation.Value] = new("dispatch-conflicting", 1),
+                },
+            });
+
+        DomainProjectionHandlerResult redelivered = await handler.ProjectAsync(
+            request,
+            "dispatch-conflicting",
+            TestContext.Current.CancellationToken);
+
+        redelivered.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation))!
+            .Summary.Label.ShouldBe("Production path conversation");
     }
 
     /// <summary>
@@ -529,7 +650,7 @@ public sealed class ConversationAsyncProjectionHandlerTest
         public override DateTimeOffset GetUtcNow() => now;
     }
 
-    private sealed class FailCompletedIndexSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore
+    private sealed class FailCompletedIndexSaveOnceReadModelStore(InMemoryReadModelStore inner) : IReadModelStore, IReadModelExpiringStore
     {
         private int _failed;
 
@@ -564,6 +685,16 @@ public sealed class ConversationAsyncProjectionHandlerTest
 
             return inner.TrySaveAsync(storeName, key, value, etag, cancellationToken);
         }
+
+        public Task<bool> TrySaveWithTimeToLiveAsync<TValue>(
+            string storeName,
+            string key,
+            TValue value,
+            string etag,
+            TimeSpan timeToLive,
+            CancellationToken cancellationToken = default)
+            where TValue : class
+            => inner.TrySaveWithTimeToLiveAsync(storeName, key, value, etag, timeToLive, cancellationToken);
     }
 
     private sealed class UnavailableReadModelStore : IReadModelStore

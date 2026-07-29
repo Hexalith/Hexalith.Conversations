@@ -62,6 +62,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
     private const int RedisPort = 6379;
     private const int HealthTimeoutSeconds = 60;
+    private const int PortBindingRetryCount = 3;
     private const int WarmUpTimeoutSeconds = 45;
 
     private static readonly System.Text.Json.JsonSerializerOptions MetadataSerializerOptions =
@@ -77,6 +78,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     private int _daprMetricsPort;
     private Process? _daprProcess;
     private int _daprProfilePort;
+    private int _executedBoundaryAssertions;
     private string? _previousDaprGrpcPort;
     private string? _previousDaprHttpPort;
     private WebApplication? _testHost;
@@ -97,9 +99,6 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     /// Gets a value indicating whether the live gateway boundary started and is available to assert against.
     /// </summary>
     public bool IsAvailable { get; private set; }
-
-    /// <summary>Gets the reason the live gateway boundary is unavailable, when it did not start.</summary>
-    public string? SkipReason { get; private set; }
 
     /// <summary>
     /// Gets the named projection types the Conversations domain service advertised to the gateway.
@@ -129,65 +128,70 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             new ActorId($"{tenantId}:{domain}:{aggregateId}"),
             AggregateActorTypeName);
 
-    /// <summary>Skips the calling test when the live gateway boundary could not start.</summary>
-    public void SkipIfUnavailable()
+    /// <summary>Fails if fixture initialization did not establish the mandatory live boundary.</summary>
+    public void RequireAvailable()
     {
         if (!IsAvailable)
         {
-            Assert.Skip(SkipReason ?? DaprTestPrerequisites.SkipReason);
+            throw new InvalidOperationException("The mandatory Conversations live gateway boundary is unavailable.");
         }
     }
+
+    /// <summary>Records one completed live-boundary assertion path.</summary>
+    public void RecordBoundaryAssertion() => Interlocked.Increment(ref _executedBoundaryAssertions);
 
     /// <inheritdoc/>
     public async ValueTask InitializeAsync()
     {
-        int[] ports = GetAvailablePorts(6);
-        _appPort = ports[0];
-        _daprHttpPort = ports[1];
-        _daprGrpcPort = ports[2];
-        _daprInternalGrpcPort = ports[3];
-        _daprMetricsPort = ports[4];
-        _daprProfilePort = ports[5];
-
-        // The DAPR actor runtime discovers its sidecar through these variables, and the fixture allocates
-        // random ports so parallel runs cannot collide.
         _previousDaprHttpPort = Environment.GetEnvironmentVariable("DAPR_HTTP_PORT");
         _previousDaprGrpcPort = Environment.GetEnvironmentVariable("DAPR_GRPC_PORT");
-        Environment.SetEnvironmentVariable("DAPR_HTTP_PORT", _daprHttpPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
-        Environment.SetEnvironmentVariable("DAPR_GRPC_PORT", _daprGrpcPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
         if (!DaprTestPrerequisites.IsAvailable)
         {
-            SkipReason = DaprTestPrerequisites.SkipReason;
-            RestoreDaprPortEnvironment();
-            return;
+            throw new InvalidOperationException(DaprTestPrerequisites.SkipReason);
         }
 
-        try
+        for (int attempt = 0; attempt < PortBindingRetryCount; attempt++)
         {
-            _componentsDirectory = CreateComponentFiles();
-            await StartTestHostAsync().ConfigureAwait(false);
-            await VerifyAppListeningAsync().ConfigureAwait(false);
-            StartDaprSidecar();
-            await WaitForDaprHealthAsync().ConfigureAwait(false);
+            ConfigureSidecarPorts(GetAvailablePorts(5));
+            Environment.SetEnvironmentVariable("DAPR_HTTP_PORT", _daprHttpPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
+            Environment.SetEnvironmentVariable("DAPR_GRPC_PORT", _daprGrpcPort.ToString(System.Globalization.CultureInfo.InvariantCulture));
 
-            // Placement dissemination and actor registration complete asynchronously after the sidecar
-            // reports healthy; asserting before that makes the first real actor call fail open.
-            await Task.Delay(2000).ConfigureAwait(false);
-            await VerifyAppListeningAsync().ConfigureAwait(false);
-            await WarmUpActorRuntimeAsync().ConfigureAwait(false);
+            try
+            {
+                _componentsDirectory = CreateComponentFiles();
+                await StartTestHostAsync().ConfigureAwait(false);
+                await VerifyAppListeningAsync().ConfigureAwait(false);
+                StartDaprSidecar();
+                await WaitForDaprHealthAsync().ConfigureAwait(false);
 
-            await ActivateProjectionDeliveryWriterProtocolAsync().ConfigureAwait(false);
-            await DiscoverNamedProjectionRoutesAsync().ConfigureAwait(false);
-            IsAvailable = true;
+                // Placement dissemination and actor registration complete asynchronously after the sidecar
+                // reports healthy; asserting before that makes the first real actor call fail open.
+                await Task.Delay(2000).ConfigureAwait(false);
+                await VerifyAppListeningAsync().ConfigureAwait(false);
+                await WarmUpActorRuntimeAsync().ConfigureAwait(false);
+
+                await ActivateProjectionDeliveryWriterProtocolAsync().ConfigureAwait(false);
+                await DiscoverNamedProjectionRoutesAsync().ConfigureAwait(false);
+                IsAvailable = true;
+                return;
+            }
+            catch (Exception exception) when (attempt + 1 < PortBindingRetryCount && IsAddressAlreadyInUse(exception))
+            {
+                await DisposeResourcesAsync().ConfigureAwait(false);
+                Clear(_daprStandardOutput);
+                Clear(_daprStandardError);
+            }
+            catch
+            {
+                await DisposeResourcesAsync().ConfigureAwait(false);
+                RestoreDaprPortEnvironment();
+                throw;
+            }
         }
-        catch (Exception exception) when (exception is InvalidOperationException or HttpRequestException or SocketException)
-        {
-            SkipReason = "The Conversations live gateway boundary could not start: "
-                + DaprDiagnostics.ToSupportSafeDiagnostic(exception.Message);
-            await DisposeResourcesAsync().ConfigureAwait(false);
-            RestoreDaprPortEnvironment();
-        }
+
+        RestoreDaprPortEnvironment();
+        throw new InvalidOperationException("The live gateway could not acquire isolated sidecar ports after bounded retries.");
     }
 
     /// <inheritdoc/>
@@ -195,6 +199,20 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     {
         await DisposeResourcesAsync().ConfigureAwait(false);
         RestoreDaprPortEnvironment();
+        if (IsAvailable && Volatile.Read(ref _executedBoundaryAssertions) != 2)
+        {
+            throw new InvalidOperationException(
+                $"The live gateway fixture executed {_executedBoundaryAssertions} of 2 mandatory boundary assertions.");
+        }
+    }
+
+    private void ConfigureSidecarPorts(int[] ports)
+    {
+        _daprHttpPort = ports[0];
+        _daprGrpcPort = ports[1];
+        _daprInternalGrpcPort = ports[2];
+        _daprMetricsPort = ports[3];
+        _daprProfilePort = ports[4];
     }
 
     private static int[] GetAvailablePorts(int count)
@@ -215,6 +233,11 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
         return ports;
     }
+
+    private bool IsAddressAlreadyInUse(Exception exception)
+        => exception is SocketException { SocketErrorCode: SocketError.AddressAlreadyInUse }
+            || exception.ToString().Contains("address already in use", StringComparison.OrdinalIgnoreCase)
+            || Capture(_daprStandardError).Contains("address already in use", StringComparison.OrdinalIgnoreCase);
 
     private static string ResolveDaprdPath()
     {
@@ -300,8 +323,9 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         // assertion output without adding diagnostic value.
         builder.Configuration["Logging:LogLevel:Default"] = "Warning";
 
-        _ = builder.WebHost.ConfigureKestrel(options => options.ListenLocalhost(
-            _appPort,
+        _ = builder.WebHost.ConfigureKestrel(options => options.Listen(
+            IPAddress.Loopback,
+            0,
             listen => listen.Protocols = HttpProtocols.Http1));
 
         // Registered before the SDK so the canonical registration keeps a host-supplied client authoritative.
@@ -359,8 +383,16 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         ICollection<string>? addresses = server.Features.Get<IServerAddressesFeature>()?.Addresses;
         if (addresses is null || addresses.Count == 0)
         {
-            throw new InvalidOperationException($"Kestrel did not bind any address. Expected port {_appPort}.");
+            throw new InvalidOperationException("Kestrel did not bind any address.");
         }
+
+        string address = addresses.Single();
+        if (!Uri.TryCreate(address, UriKind.Absolute, out Uri? endpoint) || endpoint.Port <= 0)
+        {
+            throw new InvalidOperationException($"Kestrel reported an invalid listening address: {address}.");
+        }
+
+        _appPort = endpoint.Port;
     }
 
     private void StartDaprSidecar()
@@ -441,6 +473,14 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         }
     }
 
+    private static void Clear(StringBuilder buffer)
+    {
+        lock (buffer)
+        {
+            _ = buffer.Clear();
+        }
+    }
+
     private async Task WaitForDaprHealthAsync()
     {
         using HttpClient client = new();
@@ -489,7 +529,12 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             try
             {
                 using HttpResponseMessage response = await client.GetAsync(new Uri(healthUrl)).ConfigureAwait(false);
-                return;
+                if (response.IsSuccessStatusCode)
+                {
+                    return;
+                }
+
+                lastError = $"HTTP {(int)response.StatusCode} ({response.StatusCode}).";
             }
             catch (HttpRequestException exception)
             {

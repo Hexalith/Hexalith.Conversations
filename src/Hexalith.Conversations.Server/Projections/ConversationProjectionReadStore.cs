@@ -30,6 +30,9 @@ namespace Hexalith.Conversations.Server.Projections;
 /// <see cref="ValidatePageAsync"/>; unrelated conversations in the same tenant stay readable. Listing reads
 /// the index once and verifies only the requested page, so the cost of a list is proportional to the page and
 /// not to the tenant's conversation count.
+/// A completed ledger is a bounded redelivery-window guard rather than permanent projection state: after it
+/// expires, an internally matching detail/index generation remains readable. Any ledger that is still present
+/// must be completed and identity-consistent, so an in-flight or poisoned dispatch continues to fail closed.
 /// </para>
 /// </remarks>
 public sealed class ConversationProjectionReadStore : IConversationProjectionReadStore
@@ -107,7 +110,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         }
 
         ConversationSummaryProjectionV1 indexedSummary = indexed[0];
-        ConversationProjectionDispatchLedger ledger = await ReadCompletedLedgerAsync(
+        ConversationProjectionDispatchLedger? ledger = await ReadLedgerAsync(
             dispatchReference,
             tenantId,
             conversationId,
@@ -116,7 +119,8 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             || dispatchReference.LastAppliedEventPosition != indexedSummary.Freshness.LastAppliedEventPosition
             || !SameSummary(indexedSummary, models.Summary)
             || !SameGeneration(models.Summary.Freshness, models.Detail.Freshness)
-            || ledger.ProjectionGeneratedAt.UtcTicks != models.Detail.Freshness.ProjectionGeneratedAt.UtcTicks)
+            || (ledger is not null
+                && ledger.ProjectionGeneratedAt.UtcTicks != models.Detail.Freshness.ProjectionGeneratedAt.UtcTicks))
         {
             throw new ConversationProjectionConsistencyException();
         }
@@ -239,12 +243,12 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             ConversationProjectionDispatchLedger? ledger = ledgers[
                 ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId)];
             if (models is null
-                || ledger is null
-                || ledger.Status != ConversationProjectionDispatchStatus.Completed
-                || !string.Equals(ledger.DispatchId, reference.DispatchId, StringComparison.Ordinal)
-                || ledger.TenantId != tenantId
-                || ledger.ConversationId != summary.ConversationId
-                || string.IsNullOrWhiteSpace(ledger.RequestFingerprint)
+                || (ledger is not null
+                    && (ledger.Status != ConversationProjectionDispatchStatus.Completed
+                        || !string.Equals(ledger.DispatchId, reference.DispatchId, StringComparison.Ordinal)
+                        || ledger.TenantId != tenantId
+                        || ledger.ConversationId != summary.ConversationId
+                        || string.IsNullOrWhiteSpace(ledger.RequestFingerprint)))
                 || models.Summary.TenantId != tenantId
                 || models.Detail.TenantId != tenantId
                 || models.Summary.ConversationId != summary.ConversationId
@@ -252,7 +256,8 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 || !string.Equals(models.DispatchId, reference.DispatchId, StringComparison.Ordinal)
                 || !SameSummary(summary, models.Summary)
                 || !SameGeneration(summary.Freshness, models.Detail.Freshness)
-                || ledger.ProjectionGeneratedAt.UtcTicks != summary.Freshness.ProjectionGeneratedAt.UtcTicks)
+                || (ledger is not null
+                    && ledger.ProjectionGeneratedAt.UtcTicks != summary.Freshness.ProjectionGeneratedAt.UtcTicks))
             {
                 _ = inconsistent.Add(conversationId);
             }
@@ -307,7 +312,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         return values;
     }
 
-    private async Task<ConversationProjectionDispatchLedger> ReadCompletedLedgerAsync(
+    private async Task<ConversationProjectionDispatchLedger?> ReadLedgerAsync(
         ConversationProjectionDispatchReference reference,
         TenantId tenantId,
         ConversationId conversationId,
@@ -320,12 +325,12 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 cancellationToken)
             .ConfigureAwait(false);
         ConversationProjectionDispatchLedger? ledger = entry.Value;
-        if (ledger is null
-            || ledger.Status != ConversationProjectionDispatchStatus.Completed
+        if (ledger is not null
+            && (ledger.Status != ConversationProjectionDispatchStatus.Completed
             || !string.Equals(ledger.DispatchId, reference.DispatchId, StringComparison.Ordinal)
             || ledger.TenantId != tenantId
             || ledger.ConversationId != conversationId
-            || string.IsNullOrWhiteSpace(ledger.RequestFingerprint))
+            || string.IsNullOrWhiteSpace(ledger.RequestFingerprint)))
         {
             throw new ConversationProjectionConsistencyException();
         }
