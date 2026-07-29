@@ -18,6 +18,7 @@ using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Queries;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.Options;
@@ -696,10 +697,19 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
-    /// Mixed-generation rows from the projection store surface as Rebuilding instead of leaking inconsistent rows.
+    /// Conversations are independent aggregates, so two of them sitting at different event positions is the
+    /// normal steady state and must list normally.
     /// </summary>
+    /// <remarks>
+    /// This is a regression guard for a defect that predates Story 6.2: the list boundary compared
+    /// <c>ProjectionCursor</c> across conversations, but that cursor is the per-conversation applied position
+    /// (<c>pos:0000000001</c>). Any tenant holding two conversations with different event counts therefore
+    /// reported Rebuilding with an empty page — which is also why every end-to-end list proof in this suite
+    /// used a single-row tenant. Cross-key generation agreement is a per-conversation property and is now
+    /// verified per row against that row's own detail key and dispatch ledger.
+    /// </remarks>
     [Fact]
-    public async Task ListShouldRejectMixedGenerationCandidates()
+    public async Task ListShouldReturnConversationsSittingAtDifferentEventPositions()
     {
         FakeTenantAccessService access = AllowedAccess();
         FakeProjectionReadStore store = new()
@@ -716,9 +726,98 @@ public sealed class ConversationQueryHandlerTest
             new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
             TestContext.Current.CancellationToken);
 
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Current);
+        result.Conversations.Count.ShouldBe(2);
+    }
+
+    /// <summary>
+    /// A conversation that cannot prove one completed generation is withheld from the page; the conversations
+    /// beside it are still returned, and the page reports that it is not current.
+    /// </summary>
+    [Fact]
+    public async Task ListShouldWithholdOnlyTheUnprovenConversation()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-a"), Business, Project, Folder, Participant, cursor: "pos:1"),
+                Summary(Tenant, new ConversationId("conv-b"), Business, Project, Folder, Participant, cursor: "pos:2"),
+            ],
+            InconsistentConversationIds = ["conv-b"],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
         result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
         result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
-        result.Conversations.ShouldBeEmpty();
+        result.Conversations.Select(conversation => conversation.ConversationId.Value).ShouldBe(["conv-a"]);
+    }
+
+    /// <summary>
+    /// A dispatch in flight anywhere in the tenant means an accepted conversation may be missing from the page,
+    /// so the page cannot claim to be current — but the rows that are proven are still returned rather than the
+    /// whole tenant going dark.
+    /// </summary>
+    [Fact]
+    public async Task ListShouldReturnProvenRowsWhileADispatchIsInFlight()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-a"), Business, Project, Folder, Participant, cursor: "pos:1"),
+                Summary(Tenant, new ConversationId("conv-b"), Business, Project, Folder, Participant, cursor: "pos:2"),
+            ],
+            HasIncompleteDispatch = true,
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Conversations.Count.ShouldBe(2, "an in-flight dispatch degrades freshness; it does not blank the tenant.");
+    }
+
+    /// <summary>
+    /// Verification is charged to the page, never to the tenant: a large tenant asking for a small page must
+    /// only have the returned rows verified (NFR2, no per-conversation fan-out).
+    /// </summary>
+    [Fact]
+    public async Task ListShouldVerifyOnlyTheReturnedPage()
+    {
+        FakeTenantAccessService access = AllowedAccess();
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [.. Enumerable.Range(0, 200).Select(index =>
+                Summary(
+                    Tenant,
+                    new ConversationId($"conv-{index:D3}"),
+                    Business,
+                    Project,
+                    Folder,
+                    Participant,
+                    cursor: $"pos:{index}"))],
+        };
+        ConversationQueryHandler handler = CreateHandler(access, store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001"),
+            TestContext.Current.CancellationToken);
+
+        store.ValidatePageCalls.ShouldBe(1);
+        store.ValidatedPage.Count.ShouldBe(
+            result.Conversations.Count,
+            "only the rows actually returned may be verified.");
+        store.ValidatedPage.Count.ShouldBeLessThan(200);
     }
 
     /// <summary>
@@ -2012,6 +2111,17 @@ public sealed class ConversationQueryHandlerTest
 
         public int ListReads { get; private set; }
 
+        /// <summary>Conversations the store cannot prove a completed generation for.</summary>
+        public IReadOnlyCollection<string> InconsistentConversationIds { get; set; } = [];
+
+        /// <summary>Set when the tenant index names a dispatch its summaries do not yet reflect.</summary>
+        public bool HasIncompleteDispatch { get; set; }
+
+        /// <summary>The page verification actually received, so tests can assert what it was charged for.</summary>
+        public IReadOnlyList<ConversationSummaryProjectionV1> ValidatedPage { get; private set; } = [];
+
+        public int ValidatePageCalls { get; private set; }
+
         public ValueTask<ConversationProjectedReadModels?> ReadAsync(
             TenantId tenantId,
             ConversationId conversationId,
@@ -2021,7 +2131,19 @@ public sealed class ConversationQueryHandlerTest
             return ValueTask.FromResult(Models);
         }
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+        {
+            ValidatePageCalls++;
+            ValidatedPage = page;
+            return ValueTask.FromResult<IReadOnlySet<string>>(
+                new HashSet<string>(InconsistentConversationIds, StringComparer.Ordinal));
+        }
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
         {
@@ -2031,7 +2153,10 @@ public sealed class ConversationQueryHandlerTest
                 throw ListException;
             }
 
-            return ValueTask.FromResult(Summaries);
+            return ValueTask.FromResult(Summaries.ToConsistentSnapshot() with
+            {
+                HasIncompleteDispatch = HasIncompleteDispatch,
+            });
         }
     }
 

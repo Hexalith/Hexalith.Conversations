@@ -241,10 +241,10 @@ public sealed class ConversationQueryHandler
             return ConversationListResult.Hidden(query.SchemaVersion);
         }
 
-        IReadOnlyList<ConversationSummaryProjectionV1> candidates;
+        ConversationProjectionIndexSnapshot snapshot;
         try
         {
-            candidates = await _projectionReadStore.ListAsync(query.TenantId, cancellationToken).ConfigureAwait(false);
+            snapshot = await _projectionReadStore.ListAsync(query.TenantId, cancellationToken).ConfigureAwait(false);
         }
         catch (ConversationProjectionConsistencyException)
         {
@@ -263,23 +263,9 @@ public sealed class ConversationQueryHandler
 
         // Tenant-scoped poison guard: reject any row whose stored TenantId disagrees with the request scope
         // before any filter, count, ordering, or freshness evaluation runs.
-        List<ConversationSummaryProjectionV1> tenantScoped = candidates
+        List<ConversationSummaryProjectionV1> tenantScoped = snapshot.Summaries
             .Where(summary => summary.TenantId == query.TenantId)
             .ToList();
-
-        // Mixed-generation poison guard: the detail boundary refuses to trust mixed-generation rows; the
-        // list boundary mirrors that posture. When candidate rows disagree on projection generation we
-        // surface Rebuilding/MixedGeneration rather than returning a page from inconsistent generations.
-        if (HasMixedGenerations(tenantScoped))
-        {
-            return new ConversationListResult(
-                query.SchemaVersion,
-                ProjectionTrustState.Rebuilding,
-                ProjectionFreshnessReasonCode.MixedGeneration,
-                [],
-                new ConversationPageMetadata(0),
-                "Retry after the read model finishes rebuilding.");
-        }
 
         string projectionGenerationToken = ComputeGenerationToken(tenantScoped);
 
@@ -304,9 +290,42 @@ public sealed class ConversationQueryHandler
             .ToList();
 
         bool issueContinuation = accessible.Count > query.Page.PageSize;
-        IReadOnlyList<ConversationSummaryProjectionV1> pageCandidates = accessible
+        List<ConversationSummaryProjectionV1> selected = accessible
             .Take(query.Page.PageSize)
             .ToList();
+
+        // Cross-key verification is scoped to the rows actually being returned, so the cost is proportional to
+        // the page (NFR2, no per-conversation fan-out over the tenant) and a conversation mid-dispatch cannot
+        // make an unrelated conversation unreadable.
+        IReadOnlySet<string> inconsistent;
+        try
+        {
+            inconsistent = await _projectionReadStore
+                .ValidatePageAsync(query.TenantId, snapshot, selected, cancellationToken)
+                .ConfigureAwait(false);
+        }
+        catch (ConversationProjectionConsistencyException)
+        {
+            return new ConversationListResult(
+                query.SchemaVersion,
+                ProjectionTrustState.Rebuilding,
+                ProjectionFreshnessReasonCode.MixedGeneration,
+                [],
+                new ConversationPageMetadata(0),
+                "Retry after the read model finishes rebuilding.");
+        }
+        catch (Exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            return ConversationListResult.Unavailable(query.SchemaVersion);
+        }
+
+        // A row that cannot prove one completed generation is withheld rather than shown; an in-flight dispatch
+        // elsewhere in the tenant means an accepted conversation may be missing from every page. Either way the
+        // page must not claim to be current, but the rows that are proven are still returned.
+        bool partialGeneration = inconsistent.Count > 0 || snapshot.HasIncompleteDispatch;
+        IReadOnlyList<ConversationSummaryProjectionV1> pageCandidates = inconsistent.Count == 0
+            ? selected
+            : [.. selected.Where(summary => !inconsistent.Contains(summary.ConversationId.Value))];
         (ConversationSearchMatchSource matchSource, string whyVisible) = DetermineMatchSource(query.Filter);
         IReadOnlyList<ConversationSummaryV1> page = pageCandidates
             .Select(summary => ConversationSummaryV1
@@ -328,7 +347,9 @@ public sealed class ConversationQueryHandler
                 ConversationListCursor.EncodePosition(offset + page.Count, _timeProvider.GetUtcNow(), projectionGenerationToken))
             : null;
 
-        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = AggregateFreshness(accessibleMatches);
+        (ProjectionTrustState state, ProjectionFreshnessReasonCode reason) = partialGeneration
+            ? (ProjectionTrustState.Rebuilding, ProjectionFreshnessReasonCode.MixedGeneration)
+            : AggregateFreshness(accessibleMatches);
 
         return new ConversationListResult(
             query.SchemaVersion,
@@ -336,7 +357,9 @@ public sealed class ConversationQueryHandler
             reason,
             page,
             new ConversationPageMetadata(page.Count, nextCursor),
-            page.Count == 0
+            partialGeneration
+                ? "Retry after the read model finishes rebuilding."
+                : page.Count == 0
                 ? "No accessible matches."
                 : nextCursor is null
                 ? "Accessible results are complete for the supplied filters."
@@ -439,26 +462,6 @@ public sealed class ConversationQueryHandler
         }
 
         return (ConversationSearchMatchSource.TenantScope, "Visible through authorized tenant scope.");
-    }
-
-    private static bool HasMixedGenerations(IReadOnlyList<ConversationSummaryProjectionV1> summaries)
-    {
-        if (summaries.Count <= 1)
-        {
-            return false;
-        }
-
-        string firstCursor = summaries[0].Freshness.ProjectionCursor;
-        for (int i = 1; i < summaries.Count; i++)
-        {
-            ProjectionFreshnessV1 freshness = summaries[i].Freshness;
-            if (!string.Equals(freshness.ProjectionCursor, firstCursor, StringComparison.Ordinal))
-            {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     private static string ComputeGenerationToken(IReadOnlyList<ConversationSummaryProjectionV1> summaries)

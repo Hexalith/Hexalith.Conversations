@@ -3,9 +3,9 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'review'
+status: 'in-progress'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
-file_list_commit: 'e74e542f2b87ecadd87b40e15052bcedb3866c59'
+file_list_commit: 'dc69719a9ce7c25bb9755827f19c7e1ce2a87287'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -37,7 +37,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: review
+Status: in-progress
 
 ## ⚠️ Read this first — most of this story is already implemented
 
@@ -265,6 +265,104 @@ Committed by `b11b0c7` ("refactor(hosting): adopt platform runtime"), `65c7699`,
 - [x] [Review][Patch] Cover populated multi-conversation rebuild plans and persisted ETag concurrency (MEDIUM) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:132]
 - [x] [Review][Patch] Exercise durable payload decoding for every actual projected domain-event type (MEDIUM) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs:79]
 - [x] [Review][Patch] Exercise the retained AppHost through a running Server/EventStore production boundary (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:124]
+
+### Review Findings — pass 2 (2026-07-29, `bmad-code-review`, four blind layers)
+
+Scope reviewed: `git diff 29def44..dc69719 -- src/ tests/` (45 files, +4,914/−417). Evidence JSON,
+`_bmad/scripts/`, and planning docs were **not** in this chunk and remain unreviewed.
+71 raw findings across four layers deduplicated to 42. Every finding below was re-verified against
+the code at HEAD before triage; subagent severities were discarded and reassigned.
+
+#### Decisions — resolved 2026-07-29 by Jerome
+
+- [x] [Review][Decision] Every in-flight dispatch blanks the entire tenant's conversation list — `MarkPendingAsync` publishes a `Dispatches` entry before any summary exists (`ConversationProjectionReadModelWriter.cs:119-150`), so `ListAsync` hits `Dispatches.Count != summaries.Count` (`ConversationProjectionReadStore.cs:131-135`) for a new conversation, or `reference.LastAppliedEventPosition != summary.Freshness.LastAppliedEventPosition` (`:153`) for an existing one. Both throw `ConversationProjectionConsistencyException`, which `ConversationQueryHandler.cs:249` maps to `Rebuilding` with **zero** conversations for the whole tenant. Under steady write traffic a tenant's list is unavailable most of the time, keyed on one unrelated conversation. AC6 requires exposing cross-key inconsistency; it does not require tenant-wide scope. Options: (a) scope the fail-closed decision to the affected conversation and return the rest of the page, (b) keep tenant-wide fail-closed as the accepted trade-off and document it, (c) redesign the pending marker so it does not create a transient count mismatch. **RESOLVED: (a) scope the fail-closed decision to the affected conversation** — return the rest of the page; a conversation with an in-flight or inconsistent dispatch is excluded and reported Rebuilding for itself only.
+- [x] [Review][Decision] No migration path — every pre-6.2 persisted read model becomes unreadable on deploy — `ConversationProjectedReadModels.DispatchId` and `ConversationProjectionIndexReadModel.Dispatches` are new members with `string.Empty` / empty-dictionary defaults, and no upcaster, backfill, or version discriminator appears anywhere in the diff. A persisted pre-6.2 value therefore fails `!hasDispatch` (`ConversationProjectionReadStore.cs:85-91`) on every detail read and `Dispatches.Count != summaries.Count` on every list read. Options: (a) accept it — Conversations is greenfield and nothing is deployed, (b) add an upcast/backfill path, (c) add a documented rebuild-on-deploy operator runbook. Note (a) is only safe if no environment holds populated projection state. **RESOLVED: (a) accept — Conversations is greenfield and no environment holds populated projection state.** No upcaster or backfill is added; record the assumption in the story.
+- [x] [Review][Decision] The SM-C2 gate measures a closure this story provably did not touch — `measuredProductionClosure` is `["src/Hexalith.Conversations", "src/Hexalith.Conversations.Contracts"]`, and `git diff --name-only 29def44..dc69719 -- src/Hexalith.Conversations src/Hexalith.Conversations.Contracts` returns **0 files** (verified). `HP-LIST` is LINQ over a local `string[]` and `HP-OPEN` is a `Dictionary.TryGetValue` (`SmC2HotPathBenchmark.cs`), touching neither `ConversationQueryHandler` nor `ConversationProjectionReadStore`. The `post P95 <= 1.05 x baseline P95` assertion compares byte-identical code against itself, so the AC1 gate is structurally incapable of observing this story — including the `ListAsync` change below. The story already concedes this in T4 ("could not have failed for this story"), but the frozen inventory defines HP-LIST as the *canonical query path*. Options: (a) accept the recorded limitation as already disclosed, (b) extend the fixture to the real `ListAsync`/`ReadAsync` paths and re-measure both baseline and post, (c) escalate as an AC1 amendment. **RESOLVED: (b) extend the fixture to the real `ListAsync`/`ReadAsync` paths and re-measure both baseline and post** under the frozen envelope, so the AC1 gate can observe this story's hosting and projection changes.
+- [x] [Review][Decision] `ListAsync` validates the whole tenant before paging, and each event now costs two full tenant-index rewrites — read side: the single tenant-index read was replaced by `1 + ceil(N/100) + ceil(M/100)` store reads covering **every** conversation in the tenant before `ConversationQueryHandler` applies `Skip/Take` (`ConversationProjectionReadStore.cs:137-197`); the `// never a per-conversation fan-out (NFR2, no N+1)` invariant was deleted. Write side: `MarkPendingAsync` and `PersistAsync` each run a full read-modify-write over the single tenant-index key (`ConversationAsyncProjectionHandler.cs:130-131`), roughly tripling store round-trips per event and creating a per-tenant write serialization point. The 2026-07-28 review accepted "bounded bulk/page reads" as the resolution; validating the entire tenant was not part of that resolution. Options: (a) validate only the requested page, (b) accept full-tenant validation as the price of fail-closed cross-key consistency, (c) re-scope NFR2. **RESOLVED: (a) validate only the requested page** — page first, then validate that page's rows, restoring read cost proportional to page size.
+- [x] [Review][Decision] The legacy v1 decoder contract flipped from degrade-and-skip to throw — the deleted `DecodeEvents` carried an explicit rationale ("the skip never falsely degrades — fail-closed by construction"); the replacement throws `JsonException` on an unknown discriminator, non-positive sequence, non-`json` format, or empty payload, and `ConversationProjectionHandler.Project` calls `Decode` with no `try`/`catch`, so it propagates out of the v1 `IDomainProjectionHandler` seam with unspecified platform handling. Two approved authorities conflict: the 2026-07-28 review patch "Reject undecodable envelopes instead of silently dropping trailing events" versus AC4's "Legacy `IDomainProjectionHandler` preserved for v1 compatibility". Adding an event type in a future story now hard-fails both seams rather than degrading freshness. Options: (a) catch at the v1 seam and degrade there while the async route stays strict, (b) keep both strict and accept the v1 behaviour change, (c) revisit the 2026-07-28 patch. **RESOLVED: (a) catch at the v1 seam and degrade there; the async route stays strict.** Add a test for the v1 actor's behaviour on an undecodable envelope.
+- [x] [Review][Decision] `Program.cs` registers `AddDataProtection()` — a generic platform gap patched inside the module — the same hunk that correctly removes `AddDaprClient()` (promoted to `EventStoreDomainServiceExtensions.cs:310`) adds `builder.Services.AddDataProtection();` at `Program.cs:33`. Its own comment says the dependency is the platform-owned `IQueryCursorCodec`. This is structurally the defect the story exists to fix, resolved the opposite way, against AC3 and the Never-list item "Never hide a generic platform gap behind Conversations — fix it in the owning public surface." There is no `AddEventStoreDomainServiceShouldOwnDataProtection` counterpart to the `DaprClient` test. Options: (a) promote it to `AddEventStoreDomainService` (a second EventStore promotion — needs approval and re-runs the 6.7 gate), (b) keep it in the module with a recorded justification that Data Protection is host policy, not platform capability. **RESOLVED: (a) promote to `AddEventStoreDomainService`** with a matching ownership test, mirroring the `AddDaprClient` fix. This is a second EventStore promotion — it requires a submodule commit and, under `require_remote: true`, remote availability.
+- [x] [Review][Decision] Promotion state contradicts the recorded final record — the embedded record states **Result PASS** and "Gitlinks moved after the candidate: none", but re-running the story's own command at the same candidate `dc69719` returns `result: blocked` (exit 1) with `GITLINK_COMMIT_MISMATCH` on `references/Hexalith.EventStore` (declared, `require_remote: true`; recorded `b1d08da` vs submodule HEAD `c21a0bf`) and on `references/Hexalith.Memories` (`0c351ff` vs `5106c93`). Both moves sit uncommitted in the umbrella working tree; the EventStore delta is `efe9791` (nested deps) + `c21a0bf` (docs), touching no Conversations compile input. Separately, `ProjectionReadStorePopulationProofValidationTest` pins `warnings.Length == 3` with `UNDECLARED_GITLINK_CHANGE` for Commons, FrontComposer and Memories as the **expected passing state**, while Dev Notes → D1 still asserts "the final gate returns zero blockers and zero warnings". The Promotion Completion Invariant is currently false for a declared path. Options: (a) restore the drifted gitlinks (matches the recorded precedent for unrelated drift), (b) re-anchor the candidate to a new commit and regenerate the record, (c) declare the additional paths — a scope expansion needing approval. **RESOLVED: (b) re-anchor the candidate and regenerate the final record from measured state.** Declared scope is NOT expanded; the Commons/FrontComposer/Memories movements remain disclosed non-blocking warnings.
+- [x] [Review][Decision] AC7's only runtime proof is opt-in, and dispatch-ledger keys grow without bound — `ConversationsAppHostRuntimeBoundaryTest` self-skips unless `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true` (set nowhere in the repo; there is no CI workflow directory), and when it does run it asserts only `GET /alive` on two resources — no command, no dispatch, no Server→EventStore interaction. The story's own notes record the default lane as "8 passed, 1 opt-in skipped". Separately, `projection:conversations-dispatch:{sha256}` keys are written once per dispatch (including failed ones and every rebuild) and never deleted, expired, or compacted, while `ListAsync` bulk-reads one per indexed conversation on every query. Options: decide whether the boundary lane becomes default-on (needs daprd/Redis in the ordinary lane) and whether ledger retention is TTL, delete-on-supersede, or an accepted operator task. **RESOLVED: strengthen the AC7 boundary lane to assert a real dispatch through the Server→EventStore boundary rather than liveness, and give dispatch-ledger keys a TTL sized to the platform redelivery window.**
+
+#### Patches
+
+- [x] [Review][Patch] A tenant with no conversations reports Rebuilding forever instead of an empty list [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:125] — APPLIED 2026-07-29
+- [x] [Review][Patch] The 5-minute staleness gate makes replay or rebuild of any conversation older than 5 minutes impossible [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:93] — APPLIED 2026-07-29
+- [x] [Review][Patch] Completed-ledger fast path returns Completed without proving either read-model key is durable [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:112] — APPLIED 2026-07-29
+- [x] [Review][Patch] ConversationProjectionConsistencyException escapes three of five read-store consumers uncaught [src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs:92] — APPLIED 2026-07-29
+- [x] [Review][Patch] PrepareRebuildAsync silently drops sibling conversations from the tenant index [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:213] — APPLIED 2026-07-29
+- [x] [Review][Patch] Request fingerprint spans per-delivery fields, so a benign redelivery becomes a terminal Failed [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:362] — APPLIED 2026-07-29
+- [x] [Review][Patch] Decoder resolves any namespace prefix ending in a known alias [src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs:163] — APPLIED 2026-07-29
+- [x] [Review][Patch] ReadAsync returns an unvalidated foreign-tenant model instead of failing closed [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:57] — APPLIED 2026-07-29
+- [x] [Review][Patch] Divergent write policies: detail overwrites unconditionally while the index is highest-position-wins [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs:69] — APPLIED 2026-07-29
+- [x] [Review][Patch] `>=` in the dispatch-reference merge lets a same-position redelivery invalidate a healthy generation [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs:189] — APPLIED 2026-07-29
+- [x] [Review][Patch] Cancellation between PersistAsync and CompleteDispatchAsync wedges fully-written correct data [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:131] — APPLIED 2026-07-29
+- [x] [Review][Patch] Ledger CAS loops spin without backoff and report contention as PartialRetry, the same code the evidence binds to genuine partial writes [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:288] — APPLIED 2026-07-29
+- [x] [Review][Patch] Rebuilding now discloses the existence of a conversation that was previously indistinguishable from absent [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:80] — APPLIED 2026-07-29
+- [x] [Review][Patch] Key template can collide — identifier types permit `:` and the key is built by unescaped concatenation [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs:45] — APPLIED 2026-07-29
+- [x] [Review][Patch] BulkReadAsync validates chunk membership with an O(chunk²) linear scan [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:227] — APPLIED 2026-07-29
+- [x] [Review][Patch] ProjectAsync accepts an empty event batch where PrepareRebuildAsync rejects it [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:81] — APPLIED 2026-07-29
+- [ ] [Review][Patch] Evidence `batchOperationCount: 2` contradicts the shipped three-operation rebuild plan, and the validator pins the stale constant [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:66]
+- [ ] [Review][Patch] ExecutedLiveBoundaryAssertions is incremented but never read — the documented anti-skip guard cannot fail [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs:53]
+- [ ] [Review][Patch] SM-C2 post evidence `sourceCommit` is the literal string `working-tree-candidate-from-29def44…`, bound to no revision [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:322]
+- [ ] [Review][Patch] SmC2BaselineReconstructionValidationTest skips when the source commit is unresolvable, and its `executedChecks == 3` anti-vacuity guard sits after the skip [tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs:130]
+- [ ] [Review][Patch] The consumed-spec inventory exemption is satisfied by a self-attested flag in this story's own evidence [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:255]
+- [x] [Review][Patch] The derived-state-deletion scenario deletes only two of the three derived key families, so the surviving-ledger path is never exercised [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:4446] — APPLIED 2026-07-29
+- [ ] [Review][Patch] The dispatch-ledger key family is absent from the AC5 production-boundary evidence and its key assertions [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:2126]
+- [ ] [Review][Patch] No test proves a second tenant cannot read the first tenant's projection records (ADR 0003 Verification 5) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1]
+- [x] [Review][Patch] Nothing exercises the list query with two conversations — every end-to-end list proof uses a single-row tenant [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:1] — APPLIED 2026-07-29
+- [x] [Review][Patch] ValidateDispatchIdentity and ComputeRequestFingerprint are never exercised in their failing direction [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1] — APPLIED 2026-07-29
+- [ ] [Review][Patch] The new detail Rebuilding branch in ConversationQueryHandler has no test [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:95]
+- [ ] [Review][Patch] Program.cs is executed by no test — host-composition tests re-type its registration sequence instead [tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs:150]
+- [ ] [Review][Patch] BulkReadAsync's hard requirement on IReadModelBulkStore has no test, and its failure maps to Unavailable rather than Rebuilding [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:204]
+- [ ] [Review][Patch] The Git() test helper drains stdout and stderr sequentially and can deadlock; its ancestry assertion message is unreachable [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:2369]
+- [ ] [Review][Patch] AppHost EventStore references are gated on `Configuration == 'Debug'`, and ScaffoldSmokeTest compensates by expecting the same path twice [tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs:197]
+- [ ] [Review][Patch] The AppHost.Tests EventStore.Aspire reference drops the conditional source/package fallback pair every sibling reference uses [tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj:7]
+
+#### Patch application status — 2026-07-29
+
+**19 of 32 patches applied and verified. 13 remain open. Story stays `in-progress`.**
+
+Measured after the applied set, Release, `-p:UseHexalithProjectReferences=true`:
+
+| | |
+| --- | --- |
+| Release build | **0 warnings, 0 errors** |
+| Total across 8 projects | **1,936 tests · 1 failed · 1 skipped** |
+| Server | 642/642 (was 631 — 11 added) |
+| Contracts · Domain · Client · Admin.Web · IntegrationTests | 618 · 185 · 29 · 14 · 14, all green |
+| AppHost | 9, 1 opt-in skipped (the AC7 lane — still open, see D8) |
+| Conformance | 425, **1 failed** |
+
+The single failure is `ProofSourceAndSignedV1BindingsShouldRemainByteIdentical`: the v2 proof binds
+production source hashes and this patch pass changed bound sources. That is the evidence guard doing
+exactly what T1 added it for — it must be closed by regenerating the evidence, never by relaxing the pin.
+
+**Additional defect found while applying D1/D4 — pre-existing, not caused by Story 6.2.**
+`ConversationQueryHandler.HasMixedGenerations` compared `ProjectionCursor` across conversations, but that
+cursor is the per-conversation applied position (`pos:0000000001`). Any tenant holding two conversations at
+different event counts therefore listed as `Rebuilding` with an empty page. Verified byte-identical at
+baseline `29def44`. It is also why every end-to-end list proof in the suite used a single-row tenant. The
+check was removed — cross-key agreement is a per-conversation property, now verified per row — and
+`ListShouldReturnConversationsSittingAtDifferentEventPositions` guards the regression.
+
+**Correction to the finding as originally written:** `ConversationProjectionConsistencyException` escaped
+**one** consumer, not three. `ConversationGovernanceVerificationService` and
+`ConversationAuditRecordAccessService` both already catch `Exception` broadly. Only
+`ConversationPrivilegedOperationalJustificationService` caught three specific types and missed it. The
+governance service did have a separate real defect — it consumed a possibly-foreign-tenant read model with
+no poison guard — which was fixed under the same item.
+
+**Still open (13):** evidence regeneration and the vacuous conformance guards (P9–P13, P15, P27), the
+remaining coverage gaps (P16 cross-tenant read, P19 detail Rebuilding branch, P20 executing `Program.cs`,
+P31 non-bulk store), the AppHost csproj conditions (P28, P29), plus decisions D3 (SM-C2 re-measure), D7
+(re-anchor + regenerate) and D8 (AC7 lane + ledger TTL). D6's source change is applied on both sides with
+ownership tests, but the EventStore submodule commit and push are **not** made.
+
+#### Deferred
+
+- [x] [Review][Defer] The tenant index remains a single state-store value, now also carrying a per-conversation dispatch map, with no size guard [src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs:26] — deferred, pre-existing single-key index design
+- [x] [Review][Defer] SameSummary compares serialized form, so any `[JsonIgnore]` or non-public member compares equal [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:273] — deferred, pre-existing comparison approach
 
 ## Dev Notes
 
@@ -605,6 +703,12 @@ They now require the stronger generated-record invariants: one generated block, 
 identical to the declared list, no drift, no warnings, and read-only historical verification.
 The generator and promotion workflow suite passes 129/129.
 
+**Final candidate re-anchored (2026-07-29).** Because the historical-record regression is a
+tracked completion guard, it and the completion metadata were committed before the gates at
+candidate `dc69719`. The complete Release build and all eight test projects were rerun after
+that commit. Both gates pass at the new fixed candidate with the same 86 derived paths and
+computed totals of 1,925 passed, 0 failed, and 0 skipped; the workflow suite remains 129/129.
+
 ### Completion Notes List
 
 - **2026-07-29 workflow compatibility:** updated the historical verifier regression to treat
@@ -612,7 +716,7 @@ The generator and promotion workflow suite passes 129/129.
   malformed generated records; all 129 generator/promotion tests pass.
 
 - **2026-07-29 review handoff:** the mechanical final record now passes at fixed candidate
-  `e74e542f2b87ecadd87b40e15052bcedb3866c59`, with the generator-derived File List and
+  `dc69719a9ce7c25bb9755827f19c7e1ce2a87287`, with the generator-derived File List and
   test totals embedded verbatim. Story 6.2 is ready for independent code review.
 
 - **2026-07-29 completion revalidation:** repaired the proof's stale candidate binding from
@@ -686,7 +790,7 @@ The generator and promotion workflow suite passes 129/129.
 
 Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 86 file-list path(s) · 6 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `e74e542f2b87ecadd87b40e15052bcedb3866c59`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c25bb9755827f19c7e1ce2a87287`.
 
 ### File List
 
@@ -792,19 +896,19 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `e74e542f2b87e
 
 | Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- |
-| Conformance | PARSED | 425 | 425 | 0 | 0 | `404057b5152d48aa` |
-| Server | PARSED | 631 | 631 | 0 | 0 | `f419fcdad8976d9c` |
-| Contracts | PARSED | 618 | 618 | 0 | 0 | `feff3811ee9cb640` |
-| Domain | PARSED | 185 | 185 | 0 | 0 | `086dbaeb569fea33` |
-| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `8b467c22473c85c8` |
-| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `7bda3a7c2985547e` |
-| Client | PARSED | 29 | 29 | 0 | 0 | `5e0127943d2996c9` |
-| AppHost | PARSED | 9 | 9 | 0 | 0 | `c92b55a01598bb12` |
+| Conformance | PARSED | 425 | 425 | 0 | 0 | `a2ee55816f9f1f1a` |
+| Server | PARSED | 631 | 631 | 0 | 0 | `405d50034187cb8d` |
+| Contracts | PARSED | 618 | 618 | 0 | 0 | `bee6bcaf120103e9` |
+| Domain | PARSED | 185 | 185 | 0 | 0 | `8a0079af7a27f05c` |
+| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `a224fa89e7337052` |
+| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `581dbef5cc24c3cb` |
+| Client | PARSED | 29 | 29 | 0 | 0 | `819e8b1ececb4f30` |
+| AppHost | PARSED | 9 | 9 | 0 | 0 | `be0edf7559824a31` |
 | **Total (computed)** | **8 parsed** | **1925** | **1925** | **0** | **0** | — |
 
 ### Candidate Binding
 
-- Candidate `e74e542f2b87ecadd87b40e15052bcedb3866c59` · committed head `e74e542f2b87ecadd87b40e15052bcedb3866c59` · ancestor of head: **yes**
+- Candidate `dc69719a9ce7c25bb9755827f19c7e1ce2a87287` · committed head `dc69719a9ce7c25bb9755827f19c7e1ce2a87287` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 
 ### Promotion Completion Gate
@@ -820,8 +924,9 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `e74e542f2b87e
 
 | Date | Change |
 | --- | --- |
+| 2026-07-29 | Re-anchored the final record at candidate `dc69719` after committing the historical-record guard; reran the Release build and all eight test projects before regenerating the bound record. |
 | 2026-07-29 | Updated the historical-record regression from the obsolete pre-generator Story 6.2 expectation to strict generated-record verification; generator/promotion workflow suite is 129/129. |
-| 2026-07-29 | Replaced the legacy File List with the mechanically derived 86-path inventory, inserted the passing final record verbatim at candidate `e74e542`, bound `file_list_commit`, and moved the story to `review`. |
+| 2026-07-29 | Replaced the legacy File List with the mechanically derived 86-path inventory, inserted the passing final record verbatim, bound `file_list_commit`, and moved the story to `review`. |
 | 2026-07-29 | Rebound stale projection proof evidence to the current committed gitlink state without expanding the approved three-path promotion scope; refreshed its validator pins and reran the Release build plus all eight test-project lanes, including the opt-in live AppHost boundary. |
 | 2026-07-28 | Code review: implemented all 18 selected adversarial findings; added stable dispatch-ledger consistency, bounded bulk reads, strict decode/rebuild behavior, real AppHost runtime coverage, and the production endpoint/Data Protection fixes revealed by that launch. Returned story to `in-progress` pending evidence regeneration and EventStore promotion capture. |
 | 2026-07-27 | T1 closed: v2 proof evidence and its conformance validator rebound from `0eb3657`/`b11b0c7` to `c8c7003`/candidate `c398ea2`, with the promoted-capability delta measured and recorded, and a git-backed re-derivation added so the binding can go red instead of stale. |

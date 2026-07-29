@@ -20,6 +20,7 @@ using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.Conversations.Testing.Fixtures;
 using Hexalith.EventStore.Client.Queries;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.Extensions.DependencyInjection;
@@ -341,11 +342,17 @@ public sealed class ConversationBuyerAcceptanceDemoServiceTest
             return ValueTask.FromResult(_authorized.GetValueOrDefault(conversationId));
         }
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult<IReadOnlyList<ConversationSummaryProjectionV1>>(
-                [_authorized.Values.Single(model => model.Summary.ConversationId.Value == "conversation-demo-full").Summary]);
+            => ValueTask.FromResult(((IReadOnlyList<ConversationSummaryProjectionV1>)[_authorized.Values.Single(model => model.Summary.ConversationId.Value == "conversation-demo-full").Summary]).ToConsistentSnapshot());
     }
 
     private sealed class FakeTenantAccessService(TenantId authorizedTenantId) : IConversationTenantAccessService

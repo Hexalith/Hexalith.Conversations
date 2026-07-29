@@ -285,9 +285,16 @@ public sealed class ConversationProjectionReadServiceTest
             return ValueTask.FromResult(Models);
         }
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult<IReadOnlyList<ConversationSummaryProjectionV1>>([]);
+            => ValueTask.FromResult(ConversationProjectionIndexSnapshot.Empty);
     }
 }

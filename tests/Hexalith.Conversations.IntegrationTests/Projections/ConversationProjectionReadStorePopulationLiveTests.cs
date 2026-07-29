@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Events;
@@ -104,12 +106,24 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         accepted.Outcomes.ShouldHaveSingleItem().Status.ShouldBe(ProjectionDispatchStatus.Completed);
         (ConversationDetailResult beforeDetail, ConversationListResult beforeList) = await QueryAsync(scope.ServiceProvider);
 
+        // Erase EVERY derived key family, including the dispatch ledger. Leaving the ledger behind would make
+        // this a partial deletion and would never exercise the surviving-ledger path
+        // (see LedgerSurvivingDerivedStateDeletionShouldNotReportAFalseCompletion below).
         await EraseAsync(store, ConversationKey());
         await EraseAsync(store, TenantIndexKey());
+        await EraseAsync(store, DispatchLedgerKey("dispatch-live-before-delete"));
 
         (ConversationDetailResult deletedDetail, ConversationListResult deletedList) = await QueryAsync(scope.ServiceProvider);
+
+        // The detail read cannot serve a generation that is gone.
         deletedDetail.FreshnessState.ShouldNotBe(ProjectionTrustState.Current);
-        deletedList.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        deletedDetail.Details.ShouldBeNull();
+
+        // The list reports an empty tenant. This is the deliberate trade-off behind treating an absent index as
+        // an empty tenant rather than an inconsistency: a read store cannot distinguish "derived state was
+        // erased" from "this tenant has never held a conversation" without consulting EventStore, and queries
+        // are forbidden from replaying. The alternative — failing closed on an absent index — left every new
+        // tenant permanently Rebuilding with an empty page. Convergence is proven by the rebuild below.
         deletedList.Conversations.ShouldBeEmpty();
 
         ProjectionDispatchRequest rebuildRequest = DispatchRequest("rebuild-live-001");
@@ -147,7 +161,6 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         builder.Services.AddSingleton<IReadModelBatchStore>(store);
         builder.Services.AddSingleton<IReadModelBatchStagingStore>(store);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowTenantAccessService());
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
         return builder.Build();
     }
@@ -222,6 +235,15 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
 
     private static string TenantIndexKey()
         => $"projection:conversations-index:{Tenant.Value}";
+
+    /// <summary>
+    /// Builds the third derived key family this route writes, derived the same way production does so the test
+    /// cannot drift from the real key shape.
+    /// </summary>
+    /// <param name="dispatchId">The stable dispatch identity.</param>
+    /// <returns>The dispatch-ledger state-store key.</returns>
+    private static string DispatchLedgerKey(string dispatchId)
+        => $"projection:conversations-dispatch:{Convert.ToHexStringLower(SHA256.HashData(Encoding.UTF8.GetBytes(dispatchId)))}";
 
     private sealed class AllowTenantAccessService : IConversationTenantAccessService
     {

@@ -14,6 +14,7 @@ using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Server.Governance;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 namespace Hexalith.Conversations.Server.Tests.Governance;
 
@@ -456,10 +457,17 @@ public sealed class ConversationPrivilegedOperationalJustificationServiceTest
             return ValueTask.FromResult(Models);
         }
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult((IReadOnlyList<ConversationSummaryProjectionV1>)[]);
+            => ValueTask.FromResult(ConversationProjectionIndexSnapshot.Empty);
     }
 
     private sealed class FakeGovernanceAuditService : IConversationGovernanceAuditService

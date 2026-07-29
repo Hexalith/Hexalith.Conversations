@@ -19,6 +19,7 @@ using Hexalith.Conversations.Server.Governance;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -713,10 +714,17 @@ public sealed class ConversationGovernanceVerificationServiceTest
             return ValueTask.FromResult<ConversationProjectedReadModels?>(models);
         }
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult<IReadOnlyList<ConversationSummaryProjectionV1>>([models.Summary]);
+            => ValueTask.FromResult(((IReadOnlyList<ConversationSummaryProjectionV1>)[models.Summary]).ToConsistentSnapshot());
     }
 
     private sealed class StaticTemporalEventSource(ConversationTemporalEventSourceResult result) : IConversationTemporalEventSource

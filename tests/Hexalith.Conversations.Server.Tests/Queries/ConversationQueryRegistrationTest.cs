@@ -9,6 +9,7 @@ using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Queries;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -65,9 +66,16 @@ public sealed class ConversationQueryRegistrationTest
             CancellationToken cancellationToken = default)
             => ValueTask.FromResult<ConversationProjectedReadModels?>(null);
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult((IReadOnlyList<ConversationSummaryProjectionV1>)[]);
+            => ValueTask.FromResult(ConversationProjectionIndexSnapshot.Empty);
     }
 }

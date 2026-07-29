@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Collections.Frozen;
 using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 
@@ -53,6 +54,17 @@ internal static class ConversationProjectionEventDecoder
     private static readonly PolymorphicTypeRegistry PublicEventTypes = BuildPublicEventTypeRegistry();
 
     private static readonly PolymorphicTypeRegistry DurableEventTypes = BuildDurableEventTypeRegistry();
+
+    /// <summary>
+    /// The namespaces a qualified discriminator is allowed to carry, derived from the registered types.
+    /// </summary>
+    /// <remarks>
+    /// Suffix resolution alone would accept any prefix, so an envelope from an unrelated bounded context named
+    /// <c>Other.Context.ConversationCreatedDomainEvent</c> would decode as a Conversations event and be
+    /// materialized into a tenant read model. Requiring the prefix to be a namespace this module actually
+    /// declares closes that without pinning literal strings the type list could drift away from.
+    /// </remarks>
+    private static readonly FrozenSet<string> QualifyingNamespaces = BuildQualifyingNamespaces();
 
     internal static IReadOnlyDictionary<string, Type> PublicEventTypeEntries => PublicEventTypes.Entries;
 
@@ -118,6 +130,15 @@ internal static class ConversationProjectionEventDecoder
         => TryResolveExactOrQualified(PublicEventTypes, eventTypeName, out eventType)
             || TryResolveExactOrQualified(DurableEventTypes, eventTypeName, out eventType);
 
+    private static FrozenSet<string> BuildQualifyingNamespaces()
+        => PublicContractEventTypes
+            .Select(static type => type.Namespace)
+            .Concat(DurableProjectedEventTypes.Select(static pair => pair.DurableType.Namespace))
+            .Concat(DurableProjectedEventTypes.Select(static pair => pair.PublicType.Namespace))
+            .Where(static candidate => !string.IsNullOrEmpty(candidate))
+            .Select(static candidate => candidate!)
+            .ToFrozenSet(StringComparer.Ordinal);
+
     private static PolymorphicTypeRegistry BuildPublicEventTypeRegistry()
         => PolymorphicTypeRegistry.FromTypeNames(PublicContractEventTypes);
 
@@ -165,7 +186,8 @@ internal static class ConversationProjectionEventDecoder
             int separatorIndex = discriminator.Length - alias.Length - 1;
             if (separatorIndex >= 0
                 && discriminator.EndsWith(alias, StringComparison.Ordinal)
-                && discriminator[separatorIndex] is '.' or '+')
+                && discriminator[separatorIndex] is '.' or '+'
+                && QualifyingNamespaces.Contains(discriminator[..separatorIndex]))
             {
                 eventType = registeredType;
                 return true;

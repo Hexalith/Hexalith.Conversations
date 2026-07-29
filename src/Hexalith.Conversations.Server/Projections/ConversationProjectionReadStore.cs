@@ -16,12 +16,21 @@ namespace Hexalith.Conversations.Server.Projections;
 /// through the shared EventStore <see cref="IReadModelStore"/> by stable, tenant-scoped key.
 /// </summary>
 /// <remarks>
+/// <para>
 /// This closes the production read-store binding deferred from Story 2.3: the five query/governance services
 /// that require <see cref="IConversationProjectionReadStore"/> now resolve from the real host. The read side
 /// is intentionally thin — authorization, freshness gating, and the fail-closed shapes stay in
 /// <see cref="ConversationProjectionReadService"/> and <see cref="Queries.ConversationQueryHandler"/>, which
 /// authorize before any store read. A different tenant resolves to a different key, so cross-tenant reads are
 /// impossible by construction.
+/// </para>
+/// <para>
+/// Cross-key generation consistency is scoped to the conversation, never to the tenant. A conversation whose
+/// detail key, index entry and dispatch ledger disagree is withheld and reported through
+/// <see cref="ValidatePageAsync"/>; unrelated conversations in the same tenant stay readable. Listing reads
+/// the index once and verifies only the requested page, so the cost of a list is proportional to the page and
+/// not to the tenant's conversation count.
+/// </para>
 /// </remarks>
 public sealed class ConversationProjectionReadStore : IConversationProjectionReadStore
 {
@@ -54,6 +63,10 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             .ConfigureAwait(false);
 
         ConversationProjectedReadModels? models = entry.Value;
+
+        // A misfiled or poisoned record is returned unvalidated on purpose: the caller's poison guard maps it
+        // to Forbidden/PoisonEvent, which is a stronger and more specific signal than a generation conflict.
+        // Every caller must apply that guard — see ConversationProjectionReadService.ProjectionMatchesRequest.
         if (models is not null
             && (models.Summary.TenantId != tenantId
                 || models.Detail.TenantId != tenantId
@@ -77,7 +90,10 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
             conversationId.Value,
             out dispatchReference) == true;
 
-        if (models is null && indexed.Length == 0 && !hasDispatch)
+        // Nothing persisted for this conversation. A pending dispatch marker alone must not make an
+        // unbuilt conversation distinguishable from one that never existed: the caller maps null to the same
+        // non-disclosing shape it uses for an unknown identifier.
+        if (models is null && indexed.Length == 0)
         {
             return null;
         }
@@ -109,7 +125,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
     }
 
     /// <inheritdoc/>
-    public async ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+    public async ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
         TenantId tenantId,
         CancellationToken cancellationToken = default)
     {
@@ -122,57 +138,106 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 cancellationToken)
             .ConfigureAwait(false);
 
+        // A tenant that has never had a conversation has no index key. That is an empty tenant, not a
+        // cross-key inconsistency, and it must read as an empty current page.
         if (entry.Value is null)
         {
-            throw new ConversationProjectionConsistencyException();
+            return ConversationProjectionIndexSnapshot.Empty;
         }
 
         IReadOnlyList<ConversationSummaryProjectionV1> summaries = entry.Value.Summaries;
-        if (summaries.Select(summary => summary.ConversationId.Value).Distinct(StringComparer.Ordinal).Count() != summaries.Count
-            || entry.Value.Dispatches.Count != summaries.Count)
+
+        // The index naming one conversation twice is structural corruption of the index itself: no page taken
+        // from it can be trusted, so this is the one tenant-scoped failure that remains.
+        if (summaries.Select(summary => summary.ConversationId.Value).Distinct(StringComparer.Ordinal).Count() != summaries.Count)
         {
             throw new ConversationProjectionConsistencyException();
         }
 
-        string[] detailKeys = [.. summaries.Select(summary =>
+        IReadOnlyDictionary<string, ConversationProjectionDispatchReference> dispatches = entry.Value.Dispatches;
+        Dictionary<string, long> positions = summaries.ToDictionary(
+            summary => summary.ConversationId.Value,
+            summary => summary.Freshness.LastAppliedEventPosition,
+            StringComparer.Ordinal);
+
+        // A dispatch reference the summaries do not reflect means an accepted conversation may be missing from
+        // every page. Callers must not report such a page as current, but they may still return the rows they
+        // hold: an omission degrades freshness, it does not invalidate unrelated conversations.
+        bool hasIncompleteDispatch = dispatches.Any(pair =>
+            !positions.TryGetValue(pair.Key, out long position)
+            || position != pair.Value.LastAppliedEventPosition
+            || string.IsNullOrWhiteSpace(pair.Value.DispatchId));
+
+        return new ConversationProjectionIndexSnapshot
+        {
+            Summaries = summaries,
+            Dispatches = dispatches,
+            HasIncompleteDispatch = hasIncompleteDispatch,
+        };
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+        TenantId tenantId,
+        ConversationProjectionIndexSnapshot snapshot,
+        IReadOnlyList<ConversationSummaryProjectionV1> page,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(tenantId);
+        ArgumentNullException.ThrowIfNull(snapshot);
+        ArgumentNullException.ThrowIfNull(page);
+
+        HashSet<string> inconsistent = new(StringComparer.Ordinal);
+        if (page.Count == 0)
+        {
+            return inconsistent;
+        }
+
+        List<ConversationSummaryProjectionV1> verifiable = [];
+        Dictionary<string, ConversationProjectionDispatchReference> references = new(StringComparer.Ordinal);
+        foreach (ConversationSummaryProjectionV1 summary in page)
+        {
+            string conversationId = summary.ConversationId.Value;
+            if (summary.TenantId != tenantId
+                || !snapshot.Dispatches.TryGetValue(conversationId, out ConversationProjectionDispatchReference? reference)
+                || reference is null
+                || string.IsNullOrWhiteSpace(reference.DispatchId)
+                || reference.LastAppliedEventPosition != summary.Freshness.LastAppliedEventPosition)
+            {
+                _ = inconsistent.Add(conversationId);
+                continue;
+            }
+
+            verifiable.Add(summary);
+            references[conversationId] = reference;
+        }
+
+        if (verifiable.Count == 0)
+        {
+            return inconsistent;
+        }
+
+        string[] detailKeys = [.. verifiable.Select(summary =>
             ConversationProjectionReadModelKeys.ConversationKey(tenantId, summary.ConversationId))];
         IReadOnlyDictionary<string, ConversationProjectedReadModels?> details = await BulkReadAsync<ConversationProjectedReadModels>(
             detailKeys,
             cancellationToken).ConfigureAwait(false);
 
-        ConversationProjectionDispatchReference[] references = new ConversationProjectionDispatchReference[summaries.Count];
-        for (int index = 0; index < summaries.Count; index++)
-        {
-            ConversationSummaryProjectionV1 summary = summaries[index];
-            if (summary.TenantId != tenantId
-                || !entry.Value.Dispatches.TryGetValue(
-                    summary.ConversationId.Value,
-                    out ConversationProjectionDispatchReference? reference)
-                || reference is null
-                || string.IsNullOrWhiteSpace(reference.DispatchId)
-                || reference.LastAppliedEventPosition != summary.Freshness.LastAppliedEventPosition)
-            {
-                throw new ConversationProjectionConsistencyException();
-            }
-
-            references[index] = reference;
-        }
-
-        string[] ledgerKeys = [.. references
+        string[] ledgerKeys = [.. references.Values
             .Select(reference => ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId))
             .Distinct(StringComparer.Ordinal)];
         IReadOnlyDictionary<string, ConversationProjectionDispatchLedger?> ledgers = await BulkReadAsync<ConversationProjectionDispatchLedger>(
             ledgerKeys,
             cancellationToken).ConfigureAwait(false);
 
-        for (int index = 0; index < summaries.Count; index++)
+        for (int index = 0; index < verifiable.Count; index++)
         {
-            ConversationSummaryProjectionV1 summary = summaries[index];
-            ConversationProjectionDispatchReference reference = references[index];
-            string detailKey = detailKeys[index];
-            string ledgerKey = ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId);
-            ConversationProjectedReadModels? models = details[detailKey];
-            ConversationProjectionDispatchLedger? ledger = ledgers[ledgerKey];
+            ConversationSummaryProjectionV1 summary = verifiable[index];
+            string conversationId = summary.ConversationId.Value;
+            ConversationProjectionDispatchReference reference = references[conversationId];
+            ConversationProjectedReadModels? models = details[detailKeys[index]];
+            ConversationProjectionDispatchLedger? ledger = ledgers[
+                ConversationProjectionReadModelKeys.DispatchLedgerKey(reference.DispatchId)];
             if (models is null
                 || ledger is null
                 || ledger.Status != ConversationProjectionDispatchStatus.Completed
@@ -189,11 +254,11 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
                 || !SameGeneration(summary.Freshness, models.Detail.Freshness)
                 || ledger.ProjectionGeneratedAt.UtcTicks != summary.Freshness.ProjectionGeneratedAt.UtcTicks)
             {
-                throw new ConversationProjectionConsistencyException();
+                _ = inconsistent.Add(conversationId);
             }
         }
 
-        return summaries;
+        return inconsistent;
     }
 
     private async Task<IReadOnlyDictionary<string, TValue?>> BulkReadAsync<TValue>(
@@ -209,6 +274,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
         var values = new Dictionary<string, TValue?>(keys.Count, StringComparer.Ordinal);
         foreach (string[] chunk in keys.Chunk(BulkReadChunkSize))
         {
+            HashSet<string> requested = new(chunk, StringComparer.Ordinal);
             IReadOnlyList<ReadModelBulkEntry<TValue>> entries = await bulkStore
                 .GetManyAsync<TValue>(
                     ConversationProjectionReadModelKeys.StateStoreName,
@@ -224,7 +290,7 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 
             foreach (ReadModelBulkEntry<TValue> item in entries)
             {
-                if (!chunk.Contains(item.Key, StringComparer.Ordinal))
+                if (!requested.Contains(item.Key))
                 {
                     throw new ConversationProjectionConsistencyException();
                 }

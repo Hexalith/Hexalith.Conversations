@@ -3,7 +3,9 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 
 using Hexalith.Conversations.Contracts.Identifiers;
@@ -30,8 +32,9 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
     public const string ConversationReadModelProjectionType = "conversation-read-model";
 
     private static readonly TimeSpan DefaultStaleAfter = TimeSpan.FromMinutes(5);
-    private static readonly JsonSerializerOptions FingerprintJsonOptions = new(JsonSerializerDefaults.Web);
+    private static readonly byte[] FingerprintSeparator = [0x1F];
     private const int DispatchLedgerRetryCount = 5;
+    private const int DispatchLedgerBackoffMilliseconds = 5;
 
     private readonly ConversationProjectionMaterializer _materializer;
     private readonly IReadModelStore _store;
@@ -75,6 +78,13 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.UnsupportedRoute);
         }
 
+        // Both entry points reject an empty slice the same way: PrepareRebuildAsync throws a typed rejection,
+        // so immediate dispatch must not quietly rely on the freshness gate to notice.
+        if (request.Events is not { Length: > 0 })
+        {
+            return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.HandlerFailure);
+        }
+
         IReadOnlyList<ConversationProjectionEventRecord> events;
         try
         {
@@ -90,8 +100,8 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
         try
         {
             ConversationProjectedReadModels candidate = Materialize(request, events, candidateGeneratedAt);
-            if (!candidate.Detail.Freshness.AllowsTrustBearingDecision()
-                || !candidate.Summary.Freshness.AllowsTrustBearingDecision())
+            if (!AllowsPersistence(candidate.Detail.Freshness)
+                || !AllowsPersistence(candidate.Summary.Freshness))
             {
                 return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.HandlerFailure);
             }
@@ -109,7 +119,12 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 requestFingerprint,
                 candidateGeneratedAt,
                 cancellationToken).ConfigureAwait(false);
-            if (ledger.Status == ConversationProjectionDispatchStatus.Completed)
+            // A completed ledger is only a completion if the generation it describes is still readable. The
+            // ledger lives under a third key family, so derived-state deletion or a store rollback can leave it
+            // behind after both read-model keys are gone. Reporting Completed from the ledger alone would then
+            // claim a durable generation no reader can observe; re-persisting instead converges idempotently.
+            if (ledger.Status == ConversationProjectionDispatchStatus.Completed
+                && await GenerationIsDurableAsync(request, dispatchId, cancellationToken).ConfigureAwait(false))
             {
                 return DomainProjectionHandlerResult.Completed();
             }
@@ -121,15 +136,18 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             {
                 DispatchId = dispatchId,
             };
-            if (!models.Detail.Freshness.AllowsTrustBearingDecision()
-                || !models.Summary.Freshness.AllowsTrustBearingDecision())
+            if (!AllowsPersistence(models.Detail.Freshness)
+                || !AllowsPersistence(models.Summary.Freshness))
             {
                 return DomainProjectionHandlerResult.Failed(ProjectionDispatchReasonCodes.HandlerFailure);
             }
 
             await _writer.MarkPendingAsync(models, cancellationToken).ConfigureAwait(false);
             await _writer.PersistAsync(models, cancellationToken).ConfigureAwait(false);
-            await CompleteDispatchAsync(ledger, cancellationToken).ConfigureAwait(false);
+
+            // Both keys are durable at this point. Completing the ledger under an already-cancelled token would
+            // leave a correct generation that every reader refuses, so completion is not cancellable.
+            await CompleteDispatchAsync(ledger, CancellationToken.None).ConfigureAwait(false);
             return DomainProjectionHandlerResult.Completed();
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -185,8 +203,8 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.HandlerFailure);
         }
 
-        if (!models.Detail.Freshness.AllowsTrustBearingDecision()
-            || !models.Summary.Freshness.AllowsTrustBearingDecision())
+        if (!AllowsPersistence(models.Detail.Freshness)
+            || !AllowsPersistence(models.Summary.Freshness))
         {
             throw new DomainProjectionRebuildRejectedException(ProjectionDispatchReasonCodes.HandlerFailure);
         }
@@ -210,6 +228,11 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 cancellationToken)
             .ConfigureAwait(false);
 
+        // Rebuilding one conversation replaces the whole index value, so every sibling must survive it intact.
+        // Foreign-tenant rows and duplicate entries are sanitized because they are corruption; a sibling whose
+        // dispatch reference does not currently match its summary is mid-flight, not corrupt, and dropping it
+        // would delete a live conversation from every page. Per-row verification withholds such a row at read
+        // time without this plan having to destroy it.
         Dictionary<string, ConversationSummaryProjectionV1> retained = (persistedIndex.Value?.Summaries ?? [])
             .Where(summary => summary.TenantId == models.Summary.TenantId)
             .Where(summary => summary.ConversationId != models.Summary.ConversationId)
@@ -218,17 +241,16 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
                 .OrderByDescending(summary => summary.Freshness.LastAppliedEventPosition)
                 .ThenByDescending(summary => summary.Freshness.ProjectionGeneratedAt)
                 .First())
-            .Where(summary => persistedIndex.Value!.Dispatches.TryGetValue(
-                    summary.ConversationId.Value,
-                    out ConversationProjectionDispatchReference? reference)
-                && reference.LastAppliedEventPosition == summary.Freshness.LastAppliedEventPosition
-                && !string.IsNullOrWhiteSpace(reference.DispatchId))
             .ToDictionary(summary => summary.ConversationId.Value, StringComparer.Ordinal);
-        Dictionary<string, ConversationProjectionDispatchReference> dispatches = retained.Keys
-            .ToDictionary(
-                static conversationId => conversationId,
-                conversationId => persistedIndex.Value!.Dispatches[conversationId],
-                StringComparer.Ordinal);
+        Dictionary<string, ConversationProjectionDispatchReference> dispatches = new(StringComparer.Ordinal);
+        foreach ((string conversationId, ConversationProjectionDispatchReference reference)
+            in persistedIndex.Value?.Dispatches ?? new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal))
+        {
+            if (retained.ContainsKey(conversationId) && !string.IsNullOrWhiteSpace(reference.DispatchId))
+            {
+                dispatches[conversationId] = reference;
+            }
+        }
         retained[models.Summary.ConversationId.Value] = models.Summary;
         dispatches[models.Summary.ConversationId.Value] = new(
             operationId,
@@ -315,6 +337,10 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             {
                 return pending;
             }
+
+            // Yield between attempts. A tight read/compare-and-set loop burns the whole budget in microseconds
+            // under contention, turning a condition that would resolve on its own into a retry storm.
+            await BackoffAsync(attempt, cancellationToken).ConfigureAwait(false);
         }
 
         throw new InvalidOperationException("The projection dispatch ledger concurrency budget was exhausted.");
@@ -354,14 +380,101 @@ public sealed class ConversationAsyncProjectionHandler : IAsyncDomainProjectionR
             {
                 return;
             }
+
+            await BackoffAsync(attempt, cancellationToken).ConfigureAwait(false);
         }
 
         throw new InvalidOperationException("The projection dispatch completion concurrency budget was exhausted.");
     }
 
+    private static Task BackoffAsync(int attempt, CancellationToken cancellationToken)
+        => Task.Delay(
+            TimeSpan.FromMilliseconds(DispatchLedgerBackoffMilliseconds * (attempt + 1)),
+            cancellationToken);
+
+    /// <summary>
+    /// Binds a stable dispatch identity to <b>what</b> is being projected, not to how one delivery happened to
+    /// be shaped.
+    /// </summary>
+    /// <remarks>
+    /// Correlation identifiers, message identifiers, user identifiers, delivery timestamps and backfilled
+    /// global positions legitimately differ between two deliveries of the same dispatch. Hashing the whole
+    /// serialized request would treat those differences as identity reuse and fail the dispatch terminally, so
+    /// the fingerprint covers only the route, the tenant, the aggregate, and each event's sequence, type and
+    /// payload — the values that must not change under one dispatch identity.
+    /// </remarks>
     private static string ComputeRequestFingerprint(ProjectionRequest request)
-        => Convert.ToHexStringLower(SHA256.HashData(
-            JsonSerializer.SerializeToUtf8Bytes(request, FingerprintJsonOptions)));
+    {
+        using IncrementalHash hash = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+        AppendFingerprintSegment(hash, request.Domain);
+        AppendFingerprintSegment(hash, request.TenantId);
+        AppendFingerprintSegment(hash, request.AggregateId);
+        foreach (ProjectionEventDto evt in request.Events ?? [])
+        {
+            AppendFingerprintSegment(hash, evt.SequenceNumber.ToString(CultureInfo.InvariantCulture));
+            AppendFingerprintSegment(hash, evt.EventTypeName);
+            AppendFingerprintSegment(hash, evt.SerializationFormat);
+            hash.AppendData(evt.Payload ?? []);
+            hash.AppendData(FingerprintSeparator);
+        }
+
+        return Convert.ToHexStringLower(hash.GetHashAndReset());
+    }
+
+    private static void AppendFingerprintSegment(IncrementalHash hash, string? value)
+    {
+        hash.AppendData(Encoding.UTF8.GetBytes(value ?? string.Empty));
+        hash.AppendData(FingerprintSeparator);
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether a materialization may be persisted under this freshness.
+    /// </summary>
+    /// <remarks>
+    /// Staleness is a read-time trust signal describing how far behind a projection is; it is not a reason to
+    /// refuse to write. Gating persistence on <c>!IsStale</c> would make replay or rebuild of any conversation
+    /// whose newest event is older than <see cref="DefaultStaleAfter"/> permanently impossible — which is
+    /// exactly what full replay exists to do — and would make any projection outage longer than that threshold
+    /// unrecoverable. Gaps, out-of-order delivery, unsupported versions, contradictory metadata and
+    /// never-created aggregates still block, because those describe a materialization that is wrong rather
+    /// than merely late.
+    /// </remarks>
+    private static bool AllowsPersistence(ProjectionFreshnessV1 freshness)
+        => (freshness.FreshnessState == ProjectionTrustState.Current
+                || freshness.FreshnessState == ProjectionTrustState.Stale)
+            && (freshness.ReasonCode == ProjectionFreshnessReasonCode.Current
+                || freshness.ReasonCode == ProjectionFreshnessReasonCode.StaleThresholdExceeded);
+
+    private async Task<bool> GenerationIsDurableAsync(
+        ProjectionRequest request,
+        string dispatchId,
+        CancellationToken cancellationToken)
+    {
+        TenantId tenantId = new(request.TenantId);
+        ConversationId conversationId = new(request.AggregateId);
+        ReadModelEntry<ConversationProjectedReadModels> detail = await _store
+            .GetAsync<ConversationProjectedReadModels>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.ConversationKey(tenantId, conversationId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        if (detail.Value is null
+            || !string.Equals(detail.Value.DispatchId, dispatchId, StringComparison.Ordinal))
+        {
+            return false;
+        }
+
+        ReadModelEntry<ConversationProjectionIndexReadModel> index = await _store
+            .GetAsync<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(tenantId),
+                cancellationToken)
+            .ConfigureAwait(false);
+        return index.Value is not null
+            && index.Value.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? reference)
+            && string.Equals(reference.DispatchId, dispatchId, StringComparison.Ordinal)
+            && index.Value.Summaries.Any(summary => summary.ConversationId == conversationId);
+    }
 
     private static ConversationProjectionDispatchLedger ValidateDispatchIdentity(
         ConversationProjectionDispatchLedger ledger,

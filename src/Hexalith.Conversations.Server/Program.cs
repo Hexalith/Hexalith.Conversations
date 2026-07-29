@@ -29,8 +29,6 @@ builder.AddEventStoreDomainService(
 // (IQueryCursorCodec, Data Protection backed) the /query dispatch path constructs. The SDK assembly scan
 // discovers the adapter type itself; this registers its dependency graph.
 builder.Services.AddConversationTenantAccess();
-
-builder.Services.AddDataProtection();
 builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();

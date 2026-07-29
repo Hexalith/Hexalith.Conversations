@@ -178,7 +178,7 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), unknown)));
+        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), unknown));
     }
 
     /// <summary>
@@ -329,7 +329,7 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(1),
             "correlation-001");
 
-        Should.Throw<JsonException>(() => Handler().Project(Request(emptyPayload)));
+        ShouldDegradeRatherThanFault(Request(emptyPayload));
     }
 
     /// <summary>
@@ -346,7 +346,7 @@ public sealed class ConversationProjectionHandlerTest
             Started,
             "correlation-001");
 
-        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), nonPositive)));
+        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), nonPositive));
     }
 
     /// <summary>
@@ -363,7 +363,7 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), unsupported)));
+        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), unsupported));
     }
 
     /// <summary>
@@ -382,7 +382,7 @@ public sealed class ConversationProjectionHandlerTest
             Started.AddSeconds(2),
             "correlation-001");
 
-        Should.Throw<JsonException>(() => Handler().Project(Request(Dto(1, Created(1)), malformed)));
+        ShouldDegradeRatherThanFault(Request(Dto(1, Created(1)), malformed));
     }
 
     private static ConversationProjectionHandler Handler()
@@ -390,6 +390,30 @@ public sealed class ConversationProjectionHandlerTest
 
     private static ConversationProjectionHandler Handler(DateTimeOffset clock)
         => new(new ConversationProjectionMaterializer(), new FixedTimeProvider(clock));
+
+
+    /// <summary>
+    /// Asserts the version-1 seam's documented contract for an envelope it cannot decode: degrade the
+    /// generation so it can never be reported current, rather than faulting out of
+    /// <see cref="Hexalith.EventStore.Contracts.Projections.IDomainProjectionHandler.Project"/>.
+    /// </summary>
+    /// <param name="request">The undecodable projection request.</param>
+    /// <remarks>
+    /// The named asynchronous route is the strict one — <c>ConversationAsyncProjectionHandler</c> maps the same
+    /// envelope to a typed platform outcome the dispatcher can retry or quarantine. Propagating that strictness
+    /// through the v1 seam instead would turn a documented fail-open-degrade contract into an unhandled fault in
+    /// the gateway projection actor, and would make introducing any new event type hard-fail every v1 stream
+    /// carrying it.
+    /// </remarks>
+    private static void ShouldDegradeRatherThanFault(ProjectionRequest request)
+    {
+        ConversationProjectedReadModels models = Decode(Handler().Project(request));
+
+        models.Summary.Freshness.AllowsTrustBearingDecision().ShouldBeFalse(
+            "an undecodable envelope must never yield a trust-bearing generation.");
+        models.Summary.Freshness.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        models.Detail.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
 
     private static ConversationProjectedReadModels Decode(ProjectionResponse response)
         => response.State.Deserialize<ConversationProjectedReadModels>(Options)

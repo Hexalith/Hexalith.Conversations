@@ -13,6 +13,7 @@ using Hexalith.EventStore.ServiceDefaults;
 using Dapr.Client;
 
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
@@ -200,5 +201,46 @@ public sealed class ConversationsDomainServiceHostCompositionTest
             typeof(ServerAssemblyMarker).Assembly);
 
         builder.Services.Count(static descriptor => descriptor.ServiceType == typeof(DaprClient)).ShouldBe(1);
+    }
+
+    /// <summary>
+    /// The canonical platform host also owns the Data Protection provider the platform-owned query cursor codec
+    /// depends on, so a domain module never has to patch that generic gap inside its own composition root.
+    /// </summary>
+    /// <remarks>
+    /// Asserted against the resolved provider rather than the descriptor list: Data Protection registers through
+    /// a builder whose descriptor shape is an implementation detail, and what this story cares about is that a
+    /// module host which registers nothing itself can still resolve the dependency.
+    /// </remarks>
+    [Fact]
+    public void AddEventStoreDomainServiceShouldOwnDataProtectionRegistration()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+
+        builder.AddEventStoreDomainService(
+            typeof(ConversationsAssemblyMarker).Assembly,
+            typeof(ServerAssemblyMarker).Assembly);
+
+        using ServiceProvider provider = builder.Services.BuildServiceProvider();
+        provider.GetService<IDataProtectionProvider>().ShouldNotBeNull(
+            "AddEventStoreDomainService must supply the Data Protection provider the query cursor codec needs; "
+            + "Conversations must not register it, because a generic platform gap is fixed in the owning public surface.");
+    }
+
+    /// <summary>
+    /// Conversations' own query registration must not re-register the generic provider it consumes.
+    /// </summary>
+    [Fact]
+    public void ConversationQueryRegistrationShouldNotOwnDataProtection()
+    {
+        WebApplicationBuilder builder = WebApplication.CreateBuilder();
+
+        builder.Services.AddConversationTenantAccess();
+        builder.Services.AddConversationQueries(builder.Configuration);
+
+        builder.Services
+            .Any(static descriptor => descriptor.ServiceType == typeof(IDataProtectionProvider))
+            .ShouldBeFalse(
+                "the Conversations module must consume the platform's Data Protection provider, never introduce one.");
     }
 }

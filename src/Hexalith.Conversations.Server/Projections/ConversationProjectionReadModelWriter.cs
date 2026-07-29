@@ -64,14 +64,21 @@ public sealed class ConversationProjectionReadModelWriter
         ConversationSummaryProjectionV1 summary = models.Summary;
         string conversationKey = ConversationProjectionReadModelKeys.ConversationKey(summary.TenantId, summary.ConversationId);
 
-        // Full-replay rebuild: the next value is the freshly materialized pair regardless of the loaded value,
-        // so the transform is idempotent (re-applying the same materialization yields the same value).
+        // Newest generation wins, matching the tenant index's merge rule. Both keys must agree on which
+        // generation is authoritative: an unconditional overwrite here would let a retried older dispatch
+        // clobber a newer detail while the index rejected its summary, splitting the two keys permanently.
+        // An equal position still writes, so a same-position redelivery under a new dispatch identity brings
+        // the detail into agreement with the index reference instead of diverging from it. Re-applying the
+        // same materialization remains a no-op (NFR5).
         _ = await ReadModelWritePolicy
             .UpdateAsync<ConversationProjectedReadModels>(
                 _store,
                 ConversationProjectionReadModelKeys.StateStoreName,
                 conversationKey,
-                _ => models,
+                existing => existing is not null
+                    && existing.Summary.Freshness.LastAppliedEventPosition > summary.Freshness.LastAppliedEventPosition
+                        ? existing
+                        : models,
                 new ReadModelWriteContext(
                     ConversationProjectionReadModelKeys.ConversationKeyCategory,
                     nameof(ConversationProjectedReadModels)),

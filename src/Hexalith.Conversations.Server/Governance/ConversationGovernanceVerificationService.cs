@@ -352,6 +352,27 @@ public sealed class ConversationGovernanceVerificationService
                 "AC5");
         }
 
+        // The read store returns a misfiled record unvalidated so each caller can apply its own poison shape.
+        // Without this guard a record belonging to another tenant would be compared against this conversation's
+        // event history and produce a verification verdict derived from foreign data.
+        if (existing is not null
+            && (existing.Summary.TenantId != projection.TenantId
+                || existing.Detail.TenantId != projection.TenantId
+                || existing.Summary.ConversationId != projection.ConversationId
+                || existing.Detail.ConversationId != projection.ConversationId))
+        {
+            return Check(
+                schemaVersion,
+                ConversationGovernanceVerificationSuite.ProjectionRebuild,
+                "projection-rebuild",
+                ConversationGovernanceVerificationExecutionStatus.Failed,
+                ConversationGovernanceVerificationFailureClassification.DependencyUnavailable,
+                "Derived read evidence does not belong to the verified conversation.",
+                ConversationGovernanceVerificationRemediation.RetryLater,
+                "AC2",
+                "AC5");
+        }
+
         ConversationProjectionRebuildResult result = _rebuildVerifier.Rebuild(
             projection.TenantId,
             projection.ConversationId,

@@ -17,6 +17,7 @@ using Hexalith.Conversations.Server.TenantAccess;
 using Hexalith.EventStore.Client.Handlers;
 using Hexalith.EventStore.Client.Projections;
 using Hexalith.EventStore.DomainService;
+using Hexalith.Conversations.Server.Tests.Projections;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
@@ -255,9 +256,16 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
             CancellationToken cancellationToken = default)
             => ValueTask.FromResult<ConversationProjectedReadModels?>(null);
 
-        public ValueTask<IReadOnlyList<ConversationSummaryProjectionV1>> ListAsync(
+        public ValueTask<IReadOnlySet<string>> ValidatePageAsync(
+            TenantId tenantId,
+            ConversationProjectionIndexSnapshot snapshot,
+            IReadOnlyList<ConversationSummaryProjectionV1> page,
+            CancellationToken cancellationToken = default)
+            => ValueTask.FromResult(ProjectionIndexSnapshotTestExtensions.NoInconsistentRows());
+
+        public ValueTask<ConversationProjectionIndexSnapshot> ListAsync(
             TenantId tenantId,
             CancellationToken cancellationToken = default)
-            => ValueTask.FromResult((IReadOnlyList<ConversationSummaryProjectionV1>)[]);
+            => ValueTask.FromResult(ConversationProjectionIndexSnapshot.Empty);
     }
 }

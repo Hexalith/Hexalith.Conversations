@@ -43,7 +43,7 @@ internal static class ConversationProjectionReadModelKeys
     /// <param name="conversationId">The conversation identity.</param>
     /// <returns>The tenant-scoped conversation key.</returns>
     internal static string ConversationKey(TenantId tenantId, ConversationId conversationId)
-        => $"{ConversationKeyPrefix}{tenantId.Value}:{conversationId.Value}";
+        => $"{ConversationKeyPrefix}{RequireKeySegment(tenantId.Value)}:{RequireKeySegment(conversationId.Value)}";
 
     /// <summary>
     /// Builds the per-tenant summary-index key used to locate the candidate summary set.
@@ -51,7 +51,31 @@ internal static class ConversationProjectionReadModelKeys
     /// <param name="tenantId">The tenant binding.</param>
     /// <returns>The tenant-scoped index key.</returns>
     internal static string TenantIndexKey(TenantId tenantId)
-        => $"{TenantIndexKeyPrefix}{tenantId.Value}";
+        => $"{TenantIndexKeyPrefix}{RequireKeySegment(tenantId.Value)}";
+
+    /// <summary>
+    /// Rejects an identifier that would make the composed key ambiguous.
+    /// </summary>
+    /// <param name="value">The identifier segment.</param>
+    /// <returns>The validated segment.</returns>
+    /// <remarks>
+    /// <see cref="TenantId"/> and <see cref="ConversationId"/> validate only that a value is non-blank, so the
+    /// separator is legal inside them. Tenant <c>a:b</c> with conversation <c>c</c> and tenant <c>a</c> with
+    /// conversation <c>b:c</c> would otherwise compose the same key, and the write happens before the reader's
+    /// tenant re-check can notice. Failing closed here keeps the "a different tenant resolves to a different
+    /// key" property this module's cross-tenant isolation is built on.
+    /// </remarks>
+    private static string RequireKeySegment(string value)
+    {
+        if (value.Contains(':', StringComparison.Ordinal))
+        {
+            throw new ArgumentException(
+                "A projection key segment must not contain the key separator.",
+                nameof(value));
+        }
+
+        return value;
+    }
 
     /// <summary>Builds the bounded storage key for one stable projection dispatch identity.</summary>
     /// <param name="dispatchId">The stable platform dispatch identity.</param>

@@ -89,6 +89,15 @@ public sealed class ConversationPrivilegedOperationalJustificationService(
                     .ReadAsync(justification.TenantId, justification.ConversationId, cancellationToken)
                     .ConfigureAwait(false);
             }
+            catch (ConversationProjectionConsistencyException)
+            {
+                // A partial generation is not a store outage: the privileged surface must fail closed on it
+                // rather than let the exception escape this service unmapped.
+                return PrivilegedOperationalJustificationResult.Unavailable(
+                    justification.SchemaVersion,
+                    ProjectionFreshnessReasonCode.MixedGeneration,
+                    "Retry after the read model finishes rebuilding.");
+            }
             catch (InvalidOperationException)
             {
                 return PrivilegedOperationalJustificationResult.Unavailable(

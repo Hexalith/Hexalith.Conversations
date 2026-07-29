@@ -123,10 +123,20 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-partial"))!
             .Status.ShouldBe(ConversationProjectionDispatchStatus.Pending);
         ConversationProjectionReadStore readStore = new(inner);
+
+        // The detail key advanced while the index summary did not, so this conversation cannot prove a
+        // completed generation and the detail read fails closed.
         _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
             async () => await readStore.ReadAsync(Tenant, Conversation, TestContext.Current.CancellationToken));
-        _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
-            async () => await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken));
+
+        // Listing does not fail closed for the whole tenant. The pending dispatch is reported so no caller can
+        // claim the page is current, but a conversation mid-write must not make its unrelated siblings
+        // unreadable.
+        ConversationProjectionIndexSnapshot pendingSnapshot = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+        pendingSnapshot.HasIncompleteDispatch.ShouldBeTrue();
+        pendingSnapshot.Summaries.ShouldBeEmpty();
 
         DomainProjectionHandlerResult retried = await handler.ProjectAsync(request, "dispatch-partial", TestContext.Current.CancellationToken);
 
@@ -321,6 +331,172 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionHandler.ConversationDomain,
             conversationId.Value,
             [EventDto(@event, sequence: 1)]);
+    }
+
+    /// <summary>
+    /// A completed ledger whose read-model keys are gone must not be answered from the ledger alone: the
+    /// generation is re-persisted so completion continues to mean "a reader can observe this".
+    /// </summary>
+    /// <remarks>
+    /// The ledger is a third key family, so derived-state deletion or a store rollback can outlive the two keys
+    /// it describes. Returning Completed there would claim a durable generation nothing can read, and the
+    /// platform would have no reason to redeliver.
+    /// </remarks>
+    [Fact]
+    public async Task CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ProjectionRequest request = Request(Tenant, Conversation);
+
+        (await handler.ProjectAsync(request, "dispatch-survivor", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+
+        await EraseAsync(store, ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation));
+        await EraseAsync(store, ConversationProjectionReadModelKeys.TenantIndexKey(Tenant));
+        store.Snapshot<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-survivor"))
+            .ShouldNotBeNull("the surviving completed ledger is the premise of this test.");
+
+        DomainProjectionHandlerResult redelivered = await handler.ProjectAsync(
+            request,
+            "dispatch-survivor",
+            TestContext.Current.CancellationToken);
+
+        redelivered.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation))
+            .ShouldNotBeNull("completion must mean the detail key is durable, not that the ledger says so.");
+        store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))
+            .ShouldNotBeNull("completion must mean the tenant index is durable, not that the ledger says so.");
+    }
+
+    /// <summary>
+    /// Replaying a conversation whose newest event is far older than the staleness threshold still persists.
+    /// </summary>
+    /// <remarks>
+    /// Staleness describes how far behind a projection is; it is a read-time trust signal, not a reason to
+    /// refuse a write. Gating persistence on it made full replay impossible for any conversation idle longer
+    /// than the threshold, and made any projection outage longer than the threshold unrecoverable — the exact
+    /// operation full replay exists to perform.
+    /// </remarks>
+    [Fact]
+    public async Task ReplayOfAConversationOlderThanTheStalenessThresholdShouldStillPersist()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = new(
+            new ConversationProjectionMaterializer(),
+            new ConversationProjectionReadModelWriter(store),
+            store,
+            new FixedTimeProvider(Started.AddDays(30)));
+
+        DomainProjectionHandlerResult result = await handler.ProjectAsync(
+            Request(Tenant, Conversation),
+            "dispatch-old-replay",
+            TestContext.Current.CancellationToken);
+
+        result.Status.ShouldBe(
+            ProjectionDispatchStatus.Completed,
+            "a 30-day-old event slice must still be projectable; refusing it would make replay impossible.");
+        ConversationProjectedReadModels? persisted = store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation));
+        persisted.ShouldNotBeNull();
+
+        // The generation is persisted and honestly labelled stale — it is not passed off as current.
+        persisted!.Detail.Freshness.IsStale.ShouldBeTrue();
+        persisted.Detail.Freshness.AllowsTrustBearingDecision().ShouldBeFalse();
+    }
+
+    /// <summary>
+    /// A stable dispatch identity reused for genuinely different input is rejected without writing anything.
+    /// </summary>
+    [Fact]
+    public async Task ReusingADispatchIdentityForDifferentInputShouldFailWithoutWriting()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+
+        (await handler.ProjectAsync(Request(Tenant, Conversation), "dispatch-reused", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        int keysAfterFirst = store.Count;
+
+        DomainProjectionHandlerResult reused = await handler.ProjectAsync(
+            Request(Tenant, ConversationB()),
+            "dispatch-reused",
+            TestContext.Current.CancellationToken);
+
+        reused.Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        reused.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.HandlerFailure);
+        store.Count.ShouldBe(keysAfterFirst, "a rejected identity reuse must not write any key.");
+        store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationB()))
+            .ShouldBeNull();
+    }
+
+    /// <summary>
+    /// Redelivering the same work under the same identity is accepted even when incidental per-delivery
+    /// metadata differs, because the fingerprint binds what is projected rather than how it was delivered.
+    /// </summary>
+    [Fact]
+    public async Task RedeliveryWithDifferentCorrelationMetadataShouldStillConverge()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ConversationCreated @event = Created(Tenant, Conversation);
+        ProjectionRequest first = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [EventDto(@event, sequence: 1)]);
+        ProjectionRequest redelivered = new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [
+                new ProjectionEventDto(
+                    nameof(ConversationCreated),
+                    JsonSerializer.SerializeToUtf8Bytes(@event, JsonOptions),
+                    "json",
+                    1,
+                    Started.AddMinutes(7),
+                    "correlation-redelivered",
+                    MessageId: "message-redelivered",
+                    UserId: "user-redelivered",
+                    GlobalPosition: 4242),
+            ]);
+
+        (await handler.ProjectAsync(first, "dispatch-redelivered", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+
+        DomainProjectionHandlerResult second = await handler.ProjectAsync(
+            redelivered,
+            "dispatch-redelivered",
+            TestContext.Current.CancellationToken);
+
+        second.Status.ShouldBe(
+            ProjectionDispatchStatus.Completed,
+            "correlation, message, user and global-position values vary between deliveries of the same work; "
+            + "treating them as identity reuse would fail a benign redelivery terminally.");
+    }
+
+    private static async Task EraseAsync(InMemoryReadModelStore store, string key)
+    {
+        (bool present, string etag) = await store.TryReadEtagAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            key,
+            TestContext.Current.CancellationToken);
+        present.ShouldBeTrue(key);
+        (await store.TryEraseAsync(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            key,
+            etag,
+            TestContext.Current.CancellationToken)).ShouldBeTrue(key);
     }
 
     private static ProjectionEventDto EventDto(ConversationCreated @event, long sequence)

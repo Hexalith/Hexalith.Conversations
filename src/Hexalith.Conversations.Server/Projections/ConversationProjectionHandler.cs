@@ -92,13 +92,31 @@ public sealed class ConversationProjectionHandler : IDomainProjectionHandler
         //  - isRebuilding / metadataWriteFailed: false on the steady-state full-replay path (a stateless seam has
         //    no prior-state knowledge to infer them); rebuild and metadata-failure freshness stay exercised
         //    through ConversationProjectionRebuildVerifier and the read-service degraded-state path.
+        // Version-1 protocol contract: this synchronous seam degrades freshness rather than faulting the
+        // gateway projection actor. The decoder is strict because the named asynchronous route needs a typed
+        // outcome the platform can retry or quarantine; propagating that strictness out of the v1 seam would
+        // change a documented fail-open-degrade contract into an unhandled fault, and would make adding any
+        // new event type hard-fail every v1 stream that carries it. A degraded generation can never report
+        // Current, so the skip still never falsely degrades.
+        IReadOnlyList<ConversationProjectionEventRecord> events;
+        bool decodeFailed = false;
+        try
+        {
+            events = ConversationProjectionEventDecoder.Decode(request.Events);
+        }
+        catch (Exception exception) when (exception is ArgumentException or JsonException)
+        {
+            events = [];
+            decodeFailed = true;
+        }
+
         ConversationProjectedReadModels models = _materializer.Project(
             tenantId,
             conversationId,
-            ConversationProjectionEventDecoder.Decode(request.Events),
+            events,
             _timeProvider.GetUtcNow(),
             DefaultStaleAfter,
-            isRebuilding: false,
+            isRebuilding: decodeFailed,
             metadataWriteFailed: false);
 
         return new ProjectionResponse(

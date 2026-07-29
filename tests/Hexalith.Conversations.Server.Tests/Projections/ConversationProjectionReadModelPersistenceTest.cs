@@ -54,11 +54,23 @@ public sealed class ConversationProjectionReadModelPersistenceTest
         readBack.Detail.Label.ShouldBe(models.Detail.Label);
 
         store.ResetCounters();
-        IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken);
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken);
 
-        listed.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
+        snapshot.Summaries.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
+        snapshot.HasIncompleteDispatch.ShouldBeFalse();
         store.GetCalls.ShouldBe(1, "ListAsync must issue only the tenant-index scalar read.");
-        store.BulkGetCalls.ShouldBe(2, "ListAsync must bulk-read detail generations and completion ledgers.");
+        store.BulkGetCalls.ShouldBe(0, "ListAsync must not read any detail or ledger key (NFR2, no per-conversation fan-out).");
+
+        store.ResetCounters();
+        IReadOnlySet<string> inconsistent = await readStore.ValidatePageAsync(
+            Tenant,
+            snapshot,
+            snapshot.Summaries,
+            TestContext.Current.CancellationToken);
+
+        inconsistent.ShouldBeEmpty();
+        store.GetCalls.ShouldBe(0, "page verification must not re-read the tenant index it was given.");
+        store.BulkGetCalls.ShouldBe(2, "page verification bulk-reads detail generations and completion ledgers.");
     }
 
     /// <summary>
@@ -102,12 +114,39 @@ public sealed class ConversationProjectionReadModelPersistenceTest
                 Dispatches = dispatches,
             });
 
-        IReadOnlyList<ConversationSummaryProjectionV1> listed = await readStore.ListAsync(
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(
             Tenant,
             TestContext.Current.CancellationToken);
 
-        listed.Count.ShouldBe(ConversationCount);
+        // The whole point of the split: listing a 205-conversation tenant costs exactly one read, whatever the
+        // tenant's size. Verification cost is charged to the page, not to the tenant.
+        snapshot.Summaries.Count.ShouldBe(ConversationCount);
         store.GetCalls.ShouldBe(1);
+        store.BulkGetCalls.ShouldBe(0, "listing must never fan out over the tenant (NFR2, no N+1).");
+
+        store.ResetCounters();
+        IReadOnlyList<ConversationSummaryProjectionV1> page = [.. snapshot.Summaries.Take(25)];
+        IReadOnlySet<string> pageInconsistent = await readStore.ValidatePageAsync(
+            Tenant,
+            snapshot,
+            page,
+            TestContext.Current.CancellationToken);
+
+        pageInconsistent.ShouldBeEmpty();
+        store.BulkGetCalls.ShouldBe(2, "a 25-row page costs one detail page and one ledger page.");
+        store.MaximumBulkKeyCount.ShouldBe(
+            25,
+            "verification must request only the page's keys, never the tenant's.");
+
+        // Chunking still bounds a caller that deliberately verifies everything.
+        store.ResetCounters();
+        IReadOnlySet<string> allInconsistent = await readStore.ValidatePageAsync(
+            Tenant,
+            snapshot,
+            snapshot.Summaries,
+            TestContext.Current.CancellationToken);
+
+        allInconsistent.ShouldBeEmpty();
         store.BulkGetCalls.ShouldBe(6, "205 details and 205 ledgers require three bounded pages each.");
         store.MaximumBulkKeyCount.ShouldBe(100);
         store.ObservedParallelism.ShouldBe([8]);
@@ -271,16 +310,84 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     /// never null and never a per-conversation fan-out.
     /// </summary>
     [Fact]
-    public async Task ListAsyncRejectsAnAbsentIndexAsAnUnprovenGeneration()
+    public async Task ListAsyncShouldReadAnAbsentIndexAsAnEmptyTenant()
     {
         InMemoryReadModelStore inner = new();
         CountingReadModelStore store = new(inner);
         ConversationProjectionReadStore readStore = new(store);
 
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+
+        // A tenant that has never held a conversation has no index key. Treating that as a cross-key
+        // inconsistency would leave every new tenant permanently Rebuilding with an empty page.
+        snapshot.Summaries.ShouldBeEmpty();
+        snapshot.Dispatches.ShouldBeEmpty();
+        snapshot.HasIncompleteDispatch.ShouldBeFalse();
+        store.GetCalls.ShouldBe(1, "an empty tenant costs exactly the tenant-index read.");
+        store.BulkGetCalls.ShouldBe(0);
+    }
+
+    /// <summary>
+    /// An index naming the same conversation twice is structural corruption of the index and still fails closed
+    /// for the whole tenant: no page taken from it can be trusted.
+    /// </summary>
+    [Fact]
+    public async Task ListAsyncShouldRejectAnIndexNamingOneConversationTwice()
+    {
+        InMemoryReadModelStore inner = new();
+        CountingReadModelStore store = new(inner);
+        ConversationProjectionReadStore readStore = new(store);
+        ConversationProjectedReadModels models = Models(ConversationA, position: 1);
+        inner.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = [models.Summary, models.Summary],
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [ConversationA.Value] = new(models.DispatchId, 1),
+                },
+            });
+
         _ = await Should.ThrowAsync<ConversationProjectionConsistencyException>(
             async () => await readStore.ListAsync(Tenant, TestContext.Current.CancellationToken));
+    }
 
-        store.GetCalls.ShouldBe(1, "an absent index is rejected after the tenant-index read.");
+    /// <summary>
+    /// A dispatch reference the summaries do not reflect marks the snapshot incomplete without making any
+    /// individual conversation unreadable: the tenant may be holding a conversation no page can show yet.
+    /// </summary>
+    [Fact]
+    public async Task ListAsyncShouldFlagAPendingDispatchWithoutFailingTheTenant()
+    {
+        InMemoryReadModelStore inner = new();
+        CountingReadModelStore store = new(inner);
+        ConversationProjectionReadStore readStore = new(store);
+        ConversationProjectedReadModels persisted = Models(ConversationA, position: 1);
+        inner.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = [persisted.Summary],
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [ConversationA.Value] = new(persisted.DispatchId, 1),
+
+                    // ConversationB is mid-dispatch: marked pending, no summary written yet.
+                    [ConversationB.Value] = new("dispatch-in-flight", 1),
+                },
+            });
+
+        ConversationProjectionIndexSnapshot snapshot = await readStore.ListAsync(
+            Tenant,
+            TestContext.Current.CancellationToken);
+
+        snapshot.HasIncompleteDispatch.ShouldBeTrue();
+        snapshot.Summaries.Select(summary => summary.ConversationId.Value).ShouldBe([ConversationA.Value]);
     }
 
     private static ConversationProjectedReadModels Models(ConversationId conversationId, long position)
