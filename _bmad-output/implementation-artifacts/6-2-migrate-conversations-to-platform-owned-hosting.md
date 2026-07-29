@@ -560,6 +560,22 @@ remote-available, `recorded_mode 160000`, `recorded_gitlink == head`.
 package-mode restore remains independently broken by the documented `NU1102` unpublished
 EventStore proof versions. Test projects were run as built xUnit v3 executables.
 
+**Final-record generation gate blocked (2026-07-28).** Candidate
+`65b3ed4180b7ab105763b2a8f491e1a899466c33` passed the promotion checker with zero blockers
+and two disclosed `UNDECLARED_GITLINK_CHANGE` warnings. The final-record generator parsed all
+eight TRX artifacts (1,925 passed, 0 failed, 0 skipped), resolved the candidate, and found the
+record section, but returned `blocked` with these stable diagnostics:
+
+- `SUBMODULE_INTERNAL_PATH` (10 occurrences): the legacy review-patch list includes the six
+  EventStore production paths and four EventStore test paths under
+  `references/Hexalith.EventStore`. Those paths belong to the submodule's record; the umbrella
+  record must contain only the root gitlink promotion.
+- `FILE_LIST_DRIFT` (2 occurrences): the existing record is missing 32 derived umbrella paths,
+  carries 13 unexpected entries, and has one `### File List` heading spanning two path lists.
+  The required remediation is to replace the complete File List region with the generator's
+  rendered block. The workflow forbids that insertion until the JSON pre-gate returns `pass`,
+  so completion remains halted without hand-editing counts, paths, or commits into agreement.
+
 ### Completion Notes List
 
 - **Code-review patch pass (2026-07-28): all 18 selected findings implemented.** Added a stable
