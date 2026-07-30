@@ -563,9 +563,16 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         }
 
         using Process process = Process.Start(startInfo)!;
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
-        process.WaitForExit();
+        Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> errorTask = process.StandardError.ReadToEndAsync();
+        if (!process.WaitForExit(milliseconds: 120_000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new InvalidOperationException($"git {string.Join(' ', arguments)} did not complete within 120 seconds.");
+        }
+
+        string output = outputTask.GetAwaiter().GetResult();
+        string error = errorTask.GetAwaiter().GetResult();
         process.ExitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
         return output;
     }

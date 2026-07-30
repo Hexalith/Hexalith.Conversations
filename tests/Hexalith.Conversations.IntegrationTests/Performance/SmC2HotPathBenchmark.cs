@@ -91,9 +91,13 @@ public sealed class SmC2HotPathBenchmark
             .ShouldBe(["HP-APPEND", "HP-CREATE", "HP-LIST", "HP-OPEN"]);
         samples.ShouldAllBe(static row => row.Value.Length == Repetitions && row.Value.All(value => value > 0));
 
+        // A null output sink would record zero SM-C2 rows while the test stays green, so evidence capture
+        // fails loudly instead of deriving nothing.
+        ITestOutputHelper output = TestContext.Current.TestOutputHelper
+            ?? throw new InvalidOperationException("SM-C2 evidence rows require a test output helper.");
         foreach ((string hotPathId, double[] raw) in samples.OrderBy(static row => row.Key, StringComparer.Ordinal))
         {
-            TestContext.Current.TestOutputHelper?.WriteLine(
+            output.WriteLine(
                 $"SM-C2|{hotPathId}|raw-microseconds={string.Join(',', raw.Select(static value => value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)))}|p95-microseconds={Percentile95(raw):F6}");
         }
     }
@@ -400,31 +404,6 @@ public sealed class SmC2HotPathBenchmark
             "correlation-sm-c2",
             "causation-sm-c2",
             idempotencyKey);
-
-    private static double[] Measure<T>(Func<T> operation)
-    {
-        for (int repetition = 0; repetition < WarmupRepetitions; repetition++)
-        {
-            for (int operationIndex = 0; operationIndex < OperationsPerSample; operationIndex++)
-            {
-                GC.KeepAlive(operation());
-            }
-        }
-
-        var samples = new double[Repetitions];
-        for (int repetition = 0; repetition < Repetitions; repetition++)
-        {
-            long started = Stopwatch.GetTimestamp();
-            for (int operationIndex = 0; operationIndex < OperationsPerSample; operationIndex++)
-            {
-                GC.KeepAlive(operation());
-            }
-
-            samples[repetition] = Stopwatch.GetElapsedTime(started).TotalMicroseconds / OperationsPerSample;
-        }
-
-        return samples;
-    }
 
     private static async Task<double[]> MeasureAsync<T>(Func<ValueTask<T>> operation)
     {

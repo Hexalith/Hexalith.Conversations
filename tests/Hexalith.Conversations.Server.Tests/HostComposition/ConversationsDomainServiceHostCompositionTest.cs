@@ -52,7 +52,6 @@ public sealed class ConversationsDomainServiceHostCompositionTest
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddConversationTenantAccess();
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(builder.Configuration);
 
         WebApplication app = builder.Build();

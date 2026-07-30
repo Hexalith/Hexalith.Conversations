@@ -605,10 +605,13 @@ public sealed class ConversationAsyncProjectionHandlerTest
             store,
             Options.Create(options));
 
+        // The stalled ledger read is unblocked only by the handler's own RetryLeaseDuration cancellation;
+        // if that wiring regresses the await never completes, so the hang is converted into a red result.
         DomainProjectionHandlerResult result = await handler.ProjectAsync(
-            Request(Tenant, Conversation),
-            "dispatch-completion-timeout",
-            TestContext.Current.CancellationToken);
+                Request(Tenant, Conversation),
+                "dispatch-completion-timeout",
+                TestContext.Current.CancellationToken)
+            .WaitAsync(TimeSpan.FromSeconds(30), TestContext.Current.CancellationToken);
 
         result.Status.ShouldBe(ProjectionDispatchStatus.Retryable);
         result.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.PartialRetry);

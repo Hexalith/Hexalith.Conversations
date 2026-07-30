@@ -87,7 +87,7 @@
     {
       "scenario": "derived-state-deletion",
       "detailQueryState": "non-current",
-      "listQueryState": "Rebuilding",
+      "listQueryState": "Current",
       "queryTimeBackfillObserved": false,
       "runArtifactId": "population-boundary",
       "testCase": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionReadStorePopulationLiveTests.DerivedStateDeletionAndFullReplayShouldRestoreEquivalentKeysAndQueries"

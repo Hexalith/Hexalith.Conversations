@@ -541,6 +541,58 @@ completed with 0 warnings/errors; focused evidence checks passed 27/27; full Con
 gateway artifact passed 2/2; both SM-C2 runner captures passed 1/1; and the promotion gate reproduced `pass`,
 0 blockers, and the four disclosed undeclared-gitlink warnings. No files were staged or committed.
 
+### Review Findings — pass 7, runtime-tests chunk (2026-07-30, `bmad-code-review`, four layers)
+
+Scope reviewed: `git diff 29def44..ff7f3b9 -- tests/` (37 files, +7,117/−281): Server.Tests,
+IntegrationTests, Conformance.Tests, AppHost.Tests, the ServiceDefaults.Tests deletion, and
+`tests/README.md`. Four blind layers (adversarial, edge-case, verification-gap, acceptance audit)
+produced 49 raw findings, deduplicated to 30; every survivor was re-verified against the working tree
+before triage and subagent severities were discarded and reassigned. Nine were dismissed after
+verification: the gateway collection's `DisableParallelization = true` isolates it from every other
+collection, so the claimed DAPR env-var race cannot occur during a test run; the `src/`-dirt tripwire
+and the exact evidence-value pins are the deliberate red-over-stale design; `BulkReadParallelism = 8`
+and `BulkReadChunkSize = 100` are module-owned constants (`ConversationProjectionReadStore.cs:40-41`),
+not platform tuning; the dev signing key and disabled Keycloak are the disclosed harness scope; the
+health-endpoint contract retired with ServiceDefaults.Tests is exercised live by
+`WaitForResourceHealthyAsync` in the mandatory runtime lane; two Story 6.8 guard findings duplicated
+the pass-6 deferred set; the straight-line `executedChecks` counter is harmless. Pass-2 ledger items
+P16, P20, P28, P29, and P31 were independently re-confirmed still open by this pass and are not
+duplicated below. New mechanism detail for P28: `IsProjectReferenceConditionActive`
+(`ScaffoldSmokeTest.cs:376-405`) treats any unrecognized MSBuild condition as active, which is what
+forces the double-path expectation — the fix should evaluate conditions mechanically, not extend the
+string patterns. Production `src/`, evidence artifacts, workflow/generator/planning files, and promoted
+submodule ranges remain the earlier passes' chunks.
+
+#### Decision needed
+
+- [ ] [Review][Decision] Nothing mechanically blocks completion while the AC1 proof records `result: "fail"` — full Conformance passes 430/430 with LIST/OPEN over the frozen 5% threshold because the validator pins the failing shape (`proof.result == "fail"` at `ProjectionReadStorePopulationProofValidationTest.cs:56`, `rowsPassing.ShouldBe(2)` at `:493`), and the Story 6.8 final-record gate reads TRX counts, not `proof.result`. Once the evidence is regenerated against the final candidate, the suite is green while AC1 is still unmet, so only prose in the story record separates `review` from `done`. Options: (a) add a completion-scoped conformance guard asserting `proof.result == "pass"` (red until AC1 closes — consistent with red-over-stale), (b) extend the Story 6.8 generator to fail when a bound proof artifact records `fail` (out-of-chunk script change), (c) accept manual governance via the story record.
+
+#### Patches
+
+- [ ] [Review][Patch] Correct the untrue `derived-state-deletion.listQueryState = "Rebuilding"` evidence value and bind list freshness in the live lane — production returns `Current` for an erased tenant (`AggregateFreshness` over zero summaries, `ConversationQueryHandler.cs:488-491`) and the bound test asserts only emptiness while its own comment documents the empty-tenant trade-off (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:120]
+- [ ] [Review][Patch] Re-derive submodule worktree state in the promotion staleness guard — every check is commit-deep (`rev-parse HEAD:<path>`) and `submoduleWorktreeClean` is trusted from the recorded JSON, so a submodule checked out away from its gitlink, or dirty, passes green; this drift class has already occurred in this workspace (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:257]
+- [ ] [Review][Patch] Assert read-store population through the real split AppHost topology — the mandatory runtime lane stops at command status (`Completed`, `eventCount > 0`) and asserts nothing about read-model keys or queries, while the gateway lane runs single-process under one app-id with a fixture-filled route catalog and fixture-pinned refresh interval; a cross-app catalog-refresh regression ships silently (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:114]
+- [ ] [Review][Patch] Verify EventStore gateway provenance on the launched binary, not the prebuilt file — the stamped DLL is asserted before Aspire resolves and launches its own binary, and the `headRevision` containment assertion is vacuous because `sourceRevision` embeds it (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:212]
+- [ ] [Review][Patch] Bound the failure-diagnostics paths so they cannot mask the primary failure — `GetAllAsync` streams until resource stop under the shared 5-minute token, `TryGetCurrentState(...).ShouldBeTrue` replaces the original failure inside the diagnostic path, and the crafted `TimeoutException` after the poll loop is unreachable because `GetAsync`/`Task.Delay` throw first (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:117]
+- [ ] [Review][Patch] Remove `AddDataProtection()` from the mirror hosts and the AC5 fixture now that D6 promoted it to `AddEventStoreDomainService` — five test hosts register what production `Program.cs` no longer has, so the "mirror Program.cs" lanes and the AC5 lane stay green if the promoted registration regresses (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:352]
+- [ ] [Review][Patch] Strengthen replay-equivalence to full-record content — after deletion and rebuild only `ConversationId` and `LastAppliedEventPosition` are compared while the evidence claims `queryResultsEquivalentToPreDeletion` (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:146]
+- [ ] [Review][Patch] Replace sequential `ReadToEnd` drains with the in-repo async two-task pattern in the two new helpers that extend open P27 — the ConsumePromoteKeep variant has no timeout at all, so a hung child hangs the run forever (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:566]
+- [ ] [Review][Patch] Update tests/README.md prerequisites — it still claims the scaffold needs no Aspire runtime launch or Dapr sidecars while the gateway and AppHost lanes are now mandatory hard-fail (MEDIUM) [tests/README.md:13]
+- [ ] [Review][Patch] Replace `--candidate HEAD` in the canonical README generator invocation with an explicitly resolved SHA — the completion gates forbid re-resolving a moving candidate on every workflow surface (MEDIUM) [tests/README.md:96]
+- [ ] [Review][Patch] Require `failed == 0 && skipped == 0` for every bound run artifact in `ValidateRunArtifacts`, not only the gateway-boundary run (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:637]
+- [ ] [Review][Patch] Parse `git diff --name-status` with `--no-renames` (or handle `R`/`C`/`T`/`U`) so a rename's vacated production path cannot vanish from the recomputed source boundary (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:593]
+- [ ] [Review][Patch] Census executed gateway tests dynamically instead of hard-coding two in `DisposeAsync`, and widen the cleanup catch beyond `IOException` — filtered runs currently fail in fixture disposal and stack a second failure over a real one (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:209]
+- [ ] [Review][Patch] Fix the dangling comment citing nonexistent `LedgerSurvivingDerivedStateDeletionShouldNotReportAFalseCompletion` — the actual guard is `CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion` in Server.Tests (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:111]
+- [ ] [Review][Patch] Guard MSBuild output parsing — raw `JsonDocument.Parse` in the topology helper and the `IndexOf('{')` slice in SmC2 reconstruction throw opaque exceptions on non-JSON output (LOW) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:60]
+- [ ] [Review][Patch] Give the stalled-ledger lane a test-level timeout so a cancellation-wiring regression fails instead of hanging the suite on an infinite `Task.Delay` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1152]
+- [ ] [Review][Patch] Remove the dead synchronous `Measure<T>` and assert a non-null `TestOutputHelper` before emitting `SM-C2|` rows — a null helper currently yields a green run with zero evidence rows (LOW) [tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs:96]
+- [ ] [Review][Patch] Remove the double blank line before `ShouldDegradeRatherThanFault` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs:397]
+
+#### Deferred
+
+- [x] [Review][Defer] Generator invocation surface is proven by substring presence in Python source — `ShouldContain("\"--story\"")` passes if the flag survives in help text or dead code; execute `--help` or parse the argparse registration instead [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:111] — deferred, pre-existing (joins the pass-6 Story 6.8 guard set)
+- [x] [Review][Defer] File List guard accepts only exact ``- ` `` bullets and `CountOccurrences` matches LF-only, so indented bullets and CRLF checkouts evade the submodule-path prohibition and the exactly-one-heading assertion [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:295] — deferred, pre-existing (same Story 6.8 guard family)
+
 ## Dev Notes
 
 ### Binding sequence — check before starting

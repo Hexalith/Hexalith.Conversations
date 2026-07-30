@@ -6,6 +6,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
 namespace Hexalith.Conversations.Conformance.Tests;
@@ -116,8 +117,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         scenarios["cross-tenant-input"].GetProperty("handlerStatus").GetString().ShouldBe("Failed");
         scenarios["cross-tenant-input"].GetProperty("reasonCode").GetString().ShouldBe("HandlerFailure");
         scenarios["cross-tenant-input"].GetProperty("leakageObserved").GetBoolean().ShouldBeFalse();
+        // An erased tenant index is deliberately indistinguishable from a never-populated tenant, so the list
+        // honestly reports Current-and-empty rather than Rebuilding (the bound live test asserts this state).
         scenarios["derived-state-deletion"].GetProperty("detailQueryState").GetString().ShouldBe("non-current");
-        scenarios["derived-state-deletion"].GetProperty("listQueryState").GetString().ShouldBe("Rebuilding");
+        scenarios["derived-state-deletion"].GetProperty("listQueryState").GetString().ShouldBe("Current");
         scenarios["derived-state-deletion"].GetProperty("queryTimeBackfillObserved").GetBoolean().ShouldBeFalse();
         scenarios["full-replay"].GetProperty("handlerStatus").GetString().ShouldBe("Completed");
         scenarios["full-replay"].GetProperty("reasonCode").GetString().ShouldBe("None");
@@ -274,12 +277,50 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
         {
             string path = evaluated.GetProperty("path").GetString()!;
-            Git("rev-parse", $"HEAD:{path}")
-                .ShouldBe(evaluated.GetProperty("recordedGitlink").GetString(), path);
+            string recordedGitlink = evaluated.GetProperty("recordedGitlink").GetString()!;
+            Git("rev-parse", $"HEAD:{path}").ShouldBe(recordedGitlink, path);
+
+            // The committed gitlink alone is not enough: a submodule worktree checked out away from it, or
+            // dirty, changes every compile input while the umbrella diff stays empty. The worktree state is
+            // re-derived live on every run rather than trusted from the recorded JSON.
+            GitIn(path, "rev-parse", "HEAD").ShouldBe(
+                recordedGitlink,
+                $"the {path} worktree must be checked out at the recorded gitlink");
+            GitIn(path, "status", "--porcelain").ShouldBeEmpty(
+                $"the {path} worktree must be clean so measurements bind the recorded promotion");
         }
 
         Git("rev-parse", "HEAD:references/Hexalith.EventStore")
             .ShouldBe(promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString());
+    }
+
+    /// <summary>
+    /// Mechanically links the SM-C2 proof result to story completion: a 430-green conformance run must never
+    /// be readable as "AC1 met" while the bound proof records <c>fail</c>. While the story record is still
+    /// being worked the failing proof is the disclosed open blocker; the moment the record leaves
+    /// <c>in-progress</c> this guard demands a passing proof (pass-7 review decision, 2026-07-30).
+    /// </summary>
+    [Fact]
+    public void AFailingProofResultMustBlockStoryCompletion()
+    {
+        string storyPath = Path.Combine(
+            FindRepositoryRoot(),
+            "_bmad-output",
+            "implementation-artifacts",
+            "6-2-migrate-conversations-to-platform-owned-hosting.md");
+        File.Exists(storyPath).ShouldBeTrue(storyPath);
+        string story = File.ReadAllText(storyPath).Replace("\r\n", "\n", StringComparison.Ordinal);
+        Match status = Regex.Match(story, "^status: '([a-z-]+)'$", RegexOptions.Multiline);
+        status.Success.ShouldBeTrue("the Story 6.2 record must declare a frontmatter status");
+        if (status.Groups[1].Value is "backlog" or "ready-for-dev" or "in-progress")
+        {
+            return;
+        }
+
+        using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
+        proofDocument.RootElement.GetProperty("result").GetString().ShouldBe(
+            "pass",
+            "a story past in-progress may not carry a failing SM-C2 proof; regenerate the evidence with every hot path within the frozen threshold");
     }
 
     /// <summary>
@@ -382,13 +423,16 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         using Process process = Process.Start(startInfo)
             ?? throw new InvalidOperationException("git could not be started.");
-        string standardOutput = process.StandardOutput.ReadToEnd();
-        string standardError = process.StandardError.ReadToEnd();
+        Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
         if (!process.WaitForExit(milliseconds: 120_000))
         {
             process.Kill(entireProcessTree: true);
             throw new InvalidOperationException("git did not complete within 120 seconds.");
         }
+
+        string standardOutput = standardOutputTask.GetAwaiter().GetResult();
+        string standardError = standardErrorTask.GetAwaiter().GetResult();
 
         if (process.ExitCode != 0)
         {
@@ -590,7 +634,9 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         var changedProduction = new HashSet<string>(StringComparer.Ordinal);
         var removedProduction = new HashSet<string>(StringComparer.Ordinal);
-        foreach (string line in Git("diff", "--name-status", $"{baseline}..{candidate}", "--", "src/")
+        // --no-renames keeps every rename as an explicit A+D pair so a vacated production path can never
+        // silently drop out of both the changed and removed sets.
+        foreach (string line in Git("diff", "--no-renames", "--name-status", $"{baseline}..{candidate}", "--", "src/")
                      .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
         {
             string[] fields = line.Split('\t');
@@ -661,6 +707,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             artifact.GetProperty("passed").GetInt32().ShouldBe(run.Passed, id);
             artifact.GetProperty("failed").GetInt32().ShouldBe(run.Failed, id);
             artifact.GetProperty("skipped").GetInt32().ShouldBe(run.Skipped, id);
+
+            // Count consistency is not enough: every bound artifact must itself be failure-free, or a
+            // honestly-transcribed red run could still anchor the proof.
+            run.Failed.ShouldBe(0, $"{id} must contain no failing test");
+            run.Skipped.ShouldBe(0, $"{id} must contain no skipped test");
             result.Add(id, run);
         }
 

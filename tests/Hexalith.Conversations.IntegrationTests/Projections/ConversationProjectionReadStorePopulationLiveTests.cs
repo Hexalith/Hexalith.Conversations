@@ -107,8 +107,8 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         (ConversationDetailResult beforeDetail, ConversationListResult beforeList) = await QueryAsync(scope.ServiceProvider);
 
         // Erase EVERY derived key family, including the dispatch ledger. Leaving the ledger behind would make
-        // this a partial deletion and would never exercise the surviving-ledger path
-        // (see LedgerSurvivingDerivedStateDeletionShouldNotReportAFalseCompletion below).
+        // this a partial deletion and would never exercise the surviving-ledger path (guarded by
+        // CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion in Server.Tests).
         await EraseAsync(store, ConversationKey());
         await EraseAsync(store, TenantIndexKey());
         await EraseAsync(store, DispatchLedgerKey("dispatch-live-before-delete"));
@@ -124,7 +124,10 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         // erased" from "this tenant has never held a conversation" without consulting EventStore, and queries
         // are forbidden from replaying. The alternative — failing closed on an absent index — left every new
         // tenant permanently Rebuilding with an empty page. Convergence is proven by the rebuild below.
+        // The freshness state is asserted so the v2 proof's transcribed listQueryState stays bound to a
+        // measured value instead of drifting from the production behaviour.
         deletedList.Conversations.ShouldBeEmpty();
+        deletedList.FreshnessState.ShouldBe(ProjectionTrustState.Current);
 
         ProjectionDispatchRequest rebuildRequest = DispatchRequest("rebuild-live-001");
         ProjectionDispatchResponse rebuilt = await DomainProjectionDispatcher.RebuildAsync(
@@ -143,12 +146,16 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         afterList.FreshnessState.ShouldBe(ProjectionTrustState.Current);
         afterDetail.Details.ShouldNotBeNull();
         afterList.Conversations.ShouldHaveSingleItem();
-        afterDetail.Details!.ConversationId.ShouldBe(beforeDetail.Details!.ConversationId);
-        afterDetail.Details.Freshness.LastAppliedEventPosition.ShouldBe(
-            beforeDetail.Details.Freshness.LastAppliedEventPosition);
-        afterList.Conversations[0].ConversationId.ShouldBe(beforeList.Conversations[0].ConversationId);
-        afterList.Conversations[0].Freshness.LastAppliedEventPosition.ShouldBe(
-            beforeList.Conversations[0].Freshness.LastAppliedEventPosition);
+
+        // AC6 demands an EQUIVALENT per-conversation record, not merely a matching identity and position:
+        // the whole rebuilt detail record and the whole rebuilt index row must round-trip byte-identically,
+        // so a replay that drops a label, participant, or message can never pass as convergence.
+        JsonSerializer.Serialize(afterDetail.Details, JsonOptions).ShouldBe(
+            JsonSerializer.Serialize(beforeDetail.Details, JsonOptions),
+            "the rebuilt detail record must be equivalent to the pre-deletion record");
+        JsonSerializer.Serialize(afterList.Conversations[0], JsonOptions).ShouldBe(
+            JsonSerializer.Serialize(beforeList.Conversations[0], JsonOptions),
+            "the rebuilt tenant index row must be equivalent to the pre-deletion row");
     }
 
     private static WebApplication ComposeProductionBoundary(InMemoryReadModelStore store)

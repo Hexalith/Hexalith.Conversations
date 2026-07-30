@@ -206,10 +206,15 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     {
         await DisposeResourcesAsync().ConfigureAwait(false);
         RestoreDaprPortEnvironment();
-        if (IsAvailable && Volatile.Read(ref _executedBoundaryAssertions) != 2)
+
+        // Anti-vacuity without a hard-coded census: a fixture that initialized but observed no boundary
+        // assertion was a vacuous run. The exact two-test census is enforced where it belongs — the v2 proof
+        // requires the gateway TRX artifact to record passed == 2 with zero skips — so a filtered debugging
+        // run of a single gateway test no longer fails in disposal.
+        if (IsAvailable && Volatile.Read(ref _executedBoundaryAssertions) == 0)
         {
             throw new InvalidOperationException(
-                $"The live gateway fixture executed {_executedBoundaryAssertions} of 2 mandatory boundary assertions.");
+                "The live gateway fixture completed without executing any mandatory boundary assertion.");
         }
     }
 
@@ -349,7 +354,6 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
         _ = builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
-        _ = builder.Services.AddDataProtection();
 
         // Tenant admission is the one deliberately substituted seam: it needs a live Tenants projection, is
         // orthogonal to projection delivery, and gates only the read side. Recorded in the v2 proof evidence.
@@ -769,7 +773,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
             {
                 Directory.Delete(_componentsDirectory, recursive: true);
             }
-            catch (IOException)
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
             {
                 // Best-effort cleanup of a temporary component directory.
             }

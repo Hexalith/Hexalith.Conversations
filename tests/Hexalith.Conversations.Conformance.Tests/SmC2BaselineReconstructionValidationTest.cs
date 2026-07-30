@@ -83,7 +83,11 @@ public sealed class SmC2BaselineReconstructionValidationTest
             "-p:Configuration=Release",
             "-p:UseHexalithProjectReferences=true",
             "-getItem:ProjectReference");
-        using JsonDocument graph = JsonDocument.Parse(output[output.IndexOf('{')..]);
+        int envelopeStart = output.IndexOf('{');
+        envelopeStart.ShouldBeGreaterThanOrEqualTo(
+            0,
+            $"MSBuild -getItem printed no JSON envelope; the evaluated project graph cannot be verified.{Environment.NewLine}{output}");
+        using JsonDocument graph = JsonDocument.Parse(output[envelopeStart..]);
         string repositoryRoot = FindRepositoryRoot();
         string[] evaluatedReferences =
         [
@@ -177,14 +181,19 @@ public sealed class SmC2BaselineReconstructionValidationTest
                 return false;
             }
 
-            standardOutput = process.StandardOutput.ReadToEnd();
-            _ = process.StandardError.ReadToEnd();
+            // Both pipes drain concurrently so a child filling stderr while stdout is still open cannot
+            // deadlock the run; the timeout stays enforceable because nothing blocks before WaitForExit.
+            Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+            Task<string> errorTask = process.StandardError.ReadToEndAsync();
             if (!process.WaitForExit(milliseconds: 60_000))
             {
                 process.Kill(entireProcessTree: true);
+                standardOutput = string.Empty;
                 return false;
             }
 
+            standardOutput = outputTask.GetAwaiter().GetResult();
+            _ = errorTask.GetAwaiter().GetResult();
             return process.ExitCode == 0;
         }
         catch (Exception exception) when (exception is System.ComponentModel.Win32Exception or InvalidOperationException)
@@ -220,13 +229,16 @@ public sealed class SmC2BaselineReconstructionValidationTest
 
         using Process process = Process.Start(startInfo)
             ?? throw new InvalidOperationException($"{executable} could not be started.");
-        string output = process.StandardOutput.ReadToEnd();
-        string error = process.StandardError.ReadToEnd();
+        Task<string> outputTask = process.StandardOutput.ReadToEndAsync();
+        Task<string> errorTask = process.StandardError.ReadToEndAsync();
         if (!process.WaitForExit(milliseconds: 120_000))
         {
             process.Kill(entireProcessTree: true);
             throw new InvalidOperationException($"{executable} did not complete within 120 seconds.");
         }
+
+        string output = outputTask.GetAwaiter().GetResult();
+        string error = errorTask.GetAwaiter().GetResult();
 
         if (process.ExitCode != 0)
         {

@@ -60,6 +60,13 @@ public sealed class ConversationsAppHostTopologyTest
         string projectPath,
         params string[] propertyNames)
     {
+        if (propertyNames.Length < 2)
+        {
+            throw new ArgumentException(
+                "Evaluate at least two properties so MSBuild prints the JSON envelope rather than a bare value.",
+                nameof(propertyNames));
+        }
+
         ProcessStartInfo startInfo = new("dotnet")
         {
             RedirectStandardError = true,
@@ -100,9 +107,16 @@ public sealed class ConversationsAppHostTopologyTest
                 $"MSBuild evaluation failed with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
         }
 
-        // A single -getProperty prints the bare value; several print a JSON envelope. Only the multi-property
-        // form is used here so the parse stays unambiguous.
-        using JsonDocument document = JsonDocument.Parse(standardOutput);
+        // A single -getProperty prints the bare value; several print a JSON envelope (enforced above). SDK
+        // resolver or NuGet notices can precede the JSON, so parsing starts at the envelope, not byte zero.
+        int envelopeStart = standardOutput.IndexOf('{');
+        if (envelopeStart < 0)
+        {
+            throw new InvalidOperationException(
+                $"MSBuild evaluation printed no JSON envelope.{Environment.NewLine}{standardOutput}");
+        }
+
+        using JsonDocument document = JsonDocument.Parse(standardOutput[envelopeStart..]);
         Dictionary<string, string> values = new(StringComparer.Ordinal);
         JsonElement properties = document.RootElement.GetProperty("Properties");
         foreach (string propertyName in propertyNames)

@@ -10,7 +10,7 @@ Use the SDK pinned by `global.json` and restore from the repository root:
 dotnet restore Hexalith.Conversations.slnx
 ```
 
-The test scaffold does not require Aspire runtime launch, Dapr sidecars, tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization.
+The test scaffold does not require tenant seed data, production secrets, provider credentials, external cloud resources, or nested submodule initialization. Two mandatory live lanes DO require a local DAPR runtime and fail (never skip) without it, so the ADR 0003 projection-boundary proof can never silently stop running: the `Hexalith.Conversations.IntegrationTests` gateway dispatch lane needs `daprd`, Redis on `6379`, placement on `50005`, and scheduler on `50006` (`dapr init` provides all four), and the `Hexalith.Conversations.AppHost.Tests` runtime boundary lane additionally launches the Aspire AppHost.
 
 Install the browser binary before running the Admin Web responsive lane on a new machine:
 
@@ -89,11 +89,14 @@ tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conv
 Then invoke the generator once per completion, repeating `--test-results` with the full project name for every root-owned test project declared by the root `.slnx`:
 
 ```powershell
+# Resolve the committed candidate exactly once into an immutable SHA; never pass the moving HEAD token,
+# or the record binds a revision that can change under it.
+$candidate = git rev-parse HEAD
 python3 _bmad/scripts/generate_story_record.py `
   --repository . `
   --story _bmad-output/implementation-artifacts/<story>.md `
   --baseline <story-baseline-commit> `
-  --candidate HEAD `
+  --candidate $candidate `
   --test-results Hexalith.Conversations.Conformance.Tests=<path>.trx `
   --format bundle
 ```

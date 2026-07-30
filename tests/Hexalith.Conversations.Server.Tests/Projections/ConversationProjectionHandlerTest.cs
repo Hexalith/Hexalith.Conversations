@@ -395,7 +395,6 @@ public sealed class ConversationProjectionHandlerTest
     private static ConversationProjectionHandler Handler(DateTimeOffset clock)
         => new(new ConversationProjectionMaterializer(), new FixedTimeProvider(clock));
 
-
     /// <summary>
     /// Asserts the version-1 seam's documented contract for an envelope it cannot decode: degrade the
     /// generation so it can never be reported current, rather than faulting out of

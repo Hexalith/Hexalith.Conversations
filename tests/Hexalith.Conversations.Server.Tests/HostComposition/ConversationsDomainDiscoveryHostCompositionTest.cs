@@ -119,7 +119,6 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
             typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
         builder.Services.AddSingleton<IConversationProjectionReadStore>(new EmptyProjectionReadStore());
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
         await using WebApplication app = builder.Build();
@@ -153,7 +152,6 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
         // Mirror the production host wiring (Program.cs): tenant access and the query boundary (which registers
         // the shared ConversationProjectionMaterializer the handler needs). The platform host owns DaprClient.
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
         await using WebApplication app = builder.Build();
@@ -176,7 +174,6 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
             typeof(ConversationsAssemblyMarker).Assembly,
             typeof(ServerAssemblyMarker).Assembly);
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
 
         await using WebApplication app = builder.Build();
@@ -210,7 +207,6 @@ public sealed class ConversationsDomainDiscoveryHostCompositionTest
         // Mirror the production host wiring (Program.cs): tenant access and the query boundary that registers
         // AddEventStoreReadModelStore + the production read-store binding. The platform host owns DaprClient.
         builder.Services.AddSingleton<IConversationTenantAccessService>(new AllowAllTenantAccessService());
-        builder.Services.AddDataProtection();
         builder.Services.AddConversationQueries(options => options.MaxOffset = 100_000);
         builder.Services.AddConversationGovernanceVerification();
 
