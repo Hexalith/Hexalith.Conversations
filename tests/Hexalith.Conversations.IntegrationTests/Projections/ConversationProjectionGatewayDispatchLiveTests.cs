@@ -5,6 +5,7 @@
 
 using System.Text;
 using System.Text.Json;
+using System.Net.Http.Json;
 
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
@@ -78,6 +79,26 @@ public sealed class ConversationProjectionGatewayDispatchLiveTests(ConversationG
         await fixture.Services
             .GetRequiredService<IProjectionUpdateOrchestrator>()
             .UpdateProjectionAsync(identity, TestContext.Current.CancellationToken);
+
+        fixture.HasObservedLogCategory("Hexalith.EventStore.Server.Projections.ProjectionUpdateOrchestrator")
+            .ShouldBeTrue("the run must observe the gateway orchestrator category rather than infer it from DI");
+        fixture.HasObservedLogCategory("Hexalith.EventStore.Server.Projections.NamedProjectionDispatchCoordinator")
+            .ShouldBeTrue("the run must observe the named dispatch coordinator category rather than infer it from DI");
+
+        using (var metadataClient = new HttpClient())
+        {
+            JsonElement metadata = await metadataClient.GetFromJsonAsync<JsonElement>(
+                $"{fixture.DaprHttpEndpoint}/v1.0/metadata",
+                TestContext.Current.CancellationToken);
+            JsonElement stateStoreComponent = metadata.GetProperty("components")
+                .EnumerateArray()
+                .Single(component => component.GetProperty("name").GetString() == ConversationGatewayLiveFixture.StateStoreName);
+            stateStoreComponent.GetProperty("type").GetString().ShouldBe("state.redis");
+            stateStoreComponent.GetProperty("capabilities")
+                .EnumerateArray()
+                .Select(capability => capability.GetString())
+                .ShouldContain("ACTOR");
+        }
 
         ReadModelEntry<ConversationProjectedReadModels> detail = await store
             .GetAsync<ConversationProjectedReadModels>(

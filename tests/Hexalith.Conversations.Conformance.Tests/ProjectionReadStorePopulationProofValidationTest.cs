@@ -6,6 +6,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Xml.Linq;
 
 namespace Hexalith.Conversations.Conformance.Tests;
 
@@ -21,6 +22,27 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     private const string PostFileName = "sm-c2-hot-path-post-v1.json";
 
     private static readonly string[] ExpectedHotPaths = ["HP-APPEND", "HP-CREATE", "HP-LIST", "HP-OPEN"];
+
+    private static readonly string[] ExpectedTestBindingPaths =
+    [
+        "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
+        "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",
+        "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs",
+    ];
 
     [Fact]
     public void ProofShouldBindExactProductionRouteKeysAndBoundedOutcomes()
@@ -39,10 +61,14 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             .ShouldBe("projection:conversations:{base64url(tenantId)}:{base64url(conversationId)}");
         boundary.GetProperty("tenantIndexKeyTemplate").GetString()
             .ShouldBe("projection:conversations-index:{base64url(tenantId)}");
+        boundary.GetProperty("dispatchLedgerKeyTemplate").GetString()
+            .ShouldBe("projection:conversations-dispatch:{sha256(dispatchId)}");
         boundary.GetProperty("detailKey").GetString()
             .ShouldBe("projection:conversations:dGVuYW50LWxpdmUtMDAx:Y29udmVyc2F0aW9uLWxpdmUtMDAx");
         boundary.GetProperty("tenantIndexKey").GetString()
             .ShouldBe("projection:conversations-index:dGVuYW50LWxpdmUtMDAx");
+        boundary.GetProperty("dispatchLedgerKey").GetString()
+            .ShouldBe("projection:conversations-dispatch:592809543882c311d1172f79e6f9e9887f8f0f0433c2b3505f996200e3116bb1");
         boundary.GetProperty("queryBackfill").GetBoolean().ShouldBeFalse();
 
         Dictionary<string, JsonElement> scenarios = proof.GetProperty("dispatchEvidence")
@@ -60,14 +86,46 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             "unavailable-store",
         ]);
         scenarios["accepted-append"].GetProperty("handlerStatus").GetString().ShouldBe("Completed");
+        scenarios["accepted-append"].GetProperty("reasonCode").GetString().ShouldBe("None");
+        scenarios["accepted-append"].GetProperty("detailWrites").GetInt32().ShouldBe(1);
+        scenarios["accepted-append"].GetProperty("tenantIndexRows").GetInt32().ShouldBe(1);
+        scenarios["accepted-append"].GetProperty("detailQueryState").GetString().ShouldBe("Current");
+        scenarios["accepted-append"].GetProperty("listQueryState").GetString().ShouldBe("Current");
+        scenarios["accepted-append"].GetProperty("detailLastAppliedEventPosition").GetInt64().ShouldBe(1);
+        scenarios["accepted-append"].GetProperty("listLastAppliedEventPosition").GetInt64().ShouldBe(1);
         scenarios["stable-duplicate"].GetProperty("tenantIndexRows").GetInt32().ShouldBe(1);
+        scenarios["stable-duplicate"].GetProperty("handlerStatus").GetString().ShouldBe("Completed");
+        scenarios["stable-duplicate"].GetProperty("reasonCode").GetString().ShouldBe("None");
+        scenarios["stable-duplicate"].GetProperty("detailWrites").GetInt32().ShouldBe(1);
+        scenarios["stable-duplicate"].GetProperty("detailQueryState").GetString().ShouldBe("Current");
+        scenarios["stable-duplicate"].GetProperty("listQueryState").GetString().ShouldBe("Current");
         scenarios["second-write-failure"].GetProperty("handlerStatus").GetString().ShouldBe("Retryable");
         scenarios["second-write-failure"].GetProperty("reasonCode").GetString().ShouldBe("PartialRetry");
         scenarios["second-write-failure"].GetProperty("falseCurrentObserved").GetBoolean().ShouldBeFalse();
+        scenarios["second-write-failure"].GetProperty("detailQueryState").GetString().ShouldBe("Rebuilding");
+        scenarios["second-write-failure"].GetProperty("listQueryState").GetString().ShouldBe("Rebuilding");
+        scenarios["second-write-retry"].GetProperty("handlerStatus").GetString().ShouldBe("Completed");
+        scenarios["second-write-retry"].GetProperty("reasonCode").GetString().ShouldBe("None");
+        scenarios["second-write-retry"].GetProperty("tenantIndexRows").GetInt32().ShouldBe(1);
+        scenarios["second-write-retry"].GetProperty("detailQueryState").GetString().ShouldBe("Current");
+        scenarios["second-write-retry"].GetProperty("listQueryState").GetString().ShouldBe("Current");
         scenarios["unavailable-store"].GetProperty("handlerStatus").GetString().ShouldBe("Indeterminate");
         scenarios["unavailable-store"].GetProperty("rawStorageDetailExposed").GetBoolean().ShouldBeFalse();
+        scenarios["unavailable-store"].GetProperty("reasonCode").GetString().ShouldBe("HandlerFailure");
         scenarios["cross-tenant-input"].GetProperty("writes").GetInt32().ShouldBe(0);
-        scenarios["full-replay"].GetProperty("batchOperationCount").GetInt32().ShouldBe(2);
+        scenarios["cross-tenant-input"].GetProperty("handlerStatus").GetString().ShouldBe("Failed");
+        scenarios["cross-tenant-input"].GetProperty("reasonCode").GetString().ShouldBe("HandlerFailure");
+        scenarios["cross-tenant-input"].GetProperty("leakageObserved").GetBoolean().ShouldBeFalse();
+        scenarios["derived-state-deletion"].GetProperty("detailQueryState").GetString().ShouldBe("non-current");
+        scenarios["derived-state-deletion"].GetProperty("listQueryState").GetString().ShouldBe("Rebuilding");
+        scenarios["derived-state-deletion"].GetProperty("queryTimeBackfillObserved").GetBoolean().ShouldBeFalse();
+        scenarios["full-replay"].GetProperty("handlerStatus").GetString().ShouldBe("Completed");
+        scenarios["full-replay"].GetProperty("reasonCode").GetString().ShouldBe("None");
+        scenarios["full-replay"].GetProperty("batchOperationCount").GetInt32().ShouldBe(3);
+        scenarios["full-replay"].GetProperty("restoredDispatchLedgerKey").GetString()
+            .ShouldBe(boundary.GetProperty("dispatchLedgerKey").GetString());
+        scenarios["full-replay"].GetProperty("detailQueryState").GetString().ShouldBe("Current");
+        scenarios["full-replay"].GetProperty("listQueryState").GetString().ShouldBe("Current");
         scenarios["full-replay"].GetProperty("queryResultsEquivalentToPreDeletion").GetBoolean().ShouldBeTrue();
 
         JsonElement hosting = proof.GetProperty("hostingEvidence");
@@ -78,8 +136,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         hosting.GetProperty("conversationsServiceDefaultsRemoved").GetBoolean().ShouldBeTrue();
 
         JsonElement promotion = proof.GetProperty("eventStorePromotion");
-        promotion.GetProperty("commit").GetString().ShouldBe("4c63f5d3e8089a85891cdbf8d87ce82ee445354a");
+        promotion.GetProperty("commit").GetString().ShouldBe("defb426f0bd9e3bd1247bc7149605b4bb6ef70d0");
         promotion.GetProperty("remoteContainsCommit").GetBoolean().ShouldBeTrue();
+        GitIn("references/Hexalith.EventStore", "for-each-ref", "--contains", promotion.GetProperty("commit").GetString()!, "--format=%(refname)", "refs/remotes/")
+            .ShouldNotBeNullOrWhiteSpace("the recorded EventStore commit must remain on a locally known remote-tracking ref");
         promotion.GetProperty("submoduleWorktreeClean").GetBoolean().ShouldBeTrue();
         promotion.GetProperty("requiredGitlinkMode").GetString().ShouldBe("160000");
         promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString().ShouldBe(
@@ -88,34 +148,26 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         // The rebinding delta is explicit so the platform additions used by the final implementation
         // remain distinguishable from later unrelated submodule commits.
         JsonElement delta = promotion.GetProperty("promotedCapabilityDelta");
-        delta.GetProperty("previouslyRecordedCommit").GetString().ShouldBe("b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e");
+        delta.GetProperty("previouslyRecordedCommit").GetString().ShouldBe("4c63f5d3e8089a85891cdbf8d87ce82ee445354a");
         delta.GetProperty("currentCommit").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
-        delta.GetProperty("storyCapabilityCommit").GetString().ShouldBe("700364eddaf92e82a8bd9131e94cdea96681d59d");
+        delta.GetProperty("storyCapabilityCommit").GetString().ShouldBe("bb4c81d4eaf33521afc00bdfa634e1c2e790f796");
         delta.GetProperty("promotedCapabilityFilesChanged")
             .EnumerateArray()
             .Select(value => value.GetString())
             .Order(StringComparer.Ordinal)
             .ShouldBe(
             [
-                "src/Hexalith.EventStore.Client/Projections/DaprReadModelBatchStateAccessor.cs",
-                "src/Hexalith.EventStore.Client/Projections/DaprReadModelStore.cs",
-                "src/Hexalith.EventStore.Client/Projections/IReadModelBatchStateAccessor.cs",
-                "src/Hexalith.EventStore.Client/Projections/IReadModelExpiringStore.cs",
-                "src/Hexalith.EventStore.Client/Projections/ProjectionDispatchOptions.cs",
-                "src/Hexalith.EventStore.Client/Projections/RawTransactionOperation.cs",
-                "src/Hexalith.EventStore.Client/Projections/ReadModelBatchFingerprint.cs",
-                "src/Hexalith.EventStore.Client/Projections/ReadModelBatchOperation.cs",
-                "src/Hexalith.EventStore.Client/Projections/ReadModelBatchProtocol.cs",
-                "src/Hexalith.EventStore.Client/Registration/ReadModelStoreServiceCollectionExtensions.cs",
+                "src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs",
                 "src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
-                "src/Hexalith.EventStore.Testing/Fakes/InMemoryReadModelStore.cs",
+                "src/Hexalith.EventStore.DomainService/IAsyncDomainProjectionReconciliationHandler.cs",
+                "src/Hexalith.EventStore.Server/Projections/NamedProjectionDispatchCoordinator.cs",
             ]);
 
         JsonElement promotionGate = promotion.GetProperty("umbrellaMechanicalGate");
         promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
         promotionGate.GetProperty("result").GetString().ShouldBe("pass");
         promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        promotionGate.GetProperty("candidate").GetString().ShouldBe("28e217ed0ac8c1028a4783f80ec47393ff1fbfbd");
+        promotionGate.GetProperty("candidate").GetString().ShouldBe("b261fe209c4ca6c966f4bd2a78a62a2d83ddde08");
         promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
         promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
         promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
@@ -167,15 +219,21 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             ["references/Hexalith.Memories"] = "UNDECLARED_GITLINK_CHANGE",
         });
 
-        foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
+        Dictionary<string, JsonElement> evaluatedByPath = promotionGate.GetProperty("evaluated")
+            .EnumerateArray()
+            .ToDictionary(entry => entry.GetProperty("path").GetString()!, StringComparer.Ordinal);
+        evaluatedByPath.Keys.Order(StringComparer.Ordinal).ShouldBe(changedGitlinks);
+
+        foreach ((string path, JsonElement evaluated) in evaluatedByPath)
         {
-            string path = evaluated.GetProperty("path").GetString()!;
             evaluated.GetProperty("initialized").GetBoolean().ShouldBeTrue(path);
             evaluated.GetProperty("clean").GetBoolean().ShouldBeTrue(path);
             JsonElement remoteAvailable = evaluated.GetProperty("remoteAvailable");
             if (declaredScope.Contains(path, StringComparer.Ordinal))
             {
                 remoteAvailable.GetBoolean().ShouldBeTrue(path);
+                GitIn(path, "for-each-ref", "--contains", evaluated.GetProperty("recordedGitlink").GetString()!, "--format=%(refname)", "refs/remotes/")
+                    .ShouldNotBeNullOrWhiteSpace($"{path} must contain the recorded commit on a locally known remote-tracking ref");
             }
             else
             {
@@ -208,6 +266,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         Git("diff", "--name-only", $"{candidate}..HEAD", "--", "references/")
             .ShouldBeEmpty("no root gitlink may move after the recorded promotion candidate");
+        Git("diff", "--name-only", $"{candidate}..HEAD", "--", "src/")
+            .ShouldBeEmpty("no production source may move after the recorded promotion candidate");
+        Git("status", "--porcelain=v1", "--", "src/")
+            .ShouldBeEmpty("the proof cannot bind a candidate while production source changes remain uncommitted");
 
         foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
         {
@@ -274,14 +336,44 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         run.GetProperty("skipped").GetInt32().ShouldBe(0);
     }
 
+    [Fact]
+    public void Ac5AndAc6ClaimsShouldBeBoundToPassingMachineReadableRuns()
+    {
+        using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
+        JsonElement proof = proofDocument.RootElement;
+        Dictionary<string, XunitRun> runs = ValidateRunArtifacts(proof.GetProperty("runArtifacts"));
+
+        foreach (JsonElement scenario in proof.GetProperty("dispatchEvidence").EnumerateArray())
+        {
+            AssertScenarioRunPassed(scenario, runs);
+        }
+
+        JsonElement gateway = proof.GetProperty("gatewayBoundaryEvidence");
+        foreach (JsonElement scenario in gateway.GetProperty("scenarios").EnumerateArray())
+        {
+            AssertScenarioRunPassed(scenario, runs);
+        }
+
+        XunitRun gatewayRun = runs["gateway-boundary"];
+        gateway.GetProperty("run").GetProperty("passed").GetInt32().ShouldBe(gatewayRun.Passed);
+        gateway.GetProperty("run").GetProperty("failed").GetInt32().ShouldBe(gatewayRun.Failed);
+        gateway.GetProperty("run").GetProperty("skipped").GetInt32().ShouldBe(gatewayRun.Skipped);
+    }
+
     private static string Git(params string[] arguments)
+        => RunGit(FindRepositoryRoot(), arguments);
+
+    private static string GitIn(string relativePath, params string[] arguments)
+        => RunGit(Path.Combine(FindRepositoryRoot(), relativePath), arguments);
+
+    private static string RunGit(string workingDirectory, params string[] arguments)
     {
         ProcessStartInfo startInfo = new("git")
         {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
-            WorkingDirectory = FindRepositoryRoot(),
+            WorkingDirectory = workingDirectory,
         };
         foreach (string argument in arguments)
         {
@@ -301,7 +393,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         if (process.ExitCode != 0)
         {
             throw new InvalidOperationException(
-                $"git {string.Join(' ', arguments)} failed with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
+                $"git {string.Join(' ', arguments)} failed in {workingDirectory} with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
         }
 
         return standardOutput.Trim();
@@ -313,7 +405,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
         JsonElement proof = proofDocument.RootElement;
 
-        ValidateBindings(proof.GetProperty("sourceBindings"));
+        JsonElement sourceBoundary = proof.GetProperty("sourceBoundary");
+        ValidateBindings(sourceBoundary.GetProperty("productionBindings"));
+        ValidateBindings(sourceBoundary.GetProperty("testBindings"));
+        ValidateBindings(sourceBoundary.GetProperty("platformBindings"));
+        ValidateSourceBoundary(proof, sourceBoundary);
         ValidateBindings(proof.GetProperty("immutableSignedV1Bindings"));
 
         using JsonDocument decisionDocument = LoadEvidence("success-metric-report-and-attestation-v1-release-owner-decision.json");
@@ -341,6 +437,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         Git("rev-parse", $"{postSourceCommit}^{{commit}}").ShouldBe(postSourceCommit);
         Git("merge-base", "--is-ancestor", postSourceCommit, "HEAD").ShouldBeEmpty();
         postSourceCommit.ShouldBe(promotionGate.GetProperty("candidate").GetString());
+        DateTimeOffset.Parse(post.GetProperty("capturedAtUtc").GetString()!, System.Globalization.CultureInfo.InvariantCulture)
+            .ShouldBeGreaterThanOrEqualTo(DateTimeOffset.Parse(
+                Git("show", "-s", "--format=%cI", postSourceCommit),
+                System.Globalization.CultureInfo.InvariantCulture));
         Git("rev-parse", $"{postSourceCommit}:references/Hexalith.EventStore")
             .ShouldBe(post.GetProperty("eventStoreWorktreeBaseCommit").GetString());
 
@@ -348,21 +448,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         ValidateBinding(proofPerformance.GetProperty("post"));
         proofPerformance.GetProperty("rowsTotal").GetInt32().ShouldBe(4);
 
-        JsonElement baselineFixture = baseline.GetProperty("fixture");
-        JsonElement postFixture = post.GetProperty("fixture");
-        foreach (string propertyName in new[]
-                 {
-                     "sha256",
-                     "projectSha256",
-                     "warmupRepetitions",
-                     "repetitions",
-                     "operationsPerSample",
-                     "concurrency",
-                     "processing",
-                 })
-        {
-            postFixture.GetProperty(propertyName).GetRawText().ShouldBe(baselineFixture.GetProperty(propertyName).GetRawText());
-        }
+        post.GetProperty("fixture").GetRawText().ShouldBe(baseline.GetProperty("fixture").GetRawText());
+        post.GetProperty("environment").GetRawText().ShouldBe(baseline.GetProperty("environment").GetRawText());
+        post.GetProperty("command").GetString().ShouldBe(baseline.GetProperty("command").GetString());
+        post.GetProperty("workloadManifest").GetRawText().ShouldBe(baseline.GetProperty("workloadManifest").GetRawText());
+
+        Dictionary<string, double[]> baselineRunnerSamples = ReadBenchmarkRunnerSamples(baseline.GetProperty("runArtifact"));
+        Dictionary<string, double[]> postRunnerSamples = ReadBenchmarkRunnerSamples(post.GetProperty("runArtifact"));
 
         Dictionary<string, JsonElement> baselineRows = RowsByHotPath(baseline);
         Dictionary<string, JsonElement> postRows = RowsByHotPath(post);
@@ -381,6 +473,8 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
             baselineRaw.Length.ShouldBe(30);
             postRaw.Length.ShouldBe(30);
+            baselineRaw.ShouldBe(baselineRunnerSamples[hotPath]);
+            postRaw.ShouldBe(postRunnerSamples[hotPath]);
             baselineRaw.ShouldAllBe(value => value > 0);
             postRaw.ShouldAllBe(value => value > 0);
             baselineRow.GetProperty("p95Microseconds").GetDouble().ShouldBe(baselineP95, tolerance: 0.0000005);
@@ -415,8 +509,8 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             "`projection:conversations:{base64url(tenantId)}:{base64url(conversationId)}`",
             Case.Sensitive);
         markdown.ShouldContain("`projection:conversations-index:{base64url(tenantId)}`", Case.Sensitive);
-        markdown.ShouldContain("4c63f5d3e8089a85891cdbf8d87ce82ee445354a", Case.Sensitive);
-        markdown.ShouldContain("28e217ed0ac8c1028a4783f80ec47393ff1fbfbd", Case.Sensitive);
+        markdown.ShouldContain("defb426f0bd9e3bd1247bc7149605b4bb6ef70d0", Case.Sensitive);
+        markdown.ShouldContain("b261fe209c4ca6c966f4bd2a78a62a2d83ddde08", Case.Sensitive);
         markdown.ShouldContain("zero blockers and four undeclared-gitlink warnings", Case.Sensitive);
         markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
         markdown.ShouldContain("SM-C2 remains an open release blocker", Case.Sensitive);
@@ -438,12 +532,149 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         return ordered[Math.Max(0, index)];
     }
 
+    private static Dictionary<string, double[]> ReadBenchmarkRunnerSamples(JsonElement binding)
+    {
+        ValidateBinding(binding);
+        string path = Path.Combine(FindRepositoryRoot(), binding.GetProperty("path").GetString()!);
+        XDocument report = XDocument.Load(path);
+        XElement assembly = report.Descendants("assembly").Single();
+        assembly.Attribute("passed")!.Value.ShouldBe("1");
+        assembly.Attribute("failed")!.Value.ShouldBe("0");
+        assembly.Attribute("skipped")!.Value.ShouldBe("0");
+        string output = report.Descendants("output").Single().Value;
+        var rows = new Dictionary<string, double[]>(StringComparer.Ordinal);
+        foreach (string line in output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!line.StartsWith("SM-C2|", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            string[] parts = line.Split('|');
+            parts.Length.ShouldBe(4, line);
+            string hotPath = parts[1];
+            const string RawPrefix = "raw-microseconds=";
+            parts[2].ShouldStartWith(RawPrefix);
+            double[] samples =
+            [
+                .. parts[2][RawPrefix.Length..]
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(value => double.Parse(value, System.Globalization.CultureInfo.InvariantCulture)),
+            ];
+            const string P95Prefix = "p95-microseconds=";
+            parts[3].ShouldStartWith(P95Prefix);
+            double.Parse(parts[3][P95Prefix.Length..], System.Globalization.CultureInfo.InvariantCulture)
+                .ShouldBe(P95(samples), tolerance: 0.0000005);
+            rows.Add(hotPath, samples);
+        }
+
+        rows.Keys.Order(StringComparer.Ordinal).ShouldBe(ExpectedHotPaths);
+        return rows;
+    }
+
     private static void ValidateBindings(JsonElement bindings)
     {
         foreach (JsonElement binding in bindings.EnumerateArray())
         {
             ValidateBinding(binding);
         }
+    }
+
+    private static void ValidateSourceBoundary(JsonElement proof, JsonElement sourceBoundary)
+    {
+        string baseline = proof.GetProperty("baselineRevision").GetString()!;
+        string candidate = proof.GetProperty("eventStorePromotion")
+            .GetProperty("umbrellaMechanicalGate")
+            .GetProperty("candidate")
+            .GetString()!;
+
+        var changedProduction = new HashSet<string>(StringComparer.Ordinal);
+        var removedProduction = new HashSet<string>(StringComparer.Ordinal);
+        foreach (string line in Git("diff", "--name-status", $"{baseline}..{candidate}", "--", "src/")
+                     .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            string[] fields = line.Split('\t');
+            fields.Length.ShouldBeGreaterThanOrEqualTo(2, line);
+            string path = fields[^1];
+            if (fields[0].StartsWith('D'))
+            {
+                removedProduction.Add(path);
+            }
+            else
+            {
+                changedProduction.Add(path);
+            }
+        }
+
+        string[] recordedProduction =
+        [
+            .. sourceBoundary.GetProperty("productionBindings")
+                .EnumerateArray()
+                .Select(binding => binding.GetProperty("path").GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        recordedProduction.ShouldBe(changedProduction.Order(StringComparer.Ordinal));
+
+        string[] recordedRemoved =
+        [
+            .. sourceBoundary.GetProperty("removedProductionPaths")
+                .EnumerateArray()
+                .Select(path => path.GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        recordedRemoved.ShouldBe(removedProduction.Order(StringComparer.Ordinal));
+
+        string[] recordedTests =
+        [
+            .. sourceBoundary.GetProperty("testBindings")
+                .EnumerateArray()
+                .Select(binding => binding.GetProperty("path").GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        recordedTests.ShouldBe(ExpectedTestBindingPaths.Order(StringComparer.Ordinal));
+    }
+
+    private static Dictionary<string, XunitRun> ValidateRunArtifacts(JsonElement artifacts)
+    {
+        var result = new Dictionary<string, XunitRun>(StringComparer.Ordinal);
+        foreach (JsonElement artifact in artifacts.EnumerateArray())
+        {
+            ValidateBinding(artifact);
+            string id = artifact.GetProperty("id").GetString()!;
+            string path = Path.Combine(FindRepositoryRoot(), artifact.GetProperty("path").GetString()!);
+            XDocument document = XDocument.Load(path, LoadOptions.PreserveWhitespace);
+            XElement assembly = document.Descendants("assembly").Single();
+            string[] passedTests =
+            [
+                .. assembly.Descendants("test")
+                    .Where(test => string.Equals((string?)test.Attribute("result"), "Pass", StringComparison.Ordinal))
+                    .Select(test => (string?)test.Attribute("name"))
+                    .Where(name => !string.IsNullOrWhiteSpace(name))
+                    .Select(name => name!)
+                    .Order(StringComparer.Ordinal),
+            ];
+            var run = new XunitRun(
+                int.Parse(assembly.Attribute("passed")!.Value, System.Globalization.CultureInfo.InvariantCulture),
+                int.Parse(assembly.Attribute("failed")!.Value, System.Globalization.CultureInfo.InvariantCulture),
+                int.Parse(assembly.Attribute("skipped")!.Value, System.Globalization.CultureInfo.InvariantCulture),
+                passedTests);
+            artifact.GetProperty("passed").GetInt32().ShouldBe(run.Passed, id);
+            artifact.GetProperty("failed").GetInt32().ShouldBe(run.Failed, id);
+            artifact.GetProperty("skipped").GetInt32().ShouldBe(run.Skipped, id);
+            result.Add(id, run);
+        }
+
+        result.Keys.Order(StringComparer.Ordinal).ShouldBe(
+            ["deterministic-dispatch", "gateway-boundary", "population-boundary"]);
+        return result;
+    }
+
+    private static void AssertScenarioRunPassed(JsonElement scenario, IReadOnlyDictionary<string, XunitRun> runs)
+    {
+        string artifactId = scenario.GetProperty("runArtifactId").GetString()!;
+        string testCase = scenario.GetProperty("testCase").GetString()!;
+        runs.ContainsKey(artifactId).ShouldBeTrue(artifactId);
+        runs[artifactId].PassedTests.ShouldContain(testCase, $"{testCase} must be a passing test in {artifactId}");
     }
 
     private static void ValidateBinding(JsonElement binding)
@@ -482,4 +713,6 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         throw new DirectoryNotFoundException("Could not find the repository root.");
     }
+
+    private sealed record XunitRun(int Passed, int Failed, int Skipped, IReadOnlyCollection<string> PassedTests);
 }

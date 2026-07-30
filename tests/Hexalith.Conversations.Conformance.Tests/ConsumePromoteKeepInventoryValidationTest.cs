@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Diagnostics;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 
@@ -36,6 +38,7 @@ namespace Hexalith.Conversations.Conformance.Tests;
 public sealed class ConsumePromoteKeepInventoryValidationTest
 {
     private const string InventoryFileName = "consume-promote-keep-inventory-v1.json";
+    private const string Story62DispositionFileName = "consume-promote-keep-story-6-2-disposition-v1.json";
 
     private static readonly string[] ValidClassifications = ["Consume", "Promote", "Keep"];
 
@@ -205,6 +208,19 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
     }
 
     [Fact]
+    public void Story62DispositionShouldPreserveSignedV1AndReproduceTheConsumedPath()
+    {
+        JsonElement[] entries = LoadStory62DispositionEntries();
+
+        entries.Length.ShouldBe(1);
+        JsonElement entry = entries.Single();
+        entry.GetProperty("entryId").GetString().ShouldBe("CL-service-defaults-greenfield-consumption-1");
+        entry.GetProperty("areaId").GetString().ShouldBe("service-defaults-greenfield");
+        entry.GetProperty("resolution").GetString().ShouldBe("upheld");
+        EntryReferencesPath(entry, "src/Hexalith.Conversations.ServiceDefaults/").ShouldBeTrue();
+    }
+
+    [Fact]
     public void NoSourceFileShouldBeDoubleCountedAcrossAreas()
     {
         // AC1: "no source double-counted". A path-STRING comparison is insufficient — a 'Foo/**' glob in one area can
@@ -226,17 +242,19 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
                 {
                     // A Consume/Promote glob legitimately empties once its owning story consumes the code — that is the
                     // Boilerplate Reduction refactor's GOAL (measured as a reduction by SM-1), not a stale/mistyped path.
-                    // Tolerate the empty resolution ONLY when an append-only changeLog entry accounts for THIS SPECIFIC
-                    // consumed glob (Story 1.5 classification-change-procedure-v1). Scope the tolerance to the exact spec —
-                    // not merely to the area — so a stale/mistyped SIBLING glob in an area that already logged an unrelated
-                    // consumption is still caught. Keep the hard failure for an unaccounted empty and for Keep areas
+                    // Tolerate the empty resolution ONLY when an append-only disposition entry accounts for THIS SPECIFIC
+                    // consumed glob. Signed v1 remains byte-identical; later entries live in a base-hash-bound supplement
+                    // whose deletion claim is re-derived from git. Scope the tolerance to the exact spec — not merely to
+                    // the area — so a stale/mistyped SIBLING glob in an area with another entry is still caught. Keep the
+                    // hard failure for an unaccounted empty and for Keep areas
                     // (vanishing Keep code is a regression, not a consumption). There is nothing to attribute when zero
                     // files resolve, so the double-count check is skipped for this spec.
                     bool consumptionLogged = classification is "Consume" or "Promote"
-                        && (ChangeLogAccountsForConsumedSpec(id, spec) || CorrectiveProofAccountsForConsumedSpec(id, spec));
+                        && ChangeLogAccountsForConsumedSpec(id, spec);
                     consumptionLogged.ShouldBeTrue(
                         $"Area '{id}' path '{spec}' resolves to no .cs file. If this glob was consumed by its owning story, "
-                        + "record it (referencing this path) in the inventory's append-only changeLog; otherwise it is a "
+                        + "record it (referencing this path) in the signed inventory changeLog or a mechanically bound "
+                        + "versioned disposition supplement; otherwise it is a "
                         + "stale or mistyped path.");
                     continue;
                 }
@@ -250,25 +268,6 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
                 }
             }
         }
-    }
-
-    private static bool CorrectiveProofAccountsForConsumedSpec(string areaId, string spec)
-    {
-        if (!string.Equals(areaId, "service-defaults-greenfield", StringComparison.Ordinal)
-            || !string.Equals(spec, "src/Hexalith.Conversations.ServiceDefaults/**", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
-        string proofPath = Path.Combine(ReleaseEvidenceDirectory(), "projection-read-store-population-proof-v2.json");
-        if (!File.Exists(proofPath))
-        {
-            return false;
-        }
-
-        using JsonDocument proof = JsonDocument.Parse(File.ReadAllText(proofPath));
-        return proof.RootElement.GetProperty("story").GetString() == "6.2"
-            && proof.RootElement.GetProperty("hostingEvidence").GetProperty("conversationsServiceDefaultsRemoved").GetBoolean();
     }
 
     [Fact]
@@ -453,17 +452,65 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         return doc.RootElement.GetProperty("areas").EnumerateArray().Select(e => e.Clone()).ToArray();
     }
 
-    // True when the inventory's append-only changeLog carries an entry that targets this area AND references the specific
-    // now-empty path spec — the sanctioned record (Story 1.5 classification-change-procedure-v1) that THIS glob is an
-    // accounted-for consumption rather than a stale/mistyped path. Matching on the spec's literal (non-wildcard) prefix
-    // keeps the tolerance scoped to the exact consumed glob, so an unrelated stale sibling glob in the same area still fails.
+    // True when the signed inventory changeLog or its mechanically bound Story 6.2 supplement carries an entry that
+    // targets this area AND references the specific now-empty path spec. Matching on the spec's literal prefix keeps
+    // the tolerance scoped to the exact consumed glob, so an unrelated stale sibling glob still fails.
     private static bool ChangeLogAccountsForConsumedSpec(string areaId, string spec)
     {
         string specPrefix = SpecLiteralPrefix(spec);
         using JsonDocument doc = LoadCommittedJson();
-        return doc.RootElement.GetProperty("changeLog").EnumerateArray()
+        IEnumerable<JsonElement> entries = doc.RootElement.GetProperty("changeLog")
+            .EnumerateArray()
+            .Select(entry => entry.Clone())
+            .Concat(LoadStory62DispositionEntries());
+        return entries
             .Where(e => e.TryGetProperty("areaId", out JsonElement a) && a.GetString() == areaId)
             .Any(e => EntryReferencesPath(e, specPrefix));
+    }
+
+    private static JsonElement[] LoadStory62DispositionEntries()
+    {
+        string repositoryRoot = FindRepositoryRoot();
+        string artifactPath = Path.Combine(ReleaseEvidenceDirectory(), Story62DispositionFileName);
+        File.Exists(artifactPath).ShouldBeTrue($"Expected Story 6.2 disposition file at '{artifactPath}'.");
+
+        using JsonDocument document = JsonDocument.Parse(File.ReadAllText(artifactPath));
+        JsonElement root = document.RootElement;
+        root.GetProperty("artifactVersion").GetString().ShouldBe("consume-promote-keep-story-6-2-disposition-v1");
+        root.GetProperty("story").GetString().ShouldBe("6.2");
+
+        JsonElement baseInventory = root.GetProperty("baseInventory");
+        baseInventory.GetProperty("path").GetString().ShouldBe($"docs/release-evidence/{InventoryFileName}");
+        string inventoryPath = Path.Combine(repositoryRoot, baseInventory.GetProperty("path").GetString()!);
+        Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(inventoryPath))).ToLowerInvariant()
+            .ShouldBe(baseInventory.GetProperty("sha256").GetString());
+
+        JsonElement verification = root.GetProperty("sourceVerification");
+        string baseline = verification.GetProperty("baseline").GetString()!;
+        string candidate = verification.GetProperty("candidate").GetString()!;
+        verification.GetProperty("result").GetString().ShouldBe("verified");
+        string[] recordedDeletedPaths =
+        [
+            .. verification.GetProperty("deletedPaths")
+                .EnumerateArray()
+                .Select(path => path.GetString()!)
+                .Order(StringComparer.Ordinal),
+        ];
+        string[] actualDeletedPaths = RunGit(
+                repositoryRoot,
+                "diff",
+                "--diff-filter=D",
+                "--name-only",
+                baseline,
+                candidate,
+                "--",
+                "src/Hexalith.Conversations.ServiceDefaults")
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Order(StringComparer.Ordinal)
+            .ToArray();
+        actualDeletedPaths.ShouldBe(recordedDeletedPaths);
+
+        return root.GetProperty("changeLog").EnumerateArray().Select(entry => entry.Clone()).ToArray();
     }
 
     // The fixed (pre-wildcard) portion of a path spec — e.g. "src/Foo/Bar/**" → "src/Foo/Bar/". Used to confirm a
@@ -499,6 +546,28 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
         string path = Path.Combine(ReleaseEvidenceDirectory(), InventoryFileName);
         File.Exists(path).ShouldBeTrue($"Expected committed inventory file at '{path}'.");
         return JsonDocument.Parse(File.ReadAllText(path));
+    }
+
+    private static string RunGit(string workingDirectory, params string[] arguments)
+    {
+        var startInfo = new ProcessStartInfo("git")
+        {
+            WorkingDirectory = workingDirectory,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)!;
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        process.ExitCode.ShouldBe(0, $"git {string.Join(' ', arguments)} failed: {error}");
+        return output;
     }
 
     private static string ReleaseEvidenceDirectory()

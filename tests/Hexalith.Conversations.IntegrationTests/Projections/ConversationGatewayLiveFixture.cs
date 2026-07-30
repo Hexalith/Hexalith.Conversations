@@ -33,6 +33,7 @@ using Microsoft.AspNetCore.Hosting.Server;
 using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Hexalith.Conversations.IntegrationTests.Projections;
 
@@ -70,6 +71,7 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
 
     private readonly StringBuilder _daprStandardError = new();
     private readonly StringBuilder _daprStandardOutput = new();
+    private readonly RecordingLoggerProvider _recordingLoggerProvider = new();
     private int _appPort;
     private string? _componentsDirectory;
     private int _daprGrpcPort;
@@ -108,6 +110,11 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
     /// <summary>Gets the running host services (gateway plus Conversations domain service).</summary>
     public IServiceProvider Services => _testHost?.Services
         ?? throw new InvalidOperationException("The Conversations gateway live host has not started.");
+
+    /// <summary>Reports whether the running host emitted at least one record for a production log category.</summary>
+    /// <param name="category">The exact logger category.</param>
+    /// <returns><see langword="true"/> when the category was observed.</returns>
+    public bool HasObservedLogCategory(string category) => _recordingLoggerProvider.HasCategory(category);
 
     /// <summary>Creates an actor proxy factory bound to this fixture's sidecar.</summary>
     /// <returns>An actor proxy factory targeting the fixture sidecar HTTP endpoint.</returns>
@@ -322,6 +329,8 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         // The sidecar, actor runtime, and gateway are all in-process here, so request logging would bury the
         // assertion output without adding diagnostic value.
         builder.Configuration["Logging:LogLevel:Default"] = "Warning";
+        builder.Logging.AddProvider(_recordingLoggerProvider);
+        builder.Logging.AddFilter<RecordingLoggerProvider>(category: null, LogLevel.Debug);
 
         _ = builder.WebHost.ConfigureKestrel(options => options.Listen(
             IPAddress.Loopback,
@@ -478,6 +487,44 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         lock (buffer)
         {
             _ = buffer.Clear();
+        }
+    }
+
+    private sealed class RecordingLoggerProvider : ILoggerProvider
+    {
+        private readonly System.Collections.Concurrent.ConcurrentDictionary<string, byte> _categories =
+            new(StringComparer.Ordinal);
+
+        public ILogger CreateLogger(string categoryName) => new RecordingLogger(categoryName, _categories);
+
+        public bool HasCategory(string category) => _categories.ContainsKey(category);
+
+        public void Dispose()
+        {
+        }
+
+        private sealed class RecordingLogger(
+            string category,
+            System.Collections.Concurrent.ConcurrentDictionary<string, byte> categories) : ILogger
+        {
+            public IDisposable? BeginScope<TState>(TState state)
+                where TState : notnull
+                => null;
+
+            public bool IsEnabled(LogLevel logLevel) => logLevel >= LogLevel.Debug;
+
+            public void Log<TState>(
+                LogLevel logLevel,
+                EventId eventId,
+                TState state,
+                Exception? exception,
+                Func<TState, Exception?, string> formatter)
+            {
+                if (IsEnabled(logLevel))
+                {
+                    categories[category] = 0;
+                }
+            }
         }
     }
 

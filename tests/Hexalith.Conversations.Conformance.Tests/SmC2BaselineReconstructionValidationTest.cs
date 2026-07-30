@@ -21,9 +21,9 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// depends on nothing outside its declared measured closure.
 /// </para>
 /// <para>
-/// When git history is unavailable the git-backed assertions are skipped rather than silently passing, and the
-/// executed-check counter proves which comparisons actually ran. A zero-assertion green run is the failure mode
-/// this shape exists to prevent.
+/// Git history is mandatory evidence: an unresolved baseline is a failure, never a skipped reconstruction check.
+/// The evaluated MSBuild project graph and raw runner artifact are also bound so fixture-source inspection cannot
+/// stand in for the workload that actually executed.
 /// </para>
 /// </remarks>
 [Collection(ReleaseEvidenceArtifactCollection.Name)]
@@ -65,53 +65,48 @@ public sealed class SmC2BaselineReconstructionValidationTest
         projectOverlay.GetProperty("identicalInPostRun").GetBoolean().ShouldBeTrue();
         string projectPath = Path.Combine(FindRepositoryRoot(), projectOverlay.GetProperty("path").GetString()!);
         ComputeSha256(projectPath).ShouldBe(projectOverlay.GetProperty("sha256").GetString());
+
+        ValidateBinding(document.RootElement.GetProperty("runArtifact"));
     }
 
     [Fact]
-    public void FixtureShouldDependOnlyOnTheDeclaredMeasuredClosure()
+    public void EvaluatedProjectGraphShouldMatchTheRecordedWorkloadManifest()
     {
         using JsonDocument document = LoadEvidence(BaselineJsonFileName);
         JsonElement reconstruction = document.RootElement.GetProperty("reconstruction");
-        string[] declaredProjects =
+        JsonElement workloadManifest = document.RootElement.GetProperty("workloadManifest");
+        string projectPath = reconstruction.GetProperty("projectOverlay").GetProperty("path").GetString()!;
+        string output = RunProcess(
+            "dotnet",
+            "msbuild",
+            projectPath,
+            "-p:Configuration=Release",
+            "-p:UseHexalithProjectReferences=true",
+            "-getItem:ProjectReference");
+        using JsonDocument graph = JsonDocument.Parse(output[output.IndexOf('{')..]);
+        string repositoryRoot = FindRepositoryRoot();
+        string[] evaluatedReferences =
         [
-            .. reconstruction.GetProperty("measuredProductionClosure")
-                .GetProperty("projects")
+            .. graph.RootElement.GetProperty("Items")
+                .GetProperty("ProjectReference")
                 .EnumerateArray()
-                .Select(static project => project.GetString()!),
+                .Select(reference => reference.GetProperty("FullPath").GetString()!)
+                .Select(path => Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/'))
+                .Order(StringComparer.Ordinal),
         ];
-
-        declaredProjects.Order(StringComparer.Ordinal).ShouldBe(
+        string[] recordedReferences =
         [
-            "references/Hexalith.EventStore/src/Hexalith.EventStore.Client",
-            "references/Hexalith.EventStore/src/Hexalith.EventStore.Testing",
-            "src/Hexalith.Conversations",
-            "src/Hexalith.Conversations.Contracts",
-            "src/Hexalith.Conversations.Server",
-        ]);
-
-        string fixturePath = Path.Combine(
-            FindRepositoryRoot(),
-            reconstruction.GetProperty("fixtureOverlay").GetProperty("path").GetString()!);
-        string[] hexalithNamespaces =
-        [
-            .. File.ReadLines(fixturePath)
-                .Select(static line => line.Trim())
-                .Where(static line => line.StartsWith("using Hexalith.", StringComparison.Ordinal))
-                .Select(static line => line["using ".Length..].TrimEnd(';')),
+            .. workloadManifest.GetProperty("directProjectReferences")
+                .EnumerateArray()
+                .Select(reference => reference.GetString()!)
+                .Order(StringComparer.Ordinal),
         ];
+        recordedReferences.ShouldBe(evaluatedReferences);
 
-        hexalithNamespaces.ShouldNotBeEmpty(
-            "the fixture scan found no Hexalith usings, so the closure claim would pass without being checked");
-
-        hexalithNamespaces.ShouldContain("Hexalith.Conversations.Server.Queries");
-        hexalithNamespaces.ShouldContain("Hexalith.EventStore.Testing.Fakes");
-
-        string[] allowedPrefixes = ["Hexalith.Conversations", "Hexalith.EventStore.Client", "Hexalith.EventStore.Testing"];
-        foreach (string usedNamespace in hexalithNamespaces)
-        {
-            allowedPrefixes.Any(prefix => usedNamespace.StartsWith(prefix, StringComparison.Ordinal)).ShouldBeTrue(
-                $"'{usedNamespace}' is outside the declared measured production closure");
-        }
+        workloadManifest.GetProperty("commandPaths").GetProperty("HP-CREATE").GetString()
+            .ShouldBe("ConversationTenantAccessGuard -> CreateConversationBoundary.Dispatch -> ConversationAggregate.Handle");
+        workloadManifest.GetProperty("commandPaths").GetProperty("HP-APPEND").GetString()
+            .ShouldBe("ConversationTenantAccessGuard -> IdempotentConversationCommandExecutor (success/replay/conflict)");
     }
 
     [Fact]
@@ -124,12 +119,7 @@ public sealed class SmC2BaselineReconstructionValidationTest
         string projectRelativePath = reconstruction.GetProperty("projectOverlay").GetProperty("path").GetString()!;
         string baselineEventStoreCommit = reconstruction.GetProperty("baselineEventStoreCommit").GetString()!;
 
-        if (!TryRunGit(out _, "rev-parse", "--verify", $"{sourceCommit}^{{commit}}"))
-        {
-            Assert.Skip(
-                $"The declared source commit {sourceCommit} is not resolvable in this checkout, so the "
-                + "reconstruction claims cannot be verified against git here.");
-        }
+        RunGit("rev-parse", "--verify", $"{sourceCommit}^{{commit}}").ShouldBe(sourceCommit);
 
         int executedChecks = 0;
 
@@ -202,6 +192,59 @@ public sealed class SmC2BaselineReconstructionValidationTest
             standardOutput = string.Empty;
             return false;
         }
+    }
+
+    private static string RunGit(params string[] arguments)
+    {
+        if (!TryRunGit(out string output, arguments))
+        {
+            throw new InvalidOperationException($"git {string.Join(' ', arguments)} failed; reconstruction evidence cannot be skipped.");
+        }
+
+        return output.Trim();
+    }
+
+    private static string RunProcess(string executable, params string[] arguments)
+    {
+        ProcessStartInfo startInfo = new(executable)
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            WorkingDirectory = FindRepositoryRoot(),
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException($"{executable} could not be started.");
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        if (!process.WaitForExit(milliseconds: 120_000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new InvalidOperationException($"{executable} did not complete within 120 seconds.");
+        }
+
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"{executable} {string.Join(' ', arguments)} failed with exit code {process.ExitCode}.{Environment.NewLine}{error}");
+        }
+
+        return output;
+    }
+
+    private static void ValidateBinding(JsonElement binding)
+    {
+        string relativePath = binding.GetProperty("path").GetString()!;
+        string fullPath = Path.GetFullPath(Path.Combine(FindRepositoryRoot(), relativePath));
+        Path.IsPathRooted(relativePath).ShouldBeFalse();
+        fullPath.StartsWith(FindRepositoryRoot() + Path.DirectorySeparatorChar, StringComparison.Ordinal).ShouldBeTrue();
+        File.Exists(fullPath).ShouldBeTrue(relativePath);
+        ComputeSha256(fullPath).ShouldBe(binding.GetProperty("sha256").GetString(), relativePath);
     }
 
     private static string ComputeSha256(string path)

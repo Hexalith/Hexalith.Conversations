@@ -7,9 +7,8 @@ using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 
-using Hexalith.Conversations.Aggregates;
-using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 using Hexalith.Conversations.Contracts.Projections;
@@ -19,11 +18,14 @@ using Hexalith.Conversations.Contracts.TrustStates;
 using Hexalith.Conversations.Contracts.Versioning;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Idempotency;
+using Hexalith.Conversations.Server.CommandHandlers;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.Conversations.Server.Queries;
 using Hexalith.Conversations.Server.TenantAccess;
+using Hexalith.Conversations.Validation;
 using Hexalith.EventStore.Client.Queries;
+using Hexalith.EventStore.Contracts.Results;
 using Hexalith.EventStore.Testing.Fakes;
 
 using Microsoft.AspNetCore.DataProtection;
@@ -58,7 +60,7 @@ public sealed class SmC2HotPathBenchmark
     [Fact]
     public async Task FrozenWarmPathInventoryEmitsComparableRawSamples()
     {
-        CreateConversation create = CreateCommand();
+        CreateConversationCommand create = CreateCommand();
         AppendMessageCommand append = AppendCommand("SM-C2 payload");
         AppendMessageCommand duplicate = AppendCommand("SM-C2 payload");
         AppendMessageCommand mismatch = AppendCommand("SM-C2 changed payload");
@@ -66,12 +68,11 @@ public sealed class SmC2HotPathBenchmark
         CancellationToken cancellationToken = TestContext.Current.CancellationToken;
 
         // Prove the measured delegates exercise the required semantics before timing them.
-        (ConversationIdempotencyDecisionKind accepted, ConversationIdempotencyDecisionKind replay, ConversationIdempotencyDecisionKind rejected) =
+        DomainResult created = await ExecuteCreateAsync(create, cancellationToken);
+        created.IsSuccess.ShouldBeTrue();
+        AppendMixResult appendMix =
             await ExecuteAppendMixAsync(append, duplicate, mismatch, cancellationToken);
-        (accepted, replay, rejected).ShouldBe((
-            ConversationIdempotencyDecisionKind.Reserved,
-            ConversationIdempotencyDecisionKind.Duplicate,
-            ConversationIdempotencyDecisionKind.Conflict));
+        appendMix.ShouldBe(new AppendMixResult(Accepted: true, Replayed: true, MismatchRejected: true, MutationCount: 1));
         (int firstPage, int secondPage) = await ListTwoPagesAsync(queryHandler, cancellationToken);
         (firstPage, secondPage).ShouldBe((25, 25));
         ConversationDetailResult opened = await queryHandler.GetAsync(OpenQuery(), cancellationToken);
@@ -80,7 +81,7 @@ public sealed class SmC2HotPathBenchmark
 
         Dictionary<string, double[]> samples = new(StringComparer.Ordinal)
         {
-            ["HP-CREATE"] = Measure(() => ConversationAggregate.Handle(create, state: null)),
+            ["HP-CREATE"] = await MeasureAsync(() => ExecuteCreateAsync(create, cancellationToken)),
             ["HP-APPEND"] = await MeasureAsync(() => ExecuteAppendMixAsync(append, duplicate, mismatch, cancellationToken)),
             ["HP-LIST"] = await MeasureAsync(() => ListTwoPagesAsync(queryHandler, cancellationToken)),
             ["HP-OPEN"] = await MeasureAsync(() => queryHandler.GetAsync(OpenQuery(), cancellationToken)),
@@ -92,11 +93,31 @@ public sealed class SmC2HotPathBenchmark
 
         foreach ((string hotPathId, double[] raw) in samples.OrderBy(static row => row.Key, StringComparer.Ordinal))
         {
-            Console.WriteLine($"SM-C2|{hotPathId}|raw-microseconds={string.Join(',', raw.Select(static value => value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)))}|p95-microseconds={Percentile95(raw):F6}");
+            TestContext.Current.TestOutputHelper?.WriteLine(
+                $"SM-C2|{hotPathId}|raw-microseconds={string.Join(',', raw.Select(static value => value.ToString("F6", System.Globalization.CultureInfo.InvariantCulture)))}|p95-microseconds={Percentile95(raw):F6}");
         }
     }
 
-    private static async ValueTask<(ConversationIdempotencyDecisionKind, ConversationIdempotencyDecisionKind, ConversationIdempotencyDecisionKind)>
+    private static ValueTask<DomainResult> ExecuteCreateAsync(
+        CreateConversationCommand command,
+        CancellationToken cancellationToken)
+        => ConversationTenantAccessGuard.RunAsync(
+            new AllowTenantAccessService(),
+            ConversationTenantAccessRequirement.Write,
+            Tenant,
+            Caller,
+            deniedResult: decision => throw new InvalidOperationException(
+                $"The canonical create benchmark was denied: {decision.DenialReason}."),
+            protectedOperation: _ => ValueTask.FromResult(CreateConversationBoundary.Dispatch(
+                command,
+                Conversation,
+                Timestamp,
+                "event-sm-c2-create")),
+            routeTenantId: Tenant,
+            commandTenantId: command.Metadata.TenantId,
+            cancellationToken: cancellationToken);
+
+    private static async ValueTask<AppendMixResult>
         ExecuteAppendMixAsync(
             AppendMessageCommand append,
             AppendMessageCommand duplicate,
@@ -104,39 +125,56 @@ public sealed class SmC2HotPathBenchmark
             CancellationToken cancellationToken)
     {
         var store = new InMemoryConversationIdempotencyStore();
-        ConversationCommandFingerprint acceptedFingerprint = ConversationCommandFingerprint.Create(append, Conversation);
-        ConversationCommandFingerprint replayFingerprint = ConversationCommandFingerprint.Create(duplicate, Conversation);
-        ConversationCommandFingerprint mismatchFingerprint = ConversationCommandFingerprint.Create(mismatch, Conversation);
-        ConversationIdempotencyDecision accepted = await store.ReserveAsync(
-            acceptedFingerprint,
-            Timestamp,
-            TimeSpan.FromHours(24),
-            cancellationToken);
-        await store.CompleteAsync(
-            acceptedFingerprint,
-            ConversationIdempotencyOutcome.Success(
-                SchemaVersion.Current,
+        var executor = new IdempotentConversationCommandExecutor(
+            store,
+            timeProvider: new FixedTimeProvider(Timestamp.AddMilliseconds(1)));
+        var tenantAccess = new AllowTenantAccessService();
+        int mutationCount = 0;
+
+        async ValueTask<DomainResult> ExecuteAsync(AppendMessageCommand command)
+        {
+            ConversationCommandFingerprint fingerprint = ConversationCommandFingerprint.Create(command, Conversation);
+            return await ConversationTenantAccessGuard.RunAsync(
+                tenantAccess,
+                ConversationTenantAccessRequirement.Write,
                 Tenant,
-                ConversationCommandType.AppendMessageCommand,
-                Conversation,
-                Message,
-                participantPartyId: null,
-                fileId: null,
-                "correlation-sm-c2",
-                "audit-sm-c2"),
-            Timestamp.AddMilliseconds(1),
-            cancellationToken);
-        ConversationIdempotencyDecision replay = await store.ReserveAsync(
-            replayFingerprint,
-            Timestamp.AddMilliseconds(2),
-            TimeSpan.FromHours(24),
-            cancellationToken);
-        ConversationIdempotencyDecision rejected = await store.ReserveAsync(
-            mismatchFingerprint,
-            Timestamp.AddMilliseconds(3),
-            TimeSpan.FromHours(24),
-            cancellationToken);
-        return (accepted.Kind, replay.Kind, rejected.Kind);
+                Caller,
+                deniedResult: decision => throw new InvalidOperationException(
+                    $"The canonical append benchmark was denied: {decision.DenialReason}."),
+                protectedOperation: token => executor.ExecuteAsync(
+                    fingerprint,
+                    Timestamp,
+                    command.Metadata.CorrelationId,
+                    command.Metadata.CausationId,
+                    _ =>
+                    {
+                        mutationCount++;
+                        return ValueTask.FromResult(DomainResult.NoOp());
+                    },
+                    _ => ConversationIdempotencyOutcome.NoOp(
+                        SchemaVersion.Current,
+                        Tenant,
+                        ConversationCommandType.AppendMessageCommand,
+                        Conversation,
+                        "audit-sm-c2",
+                        "audit-sm-c2"),
+                    token),
+                routeTenantId: Tenant,
+                commandTenantId: command.Metadata.TenantId,
+                aggregateTenantId: Tenant,
+                idempotencyTenantId: Tenant,
+                cancellationToken: cancellationToken);
+        }
+
+        DomainResult accepted = await ExecuteAsync(append);
+        DomainResult replay = await ExecuteAsync(duplicate);
+        DomainResult rejected = await ExecuteAsync(mismatch);
+        ConversationRejectedDomainEvent rejection = rejected.Events.Single().ShouldBeOfType<ConversationRejectedDomainEvent>();
+        return new AppendMixResult(
+            accepted.IsNoOp,
+            replay is ConversationIdempotencyReplayResult,
+            rejection.Code == ConversationErrorCode.IdempotencyConflict,
+            mutationCount);
     }
 
     private static async ValueTask<(int FirstPage, int SecondPage)> ListTwoPagesAsync(
@@ -346,17 +384,13 @@ public sealed class SmC2HotPathBenchmark
     private static AppendMessageCommand AppendCommand(string text)
         => new(Metadata("idempotency-append"), Conversation, Message, Actor, text);
 
-    private static CreateConversation CreateCommand()
+    private static CreateConversationCommand CreateCommand()
         => new(
-            new CreateConversationCommand(
-                Metadata("idempotency-create"),
-                Business,
-                Project,
-                Folder,
-                "SM-C2 conversation"),
-            Conversation,
-            Timestamp,
-            "event-sm-c2-create");
+            Metadata("idempotency-create"),
+            Business,
+            Project,
+            Folder,
+            "SM-C2 conversation");
 
     private static ConversationCommandMetadata Metadata(string idempotencyKey)
         => new(
@@ -428,6 +462,8 @@ public sealed class SmC2HotPathBenchmark
     {
         public override DateTimeOffset GetUtcNow() => now;
     }
+
+    private sealed record AppendMixResult(bool Accepted, bool Replayed, bool MismatchRejected, int MutationCount);
 
     private sealed class AllowTenantAccessService : IConversationTenantAccessService
     {

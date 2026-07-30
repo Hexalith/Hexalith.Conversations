@@ -302,13 +302,13 @@ the code at HEAD before triage; subagent severities were discarded and reassigne
 - [x] [Review][Patch] Key template can collide — identifier types permit `:` and the key is built by unescaped concatenation [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs:45] — APPLIED 2026-07-29
 - [x] [Review][Patch] BulkReadAsync validates chunk membership with an O(chunk²) linear scan [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs:227] — APPLIED 2026-07-29
 - [x] [Review][Patch] ProjectAsync accepts an empty event batch where PrepareRebuildAsync rejects it [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:81] — APPLIED 2026-07-29
-- [ ] [Review][Patch] Evidence `batchOperationCount: 2` contradicts the shipped three-operation rebuild plan, and the validator pins the stale constant [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:66]
+- [x] [Review][Patch] Evidence `batchOperationCount: 2` contradicts the shipped three-operation rebuild plan, and the validator pins the stale constant [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:66] — APPLIED 2026-07-30 (pass 6)
 - [x] [Review][Patch] ExecutedLiveBoundaryAssertions is incremented but never read — the documented anti-skip guard cannot fail [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs:53] — APPLIED 2026-07-29
 - [x] [Review][Patch] SM-C2 post evidence `sourceCommit` is the literal string `working-tree-candidate-from-29def44…`, bound to no revision [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:322] — APPLIED 2026-07-29
-- [ ] [Review][Patch] SmC2BaselineReconstructionValidationTest skips when the source commit is unresolvable, and its `executedChecks == 3` anti-vacuity guard sits after the skip [tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs:130]
-- [ ] [Review][Patch] The consumed-spec inventory exemption is satisfied by a self-attested flag in this story's own evidence [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:255]
+- [x] [Review][Patch] SmC2BaselineReconstructionValidationTest skips when the source commit is unresolvable, and its `executedChecks == 3` anti-vacuity guard sits after the skip [tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs:130] — APPLIED 2026-07-30 (pass 6)
+- [x] [Review][Patch] The consumed-spec inventory exemption is satisfied by a self-attested flag in this story's own evidence [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:255] — APPLIED 2026-07-30 (pass 6)
 - [x] [Review][Patch] The derived-state-deletion scenario deletes only two of the three derived key families, so the surviving-ledger path is never exercised [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:4446] — APPLIED 2026-07-29
-- [ ] [Review][Patch] The dispatch-ledger key family is absent from the AC5 production-boundary evidence and its key assertions [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:2126]
+- [x] [Review][Patch] The dispatch-ledger key family is absent from the AC5 production-boundary evidence and its key assertions [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:2126] — APPLIED 2026-07-30 (pass 6)
 - [ ] [Review][Patch] No test proves a second tenant cannot read the first tenant's projection records (ADR 0003 Verification 5) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1]
 - [x] [Review][Patch] Nothing exercises the list query with two conversations — every end-to-end list proof uses a single-row tenant [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:1] — APPLIED 2026-07-29
 - [x] [Review][Patch] ValidateDispatchIdentity and ComputeRequestFingerprint are never exercised in their failing direction [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1] — APPLIED 2026-07-29
@@ -486,6 +486,60 @@ was not replaced:
 
 Measured gate input: **1,972 total / 1,970 passed / 2 failed / 0 skipped** across all eight root-owned test
 projects. The canonical Release solution build completed with 0 warnings/errors.
+
+### Review Findings — pass 6, evidence/conformance chunk (2026-07-30, `bmad-code-review`, four layers)
+
+Scope reviewed: release-evidence artifacts and their conformance guards in the baseline-to-HEAD Story 6.2
+range (11 files, +1,848/−3). Four review layers produced 21 deduplicated findings. Nine were dismissed after
+verification as already-disclosed blockers, covered parser behavior, unreachable edge cases, or findings
+outside this chunk's contract. The five pre-existing Story 6.8 guard weaknesses are deferred below. Runtime
+tests, workflow/generator/planning changes, and promoted submodule ranges remain separate review chunks.
+
+#### Patches
+
+- [x] [Review][Patch] Re-anchor and regenerate the stale v2 proof against the final source and gitlink candidate (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:199]
+- [x] [Review][Patch] Make the proof's production-source boundary complete and candidate-fresh (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:209]
+- [x] [Review][Patch] Bind AC5/AC6 gateway and dispatch claims to machine-readable run artifacts (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:227]
+- [x] [Review][Patch] Measure HP-CREATE and HP-APPEND through canonical command paths (HIGH) [docs/release-evidence/sm-c2-hot-path-baseline-v1.json:65]
+- [x] [Review][Patch] Make SM-C2 reconstruction and post evidence fully commit-bound and comparable (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs:127]
+- [x] [Review][Patch] Reject a corrective inventory exemption backed only by a failing self-attestation (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:255]
+- [x] [Review][Patch] Re-derive complete promotion evaluation and remote availability instead of trusting partial embedded fields (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:170]
+
+#### Deferred
+
+- [x] [Review][Defer] Scope the final-record generator invocation check to the bounded gate body (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:128] — deferred, pre-existing
+- [x] [Review][Defer] Use a distinct bmad-dev-story completion dependency instead of the follower marker itself (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:40] — deferred, pre-existing
+- [x] [Review][Defer] Derive dual skill-tree parity coverage instead of trusting the Contracts array (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:272] — deferred, pre-existing
+- [x] [Review][Defer] Assert explicit review-commit authorization precedes candidate preparation and both gates (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:148] — deferred, pre-existing
+- [x] [Review][Defer] Reject an empty generated File List in the Story 6.8 conformance guard (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:291] — deferred, pre-existing
+
+#### Patch application outcome — pass 6
+
+All seven selected findings were applied on 2026-07-30. The v2 proof is anchored to candidate
+`b261fe209c4ca6c966f4bd2a78a62a2d83ddde08` and EventStore
+`defb426f0bd9e3bd1247bc7149605b4bb6ef70d0`; its validator now re-derives the complete changed-gitlink
+set, candidate tree entries, remote-tracking containment, post-candidate production freshness, and exact
+production/test/platform source hashes. Runner-generated xUnit artifacts bind deterministic dispatch
+(27/27), live DAPR/Redis gateway dispatch (2/2), and population/replay (2/2). The live gateway run also
+observes both platform dispatch log categories and verifies `statestore` is a `state.redis` component with
+the `ACTOR` capability.
+
+SM-C2 now runs CREATE through tenant authorization, `CreateConversationBoundary.Dispatch`, and the aggregate,
+and APPEND through authorization plus `IdempotentConversationCommandExecutor` success/replay/conflict paths.
+The reconstructed baseline and post artifacts carry identical evaluated project graphs, command-path manifests,
+fixture/project hashes, and raw xUnit bindings. CREATE and APPEND pass; LIST and OPEN remain over the frozen 5%
+threshold, so the proof result and story status honestly remain `fail` / `in-progress`.
+
+The failing-proof inventory exemption was removed. The attempted direct append was rejected by the existing
+signed-v1 guards, so the signed inventory was restored byte-for-byte and the consumption is instead recorded in
+`consume-promote-keep-story-6-2-disposition-v1.json`: an additive supplement bound to the signed inventory hash
+whose exact ServiceDefaults deletion set is re-derived from the recorded baseline and candidate.
+
+Final validation used an isolated checkout because the shared root has pre-existing Tenants checkout drift
+(`25bdff...` versus recorded `b04512...`), which was preserved. Integration and Conformance Release builds both
+completed with 0 warnings/errors; focused evidence checks passed 27/27; full Conformance passed 430/430; the
+gateway artifact passed 2/2; both SM-C2 runner captures passed 1/1; and the promotion gate reproduced `pass`,
+0 blockers, and the four disclosed undeclared-gitlink warnings. No files were staged or committed.
 
 ## Dev Notes
 
@@ -1047,6 +1101,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 
 | Date | Change |
 | --- | --- |
+| 2026-07-30 | Code review pass 6 evidence/conformance chunk: applied all seven selected patches, rebound the v2 proof and raw functional/SM-C2 artifacts, made source/promotion/reconstruction checks independently reproducible, preserved signed-v1 inventory through a base-bound Story 6.2 disposition supplement, and passed 430/430 Conformance plus the isolated builds and live gateway/promotion gates. SM-C2 LIST/OPEN remain failing, so status stays `in-progress`. |
 | 2026-07-29 | Re-anchored the SM-C2 and projection proof to implementation commit `28e217e` and EventStore `4c63f5d3`; the promotion gate passes from an isolated clean checkout with 0 blockers and 4 disclosed undeclared-gitlink warnings, without moving or capturing concurrent Builds, Memories, or Tenants worktrees. |
 | 2026-07-29 | Code review pass 3 chunk 1: applied all 18 selected patches, made gateway/AppHost lanes mandatory, fixed the canonical `conversation` DAPR app-id topology, added bounded dispatch-ledger TTL semantics, and replaced the toy SM-C2 closure with production paths. Functional lanes pass; LIST/OPEN fail the 5% SM-C2 gate, so the story remains `in-progress`. |
 | 2026-07-29 | Re-anchored the final record at candidate `dc69719` after committing the historical-record guard; reran the Release build and all eight test projects before regenerating the bound record. |

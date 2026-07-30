@@ -1,0 +1,31 @@
+{
+  "artifactVersion": "consume-promote-keep-story-6-2-disposition-v1",
+  "story": "6.2",
+  "capturedAtUtc": "2026-07-30T06:12:00Z",
+  "baseInventory": {
+    "path": "docs/release-evidence/consume-promote-keep-inventory-v1.json",
+    "sha256": "20bbedb5d0aa1dcd35729aac6a8500f7cf75d8f0c0719b8e1364da5e19fa22b7"
+  },
+  "sourceVerification": {
+    "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+    "candidate": "b261fe209c4ca6c966f4bd2a78a62a2d83ddde08",
+    "deletedPaths": [
+      "src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs",
+      "src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj",
+      "src/Hexalith.Conversations.ServiceDefaults/ServiceDefaultsAssemblyMarker.cs"
+    ],
+    "result": "verified"
+  },
+  "changeLog": [
+    {
+      "entryId": "CL-service-defaults-greenfield-consumption-1",
+      "type": "challenge",
+      "areaId": "service-defaults-greenfield",
+      "date": "2026-07-30",
+      "raisedBy": "Story 6.2 (FR-10) code review",
+      "rationale": "Story 6.2 consumes (deletes) the Conversations-owned ServiceDefaults marker project — every file under the accepted 'src/Hexalith.Conversations.ServiceDefaults/**' path. Platform EventStore.ServiceDefaults now owns the generic hosting capability, while the non-shipping Conversations AppHost consumes that public surface. With the local project removed, the accepted glob resolves to no .cs file. Does 'service-defaults-greenfield' remain Promote?",
+      "resolution": "upheld",
+      "resolutionRationale": "Upheld — classification stays Promote. Removing the local marker realizes the accepted promotion/adoption call and does not rewrite the signed-v1 row, path, or 13-LOC estimate. This additive Story 6.2 disposition is bound to the signed inventory hash and its deletion claim is re-derived from the recorded git baseline and candidate, independently of Story 6.2's mutable projection proof."
+    }
+  ]
+}
