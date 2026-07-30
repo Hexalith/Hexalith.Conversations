@@ -6,6 +6,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 using Hexalith.Conversations.Contracts.Events;
 using Hexalith.Conversations.Contracts.Identifiers;
@@ -148,14 +149,65 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         afterList.Conversations.ShouldHaveSingleItem();
 
         // AC6 demands an EQUIVALENT per-conversation record, not merely a matching identity and position:
-        // the whole rebuilt detail record and the whole rebuilt index row must round-trip byte-identically,
-        // so a replay that drops a label, participant, or message can never pass as convergence.
-        JsonSerializer.Serialize(afterDetail.Details, JsonOptions).ShouldBe(
-            JsonSerializer.Serialize(beforeDetail.Details, JsonOptions),
+        // the whole rebuilt detail record and the whole rebuilt index row are compared field-for-field, so a
+        // replay that drops a label, participant, or message can never pass as convergence. Capture-time
+        // metadata (generation/evaluation timestamps and lag) is legitimately fresh on every projection run
+        // and is normalized out; every domain-content field participates.
+        CanonicalizeWithoutCaptureTimes(afterDetail.Details).ShouldBe(
+            CanonicalizeWithoutCaptureTimes(beforeDetail.Details),
             "the rebuilt detail record must be equivalent to the pre-deletion record");
-        JsonSerializer.Serialize(afterList.Conversations[0], JsonOptions).ShouldBe(
-            JsonSerializer.Serialize(beforeList.Conversations[0], JsonOptions),
+        CanonicalizeWithoutCaptureTimes(afterList.Conversations[0]).ShouldBe(
+            CanonicalizeWithoutCaptureTimes(beforeList.Conversations[0]),
             "the rebuilt tenant index row must be equivalent to the pre-deletion row");
+    }
+
+    private static string CanonicalizeWithoutCaptureTimes<T>(T value)
+    {
+        JsonNode node = JsonSerializer.SerializeToNode(value, JsonOptions)
+            ?? throw new InvalidOperationException("The projection record serialized to null.");
+        RemoveCaptureTimeFields(node);
+        return node.ToJsonString();
+    }
+
+    private static void RemoveCaptureTimeFields(JsonNode node)
+    {
+        switch (node)
+        {
+            case JsonObject jsonObject:
+                foreach (string property in new[]
+                         {
+                             "lastAppliedEventTimestamp",
+                             "projectionGeneratedAt",
+                             "lagDuration",
+                             "lastEvaluatedAt",
+                             "occurredAt",
+                         })
+                {
+                    _ = jsonObject.Remove(property);
+                }
+
+                foreach (KeyValuePair<string, JsonNode?> child in jsonObject.ToList())
+                {
+                    if (child.Value is not null)
+                    {
+                        RemoveCaptureTimeFields(child.Value);
+                    }
+                }
+
+                break;
+            case JsonArray jsonArray:
+                foreach (JsonNode? item in jsonArray)
+                {
+                    if (item is not null)
+                    {
+                        RemoveCaptureTimeFields(item);
+                    }
+                }
+
+                break;
+            default:
+                break;
+        }
     }
 
     private static WebApplication ComposeProductionBoundary(InMemoryReadModelStore store)

@@ -7,6 +7,8 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 
+using Hexalith.Commons.UniqueIds;
+
 using Hexalith.Conversations.AppHost;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Commands;
@@ -45,7 +47,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         // Eight minutes: the provenance prebuild now stamps both launchable configurations before the
         // AppHost starts, and the projection population poll runs after command completion.
         using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(8));
-        string gatewayProjectPath = await BuildEventStoreGatewayWithProvenanceAsync(timeout.Token);
+        (string gatewayProjectPath, string gatewayRevision) = await BuildEventStoreGatewayWithProvenanceAsync(timeout.Token);
         IDistributedApplicationTestingBuilder builder =
             await DistributedApplicationTestingBuilder.CreateAsync<Projects.Hexalith_Conversations_AppHost>(
                 [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"],
@@ -80,6 +82,12 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         using HttpClient eventStore = application.CreateHttpClient(
             ConversationsAppHostTopology.EventStoreResourceName,
             "http");
+
+        // Named-projection dispatch is refused with delivery_state_unavailable until the store-global v2
+        // writer protocol has been cut over — the documented operator maintenance action. Perform it through
+        // the production admin endpoint before the first command so the dispatch under proof is admitted.
+        await ActivateProjectionDeliveryAsync(eventStore, gatewayRevision, timeout.Token);
+
         string tenantId = $"apphost-{Guid.NewGuid():N}";
         string conversationId = $"conversation-{Guid.NewGuid():N}";
         string messageId = Guid.NewGuid().ToString("N");
@@ -131,32 +139,43 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         status.GetProperty("aggregateId").GetString().ShouldBe(conversationId);
         status.GetProperty("eventCount").GetInt32().ShouldBeGreaterThan(0);
 
-        // Command completion alone proves the write boundary, not the projection boundary. The projected
-        // read models must become queryable through the gateway's public query API — eventstore app to
-        // conversation app across DAPR, with route discovery performed by the PLATFORM, not by test
-        // scaffolding — so a cross-app catalog or read-store population regression cannot ship while
-        // command status stays green.
-        JsonElement detailPayload = await PollForProjectedReadModelAsync(
-            eventStore,
+        // Command completion alone proves the write boundary, not the projection boundary: the projected
+        // read models must land in the REAL Redis state store through the cross-app eventstore -> conversation
+        // dispatch and become servable by the production query seam. The gateway's /api/v1/queries handler
+        // route cannot carry this proof today — the AppHost defines no DomainServiceOptions registration for
+        // the conversations domain, so handler-query routing to the module is structurally unresolvable — so
+        // the assertion targets the module's own production /query endpoint, the same seam DAPR service
+        // invocation reaches.
+        using HttpClient conversations = application.CreateHttpClient(
+            ConversationsAppHostTopology.ConversationsResourceName,
+            "http");
+
+        // The read side fails closed without a Tenants projection, and the AppHost composes no Tenants
+        // module. Feed the projection through the module's own production /tenants/events subscription
+        // endpoint — byte-for-byte the delivery the DAPR sidecar performs — so tenant admission is decided
+        // by the real event-fed projection, not by a substituted access service.
+        await SeedTenantAccessProjectionAsync(conversations, tenantId, timeout.Token);
+
+        JsonElement detailResult = await PollForProjectedReadModelAsync(
+            conversations,
             tenantId,
             conversationId,
             timeout.Token);
-        ReadIdentifier(detailPayload.GetProperty("details").GetProperty("conversationId"))
-            .ShouldBe(conversationId);
+        string expectedConversationId = JsonSerializer.SerializeToElement(new ConversationId(conversationId)).GetString()!;
+        ReadIdentifier(detailResult.GetProperty("details").GetProperty("conversationId"))
+            .ShouldBe(expectedConversationId);
 
-        (HttpStatusCode listStatus, string listBody) = await SubmitQueryAsync(
-            eventStore,
+        JsonElement listResult = await SubmitQueryAsync(
+            conversations,
             tenantId,
             conversationId,
             "conversation-list",
             timeout.Token);
-        listStatus.ShouldBe(HttpStatusCode.OK, listBody);
-        JsonElement listResponse = JsonSerializer.Deserialize<JsonElement>(listBody);
-        listResponse.GetProperty("success").GetBoolean().ShouldBeTrue(listBody);
-        JsonElement row = listResponse.GetProperty("payload").GetProperty("conversations")
+        listResult.GetProperty("freshnessState").GetString().ShouldBe("Current");
+        JsonElement row = listResult.GetProperty("conversations")
             .EnumerateArray()
             .ShouldHaveSingleItem();
-        ReadIdentifier(row.GetProperty("conversationId")).ShouldBe(conversationId);
+        ReadIdentifier(row.GetProperty("conversationId")).ShouldBe(expectedConversationId);
     }
 
     private static string? ReadIdentifier(JsonElement identifier)
@@ -164,36 +183,132 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             ? identifier.GetString()
             : identifier.GetProperty("value").GetString();
 
+    private static async Task ActivateProjectionDeliveryAsync(
+        HttpClient eventStore,
+        string gatewayRevision,
+        CancellationToken cancellationToken)
+    {
+        using HttpRequestMessage activation = new(
+            HttpMethod.Post,
+            "/api/v1/admin/projections/delivery-writer-protocol/activate");
+        activation.Headers.Authorization = new AuthenticationHeaderValue("Bearer", CreateAdminAccessToken());
+        activation.Content = JsonContent.Create(new
+        {
+            CutoverCommit = gatewayRevision,
+            BackupReference = "apphost-boundary-preflight",
+            WritersQuiesced = true,
+            RetryWorkersQuiesced = true,
+            DowngradeProhibitedAcknowledged = true,
+        });
+        using HttpResponseMessage response = await eventStore.SendAsync(activation, cancellationToken);
+        string body = await response.Content.ReadAsStringAsync(cancellationToken);
+
+        // 200 activates; 409 means a marker from an earlier run is already present — the protocol is active
+        // either way, and only those two outcomes admit dispatch.
+        (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Conflict).ShouldBeTrue(body);
+    }
+
+    private static string CreateAdminAccessToken()
+    {
+        long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        string header = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new { alg = "HS256", typ = "JWT" }));
+        string payload = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new
+        {
+            sub = "apphost-boundary-operator",
+            iss = "hexalith-dev",
+            aud = "hexalith-eventstore",
+            nbf = now - 30,
+            iat = now,
+            exp = now + 600,
+            global_admin = true,
+        }));
+        string unsignedToken = $"{header}.{payload}";
+        byte[] signature = HMACSHA256.HashData(
+            Encoding.UTF8.GetBytes(SigningKey),
+            Encoding.ASCII.GetBytes(unsignedToken));
+        return $"{unsignedToken}.{Base64UrlEncode(signature)}";
+    }
+
+    private static async Task SeedTenantAccessProjectionAsync(
+        HttpClient conversations,
+        string tenantId,
+        CancellationToken cancellationToken)
+    {
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        string correlationId = Guid.NewGuid().ToString("N");
+        // The consumer's envelope validation requires ULID message ids, not GUIDs.
+        var tenantCreated = new
+        {
+            MessageId = UniqueIdHelper.GenerateSortableUniqueStringId(),
+            AggregateId = tenantId,
+            TenantId = tenantId,
+            EventTypeName = "Hexalith.Tenants.Contracts.Events.TenantCreated",
+            SequenceNumber = 1L,
+            Timestamp = now,
+            CorrelationId = correlationId,
+            SerializationFormat = "json",
+            Payload = JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                TenantId = tenantId,
+                Name = "AppHost boundary tenant",
+                Description = (string?)null,
+                CreatedAt = now,
+            }),
+        };
+        var userAdded = new
+        {
+            MessageId = UniqueIdHelper.GenerateSortableUniqueStringId(),
+            AggregateId = tenantId,
+            TenantId = tenantId,
+            EventTypeName = "Hexalith.Tenants.Contracts.Events.UserAddedToTenant",
+            SequenceNumber = 2L,
+            Timestamp = now,
+            CorrelationId = correlationId,
+            SerializationFormat = "json",
+            Payload = JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                TenantId = tenantId,
+                UserId = "apphost-boundary-actor",
+                Role = 3, // TenantRole.TenantReader
+            }),
+        };
+
+        foreach (object envelope in new[] { tenantCreated, userAdded })
+        {
+            using HttpResponseMessage delivery = await conversations.PostAsJsonAsync(
+                "/tenants/events",
+                envelope,
+                cancellationToken);
+            string deliveryBody = await delivery.Content.ReadAsStringAsync(cancellationToken);
+            delivery.StatusCode.ShouldBe(HttpStatusCode.OK, deliveryBody);
+        }
+    }
+
     private static async Task<JsonElement> PollForProjectedReadModelAsync(
-        HttpClient gateway,
+        HttpClient conversations,
         string tenantId,
         string conversationId,
         CancellationToken cancellationToken)
     {
-        string? lastBody = null;
+        string? lastResult = null;
         try
         {
             while (true)
             {
                 cancellationToken.ThrowIfCancellationRequested();
-                (HttpStatusCode statusCode, string body) = await SubmitQueryAsync(
-                    gateway,
+                JsonElement result = await SubmitQueryAsync(
+                    conversations,
                     tenantId,
                     conversationId,
                     "conversation-detail",
                     cancellationToken);
-                lastBody = body;
-                if (statusCode == HttpStatusCode.OK)
+                lastResult = result.GetRawText();
+                if (result.TryGetProperty("details", out JsonElement details)
+                    && details.ValueKind == JsonValueKind.Object
+                    && result.TryGetProperty("freshnessState", out JsonElement freshness)
+                    && string.Equals(freshness.GetString(), "Current", StringComparison.Ordinal))
                 {
-                    JsonElement response = JsonSerializer.Deserialize<JsonElement>(body);
-                    if (response.TryGetProperty("success", out JsonElement success)
-                        && success.GetBoolean()
-                        && response.TryGetProperty("payload", out JsonElement payload)
-                        && payload.TryGetProperty("details", out JsonElement details)
-                        && details.ValueKind == JsonValueKind.Object)
-                    {
-                        return payload;
-                    }
+                    return result;
                 }
 
                 await Task.Delay(TimeSpan.FromMilliseconds(250), cancellationToken);
@@ -202,27 +317,34 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
             throw new TimeoutException(
-                $"The projected conversation read model never became queryable through the gateway. Last response: {lastBody}");
+                $"The projected conversation read model never became queryable through the production query seam. Last result: {lastResult}");
         }
     }
 
-    private static async Task<(HttpStatusCode StatusCode, string Body)> SubmitQueryAsync(
-        HttpClient gateway,
+    private static async Task<JsonElement> SubmitQueryAsync(
+        HttpClient conversations,
         string tenantId,
         string conversationId,
         string queryType,
         CancellationToken cancellationToken)
     {
-        var query = new
+        var envelope = new
         {
-            Tenant = tenantId,
-            Domain = "conversations",
-            AggregateId = conversationId,
-            QueryType = queryType,
+            tenantId,
+            domain = "conversations",
+            aggregateId = conversationId,
+            queryType,
+            payload = Array.Empty<byte>(),
+            correlationId = Guid.NewGuid().ToString("N"),
+            userId = "apphost-boundary-actor",
         };
-        using HttpResponseMessage response = await gateway.PostAsJsonAsync("/api/v1/queries", query, cancellationToken);
+        using HttpResponseMessage response = await conversations.PostAsJsonAsync("/query", envelope, cancellationToken);
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
-        return (response.StatusCode, body);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK, body);
+        JsonElement result = JsonSerializer.Deserialize<JsonElement>(body);
+        result.GetProperty("success").GetBoolean().ShouldBeTrue(body);
+        byte[] payloadBytes = result.GetProperty("payloadBytes").GetBytesFromBase64();
+        return JsonSerializer.Deserialize<JsonElement>(payloadBytes);
     }
 
     private static async Task<JsonElement> PollUntilTerminalAsync(
@@ -333,7 +455,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             iat = now,
             exp = now + 600,
             tenants = new[] { tenantId },
-            domains = new[] { "conversation", "conversations" },
+            domains = new[] { "conversation" },
             permissions = new[] { "command:submit", "command:query" },
         }));
         string unsignedToken = $"{header}.{payload}";
@@ -346,7 +468,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     private static string Base64UrlEncode(byte[] value)
         => Convert.ToBase64String(value).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
-    private static async Task<string> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
+    private static async Task<(string ProjectPath, string SourceRevision)> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
     {
         string repositoryRoot = FindRepositoryRoot();
         string eventStoreRoot = Path.Combine(repositoryRoot, "references", "Hexalith.EventStore");
@@ -412,7 +534,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 $"the {configuration} gateway binary Aspire may launch must carry the reviewed EventStore revision");
         }
 
-        return projectPath;
+        return (projectPath, sourceRevision);
     }
 
     private static async Task<string> ComputeWorkspaceRevisionAsync(

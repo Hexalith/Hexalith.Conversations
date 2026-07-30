@@ -33,6 +33,16 @@ builder.Services.AddConversationQueries(builder.Configuration);
 
 WebApplication app = builder.Build();
 
+// DAPR pub/sub delivery for the consumed Tenants domain events. Without these three calls the registered
+// tenants consumer (AddConversationTenantAccess -> AddHexalithTenants) is never reachable: no
+// /tenants/events route exists, the tenants.events topic is never announced to DAPR, and the local tenant
+// access projection stays empty — so every authorized read fails closed forever. Mirrors the sibling
+// Tenants host wiring (UseCloudEvents before endpoint mapping, MapSubscribeHandler for topic discovery).
+app.UseCloudEvents();
+
 app.UseEventStoreDomainService();
+
+app.MapEventStoreDomainEvents();
+app.MapSubscribeHandler();
 
 app.Run();

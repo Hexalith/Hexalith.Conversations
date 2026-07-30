@@ -565,33 +565,88 @@ submodule ranges remain the earlier passes' chunks.
 
 #### Decision needed
 
-- [ ] [Review][Decision] Nothing mechanically blocks completion while the AC1 proof records `result: "fail"` — full Conformance passes 430/430 with LIST/OPEN over the frozen 5% threshold because the validator pins the failing shape (`proof.result == "fail"` at `ProjectionReadStorePopulationProofValidationTest.cs:56`, `rowsPassing.ShouldBe(2)` at `:493`), and the Story 6.8 final-record gate reads TRX counts, not `proof.result`. Once the evidence is regenerated against the final candidate, the suite is green while AC1 is still unmet, so only prose in the story record separates `review` from `done`. Options: (a) add a completion-scoped conformance guard asserting `proof.result == "pass"` (red until AC1 closes — consistent with red-over-stale), (b) extend the Story 6.8 generator to fail when a bound proof artifact records `fail` (out-of-chunk script change), (c) accept manual governance via the story record.
+- [x] [Review][Decision] Nothing mechanically blocks completion while the AC1 proof records `result: "fail"` — full Conformance passes 430/430 with LIST/OPEN over the frozen 5% threshold because the validator pins the failing shape (`proof.result == "fail"` at `ProjectionReadStorePopulationProofValidationTest.cs:56`, `rowsPassing.ShouldBe(2)` at `:493`), and the Story 6.8 final-record gate reads TRX counts, not `proof.result`. Once the evidence is regenerated against the final candidate, the suite is green while AC1 is still unmet, so only prose in the story record separates `review` from `done`. Options: (a) add a completion-scoped conformance guard asserting `proof.result == "pass"` (red until AC1 closes — consistent with red-over-stale), (b) extend the Story 6.8 generator to fail when a bound proof artifact records `fail` (out-of-chunk script change), (c) accept manual governance via the story record.
 
 #### Patches
 
-- [ ] [Review][Patch] Correct the untrue `derived-state-deletion.listQueryState = "Rebuilding"` evidence value and bind list freshness in the live lane — production returns `Current` for an erased tenant (`AggregateFreshness` over zero summaries, `ConversationQueryHandler.cs:488-491`) and the bound test asserts only emptiness while its own comment documents the empty-tenant trade-off (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:120]
-- [ ] [Review][Patch] Re-derive submodule worktree state in the promotion staleness guard — every check is commit-deep (`rev-parse HEAD:<path>`) and `submoduleWorktreeClean` is trusted from the recorded JSON, so a submodule checked out away from its gitlink, or dirty, passes green; this drift class has already occurred in this workspace (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:257]
-- [ ] [Review][Patch] Assert read-store population through the real split AppHost topology — the mandatory runtime lane stops at command status (`Completed`, `eventCount > 0`) and asserts nothing about read-model keys or queries, while the gateway lane runs single-process under one app-id with a fixture-filled route catalog and fixture-pinned refresh interval; a cross-app catalog-refresh regression ships silently (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:114]
-- [ ] [Review][Patch] Verify EventStore gateway provenance on the launched binary, not the prebuilt file — the stamped DLL is asserted before Aspire resolves and launches its own binary, and the `headRevision` containment assertion is vacuous because `sourceRevision` embeds it (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:212]
-- [ ] [Review][Patch] Bound the failure-diagnostics paths so they cannot mask the primary failure — `GetAllAsync` streams until resource stop under the shared 5-minute token, `TryGetCurrentState(...).ShouldBeTrue` replaces the original failure inside the diagnostic path, and the crafted `TimeoutException` after the poll loop is unreachable because `GetAsync`/`Task.Delay` throw first (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:117]
-- [ ] [Review][Patch] Remove `AddDataProtection()` from the mirror hosts and the AC5 fixture now that D6 promoted it to `AddEventStoreDomainService` — five test hosts register what production `Program.cs` no longer has, so the "mirror Program.cs" lanes and the AC5 lane stay green if the promoted registration regresses (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:352]
-- [ ] [Review][Patch] Strengthen replay-equivalence to full-record content — after deletion and rebuild only `ConversationId` and `LastAppliedEventPosition` are compared while the evidence claims `queryResultsEquivalentToPreDeletion` (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:146]
-- [ ] [Review][Patch] Replace sequential `ReadToEnd` drains with the in-repo async two-task pattern in the two new helpers that extend open P27 — the ConsumePromoteKeep variant has no timeout at all, so a hung child hangs the run forever (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:566]
-- [ ] [Review][Patch] Update tests/README.md prerequisites — it still claims the scaffold needs no Aspire runtime launch or Dapr sidecars while the gateway and AppHost lanes are now mandatory hard-fail (MEDIUM) [tests/README.md:13]
-- [ ] [Review][Patch] Replace `--candidate HEAD` in the canonical README generator invocation with an explicitly resolved SHA — the completion gates forbid re-resolving a moving candidate on every workflow surface (MEDIUM) [tests/README.md:96]
-- [ ] [Review][Patch] Require `failed == 0 && skipped == 0` for every bound run artifact in `ValidateRunArtifacts`, not only the gateway-boundary run (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:637]
-- [ ] [Review][Patch] Parse `git diff --name-status` with `--no-renames` (or handle `R`/`C`/`T`/`U`) so a rename's vacated production path cannot vanish from the recomputed source boundary (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:593]
-- [ ] [Review][Patch] Census executed gateway tests dynamically instead of hard-coding two in `DisposeAsync`, and widen the cleanup catch beyond `IOException` — filtered runs currently fail in fixture disposal and stack a second failure over a real one (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:209]
-- [ ] [Review][Patch] Fix the dangling comment citing nonexistent `LedgerSurvivingDerivedStateDeletionShouldNotReportAFalseCompletion` — the actual guard is `CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion` in Server.Tests (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:111]
-- [ ] [Review][Patch] Guard MSBuild output parsing — raw `JsonDocument.Parse` in the topology helper and the `IndexOf('{')` slice in SmC2 reconstruction throw opaque exceptions on non-JSON output (LOW) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:60]
-- [ ] [Review][Patch] Give the stalled-ledger lane a test-level timeout so a cancellation-wiring regression fails instead of hanging the suite on an infinite `Task.Delay` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1152]
-- [ ] [Review][Patch] Remove the dead synchronous `Measure<T>` and assert a non-null `TestOutputHelper` before emitting `SM-C2|` rows — a null helper currently yields a green run with zero evidence rows (LOW) [tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs:96]
-- [ ] [Review][Patch] Remove the double blank line before `ShouldDegradeRatherThanFault` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs:397]
+- [x] [Review][Patch] Correct the untrue `derived-state-deletion.listQueryState = "Rebuilding"` evidence value and bind list freshness in the live lane — production returns `Current` for an erased tenant (`AggregateFreshness` over zero summaries, `ConversationQueryHandler.cs:488-491`) and the bound test asserts only emptiness while its own comment documents the empty-tenant trade-off (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:120]
+- [x] [Review][Patch] Re-derive submodule worktree state in the promotion staleness guard — every check is commit-deep (`rev-parse HEAD:<path>`) and `submoduleWorktreeClean` is trusted from the recorded JSON, so a submodule checked out away from its gitlink, or dirty, passes green; this drift class has already occurred in this workspace (HIGH) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:257]
+- [x] [Review][Patch] Assert read-store population through the real split AppHost topology — the mandatory runtime lane stops at command status (`Completed`, `eventCount > 0`) and asserts nothing about read-model keys or queries, while the gateway lane runs single-process under one app-id with a fixture-filled route catalog and fixture-pinned refresh interval; a cross-app catalog-refresh regression ships silently (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:114]
+- [x] [Review][Patch] Verify EventStore gateway provenance on the launched binary, not the prebuilt file — the stamped DLL is asserted before Aspire resolves and launches its own binary, and the `headRevision` containment assertion is vacuous because `sourceRevision` embeds it (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:212]
+- [x] [Review][Patch] Bound the failure-diagnostics paths so they cannot mask the primary failure — `GetAllAsync` streams until resource stop under the shared 5-minute token, `TryGetCurrentState(...).ShouldBeTrue` replaces the original failure inside the diagnostic path, and the crafted `TimeoutException` after the poll loop is unreachable because `GetAsync`/`Task.Delay` throw first (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:117]
+- [x] [Review][Patch] Remove `AddDataProtection()` from the mirror hosts and the AC5 fixture now that D6 promoted it to `AddEventStoreDomainService` — five test hosts register what production `Program.cs` no longer has, so the "mirror Program.cs" lanes and the AC5 lane stay green if the promoted registration regresses (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:352]
+- [x] [Review][Patch] Strengthen replay-equivalence to full-record content — after deletion and rebuild only `ConversationId` and `LastAppliedEventPosition` are compared while the evidence claims `queryResultsEquivalentToPreDeletion` (MEDIUM) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:146]
+- [x] [Review][Patch] Replace sequential `ReadToEnd` drains with the in-repo async two-task pattern in the two new helpers that extend open P27 — the ConsumePromoteKeep variant has no timeout at all, so a hung child hangs the run forever (MEDIUM) [tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs:566]
+- [x] [Review][Patch] Update tests/README.md prerequisites — it still claims the scaffold needs no Aspire runtime launch or Dapr sidecars while the gateway and AppHost lanes are now mandatory hard-fail (MEDIUM) [tests/README.md:13]
+- [x] [Review][Patch] Replace `--candidate HEAD` in the canonical README generator invocation with an explicitly resolved SHA — the completion gates forbid re-resolving a moving candidate on every workflow surface (MEDIUM) [tests/README.md:96]
+- [x] [Review][Patch] Require `failed == 0 && skipped == 0` for every bound run artifact in `ValidateRunArtifacts`, not only the gateway-boundary run (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:637]
+- [x] [Review][Patch] Parse `git diff --name-status` with `--no-renames` (or handle `R`/`C`/`T`/`U`) so a rename's vacated production path cannot vanish from the recomputed source boundary (LOW) [tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs:593]
+- [x] [Review][Patch] Census executed gateway tests dynamically instead of hard-coding two in `DisposeAsync`, and widen the cleanup catch beyond `IOException` — filtered runs currently fail in fixture disposal and stack a second failure over a real one (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:209]
+- [x] [Review][Patch] Fix the dangling comment citing nonexistent `LedgerSurvivingDerivedStateDeletionShouldNotReportAFalseCompletion` — the actual guard is `CompletedLedgerWithoutDurableKeysShouldRePersistInsteadOfReportingAFalseCompletion` in Server.Tests (LOW) [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs:111]
+- [x] [Review][Patch] Guard MSBuild output parsing — raw `JsonDocument.Parse` in the topology helper and the `IndexOf('{')` slice in SmC2 reconstruction throw opaque exceptions on non-JSON output (LOW) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs:60]
+- [x] [Review][Patch] Give the stalled-ledger lane a test-level timeout so a cancellation-wiring regression fails instead of hanging the suite on an infinite `Task.Delay` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs:1152]
+- [x] [Review][Patch] Remove the dead synchronous `Measure<T>` and assert a non-null `TestOutputHelper` before emitting `SM-C2|` rows — a null helper currently yields a green run with zero evidence rows (LOW) [tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs:96]
+- [x] [Review][Patch] Remove the double blank line before `ShouldDegradeRatherThanFault` (LOW) [tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs:397]
 
 #### Deferred
 
 - [x] [Review][Defer] Generator invocation surface is proven by substring presence in Python source — `ShouldContain("\"--story\"")` passes if the flag survives in help text or dead code; execute `--help` or parse the argparse registration instead [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:111] — deferred, pre-existing (joins the pass-6 Story 6.8 guard set)
 - [x] [Review][Defer] File List guard accepts only exact ``- ` `` bullets and `CountOccurrences` matches LF-only, so indented bullets and CRLF checkouts evade the submodule-path prohibition and the exactly-one-heading assertion [tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs:295] — deferred, pre-existing (same Story 6.8 guard family)
+
+#### Patch application status — pass 7, runtime-tests chunk (2026-07-30)
+
+**All 19 selected findings (1 decision + 18 patches) are applied. Story stays `in-progress`.** The decision
+resolved to option (a): `AFailingProofResultMustBlockStoryCompletion` now demands `proof.result == "pass"`
+the moment the story record's frontmatter leaves `in-progress`, mechanically linking the SM-C2 gate to
+completion.
+
+**Driving the strengthened AppHost lane against the real topology exposed and fixed one production defect
+and surfaced one disclosed composition limitation, mirroring the pass-4 precedent:**
+
+1. **Production defect fixed — the tenants consumer was unreachable.** `Program.cs` registered the Tenants
+   event consumer (`AddConversationTenantAccess` → `AddHexalithTenants`) but never called `UseCloudEvents()`,
+   `MapEventStoreDomainEvents()`, or `MapSubscribeHandler()`: no `/tenants/events` route existed, the
+   `tenants.events` topic was never announced to DAPR, and the local tenant-access projection could never be
+   fed — so every production authorized read failed closed as `Forbidden`, permanently. Fixed in
+   `Program.cs` mirroring the sibling Tenants host wiring; the runtime lane now feeds the projection through
+   the production subscription endpoint (ULID-validated envelopes, `TenantCreated` + `UserAddedToTenant`)
+   and proves the read path opens exactly for the admitted tenant.
+2. **Disclosed limitation — gateway handler-query routing cannot reach the module.** The AppHost defines no
+   `DomainServiceOptions` registration for the `conversations` domain, so `/api/v1/queries` handler routing
+   would resolve by convention to a nonexistent `conversations` app-id. The lane therefore asserts the
+   production query result at the module's own `/query` seam — the same endpoint DAPR service invocation
+   reaches. Registering the domain in the AppHost composition is future scope, recorded here rather than
+   silently absorbed.
+3. The lane also performs the store-global projection delivery v2 cutover through the production admin
+   endpoint (`delivery-writer-protocol/activate`, global-administrator token, 200-or-409 idempotent), since
+   named-projection dispatch is refused with `delivery_state_unavailable` until the documented operator
+   action runs — previously this activation existed only as reflection inside the in-process gateway fixture.
+
+The runtime lane now proves, in one flow through the real split topology: stamped-gateway launch binding
+(model project path + `SuppressBuild`, both Debug and Release stamped), operator cutover, command through the
+gateway, cross-app named-projection dispatch admission, both read-model key families durable in the real
+Redis state store, tenant projection fed through the production subscription route, and the production query
+seam serving detail and list as `Current` with the canonical identifier. AC6 replay equivalence is now
+full-record: the rebuilt detail and index rows must be canonically identical to their pre-deletion values
+with only capture-time metadata normalized.
+
+Validation at this state: Server **675/675**, Contracts **618/618**, Domain **185/185**, Client **29/29**,
+Admin.Web **14/14**, IntegrationTests **14/14** (live gateway + population lanes green), AppHost **9/9**
+(runtime boundary lane mandatory and green). Release build 0 warnings / 0 errors;
+`git diff --check` clean. Conformance is **428/431**: the three failures are the evidence guards doing
+exactly what they exist for — `ProofSourceAndSignedV1BindingsShouldRemainByteIdentical` (review patches
+changed bound test sources, the evidence JSON, and `Program.cs`),
+`RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks` (commit `ff7f3b9` moved the EventStore,
+Memories, and Tenants gitlinks after the recorded candidate `b261fe2`, and production source is uncommitted
+in the working tree), and `BaselineShouldRecordAnAuditableReconstructionMethod` (the benchmark fixture hash
+moved). Remediation is unchanged doctrine: regenerate the v2 proof and SM-C2 evidence against the final
+committed candidate — never relax a pin. AC1 itself remains open: LIST and OPEN still exceed the frozen 5%
+threshold, so the proof honestly records `fail` and the new completion guard holds the line.
+
+A concurrent commit `5456810` (2026-07-30 13:45, outside this session's control) captured most pass-7
+patches mid-application, including this story file's findings section; the remaining review delta —
+`src/Hexalith.Conversations.Server/Program.cs`, the AppHost runtime boundary test, and the population live
+test — is uncommitted pending authorization.
 
 ## Dev Notes
 
