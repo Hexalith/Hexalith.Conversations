@@ -445,6 +445,48 @@ Full EventStore DomainService remains **147 passed / 1 failed** only because the
 from its pre-existing `.editorconfig` CRLF versus `.gitattributes` LF conflict and unrelated naming diagnostics;
 the compiled analyzers and focused tests are clean.
 
+### Review Findings — pass 5, runtime/source chunk (2026-07-30, `bmad-code-review`, four layers)
+
+Scope reviewed: production/runtime sources in
+`git diff 29def441408becfbbbdc5c59b9af14a7717cb21f..0fc5dc30e1fd -- src/` (27 files,
++1,895/−267). Ten raw findings across four layers were deduplicated to eight and re-verified against
+the current code, tests, platform callers, Story 6.2 acceptance criteria, and ADR 0003. Two were dismissed:
+the approved greenfield/no-migration decision already resolves legacy state-key migration, and terminal
+reconciliation correctly reports completion when no incomplete domain-owned marker remains. Runtime tests,
+evidence/conformance, workflow/generator, planning records, and submodule promotions remain separate review
+chunks.
+
+- [x] [Review][Patch] Prevent a same-generation pending marker from replacing a completed dispatch, and require a non-pending reference before the durable fast path returns completed (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs:353]
+- [x] [Review][Patch] Invalidate continuation cursors when a withheld dispatch converges so the previously pending row cannot be skipped permanently (MEDIUM) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:350]
+- [x] [Review][Patch] Cover the production `ReconcileAsync` terminal-dispatch path directly, including convergence, compensation, and retryable outcomes (HIGH) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:83]
+- [x] [Review][Patch] Prove caller cancellation after both model writes cannot strand a correct generation behind a pending ledger (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:190]
+- [x] [Review][Patch] Prove a position-only durable rejection advances the projection freshness timestamp as well as its event position (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs:632]
+- [x] [Review][Patch] Include materialization-affecting rejection timestamps in stable dispatch identity while preserving benign metadata-insensitive redelivery (MEDIUM) [src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs:588]
+
+#### Patch application status — pass 5, runtime/source chunk (2026-07-30)
+
+**6 of 6 selected patches are applied. Story stays `in-progress`.** Same-generation index updates are now
+monotonic from pending to completed, durable-generation checks reject pending references, rebuilding list pages
+do not issue cursors that can skip withheld rows, and position-only timestamps participate in dispatch identity.
+Direct reconciliation, late-cancellation, timestamp-freshness, and regression paths are covered.
+
+Validation: Conversations Server **675/675**; focused projection/query suites **103/103**. The Release test build
+completed with 0 warnings/errors, affected-project formatting passed, and `git diff --check` passed.
+
+Completion gates at committed candidate `e8437694366372f5bf12a1af75a2f782a2b5c2ec`: the promotion gate
+**passed** with zero blockers across the declared EventStore, Builds, and Tenants paths. The mechanically
+generated final-record gate is **blocked**, so this story remains `in-progress` and the prior generated record
+was not replaced:
+
+- `FILE_LIST_DRIFT` — the existing generated File List predates 19 paths in the final baseline-to-candidate range;
+  remediation is generator-driven replacement after all other blockers are closed, never a hand-edited list.
+- `TEST_RESULTS_FAILED` — the Conformance artifact has two failures because the signed projection proof still
+  binds the pre-review source hash and promotion candidate; regenerate the evidence against the committed
+  candidate, then rerun all eight project artifacts and the final-record gate.
+
+Measured gate input: **1,972 total / 1,970 passed / 2 failed / 0 skipped** across all eight root-owned test
+projects. The canonical Release solution build completed with 0 warnings/errors.
+
 ## Dev Notes
 
 ### Binding sequence — check before starting
