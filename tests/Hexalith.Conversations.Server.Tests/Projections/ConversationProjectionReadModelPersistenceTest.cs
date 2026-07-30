@@ -337,6 +337,30 @@ public sealed class ConversationProjectionReadModelPersistenceTest
     }
 
     /// <summary>
+    /// A delayed duplicate cannot downgrade an already completed index reference back to pending for the same
+    /// dispatch generation.
+    /// </summary>
+    [Fact]
+    public async Task SameGenerationPendingMarkerShouldNotReplaceCompletedReference()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationProjectionReadModelWriter writer = new(store);
+        ConversationProjectedReadModels models = Models(ConversationA, position: 1);
+
+        await writer.PersistAsync(models, TestContext.Current.CancellationToken);
+        await writer.MarkPendingAsync(models, TestContext.Current.CancellationToken);
+
+        ConversationProjectionDispatchReference reference = store
+            .Snapshot<ConversationProjectionIndexReadModel>(
+                ConversationProjectionReadModelKeys.StateStoreName,
+                ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[ConversationA.Value];
+        reference.DispatchId.ShouldBe(models.DispatchId);
+        reference.IsPending.ShouldBeFalse(
+            "a late same-generation pending write must not make a completed generation unreadable.");
+    }
+
+    /// <summary>
     /// NFR5 (newest generation wins): re-persisting the same conversation at a higher applied event position
     /// supersedes the stale index entry in place — the index keeps a single entry for the conversation carrying
     /// the newer generation, never a duplicate and never the stale summary.

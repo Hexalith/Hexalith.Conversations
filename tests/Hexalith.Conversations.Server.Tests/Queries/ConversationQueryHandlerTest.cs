@@ -840,11 +840,12 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
-    /// An inconsistent row still consumes its ordered slot. Advancing by only the returned rows would present
-    /// the proven sibling again on the next page and could keep a continuation from ever moving forward.
+    /// A rebuilding page must not issue a cursor that can advance past a withheld row. The dispatch ledger may
+    /// converge without changing the summary generation, so such a cursor could otherwise remain valid and skip
+    /// the newly readable conversation permanently.
     /// </summary>
     [Fact]
-    public async Task ListCursorShouldAdvancePastWithheldCandidates()
+    public async Task ListShouldNotIssueContinuationWhileCandidatesAreWithheld()
     {
         FakeProjectionReadStore store = new()
         {
@@ -868,19 +869,8 @@ public sealed class ConversationQueryHandlerTest
             TestContext.Current.CancellationToken);
 
         first.Conversations.Select(summary => summary.ConversationId.Value).ShouldBe(["conv-2"]);
-        first.Page.ContinuationCursor.ShouldNotBeNullOrWhiteSpace();
-
-        ConversationListResult second = await handler.ListAsync(
-            new ListConversationsQuery(
-                SchemaVersion.Current,
-                Tenant,
-                "caller-001",
-                "correlation-001",
-                Page: new ConversationPageRequest(2, first.Page.ContinuationCursor)),
-            TestContext.Current.CancellationToken);
-
-        second.Conversations.Select(summary => summary.ConversationId.Value).ShouldBe(["conv-3"]);
-        second.Page.ContinuationCursor.ShouldBeNull();
+        first.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        first.Page.ContinuationCursor.ShouldBeNull();
     }
 
     /// <summary>

@@ -190,7 +190,7 @@ internal static class ConversationProjectionEventDecoder
             throw new JsonException("The projection event payload is missing.");
         }
 
-        if (IsRejectedDomainEvent(evt.EventTypeName))
+        if (IsPositionOnlyEventType(evt.EventTypeName))
         {
             _ = JsonSerializer.Deserialize<ConversationRejectedDomainEvent>(evt.Payload, EventJsonOptions)
                 ?? throw new JsonException("The projection event payload decoded to null.");
@@ -207,7 +207,13 @@ internal static class ConversationProjectionEventDecoder
         return new(evt.SequenceNumber, decoded);
     }
 
-    private static bool IsRejectedDomainEvent(string? discriminator)
+    /// <summary>
+    /// Determines whether a durable discriminator advances projection position and time without applying
+    /// conversation state.
+    /// </summary>
+    /// <param name="discriminator">The persisted event discriminator.</param>
+    /// <returns><see langword="true"/> when the discriminator names the durable rejection event.</returns>
+    internal static bool IsPositionOnlyEventType(string? discriminator)
     {
         if (string.IsNullOrWhiteSpace(discriminator))
         {

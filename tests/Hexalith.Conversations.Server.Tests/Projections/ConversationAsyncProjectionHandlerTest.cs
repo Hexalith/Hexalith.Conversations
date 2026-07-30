@@ -153,6 +153,87 @@ public sealed class ConversationAsyncProjectionHandlerTest
             .Summaries.ShouldHaveSingleItem();
     }
 
+    /// <summary>Terminal reconciliation retries a partial generation before considering compensation.</summary>
+    [Fact]
+    public async Task ReconcileShouldRetryPartialWriteToCompletion()
+    {
+        InMemoryReadModelStore inner = new();
+        FailCompletedIndexSaveOnceReadModelStore store = new(inner);
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ProjectionRequest request = Request(Tenant, Conversation);
+
+        (await handler.ProjectAsync(request, "dispatch-reconcile-retry", TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Retryable);
+
+        DomainProjectionHandlerResult reconciled = await handler.ReconcileAsync(
+            request,
+            "dispatch-reconcile-retry",
+            TestContext.Current.CancellationToken);
+
+        reconciled.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        inner.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[Conversation.Value].IsPending.ShouldBeFalse();
+        inner.Snapshot<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-reconcile-retry"))!
+            .Status.ShouldBe(ConversationProjectionDispatchStatus.Completed);
+    }
+
+    /// <summary>A terminal pre-write failure compensates its summary-less pending marker.</summary>
+    [Fact]
+    public async Task ReconcileShouldCompensateTerminalPendingMarkerWithoutProjectionWrites()
+    {
+        InMemoryReadModelStore store = new();
+        const string DispatchId = "dispatch-reconcile-compensate";
+        ConversationProjectedReadModels models = Models(DispatchId);
+        await new ConversationProjectionReadModelWriter(store)
+            .MarkPendingAsync(models, TestContext.Current.CancellationToken);
+
+        DomainProjectionHandlerResult reconciled = await Handler(store).ReconcileAsync(
+            MalformedRequest(),
+            DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reconciled.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        ConversationProjectionIndexReadModel index = store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+        index.Summaries.ShouldBeEmpty();
+        index.Dispatches.ShouldNotContainKey(Conversation.Value);
+        store.Snapshot<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldBeNull();
+    }
+
+    /// <summary>A terminal marker that may describe a durable detail is retained for authoritative retry.</summary>
+    [Fact]
+    public async Task ReconcileShouldRemainRetryableWhenPendingMarkerMayDescribeDurableDetail()
+    {
+        InMemoryReadModelStore store = new();
+        const string DispatchId = "dispatch-reconcile-retain";
+        ConversationProjectedReadModels models = Models(DispatchId);
+        await new ConversationProjectionReadModelWriter(store)
+            .MarkPendingAsync(models, TestContext.Current.CancellationToken);
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            models);
+
+        DomainProjectionHandlerResult reconciled = await Handler(store).ReconcileAsync(
+            MalformedRequest(),
+            DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reconciled.Status.ShouldBe(ProjectionDispatchStatus.Retryable);
+        reconciled.ReasonCode.ShouldBe(ProjectionDispatchReasonCodes.PartialRetry);
+        store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[Conversation.Value].IsPending.ShouldBeTrue();
+    }
+
     [Fact]
     public async Task UnavailableStoreShouldReturnIndeterminateWithoutRawStorageDetail()
     {
@@ -219,12 +300,13 @@ public sealed class ConversationAsyncProjectionHandlerTest
         ConversationRejectedDomainEvent rejection = new(
             ConversationErrorCode.CommandValidationFailed,
             "invalid-command");
+        DateTimeOffset rejectionTimestamp = Started.AddSeconds(1);
         ProjectionEventDto rejectionDto = new(
             nameof(ConversationRejectedDomainEvent),
             JsonSerializer.SerializeToUtf8Bytes(rejection, JsonOptions),
             "json",
             1,
-            Started,
+            rejectionTimestamp,
             "correlation");
         ProjectionRequest rejectionOnly = new(
             Tenant.Value,
@@ -256,6 +338,8 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldNotBeNull();
         models.Summary.Label.ShouldBe("Production path conversation");
         models.Summary.Freshness.LastAppliedEventPosition.ShouldBe(2);
+        models.Summary.Freshness.LastAppliedEventTimestamp.ShouldBe(rejectionTimestamp);
+        models.Detail.Freshness.LastAppliedEventTimestamp.ShouldBe(rejectionTimestamp);
     }
 
     [Fact]
@@ -533,6 +617,37 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation)).ShouldNotBeNull();
     }
 
+    /// <summary>
+    /// Caller cancellation after both read-model writes cannot strand the completed generation behind a pending
+    /// dispatch ledger.
+    /// </summary>
+    [Fact]
+    public async Task LateCallerCancellationShouldNotInterruptDispatchCompletion()
+    {
+        InMemoryReadModelStore store = new();
+        using CancellationTokenSource callerCancellation = new();
+        int saveAttempts = 0;
+        store.ConcurrentWriteBeforeTrySave = () =>
+        {
+            if (Interlocked.Increment(ref saveAttempts) == 4)
+            {
+                callerCancellation.Cancel();
+            }
+        };
+
+        DomainProjectionHandlerResult result = await Handler(store).ProjectAsync(
+            Request(Tenant, Conversation),
+            "dispatch-late-cancellation",
+            callerCancellation.Token);
+
+        callerCancellation.IsCancellationRequested.ShouldBeTrue();
+        result.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        store.Snapshot<ConversationProjectionDispatchLedger>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.DispatchLedgerKey("dispatch-late-cancellation"))!
+            .Status.ShouldBe(ConversationProjectionDispatchStatus.Completed);
+    }
+
     [Fact]
     public async Task CompletionShouldRejectAReplacedLedgerIdentityWithoutCompletingIt()
     {
@@ -557,6 +672,24 @@ public sealed class ConversationAsyncProjectionHandlerTest
             store,
             new FixedTimeProvider(Started.AddSeconds(2)));
 
+    private static ProjectionRequest MalformedRequest()
+        => new(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [new ProjectionEventDto("UnknownEvent", [0x7B, 0x7D], "json", 1, Started, "correlation")]);
+
+    private static ConversationProjectedReadModels Models(string dispatchId)
+        => new ConversationProjectionMaterializer().Project(
+            Tenant,
+            Conversation,
+            [new ConversationProjectionEventRecord(1, Created(Tenant, Conversation))],
+            Started.AddSeconds(2),
+            TimeSpan.FromMinutes(5)) with
+        {
+            DispatchId = dispatchId,
+        };
+
     private static ProjectionRequest Request(
         TenantId tenantId,
         ConversationId conversationId,
@@ -568,6 +701,27 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionHandler.ConversationDomain,
             conversationId.Value,
             [EventDto(@event, sequence: 1)]);
+    }
+
+    private static ProjectionRequest RequestWithRejection(DateTimeOffset rejectionTimestamp)
+    {
+        ConversationRejectedDomainEvent rejection = new(
+            ConversationErrorCode.CommandValidationFailed,
+            "invalid-command");
+        return new ProjectionRequest(
+            Tenant.Value,
+            ConversationProjectionHandler.ConversationDomain,
+            Conversation.Value,
+            [
+                EventDto(Created(Tenant, Conversation), sequence: 1),
+                new ProjectionEventDto(
+                    nameof(ConversationRejectedDomainEvent),
+                    JsonSerializer.SerializeToUtf8Bytes(rejection, JsonOptions),
+                    "json",
+                    2,
+                    rejectionTimestamp,
+                    "correlation"),
+            ]);
     }
 
     /// <summary>
@@ -610,6 +764,47 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))
             .ShouldNotBeNull("completion must mean the tenant index is durable, not that the ledger says so.");
+    }
+
+    /// <summary>
+    /// A completed ledger is not durable while its same-generation index reference is still pending. The retry
+    /// must finish the index generation before acknowledging completion.
+    /// </summary>
+    [Fact]
+    public async Task CompletedLedgerWithPendingIndexReferenceShouldRePersistBeforeCompletion()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        ProjectionRequest request = Request(Tenant, Conversation);
+        const string DispatchId = "dispatch-pending-index";
+        (await handler.ProjectAsync(request, DispatchId, TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        ConversationProjectionIndexReadModel completed = store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!;
+        ConversationProjectionDispatchReference reference = completed.Dispatches[Conversation.Value];
+        store.SeedRaw(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant),
+            new ConversationProjectionIndexReadModel
+            {
+                Summaries = completed.Summaries,
+                Dispatches = new Dictionary<string, ConversationProjectionDispatchReference>(StringComparer.Ordinal)
+                {
+                    [Conversation.Value] = reference with { IsPending = true },
+                },
+            });
+
+        DomainProjectionHandlerResult redelivered = await handler.ProjectAsync(
+            request,
+            DispatchId,
+            TestContext.Current.CancellationToken);
+
+        redelivered.Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        store.Snapshot<ConversationProjectionIndexReadModel>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.TenantIndexKey(Tenant))!
+            .Dispatches[Conversation.Value].IsPending.ShouldBeFalse();
     }
 
     /// <summary>
@@ -723,6 +918,40 @@ public sealed class ConversationAsyncProjectionHandlerTest
             ConversationProjectionReadModelKeys.StateStoreName,
             ConversationProjectionReadModelKeys.ConversationKey(Tenant, ConversationB()))
             .ShouldBeNull();
+    }
+
+    /// <summary>
+    /// A rejection envelope's persisted timestamp advances freshness, so changing it under a stable dispatch
+    /// identity is a material input mismatch rather than benign delivery metadata drift.
+    /// </summary>
+    [Fact]
+    public async Task ReusingDispatchIdentityWithDifferentRejectionTimestampShouldFailWithoutWriting()
+    {
+        InMemoryReadModelStore store = new();
+        ConversationAsyncProjectionHandler handler = Handler(store);
+        const string DispatchId = "dispatch-rejection-timestamp";
+        ProjectionRequest first = RequestWithRejection(Started.AddSeconds(1));
+        ProjectionRequest changed = RequestWithRejection(Started.AddMilliseconds(1500));
+
+        (await handler.ProjectAsync(first, DispatchId, TestContext.Current.CancellationToken))
+            .Status.ShouldBe(ProjectionDispatchStatus.Completed);
+        ReadModelEntry<ConversationProjectedReadModels> before = await store.GetAsync<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            TestContext.Current.CancellationToken);
+
+        DomainProjectionHandlerResult reused = await handler.ProjectAsync(
+            changed,
+            DispatchId,
+            TestContext.Current.CancellationToken);
+
+        reused.Status.ShouldBe(ProjectionDispatchStatus.Failed);
+        ReadModelEntry<ConversationProjectedReadModels> after = await store.GetAsync<ConversationProjectedReadModels>(
+            ConversationProjectionReadModelKeys.StateStoreName,
+            ConversationProjectionReadModelKeys.ConversationKey(Tenant, Conversation),
+            TestContext.Current.CancellationToken);
+        after.ETag.ShouldBe(before.ETag);
+        after.Value!.Summary.Freshness.LastAppliedEventTimestamp.ShouldBe(Started.AddSeconds(1));
     }
 
     /// <summary>

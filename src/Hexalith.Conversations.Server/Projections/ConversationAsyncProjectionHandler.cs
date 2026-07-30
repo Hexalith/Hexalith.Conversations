@@ -573,11 +573,11 @@ public sealed class ConversationAsyncProjectionHandler :
     /// be shaped.
     /// </summary>
     /// <remarks>
-    /// Correlation identifiers, message identifiers, user identifiers, delivery timestamps and backfilled
-    /// global positions legitimately differ between two deliveries of the same dispatch. Hashing the whole
-    /// serialized request would treat those differences as identity reuse and fail the dispatch terminally, so
-    /// the fingerprint covers only the route, the tenant, the aggregate, and each event's sequence, type and
-    /// payload — the values that must not change under one dispatch identity.
+    /// Correlation identifiers, message identifiers, user identifiers, payload-backed delivery timestamps and
+    /// backfilled global positions legitimately differ between two deliveries of the same dispatch. Hashing the
+    /// whole serialized request would treat those differences as identity reuse and fail the dispatch terminally.
+    /// The fingerprint therefore covers the route, tenant, aggregate, and each event's sequence, type and payload,
+    /// plus the persisted timestamp only for a position-only event whose timestamp changes materialized freshness.
     /// </remarks>
     private static string ComputeRequestFingerprint(ProjectionRequest request)
     {
@@ -590,6 +590,11 @@ public sealed class ConversationAsyncProjectionHandler :
             AppendFingerprintSegment(hash, evt.SequenceNumber.ToString(CultureInfo.InvariantCulture));
             AppendFingerprintSegment(hash, evt.EventTypeName);
             AppendFingerprintSegment(hash, evt.SerializationFormat);
+            if (ConversationProjectionEventDecoder.IsPositionOnlyEventType(evt.EventTypeName))
+            {
+                AppendFingerprintSegment(hash, evt.Timestamp.UtcTicks.ToString(CultureInfo.InvariantCulture));
+            }
+
             hash.AppendData(evt.Payload ?? []);
             hash.AppendData(FingerprintSeparator);
         }
@@ -660,6 +665,7 @@ public sealed class ConversationAsyncProjectionHandler :
             .ConfigureAwait(false);
         return index.Value is not null
             && index.Value.Dispatches.TryGetValue(conversationId.Value, out ConversationProjectionDispatchReference? reference)
+            && !reference.IsPending
             && string.Equals(reference.DispatchId, ledger.DispatchId, StringComparison.Ordinal)
             && reference.LastAppliedEventPosition == detail.Value.Summary.Freshness.LastAppliedEventPosition
             && index.Value.Summaries.Any(summary =>

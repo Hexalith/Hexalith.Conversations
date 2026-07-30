@@ -352,6 +352,11 @@ public sealed class ConversationProjectionReadModelWriter
 
         if (SameGeneration(existing, incoming))
         {
+            if (!existing.IsPending)
+            {
+                return existing;
+            }
+
             return incoming with
             {
                 PreviousDispatchId = existing.PreviousDispatchId,

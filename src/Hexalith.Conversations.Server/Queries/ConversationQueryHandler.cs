@@ -343,7 +343,7 @@ public sealed class ConversationQueryHandler
                 cancellationToken)
             .ConfigureAwait(false);
 
-        string? nextCursor = issueContinuation
+        string? nextCursor = issueContinuation && !partialGeneration
             ? _cursorCodec.Encode(
                 ConversationListCursor.QueryType,
                 ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter),
