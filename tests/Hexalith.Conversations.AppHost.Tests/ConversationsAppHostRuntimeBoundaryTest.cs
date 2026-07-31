@@ -107,7 +107,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         // Named-projection dispatch is refused with delivery_state_unavailable until the store-global v2
         // writer protocol has been cut over — the documented operator maintenance action. Perform it through
         // the production admin endpoint before the first command so the dispatch under proof is admitted.
-        await ActivateProjectionDeliveryAsync(eventStore, gatewayRevision, timeout.Token);
+        await ActivateProjectionDeliveryAsync(eventStore, HarnessCutoverCommit, timeout.Token);
 
         string tenantId = $"apphost-{Guid.NewGuid():N}";
         string conversationId = $"conversation-{Guid.NewGuid():N}";
@@ -204,6 +204,22 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             ? identifier.GetString()
             : identifier.GetProperty("value").GetString();
 
+    /// <summary>
+    /// The stable cutover identity this harness attests with.
+    /// </summary>
+    /// <remarks>
+    /// The writer-protocol marker is store-global and written once for the lifetime of the store; the
+    /// endpoint returns 200 for a re-activation at the same commit and 409 for a different one. Attesting
+    /// with the gateway revision made the attested value move with the EventStore worktree, so the run after
+    /// any gitlink advance hit its own previous marker and was refused — the local DAPR Redis is the shared
+    /// `dapr init` instance with `keyPrefix: none`, so the marker outlives the run that wrote it. Measured,
+    /// not inferred: the stored marker held `cutoverCommit e4618d91` from the pass-10 gitlink while the tree
+    /// was at `e6459019`. A stable harness identity makes re-activation genuinely idempotent and keeps 409
+    /// meaning what the endpoint documents — a *different* marker, i.e. a real operator cutover, which this
+    /// proof must not run against.
+    /// </remarks>
+    private const string HarnessCutoverCommit = "hexalith-conversations-apphost-boundary-harness";
+
     private static async Task ActivateProjectionDeliveryAsync(
         HttpClient eventStore,
         string gatewayRevision,
@@ -226,9 +242,10 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
 
         // 200 is the only success: ProjectionDeliveryCutoverStatus.Activated already covers "activated, or
         // was already active for THIS exact commit". 409 is documented as a DIFFERENT marker being present,
-        // and because CutoverCommit is the gateway revision — which moves with the EventStore worktree — a
-        // 409 means the activation was genuinely refused and the boundary proof would then run against a
+        // so it means the activation was genuinely refused and the boundary proof would then run against a
         // protocol state it never established. Accepting it read a refusal as success (pass-10 review).
+        // With the stable harness identity above, a 409 can no longer be self-inflicted by a gitlink
+        // advance: it reports a marker this harness did not write, which is a real conflict.
         response.StatusCode.ShouldBe(
             HttpStatusCode.OK,
             $"the delivery-writer-protocol activation must succeed for CutoverCommit {gatewayRevision}; a 409 "

@@ -1254,6 +1254,10 @@ They remain routed to `Hexalith.EventStore` and unchecked, each annotated with i
 declared submodule dirties it and blocks the promotion gate, so they are that repository's to apply. They
 are tracked in the deferred-work ledger's "Routed to Hexalith.EventStore from pass 9" section.
 
+#### Found while running the full suite — pass 11 (2026-07-31)
+
+- [x] [Review][Patch] **The AppHost boundary lane attested the writer-protocol cutover with a value that moves, so it refused itself after every gitlink advance** — pass 10 correctly tightened `ActivateProjectionDeliveryAsync` to accept only HTTP 200, because 409 documents a *different* marker rather than an idempotent re-activation. Running the full suite then turned the lane red for exactly the reason pass 10 predicted but did not fix: `CutoverCommit` was the gateway revision, and the writer-protocol marker is store-global and written once for the store's lifetime. Measured, not inferred: the local DAPR Redis is the shared `dapr init` instance with `keyPrefix: none`, and its `projection-delivery-writer-protocol` key still held `cutoverCommit e4618d91` — the pass-10 gitlink — while the tree was at `e6459019`. The lane was refused by its own previous run. Fixed by attesting with a stable harness identity (`hexalith-conversations-apphost-boundary-harness`), which makes re-activation genuinely idempotent and restores 409's meaning: a marker this harness did not write, i.e. a real operator cutover, which the proof must not run against. The stale marker was deleted once — it is local DAPR dev state, not evidence. **Verified both directions:** the first run after the change activated and passed 9/9, and an immediate second run re-activated at the same identity and passed, which is the idempotence the fix claims (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:110]
+
 #### Fault injection — pass 11
 
 | Mutation | Target | Result |
