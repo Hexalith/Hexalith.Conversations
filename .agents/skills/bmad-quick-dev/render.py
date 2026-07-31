@@ -370,8 +370,13 @@ def main():
 
     for fname, content in sources:
         dst = posixpath.join(out_dir, fname)
+        rendered = render_workflow(render_template(content, vars_), workflow)
+        # A {workflow.*} placeholder that resolves to an empty string leaves the blank line that
+        # separated it behind, so the rendered file ends "...\n\n\n" and `git diff --check <range>`
+        # reports a new blank line at EOF. Hand-stripping the output is pointless because every
+        # activation re-renders it; normalizing here is what makes the fix stick.
         with open(dst, "w", encoding="utf-8", newline="") as fh:
-            fh.write(render_workflow(render_template(content, vars_), workflow))
+            fh.write(rendered.rstrip("\n") + "\n")
 
     workflow_md = posixpath.join(out_dir, "workflow.md")
     print(f"read and follow {workflow_md}")

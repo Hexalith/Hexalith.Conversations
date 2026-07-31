@@ -3,9 +3,9 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'in-progress'
+status: 'review'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
-file_list_commit: 'f7f9e1b13490558d99c288d770c73b1bb8c691aa'
+file_list_commit: 'd360de55335f8001793e864bbf8f8bcb76ea2fb8'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -46,7 +46,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: in-progress
+Status: review
 
 ## ⚠️ Read this first — most of this story is already implemented
 
@@ -485,8 +485,11 @@ EventStore DomainService focused **72/72** and broad non-nested-submodule lane *
 **CORRECTION 2026-07-31 (pass 8 review, applied pass 11):** only the bare working-tree form was run. The
 story-mandated range form `git diff --check 29def44..<candidate>` failed on two blank-line-at-EOF defects in
 `_bmad/render/bmad-quick-dev/step-05-present.md` and `step-oneshot.md`, present since `5ed5e20` and inside the
-generated File List rather than outside it. Both files were re-rendered from their live sources in pass 11,
-which removed the defect; both forms are clean from that revision on.
+generated File List rather than outside it. The cause was the renderer, not the files: `render.py` emits an
+empty-resolving `{workflow.on_complete}` placeholder and leaves the separating newline, so every render ends
+in a blank line and any hand-strip is undone at the next activation. Fixed at the source in pass 11 — the
+renderer normalizes its trailing newlines in both skill trees — and the range form is clean from that
+revision on.
 Full EventStore DomainService remains **147 passed / 1 failed** only because the forbidden-to-initialize nested
 `references/Hexalith.Tenants` authoring-guard subject is absent. EventStore-wide `dotnet format` remains noisy
 from its pre-existing `.editorconfig` CRLF versus `.gitattributes` LF conflict and unrelated naming diagnostics;
@@ -747,7 +750,7 @@ Story 6.8's deliverables — the mid-flight cross-story edit is the exact patter
 
 #### Patches
 
-- [x] [Review][Patch] Re-render `_bmad/render/bmad-quick-dev/` from the live sources and commit the refreshed snapshots — the committed copies predate the Final Record Generation Gate (zero occurrences vs two per live twin), retain the retired no-VCS escape to `done`, and carry the two blank-line-at-EOF defects that fail the range-form `git diff --check`; the skill re-renders at every activation, so the next quick-dev run dirties tracked files that the new clean-tree contract then blocks on (MEDIUM) [_bmad/render/bmad-quick-dev/step-05-present.md:57] — APPLIED 2026-07-31 (pass 11) by running the skill's own `render.py` rather than hand-editing the snapshots. The refreshed copies carry the Final Record Generation Gate (two occurrences each, matching the live twins), drop the retired no-VCS escape to `done`, and no longer end in a blank line, so `git diff --check` is clean in the working tree and the range form no longer fails on them.
+- [x] [Review][Patch] Re-render `_bmad/render/bmad-quick-dev/` from the live sources and commit the refreshed snapshots — the committed copies predate the Final Record Generation Gate (zero occurrences vs two per live twin), retain the retired no-VCS escape to `done`, and carry the two blank-line-at-EOF defects that fail the range-form `git diff --check`; the skill re-renders at every activation, so the next quick-dev run dirties tracked files that the new clean-tree contract then blocks on (MEDIUM) [_bmad/render/bmad-quick-dev/step-05-present.md:57] — APPLIED 2026-07-31 (pass 11) by running the skill's own `render.py` rather than hand-editing the snapshots. The refreshed copies carry the Final Record Generation Gate (two occurrences each, matching the live twins) and drop the retired no-VCS escape to `done`. **The whitespace half needed a second, deeper fix.** Re-rendering did not remove the blank line at EOF, and an intermediate note in this record claimed it had — corrected here. Measured: `render.py` emits `{workflow.on_complete}` on its own line, that key resolves to an empty string, and the separating newline survives, so every render ends `\n\n\n`. Hand-stripping the output would have been undone by the next activation, which is what the finding said. The renderer now normalizes its own trailing newlines in **both** skill trees, and `git diff --check 29def44..HEAD` is clean for the first time since `5ed5e20`.
 - [x] [Review][Patch] Disclose commit `5ed5e20`'s sweep in this record — it committed the concurrent-session draft spec `spec-gh-actions-30291329462-90061623240.md`, all five render files, and undeclared gitlink moves (including `references/Hexalith.Memories`) into the story range, contradicting the record's "was NOT staged" and "left untouched, outside this story's File List" claims, which must be annotated in place, never silently rewritten (MEDIUM) [_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md:1077] — APPLIED 2026-07-31 (pass 11). A dedicated disclosure now sits directly under the Completion Notes' "Honest exceptions" bullets it contradicts, naming the swept concurrent-session spec, all five render snapshots, and the three gitlink moves. The contradicted bullets are corrected in place rather than deleted.
 - [x] [Review][Patch] Annotate Dev Notes D1's "the final gate returns zero blockers and zero warnings" with a dated correction — every recorded gate run since carries the disclosed undeclared-gitlink warnings, and pass-2 D7 flagged this exact sentence without it ever being corrected (MEDIUM) [_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md:724] — APPLIED 2026-07-31 (pass 11). Dev Notes D1 carries a dated correction: zero blockers is the invariant; four disclosed `UNDECLARED_GITLINK_CHANGE` warnings have been present in every gate run since pass 5.
 - [x] [Review][Patch] Correct the pass-5/pass-7 whitespace claims — the story-mandated range form `git diff --check <baseline>..<candidate>` fails on the two render-file EOF defects present since `5ed5e20`, while both passes recorded only the bare form as clean and misattributed the files as outside the File List the generated record itself lists (MEDIUM) [_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md:474] — APPLIED 2026-07-31 (pass 11). Both validation paragraphs are annotated: only the bare form was run, the range form was failing on the two render-file EOF defects, and those files are inside the generated File List, not outside it. Re-rendering removed the defect.
@@ -1207,9 +1210,12 @@ drain is bounded; and the AppHost's Debug-only gateway edge is gone along with t
 concealed it. Server.Tests 680 → 684.
 
 **Ten pass-8 items.** Eight record patches applied, one decision resolved here, one put to the owner. The
-`bmad-quick-dev` snapshots were re-rendered from their live sources with the skill's own `render.py`, which
-fixed both the stale content and the blank-line-at-EOF defect that had been failing the range-form
-`git diff --check` since `5ed5e20` — so both forms are now clean. Commit `5ed5e20`'s sweep and the
+`bmad-quick-dev` snapshots were re-rendered from their live sources with the skill's own `render.py`. That
+fixed the stale content but **not** the blank-line-at-EOF defect, and an intermediate note in this record
+wrongly said it had: the renderer itself emits the blank line, from an empty-resolving
+`{workflow.on_complete}` placeholder, so re-rendering reproduces it and hand-stripping is undone at the next
+activation. The renderer now normalizes its own trailing newlines in both skill trees, and the range-form
+`git diff --check` is clean for the first time since `5ed5e20`. Commit `5ed5e20`'s sweep and the
 generated File List's authorship partition are disclosed together, directly under the Completion Notes
 bullets they contradict.
 
@@ -1738,9 +1744,9 @@ exactly what the Final Record gate forbids.
 
 **Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
-Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 111 file-list path(s) · 7 gitlink promotion(s) evaluated.
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 112 file-list path(s) · 7 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f7f9e1b13490558d99c288d770c73b1bb8c691aa`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `d360de55335f8001793e864bbf8f8bcb76ea2fb8`.
 
 ### File List
 
@@ -1864,7 +1870,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f7f9e1b134905
 | `references/Hexalith.AI.Tools` | no | `160000` | `859d53b792e1db9562b0ff66dbc335f418a688be` | `991e8ea1b39bfb8170aea9a6857c25c7c69176c1` |
 | `references/Hexalith.Builds` | yes | `160000` | `e85a319ecd80f82c3090c49979d4580f07697742` | `0b8f0c83263b7150c98341ceca8cd3cd8404a375` |
 | `references/Hexalith.Commons` | no | `160000` | `f2b5f1b12b478dce902756876138a60cde4fde65` | `427530e27eab40b12e85832698da6962fd0c5a48` |
-| `references/Hexalith.EventStore` | yes | `160000` | `e4618d9114c8824fd50fdfc8d135438aa261377c` | `b2d3402552fbadf529c220fcc739da9d06d285fe` |
+| `references/Hexalith.EventStore` | yes | `160000` | `e645901928eed9759e28e1086f23dc96875c3ac3` | `b2d3402552fbadf529c220fcc739da9d06d285fe` |
 | `references/Hexalith.FrontComposer` | no | `160000` | `b6efcad5b293017f9805e4fc7dc982b92abff678` | `7870526090a8596082e3df034ecacf4c07881a04` |
 | `references/Hexalith.Memories` | no | `160000` | `a1f64d552f843ed299cb95ef4ffa18b81516a2fb` | `b073aa577ad3006300a5d7192392bb0ca656944b` |
 | `references/Hexalith.Tenants` | yes | `160000` | `625061bd4858d34263c2deef6a705742ac68ed37` | `4a9124ec174179652d9480ea56e70f97f8a45a37` |
@@ -1873,19 +1879,19 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f7f9e1b134905
 
 | Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `12f95f0ab536e8ac` |
-| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `1fb15ab01560cb1b` |
-| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `afc24a5af3ec8d1d` |
-| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `ba6a6985fa5a4e09` |
-| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `23d2514b44d0a3c1` |
-| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `ffcacab4ba2d0cea` |
-| Hexalith.Conversations.Server.Tests | PARSED | 680 | 680 | 680 | 0 | 0 | `061a49ac6c0f96d7` |
-| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `4e43d17f541507da` |
-| **Total (computed)** | **8 parsed** | **1980** | **1980** | **1980** | **0** | **0** | — |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `6d9454dc62ae8aca` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `e4d4b8cc319a4c65` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `7d44560bb5550c23` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `07af8219b15bccdf` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `fc9826e1351b310f` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `9af37d1d68a762f5` |
+| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `c642091bb823b1a3` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `808a9e310b0e9acd` |
+| **Total (computed)** | **8 parsed** | **1984** | **1984** | **1984** | **0** | **0** | — |
 
 ### Candidate Binding
 
-- Candidate `f7f9e1b13490558d99c288d770c73b1bb8c691aa` · committed head `f7f9e1b13490558d99c288d770c73b1bb8c691aa` · ancestor of head: **yes**
+- Candidate `d360de55335f8001793e864bbf8f8bcb76ea2fb8` · committed head `d360de55335f8001793e864bbf8f8bcb76ea2fb8` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 - Paths changed after the candidate: none
 
