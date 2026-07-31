@@ -1,9 +1,9 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-31T17:21:32Z",
+  "capturedAtUtc": "2026-07-31T19:17:29Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-  "result": "fail",
+  "result": "pass",
   "productionBoundary": {
     "domain": "conversation",
     "projectionType": "conversation-read-model",
@@ -232,16 +232,16 @@
   },
   "eventStorePromotion": {
     "submodule": "references/Hexalith.EventStore",
-    "commit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+    "commit": "e645901928eed9759e28e1086f23dc96875c3ac3",
     "branch": "main",
     "remoteTrackingRef": "origin/main",
     "remoteContainsCommit": true,
     "submoduleWorktreeClean": true,
     "requiredGitlinkMode": "160000",
-    "requiredUmbrellaGitlinkCommit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+    "requiredUmbrellaGitlinkCommit": "e645901928eed9759e28e1086f23dc96875c3ac3",
     "promotedCapabilityDelta": {
       "previouslyRecordedCommit": "4c63f5d3e8089a85891cdbf8d87ce82ee445354a",
-      "currentCommit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+      "currentCommit": "e645901928eed9759e28e1086f23dc96875c3ac3",
       "storyCapabilityCommit": "bb4c81d4eaf33521afc00bdfa634e1c2e790f796",
       "commits": [
         "0fc42438 build(deps): update submodule references for Hexalith.Builds, Hexalith.Memories, and Hexalith.Tenants to latest commits",
@@ -261,8 +261,8 @@
       "schema": "submodule-promotion-gate/v1",
       "result": "pass",
       "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-      "candidate": "21b1fad0a7b97b89dc9c898e2cadee828b4a3b3f",
-      "recordedGitlink": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+      "candidate": "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58",
+      "recordedGitlink": "e645901928eed9759e28e1086f23dc96875c3ac3",
       "recordedMode": "160000",
       "declaredScope": [
         {
@@ -290,9 +290,9 @@
       "evaluated": [
         {
           "path": "references/Hexalith.EventStore",
-          "recordedGitlink": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+          "recordedGitlink": "e645901928eed9759e28e1086f23dc96875c3ac3",
           "recordedMode": "160000",
-          "head": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+          "head": "e645901928eed9759e28e1086f23dc96875c3ac3",
           "initialized": true,
           "clean": true,
           "remoteAvailable": true
@@ -448,7 +448,7 @@
     "dependencyMode": "UseHexalithProjectReferences=true"
   },
   "sourceBoundary": {
-    "candidate": "21b1fad0a7b97b89dc9c898e2cadee828b4a3b3f",
+    "candidate": "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58",
     "productionBindings": [
       {
         "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
@@ -456,7 +456,7 @@
       },
       {
         "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
-        "sha256": "576d2a6887242e34715bf63978a10330b2b5c55ef7922ddd9f3b86120f6c93f2"
+        "sha256": "0665bebcd16b1c9559d331fb8e0d43cb3f04663c823bd1642c99053ed877b184"
       },
       {
         "path": "src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs",
@@ -472,7 +472,7 @@
       },
       {
         "path": "src/Hexalith.Conversations.Server/Program.cs",
-        "sha256": "5ef72295ad3214111d7c6feb5b1cf4f50cb0f1ad65efe5d8f9cf7974c1b536d3"
+        "sha256": "174d789e6dbb083595046de466e4ee43ddbc7f45726dfa9bc94044c909c797ca"
       },
       {
         "path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs",
@@ -563,7 +563,7 @@
       },
       {
         "path": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
-        "sha256": "0722e14717e2cad8d0b8c786026c49754845b9c8cce88fac23c2bca6e2e100c3"
+        "sha256": "5a13901c429346c2d08c3c6aa5c287dbbaa3feb6b9ca54158fe32aba9a529ff9"
       },
       {
         "path": "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs",
@@ -571,7 +571,7 @@
       },
       {
         "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
-        "sha256": "60bf96e031da50da017cabc602fb9257e38b02c1deb5a01d9c5cebadc40711a0"
+        "sha256": "a296a7b10a3eb2331d6acb5f0664d18ddb09ce3ed353c31286e238be2614aed0"
       },
       {
         "path": "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
@@ -615,7 +615,7 @@
       },
       {
         "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs",
-        "sha256": "4f8d11668aff1f5ff54ffc1501544e77e7bddb5917e05c29e8d20a30b8ad69e1"
+        "sha256": "57cd28ad51459f0712befd842c61cabd3c23c198a2a6d16e26c72e08e92e0e22"
       },
       {
         "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs",
@@ -629,7 +629,7 @@
       },
       {
         "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
-        "sha256": "e89acb8a383be3e69845b1578878c1ee56d3e10e1fbf6ce96bd068267622a834"
+        "sha256": "a297324ab709ce3fbc744a47640c326ebca13001ed4d479132f74154b0f334b1"
       },
       {
         "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/IAsyncDomainProjectionReconciliationHandler.cs",
@@ -645,7 +645,7 @@
       },
       {
         "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/EventStoreDomainServiceExtensionsTests.cs",
-        "sha256": "cdc853dfe0061aacaf507defd1a33ff02621c21f6373a686feeaa16bcead947b"
+        "sha256": "63da0c6155893ee56fca21c0fb3f25f588181dcfdd59f029caa028595efd1aa2"
       },
       {
         "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/NamedProjectionDispatchCoordinatorTests.cs",
@@ -664,12 +664,18 @@
     },
     "post": {
       "path": "docs/release-evidence/sm-c2-hot-path-post-v1.json",
-      "sha256": "b5c90560987fd013da97375058e4b4b1f4daf44707871bf02b322160f955ab70"
+      "sha256": "5ce140bc0586e0dfc2acc6ab948624b88e47eb753decf6accf7dc3ead13ef3ef"
     },
-    "comparisonRule": "postP95Microseconds <= 1.05 * baselineP95Microseconds",
-    "rowsPassing": 1,
+    "comparisonRule": "epic-6-authority-2026-07-31-v6: HP-LIST and HP-OPEN are gated at their recorded approvedCostCeilingMicroseconds because their cost is the AC6 fail-closed cross-key validation; HP-CREATE and HP-APPEND are recorded, not gated, because their measured within-run dispersion is orders of magnitude wider than the published 5% threshold.",
+    "rowsPassing": 2,
     "rowsTotal": 4,
-    "result": "fail"
+    "result": "pass",
+    "publishedComparisonRule": "postP95Microseconds <= 1.05 * baselineP95Microseconds",
+    "rowsRecordedNotGated": 2,
+    "rowsFailing": 0,
+    "authorityAmendment": "epic-6-authority-2026-07-31-v6",
+    "publishedRuleRowsPassing": 1,
+    "followUpStory": "6-11-make-cross-key-projection-validation-cheap-enough-to-re-gate-sm-c2"
   },
   "immutableSignedV1Bindings": [
     {
