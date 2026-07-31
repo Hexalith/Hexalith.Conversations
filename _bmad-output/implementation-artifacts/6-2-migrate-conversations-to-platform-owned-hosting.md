@@ -1541,11 +1541,11 @@ computed totals of 1,925 passed, 0 failed, and 0 skipped; the workflow suite rem
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 
-**Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
+**Final record** — `story-final-record-v1`, result **BLOCKED**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
-Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 86 file-list path(s) · 6 gitlink promotion(s) evaluated.
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 111 file-list path(s) · 7 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c25bb9755827f19c7e1ce2a87287`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `30922f1eaebb054475608e04d316e78ace42aac9`.
 
 ### File List
 
@@ -1559,7 +1559,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 - `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
 - `Hexalith.Conversations.slnx` (modified)
 - `README.md` (modified)
-- `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` (modified)
+- `_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md` (new)
 - `_bmad-output/implementation-artifacts/6-8-generate-the-final-story-record-mechanically-from-measured-state.md` (new)
 - `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
 - `_bmad-output/implementation-artifacts/epic-6-context.md` (modified)
@@ -1583,15 +1583,23 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 - `_bmad/scripts/tests/test_verify_submodule_promotion.py` (modified)
 - `docs/release-evidence/conformance-oracle-tiering-decision-v2.json` (new)
 - `docs/release-evidence/conformance-oracle-tiering-decision-v2.md` (new)
+- `docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json` (new)
+- `docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml` (new)
+- `docs/release-evidence/projection-read-store-population-proof-v2-gateway.xunit.xml` (new)
+- `docs/release-evidence/projection-read-store-population-proof-v2-population.xunit.xml` (new)
 - `docs/release-evidence/projection-read-store-population-proof-v2.json` (new)
 - `docs/release-evidence/projection-read-store-population-proof-v2.md` (new)
 - `docs/release-evidence/sm-c2-hot-path-baseline-v1.json` (new)
 - `docs/release-evidence/sm-c2-hot-path-baseline-v1.md` (new)
+- `docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml` (new)
 - `docs/release-evidence/sm-c2-hot-path-post-v1.json` (new)
 - `docs/release-evidence/sm-c2-hot-path-post-v1.md` (new)
+- `docs/release-evidence/sm-c2-hot-path-post-v1.xunit.xml` (new)
 - `docs/runbooks/story-final-record-generation.md` (new)
 - `src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs` (modified)
 - `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj` (modified)
+- `src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs` (modified)
+- `src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs` (modified)
 - `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj` (modified)
 - `src/Hexalith.Conversations.Server/Program.cs` (modified)
 - `src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs` (new)
@@ -1599,13 +1607,18 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs` (new)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs` (new)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchStatus.cs` (new)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs` (new)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs` (modified)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs` (new)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/ConversationProjectionPositionOnlyEvent.cs` (new)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs` (modified)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs` (modified)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs` (modified)
 - `src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs` (modified)
+- `src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs` (modified)
 - `src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs` (modified)
 - `src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs` (deleted)
 - `src/Hexalith.Conversations.ServiceDefaults/Hexalith.Conversations.ServiceDefaults.csproj` (deleted)
@@ -1615,6 +1628,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 - `tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj` (modified)
 - `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs` (modified)
 - `tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs` (modified)
+- `tests/Hexalith.Conversations.Conformance.Tests/ConversationProjectionReadSurfaceConformanceTest.cs` (modified)
 - `tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs` (new)
 - `tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs` (new)
 - `tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs` (new)
@@ -1624,13 +1638,24 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 - `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs` (new)
 - `tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs` (new)
 - `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Api/ConversationReadApiTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationBuyerAcceptanceDemoServiceTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationGovernanceVerificationServiceTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Governance/ConversationPrivilegedOperationalJustificationServiceTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainDiscoveryHostCompositionTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/HostComposition/ConversationsDomainServiceHostCompositionTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs` (new)
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs` (new)
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs` (new)
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationAuditRecordAccessServiceTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationDomainQueryDispatchTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryHandlerTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationQueryRegistrationTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Queries/ConversationTemporalReconstructionServiceTest.cs` (modified)
 - `tests/Hexalith.Conversations.Server.Tests/ServerBoundaryTest.cs` (modified)
 - `tests/Hexalith.Conversations.ServiceDefaults.Tests/ConversationsServiceDefaultsTest.cs` (deleted)
 - `tests/Hexalith.Conversations.ServiceDefaults.Tests/Hexalith.Conversations.ServiceDefaults.Tests.csproj` (deleted)
@@ -1640,38 +1665,46 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dc69719a9ce7c
 
 | Path | Declared | Recorded mode | Recorded commit | Baseline commit |
 | --- | --- | --- | --- | --- |
-| `references/Hexalith.Builds` | yes | `160000` | `1b1c0b0360715b82de48b618fc4e94e7e01e8092` | `0b8f0c83263b7150c98341ceca8cd3cd8404a375` |
+| `references/Hexalith.AI.Tools` | no | `160000` | `859d53b792e1db9562b0ff66dbc335f418a688be` | `991e8ea1b39bfb8170aea9a6857c25c7c69176c1` |
+| `references/Hexalith.Builds` | yes | `160000` | `e85a319ecd80f82c3090c49979d4580f07697742` | `0b8f0c83263b7150c98341ceca8cd3cd8404a375` |
 | `references/Hexalith.Commons` | no | `160000` | `f2b5f1b12b478dce902756876138a60cde4fde65` | `427530e27eab40b12e85832698da6962fd0c5a48` |
-| `references/Hexalith.EventStore` | yes | `160000` | `b1d08dac328ee6a2f9b4ef07a1a14ad5756ba94e` | `b2d3402552fbadf529c220fcc739da9d06d285fe` |
+| `references/Hexalith.EventStore` | yes | `160000` | `e4618d9114c8824fd50fdfc8d135438aa261377c` | `b2d3402552fbadf529c220fcc739da9d06d285fe` |
 | `references/Hexalith.FrontComposer` | no | `160000` | `b6efcad5b293017f9805e4fc7dc982b92abff678` | `7870526090a8596082e3df034ecacf4c07881a04` |
-| `references/Hexalith.Memories` | no | `160000` | `0c351ff970b39a80a90821020feb0e6e8faf0183` | `b073aa577ad3006300a5d7192392bb0ca656944b` |
-| `references/Hexalith.Tenants` | yes | `160000` | `96bdfd8a485d5fbee76cd660ce5257bb5fd54f1d` | `4a9124ec174179652d9480ea56e70f97f8a45a37` |
+| `references/Hexalith.Memories` | no | `160000` | `a1f64d552f843ed299cb95ef4ffa18b81516a2fb` | `b073aa577ad3006300a5d7192392bb0ca656944b` |
+| `references/Hexalith.Tenants` | yes | `160000` | `625061bd4858d34263c2deef6a705742ac68ed37` | `4a9124ec174179652d9480ea56e70f97f8a45a37` |
 
 ### Test Results
 
-| Test project | State | Total | Passed | Failed | Skipped | Artifact SHA-256 |
-| --- | --- | --- | --- | --- | --- | --- |
-| Conformance | PARSED | 425 | 425 | 0 | 0 | `a2ee55816f9f1f1a` |
-| Server | PARSED | 631 | 631 | 0 | 0 | `405d50034187cb8d` |
-| Contracts | PARSED | 618 | 618 | 0 | 0 | `bee6bcaf120103e9` |
-| Domain | PARSED | 185 | 185 | 0 | 0 | `8a0079af7a27f05c` |
-| Admin.Web | PARSED | 14 | 14 | 0 | 0 | `a224fa89e7337052` |
-| IntegrationTests | PARSED | 14 | 14 | 0 | 0 | `581dbef5cc24c3cb` |
-| Client | PARSED | 29 | 29 | 0 | 0 | `819e8b1ececb4f30` |
-| AppHost | PARSED | 9 | 9 | 0 | 0 | `be0edf7559824a31` |
-| **Total (computed)** | **8 parsed** | **1925** | **1925** | **0** | **0** | — |
+| Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `5c957644524357e7` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `3e257bbf48ba7904` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `b288d98b423fd8f5` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `a40ac208ed0bae83` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `e25c47d365f8b0da` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `3f82b930aa3bc1ba` |
+| Hexalith.Conversations.Server.Tests | PARSED | 680 | 680 | 680 | 0 | 0 | `e2333f9896061078` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `605c7814c2419ee4` |
+| **Total (computed)** | **8 parsed** | **1980** | **1980** | **1980** | **0** | **0** | — |
 
 ### Candidate Binding
 
-- Candidate `dc69719a9ce7c25bb9755827f19c7e1ce2a87287` · committed head `dc69719a9ce7c25bb9755827f19c7e1ce2a87287` · ancestor of head: **yes**
+- Candidate `30922f1eaebb054475608e04d316e78ace42aac9` · committed head `30922f1eaebb054475608e04d316e78ace42aac9` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
+- Paths changed after the candidate: none
 
 ### Promotion Completion Gate
 
-- Result **PASS** · declared: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.Builds, references/Hexalith.Commons, references/Hexalith.EventStore, references/Hexalith.FrontComposer, references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants, references/Hexalith.Commons, references/Hexalith.FrontComposer, references/Hexalith.Memories
+- Result **PASS** · declared: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants · changed gitlinks: references/Hexalith.AI.Tools, references/Hexalith.Builds, references/Hexalith.Commons, references/Hexalith.EventStore, references/Hexalith.FrontComposer, references/Hexalith.Memories, references/Hexalith.Tenants · evaluated: references/Hexalith.EventStore, references/Hexalith.Builds, references/Hexalith.Tenants, references/Hexalith.AI.Tools, references/Hexalith.Commons, references/Hexalith.FrontComposer, references/Hexalith.Memories
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.AI.Tools
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories
+
+### Record Diagnostics
+
+- **BLOCKER** `FILE_LIST_DRIFT` (`_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md`): the record's File List disagrees with the derived set — missing 25: docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json, docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml, docs/release-evidence/projection-read-store-population-proof-v2-gateway.xunit.xml, docs/release-evidence/projection-read-store-population-proof-v2-population.xunit.xml, docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml
+  - Remediation: Replace the record's File List with the derived list emitted by this generator; never hand-edit either side into agreement.
 
 <!-- STORY-FINAL-RECORD:END -->
 
