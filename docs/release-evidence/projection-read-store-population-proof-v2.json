@@ -1,6 +1,6 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-30T06:14:22Z",
+  "capturedAtUtc": "2026-07-31T17:21:32Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "result": "fail",
@@ -109,7 +109,12 @@
   ],
   "gatewayBoundaryEvidence": {
     "adr": "docs/adrs/0003-projection-read-store-population-proof.md",
-    "satisfies": ["ADR 0003 Verification 1", "ADR 0003 Verification 2", "AC5", "AC6"],
+    "satisfies": [
+      "ADR 0003 Verification 1",
+      "ADR 0003 Verification 2",
+      "AC5",
+      "AC6"
+    ],
     "resolution": "strengthened-fixture",
     "resolutionOwner": "Jerome",
     "resolutionDecidedOn": "2026-07-27",
@@ -167,7 +172,11 @@
         "testCase": "Hexalith.Conversations.IntegrationTests.Projections.ConversationProjectionGatewayDispatchLiveTests.DuplicateGatewayDeliveryShouldConvergeWithoutChangingPersistedState"
       }
     ],
-    "run": {"passed": 2, "failed": 0, "skipped": 0},
+    "run": {
+      "passed": 2,
+      "failed": 0,
+      "skipped": 0
+    },
     "skipSemantics": "The gateway fixture is mandatory: missing DAPR/Redis prerequisites, startup failures, and port exhaustion fail the test. The recorded run executed with skipped = 0.",
     "residualGap": "none"
   },
@@ -175,7 +184,7 @@
     {
       "id": "deterministic-dispatch",
       "path": "docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml",
-      "sha256": "b75bfc8712b088e5e377ce3426229089608ed0b3a53089ad90e0a79fe2c732f6",
+      "sha256": "c8cbdb09e25548652735535d1b55e86d0f2ccc1c424747c305b339f6068d8f0d",
       "passed": 27,
       "failed": 0,
       "skipped": 0
@@ -183,7 +192,7 @@
     {
       "id": "gateway-boundary",
       "path": "docs/release-evidence/projection-read-store-population-proof-v2-gateway.xunit.xml",
-      "sha256": "7be9cc705ebbe71f2518c829f7f99d3e2fcf5b0e12f38577668a6689beedc1dc",
+      "sha256": "1286dfd3a70fc7e813ef691a64c066e2b86c14fbd730f6083253f235370d18cf",
       "passed": 2,
       "failed": 0,
       "skipped": 0
@@ -191,7 +200,7 @@
     {
       "id": "population-boundary",
       "path": "docs/release-evidence/projection-read-store-population-proof-v2-population.xunit.xml",
-      "sha256": "db5527cd6caed2f7a7d6e756294f6172d8e2415bc4a2b6203c4788edc276b394",
+      "sha256": "755faa6623fad04e0930662f143a9197abc58efd795a8a67e4f1db91b804df7f",
       "passed": 2,
       "failed": 0,
       "skipped": 0
@@ -201,7 +210,11 @@
     "appHostRole": "non-shipping module user/E2E test harness",
     "isPackable": false,
     "isPublishable": false,
-    "projectResources": ["conversations", "conversations-admin-web", "eventstore"],
+    "projectResources": [
+      "conversations",
+      "conversations-admin-web",
+      "eventstore"
+    ],
     "conversationsDaprAppId": "conversation",
     "conversationsDaprAppHealthPath": "/alive",
     "eventStoreReference": true,
@@ -209,22 +222,26 @@
     "conversationsServiceDefaultsRemoved": true,
     "sourceModeStartup": {
       "command": "UseHexalithProjectReferences=true aspire start --apphost src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj --isolated --non-interactive --format Json",
-      "observedStartedResources": ["conversations", "conversations-admin-web", "eventstore"],
+      "observedStartedResources": [
+        "conversations",
+        "conversations-admin-web",
+        "eventstore"
+      ],
       "runtimeBoundary": "The mandatory Aspire testing lane waited for EventStore and Conversations health, submitted a real CreateConversation command through EventStore, and observed Completed with the expected aggregate id and a non-zero event count. It also exposed and corrected the former conversations-versus-conversation DAPR app-id mismatch."
     }
   },
   "eventStorePromotion": {
     "submodule": "references/Hexalith.EventStore",
-    "commit": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0",
+    "commit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
     "branch": "main",
     "remoteTrackingRef": "origin/main",
     "remoteContainsCommit": true,
     "submoduleWorktreeClean": true,
     "requiredGitlinkMode": "160000",
-    "requiredUmbrellaGitlinkCommit": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0",
+    "requiredUmbrellaGitlinkCommit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
     "promotedCapabilityDelta": {
       "previouslyRecordedCommit": "4c63f5d3e8089a85891cdbf8d87ce82ee445354a",
-      "currentCommit": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0",
+      "currentCommit": "e4618d9114c8824fd50fdfc8d135438aa261377c",
       "storyCapabilityCommit": "bb4c81d4eaf33521afc00bdfa634e1c2e790f796",
       "commits": [
         "0fc42438 build(deps): update submodule references for Hexalith.Builds, Hexalith.Memories, and Hexalith.Tenants to latest commits",
@@ -244,13 +261,22 @@
       "schema": "submodule-promotion-gate/v1",
       "result": "pass",
       "baseline": "29def441408becfbbbdc5c59b9af14a7717cb21f",
-      "candidate": "b261fe209c4ca6c966f4bd2a78a62a2d83ddde08",
-      "recordedGitlink": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0",
+      "candidate": "21b1fad0a7b97b89dc9c898e2cadee828b4a3b3f",
+      "recordedGitlink": "e4618d9114c8824fd50fdfc8d135438aa261377c",
       "recordedMode": "160000",
       "declaredScope": [
-        {"path": "references/Hexalith.EventStore", "requireRemote": true},
-        {"path": "references/Hexalith.Builds", "requireRemote": true},
-        {"path": "references/Hexalith.Tenants", "requireRemote": true}
+        {
+          "path": "references/Hexalith.EventStore",
+          "requireRemote": true
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "requireRemote": true
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "requireRemote": true
+        }
       ],
       "changedGitlinks": [
         "references/Hexalith.AI.Tools",
@@ -262,20 +288,92 @@
         "references/Hexalith.Tenants"
       ],
       "evaluated": [
-        {"path": "references/Hexalith.EventStore", "recordedGitlink": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0", "recordedMode": "160000", "head": "defb426f0bd9e3bd1247bc7149605b4bb6ef70d0", "initialized": true, "clean": true, "remoteAvailable": true},
-        {"path": "references/Hexalith.Builds", "recordedGitlink": "adcd3509c768ffd7203537b155cb2357344e1611", "recordedMode": "160000", "head": "adcd3509c768ffd7203537b155cb2357344e1611", "initialized": true, "clean": true, "remoteAvailable": true},
-        {"path": "references/Hexalith.Tenants", "recordedGitlink": "b0451298d38ec82755547abec3d283729ee92ae9", "recordedMode": "160000", "head": "b0451298d38ec82755547abec3d283729ee92ae9", "initialized": true, "clean": true, "remoteAvailable": true},
-        {"path": "references/Hexalith.AI.Tools", "recordedGitlink": "859d53b792e1db9562b0ff66dbc335f418a688be", "recordedMode": "160000", "head": "859d53b792e1db9562b0ff66dbc335f418a688be", "initialized": true, "clean": true, "remoteAvailable": null},
-        {"path": "references/Hexalith.Commons", "recordedGitlink": "f2b5f1b12b478dce902756876138a60cde4fde65", "recordedMode": "160000", "head": "f2b5f1b12b478dce902756876138a60cde4fde65", "initialized": true, "clean": true, "remoteAvailable": null},
-        {"path": "references/Hexalith.FrontComposer", "recordedGitlink": "b6efcad5b293017f9805e4fc7dc982b92abff678", "recordedMode": "160000", "head": "b6efcad5b293017f9805e4fc7dc982b92abff678", "initialized": true, "clean": true, "remoteAvailable": null},
-        {"path": "references/Hexalith.Memories", "recordedGitlink": "4a6f0d33689fde8335b5c7a8d429d885fa82040a", "recordedMode": "160000", "head": "4a6f0d33689fde8335b5c7a8d429d885fa82040a", "initialized": true, "clean": true, "remoteAvailable": null}
+        {
+          "path": "references/Hexalith.EventStore",
+          "recordedGitlink": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+          "recordedMode": "160000",
+          "head": "e4618d9114c8824fd50fdfc8d135438aa261377c",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": true
+        },
+        {
+          "path": "references/Hexalith.Builds",
+          "recordedGitlink": "e85a319ecd80f82c3090c49979d4580f07697742",
+          "recordedMode": "160000",
+          "head": "e85a319ecd80f82c3090c49979d4580f07697742",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": true
+        },
+        {
+          "path": "references/Hexalith.Tenants",
+          "recordedGitlink": "625061bd4858d34263c2deef6a705742ac68ed37",
+          "recordedMode": "160000",
+          "head": "625061bd4858d34263c2deef6a705742ac68ed37",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": true
+        },
+        {
+          "path": "references/Hexalith.AI.Tools",
+          "recordedGitlink": "859d53b792e1db9562b0ff66dbc335f418a688be",
+          "recordedMode": "160000",
+          "head": "859d53b792e1db9562b0ff66dbc335f418a688be",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": null
+        },
+        {
+          "path": "references/Hexalith.Commons",
+          "recordedGitlink": "f2b5f1b12b478dce902756876138a60cde4fde65",
+          "recordedMode": "160000",
+          "head": "f2b5f1b12b478dce902756876138a60cde4fde65",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": null
+        },
+        {
+          "path": "references/Hexalith.FrontComposer",
+          "recordedGitlink": "b6efcad5b293017f9805e4fc7dc982b92abff678",
+          "recordedMode": "160000",
+          "head": "b6efcad5b293017f9805e4fc7dc982b92abff678",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": null
+        },
+        {
+          "path": "references/Hexalith.Memories",
+          "recordedGitlink": "a1f64d552f843ed299cb95ef4ffa18b81516a2fb",
+          "recordedMode": "160000",
+          "head": "a1f64d552f843ed299cb95ef4ffa18b81516a2fb",
+          "initialized": true,
+          "clean": true,
+          "remoteAvailable": null
+        }
       ],
       "blockers": [],
       "warnings": [
-        {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.AI.Tools", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.AI.Tools"},
-        {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.Commons", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons"},
-        {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.FrontComposer", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer"},
-        {"code": "UNDECLARED_GITLINK_CHANGE", "path": "references/Hexalith.Memories", "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories"}
+        {
+          "code": "UNDECLARED_GITLINK_CHANGE",
+          "path": "references/Hexalith.AI.Tools",
+          "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.AI.Tools"
+        },
+        {
+          "code": "UNDECLARED_GITLINK_CHANGE",
+          "path": "references/Hexalith.Commons",
+          "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons"
+        },
+        {
+          "code": "UNDECLARED_GITLINK_CHANGE",
+          "path": "references/Hexalith.FrontComposer",
+          "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer"
+        },
+        {
+          "code": "UNDECLARED_GITLINK_CHANGE",
+          "path": "references/Hexalith.Memories",
+          "message": "gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories"
+        }
       ]
     },
     "candidateBinding": {
@@ -350,32 +448,104 @@
     "dependencyMode": "UseHexalithProjectReferences=true"
   },
   "sourceBoundary": {
-    "candidate": "b261fe209c4ca6c966f4bd2a78a62a2d83ddde08",
+    "candidate": "21b1fad0a7b97b89dc9c898e2cadee828b4a3b3f",
     "productionBindings": [
-      {"path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs", "sha256": "e5806dfab4f67df653a00938bebeb3250e527011622e6be9c523d937b04a0b65"},
-      {"path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj", "sha256": "576d2a6887242e34715bf63978a10330b2b5c55ef7922ddd9f3b86120f6c93f2"},
-      {"path": "src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs", "sha256": "e549ec08a5d24d3951037d9e10199984c4452aa591c76e266d4bb2a0446cf719"},
-      {"path": "src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs", "sha256": "9f74e1aba2ea0faa7ebbe9952ef368c4946fc054d1c5a840045b2b285fdc7116"},
-      {"path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj", "sha256": "470213fd43afb2aff8ee42104f1fb6a09d5840884dceb62b40d0a314ab6d5cec"},
-      {"path": "src/Hexalith.Conversations.Server/Program.cs", "sha256": "aa7cb55a64a9500a55072d59a647b6e98df1309681087ffaf00f5ec17323963a"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs", "sha256": "b7671619fda43caf3a666986da57eae56cd7f4d1b19b7f68121aad72fa647cfb"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs", "sha256": "0ecf792afb6f50a5edec02cd91782c6121e10d52cef07f010ba56df95da22541"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs", "sha256": "7007f052165a486381e198b646ebdec6859709fc2f6b3581c9b1d28b1ac99d62"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs", "sha256": "fa72d4f17cdf4a29504bccc3cea1ffe9f4790fb406007688e7ede90a004c0913"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs", "sha256": "7f47e15d6a4a313880500129e6d0c4c592371b1eab7f190cb25df5ae7f1a9a5e"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchStatus.cs", "sha256": "66a6e1515db8b0ac5090bb1d50d8f2725f24694e3c1e2b4c97564d7ba8588b13"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs", "sha256": "d19c026d0e71fe29dd583e06a8a9fd38f0cf853fdf1dc008e462a7f2271eafb1"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs", "sha256": "25d80f256324e6bd81061ecea1c5fdcc1e286a8494646b5bf267292ce4cad423"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs", "sha256": "70f2b66e771cafb2f63f9957eb1239816f536494aec788d3a78001242df8f652"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs", "sha256": "659f877599eef207622db386ff0502222a6028c4b8e3688cee617dd5a27a7dc4"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs", "sha256": "902f2c8583cdb15feae6744ec74175dda77245db055ffbb95a5a15f9b86f1ab7"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionPositionOnlyEvent.cs", "sha256": "e094bd127a6bd01f38c9edac3e4b709fc313ac4e45a3596ca41e8853f704b20d"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs", "sha256": "b2be951aecedbb7a77e01ea081e782a71c859a79c556527f508a56905903b9ec"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs", "sha256": "3d06affed9a0e33487741b8a60d0ea9890283565a969ea034f1388a87e1d6502"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs", "sha256": "c1ad264b84877b2fda1b257412f4440366f35bd56e7a8e5cda17013966b450bd"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs", "sha256": "1e9399956efae9bc90b525e7c6d4f82bdbec258ade03902d3f12474139e0120b"},
-      {"path": "src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs", "sha256": "b837c161faa496130d8942a870645cf913cb77746997cc23674a89de331bf086"},
-      {"path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs", "sha256": "a1be8d64b991d56fc06011625a8cd689600657c05f40bc527367de73ea7b6564"}
+      {
+        "path": "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
+        "sha256": "e5806dfab4f67df653a00938bebeb3250e527011622e6be9c523d937b04a0b65"
+      },
+      {
+        "path": "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "sha256": "576d2a6887242e34715bf63978a10330b2b5c55ef7922ddd9f3b86120f6c93f2"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs",
+        "sha256": "e549ec08a5d24d3951037d9e10199984c4452aa591c76e266d4bb2a0446cf719"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs",
+        "sha256": "9f74e1aba2ea0faa7ebbe9952ef368c4946fc054d1c5a840045b2b285fdc7116"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+        "sha256": "470213fd43afb2aff8ee42104f1fb6a09d5840884dceb62b40d0a314ab6d5cec"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Program.cs",
+        "sha256": "5ef72295ad3214111d7c6feb5b1cf4f50cb0f1ad65efe5d8f9cf7974c1b536d3"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs",
+        "sha256": "07fe513b285e2a08cb42c5435bbfb0b3c85cb96966a950bd0470edef95144541"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs",
+        "sha256": "0ecf792afb6f50a5edec02cd91782c6121e10d52cef07f010ba56df95da22541"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs",
+        "sha256": "7007f052165a486381e198b646ebdec6859709fc2f6b3581c9b1d28b1ac99d62"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs",
+        "sha256": "fa72d4f17cdf4a29504bccc3cea1ffe9f4790fb406007688e7ede90a004c0913"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs",
+        "sha256": "7f47e15d6a4a313880500129e6d0c4c592371b1eab7f190cb25df5ae7f1a9a5e"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchStatus.cs",
+        "sha256": "66a6e1515db8b0ac5090bb1d50d8f2725f24694e3c1e2b4c97564d7ba8588b13"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs",
+        "sha256": "d19c026d0e71fe29dd583e06a8a9fd38f0cf853fdf1dc008e462a7f2271eafb1"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs",
+        "sha256": "25d80f256324e6bd81061ecea1c5fdcc1e286a8494646b5bf267292ce4cad423"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs",
+        "sha256": "70f2b66e771cafb2f63f9957eb1239816f536494aec788d3a78001242df8f652"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs",
+        "sha256": "659f877599eef207622db386ff0502222a6028c4b8e3688cee617dd5a27a7dc4"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs",
+        "sha256": "902f2c8583cdb15feae6744ec74175dda77245db055ffbb95a5a15f9b86f1ab7"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionPositionOnlyEvent.cs",
+        "sha256": "e094bd127a6bd01f38c9edac3e4b709fc313ac4e45a3596ca41e8853f704b20d"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+        "sha256": "b2be951aecedbb7a77e01ea081e782a71c859a79c556527f508a56905903b9ec"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs",
+        "sha256": "3d06affed9a0e33487741b8a60d0ea9890283565a969ea034f1388a87e1d6502"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs",
+        "sha256": "c1ad264b84877b2fda1b257412f4440366f35bd56e7a8e5cda17013966b450bd"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs",
+        "sha256": "7b5b4aa5df017e509a62ec3a2e1b287ed991cc3001ef63f05f291bb5b943b5db"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs",
+        "sha256": "b837c161faa496130d8942a870645cf913cb77746997cc23674a89de331bf086"
+      },
+      {
+        "path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs",
+        "sha256": "a6d4475abdba537fece39dda8f76ab9b670b89ed7bdaf7ee84e5a1221a2da55b"
+      }
     ],
     "removedProductionPaths": [
       "src/Hexalith.Conversations.ServiceDefaults/ConversationsServiceDefaults.cs",
@@ -383,47 +553,140 @@
       "src/Hexalith.Conversations.ServiceDefaults/ServiceDefaultsAssemblyMarker.cs"
     ],
     "testBindings": [
-      {"path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs", "sha256": "90aefa62955a4746a12568063f51cd71c91e4aca708b5e5baf8da5173a9ab78a"},
-      {"path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs", "sha256": "eb1df0a94001300270407b2b02a5d9550659c365e64464837792d32c4de2522a"},
-      {"path": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj", "sha256": "0722e14717e2cad8d0b8c786026c49754845b9c8cce88fac23c2bca6e2e100c3"},
-      {"path": "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs", "sha256": "efadede3efa06f631058430d00f43e64b5b0660504ab4bde3bc50085624c5d0c"},
-      {"path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs", "sha256": "7ab19202e35ce6bfaa96314b11f508224a5fc28f3415be4f39b907554774fc26"},
-      {"path": "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs", "sha256": "6a8fb7fd3af58f9c57364e99eb3a2e7a99d72b882d08550353fb8f5f7b97e0f3"},
-      {"path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs", "sha256": "4838a5a174b247e3aa4cc6be0c181049a46d884612058df248af8892adaf3fff"},
-      {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs", "sha256": "ae4f6b6594fca969d7ee862a6dab5e47fc56070953f0bcf267db3d00a129c63c"},
-      {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs", "sha256": "a6b05761499096c142abe31bc0bc1f044337e0022b69a2652a7a39448d0538cf"},
-      {"path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs", "sha256": "413b97907c99503e30195de7a194c56bf336286ffe36c5d261e4887934e67c1f"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs", "sha256": "74bdcaec57ee8e3aaf6399db9f5b8d3f90a602a82fccbf6f531c6551e58fcd42"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs", "sha256": "29d36dc086ec176380679ead87e39cb596f29c66f755c4f072e911059c6dcedb"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs", "sha256": "2292aca58b3ff6a2b6da8bc39a6483c47b28b417f193b542af8f3d0a36c8a1d0"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs", "sha256": "14cb3b171a19e3a7a1bc95a12fb3e4e6d49d51d3aba80d2564e3cc29aac393e1"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs", "sha256": "e779306b2fdd40db6b3dad48292081c0733a02b104834232ba36eede3bee1dcf"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs", "sha256": "4f8d11668aff1f5ff54ffc1501544e77e7bddb5917e05c29e8d20a30b8ad69e1"},
-      {"path": "tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs", "sha256": "e072e6a0c9a5d39537b650952fdd7c6d2fed00ef205b3f5ab59d528649deb660"}
+      {
+        "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
+        "sha256": "13638d5f07dddca0df58d4873769bbfdf59f05e8d6b34eebf3530c22c2601b79"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",
+        "sha256": "2ea9c3c597d66f44e0339a4243869c18d91340fce4b8d38485c352e83a868c94"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        "sha256": "0722e14717e2cad8d0b8c786026c49754845b9c8cce88fac23c2bca6e2e100c3"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs",
+        "sha256": "331ad387478f63c4083f27414624556efaa85d515cc6f828824432d3eb338227"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+        "sha256": "60bf96e031da50da017cabc602fb9257e38b02c1deb5a01d9c5cebadc40711a0"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
+        "sha256": "c96c8130c2d4b9b3c482af9630421718e1ea37e3c7cf83a884e383a82aaa091f"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+        "sha256": "1a43bacc98fb288a81578893679b6422e1088d1398722f89669f80058688d67b"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+        "sha256": "cbb62780574af3d05aeaf7dc6694832fce5614e54b8032d8b816867d2386e5c4"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs",
+        "sha256": "a6b05761499096c142abe31bc0bc1f044337e0022b69a2652a7a39448d0538cf"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs",
+        "sha256": "f23670f655a7f4e0bfc479e55c3c0b544a89bd8b78c376c3ebd9c96d5520c120"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+        "sha256": "1b766f0a55223a927f01db6a8bbada94d374bb0f9335bdae627c77c6c9780852"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs",
+        "sha256": "29d36dc086ec176380679ead87e39cb596f29c66f755c4f072e911059c6dcedb"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs",
+        "sha256": "98dbd560e538206a21d14154d6f94d259d41bbe97186858073a4d233ca63b821"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs",
+        "sha256": "14cb3b171a19e3a7a1bc95a12fb3e4e6d49d51d3aba80d2564e3cc29aac393e1"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs",
+        "sha256": "e779306b2fdd40db6b3dad48292081c0733a02b104834232ba36eede3bee1dcf"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs",
+        "sha256": "4f8d11668aff1f5ff54ffc1501544e77e7bddb5917e05c29e8d20a30b8ad69e1"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs",
+        "sha256": "e072e6a0c9a5d39537b650952fdd7c6d2fed00ef205b3f5ab59d528649deb660"
+      }
     ],
     "platformBindings": [
-      {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs", "sha256": "6304661b756513fad0a8b58ed70cf913bb3c10e072f737116a69878be1126379"},
-      {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs", "sha256": "e89acb8a383be3e69845b1578878c1ee56d3e10e1fbf6ce96bd068267622a834"},
-      {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/IAsyncDomainProjectionReconciliationHandler.cs", "sha256": "8c5d22bf1791a52ed54d85f27cc549fc0349786f00acfdecd424d7bdb55fa41f"},
-      {"path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/NamedProjectionDispatchCoordinator.cs", "sha256": "64a9c5860376e8d1dc496610bc1723762b720873a23f70234e15471841fca549"},
-      {"path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/DomainProjectionDispatcherV2Tests.cs", "sha256": "8024500a55866b60058ef6c5b065604aee342f1659b3526da9741d7dbd47e890"},
-      {"path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/EventStoreDomainServiceExtensionsTests.cs", "sha256": "cdc853dfe0061aacaf507defd1a33ff02621c21f6373a686feeaa16bcead947b"},
-      {"path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/NamedProjectionDispatchCoordinatorTests.cs", "sha256": "9ddbd017e2a8824fb38c3b1cb1d45008cfeaac3e2c564cab4da5d5985c2be295"},
-      {"path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/ProjectionDispatchHttpMessageHandler.cs", "sha256": "a9603409d087c72120e4b48241c97d42aa184dc6ced62bf10ba81503c959fac0"}
+      {
+        "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs",
+        "sha256": "6304661b756513fad0a8b58ed70cf913bb3c10e072f737116a69878be1126379"
+      },
+      {
+        "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+        "sha256": "e89acb8a383be3e69845b1578878c1ee56d3e10e1fbf6ce96bd068267622a834"
+      },
+      {
+        "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/IAsyncDomainProjectionReconciliationHandler.cs",
+        "sha256": "8c5d22bf1791a52ed54d85f27cc549fc0349786f00acfdecd424d7bdb55fa41f"
+      },
+      {
+        "path": "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/NamedProjectionDispatchCoordinator.cs",
+        "sha256": "64a9c5860376e8d1dc496610bc1723762b720873a23f70234e15471841fca549"
+      },
+      {
+        "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/DomainProjectionDispatcherV2Tests.cs",
+        "sha256": "8024500a55866b60058ef6c5b065604aee342f1659b3526da9741d7dbd47e890"
+      },
+      {
+        "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/EventStoreDomainServiceExtensionsTests.cs",
+        "sha256": "cdc853dfe0061aacaf507defd1a33ff02621c21f6373a686feeaa16bcead947b"
+      },
+      {
+        "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/NamedProjectionDispatchCoordinatorTests.cs",
+        "sha256": "9ddbd017e2a8824fb38c3b1cb1d45008cfeaac3e2c564cab4da5d5985c2be295"
+      },
+      {
+        "path": "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/ProjectionDispatchHttpMessageHandler.cs",
+        "sha256": "a9603409d087c72120e4b48241c97d42aa184dc6ced62bf10ba81503c959fac0"
+      }
     ]
   },
   "performanceEvidence": {
-    "baseline": {"path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json", "sha256": "9855df6362cd8be7d5c1e831c631f47d2edf66b57bd6525132d9a770d92ce412"},
-    "post": {"path": "docs/release-evidence/sm-c2-hot-path-post-v1.json", "sha256": "47e1954530be288c6829eadadb3688f0fc0796ad83f52e2c8d2716bd78bd69a8"},
+    "baseline": {
+      "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+      "sha256": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+    },
+    "post": {
+      "path": "docs/release-evidence/sm-c2-hot-path-post-v1.json",
+      "sha256": "b5c90560987fd013da97375058e4b4b1f4daf44707871bf02b322160f955ab70"
+    },
     "comparisonRule": "postP95Microseconds <= 1.05 * baselineP95Microseconds",
-    "rowsPassing": 2,
+    "rowsPassing": 1,
     "rowsTotal": 4,
     "result": "fail"
   },
   "immutableSignedV1Bindings": [
-    {"path": "docs/release-evidence/success-metric-report-and-attestation-v1.json", "sha256": "062ca0c7bc94279007077bda59eae867d21c12da2ffc0b59a0f389b99067e0fe"},
-    {"path": "docs/release-evidence/success-metric-report-and-attestation-v1.md", "sha256": "aa7e52c11ce36fc2c9ea953e275c654e7f312016c990cb20be16666d87f9a2cd"},
-    {"path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json", "sha256": "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856"},
-    {"path": "docs/release-evidence/oq-2-target-interpretation-decision-v1.json", "sha256": "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06"}
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+      "sha256": "062ca0c7bc94279007077bda59eae867d21c12da2ffc0b59a0f389b99067e0fe"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+      "sha256": "aa7e52c11ce36fc2c9ea953e275c654e7f312016c990cb20be16666d87f9a2cd"
+    },
+    {
+      "path": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json",
+      "sha256": "8091f6c26251420242a491cad100472dc1604a7163cc9d8df51bb1c742844856"
+    },
+    {
+      "path": "docs/release-evidence/oq-2-target-interpretation-decision-v1.json",
+      "sha256": "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06"
+    }
   ]
 }

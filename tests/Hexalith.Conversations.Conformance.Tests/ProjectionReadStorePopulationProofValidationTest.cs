@@ -145,7 +145,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         hosting.GetProperty("conversationsServiceDefaultsRemoved").GetBoolean().ShouldBeTrue();
 
         JsonElement promotion = proof.GetProperty("eventStorePromotion");
-        promotion.GetProperty("commit").GetString().ShouldBe("defb426f0bd9e3bd1247bc7149605b4bb6ef70d0");
+        // Derived from the repository, not pinned to a literal. A hardcoded commit here had to be
+        // hand-edited on every legitimate re-anchor, which makes it a change detector rather than a guard
+        // and puts the artifact and the guard out of step by default (pass-10 review).
+        promotion.GetProperty("commit").GetString()
+            .ShouldBe(
+                Git("rev-parse", "HEAD:references/Hexalith.EventStore"),
+                "the recorded EventStore promotion commit must be the gitlink actually committed at HEAD");
         promotion.GetProperty("remoteContainsCommit").GetBoolean().ShouldBeTrue();
         GitIn("references/Hexalith.EventStore", "for-each-ref", "--contains", promotion.GetProperty("commit").GetString()!, "--format=%(refname)", "refs/remotes/")
             .ShouldNotBeNullOrWhiteSpace("the recorded EventStore commit must remain on a locally known remote-tracking ref");
@@ -176,7 +182,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         promotionGate.GetProperty("schema").GetString().ShouldBe("submodule-promotion-gate/v1");
         promotionGate.GetProperty("result").GetString().ShouldBe("pass");
         promotionGate.GetProperty("baseline").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        promotionGate.GetProperty("candidate").GetString().ShouldBe("b261fe209c4ca6c966f4bd2a78a62a2d83ddde08");
+        // Internal consistency rather than a pinned literal: the gate candidate and the source-boundary
+        // candidate must describe the same revision, and RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks
+        // separately proves that revision is still current against the tree (pass-10 review).
+        promotionGate.GetProperty("candidate").GetString()
+            .ShouldBe(
+                proof.GetProperty("sourceBoundary").GetProperty("candidate").GetString(),
+                "the promotion gate and the source boundary must bind the same candidate revision");
         promotionGate.GetProperty("recordedGitlink").GetString().ShouldBe(promotion.GetProperty("commit").GetString());
         promotionGate.GetProperty("recordedMode").GetString().ShouldBe("160000");
         promotionGate.GetProperty("blockers").GetArrayLength().ShouldBe(0);
@@ -589,8 +601,15 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             "`projection:conversations:{base64url(tenantId)}:{base64url(conversationId)}`",
             Case.Sensitive);
         markdown.ShouldContain("`projection:conversations-index:{base64url(tenantId)}`", Case.Sensitive);
-        markdown.ShouldContain("defb426f0bd9e3bd1247bc7149605b4bb6ef70d0", Case.Sensitive);
-        markdown.ShouldContain("b261fe209c4ca6c966f4bd2a78a62a2d83ddde08", Case.Sensitive);
+        // Derived from the JSON the markdown is supposed to present, not pinned: the point of this assertion
+        // is that the two artifacts agree on the promoted commit and the candidate, which a literal cannot
+        // express once either legitimately moves (pass-10 review).
+        markdown.ShouldContain(
+            proofDocument.RootElement.GetProperty("eventStorePromotion").GetProperty("commit").GetString()!,
+            Case.Sensitive);
+        markdown.ShouldContain(
+            proofDocument.RootElement.GetProperty("sourceBoundary").GetProperty("candidate").GetString()!,
+            Case.Sensitive);
         markdown.ShouldContain("zero blockers and four undeclared-gitlink warnings", Case.Sensitive);
         markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
         if (proofResult == "fail")

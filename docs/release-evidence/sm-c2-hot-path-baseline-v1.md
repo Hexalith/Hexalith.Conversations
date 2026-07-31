@@ -10,10 +10,10 @@
 
 | Hot path | Frozen production workload | P95 (microseconds/op) |
 | --- | --- | ---: |
-| HP-CREATE | Authorized tenant-bound v1 create through `CreateConversationBoundary.Dispatch` and `ConversationAggregate.Handle`. | 0.764600 |
-| HP-APPEND | Authorized accepted execution, duplicate replay, and payload conflict through `IdempotentConversationCommandExecutor`. | 21.946550 |
-| HP-LIST | Two cursor-linked 25-row pages through the production query and projection-read paths. | 594.565050 |
-| HP-OPEN | Rich detail through the production query, consistency, and hydration paths. | 25.319550 |
+| HP-CREATE | Authorized tenant-bound v1 create through `CreateConversationBoundary.Dispatch` and `ConversationAggregate.Handle`. | 1.756600 |
+| HP-APPEND | Authorized accepted execution, duplicate replay, and payload conflict through `IdempotentConversationCommandExecutor`. | 18.868950 |
+| HP-LIST | Two cursor-linked 25-row pages through the production query and projection-read paths. | 746.914800 |
+| HP-OPEN | Rich detail through the production query, consistency, and hydration paths. | 22.066150 |
 
 ## Reconstruction provenance
 
