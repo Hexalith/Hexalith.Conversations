@@ -1752,10 +1752,12 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `d360de55335f8
 
 - `.agents/skills/bmad-code-review/steps/step-04-present.md` (modified)
 - `.agents/skills/bmad-dev-story/SKILL.md` (modified)
+- `.agents/skills/bmad-quick-dev/render.py` (modified)
 - `.agents/skills/bmad-quick-dev/step-05-present.md` (modified)
 - `.agents/skills/bmad-quick-dev/step-oneshot.md` (modified)
 - `.claude/skills/bmad-code-review/steps/step-04-present.md` (modified)
 - `.claude/skills/bmad-dev-story/SKILL.md` (modified)
+- `.claude/skills/bmad-quick-dev/render.py` (modified)
 - `.claude/skills/bmad-quick-dev/step-05-present.md` (modified)
 - `.claude/skills/bmad-quick-dev/step-oneshot.md` (modified)
 - `Hexalith.Conversations.slnx` (modified)
