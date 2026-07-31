@@ -555,7 +555,7 @@
     "testBindings": [
       {
         "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
-        "sha256": "9926411810c2807a6e5642460ef0272f79741794134c4579e41c0044d13774c8"
+        "sha256": "b1bde257a861d3d1cc4827e2bd683489faff1030853cf2e0ab00e68a954af14d"
       },
       {
         "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",

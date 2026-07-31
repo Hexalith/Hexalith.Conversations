@@ -1264,6 +1264,8 @@ are tracked in the deferred-work ledger's "Routed to Hexalith.EventStore from pa
 
 - [x] [Review][Patch] **The AppHost boundary lane attested the writer-protocol cutover with a value that moves, so it refused itself after every gitlink advance** — pass 10 correctly tightened `ActivateProjectionDeliveryAsync` to accept only HTTP 200, because 409 documents a *different* marker rather than an idempotent re-activation. Running the full suite then turned the lane red for exactly the reason pass 10 predicted but did not fix: `CutoverCommit` was the gateway revision, and the writer-protocol marker is store-global and written once for the store's lifetime. Measured, not inferred: the local DAPR Redis is the shared `dapr init` instance with `keyPrefix: none`, and its `projection-delivery-writer-protocol` key still held `cutoverCommit e4618d91` — the pass-10 gitlink — while the tree was at `e6459019`. The lane was refused by its own previous run. Fixed by attesting with a stable harness identity (`hexalith-conversations-apphost-boundary-harness`), which makes re-activation genuinely idempotent and restores 409's meaning: a marker this harness did not write, i.e. a real operator cutover, which the proof must not run against. The stale marker was deleted once — it is local DAPR dev state, not evidence. **Verified both directions:** the first run after the change activated and passed 9/9, and an immediate second run re-activated at the same identity and passed, which is the idempotence the fix claims (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:110]
 
+- [x] [Review][Patch] **The mandatory production-boundary lane was intermittently red, and three passes reported it as green** — running the full suite repeatedly rather than once exposed it: `RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary` failed on roughly **one run in four** with HTTP 500 from `/api/v1/commands`. Diagnosed from the captured gateway logs rather than guessed: the failure signature is `Standard-AttemptTimeout` followed by `Standard-TotalRequestTimeout` in the gateway's resilience pipeline, with **no domain-side error at all** — Aspire reporting both resources healthy does not mean the DAPR sidecar has finished registering the app, so the gateway cannot yet invoke it and its own timeout budget produces the 500. The lane asserted the first response, so a cold-start race read as a broken production boundary. Fixed with a bounded 120-second invocation-readiness window that retries **only** 5xx: the command carries a fixed idempotency key and MessageId, so a redelivery is the platform's own idempotent path, while a 400 or 403 is a real rejection and still fails on the first response — a genuine refusal cannot be retried into a timeout. The attempt count is reported in the failure message, so a slow start is never mistaken for a broken boundary. **Verified by repetition, which is how it was found:** six consecutive clean runs after the change against a measured ~25% failure rate before it (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:144]
+
 #### Fault injection — pass 11
 
 | Mutation | Target | Result |
@@ -1651,12 +1653,14 @@ computed totals of 1,925 passed, 0 failed, and 0 skipped; the workflow suite rem
   is recorded as a numeric approved-cost ceiling, both verdicts are kept in the artifact, and follow-up
   story 6.11 owns retiring it. Both completion gates return pass at the committed candidate, the generated
   record is inserted verbatim and digest-verified, and all eight root-owned test projects ran fresh with no
-  failures and no skips. Two defects surfaced only by actually running things rather than reading them:
+  failures and no skips. Three defects surfaced only by actually running things rather than reading them:
   the AppHost boundary lane was attesting its store-global cutover with a value that moves, so it refused
   itself after every gitlink advance; and the blank-line-at-EOF defect three passes had attributed to the
   rendered files was produced by the renderer, so re-rendering reproduced it — an intermediate note in this
-  record claimed the re-render had fixed it and is corrected. Both are fixed at their source and verified
-  in both directions.
+  record claimed the re-render had fixed it and is corrected. And the mandatory production-boundary lane
+  was intermittently red at roughly one run in four on a DAPR cold-start race, which three passes had
+  reported as green because each ran it once. All three are fixed at their source and verified by
+  repetition rather than by a single green run.
 
 - **2026-07-29 workflow compatibility:** updated the historical verifier regression to treat
   this completed Story 6.2 record as generated while preserving strict blocking behavior for

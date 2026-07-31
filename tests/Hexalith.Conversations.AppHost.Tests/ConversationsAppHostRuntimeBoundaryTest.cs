@@ -141,18 +141,56 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             CorrelationId = correlationId,
         };
 
-        using HttpResponseMessage submission =
-            await eventStore.PostAsJsonAsync("/api/v1/commands", request, timeout.Token);
-        string submissionBody = await submission.Content.ReadAsStringAsync(timeout.Token);
-        if (submission.StatusCode != HttpStatusCode.Accepted)
+        // Aspire reporting both resources healthy does not mean the gateway can invoke the domain service
+        // through DAPR yet: the sidecar's app registration settles independently, and until it does the
+        // gateway's standard resilience pipeline exhausts its attempt and total-request timeouts and returns
+        // 500. Measured, not assumed — this lane failed on roughly one run in four with exactly that
+        // signature, and the gateway logs showed Standard-AttemptTimeout followed by
+        // Standard-TotalRequestTimeout with no domain-side error at all.
+        //
+        // Retrying is safe rather than a mask: the command carries a fixed idempotency key and a fixed
+        // MessageId, so a redelivery is the platform's own idempotent path. Only 5xx is retried. A 400 or a
+        // 403 is a real rejection and fails on the first response, so a genuine refusal can never be
+        // retried into a timeout, and the attempt count is reported so a slow start is never mistaken for a
+        // broken boundary.
+        HttpStatusCode submissionStatus;
+        string submissionBody;
+        int attempts = 0;
+        DateTimeOffset readinessDeadline = DateTimeOffset.UtcNow + TimeSpan.FromSeconds(120);
+        while (true)
+        {
+            attempts++;
+            using HttpResponseMessage submission =
+                await eventStore.PostAsJsonAsync("/api/v1/commands", request, timeout.Token);
+            submissionStatus = submission.StatusCode;
+            submissionBody = await submission.Content.ReadAsStringAsync(timeout.Token);
+            if (submissionStatus != HttpStatusCode.InternalServerError
+                && submissionStatus != HttpStatusCode.BadGateway
+                && submissionStatus != HttpStatusCode.ServiceUnavailable
+                && submissionStatus != HttpStatusCode.GatewayTimeout)
+            {
+                break;
+            }
+
+            if (DateTimeOffset.UtcNow >= readinessDeadline)
+            {
+                break;
+            }
+
+            await Task.Delay(TimeSpan.FromSeconds(2), timeout.Token);
+        }
+
+        if (submissionStatus != HttpStatusCode.Accepted)
         {
             string resourceLogs = await ReadFailureLogsAsync(
                 application,
                 [correlationId, messageId, "error", "exception", "fail"],
                 timeout.Token);
-            submission.StatusCode.ShouldBe(
+            submissionStatus.ShouldBe(
                 HttpStatusCode.Accepted,
-                $"{submissionBody}{Environment.NewLine}{resourceLogs}");
+                $"command submission was still not accepted after {attempts} attempt(s) across the "
+                + $"120-second DAPR invocation-readiness window.{Environment.NewLine}{submissionBody}"
+                + $"{Environment.NewLine}{resourceLogs}");
         }
 
         JsonElement status = await PollUntilTerminalAsync(eventStore, messageId, timeout.Token);
