@@ -5,7 +5,7 @@ story_id: '6.2'
 created: '2026-07-27'
 status: 'review'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
-file_list_commit: 'd360de55335f8001793e864bbf8f8bcb76ea2fb8'
+file_list_commit: 'dd656eebd1f2436075fb15f47545aba7ccd2cfc0'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -1744,9 +1744,9 @@ exactly what the Final Record gate forbids.
 
 **Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
-Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 112 file-list path(s) · 7 gitlink promotion(s) evaluated.
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 114 file-list path(s) · 7 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `d360de55335f8001793e864bbf8f8bcb76ea2fb8`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `dd656eebd1f2436075fb15f47545aba7ccd2cfc0`.
 
 ### File List
 
@@ -1881,19 +1881,19 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `d360de55335f8
 
 | Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `6d9454dc62ae8aca` |
-| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `e4d4b8cc319a4c65` |
-| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `7d44560bb5550c23` |
-| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `07af8219b15bccdf` |
-| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `fc9826e1351b310f` |
-| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `9af37d1d68a762f5` |
-| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `c642091bb823b1a3` |
-| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `808a9e310b0e9acd` |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `3df01b6a73b6672c` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `dc3e8b5272c0f3ea` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `e615cfef7dea822c` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `a3ac3290f3a9cfeb` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `da0c80a5764860d1` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `863aef612f669a1a` |
+| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `e29234b9cbb8ae37` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `b76d615435025df1` |
 | **Total (computed)** | **8 parsed** | **1984** | **1984** | **1984** | **0** | **0** | — |
 
 ### Candidate Binding
 
-- Candidate `d360de55335f8001793e864bbf8f8bcb76ea2fb8` · committed head `d360de55335f8001793e864bbf8f8bcb76ea2fb8` · ancestor of head: **yes**
+- Candidate `dd656eebd1f2436075fb15f47545aba7ccd2cfc0` · committed head `dd656eebd1f2436075fb15f47545aba7ccd2cfc0` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 - Paths changed after the candidate: none
 
