@@ -5,7 +5,7 @@ story_id: '6.2'
 created: '2026-07-27'
 status: 'in-progress'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
-file_list_commit: 'dc69719a9ce7c25bb9755827f19c7e1ce2a87287'
+file_list_commit: 'f7f9e1b13490558d99c288d770c73b1bb8c691aa'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -1541,11 +1541,11 @@ computed totals of 1,925 passed, 0 failed, and 0 skipped; the workflow suite rem
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 
-**Final record** — `story-final-record-v1`, result **BLOCKED**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
+**Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
 Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 111 file-list path(s) · 7 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `30922f1eaebb054475608e04d316e78ace42aac9`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f7f9e1b13490558d99c288d770c73b1bb8c691aa`.
 
 ### File List
 
@@ -1677,19 +1677,19 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `30922f1eaebb0
 
 | Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `5c957644524357e7` |
-| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `3e257bbf48ba7904` |
-| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `b288d98b423fd8f5` |
-| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `a40ac208ed0bae83` |
-| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `e25c47d365f8b0da` |
-| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `3f82b930aa3bc1ba` |
-| Hexalith.Conversations.Server.Tests | PARSED | 680 | 680 | 680 | 0 | 0 | `e2333f9896061078` |
-| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `605c7814c2419ee4` |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `12f95f0ab536e8ac` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `1fb15ab01560cb1b` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `afc24a5af3ec8d1d` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `ba6a6985fa5a4e09` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `23d2514b44d0a3c1` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `ffcacab4ba2d0cea` |
+| Hexalith.Conversations.Server.Tests | PARSED | 680 | 680 | 680 | 0 | 0 | `061a49ac6c0f96d7` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `4e43d17f541507da` |
 | **Total (computed)** | **8 parsed** | **1980** | **1980** | **1980** | **0** | **0** | — |
 
 ### Candidate Binding
 
-- Candidate `30922f1eaebb054475608e04d316e78ace42aac9` · committed head `30922f1eaebb054475608e04d316e78ace42aac9` · ancestor of head: **yes**
+- Candidate `f7f9e1b13490558d99c288d770c73b1bb8c691aa` · committed head `f7f9e1b13490558d99c288d770c73b1bb8c691aa` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 - Paths changed after the candidate: none
 
@@ -1700,11 +1700,6 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `30922f1eaebb0
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Commons
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.FrontComposer
 - WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Memories
-
-### Record Diagnostics
-
-- **BLOCKER** `FILE_LIST_DRIFT` (`_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md`): the record's File List disagrees with the derived set — missing 25: docs/release-evidence/consume-promote-keep-story-6-2-disposition-v1.json, docs/release-evidence/projection-read-store-population-proof-v2-deterministic.xunit.xml, docs/release-evidence/projection-read-store-population-proof-v2-gateway.xunit.xml, docs/release-evidence/projection-read-store-population-proof-v2-population.xunit.xml, docs/release-evidence/sm-c2-hot-path-baseline-v1.xunit.xml
-  - Remediation: Replace the record's File List with the derived list emitted by this generator; never hand-edit either side into agreement.
 
 <!-- STORY-FINAL-RECORD:END -->
 
