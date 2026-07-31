@@ -836,6 +836,43 @@ One finding was withdrawn after reading the surrounding code rather than the dif
 dispatch-dedupe patch proposed machinery Conversations already has. Four further layer findings were
 dismissed pre-triage, three of them rated HIGH by two independent layers — see the pass-9 scope note.
 
+#### Completion gates at committed candidate `92e2bc5` (2026-07-31, pass 9)
+
+**Promotion gate: `pass`, zero blockers** — the first recorded pass for this story that is true against the
+tree it describes. All three declared paths now satisfy `recorded_gitlink == submodule HEAD`, `clean`, and
+`remote_available`: EventStore `e4618d91`, Builds `e85a319e`, Tenants `625061bd`. The four disclosed
+`UNDECLARED_GITLINK_CHANGE` warnings (AI.Tools, Commons, FrontComposer, Memories) remain and are
+non-blocking by design.
+
+Release build at this candidate: **0 warnings, 0 errors** with
+`-c Release -m:1 -p:NuGetAudit=false -p:UseHexalithProjectReferences=true`.
+
+Measured gate input, all eight root-owned test projects freshly run at this candidate (fresh TRX at
+`TestResults/6-2-pass9-*.trx`): **1,975 total / 1,972 passed / 3 failed / 0 skipped** — byte-for-byte the
+same totals the pass-7 run recorded at `a9d7c59`. This is independent confirmation of the pass-9 finding
+that the gitlink drift touched no compile input: `git diff a40ab8a e4618d9 -- src/` and
+`git diff 33abe27 625061b -- src/Hexalith.Tenants.Client src/Hexalith.Tenants.Contracts` are both empty, and
+the suite totals agree across the re-anchor.
+
+**Final-record gate: `blocked`, 2 blockers** (down from 10 before the fresh run), so no generated record was
+replaced and no `done` state was synchronized:
+
+- `FILE_LIST_DRIFT` — the existing generated File List still predates 25 paths in the range; remediation is
+  generator-driven replacement once the remaining blocker closes, never a hand-edited list.
+- `TEST_RESULTS_FAILED` — the three AC1/AC5 evidence guards remain red, exactly as designed:
+  `ProofSourceAndSignedV1BindingsShouldRemainByteIdentical`,
+  `RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks`, and
+  `BaselineShouldRecordAnAuditableReconstructionMethod`. These fail because the release-evidence artifacts
+  are still bound to superseded candidate `b261fe20`; the re-anchor moved the gitlinks they assert against,
+  so regenerating that evidence is now a precondition for the gate, and it is AC1/AC5 work this review
+  cannot close.
+
+The eight `TEST_RESULTS_STALE` blockers reported earlier in this pass cleared once the suites were re-run.
+**Process note for the next run:** that staleness check is mtime-based against every tracked file, so
+writing review findings into this record invalidates every test artifact measured before the write. Editing
+this section has the same effect. Sequence the final run as: apply all record edits, commit, then run the
+suites, then read the gate — otherwise the gate reports stale artifacts that are substantively current.
+
 #### Deferred
 
 - [x] [Review][Defer] `RepositoryProjectPaths` downgrades a correctness invariant to a comment and justifies it against the wrong repository — the removed text asserted the probe order mirrors `$(Hexalith*Root)` precedence, which is what guaranteed the AppHost never compiles one csproj and launches another; the replacement NOTE admits candidate 4 (`<root>/Hexalith.<Module>/`) outranks `references/` and defends it with "No such directory exists in this repository", where *this repository* is EventStore, not the Conversations consumer that drives the code [references/Hexalith.EventStore/src/Hexalith.EventStore.Aspire/RepositoryProjectPaths.cs:75] — deferred, already tracked as EventStore Story 3.3 deferred work
