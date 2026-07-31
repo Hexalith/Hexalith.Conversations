@@ -1266,6 +1266,8 @@ are tracked in the deferred-work ledger's "Routed to Hexalith.EventStore from pa
 
 - [x] [Review][Patch] **The mandatory production-boundary lane was intermittently red, and three passes reported it as green** — running the full suite repeatedly rather than once exposed it: `RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary` failed on roughly **one run in four** with HTTP 500 from `/api/v1/commands`. Diagnosed from the captured gateway logs rather than guessed: the failure signature is `Standard-AttemptTimeout` followed by `Standard-TotalRequestTimeout` in the gateway's resilience pipeline, with **no domain-side error at all** — Aspire reporting both resources healthy does not mean the DAPR sidecar has finished registering the app, so the gateway cannot yet invoke it and its own timeout budget produces the 500. The lane asserted the first response, so a cold-start race read as a broken production boundary. Fixed with a bounded 120-second invocation-readiness window that retries **only** 5xx: the command carries a fixed idempotency key and MessageId, so a redelivery is the platform's own idempotent path, while a 400 or 403 is a real rejection and still fails on the first response — a genuine refusal cannot be retried into a timeout. The attempt count is reported in the failure message, so a slow start is never mistaken for a broken boundary. **Verified by repetition, which is how it was found:** six consecutive clean runs after the change against a measured ~25% failure rate before it (HIGH) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:144]
 
+- [ ] [Review][Defer] **A second, load-dependent intermittency in the same lane is measured and left open** — after the cold-start retry above made the lane green six consecutive times standalone, running it immediately after the 4.5-minute IntegrationTests lane reproduced a **different** failure: `HttpRequestException: Connection refused (localhost:40397)` against the Aspire-assigned endpoint, on a run that took **368 seconds** instead of the usual ~60. So `WaitForResourceHealthyAsync` returning is not sufficient for the assigned port to be accepting connections when the machine is loaded. This is disclosed rather than patched: it reproduced once, not on demand, and a connect-retry asserted as a fix without being able to demonstrate it would be exactly the unverifiable strengthening this record removed in pass 10. **What this means for the completion gates, stated plainly:** the mandatory AC5/AC7 boundary lane is load-sensitive, so a green eight-suite run is achieved rather than guaranteed, and a red one is not automatically a boundary regression — check for these two signatures first. Routed to the deferred-work ledger for the lane's owner (MEDIUM) [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:99]
+
 #### Fault injection — pass 11
 
 | Mutation | Target | Result |
@@ -1660,7 +1662,10 @@ computed totals of 1,925 passed, 0 failed, and 0 skipped; the workflow suite rem
   record claimed the re-render had fixed it and is corrected. And the mandatory production-boundary lane
   was intermittently red at roughly one run in four on a DAPR cold-start race, which three passes had
   reported as green because each ran it once. All three are fixed at their source and verified by
-  repetition rather than by a single green run.
+  repetition rather than by a single green run. A **fourth** finding is disclosed and deliberately not
+  patched: the same lane has a second, load-dependent startup mode (connection refused against the
+  Aspire-assigned endpoint on a heavily loaded machine) that reproduced once and not on demand, so it is
+  recorded with its signature and routed to the ledger rather than fixed on a guess.
 
 - **2026-07-29 workflow compatibility:** updated the historical verifier regression to treat
   this completed Story 6.2 record as generated while preserving strict blocking behavior for
