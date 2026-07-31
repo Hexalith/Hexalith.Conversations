@@ -187,3 +187,12 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
   domain-side error, ~1 run in 4) **is** fixed, by a bounded 5xx-only invocation-readiness window.
   Consequence for anyone reading a red run: check both signatures before concluding the production boundary
   regressed. [tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs:99]
+- The live lanes cannot run while another Aspire application is up on the same machine, and the failure does
+  not say so. Measured during pass 11: `ConversationGatewayLiveFixture` failed with `daprd exited with code 1
+  during the health check` on two consecutive runs, and `ss -ltn` showed a concurrent session's Aspire `dcp`
+  process holding the DAPR defaults **3500**, **50001**, **50101**, **50201**, and **50301**. Nothing in the
+  Conversations tree was at fault. The fixture already randomizes its own app ports; what it cannot do is
+  share the fixed DAPR control-plane ports. Either the fixture should detect the collision and say so, or the
+  lane needs a documented "no other AppHost running" precondition — silently reporting a bare daprd exit code
+  sends the reader looking for a projection defect that is not there.
+  [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:561]
