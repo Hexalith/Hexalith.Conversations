@@ -1768,6 +1768,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f7f9e1b134905
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-evidence-boundary-validation-pattern.md` (new)
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-release-owner-decision-ledger-closure.md` (new)
 - `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md` (new)
+- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md` (new)
 - `_bmad/render/bmad-quick-dev/spec-template.md` (modified)
 - `_bmad/render/bmad-quick-dev/step-02-plan.md` (modified)
 - `_bmad/render/bmad-quick-dev/step-04-review.md` (modified)
