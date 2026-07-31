@@ -56,14 +56,12 @@ public sealed class ConversationsDomainServiceHostCompositionTest
 
         WebApplication app = builder.Build();
 
-        // The DAPR pub/sub pipeline Program.cs performs. Omitting it here meant the three calls that make
-        // tenant admission possible at all were asserted by nothing in the fast Server.Tests lane, while this
-        // helper's comment still claimed to mirror the production host: deleting them shipped green and only
-        // the 8-minute Docker/Aspire lane could notice (pass-10 review).
-        app.UseCloudEvents();
+        // Exactly what Program.cs performs. The DAPR pub/sub pipeline is no longer listed here because it is
+        // no longer the module's to perform: AddConversationTenantAccess registers a consumer, so
+        // UseEventStoreDomainService now wires CloudEvents unwrapping, the subscription route, and
+        // /dapr/subscribe itself (pass-10 decision D1). The route assertions below still hold, which is what
+        // proves the promotion actually carries the behaviour rather than dropping it.
         app.UseEventStoreDomainService();
-        app.MapEventStoreDomainEvents();
-        app.MapSubscribeHandler();
         return app;
     }
 
@@ -133,14 +131,14 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     }
 
     /// <summary>
-    /// <c>UseCloudEvents()</c> is middleware, so it appears in no route table and no composed-host assertion
-    /// can observe it. DAPR delivers <c>application/cloudevents+json</c> by default, and without the
-    /// unwrapping middleware that body cannot bind to the domain-event envelope — so its removal breaks
-    /// production while every route assertion above still passes. This is a deliberate source-level guard,
-    /// and it also pins the ordering requirement: unwrapping must precede endpoint mapping.
+    /// AC3 ownership guard. DAPR event-subscription plumbing is generic host capability that belongs on the
+    /// public platform surface, never in a domain module. Pass-10 decision D1 promoted it into
+    /// <c>UseEventStoreDomainService()</c>; this asserts the module does not re-acquire it. The behaviour
+    /// itself is proved by <c>TenantSubscriptionEndpointShouldResolve</c>, which is where a regression in the
+    /// promoted capability would surface — this test guards the ownership boundary, not the wiring.
     /// </summary>
     [Fact]
-    public void ProductionHostShouldUnwrapCloudEventsBeforeMappingEndpoints()
+    public void ProductionHostShouldNotRetypeGenericSubscriptionPlumbing()
     {
         string programPath = Path.Combine(
             RepositoryRoot(),
@@ -150,20 +148,19 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         File.Exists(programPath).ShouldBeTrue(programPath);
         string program = File.ReadAllText(programPath);
 
-        int useCloudEvents = program.IndexOf("app.UseCloudEvents();", StringComparison.Ordinal);
-        int mapDomainEvents = program.IndexOf("app.MapEventStoreDomainEvents();", StringComparison.Ordinal);
-        int mapSubscribeHandler = program.IndexOf("app.MapSubscribeHandler();", StringComparison.Ordinal);
-
-        useCloudEvents.ShouldBeGreaterThanOrEqualTo(
-            0,
-            "the production host must unwrap CloudEvents or DAPR pub/sub bodies cannot bind");
-        mapDomainEvents.ShouldBeGreaterThanOrEqualTo(0, "the production host must map the domain-event route");
-        mapSubscribeHandler.ShouldBeGreaterThanOrEqualTo(
-            0,
-            "the production host must map the subscribe handler or DAPR never learns the topic");
-        useCloudEvents.ShouldBeLessThan(
-            mapDomainEvents,
-            "CloudEvents unwrapping must run before the domain-event endpoint is mapped");
+        foreach (string generic in new[]
+                 {
+                     "app.UseCloudEvents();",
+                     "app.MapEventStoreDomainEvents();",
+                     "app.MapSubscribeHandler();",
+                 })
+        {
+            program.ShouldNotContain(
+                generic,
+                Case.Sensitive,
+                $"'{generic}' is generic subscription plumbing owned by UseEventStoreDomainService(); a domain "
+                + "module re-typing it is the AC3 violation pass 10 promoted away.");
+        }
     }
 
     /// <summary>

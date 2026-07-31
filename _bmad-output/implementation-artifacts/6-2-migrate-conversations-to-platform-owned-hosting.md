@@ -240,6 +240,9 @@ Committed by `b11b0c7` ("refactor(hosting): adopt platform runtime"), `65c7699`,
       and `app.MapSubscribeHandler()`, so the host now performs five app-level calls. Those three
       are generic subscription plumbing that AC3 places on a public platform surface; pass-10
       decision D1 resolved this as promote-to-platform, and AC3 is not satisfied until that lands.
+      **FOLLOW-UP 2026-07-31 (same pass): it landed.** EventStore `e6459019` is on `origin/main` and the
+      gitlink was advanced to consume it, so `Program.cs` IS back to the canonical two lines and AC3 is
+      satisfied. The correction above is preserved as the record of the interval in which it was not.
 - [x] **`ConversationAsyncProjectionHandler`** (AC: 4) — named route
       `conversation/conversation-read-model`, `IAsyncDomainProjectionRebuildHandler` with
       `RebuildSemantics = FullReplay`, reuses `ConversationProjectionMaterializer` +
@@ -961,11 +964,54 @@ empty `a40ab8a..e4618d9 -- src/` diff; and AC7's ungated AppHost lane.
 
 #### Patches derived from the resolved decisions (2026-07-31)
 
-- [ ] [Review][Patch] Promote `UseCloudEvents()`, `MapEventStoreDomainEvents()`, and `MapSubscribeHandler()` into the platform's `UseEventStoreDomainService()` so consumer hosts stop re-typing them, then remove them from `Program.cs` and restore the canonical host shape (D1 resolution (a)) (HIGH) [references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs:334] — ROUTED to the Hexalith.EventStore repository (not applied here; editing a declared submodule dirties it and blocks the promotion gate). Batch with the sixteen pass-9 routed patches into one upstream round trip and one re-anchor.
+- [x] [Review][Patch] Promote `UseCloudEvents()`, `MapEventStoreDomainEvents()`, and `MapSubscribeHandler()` into the platform's `UseEventStoreDomainService()` so consumer hosts stop re-typing them, then remove them from `Program.cs` and restore the canonical host shape (D1 resolution (a)) (HIGH) [references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs:334] — ROUTED to the Hexalith.EventStore repository (not applied here; editing a declared submodule dirties it and blocks the promotion gate). **LANDED 2026-07-31** as EventStore `e6459019`, pushed to `origin/main`; consumed here by advancing the gitlink. The sixteen pass-9 routed patches remain routed and unbatched — the owner scoped this round trip to D1 only.
 - [x] [Review][Patch] Disclose the single-replica deployment constraint in the record and in the AC5 evidence — the tenant access projection resolves to `InMemoryTenantProjectionStore`, so any restart or second replica leaves that instance's projection empty for pre-existing tenants and tenant admission denies legitimate callers with no error surface (D2 resolution (c)) (HIGH) [docs/release-evidence/projection-read-store-population-proof-v2.md:1] — **APPLIED 2026-07-31** after the review commit, so every bound value describes the tree it names.
 - [x] [Review][Patch] Report `Rebuilding` instead of `Current` when the tenant index key is absent but detail keys survive, and disclose the residual case where both key families are lost (D3 resolution (b)) — verify first that the configured store supports the tenant-scoped scan without depending on the Dapr bulk-read paths pass 9 flagged as defective; fall back to disclosure-only if it does not (HIGH) [src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs:487] — **APPLIED AS FALLBACK (c)**: the derivation is not implementable against this seam (no key enumeration exists), so the limitation is disclosed in code; the evidence half is blocked on the review commit.
 - [x] [Review][Patch] Disclose the SM-C2 variance bound in both artifacts — state that the CREATE and APPEND `pass` rows fall within run-to-run noise and may not be cited as evidence of no regression, while LIST and OPEN are real and remain the open AC1 blocker (D4 resolution (c)) (MEDIUM) [docs/release-evidence/sm-c2-hot-path-post-v1.json:1] — **APPLIED 2026-07-31** after the review commit, so every bound value describes the tree it names.
 - [x] [Review][Patch] Measure package mode at the candidate — one Release build and one conformance run without `-p:UseHexalithProjectReferences=true` — and record both modes in the story record, treating any failure as a new blocker rather than a limitation to work around (D5 resolution (a)) (MEDIUM) [_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md:1008]
+
+#### D1 promotion landed — AC3 closed (2026-07-31, pass 10)
+
+The generic DAPR subscription plumbing is now platform-owned and **AC3 is satisfied**. `Program.cs` is back
+to the canonical two-line host: `AddEventStoreDomainService(...)` plus `UseEventStoreDomainService()`, with
+only the two Conversations-owned service registrations between them.
+
+**Upstream:** `Hexalith.EventStore` commit `e6459019`, on `origin/main`.
+`UseEventStoreDomainService()` now owns CloudEvents unwrapping, the domain-event subscription route, and
+`/dapr/subscribe`. Three properties were built in deliberately, each mirroring an existing platform rule
+rather than inventing one:
+
+- **Wired only when a consumer exists.** `EventStoreDomainEventProcessor` is the singleton the consumer
+  registration adds, so a domain service that consumes nothing gains no routes and no middleware and its
+  composed pipeline is byte-for-byte unchanged.
+- **The host stays authoritative.** Each mapping is skipped when the host already mapped it — the same rule
+  the DAPR client and Data Protection registrations follow.
+- **Both spellings of the subscribe route are recognised.** DAPR's own `MapSubscribeHandler` registers
+  `dapr/subscribe` **without** a leading slash, while a host mapping its own writes `/dapr/subscribe`. This
+  was established by observing the registered route text, not assumed — the first implementation asserted the
+  slashed form and failed. An exact-text comparison silently misses one form and double-maps the route.
+
+Three ownership tests ship with it (consuming domain gains the surface, non-consuming domain gains nothing,
+pre-mapped surface is not duplicated) — the ownership test the pass-10 finding said was missing.
+
+**Consumed here:** gitlink `e4618d91 → e6459019`. `Program.cs` drops the three calls, the host-composition
+helper no longer performs them, and the former source-level CloudEvents guard is now an **AC3 ownership
+guard** asserting the module does not re-acquire them. The behaviour is still proved by
+`TenantSubscriptionEndpointShouldResolve`, which passes unchanged — that the route assertions survive the
+removal is what shows the promotion carries the capability rather than dropping it. Server.Tests **680/680**.
+
+**DISCLOSURE — the advance carries one non-6.2 upstream commit.** The EventStore gitlink was one commit
+behind `origin/main`, so the promoted range now also contains `3ca3cbbf` ("update submodule references and
+improve documentation version checks"), authored upstream and unrelated to Story 6.2. Measured rather than
+assumed: it touches docs, `scripts/check-doc-versions.sh`, EventStore's own nested `Builds` and `Tenants`
+gitlinks, one line in `Hexalith.EventStore.ServiceDefaults.csproj`, and adds packaging-governance tests. No
+production surface Conversations consumes changes. It is accepted as promoted scope and is **not**
+remediated here, matching the pass-9 disposition for the Builds promotion.
+
+**Pre-existing failure observed upstream, not introduced:**
+`TenantsDomainService_DoesNotReferenceGeneratedApiHostOrDeclarePerMessageControllers` fails in
+`Hexalith.EventStore.DomainService.Tests` (150/151) because it requires the **nested** `Hexalith.Tenants`
+submodule checkout, which the workspace rules forbid initializing. It fails identically without this change.
 
 #### Evidence regeneration — pass 10 (2026-07-31)
 
