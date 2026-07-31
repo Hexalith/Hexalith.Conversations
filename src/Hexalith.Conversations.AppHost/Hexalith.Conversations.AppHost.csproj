@@ -10,7 +10,10 @@
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
-    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(Configuration)' == 'Debug' and '$(HexalithEventStoreRoot)' != ''" />
-    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(Configuration)' == 'Debug' and '$(HexalithEventStoreRoot)' == ''" />
+    <!-- Build-order edge only (no assembly reference): the gateway resource is composed by path through the
+         public EventStore Aspire helper, so the harness must have it built in whichever configuration it
+         runs. Gating this on Debug made a Release launch depend on an out-of-band prebuild. -->
+    <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
+    <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
 </Project>

@@ -266,6 +266,39 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
     }
 
     /// <summary>
+    /// Page verification needs bounded bulk reads, and a store that cannot serve them is a host
+    /// misconfiguration rather than a projection state. It fails loudly with a diagnosable message instead of
+    /// silently degrading to a per-conversation fan-out or to an empty page.
+    /// </summary>
+    /// <remarks>
+    /// The mapping is deliberate and is asserted separately by
+    /// <c>ConversationQueryHandlerTest.PageValidationInfrastructureFailureShouldReturnUnavailable</c>: this
+    /// surfaces as Unavailable, never Rebuilding. Rebuilding claims a generation is being rebuilt, which says
+    /// something false about projection state when the real fault is the configured store.
+    /// </remarks>
+    [Fact]
+    public async Task PageValidationShouldRequireABulkCapableStore()
+    {
+        ConversationProjectedReadModels models = Models(ConversationA, Now.AddSeconds(1));
+        ConversationProjectionIndexReadModel index = Index(models.Summary, models.DispatchId);
+        ConversationProjectionReadStore readStore = new(new SingleKeyOnlyReadModelStore());
+
+        InvalidOperationException failure = await Should.ThrowAsync<InvalidOperationException>(
+            async () => await readStore.ValidatePageAsync(
+                Tenant,
+                new ConversationProjectionIndexSnapshot
+                {
+                    Summaries = index.Summaries,
+                    Dispatches = index.Dispatches,
+                },
+                [models.Summary],
+                TestContext.Current.CancellationToken));
+
+        failure.ShouldNotBeOfType<ConversationProjectionConsistencyException>();
+        failure.Message.ShouldContain("bulk");
+    }
+
+    /// <summary>
     /// A current persisted pair read through the real store path enables trust-bearing detail.
     /// </summary>
     [Fact]
@@ -394,6 +427,22 @@ public sealed class ConversationProjectionReadStoreFailClosedTest
             TenantId? idempotencyTenantId = null,
             CancellationToken cancellationToken = default)
             => ValueTask.FromResult(decision);
+    }
+
+    /// <summary>A conforming single-key store that deliberately does not implement <see cref="IReadModelBulkStore"/>.</summary>
+    private sealed class SingleKeyOnlyReadModelStore : IReadModelStore
+    {
+        public Task<ReadModelEntry<TValue>> GetAsync<TValue>(string storeName, string key, CancellationToken cancellationToken = default)
+            where TValue : class
+            => Task.FromResult(new ReadModelEntry<TValue>(null, null));
+
+        public Task SaveAsync<TValue>(string storeName, string key, TValue value, CancellationToken cancellationToken = default)
+            where TValue : class
+            => Task.CompletedTask;
+
+        public Task<bool> TrySaveAsync<TValue>(string storeName, string key, TValue value, string etag, CancellationToken cancellationToken = default)
+            where TValue : class
+            => Task.FromResult(true);
     }
 
     private sealed class ThrowingReadModelStore : IReadModelStore

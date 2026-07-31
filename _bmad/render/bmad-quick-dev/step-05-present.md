@@ -53,7 +53,7 @@ When there is only one concern, omit the bold label — just list the stops dire
 1. Re-read `{spec_file}` frontmatter. Preserve its `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy. Read `submodule_promotions` without expanding its approved scope; if the field is absent entirely, record `INVALID_SCOPE`, return the spec to `in-progress`, and HALT for an approved scope declaration.
 2. Keep the spec at `status: in-review`. Do not write `done` or synchronize `review` yet.
 3. If version control is available and the tree is dirty, create a local commit with a conventional message derived from the spec title. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never sweep in unrelated changes with `git add -A` or `git commit -a`.
-4. Resolve committed `HEAD` as `candidate_revision`. If version control is unavailable and `submodule_promotions` is non-empty, return the spec to `in-progress`, synchronize only `in-progress`, and HALT with the unavailable VCS condition.
+4. If version control is unavailable, return the spec to `in-progress`, synchronize only `in-progress`, record `GIT_UNAVAILABLE`, and HALT; a final record cannot derive a committed candidate without VCS even when promotion scope is empty. Otherwise resolve committed `HEAD` once as immutable `candidate_revision` and pass that SHA to both gates.
 
 ### Promotion Completion Gate
 
@@ -61,9 +61,17 @@ When version control is available, invoke `python3 {project-root}/_bmad/scripts/
 
 Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to `{spec_file}`, return its status to `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, never synchronize `review`, and never initialize, update, fetch, commit, or silently expand submodule scope as remediation.
 
+### Final Record Generation Gate
+
+When version control is available, first require the source tree clean outside `{spec_file}`, its sprint-status file, and declared TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, adding `--baseline <value>` when trustworthy, one `--test-results <full-project-name>=<artifact-path>` for every root-owned test project declared by the root `.slnx`, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the bundle JSON and its nested `document`. Every count, path, and commit in the completion record comes from this one bundle; never author one yourself.
+
+Any nonzero exit, or any nested `document.result` other than `pass`, fails the gate — a `RECORD_NOT_DERIVED` blocker means the run derived nothing, so it proves nothing. Append the stable blocker codes and actionable diagnostics to `{spec_file}`, return its status to `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, and never hand-edit a count, path, or commit into agreement with the record.
+
+Once it passes, insert bundle field `markdown` VERBATIM into `{spec_file}`, replacing the existing block between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers when one is present, or appending it under `## Verification` when it is not. Set frontmatter `file_list_commit` to the revision the block was derived from. Then invoke the generator with `--repository {project-root} --story {spec_file} --verify-record-sha256 <markdown_sha256> --format json`; any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` returns the spec and sprint state to `in-progress` and HALTs.
+
 ### Mark Spec Done and Synchronize
 
-Only after the promotion gate passes (or non-promotion work has no version control and therefore preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`.
+Only after the promotion gate and the final record generation gate both pass, change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`.
 
 ### Commit Completion Record and Open
 

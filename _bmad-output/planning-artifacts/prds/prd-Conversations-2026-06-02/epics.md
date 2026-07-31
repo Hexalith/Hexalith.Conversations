@@ -1003,8 +1003,7 @@ it may not restate the generated numbers.
 
 Derivation sources are exactly four: parsed machine-readable test-result
 artifacts; the git-derived path set between the work baseline and the committed
-candidate with source-tree dirt blocked outside record outputs and declared TRX
-inputs; mode-`160000` root
+candidate unioned with the tracked working-tree delta; mode-`160000` root
 gitlink entries resolved from the committed candidate; and the Story 6.7
 promotion-checker document embedded verbatim. A record that could not derive any
 of them reports a blocker rather than a pass.
@@ -1023,20 +1022,17 @@ state" for every Epic 6 story that completes after Story 6.2.
 2. Test counts come only from machine-readable result artifacts. A declared test
    project with no artifact is recorded as not run and blocks; totals are
    computed rather than transcribed; an artifact older than the newest file in
-   the derived file list blocks as stale rather than being carried forward. The
-   root `.slnx` defines required root-owned test projects; failures block and
-   skips require exact versioned identity-and-reason policy.
+   the derived file list blocks as stale rather than being carried forward.
 3. The file list is derived, singular, and boundary-correct. A path inside a
    root-declared submodule blocks: it belongs to that repository's own record.
    Gitlink promotions appear in a separate labeled section with recorded commit
    and mode.
 4. Submodule and gitlink state binds to the candidate that is actually final.
-   The candidate must be an ancestor of the committed head; only record-output
-   paths may change after it and no gitlink may move, so a superseded binding
-   goes red rather than stale.
-5. The four completion surfaces generate one document-and-Markdown bundle rather
-   than author, verify the inserted Markdown digest, and let generator blockers
-   block `review` and `done` exactly as the promotion gate does.
+   The candidate must be an ancestor of the committed head with no declared
+   gitlink movement after it, so a superseded binding goes red rather than
+   stale.
+5. The four completion surfaces generate rather than author, and generator
+   blockers block `review` and `done` exactly as the promotion gate does.
 6. The generator cannot report a pass having derived nothing, and the
    invocation cannot be silently removed from a completion workflow.
 7. A read-only historical mode verifies already-closed records without mutating
@@ -1218,3 +1214,153 @@ what deferred this item three times. Story 6.6 remains last. This amendment
 introduces one new story identifier and one sprint-status entry.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:END version=epic-6-authority-2026-07-28-v5 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN version=epic-6-authority-2026-07-31-v6 supersedes=epic-6-authority-2026-07-28-v5 -->
+
+## Appendix: 2026-07-31 SM-C2 Threshold And Record-Contract Authority Amendment
+
+**Overlay version:** `epic-6-authority-2026-07-31-v6`
+**Architecture authority:** `conversations-architecture-2026-07-31-v6`
+**Supersedes:** `epic-6-authority-2026-07-28-v5` only by amending Story 6.2's
+AC1 SM-C2 pass rule, republishing four record-contract improvements that were
+edited into v4 out of process, correcting Story 6.2's completion-process
+disposition, and adding Story 6.11
+**Status:** active corrective amendment; the v1, v2, v3, v4, and v5 overlays,
+completed history, and signed evidence remain immutable historical records.
+
+### Overlay Amendment Log — Continuation
+
+The v2 overlay's amendment-log table requires every later amendment to record
+itself there. That table sits inside the byte-range the conformance oracle pins
+as immutable, so writing into it is a mutation of frozen authority and the
+oracle correctly rejects it. That is why the v3, v4, and v5 amendments each
+bumped the overlay version and appended a block but none appears in the table:
+the rule and the immutability guard contradict each other. The log is continued
+here, outside the pinned range, and every later amendment appends to this
+continuation rather than reaching back into v2.
+
+| Overlay version | Date | Amendment | Authority |
+| --- | --- | --- | --- |
+| `epic-6-authority-2026-07-27-v3` | 2026-07-27 | Corrected Story 6.2's AppHost acceptance: the module test-AppHost is retained as a non-shipping harness rather than removed. | `sprint-change-proposal-2026-07-27.md` |
+| `epic-6-authority-2026-07-28-v4` | 2026-07-28 | Made the final story record a mechanical derivation from measured state, added Story 6.8, and bound the four completion surfaces to it. | `sprint-change-proposal-2026-07-28.md` |
+| `epic-6-authority-2026-07-28-v5` | 2026-07-28 | Tiered the conformance oracle, added Story 6.9, and amended the acceptance of Stories 6.3 and 6.6 and the binding dependency order. | `sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` |
+| `epic-6-authority-2026-07-31-v6` | 2026-07-31 | Amended Story 6.2's AC1 SM-C2 pass rule, republished four record-contract improvements that had been edited into v4 out of process, corrected Story 6.2's completion-process disposition, and added Story 6.11. | `sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md` |
+
+### Story 6.2 SM-C2 Pass-Rule Amendment
+
+AC1's frozen inventory, identical envelope, paired-measurement requirement, and
+raw-sample retention are unchanged. Only the pass rule changes, and only where
+it provably cannot decide. The measured basis, taken at Story 6.2's candidate
+with the baseline reconstructed at preserved source commit `29def44` under the
+byte-identical fixture:
+
+| Row | Baseline p95 (us) | Post p95 (us) | Change | Published rule |
+| --- | ---: | ---: | ---: | --- |
+| HP-CREATE | 1.7566 | 0.8759 | -50.1% | pass |
+| HP-APPEND | 18.8690 | 22.6453 | +20.0% | fail |
+| HP-LIST | 746.9148 | 3210.6471 | +329.9% | fail |
+| HP-OPEN | 22.0662 | 410.6236 | +1760.9% | fail |
+
+From this amendment forward, for Story 6.2, a row is gated at
+`post P95 <= 1.05 x baseline P95` only when **both** conditions hold: the row's
+cost change is not attributable to an approved correctness change, and the row
+carries usable signal at that threshold.
+
+1. **HP-LIST and HP-OPEN** fail the first condition. Their cost is the price of
+   the fail-closed cross-key validation AC6 makes mandatory: a detail read that
+   was one store read is now that read plus a full tenant-index read plus a
+   dispatch-ledger read, and each list page additionally bulk-reads one detail
+   record and one ledger record per returned row. The published rule compares a
+   fast incorrect read path against a slower correct one and reports the
+   correctness as a regression. For these two rows the +-5% rule is replaced by
+   an **approved-cost ceiling** — the measured post p95 plus 10% headroom,
+   recorded numerically in the release artifact. The approved factor does not
+   block; exceeding the ceiling does, so a later change that makes these paths
+   slower still goes red.
+2. **HP-CREATE and HP-APPEND** fail the second condition. HP-APPEND spans
+   3.797750 to 26.665300 microseconds within a single 30-sample run, and across
+   two rounds on byte-identical code HP-APPEND flipped pass to fail while
+   HP-CREATE flipped the other way, HP-CREATE's baseline p95 alone moving by a
+   factor of 2.3. A +-5% threshold cannot adjudicate a statistic whose own
+   dispersion is two orders of magnitude wider. These two rows are recorded as
+   measured, disclosed, and not gated in Story 6.2.
+3. The disclosure is **mandatory** and belongs in the artifact a reader relies
+   on, not only in a test comment: which rows are gated under which rule, why,
+   and that a `pass` on an ungated row may not be cited as evidence of no
+   regression.
+4. Story 6.6 re-measures under this same amended rule when it issues the
+   superseding attestation. The ceiling values are Story 6.2's measurement, not
+   a permanent performance budget.
+
+This amendment does **not** relax AC6, and it does not authorize repairing
+cross-key inconsistency on read in exchange for speed. It records a cost the
+epic's own correctness requirement produced.
+
+### Republished Record-Contract Improvements
+
+The v4 amendment block was edited in place on 2026-07-29 by commit `1b7a06b`,
+after v5 had declared v4 immutable, with no amendment and no disclosure. The v4
+bytes are restored to their published state. The four substantive improvements
+in that edit are genuine and are republished here; they take effect from this
+amendment forward and amend, not rewrite, the v4 contract:
+
+1. **Derivation sources.** The second source is the git-derived path set between
+   the work baseline and the committed candidate, **with source-tree dirt
+   blocked outside record outputs and declared TRX inputs** — replacing the
+   union with the tracked working-tree delta. A record must describe a committed
+   tree, not a tree plus whatever else was open at the time.
+2. **Invariant 2.** The root `.slnx` defines the required root-owned test
+   projects; failures block, and skips require exact versioned
+   identity-and-reason policy.
+3. **Invariant 4.** After the bound candidate, only record-output paths may
+   change and no gitlink may move, so a superseded binding goes red rather than
+   stale.
+4. **Invariant 5.** The four completion surfaces generate one
+   document-and-Markdown bundle rather than author it, verify the inserted
+   Markdown digest, and let generator blockers block `review` and `done` exactly
+   as the promotion gate does.
+
+Story 6.8 is `in-progress` and quotes this contract verbatim in its acceptance
+criteria; its quotes bind to v6 for these four items and to v4 as published for
+everything else.
+
+### Story 6.2 Completion-Process Disposition Correction
+
+The v4 disposition stated that Story 6.2 "completes under the pre-6.8 process
+and is afterwards verified read-only in historical mode". That is superseded:
+Story 6.2 completes on the generated-record path, because the mandatory
+`dev-story` completion surface requires the Final Record Generation Gate and
+forbids hand-authoring any count, path, or commit. The pre-6.8 process is not
+available to a run of the surface that owns completion. The historical-mode
+verification remains required afterwards.
+
+### Story Dispositions Amended By This Overlay
+
+| Story | v6 disposition |
+| --- | --- |
+| 6.2 | AC1's pass rule is amended as above; AC2-AC7 unchanged. Completes on the generated-record path. |
+| 6.6 | Re-measures SM-C2 under the amended rule and consumes the recorded ceilings; otherwise unchanged. |
+| 6.8 | Quotes the four republished record-contract items from v6; otherwise unchanged. |
+| 6.11 | New. Owns making cross-key projection validation cheap enough to re-gate HP-LIST and HP-OPEN at +-5%, at which point the approved-cost ceiling is retired. |
+
+Every other story disposition and the preservation denominators are unchanged.
+This amendment introduces one new story identifier and one sprint-status entry.
+
+### Binding Dependency Order
+
+The v5 spine is preserved exactly:
+`6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6`, with `6.9 -> 6.3`
+and `6.9 -> 6.6` as parallel constraints. The SM-C2 baseline remains a pre-change
+gate for 6.2, now under the amended pass rule, and Story 6.6 remains last.
+
+Story 6.11 is a parallel constraint, not a new link in the spine: it may start
+once 6.2 records the approved-cost ceiling and must complete before Story 6.6
+issues the superseding attestation if that attestation is to reinstate the +-5%
+rule for HP-LIST and HP-OPEN. If 6.11 has not landed, Story 6.6 re-measures
+against the recorded ceiling and says so. Story 6.2 does not wait for 6.11;
+serializing them would block the epic on work whose success is not assured,
+which is the outcome this amendment exists to avoid.
+
+The frozen FR-20 denominator is unchanged.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END version=epic-6-authority-2026-07-31-v6 -->

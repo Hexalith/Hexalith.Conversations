@@ -1,19 +1,21 @@
 ---
 epic: 6
-generated: '2026-07-28'
-overlay_version: 'epic-6-authority-2026-07-28-v5'
-architecture_version: 'conversations-architecture-2026-07-28-v5'
-supersedes_overlay_version: 'epic-6-authority-2026-07-28-v4'
+generated: '2026-07-31'
+overlay_version: 'epic-6-authority-2026-07-31-v6'
+architecture_version: 'conversations-architecture-2026-07-31-v6'
+supersedes_overlay_version: 'epic-6-authority-2026-07-28-v5'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
-source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN'
+source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN'
 status: 'active-corrective-context'
 ---
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3 and v4 amendments. It shares version `epic-6-authority-2026-07-28-v4` with the active amendment and aligns with `conversations-architecture-2026-07-28-v4`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
+This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3, v4, v5, and v6 amendments. It shares version `epic-6-authority-2026-07-31-v6` with the active amendment and aligns with `conversations-architecture-2026-07-31-v6`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
 
-Regenerated 2026-07-28 after the approved mechanical final-record amendment. V4 supersedes v3 only by adding Story 6.8 and amending the binding order; V3 superseded v2 only for the treatment of `Hexalith.Conversations.AppHost`. Every preservation, projection-population, promotion, performance, signed-evidence, and readiness obligation remains binding.
+Regenerated 2026-07-31 after the approved SM-C2 threshold and record-contract amendment. V6 supersedes v5 only by amending Story 6.2's AC1 SM-C2 pass rule, republishing four record-contract improvements that had been edited into v4 out of process, correcting Story 6.2's completion-process disposition, and adding Story 6.11; V5 superseded v4 only by tiering the conformance oracle and adding Story 6.9; V4 superseded v3 only by adding Story 6.8 and amending the binding order; V3 superseded v2 only for the treatment of `Hexalith.Conversations.AppHost`. Every preservation, projection-population, promotion, signed-evidence, and readiness obligation remains binding, and the performance obligation remains binding under the amended pass rule.
+
+The frontmatter and this paragraph disagreed between 2026-07-28 and 2026-07-31: the frontmatter had been bumped to v5 while the body still described v4, and `source_overlay_begin` named an unversioned marker present in no amendment block. Both are corrected here, which is what the overlay's amendment-log rule exists to make checkable.
 
 ## Authority And Immutable History
 
@@ -80,7 +82,9 @@ Frozen inventory version: `sm-c2-hot-path-inventory-v1`.
 | HP-LIST | read-warm | authorized filtered/cursored list |
 | HP-OPEN | read-warm | detail with freshness, redaction, evidence, and Party hydration |
 
-Every baseline row has exactly one post disposition. Each must satisfy `post P95 <= 1.05 x baseline P95` with identical workload/data, concurrency, environment/runtime, tooling, warm/cold classification, repetitions, raw evidence processing, and commit-bound evidence. The module test AppHost exercises the same production code boundaries before and after; it does not become production topology.
+Every baseline row has exactly one post disposition, measured with identical workload/data, concurrency, environment/runtime, tooling, warm/cold classification, repetitions, raw evidence processing, and commit-bound evidence. The module test AppHost exercises the same production code boundaries before and after; it does not become production topology.
+
+**Amended pass rule (v6, 2026-07-31).** A row is gated at `post P95 <= 1.05 x baseline P95` only when its cost change is not attributable to an approved correctness change **and** the row carries usable signal at that threshold. For Story 6.2, HP-LIST and HP-OPEN fail the first test — their cost is the mandatory fail-closed cross-key validation — and are gated instead by an approved-cost ceiling recorded numerically in the release artifact, so a further regression still goes red. HP-CREATE and HP-APPEND fail the second test on measured within-run dispersion two orders of magnitude wider than the threshold, and are recorded and disclosed rather than gated. The disclosure is mandatory in the artifact itself. Story 6.6 re-measures under this rule; Story 6.11 owns retiring the ceiling by making cross-key validation cheap enough to re-gate at ±5%.
 
 ## Stories
 

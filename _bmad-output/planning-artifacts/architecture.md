@@ -4,8 +4,9 @@ historicalLastStep: 8
 historicalCompletedAt: '2026-05-14'
 status: 'corrective-implementation-only'
 rebaselinedAt: '2026-07-27'
-authorityVersion: 'conversations-architecture-2026-07-28-v5'
+authorityVersion: 'conversations-architecture-2026-07-31-v6'
 supersededAuthorityVersions:
+  - 'conversations-architecture-2026-07-28-v5'
   - 'conversations-architecture-2026-07-28-v4'
   - 'conversations-architecture-2026-07-27-v3'
   - 'conversations-architecture-2026-07-15-v2'
@@ -20,6 +21,7 @@ correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-27.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md'
   - 'docs/adrs/0003-projection-read-store-population-proof.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
@@ -74,8 +76,7 @@ submodule state, and root gitlink state. From this amendment forward those facts
 are derived outputs of a generator, not prose composed by the agent that
 performed the work. Derivation sources are exactly four: parsed machine-readable
 test-result artifacts; the git-derived path set between the work baseline and
-the committed candidate, with source-tree dirt blocked outside record outputs
-and declared TRX inputs;
+the committed candidate unioned with the tracked working-tree delta;
 mode-`160000` root gitlink entries resolved from the committed candidate; and
 the promotion-checker document embedded verbatim. A record whose counts, paths,
 or gitlink binding are hand-typed, carried forward from an earlier pass, or
@@ -136,6 +137,51 @@ Binding consequences:
 This amendment changes planning authority, test-project structure, and evidence
 artifacts only. It authorizes no change to production source, public contracts,
 package versions, accepted baselines, signed evidence, or submodule content.
+
+### 2026-07-31 SM-C2 Threshold And Record-Contract Amendment
+
+Architecture version `conversations-architecture-2026-07-31-v6` supersedes v5
+only by amending Story 6.2's SM-C2 pass rule, republishing four record-contract
+improvements, and adding Story 6.11. Every ownership, runtime, projection,
+topology, promotion, evidence, and readiness decision in v5 remains in force
+unchanged.
+
+**Performance gate.** The SM-C2 frozen inventory, identical envelope, paired
+measurement, and raw-sample retention are unchanged. What changes is when the
+`post P95 <= 1.05 x baseline P95` rule applies. A hot-path row is gated at that
+threshold only when its cost change is not attributable to an approved
+correctness change and the row carries usable signal at that threshold. Story
+6.2's HP-LIST and HP-OPEN fail the first test — their cost is the mandatory
+fail-closed cross-key validation, which turned a one-read detail path into a
+detail read plus a tenant-index read plus a dispatch-ledger read, with a bounded
+per-row detail and ledger read added to page verification — so they are gated
+instead by an approved-cost ceiling recorded numerically in the release
+artifact, and a further regression still goes red. HP-CREATE and HP-APPEND fail
+the second test on measured within-run dispersion two orders of magnitude wider
+than the threshold, so they are recorded and disclosed rather than gated. The
+disclosure is mandatory in the artifact, not only in a test comment. Story 6.6
+re-measures under this rule; Story 6.11 owns retiring the ceiling.
+
+This does not relax the projection correctness requirement and authorizes no
+repair-on-read.
+
+**Record contract.** The v4 amendment above was rewritten in place on 2026-07-29
+after v5 declared it immutable. Its bytes are restored; the four substantive
+improvements are republished here and take effect from v6 forward. The second
+derivation source is the git-derived path set between the work baseline and the
+committed candidate **with source-tree dirt blocked outside record outputs and
+declared TRX inputs**, replacing the union with the tracked working-tree delta —
+a record must describe a committed tree, not a tree plus whatever else was open
+at the time. The root `.slnx` defines the required root-owned test projects,
+failures block, and skips require exact versioned identity-and-reason policy.
+After the bound candidate only record-output paths may change and no gitlink may
+move. The four completion surfaces generate one document-and-Markdown bundle
+rather than author it, verify the inserted Markdown digest, and let generator
+blockers block `review` and `done` exactly as the promotion gate does.
+
+This amendment changes planning authority, evidence artifacts, and conformance
+validation only. It authorizes no change to public contracts, package versions,
+accepted baselines, signed evidence, or submodule content.
 
 ### Scope And Preservation Denominators
 

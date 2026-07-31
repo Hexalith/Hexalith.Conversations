@@ -55,12 +55,13 @@ Write `{spec_file}` using `./spec-template.md`. Fill only these sections — del
 1. **Frontmatter** — set `title: '{title}'`, `type`, `created`, `status: 'in-review'`, the captured `baseline_commit`, and `submodule_promotions`. Add `route: 'one-shot'`.
 2. **Title and Intent** — `# {title}` heading and `## Intent` with **Problem** and **Approach** lines. Reuse the summary you already generated for the terminal.
 3. **Suggested Review Order** — append after Intent. Build using the same convention as `./step-05-present.md` § "Generate Suggested Review Order" (spec-file-relative links, concern-based ordering, ultra-concise framing).
+4. **Verification** — append an empty `## Verification` heading. This is the replaceable first-run anchor for the generated record; do not author counts, paths, commits, or placeholder evidence beneath it.
 
 Do not synchronize `review` yet.
 
 ### Commit Candidate
 
-If version control is available and the tree is dirty, create a local conventional commit derived from the intent. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never use `git add -A` or `git commit -a`. Resolve committed `HEAD` as `candidate_revision`. If VCS is unavailable and `submodule_promotions` is non-empty, change the trace to `in-progress`, synchronize only `in-progress`, and HALT.
+If version control is unavailable, change the trace to `in-progress`, synchronize only `in-progress`, record `GIT_UNAVAILABLE`, and HALT; a final record cannot derive a committed candidate without VCS even when promotion scope is empty. Otherwise, if the tree is dirty, create a local conventional commit derived from the intent. Stage only the scoped implementation files, `{spec_file}`, and exact declared root gitlinks; never use `git add -A` or `git commit -a`. Resolve committed `HEAD` once as immutable `candidate_revision` and pass that SHA to both gates.
 
 ### Promotion Completion Gate
 
@@ -68,9 +69,17 @@ When version control is available, invoke `python3 {project-root}/_bmad/scripts/
 
 Any nonzero exit, any result other than `pass`, the activated missing-baseline condition, or a `SCOPE_NOT_EVALUATED` warning when version control is available fails the gate — `SCOPE_NOT_EVALUATED` means no submodule was evaluated, so the run proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, synchronize `review`, initialize/update/fetch submodules, or silently expand scope after failure.
 
+### Final Record Generation Gate
+
+When version control is available, first require the source tree clean outside `{spec_file}`, its sprint-status file, and declared TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, adding the trustworthy `--baseline <baseline_commit>`, one `--test-results <full-project-name>=<artifact-path>` for every root-owned test project declared by the root `.slnx`, one `--submodule <path>` per declaration, and `--require-remote <path>` when requested. Parse the bundle JSON and its nested `document`. Every count, path, and commit in the trace comes from this one bundle; never author one yourself.
+
+Any nonzero exit, or any nested `document.result` other than `pass`, fails the gate — a `RECORD_NOT_DERIVED` blocker means the run derived nothing, so it proves nothing. Append the stable blocker codes and actionable diagnostics to the trace, set status `in-progress`, synchronize only `in-progress`, and HALT for remediation. Never write `done`, and never hand-edit a count, path, or commit into agreement with the record.
+
+Once it passes, insert bundle field `markdown` VERBATIM into the trace, replacing the existing block between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers when one is present, or appending it under `## Verification` when it is not. Set frontmatter `file_list_commit` to the revision the block was derived from. Then invoke the generator with `--repository {project-root} --story {spec_file} --verify-record-sha256 <markdown_sha256> --format json`; any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` returns the trace and sprint state to `in-progress` and HALTs.
+
 ### Complete Trace and Commit Completion Record
 
-Only after the gate passes (or non-promotion work has no VCS and preserves the prior behavior), change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`. If version control is available, create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
+Only after both gates pass, change `{spec_file}` status to `done` and follow `./sync-sprint-status.md` with `target_status` = `review`. Create a second local conventional commit staging only `{spec_file}` and the sprint-tracking file changed by synchronization.
 
 ### Present
 

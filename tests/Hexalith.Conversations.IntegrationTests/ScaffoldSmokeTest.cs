@@ -197,10 +197,9 @@ public sealed class ScaffoldSmokeTest
         AssertProjectReferences(
             root,
             "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
-            // Story 6.2: the non-shipping test harness consumes only the public EventStore Aspire helper and
-            // keeps both conditional Debug build-forcing gateway edges visible to the structural inventory.
+            // Story 6.2: the non-shipping test harness consumes only the public EventStore Aspire helper, plus
+            // one build-order edge to the gateway so it is built in whichever configuration the harness runs.
             $"{eventStoreRoot}/src/Hexalith.EventStore.Aspire/Hexalith.EventStore.Aspire.csproj",
-            $"{eventStoreRoot}/src/Hexalith.EventStore/Hexalith.EventStore.csproj",
             $"{eventStoreRoot}/src/Hexalith.EventStore/Hexalith.EventStore.csproj",
             "src/Hexalith.Conversations.Admin.Web/Hexalith.Conversations.Admin.Web.csproj",
             "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj");
@@ -381,6 +380,15 @@ public sealed class ScaffoldSmokeTest
             ?? string.Empty;
     }
 
+    /// <summary>
+    /// Evaluates an MSBuild <c>ProjectReference</c> condition against the known source roots.
+    /// </summary>
+    /// <remarks>
+    /// An unrecognized condition throws rather than defaulting to active. Defaulting to active made a
+    /// mutually exclusive pair of references both count as present, which the expectations then had to absorb
+    /// by naming the same resolved path twice — the structural inventory silently stopped modelling which
+    /// reference a build actually takes.
+    /// </remarks>
     private static bool IsProjectReferenceConditionActive(string? condition, IReadOnlyDictionary<string, string> projectReferenceRoots)
     {
         if (string.IsNullOrWhiteSpace(condition))
@@ -388,20 +396,32 @@ public sealed class ScaffoldSmokeTest
             return true;
         }
 
+        return condition
+            .Split(" and ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .All(clause => IsClauseActive(clause, condition, projectReferenceRoots));
+    }
+
+    private static bool IsClauseActive(
+        string clause,
+        string condition,
+        IReadOnlyDictionary<string, string> projectReferenceRoots)
+    {
         foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
         {
-            if (string.Equals(condition, $"'$({projectReferenceRoot.Key})' != ''", StringComparison.Ordinal))
+            if (string.Equals(clause, $"'$({projectReferenceRoot.Key})' != ''", StringComparison.Ordinal))
             {
                 return !string.IsNullOrWhiteSpace(projectReferenceRoot.Value);
             }
 
-            if (string.Equals(condition, $"'$({projectReferenceRoot.Key})' == ''", StringComparison.Ordinal))
+            if (string.Equals(clause, $"'$({projectReferenceRoot.Key})' == ''", StringComparison.Ordinal))
             {
                 return string.IsNullOrWhiteSpace(projectReferenceRoot.Value);
             }
         }
 
-        return true;
+        throw new InvalidOperationException(
+            $"The structural inventory cannot evaluate the project-reference condition \"{condition}\". "
+            + "Teach this evaluator the new clause instead of letting an unmodelled condition read as active.");
     }
 
     private static string ResolveProjectReferencePath(

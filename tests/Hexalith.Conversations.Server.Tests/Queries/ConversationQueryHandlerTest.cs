@@ -140,6 +140,51 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// A cross-key generation conflict raised by the read store reaches the caller as Rebuilding with the
+    /// retry action and no details. The adjacent mixed-generation test enters the same branch from a
+    /// degraded projection; this one enters it from the store's fail-closed exception, which is the path the
+    /// dispatch-ledger and tenant-index checks actually raise in production.
+    /// </summary>
+    [Fact]
+    public async Task DetailConsistencyFailureShouldReturnRebuilding()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            DetailException = new ConversationProjectionConsistencyException(),
+        };
+
+        ConversationDetailResult result = await CreateHandler(AllowedAccess(), store).GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.ReasonCode.ShouldBe(ProjectionFreshnessReasonCode.MixedGeneration);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldBe("Retry after the read model finishes rebuilding.");
+    }
+
+    /// <summary>
+    /// An infrastructure fault on the detail read is Unavailable, never Rebuilding: a store that cannot be
+    /// reached says nothing about whether a generation is being rebuilt, and it must not leak its own text.
+    /// </summary>
+    [Fact]
+    public async Task DetailInfrastructureFailureShouldReturnUnavailable()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            DetailException = new InvalidOperationException("statestore component 'statestore' is not configured"),
+        };
+
+        ConversationDetailResult result = await CreateHandler(AllowedAccess(), store).GetAsync(
+            new GetConversationQuery(SchemaVersion.Current, Tenant, "caller-001", "correlation-001", Conversation),
+            TestContext.Current.CancellationToken);
+
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Unavailable);
+        result.Details.ShouldBeNull();
+        result.SafeNextAction.ShouldNotContain("statestore", Case.Insensitive);
+    }
+
+    /// <summary>
     /// Authorized detail reads hydrate stable references after projection data is accepted.
     /// </summary>
     [Fact]
@@ -2368,13 +2413,18 @@ public sealed class ConversationQueryHandlerTest
 
         public int ValidatePageCalls { get; private set; }
 
+        /// <summary>Set to drive the detail read into its failure branches.</summary>
+        public Exception? DetailException { get; set; }
+
         public ValueTask<ConversationProjectedReadModels?> ReadAsync(
             TenantId tenantId,
             ConversationId conversationId,
             CancellationToken cancellationToken = default)
         {
             DetailReads++;
-            return ValueTask.FromResult(Models);
+            return DetailException is not null
+                ? throw DetailException
+                : ValueTask.FromResult(Models);
         }
 
         public ValueTask<IReadOnlySet<string>> ValidatePageAsync(

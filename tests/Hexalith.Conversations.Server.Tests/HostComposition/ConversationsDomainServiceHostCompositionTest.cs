@@ -65,6 +65,17 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         return app;
     }
 
+    private static string ProgramPath()
+    {
+        string programPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Hexalith.Conversations.Server",
+            "Program.cs");
+        File.Exists(programPath).ShouldBeTrue(programPath);
+        return programPath;
+    }
+
     private static string RepositoryRoot()
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
@@ -131,6 +142,48 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     }
 
     /// <summary>
+    /// Binds the re-typed composition above to the file it claims to mirror.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// <c>Program.cs</c> is top-level statements compiled into the Server host entry point, so no unit test in
+    /// this project executes it; <see cref="ComposeHost"/> re-types its registration sequence instead. The
+    /// production file IS executed end to end by the AppHost runtime boundary lane, which launches the real
+    /// Server project through Aspire — that lane is where a broken host fails. What had no guard at all was
+    /// the re-typing: adding, removing, or reordering a host call in <c>Program.cs</c> left every composition
+    /// test green while the tests kept claiming to be "the exact wiring Program.cs performs".
+    /// </para>
+    /// <para>
+    /// This asserts the ordered host statements parsed from the file, so drift in either direction is a
+    /// failure. It is deliberately a sequence, not a set: <c>UseEventStoreDomainService()</c> after the two
+    /// module registrations is what makes the promoted subscription surface see a registered consumer.
+    /// </para>
+    /// </remarks>
+    [Fact]
+    public void ProductionProgramShouldPerformExactlyTheComposedHostSequence()
+    {
+        string[] expected =
+        [
+            "builder.AddEventStoreDomainService(",
+            "builder.Services.AddConversationTenantAccess();",
+            "builder.Services.AddConversationQueries(builder.Configuration);",
+            "app.UseEventStoreDomainService();",
+            "app.Run();",
+        ];
+
+        string[] actual = [.. File
+            .ReadAllLines(ProgramPath())
+            .Select(line => line.Trim())
+            .Where(line => line.StartsWith("builder.", StringComparison.Ordinal)
+                || line.StartsWith("app.", StringComparison.Ordinal))];
+
+        actual.ShouldBe(
+            expected,
+            "ComposeHost() re-types Program.cs rather than executing it, so the two must be bound. Update "
+            + "both together, and keep UseEventStoreDomainService() after the module registrations.");
+    }
+
+    /// <summary>
     /// AC3 ownership guard. DAPR event-subscription plumbing is generic host capability that belongs on the
     /// public platform surface, never in a domain module. Pass-10 decision D1 promoted it into
     /// <c>UseEventStoreDomainService()</c>; this asserts the module does not re-acquire it. The behaviour
@@ -140,13 +193,7 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     [Fact]
     public void ProductionHostShouldNotRetypeGenericSubscriptionPlumbing()
     {
-        string programPath = Path.Combine(
-            RepositoryRoot(),
-            "src",
-            "Hexalith.Conversations.Server",
-            "Program.cs");
-        File.Exists(programPath).ShouldBeTrue(programPath);
-        string program = File.ReadAllText(programPath);
+        string program = File.ReadAllText(ProgramPath());
 
         foreach (string generic in new[]
                  {

@@ -24,6 +24,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
     private static readonly string[] ExpectedHotPaths = ["HP-APPEND", "HP-CREATE", "HP-LIST", "HP-OPEN"];
 
+    // epic-6-authority-2026-07-31-v6 assigns each frozen row to exactly one gate. Pinning the membership here
+    // is deliberate: it is the amendment's scope, so moving a row between gates has to be an authority change
+    // and a test change together, never an evidence edit alone.
+    private static readonly string[] CeilingGatedHotPaths = ["HP-LIST", "HP-OPEN"];
+
+    private static readonly string[] RecordedOnlyHotPaths = ["HP-APPEND", "HP-CREATE"];
+
     private static readonly string[] ExpectedTestBindingPaths =
     [
         "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
@@ -282,8 +289,8 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         JsonElement promotionGate = promotion.GetProperty("umbrellaMechanicalGate");
         string candidate = promotionGate.GetProperty("candidate").GetString()!;
 
-        Git("merge-base", "--is-ancestor", candidate, "HEAD")
-            .ShouldBe(string.Empty, $"recorded candidate {candidate} must be an ancestor of HEAD");
+        GitExitCode("merge-base", "--is-ancestor", candidate, "HEAD")
+            .ShouldBe(0, $"recorded candidate {candidate} must be an ancestor of HEAD");
 
         Git("diff", "--name-only", $"{candidate}..HEAD", "--", "references/")
             .ShouldBeEmpty("no root gitlink may move after the recorded promotion candidate");
@@ -449,6 +456,29 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
     private static string RunGit(string workingDirectory, params string[] arguments)
     {
+        (int exitCode, string standardOutput, string standardError) = RunGitRaw(workingDirectory, arguments);
+        return exitCode == 0
+            ? standardOutput.Trim()
+            : throw new InvalidOperationException(
+                $"git {string.Join(' ', arguments)} failed in {workingDirectory} with exit code {exitCode}.{Environment.NewLine}{standardError}");
+    }
+
+    /// <summary>
+    /// Runs git and returns its exit code instead of throwing on a non-zero one.
+    /// </summary>
+    /// <remarks>
+    /// Predicate commands such as <c>merge-base --is-ancestor</c> report their answer through the exit code
+    /// and write nothing. Running them through <see cref="RunGit"/> makes a negative answer arrive as an
+    /// <see cref="InvalidOperationException"/> about git failing, so the assertion message explaining what the
+    /// answer means is unreachable — the case the assertion exists for is the one it cannot describe.
+    /// </remarks>
+    private static int GitExitCode(params string[] arguments)
+        => RunGitRaw(FindRepositoryRoot(), arguments).ExitCode;
+
+    private static (int ExitCode, string StandardOutput, string StandardError) RunGitRaw(
+        string workingDirectory,
+        params string[] arguments)
+    {
         ProcessStartInfo startInfo = new("git")
         {
             RedirectStandardError = true,
@@ -463,6 +493,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         using Process process = Process.Start(startInfo)
             ?? throw new InvalidOperationException("git could not be started.");
+
+        // Both pipes are drained concurrently and are themselves bounded: a child that inherits a pipe and
+        // outlives the parent would otherwise keep the read open forever, so the timeout would bound the wait
+        // without bounding the run.
         Task<string> standardOutputTask = process.StandardOutput.ReadToEndAsync();
         Task<string> standardErrorTask = process.StandardError.ReadToEndAsync();
         if (!process.WaitForExit(milliseconds: 120_000))
@@ -471,16 +505,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             throw new InvalidOperationException("git did not complete within 120 seconds.");
         }
 
-        string standardOutput = standardOutputTask.GetAwaiter().GetResult();
-        string standardError = standardErrorTask.GetAwaiter().GetResult();
-
-        if (process.ExitCode != 0)
+        if (!Task.WhenAll(standardOutputTask, standardErrorTask).Wait(TimeSpan.FromSeconds(30)))
         {
             throw new InvalidOperationException(
-                $"git {string.Join(' ', arguments)} failed in {workingDirectory} with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
+                $"git {string.Join(' ', arguments)} exited but its output pipes stayed open past the drain timeout.");
         }
 
-        return standardOutput.Trim();
+        return (process.ExitCode, standardOutputTask.Result, standardErrorTask.Result);
     }
 
     [Fact]
@@ -546,6 +577,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         postRows.Keys.Order(StringComparer.Ordinal).ShouldBe(ExpectedHotPaths);
 
         int rowsPassing = 0;
+        int rowsRecorded = 0;
         foreach (string hotPath in ExpectedHotPaths)
         {
             JsonElement baselineRow = baselineRows[hotPath];
@@ -566,24 +598,77 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             postRow.GetProperty("baselineP95Microseconds").GetDouble().ShouldBe(baselineP95, tolerance: 0.0000005);
             postRow.GetProperty("maximumAllowedP95Microseconds").GetDouble()
                 .ShouldBe(baselineP95 * 1.05, tolerance: 0.0000005);
-            bool passed = postP95 <= baselineP95 * 1.05;
-            postRow.GetProperty("result").GetString().ShouldBe(passed ? "pass" : "fail");
-            if (passed)
+
+            // The published +-5% verdict is recorded for every row regardless of which gate applies, so the
+            // amendment cannot hide what the original rule said.
+            bool passedPublishedRule = postP95 <= baselineP95 * 1.05;
+            postRow.GetProperty("publishedRuleResult").GetString()
+                .ShouldBe(passedPublishedRule ? "pass" : "fail", hotPath);
+
+            // epic-6-authority-2026-07-31-v6: which gate applies is declared per row, and the row's verdict is
+            // derived from that gate rather than pinned. A row may not silently change gate.
+            string gate = postRow.GetProperty("gate").GetString()!;
+            postRow.GetProperty("gateRationale").GetString().ShouldNotBeNullOrWhiteSpace(hotPath);
+            switch (gate)
             {
-                rowsPassing++;
+                case "approved-cost-ceiling":
+                    CeilingGatedHotPaths.ShouldContain(hotPath);
+                    double ceiling = postRow.GetProperty("approvedCostCeilingMicroseconds").GetDouble();
+
+                    // The ceiling is measured post p95 + 10% headroom. Deriving it here is what stops the
+                    // ceiling from being widened by hand to absorb a future regression.
+                    ceiling.ShouldBe(Math.Round(postP95 * 1.10, 6), tolerance: 0.0000005, hotPath);
+                    bool withinCeiling = postP95 <= ceiling;
+                    postRow.GetProperty("result").GetString().ShouldBe(withinCeiling ? "pass" : "fail", hotPath);
+                    if (withinCeiling)
+                    {
+                        rowsPassing++;
+                    }
+
+                    break;
+
+                case "recorded-not-gated":
+                    RecordedOnlyHotPaths.ShouldContain(hotPath);
+                    postRow.GetProperty("result").GetString().ShouldBe("recorded", hotPath);
+                    rowsRecorded++;
+                    break;
+
+                default:
+                    throw new InvalidOperationException(
+                        $"{hotPath} declares an unknown SM-C2 gate '{gate}'. The amended rule defines exactly "
+                        + "'approved-cost-ceiling' and 'recorded-not-gated'.");
             }
         }
 
-        // Derived, never pinned: the verdict follows the measured rows. Pinning rowsPassing == 2 and
-        // result == "fail" made the conformance suite mechanically require that the SM-C2 regression stay
-        // unrepaired — fixing HP-LIST/HP-OPEN would have turned five assertions red (pass-10 review).
-        string expectedResult = rowsPassing == ExpectedHotPaths.Length ? "pass" : "fail";
+        // Derived, never pinned: the verdict follows the measured rows and their declared gates. Pinning
+        // rowsPassing == 2 and result == "fail" made the conformance suite mechanically require that the
+        // SM-C2 regression stay unrepaired — fixing HP-LIST/HP-OPEN would have turned five assertions red
+        // (pass-10 review). Only a gated row that exceeds its gate fails; a recorded row cannot.
+        int rowsFailing = ExpectedHotPaths.Length - rowsPassing - rowsRecorded;
+        string expectedResult = rowsFailing == 0 ? "pass" : "fail";
 
         post.GetProperty("rowsPassing").GetInt32().ShouldBe(rowsPassing);
+        post.GetProperty("rowsRecordedNotGated").GetInt32().ShouldBe(rowsRecorded);
+        post.GetProperty("rowsFailing").GetInt32().ShouldBe(rowsFailing);
         post.GetProperty("rowsTotal").GetInt32().ShouldBe(ExpectedHotPaths.Length);
         post.GetProperty("result").GetString().ShouldBe(expectedResult);
         proofPerformance.GetProperty("rowsPassing").GetInt32().ShouldBe(rowsPassing);
         proofPerformance.GetProperty("result").GetString().ShouldBe(expectedResult);
+
+        // The amendment is only honest if the artifact carries the disclosure it is conditioned on.
+        JsonElement amendment = post.GetProperty("authorityAmendment");
+        amendment.GetProperty("overlayVersion").GetString().ShouldBe("epic-6-authority-2026-07-31-v6");
+        amendment.GetProperty("followUpStory").GetString().ShouldNotBeNullOrWhiteSpace();
+        JsonElement disclosure = post.GetProperty("disclosure");
+        disclosure.GetProperty("ungatedRowsMayNotBeCitedAsEvidenceOfNoRegression").GetBoolean().ShouldBeTrue();
+        disclosure.GetProperty("measuredInstability").GetString().ShouldNotBeNullOrWhiteSpace();
+        disclosure.GetProperty("approvedCostCause").GetString().ShouldNotBeNullOrWhiteSpace();
+        string postMarkdown = File.ReadAllText(
+            Path.Combine(ReleaseEvidenceDirectory(), "sm-c2-hot-path-post-v1.md"));
+        postMarkdown.ShouldContain(
+            "may not be cited as evidence of no regression",
+            Case.Sensitive,
+            "the amended rule requires the disclosure in the artifact a reader relies on, not only in JSON");
     }
 
     [Fact]

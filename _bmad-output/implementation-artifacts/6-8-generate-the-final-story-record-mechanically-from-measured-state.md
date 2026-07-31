@@ -75,12 +75,21 @@ so that a completion record can never contain a number, path, or commit that nob
 ## Acceptance Criteria
 
 The eight criteria below are **frozen authority**, quoted verbatim from
-`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md:1017-1041`. Do not
-paraphrase them, do not renumber them, and do not soften them. Each is followed by an
-**Operational contract** block whose source is the approved correction proposal
+`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md:1019-1042` (the v4
+amendment block). Do not paraphrase them, do not renumber them, and do not soften them. Each is
+followed by an **Operational contract** block whose source is the approved correction proposal
 (`sprint-change-proposal-2026-07-28.md`), one authority level below the overlay — the proposal is
 named in `architecture.md:20` `correctionAuthority`, so it is binding input, but it is *not* the
 frozen text.
+
+> **Quote re-sync, 2026-07-31 (v6).** Commit `1b7a06b` had rewritten four of these items **inside**
+> the published v4 block, after v5 declared v4 immutable. The quotes here were then partly synced to
+> the edited text and partly not, so this section half-matched its own authority. Per the release
+> owner's 2026-07-31 decision the v4 bytes are restored and the four improvements are republished as
+> `epic-6-authority-2026-07-31-v6` (`sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md`).
+> AC1, AC2, AC4, and AC5 below therefore carry **two** quotes: v4 as published, then the v6 amendment
+> that supersedes it for that item. The v6 text is what binds; the v4 text is kept so the change is
+> readable rather than silent.
 
 ### AC1 — one generator, one source of truth
 
@@ -88,15 +97,21 @@ frozen text.
 >    derived from the four sources named above. No count, path, or commit may be
 >    supplied as caller-authored text.
 
-**The four sources** (`epics.md:1004-1009`, verbatim):
+**The four sources** — v4 as published (`epics.md:1004-1009`), with the second source amended by
+the v6 republication (`epics.md:1307-1311`):
 
 > Derivation sources are exactly four: parsed machine-readable test-result
 > artifacts; the git-derived path set between the work baseline and the committed
-> candidate with source-tree dirt blocked outside record outputs and declared TRX
-> inputs; mode-`160000` root
+> candidate unioned with the tracked working-tree delta; mode-`160000` root
 > gitlink entries resolved from the committed candidate; and the Story 6.7
 > promotion-checker document embedded verbatim. A record that could not derive any
 > of them reports a blocker rather than a pass.
+
+> **Derivation sources.** The second source is the git-derived path set between
+> the work baseline and the committed candidate, **with source-tree dirt
+> blocked outside record outputs and declared TRX inputs** — replacing the
+> union with the tracked working-tree delta. A record must describe a committed
+> tree, not a tree plus whatever else was open at the time.
 
 **Operational contract** (proposal `:361-369`): `_bmad/scripts/generate_story_record.py`, document
 field `"schema": "story-final-record-v1"`, flags `--repository`, `--story`, `--baseline`,
@@ -109,6 +124,12 @@ json|markdown|bundle`, `--verify-record-sha256`, plus `--historical` from AC7.
 >    project with no artifact is recorded as not run and blocks; totals are
 >    computed rather than transcribed; an artifact older than the newest file in
 >    the derived file list blocks as stale rather than being carried forward.
+
+Amended by the v6 republication (`epics.md:1312-1314`):
+
+> **Invariant 2.** The root `.slnx` defines the required root-owned test
+> projects; failures block, and skips require exact versioned
+> identity-and-reason policy.
 
 **Operational contract** (proposal `:372-379`): parse TRX `/TestRun/ResultSummary/Counters`. The
 per-project state for a declared project with no artifact is `NOT_RUN`. Never silently omit a
@@ -128,9 +149,15 @@ hand-appended list is a conformance failure.
 ### AC4 — gitlink state binds to the candidate that is actually final
 
 > 4. Submodule and gitlink state binds to the candidate that is actually final.
->    The candidate must be an ancestor of the committed head; only record-output
->    paths may change after it and no gitlink may move, so a superseded binding
->    goes red rather than stale.
+>    The candidate must be an ancestor of the committed head with no declared
+>    gitlink movement after it, so a superseded binding goes red rather than
+>    stale.
+
+Amended by the v6 republication (`epics.md:1315-1317`):
+
+> **Invariant 4.** After the bound candidate, only record-output paths may
+> change and no gitlink may move, so a superseded binding goes red rather than
+> stale.
 
 **Operational contract** (proposal `:389-394`): embed the Story 6.7 checker document and add the
 re-derivation binding. This generalizes Story 6.2's bespoke
@@ -141,6 +168,13 @@ file to every record.
 
 > 5. The four completion surfaces generate rather than author, and generator
 >    blockers block `review` and `done` exactly as the promotion gate does.
+
+Amended by the v6 republication (`epics.md:1318-1321`):
+
+> **Invariant 5.** The four completion surfaces generate one
+> document-and-Markdown bundle rather than author it, verify the inserted
+> Markdown digest, and let generator blockers block `review` and `done` exactly
+> as the promotion gate does.
 
 **Operational contract** (proposal `:396-401`): the four surfaces are `bmad-dev-story` step 9,
 `bmad-quick-dev/step-05-present.md`, `bmad-quick-dev/step-oneshot.md`, and
