@@ -967,6 +967,38 @@ empty `a40ab8a..e4618d9 -- src/` diff; and AC7's ungated AppHost lane.
 - [ ] [Review][Patch] Disclose the SM-C2 variance bound in both artifacts — state that the CREATE and APPEND `pass` rows fall within run-to-run noise and may not be cited as evidence of no regression, while LIST and OPEN are real and remain the open AC1 blocker (D4 resolution (c)) (MEDIUM) [docs/release-evidence/sm-c2-hot-path-post-v1.json:1] — **BLOCKED on the review commit**: binds source hashes, candidate, and gitlinks that this pass changed; sequenced after the commit rather than hand-written stale.
 - [x] [Review][Patch] Measure package mode at the candidate — one Release build and one conformance run without `-p:UseHexalithProjectReferences=true` — and record both modes in the story record, treating any failure as a new blocker rather than a limitation to work around (D5 resolution (a)) (MEDIUM) [_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md:1008]
 
+#### Completion gates at committed candidate `427fb01` (2026-07-31, pass 10)
+
+**Promotion gate: `pass`, zero blockers.** All three declared paths satisfy `recorded_gitlink == submodule
+HEAD`, `clean`, and `remote_available`: EventStore `e4618d91`, Builds `e85a319e`, Tenants `625061bd`. The
+four disclosed `UNDECLARED_GITLINK_CHANGE` warnings (AI.Tools, Commons, FrontComposer, Memories) remain and
+are non-blocking by design. This is the second consecutive true pass for this story.
+
+Release build at this candidate: **0 warnings, 0 errors**, verified in BOTH restore modes — with
+`-p:UseHexalithProjectReferences=true` and without it.
+
+Measured gate input, all eight root-owned test projects freshly run at this candidate (`TestResults/6-2-pass10-*.trx`):
+**1,980 total / 1,977 passed / 3 failed / 0 skipped.** The AppHost lane passed 9/9 and the IntegrationTests
+lane 14/14 against live Docker/Aspire.
+
+**Final-record gate: `blocked`, 2 blockers, zero warnings**, so no generated record was replaced and no
+`done` state was synchronized:
+
+- `FILE_LIST_DRIFT` — the generated File List predates 25 paths in the range; remediation is generator-driven
+  replacement once the remaining blocker closes, never a hand-edited list.
+- `TEST_RESULTS_FAILED` — the same three AC1/AC5 evidence guards, red exactly as designed. Closing them is
+  the evidence regeneration this pass deliberately sequenced after the commit; the seven blocked evidence
+  patches above are that work.
+
+An earlier reading of this same gate returned **ten** blockers, the extra eight being `TEST_RESULTS_STALE`.
+That was an artefact of edit ordering, not of the tree: the record edits post-dated the test artifacts.
+Re-running the suites after committing the record edits cleared all eight and left the two substantive
+blockers above. **This is the third recurrence of the trap this record documents, and it is what led pass 9
+to misattribute its red guards.** The rule, restated because restating it is cheaper than rediscovering it:
+apply every record edit, commit, run all eight suites, then read the gate — in that order, with no edit in
+between. Writing this section has itself invalidated the artifacts measured above, so the next run must
+re-run the suites before reading the gate again.
+
 #### Found during patch application — pass 10 (2026-07-31)
 
 Two findings surfaced only when the strengthened tests were actually executed against Docker/Aspire. Both
