@@ -150,9 +150,10 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
 
         // AC6 demands an EQUIVALENT per-conversation record, not merely a matching identity and position:
         // the whole rebuilt detail record and the whole rebuilt index row are compared field-for-field, so a
-        // replay that drops a label, participant, or message can never pass as convergence. Capture-time
-        // metadata (generation/evaluation timestamps and lag) is legitimately fresh on every projection run
-        // and is normalized out; every domain-content field participates.
+        // replay that drops a label, participant, or message can never pass as convergence. Only capture-time
+        // metadata (projection generation/evaluation timestamps and lag) is legitimately fresh on every
+        // projection run and is normalized out; every domain-content field participates, including the
+        // per-item occurredAt values and the event-derived lastAppliedEventTimestamp.
         CanonicalizeWithoutCaptureTimes(afterDetail.Details).ShouldBe(
             CanonicalizeWithoutCaptureTimes(beforeDetail.Details),
             "the rebuilt detail record must be equivalent to the pre-deletion record");
@@ -174,13 +175,17 @@ public sealed class ConversationProjectionReadStorePopulationLiveTests
         switch (node)
         {
             case JsonObject jsonObject:
+                // ONLY capture-time metadata is normalized out. `occurredAt` was previously stripped at every
+                // nesting depth, but it is domain content on participants, file references, citations, and
+                // evidence entries — and the field the materializer sorts evidence by — so a replay that
+                // reconstructed a participant with a shifted or null OccurredAt passed as convergence.
+                // `lastAppliedEventTimestamp` is event-derived, not capture-derived, so it must be stable
+                // across a rebuild and must participate too (pass-10 review).
                 foreach (string property in new[]
                          {
-                             "lastAppliedEventTimestamp",
                              "projectionGeneratedAt",
                              "lagDuration",
                              "lastEvaluatedAt",
-                             "occurredAt",
                          })
                 {
                     _ = jsonObject.Remove(property);

@@ -573,11 +573,18 @@ public sealed class ConversationAsyncProjectionHandler :
     /// be shaped.
     /// </summary>
     /// <remarks>
-    /// Correlation identifiers, message identifiers, user identifiers, payload-backed delivery timestamps and
-    /// backfilled global positions legitimately differ between two deliveries of the same dispatch. Hashing the
-    /// whole serialized request would treat those differences as identity reuse and fail the dispatch terminally.
-    /// The fingerprint therefore covers the route, tenant, aggregate, and each event's sequence, type and payload,
-    /// plus the persisted timestamp only for a position-only event whose timestamp changes materialized freshness.
+    /// Correlation identifiers, message identifiers, user identifiers and backfilled global positions
+    /// legitimately differ between two deliveries of the same dispatch. Hashing the whole serialized request
+    /// would treat those differences as identity reuse and fail the dispatch terminally. The fingerprint
+    /// therefore covers the route, tenant, aggregate, and each event's sequence, type and payload, plus the
+    /// event timestamp only for a position-only event whose timestamp changes materialized freshness.
+    /// <para>
+    /// That extra segment is safe under at-least-once delivery because the hashed value is the event's
+    /// persisted stream timestamp, not a per-delivery stamp: it is carried from the stored envelope
+    /// (<c>ProjectionEventWireBuilder</c> populates <c>ProjectionEventDto.Timestamp</c> from
+    /// <c>envelope.Timestamp</c>), so a redelivery of the same event reproduces the same value and converges.
+    /// A per-delivery timestamp must never enter this fingerprint.
+    /// </para>
     /// </remarks>
     private static string ComputeRequestFingerprint(ProjectionRequest request)
     {

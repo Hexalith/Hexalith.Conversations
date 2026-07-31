@@ -903,6 +903,79 @@ public sealed class ConversationQueryHandlerTest
     }
 
     /// <summary>
+    /// An in-flight dispatch elsewhere in the tenant degrades freshness but must NOT suppress the continuation
+    /// cursor. Folding the tenant-wide flag into cursor suppression made every page after the first
+    /// unreachable for as long as any write was in flight anywhere in the tenant, and permanently unreachable
+    /// behind a pending marker that outlived its ledger. Only rows withheld from THIS page can strand a
+    /// continuation, and a converging dispatch changes the generation token so a stale cursor fails closed
+    /// rather than skipping (pass-10 review).
+    /// </summary>
+    [Fact]
+    public async Task ListShouldStillIssueAContinuationWhileAnUnrelatedDispatchIsInFlight()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries =
+            [
+                Summary(Tenant, new ConversationId("conv-a"), Business, Project, Folder, Participant, cursor: "pos:1"),
+                Summary(Tenant, new ConversationId("conv-b"), Business, Project, Folder, Participant, cursor: "pos:2"),
+            ],
+            HasIncompleteDispatch = true,
+        };
+        ConversationQueryHandler handler = CreateHandler(AllowedAccess(), store);
+
+        ConversationListResult result = await handler.ListAsync(
+            new ListConversationsQuery(
+                SchemaVersion.Current,
+                Tenant,
+                "caller-001",
+                "correlation-001",
+                Page: new ConversationPageRequest(1)),
+            TestContext.Current.CancellationToken);
+
+        result.Conversations.Count.ShouldBe(1);
+        result.FreshnessState.ShouldBe(ProjectionTrustState.Rebuilding);
+        result.Page.ContinuationCursor.ShouldNotBeNull(
+            "an unrelated in-flight dispatch must not make the rest of the tenant unreachable");
+    }
+
+    /// <summary>
+    /// AC6 tenant isolation proved from the read side: a caller authorized in tenant B receives none of
+    /// tenant A's conversations, by list or by detail. The adjacent guards cover a foreign record found under
+    /// the caller's own key and the write-side cross-tenant rejection; until pass 10 no test had a second
+    /// tenant issue a query against the first tenant's records.
+    /// </summary>
+    [Fact]
+    public async Task SecondTenantMustNotReadFirstTenantConversations()
+    {
+        FakeProjectionReadStore store = new()
+        {
+            Summaries = [Summary(Tenant, Conversation, Business, Project, Folder, Participant, cursor: "pos:1")],
+            Models = ProjectedModels(Tenant, Conversation),
+        };
+
+        ConversationListResult list = await CreateHandler(AllowedAccess(OtherTenant, "caller-002"), store)
+            .ListAsync(
+                new ListConversationsQuery(SchemaVersion.Current, OtherTenant, "caller-002", "correlation-002"),
+                TestContext.Current.CancellationToken);
+
+        list.Conversations.ShouldBeEmpty("tenant-002 must never receive a tenant-001 row");
+
+        ConversationDetailResult detail = await CreateHandler(AllowedAccess(OtherTenant, "caller-002"), store)
+            .GetAsync(
+                new GetConversationQuery(
+                    SchemaVersion.Current,
+                    OtherTenant,
+                    "caller-002",
+                    "correlation-002",
+                    Conversation),
+                TestContext.Current.CancellationToken);
+
+        detail.FreshnessState.ShouldBe(ProjectionTrustState.Forbidden);
+        detail.Details.ShouldBeNull();
+    }
+
+    /// <summary>
     /// Verification is charged to the page, never to the tenant: a large tenant asking for a small page must
     /// only have the returned rows verified (NFR2, no per-conversation fan-out).
     /// </summary>
@@ -1787,6 +1860,12 @@ public sealed class ConversationQueryHandlerTest
             ConversationTenantAccessRequirement.Read,
             Tenant,
             "caller-001"));
+
+    private static FakeTenantAccessService AllowedAccess(TenantId tenantId, string callerPrincipalId)
+        => new(ConversationTenantAccessDecision.Allowed(
+            ConversationTenantAccessRequirement.Read,
+            tenantId,
+            callerPrincipalId));
 
     private static ConversationQueryHandler CreateHandler(
         FakeTenantAccessService access,

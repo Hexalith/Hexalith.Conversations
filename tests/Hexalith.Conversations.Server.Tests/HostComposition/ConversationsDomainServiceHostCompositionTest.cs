@@ -55,8 +55,28 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         builder.Services.AddConversationQueries(builder.Configuration);
 
         WebApplication app = builder.Build();
+
+        // The DAPR pub/sub pipeline Program.cs performs. Omitting it here meant the three calls that make
+        // tenant admission possible at all were asserted by nothing in the fast Server.Tests lane, while this
+        // helper's comment still claimed to mirror the production host: deleting them shipped green and only
+        // the 8-minute Docker/Aspire lane could notice (pass-10 review).
+        app.UseCloudEvents();
         app.UseEventStoreDomainService();
+        app.MapEventStoreDomainEvents();
+        app.MapSubscribeHandler();
         return app;
+    }
+
+    private static string RepositoryRoot()
+    {
+        DirectoryInfo? directory = new(AppContext.BaseDirectory);
+        while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+        {
+            directory = directory.Parent;
+        }
+
+        return directory?.FullName
+            ?? throw new InvalidOperationException("The repository root could not be resolved.");
     }
 
     private static IReadOnlyCollection<string> MappedRoutes(WebApplication app)
@@ -93,6 +113,57 @@ public sealed class ConversationsDomainServiceHostCompositionTest
         await using WebApplication app = ComposeHost();
 
         MappedRoutes(app).ShouldContain(route);
+    }
+
+    /// <summary>
+    /// The consumed Tenants subscription surface is mapped. Without <c>/tenants/events</c> the registered
+    /// tenants consumer is unreachable, and without <c>/dapr/subscribe</c> the sidecar never learns the topic
+    /// exists — either way the tenant access projection stays empty and every authorized read fails closed
+    /// forever. Neither route was asserted anywhere before pass 10.
+    /// </summary>
+    /// <param name="route">The subscription route that must resolve.</param>
+    [Theory]
+    [InlineData("/tenants/events")]
+    [InlineData("/dapr/subscribe")]
+    public async Task TenantSubscriptionEndpointShouldResolve(string route)
+    {
+        await using WebApplication app = ComposeHost();
+
+        MappedRoutes(app).ShouldContain(route);
+    }
+
+    /// <summary>
+    /// <c>UseCloudEvents()</c> is middleware, so it appears in no route table and no composed-host assertion
+    /// can observe it. DAPR delivers <c>application/cloudevents+json</c> by default, and without the
+    /// unwrapping middleware that body cannot bind to the domain-event envelope — so its removal breaks
+    /// production while every route assertion above still passes. This is a deliberate source-level guard,
+    /// and it also pins the ordering requirement: unwrapping must precede endpoint mapping.
+    /// </summary>
+    [Fact]
+    public void ProductionHostShouldUnwrapCloudEventsBeforeMappingEndpoints()
+    {
+        string programPath = Path.Combine(
+            RepositoryRoot(),
+            "src",
+            "Hexalith.Conversations.Server",
+            "Program.cs");
+        File.Exists(programPath).ShouldBeTrue(programPath);
+        string program = File.ReadAllText(programPath);
+
+        int useCloudEvents = program.IndexOf("app.UseCloudEvents();", StringComparison.Ordinal);
+        int mapDomainEvents = program.IndexOf("app.MapEventStoreDomainEvents();", StringComparison.Ordinal);
+        int mapSubscribeHandler = program.IndexOf("app.MapSubscribeHandler();", StringComparison.Ordinal);
+
+        useCloudEvents.ShouldBeGreaterThanOrEqualTo(
+            0,
+            "the production host must unwrap CloudEvents or DAPR pub/sub bodies cannot bind");
+        mapDomainEvents.ShouldBeGreaterThanOrEqualTo(0, "the production host must map the domain-event route");
+        mapSubscribeHandler.ShouldBeGreaterThanOrEqualTo(
+            0,
+            "the production host must map the subscribe handler or DAPR never learns the topic");
+        useCloudEvents.ShouldBeLessThan(
+            mapDomainEvents,
+            "CloudEvents unwrapping must run before the domain-event endpoint is mapped");
     }
 
     /// <summary>

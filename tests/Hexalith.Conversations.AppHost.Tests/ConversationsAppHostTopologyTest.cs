@@ -107,16 +107,8 @@ public sealed class ConversationsAppHostTopologyTest
                 $"MSBuild evaluation failed with exit code {process.ExitCode}.{Environment.NewLine}{standardError}");
         }
 
-        // A single -getProperty prints the bare value; several print a JSON envelope (enforced above). SDK
-        // resolver or NuGet notices can precede the JSON, so parsing starts at the envelope, not byte zero.
-        int envelopeStart = standardOutput.IndexOf('{');
-        if (envelopeStart < 0)
-        {
-            throw new InvalidOperationException(
-                $"MSBuild evaluation printed no JSON envelope.{Environment.NewLine}{standardOutput}");
-        }
-
-        using JsonDocument document = JsonDocument.Parse(standardOutput[envelopeStart..]);
+        // A single -getProperty prints the bare value; several print a JSON envelope (enforced above).
+        using JsonDocument document = ParseMsBuildJsonEnvelope(standardOutput);
         Dictionary<string, string> values = new(StringComparer.Ordinal);
         JsonElement properties = document.RootElement.GetProperty("Properties");
         foreach (string propertyName in propertyNames)
@@ -131,6 +123,34 @@ public sealed class ConversationsAppHostTopologyTest
         }
 
         return values;
+    }
+
+    /// <summary>
+    /// Extracts the MSBuild JSON envelope from process output that may carry noise on either side.
+    /// Taking the first <c>{</c> and parsing to end-of-stream failed whenever a preceding SDK resolver or
+    /// NuGet notice contained a brace, and whenever any line followed the envelope (an audit warning or a
+    /// restore summary), replacing the intended diagnostic with an opaque parse error (pass-10 review).
+    /// </summary>
+    /// <param name="output">The raw process standard output.</param>
+    /// <returns>The parsed JSON envelope.</returns>
+    private static JsonDocument ParseMsBuildJsonEnvelope(string output)
+    {
+        int lastBrace = output.LastIndexOf('}');
+
+        for (int start = output.IndexOf('{'); start >= 0 && start < lastBrace; start = output.IndexOf('{', start + 1))
+        {
+            try
+            {
+                return JsonDocument.Parse(output[start..(lastBrace + 1)]);
+            }
+            catch (JsonException)
+            {
+                // A brace inside a preceding notice is not the envelope; try the next candidate.
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"MSBuild evaluation printed no parseable JSON envelope.{Environment.NewLine}{output}");
     }
 
     [Fact]

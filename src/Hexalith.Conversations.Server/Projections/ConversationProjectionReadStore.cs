@@ -145,6 +145,15 @@ public sealed class ConversationProjectionReadStore : IConversationProjectionRea
 
         // A tenant that has never had a conversation has no index key. That is an empty tenant, not a
         // cross-key inconsistency, and it must read as an empty current page.
+        //
+        // DISCLOSED LIMITATION (pass-10 review, decision D3). An index key that once existed and was then
+        // erased or evicted is indistinguishable from a tenant that never had one, so destroyed state is
+        // served as an empty CURRENT page rather than as Rebuilding or Unavailable. Deriving the difference
+        // from surviving per-conversation detail keys was evaluated and is not implementable against this
+        // seam: IReadModelStore exposes only GetAsync/SaveAsync/TrySaveAsync and IReadModelBulkStore only
+        // GetManyAsync(keys), so a tenant's detail keys can only be discovered from the index itself — the
+        // very key that is missing. Closing this needs a durable tenant-index write at first use, which is
+        // out of Story 6.2's scope; it is disclosed in the AC6 release evidence instead.
         if (entry.Value is null)
         {
             return ConversationProjectionIndexSnapshot.Empty;

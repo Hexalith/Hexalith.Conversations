@@ -54,7 +54,13 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
 
         proof.GetProperty("artifactVersion").GetString().ShouldBe("projection-read-store-population-proof-v2");
         proof.GetProperty("baselineRevision").GetString().ShouldBe("29def441408becfbbbdc5c59b9af14a7717cb21f");
-        proof.GetProperty("result").GetString().ShouldBe("fail");
+
+        // The aggregate result is deliberately NOT pinned here. This test binds route keys and bounded
+        // outcomes; pinning "fail" made the suite require that AC1 stay unmet, so repairing HP-LIST/HP-OPEN
+        // and regenerating the evidence would have turned this red (pass-10 review). The result is derived
+        // from the measured rows in PostEvidenceShouldDeriveItsVerdictFromTheRawSamples, and story
+        // completion is gated by AFailingProofResultMustBlockStoryCompletion.
+        proof.GetProperty("result").GetString().ShouldBeOneOf("pass", "fail");
         boundary.GetProperty("route").GetString().ShouldBe("conversation/conversation-read-model");
         boundary.GetProperty("rebuildSemantics").GetString().ShouldBe("FullReplay");
         boundary.GetProperty("configuredStateStore").GetString().ShouldBe("statestore");
@@ -274,11 +280,30 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         Git("status", "--porcelain=v1", "--", "src/")
             .ShouldBeEmpty("the proof cannot bind a candidate while production source changes remain uncommitted");
 
+        // Scoped to the DECLARED promotion paths, not to every evaluated gitlink. The gate evaluates all
+        // seven changed gitlinks, but four of them (AI.Tools, Commons, FrontComposer, Memories) are
+        // deliberately undeclared and disclosed as non-blocking warnings — binding their worktrees here
+        // turned this module's own conformance suite red on drift the story has already accepted, and on
+        // any stray untracked file in a sibling worktree (pass-10 review).
+        HashSet<string> declaredPaths =
+        [
+            .. promotionGate.GetProperty("declaredScope")
+                .EnumerateArray()
+                .Select(entry => entry.GetProperty("path").GetString()!),
+        ];
+
+        declaredPaths.ShouldNotBeEmpty("the recorded gate must declare the promotion scope it evaluated");
+
         foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
         {
             string path = evaluated.GetProperty("path").GetString()!;
             string recordedGitlink = evaluated.GetProperty("recordedGitlink").GetString()!;
             Git("rev-parse", $"HEAD:{path}").ShouldBe(recordedGitlink, path);
+
+            if (!declaredPaths.Contains(path))
+            {
+                continue;
+            }
 
             // The committed gitlink alone is not enough: a submodule worktree checked out away from it, or
             // dirty, changes every compile input while the umbrella diff stays empty. The worktree state is
@@ -312,7 +337,10 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         string story = File.ReadAllText(storyPath).Replace("\r\n", "\n", StringComparison.Ordinal);
         Match status = Regex.Match(story, "^status: '([a-z-]+)'$", RegexOptions.Multiline);
         status.Success.ShouldBeTrue("the Story 6.2 record must declare a frontmatter status");
-        if (status.Groups[1].Value is "backlog" or "ready-for-dev" or "in-progress")
+        // `review` is allowed: the documented process is "Dev moves story to 'review', then runs
+        // code-review", so excluding it made this completion guard block the story from entering the very
+        // status its own workflow requires (pass-10 review). The guard is completion-scoped by design.
+        if (status.Groups[1].Value is "backlog" or "ready-for-dev" or "in-progress" or "review")
         {
             return;
         }
@@ -534,12 +562,16 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
             }
         }
 
-        rowsPassing.ShouldBe(2);
+        // Derived, never pinned: the verdict follows the measured rows. Pinning rowsPassing == 2 and
+        // result == "fail" made the conformance suite mechanically require that the SM-C2 regression stay
+        // unrepaired — fixing HP-LIST/HP-OPEN would have turned five assertions red (pass-10 review).
+        string expectedResult = rowsPassing == ExpectedHotPaths.Length ? "pass" : "fail";
+
         post.GetProperty("rowsPassing").GetInt32().ShouldBe(rowsPassing);
         post.GetProperty("rowsTotal").GetInt32().ShouldBe(ExpectedHotPaths.Length);
-        post.GetProperty("result").GetString().ShouldBe("fail");
+        post.GetProperty("result").GetString().ShouldBe(expectedResult);
         proofPerformance.GetProperty("rowsPassing").GetInt32().ShouldBe(rowsPassing);
-        proofPerformance.GetProperty("result").GetString().ShouldBe("fail");
+        proofPerformance.GetProperty("result").GetString().ShouldBe(expectedResult);
     }
 
     [Fact]
@@ -547,7 +579,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     {
         string markdown = File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), ProofMarkdownFileName));
 
-        markdown.ShouldContain("**Result:** fail", Case.Sensitive);
+        // Derived from the authoritative JSON rather than pinned, so repairing SM-C2 does not turn this red.
+        using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
+        string proofResult = proofDocument.RootElement.GetProperty("result").GetString()!;
+
+        markdown.ShouldContain($"**Result:** {proofResult}", Case.Sensitive);
         markdown.ShouldContain("`conversation/conversation-read-model`", Case.Sensitive);
         markdown.ShouldContain(
             "`projection:conversations:{base64url(tenantId)}:{base64url(conversationId)}`",
@@ -557,7 +593,11 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         markdown.ShouldContain("b261fe209c4ca6c966f4bd2a78a62a2d83ddde08", Case.Sensitive);
         markdown.ShouldContain("zero blockers and four undeclared-gitlink warnings", Case.Sensitive);
         markdown.ShouldContain("Gateway production boundary (ADR 0003 Verification 1-2)", Case.Sensitive);
-        markdown.ShouldContain("SM-C2 remains an open release blocker", Case.Sensitive);
+        if (proofResult == "fail")
+        {
+            markdown.ShouldContain("SM-C2 remains an open release blocker", Case.Sensitive);
+        }
+
         markdown.ShouldContain("The companion JSON is authoritative", Case.Sensitive);
     }
 
@@ -726,6 +766,30 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         string testCase = scenario.GetProperty("testCase").GetString()!;
         runs.ContainsKey(artifactId).ShouldBeTrue(artifactId);
         runs[artifactId].PassedTests.ShouldContain(testCase, $"{testCase} must be a passing test in {artifactId}");
+        AssertBoundTestStillExists(testCase);
+    }
+
+    /// <summary>
+    /// The bound run artifacts are committed snapshots, so deleting, renaming, or skipping the test a
+    /// scenario claims to rest on changed no assertion in this class (pass-10 review). The method the
+    /// artifact names must still be declared in the test sources for the binding to mean anything.
+    /// </summary>
+    /// <param name="testCase">The fully qualified test name recorded by the scenario.</param>
+    private static void AssertBoundTestStillExists(string testCase)
+    {
+        string methodName = testCase[(testCase.LastIndexOf('.') + 1)..];
+        methodName.ShouldNotBeNullOrWhiteSpace(testCase);
+
+        string testsRoot = Path.Combine(FindRepositoryRoot(), "tests");
+        bool declared = Directory
+            .EnumerateFiles(testsRoot, "*.cs", SearchOption.AllDirectories)
+            .Where(file => !file.Contains($"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                && !file.Contains($"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal))
+            .Any(file => File.ReadAllText(file).Contains(methodName, StringComparison.Ordinal));
+
+        declared.ShouldBeTrue(
+            $"the bound run artifact names {testCase}, but no test source declares {methodName}; a renamed or "
+            + "deleted bound test must not leave the committed artifact silently authoritative");
     }
 
     private static void ValidateBinding(JsonElement binding)

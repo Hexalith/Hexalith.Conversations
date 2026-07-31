@@ -44,10 +44,31 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     [Fact]
     public async Task RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary()
     {
-        // Eight minutes: the provenance prebuild now stamps both launchable configurations before the
-        // AppHost starts, and the projection population poll runs after command completion.
+        // Separate budgets. The provenance prebuild stamps BOTH launchable configurations and can dominate a
+        // cold machine; sharing one token with the AppHost launch and the projection poll meant a slow
+        // prebuild surfaced either as a bare OperationCanceledException from Aspire startup or as a
+        // projection-boundary timeout, with nothing distinguishing "the prebuild ate the budget" from "the
+        // production boundary is broken" (pass-10 review).
+        using CancellationTokenSource prebuildTimeout = new(TimeSpan.FromMinutes(6));
+        string gatewayProjectPath;
+        string gatewayRevision;
+
+        try
+        {
+            (gatewayProjectPath, gatewayRevision) =
+                await BuildEventStoreGatewayWithProvenanceAsync(prebuildTimeout.Token);
+        }
+        catch (OperationCanceledException) when (prebuildTimeout.IsCancellationRequested)
+        {
+            throw new TimeoutException(
+                "The EventStore gateway provenance prebuild exceeded its own 6-minute budget. This is a build "
+                + "machine problem, not a production-boundary failure: the AppHost was never started.");
+        }
+
+        // Eight minutes for the runtime lane, started only after the prebuild so the boundary under proof
+        // always gets its full window: the AppHost starts, and the projection population poll runs after
+        // command completion.
         using CancellationTokenSource timeout = new(TimeSpan.FromMinutes(8));
-        (string gatewayProjectPath, string gatewayRevision) = await BuildEventStoreGatewayWithProvenanceAsync(timeout.Token);
         IDistributedApplicationTestingBuilder builder =
             await DistributedApplicationTestingBuilder.CreateAsync<Projects.Hexalith_Conversations_AppHost>(
                 [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"],
@@ -203,9 +224,15 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         using HttpResponseMessage response = await eventStore.SendAsync(activation, cancellationToken);
         string body = await response.Content.ReadAsStringAsync(cancellationToken);
 
-        // 200 activates; 409 means a marker from an earlier run is already present — the protocol is active
-        // either way, and only those two outcomes admit dispatch.
-        (response.StatusCode is HttpStatusCode.OK or HttpStatusCode.Conflict).ShouldBeTrue(body);
+        // 200 is the only success: ProjectionDeliveryCutoverStatus.Activated already covers "activated, or
+        // was already active for THIS exact commit". 409 is documented as a DIFFERENT marker being present,
+        // and because CutoverCommit is the gateway revision — which moves with the EventStore worktree — a
+        // 409 means the activation was genuinely refused and the boundary proof would then run against a
+        // protocol state it never established. Accepting it read a refusal as success (pass-10 review).
+        response.StatusCode.ShouldBe(
+            HttpStatusCode.OK,
+            $"the delivery-writer-protocol activation must succeed for CutoverCommit {gatewayRevision}; a 409 "
+            + $"reports a different marker already present, not an idempotent re-activation. Body: {body}");
     }
 
     private static string CreateAdminAccessToken()
@@ -280,7 +307,60 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 envelope,
                 cancellationToken);
             string deliveryBody = await delivery.Content.ReadAsStringAsync(cancellationToken);
+
+            // OK is necessary but NOT sufficient: MapProcessingResult returns Results.Ok() for
+            // SkippedUnknownEventType, SkippedNoHandlers, SkippedAggregateMismatch and FailedInvalidPayload,
+            // so a renamed event type, a drifted payload shape, or Role = 3 ceasing to mean TenantReader all
+            // pass this assertion. The effect is verified below so the failure names its own cause instead of
+            // surfacing minutes later as an unattributed projection-boundary timeout (pass-10 review).
             delivery.StatusCode.ShouldBe(HttpStatusCode.OK, deliveryBody);
+        }
+
+        await VerifyTenantAccessProjectionAdmitsCallerAsync(conversations, tenantId, cancellationToken);
+    }
+
+    /// <summary>
+    /// Proves the seeded tenant events actually reached the tenant access projection, rather than being
+    /// acknowledged and dropped. An unadmitted caller reads as <c>Forbidden</c>; any other freshness state
+    /// means the projection admitted the tenant and the seeding worked.
+    /// </summary>
+    private static async Task VerifyTenantAccessProjectionAdmitsCallerAsync(
+        HttpClient conversations,
+        string tenantId,
+        CancellationToken cancellationToken)
+    {
+        using var admissionBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        admissionBudget.CancelAfter(TimeSpan.FromSeconds(60));
+        string? lastResult = null;
+
+        try
+        {
+            while (true)
+            {
+                admissionBudget.Token.ThrowIfCancellationRequested();
+                JsonElement probe = await SubmitQueryAsync(
+                    conversations,
+                    tenantId,
+                    "tenant-admission-probe",
+                    "conversation-detail",
+                    admissionBudget.Token);
+                lastResult = probe.GetRawText();
+
+                if (!probe.TryGetProperty("freshnessState", out JsonElement freshness)
+                    || !string.Equals(freshness.GetString(), "Forbidden", StringComparison.Ordinal))
+                {
+                    return;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(250), admissionBudget.Token);
+            }
+        }
+        catch (OperationCanceledException) when (admissionBudget.IsCancellationRequested)
+        {
+            throw new TimeoutException(
+                "The seeded Tenants events were acknowledged but never admitted the caller, so the tenant "
+                + "access projection was not fed. Check the /tenants/events envelope shape, the event type "
+                + $"names, and the TenantRole value before suspecting the projection boundary. Last result: {lastResult}");
         }
     }
 

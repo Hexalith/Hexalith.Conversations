@@ -17,8 +17,17 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// The versioned SM-C2 fixture did not exist at the declared source commit, so the baseline is a reconstruction.
 /// AC1 allows that only when the reconstruction is evidenced. This guard checks the recorded claims against git
 /// rather than against the artifact's own prose: the fixture really is absent at the declared source commit, the
-/// test project and EventStore baseline are pinned, the overlays match the post run byte-for-byte, and the fixture
-/// depends on nothing outside its declared measured closure.
+/// test project and EventStore baseline are pinned, and the overlays match the post run byte-for-byte.
+/// </para>
+/// <para>
+/// SCOPE CORRECTION (pass-10 review). This class previously claimed to confirm that the declared closure is
+/// unchanged between baseline and HEAD, that the declared <c>changedFileCount</c> matches the real diff, and
+/// that the fixture's namespaces prove it depends only on the declared closure. None of those checks exists
+/// here — the executed checks are fixture-absent-at-source-commit, project-overlay-present, and
+/// EventStore-gitlink-pinned. The removed claims are recorded as open work rather than described as covered.
+/// Note also that <c>measuredProductionClosure.projects</c> now includes
+/// <c>src/Hexalith.Conversations.Server</c>, the project this story changed most, so the closure is no longer
+/// disjoint from the story's own edits.
 /// </para>
 /// <para>
 /// Git history is mandatory evidence: an unresolved baseline is a failure, never a skipped reconstruction check.
@@ -83,11 +92,7 @@ public sealed class SmC2BaselineReconstructionValidationTest
             "-p:Configuration=Release",
             "-p:UseHexalithProjectReferences=true",
             "-getItem:ProjectReference");
-        int envelopeStart = output.IndexOf('{');
-        envelopeStart.ShouldBeGreaterThanOrEqualTo(
-            0,
-            $"MSBuild -getItem printed no JSON envelope; the evaluated project graph cannot be verified.{Environment.NewLine}{output}");
-        using JsonDocument graph = JsonDocument.Parse(output[envelopeStart..]);
+        using JsonDocument graph = ParseMsBuildJsonEnvelope(output);
         string repositoryRoot = FindRepositoryRoot();
         string[] evaluatedReferences =
         [
@@ -237,6 +242,16 @@ public sealed class SmC2BaselineReconstructionValidationTest
             throw new InvalidOperationException($"{executable} did not complete within 120 seconds.");
         }
 
+        // The WaitForExit budget bounds the PARENT only. Persistent MSBuild worker nodes inherit these pipes
+        // and keep them open after the parent exits, so an unbounded drain left the helper's total runtime
+        // unbounded despite the 120-second wait (pass-10 review). Bound the drain too.
+        if (!Task.WhenAll(outputTask, errorTask).Wait(millisecondsTimeout: 30_000))
+        {
+            throw new InvalidOperationException(
+                $"{executable} exited but its output pipes did not close within 30 seconds; a persistent worker "
+                + "node is still holding them open.");
+        }
+
         string output = outputTask.GetAwaiter().GetResult();
         string error = errorTask.GetAwaiter().GetResult();
 
@@ -247,6 +262,35 @@ public sealed class SmC2BaselineReconstructionValidationTest
         }
 
         return output;
+    }
+
+    /// <summary>
+    /// Extracts the MSBuild JSON envelope from output that may carry noise on either side. Taking the first
+    /// <c>{</c> and parsing to end-of-stream failed whenever a preceding SDK or NuGet notice contained a
+    /// brace, and whenever any line followed the envelope, replacing the intended project-graph diagnosis
+    /// with an opaque parse error (pass-10 review).
+    /// </summary>
+    /// <param name="output">The raw process standard output.</param>
+    /// <returns>The parsed JSON envelope.</returns>
+    private static JsonDocument ParseMsBuildJsonEnvelope(string output)
+    {
+        int lastBrace = output.LastIndexOf('}');
+
+        for (int start = output.IndexOf('{'); start >= 0 && start < lastBrace; start = output.IndexOf('{', start + 1))
+        {
+            try
+            {
+                return JsonDocument.Parse(output[start..(lastBrace + 1)]);
+            }
+            catch (JsonException)
+            {
+                // A brace inside a preceding notice is not the envelope; try the next candidate.
+            }
+        }
+
+        throw new InvalidOperationException(
+            $"MSBuild -getItem printed no parseable JSON envelope; the evaluated project graph cannot be "
+            + $"verified.{Environment.NewLine}{output}");
     }
 
     private static void ValidateBinding(JsonElement binding)

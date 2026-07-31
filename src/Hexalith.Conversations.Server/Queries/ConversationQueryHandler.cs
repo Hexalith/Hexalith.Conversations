@@ -343,7 +343,16 @@ public sealed class ConversationQueryHandler
                 cancellationToken)
             .ConfigureAwait(false);
 
-        string? nextCursor = issueContinuation && !partialGeneration
+        // Only rows withheld from THIS page can strand a row behind a continuation, because the cursor would
+        // resume past a row that was never shown. A dispatch in flight elsewhere in the tenant cannot strand
+        // this page's continuation: the cursor carries the projection generation token, and a converging
+        // dispatch changes that token, so a stale cursor fails closed above rather than skipping the row.
+        // Suppressing on the tenant-wide HasIncompleteDispatch flag instead made every page after the first
+        // unreachable for as long as any write was in flight anywhere in the tenant, and permanently
+        // unreachable behind a pending marker that outlived its ledger (pass-10 review).
+        bool withheldFromThisPage = inconsistent.Count > 0;
+
+        string? nextCursor = issueContinuation && !withheldFromThisPage
             ? _cursorCodec.Encode(
                 ConversationListCursor.QueryType,
                 ConversationListCursor.BuildScope(query.TenantId, query.CallerPrincipalId, query.Filter),

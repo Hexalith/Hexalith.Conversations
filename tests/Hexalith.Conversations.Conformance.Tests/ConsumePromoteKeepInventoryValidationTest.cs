@@ -510,6 +510,21 @@ public sealed class ConsumePromoteKeepInventoryValidationTest
             .ToArray();
         actualDeletedPaths.ShouldBe(recordedDeletedPaths);
 
+        // Re-derived at HEAD, not only across the recorded range. The range check proves the deletion
+        // happened between baseline and the recorded candidate, but re-adding
+        // src/Hexalith.Conversations.ServiceDefaults today changed no assertion anywhere (pass-10 review).
+        // AC3 requires the removal to still hold on the tree actually being measured.
+        RunGit(
+                repositoryRoot,
+                "ls-tree",
+                "-r",
+                "--name-only",
+                "HEAD",
+                "--",
+                "src/Hexalith.Conversations.ServiceDefaults")
+            .Split(['\r', '\n'], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ShouldBeEmpty("AC3 requires src/Hexalith.Conversations.ServiceDefaults to remain absent at HEAD");
+
         return root.GetProperty("changeLog").EnumerateArray().Select(entry => entry.Clone()).ToArray();
     }
 

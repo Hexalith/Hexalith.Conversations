@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
 using System.Net.Sockets;
+using System.Reflection;
 using System.Text;
 
 using Dapr.Actors;
@@ -207,14 +208,30 @@ public sealed class ConversationGatewayLiveFixture : IAsyncLifetime
         await DisposeResourcesAsync().ConfigureAwait(false);
         RestoreDaprPortEnvironment();
 
-        // Anti-vacuity without a hard-coded census: a fixture that initialized but observed no boundary
-        // assertion was a vacuous run. The exact two-test census is enforced where it belongs — the v2 proof
-        // requires the gateway TRX artifact to record passed == 2 with zero skips — so a filtered debugging
-        // run of a single gateway test no longer fails in disposal.
-        if (IsAvailable && Volatile.Read(ref _executedBoundaryAssertions) == 0)
+        // Anti-vacuity with a LIVE census derived by reflection from the boundary test class itself, so
+        // adding, removing, or renaming a boundary test moves the requirement with it. The previous
+        // "at least one" form was toothless, and its stated replacement — the v2 proof requiring the gateway
+        // TRX artifact to record passed == 2 — compares two committed files and cannot observe the run under
+        // test, so a live run executing half of the mandatory ADR 0003 Verification 1-2 lane was green
+        // everywhere (pass-10 review). Set HEXALITH_GATEWAY_ALLOW_FILTERED_RUN=1 for a deliberately filtered
+        // debugging run; CI and evidence runs must never set it.
+        if (IsAvailable
+            && !string.Equals(
+                Environment.GetEnvironmentVariable("HEXALITH_GATEWAY_ALLOW_FILTERED_RUN"),
+                "1",
+                StringComparison.Ordinal))
         {
-            throw new InvalidOperationException(
-                "The live gateway fixture completed without executing any mandatory boundary assertion.");
+            int declaredBoundaryAssertions = typeof(ConversationProjectionGatewayDispatchLiveTests)
+                .GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)
+                .Count(method => method.GetCustomAttributes(typeof(FactAttribute), inherit: false).Length > 0);
+            int executed = Volatile.Read(ref _executedBoundaryAssertions);
+
+            if (executed != declaredBoundaryAssertions)
+            {
+                throw new InvalidOperationException(
+                    $"The live gateway fixture executed {executed} of {declaredBoundaryAssertions} mandatory "
+                    + "boundary assertions. The ADR 0003 Verification 1-2 lane must run in full.");
+            }
         }
     }
 
