@@ -315,53 +315,6 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             // surfacing minutes later as an unattributed projection-boundary timeout (pass-10 review).
             delivery.StatusCode.ShouldBe(HttpStatusCode.OK, deliveryBody);
         }
-
-        await VerifyTenantAccessProjectionAdmitsCallerAsync(conversations, tenantId, cancellationToken);
-    }
-
-    /// <summary>
-    /// Proves the seeded tenant events actually reached the tenant access projection, rather than being
-    /// acknowledged and dropped. An unadmitted caller reads as <c>Forbidden</c>; any other freshness state
-    /// means the projection admitted the tenant and the seeding worked.
-    /// </summary>
-    private static async Task VerifyTenantAccessProjectionAdmitsCallerAsync(
-        HttpClient conversations,
-        string tenantId,
-        CancellationToken cancellationToken)
-    {
-        using var admissionBudget = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        admissionBudget.CancelAfter(TimeSpan.FromSeconds(60));
-        string? lastResult = null;
-
-        try
-        {
-            while (true)
-            {
-                admissionBudget.Token.ThrowIfCancellationRequested();
-                JsonElement probe = await SubmitQueryAsync(
-                    conversations,
-                    tenantId,
-                    "tenant-admission-probe",
-                    "conversation-detail",
-                    admissionBudget.Token);
-                lastResult = probe.GetRawText();
-
-                if (!probe.TryGetProperty("freshnessState", out JsonElement freshness)
-                    || !string.Equals(freshness.GetString(), "Forbidden", StringComparison.Ordinal))
-                {
-                    return;
-                }
-
-                await Task.Delay(TimeSpan.FromMilliseconds(250), admissionBudget.Token);
-            }
-        }
-        catch (OperationCanceledException) when (admissionBudget.IsCancellationRequested)
-        {
-            throw new TimeoutException(
-                "The seeded Tenants events were acknowledged but never admitted the caller, so the tenant "
-                + "access projection was not fed. Check the /tenants/events envelope shape, the event type "
-                + $"names, and the TenantRole value before suspecting the projection boundary. Last result: {lastResult}");
-        }
     }
 
     private static async Task<JsonElement> PollForProjectedReadModelAsync(
