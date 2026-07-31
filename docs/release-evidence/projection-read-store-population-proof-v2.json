@@ -1,6 +1,6 @@
 {
   "artifactVersion": "projection-read-store-population-proof-v2",
-  "capturedAtUtc": "2026-07-31T19:17:29Z",
+  "capturedAtUtc": "2026-07-31T19:32:52Z",
   "story": "6.2",
   "baselineRevision": "29def441408becfbbbdc5c59b9af14a7717cb21f",
   "result": "pass",
@@ -555,7 +555,7 @@
     "testBindings": [
       {
         "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
-        "sha256": "13638d5f07dddca0df58d4873769bbfdf59f05e8d6b34eebf3530c22c2601b79"
+        "sha256": "9926411810c2807a6e5642460ef0272f79741794134c4579e41c0044d13774c8"
       },
       {
         "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",
