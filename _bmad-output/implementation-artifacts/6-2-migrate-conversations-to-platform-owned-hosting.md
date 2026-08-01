@@ -3,9 +3,9 @@ story_key: '6-2-migrate-conversations-to-platform-owned-hosting'
 epic: 6
 story_id: '6.2'
 created: '2026-07-27'
-status: 'review'
+status: 'done'
 baseline_commit: '29def441408becfbbbdc5c59b9af14a7717cb21f'
-file_list_commit: 'f62a9d0b9e8efee3229fd3a894fbf22ce9021682'
+file_list_commit: '2971ab79efcf3ef11d4fba7b9139d7cae457a3f9'
 submodule_promotions:
   - path: 'references/Hexalith.EventStore'
     require_remote: true
@@ -46,7 +46,7 @@ context:
 
 # Story 6.2: Migrate Conversations to platform-owned hosting
 
-Status: review
+Status: done
 
 ## ⚠️ Read this first — most of this story is already implemented
 
@@ -1279,6 +1279,17 @@ are tracked in the deferred-work ledger's "Routed to Hexalith.EventStore from pa
 
 Each mutation was restored; the first two byte-identically, the third by relocating the rows.
 
+### Review Findings — pass 12, final-record drift chunk (2026-08-01, `bmad-code-review`, four layers)
+
+Scope reviewed: `git diff f62a9d0b9e8efee3229fd3a894fbf22ce9021682..fde50d3e417d17d594b2ef5a70b7435035346452`
+(one generated-record output, +11/−11). Fourteen raw findings across the four layers were re-verified
+against the generator, runbook, authority, committed history, and local pass-11 artifacts; nine were
+dismissed as accepted design, already-disclosed limitations, or work reserved for later review chunks.
+
+- [x] [Review][Patch] Require and attest a clean rebuild from the committed candidate, persisting a build manifest with full test-binary hashes — Jerome selected option (a) on 2026-08-01. Applied: every completion surface now requires `-t:Rebuild -p:SourceRevisionId=<candidate>` followed by fresh TRX runs; the generator derives each test binary from TRX `codeBase`, requires its embedded managed source revision to equal the immutable candidate, rejects results older than their binary, and persists the candidate, binary path, source revision, and full binary SHA-256. `TEST_BUILD_NOT_BOUND` is mechanically covered and documented. [_bmad/scripts/generate_story_record.py:1245]
+- [x] [Review][Patch] Render and validate complete 64-hex artifact SHA-256 values instead of labeling 16-hex prefixes as `Artifact SHA-256` — applied; new records render all 64 hexadecimal characters, while historical mode retains read-only compatibility with already-closed 16-prefix records. [_bmad/scripts/generate_story_record.py:1599,2409]
+- [x] [Review][Defer] Historical verification never reapplies candidate-finality checks, so a stale candidate can pass after later non-output changes [_bmad/scripts/generate_story_record.py:1806] — deferred, pre-existing
+
 
 ## Dev Notes
 
@@ -1770,7 +1781,7 @@ exactly what the Final Record gate forbids.
 
 Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 114 file-list path(s) · 7 gitlink promotion(s) evaluated.
 
-Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f62a9d0b9e8efee3229fd3a894fbf22ce9021682`.
+Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9`.
 
 ### File List
 
@@ -1905,19 +1916,36 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f62a9d0b9e8ef
 
 | Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `ee53950914a257c2` |
-| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `ec0a8e046e044fb4` |
-| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `53f83295b1aff188` |
-| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `7845e2caa82a8acd` |
-| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `7c0ff08b0073bfe2` |
-| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `9a17570988142f80` |
-| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `b7f851d59298579b` |
-| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `30229f723f0ffac5` |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `5980c79afddf9623e7a6aaecb1f4a2d9936bce0a9930c32cf034fb23bb7d00d1` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `561fe7ed2b7ce36815f051bb15e3f1a737eb12cdd12b1547c347b67f4777090f` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `3e96a49fcea717109d3c53aa77b9078952b5a8e9206919a642139f078c0f489d` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 431 | 431 | 431 | 0 | 0 | `fb3922e4af81d6993be0493bcbc4900c5f9161b0ccb3c84e287105fc29ae08fe` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `c5ced38681a71578ba0f8f523e372007c179a2ec5291085d98e1deab015569d7` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `8a993f37107556c59394b3e80cf834d619b90d88aae719008d9913ebbfc4f280` |
+| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `a1392b753da077ef91ddc7cee98c4c8fd9080393b662705652365dc54c0032c3` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `77144d3a23e22d1d273e104fd85dcdad60d714323b39f55384f21140af666f70` |
 | **Total (computed)** | **8 parsed** | **1984** | **1984** | **1984** | **0** | **0** | — |
+
+### Test Build Manifest
+
+Candidate `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` was clean-rebuilt; every test binary below embeds that SourceRevisionId.
+
+#### Candidate-Bound Test Binaries
+
+| Test project | Binary | Source revision | Binary SHA-256 |
+| --- | --- | --- | --- |
+| Hexalith.Conversations.Admin.Web.Tests | `tests/Hexalith.Conversations.Admin.Web.Tests/bin/Release/net10.0/Hexalith.Conversations.Admin.Web.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `44d4e0600e9c2a4f860a6f5ed85529a74a89ac759fea9038b663c31d449ed021` |
+| Hexalith.Conversations.AppHost.Tests | `tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net10.0/Hexalith.Conversations.AppHost.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `f0455f821b0e493606c3f175a2db0f661563e214a0a20dc13ef3e60af1bbeefa` |
+| Hexalith.Conversations.Client.Tests | `tests/Hexalith.Conversations.Client.Tests/bin/Release/net10.0/Hexalith.Conversations.Client.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `c02dc198770f4ce53a9e39088e1012f7c64bd5010c24ad3bbc382827f87b1937` |
+| Hexalith.Conversations.Conformance.Tests | `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `4646f43b9a0cda86826e4a759afd303ec6cb61a45d7319377ae67bcc38406972` |
+| Hexalith.Conversations.Contracts.Tests | `tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `20bbac23cb9f0f1d67ae31affcfb14e18c5e1eadc41d43cf87b822d7bef85669` |
+| Hexalith.Conversations.IntegrationTests | `tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `6d44a5eb9abd6279a9d3ae66332a004b6724089b97998fd6cd1b61f1e1354a18` |
+| Hexalith.Conversations.Server.Tests | `tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `7c718b7ab149f1699eb514b5bb38446b68b4d03f98ac27c10905b01265f0d315` |
+| Hexalith.Conversations.Tests | `tests/Hexalith.Conversations.Tests/bin/Release/net10.0/Hexalith.Conversations.Tests.dll` | `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` | `f11ab170b2998c80b2bece75918f1d2b9a153937175d2990968a6f836beee98f` |
 
 ### Candidate Binding
 
-- Candidate `f62a9d0b9e8efee3229fd3a894fbf22ce9021682` · committed head `f62a9d0b9e8efee3229fd3a894fbf22ce9021682` · ancestor of head: **yes**
+- Candidate `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` · committed head `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` · ancestor of head: **yes**
 - Gitlinks moved after the candidate: none
 - Paths changed after the candidate: none
 
@@ -1935,6 +1963,7 @@ Baseline `29def441408becfbbbdc5c59b9af14a7717cb21f` → candidate `f62a9d0b9e8ef
 
 | Date | Change |
 | --- | --- |
+| 2026-08-01 | Code review pass 12: applied both final-record integrity patches, committed the authorized review path set, clean-rebuilt the immutable candidate, reran every root-owned test lane, passed both completion gates, inserted and digest-verified the mechanically generated candidate-bound record, and moved the story to `done`. One pre-existing historical-mode limitation remains routed through the deferred-work ledger. |
 | 2026-07-31 | Code review pass 11 (this pass): closed the last six open pass-2 patches — the detail Rebuilding and Unavailable store branches, the bulk-store requirement, the `Program.cs`-to-composition binding, the git helper's unreachable ancestry message and unbounded post-exit drain, the Debug-only AppHost gateway edge with its silently-permissive condition evaluator, and the AppHost.Tests reference fallback pair. Applied the eight open pass-8 record patches, including re-rendering the `bmad-quick-dev` snapshots (which removed the range-form whitespace defect). Two decisions remain open for the release owner: AC1's LIST/OPEN regressions and the in-place v4 authority overlay rewrite. Status stays `in-progress`. |
 | 2026-07-31 | Code review pass 10 patch-output chunk: 25 of 33 patches applied here, 1 routed to `Hexalith.EventStore` and landed as `e6459019` (which closed AC3 — the generic DAPR subscription plumbing is now platform-owned and `Program.cs` is back to the canonical two-line host), 7 sequenced after the review commit as evidence regeneration. Five release-owner decisions resolved. SM-C2 was re-measured as a genuine pair and `rowsPassing` moved 2 → 1; AC1 stays open on LIST and OPEN. |
 | 2026-07-31 | Code review pass 9 submodule-promotion chunk: 5 of 22 patches applied here, 16 routed to `Hexalith.EventStore`, 1 withdrawn after verification. Three release-owner decisions resolved: the declared promotions were re-anchored onto their checked-out commits, the Builds catalog pins aligned without a sibling-repo commit, and the Builds promotion's non-6.2 governance changes disclosed as accepted scope. |
