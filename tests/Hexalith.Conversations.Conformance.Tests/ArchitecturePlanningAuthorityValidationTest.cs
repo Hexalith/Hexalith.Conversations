@@ -25,18 +25,19 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </remarks>
 public sealed class ArchitecturePlanningAuthorityValidationTest
 {
-    private const string ArchitectureVersion = "conversations-architecture-2026-07-31-v6";
+    private const string ArchitectureVersion = "conversations-architecture-2026-08-01-v7";
     private const string BaselineRevision = "f31aa5ada2e37e1ec5f3e4b8e907525b37da863f";
 
     /// <summary>
-    /// The active authority. Amendments are append-only, so four versions coexist in the epic plan: the
-    /// v2 overlay block, the v3 amendment appended to it, the v4 amendment appended to that, the v5
-    /// amendment appended after v4, and the v6 amendment appended after v5. Asserting each block against its
+    /// The active authority. Amendments are append-only, so the v2 overlay and v3-v7 amendment blocks
+    /// coexist in the epic plan. Asserting each block against its
     /// own declared version is what stops a later amendment from being written as a silent rewrite of an
     /// earlier one - which is exactly what happened to v4 on 2026-07-29 and is why v6 republishes rather
     /// than edits.
     /// </summary>
-    private const string OverlayVersion = "epic-6-authority-2026-07-31-v6";
+    private const string OverlayVersion = "epic-6-authority-2026-08-01-v7";
+    private const string V6OverlayVersion = "epic-6-authority-2026-07-31-v6";
+    private const string V6ArchitectureVersion = "conversations-architecture-2026-07-31-v6";
     private const string V5OverlayVersion = "epic-6-authority-2026-07-28-v5";
     private const string V5ArchitectureVersion = "conversations-architecture-2026-07-28-v5";
     private const string V4OverlayVersion = "epic-6-authority-2026-07-28-v4";
@@ -200,6 +201,7 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         frontmatter.ShouldContain("sprint-change-proposal-2026-07-15-submodule-promotion-completion-gate.md");
         frontmatter.ShouldContain("sprint-change-proposal-2026-07-27.md");
         frontmatter.ShouldContain("sprint-change-proposal-2026-07-28.md");
+        frontmatter.ShouldContain("sprint-change-proposal-2026-08-01.md");
 
         // Provenance must be complete: an entire binding architecture section derives from the projection
         // read-store proposal and ADR 0003, so omitting them from correctionAuthority understates authority.
@@ -411,11 +413,21 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         // unconditional +-5% rule while the epic plan describes the amended one is the drift this asserts
         // against.
         string smC2Threshold = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(architecture, "### 2026-07-31 SM-C2 Threshold And Record-Contract Amendment"));
-        smC2Threshold.ShouldContain($"Architecture version `{ArchitectureVersion}` supersedes v5");
+        smC2Threshold.ShouldContain($"Architecture version `{V6ArchitectureVersion}` supersedes v5");
         smC2Threshold.ShouldContain("approved-cost ceiling");
         smC2Threshold.ShouldContain("a further regression still goes red");
         smC2Threshold.ShouldContain("authorizes no repair-on-read");
         smC2Threshold.ShouldContain("source-tree dirt blocked outside record outputs");
+
+        string projectionProofLifecycle = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(architecture, "### 2026-08-01 Projection-Proof Evidence-Lifecycle Amendment"));
+        projectionProofLifecycle.ShouldContain($"Architecture version `{ArchitectureVersion}` supersedes v6");
+        projectionProofLifecycle.ShouldContain("immutable point-in-time evidence");
+        projectionProofLifecycle.ShouldContain("resolves root-owned blobs from that candidate");
+        projectionProofLifecycle.ShouldContain("does not substitute the current `HEAD`");
+        projectionProofLifecycle.ShouldContain("exactly one approved current head");
+        projectionProofLifecycle.ShouldContain("PROJECTION_PROOF_SUPERSESSION_REQUIRED");
+        projectionProofLifecycle.ShouldContain("Story 6.2 remains `done`");
+        projectionProofLifecycle.ShouldContain("Successor artifacts and validator changes remain Story 6.12 implementation work");
 
         // Polarity guards: the amendment must not be rewritten into permission for the two failure modes.
         oracleTiering.ShouldNotContain("may be widened");
@@ -538,8 +550,10 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         string v4AmendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:END version={V4OverlayVersion} -->";
         string v5AmendmentBegin = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:BEGIN version={V5OverlayVersion} supersedes={V4OverlayVersion} -->";
         string v5AmendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:END version={V5OverlayVersion} -->";
-        string activeAmendmentBegin = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN version={OverlayVersion} supersedes={V5OverlayVersion} -->";
-        string activeAmendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END version={OverlayVersion} -->";
+        string v6AmendmentBegin = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN version={V6OverlayVersion} supersedes={V5OverlayVersion} -->";
+        string v6AmendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END version={V6OverlayVersion} -->";
+        string activeAmendmentBegin = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN version={OverlayVersion} supersedes={V6OverlayVersion} -->";
+        string activeAmendmentEnd = $"<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:END version={OverlayVersion} -->";
         appended.ShouldStartWith(
             $"\n<!-- EPIC-6-AUTHORITY-OVERLAY:BEGIN version={BaseOverlayVersion} prefix-bytes={HistoricalEpicPrefixLength} prefix-sha256={HistoricalEpicPrefixSha256}",
             Case.Sensitive,
@@ -564,8 +578,13 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         int v5AmendmentEndIndex = v5Amendment.IndexOf(v5AmendmentEnd, StringComparison.Ordinal);
         v5AmendmentEndIndex.ShouldBeGreaterThan(0, "The v5 amendment must remain present and closed before the v6 amendment.");
-        string activeAmendment = v5Amendment[(v5AmendmentEndIndex + v5AmendmentEnd.Length)..].TrimStart('\r', '\n');
-        activeAmendment.ShouldStartWith(activeAmendmentBegin, Case.Sensitive, "The v6 amendment must be appended immediately after the v5 amendment closes.");
+        string v6Amendment = v5Amendment[(v5AmendmentEndIndex + v5AmendmentEnd.Length)..].TrimStart('\r', '\n');
+        v6Amendment.ShouldStartWith(v6AmendmentBegin, Case.Sensitive, "The v6 amendment must be appended immediately after the v5 amendment closes.");
+
+        int v6AmendmentEndIndex = v6Amendment.IndexOf(v6AmendmentEnd, StringComparison.Ordinal);
+        v6AmendmentEndIndex.ShouldBeGreaterThan(0, "The v6 amendment must remain present and closed before the v7 amendment.");
+        string activeAmendment = v6Amendment[(v6AmendmentEndIndex + v6AmendmentEnd.Length)..].TrimStart('\r', '\n');
+        activeAmendment.ShouldStartWith(activeAmendmentBegin, Case.Sensitive, "The v7 amendment must be appended immediately after the v6 amendment closes.");
         activeAmendment.TrimEnd().ShouldEndWith(activeAmendmentEnd);
 
         string epics = Encoding.UTF8.GetString(epicBytes);
@@ -579,6 +598,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:END").ShouldBe(1, "Exactly one v5 authority amendment may exist.");
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN").ShouldBe(1, "Exactly one v6 authority amendment may exist.");
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END").ShouldBe(1, "Exactly one v6 authority amendment may exist.");
+        CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN").ShouldBe(1, "Exactly one v7 authority amendment may exist.");
+        CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:END").ShouldBe(1, "Exactly one v7 authority amendment may exist.");
 
         AssertSingleOccurrence(epics, "### Exact Historical Story Dispositions");
         string dispositionSection = ExtractSection(epics, "### Exact Historical Story Dispositions", "### Corrective Initiative-FR Coverage");
@@ -664,13 +685,32 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         // The v6 amendment carries its own narrow disposition table naming only the stories it touches, so
         // an amendment that quietly re-dispositioned an untouched story would have to say so.
-        string v6Dispositions = ExtractSection(activeAmendment, "### Story Dispositions Amended By This Overlay", "### Binding Dependency Order");
+        string v6Dispositions = ExtractSection(v6Amendment, "### Story Dispositions Amended By This Overlay", "### Binding Dependency Order");
         string[] v6Rows = MarkdownDataRows(v6Dispositions, "6.");
         v6Rows.Select(GetFirstTableCell).ShouldBe(["6.2", "6.6", "6.8", "6.11"]);
         v6Rows.ShouldAllBe(row => TableCells(row).Length == 2);
         AssertPopulatedCells(v6Rows, skip: 1);
         AssertCell(v6Rows, "6.2", 1, "AC1's pass rule is amended");
         AssertCell(v6Rows, "6.11", 1, "New.");
+
+        string v7Dispositions = ExtractSection(activeAmendment, "### Story Dispositions Amended By This Overlay", "### Binding Dependency Order");
+        string[] v7Rows = MarkdownDataRows(v7Dispositions, "6.");
+        v7Rows.Select(GetFirstTableCell).ShouldBe(["6.2", "6.3", "6.6", "6.12"]);
+        v7Rows.ShouldAllBe(row => TableCells(row).Length == 2);
+        AssertPopulatedCells(v7Rows, skip: 1);
+        AssertCell(v7Rows, "6.2", 1, "No status, acceptance, record, or evidence change");
+        AssertCell(v7Rows, "6.12", 1, "New.");
+
+        AssertSingleOccurrence(epics, "### Story 6.12:");
+        string proofLifecycleStory = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(activeAmendment, "### Story 6.12:"));
+        proofLifecycleStory.ShouldContain("Story 6.2 remains `done`");
+        proofLifecycleStory.ShouldContain("reads root-owned blobs from umbrella candidate");
+        proofLifecycleStory.ShouldContain("does not prohibit later unrelated root gitlink");
+        proofLifecycleStory.ShouldContain("ADR 0004");
+        proofLifecycleStory.ShouldContain("projection-read-store-population-proof-v3");
+        proofLifecycleStory.ShouldContain("PROJECTION_PROOF_SUPERSESSION_REQUIRED");
+        proofLifecycleStory.ShouldContain("does not modify production source");
+        proofLifecycleStory.ShouldContain("does not weaken or delete a projection assertion");
     }
 
     [Fact]
@@ -738,7 +778,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         string amendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT:END");
         string v4Amendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V4:END");
         string v5Amendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V5:END");
-        string activeAmendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END");
+        string v6Amendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END");
+        string activeAmendment = ExtractBetween(epics, "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN", "EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:END");
 
         // The overlay is the artifact a story's dev agent reads. Asserting the order only in architecture
         // lets the epic plan authorize the sequence AC4 forbids.
@@ -746,11 +787,13 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         AssertSingleOccurrence(amendment, "### Binding Dependency Order");
         AssertSingleOccurrence(v4Amendment, "### Binding Dependency Order");
         AssertSingleOccurrence(v5Amendment, "### Binding Dependency Order");
+        AssertSingleOccurrence(v6Amendment, "### Binding Dependency Order");
         AssertSingleOccurrence(activeAmendment, "### Binding Dependency Order");
         string previousOrder = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(previousOverlay, "### Binding Dependency Order"));
         string order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(amendment, "### Binding Dependency Order"));
         string v4Order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(v4Amendment, "### Binding Dependency Order"));
         string v5Order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(v5Amendment, "### Binding Dependency Order"));
+        string v6Order = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(v6Amendment, "### Binding Dependency Order"));
         string activeOrder = NormalizeWhitespace(ExtractSectionUntilNextHeadingOfSameLevel(activeAmendment, "### Binding Dependency Order"));
 
         previousOrder.ShouldContain("6.1 -> 6.7 -> 6.2");
@@ -778,20 +821,28 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         // The v5 order preserves the v4 spine and adds 6.9 as a parallel constraint rather than a new link
         // in it. Asserting the spine verbatim inside the v5 block is what stops a later amendment from
         // quietly re-sequencing 6.7, 6.2, or 6.8 while appearing only to add a story.
-        activeOrder.ShouldContain("6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6");
-        activeOrder.ShouldContain("6.9 -> 6.3");
-        activeOrder.ShouldContain("6.9 -> 6.6");
-        activeOrder.ShouldContain("Story 6.6 remains last");
+        v6Order.ShouldContain("6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6");
+        v6Order.ShouldContain("6.9 -> 6.3");
+        v6Order.ShouldContain("6.9 -> 6.6");
+        v6Order.ShouldContain("Story 6.6 remains last");
 
-        activeOrder.ShouldNotContain("6.1 -> 6.2 -> 6.7");
-        activeOrder.ShouldNotContain("Story 6.9 is optional");
-        activeOrder.ShouldNotContain("6.9 may complete after 6.6");
+        v6Order.ShouldNotContain("6.1 -> 6.2 -> 6.7");
+        v6Order.ShouldNotContain("Story 6.9 is optional");
+        v6Order.ShouldNotContain("6.9 may complete after 6.6");
+
+        activeOrder.ShouldContain("6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6");
+        activeOrder.ShouldContain("6.8 -> 6.12 -> 6.3 completion");
+        activeOrder.ShouldContain("6.12 -> 6.6");
+        activeOrder.ShouldContain("Story 6.6 remains last");
+        activeOrder.ShouldNotContain("Story 6.12 is optional");
+        activeOrder.ShouldNotContain("6.12 may complete after 6.6");
 
         // The overlay must record its own amendment history so a post-freeze change cannot be invisible.
         string previousOverlayFlat = NormalizeWhitespace(previousOverlay);
         string amendmentFlat = NormalizeWhitespace(amendment);
         string v4AmendmentFlat = NormalizeWhitespace(v4Amendment);
         string v5AmendmentFlat = NormalizeWhitespace(v5Amendment);
+        string v6AmendmentFlat = NormalizeWhitespace(v6Amendment);
         string activeAmendmentFlat = NormalizeWhitespace(activeAmendment);
         previousOverlayFlat.ShouldContain($"**Overlay version:** `{BaseOverlayVersion}`");
         previousOverlayFlat.ShouldContain("Overlay amendment log");
@@ -805,9 +856,12 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         v5AmendmentFlat.ShouldContain($"**Overlay version:** `{V5OverlayVersion}`");
         v5AmendmentFlat.ShouldContain($"**Architecture authority:** `{V5ArchitectureVersion}`");
         v5AmendmentFlat.ShouldContain($"**Supersedes:** `{V4OverlayVersion}`");
+        v6AmendmentFlat.ShouldContain($"**Overlay version:** `{V6OverlayVersion}`");
+        v6AmendmentFlat.ShouldContain($"**Architecture authority:** `{V6ArchitectureVersion}`");
+        v6AmendmentFlat.ShouldContain($"**Supersedes:** `{V5OverlayVersion}`");
         activeAmendmentFlat.ShouldContain($"**Overlay version:** `{OverlayVersion}`");
         activeAmendmentFlat.ShouldContain($"**Architecture authority:** `{ArchitectureVersion}`");
-        activeAmendmentFlat.ShouldContain($"**Supersedes:** `{V5OverlayVersion}`");
+        activeAmendmentFlat.ShouldContain($"**Supersedes:** `{V6OverlayVersion}`");
 
         // The v4 amendment supersedes ownership language nowhere. If it ever starts doing so, the test
         // AppHost decision would be silently reopened by a record-keeping amendment.
@@ -824,18 +878,27 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         // implication. It must not reopen hosting ownership, and it must not weaken the projection
         // correctness requirement whose cost is the entire reason the threshold moved: an amendment that
         // bought speed by allowing repair-on-read would satisfy the gate and defeat AC6.
+        v6AmendmentFlat.ShouldNotContain("production composition root");
+        v6AmendmentFlat.ShouldNotContain("reusable runtime capability is module-owned");
+        v6AmendmentFlat.ShouldContain("does **not** relax AC6");
+        v6AmendmentFlat.ShouldContain("does not authorize repairing cross-key inconsistency on read");
+        v6AmendmentFlat.ShouldContain("approved-cost ceiling");
+        v6AmendmentFlat.ShouldContain("may not be cited as evidence of no regression");
+        v6AmendmentFlat.ShouldContain("frozen FR-20 denominator is unchanged");
+
         activeAmendmentFlat.ShouldNotContain("production composition root");
         activeAmendmentFlat.ShouldNotContain("reusable runtime capability is module-owned");
-        activeAmendmentFlat.ShouldContain("does **not** relax AC6");
-        activeAmendmentFlat.ShouldContain("does not authorize repairing cross-key inconsistency on read");
-        activeAmendmentFlat.ShouldContain("approved-cost ceiling");
-        activeAmendmentFlat.ShouldContain("may not be cited as evidence of no regression");
+        activeAmendmentFlat.ShouldContain("immutable point-in-time evidence");
+        activeAmendmentFlat.ShouldContain("never substitutes current `HEAD`");
+        activeAmendmentFlat.ShouldContain("Exactly one approved successor-chain head");
+        activeAmendmentFlat.ShouldContain("PROJECTION_PROOF_SUPERSESSION_REQUIRED");
+        activeAmendmentFlat.ShouldContain("No completed Story 6.2 record or v2 evidence byte is rewritten");
         activeAmendmentFlat.ShouldContain("frozen FR-20 denominator is unchanged");
 
         // The log continuation exists because the v2 table it points at sits inside the immutable byte
         // range. Without this, v6 could silently stop recording amendments the way v3, v4, and v5 did.
         activeAmendmentFlat.ShouldContain("Overlay Amendment Log");
-        foreach (string recorded in new[] { PreviousOverlayVersion, V4OverlayVersion, V5OverlayVersion, OverlayVersion })
+        foreach (string recorded in new[] { PreviousOverlayVersion, V4OverlayVersion, V5OverlayVersion, V6OverlayVersion, OverlayVersion })
         {
             activeAmendmentFlat.ShouldContain(
                 $"`{recorded}`",
@@ -862,6 +925,9 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
             context.ShouldContain($"### 6.{story} ");
         }
 
+        epics.ShouldContain("### Story 6.12:");
+        context.ShouldContain("### 6.12 ");
+
         string flatContext = NormalizeWhitespace(context);
 
         foreach (string semantic in new[]
@@ -877,6 +943,11 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
             "6.6 is last",
             "6.2 precedes 6.5",
             "6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6",
+            "6.8 precedes 6.12",
+            "6.12 precedes the completion of 6.3 and 6.6",
+            "PROJECTION_PROOF_SUPERSESSION_REQUIRED",
+            "Completed projection proof is validated at its declared candidate and dependency identities",
+            "exactly one approved predecessor-linked chain head",
 
             // The invariant, not just the story title: a context that names Story 6.8 while leaving the
             // record rules out gives the dev agent a story with no binding rule to implement.
@@ -914,7 +985,14 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         // Obligations the v2 overlay added must be carried forward through v3, or the dev agent reading the context
         // never sees them.
-        foreach (string obligation in new[] { "ADR 0003", "IAsyncDomainProjectionHandler", "projection-read-store-population-proof-v2" })
+        foreach (string obligation in new[]
+        {
+            "ADR 0003",
+            "ADR 0004",
+            "IAsyncDomainProjectionHandler",
+            "projection-read-store-population-proof-v2",
+            "projection-read-store-population-proof-v3",
+        })
         {
             flatContext.ShouldContain(obligation, Case.Sensitive, $"The derived context must carry the overlay obligation '{obligation}'.");
         }

@@ -1364,3 +1364,157 @@ which is the outcome this amendment exists to avoid.
 The frozen FR-20 denominator is unchanged.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:END version=epic-6-authority-2026-07-31-v6 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN version=epic-6-authority-2026-08-01-v7 supersedes=epic-6-authority-2026-07-31-v6 -->
+
+## Appendix: 2026-08-01 Projection-Proof Evidence-Lifecycle Authority Amendment
+
+**Overlay version:** `epic-6-authority-2026-08-01-v7`
+**Architecture authority:** `conversations-architecture-2026-08-01-v7`
+**Supersedes:** `epic-6-authority-2026-07-31-v6` only by separating immutable
+candidate-bound projection proof from current release assurance, adding Story
+6.12, amending the acceptance of Stories 6.3 and 6.6, and adding one dependency
+constraint
+**Status:** active corrective amendment approved by Jerome on 2026-08-01; the
+v1-v6 overlays, completed history, Story 6.2 evidence, and signed evidence
+remain immutable historical records.
+
+### Overlay Amendment Log — Continuation
+
+The continuation remains outside every earlier immutable block. Later
+amendments append a new continuation and never edit this table in place.
+
+| Overlay version | Date | Amendment | Authority |
+| --- | --- | --- | --- |
+| `epic-6-authority-2026-07-27-v3` | 2026-07-27 | Corrected Story 6.2's AppHost acceptance: the module test-AppHost is retained as a non-shipping harness rather than removed. | `sprint-change-proposal-2026-07-27.md` |
+| `epic-6-authority-2026-07-28-v4` | 2026-07-28 | Made the final story record a mechanical derivation from measured state, added Story 6.8, and bound the four completion surfaces to it. | `sprint-change-proposal-2026-07-28.md` |
+| `epic-6-authority-2026-07-28-v5` | 2026-07-28 | Tiered the conformance oracle, added Story 6.9, and amended the acceptance of Stories 6.3 and 6.6 and the binding dependency order. | `sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` |
+| `epic-6-authority-2026-07-31-v6` | 2026-07-31 | Amended Story 6.2's AC1 SM-C2 pass rule, republished the record contract, corrected Story 6.2's completion-process disposition, and added Story 6.11. | `sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md` |
+| `epic-6-authority-2026-08-01-v7` | 2026-08-01 | Separated immutable candidate-bound projection proof from current readiness, added Story 6.12, and amended Stories 6.3 and 6.6. | `sprint-change-proposal-2026-08-01.md` |
+
+### Projection-Proof Evidence Lifecycle
+
+Story 6.2's `projection-read-store-population-proof-v2` is immutable
+point-in-time evidence for umbrella candidate
+`856ee997cd35eb1d432fcb288a75a7b5bf3c5b58` and EventStore gitlink
+`e645901928eed9759e28e1086f23dc96875c3ac3`. Its recorded platform binding for
+`EventStoreDomainServiceExtensions.cs` is SHA-256
+`a297324ab709ce3fbc744a47640c326ebca13001ed4d479132f74154b0f334b1`,
+which is the blob at that recorded gitlink. Historical validation resolves
+root-owned blobs from the recorded umbrella candidate and platform-owned blobs
+from its recorded submodule commits. It never substitutes current `HEAD` or a
+current submodule worktree.
+
+The rule is deliberately two-part:
+
+1. **Historical truth.** Every completed proof remains byte-identical and is
+   validated at the candidate and dependency identities it declares. Later
+   approved work does not retroactively falsify that proof.
+2. **Current assurance.** Exactly one approved successor-chain head represents
+   the current release candidate. Each successor links its predecessor by full
+   artifact hashes, names the changed dependency identities and approving
+   owner/rationale, and carries fresh machine-readable production-boundary
+   evidence. In-scope drift without a successor fails with stable code
+   `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; unrelated root gitlink movement
+   cannot invalidate historical proof.
+
+No completed Story 6.2 record or v2 evidence byte is rewritten. A backlog entry
+or this amendment alone is not current projection proof; Story 6.12 must execute
+the boundary lanes and publish the additive successor before Stories 6.3 or 6.6
+may complete.
+
+### Story 6.12: Version projection proofs without rewriting completed history
+
+As a release owner,
+I want completed projection proofs validated at their recorded candidate and
+current readiness represented by an explicit successor chain,
+so that later approved platform work neither falsifies history nor inherits
+stale assurance.
+
+**Acceptance criteria.**
+
+1. Story 6.2 remains `done` and its story record, v2 JSON/Markdown, three bound
+   xUnit results, generated final record, and immutable signed-v1 dependencies
+   remain byte-identical. The v2 validator reads root-owned blobs from umbrella
+   candidate `856ee997cd35eb1d432fcb288a75a7b5bf3c5b58` and platform-owned
+   blobs from the root gitlinks recorded in that candidate; it proves every
+   recorded hash, mode, gate result, and run binding at that time basis.
+2. Historical validation no longer compares v2's recorded commit or hashes to
+   the current worktree, and it does not prohibit later unrelated root gitlink
+   or production-source movement. It remains strict against mutation or
+   unresolvable recorded Git objects.
+3. ADR 0004 defines an immutable predecessor-linked projection-proof lifecycle:
+   full predecessor artifact hashes, exactly one approved current head, exact
+   changed dependency identities, named owner and rationale, and no in-place
+   evidence mutation.
+4. `projection-read-store-population-proof-v3` is generated against the current
+   candidate. It reruns deterministic dispatch, gateway/DAPR boundary,
+   configured state-store end-state, production queries, derived-state
+   deletion, and full-replay evidence; binds current in-scope source/test blobs
+   and the EventStore gitlink; and links to the unchanged v2 hashes.
+5. The current-readiness guard follows the approved chain head and compares
+   only declared projection-proof dependencies. In-scope drift without a
+   successor fails with `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; unrelated
+   root gitlink movement does not invalidate historical proof.
+6. Fault injection rejects a changed v2 byte, wrong historical
+   candidate/gitlink/blob, broken predecessor hash, duplicate or forked chain
+   head, stale v3 binding, missing/red/skipped/vacuous run, and undeclared
+   in-scope drift, with byte-identical restoration after every mutation.
+7. Story 6.3 binds v2 as historical evidence and v3 as the current chain head.
+   Story 6.6 consumes both, reruns v3's functional gates, and cannot cite v2
+   alone for current readiness.
+8. The focused projection-proof class, Story 6.3 manifest validation class, and
+   full Conformance project pass with zero failed, skipped, or not-run tests;
+   Story 6.12's completion record is generated through Story 6.8.
+
+**Prohibitions.** Story 6.12 does not modify production source, public
+contracts, package versions, accepted baselines, Story 6.2's record or v2 proof
+artifacts, signed-v1 evidence, or submodule content. It does not make a backlog
+disposition stand in for executed current proof and does not weaken or delete a
+projection assertion to make the suite green.
+
+### Story 6.3 Amended Acceptance
+
+In addition to its v2, v5, and v6 acceptance, the preservation traceability
+manifest distinguishes immutable candidate-bound projection history from
+current release assurance. It binds the complete predecessor chain, identifies
+exactly one approved current proof head, records v2 as historical and v3 as
+current, and fails if historical evidence is represented as proof for a later
+candidate. Story 6.3 remains `in-progress` until Story 6.12 and this gate pass.
+
+### Story 6.6 Amended Evidence
+
+In addition to all prior obligations, the superseding attestation validates the
+unchanged v2 predecessor at its recorded candidate, consumes the latest approved
+projection-proof chain head, reruns that head's functional evidence, and reports
+the head identity. It cannot cite v2 alone for current readiness and cannot
+rewrite any predecessor to align it with the release candidate.
+
+### Story Dispositions Amended By This Overlay
+
+| Story | v7 disposition |
+| --- | --- |
+| 6.2 | No status, acceptance, record, or evidence change. Its v2 proof is immutable candidate-bound history. |
+| 6.3 | Completion now requires Story 6.12 and exactly one approved current projection-proof chain head. |
+| 6.6 | Validates the immutable predecessor chain and reruns the latest approved head; v2 alone is insufficient for current readiness. |
+| 6.12 | New. Owns proof-lifecycle ADR 0004, candidate-aware historical validation, and the additive v3 successor proof. |
+
+Every other story disposition, preservation denominator, ownership decision,
+projection-correctness rule, and SM-C2 rule is unchanged. This amendment
+introduces one new story identifier and one sprint-status entry.
+
+### Binding Dependency Order
+
+The v6 spine is preserved:
+`6.1 authority correction -> 6.7 -> 6.2 -> 6.8 -> 6.5 -> 6.6`, with
+`6.9 -> 6.3` and `6.9 -> 6.6` as existing parallel constraints.
+
+This amendment adds `6.8 -> 6.12 -> 6.3 completion` and `6.12 -> 6.6`.
+Story 6.3 implementation may remain in progress while Story 6.12 executes, but
+it cannot return to review or done before the successor proof and manifest
+bindings pass. Story 6.6 remains last. Stories 6.4, 6.5, 6.9, 6.10, and 6.11
+retain their approved scope and ordering.
+
+The frozen FR-20 denominator is unchanged.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:END version=epic-6-authority-2026-08-01-v7 -->

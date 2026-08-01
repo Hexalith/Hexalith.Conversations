@@ -1,19 +1,19 @@
 ---
 epic: 6
-generated: '2026-07-31'
-overlay_version: 'epic-6-authority-2026-07-31-v6'
-architecture_version: 'conversations-architecture-2026-07-31-v6'
-supersedes_overlay_version: 'epic-6-authority-2026-07-28-v5'
+generated: '2026-08-01'
+overlay_version: 'epic-6-authority-2026-08-01-v7'
+architecture_version: 'conversations-architecture-2026-08-01-v7'
+supersedes_overlay_version: 'epic-6-authority-2026-07-31-v6'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
-source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V6:BEGIN'
+source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN'
 status: 'active-corrective-context'
 ---
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3, v4, v5, and v6 amendments. It shares version `epic-6-authority-2026-07-31-v6` with the active amendment and aligns with `conversations-architecture-2026-07-31-v6`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
+This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3-v7 amendments. It shares version `epic-6-authority-2026-08-01-v7` with the active amendment and aligns with `conversations-architecture-2026-08-01-v7`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
 
-Regenerated 2026-07-31 after the approved SM-C2 threshold and record-contract amendment. V6 supersedes v5 only by amending Story 6.2's AC1 SM-C2 pass rule, republishing four record-contract improvements that had been edited into v4 out of process, correcting Story 6.2's completion-process disposition, and adding Story 6.11; V5 superseded v4 only by tiering the conformance oracle and adding Story 6.9; V4 superseded v3 only by adding Story 6.8 and amending the binding order; V3 superseded v2 only for the treatment of `Hexalith.Conversations.AppHost`. Every preservation, projection-population, promotion, signed-evidence, and readiness obligation remains binding, and the performance obligation remains binding under the amended pass rule.
+Regenerated 2026-08-01 after the approved projection-proof evidence-lifecycle amendment. V7 supersedes v6 only by separating immutable candidate-bound projection proof from current release assurance, adding Story 6.12, amending Stories 6.3 and 6.6, and adding one dependency constraint; V6 amended Story 6.2's AC1 SM-C2 rule and added Story 6.11; V5 tiered the conformance oracle and added Story 6.9; V4 added Story 6.8; V3 changed only the test AppHost treatment. Every preservation, projection-population, promotion, signed-evidence, performance, and readiness obligation remains binding.
 
 The frontmatter and this paragraph disagreed between 2026-07-28 and 2026-07-31: the frontmatter had been bumped to v5 while the body still described v4, and `source_overlay_begin` named an unversioned marker present in no amendment block. Both are corrected here, which is what the overlay's amendment-log rule exists to make checkable.
 
@@ -71,6 +71,14 @@ OQ-1 through OQ-5 are resolved in architecture. Governance/temporal/hydration be
 - A durable completed projection outcome requires **both** the per-conversation summary/detail record and the tenant index write to complete. Partial-write uncertainty is non-completion and must converge through idempotent retry.
 - Story 6.2 produces `projection-read-store-population-proof-v2` from an accepted append or authorized replay crossing the production named-dispatch boundary, the actual integration state-store end state, and the production query result. Direct writer invocation, DI resolution, mock call counts, and HTTP acceptance are supporting evidence only.
 
+## Projection-Proof Evidence Lifecycle
+
+- Story 6.2's `projection-read-store-population-proof-v2` is immutable point-in-time evidence for umbrella candidate `856ee997cd35eb1d432fcb288a75a7b5bf3c5b58` and EventStore gitlink `e645901928eed9759e28e1086f23dc96875c3ac3`.
+- Historical validation reads root blobs from the recorded umbrella candidate and platform blobs from that candidate's recorded submodule commits. It never substitutes current `HEAD` or current submodule worktrees.
+- Story 6.12 authors ADR 0004 and produces additive `projection-read-store-population-proof-v3` with full predecessor hashes and exactly one approved current chain head.
+- In-scope projection dependency drift without a successor fails with `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; unrelated root gitlink movement does not invalidate historical proof.
+- Story 6.3 records v2 as historical and v3 as current. Story 6.6 validates the chain and reruns the current head; v2 alone cannot prove a later release candidate.
+
 ## SM-C2 Contract
 
 Frozen inventory version: `sm-c2-hot-path-inventory-v1`.
@@ -107,6 +115,7 @@ Every baseline row has exactly one post disposition, measured with identical wor
 
 - Cover all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, all UX acceptance criteria, public contracts, and current controls with zero gaps.
 - Require evidence or named-owner non-activation plus rationale; bind hashes, versioned mutation governance, and module/platform control ownership.
+- Distinguish candidate-bound projection history from current release assurance, bind the complete predecessor chain, and identify exactly one approved current proof head. Story 6.3 remains `in-progress` until Story 6.12 passes.
 
 ### 6.4 Repair UX provenance and preservation governance
 
@@ -123,7 +132,7 @@ Every baseline row has exactly one post disposition, measured with identical wor
 
 - Run the complete manifest, public-contract, SM-C2, SM-1/SM-2/SM-3, test-AppHost boundary, and platform-composition gates.
 - Issue versioned v2 evidence, a separate supersession record, and a new release-owner decision without mutating v1.
-- Consume and hash-validate accepted ADR 0003 and the Story 6.2 `projection-read-store-population-proof-v2` artifacts, and rerun their focused conformance and rebuild gates. Do not inherit the signed v1 projection-population deferral as proof or as a waiver for current readiness.
+- Consume and hash-validate accepted ADR 0003 and the immutable Story 6.2 `projection-read-store-population-proof-v2` predecessor at its recorded candidate; consume and rerun the latest approved projection-proof chain head. Do not cite v2 alone or inherit the signed v1 projection-population deferral as proof or waiver for current readiness.
 - Run last and require readiness `READY` before release closure.
 
 ### 6.7 Mechanically block incomplete submodule promotions from completion
@@ -154,6 +163,14 @@ Every baseline row has exactly one post disposition, measured with identical wor
 - Declare both tiers to the Story 6.8 generator and the solution file so neither is silently unrun.
 - A single portable project with the reference removed is a valid successful outcome if the triage proves the assertions re-express at unchanged strength. The commitment is to tier the oracle, not to produce two projects.
 
+### 6.12 Version projection proofs without rewriting completed history
+
+- Preserve Story 6.2 and its v2 proof artifacts byte-for-byte and validate their bindings at the recorded candidate/gitlinks.
+- Replace perpetual-current-checkout assumptions with candidate-aware historical validation; remain strict against mutated or unresolvable recorded objects.
+- Author ADR 0004 and generate `projection-read-store-population-proof-v3` with full predecessor hashes, one approved current head, exact changed dependency identities, named owner/rationale, and fresh deterministic/gateway/state-store/query/deletion/replay evidence.
+- Fail undeclared in-scope drift with `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; ignore unrelated root gitlink movement for historical validity.
+- Fault-inject mutation, wrong identity, broken/forked chain, stale binding, and missing/red/skipped/vacuous run cases; complete only through Story 6.8's generated final-record gate.
+
 ## Binding Sequence
 
 `6.1 -> 6.7 -> 6.2 -> 6.8`
@@ -163,6 +180,7 @@ Every baseline row has exactly one post disposition, measured with identical wor
 - 6.2 precedes 6.5.
 - 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6.
 - 6.9 may proceed after 6.1 and precedes the completion of 6.3 and 6.6. It is outside the `6.1 -> 6.7 -> 6.2 -> 6.8` spine because it changes no production source, performs no promotion, and depends on neither the hosting migration nor the record generator.
+- 6.8 precedes 6.12; 6.12 precedes the completion of 6.3 and 6.6. Story 6.3 may remain in progress while 6.12 executes but cannot return to review before the successor proof and manifest bindings pass.
 - 6.6 is last.
 
 ## Final Record Invariant
@@ -176,6 +194,10 @@ Before promotion-bearing work reaches `done`, every affected root-declared submo
 ## Conformance Oracle Tier Invariant
 
 The conformance oracle has two declared tiers. The portable tier binds only Contracts, Client, and Testing and references no non-packable module assembly; this is asserted by a test over the resolved compile surface, not claimed in prose. The module-internal tier binds `Hexalith.Conversations.Server` legitimately and by design. Tier membership governs what an assertion may bind, never whether it runs. Making a public contract wider, or an assertion weaker, in order to move a check into the portable tier is a conformance failure. An assertion that cannot be re-expressed at full strength belongs in the module-internal tier, and recording it there is a correct outcome rather than a deferral.
+
+## Projection-Proof Lifecycle Invariant
+
+Completed projection proof is validated at its declared candidate and dependency identities, never by silently substituting the current checkout. Current readiness is represented by exactly one approved predecessor-linked chain head with fresh executed evidence. Successors are additive, predecessor hashes are full and immutable, Story 6.2 remains done, and v2 is never rewritten to follow later platform movement.
 
 ## Story 6.1 Verification Boundary
 

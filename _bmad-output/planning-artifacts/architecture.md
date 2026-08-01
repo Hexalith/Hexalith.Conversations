@@ -4,8 +4,9 @@ historicalLastStep: 8
 historicalCompletedAt: '2026-05-14'
 status: 'corrective-implementation-only'
 rebaselinedAt: '2026-07-27'
-authorityVersion: 'conversations-architecture-2026-07-31-v6'
+authorityVersion: 'conversations-architecture-2026-08-01-v7'
 supersededAuthorityVersions:
+  - 'conversations-architecture-2026-07-31-v6'
   - 'conversations-architecture-2026-07-28-v5'
   - 'conversations-architecture-2026-07-28-v4'
   - 'conversations-architecture-2026-07-27-v3'
@@ -22,6 +23,7 @@ correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01.md'
   - 'docs/adrs/0003-projection-read-store-population-proof.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
@@ -182,6 +184,48 @@ blockers block `review` and `done` exactly as the promotion gate does.
 This amendment changes planning authority, evidence artifacts, and conformance
 validation only. It authorizes no change to public contracts, package versions,
 accepted baselines, signed evidence, or submodule content.
+
+### 2026-08-01 Projection-Proof Evidence-Lifecycle Amendment
+
+Architecture version `conversations-architecture-2026-08-01-v7` supersedes v6
+only by separating immutable candidate-bound projection proof from current
+release assurance, adding Story 6.12, and amending the completion obligations
+of Stories 6.3 and 6.6. Every ownership, runtime, projection-correctness,
+topology, promotion, performance, record-contract, preservation, and readiness
+decision in v6 remains in force unchanged.
+
+`projection-read-store-population-proof-v2` remains immutable point-in-time
+evidence for umbrella candidate
+`856ee997cd35eb1d432fcb288a75a7b5bf3c5b58` and its recorded EventStore
+gitlink `e645901928eed9759e28e1086f23dc96875c3ac3`. Historical verification
+resolves root-owned blobs from that candidate and platform-owned blobs from the
+gitlinks recorded in that candidate. It does not substitute the current `HEAD`
+or current submodule worktrees and does not prohibit later approved work from
+moving unrelated root gitlinks.
+
+Current release assurance is a separate, versioned concern. Story 6.12 authors
+ADR 0004 for an immutable predecessor-linked projection-proof lifecycle and
+produces `projection-read-store-population-proof-v3` against the then-current
+candidate. The chain has exactly one approved current head. Every successor
+binds its predecessor artifacts by full SHA-256, identifies the exact changed
+dependency identities with named owner and rationale, and carries fresh
+machine-readable deterministic, gateway/DAPR, state-store, query, deletion,
+and replay evidence. In-scope projection dependency drift without a successor
+fails with `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; unrelated root gitlink
+movement does not mutate or invalidate historical proof.
+
+Story 6.3 records v2 as historical evidence and the latest approved successor
+as current release evidence. Story 6.6 validates the immutable predecessor
+chain and reruns the latest head; it cannot cite v2 alone for a later release
+candidate. Story 6.2 remains `done`, and its story record, v2 JSON/Markdown,
+three bound xUnit results, final record, and signed-v1 dependencies are not
+rewritten.
+
+This amendment changes planning authority, generated context, backlog state,
+and planning-authority conformance validation only. It authorizes no change to
+production source, public contracts, package versions, accepted baselines,
+Story 6.2 evidence, signed evidence, or submodule content. Successor artifacts
+and validator changes remain Story 6.12 implementation work.
 
 ### Scope And Preservation Denominators
 

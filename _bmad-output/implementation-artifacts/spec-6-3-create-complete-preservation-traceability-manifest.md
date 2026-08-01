@@ -2,7 +2,7 @@
 title: 'Create the complete preservation traceability manifest'
 type: 'feature'
 created: '2026-08-01T08:31:49+02:00'
-status: 'in-review'
+status: 'in-progress'
 review_loop_iteration: 0
 followup_review_recommended: false
 baseline_commit: 'e480c3f3176cdc3d911baf91eb3e7a8cd38874aa'
@@ -69,6 +69,7 @@ submodule_promotions: []
 - Given the hash-bound PRD and UX sources, when expected obligations are independently enumerated, then all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and every row in all four normative UX acceptance sections appear exactly once with stable IDs and source-text hashes.
 - Given any obligation row, when closure is validated, then it references repository-contained hash-valid evidence or an approved named-owner non-activation with rationale, and delivered-to-inactive or compatible-change dispositions additionally reference compatibility/replacement evidence.
 - Given architecture v6 and its cumulative Epic 6 authority, when current controls and public surfaces are reconciled, then ownership, canonical host shape, test-only AppHost, projection proof, SM-C2 v6 rule, promotion/final-record gates, immutable v1 evidence, Contracts, Client, routes, wire/events/errors, and package/version behavior have no gap or ownership reversal.
+- Given architecture v7 and the approved projection-proof lifecycle, when projection-population closure is reconciled, then the manifest binds the complete immutable predecessor chain, records Story 6.2 v2 as candidate-bound historical evidence, identifies exactly one approved current successor head, and fails if historical evidence is represented as proof for a later candidate. Story 6.3 cannot return to review before Story 6.12 passes.
 - Given completed Story 6.9 evidence, when conformance assertions are enumerated, then each assertion has exactly one approved tier, both tiers remain release-gated, the decision and triage bytes are SHA-256-bound, and portable-tier freedom is supported by executed structural evidence rather than manifest prose.
 - Given any source, baseline, evidence, build, test, contract, or mutation binding, when current bytes and Git/build identities are recomputed independently, then full hashes and identities match; missing, stale, escaping, generated-output, submodule-internal, self-attested, or vacuous evidence fails closed.
 - Given a valid manifest candidate, when a row/source/hash/owner/tier/approval is deleted, duplicated, altered, or made empty, then automated fault injection produces a stable nonzero diagnostic and byte-identical restoration returns green.
