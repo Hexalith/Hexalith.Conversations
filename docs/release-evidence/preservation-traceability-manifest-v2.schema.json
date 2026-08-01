@@ -1,0 +1,374 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/conversations/preservation-traceability-manifest-v2.schema.json",
+  "title": "Hexalith Conversations Preservation Traceability Manifest V2",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "artifact",
+    "schemaVersion",
+    "manifestVersion",
+    "status",
+    "supersession",
+    "authorityVersions",
+    "sourceBindings",
+    "identityBindings",
+    "immutableV1Bindings",
+    "governanceInputs",
+    "tiering",
+    "mutationGovernance",
+    "summaries",
+    "obligations"
+  ],
+  "properties": {
+    "$schema": { "const": "preservation-traceability-manifest-v2.schema.json" },
+    "artifact": { "const": "preservation-traceability-manifest" },
+    "schemaVersion": { "const": 2 },
+    "manifestVersion": { "type": "string", "minLength": 1 },
+    "status": {
+      "enum": ["pending-prerequisites", "pending-operator", "release-gated", "superseded"]
+    },
+    "supersession": { "$ref": "#/$defs/supersession" },
+    "authorityVersions": { "$ref": "#/$defs/authorityVersions" },
+    "sourceBindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/sourceBinding" }
+    },
+    "identityBindings": {
+      "type": "array",
+      "minItems": 3,
+      "items": { "$ref": "#/$defs/identityBinding" }
+    },
+    "immutableV1Bindings": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/pathHash" }
+    },
+    "governanceInputs": { "$ref": "#/$defs/governanceInputs" },
+    "tiering": { "$ref": "#/$defs/tiering" },
+    "mutationGovernance": { "$ref": "#/$defs/mutationGovernance" },
+    "summaries": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/summary" }
+    },
+    "obligations": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/obligation" }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "pathHash": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "supersession": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predecessorPath", "predecessorSha256", "boundary", "v1MutationAllowed"],
+      "properties": {
+        "predecessorPath": { "$ref": "#/$defs/repositoryPath" },
+        "predecessorSha256": { "$ref": "#/$defs/sha256" },
+        "boundary": { "type": "string", "minLength": 1 },
+        "v1MutationAllowed": { "const": false }
+      }
+    },
+    "authorityVersions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["architecture", "epic", "uxMap"],
+      "properties": {
+        "architecture": { "type": "string", "minLength": 1 },
+        "epic": { "type": "string", "minLength": 1 },
+        "uxMap": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sourceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "role"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "role": {
+          "enum": [
+            "obligation-authority",
+            "cumulative-epic-authority",
+            "tier-decision",
+            "machine-contract",
+            "solution-inventory",
+            "build-authority"
+          ]
+        }
+      }
+    },
+    "identityBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "path", "sha256", "identity"],
+      "properties": {
+        "kind": { "enum": ["source", "baseline", "build", "test", "contract", "mutation"] },
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "identity": { "type": "string", "minLength": 1 }
+      }
+    },
+    "governanceInputs": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dispositionPath", "dispositionSha256", "status"],
+      "properties": {
+        "dispositionPath": { "$ref": "#/$defs/repositoryPath" },
+        "dispositionSha256": { "$ref": "#/$defs/sha256" },
+        "status": { "enum": ["pending-operator", "approved", "superseded"] }
+      }
+    },
+    "tiering": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "decisionPath",
+        "decisionSha256",
+        "decisionStatus",
+        "triageStatus",
+        "triageSha256",
+        "assertionCount",
+        "portableStructuralEvidence",
+        "bothTiersReleaseGated"
+      ],
+      "properties": {
+        "decisionPath": { "$ref": "#/$defs/repositoryPath" },
+        "decisionSha256": { "$ref": "#/$defs/sha256" },
+        "decisionStatus": { "enum": ["approved", "superseded"] },
+        "triageStatus": { "enum": ["pending-story-6.9", "invalid-story-6.9", "triaged"] },
+        "triageSha256": { "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }] },
+        "assertionCount": { "type": "integer", "minimum": 1 },
+        "portableStructuralEvidence": {
+          "oneOf": [{ "$ref": "#/$defs/portableStructuralEvidence" }, { "type": "null" }]
+        },
+        "bothTiersReleaseGated": { "const": true }
+      }
+    },
+    "portableStructuralEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "result", "assertion"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "result": { "const": "pass" },
+        "assertion": { "const": "resolved-compile-surface-has-no-nonpackable-module-binding" }
+      }
+    },
+    "mutationGovernance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "changeId",
+        "predecessorSha256",
+        "changedIds",
+        "rationale",
+        "approver",
+        "status",
+        "approvalEvidence",
+        "replacementEvidence"
+      ],
+      "properties": {
+        "changeId": { "type": "string", "minLength": 1 },
+        "predecessorSha256": { "$ref": "#/$defs/sha256" },
+        "changedIds": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "rationale": { "type": "string", "minLength": 1 },
+        "approver": { "type": "string", "minLength": 1 },
+        "status": { "enum": ["pending", "approved", "superseded"] },
+        "approvalEvidence": {
+          "oneOf": [{ "$ref": "#/$defs/pathHash" }, { "type": "null" }]
+        },
+        "replacementEvidence": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/pathHash" }
+        }
+      }
+    },
+    "summary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "expected", "actual", "unresolved"],
+      "properties": {
+        "kind": { "$ref": "#/$defs/obligationKind" },
+        "expected": { "type": "integer", "minimum": 1 },
+        "actual": { "type": "integer", "minimum": 1 },
+        "unresolved": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "obligationKind": {
+      "enum": [
+        "initiative-fr",
+        "feature-fr",
+        "feature-nfr",
+        "ux-decision",
+        "ux-acceptance",
+        "public-contract",
+        "public-client",
+        "current-control",
+        "conformance-assertion"
+      ]
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "section", "line", "text", "textSha256", "fileSha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "section": { "type": "string", "minLength": 1 },
+        "line": { "type": "integer", "minimum": 1 },
+        "ordinal": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "textSha256": { "$ref": "#/$defs/sha256" },
+        "fileSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "evidenceType", "authorityPath", "authoritySha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/repositoryPath" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "evidenceType": { "type": "string", "minLength": 1 },
+        "authorityPath": { "$ref": "#/$defs/repositoryPath" },
+        "authoritySha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "closure": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "evidence"],
+          "properties": {
+            "kind": { "const": "evidence" },
+            "evidence": {
+              "type": "array",
+              "minItems": 1,
+              "items": { "$ref": "#/$defs/evidence" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "dispositionId"],
+          "properties": {
+            "kind": { "const": "governed-disposition" },
+            "dispositionId": { "type": "string", "minLength": 1 }
+          }
+        }
+      ]
+    },
+    "obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "source", "controlOwner", "closure"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "$ref": "#/$defs/obligationKind" },
+        "title": { "type": "string", "minLength": 1 },
+        "source": { "$ref": "#/$defs/source" },
+        "controlOwner": { "enum": ["module", "platform", "shared", "release-governance"] },
+        "closure": { "$ref": "#/$defs/closure" },
+        "tier": { "enum": ["portable", "module-internal", "pending-story-6.9"] }
+      }
+    },
+    "dispositionDecision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "dispositionId",
+        "obligationId",
+        "proposedClosure",
+        "evidenceOwner",
+        "controlOwner",
+        "approver",
+        "rationale",
+        "scope",
+        "decisionDate",
+        "status",
+        "approvalEvidence",
+        "compatibilityEvidence",
+        "replacementEvidence"
+      ],
+      "properties": {
+        "dispositionId": { "type": "string", "minLength": 1 },
+        "obligationId": { "type": "string", "minLength": 1 },
+        "proposedClosure": {
+          "enum": [
+            "preserved-non-activation",
+            "evidence-mapping",
+            "story-6.9-tier-assignment",
+            "delivered-to-inactive",
+            "compatible-change"
+          ]
+        },
+        "evidenceOwner": { "type": "string", "minLength": 1 },
+        "controlOwner": { "type": "string", "minLength": 1 },
+        "approver": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "decisionDate": { "oneOf": [{ "type": "string", "format": "date" }, { "type": "null" }] },
+        "status": { "enum": ["pending", "approved", "rejected", "superseded"] },
+        "approvalEvidence": { "oneOf": [{ "$ref": "#/$defs/pathHash" }, { "type": "null" }] },
+        "compatibilityEvidence": { "type": "array", "items": { "$ref": "#/$defs/pathHash" } },
+        "replacementEvidence": { "type": "array", "items": { "$ref": "#/$defs/pathHash" } }
+      }
+    },
+    "dispositionDocument": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["$schema", "artifact", "version", "status", "authority", "decisions"],
+      "properties": {
+        "$schema": { "const": "preservation-traceability-manifest-v2.schema.json#/$defs/dispositionDocument" },
+        "artifact": { "const": "preservation-non-activation-disposition" },
+        "version": { "const": 2 },
+        "status": { "enum": ["pending-operator", "approved", "superseded"] },
+        "authority": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256", "version"],
+          "properties": {
+            "path": { "$ref": "#/$defs/repositoryPath" },
+            "sha256": { "$ref": "#/$defs/sha256" },
+            "version": { "type": "string", "minLength": 1 }
+          }
+        },
+        "decisions": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/dispositionDecision" }
+        }
+      }
+    }
+  }
+}

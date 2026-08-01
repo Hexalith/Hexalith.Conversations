@@ -38,6 +38,7 @@
 
 generated: 2026-06-02
 last_updated: 2026-08-01
+# story 6-3 moved backlog -> in-progress on 2026-08-01. The v2 preservation manifest implementation is underway; generated measurements remain in the authoritative manifest and are not restated here.
 # story 6-2 moved review -> done on 2026-08-01 (code-review pass 12). Both completion gates passed after the authorized review patch commit: the declared promotion scope remained complete, and the mechanically generated final record was inserted verbatim, digest-verified, and bound to freshly rebuilt candidate binaries and fresh test artifacts. The authoritative measured values remain in the story's generated record and are deliberately not restated here. One pre-existing historical-verification limitation is routed in the deferred-work ledger.
 # story 6-2 moved in-progress -> review on 2026-07-31 (dev-story pass 11 completion at committed candidate d360de5). Both completion gates return pass: the promotion checker with zero blockers across the unchanged approved EventStore/Builds/Tenants scope and its four disclosed undeclared-gitlink warnings, and the mechanical final-record generator with zero blockers and zero record warnings, whose Markdown block was inserted verbatim, digest-verified, and bound through file_list_commit. All eight root-owned test projects ran fresh at the candidate with no failures and no skips, and the Release build completed clean. AC1 is now met under the amended pass rule published as epic-6-authority-2026-07-31-v6; the underlying HP-LIST and HP-OPEN cost is recorded as an approved-cost ceiling rather than hidden, and follow-up story 6.11 owns retiring it. Sixteen pass-9 patches remain routed to Hexalith.EventStore and are that repository's to apply. Measured values live in the story record and its generated block and are deliberately not restated here.
 # story 6-11 added (backlog) on 2026-07-31 through approved sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md, published as authority overlay epic-6-authority-2026-07-31-v6. It owns making cross-key projection validation cheap enough to re-gate SM-C2's HP-LIST and HP-OPEN rows at the original 5% rule: replace the full tenant-index deserialize in the detail read path with a per-conversation index-entry key family, and remove the per-row detail and ledger fan-out from page verification wherever the dispatch ledger already proves the generation. Its done-when is a measured post p95 back under the 5% rule, at which point the v6 approved-cost ceiling is retired. Raised because Story 6.2's correctness work made those two rows structurally unable to meet a threshold written for a hosting migration; the cost is approved and recorded, not hidden.
@@ -166,7 +167,7 @@ development_status:
   epic-6: in-progress
   6-1-rebaseline-architecture-and-planning-authority: done
   6-2-migrate-conversations-to-platform-owned-hosting: done
-  6-3-create-complete-preservation-traceability-manifest: backlog
+  6-3-create-complete-preservation-traceability-manifest: in-progress
   6-4-repair-ux-provenance-and-preservation-governance: backlog
   6-5-correct-thin-authoring-template-and-reproduce-sm-2: backlog
   6-6-revalidate-and-issue-superseding-attestation: backlog
