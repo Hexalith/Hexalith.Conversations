@@ -107,8 +107,31 @@ def write_trx(
     failed: int = 0,
     skipped: int = 0,
     project: str = "Fixture",
+    code_base: Path | None = None,
 ) -> None:
     """Write a TRX whose summary agrees with the results it contains."""
+    if code_base is None:
+        repository = next(
+            (parent for parent in (path.parent, *path.parents) if (parent / ".git").exists()),
+            None,
+        )
+        if repository is not None:
+            candidate = run_git(repository, "rev-parse", "HEAD").stdout.strip()
+            code_base = (
+                repository
+                / "tests"
+                / project
+                / "bin"
+                / "Release"
+                / "net10.0"
+                / f"{project}.dll"
+            )
+            code_base.parent.mkdir(parents=True, exist_ok=True)
+            code_base.write_bytes(
+                f"fixture managed assembly 1.0.0+{candidate}\0".encode("ascii")
+            )
+        else:
+            code_base = Path(f"/fixture/{project}.dll")
     results = [
         f'<UnitTestResult testName="{project}.P{index}" outcome="Passed" />'
         for index in range(passed)
@@ -129,7 +152,7 @@ def write_trx(
         f'<TestRun id="fixture" name="fixture" xmlns="{TRX_NAMESPACE}">\n'
         "  <Results>\n    " + "\n    ".join(results) + "\n  </Results>\n"
         "  <TestDefinitions>\n"
-        f'    <UnitTest name="fixture"><TestMethod codeBase="/fixture/{project}.dll" /></UnitTest>\n'
+        f'    <UnitTest name="fixture"><TestMethod codeBase="{code_base}" /></UnitTest>\n'
         "  </TestDefinitions>\n"
         '  <ResultSummary outcome="Completed">\n'
         f'    <Counters total="{total}" executed="{executed}" passed="{passed}" '
@@ -178,6 +201,7 @@ def build_umbrella(tmp_path: Path) -> dict[str, object]:
     umbrella.mkdir()
     run_git(umbrella, "init")
     (umbrella / "seed.txt").write_text("seed\n", encoding="utf-8")
+    (umbrella / ".gitignore").write_text("bin/\nobj/\nresults/\n", encoding="utf-8")
     (umbrella / "_bmad-output/implementation-artifacts").mkdir(parents=True)
     (umbrella / "tests/Fixture").mkdir(parents=True)
     (umbrella / "tests/Fixture/Fixture.csproj").write_text(
@@ -331,12 +355,49 @@ def test_a_fully_derived_record_passes(umbrella: dict[str, object]) -> None:
         "failed": 0,
         "skipped": 0,
     }
+    assert document["build_manifest"]["candidate"] == umbrella["candidate"]
+    assert [
+        item["project"] for item in document["build_manifest"]["projects"]
+    ] == ["Fixture"]
+    assert re.fullmatch(
+        r"[0-9a-f]{64}", document["build_manifest"]["projects"][0]["sha256"]
+    )
+
+
+def test_test_binary_must_embed_the_exact_candidate_revision(
+    umbrella: dict[str, object],
+) -> None:
+    binary = (
+        umbrella["repository"]
+        / "tests/Fixture/bin/Release/net10.0/Fixture.dll"
+    )
+    binary.write_bytes(b"fixture managed assembly 1.0.0+" + b"0" * 40 + b"\0")
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_BUILD_NOT_BOUND" in codes(document)
+    assert document["build_manifest"]["projects"][0]["source_revision"] is None
+
+
+def test_test_result_must_not_predate_its_candidate_bound_binary(
+    umbrella: dict[str, object],
+) -> None:
+    artifact = umbrella["repository"] / umbrella["artifact"]
+    binary = (
+        umbrella["repository"]
+        / "tests/Fixture/bin/Release/net10.0/Fixture.dll"
+    )
+    future = artifact.stat().st_mtime_ns + 1_000_000_000
+    os.utime(binary, ns=(future, future))
+    code, document = measured(umbrella)
+    assert code == 1
+    assert "TEST_BUILD_NOT_BOUND" in codes(document)
 
 
 def test_totals_are_summed_across_projects_not_transcribed(
     umbrella: dict[str, object],
 ) -> None:
     add_test_project(umbrella, "Second")
+    write_trx(umbrella["repository"] / umbrella["artifact"])
     write_trx(umbrella["repository"] / "results/second.trx", passed=5, project="Second")
     code, document = invoke(
         umbrella,
@@ -659,7 +720,7 @@ def test_injection_backdated_artifact_trips_the_staleness_guard(
     assert code == 1
     assert "TEST_RESULTS_STALE" in codes(document)
 
-    os.utime(artifact, (stat.st_atime, stat.st_mtime))
+    os.utime(artifact, ns=(stat.st_atime_ns, stat.st_mtime_ns))
     assert sha256_file(artifact) == before
     assert measured(umbrella)[0] == 0
 
@@ -844,6 +905,7 @@ def test_gitlink_detection_overrides_ambient_ignore_configuration(
     monkeypatch.setenv("GIT_CONFIG_COUNT", "1")
     monkeypatch.setenv("GIT_CONFIG_KEY_0", "submodule.Example.ignore")
     monkeypatch.setenv("GIT_CONFIG_VALUE_0", "all")
+    write_trx(repository / umbrella["artifact"])
     module = load_generator()
     hardened = module.git_environment()
     assert "GIT_CONFIG_COUNT" not in hardened
@@ -964,6 +1026,7 @@ def test_gitlinks_are_reported_as_promotions_and_never_as_file_list_paths(
     )
     run_git(repository, "add", "references/Example")
     run_git(repository, "commit", "-m", "promote")
+    write_trx(repository / umbrella["artifact"])
 
     code, document = measured(umbrella, "--submodule", "references/Example")
     assert "references/Example" not in document["file_list"]["derived"]
@@ -1009,6 +1072,11 @@ def test_the_renderer_names_what_it_derived(umbrella: dict[str, object]) -> None
     assert "The JSON document is authoritative" in derived
     assert "test results **yes**" in derived
     assert "1 test artifact(s) parsed" in derived
+    assert "### Test Build Manifest" in derived
+    assert f"Candidate `{umbrella['candidate']}` was clean-rebuilt" in derived
+    artifact_hash = sha256_file(umbrella["repository"] / umbrella["artifact"])
+    assert f"`{artifact_hash}`" in derived
+    assert f"`{artifact_hash[:16]}`" not in derived
 
 
 def test_a_nothing_derived_run_renders_visibly_differently(
@@ -1318,7 +1386,10 @@ def test_every_completion_surface_invokes_the_generator(relative_path: str) -> N
 def completion_surface_violations(content: str) -> list[str]:
     required = (
         "generate_story_record.py",
+        "-t:Rebuild",
+        "SourceRevisionId",
         "--format bundle",
+        "TEST_BUILD_NOT_BOUND",
         "markdown_sha256",
         "--verify-record-sha256",
         "RECORD_NOT_DERIVED",

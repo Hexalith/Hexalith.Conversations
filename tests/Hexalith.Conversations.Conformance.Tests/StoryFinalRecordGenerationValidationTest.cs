@@ -44,8 +44,11 @@ public sealed class StoryFinalRecordGenerationValidationTest
             "<!-- Final Record Generation Gate -->",
             "Update the story Status to: \"review\"",
             [
+                "-t:Rebuild",
+                "SourceRevisionId",
                 "--candidate {{candidate_revision}}",
                 "--format bundle",
+                "TEST_BUILD_NOT_BOUND",
                 "RECORD_NOT_DERIVED",
                 "HALT: \"Story final-record generation gate failed",
                 "VERBATIM",
@@ -61,7 +64,10 @@ public sealed class StoryFinalRecordGenerationValidationTest
             "### Final Record Generation Gate",
             "### Mark Spec Done and Synchronize",
             [
+                "-t:Rebuild",
+                "SourceRevisionId",
                 "--format bundle",
+                "TEST_BUILD_NOT_BOUND",
                 "RECORD_NOT_DERIVED",
                 "Never write `done`",
                 "VERBATIM",
@@ -76,7 +82,10 @@ public sealed class StoryFinalRecordGenerationValidationTest
             "### Final Record Generation Gate",
             "### Complete Trace and Commit Completion Record",
             [
+                "-t:Rebuild",
+                "SourceRevisionId",
                 "--format bundle",
+                "TEST_BUILD_NOT_BOUND",
                 "RECORD_NOT_DERIVED",
                 "Never write `done`",
                 "VERBATIM",
@@ -91,8 +100,11 @@ public sealed class StoryFinalRecordGenerationValidationTest
             "#### Final record generation gate",
             "#### Determine new status based on review outcome",
             [
+                "-t:Rebuild",
+                "SourceRevisionId",
                 "--candidate {candidate_revision}",
                 "--format bundle",
+                "TEST_BUILD_NOT_BOUND",
                 "RECORD_NOT_DERIVED",
                 "force `{new_status}` = `in-progress`",
                 "never write or synchronize `done`",
@@ -113,6 +125,7 @@ public sealed class StoryFinalRecordGenerationValidationTest
         string generator = ReadRepositoryFile(Generator);
 
         generator.ShouldContain("\"story-final-record-v1\"", Case.Sensitive, "The document schema is the record's contract.");
+        generator.ShouldContain("TEST_BUILD_NOT_BOUND", Case.Sensitive, "The generator must reject test binaries not built from the candidate.");
         foreach (string flag in new[] { "--story", "--baseline", "--candidate", "--test-results", "--submodule", "--require-remote", "--historical", "--verify-record-sha256" })
         {
             generator.ShouldContain($"\"{flag}\"", Case.Sensitive, $"The generator must accept {flag}.");

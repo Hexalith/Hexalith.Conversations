@@ -86,6 +86,11 @@ BLOCKER_REMEDIATION = {
         "Either run the skipped test or declare its exact identity and reason in the story's "
         "versioned allowed_skipped_tests policy."
     ),
+    "TEST_BUILD_NOT_BOUND": (
+        "Clean-rebuild every root-owned test project from the committed candidate, run the "
+        "tests against those binaries, and retain the candidate-bound binary manifest emitted "
+        "by this generator."
+    ),
     "FILE_LIST_DRIFT": (
         "Replace the record's File List with the derived list emitted by this generator; "
         "never hand-edit either side into agreement."
@@ -198,6 +203,7 @@ def empty_document(repository: Path | None = None) -> dict[str, Any]:
             "projects": [],
             "totals": None,
         },
+        "build_manifest": {"candidate": None, "projects": []},
         "file_list": {
             "derived": [],
             "declared": [],
@@ -912,14 +918,17 @@ def parse_trx(content: bytes) -> dict[str, Any]:
         TRX_PASSED_OUTCOMES + TRX_FAILED_OUTCOMES + TRX_SKIPPED_OUTCOMES
     )
     unknown_outcomes = sorted(set(outcomes) - known_outcomes)
-    assemblies = sorted(
+    code_bases = sorted(
         {
-            PurePosixPath(re.split(r"[\\/]", code_base)[-1]).stem
+            code_base
             for element in root.findall(
                 "./{*}TestDefinitions/{*}UnitTest/{*}TestMethod"
             )
             if (code_base := element.get("codeBase"))
         }
+    )
+    assemblies = sorted(
+        {PurePosixPath(re.split(r"[\\/]", code_base)[-1]).stem for code_base in code_bases}
     )
     return {
         "reported": reported,
@@ -927,6 +936,7 @@ def parse_trx(content: bytes) -> dict[str, Any]:
         "results": result_items,
         "unknown_outcomes": unknown_outcomes,
         "assemblies": assemblies,
+        "code_bases": code_bases,
     }
 
 
@@ -1129,6 +1139,7 @@ def derive_test_results(
             for result in parsed["results"]
             if result["outcome"] in TRX_SKIPPED_OUTCOMES
         )
+        item["code_bases"] = parsed["code_bases"]
         observed_skips.update(item["skipped_tests"])
         disagreements = count_disagreements(parsed)
         if disagreements:
@@ -1200,6 +1211,111 @@ def derive_test_results(
         "projects": projects,
         "totals": totals,
     }
+
+
+def dotnet_source_revisions(content: bytes) -> list[str]:
+    """Return SourceRevisionId values embedded in managed informational versions."""
+    return sorted(
+        {
+            match.decode("ascii")
+            for match in re.findall(
+                rb"[0-9]+\.[0-9]+\.[0-9]+(?:\.[0-9]+)?\+([0-9a-f]{40})(?![0-9a-f])",
+                content,
+            )
+        }
+    )
+
+
+def test_binary_path(repository: Path, code_base: str) -> tuple[str, Path]:
+    """Resolve a TRX codeBase to one repository-contained test binary."""
+    lexical = Path(code_base)
+    absolute = lexical if lexical.is_absolute() else repository / lexical
+    try:
+        resolved = absolute.resolve(strict=True)
+        relative = resolved.relative_to(repository).as_posix()
+    except (OSError, ValueError) as error:
+        raise ValueError(
+            f"TRX codeBase must resolve to a test binary inside the repository: {code_base}"
+        ) from error
+    if not resolved.is_file():
+        raise ValueError(f"TRX codeBase is not a file: {code_base}")
+    return relative, resolved
+
+
+def derive_test_build_manifest(
+    repository: Path,
+    candidate: str,
+    test_results: dict[str, Any],
+    blockers: list[dict[str, Any]],
+) -> dict[str, Any]:
+    """Bind every parsed TRX to a candidate-stamped test assembly and its full digest."""
+    manifest: dict[str, Any] = {"candidate": candidate, "projects": []}
+    seen_binaries: set[str] = set()
+    for item in test_results["projects"]:
+        if item["state"] != "PARSED":
+            continue
+        project = item["project"]
+        code_bases = item.get("code_bases", [])
+        if len(code_bases) != 1:
+            blockers.append(
+                blocker(
+                    "TEST_BUILD_NOT_BOUND",
+                    f"{project} identifies {len(code_bases)} distinct test binaries; exactly one is required",
+                    item.get("artifact"),
+                )
+            )
+            continue
+        try:
+            relative, binary = test_binary_path(repository, code_bases[0])
+            content, modified_ns = read_file_snapshot(binary)
+        except (OSError, ValueError) as error:
+            blockers.append(
+                blocker(
+                    "TEST_BUILD_NOT_BOUND",
+                    f"{project} has no verifiable repository-contained test binary: {error}",
+                    item.get("artifact"),
+                )
+            )
+            continue
+        if relative in seen_binaries:
+            blockers.append(
+                blocker(
+                    "TEST_BUILD_NOT_BOUND",
+                    f"test binary is reused by more than one declared project: {relative}",
+                    relative,
+                )
+            )
+        seen_binaries.add(relative)
+
+        revisions = dotnet_source_revisions(content)
+        if revisions != [candidate]:
+            observed = ", ".join(revisions) if revisions else "none"
+            blockers.append(
+                blocker(
+                    "TEST_BUILD_NOT_BOUND",
+                    f"{project} test binary records SourceRevisionId {observed}; expected candidate {candidate}",
+                    relative,
+                )
+            )
+        artifact_modified = item.get("modified")
+        if artifact_modified is not None and modified_ns > artifact_modified:
+            blockers.append(
+                blocker(
+                    "TEST_BUILD_NOT_BOUND",
+                    f"{project} test result predates the binary it claims to execute",
+                    relative,
+                )
+            )
+        manifest["projects"].append(
+            {
+                "project": project,
+                "binary": relative,
+                "source_revision": candidate if revisions == [candidate] else None,
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "modified": modified_ns,
+            }
+        )
+    return manifest
 
 
 def evaluate_staleness(
@@ -1487,8 +1603,10 @@ def parse_recorded_test_results(block: str) -> dict[str, Any]:
         else:
             total, passed, failed, skipped, digest = values[2:]
             executed = str(int(total) - int(skipped))
-        if not re.fullmatch(r"[0-9a-f]{16}", digest):
-            raise ValueError(f"test project {values[0]} has no 16-digit artifact hash")
+        if not re.fullmatch(r"(?:[0-9a-f]{16}|[0-9a-f]{64})", digest):
+            raise ValueError(
+                f"test project {values[0]} has no full artifact SHA-256 or legacy 16-digit prefix"
+            )
         counts = {
             "total": int(total),
             "executed": int(executed),
@@ -1535,6 +1653,62 @@ def parse_recorded_test_results(block: str) -> dict[str, Any]:
         "projects": projects,
         "totals": totals,
     }
+
+
+def parse_recorded_build_manifest(
+    block: str, candidate: str | None
+) -> dict[str, Any] | None:
+    """Parse a persisted candidate-bound test build manifest when one is present."""
+    if "### Test Build Manifest" not in block:
+        return None
+    identity = re.search(
+        r"^Candidate `([0-9a-f]{40})` was clean-rebuilt; every test binary below embeds that SourceRevisionId\.$",
+        block,
+        re.MULTILINE,
+    )
+    if identity is None:
+        raise ValueError("Test Build Manifest has no candidate identity")
+    recorded_candidate = identity.group(1)
+    if candidate is None or recorded_candidate != candidate:
+        raise ValueError("Test Build Manifest candidate disagrees with the record candidate")
+    projects: list[dict[str, Any]] = []
+    seen_projects: set[str] = set()
+    seen_binaries: set[str] = set()
+    for row in markdown_table_rows(block, "#### Candidate-Bound Test Binaries"):
+        if len(row) != 4:
+            raise ValueError(
+                f"Test Build Manifest row has {len(row)} columns, expected 4"
+            )
+        project, binary, source_revision, digest = [
+            markdown_value(cell) for cell in row
+        ]
+        binary = safe_relative_path(binary)
+        if not project or project in seen_projects:
+            raise ValueError(f"Test Build Manifest repeats or omits project {project!r}")
+        if binary in seen_binaries:
+            raise ValueError(f"Test Build Manifest reuses test binary {binary}")
+        if source_revision != recorded_candidate:
+            raise ValueError(
+                f"Test Build Manifest project {project} has a foreign SourceRevisionId"
+            )
+        if not re.fullmatch(r"[0-9a-f]{64}", digest):
+            raise ValueError(
+                f"Test Build Manifest project {project} has no full binary SHA-256"
+            )
+        seen_projects.add(project)
+        seen_binaries.add(binary)
+        projects.append(
+            {
+                "project": project,
+                "binary": binary,
+                "source_revision": source_revision,
+                "sha256": digest,
+                "modified": None,
+            }
+        )
+    if not projects:
+        raise ValueError("Test Build Manifest contains no project rows")
+    return {"candidate": recorded_candidate, "projects": projects}
 
 
 def parse_recorded_promotions(block: str) -> list[dict[str, Any]]:
@@ -1755,6 +1929,9 @@ def verify_live(repository: Path, args: argparse.Namespace) -> dict[str, Any]:
     document["derived"]["test_results"] = bool(test_results["projects"]) and all(
         item["state"] == "PARSED" and item["counts"] and item["counts"]["total"] > 0
         for item in test_results["projects"]
+    )
+    document["build_manifest"] = derive_test_build_manifest(
+        repository, candidate, test_results, blockers
     )
     document["newest_derived_input"] = evaluate_staleness(
         repository, test_results, derived_paths, output_targets, blockers
@@ -2041,6 +2218,27 @@ def verify_historical(repository: Path, args: argparse.Namespace) -> dict[str, A
             )
 
         try:
+            build_manifest = parse_recorded_build_manifest(block, candidate)
+            if build_manifest is not None:
+                recorded_projects = {
+                    item["project"] for item in document["test_results"]["projects"]
+                }
+                manifest_projects = {
+                    item["project"] for item in build_manifest["projects"]
+                }
+                if manifest_projects != recorded_projects:
+                    raise ValueError(
+                        "Test Build Manifest project set disagrees with Test Results"
+                    )
+                document["build_manifest"] = build_manifest
+        except (GateError, ValueError) as error:
+            finding(
+                "TEST_BUILD_NOT_BOUND",
+                f"generated record's Test Build Manifest is invalid: {error}",
+                story,
+            )
+
+        try:
             if baseline is None or candidate is None:
                 raise ValueError(
                     "Gitlink Promotions cannot be verified without both revisions"
@@ -2223,7 +2421,7 @@ def render_counts_table(document: dict[str, Any]) -> list[str]:
                 passed=counts.get("passed", "—"),
                 failed=counts.get("failed", "—"),
                 skipped=counts.get("skipped", "—"),
-                digest=f"`{digest[:16]}`" if digest else "—",
+                digest=f"`{digest}`" if digest else "—",
             )
         )
     totals = document["test_results"]["totals"]
@@ -2337,6 +2535,30 @@ def render_markdown(document: dict[str, Any]) -> str:
                 f"**This suite is not fully green: {totals['failed']} failed, "
                 f"{totals['skipped']} skipped.**",
             ]
+        )
+    lines.append("")
+
+    lines.extend(["### Test Build Manifest", ""])
+    build_manifest = document.get("build_manifest") or {"candidate": None, "projects": []}
+    if build_manifest["projects"]:
+        lines.append(
+            f"Candidate `{build_manifest['candidate']}` was clean-rebuilt; every test binary below embeds that SourceRevisionId."
+        )
+        lines.extend(["", "#### Candidate-Bound Test Binaries", ""])
+        lines.append("| Test project | Binary | Source revision | Binary SHA-256 |")
+        lines.append("| --- | --- | --- | --- |")
+        for item in build_manifest["projects"]:
+            lines.append(
+                "| {project} | {binary} | {revision} | {digest} |".format(
+                    project=markdown_table_text(item["project"]),
+                    binary=markdown_table_code(item["binary"]),
+                    revision=markdown_table_code(item["source_revision"] or "unbound"),
+                    digest=markdown_table_code(item["sha256"]),
+                )
+            )
+    else:
+        lines.append(
+            "_No candidate-bound test binary was derived. A passing completion record requires one for every parsed test project._"
         )
     lines.append("")
 

@@ -90,6 +90,15 @@ identity and a non-empty reason appear under the record's versioned
 `allowed_skipped_tests` frontmatter policy. Unused allowances are reported so
 stale exceptions remain visible.
 
+Before running those tests, clean-rebuild the committed candidate with
+`-t:Rebuild -p:SourceRevisionId=<candidate>`. Each TRX must identify exactly one
+repository-contained test binary. The generator reads that binary, requires its
+managed `AssemblyInformationalVersion` to embed the exact candidate as
+`SourceRevisionId`, verifies that the TRX is not older than the binary, and emits
+a persisted build-manifest table with the binary's full SHA-256. A fresh TRX
+against a stale `--no-build` output therefore blocks instead of inheriting the
+candidate by timestamp.
+
 ## 4. Run the generator
 
 ```bash
@@ -133,6 +142,7 @@ A parseable document is written to stdout on every path, including exit `2`.
 | `TEST_RESULTS_EMPTY` | A parsed artifact contains zero tests | Run the project without an empty filter and emit a non-vacuous artifact. |
 | `TEST_RESULTS_FAILED` | One or more tests failed | Fix the failures and emit a new artifact. |
 | `TEST_SKIP_NOT_ALLOWED` | A skipped test has no exact versioned identity/reason allowance | Run it or add an approved, reasoned policy entry. |
+| `TEST_BUILD_NOT_BOUND` | A TRX omits or reuses its test binary, the binary is outside the repository, its embedded `SourceRevisionId` differs from the candidate, or the TRX predates it | Clean-rebuild the committed candidate with its exact `SourceRevisionId`, then rerun every test and regenerate the record. |
 | `FILE_LIST_DRIFT` | The record's list disagrees with the derived set, or the record carries more than one list | Replace the record's File List with the generated one. Never hand-edit either side into agreement. |
 | `SUBMODULE_INTERNAL_PATH` | A path under a root-declared submodule appears in the record's File List | Remove it: it belongs to that repository's own record, and the gitlink belongs in the promotions section. |
 | `CANDIDATE_NOT_FINAL` | The candidate is not an ancestor of HEAD, a non-output path changed after it, or any gitlink moved | Re-run against the committed head; only the story and sprint-status output commits may follow it. |
@@ -246,10 +256,11 @@ in either mode.
 1. [ ] Every executable, test, and documentation change complete and saved.
 2. [ ] Scoped commit created; committed `HEAD` resolved as the candidate.
 3. [ ] Baseline read from frontmatter `baseline_commit` (or `baseline_revision`) and confirmed resolvable and an ancestor.
-4. [ ] Every declared test project run, each emitting its own TRX artifact.
-5. [ ] Generator run once with `--format bundle`; nested `document.result` is `pass` and all `derived` fields are true.
-6. [ ] Bundle field `markdown` inserted verbatim and unedited; `markdown_sha256` retained from that same bundle.
-7. [ ] Frontmatter `file_list_commit` set to the immutable candidate revision the bundle measured.
-8. [ ] Inserted block verified with `--verify-record-sha256 <markdown_sha256> --format json`; exit `0`, result `pass`.
-9. [ ] Sprint-status comment references the generated record without restating any count, path total, promotion total, or commit.
-10. [ ] No count, path, or commit anywhere in completion narrative was typed by hand.
+4. [ ] Candidate clean-rebuilt with `-t:Rebuild -p:SourceRevisionId=<candidate>` and every declared test project run against that build, each emitting its own TRX artifact.
+5. [ ] Generator run once with `--format bundle`; nested `document.result` is `pass`, every `derived` field is true, and the build-manifest project set equals the test-result project set.
+6. [ ] Every rendered TRX and test-binary digest is a full 64-hex SHA-256, and every build-manifest source revision equals the candidate.
+7. [ ] Bundle field `markdown` inserted verbatim and unedited; `markdown_sha256` retained from that same bundle.
+8. [ ] Frontmatter `file_list_commit` set to the immutable candidate revision the bundle measured.
+9. [ ] Inserted block verified with `--verify-record-sha256 <markdown_sha256> --format json`; exit `0`, result `pass`.
+10. [ ] Sprint-status comment references the generated record without restating any count, path total, promotion total, or commit.
+11. [ ] No count, path, or commit anywhere in completion narrative was typed by hand.

@@ -196,3 +196,15 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
   lane needs a documented "no other AppHost running" precondition — silently reporting a bare daprd exit code
   sends the reader looking for a projection defect that is not there.
   [tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs:561]
+
+## Deferred from: code review pass 12 of 6-2-migrate-conversations-to-platform-owned-hosting (2026-08-01)
+
+- **[HIGH] Historical verification does not enforce candidate finality.** Live generation calls
+  `evaluate_candidate_binding` and blocks when any non-record-output path or root gitlink changes after the
+  recorded candidate. `verify_historical` re-derives only the baseline-to-`file_list_commit` range and never
+  applies that check or cross-checks the rendered `### Candidate Binding` section. The failure is reachable:
+  the Story 6.2 record at commit `f62a9d0` still named candidate `dd656eeb`, while
+  `dd656eeb..f62a9d0` changed the AppHost runtime-boundary test and release evidence, yet historical mode
+  returned `pass`. Reapply the committed candidate-finality invariant in historical mode while allowing only
+  declared final-record outputs after the candidate, and add a regression covering a later edit to an
+  already-listed non-output path. [_bmad/scripts/generate_story_record.py:1359,1806]
