@@ -142,6 +142,58 @@ def test_validation_failure_writes_no_partial_output(tmp_path: Path) -> None:
     assert not target.exists()
 
 
+def test_dirty_worktree_is_preserved_and_unexpected_scope_fails_before_writing(tmp_path: Path) -> None:
+    """Publication touches only its complete output set and preserves unrelated dirty bytes."""
+
+    unrelated_path = tmp_path / "_bmad-output/implementation-artifacts/epic-6-context.md"
+    unrelated_path.parent.mkdir(parents=True)
+    unrelated_bytes = b"pre-existing unrelated worktree bytes\n"
+    unrelated_path.write_bytes(unrelated_bytes)
+    outputs = {path: f"generated:{path}\n".encode() for path in publisher.EXPECTED_OUTPUT_PATHS}
+
+    publisher.publish(tmp_path, outputs, check=False)
+
+    assert unrelated_path.read_bytes() == unrelated_bytes
+    actual_files = {
+        path.relative_to(tmp_path).as_posix()
+        for path in tmp_path.rglob("*")
+        if path.is_file()
+    }
+    assert actual_files == set(outputs) | {"_bmad-output/implementation-artifacts/epic-6-context.md"}
+
+    blocked_root = tmp_path / "blocked"
+    blocked_unrelated = blocked_root / "unrelated-context.md"
+    blocked_unrelated.parent.mkdir(parents=True)
+    blocked_unrelated.write_bytes(unrelated_bytes)
+    unexpected_outputs = {**outputs, "unexpected-publication-path.json": b"unexpected\n"}
+
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.publish(blocked_root, unexpected_outputs, check=False)
+
+    assert error.value.code == "PUBLICATION_SCOPE_DRIFT"
+    assert blocked_unrelated.read_bytes() == unrelated_bytes
+    assert not any((blocked_root / path).exists() for path in unexpected_outputs)
+
+
+def test_publication_preserves_the_unrun_independent_assessment_boundary() -> None:
+    """Generated planning state must neither run nor predetermine IR-0."""
+
+    outputs = publisher.render_outputs(ROOT, published_candidate())
+    bundle = json.loads(outputs[publisher.BUNDLE_PATH])
+    view = outputs[publisher.VIEW_V2_PATH].decode("utf-8")
+    sprint = outputs[publisher.SPRINT_PATH].decode("utf-8")
+
+    assert bundle["implementationHold"] == "ACTIVE"
+    assert bundle["epic5ActionA5"] == "open"
+    assert "IR-0: not run by this publication." in view
+    assert "does not implement a story,\n> run IR-0, lift the hold" in view
+    assert "IR-0 was not run" in sprint
+    assert not any("ir-0" in path.lower() for path in outputs)
+    assert not any("ir-0" in row["path"].lower() for row in bundle["artifacts"])
+    assert "READY" not in view
+    assert "NOT READY" not in view
+
+
 def test_supersession_ux_sprint_and_customization_coverage_is_exact() -> None:
     """Mappings, 52/28 parity, successor backlog, hold, and A5 remain exact."""
 

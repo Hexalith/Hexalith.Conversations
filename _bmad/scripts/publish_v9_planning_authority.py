@@ -140,6 +140,21 @@ EXPECTED_STORY_IDS = tuple(
     + [f"14.{value}" for value in range(1, 4)]
     + [f"15.{value}" for value in range(1, 3)]
 )
+EXPECTED_OUTPUT_PATHS = (
+    BUNDLE_PATH,
+    GRAPH_PATH,
+    SUPERSESSION_PATH,
+    VIEW_V2_PATH,
+    UX_MAP_PATH,
+    SPRINT_PATH,
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build-auto.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-review.json",
+    *(f"_bmad-output/planning-artifacts/v9/story-contracts/{story_id}.json" for story_id in EXPECTED_STORY_IDS),
+)
 
 
 class PublicationError(RuntimeError):
@@ -958,6 +973,15 @@ def publish(root: Path, outputs: dict[str, bytes], check: bool) -> None:
         expected = {f"{story_id}.json" for story_id in EXPECTED_STORY_IDS}
         if actual - expected:
             raise PublicationError("STORY_CONTRACT_SET_DRIFT", repr(sorted(actual - expected)))
+    actual_scope = set(outputs)
+    expected_scope = set(EXPECTED_OUTPUT_PATHS)
+    if actual_scope != expected_scope:
+        missing = sorted(expected_scope - actual_scope)
+        unexpected = sorted(actual_scope - expected_scope)
+        raise PublicationError(
+            "PUBLICATION_SCOPE_DRIFT",
+            f"missing={missing!r} unexpected={unexpected!r}",
+        )
     if check:
         drift = [path for path, content in outputs.items() if not (root / path).is_file() or (root / path).read_bytes() != content]
         if drift:
