@@ -1,83 +1,172 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "11.1",
-  "title": "Correct and validate platform-hosted thin-module authoring guidance",
-  "boundedOutcome": "Checkpoint A publishes one generated guidance bundle and reviewer decision covering exact ownership and prohibition rules; it does not create the fixture or calculate SM-2.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-11.1`, predecessor final-record digests, source and generated-bundle digests, reviewer identity/decision time, and the canonical candidate rule.",
+    "sectionSha256": "d6200354a29040f34c03a8df3dea18ba4eda0cb709d5bba402d96911ca0ed4b6"
+  },
   "predecessors": [
+    "10.4",
     "6.2",
-    "7.4",
-    "10.4"
+    "7.4"
   ],
-  "rollbackBoundary": "restore only the Story 11.1 guidance source and remove its generator, validator, generated v2 bundle, results, and final record; preserve all predecessor records and historical guidance evidence.",
-  "candidateBinding": "`SC-11.1`, predecessor final-record digests, source and generated-bundle digests, reviewer identity/decision time, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Correct and validate platform-hosted thin-module authoring guidance",
+    "bounded": "Checkpoint A publishes one generated guidance bundle and reviewer decision covering exact ownership and prohibition rules; it does not create the fixture or calculate SM-2."
+  },
+  "rollback": {
+    "boundary": "restore only the Story 11.1 guidance source and remove its generator, validator, generated v2 bundle, results, and final record; preserve all predecessor records and historical guidance evidence."
+  },
+  "inventory": {
     "id": "V9-11.1-ENTRY-v1",
     "sha256": "b6c050f6eb387a645fb85bff6d98be90ef9286227c33974c93269f8acbde56ac"
   },
-  "authoritySectionSha256": "d6200354a29040f34c03a8df3dea18ba4eda0cb709d5bba402d96911ca0ed4b6",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-11.1-final-record-v2.json",
-    "docs/release-evidence/story-11.1-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-11.1-01",
       "command": "python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --candidate HEAD --output artifacts/v9/11.1/AC-11.1-01.json",
       "contract": "| `AC-11.1-01` | Bound authority bundle, `PC`, `SC-11.1`, and all three predecessor records | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --candidate HEAD --output artifacts/v9/11.1/AC-11.1-01.json` | Exit `0`; `PASS`; candidate and exact predecessor record digests are compatible. Missing or mixed binding is `CANDIDATE_UNBOUND` or `PREDECESSOR_CANDIDATE_MISMATCH`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-02",
       "command": "python3 _bmad/scripts/generate_thin_authoring_guidance.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --schema docs/release-evidence/thin-authoring-guidance-v2.schema.json --output-json docs/release-evidence/thin-authoring-guidance-v2.json --output-markdown docs/release-evidence/thin-authoring-guidance-v2.md",
       "contract": "| `AC-11.1-02` | Guidance source and exact ownership inventory | `python3 _bmad/scripts/generate_thin_authoring_guidance.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --schema docs/release-evidence/thin-authoring-guidance-v2.schema.json --output-json docs/release-evidence/thin-authoring-guidance-v2.json --output-markdown docs/release-evidence/thin-authoring-guidance-v2.md` | Exit `0`; `PASS`; JSON/Markdown deterministically encode the exact module/platform ownership inventory. Missing, additional, or reassigned capability is `THIN_GUIDANCE_OWNERSHIP_INVALID`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-03",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldDefineOneNonShippingTestAppHost -trx artifacts/v9/11.1/AC-11.1-03.trx",
       "contract": "| `AC-11.1-03` | Generated bundle and project rules for the repository-only test AppHost | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldDefineOneNonShippingTestAppHost -trx artifacts/v9/11.1/AC-11.1-03.trx` | Exit `0`; `PASS`; exactly one test AppHost is allowed, is non-packable/non-publishable, remains repository-only, and is counted in SM-2. Violation is `APPHOST_BOUNDARY_INVALID`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-04",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldProhibitPlatformCapabilityOwnership -trx artifacts/v9/11.1/AC-11.1-04.trx",
       "contract": "| `AC-11.1-04` | Guidance bundle and prohibited inventory | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldProhibitPlatformCapabilityOwnership -trx artifacts/v9/11.1/AC-11.1-04.trx` | Exit `0`; `PASS`; reusable Aspire/ServiceDefaults, Dapr implementation, projection/query runtime, publication, health, telemetry, and subscription ownership are explicitly forbidden. Violation is `PROHIBITED_CAPABILITY_PRESENT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-05",
       "command": "python3 _bmad/scripts/verify_thin_authoring_guidance.py --repository . --evidence docs/release-evidence/thin-authoring-guidance-v2.json --markdown docs/release-evidence/thin-authoring-guidance-v2.md --require-review-decision --output artifacts/v9/11.1/AC-11.1-05.json",
       "contract": "| `AC-11.1-05` | Schema-valid bundle and a reviewer disposition bound to its signable-payload digest | `python3 _bmad/scripts/verify_thin_authoring_guidance.py --repository . --evidence docs/release-evidence/thin-authoring-guidance-v2.json --markdown docs/release-evidence/thin-authoring-guidance-v2.md --require-review-decision --output artifacts/v9/11.1/AC-11.1-05.json` | Exit `0`; `PASS`; decision is `approved`, names reviewer and UTC instant, and binds exact source/evidence digests. Absence is `REVIEW_DECISION_MISSING`; drift is `GUIDANCE_SOURCE_DRIFT` or `EVIDENCE_FORMAT_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-06",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_thin_authoring_guidance.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/11.1/AC-11.1-06.xml",
       "contract": "| `AC-11.1-06` | Fixtures reassign each platform capability, add a reusable Aspire library, make AppHost packable/publishable, omit its cost rule, alter source after generation, or remove review | `python3 -m pytest -q _bmad/scripts/tests/test_thin_authoring_guidance.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/11.1/AC-11.1-06.xml` | Exit `0`; every mutation yields its exact blocker from AC-11.1-02 through AC-11.1-05 and restores byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.1-07",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --format bundle --output-json docs/release-evidence/story-11.1-final-record-v2.json --output-markdown docs/release-evidence/story-11.1-final-record-v2.md",
       "contract": "| `AC-11.1-07` | AC-11.1-01 through AC-11.1-06 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --format bundle --output-json docs/release-evidence/story-11.1-final-record-v2.json --output-markdown docs/release-evidence/story-11.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.1`, all predecessor records, source/generated/reviewer digests, entry inventory, mutation ledger, and summary `7/7/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-11.1-final-record-v2.json",
+      "docs/release-evidence/story-11.1-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 7,
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

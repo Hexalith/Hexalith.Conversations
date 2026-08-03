@@ -1,99 +1,203 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "9.1",
-  "title": "Freeze the conformance assertion inventory, tier decisions, digest, and approvals",
-  "boundedOutcome": "one deterministic v2 disposition assigns every frozen pre-split assertion to a justified tier with strength and approval evidence.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-9.1`, Story 7.4 final-record digest, decision-v2 digest, and the canonical candidate rule.",
+    "sectionSha256": "5b62af3b04bff71cdf05c71a88c71ccf1c084c25ca87a506747bb4b9e0cd5358"
+  },
   "predecessors": [
     "7.4"
   ],
-  "rollbackBoundary": "remove only Story 9.1 generator, new v2 disposition, fixtures/results, and final record; preserve v1 artifacts, public-contract baselines, existing tests, and Story 6.9 partial work.",
-  "candidateBinding": "`SC-9.1`, Story 7.4 final-record digest, decision-v2 digest, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Freeze the conformance assertion inventory, tier decisions, digest, and approvals",
+    "bounded": "one deterministic v2 disposition assigns every frozen pre-split assertion to a justified tier with strength and approval evidence."
+  },
+  "rollback": {
+    "boundary": "remove only Story 9.1 generator, new v2 disposition, fixtures/results, and final record; preserve v1 artifacts, public-contract baselines, existing tests, and Story 6.9 partial work."
+  },
+  "inventory": {
     "id": "V9-9.1-ENTRY-v1",
     "sha256": "31e18fed38706bbb44e5a8059ff3ea30f00400708902694af697954b889bcdf1"
   },
-  "authoritySectionSha256": "5b62af3b04bff71cdf05c71a88c71ccf1c084c25ca87a506747bb4b9e0cd5358",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-9.1-final-record-v2.json",
-    "docs/release-evidence/story-9.1-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-9.1-01",
       "command": "python3 _bmad/scripts/generate_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --decision docs/release-evidence/conformance-oracle-tiering-decision-v2.json --output-schema docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json --output-json docs/release-evidence/conformance-oracle-tiering-disposition-v2.json --output-markdown docs/release-evidence/conformance-oracle-tiering-disposition-v2.md",
       "contract": "| `AC-9.1-01` | Both v9 authorities, bound `PC`, decision-v2, pre-split machine result, source tree, and `V9-9.1-ENTRY-v1` | `python3 _bmad/scripts/generate_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --decision docs/release-evidence/conformance-oracle-tiering-decision-v2.json --output-schema docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json --output-json docs/release-evidence/conformance-oracle-tiering-disposition-v2.json --output-markdown docs/release-evidence/conformance-oracle-tiering-disposition-v2.md` | Exit `0`; `PASS`; schema `hexalith.conversations.conformance-oracle-tiering-disposition.v2`; JSON and Markdown exist and bind the source/result/decision digests. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-02",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource -trx artifacts/v9/9.1/AC-9.1-02.trx",
       "contract": "| `AC-9.1-02` | Every pre-split test case and executable assertion site | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource -trx artifacts/v9/9.1/AC-9.1-02.trx` | Exit `0`; `PASS`; every identity occurs once with source and strength digest. Missing, duplicate, or renamed identity yields `CONFORMANCE_ASSERTION_MISSING`, `CONFORMANCE_ASSERTION_DUPLICATE`, or `CONFORMANCE_ASSERTION_RENAMED`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-03",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition -trx artifacts/v9/9.1/AC-9.1-03.trx",
       "contract": "| `AC-9.1-03` | Each assertion whose source binds a Server namespace or non-packable type | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition -trx artifacts/v9/9.1/AC-9.1-03.trx` | Exit `0`; `PASS`; each row has tier `portable` with exact public replacement at equal strength or `module-internal` with exact type and reason. Missing data is `TIER_UNASSIGNED` or `TIER_REASON_MISSING`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-04",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual -trx artifacts/v9/9.1/AC-9.1-04.trx",
       "contract": "| `AC-9.1-04` | Before/after canonical assertion material | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual -trx artifacts/v9/9.1/AC-9.1-04.trx` | Exit `0`; `PASS`; every before/after strength digest matches. Difference is `ASSERTION_STRENGTH_WEAKENED`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-05",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged -trx artifacts/v9/9.1/AC-9.1-05.trx",
       "contract": "| `AC-9.1-05` | The three frozen manifested denominator suites and FR-20 manifest membership | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged -trx artifacts/v9/9.1/AC-9.1-05.trx` | Exit `0`; `PASS`; identities and membership are unchanged. Difference is `FR20_DENOMINATOR_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-06",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals -trx artifacts/v9/9.1/AC-9.1-06.trx",
       "contract": "| `AC-9.1-06` | Every reclassified assertion and denominator-suite row | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals -trx artifacts/v9/9.1/AC-9.1-06.trx` | Exit `0`; `PASS`; named owner, approval identity, rationale, and versioned manifest update are present. Missing evidence is `TIER_APPROVAL_MISSING`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-07",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts -trx artifacts/v9/9.1/AC-9.1-07.trx",
       "contract": "| `AC-9.1-07` | Public-contract baseline before `PC` and candidate public surface | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts -trx artifacts/v9/9.1/AC-9.1-07.trx` | Exit `0`; `PASS`; public shape digest is unchanged. Any widening is `PUBLIC_CONTRACT_WIDENED`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-08",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1 -trx artifacts/v9/9.1/AC-9.1-08.trx",
       "contract": "| `AC-9.1-08` | Frozen v1 tiering artifacts and v2 `supersedes` link | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1 -trx artifacts/v9/9.1/AC-9.1-08.trx` | Exit `0`; `PASS`; v1 hashes match their protected inventory and v2 links them. Mutation is `V1_ARTIFACT_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-9.1-09",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --format bundle --output-json docs/release-evidence/story-9.1-final-record-v2.json --output-markdown docs/release-evidence/story-9.1-final-record-v2.md",
       "contract": "| `AC-9.1-09` | AC-9.1-01 through AC-9.1-08 and Story 7.4 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --format bundle --output-json docs/release-evidence/story-9.1-final-record-v2.json --output-markdown docs/release-evidence/story-9.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-9.1`, Story 7.4, decision/disposition/pre-split digests, assertion and strength inventories, approvals, inventory digest, and summary `9/9/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-9.1-final-record-v2.json",
+      "docs/release-evidence/story-9.1-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 9,
+      "passed": 9,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

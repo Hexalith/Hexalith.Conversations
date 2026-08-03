@@ -3,7 +3,7 @@ artifact: epic-6-current-execution-view-v2
 generated: '2026-08-03'
 generator_version: '1.0.0'
 generation_command: 'python3 _bmad/scripts/publish_v9_planning_authority.py --repository .'
-planning_candidate: '39c4b35dfa291ab94129f9787e4201dc0f621987'
+planning_candidate: 'd7f184f8ac401a74f3042e934b9aaa08631da869'
 epic_authority: 'epic-6-authority-2026-08-03-v10'
 architecture_authority: 'conversations-architecture-2026-08-03-v10'
 implementation_hold: 'ACTIVE'
@@ -34,7 +34,7 @@ non-amending.
 | 10.2 | Implement manifest, hash, ledger, exact-diff, and gitlink invariants | 10.1 | 9 |
 | 10.3 | Provide the evidence-boundary verifier and integrate every workflow surface | 10.2 | 8 |
 | 10.4 | Migrate frozen readers, repair gate spans, publish the runbook, and prove fault injection | 10.3 | 9 |
-| 11.1 | Correct and validate platform-hosted thin-module authoring guidance | 6.2, 7.4, 10.4 | 7 |
+| 11.1 | Correct and validate platform-hosted thin-module authoring guidance | 10.4, 6.2, 7.4 | 7 |
 | 11.2 | Build the reproducible minimal-module fixture against live platform APIs | 11.1 | 8 |
 | 11.3 | Generate authoritative SM-2 v2 evidence and decide OQ-2 | 11.2 | 7 |
 | 12.1 | Approve derived-key ownership, lifecycle, and rollback | 6.2 | 6 |
@@ -44,10 +44,10 @@ non-amending.
 | 13.1 | Validate historical proof and approve predecessor-chain ADR/schema | 7.4, 9.2 | 6 |
 | 13.2 | Generate the current successor proof and enforce drift/current-head guards | 13.1 | 7 |
 | 13.3 | Prove fault injection and bind manifest, conformance, handoff, and final record | 13.2 | 6 |
-| 14.1 | Freeze requirement, contract, test, UX and evidence denominators | 8.2, 9.2, 10.4, 13.3 | 8 |
+| 14.1 | Freeze requirement, contract, test, UX and evidence denominators | 10.4, 13.3, 8.2, 9.2 | 8 |
 | 14.2 | Bind dispositions, approvals, evidence, tiers, proof chains and candidate identity | 14.1 | 8 |
 | 14.3 | Run zero-gap validation and generate the manifest final record | 14.2 | 6 |
-| 15.1 | Revalidate all preservation, topology, correctness, and metric gates | 7.4, 8.2, 9.2, 10.4, 11.3, 12.4, 13.3, 14.3 | 11 |
+| 15.1 | Revalidate all preservation, topology, correctness, and metric gates | 10.4, 11.3, 12.4, 13.3, 14.3, 7.4, 8.2, 9.2 | 11 |
 | 15.2 | Generate the superseding attestation and predecessor-supersession record | 15.1 | 6 |
 
 ## Gate State

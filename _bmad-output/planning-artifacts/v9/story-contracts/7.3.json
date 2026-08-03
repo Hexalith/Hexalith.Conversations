@@ -1,82 +1,179 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "7.3",
-  "title": "Integrate generation into every blocking completion transition",
-  "boundedOutcome": "all governed workflow bodies and their generated twins use one parity-checked invocation before lifecycle transition.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-7.3` and final-record digests for 7.1 and 7.2.",
+    "sectionSha256": "7ea500acee30db9cba3d454e50d25968c4be3be56f116b3eb6555971d6870d1e"
+  },
   "predecessors": [
     "7.2"
   ],
-  "rollbackBoundary": "remove only Story 7.3 workflow invocations, parity guard, fixtures, results, and records as one unit; retain Stories 7.1-7.2.",
-  "candidateBinding": "`SC-7.3` and final-record digests for 7.1 and 7.2.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Integrate generation into every blocking completion transition",
+    "bounded": "all governed workflow bodies and their generated twins use one parity-checked invocation before lifecycle transition."
+  },
+  "rollback": {
+    "boundary": "remove only Story 7.3 workflow invocations, parity guard, fixtures, results, and records as one unit; retain Stories 7.1-7.2."
+  },
+  "inventory": {
     "id": "V9-7.3-ENTRY-v1",
     "sha256": "ca106f6ad40f3a2ca580358d74a1565c34611821bc1d25e51694972d46ae8ca2"
   },
-  "authoritySectionSha256": "7ea500acee30db9cba3d454e50d25968c4be3be56f116b3eb6555971d6870d1e",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-7.3-final-record-v2.json",
-    "docs/release-evidence/story-7.3-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-7.3-01",
       "command": "python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json",
       "contract": "| `AC-7.3-01` | Frozen surface inventory `bmad-dev-story/step-09`, `bmad-quick-dev/step-05-present`, `bmad-quick-dev/step-oneshot`, and `bmad-code-review/step-04-present` in `.agents` and `.claude`, plus both quick-dev render twins | `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json` | Exit `0`; `PASS`; acceptance-result v1 proves every frozen body invokes the same generator before `review`/`done`. Missing invocation is `WORKFLOW_INTEGRATION_MISSING`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-02",
       "command": "python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json",
       "contract": "| `AC-7.3-02` | The exact command, blocker branch, halt behavior, output paths, and inserted-marker contract for every surface | `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json` | Exit `0`; `PASS`; normalized bodies and render twins are equivalent. Difference is `SURFACE_PARITY_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-03",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_workflow_verifies_inserted_digest --junitxml=artifacts/v9/7.3/AC-7.3-03.xml",
       "contract": "| `AC-7.3-03` | Generated JSON, rendered Markdown, inserted Markdown, and declared digest for a fixture story | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_workflow_verifies_inserted_digest --junitxml=artifacts/v9/7.3/AC-7.3-03.xml` | Exit `0`; matching bytes pass; altered insertion proves generator exit `1`, `RECORD_CONTENT_DRIFT`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-04",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_removed_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-04.xml",
       "contract": "| `AC-7.3-04` | One workflow invocation is removed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_removed_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-04.xml` | Exit `0`; verifier exit `1`, `FAIL`, `WORKFLOW_INTEGRATION_MISSING`; transition stays unchanged. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-05",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_displaced_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-05.xml",
       "contract": "| `AC-7.3-05` | The positive span is displaced while decoy generator text remains elsewhere | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_displaced_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-05.xml` | Exit `0`; verifier exit `1`, `FAIL`, `WORKFLOW_INTEGRATION_DISPLACED`; whole-file vocabulary cannot pass. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-06",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocker_prevents_state_transition --junitxml=artifacts/v9/7.3/AC-7.3-06.xml",
       "contract": "| `AC-7.3-06` | Generator result is `FAIL` or `BLOCKED` on each completion surface | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocker_prevents_state_transition --junitxml=artifacts/v9/7.3/AC-7.3-06.xml` | Exit `0`; each surface preserves/returns to its pre-review state, emits the exact blockers, and does not claim CI integration. |",
-      "requiredResults": [
-        "FAIL",
-        "BLOCKED"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.3-07",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --format bundle --output-json docs/release-evidence/story-7.3-final-record-v2.json --output-markdown docs/release-evidence/story-7.3-final-record-v2.md",
       "contract": "| `AC-7.3-07` | AC-7.3-01 through AC-7.3-06 and predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --format bundle --output-json docs/release-evidence/story-7.3-final-record-v2.json --output-markdown docs/release-evidence/story-7.3-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.3`, records 7.1-7.2, inventory digest, six results, workflow body hashes, and summary `7/7/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-7.3-final-record-v2.json",
+      "docs/release-evidence/story-7.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 7,
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

@@ -1,97 +1,266 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "8.2",
-  "title": "Enforce the 52-decision/28-acceptance zero-gap validator",
-  "boundedOutcome": "one conformance validator proves exact denominator, identity, ownership, hash, ordering, rendering, and non-activation parity.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-8.2`, Story 8.1 final-record and disposition digests, and the canonical candidate rule.",
+    "sectionSha256": "d399c925a3648f5038cd2be9ed03bc5b9e271fed13c5ab95f2bc4f0ef95a8111"
+  },
   "predecessors": [
     "8.1"
   ],
-  "rollbackBoundary": "remove only Story 8.2 validator/fault fixtures/results and final record; retain accepted Story 8.1 outputs and all source UX bytes.",
-  "candidateBinding": "`SC-8.2`, Story 8.1 final-record and disposition digests, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Enforce the 52-decision/28-acceptance zero-gap validator",
+    "bounded": "one conformance validator proves exact denominator, identity, ownership, hash, ordering, rendering, and non-activation parity."
+  },
+  "rollback": {
+    "boundary": "remove only Story 8.2 validator/fault fixtures/results and final record; retain accepted Story 8.1 outputs and all source UX bytes."
+  },
+  "inventory": {
     "id": "V9-8.2-ENTRY-v1",
     "sha256": "d07cee1556fa039169ca2cfa6cfecbd123909b9da56ea729866c7a0591fd26e6"
   },
-  "authoritySectionSha256": "d399c925a3648f5038cd2be9ed03bc5b9e271fed13c5ab95f2bc4f0ef95a8111",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-8.2-final-record-v2.json",
-    "docs/release-evidence/story-8.2-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-8.2-01",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest -trx artifacts/v9/8.2/AC-8.2-01.trx",
       "contract": "| `AC-8.2-01` | Story 8.1 output with frozen 52/28 inventories and bound sources | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest -trx artifacts/v9/8.2/AC-8.2-01.trx` | Exit `0`; `PASS`; exactly 52 decisions and 28 acceptance IDs, zero skipped/not-run tests, nonempty assertions. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-02",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k missing_decision --junitxml=artifacts/v9/8.2/AC-8.2-02.xml",
       "contract": "| `AC-8.2-02` | One frozen decision is removed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k missing_decision --junitxml=artifacts/v9/8.2/AC-8.2-02.xml` | Exit `0`; negative fixture proves validator exit `1`, `UX_DECISION_MISSING`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-03",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k duplicate_decision --junitxml=artifacts/v9/8.2/AC-8.2-03.xml",
       "contract": "| `AC-8.2-03` | One frozen decision is duplicated | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k duplicate_decision --junitxml=artifacts/v9/8.2/AC-8.2-03.xml` | Exit `0`; validator exit `1`, `UX_DECISION_DUPLICATE`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-04",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k unknown_decision --junitxml=artifacts/v9/8.2/AC-8.2-04.xml",
       "contract": "| `AC-8.2-04` | One unknown decision ID is inserted | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k unknown_decision --junitxml=artifacts/v9/8.2/AC-8.2-04.xml` | Exit `0`; validator exit `1`, `UX_DECISION_UNKNOWN`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-05",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k acceptance_identity_faults --junitxml=artifacts/v9/8.2/AC-8.2-05.xml",
       "contract": "| `AC-8.2-05` | Missing, duplicate, and unknown acceptance-ID fixtures are run separately | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k acceptance_identity_faults --junitxml=artifacts/v9/8.2/AC-8.2-05.xml` | Exit `0`; each fixture yields only its exact `UX_ACCEPTANCE_MISSING`, `UX_ACCEPTANCE_DUPLICATE`, or `UX_ACCEPTANCE_UNKNOWN` blocker. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-06",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k ownership_and_hash_faults --junitxml=artifacts/v9/8.2/AC-8.2-06.xml",
       "contract": "| `AC-8.2-06` | One row lacks owner and a separate row lacks source SHA-256 | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k ownership_and_hash_faults --junitxml=artifacts/v9/8.2/AC-8.2-06.xml` | Exit `0`; separate fixtures prove `UX_OWNER_MISSING` and `UX_HASH_MISSING`; neither is accepted as N/A. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-07",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k source_drift --junitxml=artifacts/v9/8.2/AC-8.2-07.xml",
       "contract": "| `AC-8.2-07` | One canonical source byte changes after generation | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k source_drift --junitxml=artifacts/v9/8.2/AC-8.2-07.xml` | Exit `0`; validator exit `1`, `UX_SOURCE_DRIFT`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-08",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k rendering_and_order_drift --junitxml=artifacts/v9/8.2/AC-8.2-08.xml",
       "contract": "| `AC-8.2-08` | JSON is unchanged while Markdown or order is changed without regeneration | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k rendering_and_order_drift --junitxml=artifacts/v9/8.2/AC-8.2-08.xml` | Exit `0`; separate fixtures prove `UX_RENDER_DRIFT` and `UX_ORDER_DRIFT`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-09",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k activation_and_story_binding_faults --junitxml=artifacts/v9/8.2/AC-8.2-09.xml",
       "contract": "| `AC-8.2-09` | One row is activated or assigned current ownership to a historical/nonexistent story | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k activation_and_story_binding_faults --junitxml=artifacts/v9/8.2/AC-8.2-09.xml` | Exit `0`; separate fixtures prove `UX_ACTIVATION_UNAUTHORIZED` and `UX_CURRENT_STORY_INVALID`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-10",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k fixtures_restore_byte_identically --junitxml=artifacts/v9/8.2/AC-8.2-10.xml",
       "contract": "| `AC-8.2-10` | SHA-256 is captured before every AC-8.2-02 through AC-8.2-09 mutation | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k fixtures_restore_byte_identically --junitxml=artifacts/v9/8.2/AC-8.2-10.xml` | Exit `0`; every after-hash equals its before-hash; otherwise `FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.2-11",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.2.json --format bundle --output-json docs/release-evidence/story-8.2-final-record-v2.json --output-markdown docs/release-evidence/story-8.2-final-record-v2.md",
       "contract": "| `AC-8.2-11` | AC-8.2-01 through AC-8.2-10 and Story 8.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.2.json --format bundle --output-json docs/release-evidence/story-8.2-final-record-v2.json --output-markdown docs/release-evidence/story-8.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-8.2`, Story 8.1, 52/28 inventories, source/output hashes, mutation ledger, inventory digest, and summary `11/11/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-8.2-final-record-v2.json",
+      "docs/release-evidence/story-8.2-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 11,
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

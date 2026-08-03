@@ -1,75 +1,164 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "7.1",
-  "title": "Define the final-record schema and deterministic generator core",
-  "boundedOutcome": "the four schemas above and the v2 generator core produce schema-valid authoritative JSON plus digest-bound deterministic Markdown.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-7.1` under the canonical candidate rule.",
+    "sectionSha256": "dc9c8cb31d8e3209f8ac76e63190aef4bba4483e79b4ba763746f59000d4ed73"
+  },
   "predecessors": [
     "6.2"
   ],
-  "rollbackBoundary": "remove only new v2 schemas, generator-core changes, Story 7.1 tests/results, and Story 7.1 final-record outputs; preserve the v1 generator, Story 6.8 provenance, all completed records, and the v1-v8 prefix.",
-  "candidateBinding": "`SC-7.1` under the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Define the final-record schema and deterministic generator core",
+    "bounded": "the four schemas above and the v2 generator core produce schema-valid authoritative JSON plus digest-bound deterministic Markdown."
+  },
+  "rollback": {
+    "boundary": "remove only new v2 schemas, generator-core changes, Story 7.1 tests/results, and Story 7.1 final-record outputs; preserve the v1 generator, Story 6.8 provenance, all completed records, and the v1-v8 prefix."
+  },
+  "inventory": {
     "id": "V9-7.1-ENTRY-v1",
     "sha256": "5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e"
   },
-  "authoritySectionSha256": "dc9c8cb31d8e3209f8ac76e63190aef4bba4483e79b4ba763746f59000d4ed73",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-7.1-final-record-v2.json",
-    "docs/release-evidence/story-7.1-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-7.1-01",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/7.1/AC-7.1-01.xml",
       "contract": "| `AC-7.1-01` | Both v9 authorities, bound `PC`, `V9-7.1-ENTRY-v1`, and the four exact schema paths above | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/7.1/AC-7.1-01.xml` | Exit `0`; `PASS`; the schema metaschemas and required/closed fields validate. Missing or permissive fields produce exit `1`, `OUTPUT_SCHEMA_INVALID`; output is JUnit XML. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.1-02",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_deterministic_bundle --junitxml=artifacts/v9/7.1/AC-7.1-02.xml",
       "contract": "| `AC-7.1-02` | One hermetic fixture, fixed timestamps, identical ordered inputs, schema v2, and `SC-7.1` fixture bindings | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_deterministic_bundle --junitxml=artifacts/v9/7.1/AC-7.1-02.xml` | Exit `0`; `PASS`; two JSON byte streams and two Markdown byte streams are identical and `renderedMarkdownSha256` matches. Drift is exit `1`, `RECORD_CONTENT_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.1-03",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_caller_authored_facts --junitxml=artifacts/v9/7.1/AC-7.1-03.xml",
       "contract": "| `AC-7.1-03` | A fixture attempts to pass counts, paths, commits, or verdict as caller text | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_caller_authored_facts --junitxml=artifacts/v9/7.1/AC-7.1-03.xml` | Exit `0`; the negative test proves generator exit `1`, result `FAIL`, blocker `CALLER_AUTHORED_FACT`, and no passing record. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.1-04",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_empty_derivation --junitxml=artifacts/v9/7.1/AC-7.1-04.xml",
       "contract": "| `AC-7.1-04` | A valid contract yields no parsed result, resolved candidate, derived path, or executed assertion | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_empty_derivation --junitxml=artifacts/v9/7.1/AC-7.1-04.xml` | Exit `0`; the negative test proves generator exit `1`, `FAIL`, `RECORD_NOT_DERIVED` and `ASSERTION_LEDGER_EMPTY`. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.1-05",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_malformed_input_is_schema_valid_failure --junitxml=artifacts/v9/7.1/AC-7.1-05.xml",
       "contract": "| `AC-7.1-05` | Malformed JSON, unknown schema identity, and invalid CLI arguments are separate fixtures | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_malformed_input_is_schema_valid_failure --junitxml=artifacts/v9/7.1/AC-7.1-05.xml` | Exit `0`; each fixture produces schema-valid machine output, generator exit `1`, `FAIL`, and exact blocker `INPUT_SCHEMA_INVALID` or `ARGUMENT_INVALID`; no traceback or payload is emitted. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-7.1-06",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md",
       "contract": "| `AC-7.1-06` | AC-7.1-01 through AC-7.1-05 are current, passing, nonempty, and bound to `SC-7.1` | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md` | Exit `0`; `PASS`; schema `hexalith.conversations.story-final-record.v2`; both declared outputs exist and bind `PC`, bundle digest, `SC-7.1`, all ten gitlinks, inventory digest, five predecessor scenario results, rollback boundary, and summary `6/6/0/0/0/0`. Any missing binding is exit `1` with the applicable common blocker. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-7.1-final-record-v2.json",
+      "docs/release-evidence/story-7.1-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 6,
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

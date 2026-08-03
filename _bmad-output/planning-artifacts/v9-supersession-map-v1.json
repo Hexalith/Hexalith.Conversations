@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hexalith.conversations.v9-supersession-map.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
+  "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
   "authorities": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10"
@@ -106,515 +106,1614 @@
       "salvagePolicy": "prepared story remains provenance"
     }
   ],
-  "v8AcceptanceObligations": [
-    {
-      "sourceId": "V8-6.3-AC1",
-      "bindings": [
-        "AC-14.1-01",
-        "AC-14.1-02",
-        "AC-14.1-03",
-        "AC-14.1-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.3-AC2",
-      "bindings": [
-        "AC-14.2-01",
-        "AC-14.2-02",
-        "AC-14.2-03"
-      ]
-    },
-    {
-      "sourceId": "V8-6.3-AC3",
-      "bindings": [
-        "AC-14.2-02",
-        "AC-14.2-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.3-AC4",
-      "bindings": [
-        "AC-14.2-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.3-AC5",
-      "bindings": [
-        "AC-14.2-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.3-AC6",
-      "bindings": [
-        "AC-14.3-01",
-        "AC-14.3-02",
-        "AC-14.3-03",
-        "AC-14.3-04",
-        "AC-14.3-05",
-        "AC-14.3-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC1",
-      "bindings": [
-        "AC-8.1-02",
-        "AC-8.1-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC2",
-      "bindings": [
-        "AC-8.1-01"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC3",
-      "bindings": [
-        "AC-8.1-02",
-        "AC-8.1-03",
-        "AC-8.1-04",
-        "AC-8.1-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC4",
-      "bindings": [
-        "AC-8.1-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC5",
-      "bindings": [
-        "AC-8.2-01",
-        "AC-8.2-02",
-        "AC-8.2-03",
-        "AC-8.2-04",
-        "AC-8.2-05",
-        "AC-8.2-06",
-        "AC-8.2-07",
-        "AC-8.2-08",
-        "AC-8.2-09",
-        "AC-8.2-10"
-      ]
-    },
-    {
-      "sourceId": "V8-6.4-AC6",
-      "bindings": [
-        "AC-8.1-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC1",
-      "bindings": [
-        "AC-11.1-03",
-        "AC-11.1-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC2",
-      "bindings": [
-        "AC-11.1-02",
-        "AC-11.1-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC3",
-      "bindings": [
-        "AC-11.2-01",
-        "AC-11.2-02",
-        "AC-11.2-03",
-        "AC-11.2-04",
-        "AC-11.2-05",
-        "AC-11.2-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC4",
-      "bindings": [
-        "AC-11.3-01",
-        "AC-11.3-02",
-        "AC-11.3-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC5",
-      "bindings": [
-        "AC-11.3-03",
-        "AC-11.3-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.5-AC6",
-      "bindings": [
-        "AC-11.3-05",
-        "AC-11.3-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC1",
-      "bindings": [
-        "AC-15.1-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC2",
-      "bindings": [
-        "AC-15.1-03",
-        "AC-15.1-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC3",
-      "bindings": [
-        "AC-15.2-01",
-        "AC-15.2-02",
-        "AC-15.2-03",
-        "AC-15.2-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC4",
-      "bindings": [
-        "AC-15.1-01",
-        "AC-15.1-05",
-        "AC-15.1-06",
-        "AC-15.1-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC5",
-      "bindings": [
-        "NONSTORY:RG-15-INDEPENDENT-REVIEW"
-      ]
-    },
-    {
-      "sourceId": "V8-6.6-AC6",
-      "bindings": [
-        "NONSTORY:RG-15-RELEASE-DECISION"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC1",
-      "bindings": [
-        "AC-7.1-02",
-        "AC-7.2-02",
-        "AC-7.2-03",
-        "AC-7.2-04",
-        "AC-7.2-05",
-        "AC-7.2-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC2",
-      "bindings": [
-        "AC-7.2-01",
-        "AC-7.2-02",
-        "AC-7.2-03"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC3",
-      "bindings": [
-        "AC-7.2-04",
-        "AC-7.2-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC4",
-      "bindings": [
-        "AC-7.2-06",
-        "AC-7.2-07",
-        "AC-7.2-08",
-        "AC-7.2-09",
-        "AC-7.2-10",
-        "AC-7.2-11"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC5",
-      "bindings": [
-        "AC-7.3-01",
-        "AC-7.3-02",
-        "AC-7.3-03",
-        "AC-7.3-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC6",
-      "bindings": [
-        "AC-7.1-04",
-        "AC-7.3-04",
-        "AC-7.3-05",
-        "AC-7.3-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC7",
-      "bindings": [
-        "AC-7.4-01",
-        "AC-7.4-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.8-AC8",
-      "bindings": [
-        "AC-7.4-03",
-        "AC-7.4-04",
-        "AC-7.4-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC1",
-      "bindings": [
-        "AC-9.1-02",
-        "AC-9.1-03",
-        "AC-9.1-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC2",
-      "bindings": [
-        "AC-9.2-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC3",
-      "bindings": [
-        "AC-9.1-04",
-        "AC-9.2-04",
-        "AC-9.2-08"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC4",
-      "bindings": [
-        "AC-9.1-05",
-        "AC-9.1-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC5",
-      "bindings": [
-        "AC-9.1-08"
-      ]
-    },
-    {
-      "sourceId": "V8-6.9-AC6",
-      "bindings": [
-        "AC-9.2-05",
-        "AC-9.2-06",
-        "AC-9.2-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC1",
-      "bindings": [
-        "AC-10.1-01",
-        "AC-10.1-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC2",
-      "bindings": [
-        "AC-10.1-03",
-        "AC-10.1-04",
-        "AC-10.1-05",
-        "AC-10.1-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC3",
-      "bindings": [
-        "AC-10.2-01",
-        "AC-10.2-02",
-        "AC-10.2-03",
-        "AC-10.2-06",
-        "AC-10.2-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC4",
-      "bindings": [
-        "AC-10.2-04",
-        "AC-10.2-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC5",
-      "bindings": [
-        "AC-10.2-06",
-        "AC-10.2-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC6",
-      "bindings": [
-        "AC-10.3-01",
-        "AC-10.3-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC7",
-      "bindings": [
-        "AC-10.3-03",
-        "AC-10.3-04",
-        "AC-10.3-05",
-        "AC-10.3-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC8",
-      "bindings": [
-        "AC-10.4-01",
-        "AC-10.4-02",
-        "AC-10.4-03",
-        "AC-10.4-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC9",
-      "bindings": [
-        "AC-10.4-05",
-        "AC-10.4-06",
-        "AC-10.4-09"
-      ]
-    },
-    {
-      "sourceId": "V8-6.10-AC10",
-      "bindings": [
-        "AC-10.4-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC1",
-      "bindings": [
-        "AC-12.1-02",
-        "AC-12.1-03",
-        "AC-12.1-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC2",
-      "bindings": [
-        "AC-12.3-01",
-        "AC-12.3-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC3",
-      "bindings": [
-        "AC-12.3-03",
-        "AC-12.3-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC4",
-      "bindings": [
-        "AC-12.3-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC5",
-      "bindings": [
-        "AC-12.2-01",
-        "AC-12.2-02",
-        "AC-12.2-03"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC6",
-      "bindings": [
-        "AC-12.4-01",
-        "AC-12.4-03",
-        "AC-12.4-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC7",
-      "bindings": [
-        "AC-12.3-06",
-        "AC-12.4-02",
-        "AC-12.4-03"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC8",
-      "bindings": [
-        "AC-12.3-02",
-        "AC-12.3-03",
-        "AC-12.3-04",
-        "AC-12.3-07"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC9",
-      "bindings": [
-        "AC-12.4-01",
-        "AC-12.4-02",
-        "AC-12.4-03"
-      ]
-    },
-    {
-      "sourceId": "V8-6.11-AC10",
-      "bindings": [
-        "AC-12.4-03",
-        "AC-12.4-05",
-        "AC-12.4-06"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC1",
-      "bindings": [
-        "AC-13.1-01"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC2",
-      "bindings": [
-        "AC-13.1-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC3",
-      "bindings": [
-        "AC-13.1-03",
-        "AC-13.1-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC4",
-      "bindings": [
-        "AC-13.2-01",
-        "AC-13.2-02"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC5",
-      "bindings": [
-        "AC-13.2-03",
-        "AC-13.2-04"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC6",
-      "bindings": [
-        "AC-13.3-01"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC7",
-      "bindings": [
-        "AC-13.3-05"
-      ]
-    },
-    {
-      "sourceId": "V8-6.12-AC8",
-      "bindings": [
-        "AC-13.3-02",
-        "AC-13.3-03",
-        "AC-13.3-04",
-        "AC-13.3-06"
-      ]
+  "preservationDenominators": {
+    "functionalRequirements": {
+      "required": 124,
+      "mapped": 124
+    },
+    "nonFunctionalRequirements": {
+      "required": 77,
+      "mapped": 77
+    },
+    "uxDecisions": {
+      "required": 52,
+      "mapped": 52
+    },
+    "uxAcceptanceCriteria": {
+      "required": 28,
+      "mapped": 28
     }
-  ]
+  },
+  "obligationLedger": {
+    "inventoryId": "V9-V8-OBLIGATION-LEDGER-v1",
+    "sha256": "4dbffda456c4f40055985f303ed9d10d8e7839573e2486c4d01ca5508dca8f87",
+    "acceptanceCriteriaRows": 66,
+    "totalRows": 156,
+    "rows": [
+      {
+        "ordinal": 1,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC1",
+        "canonicalBinding": "AC-14.1-01,AC-14.1-02,AC-14.1-03,AC-14.1-04",
+        "effectiveBindings": [
+          "AC-14.1-01",
+          "AC-14.1-02",
+          "AC-14.1-03",
+          "AC-14.1-04"
+        ]
+      },
+      {
+        "ordinal": 2,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC2",
+        "canonicalBinding": "AC-14.2-01,AC-14.2-02,AC-14.2-03",
+        "effectiveBindings": [
+          "AC-14.2-01",
+          "AC-14.2-02",
+          "AC-14.2-03"
+        ]
+      },
+      {
+        "ordinal": 3,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC3",
+        "canonicalBinding": "AC-14.2-02,AC-14.2-06",
+        "effectiveBindings": [
+          "AC-14.2-02",
+          "AC-14.2-06"
+        ]
+      },
+      {
+        "ordinal": 4,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC4",
+        "canonicalBinding": "AC-14.2-04",
+        "effectiveBindings": [
+          "AC-14.2-04"
+        ]
+      },
+      {
+        "ordinal": 5,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC5",
+        "canonicalBinding": "AC-14.2-05",
+        "effectiveBindings": [
+          "AC-14.2-05"
+        ]
+      },
+      {
+        "ordinal": 6,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.3-AC6",
+        "canonicalBinding": "AC-14.3-01,AC-14.3-02,AC-14.3-03,AC-14.3-04,AC-14.3-05,AC-14.3-06",
+        "effectiveBindings": [
+          "AC-14.3-01",
+          "AC-14.3-02",
+          "AC-14.3-03",
+          "AC-14.3-04",
+          "AC-14.3-05",
+          "AC-14.3-06"
+        ]
+      },
+      {
+        "ordinal": 7,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC1",
+        "canonicalBinding": "AC-8.1-02,AC-8.1-05",
+        "effectiveBindings": [
+          "AC-8.1-02",
+          "AC-8.1-05"
+        ]
+      },
+      {
+        "ordinal": 8,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC2",
+        "canonicalBinding": "AC-8.1-01",
+        "effectiveBindings": [
+          "AC-8.1-01"
+        ]
+      },
+      {
+        "ordinal": 9,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC3",
+        "canonicalBinding": "AC-8.1-02,AC-8.1-03,AC-8.1-04,AC-8.1-05",
+        "effectiveBindings": [
+          "AC-8.1-02",
+          "AC-8.1-03",
+          "AC-8.1-04",
+          "AC-8.1-05"
+        ]
+      },
+      {
+        "ordinal": 10,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC4",
+        "canonicalBinding": "AC-8.1-05",
+        "effectiveBindings": [
+          "AC-8.1-05"
+        ]
+      },
+      {
+        "ordinal": 11,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC5",
+        "canonicalBinding": "AC-8.2-01,AC-8.2-02,AC-8.2-03,AC-8.2-04,AC-8.2-05,AC-8.2-06,AC-8.2-07,AC-8.2-08,AC-8.2-09,AC-8.2-10",
+        "effectiveBindings": [
+          "AC-8.2-01",
+          "AC-8.2-02",
+          "AC-8.2-03",
+          "AC-8.2-04",
+          "AC-8.2-05",
+          "AC-8.2-06",
+          "AC-8.2-07",
+          "AC-8.2-08",
+          "AC-8.2-09",
+          "AC-8.2-10"
+        ]
+      },
+      {
+        "ordinal": 12,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.4-AC6",
+        "canonicalBinding": "AC-8.1-06",
+        "effectiveBindings": [
+          "AC-8.1-06"
+        ]
+      },
+      {
+        "ordinal": 13,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC1",
+        "canonicalBinding": "AC-11.1-03,AC-11.1-04",
+        "effectiveBindings": [
+          "AC-11.1-03",
+          "AC-11.1-04"
+        ]
+      },
+      {
+        "ordinal": 14,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC2",
+        "canonicalBinding": "AC-11.1-02,AC-11.1-05",
+        "effectiveBindings": [
+          "AC-11.1-02",
+          "AC-11.1-05"
+        ]
+      },
+      {
+        "ordinal": 15,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC3",
+        "canonicalBinding": "AC-11.2-01,AC-11.2-02,AC-11.2-03,AC-11.2-04,AC-11.2-05,AC-11.2-06",
+        "effectiveBindings": [
+          "AC-11.2-01",
+          "AC-11.2-02",
+          "AC-11.2-03",
+          "AC-11.2-04",
+          "AC-11.2-05",
+          "AC-11.2-06"
+        ]
+      },
+      {
+        "ordinal": 16,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC4",
+        "canonicalBinding": "AC-11.3-01,AC-11.3-02,AC-11.3-04",
+        "effectiveBindings": [
+          "AC-11.3-01",
+          "AC-11.3-02",
+          "AC-11.3-04"
+        ]
+      },
+      {
+        "ordinal": 17,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC5",
+        "canonicalBinding": "AC-11.3-03,AC-11.3-06",
+        "effectiveBindings": [
+          "AC-11.3-03",
+          "AC-11.3-06"
+        ]
+      },
+      {
+        "ordinal": 18,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.5-AC6",
+        "canonicalBinding": "AC-11.3-05,AC-11.3-07",
+        "effectiveBindings": [
+          "AC-11.3-05",
+          "AC-11.3-07"
+        ]
+      },
+      {
+        "ordinal": 19,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC1",
+        "canonicalBinding": "AC-15.1-02",
+        "effectiveBindings": [
+          "AC-15.1-02"
+        ]
+      },
+      {
+        "ordinal": 20,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC2",
+        "canonicalBinding": "AC-15.1-03,AC-15.1-04",
+        "effectiveBindings": [
+          "AC-15.1-03",
+          "AC-15.1-04"
+        ]
+      },
+      {
+        "ordinal": 21,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC3",
+        "canonicalBinding": "AC-15.2-01,AC-15.2-02,AC-15.2-03,AC-15.2-04",
+        "effectiveBindings": [
+          "AC-15.2-01",
+          "AC-15.2-02",
+          "AC-15.2-03",
+          "AC-15.2-04"
+        ]
+      },
+      {
+        "ordinal": 22,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC4",
+        "canonicalBinding": "AC-15.1-01,AC-15.1-05,AC-15.1-06,AC-15.1-07",
+        "effectiveBindings": [
+          "AC-15.1-01",
+          "AC-15.1-05",
+          "AC-15.1-06",
+          "AC-15.1-07"
+        ]
+      },
+      {
+        "ordinal": 23,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC5",
+        "canonicalBinding": "NONSTORY:RG-15-INDEPENDENT-REVIEW",
+        "effectiveBindings": [
+          "NONSTORY:RG-15-INDEPENDENT-REVIEW"
+        ]
+      },
+      {
+        "ordinal": 24,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.6-AC6",
+        "canonicalBinding": "NONSTORY:RG-15-RELEASE-DECISION",
+        "effectiveBindings": [
+          "NONSTORY:RG-15-RELEASE-DECISION"
+        ]
+      },
+      {
+        "ordinal": 25,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC1",
+        "canonicalBinding": "AC-7.1-02,AC-7.2-02,AC-7.2-03,AC-7.2-04,AC-7.2-05,AC-7.2-06",
+        "effectiveBindings": [
+          "AC-7.1-02",
+          "AC-7.2-02",
+          "AC-7.2-03",
+          "AC-7.2-04",
+          "AC-7.2-05",
+          "AC-7.2-06"
+        ]
+      },
+      {
+        "ordinal": 26,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC2",
+        "canonicalBinding": "AC-7.2-01,AC-7.2-02,AC-7.2-03",
+        "effectiveBindings": [
+          "AC-7.2-01",
+          "AC-7.2-02",
+          "AC-7.2-03"
+        ]
+      },
+      {
+        "ordinal": 27,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC3",
+        "canonicalBinding": "AC-7.2-04,AC-7.2-05",
+        "effectiveBindings": [
+          "AC-7.2-04",
+          "AC-7.2-05"
+        ]
+      },
+      {
+        "ordinal": 28,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC4",
+        "canonicalBinding": "AC-7.2-06,AC-7.2-07,AC-7.2-08,AC-7.2-09,AC-7.2-10,AC-7.2-11",
+        "effectiveBindings": [
+          "AC-7.2-06",
+          "AC-7.2-07",
+          "AC-7.2-08",
+          "AC-7.2-09",
+          "AC-7.2-10",
+          "AC-7.2-11"
+        ]
+      },
+      {
+        "ordinal": 29,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC5",
+        "canonicalBinding": "AC-7.3-01,AC-7.3-02,AC-7.3-03,AC-7.3-06",
+        "effectiveBindings": [
+          "AC-7.3-01",
+          "AC-7.3-02",
+          "AC-7.3-03",
+          "AC-7.3-06"
+        ]
+      },
+      {
+        "ordinal": 30,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC6",
+        "canonicalBinding": "AC-7.1-04,AC-7.3-04,AC-7.3-05,AC-7.3-06",
+        "effectiveBindings": [
+          "AC-7.1-04",
+          "AC-7.3-04",
+          "AC-7.3-05",
+          "AC-7.3-06"
+        ]
+      },
+      {
+        "ordinal": 31,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC7",
+        "canonicalBinding": "AC-7.4-01,AC-7.4-02",
+        "effectiveBindings": [
+          "AC-7.4-01",
+          "AC-7.4-02"
+        ]
+      },
+      {
+        "ordinal": 32,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.8-AC8",
+        "canonicalBinding": "AC-7.4-03,AC-7.4-04,AC-7.4-05",
+        "effectiveBindings": [
+          "AC-7.4-03",
+          "AC-7.4-04",
+          "AC-7.4-05"
+        ]
+      },
+      {
+        "ordinal": 33,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC1",
+        "canonicalBinding": "AC-9.1-02,AC-9.1-03,AC-9.1-07",
+        "effectiveBindings": [
+          "AC-9.1-02",
+          "AC-9.1-03",
+          "AC-9.1-07"
+        ]
+      },
+      {
+        "ordinal": 34,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC2",
+        "canonicalBinding": "AC-9.2-02",
+        "effectiveBindings": [
+          "AC-9.2-02"
+        ]
+      },
+      {
+        "ordinal": 35,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC3",
+        "canonicalBinding": "AC-9.1-04,AC-9.2-04,AC-9.2-08",
+        "effectiveBindings": [
+          "AC-9.1-04",
+          "AC-9.2-04",
+          "AC-9.2-08"
+        ]
+      },
+      {
+        "ordinal": 36,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC4",
+        "canonicalBinding": "AC-9.1-05,AC-9.1-06",
+        "effectiveBindings": [
+          "AC-9.1-05",
+          "AC-9.1-06"
+        ]
+      },
+      {
+        "ordinal": 37,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC5",
+        "canonicalBinding": "AC-9.1-08",
+        "effectiveBindings": [
+          "AC-9.1-08"
+        ]
+      },
+      {
+        "ordinal": 38,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.9-AC6",
+        "canonicalBinding": "AC-9.2-05,AC-9.2-06,AC-9.2-07",
+        "effectiveBindings": [
+          "AC-9.2-05",
+          "AC-9.2-06",
+          "AC-9.2-07"
+        ]
+      },
+      {
+        "ordinal": 39,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC1",
+        "canonicalBinding": "AC-10.1-01,AC-10.1-02",
+        "effectiveBindings": [
+          "AC-10.1-01",
+          "AC-10.1-02"
+        ]
+      },
+      {
+        "ordinal": 40,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC2",
+        "canonicalBinding": "AC-10.1-03,AC-10.1-04,AC-10.1-05,AC-10.1-06",
+        "effectiveBindings": [
+          "AC-10.1-03",
+          "AC-10.1-04",
+          "AC-10.1-05",
+          "AC-10.1-06"
+        ]
+      },
+      {
+        "ordinal": 41,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC3",
+        "canonicalBinding": "AC-10.2-01,AC-10.2-02,AC-10.2-03,AC-10.2-06,AC-10.2-07",
+        "effectiveBindings": [
+          "AC-10.2-01",
+          "AC-10.2-02",
+          "AC-10.2-03",
+          "AC-10.2-06",
+          "AC-10.2-07"
+        ]
+      },
+      {
+        "ordinal": 42,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC4",
+        "canonicalBinding": "AC-10.2-04,AC-10.2-05",
+        "effectiveBindings": [
+          "AC-10.2-04",
+          "AC-10.2-05"
+        ]
+      },
+      {
+        "ordinal": 43,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC5",
+        "canonicalBinding": "AC-10.2-06,AC-10.2-07",
+        "effectiveBindings": [
+          "AC-10.2-06",
+          "AC-10.2-07"
+        ]
+      },
+      {
+        "ordinal": 44,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC6",
+        "canonicalBinding": "AC-10.3-01,AC-10.3-02",
+        "effectiveBindings": [
+          "AC-10.3-01",
+          "AC-10.3-02"
+        ]
+      },
+      {
+        "ordinal": 45,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC7",
+        "canonicalBinding": "AC-10.3-03,AC-10.3-04,AC-10.3-05,AC-10.3-06",
+        "effectiveBindings": [
+          "AC-10.3-03",
+          "AC-10.3-04",
+          "AC-10.3-05",
+          "AC-10.3-06"
+        ]
+      },
+      {
+        "ordinal": 46,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC8",
+        "canonicalBinding": "AC-10.4-01,AC-10.4-02,AC-10.4-03,AC-10.4-04",
+        "effectiveBindings": [
+          "AC-10.4-01",
+          "AC-10.4-02",
+          "AC-10.4-03",
+          "AC-10.4-04"
+        ]
+      },
+      {
+        "ordinal": 47,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC9",
+        "canonicalBinding": "AC-10.4-05,AC-10.4-06",
+        "effectiveBindings": [
+          "AC-10.4-05",
+          "AC-10.4-06",
+          "AC-10.4-09"
+        ]
+      },
+      {
+        "ordinal": 48,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.10-AC10",
+        "canonicalBinding": "AC-10.4-07",
+        "effectiveBindings": [
+          "AC-10.4-07"
+        ]
+      },
+      {
+        "ordinal": 49,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC1",
+        "canonicalBinding": "AC-12.1-02,AC-12.1-03,AC-12.1-04",
+        "effectiveBindings": [
+          "AC-12.1-02",
+          "AC-12.1-03",
+          "AC-12.1-04"
+        ]
+      },
+      {
+        "ordinal": 50,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC2",
+        "canonicalBinding": "AC-12.3-01,AC-12.3-02",
+        "effectiveBindings": [
+          "AC-12.3-01",
+          "AC-12.3-02"
+        ]
+      },
+      {
+        "ordinal": 51,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC3",
+        "canonicalBinding": "AC-12.3-03,AC-12.3-04",
+        "effectiveBindings": [
+          "AC-12.3-03",
+          "AC-12.3-04"
+        ]
+      },
+      {
+        "ordinal": 52,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC4",
+        "canonicalBinding": "AC-12.3-05",
+        "effectiveBindings": [
+          "AC-12.3-05"
+        ]
+      },
+      {
+        "ordinal": 53,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC5",
+        "canonicalBinding": "AC-12.2-01,AC-12.2-02,AC-12.2-03",
+        "effectiveBindings": [
+          "AC-12.2-01",
+          "AC-12.2-02",
+          "AC-12.2-03"
+        ]
+      },
+      {
+        "ordinal": 54,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC6",
+        "canonicalBinding": "AC-12.4-01,AC-12.4-03,AC-12.4-04",
+        "effectiveBindings": [
+          "AC-12.4-01",
+          "AC-12.4-03",
+          "AC-12.4-04"
+        ]
+      },
+      {
+        "ordinal": 55,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC7",
+        "canonicalBinding": "AC-12.3-06,AC-12.4-02,AC-12.4-03",
+        "effectiveBindings": [
+          "AC-12.3-06",
+          "AC-12.4-02",
+          "AC-12.4-03"
+        ]
+      },
+      {
+        "ordinal": 56,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC8",
+        "canonicalBinding": "AC-12.3-02,AC-12.3-03,AC-12.3-04,AC-12.3-07",
+        "effectiveBindings": [
+          "AC-12.3-02",
+          "AC-12.3-03",
+          "AC-12.3-04",
+          "AC-12.3-07"
+        ]
+      },
+      {
+        "ordinal": 57,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC9",
+        "canonicalBinding": "AC-12.4-01,AC-12.4-02,AC-12.4-03",
+        "effectiveBindings": [
+          "AC-12.4-01",
+          "AC-12.4-02",
+          "AC-12.4-03"
+        ]
+      },
+      {
+        "ordinal": 58,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.11-AC10",
+        "canonicalBinding": "AC-12.4-03,AC-12.4-05,AC-12.4-06",
+        "effectiveBindings": [
+          "AC-12.4-03",
+          "AC-12.4-05",
+          "AC-12.4-06"
+        ]
+      },
+      {
+        "ordinal": 59,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC1",
+        "canonicalBinding": "AC-13.1-01",
+        "effectiveBindings": [
+          "AC-13.1-01"
+        ]
+      },
+      {
+        "ordinal": 60,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC2",
+        "canonicalBinding": "AC-13.1-02",
+        "effectiveBindings": [
+          "AC-13.1-02"
+        ]
+      },
+      {
+        "ordinal": 61,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC3",
+        "canonicalBinding": "AC-13.1-03,AC-13.1-04",
+        "effectiveBindings": [
+          "AC-13.1-03",
+          "AC-13.1-04"
+        ]
+      },
+      {
+        "ordinal": 62,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC4",
+        "canonicalBinding": "AC-13.2-01,AC-13.2-02",
+        "effectiveBindings": [
+          "AC-13.2-01",
+          "AC-13.2-02"
+        ]
+      },
+      {
+        "ordinal": 63,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC5",
+        "canonicalBinding": "AC-13.2-03,AC-13.2-04",
+        "effectiveBindings": [
+          "AC-13.2-03",
+          "AC-13.2-04"
+        ]
+      },
+      {
+        "ordinal": 64,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC6",
+        "canonicalBinding": "AC-13.3-01",
+        "effectiveBindings": [
+          "AC-13.3-01"
+        ]
+      },
+      {
+        "ordinal": 65,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC7",
+        "canonicalBinding": "AC-13.3-05",
+        "effectiveBindings": [
+          "AC-13.3-05"
+        ]
+      },
+      {
+        "ordinal": 66,
+        "table": "acceptance-criteria",
+        "sourceId": "V8-6.12-AC8",
+        "canonicalBinding": "AC-13.3-02,AC-13.3-03,AC-13.3-04,AC-13.3-06",
+        "effectiveBindings": [
+          "AC-13.3-02",
+          "AC-13.3-03",
+          "AC-13.3-04",
+          "AC-13.3-06"
+        ]
+      },
+      {
+        "ordinal": 67,
+        "table": "supporting-obligations",
+        "sourceId": "V8-GLOBAL-HOLD",
+        "canonicalBinding": "NONEXEC:HOLD-ACTIVE-UNTIL-VALIDATOR-PASS+IR0-READY+RELEASE-OWNER-LIFT",
+        "effectiveBindings": [
+          "NONEXEC:HOLD-ACTIVE-UNTIL-VALIDATOR-PASS+IR0-READY+RELEASE-OWNER-LIFT"
+        ]
+      },
+      {
+        "ordinal": 68,
+        "table": "supporting-obligations",
+        "sourceId": "V8-GLOBAL-NO-IMPLEMENTATION",
+        "canonicalBinding": "NONEXEC:V9-PUBLICATION-ONLY",
+        "effectiveBindings": [
+          "NONEXEC:V9-PUBLICATION-ONLY"
+        ]
+      },
+      {
+        "ordinal": 69,
+        "table": "supporting-obligations",
+        "sourceId": "V8-GLOBAL-V1-V8-HISTORY",
+        "canonicalBinding": "IMMUTABLE:EPIC-6-HISTORICAL-FOUNDATION",
+        "effectiveBindings": [
+          "IMMUTABLE:EPIC-6-HISTORICAL-FOUNDATION"
+        ]
+      },
+      {
+        "ordinal": 70,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-PROHIBITION-DENOMINATOR-DRIFT",
+        "canonicalBinding": "AC-14.1-01,AC-14.1-02,AC-14.1-03,AC-14.1-04",
+        "effectiveBindings": [
+          "AC-14.1-01",
+          "AC-14.1-02",
+          "AC-14.1-03",
+          "AC-14.1-04"
+        ]
+      },
+      {
+        "ordinal": 71,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-PROHIBITION-FR16-ACTIVATION",
+        "canonicalBinding": "AC-14.1-05,AC-14.3-03",
+        "effectiveBindings": [
+          "AC-14.1-05",
+          "AC-14.3-03"
+        ]
+      },
+      {
+        "ordinal": 72,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-PROHIBITION-HISTORY-AS-CURRENT",
+        "canonicalBinding": "AC-14.2-05",
+        "effectiveBindings": [
+          "AC-14.2-05"
+        ]
+      },
+      {
+        "ordinal": 73,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-14.1-08",
+        "effectiveBindings": [
+          "AC-14.1-08"
+        ]
+      },
+      {
+        "ordinal": 74,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-DEPENDENCY-6.9",
+        "canonicalBinding": "AC-14.1-08",
+        "effectiveBindings": [
+          "AC-14.1-08"
+        ]
+      },
+      {
+        "ordinal": 75,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-DEPENDENCY-6.10",
+        "canonicalBinding": "AC-14.1-08",
+        "effectiveBindings": [
+          "AC-14.1-08"
+        ]
+      },
+      {
+        "ordinal": 76,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-DEPENDENCY-6.12",
+        "canonicalBinding": "AC-14.1-08",
+        "effectiveBindings": [
+          "AC-14.1-08"
+        ]
+      },
+      {
+        "ordinal": 77,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-EVIDENCE-APPROVAL-COMPATIBILITY-HASH-TIER-PROOF",
+        "canonicalBinding": "AC-14.2-02,AC-14.2-03,AC-14.2-04,AC-14.2-05,AC-14.2-06",
+        "effectiveBindings": [
+          "AC-14.2-02",
+          "AC-14.2-03",
+          "AC-14.2-04",
+          "AC-14.2-05",
+          "AC-14.2-06"
+        ]
+      },
+      {
+        "ordinal": 78,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-ROLLBACK-VERSIONED-MANIFEST",
+        "canonicalBinding": "AC-14.3-05",
+        "effectiveBindings": [
+          "AC-14.3-05"
+        ]
+      },
+      {
+        "ordinal": 79,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.3-COMPLETION-GATE-SAME-CANDIDATE",
+        "canonicalBinding": "AC-14.3-01,AC-14.3-06",
+        "effectiveBindings": [
+          "AC-14.3-01",
+          "AC-14.3-06"
+        ]
+      },
+      {
+        "ordinal": 80,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-DEPENDENCY-6.1",
+        "canonicalBinding": "IMMUTABLE:STORY-6.1-DONE",
+        "effectiveBindings": [
+          "IMMUTABLE:STORY-6.1-DONE"
+        ]
+      },
+      {
+        "ordinal": 81,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-8.1-07",
+        "effectiveBindings": [
+          "AC-8.1-07"
+        ]
+      },
+      {
+        "ordinal": 82,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-PROHIBITION-UI-ACTIVATION",
+        "canonicalBinding": "AC-8.1-06",
+        "effectiveBindings": [
+          "AC-8.1-06"
+        ]
+      },
+      {
+        "ordinal": 83,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-EVIDENCE-UX-52-28-PARITY",
+        "canonicalBinding": "AC-8.2-01,AC-8.2-08",
+        "effectiveBindings": [
+          "AC-8.2-01",
+          "AC-8.2-08"
+        ]
+      },
+      {
+        "ordinal": 84,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-ROLLBACK-PRESERVE-UX-SOURCES",
+        "canonicalBinding": "AC-8.2-10",
+        "effectiveBindings": [
+          "AC-8.2-10"
+        ]
+      },
+      {
+        "ordinal": 85,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.4-COMPLETION-GATE-ZERO-GAP",
+        "canonicalBinding": "AC-8.2-11",
+        "effectiveBindings": [
+          "AC-8.2-11"
+        ]
+      },
+      {
+        "ordinal": 86,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-CHECKPOINT-A",
+        "canonicalBinding": "AC-11.1-02,AC-11.1-03,AC-11.1-04,AC-11.1-05",
+        "effectiveBindings": [
+          "AC-11.1-02",
+          "AC-11.1-03",
+          "AC-11.1-04",
+          "AC-11.1-05"
+        ]
+      },
+      {
+        "ordinal": 87,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-CHECKPOINT-B",
+        "canonicalBinding": "AC-11.2-01,AC-11.2-02,AC-11.2-03,AC-11.2-04,AC-11.2-05,AC-11.2-06",
+        "effectiveBindings": [
+          "AC-11.2-01",
+          "AC-11.2-02",
+          "AC-11.2-03",
+          "AC-11.2-04",
+          "AC-11.2-05",
+          "AC-11.2-06"
+        ]
+      },
+      {
+        "ordinal": 88,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-CHECKPOINT-C",
+        "canonicalBinding": "AC-11.3-01,AC-11.3-02,AC-11.3-03,AC-11.3-04",
+        "effectiveBindings": [
+          "AC-11.3-01",
+          "AC-11.3-02",
+          "AC-11.3-03",
+          "AC-11.3-04"
+        ]
+      },
+      {
+        "ordinal": 89,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-DEPENDENCY-6.2",
+        "canonicalBinding": "AC-11.1-01",
+        "effectiveBindings": [
+          "AC-11.1-01"
+        ]
+      },
+      {
+        "ordinal": 90,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-11.1-01",
+        "effectiveBindings": [
+          "AC-11.1-01"
+        ]
+      },
+      {
+        "ordinal": 91,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-DEPENDENCY-6.10",
+        "canonicalBinding": "AC-11.1-01",
+        "effectiveBindings": [
+          "AC-11.1-01"
+        ]
+      },
+      {
+        "ordinal": 92,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-PROHIBITION-PLATFORM-CAPABILITY-OWNERSHIP",
+        "canonicalBinding": "AC-11.1-04",
+        "effectiveBindings": [
+          "AC-11.1-04"
+        ]
+      },
+      {
+        "ordinal": 93,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-EVIDENCE-SM2-FROZEN-INCLUSION",
+        "canonicalBinding": "AC-11.3-01,AC-11.3-02,AC-11.3-04",
+        "effectiveBindings": [
+          "AC-11.3-01",
+          "AC-11.3-02",
+          "AC-11.3-04"
+        ]
+      },
+      {
+        "ordinal": 94,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-ROLLBACK-CHECKPOINTS",
+        "canonicalBinding": "AC-11.1-06,AC-11.2-07,AC-11.3-06",
+        "effectiveBindings": [
+          "AC-11.1-06",
+          "AC-11.2-07",
+          "AC-11.3-06"
+        ]
+      },
+      {
+        "ordinal": 95,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.5-COMPLETION-GATE-ALL-CHECKPOINTS",
+        "canonicalBinding": "AC-11.3-05,AC-11.3-07",
+        "effectiveBindings": [
+          "AC-11.3-05",
+          "AC-11.3-07"
+        ]
+      },
+      {
+        "ordinal": 96,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.3",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 97,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.4",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 98,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.5",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 99,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 100,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.9",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 101,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.10",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 102,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.11",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 103,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-DEPENDENCY-6.12",
+        "canonicalBinding": "AC-15.1-01",
+        "effectiveBindings": [
+          "AC-15.1-01"
+        ]
+      },
+      {
+        "ordinal": 104,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-EVIDENCE-SIGNED-V1-ADR3-PROOF-CHAIN-RERUN",
+        "canonicalBinding": "AC-15.2-01,AC-15.2-02,AC-15.2-03,AC-15.2-04",
+        "effectiveBindings": [
+          "AC-15.2-01",
+          "AC-15.2-02",
+          "AC-15.2-03",
+          "AC-15.2-04"
+        ]
+      },
+      {
+        "ordinal": 105,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-PROHIBITION-V6-CEILING-OR-DISCLOSURE-PASS",
+        "canonicalBinding": "AC-15.1-02",
+        "effectiveBindings": [
+          "AC-15.1-02"
+        ]
+      },
+      {
+        "ordinal": 106,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-PROHIBITION-NO-PRESCRIBED-VERDICT",
+        "canonicalBinding": "NONSTORY:RG-15-INDEPENDENT-REVIEW",
+        "effectiveBindings": [
+          "NONSTORY:RG-15-INDEPENDENT-REVIEW"
+        ]
+      },
+      {
+        "ordinal": 107,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-ROLLBACK-ADDITIVE-ATTESTATION",
+        "canonicalBinding": "AC-15.2-04,AC-15.2-05",
+        "effectiveBindings": [
+          "AC-15.2-04",
+          "AC-15.2-05"
+        ]
+      },
+      {
+        "ordinal": 108,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-COMPLETION-GATE-LAST",
+        "canonicalBinding": "AC-15.1-01,AC-15.2-06",
+        "effectiveBindings": [
+          "AC-15.1-01",
+          "AC-15.2-06"
+        ]
+      },
+      {
+        "ordinal": 109,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.6-GATE-INDEPENDENT-READINESS-AND-RELEASE-DECISION",
+        "canonicalBinding": "NONSTORY:RG-15-INDEPENDENT-REVIEW,RG-15-RELEASE-DECISION",
+        "effectiveBindings": [
+          "NONSTORY:RG-15-INDEPENDENT-REVIEW",
+          "RG-15-RELEASE-DECISION"
+        ]
+      },
+      {
+        "ordinal": 110,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-DEPENDENCY-6.2",
+        "canonicalBinding": "AC-7.1-01",
+        "effectiveBindings": [
+          "AC-7.1-01"
+        ]
+      },
+      {
+        "ordinal": 111,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-EVIDENCE-FOUR-DERIVATION-SOURCES",
+        "canonicalBinding": "AC-7.2-02,AC-7.2-04,AC-7.2-06,AC-7.2-09",
+        "effectiveBindings": [
+          "AC-7.2-02",
+          "AC-7.2-04",
+          "AC-7.2-06",
+          "AC-7.2-09"
+        ]
+      },
+      {
+        "ordinal": 112,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-PROHIBITION-PROTECTED-SOURCE-CONTRACT-PACKAGE-BASELINE-EVIDENCE",
+        "canonicalBinding": "AC-7.2-05,AC-7.4-01",
+        "effectiveBindings": [
+          "AC-7.2-05",
+          "AC-7.4-01"
+        ]
+      },
+      {
+        "ordinal": 113,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-PROHIBITION-NO-CLOSED-RECORD-REWRITE",
+        "canonicalBinding": "AC-7.4-01",
+        "effectiveBindings": [
+          "AC-7.4-01"
+        ]
+      },
+      {
+        "ordinal": 114,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-PROHIBITION-NO-SUBMODULE-MUTATION-OR-TRAVERSAL",
+        "canonicalBinding": "AC-7.2-07,AC-7.2-08,AC-7.2-09,AC-7.2-10",
+        "effectiveBindings": [
+          "AC-7.2-07",
+          "AC-7.2-08",
+          "AC-7.2-09",
+          "AC-7.2-10"
+        ]
+      },
+      {
+        "ordinal": 115,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-PROHIBITION-NO-CI-CLAIM",
+        "canonicalBinding": "AC-7.3-06",
+        "effectiveBindings": [
+          "AC-7.3-06"
+        ]
+      },
+      {
+        "ordinal": 116,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-ROLLBACK-FAULT-BYTE-RESTORATION",
+        "canonicalBinding": "AC-7.4-04",
+        "effectiveBindings": [
+          "AC-7.4-04"
+        ]
+      },
+      {
+        "ordinal": 117,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.8-COMPLETION-GATE-NONVACUOUS-MECHANICAL-RECORD",
+        "canonicalBinding": "AC-7.4-05,AC-7.4-06",
+        "effectiveBindings": [
+          "AC-7.4-05",
+          "AC-7.4-06"
+        ]
+      },
+      {
+        "ordinal": 118,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-DEPENDENCY-6.1",
+        "canonicalBinding": "AC-9.1-01",
+        "effectiveBindings": [
+          "AC-9.1-01"
+        ]
+      },
+      {
+        "ordinal": 119,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-PROHIBITION-NO-PUBLIC-WIDENING",
+        "canonicalBinding": "AC-9.1-07",
+        "effectiveBindings": [
+          "AC-9.1-07"
+        ]
+      },
+      {
+        "ordinal": 120,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-PROHIBITION-NO-REMOVE-SKIP-RENAME-WEAKEN",
+        "canonicalBinding": "AC-9.1-02,AC-9.1-04,AC-9.2-08",
+        "effectiveBindings": [
+          "AC-9.1-02",
+          "AC-9.1-04",
+          "AC-9.2-08"
+        ]
+      },
+      {
+        "ordinal": 121,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-EVIDENCE-PRESPLIT-AND-SUMMED-EXECUTION",
+        "canonicalBinding": "AC-9.2-04,AC-9.2-08",
+        "effectiveBindings": [
+          "AC-9.2-04",
+          "AC-9.2-08"
+        ]
+      },
+      {
+        "ordinal": 122,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-ROLLBACK-RESTORE-MIGRATED-ASSERTIONS",
+        "canonicalBinding": "AC-9.2-09",
+        "effectiveBindings": [
+          "AC-9.2-09"
+        ]
+      },
+      {
+        "ordinal": 123,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.9-COMPLETION-GATE-BOTH-TIERS",
+        "canonicalBinding": "AC-9.2-06,AC-9.2-07,AC-9.2-10",
+        "effectiveBindings": [
+          "AC-9.2-06",
+          "AC-9.2-07",
+          "AC-9.2-10"
+        ]
+      },
+      {
+        "ordinal": 124,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-10.1-07",
+        "effectiveBindings": [
+          "AC-10.1-07"
+        ]
+      },
+      {
+        "ordinal": 125,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-DEPENDENCY-6.9",
+        "canonicalBinding": "AC-10.1-07",
+        "effectiveBindings": [
+          "AC-10.1-07"
+        ]
+      },
+      {
+        "ordinal": 126,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-PROHIBITION-SIGNED-EVIDENCE-ALLOWLIST",
+        "canonicalBinding": "AC-10.2-07",
+        "effectiveBindings": [
+          "AC-10.2-07"
+        ]
+      },
+      {
+        "ordinal": 127,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-PROHIBITION-UNAVAILABLE-HISTORY-PASS",
+        "canonicalBinding": "AC-10.2-06",
+        "effectiveBindings": [
+          "AC-10.2-06"
+        ]
+      },
+      {
+        "ordinal": 128,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-PROHIBITION-VACUOUS-PASS",
+        "canonicalBinding": "AC-10.2-06",
+        "effectiveBindings": [
+          "AC-10.2-06"
+        ]
+      },
+      {
+        "ordinal": 129,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-PROHIBITION-PROJECTION-PROOF-ABSORPTION",
+        "canonicalBinding": "AC-10.4-04",
+        "effectiveBindings": [
+          "AC-10.4-04"
+        ]
+      },
+      {
+        "ordinal": 130,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-PROHIBITION-NO-CI-CLAIM",
+        "canonicalBinding": "AC-10.4-05",
+        "effectiveBindings": [
+          "AC-10.4-05"
+        ]
+      },
+      {
+        "ordinal": 131,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-EVIDENCE-FROZEN-READERS-AND-STRENGTH",
+        "canonicalBinding": "AC-10.4-01,AC-10.4-02",
+        "effectiveBindings": [
+          "AC-10.4-01",
+          "AC-10.4-02"
+        ]
+      },
+      {
+        "ordinal": 132,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-ROLLBACK-FAULT-BYTE-RESTORATION",
+        "canonicalBinding": "AC-10.4-06",
+        "effectiveBindings": [
+          "AC-10.4-06"
+        ]
+      },
+      {
+        "ordinal": 133,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.10-COMPLETION-GATE-BOUNDARY-AND-SPAN",
+        "canonicalBinding": "AC-10.4-07,AC-10.4-08",
+        "effectiveBindings": [
+          "AC-10.4-07",
+          "AC-10.4-08"
+        ]
+      },
+      {
+        "ordinal": 134,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-DEPENDENCY-6.2",
+        "canonicalBinding": "AC-12.1-01",
+        "effectiveBindings": [
+          "AC-12.1-01"
+        ]
+      },
+      {
+        "ordinal": 135,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-EVENTSTORE-ONLY-WRITE-AUTHORITY",
+        "canonicalBinding": "AC-12.1-03",
+        "effectiveBindings": [
+          "AC-12.1-03"
+        ]
+      },
+      {
+        "ordinal": 136,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-READS-NEVER-REPAIR-DURABLE-STATE",
+        "canonicalBinding": "AC-12.3-02",
+        "effectiveBindings": [
+          "AC-12.3-02"
+        ]
+      },
+      {
+        "ordinal": 137,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-NO-PUBLIC-CONTRACT-DRIFT",
+        "canonicalBinding": "AC-12.3-05",
+        "effectiveBindings": [
+          "AC-12.3-05"
+        ]
+      },
+      {
+        "ordinal": 138,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-NO-THRESHOLD-CHANGE",
+        "canonicalBinding": "AC-12.2-02",
+        "effectiveBindings": [
+          "AC-12.2-02"
+        ]
+      },
+      {
+        "ordinal": 139,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-NO-ADVERSE-SAMPLE-DISCARD",
+        "canonicalBinding": "AC-12.2-03",
+        "effectiveBindings": [
+          "AC-12.2-03"
+        ]
+      },
+      {
+        "ordinal": 140,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-NO-CORRECTNESS-WEAKENING",
+        "canonicalBinding": "AC-12.3-06,AC-12.4-03",
+        "effectiveBindings": [
+          "AC-12.3-06",
+          "AC-12.4-03"
+        ]
+      },
+      {
+        "ordinal": 141,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-PROHIBITION-NO-COST-DISCLOSURE-APPROVAL-SUBSTITUTE",
+        "canonicalBinding": "AC-12.4-03,AC-12.4-04",
+        "effectiveBindings": [
+          "AC-12.4-03",
+          "AC-12.4-04"
+        ]
+      },
+      {
+        "ordinal": 142,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-EVIDENCE-RAW-SAMPLES-ENVIRONMENT-CALCULATION-SIGNAL-IDENTITY",
+        "canonicalBinding": "AC-12.4-01,AC-12.4-02,AC-12.4-03",
+        "effectiveBindings": [
+          "AC-12.4-01",
+          "AC-12.4-02",
+          "AC-12.4-03"
+        ]
+      },
+      {
+        "ordinal": 143,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-ROLLBACK-CORRECTNESS-PRESERVING",
+        "canonicalBinding": "AC-12.3-07,AC-12.4-05",
+        "effectiveBindings": [
+          "AC-12.3-07",
+          "AC-12.4-05"
+        ]
+      },
+      {
+        "ordinal": 144,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.11-COMPLETION-GATE-UNIVERSAL-SM-C2",
+        "canonicalBinding": "AC-12.4-03,AC-12.4-06",
+        "effectiveBindings": [
+          "AC-12.4-03",
+          "AC-12.4-06"
+        ]
+      },
+      {
+        "ordinal": 145,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-CHECKPOINT-A",
+        "canonicalBinding": "AC-13.1-01,AC-13.1-02,AC-13.1-03,AC-13.1-04",
+        "effectiveBindings": [
+          "AC-13.1-01",
+          "AC-13.1-02",
+          "AC-13.1-03",
+          "AC-13.1-04"
+        ]
+      },
+      {
+        "ordinal": 146,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-CHECKPOINT-B",
+        "canonicalBinding": "AC-13.2-01,AC-13.2-02,AC-13.2-03,AC-13.2-04",
+        "effectiveBindings": [
+          "AC-13.2-01",
+          "AC-13.2-02",
+          "AC-13.2-03",
+          "AC-13.2-04"
+        ]
+      },
+      {
+        "ordinal": 147,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-CHECKPOINT-C",
+        "canonicalBinding": "AC-13.3-01,AC-13.3-02,AC-13.3-03,AC-13.3-04,AC-13.3-05",
+        "effectiveBindings": [
+          "AC-13.3-01",
+          "AC-13.3-02",
+          "AC-13.3-03",
+          "AC-13.3-04",
+          "AC-13.3-05"
+        ]
+      },
+      {
+        "ordinal": 148,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-DEPENDENCY-6.8",
+        "canonicalBinding": "AC-13.1-01",
+        "effectiveBindings": [
+          "AC-13.1-01"
+        ]
+      },
+      {
+        "ordinal": 149,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-PROHIBITION-NO-V2-MUTATION",
+        "canonicalBinding": "AC-13.1-01",
+        "effectiveBindings": [
+          "AC-13.1-01"
+        ]
+      },
+      {
+        "ordinal": 150,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-PROHIBITION-NO-PRODUCTION-CONTRACT-PACKAGE-BASELINE-SUBMODULE-CHANGE",
+        "canonicalBinding": "AC-13.2-04",
+        "effectiveBindings": [
+          "AC-13.2-04"
+        ]
+      },
+      {
+        "ordinal": 151,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-PROHIBITION-NO-BACKLOG-AS-CURRENT-PROOF",
+        "canonicalBinding": "AC-13.3-05",
+        "effectiveBindings": [
+          "AC-13.3-05"
+        ]
+      },
+      {
+        "ordinal": 152,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-PROHIBITION-NO-ASSERTION-WEAKENING",
+        "canonicalBinding": "AC-13.3-02,AC-13.3-03,AC-13.3-04",
+        "effectiveBindings": [
+          "AC-13.3-02",
+          "AC-13.3-03",
+          "AC-13.3-04"
+        ]
+      },
+      {
+        "ordinal": 153,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-EVIDENCE-HISTORICAL-CANDIDATE-BLOBS",
+        "canonicalBinding": "AC-13.1-01",
+        "effectiveBindings": [
+          "AC-13.1-01"
+        ]
+      },
+      {
+        "ordinal": 154,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-EVIDENCE-CURRENT-PROOF-CHAIN",
+        "canonicalBinding": "AC-13.3-05",
+        "effectiveBindings": [
+          "AC-13.3-05"
+        ]
+      },
+      {
+        "ordinal": 155,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-ROLLBACK-CHECKPOINTS",
+        "canonicalBinding": "AC-13.1-05,AC-13.2-06,AC-13.3-01",
+        "effectiveBindings": [
+          "AC-13.1-05",
+          "AC-13.2-06",
+          "AC-13.3-01"
+        ]
+      },
+      {
+        "ordinal": 156,
+        "table": "supporting-obligations",
+        "sourceId": "V8-6.12-COMPLETION-GATE-ALL-EIGHT-SAME-CANDIDATE",
+        "canonicalBinding": "AC-13.3-06",
+        "effectiveBindings": [
+          "AC-13.3-06"
+        ]
+      }
+    ]
+  }
 }

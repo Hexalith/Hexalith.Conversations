@@ -1,89 +1,203 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "10.2",
-  "title": "Implement manifest, hash, ledger, exact-diff, and gitlink invariants",
-  "boundedOutcome": "shared helpers enforce manifest, signable-payload, exact path, gitlink, history, root-of-trust, and anti-vacuity invariants.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-10.2`, Story 10.1 final-record digest, and the canonical candidate rule.",
+    "sectionSha256": "74274182fdcc274d8e98e3cff46c513ad37757624b2423e66a3f55b216937645"
+  },
   "predecessors": [
     "10.1"
   ],
-  "rollbackBoundary": "remove only Story 10.2 invariant code/tests/results and record; retain Story 10.1 intact.",
-  "candidateBinding": "`SC-10.2`, Story 10.1 final-record digest, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Implement manifest, hash, ledger, exact-diff, and gitlink invariants",
+    "bounded": "shared helpers enforce manifest, signable-payload, exact path, gitlink, history, root-of-trust, and anti-vacuity invariants."
+  },
+  "rollback": {
+    "boundary": "remove only Story 10.2 invariant code/tests/results and record; retain Story 10.1 intact."
+  },
+  "inventory": {
     "id": "V9-10.2-ENTRY-v1",
     "sha256": "9195f98c90362ce4035ef2223fcf6eab1cc705d0c7cc7ace47b0de9dc809ca4c"
   },
-  "authoritySectionSha256": "74274182fdcc274d8e98e3cff46c513ad37757624b2423e66a3f55b216937645",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-10.2-final-record-v2.json",
-    "docs/release-evidence/story-10.2-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-10.2-01",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.ManifestShouldRecomputeContainedFilesAndHashes -trx artifacts/v9/10.2/AC-10.2-01.trx",
       "contract": "| `AC-10.2-01` | Manifest paths, declared lowercase SHA-256 values, roles, repository root, and real files | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.ManifestShouldRecomputeContainedFilesAndHashes -trx artifacts/v9/10.2/AC-10.2-01.trx` | Exit `0`; `PASS`; paths are relative/contained/existing and recomputed hashes equal declarations. Escape, absence, or mismatch has exact blocker `EVIDENCE_PATH_ESCAPE`, `EVIDENCE_FILE_MISSING`, or `EVIDENCE_HASH_MISMATCH`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-02",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.GeneratedAndBuildOutputsShouldBeRejected -trx artifacts/v9/10.2/AC-10.2-02.trx",
       "contract": "| `AC-10.2-02` | Manifest includes a `bin/`, `obj/`, or `/generated/` path | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.GeneratedAndBuildOutputsShouldBeRejected -trx artifacts/v9/10.2/AC-10.2-02.trx` | Exit `0`; negative fixtures prove `EVIDENCE_OUTPUT_FORBIDDEN`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-03",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.SignablePayloadShouldBeRecomputed -trx artifacts/v9/10.2/AC-10.2-03.trx",
       "contract": "| `AC-10.2-03` | Canonical ordinal `(path,sha256,role)` rows and declared signable payload digest | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.SignablePayloadShouldBeRecomputed -trx artifacts/v9/10.2/AC-10.2-03.trx` | Exit `0`; `PASS`; recomputed digest matches. Trusted declaration or mismatch is `SIGNABLE_PAYLOAD_MISMATCH`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-04",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.ChangedPathsShouldUseExactSetEquality -trx artifacts/v9/10.2/AC-10.2-04.trx",
       "contract": "| `AC-10.2-04` | Expected and Git-derived changed-path sets with one missing and one unexpected path fixture | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.ChangedPathsShouldUseExactSetEquality -trx artifacts/v9/10.2/AC-10.2-04.trx` | Exit `0`; clean equality passes; subset/superset fixtures prove `CHANGED_PATH_SET_MISMATCH`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-05",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.GitlinksShouldBeDetectedFromRawModes -trx artifacts/v9/10.2/AC-10.2-05.trx",
       "contract": "| `AC-10.2-05` | Raw diff contains one mode-`160000` entry and decoy text/hash containing `160000` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.GitlinksShouldBeDetectedFromRawModes -trx artifacts/v9/10.2/AC-10.2-05.trx` | Exit `0`; only the raw-mode entry is rejected with `EVIDENCE_BOUNDARY_GITLINK`; decoys do not trigger. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-06",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.AssertionLedgerTests.UnavailableHistoryShouldSkipAndNeverPass -trx artifacts/v9/10.2/AC-10.2-06.trx",
       "contract": "| `AC-10.2-06` | Unresolvable history and a consuming test assertion ledger | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.AssertionLedgerTests.UnavailableHistoryShouldSkipAndNeverPass -trx artifacts/v9/10.2/AC-10.2-06.trx` | Exit `0`; consuming check visibly skips and ledger remains zero; any success is `UNAVAILABLE_HISTORY_PASSED`; any final pass with zero is `ASSERTION_LEDGER_EMPTY`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-07",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.RootsOfTrustAndSignedEvidenceShouldRemainPinned -trx artifacts/v9/10.2/AC-10.2-07.trx",
       "contract": "| `AC-10.2-07` | Signed source constants in consuming test and a supersession allowlist | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.RootsOfTrustAndSignedEvidenceShouldRemainPinned -trx artifacts/v9/10.2/AC-10.2-07.trx` | Exit `0`; roots remain in consuming source and allowlist cannot contain `docs/release-evidence/`; violation is `ROOT_OF_TRUST_NOT_PINNED` or `SIGNED_EVIDENCE_ALLOWLISTED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-08",
       "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceBoundaryFaultTests.AllInvariantFaultsShouldFailAndRestore -trx artifacts/v9/10.2/AC-10.2-08.trx",
       "contract": "| `AC-10.2-08` | Each AC-10.2-01 through AC-10.2-07 fault plus before-hashes | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceBoundaryFaultTests.AllInvariantFaultsShouldFailAndRestore -trx artifacts/v9/10.2/AC-10.2-08.trx` | Exit `0`; every exact blocker occurs and after-hashes equal before-hashes. Undetected/unrestored is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-10.2-09",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.2.json --format bundle --output-json docs/release-evidence/story-10.2-final-record-v2.json --output-markdown docs/release-evidence/story-10.2-final-record-v2.md",
       "contract": "| `AC-10.2-09` | AC-10.2-01 through AC-10.2-08 and Story 10.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.2.json --format bundle --output-json docs/release-evidence/story-10.2-final-record-v2.json --output-markdown docs/release-evidence/story-10.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.2`, Story 10.1, invariant assembly/results, root constants, mutation ledger, inventory digest, and summary `9/9/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-10.2-final-record-v2.json",
+      "docs/release-evidence/story-10.2-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 9,
+      "passed": 9,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

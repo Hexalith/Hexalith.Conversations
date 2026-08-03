@@ -1,91 +1,188 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "11.2",
-  "title": "Build the reproducible minimal-module fixture against live platform APIs",
-  "boundedOutcome": "Checkpoint B produces one non-shipping fixture that restores, builds, and tests cleanly against live public platform APIs; it does not calculate or decide SM-2.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-11.2`, Story 11.1 final-record/guidance digests, exact fixture inventory, resolved platform project/assembly hashes, and the canonical candidate rule.",
+    "sectionSha256": "c6692cf4d9a99bd7dac80847571b379f0d918ca86107cfdca37d267b8ed6b8ea"
+  },
   "predecessors": [
     "11.1"
   ],
-  "rollbackBoundary": "remove only the frozen fixture, fixture proof generator, validator, results, generated proof, and Story 11.2 record; retain Story 11.1.",
-  "candidateBinding": "`SC-11.2`, Story 11.1 final-record/guidance digests, exact fixture inventory, resolved platform project/assembly hashes, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Build the reproducible minimal-module fixture against live platform APIs",
+    "bounded": "Checkpoint B produces one non-shipping fixture that restores, builds, and tests cleanly against live public platform APIs; it does not calculate or decide SM-2."
+  },
+  "rollback": {
+    "boundary": "remove only the frozen fixture, fixture proof generator, validator, results, generated proof, and Story 11.2 record; retain Story 11.1."
+  },
+  "inventory": {
     "id": "V9-11.2-ENTRY-v1",
     "sha256": "2aa59728bdc866263bf31a5f258fb80935fa07485459f795f07f6eb60eb123ac"
   },
-  "authoritySectionSha256": "c6692cf4d9a99bd7dac80847571b379f0d918ca86107cfdca37d267b8ed6b8ea",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-11.2-final-record-v2.json",
-    "docs/release-evidence/story-11.2-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-11.2-01",
       "command": "python3 _bmad/scripts/verify_minimal_module_fixture.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --inventory-only --output artifacts/v9/11.2/AC-11.2-01.json",
       "contract": "| `AC-11.2-01` | Story 11.1 record and exact frozen path inventory at `SC-11.2` | `python3 _bmad/scripts/verify_minimal_module_fixture.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --inventory-only --output artifacts/v9/11.2/AC-11.2-01.json` | Exit `0`; `PASS`; exact set/digest matches and every path is contained, source-controlled, hand-authored, and LF-normalized. Drift is `MINIMAL_FIXTURE_INVENTORY_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-02",
       "command": "dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode",
       "contract": "| `AC-11.2-02` | Exact fixture solution and repository lock files | `dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode` | Exit `0`; `PASS`; all assets resolve from repository-approved sources. Failure is `MINIMAL_FIXTURE_RESTORE_FAILED`. |",
-      "requiredResults": [
-        "PASS",
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-03",
       "command": "dotnet build tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore",
       "contract": "| `AC-11.2-03` | Restored fixture at `SC-11.2` | `dotnet build tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors clean build uses live public platform APIs. Failure is `MINIMAL_FIXTURE_BUILD_FAILED`; private/internal API reference is `NONPUBLIC_PLATFORM_API_USED`. |",
-      "requiredResults": [
-        "PASS",
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-04",
       "command": "dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll -automated sync -failSkips -trx artifacts/v9/11.2/minimal-module.trx",
       "contract": "| `AC-11.2-04` | Built minimal-module tests | `dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll -automated sync -failSkips -trx artifacts/v9/11.2/minimal-module.trx` | Exit `0`; `PASS`; nonzero tests execute with zero failed/skipped/not-run and prove registration, command handling, event production, and platform-hosted subscription/projection/query/publication paths. Empty/vacuous execution is `MINIMAL_FIXTURE_TESTS_VACUOUS`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-05",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary -trx artifacts/v9/11.2/AC-11.2-05.trx",
       "contract": "| `AC-11.2-05` | Evaluated fixture project graph and AppHost properties | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary -trx artifacts/v9/11.2/AC-11.2-05.trx` | Exit `0`; `PASS`; exactly one test AppHost is non-packable/non-publishable and no reusable module Aspire/ServiceDefaults project exists. Violation is `APPHOST_BOUNDARY_INVALID` or `REUSABLE_ASPIRE_LIBRARY_PRESENT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-06",
       "command": "python3 _bmad/scripts/generate_minimal_module_fixture_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --test-result artifacts/v9/11.2/minimal-module.trx --output-json docs/release-evidence/thin-module-fixture-proof-v1.json --output-markdown docs/release-evidence/thin-module-fixture-proof-v1.md",
       "contract": "| `AC-11.2-06` | Build/test outputs, resolved public API graph, exact inventory, and guidance digest | `python3 _bmad/scripts/generate_minimal_module_fixture_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --test-result artifacts/v9/11.2/minimal-module.trx --output-json docs/release-evidence/thin-module-fixture-proof-v1.json --output-markdown docs/release-evidence/thin-module-fixture-proof-v1.md` | Exit `0`; `PASS`; schema-valid JSON/Markdown bind exact commands, tool versions, candidate, public API/assembly hashes, AppHost facts, inventory, results, and signable-payload digest. Drift is `FIXTURE_PROOF_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-07",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/11.2/AC-11.2-07.xml",
       "contract": "| `AC-11.2-07` | Fixtures add/remove AppHost, make it shipping, add reusable Aspire/ServiceDefaults or platform runtime ownership, use an internal API, remove tests, or change inventory | `python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/11.2/AC-11.2-07.xml` | Exit `0`; every mutation produces its exact blocker from AC-11.2-01 through AC-11.2-06 and restores byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.2-08",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --format bundle --output-json docs/release-evidence/story-11.2-final-record-v2.json --output-markdown docs/release-evidence/story-11.2-final-record-v2.md",
       "contract": "| `AC-11.2-08` | AC-11.2-01 through AC-11.2-07 and Story 11.1 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --format bundle --output-json docs/release-evidence/story-11.2-final-record-v2.json --output-markdown docs/release-evidence/story-11.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.2`, Story 11.1, fixture/project/public-API/result/proof digests, both inventories, mutation ledger, and summary `8/8/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-11.2-final-record-v2.json",
+      "docs/release-evidence/story-11.2-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 8,
+      "passed": 8,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

@@ -1,78 +1,189 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "12.3",
-  "title": "Implement correctness-preserving list/open optimization and migration behavior",
-  "boundedOutcome": "production derived-key and migration/replay behavior is implemented with all correctness lanes green; no final SM-C2 evidence is issued.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-12.3`, both predecessor records, affected production paths and EventStore gitlink, public contract snapshot, result/proof digests.",
+    "sectionSha256": "6a7c8ae697c2514dfb834d883e25f01e2bdee8da2fc702e44a534f23a7e7cf4d"
+  },
   "predecessors": [
     "12.1",
     "12.2"
   ],
-  "rollbackBoundary": "revert the exact Story 12.3 production migration as one unit and remove its tests/proof/record; derived state is rebuilt from EventStore under ADR rollback, never reverse-written. Retain Stories 12.1-12.2.",
-  "candidateBinding": "`SC-12.3`, both predecessor records, affected production paths and EventStore gitlink, public contract snapshot, result/proof digests.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Implement correctness-preserving list/open optimization and migration behavior",
+    "bounded": "production derived-key and migration/replay behavior is implemented with all correctness lanes green; no final SM-C2 evidence is issued."
+  },
+  "rollback": {
+    "boundary": "revert the exact Story 12.3 production migration as one unit and remove its tests/proof/record; derived state is rebuilt from EventStore under ADR rollback, never reverse-written. Retain Stories 12.1-12.2."
+  },
+  "inventory": {
     "id": "V9-12.3-ENTRY-v1",
     "sha256": "90b74a649cd827494f199bb722c3e1708306cc212f5a12df7325218dc4c31546"
   },
-  "authoritySectionSha256": "6a7c8ae697c2514dfb834d883e25f01e2bdee8da2fc702e44a534f23a7e7cf4d",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-12.3-final-record-v2.json",
-    "docs/release-evidence/story-12.3-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-12.3-01",
       "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.ListAndOpenShouldUseApprovedBoundedReads -trx artifacts/v9/12.3/AC-12.3-01.trx",
       "contract": "| `AC-12.3-01` | ADR key families and production list/open path inventory | `dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.ListAndOpenShouldUseApprovedBoundedReads -trx artifacts/v9/12.3/AC-12.3-01.trx` | Exit `0`; list/open remove only explicitly proved full-index/per-row fan-out. Unexpected read is `DERIVED_KEY_FANOUT_UNBOUNDED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-02",
       "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.InvalidDerivedStateShouldFailClosedWithoutRepair -trx artifacts/v9/12.3/AC-12.3-02.trx",
       "contract": "| `AC-12.3-02` | Missing, duplicate, stale, advanced, malformed, misfiled, pending, and inconsistent derived-state fixtures | `dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.InvalidDerivedStateShouldFailClosedWithoutRepair -trx artifacts/v9/12.3/AC-12.3-02.trx` | Exit `0`; every case fails closed and performs zero durable repair. Violation is `DERIVED_STATE_FAIL_CLOSED_VIOLATION` or `READ_SIDE_REPAIR_ATTEMPTED`. |",
-      "requiredResults": [
-        "FAIL"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-03",
       "command": "dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests -trx artifacts/v9/12.3/integration.trx",
       "contract": "| `AC-12.3-03` | Tenant collisions, retries/idempotency, delayed/out-of-order delivery, equal-position conflict, deletion, replay, and interrupted rebuild | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests -trx artifacts/v9/12.3/integration.trx` | Exit `0`; nonzero execution is deterministic/non-disclosing. Failure is `TENANT_DISCLOSURE`, `REPLAY_NONDETERMINISTIC`, or `DERIVED_KEY_TRANSITION_UNSAFE`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-04",
       "command": "dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net10.0/Hexalith.Conversations.AppHost.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests -trx artifacts/v9/12.3/dapr.trx",
       "contract": "| `AC-12.3-04` | Real Dapr state-store lane with partial writes, latency, unavailable store, poison records, retries, and concurrency faults | `dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net10.0/Hexalith.Conversations.AppHost.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests -trx artifacts/v9/12.3/dapr.trx` | Exit `0`; all faults fail closed/recover deterministically with zero cross-tenant disclosure. Red/skip/not-run is `DAPR_CORRECTNESS_LANE_RED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-05",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.PublicQueryCompatibilityTests.DerivedKeyOptimizationShouldPreserveQueryContract -trx artifacts/v9/12.3/AC-12.3-05.trx",
       "contract": "| `AC-12.3-05` | Public query snapshot, filters, ordering, cursors, freshness vocabulary, forbidden/nonexistent equivalence, and response shapes | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.PublicQueryCompatibilityTests.DerivedKeyOptimizationShouldPreserveQueryContract -trx artifacts/v9/12.3/AC-12.3-05.trx` | Exit `0`; exact snapshot unchanged; drift is `PUBLIC_QUERY_CONTRACT_DRIFT`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-06",
       "command": "python3 _bmad/scripts/generate_derived_key_correctness_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --unit-result artifacts/v9/12.3/AC-12.3-02.trx --integration-result artifacts/v9/12.3/integration.trx --dapr-result artifacts/v9/12.3/dapr.trx --output-json docs/release-evidence/derived-key-correctness-proof-v1.json --output-markdown docs/release-evidence/derived-key-correctness-proof-v1.md",
       "contract": "| `AC-12.3-06` | Three lane results, path/contract inventories, ADR/method, and rollback rehearsal | `python3 _bmad/scripts/generate_derived_key_correctness_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --unit-result artifacts/v9/12.3/AC-12.3-02.trx --integration-result artifacts/v9/12.3/integration.trx --dapr-result artifacts/v9/12.3/dapr.trx --output-json docs/release-evidence/derived-key-correctness-proof-v1.json --output-markdown docs/release-evidence/derived-key-correctness-proof-v1.md` | Exit `0`; proof recomputes identities/results and rollback; any empty/red lane is `CORRECTNESS_GATE_RED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-07",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_derived_key_correctness.py -k complete_fault_matrix --junitxml=artifacts/v9/12.3/AC-12.3-07.xml",
       "contract": "| `AC-12.3-07` | Every invalid-state and Dapr fault plus tenant/replay/public-contract/read-repair mutations | `python3 -m pytest -q _bmad/scripts/tests/test_derived_key_correctness.py -k complete_fault_matrix --junitxml=artifacts/v9/12.3/AC-12.3-07.xml` | Exit `0`; exact blockers occur and all fixtures restore. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.3-08",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --format bundle --output-json docs/release-evidence/story-12.3-final-record-v2.json --output-markdown docs/release-evidence/story-12.3-final-record-v2.md",
       "contract": "| `AC-12.3-08` | AC-12.3-01 through AC-12.3-07 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --format bundle --output-json docs/release-evidence/story-12.3-final-record-v2.json --output-markdown docs/release-evidence/story-12.3-final-record-v2.md` | Exit `0`; record binds source, predecessors, three lanes, proof/rollback/mutations/inventory, summary `8/8/0/0/0/0`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-12.3-final-record-v2.json",
+      "docs/release-evidence/story-12.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 8,
+      "passed": 8,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

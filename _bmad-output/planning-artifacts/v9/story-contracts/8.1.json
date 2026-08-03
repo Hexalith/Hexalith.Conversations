@@ -1,83 +1,167 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "8.1",
-  "title": "Generate the versioned UX disposition contract",
-  "boundedOutcome": "exactly one schema/JSON/Markdown bundle projects canonical UX sources, decisions, acceptance IDs, and historical provenance.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-8.1`, Story 7.4 final-record digest, and the canonical candidate rule.",
+    "sectionSha256": "92b1d38aeb2dc0468843670de4b82adb7ca7e4280bd3aa274b3886f6ba2154c3"
+  },
   "predecessors": [
     "7.4"
   ],
-  "rollbackBoundary": "remove only the Story 8.1 generator, schema, results, three disposition outputs, and final record; preserve both UX sources, historical mappings, product/UI code, and the v1-v8 prefix.",
-  "candidateBinding": "`SC-8.1`, Story 7.4 final-record digest, and the canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Generate the versioned UX disposition contract",
+    "bounded": "exactly one schema/JSON/Markdown bundle projects canonical UX sources, decisions, acceptance IDs, and historical provenance."
+  },
+  "rollback": {
+    "boundary": "remove only the Story 8.1 generator, schema, results, three disposition outputs, and final record; preserve both UX sources, historical mappings, product/UI code, and the v1-v8 prefix."
+  },
+  "inventory": {
     "id": "V9-8.1-ENTRY-v1",
     "sha256": "6c61eb92078755496c73506419112026e3e9b7f63bb314b1028d4e9c7bb41ef9"
   },
-  "authoritySectionSha256": "92b1d38aeb2dc0468843670de4b82adb7ca7e4280bd3aa274b3886f6ba2154c3",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-8.1-final-record-v2.json",
-    "docs/release-evidence/story-8.1-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-8.1-01",
       "command": "python3 _bmad/scripts/generate_ux_preservation_disposition.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --output-schema docs/release-evidence/ux-preservation-disposition-v1.schema.json --output-json docs/release-evidence/ux-preservation-disposition-v1.json --output-markdown docs/release-evidence/ux-preservation-disposition-v1.md",
       "contract": "| `AC-8.1-01` | Both v9 authorities, bound `PC`, `V9-8.1-ENTRY-v1`, canonical UX specification/map, and closed UX-disposition schema | `python3 _bmad/scripts/generate_ux_preservation_disposition.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --output-schema docs/release-evidence/ux-preservation-disposition-v1.schema.json --output-json docs/release-evidence/ux-preservation-disposition-v1.json --output-markdown docs/release-evidence/ux-preservation-disposition-v1.md` | Exit `0`; `PASS`; schema `hexalith.conversations.ux-preservation-disposition.v1`; all three outputs exist and Markdown digest matches. Invalid shape is `UX_SCHEMA_INVALID`; nondeterminism is `UX_RENDER_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-02",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes -trx artifacts/v9/8.1/AC-8.1-02.trx",
       "contract": "| `AC-8.1-02` | Source inventory is exactly `_bmad-output/planning-artifacts/ux-design-specification.md` and `_bmad-output/planning-artifacts/ux-requirement-map.md` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes -trx artifacts/v9/8.1/AC-8.1-02.trx` | Exit `0`; `PASS`; each source path, version, and current SHA-256 is bound. Missing source is `UX_SOURCE_UNBOUND`; changed source is `UX_SOURCE_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-03",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-03.trx",
       "contract": "| `AC-8.1-03` | Frozen decision IDs are the closed numeric range `UX-DR1` through `UX-DR52` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-03.trx` | Exit `0`; `PASS`; all 52 IDs occur once in source order with required row fields. Count or identity drift is `UX_DECISION_INVENTORY_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-04",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-04.trx",
       "contract": "| `AC-8.1-04` | Frozen acceptance IDs are `AC-SAFE-001`-`008`, `AC-RESP-001`-`015`, `AC-A11Y-001`-`002`, `AC-LEAK-001`, `AC-MOB-001`, and `AC-PERF-001` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-04.trx` | Exit `0`; `PASS`; all 28 IDs occur once in source order with required row fields. Drift is `UX_ACCEPTANCE_INVENTORY_DRIFT`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-05",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical -trx artifacts/v9/8.1/AC-8.1-05.trx",
       "contract": "| `AC-8.1-05` | Every row, top-level status, preservation banner, and historical story mapping | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical -trx artifacts/v9/8.1/AC-8.1-05.trx` | Exit `0`; `PASS`; status is exactly `preserved-not-activated`; historical mappings are labeled non-current and cannot own implementation. Activation is `UX_ACTIVATION_UNAUTHORIZED`; current invalid ownership is `UX_CURRENT_STORY_INVALID`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-06",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange -trx artifacts/v9/8.1/AC-8.1-06.trx",
       "contract": "| `AC-8.1-06` | `SC-8.1` path set and allowed outputs limited to Story 8.1 planning/tests/evidence | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange -trx artifacts/v9/8.1/AC-8.1-06.trx` | Exit `0`; `PASS`; no `src/**/*.razor`, UI CSS, product UI contract, navigation, or runtime path changed. Any such path is `UX_PRODUCTION_CHANGE_FORBIDDEN`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-8.1-07",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --format bundle --output-json docs/release-evidence/story-8.1-final-record-v2.json --output-markdown docs/release-evidence/story-8.1-final-record-v2.md",
       "contract": "| `AC-8.1-07` | AC-8.1-01 through AC-8.1-06 and Story 7.4 record are current and candidate-compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --format bundle --output-json docs/release-evidence/story-8.1-final-record-v2.json --output-markdown docs/release-evidence/story-8.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-8.1`, Story 7.4, both UX source hashes, disposition output hashes, inventory digest, six scenario results, and summary `7/7/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-8.1-final-record-v2.json",
+      "docs/release-evidence/story-8.1-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 7,
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

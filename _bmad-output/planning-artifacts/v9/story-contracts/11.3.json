@@ -1,79 +1,170 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "11.3",
-  "title": "Generate authoritative SM-2 v2 evidence and decide OQ-2",
-  "boundedOutcome": "Checkpoint C publishes one authoritative SM-2 v2 bundle and OQ-2 disposition; it does not alter either fixture or historical baseline.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-11.3`, Story 11.2 record/fixture-proof digests, historical baseline digests, exact source inventory and tool versions, and the canonical candidate rule. All Checkpoints A-C must resolve to this compatible candidate chain.",
+    "sectionSha256": "482182b723549760a0ce31b4d1c9a4485157db5b0484a270254f2a14df063b64"
+  },
   "predecessors": [
     "11.2"
   ],
-  "rollbackBoundary": "remove only the SM-2 v2 generator, validator, results, generated v2 bundle, and Story 11.3 record; preserve the fixture, guidance, SM-1 `13,289`, and every v1 historical byte.",
-  "candidateBinding": "`SC-11.3`, Story 11.2 record/fixture-proof digests, historical baseline digests, exact source inventory and tool versions, and the canonical candidate rule. All Checkpoints A-C must resolve to this compatible candidate chain.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Generate authoritative SM-2 v2 evidence and decide OQ-2",
+    "bounded": "Checkpoint C publishes one authoritative SM-2 v2 bundle and OQ-2 disposition; it does not alter either fixture or historical baseline."
+  },
+  "rollback": {
+    "boundary": "remove only the SM-2 v2 generator, validator, results, generated v2 bundle, and Story 11.3 record; preserve the fixture, guidance, SM-1 `13,289`, and every v1 historical byte."
+  },
+  "inventory": {
     "id": "V9-11.3-ENTRY-v1",
     "sha256": "6e6c4f5c91c045274222652dbf43400eab1ddbd9641c2fd06b56977ecbf107f5"
   },
-  "authoritySectionSha256": "482182b723549760a0ce31b4d1c9a4485157db5b0484a270254f2a14df063b64",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-11.3-final-record-v2.json",
-    "docs/release-evidence/story-11.3-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-11.3-01",
       "command": "python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --fixture-proof docs/release-evidence/thin-module-fixture-proof-v1.json --baseline docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json --output-json docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --output-markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md",
       "contract": "| `AC-11.3-01` | Story 11.2 fixture proof, exact source inventory, preserved reference baseline, and `SC-11.3` | `python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --fixture-proof docs/release-evidence/thin-module-fixture-proof-v1.json --baseline docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json --output-json docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --output-markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | Exit `0`; `PASS`; generator records exact files/physical LOC, inclusion/exclusion reasons, candidate, command/tool versions, reductions, confidence, and signable-payload digest. Missing source is `SM2_SOURCE_INVENTORY_DRIFT`; count failure is `SM2_MEASUREMENT_INVALID`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-02",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost -trx artifacts/v9/11.3/AC-11.3-02.trx",
       "contract": "| `AC-11.3-02` | Generated SM-2 v2 bundle and frozen inclusion rules | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost -trx artifacts/v9/11.3/AC-11.3-02.trx` | Exit `0`; `PASS`; all 13 paths are classified exactly once and the test AppHost is included. Omission is `SM2_APPHOST_COST_OMITTED`; double/unclassified path is `SM2_INCLUSION_RULE_VIOLATION`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-03",
       "command": "dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.HistoricalBaselinesShouldRemainByteIdentical -trx artifacts/v9/11.3/AC-11.3-03.trx",
       "contract": "| `AC-11.3-03` | Preserved SM-1 value and historical SM-2 v1 files plus their recorded hashes | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.HistoricalBaselinesShouldRemainByteIdentical -trx artifacts/v9/11.3/AC-11.3-03.trx` | Exit `0`; `PASS`; SM-1 is exactly `13,289` and both v1 files retain recorded hashes. Mutation is `SM1_BASELINE_MUTATED` or `SM2_V1_HISTORY_MUTATED`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-04",
       "command": "python3 _bmad/scripts/verify_sm2_evidence.py --repository . --evidence docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md --require-oq2-decision --output artifacts/v9/11.3/AC-11.3-04.json",
       "contract": "| `AC-11.3-04` | Recomputed file/LOC reductions and OQ-2 target | `python3 _bmad/scripts/verify_sm2_evidence.py --repository . --evidence docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md --require-oq2-decision --output artifacts/v9/11.3/AC-11.3-04.json` | Exit `0` only when schema, candidate, hashes, arithmetic, confidence, JSON/Markdown parity, and decision are valid. `oq2Decision` is `accepted` only for file reduction `>=50.00%`; otherwise it is `rejected` without hiding the result. Invalid acceptance is `OQ2_DECISION_INVALID`; format drift is `EVIDENCE_FORMAT_DRIFT`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-05",
       "command": "python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --candidate HEAD --output artifacts/v9/11.3/AC-11.3-05.json",
       "contract": "| `AC-11.3-05` | Story 11.1, 11.2, and current SM-2 candidate fields | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --candidate HEAD --output artifacts/v9/11.3/AC-11.3-05.json` | Exit `0`; `PASS`; Checkpoints A-C share one compatible `PC`/successor chain. Mismatch is `CHECKPOINT_CANDIDATE_MISMATCH`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-06",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_sm2_evidence.py -k checkpoint_c_fault_matrix --junitxml=artifacts/v9/11.3/AC-11.3-06.xml",
       "contract": "| `AC-11.3-06` | Faults add prohibited module ownership, omit AppHost or another source from cost, trust declared counts, mutate `13,289`/v1, alter arithmetic/confidence/decision, or drift JSON/Markdown | `python3 -m pytest -q _bmad/scripts/tests/test_sm2_evidence.py -k checkpoint_c_fault_matrix --junitxml=artifacts/v9/11.3/AC-11.3-06.xml` | Exit `0`; every mutation yields its exact blocker from AC-11.3-01 through AC-11.3-05, no vacuous evidence passes, and fixtures restore byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-11.3-07",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --format bundle --output-json docs/release-evidence/story-11.3-final-record-v2.json --output-markdown docs/release-evidence/story-11.3-final-record-v2.md",
       "contract": "| `AC-11.3-07` | AC-11.3-01 through AC-11.3-06 and Stories 11.1-11.2 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --format bundle --output-json docs/release-evidence/story-11.3-final-record-v2.json --output-markdown docs/release-evidence/story-11.3-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.3`, the A-C chain, guidance/fixture/baseline/SM-2 digests, actual metrics, OQ-2 decision, inventory, mutation ledger, and summary `7/7/0/0/0/0`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-11.3-final-record-v2.json",
+      "docs/release-evidence/story-11.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 7,
+      "passed": 7,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

@@ -1,63 +1,152 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "13.3",
-  "title": "Prove fault injection and bind manifest, conformance, handoff, and final record",
-  "boundedOutcome": "Checkpoint C closes mutation, conformance, manifest and handoff evidence; it makes no release-readiness decision.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-13.3`, full 13.1-13.2 chain, exact tier binaries and results, manifest/current-proof and mutation digests.",
+    "sectionSha256": "6d2e736e5ed9263c6f550a4f1ded72eb31e0e050111c182b5bcbc7b73c5c6f60"
+  },
   "predecessors": [
     "13.2"
   ],
-  "rollbackBoundary": "remove only closure generator/bundle, fault fixtures, handoff declarations/results and Story 13.3 record; retain approved v3 and all history.",
-  "candidateBinding": "`SC-13.3`, full 13.1-13.2 chain, exact tier binaries and results, manifest/current-proof and mutation digests.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Prove fault injection and bind manifest, conformance, handoff, and final record",
+    "bounded": "Checkpoint C closes mutation, conformance, manifest and handoff evidence; it makes no release-readiness decision."
+  },
+  "rollback": {
+    "boundary": "remove only closure generator/bundle, fault fixtures, handoff declarations/results and Story 13.3 record; retain approved v3 and all history."
+  },
+  "inventory": {
     "id": "V9-13.3-ENTRY-v1",
     "sha256": "bf16171b2a6b2dd4870c11b2a160d2c8090efa3e42b2eca7e5aae900a0fb7666"
   },
-  "authoritySectionSha256": "6d2e736e5ed9263c6f550a4f1ded72eb31e0e050111c182b5bcbc7b73c5c6f60",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-13.3-final-record-v2.json",
-    "docs/release-evidence/story-13.3-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-13.3-01",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_closure.py -k complete_mutation_matrix --junitxml=artifacts/v9/13.3/AC-13.3-01.xml",
       "contract": "| `AC-13.3-01` | Mutations of v2 byte/identity, predecessor hash, head count/fork, v3 freshness, lane result, and dependency declaration | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_closure.py -k complete_mutation_matrix --junitxml=artifacts/v9/13.3/AC-13.3-01.xml` | Exit `0`; each yields `HISTORICAL_PROOF_MUTATED`, `HISTORICAL_IDENTITY_MISMATCH`, `PROJECTION_PROOF_PREDECESSOR_INVALID`, `PROJECTION_PROOF_CHAIN_FORKED`, `PROJECTION_PROOF_STALE`, `PROJECTION_PROOF_RUN_INVALID`, or `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; fixtures restore. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-13.3-02",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest -trx artifacts/v9/13.3/focused.trx",
       "contract": "| `AC-13.3-02` | Built focused current-proof lane | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest -trx artifacts/v9/13.3/focused.trx` | Exit `0`; nonzero current v3 and historical v2 assertions pass. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-13.3-03",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/portable.trx",
       "contract": "| `AC-13.3-03` | Built portable and internal conformance tiers | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/portable.trx` | Exit `0`; portable tier nonzero/all green. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-13.3-04",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/internal.trx",
       "contract": "| `AC-13.3-04` | Built internal conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/internal.trx` | Exit `0`; internal tier nonzero/all green. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-13.3-05",
       "command": "python3 _bmad/scripts/generate_projection_proof_closure.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --history docs/release-evidence/projection-proof-history-validation-v1.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output-json docs/release-evidence/projection-proof-closure-v1.json --output-markdown docs/release-evidence/projection-proof-closure-v1.md",
       "contract": "| `AC-13.3-05` | v2 history, v3 current, mutation and three lane results, plus Epic 14/15 handoff IDs | `python3 _bmad/scripts/generate_projection_proof_closure.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --history docs/release-evidence/projection-proof-history-validation-v1.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output-json docs/release-evidence/projection-proof-closure-v1.json --output-markdown docs/release-evidence/projection-proof-closure-v1.md` | Exit `0`; handoffs bind v2 as history and v3 as current; v2 alone cannot satisfy them. Missing handoff is `PROJECTION_PROOF_HANDOFF_MISSING`; mixed chain is `PROJECTION_PROOF_CANDIDATE_MISMATCH`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-13.3-06",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --format bundle --output-json docs/release-evidence/story-13.3-final-record-v2.json --output-markdown docs/release-evidence/story-13.3-final-record-v2.md",
       "contract": "| `AC-13.3-06` | AC-13.3-01 through AC-13.3-05 and all three checkpoints are compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --format bundle --output-json docs/release-evidence/story-13.3-final-record-v2.json --output-markdown docs/release-evidence/story-13.3-final-record-v2.md` | Exit `0`; final record binds all eight v8 criteria, three checkpoints, proof chain, lane counts, handoffs, inventories/mutations, summary `6/6/0/0/0/0`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-13.3-final-record-v2.json",
+      "docs/release-evidence/story-13.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 6,
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }

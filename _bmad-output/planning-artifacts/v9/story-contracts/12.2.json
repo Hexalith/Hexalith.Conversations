@@ -1,59 +1,134 @@
 {
-  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
-  "authorities": {
-    "epic": "epic-6-authority-2026-08-03-v10",
-    "architecture": "conversations-architecture-2026-08-03-v10"
-  },
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
   "storyId": "12.2",
-  "title": "Freeze the benchmark method and signal-quality algorithm",
-  "boundedOutcome": "one method bundle freezes measurement, comparability, and signal-quality rules; it changes neither production code nor measured verdicts.",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "candidateBinding": "`SC-12.2`, Story 12.1 record, immutable baseline fixture, project/result hashes, method and approval digests, canonical candidate rule.",
+    "sectionSha256": "8ce0d09fc9b30081b75942f93d2af6cb61c8213aec42f74b340743f685ebe89c"
+  },
   "predecessors": [
     "12.1"
   ],
-  "rollbackBoundary": "remove only the v2 method generator/validator/bundle, fixtures/results, and Story 12.2 record; retain ADR and all v1 evidence.",
-  "candidateBinding": "`SC-12.2`, Story 12.1 record, immutable baseline fixture, project/result hashes, method and approval digests, canonical candidate rule.",
-  "entryInventory": {
+  "outcome": {
+    "title": "Freeze the benchmark method and signal-quality algorithm",
+    "bounded": "one method bundle freezes measurement, comparability, and signal-quality rules; it changes neither production code nor measured verdicts."
+  },
+  "rollback": {
+    "boundary": "remove only the v2 method generator/validator/bundle, fixtures/results, and Story 12.2 record; retain ADR and all v1 evidence."
+  },
+  "inventory": {
     "id": "V9-12.2-ENTRY-v1",
     "sha256": "be973a601eee4a029fb225a144a7c4dbbfa4a4ca9966a83e372eb2821ceeb649"
   },
-  "authoritySectionSha256": "8ce0d09fc9b30081b75942f93d2af6cb61c8213aec42f74b340743f685ebe89c",
-  "finalRecordPaths": [
-    "docs/release-evidence/story-12.2-final-record-v2.json",
-    "docs/release-evidence/story-12.2-final-record-v2.md"
-  ],
   "scenarios": [
     {
       "id": "AC-12.2-01",
       "command": "python3 _bmad/scripts/generate_sm_c2_method.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --output-json docs/release-evidence/sm-c2-measurement-method-v2.json --output-markdown docs/release-evidence/sm-c2-measurement-method-v2.md",
       "contract": "| `AC-12.2-01` | Frozen four-row inventory, baseline fixture, and ADR decision | `python3 _bmad/scripts/generate_sm_c2_method.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --output-json docs/release-evidence/sm-c2-measurement-method-v2.json --output-markdown docs/release-evidence/sm-c2-measurement-method-v2.md` | Exit `0`; all four exact rows and every required method field are generated. Drift is `SMC2_METHOD_INCOMPLETE`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.2-02",
       "command": "python3 _bmad/scripts/verify_sm_c2_method.py --repository . --evidence docs/release-evidence/sm-c2-measurement-method-v2.json --markdown docs/release-evidence/sm-c2-measurement-method-v2.md --output artifacts/v9/12.2/AC-12.2-02.json",
       "contract": "| `AC-12.2-02` | Method threshold and all legacy cost/record-only variants | `python3 _bmad/scripts/verify_sm_c2_method.py --repository . --evidence docs/release-evidence/sm-c2-measurement-method-v2.json --markdown docs/release-evidence/sm-c2-measurement-method-v2.md --output artifacts/v9/12.2/AC-12.2-02.json` | Exit `0`; every row uses exactly factor `1.05`; no ceiling, disclosure, approval, or recorded-only substitute exists. Violation is `SMC2_THRESHOLD_MUTATED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.2-03",
       "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.SmC2MeasurementMethodValidationTest.MethodShouldBePredeclaredAndDeterministic -trx artifacts/v9/12.2/AC-12.2-03.trx",
       "contract": "| `AC-12.2-03` | Fixed repetitions, raw retention, warm/cold split, environment, nearest-rank P95, and predeclared signal algorithm | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.SmC2MeasurementMethodValidationTest.MethodShouldBePredeclaredAndDeterministic -trx artifacts/v9/12.2/AC-12.2-03.trx` | Exit `0`; `PASS`; fields are executable and cannot discard samples after observation. Violation is `SMC2_SAMPLE_DISCARDED`, `SMC2_ENVIRONMENT_UNCONTROLLED`, or `SMC2_SIGNAL_RULE_MUTATED`. |",
-      "requiredResults": [
-        "PASS"
-      ]
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.2-04",
       "command": "python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_method.py -k method_fault_matrix --junitxml=artifacts/v9/12.2/AC-12.2-04.xml",
       "contract": "| `AC-12.2-04` | Reordered/omitted rows, threshold variants, adverse-sample deletion, warm/cold substitution, environment drift, altered percentile/signal rule, or postdated approval | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_method.py -k method_fault_matrix --junitxml=artifacts/v9/12.2/AC-12.2-04.xml` | Exit `0`; each exact blocker occurs and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1,
+          5
+        ],
+        "blockedExitCodes": [
+          2,
+          3,
+          4
+        ],
+        "notApplicableAllowed": false
+      }
     },
     {
       "id": "AC-12.2-05",
       "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --format bundle --output-json docs/release-evidence/story-12.2-final-record-v2.json --output-markdown docs/release-evidence/story-12.2-final-record-v2.md",
       "contract": "| `AC-12.2-05` | AC-12.2-01 through AC-12.2-04 and Story 12.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --format bundle --output-json docs/release-evidence/story-12.2-final-record-v2.json --output-markdown docs/release-evidence/story-12.2-final-record-v2.md` | Exit `0`; record binds method, four rows, baseline/fixture, ADR, approval and mutation digests, summary `5/5/0/0/0/0`. |",
-      "requiredResults": []
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
     }
-  ]
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-12.2-final-record-v2.json",
+      "docs/release-evidence/story-12.2-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 5,
+      "passed": 5,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
 }
