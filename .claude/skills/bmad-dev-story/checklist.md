@@ -60,7 +60,6 @@ validation-rules:
 - [ ] **Story Status Updated:** Story Status set to "review"
 - [ ] **Sprint Status Updated:** Sprint status updated to "review" (when sprint tracking is used)
 - [ ] **Quality Gates Passed:** All quality checks and validations completed successfully
-- [ ] **Promotion Completion Gate:** Approved `submodule_promotions` and baseline were checked against committed `HEAD`; the checker passed, or non-promotion work had no activated scope or changed gitlinks
 - [ ] **No HALT Conditions:** No blocking issues or incomplete work remaining
 - [ ] **User Communication Ready:** Implementation summary prepared for user review
 

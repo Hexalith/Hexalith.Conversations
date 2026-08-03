@@ -84,38 +84,10 @@ If `{spec_file}` is **not** set, present only options 1 and 2 (omit "Leave as ac
 
 Skip this section if `{spec_file}` is not set.
 
-#### Prepare committed review candidate
-
-1. If this review applied any patch outside `{spec_file}` and its sprint-status file, derive the exact patched path set from the findings applied in section 5 and compare it with the Git delta. Do not infer ownership for any additional dirty path and never stage a submodule pointer unless it was an explicitly approved patch target.
-2. Present that exact path set and ask the user for explicit authorization to create the local review-patch commit. **HALT** until the user authorizes or declines the commit; choosing "Apply every patch" did not itself authorize a commit.
-3. If authorization is declined, preserve story and sprint state as `in-progress`, leave the patches uncommitted, skip both completion gates, and hand off the exact path set for later finalization.
-4. If authorization is granted, create a validated local Conventional Commit staging only the authorized review-patch paths. Never use `git add -A`, `git commit -a`, or include unrelated dirt. The story record and sprint-status file may remain uncommitted record outputs.
-5. Require every other source-tree path clean, then resolve committed `HEAD` exactly once into `{candidate_revision}`. Pass this immutable SHA to both completion gates; do not re-resolve or pass the moving `HEAD` token afterwards. If version control is unavailable, preserve `in-progress`, record `GIT_UNAVAILABLE`, and HALT.
-
-#### Promotion completion gate
-
-Run this gate before determining `{new_status}`:
-
-1. Read `submodule_promotions` from `{spec_file}` without expanding its approved scope. If the field is absent entirely, record `INVALID_SCOPE`, fail the gate, and never write `done` — an undeclared scope is an untrustworthy input, not an empty one. Read the baseline from `baseline_commit`, falling back to `baseline_revision`; a missing value or `NO_VCS` is not trustworthy.
-2. Invoke `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {candidate_revision} --format json`, adding a `--submodule <path>` for every declared item, `--require-remote <path>` when its `require_remote` value is true, and `--baseline <value>` only when the baseline is trustworthy.
-3. Parse the JSON result. Promotion gating is activated when the declaration is non-empty or `changed_gitlinks` is non-empty. When activated, a missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker even if the checker otherwise exits zero. Independently of activation, a `SCOPE_NOT_EVALUATED` warning always fails the gate whenever version control is available: it reports that the checker evaluated no submodule at all, so an exit-zero run proves nothing about promotion completeness.
-4. Any nonzero checker exit, any `result` other than `pass`, or the activated missing-baseline condition fails the gate. Preserve every `blockers[].code` in the review record; for the caller-promoted missing-baseline condition preserve `BASELINE_NOT_PROVIDED` as the blocker code with its diagnostic text.
-5. On gate failure, set `promotion_gate_failed = true`, force `{new_status}` = `in-progress`, update the story Status section to `in-progress`, forbid the `done` branch below, and synchronize only `in-progress`; never write or synchronize `done`. Report the actionable checker diagnostics. Do not modify, initialize, update, fetch, commit, or silently expand submodule scope while remediating.
-
-#### Final record generation gate
-
-Run this gate after every patch is applied and before determining `{new_status}`. The review changes the tree, so the record must be regenerated from the tree that is actually final.
-
-1. Require the source tree clean outside `{spec_file}`, its sprint-status file, and declared TRX artifacts. Clean-rebuild the committed candidate with `dotnet build <root-solution> -c Release -t:Rebuild -p:SourceRevisionId={candidate_revision}`, then rerun every root-owned test project into fresh TRX artifacts; never use `--no-build` output built before the candidate. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, adding `--baseline <value>` only when the baseline is trustworthy, one `--test-results <full-project-name>=<artifact-path>` for every root-owned test project declared by the root `.slnx`, one `--submodule <path>` for every declared item, and `--require-remote <path>` when its `require_remote` value is true. Require the candidate-bound test-binary manifest; `TEST_BUILD_NOT_BOUND` blocks completion.
-2. Parse the bundle JSON and its nested `document`. Any nonzero exit or any nested `document.result` other than `pass` fails the gate. A `RECORD_NOT_DERIVED` blocker means the run parsed no artifact, resolved no candidate, or found no record section to replace — it proves nothing, so it can never be read as a pass. Preserve every `blockers[].code` in the review record.
-3. On gate failure, set `record_gate_failed = true`, force `{new_status}` = `in-progress`, update the story Status section to `in-progress`, forbid the `done` branch below, and synchronize only `in-progress`; never write or synchronize `done`. Never hand-edit a count, path, or commit into agreement with the record as remediation.
-4. On success, insert bundle field `markdown` VERBATIM into `{spec_file}`, replacing the existing block between the `<!-- STORY-FINAL-RECORD:BEGIN -->` and `<!-- STORY-FINAL-RECORD:END -->` markers when one is present, or the region between `### File List` and `### Boundary Confirmation` when it is not. Set frontmatter `file_list_commit` to the revision the block was derived from and reference the generated record from sprint status without restating counts. Then invoke the generator with `--repository {project-root} --story {spec_file} --verify-record-sha256 <markdown_sha256> --format json`; any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` sets `record_gate_failed = true`, returns story/sprint state to `in-progress`, and HALTs.
-
 #### Determine new status based on review outcome
 
-- If `promotion_gate_failed` is not true, `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or dismissed), AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
+- If all `decision-needed` and `patch` findings were resolved (fixed or dismissed) AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
 - If `patch` findings were left as action items, or unresolved issues remain: set `{new_status}` = `in-progress`. Update the story file Status section to `in-progress`.
-- If `promotion_gate_failed` or `record_gate_failed` is true: preserve `{new_status}` = `in-progress`; never write or synchronize `done` regardless of review outcome.
 
 Save the story file.
 

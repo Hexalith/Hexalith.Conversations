@@ -1,6 +1,6 @@
 ---
 name: bmad-create-story
-description: 'Creates a dedicated story file with all the context the agent will need to implement it later. Use when the user says "create the next story" or "create story [story identifier]"'
+description: "Deprecated: `bmad-build` is now the official implementation method. Only use this when explicitly invoked by name."
 ---
 
 # Create Story Workflow
@@ -61,6 +61,8 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
+
+<output>Deprecated: `bmad-build` is now the official implementation method. Only use this when explicitly invoked by name.</output>
 
 ### Step 6: Execute Append Steps
 
@@ -346,7 +348,6 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
 
   <action>Initialize from template.md:
   {default_output_file}</action>
-  <action>Populate YAML frontmatter `submodule_promotions`: use `[]` for non-promotion work; otherwise list every affected root-declared `references/...` path exactly once as `{ path, require_remote }`, transcribing only scope already approved by the story authority. Set `require_remote` to `true` for any submodule shared with other clones, which is the default for `references/...` paths. Fill in a missing declaration automatically only as an exact transcription of already-approved scope; ambiguous or expanded scope requires Product Owner or user approval before you write it.</action>
   <template-output file="{default_output_file}">story_header</template-output>
 
   <!-- Story foundation from epics analysis -->

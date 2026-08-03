@@ -1,6 +1,6 @@
 ---
 name: bmad-dev-story
-description: 'Execute story implementation following a context filled story spec file. Use when the user says "dev this story [story file]" or "implement the next story in the sprint plan"'
+description: "Deprecated: `bmad-build` is now the official implementation method. Only use this when explicitly invoked by name."
 ---
 
 # Dev Story Workflow
@@ -59,6 +59,8 @@ Load config from `{project-root}/_bmad/bmm/config.yaml` and resolve:
 ### Step 5: Greet the User
 
 Greet `{user_name}`, speaking in `{communication_language}`.
+
+<output>Deprecated: `bmad-build` is now the official implementation method. Only use this when explicitly invoked by name.</output>
 
 ### Step 6: Execute Append Steps
 
@@ -413,40 +415,6 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
     <action>Run the full regression suite (do not skip)</action>
     <action>Confirm File List includes every changed file</action>
     <action>Execute enhanced definition-of-done validation</action>
-    <action>Read approved `submodule_promotions` from story frontmatter without adding or expanding paths. If the field is missing, record `INVALID_SCOPE`, keep story and sprint state `in-progress`, and HALT for approved scope declaration.</action>
-    <action>Read the baseline from frontmatter `baseline_commit`, falling back to `baseline_revision`; missing or `NO_VCS` is not trustworthy.</action>
-    <action>Maintain the exact set of story-owned paths as tasks execute. Before committing, compare that task-established set with the actual Git delta; if any dirty path cannot be attributed unambiguously to this story or an allowed record/TRX output, HALT with `WORKTREE_NOT_CLEAN` rather than infer authorship from Git. If version control is available and the attributed working tree is dirty, create a local conventional commit now, before gating. Stage only the task-established story paths and the exact root gitlinks named by `submodule_promotions`; never use `git add -A` or `git commit -a`, and never sweep in an unrelated path or submodule pointer.</action>
-    <action>After committing, HALT with `WORKTREE_NOT_CLEAN` if any source-tree dirt remains outside the story record, sprint-status file, and declared TRX artifacts.</action>
-    <action>Resolve committed `HEAD` once into {{candidate_revision}}. Pass this immutable SHA to every completion gate; do not re-resolve or pass the moving `HEAD` token afterwards.</action>
-    <action>Run `python3 {project-root}/_bmad/scripts/verify_submodule_promotion.py --repository {project-root} --candidate {{candidate_revision}} --format json`, adding a trustworthy `--baseline &lt;value&gt;`, one `--submodule &lt;path&gt;` per declaration, and `--require-remote &lt;path&gt;` when requested. Parse the JSON result.</action>
-    <action>Set promotion gating active when the declaration or checker `changed_gitlinks` is non-empty. For active work, missing/untrustworthy baseline or `BASELINE_NOT_PROVIDED` is a blocker. Independently of activation, a `SCOPE_NOT_EVALUATED` warning always fails the gate when version control is available: it means no submodule was evaluated at all.</action>
-    <check if="checker exits nonzero, result is not pass, approved scope is missing, the checker warned SCOPE_NOT_EVALUATED, or active work has an untrustworthy baseline">
-      <action>Record every stable blocker code and actionable diagnostic in Dev Agent Record → Debug Log References; preserve `BASELINE_NOT_PROVIDED` when caller-promoted.</action>
-      <action>Set story frontmatter status and Status section to `in-progress`</action>
-      <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
-      <action>HALT: "Submodule promotion completion gate failed; remediate the recorded diagnostics without initializing, updating, fetching, or silently expanding scope"</action>
-    </check>
-    <!-- Final Record Generation Gate -->
-    <action>Clean-rebuild the committed candidate with `dotnet build &lt;root-solution&gt; -c Release -t:Rebuild -p:SourceRevisionId={{candidate_revision}}`, then rerun every root-owned test project into fresh TRX artifacts. Never use `--no-build` output built before the candidate.</action>
-    <action>Run `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story &lt;story-file&gt; --candidate {{candidate_revision}} --format bundle`, adding the trustworthy `--baseline &lt;value&gt;`, one `--test-results &lt;full-project-name&gt;=&lt;artifact-path&gt;` for every root-owned test project declared by the root `.slnx`, one `--submodule &lt;path&gt;` per declaration, and `--require-remote &lt;path&gt;` when requested. Parse the bundle JSON and its nested `document`. Require its candidate-bound test-binary manifest; `TEST_BUILD_NOT_BOUND` blocks completion. Never hand-author a count, path, or commit that this generator did not derive.</action>
-    <action>Any nonzero exit, or any nested `document.result` other than `pass`, fails this gate. A `RECORD_NOT_DERIVED` blocker means the run derived nothing and therefore proves nothing.</action>
-    <check if="the generator exits nonzero or its result is not pass">
-      <action>Record every stable blocker code and actionable diagnostic in Dev Agent Record → Debug Log References</action>
-      <action>Set story frontmatter status and Status section to `in-progress`</action>
-      <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
-      <action>HALT: "Story final-record generation gate failed; remediate the recorded diagnostics without hand-editing counts, paths, or commits into agreement"</action>
-    </check>
-    <action>Insert bundle field `markdown` VERBATIM into the story record, replacing everything between `### File List` and `### Boundary Confirmation`, or replacing the existing block between the `&lt;!-- STORY-FINAL-RECORD:BEGIN --&gt;` and `&lt;!-- STORY-FINAL-RECORD:END --&gt;` markers when one is already present. Do not edit the inserted text; retain bundle field `markdown_sha256`.</action>
-    <action>Set story frontmatter `file_list_commit` to the exact revision the block was derived from, so the record's File List stays comparable against a fixed revision rather than a moving `HEAD`.</action>
-    <action>Run `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story &lt;story-file&gt; --verify-record-sha256 &lt;markdown_sha256&gt; --format json` and parse the JSON result.</action>
-    <check if="digest verification exits nonzero, its result is not pass, or it reports RECORD_CONTENT_DRIFT">
-      <action>Record `RECORD_CONTENT_DRIFT` and every actionable diagnostic in Dev Agent Record → Debug Log References</action>
-      <action>Set story frontmatter status and Status section to `in-progress`</action>
-      <action>If sprint tracking exists, set development_status[{{story_key}}] to `in-progress` and update last_updated, preserving all comments and structure</action>
-      <action>HALT: "Story final-record digest verification failed; restore the exact bundle Markdown and never advance an unverified record to review"</action>
-    </check>
-    <action>Reference the generated record from the sprint-status comment without restating its counts.</action>
-
     <action>Update the story Status to: "review"</action>
 
     <!-- Enhanced Definition of Done Validation -->
@@ -458,8 +426,7 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
       - End-to-end tests for critical flows added when story demands them
       - All tests pass (no regressions, new tests successful)
       - Code quality checks pass (linting, static analysis if configured)
-      - File List is the generator-derived list inserted verbatim, not a hand-authored one
-      - Every reported test count traces to a parsed result artifact named in the generated record
+      - File List includes every new/modified/deleted file (relative paths)
       - Dev Agent Record contains implementation notes
       - Change Log includes summary of changes
       - Only permitted story sections were modified
