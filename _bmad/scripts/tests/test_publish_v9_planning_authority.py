@@ -188,6 +188,7 @@ def test_publication_preserves_the_unrun_independent_assessment_boundary() -> No
     assert "IR-0: not run by this publication." in view
     assert "does not implement a story,\n> run IR-0, lift the hold" in view
     assert "IR-0 was not run" in sprint
+    assert sprint.count("# V10 PLANNING PUBLICATION:") == 1
     assert not any("ir-0" in path.lower() for path in outputs)
     assert not any("ir-0" in row["path"].lower() for row in bundle["artifacts"])
     assert "READY" not in view

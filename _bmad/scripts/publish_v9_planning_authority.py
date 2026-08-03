@@ -765,6 +765,7 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
     """Regenerate the successor backlog while preserving comments and action items."""
 
     text = source.decode("utf-8")
+    text = re.sub(r"^# V10 PLANNING PUBLICATION:.*\n", "", text, flags=re.MULTILINE)
     text = re.sub(r"^last_updated: .*?$", "last_updated: 2026-08-03", text, count=1, flags=re.MULTILINE)
     notice = (
         "# V10 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-03-v10 and "
