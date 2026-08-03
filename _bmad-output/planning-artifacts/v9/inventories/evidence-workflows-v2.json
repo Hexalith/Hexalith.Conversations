@@ -1,0 +1,96 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-inventory.v1",
+  "inventoryId": "V9-EVIDENCE-WORKFLOWS-v2",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "inventoryDigest": "966745d95e24aeb95af58a2bbfab11de7b08b8ab9f2447aa6c90a99c444292d4",
+  "rows": [
+    {
+      "ordinal": 1,
+      "path": ".agents/skills/bmad-build/step-04-review.md",
+      "sha256": "bcf300e2faaf413afe1a25498284baabba09681bca089e615530d0b9dc5cee72",
+      "logicalBody": "bmad-build/step-04-review.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 2,
+      "path": ".agents/skills/bmad-build/step-05-present.md",
+      "sha256": "81e80f3fd38f8e3049afe9daf41783b86b00ac22544f7f36bd430496a12d8e46",
+      "logicalBody": "bmad-build/step-05-present.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 3,
+      "path": ".agents/skills/bmad-build/step-oneshot.md",
+      "sha256": "e75505130a2fcc49cd71dfb36c92e76255d39fdfe8d4f735c7c9276e2917cb8a",
+      "logicalBody": "bmad-build/step-oneshot.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 4,
+      "path": ".agents/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "8e9ff909192e1d5d50f9fc071c4b5eb8830cc921200d423904a30dadca58c3e9",
+      "logicalBody": "bmad-build-auto/step-04-review.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 5,
+      "path": ".agents/skills/bmad-dev-story/SKILL.md",
+      "sha256": "7b958052c3dc0638c0091a5156598fa32060e6b1b12194abb91c5bc1804a2c3e",
+      "logicalBody": "bmad-dev-story/SKILL.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 6,
+      "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "1bded625413479aae5bb2e46a36d4e4156c31dc19f97b98812ecb8734870687c",
+      "logicalBody": "bmad-code-review/steps/step-04-present.md",
+      "tree": "agents"
+    },
+    {
+      "ordinal": 7,
+      "path": ".claude/skills/bmad-build/step-04-review.md",
+      "sha256": "bcf300e2faaf413afe1a25498284baabba09681bca089e615530d0b9dc5cee72",
+      "logicalBody": "bmad-build/step-04-review.md",
+      "tree": "claude"
+    },
+    {
+      "ordinal": 8,
+      "path": ".claude/skills/bmad-build/step-05-present.md",
+      "sha256": "81e80f3fd38f8e3049afe9daf41783b86b00ac22544f7f36bd430496a12d8e46",
+      "logicalBody": "bmad-build/step-05-present.md",
+      "tree": "claude"
+    },
+    {
+      "ordinal": 9,
+      "path": ".claude/skills/bmad-build/step-oneshot.md",
+      "sha256": "e75505130a2fcc49cd71dfb36c92e76255d39fdfe8d4f735c7c9276e2917cb8a",
+      "logicalBody": "bmad-build/step-oneshot.md",
+      "tree": "claude"
+    },
+    {
+      "ordinal": 10,
+      "path": ".claude/skills/bmad-build-auto/step-04-review.md",
+      "sha256": "8e9ff909192e1d5d50f9fc071c4b5eb8830cc921200d423904a30dadca58c3e9",
+      "logicalBody": "bmad-build-auto/step-04-review.md",
+      "tree": "claude"
+    },
+    {
+      "ordinal": 11,
+      "path": ".claude/skills/bmad-dev-story/SKILL.md",
+      "sha256": "7b958052c3dc0638c0091a5156598fa32060e6b1b12194abb91c5bc1804a2c3e",
+      "logicalBody": "bmad-dev-story/SKILL.md",
+      "tree": "claude"
+    },
+    {
+      "ordinal": 12,
+      "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "sha256": "1bded625413479aae5bb2e46a36d4e4156c31dc19f97b98812ecb8734870687c",
+      "logicalBody": "bmad-code-review/steps/step-04-present.md",
+      "tree": "claude"
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "13.1",
+  "title": "Validate historical proof and approve predecessor-chain ADR/schema",
+  "boundedOutcome": "Checkpoint A validates v2 historically and approves ADR 0004 plus a closed chain schema; it creates no v3 current-head claim.",
+  "predecessors": [
+    "7.4",
+    "9.2"
+  ],
+  "rollbackBoundary": "remove only ADR/schema approval additions, historical validator/results/generated validation and Story 13.1 record; mutate no v2 byte.",
+  "candidateBinding": "`SC-13.1`, 7.4/9.2 records, recorded Story 6.2 root and gitlinks, protected blob hashes, ADR/schema/approval digests.",
+  "entryInventory": {
+    "id": "V9-13.1-ENTRY-v1",
+    "sha256": "e050f1cba4f2dbcb83cfd40f6ae4f855c7458503415623b28cc390a0946220b6"
+  },
+  "authoritySectionSha256": "e3fdfa1c93f7a65cd36cae5bbe950d0bb428cb53a455388c57542872b87649a8",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-13.1-final-record-v2.json",
+    "docs/release-evidence/story-13.1-final-record-v2.md",
+    "docs/release-evidence/story-6.2-final-record-v2.json"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-13.1-01",
+      "command": "python3 _bmad/scripts/verify_projection_proof_history.py --repository . --story-record docs/release-evidence/story-6.2-final-record-v2.json --proof docs/release-evidence/projection-read-store-population-proof-v2.json --format json --output artifacts/v9/13.1/AC-13.1-01.json",
+      "contract": "| `AC-13.1-01` | Story 6.2 record and protected-byte inventory | `python3 _bmad/scripts/verify_projection_proof_history.py --repository . --story-record docs/release-evidence/story-6.2-final-record-v2.json --proof docs/release-evidence/projection-read-store-population-proof-v2.json --format json --output artifacts/v9/13.1/AC-13.1-01.json` | Exit `0`; `PASS`; every root/submodule blob, hash, raw mode, gitlink, gate, and run identity resolves at the recorded candidate. Mutation/mismatch is `HISTORICAL_PROOF_MUTATED`/`HISTORICAL_IDENTITY_MISMATCH`; unavailable object returns `2` with `HISTORICAL_OBJECT_UNRESOLVABLE`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-13.1-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k current_worktree_independence --junitxml=artifacts/v9/13.1/AC-13.1-02.xml",
+      "contract": "| `AC-13.1-02` | Valid history plus unrelated later root/gitlink movement | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k current_worktree_independence --junitxml=artifacts/v9/13.1/AC-13.1-02.xml` | Exit `0`; historical pass is unchanged and never compares v2 to current bytes. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.1-03",
+      "command": "python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --no-current-head --output artifacts/v9/13.1/AC-13.1-03.json",
+      "contract": "| `AC-13.1-03` | ADR 0004, full predecessor hashes, changed-dependency and owner/rationale rules | `python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --no-current-head --output artifacts/v9/13.1/AC-13.1-03.json` | Exit `0`; immutable predecessor-linked lifecycle is closed and exactly-zero current head is required at Checkpoint A. Invalid contract is `PROOF_CHAIN_SCHEMA_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.1-04",
+      "command": "python3 _bmad/scripts/generate_projection_proof_history_validation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --history-result artifacts/v9/13.1/AC-13.1-01.json --output-json docs/release-evidence/projection-proof-history-validation-v1.json --output-markdown docs/release-evidence/projection-proof-history-validation-v1.md",
+      "contract": "| `AC-13.1-04` | ADR/schema signable payload and named owner disposition | `python3 _bmad/scripts/generate_projection_proof_history_validation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --history-result artifacts/v9/13.1/AC-13.1-01.json --output-json docs/release-evidence/projection-proof-history-validation-v1.json --output-markdown docs/release-evidence/projection-proof-history-validation-v1.md` | Exit `0`; approved bundle binds exact digests; missing approval is `PROOF_LIFECYCLE_APPROVAL_MISSING`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.1-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/13.1/AC-13.1-05.xml",
+      "contract": "| `AC-13.1-05` | Changed v2 byte, wrong root/gitlink/blob/mode/run identity, missing object, open schema, or approval removal | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/13.1/AC-13.1-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --format bundle --output-json docs/release-evidence/story-13.1-final-record-v2.json --output-markdown docs/release-evidence/story-13.1-final-record-v2.md",
+      "contract": "| `AC-13.1-06` | AC-13.1-01 through AC-13.1-05 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --format bundle --output-json docs/release-evidence/story-13.1-final-record-v2.json --output-markdown docs/release-evidence/story-13.1-final-record-v2.md` | Exit `0`; record binds historical validation, ADR/schema/approval, protected inventory and mutation ledger, summary `6/6/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

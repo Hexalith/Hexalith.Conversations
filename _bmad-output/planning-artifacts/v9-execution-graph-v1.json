@@ -1,0 +1,417 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-execution-graph.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "implementationHold": "ACTIVE",
+  "nodes": [
+    {
+      "id": "10.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4",
+        "9.2"
+      ]
+    },
+    {
+      "id": "10.2",
+      "kind": "story",
+      "predecessors": [
+        "10.1"
+      ]
+    },
+    {
+      "id": "10.3",
+      "kind": "story",
+      "predecessors": [
+        "10.2"
+      ]
+    },
+    {
+      "id": "10.4",
+      "kind": "story",
+      "predecessors": [
+        "10.3"
+      ]
+    },
+    {
+      "id": "11.1",
+      "kind": "story",
+      "predecessors": [
+        "6.2",
+        "7.4",
+        "10.4"
+      ]
+    },
+    {
+      "id": "11.2",
+      "kind": "story",
+      "predecessors": [
+        "11.1"
+      ]
+    },
+    {
+      "id": "11.3",
+      "kind": "story",
+      "predecessors": [
+        "11.2"
+      ]
+    },
+    {
+      "id": "12.1",
+      "kind": "story",
+      "predecessors": [
+        "6.2"
+      ]
+    },
+    {
+      "id": "12.2",
+      "kind": "story",
+      "predecessors": [
+        "12.1"
+      ]
+    },
+    {
+      "id": "12.3",
+      "kind": "story",
+      "predecessors": [
+        "12.1",
+        "12.2"
+      ]
+    },
+    {
+      "id": "12.4",
+      "kind": "story",
+      "predecessors": [
+        "12.3"
+      ]
+    },
+    {
+      "id": "13.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4",
+        "9.2"
+      ]
+    },
+    {
+      "id": "13.2",
+      "kind": "story",
+      "predecessors": [
+        "13.1"
+      ]
+    },
+    {
+      "id": "13.3",
+      "kind": "story",
+      "predecessors": [
+        "13.2"
+      ]
+    },
+    {
+      "id": "14.1",
+      "kind": "story",
+      "predecessors": [
+        "8.2",
+        "9.2",
+        "10.4",
+        "13.3"
+      ]
+    },
+    {
+      "id": "14.2",
+      "kind": "story",
+      "predecessors": [
+        "14.1"
+      ]
+    },
+    {
+      "id": "14.3",
+      "kind": "story",
+      "predecessors": [
+        "14.2"
+      ]
+    },
+    {
+      "id": "15.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4",
+        "8.2",
+        "9.2",
+        "10.4",
+        "11.3",
+        "12.4",
+        "13.3",
+        "14.3"
+      ]
+    },
+    {
+      "id": "15.2",
+      "kind": "story",
+      "predecessors": [
+        "15.1"
+      ]
+    },
+    {
+      "id": "6.2",
+      "kind": "historical-story",
+      "predecessors": []
+    },
+    {
+      "id": "7.1",
+      "kind": "story",
+      "predecessors": [
+        "6.2"
+      ]
+    },
+    {
+      "id": "7.2",
+      "kind": "story",
+      "predecessors": [
+        "7.1"
+      ]
+    },
+    {
+      "id": "7.3",
+      "kind": "story",
+      "predecessors": [
+        "7.2"
+      ]
+    },
+    {
+      "id": "7.4",
+      "kind": "story",
+      "predecessors": [
+        "7.3"
+      ]
+    },
+    {
+      "id": "8.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4"
+      ]
+    },
+    {
+      "id": "8.2",
+      "kind": "story",
+      "predecessors": [
+        "8.1"
+      ]
+    },
+    {
+      "id": "9.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4"
+      ]
+    },
+    {
+      "id": "9.2",
+      "kind": "story",
+      "predecessors": [
+        "9.1"
+      ]
+    },
+    {
+      "id": "IR-0",
+      "kind": "gate",
+      "predecessors": [
+        "PC-PUBLICATION"
+      ]
+    },
+    {
+      "id": "PC-PUBLICATION",
+      "kind": "publication",
+      "predecessors": []
+    },
+    {
+      "id": "RG-15",
+      "kind": "release-gate",
+      "predecessors": [
+        "15.2"
+      ]
+    }
+  ],
+  "edges": [
+    {
+      "from": "10.1",
+      "to": "10.2"
+    },
+    {
+      "from": "10.2",
+      "to": "10.3"
+    },
+    {
+      "from": "10.3",
+      "to": "10.4"
+    },
+    {
+      "from": "10.4",
+      "to": "11.1"
+    },
+    {
+      "from": "10.4",
+      "to": "14.1"
+    },
+    {
+      "from": "10.4",
+      "to": "15.1"
+    },
+    {
+      "from": "11.1",
+      "to": "11.2"
+    },
+    {
+      "from": "11.2",
+      "to": "11.3"
+    },
+    {
+      "from": "11.3",
+      "to": "15.1"
+    },
+    {
+      "from": "12.1",
+      "to": "12.2"
+    },
+    {
+      "from": "12.1",
+      "to": "12.3"
+    },
+    {
+      "from": "12.2",
+      "to": "12.3"
+    },
+    {
+      "from": "12.3",
+      "to": "12.4"
+    },
+    {
+      "from": "12.4",
+      "to": "15.1"
+    },
+    {
+      "from": "13.1",
+      "to": "13.2"
+    },
+    {
+      "from": "13.2",
+      "to": "13.3"
+    },
+    {
+      "from": "13.3",
+      "to": "14.1"
+    },
+    {
+      "from": "13.3",
+      "to": "15.1"
+    },
+    {
+      "from": "14.1",
+      "to": "14.2"
+    },
+    {
+      "from": "14.2",
+      "to": "14.3"
+    },
+    {
+      "from": "14.3",
+      "to": "15.1"
+    },
+    {
+      "from": "15.1",
+      "to": "15.2"
+    },
+    {
+      "from": "15.2",
+      "to": "RG-15"
+    },
+    {
+      "from": "6.2",
+      "to": "11.1"
+    },
+    {
+      "from": "6.2",
+      "to": "12.1"
+    },
+    {
+      "from": "6.2",
+      "to": "7.1"
+    },
+    {
+      "from": "7.1",
+      "to": "7.2"
+    },
+    {
+      "from": "7.2",
+      "to": "7.3"
+    },
+    {
+      "from": "7.3",
+      "to": "7.4"
+    },
+    {
+      "from": "7.4",
+      "to": "10.1"
+    },
+    {
+      "from": "7.4",
+      "to": "11.1"
+    },
+    {
+      "from": "7.4",
+      "to": "13.1"
+    },
+    {
+      "from": "7.4",
+      "to": "15.1"
+    },
+    {
+      "from": "7.4",
+      "to": "8.1"
+    },
+    {
+      "from": "7.4",
+      "to": "9.1"
+    },
+    {
+      "from": "8.1",
+      "to": "8.2"
+    },
+    {
+      "from": "8.2",
+      "to": "14.1"
+    },
+    {
+      "from": "8.2",
+      "to": "15.1"
+    },
+    {
+      "from": "9.1",
+      "to": "9.2"
+    },
+    {
+      "from": "9.2",
+      "to": "10.1"
+    },
+    {
+      "from": "9.2",
+      "to": "13.1"
+    },
+    {
+      "from": "9.2",
+      "to": "14.1"
+    },
+    {
+      "from": "9.2",
+      "to": "15.1"
+    },
+    {
+      "from": "PC-PUBLICATION",
+      "to": "IR-0"
+    }
+  ]
+}

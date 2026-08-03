@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "hexalith.conversations.resolved-customization.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "skill": "bmad-build",
+  "defaultPath": ".agents/skills/bmad-build/customize.toml",
+  "defaultSha256": "68a0134f3f9e7f4a7b077aa2dcca1c68f208701d3487482e84afbee8717efec6",
+  "teamPath": "_bmad/custom/bmad-build.toml",
+  "teamSha256": "dfde59f60ea5e54fa6039b3b27461dc0de5aac37bbd81bf9082c1d5cc030b138",
+  "resolved": {
+    "workflow": {
+      "activation_steps_prepend": [],
+      "activation_steps_append": [
+        "For applicable evidence or planning-authority changes, follow the canonical evidence-boundary runbook and preserve PASS, FAIL, BLOCKED, and not-applicable as distinct results before review or done transitions."
+      ],
+      "persistent_facts": [
+        "file:{project-root}/**/project-context.md",
+        "file:{project-root}/docs/runbooks/evidence-boundary-validation.md"
+      ],
+      "on_complete": "",
+      "open_spec": "Run `code -r \"{project-root}\" \"{spec_file}\"` — the repository root first so VS Code opens in the right context, then the spec file. Always double-quote both paths to handle spaces and special characters. If `code` is unavailable or the command fails, skip gracefully and tell the user the spec file path instead. In the completion summary, note that the spec was sent to VS Code and that it contains a Suggested Review Order, then add this navigation tip: \"Ctrl+click (Cmd+click on macOS) the links in the Suggested Review Order to jump to each stop.\"\n",
+      "implementation_handoff": "Launch a subagent with no prior conversation context, with this prompt:\n\n> Read {spec_file} fully and implement it — the spec is the sole source of truth. Load every file listed in its frontmatter `context:` before you start.\n>\n> When done, report what you changed, how you verified it, and anything left incomplete or risky.\n",
+      "review_layers": [
+        {
+          "id": "blind-hunter",
+          "name": "Blind Hunter",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nConduct a review of CONTENT.\nLook for what's missing, not only what's wrong.\nFind at least ten issues to fix or improve.\nOutput a Markdown list of findings only — no severity, priority, or ranking.\nIf the content is empty, stop and say so.\nIf you have zero findings, re-check and keep thinking; do not stop with an empty list.\n\nCONTENT:\n{diff_output}\n\nDo not invoke any skill. Return only the review result.\n\n"
+        },
+        {
+          "id": "edge-case-hunter",
+          "name": "Edge Case Hunter",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nRead `{skill-root}/review-prompts/edge-case-hunter.md` completely and follow it as your review instructions.\n\nReview content:\n\n{diff_output}\n\nDo not invoke any skill. If the instruction file is unreadable, report that exact failure and stop. Return only the review result.\n\n"
+        },
+        {
+          "id": "verification-gap",
+          "name": "Verification Gap Reviewer",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nRead `{skill-root}/review-prompts/verification-gap.md` completely and follow it as your review instructions.\n\nReview content:\n\n{diff_output}\n\nDo not invoke any skill. If the instruction file is unreadable, report that exact failure and stop. Return only the review result.\n\n"
+        }
+      ],
+      "oneshot_review_layers": [
+        {
+          "id": "blind-hunter",
+          "name": "Blind Hunter",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nConduct a review of CONTENT.\nLook for what's missing, not only what's wrong.\nFind at least ten issues to fix or improve.\nOutput a Markdown list of findings only — no severity, priority, or ranking.\nIf the content is empty, stop and say so.\nIf you have zero findings, re-check and keep thinking; do not stop with an empty list.\n\nCONTENT:\nThe changed files in the current worktree. Inspect them directly before reviewing.\n\nDo not invoke any skill. Return only the review result.\n\n"
+        }
+      ]
+    }
+  }
+}

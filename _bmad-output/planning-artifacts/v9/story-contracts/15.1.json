@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "15.1",
+  "title": "Revalidate all preservation, topology, correctness, and metric gates",
+  "boundedOutcome": "one revalidation bundle records all current gate results; it creates neither an attestation nor a readiness/release decision.",
+  "predecessors": [
+    "7.4",
+    "8.2",
+    "9.2",
+    "10.4",
+    "11.3",
+    "12.4",
+    "13.3",
+    "14.3"
+  ],
+  "rollbackBoundary": "remove only Story 15.1 rerun results, generator/ validator/bundle, faults and record; every predecessor remains immutable.",
+  "candidateBinding": "`RC-15.1` is exact root commit plus canonical ten root gitlinks, all eight predecessor final-record digests, test binary/source/result hashes and frozen inventories. It is not `PC` or any prior `SC`.",
+  "entryInventory": {
+    "id": "V9-15.1-ENTRY-v1",
+    "sha256": "996e98307e2db67aa3801dc401046d3d6216dc25c4ea3e9664ad5373dca55cd1"
+  },
+  "authoritySectionSha256": "4d09410eb32517d9ce84b268d46a61ae213297c8ace2e607c61c7fe082bd7d7c",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-15.1-final-record-v2.json",
+    "docs/release-evidence/story-15.1-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-15.1-01",
+      "command": "python3 _bmad/scripts/verify_release_predecessors.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --candidate HEAD --output artifacts/v9/15.1/AC-15.1-01.json",
+      "contract": "| `AC-15.1-01` | Eight exact predecessor records and `RC-15.1` | `python3 _bmad/scripts/verify_release_predecessors.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --candidate HEAD --output artifacts/v9/15.1/AC-15.1-01.json` | Exit `0`; every record is schema-valid, current for its time basis, nonvacuous and candidate-compatible. Failure is `RELEASE_GATE_PREDECESSOR_INVALID` or `RELEASE_GATE_CANDIDATE_MISMATCH`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-02",
+      "command": "python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/15.1/AC-15.1-02.json",
+      "contract": "| `AC-15.1-02` | Story 12.4 universal SM-C2 evidence and benchmark identities | `python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/15.1/AC-15.1-02.json` | Exit `0`; HP-CREATE/APPEND/LIST/OPEN each has usable comparable signal and satisfies `postP95 <= 1.05 * baselineP95`. Any row is `SMC2_ROW_REGRESSION` or `SMC2_SIGNAL_UNUSABLE`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-03",
+      "command": "python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output artifacts/v9/15.1/AC-15.1-03.json",
+      "contract": "| `AC-15.1-03` | Story 14.3 manifest and public-contract/approval bindings | `python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output artifacts/v9/15.1/AC-15.1-03.json` | Exit `0`; complete manifest passes and every contract is equal or has approved compatibility evidence. Failure is `RELEASE_GATE_REVALIDATION_RED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ReleaseGateRevalidationV2Tests -trx artifacts/v9/15.1/revalidation.trx",
+      "contract": "| `AC-15.1-04` | Topology, tenant security, health, publication, admin, SM-1/2/3 and preservation test inventories | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ReleaseGateRevalidationV2Tests -trx artifacts/v9/15.1/revalidation.trx` | Exit `0`; every frozen lane executes nonzero with zero failed/skipped/not-run. Red/vacuous is `RELEASE_GATE_REVALIDATION_RED`/`RELEASE_GATE_RESULT_VACUOUS`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/portable.trx",
+      "contract": "| `AC-15.1-05` | Built portable conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/portable.trx` | Exit `0`; nonzero portable assertions all pass and retain tier digest. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-06",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/internal.trx",
+      "contract": "| `AC-15.1-06` | Built internal conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/internal.trx` | Exit `0`; nonzero internal assertions all pass; sum with portable is monotonic. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-07",
+      "command": "python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --candidate HEAD --format json --output artifacts/v9/15.1/AC-15.1-07.json",
+      "contract": "| `AC-15.1-07` | Story 10.4 boundary result and current release evidence diff | `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --candidate HEAD --format json --output artifacts/v9/15.1/AC-15.1-07.json` | Exit `0`; applicable evidence is current/nonvacuous/green. Failure is `EVIDENCE_BOUNDARY_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-08",
+      "command": "python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --rerun --output artifacts/v9/15.1/AC-15.1-08.json",
+      "contract": "| `AC-15.1-08` | Immutable v2 history and sole v3 head | `python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --rerun --output artifacts/v9/15.1/AC-15.1-08.json` | Exit `0`; history validates, one current head resolves and all six functional lanes rerun green. Drift is `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; invalid rerun `PROJECTION_PROOF_RUN_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-09",
+      "command": "python3 _bmad/scripts/generate_release_revalidation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --results artifacts/v9/15.1 --output-json docs/release-evidence/release-gate-revalidation-v2.json --output-markdown docs/release-evidence/release-gate-revalidation-v2.md",
+      "contract": "| `AC-15.1-09` | All results from AC-15.1-01 through AC-15.1-08 | `python3 _bmad/scripts/generate_release_revalidation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --results artifacts/v9/15.1 --output-json docs/release-evidence/release-gate-revalidation-v2.json --output-markdown docs/release-evidence/release-gate-revalidation-v2.md` | Exit `0`; authoritative bundle recomputes separate/summed counts, identities and digests; any red/blocked/stale/vacuous input is `RELEASE_GATE_REVALIDATION_RED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-10",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_release_revalidation.py -k complete_fault_matrix --junitxml=artifacts/v9/15.1/AC-15.1-10.xml",
+      "contract": "| `AC-15.1-10` | Mutations across every predecessor, row, manifest/contract, lane, tier, boundary, proof head/rerun and candidate/gitlink | `python3 -m pytest -q _bmad/scripts/tests/test_release_revalidation.py -k complete_fault_matrix --junitxml=artifacts/v9/15.1/AC-15.1-10.xml` | Exit `0`; exact owning blocker occurs and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.1-11",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --format bundle --output-json docs/release-evidence/story-15.1-final-record-v2.json --output-markdown docs/release-evidence/story-15.1-final-record-v2.md",
+      "contract": "| `AC-15.1-11` | AC-15.1-01 through AC-15.1-10 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --format bundle --output-json docs/release-evidence/story-15.1-final-record-v2.json --output-markdown docs/release-evidence/story-15.1-final-record-v2.md` | Exit `0`; final record binds RC, eight predecessors, every lane/count/digest, mutations and summary `11/11/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "14.1",
+  "title": "Freeze requirement, contract, test, UX and evidence denominators",
+  "boundedOutcome": "one generated denominator inventory freezes exact identities and source hashes; it assigns no obligation disposition.",
+  "predecessors": [
+    "8.2",
+    "9.2",
+    "10.4",
+    "13.3"
+  ],
+  "rollbackBoundary": "remove only v3 denominator generator/validator/bundle, fault fixtures/results and Story 14.1 record; preserve all sources and v2 files.",
+  "candidateBinding": "`SC-14.1`, four predecessor records and their frozen inventories, exact authority/source blobs and relevant gitlinks.",
+  "entryInventory": {
+    "id": "V9-14.1-ENTRY-v1",
+    "sha256": "6a6101ccdd2e4fea72fb6d7004dc649d18a418fdbae8884a6d4da3af7f3d4cdb"
+  },
+  "authoritySectionSha256": "9ea525128f98f59935d9e04d5e9c7d3102530cd6d7ac39e52a22b0c24a116256",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-14.1-final-record-v2.json",
+    "docs/release-evidence/story-14.1-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-14.1-01",
+      "command": "python3 _bmad/scripts/generate_preservation_denominators.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --output-json docs/release-evidence/preservation-denominator-inventory-v3.json --output-markdown docs/release-evidence/preservation-denominator-inventory-v3.md",
+      "contract": "| `AC-14.1-01` | Canonical PRD/addendum and bound `SC-14.1` | `python3 _bmad/scripts/generate_preservation_denominators.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --output-json docs/release-evidence/preservation-denominator-inventory-v3.json --output-markdown docs/release-evidence/preservation-denominator-inventory-v3.md` | Exit `0`; exactly 20 initiative plus 104 Feature functional identities are unique and total `124`. Missing/extra/duplicate is `PRESERVATION_IDENTITY_MISSING`, `PRESERVATION_DENOMINATOR_DRIFT`, or `PRESERVATION_IDENTITY_DUPLICATE`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-02",
+      "command": "python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group feature-nfr --expected 77 --output artifacts/v9/14.1/AC-14.1-02.json",
+      "contract": "| `AC-14.1-02` | Generated denominator inventory | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group feature-nfr --expected 77 --output artifacts/v9/14.1/AC-14.1-02.json` | Exit `0`; exact `77/77` unique Feature-NFRs resolve to pinned source hashes. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-03",
+      "command": "python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group ux --expected-decisions 52 --expected-acceptance 28 --output artifacts/v9/14.1/AC-14.1-03.json",
+      "contract": "| `AC-14.1-03` | Story 8.2 UX record/inventories | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group ux --expected-decisions 52 --expected-acceptance 28 --output artifacts/v9/14.1/AC-14.1-03.json` | Exit `0`; exact `52/52` and `28/28`, with preserved-not-activated state. Drift or activation is `PRESERVATION_DENOMINATOR_DRIFT` or `UX_SCOPE_ACTIVATED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-04",
+      "command": "python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group contracts-controls-tests-evidence-proofs --output artifacts/v9/14.1/AC-14.1-04.json",
+      "contract": "| `AC-14.1-04` | Stories 9.2, 10.4 and 13.3 inventories | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group contracts-controls-tests-evidence-proofs --output artifacts/v9/14.1/AC-14.1-04.json` | Exit `0`; public-contract/control/assertion/reader/proof sets and predecessor digests match exactly. Drift is `PRESERVATION_DENOMINATOR_DRIFT`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.OnlyFr16ShouldBeDeferredAndNonActivated -trx artifacts/v9/14.1/AC-14.1-05.trx",
+      "contract": "| `AC-14.1-05` | FR-16 and every other initiative identity | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.OnlyFr16ShouldBeDeferredAndNonActivated -trx artifacts/v9/14.1/AC-14.1-05.trx` | Exit `0`; only FR-16 has deferred/non-activated classification. Violation is `FR16_ACTIVATED` or `UNAUTHORIZED_REQUIREMENT_DEFERRED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-06",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.PartialV2ShouldRemainUnacceptedProvenance -trx artifacts/v9/14.1/AC-14.1-06.trx",
+      "contract": "| `AC-14.1-06` | Existing partial v2 manifest and v3 inventory | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.PartialV2ShouldRemainUnacceptedProvenance -trx artifacts/v9/14.1/AC-14.1-06.trx` | Exit `0`; v2 hashes are recorded only as provenance and never as a completed input. False inheritance is `PARTIAL_MANIFEST_TREATED_AS_ACCEPTED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_preservation_denominators.py -k complete_fault_matrix --junitxml=artifacts/v9/14.1/AC-14.1-07.xml",
+      "contract": "| `AC-14.1-07` | Missing/extra/duplicate/orphan identity, count drift, source-hash drift, FR-16 activation, other deferral, UX activation and accepted-v2 mutations | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_denominators.py -k complete_fault_matrix --junitxml=artifacts/v9/14.1/AC-14.1-07.xml` | Exit `0`; each exact blocker occurs and every fixture restores; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.1-08",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --format bundle --output-json docs/release-evidence/story-14.1-final-record-v2.json --output-markdown docs/release-evidence/story-14.1-final-record-v2.md",
+      "contract": "| `AC-14.1-08` | AC-14.1-01 through AC-14.1-07 and four predecessor records are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --format bundle --output-json docs/release-evidence/story-14.1-final-record-v2.json --output-markdown docs/release-evidence/story-14.1-final-record-v2.md` | Exit `0`; final record binds every group count/digest, sources, predecessors, mutation ledger, summary `8/8/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

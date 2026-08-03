@@ -1,0 +1,620 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-supersession-map.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyDispositions": [
+    {
+      "sourceStory": "6.3",
+      "sourceStatus": "in-progress",
+      "successorEpic": 14,
+      "successorStories": [
+        "14.1",
+        "14.2",
+        "14.3"
+      ],
+      "salvagePolicy": "partial work is unaccepted input"
+    },
+    {
+      "sourceStory": "6.4",
+      "sourceStatus": "backlog",
+      "successorEpic": 8,
+      "successorStories": [
+        "8.1",
+        "8.2"
+      ],
+      "salvagePolicy": "superseded definition only"
+    },
+    {
+      "sourceStory": "6.5",
+      "sourceStatus": "backlog",
+      "successorEpic": 11,
+      "successorStories": [
+        "11.1",
+        "11.2",
+        "11.3"
+      ],
+      "salvagePolicy": "superseded definition only"
+    },
+    {
+      "sourceStory": "6.6",
+      "sourceStatus": "backlog",
+      "successorEpic": 15,
+      "successorStories": [
+        "15.1",
+        "15.2"
+      ],
+      "salvagePolicy": "release decision remains non-story Gate RG-15"
+    },
+    {
+      "sourceStory": "6.8",
+      "sourceStatus": "in-progress",
+      "successorEpic": 7,
+      "successorStories": [
+        "7.1",
+        "7.2",
+        "7.3",
+        "7.4"
+      ],
+      "salvagePolicy": "partial work is unaccepted input"
+    },
+    {
+      "sourceStory": "6.9",
+      "sourceStatus": "backlog",
+      "successorEpic": 9,
+      "successorStories": [
+        "9.1",
+        "9.2"
+      ],
+      "salvagePolicy": "superseded definition only"
+    },
+    {
+      "sourceStory": "6.10",
+      "sourceStatus": "backlog",
+      "successorEpic": 10,
+      "successorStories": [
+        "10.1",
+        "10.2",
+        "10.3",
+        "10.4"
+      ],
+      "salvagePolicy": "superseded by corrected Epic 10"
+    },
+    {
+      "sourceStory": "6.11",
+      "sourceStatus": "backlog",
+      "successorEpic": 12,
+      "successorStories": [
+        "12.1",
+        "12.2",
+        "12.3",
+        "12.4"
+      ],
+      "salvagePolicy": "superseded definition only"
+    },
+    {
+      "sourceStory": "6.12",
+      "sourceStatus": "ready-for-dev",
+      "successorEpic": 13,
+      "successorStories": [
+        "13.1",
+        "13.2",
+        "13.3"
+      ],
+      "salvagePolicy": "prepared story remains provenance"
+    }
+  ],
+  "v8AcceptanceObligations": [
+    {
+      "sourceId": "V8-6.3-AC1",
+      "bindings": [
+        "AC-14.1-01",
+        "AC-14.1-02",
+        "AC-14.1-03",
+        "AC-14.1-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.3-AC2",
+      "bindings": [
+        "AC-14.2-01",
+        "AC-14.2-02",
+        "AC-14.2-03"
+      ]
+    },
+    {
+      "sourceId": "V8-6.3-AC3",
+      "bindings": [
+        "AC-14.2-02",
+        "AC-14.2-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.3-AC4",
+      "bindings": [
+        "AC-14.2-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.3-AC5",
+      "bindings": [
+        "AC-14.2-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.3-AC6",
+      "bindings": [
+        "AC-14.3-01",
+        "AC-14.3-02",
+        "AC-14.3-03",
+        "AC-14.3-04",
+        "AC-14.3-05",
+        "AC-14.3-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC1",
+      "bindings": [
+        "AC-8.1-02",
+        "AC-8.1-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC2",
+      "bindings": [
+        "AC-8.1-01"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC3",
+      "bindings": [
+        "AC-8.1-02",
+        "AC-8.1-03",
+        "AC-8.1-04",
+        "AC-8.1-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC4",
+      "bindings": [
+        "AC-8.1-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC5",
+      "bindings": [
+        "AC-8.2-01",
+        "AC-8.2-02",
+        "AC-8.2-03",
+        "AC-8.2-04",
+        "AC-8.2-05",
+        "AC-8.2-06",
+        "AC-8.2-07",
+        "AC-8.2-08",
+        "AC-8.2-09",
+        "AC-8.2-10"
+      ]
+    },
+    {
+      "sourceId": "V8-6.4-AC6",
+      "bindings": [
+        "AC-8.1-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC1",
+      "bindings": [
+        "AC-11.1-03",
+        "AC-11.1-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC2",
+      "bindings": [
+        "AC-11.1-02",
+        "AC-11.1-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC3",
+      "bindings": [
+        "AC-11.2-01",
+        "AC-11.2-02",
+        "AC-11.2-03",
+        "AC-11.2-04",
+        "AC-11.2-05",
+        "AC-11.2-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC4",
+      "bindings": [
+        "AC-11.3-01",
+        "AC-11.3-02",
+        "AC-11.3-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC5",
+      "bindings": [
+        "AC-11.3-03",
+        "AC-11.3-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.5-AC6",
+      "bindings": [
+        "AC-11.3-05",
+        "AC-11.3-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC1",
+      "bindings": [
+        "AC-15.1-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC2",
+      "bindings": [
+        "AC-15.1-03",
+        "AC-15.1-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC3",
+      "bindings": [
+        "AC-15.2-01",
+        "AC-15.2-02",
+        "AC-15.2-03",
+        "AC-15.2-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC4",
+      "bindings": [
+        "AC-15.1-01",
+        "AC-15.1-05",
+        "AC-15.1-06",
+        "AC-15.1-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC5",
+      "bindings": [
+        "NONSTORY:RG-15-INDEPENDENT-REVIEW"
+      ]
+    },
+    {
+      "sourceId": "V8-6.6-AC6",
+      "bindings": [
+        "NONSTORY:RG-15-RELEASE-DECISION"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC1",
+      "bindings": [
+        "AC-7.1-02",
+        "AC-7.2-02",
+        "AC-7.2-03",
+        "AC-7.2-04",
+        "AC-7.2-05",
+        "AC-7.2-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC2",
+      "bindings": [
+        "AC-7.2-01",
+        "AC-7.2-02",
+        "AC-7.2-03"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC3",
+      "bindings": [
+        "AC-7.2-04",
+        "AC-7.2-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC4",
+      "bindings": [
+        "AC-7.2-06",
+        "AC-7.2-07",
+        "AC-7.2-08",
+        "AC-7.2-09",
+        "AC-7.2-10",
+        "AC-7.2-11"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC5",
+      "bindings": [
+        "AC-7.3-01",
+        "AC-7.3-02",
+        "AC-7.3-03",
+        "AC-7.3-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC6",
+      "bindings": [
+        "AC-7.1-04",
+        "AC-7.3-04",
+        "AC-7.3-05",
+        "AC-7.3-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC7",
+      "bindings": [
+        "AC-7.4-01",
+        "AC-7.4-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.8-AC8",
+      "bindings": [
+        "AC-7.4-03",
+        "AC-7.4-04",
+        "AC-7.4-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC1",
+      "bindings": [
+        "AC-9.1-02",
+        "AC-9.1-03",
+        "AC-9.1-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC2",
+      "bindings": [
+        "AC-9.2-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC3",
+      "bindings": [
+        "AC-9.1-04",
+        "AC-9.2-04",
+        "AC-9.2-08"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC4",
+      "bindings": [
+        "AC-9.1-05",
+        "AC-9.1-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC5",
+      "bindings": [
+        "AC-9.1-08"
+      ]
+    },
+    {
+      "sourceId": "V8-6.9-AC6",
+      "bindings": [
+        "AC-9.2-05",
+        "AC-9.2-06",
+        "AC-9.2-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC1",
+      "bindings": [
+        "AC-10.1-01",
+        "AC-10.1-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC2",
+      "bindings": [
+        "AC-10.1-03",
+        "AC-10.1-04",
+        "AC-10.1-05",
+        "AC-10.1-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC3",
+      "bindings": [
+        "AC-10.2-01",
+        "AC-10.2-02",
+        "AC-10.2-03",
+        "AC-10.2-06",
+        "AC-10.2-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC4",
+      "bindings": [
+        "AC-10.2-04",
+        "AC-10.2-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC5",
+      "bindings": [
+        "AC-10.2-06",
+        "AC-10.2-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC6",
+      "bindings": [
+        "AC-10.3-01",
+        "AC-10.3-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC7",
+      "bindings": [
+        "AC-10.3-03",
+        "AC-10.3-04",
+        "AC-10.3-05",
+        "AC-10.3-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC8",
+      "bindings": [
+        "AC-10.4-01",
+        "AC-10.4-02",
+        "AC-10.4-03",
+        "AC-10.4-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC9",
+      "bindings": [
+        "AC-10.4-05",
+        "AC-10.4-06",
+        "AC-10.4-09"
+      ]
+    },
+    {
+      "sourceId": "V8-6.10-AC10",
+      "bindings": [
+        "AC-10.4-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC1",
+      "bindings": [
+        "AC-12.1-02",
+        "AC-12.1-03",
+        "AC-12.1-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC2",
+      "bindings": [
+        "AC-12.3-01",
+        "AC-12.3-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC3",
+      "bindings": [
+        "AC-12.3-03",
+        "AC-12.3-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC4",
+      "bindings": [
+        "AC-12.3-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC5",
+      "bindings": [
+        "AC-12.2-01",
+        "AC-12.2-02",
+        "AC-12.2-03"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC6",
+      "bindings": [
+        "AC-12.4-01",
+        "AC-12.4-03",
+        "AC-12.4-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC7",
+      "bindings": [
+        "AC-12.3-06",
+        "AC-12.4-02",
+        "AC-12.4-03"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC8",
+      "bindings": [
+        "AC-12.3-02",
+        "AC-12.3-03",
+        "AC-12.3-04",
+        "AC-12.3-07"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC9",
+      "bindings": [
+        "AC-12.4-01",
+        "AC-12.4-02",
+        "AC-12.4-03"
+      ]
+    },
+    {
+      "sourceId": "V8-6.11-AC10",
+      "bindings": [
+        "AC-12.4-03",
+        "AC-12.4-05",
+        "AC-12.4-06"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC1",
+      "bindings": [
+        "AC-13.1-01"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC2",
+      "bindings": [
+        "AC-13.1-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC3",
+      "bindings": [
+        "AC-13.1-03",
+        "AC-13.1-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC4",
+      "bindings": [
+        "AC-13.2-01",
+        "AC-13.2-02"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC5",
+      "bindings": [
+        "AC-13.2-03",
+        "AC-13.2-04"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC6",
+      "bindings": [
+        "AC-13.3-01"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC7",
+      "bindings": [
+        "AC-13.3-05"
+      ]
+    },
+    {
+      "sourceId": "V8-6.12-AC8",
+      "bindings": [
+        "AC-13.3-02",
+        "AC-13.3-03",
+        "AC-13.3-04",
+        "AC-13.3-06"
+      ]
+    }
+  ]
+}

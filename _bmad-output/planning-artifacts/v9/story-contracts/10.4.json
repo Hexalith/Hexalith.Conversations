@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "10.4",
+  "title": "Migrate frozen readers, repair gate spans, publish the runbook, and prove fault injection",
+  "boundedOutcome": "all frozen readers migrate at equal strength, the runbook is complete, fault coverage is exhaustive, and promotion-gate span protection remains independently effective.",
+  "predecessors": [
+    "10.3"
+  ],
+  "rollbackBoundary": "restore all 27 readers from the before-inventory and remove only Story 10.4 runbook/fault fixtures/results/record; retain TestSupport and verifier.",
+  "candidateBinding": "`SC-10.4`, Story 10.3 record, before/after reader identity/strength digests, both frozen inventory digests, and the canonical candidate rule.",
+  "entryInventory": {
+    "id": "V9-10.4-ENTRY-v1",
+    "sha256": "fbcf160a9d4beb407c33da4aa5cbdc12040fc71591a9bd9720a89f591d90cc34"
+  },
+  "authoritySectionSha256": "feff01961b82d2b921e3bd254fb08e05365983215b73d5ffb0ba5954effc0e59",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-10.4-final-record-v2.json",
+    "docs/release-evidence/story-10.4-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-10.4-01",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx",
+      "contract": "| `AC-10.4-01` | The exact 27-path inventory and before identity/strength material | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx` | Exit `0`; `PASS`; exact set and inventory digest match. Missing/extra reader is `EVIDENCE_READER_INVENTORY_DRIFT`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-02",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx",
+      "contract": "| `AC-10.4-02` | Before/after assertion identities, pinned constants, and strength material for all 27 readers | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx` | Exit `0`; `PASS`; every reader uses TestSupport and identity/strength digests match. Violation is `EVIDENCE_HELPER_NOT_USED` or `ASSERTION_STRENGTH_WEAKENED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-03",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx",
+      "contract": "| `AC-10.4-03` | Exemption inventory at Story 10.4 entry | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx` | Exit `0`; `PASS`; zero exemptions. Any entry is `DAY_ONE_EXEMPTION_FORBIDDEN`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx",
+      "contract": "| `AC-10.4-04` | Deadlock-shaped Git output and unavailable-history fixtures applied through migrated readers | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx` | Exit `0`; concurrent draining and visible skip pass; Story 6.12/projection-proof identity and strength digest remain unchanged. Regression is `GIT_RUNNER_DEADLOCK`, `UNAVAILABLE_HISTORY_PASSED`, or `PROJECTION_PROOF_SCOPE_ABSORBED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx",
+      "contract": "| `AC-10.4-05` | Runbook path and required sections `Invariants`, `Authoring`, `Exemptions`, `Fault injection`, and `Known limitations` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx` | Exit `0`; `PASS`; every section binds exact codes/commands and does not claim CI wiring. Missing/false guidance is `EVIDENCE_RUNBOOK_INVALID`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml",
+      "contract": "| `AC-10.4-06` | Mutation IDs `HASH`, `PATH_ESCAPE`, `GENERATED_OUTPUT`, `GITLINK`, `SUBSET`, `SIGNED_ALLOWLIST`, `GIT_UNAVAILABLE`, `WORKFLOW_REMOVED`, `MARKER_MALFORMED`, and three frozen chain-table mutations | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml` | Exit `0`; every mutation yields its exact Story 10.2/10.3 blocker, assertion ledger is nonempty, and fixtures restore. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-10.4-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml",
+      "contract": "| `AC-10.4-07` | Story 6.7 promotion positive span, follower marker, evidence insertion, and displaced-span fixture | `python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml` | Exit `0`; positive guard passes only at exact span and displaced guard fails. False green is `PROMOTION_GATE_SPAN_WEAKENED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-10.4-08",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.4.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md",
+      "contract": "| `AC-10.4-08` | AC-10.4-01 through AC-10.4-07 and Story 10.3 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.4.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.4`, Story 10.3, 27 reader before/after digests, runbook, mutation ledger, gate-span proof, both inventory digests, and summary `8/8/0/0/0/0`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.4-09",
+      "command": "python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check",
+      "contract": "### Story 10.4 V10 Amendment: Publish Reusable Resolved Guidance The Story 10.4 bounded outcome, predecessor, rollback boundary, exact 27-reader `V9-EVIDENCE-READERS-v1` inventory and digest, and identities `AC-10.4-01` through `AC-10.4-08` remain unchanged. The final record now binds the three resolved customization results and canonical runbook digest and has summary `9/9/0/0/0/0`. #### AC-10.4-09 — Current dev/review guidance is reusable and resolved **Given:** the canonical runbook, three project-owned customization files, `V9-EVIDENCE-GUIDANCE-v2`, current BMAD defaults, and the Story 10.3 verifier result schema. **When:** resolve `bmad-build`, `bmad-build-auto`, and `bmad-review` customization and run `python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check` from the repository root. **Then:** 1. Regular build, one-shot build, unattended build, and general code review receive the same canonical evidence-boundary guidance. 2. Guidance requires recomputed hashes, contained paths, canonical signable payload, exact changed-path equality, raw-mode gitlink exclusion, exact inventory identity, root-of-trust pinning, and anti-vacuity. 3. Applicable changes invoke the verifier and preserve `PASS`/`FAIL`/`BLOCKED`/`not-applicable` distinctions. 4. Missing or drifted guidance fails with `EVIDENCE_GUIDANCE_NOT_USED` or `EVIDENCE_GUIDANCE_DRIFT`. 5. No shipped `DO NOT EDIT` default customization file changes. 6. Removing an override, weakening exact equality to containment, trusting a declared hash, or redirecting the runbook turns validation red and restores the fixture byte-identically. `AC-10.4-09` atomically realizes the already-mapped `V8-6.10-AC9` guidance obligation; it creates no new v8 obligation.",
+      "requiredResults": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "not-applicable"
+      ]
+    }
+  ]
+}

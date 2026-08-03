@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "15.2",
+  "title": "Generate the superseding attestation and predecessor-supersession record",
+  "boundedOutcome": "one attestation and one supersession bundle are generated; the story makes no readiness or release-closure decision.",
+  "predecessors": [
+    "15.1"
+  ],
+  "rollbackBoundary": "remove only the additive v2 attestation/supersession generator/validator/bundles, faults/results and Story 15.2 record; rewrite no predecessor, signed evidence, baseline, ADR or proof.",
+  "candidateBinding": "`RC` is exact final root and ten gitlinks plus Story 15.1 record/revalidation, all predecessor records/evidence and test identities.",
+  "entryInventory": {
+    "id": "V9-15.2-ENTRY-v1",
+    "sha256": "db7bafbf2a36d673a6ca9c331f2fdb3f679cd22f9b5f386206412f3fb82a2318"
+  },
+  "authoritySectionSha256": "2023b34142e863e11270d6e6d2ef26cef6a7da099d0f53b48944e7de421e7188",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-15.2-final-record-v2.json",
+    "docs/release-evidence/story-15.2-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-15.2-01",
+      "command": "python3 _bmad/scripts/generate_release_attestation_v2.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --revalidation docs/release-evidence/release-gate-revalidation-v2.json --output-json docs/release-evidence/release-attestation-v2.json --output-markdown docs/release-evidence/release-attestation-v2.md",
+      "contract": "| `AC-15.2-01` | Story 15.1 revalidation, signed-v1 evidence, ADR 0003, v2 history, v3 head and rerun result | `python3 _bmad/scripts/generate_release_attestation_v2.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --revalidation docs/release-evidence/release-gate-revalidation-v2.json --output-json docs/release-evidence/release-attestation-v2.json --output-markdown docs/release-evidence/release-attestation-v2.md` | Exit `0`; additive attestation binds exact RC/root/gitlinks and all required immutable/current identities. Invalid head/rerun is `ATTESTATION_PROOF_HEAD_INVALID`/`ATTESTATION_RERUN_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.2-02",
+      "command": "python3 _bmad/scripts/generate_attestation_supersession.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --attestation docs/release-evidence/release-attestation-v2.json --output-json docs/release-evidence/release-attestation-supersession-v2.json --output-markdown docs/release-evidence/release-attestation-supersession-v2.md",
+      "contract": "| `AC-15.2-02` | All predecessor evidence and v1-to-v2 relation inventory | `python3 _bmad/scripts/generate_attestation_supersession.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --attestation docs/release-evidence/release-attestation-v2.json --output-json docs/release-evidence/release-attestation-supersession-v2.json --output-markdown docs/release-evidence/release-attestation-supersession-v2.md` | Exit `0`; every predecessor has one immutable/additive supersession edge and no orphan/fork. Missing edge is `ATTESTATION_SUPERSESSION_INCOMPLETE`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.2-03",
+      "command": "python3 _bmad/scripts/verify_release_attestation_v2.py --repository . --attestation docs/release-evidence/release-attestation-v2.json --supersession docs/release-evidence/release-attestation-supersession-v2.json --output artifacts/v9/15.2/AC-15.2-03.json",
+      "contract": "| `AC-15.2-03` | Generated attestation/supersession bundles and actual repository blobs | `python3 _bmad/scripts/verify_release_attestation_v2.py --repository . --attestation docs/release-evidence/release-attestation-v2.json --supersession docs/release-evidence/release-attestation-supersession-v2.json --output artifacts/v9/15.2/AC-15.2-03.json` | Exit `0`; hashes, RC/gitlinks, schemas, signable payload and JSON/Markdown parity recompute. Mismatch is `ATTESTATION_CANDIDATE_MISMATCH`, `ATTESTATION_PAYLOAD_INVALID`, or `EVIDENCE_FORMAT_DRIFT`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.2-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ReleaseAttestationV2ValidationTest.PredecessorsShouldRemainByteIdentical -trx artifacts/v9/15.2/AC-15.2-04.trx",
+      "contract": "| `AC-15.2-04` | Protected predecessor-byte inventory before and after generation | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ReleaseAttestationV2ValidationTest.PredecessorsShouldRemainByteIdentical -trx artifacts/v9/15.2/AC-15.2-04.trx` | Exit `0`; every protected byte/hash is unchanged. Mutation is `ATTESTATION_PREDECESSOR_MUTATED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.2-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_release_attestation_v2.py -k complete_fault_matrix --junitxml=artifacts/v9/15.2/AC-15.2-05.xml",
+      "contract": "| `AC-15.2-05` | Candidate/head/rerun/payload/supersession/format mutations and a forbidden readiness/release-decision field | `python3 -m pytest -q _bmad/scripts/tests/test_release_attestation_v2.py -k complete_fault_matrix --junitxml=artifacts/v9/15.2/AC-15.2-05.xml` | Exit `0`; exact blockers occur, forbidden decision is `ATTESTATION_OUTCOME_PRESCRIBED`, and fixtures restore. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-15.2-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --format bundle --output-json docs/release-evidence/story-15.2-final-record-v2.json --output-markdown docs/release-evidence/story-15.2-final-record-v2.md",
+      "contract": "| `AC-15.2-06` | AC-15.2-01 through AC-15.2-05 and Story 15.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --format bundle --output-json docs/release-evidence/story-15.2-final-record-v2.json --output-markdown docs/release-evidence/story-15.2-final-record-v2.md` | Exit `0`; final record binds RC, attestation/supersession/signable digests, immutable inventory, mutation ledger, summary `6/6/0/0/0/0`; it contains no release verdict. |",
+      "requiredResults": []
+    }
+  ]
+}

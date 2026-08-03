@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "12.1",
+  "title": "Approve derived-key ownership, lifecycle, and rollback",
+  "boundedOutcome": "one approved ADR and generated decision bundle fixes key ownership and lifecycle; no production source or benchmark method changes.",
+  "predecessors": [
+    "6.2"
+  ],
+  "rollbackBoundary": "remove only ADR 0005, its validator/generated decision, fixtures/results, and Story 12.1 record; Story 6.2 and SM-C2 v1 stay immutable.",
+  "candidateBinding": "`SC-12.1`, immutable Story 6.2 candidate/record and baseline hashes, ADR/decision/approval digests, and the canonical rule.",
+  "entryInventory": {
+    "id": "V9-12.1-ENTRY-v1",
+    "sha256": "b8b755088071d62e36f8e6829d90a8fef3dc8eb54e8f521297ef22b3bfdebf0b"
+  },
+  "authoritySectionSha256": "218a77a7be15478f9dff69afd5e41848354dbdb402b3cf9a25ab4eec11624021",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-12.1-final-record-v2.json",
+    "docs/release-evidence/story-12.1-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-12.1-01",
+      "command": "python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --candidate HEAD --output artifacts/v9/12.1/AC-12.1-01.json",
+      "contract": "| `AC-12.1-01` | Story 6.2 record, baseline v1, `PC`, and `SC-12.1` | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --candidate HEAD --output artifacts/v9/12.1/AC-12.1-01.json` | Exit `0`; `PASS`; exact immutable predecessor identities resolve. Mismatch is `PREDECESSOR_CANDIDATE_MISMATCH`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-12.1-02",
+      "command": "python3 _bmad/scripts/generate_derived_key_decision.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --adr docs/adrs/0005-conversation-derived-key-lifecycle.md --output-json docs/release-evidence/derived-key-lifecycle-decision-v1.json --output-markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md",
+      "contract": "| `AC-12.1-02` | ADR 0005 and the frozen lifecycle fields | `python3 _bmad/scripts/generate_derived_key_decision.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --adr docs/adrs/0005-conversation-derived-key-lifecycle.md --output-json docs/release-evidence/derived-key-lifecycle-decision-v1.json --output-markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md` | Exit `0`; `PASS`; every per-conversation key family and lifecycle field is nonempty and deterministic. Omission is `DERIVED_KEY_ADR_INCOMPLETE`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-12.1-03",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority -trx artifacts/v9/12.1/AC-12.1-03.trx",
+      "contract": "| `AC-12.1-03` | Generated decision and ownership/write-order rules | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority -trx artifacts/v9/12.1/AC-12.1-03.trx` | Exit `0`; `PASS`; derived keys remain replaceable projection state and no read repairs durable state. Violation is `EVENTSTORE_AUTHORITY_VIOLATED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-12.1-04",
+      "command": "python3 _bmad/scripts/verify_derived_key_decision.py --repository . --evidence docs/release-evidence/derived-key-lifecycle-decision-v1.json --markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md --require-approval --output artifacts/v9/12.1/AC-12.1-04.json",
+      "contract": "| `AC-12.1-04` | Compatibility, interrupted rebuild, deletion/expiry, rollback, and approval sections | `python3 _bmad/scripts/verify_derived_key_decision.py --repository . --evidence docs/release-evidence/derived-key-lifecycle-decision-v1.json --markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md --require-approval --output artifacts/v9/12.1/AC-12.1-04.json` | Exit `0`; `PASS`; transitions fail closed and named owner approval binds digest. Unsafe transition is `DERIVED_KEY_TRANSITION_UNSAFE`; missing approval/rollback is `ADR_APPROVAL_MISSING`/`ROLLBACK_PLAN_INVALID`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-12.1-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_derived_key_decision.py -k lifecycle_fault_matrix --junitxml=artifacts/v9/12.1/AC-12.1-05.xml",
+      "contract": "| `AC-12.1-05` | Faults omit each lifecycle field, assign write authority, permit read repair, break interrupted rebuild/rollback, or remove approval | `python3 -m pytest -q _bmad/scripts/tests/test_derived_key_decision.py -k lifecycle_fault_matrix --junitxml=artifacts/v9/12.1/AC-12.1-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED` or `FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --format bundle --output-json docs/release-evidence/story-12.1-final-record-v2.json --output-markdown docs/release-evidence/story-12.1-final-record-v2.md",
+      "contract": "| `AC-12.1-06` | AC-12.1-01 through AC-12.1-05 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --format bundle --output-json docs/release-evidence/story-12.1-final-record-v2.json --output-markdown docs/release-evidence/story-12.1-final-record-v2.md` | Exit `0`; final record binds candidate, Story 6.2, ADR/decision/approval and inventory/mutation digests, summary `6/6/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

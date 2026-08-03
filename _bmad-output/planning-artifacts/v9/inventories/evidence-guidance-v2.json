@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-inventory.v1",
+  "inventoryId": "V9-EVIDENCE-GUIDANCE-v2",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "inventoryDigest": "e0a9adf0319286763f44d586ac323203a4af3d7faa4005e23768ce4a7c8f335d",
+  "rows": [
+    {
+      "ordinal": 1,
+      "path": "_bmad/custom/bmad-build.toml",
+      "sha256": "dfde59f60ea5e54fa6039b3b27461dc0de5aac37bbd81bf9082c1d5cc030b138",
+      "tree": "project"
+    },
+    {
+      "ordinal": 2,
+      "path": "_bmad/custom/bmad-build-auto.toml",
+      "sha256": "78d45b00a80a20e8cd4aaf5a9961438df3ff7169bf9601716cf2bd0304c47297",
+      "tree": "project"
+    },
+    {
+      "ordinal": 3,
+      "path": "_bmad/custom/bmad-review.toml",
+      "sha256": "e89a4848f7ddaac022fcedfa1ebac5d1cfa7139d1f11abbd0bd0374706c70f1d",
+      "tree": "project"
+    },
+    {
+      "ordinal": 4,
+      "path": "docs/runbooks/evidence-boundary-validation.md",
+      "sha256": "dce2725898f9160e136925d7fcec89043c2e13c461fb5b1a6ec7b03e07641617",
+      "tree": "project"
+    }
+  ]
+}

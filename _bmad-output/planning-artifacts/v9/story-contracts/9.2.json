@@ -1,0 +1,107 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "9.2",
+  "title": "Make the portable tier structural and prove complete monotonic tier execution",
+  "boundedOutcome": "two declared projects implement the approved disposition, resolved portable compile surface is clean, and summed execution is monotonic.",
+  "predecessors": [
+    "9.1"
+  ],
+  "rollbackBoundary": "remove the portable project and restore every migrated assertion from the before-inventory as one unit; retain Story 9.1 and never change a public contract to simplify rollback.",
+  "candidateBinding": "`SC-9.2`, Story 9.1 record/disposition digests, and the canonical candidate rule.",
+  "entryInventory": {
+    "id": "V9-9.2-ENTRY-v1",
+    "sha256": "647944fb901bd4b5c1ed6c96867a7a46420dfd0f8e56f71032e9f95474a8f3a9"
+  },
+  "authoritySectionSha256": "0b9de41ffb6d26a80b65e21e6e143324e6d5118e7dd90a66f5adffeff2fa3267",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-9.2-final-record-v2.json",
+    "docs/release-evidence/story-9.2-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-9.2-01",
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore",
+      "contract": "| `AC-9.2-01` | Restored dependency assets and the portable project at `SC-9.2` | `dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors build succeeds. Failure is `PORTABLE_TIER_BUILD_FAILED`. |",
+      "requiredResults": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-9.2-02",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest.ResolvedSurfaceShouldContainNoNonPackableModuleReference -trx artifacts/v9/9.2/AC-9.2-02.trx",
+      "contract": "| `AC-9.2-02` | Evaluated MSBuild graph and resolved compile assets for the portable project | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest.ResolvedSurfaceShouldContainNoNonPackableModuleReference -trx artifacts/v9/9.2/AC-9.2-02.trx` | Exit `0`; `PASS`; no Server/non-packable module assembly or transitive compile asset exists. Violation is `PORTABLE_TIER_NONPORTABLE_REFERENCE` or `RESOLVED_COMPILE_SURFACE_INVALID`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-03",
+      "command": "dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore",
+      "contract": "| `AC-9.2-03` | Restored dependency assets and module-internal project at `SC-9.2` | `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors build succeeds. Failure is `INTERNAL_TIER_BUILD_FAILED`. |",
+      "requiredResults": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-9.2-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition -trx artifacts/v9/9.2/AC-9.2-04.trx",
+      "contract": "| `AC-9.2-04` | Story 9.1 before-inventory and both post-split projects | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition -trx artifacts/v9/9.2/AC-9.2-04.trx` | Exit `0`; `PASS`; exact identities and strength digests equal the approved before-inventory. Drift is `ASSERTION_INVENTORY_DRIFT` or `ASSERTION_STRENGTH_WEAKENED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.BothTiersShouldBeDeclaredEverywhere -trx artifacts/v9/9.2/AC-9.2-05.trx",
+      "contract": "| `AC-9.2-05` | Root `.slnx`, Story 7 required-project inventory, and both exact tier project paths | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.BothTiersShouldBeDeclaredEverywhere -trx artifacts/v9/9.2/AC-9.2-05.trx` | Exit `0`; `PASS`; both are present once in solution and completion inventory. Missing project is `TIER_PROJECT_MISSING`; missing declaration is `TIER_NOT_DECLARED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-06",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/portable.trx",
+      "contract": "| `AC-9.2-06` | Built portable assembly and exact Story 9.1 portable identities | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/portable.trx` | Exit `0`; `PASS`; zero failed/skipped/not-run and nonzero executed assertions. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-07",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/internal.trx",
+      "contract": "| `AC-9.2-07` | Built module-internal assembly and exact Story 9.1 internal identities | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/internal.trx` | Exit `0`; `PASS`; zero failed/skipped/not-run and nonzero executed assertions. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-08",
+      "command": "python3 _bmad/scripts/verify_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --portable-result artifacts/v9/9.2/portable.trx --internal-result artifacts/v9/9.2/internal.trx --output artifacts/v9/9.2/AC-9.2-08.json",
+      "contract": "| `AC-9.2-08` | Pre-split machine result plus AC-9.2-06 and AC-9.2-07 TRX files | `python3 _bmad/scripts/verify_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --portable-result artifacts/v9/9.2/portable.trx --internal-result artifacts/v9/9.2/internal.trx --output artifacts/v9/9.2/AC-9.2-08.json` | Exit `0`; `PASS`; portable plus internal identity set equals the pre-split set and summed executed total is not lower. Regression is `EXECUTED_COUNT_REGRESSION`; empty execution is `ASSERTION_LEDGER_EMPTY`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-9.2-09",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults --junitxml=artifacts/v9/9.2/AC-9.2-09.xml",
+      "contract": "| `AC-9.2-09` | Fault fixtures add Server reference, delete/rename/weaken assertion, omit tier, skip test, or run zero tests | `python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults --junitxml=artifacts/v9/9.2/AC-9.2-09.xml` | Exit `0`; every mutation produces its exact blocker from AC-9.2-01 through AC-9.2-08 and restores byte-identically. Undetected or unrestored fault is `FAULT_NOT_DETECTED` or `FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-9.2-10",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --format bundle --output-json docs/release-evidence/story-9.2-final-record-v2.json --output-markdown docs/release-evidence/story-9.2-final-record-v2.md",
+      "contract": "| `AC-9.2-10` | AC-9.2-01 through AC-9.2-09 and Story 9.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --format bundle --output-json docs/release-evidence/story-9.2-final-record-v2.json --output-markdown docs/release-evidence/story-9.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-9.2`, Story 9.1, both project/assembly/result hashes, before/after identity and strength digests, summed counts, inventory digest, and summary `10/10/0/0/0/0`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    }
+  ]
+}

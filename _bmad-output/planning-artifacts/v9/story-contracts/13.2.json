@@ -1,0 +1,69 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "13.2",
+  "title": "Generate the current successor proof and enforce drift/current-head guards",
+  "boundedOutcome": "Checkpoint B generates and approves one v3 current head and its dependency guard; closure fault/handoff work remains outside scope.",
+  "predecessors": [
+    "13.1"
+  ],
+  "rollbackBoundary": "discard only v3, six new result files, guard/tests and Story 13.2 record; retain v2 and Story 13.1 byte-identically.",
+  "candidateBinding": "`SC-13.2`, Story 13.1 record/history/chain digests, v2 predecessor, root and relevant gitlinks, six binary/result identities.",
+  "entryInventory": {
+    "id": "V9-13.2-ENTRY-v1",
+    "sha256": "864d1caf3c429ecea78b7143f8bb63cc46a727ff1e9dd35dd0613e28a4b37067"
+  },
+  "authoritySectionSha256": "70f1593022d8b5bf06f6f1695c12811c39617ab88fb3bd5aff90a57883f8db3a",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-13.2-final-record-v2.json",
+    "docs/release-evidence/story-13.2-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-13.2-01",
+      "command": "dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.ProjectionReadStorePopulationProofV3Tests -trx artifacts/v9/13.2/projection-v3.trx",
+      "contract": "| `AC-13.2-01` | Built current proof lanes at `SC-13.2` | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.ProjectionReadStorePopulationProofV3Tests -trx artifacts/v9/13.2/projection-v3.trx` | Exit `0`; nonzero deterministic dispatch, gateway/Dapr, state-store, production-query, deletion and replay assertions all pass. Missing/red lane is `PROJECTION_PROOF_LANE_RED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-02",
+      "command": "python3 _bmad/scripts/generate_projection_proof_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --predecessor docs/release-evidence/projection-read-store-population-proof-v2.json --result artifacts/v9/13.2/projection-v3.trx --output-json docs/release-evidence/projection-read-store-population-proof-v3.json --output-markdown docs/release-evidence/projection-read-store-population-proof-v3.md",
+      "contract": "| `AC-13.2-02` | v2 predecessor, declared changed dependencies, approval, and current candidate | `python3 _bmad/scripts/generate_projection_proof_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --predecessor docs/release-evidence/projection-read-store-population-proof-v2.json --result artifacts/v9/13.2/projection-v3.trx --output-json docs/release-evidence/projection-read-store-population-proof-v3.json --output-markdown docs/release-evidence/projection-read-store-population-proof-v3.md` | Exit `0`; deterministic v3 records full predecessor hash, exact changed dependencies, owner/rationale, six lanes, and candidate identities. Bad link is `PROJECTION_PROOF_PREDECESSOR_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-03",
+      "command": "python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output artifacts/v9/13.2/AC-13.2-03.json",
+      "contract": "| `AC-13.2-03` | Chain schema, v2 and generated v3 | `python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output artifacts/v9/13.2/AC-13.2-03.json` | Exit `0`; exactly one approved current head exists. Zero/duplicate/fork is `PROJECTION_PROOF_HEAD_INVALID`; missing approval is `PROJECTION_PROOF_APPROVAL_MISSING`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-04",
+      "command": "python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --output artifacts/v9/13.2/AC-13.2-04.json",
+      "contract": "| `AC-13.2-04` | Declared proof dependencies at predecessor and `SC-13.2` | `python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --output artifacts/v9/13.2/AC-13.2-04.json` | Exit `0`; hashes/runs are fresh; undeclared in-scope drift is `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; stale declared state is `PROJECTION_PROOF_STALE`; unrelated gitlink movement is ignored. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/13.2/AC-13.2-05.xml",
+      "contract": "| `AC-13.2-05` | Missing/red/skipped/vacuous lane, broken predecessor, duplicate/fork head, undeclared drift, stale proof, and unrelated-gitlink control | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/13.2/AC-13.2-05.xml` | Exit `0`; exact blockers occur, control passes, fixtures restore. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k rollback_preserves_v2 --junitxml=artifacts/v9/13.2/AC-13.2-06.xml",
+      "contract": "| `AC-13.2-06` | Rollback rehearsal from v3 to Checkpoint A | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k rollback_preserves_v2 --junitxml=artifacts/v9/13.2/AC-13.2-06.xml` | Exit `0`; v3 outputs disappear and every protected v2 hash is unchanged. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-13.2-07",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --format bundle --output-json docs/release-evidence/story-13.2-final-record-v2.json --output-markdown docs/release-evidence/story-13.2-final-record-v2.md",
+      "contract": "| `AC-13.2-07` | AC-13.2-01 through AC-13.2-06 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --format bundle --output-json docs/release-evidence/story-13.2-final-record-v2.json --output-markdown docs/release-evidence/story-13.2-final-record-v2.md` | Exit `0`; record binds predecessor/current chain, six lanes, guard, approval, rollback and inventory, summary `7/7/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

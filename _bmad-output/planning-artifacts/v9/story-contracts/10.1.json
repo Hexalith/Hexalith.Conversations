@@ -1,0 +1,84 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "10.1",
+  "title": "Provide neutral TestSupport helpers and a safe Git-facts runner",
+  "boundedOutcome": "one non-packable, Conversations-assembly-free helper project exposes five exact helper types and safe bounded Git facts.",
+  "predecessors": [
+    "7.4",
+    "9.2"
+  ],
+  "rollbackBoundary": "remove only both TestSupport projects, Story 10.1 results, and record; preserve both conformance tiers and every evidence reader.",
+  "candidateBinding": "`SC-10.1`, final-record digests for 7.4 and 9.2, and the canonical candidate rule.",
+  "entryInventory": {
+    "id": "V9-10.1-ENTRY-v1",
+    "sha256": "74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84"
+  },
+  "authoritySectionSha256": "c80bbc7b07dba7e4ecb7af35baa28f7a0cdc6249da487685b521e16b9033909b",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-10.1-final-record-v2.json",
+    "docs/release-evidence/story-10.1-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-10.1-01",
+      "command": "dotnet build tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj --configuration Release --no-restore",
+      "contract": "| `AC-10.1-01` | TestSupport project, resolved project graph, and pack/publish policy | `dotnet build tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; project is non-packable/non-publishable and references no Conversations assembly. Violation is `TEST_SUPPORT_BOUNDARY_INVALID`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-02",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce -trx artifacts/v9/10.1/AC-10.1-02.trx",
+      "contract": "| `AC-10.1-02` | Required public helper names `RepositoryLocator`, `GitFacts`, `EvidenceManifest`, `BoundaryAssertions`, and `AssertionLedger` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce -trx artifacts/v9/10.1/AC-10.1-02.trx` | Exit `0`; `PASS`; five types exist once with no production dependency. Missing/extra type is `TEST_SUPPORT_SURFACE_DRIFT`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-03",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently -trx artifacts/v9/10.1/AC-10.1-03.trx",
+      "contract": "| `AC-10.1-03` | Git fixture emits full concurrent stdout/stderr beyond pipe capacity | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently -trx artifacts/v9/10.1/AC-10.1-03.trx` | Exit `0`; `PASS`; both streams drain without deadlock and retain complete bytes. Failure is `GIT_RUNNER_DEADLOCK`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-04",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution -trx artifacts/v9/10.1/AC-10.1-04.trx",
+      "contract": "| `AC-10.1-04` | Exact timeout `30s`, cancellation token, and a hung fixture process | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution -trx artifacts/v9/10.1/AC-10.1-04.trx` | Exit `0`; `PASS`; process tree terminates and classifies `timeout` or `cancelled`. Escape is `GIT_RUNNER_UNBOUNDED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-05",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts -trx artifacts/v9/10.1/AC-10.1-05.trx",
+      "contract": "| `AC-10.1-05` | UTF-8/non-ASCII and backslash paths, hostile ambient Git config, raw modes, and `core.quotepath=false` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts -trx artifacts/v9/10.1/AC-10.1-05.trx` | Exit `0`; `PASS`; decoded paths, revisions, diff entries, raw modes, and historical blob hashes match fixture bytes. Drift is `GIT_FACTS_INVALID`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-06",
+      "command": "dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful -trx artifacts/v9/10.1/AC-10.1-06.trx",
+      "contract": "| `AC-10.1-06` | Shallow, partial, non-repository, missing-Git, invalid-revision, and escaping-root fixtures | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful -trx artifacts/v9/10.1/AC-10.1-06.trx` | Exit `0`; each fixture is typed `unavailable`/`invalid`, never success; escape is `REPOSITORY_PATH_ESCAPE`; false success is `UNAVAILABLE_HISTORY_PASSED`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-10.1-07",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.1.json --format bundle --output-json docs/release-evidence/story-10.1-final-record-v2.json --output-markdown docs/release-evidence/story-10.1-final-record-v2.md",
+      "contract": "| `AC-10.1-07` | AC-10.1-01 through AC-10.1-06 and both predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.1.json --format bundle --output-json docs/release-evidence/story-10.1-final-record-v2.json --output-markdown docs/release-evidence/story-10.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.1`, records 7.4/9.2, both project/assembly/result hashes, inventory digest, and summary `7/7/0/0/0/0`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    }
+  ]
+}

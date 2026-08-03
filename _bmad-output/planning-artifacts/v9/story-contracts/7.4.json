@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "7.4",
+  "title": "Verify historical mode and required fault-injection blockers",
+  "boundedOutcome": "historical validation proves committed facts without rewriting history, and the complete frozen fault matrix detects every mutation.",
+  "predecessors": [
+    "7.3"
+  ],
+  "rollbackBoundary": "remove only Story 7.4 historical/fault fixtures, results, and records; retain Stories 7.1-7.3 and never mutate a closed record.",
+  "candidateBinding": "`SC-7.4` and final-record digests for 7.1-7.3.",
+  "entryInventory": {
+    "id": "V9-7.4-ENTRY-v1",
+    "sha256": "4d6bb01942d41d315ad4f3b08070a3cfe8ddcc2cae1b8981fee9b64d55ebe911"
+  },
+  "authoritySectionSha256": "d8d20655699248f62fdcbe6ad9f6af4f64d107f899429e005243cc2a51a9955c",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-7.4-final-record-v2.json",
+    "docs/release-evidence/story-7.4-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-7.4-01",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --historical --format json --output-json artifacts/v9/7.4/AC-7.4-01.json",
+      "contract": "| `AC-7.4-01` | Stories 6.1, 6.2, and 6.7 with recorded root commits, gitlinks, bound blobs, modes, gates, and run identities | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --historical --format json --output-json artifacts/v9/7.4/AC-7.4-01.json` | Exit `0`; `PASS`; acceptance-result v1 verifies committed facts read-only. Unresolvable objects are exit `1`, `HISTORICAL_BLOB_UNRESOLVED`; changed closed bytes are `HISTORICAL_RECORD_DRIFT`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-7.4-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_historical_mode_states_worktree_limit --junitxml=artifacts/v9/7.4/AC-7.4-02.xml",
+      "contract": "| `AC-7.4-02` | A pre-generator record whose former working-tree state was never committed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_historical_mode_states_worktree_limit --junitxml=artifacts/v9/7.4/AC-7.4-02.xml` | Exit `0`; `PASS`; the result states that former uncommitted state is not reconstructed and makes no false completeness claim. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-7.4-03",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_complete_fault_matrix --junitxml=artifacts/v9/7.4/AC-7.4-03.xml",
+      "contract": "| `AC-7.4-03` | Frozen mutation IDs `COUNT`, `SUBMODULE_PATH`, `CANDIDATE`, `GITLINK`, `RESULT_MISSING`, `RESULT_STALE`, `RESULT_FAILED`, `RESULT_SKIPPED`, `RESULT_NOT_RUN`, `LEDGER_EMPTY`, `WORKFLOW_REMOVED`, `WORKFLOW_DISPLACED`, and `MARKDOWN_DIGEST` | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_complete_fault_matrix --junitxml=artifacts/v9/7.4/AC-7.4-03.xml` | Exit `0`; `PASS`; fault-injection-result entries show every mutation produced its exact Story 7.1-7.3 blocker. Undetected mutation is `FAULT_NOT_DETECTED`. |",
+      "requiredResults": [
+        "PASS",
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.4-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_fixtures_restore_byte_identically --junitxml=artifacts/v9/7.4/AC-7.4-04.xml",
+      "contract": "| `AC-7.4-04` | SHA-256 captured before every mutation in AC-7.4-03 | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_fixtures_restore_byte_identically --junitxml=artifacts/v9/7.4/AC-7.4-04.xml` | Exit `0`; every before/after hash is equal. Difference is exit `1`, `FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-7.4-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_required_lane_cannot_pass_vacuously --junitxml=artifacts/v9/7.4/AC-7.4-05.xml",
+      "contract": "| `AC-7.4-05` | A required lane is missing, skipped, not run, or records zero assertions | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_required_lane_cannot_pass_vacuously --junitxml=artifacts/v9/7.4/AC-7.4-05.xml` | Exit `0`; generator result is `FAIL` with `TEST_RESULTS_MISSING`, `TEST_SKIPPED`, `TEST_NOT_RUN`, or `ASSERTION_LEDGER_EMPTY`; none becomes not-applicable. |",
+      "requiredResults": [
+        "FAIL",
+        "not-applicable"
+      ]
+    },
+    {
+      "id": "AC-7.4-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --format bundle --output-json docs/release-evidence/story-7.4-final-record-v2.json --output-markdown docs/release-evidence/story-7.4-final-record-v2.md",
+      "contract": "| `AC-7.4-06` | AC-7.4-01 through AC-7.4-05 and predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --format bundle --output-json docs/release-evidence/story-7.4-final-record-v2.json --output-markdown docs/release-evidence/story-7.4-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.4`, records 7.1-7.3, historical results, mutation ledger, restoration hashes, inventory digest, and summary `6/6/0/0/0/0`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    }
+  ]
+}

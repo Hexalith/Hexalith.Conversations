@@ -1,0 +1,174 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-inventory.v1",
+  "inventoryId": "V9-EVIDENCE-READERS-v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "inventoryDigest": "247cd610f7fd162f3e01f1db713f16328b2d009081da14a468e767411209a3bc",
+  "rows": [
+    {
+      "ordinal": 1,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs",
+      "sha256": "50fa8a1f65b8b49709eca5f57f5f79daa64fd910fa9b0529cf67dd175e3e6f4c",
+      "tree": "project"
+    },
+    {
+      "ordinal": 2,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ClassificationChangeProcedureValidationTest.cs",
+      "sha256": "ef048aeb805995de91be5c9c004a93b8a6a30ad2fd2bef31a876431a40b154d4",
+      "tree": "project"
+    },
+    {
+      "ordinal": 3,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ConformanceManifestValidationTest.cs",
+      "sha256": "3440ce01feba031fdc084fe7d12edf451f9ddad1c62d70557fc43a9e8066b071",
+      "tree": "project"
+    },
+    {
+      "ordinal": 4,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs",
+      "sha256": "331ad387478f63c4083f27414624556efaa85d515cc6f828824432d3eb338227",
+      "tree": "project"
+    },
+    {
+      "ordinal": 5,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs",
+      "sha256": "2068f336f08bc785a20a61f689232c5e94113ae88bd93d7946cfe18681ab562f",
+      "tree": "project"
+    },
+    {
+      "ordinal": 6,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/LiveTenantFailClosedOracleCharacterizationTest.cs",
+      "sha256": "6028a7c6e5bdafa71453997068143ae029eceb93412dd14f1de101edbbcb82ca",
+      "tree": "project"
+    },
+    {
+      "ordinal": 7,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/OqTwoTargetInterpretationDecisionValidationTest.cs",
+      "sha256": "eb2616b264cf34dc9d3d4b3533a9cdb5fabddbcfab8dcb4e0f125e1065400438",
+      "tree": "project"
+    },
+    {
+      "ordinal": 8,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/OracleBlindSpotAnalysisArtifactGenerationTest.cs",
+      "sha256": "91b247ba7aa92044a91c8b79d160d36041b4c42f95fb640573510f962134c89b",
+      "tree": "project"
+    },
+    {
+      "ordinal": 9,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+      "sha256": "6346067f54741ec84720c76146650f29fec5b644f52eeb146c55a999eb5d87cf",
+      "tree": "project"
+    },
+    {
+      "ordinal": 10,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs",
+      "sha256": "3911a3516d323783dc655f4ac2d21e0dc8f404eea448dd038a64159e1b51b00a",
+      "tree": "project"
+    },
+    {
+      "ordinal": 11,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+      "sha256": "a296a7b10a3eb2331d6acb5f0664d18ddb09ce3ed353c31286e238be2614aed0",
+      "tree": "project"
+    },
+    {
+      "ordinal": 12,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs",
+      "sha256": "fffe68a1206eb0da8ececb94f2e2635fcc89f80e97b00dea3c39b826d82ffb35",
+      "tree": "project"
+    },
+    {
+      "ordinal": 13,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs",
+      "sha256": "a82c72b4d36217a7ab9cd2ceb51f344882a694dadaaf1c9e670a5d402b4bf780",
+      "tree": "project"
+    },
+    {
+      "ordinal": 14,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs",
+      "sha256": "8249342ec1a00b64b1c4c69425320f1e1943407ccf38a6c9b2dee56cabccb167",
+      "tree": "project"
+    },
+    {
+      "ordinal": 15,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ReleaseEvidenceArtifactCollection.cs",
+      "sha256": "0354b270273bfb4effd0c8cd3958220259442e898a9b3d798a95551e1cb373e8",
+      "tree": "project"
+    },
+    {
+      "ordinal": 16,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/ReleaseWaiverValidationTest.cs",
+      "sha256": "3eafb46fdb2a5cc92106c501ef059080ef13d2d3d246348bf8db893aeca5827a",
+      "tree": "project"
+    },
+    {
+      "ordinal": 17,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs",
+      "sha256": "f4fe3335dd657befc204a5e6427904ea798a8e9ad90588cb2e2b678f3b508181",
+      "tree": "project"
+    },
+    {
+      "ordinal": 18,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
+      "sha256": "c96c8130c2d4b9b3c482af9630421718e1ea37e3c7cf83a884e383a82aaa091f",
+      "tree": "project"
+    },
+    {
+      "ordinal": 19,
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs",
+      "sha256": "0a36c708a36c0e4f8c93cf1af43e7a38e1f509bbe2466ac784db65531f3e977d",
+      "tree": "project"
+    },
+    {
+      "ordinal": 20,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Conformance/ConformanceManifestContractTest.cs",
+      "sha256": "9ffe43a79420483720297294c2757813efe1ace8b9d7da4d658a89a8d12d799d",
+      "tree": "project"
+    },
+    {
+      "ordinal": 21,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseConformanceArtifactContractTest.cs",
+      "sha256": "fd0e72e5b875ecae8365b5a437b27b483f7b8268b5d18ecad46d862fa11075d3",
+      "tree": "project"
+    },
+    {
+      "ordinal": 22,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseWaiverContractTest.cs",
+      "sha256": "a2e7560b00caca2aa285bf44a13bfc1e9407060677395968891d1dc9ecd1212b",
+      "tree": "project"
+    },
+    {
+      "ordinal": 23,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "sha256": "b2a7ad1757a5cef5668b425651e6ed168ac43507d189a6faeb8c42a1033daab6",
+      "tree": "project"
+    },
+    {
+      "ordinal": 24,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Documentation/ContractCompatibilityPolicyValidationTest.cs",
+      "sha256": "edae4ce90055086bb284cbbad94952f29a8c86e2215a1de7a14146571ced5bce",
+      "tree": "project"
+    },
+    {
+      "ordinal": 25,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs",
+      "sha256": "c217d3934cb085e2badae59e8bb0be6ed94b94d849fa00928ef17c34a4246106",
+      "tree": "project"
+    },
+    {
+      "ordinal": 26,
+      "path": "tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs",
+      "sha256": "e88347475b3295485d45629503712d271791938cfb29687c6c23ea8927ec0487",
+      "tree": "project"
+    },
+    {
+      "ordinal": 27,
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "sha256": "ee72cff1dc47a4094eb6dda75ff39117c7b4f17ae0749109d290fa12c40c52a0",
+      "tree": "project"
+    }
+  ]
+}

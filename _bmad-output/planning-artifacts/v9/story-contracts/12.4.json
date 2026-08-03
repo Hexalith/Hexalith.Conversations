@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "12.4",
+  "title": "Produce candidate-bound evidence and enforce universal SM-C2",
+  "boundedOutcome": "one v2 bundle decides the universal four-row gate; it does not change production behavior, the method, baseline, or historical evidence.",
+  "predecessors": [
+    "12.3"
+  ],
+  "rollbackBoundary": "remove only v2 run outputs, generator/validator, bundle, fault fixtures, and Story 12.4 record; retain optimized source and all prior story/historical evidence for separate review or Story 12.3 rollback.",
+  "candidateBinding": "`SC-12.4`, Story 12.3 record/proof, method/ADR, immutable baseline, exact root/EventStore gitlink, benchmark binary/source and raw results.",
+  "entryInventory": {
+    "id": "V9-12.4-ENTRY-v1",
+    "sha256": "676ba1d04025defd4d1494d78e5c6e7c4fcad695707ada896ebf3476dc5f3577"
+  },
+  "authoritySectionSha256": "b4a231998f33d55beede9e84bf290685f0b91fbb3a8c9a93aadb6d9e4c2b26a8",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-12.4-final-record-v2.json",
+    "docs/release-evidence/story-12.4-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-12.4-01",
+      "command": "dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Performance.SmC2HotPathBenchmark -parallel none -maxThreads 1 -showLiveOutput -reporter verbose -noColor -trx artifacts/v9/12.4/sm-c2-candidate.trx",
+      "contract": "| `AC-12.4-01` | Built IntegrationTests at `SC-12.4`, frozen method, and controlled environment | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Performance.SmC2HotPathBenchmark -parallel none -maxThreads 1 -showLiveOutput -reporter verbose -noColor -trx artifacts/v9/12.4/sm-c2-candidate.trx` | Exit `0`; exactly four nonempty raw-sample rows execute under the method. Missing/unusable sample is `SMC2_RAW_SAMPLE_MISSING`/`SMC2_SIGNAL_UNUSABLE`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.4-02",
+      "command": "python3 _bmad/scripts/generate_sm_c2_universal_gate.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --candidate-result artifacts/v9/12.4/sm-c2-candidate.trx --correctness-proof docs/release-evidence/derived-key-correctness-proof-v1.json --output-json docs/release-evidence/sm-c2-universal-gate-v2.json --output-markdown docs/release-evidence/sm-c2-universal-gate-v2.md",
+      "contract": "| `AC-12.4-02` | Immutable baseline, candidate TRX, method, and Story 12.3 proof | `python3 _bmad/scripts/generate_sm_c2_universal_gate.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --candidate-result artifacts/v9/12.4/sm-c2-candidate.trx --correctness-proof docs/release-evidence/derived-key-correctness-proof-v1.json --output-json docs/release-evidence/sm-c2-universal-gate-v2.json --output-markdown docs/release-evidence/sm-c2-universal-gate-v2.md` | Exit `0` only if inputs are comparable and every row has usable signal; mismatch is `SMC2_ENVELOPE_MISMATCH`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.4-03",
+      "command": "python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/12.4/AC-12.4-03.json",
+      "contract": "| `AC-12.4-03` | Generated four-row bundle | `python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/12.4/AC-12.4-03.json` | Exit `0`; each row independently satisfies `postP95 <= 1.05 * baselineP95`, all correctness lanes are green/nonvacuous, identities are current, and JSON/Markdown agree. A miss is `SMC2_ROW_REGRESSION`; red lane `CORRECTNESS_GATE_RED`; stale identity `SMC2_STALE_BINDING`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.4-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k 'hp_create or hp_append or hp_list or hp_open' --junitxml=artifacts/v9/12.4/AC-12.4-04.xml",
+      "contract": "| `AC-12.4-04` | Four row IDs tested separately against the verified result | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k 'hp_create or hp_append or hp_list or hp_open' --junitxml=artifacts/v9/12.4/AC-12.4-04.xml` | Exit `0`; four independent assertions prove no cost/disclosure/approval/record-only substitute. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.4-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k complete_fault_matrix --junitxml=artifacts/v9/12.4/AC-12.4-05.xml",
+      "contract": "| `AC-12.4-05` | Missing/adverse sample, unusable signal, environment drift, arithmetic/threshold change, stale candidate/binary/gitlink, red/skip/not-run/vacuous correctness, and JSON/Markdown drift | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k complete_fault_matrix --junitxml=artifacts/v9/12.4/AC-12.4-05.xml` | Exit `0`; every mutation yields its exact blocker and restores; undetected/unrestored is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-12.4-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --format bundle --output-json docs/release-evidence/story-12.4-final-record-v2.json --output-markdown docs/release-evidence/story-12.4-final-record-v2.md",
+      "contract": "| `AC-12.4-06` | AC-12.4-01 through AC-12.4-05 and Story 12.3 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --format bundle --output-json docs/release-evidence/story-12.4-final-record-v2.json --output-markdown docs/release-evidence/story-12.4-final-record-v2.md` | Exit `0`; record binds all four raw/calculated/signal/verdict rows, method, correctness, identities, mutations, inventory, summary `6/6/0/0/0/0`; otherwise Story 12.4 remains incomplete. |",
+      "requiredResults": []
+    }
+  ]
+}

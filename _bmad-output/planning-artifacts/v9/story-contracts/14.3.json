@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "14.3",
+  "title": "Run zero-gap validation and generate the manifest final record",
+  "boundedOutcome": "one current v3 manifest and validation result are generated from Stories 14.1-14.2; no product or release decision is made.",
+  "predecessors": [
+    "14.2"
+  ],
+  "rollbackBoundary": "remove only v3 manifest/validation generators and outputs, faults/results and Story 14.3 record; v2 and Stories 14.1-14.2 remain.",
+  "candidateBinding": "`SC-14.3`, Stories 14.1-14.2 and predecessor records, all referenced source/evidence/test binaries/results and relevant gitlinks.",
+  "entryInventory": {
+    "id": "V9-14.3-ENTRY-v1",
+    "sha256": "96fa64e4dda2a3fe0775ff96306562c290bbbd002092bbdd785ebb7400465a17"
+  },
+  "authoritySectionSha256": "cd483e23c87e1327aff015fb024a324f7baa91a79813d4e8352ac22164854f2d",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-14.3-final-record-v2.json",
+    "docs/release-evidence/story-14.3-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-14.3-01",
+      "command": "python3 _bmad/scripts/generate_preservation_manifest_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --output-json docs/release-evidence/preservation-traceability-manifest-v3.json --output-markdown docs/release-evidence/preservation-traceability-manifest-v3.md",
+      "contract": "| `AC-14.3-01` | v3 denominator and binding bundles at compatible candidates | `python3 _bmad/scripts/generate_preservation_manifest_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --output-json docs/release-evidence/preservation-traceability-manifest-v3.json --output-markdown docs/release-evidence/preservation-traceability-manifest-v3.md` | Exit `0`; generated rows are derived, ordinal and schema-valid; mismatch is `PRESERVATION_CANDIDATE_MISMATCH`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.3-02",
+      "command": "python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output docs/release-evidence/preservation-manifest-validation-v3.json",
+      "contract": "| `AC-14.3-02` | Generated manifest | `python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output docs/release-evidence/preservation-manifest-validation-v3.json` | Exit `0`; `124/124`, `77/77`, `52/52`, `28/28`, and all control/contract/test/evidence/proof identities have zero missing/duplicate/orphan/stale. Failure is `PRESERVATION_ZERO_GAP_FAILED`; format drift `EVIDENCE_FORMAT_DRIFT`. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-14.3-03",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.DeferredAndUxStateShouldRemainNonActivated -trx artifacts/v9/14.3/AC-14.3-03.trx",
+      "contract": "| `AC-14.3-03` | FR-16 and UX rows | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.DeferredAndUxStateShouldRemainNonActivated -trx artifacts/v9/14.3/AC-14.3-03.trx` | Exit `0`; FR-16 is sole deferred identity and UX is preserved-not-activated. Violation is `FR16_ACTIVATED` or `UX_SCOPE_ACTIVATED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.3-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.CurrentAssuranceBindingsShouldBeValid -trx artifacts/v9/14.3/AC-14.3-04.trx",
+      "contract": "| `AC-14.3-04` | Tier, evidence-boundary and projection-chain rows | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.CurrentAssuranceBindingsShouldBeValid -trx artifacts/v9/14.3/AC-14.3-04.trx` | Exit `0`; tiers/strength, boundary evidence and v2-history/v3-current roles match predecessors. Failure is `PRESERVATION_TIER_MISMATCH`, `EVIDENCE_BOUNDARY_INVALID`, or `PROJECTION_PROOF_ROLE_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.3-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_preservation_manifest_v3.py -k complete_fault_matrix --junitxml=artifacts/v9/14.3/AC-14.3-05.xml",
+      "contract": "| `AC-14.3-05` | Missing/duplicate/orphan/stale binding, count drift, candidate mix, FR/UX activation, tier/boundary/proof fault and JSON/Markdown drift | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_manifest_v3.py -k complete_fault_matrix --junitxml=artifacts/v9/14.3/AC-14.3-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.3-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --format bundle --output-json docs/release-evidence/story-14.3-final-record-v2.json --output-markdown docs/release-evidence/story-14.3-final-record-v2.md",
+      "contract": "| `AC-14.3-06` | AC-14.3-01 through AC-14.3-05 and the complete predecessor chain are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --format bundle --output-json docs/release-evidence/story-14.3-final-record-v2.json --output-markdown docs/release-evidence/story-14.3-final-record-v2.md` | Exit `0`; record binds manifest/validation, every denominator and disposition count/digest, predecessor chain, mutations, summary `6/6/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

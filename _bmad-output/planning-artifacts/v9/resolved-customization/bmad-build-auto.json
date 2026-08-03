@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "hexalith.conversations.resolved-customization.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "skill": "bmad-build-auto",
+  "defaultPath": ".agents/skills/bmad-build-auto/customize.toml",
+  "defaultSha256": "eb0b39a3e24e86e9dbca98506c8384ec452c539acb690063cabab4385c82f09a",
+  "teamPath": "_bmad/custom/bmad-build-auto.toml",
+  "teamSha256": "78d45b00a80a20e8cd4aaf5a9961438df3ff7169bf9601716cf2bd0304c47297",
+  "resolved": {
+    "workflow": {
+      "activation_steps_prepend": [],
+      "activation_steps_append": [
+        "For applicable evidence or planning-authority changes, follow the canonical evidence-boundary runbook before unattended finalization; preserve PASS, FAIL, BLOCKED, and not-applicable as distinct results, and never complete from FAIL, BLOCKED, missing, or unevaluated results."
+      ],
+      "persistent_facts": [
+        "file:{project-root}/**/project-context.md",
+        "file:{project-root}/docs/runbooks/evidence-boundary-validation.md"
+      ],
+      "on_complete": "",
+      "implementation_handoff": "Launch a subagent with no prior conversation context, with this prompt:\n\n> Read {spec_file} fully and implement it — the spec is the sole source of truth. Load every file listed in its frontmatter `context:` before you start.\n>\n> When done, report what you changed, how you verified it, and anything left incomplete or risky.\n",
+      "review_layers": [
+        {
+          "id": "blind-hunter",
+          "name": "Blind Hunter",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nConduct a review of CONTENT.\nLook for what's missing, not only what's wrong.\nFind at least ten issues to fix or improve.\nOutput a Markdown list of findings only — no severity, priority, or ranking.\nIf the content is empty, stop and say so.\nIf you have zero findings, re-check and keep thinking; do not stop with an empty list.\n\nCONTENT:\n{diff_output}\n\nDo not invoke any skill. Return only the review result.\n\n"
+        },
+        {
+          "id": "edge-case-hunter",
+          "name": "Edge Case Hunter",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nRead `{skill-root}/review-prompts/edge-case-hunter.md` completely and follow it as your review instructions.\n\nReview content:\n\n{diff_output}\n\nDo not invoke any skill. If the instruction file is unreadable, report that exact failure and stop. Return only the review result.\n\n"
+        },
+        {
+          "id": "verification-gap",
+          "name": "Verification Gap Reviewer",
+          "instruction": "Launch a context-free subagent with this prompt:\n\nRead `{skill-root}/review-prompts/verification-gap.md` completely and follow it as your review instructions.\n\nReview content:\n\n{diff_output}\n\nDo not invoke any skill. If the instruction file is unreadable, report that exact failure and stop. Return only the review result.\n\n"
+        },
+        {
+          "id": "intent-alignment",
+          "name": "Intent Alignment Auditor",
+          "instruction": "Launch a subagent with this prompt:\n\nYou are an intent-alignment auditor. You have no other context about how this change was produced. Here is the verbatim intent this work started from:\n\n{verbatim_intent}\n\nHere is the diff:\n\n{diff_output}\n\nYour task is strictly descriptive — do not prescribe additional work. Report: (1) the defensible readings of the intent, enumerated; (2) which reading this diff implements; (3) where the readings and the diff diverge — specifically, which surface the intent's expectations live at versus which surface the diff's changes and its tests exercise.\n"
+        }
+      ]
+    }
+  }
+}

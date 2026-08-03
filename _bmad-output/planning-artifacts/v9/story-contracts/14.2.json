@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "14.2",
+  "title": "Bind dispositions, approvals, evidence, tiers, proof chains and candidate identity",
+  "boundedOutcome": "one generated binding map assigns exactly one disposition per Story 14.1 identity; it does not issue the final zero-gap verdict.",
+  "predecessors": [
+    "14.1"
+  ],
+  "rollbackBoundary": "remove only binding generator/validator/map, fixtures, results and Story 14.2 record; retain frozen denominator and all source evidence.",
+  "candidateBinding": "`SC-14.2`, Story 14.1 inventory/record, 8.2/9.2/10.4/ 13.3 evidence digests and exact referenced root/gitlink blobs.",
+  "entryInventory": {
+    "id": "V9-14.2-ENTRY-v1",
+    "sha256": "351a30fdc23b8951a19ff94d903b0e5ab5b25903fb47b43bfa079914c2b698c7"
+  },
+  "authoritySectionSha256": "5cf174a4cce4467fd0514f94bb0f374e702176ed20d20861de77398a20bb84f6",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-14.2-final-record-v2.json",
+    "docs/release-evidence/story-14.2-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-14.2-01",
+      "command": "python3 _bmad/scripts/generate_preservation_bindings.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --output-json docs/release-evidence/preservation-binding-map-v3.json --output-markdown docs/release-evidence/preservation-binding-map-v3.md",
+      "contract": "| `AC-14.2-01` | Story 14.1 inventory and candidate-bound evidence registry | `python3 _bmad/scripts/generate_preservation_bindings.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --output-json docs/release-evidence/preservation-binding-map-v3.json --output-markdown docs/release-evidence/preservation-binding-map-v3.md` | Exit `0`; one and only one enumerated disposition exists per frozen identity. Missing/duplicate is `PRESERVATION_DISPOSITION_MISSING`/`PRESERVATION_DISPOSITION_DUPLICATE`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-02",
+      "command": "python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check evidence --output artifacts/v9/14.2/AC-14.2-02.json",
+      "contract": "| `AC-14.2-02` | Every binding and its evidence path/hash/role | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check evidence --output artifacts/v9/14.2/AC-14.2-02.json` | Exit `0`; referenced evidence is contained, current for its declared time basis, hash-valid and nonvacuous. Failure is `PRESERVATION_EVIDENCE_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-03",
+      "command": "python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check approvals-compatibility --output artifacts/v9/14.2/AC-14.2-03.json",
+      "contract": "| `AC-14.2-03` | Delivered-inactive and compatible-change rows | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check approvals-compatibility --output artifacts/v9/14.2/AC-14.2-03.json` | Exit `0`; each names owner, rationale, UTC decision, signable digest and compatibility evidence. Missing data is `PRESERVATION_APPROVAL_MISSING` or `PRESERVATION_COMPATIBILITY_MISSING`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-04",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.AssertionsShouldBindApprovedTierAndStrength -trx artifacts/v9/14.2/AC-14.2-04.trx",
+      "contract": "| `AC-14.2-04` | Conformance assertions and Story 9.2 tier records | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.AssertionsShouldBindApprovedTierAndStrength -trx artifacts/v9/14.2/AC-14.2-04.trx` | Exit `0`; every assertion tier and strength digest matches 9.2. Violation is `PRESERVATION_TIER_MISMATCH` or `ASSERTION_STRENGTH_WEAKENED`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-05",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.ProjectionRolesShouldDistinguishHistoryAndCurrent -trx artifacts/v9/14.2/AC-14.2-05.trx",
+      "contract": "| `AC-14.2-05` | Projection v2 history, v3 current head and complete predecessor chain | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.ProjectionRolesShouldDistinguishHistoryAndCurrent -trx artifacts/v9/14.2/AC-14.2-05.trx` | Exit `0`; v2 is immutable history and exactly one v3 is current. Substitution is `HISTORICAL_PROOF_USED_AS_CURRENT`; broken chain is `PROJECTION_PROOF_ROLE_INVALID`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-06",
+      "command": "python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check controls-hashes-candidate --output artifacts/v9/14.2/AC-14.2-06.json",
+      "contract": "| `AC-14.2-06` | Module/platform controls, source/build/test/baseline hashes and Story 10 boundary result | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check controls-hashes-candidate --output artifacts/v9/14.2/AC-14.2-06.json` | Exit `0`; ownership is separated and all identities bind one compatible chain. Failure is `PRESERVATION_CONTROL_OWNER_INVALID`, `PRESERVATION_HASH_INVALID`, or `PRESERVATION_CANDIDATE_MISMATCH`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_preservation_bindings.py -k complete_fault_matrix --junitxml=artifacts/v9/14.2/AC-14.2-07.xml",
+      "contract": "| `AC-14.2-07` | Missing/duplicate disposition, bad/stale/vacuous evidence, missing approval/compatibility, tier/strength drift, history-current swap, owner/hash/candidate fault | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_bindings.py -k complete_fault_matrix --junitxml=artifacts/v9/14.2/AC-14.2-07.xml` | Exit `0`; each exact blocker occurs and fixtures restore byte-identically. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-14.2-08",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --format bundle --output-json docs/release-evidence/story-14.2-final-record-v2.json --output-markdown docs/release-evidence/story-14.2-final-record-v2.md",
+      "contract": "| `AC-14.2-08` | AC-14.2-01 through AC-14.2-07 and Story 14.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --format bundle --output-json docs/release-evidence/story-14.2-final-record-v2.json --output-markdown docs/release-evidence/story-14.2-final-record-v2.md` | Exit `0`; record binds map, inventory, evidence/approval/tier/proof/control digests, mutations, summary `8/8/0/0/0/0`. |",
+      "requiredResults": []
+    }
+  ]
+}

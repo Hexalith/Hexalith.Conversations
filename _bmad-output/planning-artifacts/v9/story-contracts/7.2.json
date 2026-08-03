@@ -1,0 +1,111 @@
+{
+  "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
+  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "authorities": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "storyId": "7.2",
+  "title": "Derive test, path, candidate, submodule, and gitlink facts",
+  "boundedOutcome": "v2 derives required test totals, the singular path set, candidate identity, and exact root-gitlink state without traversing a submodule.",
+  "predecessors": [
+    "7.1"
+  ],
+  "rollbackBoundary": "remove only Story 7.2 fact extractors, fixtures, results, and records; keep Story 7.1 and every historical artifact unchanged.",
+  "candidateBinding": "`SC-7.2`, `SC-7.1` final-record digest, and the canonical candidate rule.",
+  "entryInventory": {
+    "id": "V9-7.2-ENTRY-v1",
+    "sha256": "7a35b9cb705f8a2a7559ef8216d77c8a90c78b96c24626cf98036db550fca842"
+  },
+  "authoritySectionSha256": "e86f4fbb9985fb3a7f6dadeebfd05cc6e4563a88ae89ba72534f989a9f8d1301",
+  "finalRecordPaths": [
+    "docs/release-evidence/story-7.2-final-record-v2.json",
+    "docs/release-evidence/story-7.2-final-record-v2.md"
+  ],
+  "scenarios": [
+    {
+      "id": "AC-7.2-01",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_required_test_totals --junitxml=artifacts/v9/7.2/AC-7.2-01.xml",
+      "contract": "| `AC-7.2-01` | Root `.slnx`, one current machine result per required root-owned test project, and exact allowed-skip policy | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_required_test_totals --junitxml=artifacts/v9/7.2/AC-7.2-01.xml` | Exit `0`; `PASS`; per-project and summed counts are derived, result schema is acceptance-result v1, and no caller total is accepted. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-7.2-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_missing_result --junitxml=artifacts/v9/7.2/AC-7.2-02.xml",
+      "contract": "| `AC-7.2-02` | One required project has no result artifact | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_missing_result --junitxml=artifacts/v9/7.2/AC-7.2-02.xml` | Exit `0`; the negative fixture proves generator exit `1`, `FAIL`, `TEST_RESULTS_MISSING`. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-03",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_stale_result --junitxml=artifacts/v9/7.2/AC-7.2-03.xml",
+      "contract": "| `AC-7.2-03` | One result predates the newest bound source input | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_stale_result --junitxml=artifacts/v9/7.2/AC-7.2-03.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_RESULTS_STALE`; the stale count is not reused. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_failed_test --junitxml=artifacts/v9/7.2/AC-7.2-04.xml",
+      "contract": "| `AC-7.2-04` | One required machine result contains a failed test | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_failed_test --junitxml=artifacts/v9/7.2/AC-7.2-04.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_FAILED`. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_unapproved_skip --junitxml=artifacts/v9/7.2/AC-7.2-05.xml",
+      "contract": "| `AC-7.2-05` | One required result contains an unapproved skip | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_unapproved_skip --junitxml=artifacts/v9/7.2/AC-7.2-05.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_SKIPPED`. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_not_run --junitxml=artifacts/v9/7.2/AC-7.2-06.xml",
+      "contract": "| `AC-7.2-06` | A declared test project ran zero matching tests | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_not_run --junitxml=artifacts/v9/7.2/AC-7.2-06.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_NOT_RUN`. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_singular_file_list_and_blocks_dirt --junitxml=artifacts/v9/7.2/AC-7.2-07.xml",
+      "contract": "| `AC-7.2-07` | Baseline, candidate, one exact committed path set, allowed result/record paths, and injected unrelated source dirt | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_singular_file_list_and_blocks_dirt --junitxml=artifacts/v9/7.2/AC-7.2-07.xml` | Exit `0`; exact set equality passes for the clean case; injected dirt proves `SOURCE_TREE_DIRTY`; a second/different list proves `FILE_LIST_DRIFT`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-7.2-08",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_submodule_internal_path --junitxml=artifacts/v9/7.2/AC-7.2-08.xml",
+      "contract": "| `AC-7.2-08` | A derived path is beneath one root `.gitmodules` path | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_submodule_internal_path --junitxml=artifacts/v9/7.2/AC-7.2-08.xml` | Exit `0`; generator exit `1`, `FAIL`, `SUBMODULE_INTERNAL_PATH`; no submodule traversal or initialization occurs. |",
+      "requiredResults": [
+        "FAIL"
+      ]
+    },
+    {
+      "id": "AC-7.2-09",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_resolves_raw_gitlinks --junitxml=artifacts/v9/7.2/AC-7.2-09.xml",
+      "contract": "| `AC-7.2-09` | All ten root gitlinks plus a decoy filename containing `160000` | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_resolves_raw_gitlinks --junitxml=artifacts/v9/7.2/AC-7.2-09.xml` | Exit `0`; `PASS`; only raw mode-`160000` entries are recorded; missing/extra/mismatched entries produce `GITLINK_SCOPE_MISMATCH` or `GITLINK_DRIFT`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    },
+    {
+      "id": "AC-7.2-10",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_superseded_candidate --junitxml=artifacts/v9/7.2/AC-7.2-10.xml",
+      "contract": "| `AC-7.2-10` | Resolvable baseline and `SC-7.2`, followed by a source commit or gitlink move | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_superseded_candidate --junitxml=artifacts/v9/7.2/AC-7.2-10.xml` | Exit `0`; valid ancestry passes; an invalid baseline proves `BASELINE_NOT_TRUSTWORTHY`; post-candidate movement proves `CANDIDATE_NOT_FINAL`. |",
+      "requiredResults": []
+    },
+    {
+      "id": "AC-7.2-11",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.2.json --format bundle --output-json docs/release-evidence/story-7.2-final-record-v2.json --output-markdown docs/release-evidence/story-7.2-final-record-v2.md",
+      "contract": "| `AC-7.2-11` | AC-7.2-01 through AC-7.2-10 and Story 7.1's record are current and candidate-compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.2.json --format bundle --output-json docs/release-evidence/story-7.2-final-record-v2.json --output-markdown docs/release-evidence/story-7.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.2`, all ten gitlinks, the Story 7.1 record, inventory digest, all ten scenario results, and summary `11/11/0/0/0/0`. |",
+      "requiredResults": [
+        "PASS"
+      ]
+    }
+  ]
+}
