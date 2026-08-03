@@ -1,19 +1,32 @@
 ---
 epic: 6
 generated: '2026-08-01'
-overlay_version: 'epic-6-authority-2026-08-01-v7'
-architecture_version: 'conversations-architecture-2026-08-01-v7'
-supersedes_overlay_version: 'epic-6-authority-2026-07-31-v6'
+overlay_version: 'epic-6-authority-2026-08-01-v8'
+architecture_version: 'conversations-architecture-2026-08-01-v8'
+supersedes_overlay_version: 'epic-6-authority-2026-08-01-v7'
 source_epics: '_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md'
-source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:BEGIN'
-status: 'active-corrective-context'
+source_overlay_begin: 'EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V8:BEGIN'
+current_execution_view: '_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md'
+status: 'authority-correction-only-not-ready'
 ---
 
 # Epic 6 Context: PRD Alignment And Preservation Reconciliation
 
-This developer context is derived from the append-only Epic 6 v2 overlay and its approved v3-v7 amendments. It shares version `epic-6-authority-2026-08-01-v7` with the active amendment and aligns with `conversations-architecture-2026-08-01-v7`; semantic drift between them is a conformance failure. The finalized initiative PRD/addendum and approved correction proposals remain the authority above this derived context.
+This developer context is derived from the append-only Epic 6 v2 overlay and
+its approved v3-v8 amendments. It shares version
+`epic-6-authority-2026-08-01-v8` with the active amendment and aligns with
+`conversations-architecture-2026-08-01-v8`; semantic drift between them and the
+deterministic current execution view is a conformance failure. The finalized
+initiative PRD/addendum and approved comprehensive correction remain the
+authority above this derived context.
 
-Regenerated 2026-08-01 after the approved projection-proof evidence-lifecycle amendment. V7 supersedes v6 only by separating immutable candidate-bound projection proof from current release assurance, adding Story 6.12, amending Stories 6.3 and 6.6, and adding one dependency constraint; V6 amended Story 6.2's AC1 SM-C2 rule and added Story 6.11; V5 tiered the conformance oracle and added Story 6.9; V4 added Story 6.8; V3 changed only the test AppHost treatment. Every preservation, projection-population, promotion, signed-evidence, performance, and readiness obligation remains binding.
+Regenerated 2026-08-01 after the approved comprehensive implementation-readiness
+authority correction. V8 republishes all twelve complete effective story
+definitions, restores universal PRD SM-C2 authority, repairs UX planning
+provenance, records the validated topology/checkpoints/BDD catalogue, and
+imposes a global readiness hold. V7's projection-proof lifecycle, V6's
+historical Story 6.2 disposition, V5's oracle tiering, V4's generated record,
+and V3's test-AppHost boundary remain preserved context.
 
 The frontmatter and this paragraph disagreed between 2026-07-28 and 2026-07-31: the frontmatter had been bumped to v5 while the body still described v4, and `source_overlay_begin` named an unversioned marker present in no amendment block. Both are corrected here, which is what the overlay's amendment-log rule exists to make checkable.
 
@@ -22,9 +35,17 @@ The frontmatter and this paragraph disagreed between 2026-07-28 and 2026-07-31: 
 - The initiative has 20 FRs: FR-1 through FR-20. FR-16 is the only non-activation and is deferred.
 - The preservation denominator is all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and all UX acceptance criteria.
 - The accepted SM-1 baseline remains 13,289 LOC.
-- Epics 1-5, all 24 completed stories, retrospectives, `done` states, the original epic-plan prefix, the v1/v2 authority overlays, and signed v1 evidence remain immutable historical records.
+- Epics 1-5, all 24 completed stories, completed Stories 6.1, 6.2, and 6.7, retrospectives, `done` states, the original epic-plan prefix, every v1-v7 authority block, accepted baselines, and signed v1 evidence remain immutable historical records.
 - A delivered-to-inactive disposition or compatible public-contract change requires named owner approval, rationale, and compatibility evidence.
 - Epic 6 is the only active corrective plan. It does not activate preserved feature scope.
+
+## Global Implementation Hold
+
+**AUTHORITY CORRECTION ONLY — NOT READY.** No remaining Epic 6 implementation
+may start or resume until v8 authority validation passes and a separate fresh,
+independent implementation-readiness assessment returns `READY`. Current
+`in-progress` and `ready-for-dev` labels are lifecycle facts, not permission to
+work. This context does not predetermine or publish that later assessment.
 
 ## Corrected Ownership Spine
 
@@ -92,7 +113,14 @@ Frozen inventory version: `sm-c2-hot-path-inventory-v1`.
 
 Every baseline row has exactly one post disposition, measured with identical workload/data, concurrency, environment/runtime, tooling, warm/cold classification, repetitions, raw evidence processing, and commit-bound evidence. The module test AppHost exercises the same production code boundaries before and after; it does not become production topology.
 
-**Amended pass rule (v6, 2026-07-31).** A row is gated at `post P95 <= 1.05 x baseline P95` only when its cost change is not attributable to an approved correctness change **and** the row carries usable signal at that threshold. For Story 6.2, HP-LIST and HP-OPEN fail the first test — their cost is the mandatory fail-closed cross-key validation — and are gated instead by an approved-cost ceiling recorded numerically in the release artifact, so a further regression still goes red. HP-CREATE and HP-APPEND fail the second test on measured within-run dispersion two orders of magnitude wider than the threshold, and are recorded and disclosed rather than gated. The disclosure is mandatory in the artifact itself. Story 6.6 re-measures under this rule; Story 6.11 owns retiring the ceiling by making cross-key validation cheap enough to re-gate at ±5%.
+**Current v8 rule.** PRD SM-C2/OQ-5 is the sole current metric authority. Every
+one of HP-CREATE, HP-APPEND, HP-LIST, and HP-OPEN must have usable comparable
+signal under the identical frozen envelope and satisfy
+`post P95 <= 1.05 x baseline P95`. The v6 ceiling/disclosure rule is immutable
+Story 6.2 completion context only; it is not a Story 6.6 pass option. Story 6.11
+owns correctness-preserving remediation and measurement for all four rows and
+must complete before Story 6.6. Changing the target requires separate approved
+PRD-level authority.
 
 ## Stories
 
@@ -119,21 +147,36 @@ Every baseline row has exactly one post disposition, measured with identical wor
 
 ### 6.4 Repair UX provenance and preservation governance
 
-- Treat UX as preservation-only unless separately activated; repair provenance/mappings while retaining historical mappings as labeled provenance.
-- Preserve current FrontComposer/Fluent UI V5 governance; authorize no production UI change.
+- Cite the canonical PRD/addendum, retain a prominent preservation-only banner,
+  and label the Phase 0-3 sequence as historical/future activation rather than
+  active Epic 6 work.
+- Produce the exact v1 UX disposition schema/JSON/deterministic Markdown and a
+  zero-gap validator that covers UX-DR1-52 plus every explicit UX acceptance
+  criterion once, with source hashes, owner, rationale, evidence/control, and
+  labeled historical provenance.
+- Preserve current FrontComposer/Fluent UI V5 governance; authorize no
+  production UI change. Story 6.8 gates completion.
 
 ### 6.5 Correct the thin authoring template and reproduce SM-2
 
 - Include one non-packable, non-publishable module test AppHost in the template and count its hand-authored files and LOC.
 - Prohibit reusable module-owned Aspire, generic ServiceDefaults, DAPR, health, telemetry, projection/query, publication, or subscription capability.
 - Use live public platform APIs and a reproducible fixture/versioned v2 measurement while preserving the 13,289-LOC baseline.
+- Review through ordered checkpoints 6.5-A authoring contract, 6.5-B minimal
+  fixture, and 6.5-C measurement/conclusion. A checkpoint alone cannot complete
+  the story; Stories 6.8 and 6.10 gate completion.
 
 ### 6.6 Revalidate and issue superseding attestation
 
-- Run the complete manifest, public-contract, SM-C2, SM-1/SM-2/SM-3, test-AppHost boundary, and platform-composition gates.
+- Run the complete manifest, public-contract, universal four-row SM-C2,
+  SM-1/SM-2/SM-3, test-AppHost boundary, and platform-composition gates. A v6
+  ceiling, disclosure, or unusable signal cannot pass.
 - Issue versioned v2 evidence, a separate supersession record, and a new release-owner decision without mutating v1.
 - Consume and hash-validate accepted ADR 0003 and the immutable Story 6.2 `projection-read-store-population-proof-v2` predecessor at its recorded candidate; consume and rerun the latest approved projection-proof chain head. Do not cite v2 alone or inherit the signed v1 projection-population deferral as proof or waiver for current readiness.
-- Run last and require readiness `READY` before release closure.
+- Run last. Execute a fresh independent assessment against the exact candidate,
+  publish its complete actual result unchanged, and never instruct the assessor
+  to return a particular verdict. Release closure is a separate decision and
+  remains blocked unless the preserved result is `READY`.
 
 ### 6.7 Mechanically block incomplete submodule promotions from completion
 
@@ -163,6 +206,37 @@ Every baseline row has exactly one post disposition, measured with identical wor
 - Declare both tiers to the Story 6.8 generator and the solution file so neither is silently unrun.
 - A single portable project with the reference removed is a valid successful outcome if the triage proves the assertions re-express at unchanged strength. The commitment is to tier the oracle, not to produce two projects.
 
+### 6.10 Consolidate the evidence-boundary validation pattern
+
+- Add one non-packable, assembly-neutral `Hexalith.Conversations.TestSupport`
+  helper for repository location, bounded UTF-8 Git facts, recomputed manifests,
+  exact boundary assertions, and a non-vacuous assertion ledger.
+- Require repository-contained canonical hashes, recomputed signable payloads,
+  exact changed-file equality, raw mode-`160000` gitlink rejection, explicit
+  unavailable-history skip, and failure on zero executed assertions.
+- Enforce the stable evidence-boundary blocker/warning contract in the five
+  governed workflow bodies in both active trees and the two render twins;
+  migrate every evidence reader at unchanged assertion strength with zero
+  day-one exemptions.
+- Fault-inject every guard and repair Story 6.7's gate-span displacement
+  coupling. Story 6.10 is independent of 6.12, follows 6.8 and 6.9, and gates
+  completion of 6.3, 6.5, and 6.6.
+
+### 6.11 Restore the universal SM-C2 gate without weakening projection correctness
+
+- Author an ADR before production change covering per-conversation derived-key
+  ownership, ordering, compatibility, rebuild/backfill, deletion/expiry, and
+  rollback while EventStore remains write authority.
+- Remove full-index/per-row fan-out only with explicit correctness proof;
+  preserve fail-closed tenant isolation, stale/poison/partial state behavior,
+  replay, retry, conflict, public query shape, and non-disclosure.
+- Predeclare one measurement method for all four rows, retain raw samples, and
+  treat unusable signal as failure.
+- Complete only when HP-CREATE, HP-APPEND, HP-LIST, and HP-OPEN each satisfy
+  `post P95 <= 1.05 x baseline P95` with every correctness gate green. Story
+  6.11 follows completed 6.2, is independent of 6.10/6.12, and is mandatory
+  before 6.6.
+
 ### 6.12 Version projection proofs without rewriting completed history
 
 - Preserve Story 6.2 and its v2 proof artifacts byte-for-byte and validate their bindings at the recorded candidate/gitlinks.
@@ -170,18 +244,24 @@ Every baseline row has exactly one post disposition, measured with identical wor
 - Author ADR 0004 and generate `projection-read-store-population-proof-v3` with full predecessor hashes, one approved current head, exact changed dependency identities, named owner/rationale, and fresh deterministic/gateway/state-store/query/deletion/replay evidence.
 - Fail undeclared in-scope drift with `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; ignore unrelated root gitlink movement for historical validity.
 - Fault-inject mutation, wrong identity, broken/forked chain, stale binding, and missing/red/skipped/vacuous run cases; complete only through Story 6.8's generated final-record gate.
+- Review through 6.12-A historical validity/lifecycle (AC1-AC3), 6.12-B
+  successor/current guard (AC4-AC5), and 6.12-C fault injection/handoff/closure
+  (AC6-AC8). Checkpoints do not advance the story; 6.8 remains the entry gate.
 
 ## Binding Sequence
 
-`6.1 -> 6.7 -> 6.2 -> 6.8`
+Completed historical spine: `6.1 -> 6.7 -> 6.2 -> 6.8`.
 
-- 6.7 and the frozen benchmark precede 6.2 completion.
-- 6.3/6.4 may proceed after 6.1 where dependencies allow.
-- 6.2 precedes 6.5.
-- 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6.
-- 6.9 may proceed after 6.1 and precedes the completion of 6.3 and 6.6. It is outside the `6.1 -> 6.7 -> 6.2 -> 6.8` spine because it changes no production source, performs no promotion, and depends on neither the hosting migration nor the record generator.
-- 6.8 precedes 6.12; 6.12 precedes the completion of 6.3 and 6.6. Story 6.3 may remain in progress while 6.12 executes but cannot return to review before the successor proof and manifest bindings pass.
-- 6.6 is last.
+- No remaining edge activates until the independent readiness result is `READY`.
+- 6.8 follows 6.2 and precedes completion of 6.3, 6.4, 6.5, and 6.6.
+- 6.9 follows 6.1. Together 6.8 and 6.9 precede 6.10.
+- 6.8 precedes 6.12. Stories 6.10, 6.11, and 6.12 are mutually
+  independent after their direct predecessors.
+- 6.9 + 6.10 + 6.12 precede completion of 6.3.
+- 6.8 + 6.10 precede completion of 6.5.
+- 6.2 precedes 6.11; the universal four-row result precedes 6.6.
+- 6.3 + 6.4 + 6.5 + 6.8 + 6.9 + 6.10 + 6.11 + 6.12 precede 6.6.
+- 6.6 is last and preserves the independent assessment's actual result.
 
 ## Final Record Invariant
 
@@ -199,6 +279,12 @@ The conformance oracle has two declared tiers. The portable tier binds only Cont
 
 Completed projection proof is validated at its declared candidate and dependency identities, never by silently substituting the current checkout. Current readiness is represented by exactly one approved predecessor-linked chain head with fresh executed evidence. Successors are additive, predecessor hashes are full and immutable, Story 6.2 remains done, and v2 is never rewritten to follow later platform movement.
 
-## Story 6.1 Verification Boundary
+## V8 Publication Boundary
 
-The v3 amendment changes planning authority, generated context, and conformance validation only. It must not modify the finalized PRD/addendum, historical epic prefix, v1/v2 overlay content, retrospectives, signed v1 evidence, runtime source, solution membership, submodule contents/gitlinks, UX governance, thin-template evidence, or release evidence.
+V8 changes planning authority, deterministic planning projections, UX planning
+provenance/mapping, sprint hold prose, and planning-authority validation only.
+It does not implement any remaining story, run or predetermine readiness,
+modify the finalized PRD/addendum, historical epic prefix, v1-v7 blocks,
+completed records, retrospectives, accepted baselines, signed evidence, runtime
+source, public contracts, package/deployment topology, or submodule
+contents/gitlinks.

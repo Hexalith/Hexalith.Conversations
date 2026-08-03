@@ -2,10 +2,11 @@
 historicalStepsCompleted: [1, 2, 3, 4, 5, 6, 7, 8]
 historicalLastStep: 8
 historicalCompletedAt: '2026-05-14'
-status: 'corrective-implementation-only'
-rebaselinedAt: '2026-07-27'
-authorityVersion: 'conversations-architecture-2026-08-01-v7'
+status: 'authority-correction-only-not-ready'
+rebaselinedAt: '2026-08-01'
+authorityVersion: 'conversations-architecture-2026-08-01-v8'
 supersededAuthorityVersions:
+  - 'conversations-architecture-2026-08-01-v7'
   - 'conversations-architecture-2026-07-31-v6'
   - 'conversations-architecture-2026-07-28-v5'
   - 'conversations-architecture-2026-07-28-v4'
@@ -24,7 +25,10 @@ correctionAuthority:
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md'
   - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01-stories-6-10-6-11-authority.md'
+  - '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md'
   - 'docs/adrs/0003-projection-read-store-population-proof.md'
+currentExecutionView: '_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md'
 baselineRevision: 'f31aa5ada2e37e1ec5f3e4b8e907525b37da863f'
 inputDocuments:
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
@@ -227,6 +231,95 @@ production source, public contracts, package versions, accepted baselines,
 Story 6.2 evidence, signed evidence, or submodule content. Successor artifacts
 and validator changes remain Story 6.12 implementation work.
 
+### 2026-08-01 Implementation Readiness Authority Correction
+
+Architecture version `conversations-architecture-2026-08-01-v8` supersedes v7
+only by publishing the complete effective Story 6.1-6.12 execution contract,
+restoring the finalized PRD SM-C2 rule as the sole current metric authority,
+repairing preservation-only UX planning authority, and imposing a global
+implementation hold. The approved correction is
+`sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md`.
+The narrower 6.10/6.11 proposal remains supporting analysis, but its unapplied
+publication plan is superseded so there is exactly one v8.
+
+**Overall Status: AUTHORITY CORRECTION ONLY — NOT READY.** No remaining Epic 6
+implementation work may start or resume until comprehensive v8 is published,
+mechanical authority validation passes, and a new independent
+implementation-readiness assessment returns `READY`. File-lifecycle states such
+as `in-progress` and `ready-for-dev` do not override this hold.
+
+**One current execution contract.** The append-only v8 block republishes each
+Story 6.1-6.12 definition once with status context, complete effective
+acceptance criteria, prohibitions, checkpoints, direct dependencies, and
+completion gates. The deterministic
+`epic-6-current-execution-view-v1.md` is a non-amending projection of that block,
+not a second authority. Source marker, authority versions, hashes, generator
+version/command, and sprint-status source are part of the projection contract;
+semantic or hash drift fails validation.
+
+**Completed history.** Stories 6.1, 6.2, and 6.7 remain `done`. Their records,
+evidence, accepted baselines, signed dependencies, and earlier v1-v7 authority
+bytes remain immutable. Story 6.2's v6 ceiling/disclosure disposition is
+historical completion context only; it is neither reopened nor accepted as the
+current release rule. The current view exposes 6.2-H1 baseline/authority,
+6.2-H2 runtime/projection migration, and 6.2-H3 candidate evidence/closure only
+as read-only navigation checkpoints.
+
+**SM-C2 authority.** PRD SM-C2/OQ-5 controls every current release decision:
+HP-CREATE, HP-APPEND, HP-LIST, and HP-OPEN each require usable comparable
+evidence under the identical frozen envelope and
+`post P95 <= 1.05 x baseline P95`. An approved-cost ceiling, disclosure,
+correctness cost, owner acceptance, or unusable signal cannot substitute for
+that gate. Story 6.11 owns correctness-preserving signal and performance work
+for all four rows and is mandatory before Story 6.6. Changing the target
+requires a separate approved PRD-level proposal.
+
+**Execution topology.** Historical completion is `6.1 -> 6.7 -> 6.2`. After a
+future readiness result of `READY`, Wave 1 may resume 6.8 and start 6.4, 6.5-A/B,
+6.9, and 6.11. Stories 6.8 and 6.9 unlock 6.10; 6.8 unlocks 6.12. Stories 6.10
+and 6.12 may then run in parallel, and 6.5-C may finish only after its 6.8/6.10
+gates. Stories 6.9, 6.10, and 6.12 gate completion of 6.3; 6.8 and 6.10 gate
+completion of 6.5. Story 6.6 remains last and depends on completion of 6.3,
+6.4, 6.5, 6.8, 6.9, 6.10, 6.11, and 6.12. The graph is mechanically
+cycle-checked.
+
+**Checkpoint boundaries.** Story 6.5 retains one identifier and divides review
+into 6.5-A authoring contract, 6.5-B minimal fixture, and 6.5-C measurement and
+conclusion. Story 6.12 retains all eight v7 criteria and divides review into
+6.12-A historical validity/lifecycle, 6.12-B successor/current guard, and
+6.12-C fault injection/handoff/closure. Checkpoint success never advances the
+story to `done`. Completed Story 6.2's three projected checkpoints are
+retrospective navigation only.
+
+**UX preservation.** The UX specification cites the canonical PRD/addendum,
+opens with a preservation-only non-activation banner, and labels its Phase 0-3
+roadmap as historical/future activation sequence. The UX map records current
+`preserved-not-activated` disposition separately from labeled historical
+provenance, and inventories UX-DR1-52 plus every explicit UX acceptance-criterion
+identifier. Story 6.4 owns the versioned disposition schema/JSON/Markdown and
+zero-gap validator; this architecture publication does not implement those
+story deliverables or activate UI scope.
+
+**Executable failure contracts.** V8 binds BDD scenarios for cross-tenant
+derived-key poison, post-binding evidence mutation, historical-proof/current
+dependency drift, skipped or zero-assertion evidence lanes, unusable or failing
+SM-C2 rows, and an independent `NOT READY` assessment. These scenarios are
+acceptance contracts; planning publication does not implement their production
+or story-owned test work.
+
+**Outcome-neutral readiness.** Story 6.6 preserves the complete actual result
+of a fresh independent assessment against the exact committed candidate. The
+assessor is never instructed or modified to return `READY`. Release closure is
+a separate consumer decision and stays blocked on `NOT READY` or an incomplete
+assessment.
+
+This amendment changes planning authority, deterministic planning projections,
+UX planning provenance/mapping, sprint hold prose, and planning-authority
+validation only. It preserves the ownership spine, public contracts,
+production topology, EventStore write authority, fail-closed tenant rules,
+preservation denominators, no-product-UI boundary, completed history, signed
+evidence, and submodule content.
+
 ### Scope And Preservation Denominators
 
 The initiative has exactly **20 initiative requirements (`FR-1` through `FR-20`)**. These are distinct from the preserved product contract: **104 `Feature-FR`s**, **77 `Feature-NFR`s**, **52 UX decisions**, and every UX acceptance criterion. The refactor activates FR-1 through FR-15 and FR-17 through FR-20; **FR-16 alone is deferred and non-activated**. Preserved feature requirements constrain behavior but do not become new feature-delivery scope.
@@ -333,7 +426,14 @@ Story 6.7 implements this declarative invariant before Story 6.2 can complete: p
 
 ### Corrective Readiness
 
-**Overall Status: READY FOR CORRECTIVE IMPLEMENTATION ONLY.** Story order is `6.1 -> 6.7 -> 6.2 -> 6.8`; the frozen SM-C2 baseline is also required before 6.2 completes. Story 6.2 precedes 6.5, Story 6.8 follows 6.2 and precedes the completion of 6.3, 6.4, 6.5, and 6.6, and Story 6.6 is last. No story completing after Story 6.2 reaches `done` without a mechanically generated final record. No final readiness or release claim is authorized until all Epic 6 gates pass, v2 evidence supersedes v1 without mutating it, and a new implementation-readiness assessment returns `READY`.
+**Overall Status: AUTHORITY CORRECTION ONLY — NOT READY.** The completed spine
+is `6.1 -> 6.7 -> 6.2`. Every remaining story is held regardless of its
+file-lifecycle status. The current topological plan and complete effective
+criteria live in the v8 authority block and its deterministic current execution
+view. No implementation may start or resume until mechanical v8 authority
+validation passes and a new independent implementation-readiness assessment
+returns `READY`; that later assessment's result is preserved rather than
+prescribed.
 
 ## Project Context Analysis
 
@@ -1661,7 +1761,8 @@ None blocking the architecture workflow.
 
 **Historical status (superseded):** READY FOR IMPLEMENTATION
 
-**Current status:** READY FOR CORRECTIVE IMPLEMENTATION ONLY, as established by the 2026-07-15 authority rebaseline.
+**Current status:** AUTHORITY CORRECTION ONLY — NOT READY, as established by
+the comprehensive 2026-08-01 v8 authority correction.
 
 **Confidence Level:** High for foundation implementation; medium for GA release evidence until ADRs, numeric envelopes, and conformance artifacts are completed.
 
@@ -1680,7 +1781,7 @@ None blocking the architecture workflow.
 - Define CI architecture scans after project scaffolding.
 - Add diagrams and adopter sample fixture.
 
-### Corrective Implementation Handoff
+### Authority Correction Handoff
 
 **AI Agent Guidelines:**
 
@@ -1690,6 +1791,335 @@ None blocking the architecture workflow.
 - Treat ADR triggers and stop conditions as blocking.
 - Add conformance evidence with implementation slices.
 
-**First corrective priority:**
+**Current priority:**
 
-Complete Story 6.1 authority correction, then Story 6.7 and the frozen benchmark before Story 6.2 makes the local AppHost test-only and removes remaining generic hosting drift. Existing domain behavior remains governed by the still-binding decisions above; no product feature is activated by this handoff.
+Publish and mechanically validate the comprehensive v8 planning-authority set,
+then run a fresh independent implementation-readiness assessment as a separate
+workflow. No Epic 6 implementation work is authorized by this handoff. Existing
+domain behavior remains governed by the still-binding decisions above and no
+product feature or UI scope is activated.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V9:BEGIN version=conversations-architecture-2026-08-02-v9 epic-authority=epic-6-authority-2026-08-02-v9 supersedes=conversations-architecture-2026-08-01-v8 v8-prefix-sha256=7fd33168f34bb7d3326b4abb0eb79999270c11fefc7f50ec3acdd62fb1b86df5 candidate-binding=v9-authority-bundle-v1.json -->
+
+## 2026-08-02 V9 Execution Overlay
+
+**Architecture authority:** `conversations-architecture-2026-08-02-v9`
+
+**Epic authority:** `epic-6-authority-2026-08-02-v9`
+
+**Overlay status:** `final`
+
+**Updated:** `2026-08-02`
+
+**Supersedes:** `conversations-architecture-2026-08-01-v8` only for the
+remaining-work execution projection
+
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-02.md`
+
+This overlay replaces only the non-ready v8 execution graph. It does not amend
+the system design. Epic 6 becomes the historical corrective foundation formed
+by completed Stories 6.1, 6.2, and 6.7; every unfinished v8 Story 6.x execution
+definition is superseded by the v9 successor authority and retained as
+provenance. Partial or prepared work is unaccepted input until a successor story
+validates it against that story's candidate-bound acceptance contract.
+
+**Overall Status: PLANNING CORRECTION ONLY — GLOBAL IMPLEMENTATION HOLD
+ACTIVE.** No remaining Epic 6 work, successor work, or other product
+implementation may start or resume merely because an epic or story has a normal
+lifecycle status or because partial work already exists. The hold remains active
+until the complete v9 authority is published, its mechanical validator passes,
+an independent IR-0 assessment returns `READY` for the exact same candidate and
+authority, and the release owner explicitly records the hold-lift decision. Any
+missing condition, non-`READY` result, blocker, or later candidate or authority
+drift keeps or restores the global hold and requires reassessment.
+
+### Authority Discovery And Candidate Binding
+
+The original frontmatter and its v8 current-view pointer are frozen pre-overlay
+provenance; changing them would violate this correction's append-only boundary.
+Machine readers determine current authority from the last complete architecture
+overlay marker, never from the historical frontmatter alone. The begin marker
+pins the exact pre-v9 architecture prefix so any rewrite above it fails.
+
+The v9 planning candidate is deliberately `UNBOUND` in this architecture-only
+step because the canonical v9 epic overlay and its companion maps, story
+contracts, projections, and validators have not yet been published or committed.
+`UNBOUND` is a mechanical blocker, not a placeholder that may be inferred. IR-0
+must not run and the implementation hold cannot lift until the completed v9
+publication records the exact planning root commit, relevant gitlinks, canonical
+authority-bundle digest, v9 execution-view digest, and supersession-map digest
+under the same architecture and epic authority identities.
+
+Candidate identity has three non-interchangeable scopes:
+
+- **Planning candidate (`PC`)** — the committed v9 planning-authority source
+  candidate assessed by IR-0. `PC` is frozen before record generation; afterward
+  only named record-output paths may change. Only a change to a canonical blob
+  resolved from `PC` or to its authority identities invalidates IR-0; record
+  generation and later descendant implementation commits do not silently
+  redefine `PC`.
+- **Story candidate (`SC-<story>`)** — the exact root commit, gitlinks, frozen
+  inputs, outputs, and evidence accepted by one successor story. It cannot
+  substitute for `PC` or a release candidate.
+- **Release candidate (`RC`)** — the exact post-Story-15.2 root commit, gitlinks,
+  complete evidence bundle, and attestation consumed by RG-15. It cannot inherit
+  IR-0 or story verdicts without their pinned identities and digests.
+
+The immutable v1 execution view remains a projection of v8, not of the appended
+file. Its recorded architecture digest is retained unchanged as provenance. The
+v9 validator must validate that historical binding against the preserved v8
+snapshot or prefix and report any pre-existing mismatch as a blocker; it must
+not rewrite v1 or silently compare v1's full-file digest with the appended v9
+document. The generated v2 view becomes current only after it binds the complete
+v9 candidate and passes parity validation.
+
+### Canonical Authority Bundle And Ownership
+
+`_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` is the one
+machine-readable index of the v9 planning candidate. It records `PC`, relevant
+gitlinks, architecture and epic authority identities, and the repository-relative
+path, schema identity, role, owner, and SHA-256 of every canonical or generated
+planning-authority artifact resolved from `PC`; it never substitutes current
+worktree bytes. Artifact hashes are over those exact committed blobs. The bundle
+digest is SHA-256 over UTF-8 lines in the form
+`<sha256><two spaces><path><LF>`, sorted by repository-relative path using
+ordinal comparison. A path may occur once only.
+
+The bundle file itself and all mutable record outputs are outside that digest:
+validator results, the IR-0 report, `implementation-hold-v1.json`, story final
+records, RG-15 records, and release attestations. Each such record binds `PC`,
+the immutable bundle digest, and its predecessor record digests. This two-phase
+boundary prevents a file or commit from claiming its own final hash and prevents
+the hold decision from changing the authority bundle it evaluates.
+
+The canonical epic v9 block remains the human-authored execution authority.
+`v9-execution-graph-v1.json` is its deterministic, non-amending graph projection:
+nodes are sorted by stable ID, predecessor arrays and edges are sorted ordinally,
+and IR-0 plus RG-15 are explicit gate nodes rather than story-shaped aliases.
+`v9-supersession-map-v1.json` is the deterministic obligation projection. The
+bundle validator rejects any semantic or digest difference among the canonical
+epic block, architecture overlay, graph, map, generated view, UX map, sprint
+projection, and story contracts. It separately rejects a validator, IR-0, hold,
+or RG-15 record whose `PC` or bundle-digest reference does not match; those
+mutable records never feed back into the authority-bundle digest.
+
+Single-writer ownership is binding:
+
+- the Product Manager owns the canonical epic/story authority and obligation
+  dispositions;
+- the Solution Architect owns this architecture overlay and accepts the complete
+  authority bundle;
+- the workflow owner generates graph, map, view, UX-map, sprint, and bundle
+  projections but cannot approve their semantics;
+- the Quality owner owns validator rules and the independent IR-0 report; and
+- the release owner alone owns implementation-hold and RG-15 decision records.
+
+No generated projection may become a second authority, and no owner may mutate
+another owner's canonical artifact to make parity pass.
+
+### Inherited V8 Technical Invariants
+
+Every v8 technical invariant remains binding and read-only under v9. In
+particular:
+
+- Conversations owns domain behavior and module contracts; platform libraries
+  own reusable runtime capability, and platform deployment owns production
+  composition.
+- Hexalith.EventStore remains the only write-side and durable conversation-state
+  authority. Projections, caches, exports, UI models, and evidence are derived.
+- Tenant authorization remains fail-closed before every aggregate load, command,
+  read, admin action, export, worker, MCP/tool operation, or verification path;
+  cross-tenant existence and payload information remain non-disclosable.
+- The public-contract preservation denominator remains 20 initiative FRs, 104
+  Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and every explicit UX
+  acceptance criterion. FR-16 remains the sole deferred and non-activated
+  initiative requirement.
+- UX remains `preserved-not-activated`; v9 adds no product screen, component,
+  navigation, interaction, or visual implementation scope.
+- The existing `Hexalith.Conversations.AppHost` remains only as a non-shipping
+  test fixture; it is non-packable, non-publishable, and module-scoped for user
+  and end-to-end verification.
+  It is not shipped, is not a production or reusable hosting surface, and v9
+  authorizes no new module-owned AppHost, Aspire, ServiceDefaults, or deployment
+  capability.
+- PRD SM-C2/OQ-5 remains the sole current performance authority. HP-CREATE,
+  HP-APPEND, HP-LIST, and HP-OPEN each require usable comparable evidence under
+  the identical frozen envelope and `post P95 <= 1.05 x baseline P95`; no cost
+  acceptance, disclosure, correctness claim, owner approval, or unusable signal
+  substitutes for that gate.
+- Epics 1-5 and completed Stories 6.1, 6.2, and 6.7, including their records,
+  accepted baselines, signed evidence, and submodule bindings, remain immutable
+  history. V1-v8 authority bytes remain provenance and are not rewritten by this
+  overlay.
+- The v8 conformance-tier, projection-proof lifecycle, mechanical final-record,
+  promotion, evidence-boundary, audit, privacy, idempotency, hosting, and
+  deployment rules remain unchanged unless a later separately approved
+  technical architecture amendment explicitly supersedes them.
+
+**Inherited baseline interpretation.** V8 retains the existing AppHost only by
+classifying it as a non-shipping test fixture; the Hexalith baseline prohibition
+on a domain module shipping its own AppHost remains binding. If that prohibition
+is interpreted to forbid even this repository-local test fixture, the conflict
+requires a separate approved technical amendment. V9 neither expands the
+fixture nor silently overrides the inherited v8 decision or the baseline.
+
+### Supersession And Outcome Ownership
+
+The machine-readable v9 supersession map published with the canonical epic
+authority is the zero-gap record for old identifiers, source states, preserved
+artifacts, successor stories, and salvage policy. It must contain exactly one
+disposition for every unfinished v8 Story 6.x and must reject missing or
+duplicate mappings. Story-row coverage is insufficient: a frozen, digest-bound
+inventory must enumerate every v8 acceptance criterion, checkpoint, prohibition,
+dependency, evidence obligation, rollback condition, and completion gate, then
+map each item exactly once to a successor atomic acceptance ID or to an explicit
+immutable-history/non-executable disposition. Missing, duplicate, orphaned, or
+many-to-none obligation mappings fail publication.
+
+| V8 unit | V9 disposition | Successor execution owner |
+| --- | --- | --- |
+| Stories 6.1, 6.2, 6.7 | Immutable completed foundation | Epic 6 |
+| Story 6.8 | Superseded; partial work remains unaccepted input | Epic 7 / Stories 7.1-7.4 |
+| Story 6.4 | Superseded | Epic 8 / Stories 8.1-8.2 |
+| Story 6.9 | Superseded | Epic 9 / Stories 9.1-9.2 |
+| Story 6.10 | Superseded | Epic 10 / Stories 10.1-10.4 |
+| Story 6.5 | Superseded | Epic 11 / Stories 11.1-11.3 |
+| Story 6.11 | Superseded | Epic 12 / Stories 12.1-12.4 |
+| Story 6.12 | Superseded; prepared story remains provenance | Epic 13 / Stories 13.1-13.3 |
+| Story 6.3 | Superseded; partial work remains unaccepted input | Epic 14 / Stories 14.1-14.3 |
+| Story 6.6 | Attestation work bounded; external decisions removed from story scope | Epic 15 / Stories 15.1-15.2 and Gate RG-15 |
+
+Each successor epic owns one stakeholder outcome and one bounded exit:
+
+| Epic | Outcome | Hard entry | Bounded exit |
+| --- | --- | --- | --- |
+| 7 | Reliable mechanical completion records | Story 6.2 done | Stories 7.1-7.4 done |
+| 8 | Preserved UX governance | Epic 7 | Stories 8.1-8.2 done |
+| 9 | Portable conformance oracle | Epic 7 | Stories 9.1-9.2 done |
+| 10 | Unified evidence boundary | Epics 7 and 9 | Stories 10.1-10.4 done |
+| 11 | Thin-module authoring proof | Story 6.2 and Epics 7 and 10 | Stories 11.1-11.3 done |
+| 12 | Universal performance restoration | Story 6.2 done | Stories 12.1-12.4 done |
+| 13 | Current projection-proof lifecycle | Epics 7 and 9 | Stories 13.1-13.3 done |
+| 14 | Complete preservation manifest | Epics 8, 9, 10, and 13 | Stories 14.1-14.3 done |
+| 15 | Superseding release attestation | Epics 7-14 | Stories 15.1-15.2 done; Gate RG-15 decided |
+
+```mermaid
+flowchart LR
+    P[V9 authority published] --> M[Mechanical v9 validation]
+    M --> IR{IR-0 independent READY<br/>same PC and authority bundle?}
+    IR -- No, blocked, or drift --> H[Implementation hold remains active]
+    IR -- Yes plus owner hold-lift --> E7[Epic 7]
+    IR -- Yes plus owner hold-lift --> E12[Epic 12]
+    E7 --> E8[Epic 8]
+    E7 --> E9[Epic 9]
+    E7 --> E10[Epic 10]
+    E9 --> E10
+    E7 --> E11[Epic 11]
+    E10 --> E11
+    E7 --> E13[Epic 13]
+    E9 --> E13
+    E8 --> E14[Epic 14]
+    E9 --> E14
+    E10 --> E14
+    E13 --> E14
+    E7 --> E15[Epic 15]
+    E8 --> E15
+    E9 --> E15
+    E10 --> E15
+    E11 --> E15
+    E12 --> E15
+    E13 --> E15
+    E14 --> E15
+    E15 --> RG{RG-15 release closure}
+```
+
+### Successor Story Contract
+
+The canonical v9 epic authority owns the complete Stories 7.1-15.2 definitions
+and exact predecessor sets. Story and epic numbering is topological; a unit may
+depend only on completed history or lower-numbered predecessors, and the graph
+must remain acyclic. Each story owns one bounded outcome, one rollback boundary,
+and one separate final record. Architecture also binds the complete publication
+contract across all successor stories:
+
+1. Every acceptance scenario has a stable
+   `AC-<epic>.<story>-<two-digit-sequence>` ID.
+2. One scenario asserts one outcome; compound assertions use separate IDs even
+   when they execute the same command.
+3. `Given` binds exact authority identities, candidate-scope rules, input paths,
+   schema versions, frozen inventories, and SHA-256 digests.
+4. `When` contains one exact non-interactive command, including working
+   directory, project, filter, arguments, and required environment policy.
+5. `Then` declares exact exit-code meaning, `PASS`/`FAIL`/`BLOCKED` result,
+   output path and schema, required fields, blocker codes, and root-candidate plus
+   relevant-gitlink bindings.
+6. Required lanes pass with zero failed, skipped, and not-run checks.
+   Environmental inability is `BLOCKED`, never `PASS`.
+7. Every mutation story includes at least one named negative or fault-injection
+   scenario proving the intended blocker.
+8. Every story freezes its file and inventory baseline at entry; dynamic phrases
+   such as "any item added later" are prohibited.
+9. Every migrated assertion binds before/after inventories and strength digests;
+   silent weakening or deletion fails.
+10. Every story declares its rollback boundary and the artifacts that remain
+    immutable if rollback occurs.
+11. The Epic 7 generator emits the authoritative final record from measured
+    state; hand-copied counts, commits, file lists, and verdicts are prohibited.
+12. The shared high-risk catalogue remains cross-story coverage and never
+    substitutes for a story's atomic acceptance scenarios.
+13. Mechanical coverage remains exactly 124/124 functional requirements with
+    zero missing, orphaned, or duplicate current paths, and exactly 52 UX
+    decisions plus 28 UX acceptance IDs with zero missing, orphaned, or duplicate
+    bindings. Validator failure cannot be waived by prose.
+
+Partial predecessor work, stale evidence, hand-copied facts, and
+candidate-mismatched outputs never satisfy a successor acceptance contract.
+
+### Gate And Drift Rules
+
+- **IR-0 — Corrected Plan Readiness** runs only after complete v9 publication
+  and mechanical validation. Its independent report binds `PC`,
+  relevant gitlinks, `epic-6-authority-2026-08-02-v9`,
+  `conversations-architecture-2026-08-02-v9`, and the canonical artifact
+  digests. The complete report is published unchanged, its actual result is
+  preserved, and the assessor is never instructed or modified to return a
+  particular verdict. `READY` is necessary but not by itself a release
+  decision.
+- `_bmad-output/planning-artifacts/implementation-hold-v1.json` is the single
+  authoritative hold-decision record. Its default and effective state is
+  `ACTIVE` when it is missing, invalid, candidate-mismatched,
+  authority-mismatched, or not backed by validator `PASS`, candidate-matched
+  IR-0 `READY`, and an explicit release-owner decision. Only the release owner
+  may record `LIFTED` or an explicit revocation. Story status, sprint projection,
+  partial implementation, accepted predecessor evidence, and reviewer opinion
+  are never hold-state inputs.
+- A post-assessment change to `PC`, the authority bundle, authority identities,
+  supersession map, story contracts, UX map, or generated execution view
+  invalidates IR-0 and makes the effective hold `ACTIVE` until validation,
+  assessment, and release-owner decision are repeated. A descendant story
+  implementation commit does not redefine `PC`; it is governed by its own
+  `SC-<story>` acceptance and rollback boundary.
+- **RG-15 — Release Closure** occurs only after Story 15.2. It records an
+  independent release review and explicit release-owner decision without
+  predetermining closure; failure, missing evidence, or `BLOCKED` leaves release
+  closure open. RG-15 is not a developer story and cannot authorize earlier
+  implementation.
+
+### Publication Boundary
+
+This overlay changes planning authority and the current execution projection
+only. It authorizes no product implementation and no change to runtime code,
+public APIs, persistence, infrastructure, deployment topology, package
+versions, accepted baselines, signed evidence, completed records, or submodule
+content.
+
+The v9 epic overlay, machine-readable supersession map, atomic successor story
+specifications, generated current execution view v2, UX story rebinding, sprint
+status projection, canonical authority bundle, graph projection, hold-state
+record, and planning validators are companion publication artifacts.
+The v8 `epic-6-current-execution-view-v1.md` remains immutable provenance. No
+companion may claim executable authority unless it matches the canonical v9
+identity and candidate digest mechanically.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V9:END version=conversations-architecture-2026-08-02-v9 -->

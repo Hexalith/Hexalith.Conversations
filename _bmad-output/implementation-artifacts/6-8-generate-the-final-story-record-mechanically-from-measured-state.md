@@ -51,9 +51,13 @@ allowed_skipped_tests:
 #   contained by its own `refs/remotes/origin/main` — so the stricter declaration is satisfiable
 #   rather than aspirational. All three are INHERITED AFFECTED SCOPE, not this story's promotions.
 authority:
-  overlay: 'epic-6-authority-2026-07-28-v4'
-  architecture: 'conversations-architecture-2026-07-28-v4'
-  proposal: '_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28.md'
+  overlay: 'epic-6-authority-2026-08-01-v8'
+  architecture: 'conversations-architecture-2026-08-01-v8'
+  proposal: '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md'
+  frozen_criteria_sources:
+    - 'epic-6-authority-2026-07-28-v4'
+    - 'epic-6-authority-2026-07-31-v6'
+  current_view: '_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md'
 context:
   - '{project-root}/_bmad-output/project-context.md'
   - '{project-root}/_bmad-output/implementation-artifacts/epic-6-context.md'
@@ -65,6 +69,11 @@ context:
 # Story 6.8: Generate the final story record mechanically from measured state
 
 Status: in-progress
+
+> **Global hold:** Story 6.8 remains `in-progress` as a lifecycle fact, but its
+> implementation is paused. It may resume only after comprehensive v8 authority
+> validation passes and a separate independent implementation-readiness
+> assessment returns `READY`.
 
 ## Story
 

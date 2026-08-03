@@ -13,9 +13,18 @@ context:
   - '{project-root}/docs/runbooks/story-final-record-generation.md'
 warnings: ['oversized']
 submodule_promotions: []
+authority:
+  overlay: 'epic-6-authority-2026-08-01-v8'
+  architecture: 'conversations-architecture-2026-08-01-v8'
+  current_view: '_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md'
+  proposal: '_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md'
 ---
 
 <intent-contract>
+
+> **Global hold:** This in-progress specification is paused. No implementation
+> may start or resume until comprehensive v8 authority validation passes and a
+> separate independent implementation-readiness assessment returns `READY`.
 
 ## Intent
 
@@ -68,8 +77,8 @@ submodule_promotions: []
 **Acceptance Criteria:**
 - Given the hash-bound PRD and UX sources, when expected obligations are independently enumerated, then all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs, 52 UX decisions, and every row in all four normative UX acceptance sections appear exactly once with stable IDs and source-text hashes.
 - Given any obligation row, when closure is validated, then it references repository-contained hash-valid evidence or an approved named-owner non-activation with rationale, and delivered-to-inactive or compatible-change dispositions additionally reference compatibility/replacement evidence.
-- Given architecture v6 and its cumulative Epic 6 authority, when current controls and public surfaces are reconciled, then ownership, canonical host shape, test-only AppHost, projection proof, SM-C2 v6 rule, promotion/final-record gates, immutable v1 evidence, Contracts, Client, routes, wire/events/errors, and package/version behavior have no gap or ownership reversal.
-- Given architecture v7 and the approved projection-proof lifecycle, when projection-population closure is reconciled, then the manifest binds the complete immutable predecessor chain, records Story 6.2 v2 as candidate-bound historical evidence, identifies exactly one approved current successor head, and fails if historical evidence is represented as proof for a later candidate. Story 6.3 cannot return to review before Story 6.12 passes.
+- Given architecture v8 and its cumulative Epic 6 authority, when current controls and public surfaces are reconciled, then ownership, canonical host shape, test-only AppHost, projection proof, the universal four-row PRD SM-C2 rule, promotion/final-record/evidence-boundary gates, immutable v1 evidence, Contracts, Client, routes, wire/events/errors, and package/version behavior have no gap or ownership reversal.
+- Given architecture v8 and the approved projection-proof lifecycle, when projection-population closure is reconciled, then the manifest binds the complete immutable predecessor chain, records Story 6.2 v2 as candidate-bound historical evidence, identifies exactly one approved current successor head, and fails if historical evidence is represented as proof for a later candidate. Story 6.3 cannot return to review before Stories 6.9, 6.10, and 6.12 pass.
 - Given completed Story 6.9 evidence, when conformance assertions are enumerated, then each assertion has exactly one approved tier, both tiers remain release-gated, the decision and triage bytes are SHA-256-bound, and portable-tier freedom is supported by executed structural evidence rather than manifest prose.
 - Given any source, baseline, evidence, build, test, contract, or mutation binding, when current bytes and Git/build identities are recomputed independently, then full hashes and identities match; missing, stale, escaping, generated-output, submodule-internal, self-attested, or vacuous evidence fails closed.
 - Given a valid manifest candidate, when a row/source/hash/owner/tier/approval is deleted, duplicated, altered, or made empty, then automated fault injection produces a stable nonzero diagnostic and byte-identical restoration returns green.

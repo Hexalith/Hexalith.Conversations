@@ -46,6 +46,16 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
 
     private const string OqTwoDecisionSha256 = "06281924d9760f05f638c4a74661de9cd973f88c773d7ad3263ee25a830a3e06";
 
+    /// <summary>
+    /// The signed v1 manifest is immutable and therefore retains the source path that existed when it was
+    /// signed. The superseded May 2026 product PRD was later relocated, byte-for-byte, to the archive after
+    /// its requirements were namespaced and preserved in the current initiative PRD. Keep this relocation
+    /// explicit and one-to-one so an arbitrary missing source artifact cannot be redirected silently.
+    /// </summary>
+    private const string ArchivedLegacyPrdSourcePath = "_bmad-output/planning-artifacts/prd.md";
+
+    private const string ArchivedLegacyPrdPath = "_bmad-output/archive/conversations-product-contract-2026-05-31.md";
+
     /// <summary>Bounded wait so a blocked git (index.lock, credential prompt, hook) fails instead of hanging the suite.</summary>
     private const int GitTimeout = 60_000;
 
@@ -179,13 +189,15 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         {
             string path = entry.GetProperty("path").GetString() ?? string.Empty;
             string sha256 = (entry.GetProperty("sha256").GetString() ?? string.Empty).ToLowerInvariant();
-            string fullPath = Path.GetFullPath(Path.Combine(root, path));
+            string resolvedPath = ResolveArchivedSourceArtifactPath(path);
+            string fullPath = Path.GetFullPath(Path.Combine(root, resolvedPath));
 
             path.ShouldNotBeNullOrWhiteSpace();
             Path.IsPathRooted(path).ShouldBeFalse($"Source artifact path '{path}' must be repository-relative.");
+            Path.IsPathRooted(resolvedPath).ShouldBeFalse($"Resolved source artifact path '{resolvedPath}' must be repository-relative.");
             fullPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
-                .ShouldBeTrue($"Source artifact path '{path}' must stay inside the repository root.");
-            File.Exists(fullPath).ShouldBeTrue($"Source artifact '{path}' must exist.");
+                .ShouldBeTrue($"Resolved source artifact path '{resolvedPath}' must stay inside the repository root.");
+            File.Exists(fullPath).ShouldBeTrue($"Source artifact '{path}' must exist at its current location '{resolvedPath}'.");
 
             sha256.Length.ShouldBe(64);
             sha256.ShouldAllBe(character => Uri.IsHexDigit(character));
@@ -237,6 +249,20 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
                 $"Signed release evidence '{path}' may never be superseded in place.");
             File.Exists(Path.Combine(FindRepositoryRoot(), path)).ShouldBeTrue($"Allowlisted supersession '{path}' must exist.");
         }
+    }
+
+    [Fact]
+    public void ArchivedLegacyPrdRelocationShouldStayNarrowAndContentIdentical()
+    {
+        string root = FindRepositoryRoot();
+        File.Exists(Path.Combine(root, ArchivedLegacyPrdSourcePath)).ShouldBeFalse(
+            "The superseded root PRD must not reappear as a competing planning artifact.");
+
+        string archivedPath = Path.Combine(root, ArchivedLegacyPrdPath);
+        File.Exists(archivedPath).ShouldBeTrue("The relocated legacy PRD must remain available for signed-v1 provenance.");
+        ComputeFileSha256(archivedPath).ShouldBe(
+            "a5d0ebef4f6565a87ae29cf378a811ff0d1b30423dcb71ecde180775bb373abb",
+            "Archiving must not alter the legacy PRD content signed into the v1 evidence manifest.");
     }
 
     [Fact]
@@ -585,6 +611,14 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
 
         return normalized.TrimStart('/');
     }
+
+    private static string ResolveArchivedSourceArtifactPath(string path)
+        => string.Equals(
+            NormalizeRepositoryRelativePath(path),
+            ArchivedLegacyPrdSourcePath,
+            StringComparison.Ordinal)
+            ? ArchivedLegacyPrdPath
+            : path;
 
     private static string ComputeFileSha256(string path)
         => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();

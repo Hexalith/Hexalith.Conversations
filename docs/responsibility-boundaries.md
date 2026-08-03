@@ -160,5 +160,5 @@ Conversations conformance evidence identifies each inherited control, names the 
 - [Contract Compatibility and Deprecation Policy](release-evidence/contract-compatibility-policy.md) — versioning, deprecation, and unsupported-version rules
 - [Architecture Decision Records Index](adrs/index.md) — architectural decisions governing boundary contracts and implementation constraints
 - [Conformance Manifest](release-evidence/conformance-manifest-v1-fixture.json) — release evidence entries including module-level conformance assertions, platform-evidence separation, telemetry validation, and the headless-v1 rendered UI waiver (Stories 5.11, 6.7, 6.8A, 6.8B, and the Story 3.8 waiver)
-- [Product Requirements Document](../_bmad-output/planning-artifacts/prd.md) — FR104 and related requirements defining the responsibility boundary documentation obligation
+- [Product Requirements Document](../_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md#scope-boundaries-and-lifecycle-commitments) — Feature-FR104 and related requirements defining the responsibility boundary documentation obligation
 - [Architecture Reference](../_bmad-output/planning-artifacts/architecture.md) — boundary contracts for external dependencies, implementation guardrails, and critical failure modes

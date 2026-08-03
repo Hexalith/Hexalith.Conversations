@@ -1518,3 +1518,2478 @@ retain their approved scope and ordering.
 The frozen FR-20 denominator is unchanged.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V7:END version=epic-6-authority-2026-08-01-v7 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V8:BEGIN version=epic-6-authority-2026-08-01-v8 supersedes=epic-6-authority-2026-08-01-v7 -->
+
+## Appendix: 2026-08-01 Implementation Readiness Authority Correction
+
+**Overlay version:** `epic-6-authority-2026-08-01-v8`
+**Architecture authority:** `conversations-architecture-2026-08-01-v8`
+**Supersedes:** `epic-6-authority-2026-08-01-v7` only by publishing one complete
+current Epic 6 execution contract, restoring PRD SM-C2 authority, repairing UX
+planning provenance, and imposing the global implementation hold
+**Correction authority:**
+`sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md`,
+approved by Jerome on 2026-08-01
+**Supporting provenance:**
+`sprint-change-proposal-2026-08-01-stories-6-10-6-11-authority.md`; its
+unapplied publication plan is superseded by this single comprehensive v8
+**Status:** `AUTHORITY CORRECTION ONLY — NOT READY`
+
+No remaining Epic 6 implementation work may start or resume until this v8 set
+is published, mechanical authority validation passes, and a new independent
+implementation-readiness assessment returns `READY`. A story's file-lifecycle
+status is not permission to work while this hold is active.
+
+Every v1-v7 byte above remains immutable historical authority. Completed Epics
+1-5, completed Stories 6.1, 6.2, and 6.7, their records, retrospectives,
+accepted baselines, signed evidence, and completed-state evidence are not
+reopened, re-evaluated, or rewritten by this amendment. The definitions below
+are the single complete current execution view; completed criteria are
+read-only historical facts, while active and backlog criteria remain future
+completion gates.
+
+### Overlay Amendment Log — Continuation
+
+This continuation is appended outside every earlier immutable block. It does
+not edit any earlier log table.
+
+| Overlay version | Date | Amendment | Authority |
+| --- | --- | --- | --- |
+| `epic-6-authority-2026-07-27-v3` | 2026-07-27 | Corrected the module AppHost to a non-shipping test harness. | `sprint-change-proposal-2026-07-27.md` |
+| `epic-6-authority-2026-07-28-v4` | 2026-07-28 | Added mechanical final-record generation and Story 6.8. | `sprint-change-proposal-2026-07-28.md` |
+| `epic-6-authority-2026-07-28-v5` | 2026-07-28 | Tiered the conformance oracle and added Story 6.9. | `sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md` |
+| `epic-6-authority-2026-07-31-v6` | 2026-07-31 | Recorded Story 6.2's historical SM-C2 disposition, restored the record contract, and reserved Story 6.11. | `sprint-change-proposal-2026-07-31-sm-c2-threshold-and-v4-restoration.md` |
+| `epic-6-authority-2026-08-01-v7` | 2026-08-01 | Added the projection-proof successor lifecycle and Story 6.12. | `sprint-change-proposal-2026-08-01.md` |
+| `epic-6-authority-2026-08-01-v8` | 2026-08-01 | Published the complete current story set, restored universal SM-C2 authority, repaired UX planning authority, and imposed the readiness hold. | `sprint-change-proposal-2026-08-01-implementation-readiness-authority-correction.md` |
+
+### Current Metric Authority
+
+The finalized PRD SM-C2/OQ-5 rule is the sole current performance authority:
+
+`post P95 <= 1.05 x baseline P95`
+
+It applies to all four frozen rows—HP-CREATE, HP-APPEND, HP-LIST, and HP-OPEN—
+under the identical reproducible envelope. The v6 ceiling and disclosure model
+is preserved only as immutable context explaining how completed Story 6.2
+reached `done`; it is not a current Story 6.6 pass option. Correctness cost,
+owner acceptance, a disclosed miss, an approved-cost ceiling, or unusable
+signal cannot substitute for the current gate. Changing the target requires a
+separate approved PRD-level change proposal.
+
+### Story 6.1: Rebaseline architecture and planning authority
+
+**Status:** `done` — read-only completed history.
+
+As a platform architect, I want architecture and epic authority reconciled to
+the finalized PRD, so corrective implementation starts from one ownership and
+decision model.
+
+**Effective acceptance criteria (historical):**
+
+1. Architecture distinguishes 20 initiative FRs from 104 Feature-FRs, 77
+   Feature-NFRs, 52 UX decisions, and every UX acceptance criterion; preserves
+   the accepted 13,289-LOC baseline; and defers only FR-16.
+2. FR-10 through FR-15 have verified public platform landing zones; OQ-1
+   through OQ-5 each have one resolved row; the canonical host pair is
+   `AddEventStoreDomainService(...)` plus `UseEventStoreDomainService()`.
+3. A nonempty versioned hot-path inventory is frozen before baseline capture
+   and records the PRD rule `post P95 <= 1.05 x baseline P95` under an identical
+   reproducible envelope.
+4. The module owns no reusable production AppHost, Aspire, ServiceDefaults, or
+   equivalent runtime capability. The retained Conversations AppHost is only a
+   non-packable, non-publishable local user/E2E test harness; platform deployment
+   owns production composition.
+5. The append-only authority preserves completed history, the full
+   preservation denominator, the promotion-completion invariant, and signed v1
+   evidence byte-for-byte.
+
+**Direct dependencies:** none. The completed record remains authoritative and
+is not changed by v8.
+
+### Story 6.2: Migrate Conversations to platform-owned hosting
+
+**Status:** `done` — read-only completed history.
+
+As a Conversations maintainer, I want Conversations composed through public
+platform capability while retaining only a module test harness, so the domain
+module contains no reusable platform-owned hosting boilerplate.
+
+**Effective acceptance criteria (historical):**
+
+1. The frozen SM-C2 baseline and candidate evidence were captured under the
+   same versioned envelope. The v6 approved-cost/disclosure disposition is
+   preserved as Story 6.2 completion context only and does not govern current
+   release readiness.
+2. `Hexalith.Conversations.AppHost` and its tests remain mechanically
+   non-packable and non-publishable, limited to Conversations surfaces plus
+   required platform dependencies, and never become production deployment
+   composition.
+3. Generic ServiceDefaults, Aspire, DAPR, publication, health, telemetry,
+   projection/query, and subscription capability lives on approved public
+   platform surfaces; Story 6.7 validated every promotion in scope.
+4. The canonical named `IAsyncDomainProjectionHandler` route reuses the domain
+   materializer and durably writes both tenant-scoped per-conversation and
+   tenant-index read models through the shared write policy and store.
+5. Immutable `projection-read-store-population-proof-v2` evidence binds the
+   accepted append/replay path through production named dispatch, actual
+   integration state-store end state, and production query results without
+   calling the writer directly.
+6. Focused integration evidence covers duplicate delivery, partial-write
+   retry, tenant isolation, bounded failure, derived-state deletion, and full
+   replay equivalence; DI resolution, mock calls, legacy projection output, and
+   HTTP acceptance alone are insufficient.
+7. Completion used the mechanical final-record path. The record, v2 proof,
+   bound xUnit results, accepted baselines, and signed-v1 dependencies remain
+   byte-identical.
+
+**Direct dependencies:** completed Stories 6.1 and 6.7. No v8 work item may
+reopen or re-evaluate this completed story.
+
+### Story 6.3: Create the complete preservation traceability manifest
+
+**Status:** `in-progress`, but paused by the global readiness hold.
+
+As a release owner, I want a frozen, versioned preservation manifest with
+complete requirement dispositions, so preservation claims are exact and
+resistant to denominator drift.
+
+**Effective acceptance criteria:**
+
+1. The manifest covers all 20 initiative FRs, 104 Feature-FRs, 77 Feature-NFRs,
+   52 UX decisions, every UX acceptance-criterion identifier, current controls,
+   and preserved public contracts with zero gaps or duplicates.
+2. Every obligation has evidence or named-owner approved non-activation with
+   rationale; delivered-to-inactive and compatible changes include approval and
+   compatibility evidence.
+3. Source/build/test/baseline hashes, versioned mutation governance, and
+   module/platform control separation are recorded and mechanically validated.
+4. The manifest binds `conformance-oracle-tiering-decision-v2`, records every
+   assertion's tier, and treats the portable tier's resolved-compile-surface
+   test as evidence rather than author prose.
+5. Projection proof is represented as an immutable predecessor chain: v2 is
+   historical evidence, the Story 6.12 successor is the one approved current
+   head, and historical evidence cannot stand in for a later candidate.
+6. Completion binds v8, the exact UX preservation disposition identity, the
+   current proof head, and a Story 6.8-generated final record at one compatible
+   candidate.
+
+**Direct dependencies:** Stories 6.9, 6.10, and 6.12 before completion; Story
+6.8 governs the final record.
+
+### Story 6.4: Repair UX provenance and preservation governance
+
+**Status:** `backlog` and non-startable under the global readiness hold.
+
+As a UX governance owner, I want the UX specification treated as a
+preservation reference with reliable evidence mappings, so it constrains
+behavior without silently authorizing UI delivery.
+
+**Effective acceptance criteria:**
+
+1. UX planning cites the canonical PRD and addendum and opens with a prominent
+   preservation-only/non-activation banner. Historical Phase 0-3 language is
+   labeled as future activation sequence, not the active Epic 6 plan.
+2. The story produces exactly
+   `docs/release-evidence/ux-preservation-disposition-v1.schema.json`,
+   `docs/release-evidence/ux-preservation-disposition-v1.json`,
+   `docs/release-evidence/ux-preservation-disposition-v1.md` as its
+   deterministic projection, plus `UxPreservationDispositionValidationTest`
+   in the conformance test project.
+3. The JSON binds canonical source paths, versions, and hashes; inventories
+   UX-DR1-52 and every UX acceptance-criterion identifier exactly once; and
+   records `preserved-not-activated`, owner, rationale, evidence/control or
+   explicit non-activation, historical provenance, compatibility, and
+   disclosure-safety obligations for every item.
+4. Historical story mappings remain labeled non-current provenance and cannot
+   become implementation ownership. No inactive UX item points to a nonexistent
+   current story.
+5. Validation fails on missing, duplicate, unknown, unowned, unhashed,
+   source-drifted, JSON/Markdown-drifted, reordered-without-regeneration, or
+   activated-without-authority entries.
+6. No production UI change or preserved-scope activation is authorized.
+
+**Direct dependencies:** Story 6.1 for start and Story 6.8 for completion.
+
+### Story 6.5: Correct the thin authoring template and reproduce SM-2
+
+**Status:** `backlog` and non-startable under the global readiness hold.
+
+As a domain-module author, I want a platform-hosted thin template with
+reproducible authoring-cost evidence, so SM-2 measures only code a domain module
+owns.
+
+**Effective acceptance criteria:**
+
+1. The template contains one non-packable, non-publishable module test AppHost
+   for local user/E2E tests and no reusable module-owned Aspire library,
+   ServiceDefaults facade, DAPR implementation, projection/query runtime,
+   publication, health, telemetry, or subscription plumbing.
+2. Checkpoint 6.5-A publishes corrected thin-module authoring guidance with
+   ownership and prohibited-capability rules, versioned validation, and an
+   explicit reviewer decision.
+3. Checkpoint 6.5-B publishes a reproducible non-packable/non-publishable
+   minimal fixture using live public platform APIs, with clean build/tests and
+   an exact source inventory.
+4. Checkpoint 6.5-C generates versioned SM-2 v2 evidence from frozen inclusion
+   rules and the preserved baseline, including source paths, commands/tool
+   versions, candidate identity, file/LOC evidence, confidence, and named
+   acceptance.
+5. The accepted 13,289-LOC SM-1 baseline remains unchanged; validators reject
+   prohibited target ownership, vacuous evidence, and JSON/Markdown drift.
+6. All three checkpoints pass at one compatible candidate. A checkpoint alone
+   cannot complete the story.
+
+**Direct dependencies:** Story 6.2 for start; Stories 6.8 and 6.10 before
+completion.
+
+### Story 6.6: Revalidate and issue superseding attestation
+
+**Status:** `backlog`, last, and non-startable under the global readiness hold.
+
+As a release owner, I want the corrected implementation independently
+revalidated against the complete preservation contract, so a release decision
+rests on current evidence rather than a prescribed verdict.
+
+**Effective acceptance criteria:**
+
+1. Every frozen row—HP-CREATE, HP-APPEND, HP-LIST, and HP-OPEN—has one usable,
+   comparable candidate result and satisfies
+   `post P95 <= 1.05 x baseline P95` under the identical reproducible envelope.
+   The v6 ceiling/disclosure exception is not a current pass option.
+2. The complete manifest passes; public contracts are equal or carry approved
+   compatible-change evidence; topology, security, health, publication, admin
+   composition, SM-1, reproducible SM-2, SM-3, and every preservation gate are
+   evidenced.
+3. The v2 attestation and supersession record preserve signed v1 evidence,
+   consume accepted ADR 0003, bind the unchanged projection-proof predecessor
+   plus its single approved current head, and rerun the head's functional gates.
+4. Both conformance tiers run and are reported separately and summed; Story 6.8
+   records for every predecessor and Story 6.10 evidence-boundary validation
+   are current, non-vacuous, and green.
+5. A fresh independent implementation-readiness assessment runs against the
+   exact committed candidate and current authority/evidence identities. Its
+   complete actual result is published unchanged; the assessor is not
+   instructed or modified to return a particular verdict.
+6. Release closure is a separate decision and remains blocked unless the
+   preserved assessment result is `READY`. `NOT READY` or an incomplete
+   assessment leaves Story 6.6 and Epic 6 open.
+
+**Direct dependencies:** completion of Stories 6.3, 6.4, 6.5, 6.8, 6.9,
+6.10, 6.11, and 6.12. This story always runs last.
+
+### Story 6.7: Mechanically block incomplete submodule promotions from completion
+
+**Status:** `done` — read-only completed history.
+
+As a Hexalith development-workflow maintainer, I want promotion-bearing work to
+pass a mechanical submodule completion gate, so dirty submodules and uncaptured
+umbrella gitlinks cannot reach `done`.
+
+**Effective acceptance criteria (historical):**
+
+1. Promotion-bearing work declares exact root `references/...` paths and
+   availability policy; affected scope also includes gitlinks changed since the
+   baseline.
+2. Each affected submodule is initialized, clean including untracked files,
+   satisfies its availability policy, and is represented by the exact raw
+   mode-`160000` gitlink in the committed umbrella revision.
+3. Stable blockers prevent review/completion; unrelated state warns without
+   blocking; an empty or unevaluated scope cannot report a pass.
+4. Discovery uses root `.gitmodules` only and never initializes or traverses
+   nested submodules; isolated fixtures prove success, failure, displacement,
+   and concurrency cases.
+
+**Direct dependency:** completed Story 6.1. The completed record is not changed
+by v8.
+
+### Story 6.8: Generate the final story record mechanically from measured state
+
+**Status:** `in-progress`, but paused by the global readiness hold.
+
+As a workflow maintainer, I want final story records generated from measured
+repository state, so completion facts cannot drift through hand-authored prose.
+
+**Effective acceptance criteria:**
+
+1. One generator emits a versioned document-and-Markdown bundle whose fields
+   derive from machine-readable test results, the committed candidate path set,
+   raw root gitlinks, and the embedded Story 6.7 promotion result. Counts,
+   paths, and commits are not caller-authored.
+2. The root `.slnx` defines required root-owned test projects; a missing, red,
+   stale, skipped-without-exact-policy, or not-run result blocks. Totals are
+   computed, not transcribed.
+3. The file list is singular and exact. Source-tree dirt is blocked outside
+   record outputs and declared TRX inputs; paths inside root submodules block
+   and gitlink promotions appear only in their labeled section.
+4. Candidate, test binary, submodule, and gitlink identities bind the final
+   committed state. After the candidate only record-output paths may change and
+   no gitlink may move.
+5. All completion surfaces generate the same bundle, verify its inserted
+   Markdown digest, and let blockers prevent `review` and `done`.
+6. A pass requires nonempty derived scope and executed assertions; workflow
+   invocation removal or displacement fails.
+7. Read-only historical mode verifies closed records without mutating them or
+   pretending to reconstruct an uncommitted former worktree.
+8. Fault injection proves every guard can fail and restores every mutated
+   fixture byte-identically.
+
+**Direct dependency:** completed Story 6.2. Story 6.8 governs the final record
+for every later completion.
+
+### Story 6.9: Tier the conformance oracle and make the portable tier structural
+
+**Status:** `backlog` and non-startable under the global readiness hold.
+
+As a test-governance owner, I want the conformance oracle split by legitimate
+binding, so consumer-portable assertions stay portable without weakening
+module-internal checks.
+
+**Effective acceptance criteria:**
+
+1. Every conformance file binding a Server namespace is triaged into a
+   versioned record: re-expressed against public Contracts, Client, or Testing
+   surfaces at unchanged strength, or assigned to the module-internal tier with
+   exact type and reason. Public contract widening is unavailable.
+2. The portable tier has no non-packable module reference, proven from the
+   resolved compile surface rather than project text.
+3. No manifested test is removed, skipped, renamed away, or weakened; the
+   executed total across both tiers is monotonic from a machine-readable
+   pre-split result.
+4. Reclassification of the three manifested denominator suites records named
+   owner approval, rationale, and a versioned manifest update; FR-20 membership
+   is unchanged.
+5. A v2 disposition artifact supersedes v1 without editing v1.
+6. Every tier is present in the solution and declared to the Story 6.8
+   generator, so neither can be silently unrun.
+
+**Direct dependency:** Story 6.1. Completion unlocks Story 6.10 and contributes
+to Stories 6.3 and 6.6.
+
+### Story 6.10: Consolidate the evidence-boundary validation pattern
+
+**Status:** `backlog` and non-startable under the global readiness hold.
+
+As a release-evidence maintainer, I want evidence validation consolidated
+behind one enforced, non-shipping helper, so evidence cannot pass through
+trusted declarations, incomplete diffs, unavailable history, or vacuous
+assertions.
+
+**Effective acceptance criteria:**
+
+1. A non-packable `Hexalith.Conversations.TestSupport` project supplies
+   `RepositoryLocator`, `GitFacts`, `EvidenceManifest`, `BoundaryAssertions`,
+   and `AssertionLedger`, references no Conversations assembly, and does not
+   alter either oracle tier's membership.
+2. Its Git runner has bounded execution, concurrent stdout/stderr draining,
+   explicit UTF-8 decoding, `core.quotepath=false`, unavailable-history
+   handling, revision/diff resolution, raw modes, and historical blob hashing.
+3. Manifest integrity is recomputed: repository-relative contained paths,
+   existing files, canonical lowercase SHA-256, rejected generated/build
+   output, recomputed signable payload, and a nonempty assertion ledger.
+   Supersession allowlists cannot cover signed evidence.
+4. Changed-file validation uses exact set equality. Gitlinks are detected from
+   raw mode `160000`, never substring matching.
+5. Unavailable history is an explicit skip, never a pass; zero executed
+   assertions fail; roots of trust remain pinned in consuming test source.
+6. `_bmad/scripts/verify_evidence_boundary.py` enforces blocker codes
+   `EVIDENCE_HELPER_NOT_USED`, `ADHOC_GIT_RUNNER`,
+   `ADHOC_REPOSITORY_ROOT`, `ADHOC_HASH_HELPER`,
+   `EVIDENCE_ARTIFACT_UNVALIDATED`, `EXEMPTION_EXPIRED`,
+   `SCOPE_NOT_EVALUATED`, and `BASELINE_NOT_PROVIDED`, while retaining warnings
+   `EXEMPTION_ACTIVE` and `EVIDENCE_TEST_OUTSIDE_CONFORMANCE`.
+7. The gate is mandatory in the five governed workflow bodies in both active
+   agent trees and both generated quick-dev render twins; mirrored bodies stay
+   equivalent and dev-story definition-of-done/checklist forbid ad-hoc
+   equivalents.
+8. All 24 approved baseline evidence readers plus any reader added before
+   implementation migrate with zero day-one exemptions, unchanged assertion
+   strength, pinned constants, and preserved counts. Projection-proof adoption
+   does not absorb or weaken Story 6.12.
+9. The runbook documents invariants, authoring, exemptions, and limitations;
+   fault injection covers hashes, escaping paths, generated evidence, gitlinks,
+   subset comparison, signed allowlisting, unavailable Git, removed workflow
+   calls, and malformed authority markers.
+10. Story 6.7's inherited gate-span coupling is repaired so adding the evidence
+    gate cannot leave a displaced positive guard green.
+
+**Direct dependencies:** Stories 6.8 and 6.9. Completion is required by Stories
+6.3, 6.5, and 6.6. Story 6.10 is independent of Story 6.12.
+
+### Story 6.11: Restore the universal SM-C2 gate without weakening projection correctness
+
+**Status:** `backlog` and non-startable under the global readiness hold.
+
+As a release owner, I want all frozen hot paths to have usable comparable
+signal and remain within the PRD regression budget, so current readiness uses
+one performance rule without weakening fail-closed behavior.
+
+**Effective acceptance criteria:**
+
+1. Before production implementation, an ADR defines per-conversation
+   index-entry key families, derived-state ownership, write ordering,
+   compatibility transition, rebuild/backfill, deletion, expiry, and rollback;
+   EventStore remains the only write authority.
+2. HP-LIST/HP-OPEN validation removes unnecessary full-index or per-row fan-out
+   only where an explicit proof permits it. Missing, duplicate, stale,
+   advanced, malformed, misfiled, pending, or inconsistent state remains fail
+   closed and reads never repair durable state.
+3. Tenant isolation, retries/idempotency, delayed/out-of-order delivery,
+   equal-position conflict, deletion, replay, and interrupted rebuild remain
+   deterministic and non-disclosing across every derived key family.
+4. Public query contracts, filtering, ordering, cursors, freshness vocabulary,
+   forbidden/nonexistent indistinguishability, and response shapes remain
+   unchanged.
+5. A versioned measurement-method decision fixes repetitions, raw-sample
+   retention, warm/cold classification, environment controls, and a predeclared
+   signal-quality rule for all four rows; it cannot change the PRD threshold or
+   discard adverse samples after observation.
+6. HP-CREATE and HP-APPEND obtain usable comparable signal under the same
+   frozen envelope; missing or unusable signal fails.
+7. HP-LIST and HP-OPEN use the preserved Story 6.2 baseline fixture and satisfy
+   the universal gate with every correctness test green; performance work may
+   not weaken or reclassify correctness.
+8. Unit, integration, and real DAPR state-store lanes fault-inject partial
+   writes, latency, unavailable stores, poison records, retries, concurrency,
+   tenant collisions, and replay.
+9. One candidate-bound additive evidence set records every baseline/candidate
+   raw sample, environment fact, calculation, signal verdict, and exact
+   code/test identity for all four rows; JSON is authoritative and Markdown is
+   deterministic.
+10. Story 6.11 reaches `done` only when every frozen row satisfies
+    `post P95 <= 1.05 x baseline P95` and every correctness gate is green. Any
+    miss, unusable signal, red/skip/not-run/vacuous test, or stale binding keeps
+    the story incomplete and release closure blocked.
+
+**Direct dependency:** completed Story 6.2. Story 6.11 is independent of
+Stories 6.10 and 6.12 and is mandatory before Story 6.6.
+
+### Story 6.12: Version projection proofs without rewriting completed history
+
+**Status:** `ready-for-dev`, but non-startable under the global readiness hold
+and its existing Story 6.8 entry gate.
+
+As a release owner, I want completed projection proofs validated at their
+recorded candidate and current readiness represented by an explicit successor
+chain, so approved later work neither falsifies history nor inherits stale
+assurance.
+
+**Effective acceptance criteria:**
+
+1. Story 6.2 remains `done`; its record, v2 JSON/Markdown, three bound xUnit
+   results, generated final record, and signed-v1 dependencies remain
+   byte-identical. Historical validation reads root and submodule blobs from
+   the recorded candidate/gitlinks and proves every bound hash, mode, gate, and
+   run identity at that time basis.
+2. Historical validation does not compare v2 to the current worktree or forbid
+   later unrelated movement; mutation or unresolvable recorded Git objects
+   still fail.
+3. ADR 0004 defines an immutable predecessor-linked lifecycle with full
+   predecessor hashes, exactly one approved current head, exact changed
+   dependencies, named owner/rationale, and no in-place evidence mutation.
+4. Generated `projection-read-store-population-proof-v3` reruns deterministic
+   dispatch, gateway/DAPR, configured state-store, production query, deletion,
+   and replay evidence against the current candidate and links unchanged v2.
+5. The current guard compares only declared proof dependencies; undeclared
+   in-scope drift fails `PROJECTION_PROOF_SUPERSESSION_REQUIRED`, while
+   unrelated gitlink movement does not invalidate history.
+6. Fault injection rejects changed v2 bytes, wrong historical identities,
+   broken predecessor hashes, duplicate/forked heads, stale v3, missing/red/
+   skipped/vacuous runs, and undeclared drift, restoring fixtures exactly.
+7. Story 6.3 binds v2 as history and v3 as current; Story 6.6 consumes both and
+   reruns v3. V2 alone cannot prove current readiness.
+8. Focused proof, manifest, and full Conformance lanes pass without failed,
+   skipped, or not-run tests; Story 6.8 generates the final record.
+
+**Internal checkpoints:**
+
+| Checkpoint | Criteria | Review and rollback boundary |
+| --- | --- | --- |
+| 6.12-A Historical validity and lifecycle contract | AC1-AC3 | Protected-byte inventory, candidate-aware historical validation, ADR 0004, and a closed successor-chain schema; no v3 current-head claim. |
+| 6.12-B Successor generation and current guard | AC4-AC5 | Deterministic v3 projection, fresh functional lanes, exact approval, one current head, and drift guard; may be discarded without changing v2 history. |
+| 6.12-C Fault injection, manifest handoff, and closure | AC6-AC8 | Mutation matrix, Story 6.3/6.6 handoff, full conformance, and Story 6.8-generated final record. |
+
+Checkpoint success does not advance the story to `done`; all eight criteria
+must pass at one compatible final candidate.
+
+**Direct dependency:** Story 6.8. Story 6.12 is independent of Stories 6.10
+and 6.11 and precedes completion of Stories 6.3 and 6.6.
+
+### Current Story Dispositions
+
+| Story | Status | Current authority disposition |
+| --- | --- | --- |
+| 6.1 | done | Completed history; preserve record and evidence unchanged. |
+| 6.2 | done | Completed history; preserve record, historical SM-C2 disposition, and evidence unchanged. |
+| 6.3 | in-progress | Paused; resume only after readiness `READY`; 6.9, 6.10, and 6.12 gate completion. |
+| 6.4 | backlog | Preservation-governance work; no product UI activation; 6.8 gates completion. |
+| 6.5 | backlog | Three ordered checkpoints; 6.2 gates start and 6.8/6.10 gate completion. |
+| 6.6 | backlog | Last; preserves independent assessment result and cannot use the v6 SM-C2 exception. |
+| 6.7 | done | Completed history; preserve record and evidence unchanged. |
+| 6.8 | in-progress | Paused; mechanical final-record owner for every later completion. |
+| 6.9 | backlog | Oracle-tiering authority; gates 6.10 and contributes to 6.3/6.6. |
+| 6.10 | backlog | Evidence-boundary helper; independent of 6.12; gates 6.3/6.5/6.6. |
+| 6.11 | backlog | Universal four-row SM-C2 restoration; mandatory before 6.6. |
+| 6.12 | ready-for-dev | Non-startable until readiness `READY` and 6.8 is done; gates 6.3/6.6. |
+
+### Topological Dependency Plan
+
+| Gate or wave | Work | Entry condition | Completion unlocks |
+| --- | --- | --- | --- |
+| Authority Gate | Publish and validate comprehensive v8; then rerun readiness separately | Approved comprehensive correction | Remaining work only if the independent result is `READY` |
+| Completed spine | 6.1 -> 6.7 -> 6.2 | Immutable historical fact | Existing prerequisites satisfied |
+| Wave 1 | Resume 6.8; execute 6.4, 6.5-A/B, 6.9, and 6.11 | Readiness `READY` plus local prerequisites | 6.8/6.9 unlock 6.10; 6.8 unlocks 6.12 |
+| Wave 2 | 6.10 and 6.12 in parallel; finish 6.5-C when its gates permit | Direct predecessors done | Completion paths for 6.3/6.5/6.6 |
+| Wave 3 | Complete 6.3, 6.4, and 6.5 | Exact dependencies and evidence pass | Capstone eligibility |
+| Wave 4 | 6.6 only | Every predecessor done and universal SM-C2 green | Independent assessment and possible Epic 6 closure |
+
+Direct dependency edges:
+
+```text
+6.1 -> 6.7
+6.7 -> 6.2
+6.2 -> 6.8
+6.1 -> 6.4
+6.2 -> 6.5
+6.8 -> completion of 6.4
+6.8 -> completion of 6.5
+6.1 -> 6.9
+6.8 -> 6.10
+6.9 -> 6.10
+6.8 -> 6.12
+6.9 -> completion of 6.3
+6.10 -> completion of 6.3
+6.12 -> completion of 6.3
+6.10 -> completion of 6.5
+6.2 -> 6.11
+6.3 -> 6.6
+6.4 -> 6.6
+6.5 -> 6.6
+6.8 -> 6.6
+6.9 -> 6.6
+6.10 -> 6.6
+6.11 -> 6.6
+6.12 -> 6.6
+```
+
+The graph is acyclic. Stories 6.10, 6.11, and 6.12 are mutually independent
+after their stated predecessors, although each must preserve compatible edits
+on shared validation surfaces.
+
+### High-Risk BDD Scenario Catalogue
+
+```gherkin
+Scenario: Cross-tenant derived key is presented during an authorized read
+  Given tenant A is authorized and an otherwise valid record is stored under tenant B's key
+  When the list or detail query validates the derived state
+  Then the query fails closed without disclosing tenant B existence or content
+
+Scenario: Evidence content changes after candidate binding
+  Given a generated evidence artifact is bound by path, mode, hash, candidate, and test binary
+  When any bound byte or identity changes
+  Then validation fails with a stable blocker and no stale evidence is reused
+
+Scenario: Historical proof is valid but the current dependency set drifted
+  Given v2 validates at its recorded candidate and an approved current head exists
+  When an in-scope current dependency changes without an approved successor
+  Then current readiness fails with PROJECTION_PROOF_SUPERSESSION_REQUIRED
+  And historical v2 validity remains unchanged
+
+Scenario: A required test is skipped or the assertion ledger is empty
+  Given an evidence lane is required by a story completion gate
+  When the result is skipped, not run, missing, stale, or records zero executed assertions
+  Then the gate fails and cannot be reported as not-applicable or passing
+
+Scenario: A frozen SM-C2 row has unusable signal or exceeds the threshold
+  Given its baseline and candidate use the frozen identical envelope
+  When signal quality is unusable or post P95 exceeds 1.05 times baseline P95
+  Then Story 6.11 remains incomplete and Story 6.6 cannot close
+
+Scenario: Readiness returns NOT READY
+  Given Story 6.6 executes an independent assessment and preserves the complete report
+  When the result is NOT READY
+  Then the report remains unchanged and release closure stays blocked
+```
+
+### UX Preservation Planning Contract
+
+`ux-design-specification.md` and `ux-requirement-map.md` are preservation-only
+planning inputs. Their current rows cannot activate product UI or assign current
+implementation ownership to historical/nonexistent stories. Story 6.4 owns the
+versioned disposition deliverables and zero-gap validator; v8 publication
+repairs planning provenance and inventories identifiers but does not implement
+those deliverables.
+
+### V8 Publication Boundary
+
+This amendment changes planning authority, its deterministic projections, UX
+planning provenance/mapping, sprint hold prose, and planning-authority
+validation only. It does not implement Stories 6.3-6.6 or 6.8-6.12; change
+production source, public contracts, packages, deployment topology, signed
+evidence, accepted baselines, completed story records, or submodule content; or
+run/predetermine the implementation-readiness assessment.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V8:END version=epic-6-authority-2026-08-01-v8 -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V9:BEGIN version=epic-6-authority-2026-08-02-v9 architecture-authority=conversations-architecture-2026-08-02-v9 supersedes=epic-6-authority-2026-08-01-v8 v8-prefix-bytes=140511 v8-prefix-sha256=37b85c3e6af62f8a5968480939783aa6bbb7558bebc61f57f4ebca1c44bd1908 candidate=UNBOUND hold=ACTIVE -->
+
+## Appendix: 2026-08-02 V9 Successor Execution Authority
+
+**Epic authority:** `epic-6-authority-2026-08-02-v9`
+**Architecture authority:** `conversations-architecture-2026-08-02-v9`
+**Supersedes:** `epic-6-authority-2026-08-01-v8` only for unfinished-work
+execution definitions
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-02.md`
+**Adopted specification companion:**
+`_bmad-output/specs/spec-Conversations/SPEC.md`
+**Planning candidate (`PC`):** `UNBOUND`
+**Global implementation hold:** `ACTIVE`
+**Publication status:** `planning-authority-only; implementation-prohibited`
+
+This is the sole canonical v9 epic-and-story authority block. The exact
+140,511-byte prefix ending at the v8 end marker has SHA-256
+`37b85c3e6af62f8a5968480939783aa6bbb7558bebc61f57f4ebca1c44bd1908` and
+is immutable v1-v8 history. A validator must hash the prefix bytes, not a
+normalized rendering. Any mismatch is `V8_PREFIX_DRIFT` and blocks publication.
+
+### Confirmed Requirement Extraction
+
+The approved v9 correction changes execution decomposition only. It preserves
+without reinterpretation:
+
+- exactly 20 initiative FRs and 104 `Feature-FR`s, hence 124/124 functional
+  requirements, with FR-16 the sole deferred and non-activated initiative FR;
+- all 77 `Feature-NFR`s;
+- all 52 UX decisions and all 28 UX acceptance identifiers at
+  `preserved-not-activated`;
+- Epics 1-5 and completed Stories 6.1, 6.2, and 6.7, including their records,
+  accepted baselines, signed evidence, and submodule bindings; and
+- every v8 technical invariant, prohibition, performance rule, privacy and
+  tenant boundary, evidence rule, and completed-history protection.
+
+The unfinished v8 execution inventory contains Stories 6.3, 6.4, 6.5, 6.6,
+6.8, 6.9, 6.10, 6.11, and 6.12; 66 effective acceptance criteria; checkpoints
+6.5-A through 6.5-C and 6.12-A through 6.12-C; the unfinished-work dependency
+edges in the v8 topological plan; the six high-risk v8 BDD scenarios; and every
+embedded prohibition, evidence obligation, rollback condition, and completion
+gate. The obligation ledger later in this block is the zero-gap disposition of
+that frozen inventory. A story-row-only mapping is invalid.
+
+V9 publishes Epic 6 as the immutable historical corrective foundation and
+publishes outcome Epics 7-15 with exactly 27 topologically ordered successor
+stories. Each successor owns one bounded outcome, one rollback boundary, one
+generated final record, exact predecessors, atomic acceptance scenarios,
+candidate-bound inputs and outputs, frozen inventories and digests, exact
+commands and result semantics, stable blocker codes, and named fault injection.
+
+### Non-Goals And Active Hold
+
+This block does not implement a successor story, bind `PC`, accept partial v8
+work, change product or UX scope, rewrite evidence, mutate a completed record,
+move a gitlink, change runtime code, or authorize release closure. The effective
+hold is `ACTIVE` when its record is missing, invalid, candidate-mismatched, or
+not backed by validator `PASS`, independent candidate-matched IR-0 `READY`, and
+an explicit release-owner `LIFTED` decision. Normal story statuses, partial
+implementation, reviewer opinion, or generated projections cannot lift it.
+
+**Workflow publication log:** requirement extraction was confirmed by Jerome
+on 2026-08-02. Epic and story design follow in this same append-only block.
+
+### V9 Epic List And Outcome Coverage
+
+V9 adds no functional requirement. The v1-v8 FR coverage map remains immutable
+and authoritative for all 124 functional requirements. The successor epics
+dispose unfinished execution obligations and produce current preservation
+evidence; they do not remap, renumber, activate, or narrow a product requirement.
+
+#### Epic 6: Immutable Historical Corrective Foundation
+
+Maintainers retain the accepted platform-hosting and promotion-control
+foundation without reopening completed work. Epics 1-5 are its historical
+entry; its bounded exit is the immutable `done` state of Stories 6.1, 6.2, and
+6.7. Unfinished v8 definitions remain provenance only.
+
+#### Epic 7: Reliable Mechanical Completion Records
+
+Developers receive deterministic candidate-bound completion records that
+cannot pass from hand-authored facts, vacuous scope, stale tests, displaced
+workflow calls, or dirty/moved submodules. Story 6.2 is the hard entry; Stories
+7.1-7.4 done are the bounded exit.
+
+#### Epic 8: Preserved UX Governance
+
+Product and release owners receive deterministic zero-gap dispositions for all
+preserved UX obligations without activating UI scope. Epic 7 is the hard entry;
+Stories 8.1-8.2 done are the bounded exit.
+
+#### Epic 9: Portable Conformance Oracle
+
+Domain authors receive an objectively tiered oracle whose consumer-portable
+surface is structural and whose complete execution remains monotonic. Epic 7
+is the hard entry; Stories 9.1-9.2 done are the bounded exit.
+
+#### Epic 10: Unified Evidence Boundary
+
+Reviewers receive one hardened non-shipping evidence-integrity boundary across
+every governed workflow and frozen reader. Epics 7 and 9 are hard entries;
+Stories 10.1-10.4 done are the bounded exit.
+
+#### Epic 11: Thin-Module Authoring Proof
+
+Domain authors receive corrected platform-hosted guidance, a minimal live
+fixture, and reproducible authoring-cost evidence. Story 6.2 and Epics 7 and 10
+are hard entries; Stories 11.1-11.3 done are the bounded exit.
+
+#### Epic 12: Universal Performance Restoration
+
+Operators receive correctness-preserving projection performance under the one
+universal SM-C2 rule for all four frozen hot paths. Story 6.2 is the hard entry;
+Stories 12.1-12.4 done are the bounded exit.
+
+#### Epic 13: Current Projection-Proof Lifecycle
+
+Release owners receive immutable historical proof validation and one
+predecessor-bound current assurance head without rewriting accepted evidence.
+Epics 7 and 9 are hard entries; Stories 13.1-13.3 done are the bounded exit.
+
+#### Epic 14: Complete Preservation Manifest
+
+Release owners receive a zero-gap, candidate-bound manifest across every
+requirement, public contract, test, UX obligation, control, and evidence chain.
+Epics 8, 9, 10, and 13 are hard entries; Stories 14.1-14.3 done are the bounded
+exit.
+
+#### Epic 15: Superseding Release Attestation
+
+Release owners receive bounded revalidation evidence and a signable
+superseding attestation without predetermining either independent assessment or
+release closure. Epics 7-14 are hard entries; Stories 15.1-15.2 done and a
+recorded RG-15 decision are the bounded exit.
+
+### V8-To-V9 Outcome Coverage Map
+
+| Frozen v8 execution unit | V9 outcome owner | Disposition |
+| --- | --- | --- |
+| Stories 6.1, 6.2, and 6.7 | Epic 6 | Immutable completed foundation; no successor execution. |
+| Story 6.8 | Epic 7 | Superseded; partial work is unaccepted input to Stories 7.1-7.4. |
+| Story 6.4 | Epic 8 | Superseded by Stories 8.1-8.2; UX remains non-activated. |
+| Story 6.9 | Epic 9 | Superseded by Stories 9.1-9.2. |
+| Story 6.10 | Epic 10 | Superseded by Stories 10.1-10.4. |
+| Story 6.5 | Epic 11 | Superseded by Stories 11.1-11.3. |
+| Story 6.11 | Epic 12 | Superseded by Stories 12.1-12.4. |
+| Story 6.12 | Epic 13 | Superseded; prepared story remains provenance for Stories 13.1-13.3. |
+| Story 6.3 | Epic 14 | Superseded; partial work is unaccepted input to Stories 14.1-14.3. |
+| Story 6.6 | Epic 15 and Gate RG-15 | Executable attestation work moves to Stories 15.1-15.2; independent release decision is not a story. |
+
+Every obligation in an unfinished row maps exactly once in the obligation
+ledger below. Cross-cutting denominators close through Epic 14 and are
+revalidated by Epic 15: 124/124 functional requirements, 77 Feature-NFRs, 52
+UX decisions, and 28 UX acceptance IDs. Earlier epics retain their original FR
+assignments; this map is an execution-supersession map, not a replacement FR
+coverage map.
+
+### V9 Epic Dependency Graph
+
+```text
+6.2 -> 7
+7 -> 8
+7 -> 9
+7 -> 10
+9 -> 10
+6.2 -> 11
+7 -> 11
+10 -> 11
+6.2 -> 12
+7 -> 13
+9 -> 13
+8 -> 14
+9 -> 14
+10 -> 14
+13 -> 14
+7 -> 15
+8 -> 15
+9 -> 15
+10 -> 15
+11 -> 15
+12 -> 15
+13 -> 15
+14 -> 15
+```
+
+The graph is acyclic and lower-numbered. Each epic produces a complete
+stakeholder outcome; a later epic may consume it but no epic requires a future
+epic to make its own bounded exit true.
+
+**Workflow publication log:** Jerome approved the v9 epic structure on
+2026-08-02. The 27 successor story contracts follow in this block.
+
+### Canonical Successor-Story Contract
+
+The following contract applies to every Story 7.1-15.2 and is incorporated by
+reference into every atomic scenario below.
+
+**Candidate binding.** `PC` is the root commit recorded by
+`_bmad-output/planning-artifacts/v9-authority-bundle-v1.json`; until that file
+contains a resolvable commit and matching bundle digest, every successor result
+is `BLOCKED` with `PC_UNBOUND`. `SC-<story>` is `HEAD^{commit}` at final-record
+generation. It binds the `PC` commit and bundle digest, the story baseline and
+root commit, every input/output SHA-256, every predecessor final-record digest,
+and all root-declared gitlinks. The gitlink inventory is exactly these ordinally
+sorted paths, each resolved from `SC-<story>` by `git ls-tree -z` with raw mode
+`160000`: `references/Hexalith.AI.Tools`, `references/Hexalith.Builds`,
+`references/Hexalith.Commons`, `references/Hexalith.EventStore`,
+`references/Hexalith.Folders`, `references/Hexalith.FrontComposer`,
+`references/Hexalith.Memories`, `references/Hexalith.Parties`,
+`references/Hexalith.Projects`, and `references/Hexalith.Tenants`. Missing,
+extra, non-`160000`, unresolved, or moved bindings block. After `SC-<story>` is
+frozen, only that story's declared record outputs and declared machine-result
+inputs may differ; no source or gitlink may move.
+
+**Schemas.** Exact schema identities and canonical paths are:
+
+| Identity | Canonical path | Required top-level fields |
+| --- | --- | --- |
+| `hexalith.conversations.story-contract.v1` | `_bmad/schemas/v9-story-contract-v1.schema.json` | `schemaVersion`, `storyId`, `authority`, `predecessors`, `outcome`, `rollback`, `inventory`, `scenarios`, `finalRecord` |
+| `hexalith.conversations.acceptance-result.v1` | `_bmad/schemas/v9-acceptance-result-v1.schema.json` | `schemaVersion`, `storyId`, `scenarioId`, `command`, `exitCode`, `result`, `blockers`, `candidate`, `inputs`, `outputs` |
+| `hexalith.conversations.frozen-inventory.v1` | `_bmad/schemas/v9-frozen-inventory-v1.schema.json` | `schemaVersion`, `inventoryId`, `digestAlgorithm`, `canonicalization`, `items`, `sha256` |
+| `hexalith.conversations.story-final-record.v2` | `_bmad/schemas/story-final-record-v2.schema.json` | `schemaVersion`, `storyId`, `authority`, `candidate`, `predecessors`, `inventory`, `scenarios`, `faultInjection`, `outputs`, `rollback`, `summary`, `renderedMarkdownSha256` |
+
+Schema versions are literal `1`, `1`, `1`, and `2` respectively. Unknown
+properties fail unless the owning schema explicitly lists them. Inventories are
+SHA-256 over the displayed obligation IDs encoded as NFC UTF-8, one ID plus LF
+per line, in displayed order. JSON is authoritative; Markdown is a deterministic
+projection. Paths are repository-relative, slash-separated, and ordinally
+sorted wherever order is not semantic.
+
+**Result semantics.** V9 commands return `0` only for `PASS`, `1` for `FAIL`,
+and `2` for `BLOCKED`. For direct pytest commands, exit `0` is `PASS`, exit `1`
+is `FAIL`, exits `2`, `3`, or `4` are `BLOCKED` with `TEST_ENVIRONMENT_BLOCKED`,
+and exit `5` is `FAIL` with `TEST_NOT_RUN`. A required scenario with a missing
+result, nonzero failed/blocked/skipped/not-run count, empty assertion ledger,
+schema drift, stale input, or candidate mismatch prevents final-record `PASS`.
+Blocker arrays are unique and ordinally sorted. A story-specific blocker does
+not replace applicable common blockers: `PC_UNBOUND`, `AUTHORITY_MISMATCH`,
+`CANDIDATE_MISMATCH`, `GITLINK_SCOPE_MISMATCH`, `INPUT_DIGEST_MISMATCH`,
+`OUTPUT_SCHEMA_INVALID`, `TEST_ENVIRONMENT_BLOCKED`, `TEST_NOT_RUN`,
+`ASSERTION_LEDGER_EMPTY`, or `FINAL_RECORD_NOT_GENERATED`.
+
+**Final-record rule.** Each story has exactly one authoritative JSON final
+record and one deterministic Markdown rendering at the paths declared by that
+story. The final generator command is part of an atomic scenario. Its summary
+must equal `required=number-of-scenarios`, `passed=required`, `failed=0`,
+`blocked=0`, `skipped=0`, and `notRun=0`. Hand-authored facts are forbidden.
+
+## Epic 7: Reliable Mechanical Completion Records
+
+**Outcome:** Developers receive deterministic, candidate-bound completion
+records.
+**Hard entry:** completed Story 6.2.
+**Bounded exit:** Stories 7.1-7.4 are `done` at compatible candidates.
+**V8 source owner:** superseded Story 6.8; partial work remains unaccepted input.
+
+### Story 7.1: Define the final-record schema and deterministic generator core
+
+As a workflow maintainer,
+I want one closed schema and deterministic generator core,
+so that no caller can author the facts used to declare completion.
+
+**Bounded outcome:** the four schemas above and the v2 generator core produce
+schema-valid authoritative JSON plus digest-bound deterministic Markdown.
+**Exact predecessors:** `6.2`.
+**Frozen inventory:** `V9-7.1-ENTRY-v1` contains, in order,
+`V8-6.8-AC1`, `V8-6.8-AC6-ANTI-VACUITY`, and
+`V8-6.8-PROHIBITIONS-SOURCE-BOUNDARY`; SHA-256
+`5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e`.
+**Candidate binding:** `SC-7.1` under the canonical candidate rule.
+**Rollback boundary:** remove only new v2 schemas, generator-core changes,
+Story 7.1 tests/results, and Story 7.1 final-record outputs; preserve the v1
+generator, Story 6.8 provenance, all completed records, and the v1-v8 prefix.
+**Generated final record:**
+`docs/release-evidence/story-7.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-7.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-7.1-01` | Both v9 authorities, bound `PC`, `V9-7.1-ENTRY-v1`, and the four exact schema paths above | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/7.1/AC-7.1-01.xml` | Exit `0`; `PASS`; the schema metaschemas and required/closed fields validate. Missing or permissive fields produce exit `1`, `OUTPUT_SCHEMA_INVALID`; output is JUnit XML. |
+| `AC-7.1-02` | One hermetic fixture, fixed timestamps, identical ordered inputs, schema v2, and `SC-7.1` fixture bindings | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_deterministic_bundle --junitxml=artifacts/v9/7.1/AC-7.1-02.xml` | Exit `0`; `PASS`; two JSON byte streams and two Markdown byte streams are identical and `renderedMarkdownSha256` matches. Drift is exit `1`, `RECORD_CONTENT_DRIFT`. |
+| `AC-7.1-03` | A fixture attempts to pass counts, paths, commits, or verdict as caller text | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_caller_authored_facts --junitxml=artifacts/v9/7.1/AC-7.1-03.xml` | Exit `0`; the negative test proves generator exit `1`, result `FAIL`, blocker `CALLER_AUTHORED_FACT`, and no passing record. |
+| `AC-7.1-04` | A valid contract yields no parsed result, resolved candidate, derived path, or executed assertion | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_empty_derivation --junitxml=artifacts/v9/7.1/AC-7.1-04.xml` | Exit `0`; the negative test proves generator exit `1`, `FAIL`, `RECORD_NOT_DERIVED` and `ASSERTION_LEDGER_EMPTY`. |
+| `AC-7.1-05` | Malformed JSON, unknown schema identity, and invalid CLI arguments are separate fixtures | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_malformed_input_is_schema_valid_failure --junitxml=artifacts/v9/7.1/AC-7.1-05.xml` | Exit `0`; each fixture produces schema-valid machine output, generator exit `1`, `FAIL`, and exact blocker `INPUT_SCHEMA_INVALID` or `ARGUMENT_INVALID`; no traceback or payload is emitted. |
+| `AC-7.1-06` | AC-7.1-01 through AC-7.1-05 are current, passing, nonempty, and bound to `SC-7.1` | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md` | Exit `0`; `PASS`; schema `hexalith.conversations.story-final-record.v2`; both declared outputs exist and bind `PC`, bundle digest, `SC-7.1`, all ten gitlinks, inventory digest, five predecessor scenario results, rollback boundary, and summary `6/6/0/0/0/0`. Any missing binding is exit `1` with the applicable common blocker. |
+
+**Fault injection coverage:** caller-fact injection, empty derivation, malformed
+input, unknown schema, and deterministic-render drift are mandatory and restore
+their fixture directories byte-identically. `FAULT_NOT_DETECTED` or
+`FIXTURE_NOT_RESTORED` blocks the final record.
+
+### Story 7.2: Derive test, path, candidate, submodule, and gitlink facts
+
+As a developer closing a story,
+I want every completion fact measured from test artifacts and Git objects,
+so that stale, dirty, or superseded state cannot be reported as final.
+
+**Bounded outcome:** v2 derives required test totals, the singular path set,
+candidate identity, and exact root-gitlink state without traversing a submodule.
+**Exact predecessors:** `7.1`.
+**Frozen inventory:** `V9-7.2-ENTRY-v1` contains, in order,
+`V8-6.8-AC2`, `V8-6.8-AC3`, `V8-6.8-AC4`, and
+`V8-6.8-PROHIBITIONS-SUBMODULE-READONLY`; SHA-256
+`7a35b9cb705f8a2a7559ef8216d77c8a90c78b96c24626cf98036db550fca842`.
+**Candidate binding:** `SC-7.2`, `SC-7.1` final-record digest, and the canonical
+candidate rule.
+**Rollback boundary:** remove only Story 7.2 fact extractors, fixtures, results,
+and records; keep Story 7.1 and every historical artifact unchanged.
+**Generated final record:**
+`docs/release-evidence/story-7.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-7.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-7.2-01` | Root `.slnx`, one current machine result per required root-owned test project, and exact allowed-skip policy | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_required_test_totals --junitxml=artifacts/v9/7.2/AC-7.2-01.xml` | Exit `0`; `PASS`; per-project and summed counts are derived, result schema is acceptance-result v1, and no caller total is accepted. |
+| `AC-7.2-02` | One required project has no result artifact | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_missing_result --junitxml=artifacts/v9/7.2/AC-7.2-02.xml` | Exit `0`; the negative fixture proves generator exit `1`, `FAIL`, `TEST_RESULTS_MISSING`. |
+| `AC-7.2-03` | One result predates the newest bound source input | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_stale_result --junitxml=artifacts/v9/7.2/AC-7.2-03.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_RESULTS_STALE`; the stale count is not reused. |
+| `AC-7.2-04` | One required machine result contains a failed test | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_failed_test --junitxml=artifacts/v9/7.2/AC-7.2-04.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_FAILED`. |
+| `AC-7.2-05` | One required result contains an unapproved skip | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_unapproved_skip --junitxml=artifacts/v9/7.2/AC-7.2-05.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_SKIPPED`. |
+| `AC-7.2-06` | A declared test project ran zero matching tests | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_not_run --junitxml=artifacts/v9/7.2/AC-7.2-06.xml` | Exit `0`; generator exit `1`, `FAIL`, `TEST_NOT_RUN`. |
+| `AC-7.2-07` | Baseline, candidate, one exact committed path set, allowed result/record paths, and injected unrelated source dirt | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_singular_file_list_and_blocks_dirt --junitxml=artifacts/v9/7.2/AC-7.2-07.xml` | Exit `0`; exact set equality passes for the clean case; injected dirt proves `SOURCE_TREE_DIRTY`; a second/different list proves `FILE_LIST_DRIFT`. |
+| `AC-7.2-08` | A derived path is beneath one root `.gitmodules` path | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_submodule_internal_path --junitxml=artifacts/v9/7.2/AC-7.2-08.xml` | Exit `0`; generator exit `1`, `FAIL`, `SUBMODULE_INTERNAL_PATH`; no submodule traversal or initialization occurs. |
+| `AC-7.2-09` | All ten root gitlinks plus a decoy filename containing `160000` | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_resolves_raw_gitlinks --junitxml=artifacts/v9/7.2/AC-7.2-09.xml` | Exit `0`; `PASS`; only raw mode-`160000` entries are recorded; missing/extra/mismatched entries produce `GITLINK_SCOPE_MISMATCH` or `GITLINK_DRIFT`. |
+| `AC-7.2-10` | Resolvable baseline and `SC-7.2`, followed by a source commit or gitlink move | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_superseded_candidate --junitxml=artifacts/v9/7.2/AC-7.2-10.xml` | Exit `0`; valid ancestry passes; an invalid baseline proves `BASELINE_NOT_TRUSTWORTHY`; post-candidate movement proves `CANDIDATE_NOT_FINAL`. |
+| `AC-7.2-11` | AC-7.2-01 through AC-7.2-10 and Story 7.1's record are current and candidate-compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.2.json --format bundle --output-json docs/release-evidence/story-7.2-final-record-v2.json --output-markdown docs/release-evidence/story-7.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.2`, all ten gitlinks, the Story 7.1 record, inventory digest, all ten scenario results, and summary `11/11/0/0/0/0`. |
+
+**Fault injection coverage:** missing/stale/failed/skipped/not-run tests, dirty
+paths, a submodule-internal path, missing/moved gitlink, false `160000` filename,
+bad baseline, and superseded candidate are mandatory; each fixture is restored
+byte-identically.
+
+### Story 7.3: Integrate generation into every blocking completion transition
+
+As a workflow maintainer,
+I want every completion workflow to invoke and verify the same generator,
+so that no review or done transition can bypass measured final records.
+
+**Bounded outcome:** all governed workflow bodies and their generated twins use
+one parity-checked invocation before lifecycle transition.
+**Exact predecessors:** `7.2`.
+**Frozen inventory:** `V9-7.3-ENTRY-v1` contains, in order,
+`V8-6.8-AC5`, `V8-6.8-AC6-NON-DELETABILITY`, and
+`V8-6.8-PROHIBITIONS-NO-CI-CLAIM`; SHA-256
+`ca106f6ad40f3a2ca580358d74a1565c34611821bc1d25e51694972d46ae8ca2`.
+**Candidate binding:** `SC-7.3` and final-record digests for 7.1 and 7.2.
+**Rollback boundary:** remove only Story 7.3 workflow invocations, parity guard,
+fixtures, results, and records as one unit; retain Stories 7.1-7.2.
+**Generated final record:**
+`docs/release-evidence/story-7.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-7.3-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-7.3-01` | Frozen surface inventory `bmad-dev-story/step-09`, `bmad-quick-dev/step-05-present`, `bmad-quick-dev/step-oneshot`, and `bmad-code-review/step-04-present` in `.agents` and `.claude`, plus both quick-dev render twins | `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json` | Exit `0`; `PASS`; acceptance-result v1 proves every frozen body invokes the same generator before `review`/`done`. Missing invocation is `WORKFLOW_INTEGRATION_MISSING`. |
+| `AC-7.3-02` | The exact command, blocker branch, halt behavior, output paths, and inserted-marker contract for every surface | `python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-02 --output artifacts/v9/7.3/AC-7.3-02.json` | Exit `0`; `PASS`; normalized bodies and render twins are equivalent. Difference is `SURFACE_PARITY_DRIFT`. |
+| `AC-7.3-03` | Generated JSON, rendered Markdown, inserted Markdown, and declared digest for a fixture story | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_workflow_verifies_inserted_digest --junitxml=artifacts/v9/7.3/AC-7.3-03.xml` | Exit `0`; matching bytes pass; altered insertion proves generator exit `1`, `RECORD_CONTENT_DRIFT`. |
+| `AC-7.3-04` | One workflow invocation is removed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_removed_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-04.xml` | Exit `0`; verifier exit `1`, `FAIL`, `WORKFLOW_INTEGRATION_MISSING`; transition stays unchanged. |
+| `AC-7.3-05` | The positive span is displaced while decoy generator text remains elsewhere | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_displaced_workflow_invocation --junitxml=artifacts/v9/7.3/AC-7.3-05.xml` | Exit `0`; verifier exit `1`, `FAIL`, `WORKFLOW_INTEGRATION_DISPLACED`; whole-file vocabulary cannot pass. |
+| `AC-7.3-06` | Generator result is `FAIL` or `BLOCKED` on each completion surface | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocker_prevents_state_transition --junitxml=artifacts/v9/7.3/AC-7.3-06.xml` | Exit `0`; each surface preserves/returns to its pre-review state, emits the exact blockers, and does not claim CI integration. |
+| `AC-7.3-07` | AC-7.3-01 through AC-7.3-06 and predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --format bundle --output-json docs/release-evidence/story-7.3-final-record-v2.json --output-markdown docs/release-evidence/story-7.3-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.3`, records 7.1-7.2, inventory digest, six results, workflow body hashes, and summary `7/7/0/0/0/0`. |
+
+**Fault injection coverage:** removed invocation, displaced positive span,
+parity drift, altered inserted Markdown, and blocking generator result are
+mandatory and byte-restored.
+
+### Story 7.4: Verify historical mode and required fault-injection blockers
+
+As a release-evidence maintainer,
+I want closed records verified read-only and every generator guard proven red,
+so that history remains honest and completion protection is non-vacuous.
+
+**Bounded outcome:** historical validation proves committed facts without
+rewriting history, and the complete frozen fault matrix detects every mutation.
+**Exact predecessors:** `7.3`.
+**Frozen inventory:** `V9-7.4-ENTRY-v1` contains, in order,
+`V8-6.8-AC7`, `V8-6.8-AC8`, `V8-HR-BOUND-CONTENT-DRIFT`, and
+`V8-HR-REQUIRED-TEST-SKIPPED-OR-EMPTY`; SHA-256
+`4d6bb01942d41d315ad4f3b08070a3cfe8ddcc2cae1b8981fee9b64d55ebe911`.
+**Candidate binding:** `SC-7.4` and final-record digests for 7.1-7.3.
+**Rollback boundary:** remove only Story 7.4 historical/fault fixtures,
+results, and records; retain Stories 7.1-7.3 and never mutate a closed record.
+**Generated final record:**
+`docs/release-evidence/story-7.4-final-record-v2.json` and deterministic
+`docs/release-evidence/story-7.4-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-7.4-01` | Stories 6.1, 6.2, and 6.7 with recorded root commits, gitlinks, bound blobs, modes, gates, and run identities | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --historical --format json --output-json artifacts/v9/7.4/AC-7.4-01.json` | Exit `0`; `PASS`; acceptance-result v1 verifies committed facts read-only. Unresolvable objects are exit `1`, `HISTORICAL_BLOB_UNRESOLVED`; changed closed bytes are `HISTORICAL_RECORD_DRIFT`. |
+| `AC-7.4-02` | A pre-generator record whose former working-tree state was never committed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_historical_mode_states_worktree_limit --junitxml=artifacts/v9/7.4/AC-7.4-02.xml` | Exit `0`; `PASS`; the result states that former uncommitted state is not reconstructed and makes no false completeness claim. |
+| `AC-7.4-03` | Frozen mutation IDs `COUNT`, `SUBMODULE_PATH`, `CANDIDATE`, `GITLINK`, `RESULT_MISSING`, `RESULT_STALE`, `RESULT_FAILED`, `RESULT_SKIPPED`, `RESULT_NOT_RUN`, `LEDGER_EMPTY`, `WORKFLOW_REMOVED`, `WORKFLOW_DISPLACED`, and `MARKDOWN_DIGEST` | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_complete_fault_matrix --junitxml=artifacts/v9/7.4/AC-7.4-03.xml` | Exit `0`; `PASS`; fault-injection-result entries show every mutation produced its exact Story 7.1-7.3 blocker. Undetected mutation is `FAULT_NOT_DETECTED`. |
+| `AC-7.4-04` | SHA-256 captured before every mutation in AC-7.4-03 | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_fault_fixtures_restore_byte_identically --junitxml=artifacts/v9/7.4/AC-7.4-04.xml` | Exit `0`; every before/after hash is equal. Difference is exit `1`, `FIXTURE_NOT_RESTORED`. |
+| `AC-7.4-05` | A required lane is missing, skipped, not run, or records zero assertions | `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_required_lane_cannot_pass_vacuously --junitxml=artifacts/v9/7.4/AC-7.4-05.xml` | Exit `0`; generator result is `FAIL` with `TEST_RESULTS_MISSING`, `TEST_SKIPPED`, `TEST_NOT_RUN`, or `ASSERTION_LEDGER_EMPTY`; none becomes not-applicable. |
+| `AC-7.4-06` | AC-7.4-01 through AC-7.4-05 and predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json --format bundle --output-json docs/release-evidence/story-7.4-final-record-v2.json --output-markdown docs/release-evidence/story-7.4-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-7.4`, records 7.1-7.3, historical results, mutation ledger, restoration hashes, inventory digest, and summary `6/6/0/0/0/0`. |
+
+**Fault injection coverage:** the 13 named mutation IDs are the frozen minimum;
+zero executed mutations, missing blocker evidence, or non-restored fixtures
+blocks with `ASSERTION_LEDGER_EMPTY`, `FAULT_NOT_DETECTED`, or
+`FIXTURE_NOT_RESTORED`.
+
+## Epic 8: Preserved UX Governance
+
+**Outcome:** Product and release owners receive deterministic zero-gap UX
+dispositions without product-UI activation.
+**Hard entry:** Epic 7, concretely Story 7.4.
+**Bounded exit:** Stories 8.1-8.2 are `done` at compatible candidates.
+**V8 source owner:** superseded Story 6.4.
+
+### Story 8.1: Generate the versioned UX disposition contract
+
+As a UX governance owner,
+I want one versioned schema with authoritative JSON and deterministic Markdown,
+so that preserved UX obligations have explicit non-activating dispositions.
+
+**Bounded outcome:** exactly one schema/JSON/Markdown bundle projects canonical
+UX sources, decisions, acceptance IDs, and historical provenance.
+**Exact predecessors:** `7.4`.
+**Frozen inventory:** `V9-8.1-ENTRY-v1` contains, in order,
+`V8-6.4-AC1`, `V8-6.4-AC2`, `V8-6.4-AC3`, `V8-6.4-AC4`, and
+`V8-6.4-AC6`; SHA-256
+`6c61eb92078755496c73506419112026e3e9b7f63bb314b1028d4e9c7bb41ef9`.
+**Schema:** `hexalith.conversations.ux-preservation-disposition.v1` at
+`docs/release-evidence/ux-preservation-disposition-v1.schema.json`; required
+top-level fields are `schemaVersion`, `authority`, `candidate`, `sources`,
+`status`, `decisions`, `acceptanceCriteria`, `historicalProvenance`, and
+`renderedMarkdownSha256`. Each decision/acceptance row requires `id`, `status`,
+`owner`, `rationale`, `sourcePath`, `sourceSha256`, `evidenceOrControl`,
+`historicalMappings`, `compatibility`, and `disclosureSafety`.
+**Candidate binding:** `SC-8.1`, Story 7.4 final-record digest, and the canonical
+candidate rule.
+**Rollback boundary:** remove only the Story 8.1 generator, schema, results,
+three disposition outputs, and final record; preserve both UX sources,
+historical mappings, product/UI code, and the v1-v8 prefix.
+**Generated outputs:**
+`docs/release-evidence/ux-preservation-disposition-v1.json` and deterministic
+`docs/release-evidence/ux-preservation-disposition-v1.md`.
+**Generated final record:**
+`docs/release-evidence/story-8.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-8.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-8.1-01` | Both v9 authorities, bound `PC`, `V9-8.1-ENTRY-v1`, canonical UX specification/map, and closed UX-disposition schema | `python3 _bmad/scripts/generate_ux_preservation_disposition.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --output-schema docs/release-evidence/ux-preservation-disposition-v1.schema.json --output-json docs/release-evidence/ux-preservation-disposition-v1.json --output-markdown docs/release-evidence/ux-preservation-disposition-v1.md` | Exit `0`; `PASS`; schema `hexalith.conversations.ux-preservation-disposition.v1`; all three outputs exist and Markdown digest matches. Invalid shape is `UX_SCHEMA_INVALID`; nondeterminism is `UX_RENDER_DRIFT`. |
+| `AC-8.1-02` | Source inventory is exactly `_bmad-output/planning-artifacts/ux-design-specification.md` and `_bmad-output/planning-artifacts/ux-requirement-map.md` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes -trx artifacts/v9/8.1/AC-8.1-02.trx` | Exit `0`; `PASS`; each source path, version, and current SHA-256 is bound. Missing source is `UX_SOURCE_UNBOUND`; changed source is `UX_SOURCE_DRIFT`. |
+| `AC-8.1-03` | Frozen decision IDs are the closed numeric range `UX-DR1` through `UX-DR52` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-03.trx` | Exit `0`; `PASS`; all 52 IDs occur once in source order with required row fields. Count or identity drift is `UX_DECISION_INVENTORY_DRIFT`. |
+| `AC-8.1-04` | Frozen acceptance IDs are `AC-SAFE-001`-`008`, `AC-RESP-001`-`015`, `AC-A11Y-001`-`002`, `AC-LEAK-001`, `AC-MOB-001`, and `AC-PERF-001` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-04.trx` | Exit `0`; `PASS`; all 28 IDs occur once in source order with required row fields. Drift is `UX_ACCEPTANCE_INVENTORY_DRIFT`. |
+| `AC-8.1-05` | Every row, top-level status, preservation banner, and historical story mapping | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical -trx artifacts/v9/8.1/AC-8.1-05.trx` | Exit `0`; `PASS`; status is exactly `preserved-not-activated`; historical mappings are labeled non-current and cannot own implementation. Activation is `UX_ACTIVATION_UNAUTHORIZED`; current invalid ownership is `UX_CURRENT_STORY_INVALID`. |
+| `AC-8.1-06` | `SC-8.1` path set and allowed outputs limited to Story 8.1 planning/tests/evidence | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange -trx artifacts/v9/8.1/AC-8.1-06.trx` | Exit `0`; `PASS`; no `src/**/*.razor`, UI CSS, product UI contract, navigation, or runtime path changed. Any such path is `UX_PRODUCTION_CHANGE_FORBIDDEN`. |
+| `AC-8.1-07` | AC-8.1-01 through AC-8.1-06 and Story 7.4 record are current and candidate-compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --format bundle --output-json docs/release-evidence/story-8.1-final-record-v2.json --output-markdown docs/release-evidence/story-8.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-8.1`, Story 7.4, both UX source hashes, disposition output hashes, inventory digest, six scenario results, and summary `7/7/0/0/0/0`. |
+
+**Fault injection coverage:** delete the preservation banner, change one status
+to `activated`, assign one inactive item to a historical/nonexistent current
+story, drift one source byte, and add one production UI path. Each mutation must
+produce its exact blocker and restore every fixture byte-identically.
+
+### Story 8.2: Enforce the 52-decision/28-acceptance zero-gap validator
+
+As a release owner,
+I want mechanical UX coverage validation,
+so that missing, duplicated, drifted, or silently activated obligations cannot pass.
+
+**Bounded outcome:** one conformance validator proves exact denominator,
+identity, ownership, hash, ordering, rendering, and non-activation parity.
+**Exact predecessors:** `8.1`.
+**Frozen inventory:** `V9-8.2-ENTRY-v1` contains, in order,
+`V8-6.4-AC5`, `V8-UX-DENOMINATOR-52-28`,
+`V8-UX-NO-CURRENT-INACTIVE-STORY`, and
+`V8-UX-JSON-MARKDOWN-PARITY`; SHA-256
+`d07cee1556fa039169ca2cfa6cfecbd123909b9da56ea729866c7a0591fd26e6`.
+**Validator:**
+`Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest`.
+**Candidate binding:** `SC-8.2`, Story 8.1 final-record and disposition digests,
+and the canonical candidate rule.
+**Rollback boundary:** remove only Story 8.2 validator/fault fixtures/results and
+final record; retain accepted Story 8.1 outputs and all source UX bytes.
+**Generated final record:**
+`docs/release-evidence/story-8.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-8.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-8.2-01` | Story 8.1 output with frozen 52/28 inventories and bound sources | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest -trx artifacts/v9/8.2/AC-8.2-01.trx` | Exit `0`; `PASS`; exactly 52 decisions and 28 acceptance IDs, zero skipped/not-run tests, nonempty assertions. |
+| `AC-8.2-02` | One frozen decision is removed | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k missing_decision --junitxml=artifacts/v9/8.2/AC-8.2-02.xml` | Exit `0`; negative fixture proves validator exit `1`, `UX_DECISION_MISSING`. |
+| `AC-8.2-03` | One frozen decision is duplicated | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k duplicate_decision --junitxml=artifacts/v9/8.2/AC-8.2-03.xml` | Exit `0`; validator exit `1`, `UX_DECISION_DUPLICATE`. |
+| `AC-8.2-04` | One unknown decision ID is inserted | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k unknown_decision --junitxml=artifacts/v9/8.2/AC-8.2-04.xml` | Exit `0`; validator exit `1`, `UX_DECISION_UNKNOWN`. |
+| `AC-8.2-05` | Missing, duplicate, and unknown acceptance-ID fixtures are run separately | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k acceptance_identity_faults --junitxml=artifacts/v9/8.2/AC-8.2-05.xml` | Exit `0`; each fixture yields only its exact `UX_ACCEPTANCE_MISSING`, `UX_ACCEPTANCE_DUPLICATE`, or `UX_ACCEPTANCE_UNKNOWN` blocker. |
+| `AC-8.2-06` | One row lacks owner and a separate row lacks source SHA-256 | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k ownership_and_hash_faults --junitxml=artifacts/v9/8.2/AC-8.2-06.xml` | Exit `0`; separate fixtures prove `UX_OWNER_MISSING` and `UX_HASH_MISSING`; neither is accepted as N/A. |
+| `AC-8.2-07` | One canonical source byte changes after generation | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k source_drift --junitxml=artifacts/v9/8.2/AC-8.2-07.xml` | Exit `0`; validator exit `1`, `UX_SOURCE_DRIFT`. |
+| `AC-8.2-08` | JSON is unchanged while Markdown or order is changed without regeneration | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k rendering_and_order_drift --junitxml=artifacts/v9/8.2/AC-8.2-08.xml` | Exit `0`; separate fixtures prove `UX_RENDER_DRIFT` and `UX_ORDER_DRIFT`. |
+| `AC-8.2-09` | One row is activated or assigned current ownership to a historical/nonexistent story | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k activation_and_story_binding_faults --junitxml=artifacts/v9/8.2/AC-8.2-09.xml` | Exit `0`; separate fixtures prove `UX_ACTIVATION_UNAUTHORIZED` and `UX_CURRENT_STORY_INVALID`. |
+| `AC-8.2-10` | SHA-256 is captured before every AC-8.2-02 through AC-8.2-09 mutation | `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k fixtures_restore_byte_identically --junitxml=artifacts/v9/8.2/AC-8.2-10.xml` | Exit `0`; every after-hash equals its before-hash; otherwise `FIXTURE_NOT_RESTORED`. |
+| `AC-8.2-11` | AC-8.2-01 through AC-8.2-10 and Story 8.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.2.json --format bundle --output-json docs/release-evidence/story-8.2-final-record-v2.json --output-markdown docs/release-evidence/story-8.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-8.2`, Story 8.1, 52/28 inventories, source/output hashes, mutation ledger, inventory digest, and summary `11/11/0/0/0/0`. |
+
+**Fault injection coverage:** every listed missing/duplicate/unknown, ownership,
+hash, source, rendering, order, activation, and story-binding mutation is
+mandatory; `FAULT_NOT_DETECTED` or `FIXTURE_NOT_RESTORED` blocks closure.
+
+## Epic 9: Portable Conformance Oracle
+
+**Outcome:** Domain authors receive an objectively tiered oracle whose portable
+tier is structural and whose complete execution preserves FR-20.
+**Hard entry:** Epic 7, concretely Story 7.4.
+**Bounded exit:** Stories 9.1-9.2 are `done` at compatible candidates.
+**V8 source owner:** superseded Story 6.9.
+
+### Story 9.1: Freeze the conformance assertion inventory, tier decisions, digest, and approvals
+
+As a test-governance owner,
+I want every conformance assertion assigned through a frozen approved inventory,
+so that tiering cannot remove, rename, weaken, or hide coverage.
+
+**Bounded outcome:** one deterministic v2 disposition assigns every frozen
+pre-split assertion to a justified tier with strength and approval evidence.
+**Exact predecessors:** `7.4`.
+**Frozen inventory:** `V9-9.1-ENTRY-v1` contains, in order,
+`V8-6.9-AC1`, `V8-6.9-AC4`, `V8-6.9-AC5`, and
+`V8-6.9-PROHIBITION-NO-PUBLIC-WIDENING`; SHA-256
+`31e18fed38706bbb44e5a8059ff3ea30f00400708902694af697954b889bcdf1`.
+**Decision input:**
+`docs/release-evidence/conformance-oracle-tiering-decision-v2.json`.
+**Disposition schema:**
+`hexalith.conversations.conformance-oracle-tiering-disposition.v2` at
+`docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json`;
+required top-level fields are `schemaVersion`, `authority`, `candidate`,
+`decision`, `preSplitResult`, `assertions`, `denominatorSuites`, `approvals`,
+`supersedes`, and `renderedMarkdownSha256`. Each assertion requires `id`,
+`sourcePath`, `sourceSha256`, `preSplitResultIdentity`, `strengthMaterial`,
+`strengthSha256`, `serverBindings`, `tier`, `publicReplacement` or
+`internalTypeAndReason`, `owner`, `approval`, and `rationale`.
+**Candidate binding:** `SC-9.1`, Story 7.4 final-record digest, decision-v2
+digest, and the canonical candidate rule.
+**Rollback boundary:** remove only Story 9.1 generator, new v2 disposition,
+fixtures/results, and final record; preserve v1 artifacts, public-contract
+baselines, existing tests, and Story 6.9 partial work.
+**Generated outputs:**
+`docs/release-evidence/conformance-oracle-tiering-disposition-v2.json` and
+deterministic
+`docs/release-evidence/conformance-oracle-tiering-disposition-v2.md`.
+**Generated final record:**
+`docs/release-evidence/story-9.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-9.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-9.1-01` | Both v9 authorities, bound `PC`, decision-v2, pre-split machine result, source tree, and `V9-9.1-ENTRY-v1` | `python3 _bmad/scripts/generate_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --decision docs/release-evidence/conformance-oracle-tiering-decision-v2.json --output-schema docs/release-evidence/conformance-oracle-tiering-disposition-v2.schema.json --output-json docs/release-evidence/conformance-oracle-tiering-disposition-v2.json --output-markdown docs/release-evidence/conformance-oracle-tiering-disposition-v2.md` | Exit `0`; `PASS`; schema `hexalith.conversations.conformance-oracle-tiering-disposition.v2`; JSON and Markdown exist and bind the source/result/decision digests. |
+| `AC-9.1-02` | Every pre-split test case and executable assertion site | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.AssertionInventoryShouldMatchPreSplitResultAndSource -trx artifacts/v9/9.1/AC-9.1-02.trx` | Exit `0`; `PASS`; every identity occurs once with source and strength digest. Missing, duplicate, or renamed identity yields `CONFORMANCE_ASSERTION_MISSING`, `CONFORMANCE_ASSERTION_DUPLICATE`, or `CONFORMANCE_ASSERTION_RENAMED`. |
+| `AC-9.1-03` | Each assertion whose source binds a Server namespace or non-packable type | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ServerBoundAssertionsShouldHaveExactDisposition -trx artifacts/v9/9.1/AC-9.1-03.trx` | Exit `0`; `PASS`; each row has tier `portable` with exact public replacement at equal strength or `module-internal` with exact type and reason. Missing data is `TIER_UNASSIGNED` or `TIER_REASON_MISSING`. |
+| `AC-9.1-04` | Before/after canonical assertion material | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.StrengthDigestsShouldRemainEqual -trx artifacts/v9/9.1/AC-9.1-04.trx` | Exit `0`; `PASS`; every before/after strength digest matches. Difference is `ASSERTION_STRENGTH_WEAKENED`. |
+| `AC-9.1-05` | The three frozen manifested denominator suites and FR-20 manifest membership | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.DenominatorSuitesShouldRemainUnchanged -trx artifacts/v9/9.1/AC-9.1-05.trx` | Exit `0`; `PASS`; identities and membership are unchanged. Difference is `FR20_DENOMINATOR_DRIFT`. |
+| `AC-9.1-06` | Every reclassified assertion and denominator-suite row | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.ReclassificationsShouldBindApprovals -trx artifacts/v9/9.1/AC-9.1-06.trx` | Exit `0`; `PASS`; named owner, approval identity, rationale, and versioned manifest update are present. Missing evidence is `TIER_APPROVAL_MISSING`. |
+| `AC-9.1-07` | Public-contract baseline before `PC` and candidate public surface | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.TieringShouldNotWidenPublicContracts -trx artifacts/v9/9.1/AC-9.1-07.trx` | Exit `0`; `PASS`; public shape digest is unchanged. Any widening is `PUBLIC_CONTRACT_WIDENED`. |
+| `AC-9.1-08` | Frozen v1 tiering artifacts and v2 `supersedes` link | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.V2ShouldSupersedeWithoutEditingV1 -trx artifacts/v9/9.1/AC-9.1-08.trx` | Exit `0`; `PASS`; v1 hashes match their protected inventory and v2 links them. Mutation is `V1_ARTIFACT_DRIFT`. |
+| `AC-9.1-09` | AC-9.1-01 through AC-9.1-08 and Story 7.4 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.1.json --format bundle --output-json docs/release-evidence/story-9.1-final-record-v2.json --output-markdown docs/release-evidence/story-9.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-9.1`, Story 7.4, decision/disposition/pre-split digests, assertion and strength inventories, approvals, inventory digest, and summary `9/9/0/0/0/0`. |
+
+**Fault injection coverage:** missing, duplicate, renamed, weakened, unassigned,
+unreasoned, unapproved, denominator-drifted, public-widened, and v1-mutated
+fixtures are mandatory and byte-restored.
+
+### Story 9.2: Make the portable tier structural and prove complete monotonic tier execution
+
+As a domain author,
+I want consumer-portable assertions isolated from module-internal checks,
+so that adopters can execute them without non-packable server dependencies.
+
+**Bounded outcome:** two declared projects implement the approved disposition,
+resolved portable compile surface is clean, and summed execution is monotonic.
+**Exact predecessors:** `9.1`.
+**Frozen inventory:** `V9-9.2-ENTRY-v1` contains, in order,
+`V8-6.9-AC2`, `V8-6.9-AC3`, `V8-6.9-AC6`, and
+`V8-HR-REQUIRED-TEST-SKIPPED-OR-EMPTY`; SHA-256
+`647944fb901bd4b5c1ed6c96867a7a46420dfd0f8e56f71032e9f95474a8f3a9`.
+**Tier projects:** portable
+`tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj`;
+module-internal
+`tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj`.
+**Candidate binding:** `SC-9.2`, Story 9.1 record/disposition digests, and the
+canonical candidate rule.
+**Rollback boundary:** remove the portable project and restore every migrated
+assertion from the before-inventory as one unit; retain Story 9.1 and never
+change a public contract to simplify rollback.
+**Generated final record:**
+`docs/release-evidence/story-9.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-9.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-9.2-01` | Restored dependency assets and the portable project at `SC-9.2` | `dotnet build tests/Hexalith.Conversations.Conformance.Portable.Tests/Hexalith.Conversations.Conformance.Portable.Tests.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors build succeeds. Failure is `PORTABLE_TIER_BUILD_FAILED`. |
+| `AC-9.2-02` | Evaluated MSBuild graph and resolved compile assets for the portable project | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Portable.Tests.PortableCompileSurfaceValidationTest.ResolvedSurfaceShouldContainNoNonPackableModuleReference -trx artifacts/v9/9.2/AC-9.2-02.trx` | Exit `0`; `PASS`; no Server/non-packable module assembly or transitive compile asset exists. Violation is `PORTABLE_TIER_NONPORTABLE_REFERENCE` or `RESOLVED_COMPILE_SURFACE_INVALID`. |
+| `AC-9.2-03` | Restored dependency assets and module-internal project at `SC-9.2` | `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors build succeeds. Failure is `INTERNAL_TIER_BUILD_FAILED`. |
+| `AC-9.2-04` | Story 9.1 before-inventory and both post-split projects | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.PostSplitAssertionInventoryShouldEqualApprovedDisposition -trx artifacts/v9/9.2/AC-9.2-04.trx` | Exit `0`; `PASS`; exact identities and strength digests equal the approved before-inventory. Drift is `ASSERTION_INVENTORY_DRIFT` or `ASSERTION_STRENGTH_WEAKENED`. |
+| `AC-9.2-05` | Root `.slnx`, Story 7 required-project inventory, and both exact tier project paths | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ConformanceOracleTieringValidationTest.BothTiersShouldBeDeclaredEverywhere -trx artifacts/v9/9.2/AC-9.2-05.trx` | Exit `0`; `PASS`; both are present once in solution and completion inventory. Missing project is `TIER_PROJECT_MISSING`; missing declaration is `TIER_NOT_DECLARED`. |
+| `AC-9.2-06` | Built portable assembly and exact Story 9.1 portable identities | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/portable.trx` | Exit `0`; `PASS`; zero failed/skipped/not-run and nonzero executed assertions. |
+| `AC-9.2-07` | Built module-internal assembly and exact Story 9.1 internal identities | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/9.2/internal.trx` | Exit `0`; `PASS`; zero failed/skipped/not-run and nonzero executed assertions. |
+| `AC-9.2-08` | Pre-split machine result plus AC-9.2-06 and AC-9.2-07 TRX files | `python3 _bmad/scripts/verify_conformance_tiering.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --portable-result artifacts/v9/9.2/portable.trx --internal-result artifacts/v9/9.2/internal.trx --output artifacts/v9/9.2/AC-9.2-08.json` | Exit `0`; `PASS`; portable plus internal identity set equals the pre-split set and summed executed total is not lower. Regression is `EXECUTED_COUNT_REGRESSION`; empty execution is `ASSERTION_LEDGER_EMPTY`. |
+| `AC-9.2-09` | Fault fixtures add Server reference, delete/rename/weaken assertion, omit tier, skip test, or run zero tests | `python3 -m pytest -q _bmad/scripts/tests/test_conformance_tiering.py -k structural_and_execution_faults --junitxml=artifacts/v9/9.2/AC-9.2-09.xml` | Exit `0`; every mutation produces its exact blocker from AC-9.2-01 through AC-9.2-08 and restores byte-identically. Undetected or unrestored fault is `FAULT_NOT_DETECTED` or `FIXTURE_NOT_RESTORED`. |
+| `AC-9.2-10` | AC-9.2-01 through AC-9.2-09 and Story 9.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/9.2.json --format bundle --output-json docs/release-evidence/story-9.2-final-record-v2.json --output-markdown docs/release-evidence/story-9.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-9.2`, Story 9.1, both project/assembly/result hashes, before/after identity and strength digests, summed counts, inventory digest, and summary `10/10/0/0/0/0`. |
+
+**Fault injection coverage:** nonportable resolved reference, assertion
+deletion/rename/weakening, missing tier/project/declaration, skipped/not-run/zero
+execution, and count regression are mandatory and byte-restored.
+
+## Epic 10: Unified Evidence Boundary
+
+**Outcome:** Reviewers receive one hardened non-shipping evidence-integrity
+boundary across every governed workflow and frozen evidence reader.
+**Hard entry:** Epics 7 and 9, concretely Stories 7.4 and 9.2.
+**Bounded exit:** Stories 10.1-10.4 are `done` at compatible candidates.
+**V8 source owner:** superseded Story 6.10.
+
+### Story 10.1: Provide neutral TestSupport helpers and a safe Git-facts runner
+
+As an evidence-test author,
+I want neutral shared boundary helpers and a safe Git runner,
+so that evidence checks do not duplicate unsafe repository plumbing.
+
+**Bounded outcome:** one non-packable, Conversations-assembly-free helper
+project exposes five exact helper types and safe bounded Git facts.
+**Exact predecessors:** `7.4`, `9.2`.
+**Frozen inventory:** `V9-10.1-ENTRY-v1` contains, in order,
+`V8-6.10-AC1` and `V8-6.10-AC2`; SHA-256
+`74c4c5e9e70cb86648dc753c5edc97bdb8d598ad2a4aba55d3670794e990ca84`.
+**Projects:**
+`tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj`
+and
+`tests/Hexalith.Conversations.TestSupport.Tests/Hexalith.Conversations.TestSupport.Tests.csproj`.
+**Candidate binding:** `SC-10.1`, final-record digests for 7.4 and 9.2, and the
+canonical candidate rule.
+**Rollback boundary:** remove only both TestSupport projects, Story 10.1
+results, and record; preserve both conformance tiers and every evidence reader.
+**Generated final record:**
+`docs/release-evidence/story-10.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-10.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-10.1-01` | TestSupport project, resolved project graph, and pack/publish policy | `dotnet build tests/Hexalith.Conversations.TestSupport/Hexalith.Conversations.TestSupport.csproj --configuration Release --no-restore` | Exit `0`; `PASS`; project is non-packable/non-publishable and references no Conversations assembly. Violation is `TEST_SUPPORT_BOUNDARY_INVALID`. |
+| `AC-10.1-02` | Required public helper names `RepositoryLocator`, `GitFacts`, `EvidenceManifest`, `BoundaryAssertions`, and `AssertionLedger` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests.RequiredHelpersShouldExistExactlyOnce -trx artifacts/v9/10.1/AC-10.1-02.trx` | Exit `0`; `PASS`; five types exist once with no production dependency. Missing/extra type is `TEST_SUPPORT_SURFACE_DRIFT`. |
+| `AC-10.1-03` | Git fixture emits full concurrent stdout/stderr beyond pipe capacity | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldDrainStdoutAndStderrConcurrently -trx artifacts/v9/10.1/AC-10.1-03.trx` | Exit `0`; `PASS`; both streams drain without deadlock and retain complete bytes. Failure is `GIT_RUNNER_DEADLOCK`. |
+| `AC-10.1-04` | Exact timeout `30s`, cancellation token, and a hung fixture process | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldBoundAndCancelExecution -trx artifacts/v9/10.1/AC-10.1-04.trx` | Exit `0`; `PASS`; process tree terminates and classifies `timeout` or `cancelled`. Escape is `GIT_RUNNER_UNBOUNDED`. |
+| `AC-10.1-05` | UTF-8/non-ASCII and backslash paths, hostile ambient Git config, raw modes, and `core.quotepath=false` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.RunnerShouldUseHardenedEncodingAndRawFacts -trx artifacts/v9/10.1/AC-10.1-05.trx` | Exit `0`; `PASS`; decoded paths, revisions, diff entries, raw modes, and historical blob hashes match fixture bytes. Drift is `GIT_FACTS_INVALID`. |
+| `AC-10.1-06` | Shallow, partial, non-repository, missing-Git, invalid-revision, and escaping-root fixtures | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.GitFactsTests.UnavailableHistoryShouldBeTypedNotSuccessful -trx artifacts/v9/10.1/AC-10.1-06.trx` | Exit `0`; each fixture is typed `unavailable`/`invalid`, never success; escape is `REPOSITORY_PATH_ESCAPE`; false success is `UNAVAILABLE_HISTORY_PASSED`. |
+| `AC-10.1-07` | AC-10.1-01 through AC-10.1-06 and both predecessor records are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.1.json --format bundle --output-json docs/release-evidence/story-10.1-final-record-v2.json --output-markdown docs/release-evidence/story-10.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.1`, records 7.4/9.2, both project/assembly/result hashes, inventory digest, and summary `7/7/0/0/0/0`. |
+
+**Fault injection coverage:** deadlock-shaped streams, missing Git, timeout,
+cancellation, hostile config, malformed UTF-8, invalid revision, and root escape
+are mandatory and byte-restored.
+
+### Story 10.2: Implement manifest, hash, ledger, exact-diff, and gitlink invariants
+
+As a release-evidence maintainer,
+I want shared assertions to recompute every boundary fact,
+so that trusted declarations, subset comparisons, and vacuous checks cannot pass.
+
+**Bounded outcome:** shared helpers enforce manifest, signable-payload, exact
+path, gitlink, history, root-of-trust, and anti-vacuity invariants.
+**Exact predecessors:** `10.1`.
+**Frozen inventory:** `V9-10.2-ENTRY-v1` contains, in order,
+`V8-6.10-AC3`, `V8-6.10-AC4`, `V8-6.10-AC5`, and
+`V8-HR-BOUND-CONTENT-DRIFT`; SHA-256
+`9195f98c90362ce4035ef2223fcf6eab1cc705d0c7cc7ace47b0de9dc809ca4c`.
+**Result schema:** `hexalith.conversations.evidence-boundary-result.v1` at
+`_bmad/schemas/evidence-boundary-result-v1.schema.json`; required fields are
+`schemaVersion`, `result`, `candidate`, `manifest`, `changedPaths`, `gitlinks`,
+`assertionLedger`, `warnings`, and `blockers`.
+**Candidate binding:** `SC-10.2`, Story 10.1 final-record digest, and the
+canonical candidate rule.
+**Rollback boundary:** remove only Story 10.2 invariant code/tests/results and
+record; retain Story 10.1 intact.
+**Generated final record:**
+`docs/release-evidence/story-10.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-10.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-10.2-01` | Manifest paths, declared lowercase SHA-256 values, roles, repository root, and real files | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.ManifestShouldRecomputeContainedFilesAndHashes -trx artifacts/v9/10.2/AC-10.2-01.trx` | Exit `0`; `PASS`; paths are relative/contained/existing and recomputed hashes equal declarations. Escape, absence, or mismatch has exact blocker `EVIDENCE_PATH_ESCAPE`, `EVIDENCE_FILE_MISSING`, or `EVIDENCE_HASH_MISMATCH`. |
+| `AC-10.2-02` | Manifest includes a `bin/`, `obj/`, or `/generated/` path | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.GeneratedAndBuildOutputsShouldBeRejected -trx artifacts/v9/10.2/AC-10.2-02.trx` | Exit `0`; negative fixtures prove `EVIDENCE_OUTPUT_FORBIDDEN`. |
+| `AC-10.2-03` | Canonical ordinal `(path,sha256,role)` rows and declared signable payload digest | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceManifestTests.SignablePayloadShouldBeRecomputed -trx artifacts/v9/10.2/AC-10.2-03.trx` | Exit `0`; `PASS`; recomputed digest matches. Trusted declaration or mismatch is `SIGNABLE_PAYLOAD_MISMATCH`. |
+| `AC-10.2-04` | Expected and Git-derived changed-path sets with one missing and one unexpected path fixture | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.ChangedPathsShouldUseExactSetEquality -trx artifacts/v9/10.2/AC-10.2-04.trx` | Exit `0`; clean equality passes; subset/superset fixtures prove `CHANGED_PATH_SET_MISMATCH`. |
+| `AC-10.2-05` | Raw diff contains one mode-`160000` entry and decoy text/hash containing `160000` | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.GitlinksShouldBeDetectedFromRawModes -trx artifacts/v9/10.2/AC-10.2-05.trx` | Exit `0`; only the raw-mode entry is rejected with `EVIDENCE_BOUNDARY_GITLINK`; decoys do not trigger. |
+| `AC-10.2-06` | Unresolvable history and a consuming test assertion ledger | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.AssertionLedgerTests.UnavailableHistoryShouldSkipAndNeverPass -trx artifacts/v9/10.2/AC-10.2-06.trx` | Exit `0`; consuming check visibly skips and ledger remains zero; any success is `UNAVAILABLE_HISTORY_PASSED`; any final pass with zero is `ASSERTION_LEDGER_EMPTY`. |
+| `AC-10.2-07` | Signed source constants in consuming test and a supersession allowlist | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.BoundaryAssertionsTests.RootsOfTrustAndSignedEvidenceShouldRemainPinned -trx artifacts/v9/10.2/AC-10.2-07.trx` | Exit `0`; roots remain in consuming source and allowlist cannot contain `docs/release-evidence/`; violation is `ROOT_OF_TRUST_NOT_PINNED` or `SIGNED_EVIDENCE_ALLOWLISTED`. |
+| `AC-10.2-08` | Each AC-10.2-01 through AC-10.2-07 fault plus before-hashes | `dotnet tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/Hexalith.Conversations.TestSupport.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.TestSupport.Tests.EvidenceBoundaryFaultTests.AllInvariantFaultsShouldFailAndRestore -trx artifacts/v9/10.2/AC-10.2-08.trx` | Exit `0`; every exact blocker occurs and after-hashes equal before-hashes. Undetected/unrestored is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-10.2-09` | AC-10.2-01 through AC-10.2-08 and Story 10.1 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.2.json --format bundle --output-json docs/release-evidence/story-10.2-final-record-v2.json --output-markdown docs/release-evidence/story-10.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.2`, Story 10.1, invariant assembly/results, root constants, mutation ledger, inventory digest, and summary `9/9/0/0/0/0`. |
+
+**Fault injection coverage:** hash/path/generated-output/signable-payload/set/
+gitlink/history/ledger/root-of-trust/signed-allowlist faults are mandatory and
+byte-restored.
+
+### Story 10.3: Provide the evidence-boundary verifier and integrate every workflow surface
+
+As a workflow owner,
+I want one verifier enforced before review and done,
+so that evidence changes cannot bypass shared validation.
+
+**Bounded outcome:** one machine verifier governs twelve frozen workflow files
+with stable blocker/warning semantics and parity-checked transitions.
+**Exact predecessors:** `10.2`.
+**Frozen inventory:** `V9-10.3-ENTRY-v1` contains, in order,
+`V8-6.10-AC6` and `V8-6.10-AC7`; SHA-256
+`1f3c33f610fcb1ef4d748ec6862edb1fa6b945bbbc475b9f06522cdedffb1a4a`.
+**Workflow inventory:** `V9-EVIDENCE-WORKFLOWS-v1` is the following NFC UTF-8
+LF list; SHA-256
+`479f007dbaf77a45fe0c60934e22a9bc9def53d79023315ba77c25085bc4656d`:
+
+```text
+.agents/skills/bmad-dev-story/SKILL.md
+.agents/skills/bmad-dev-auto/step-04-review.md
+.agents/skills/bmad-quick-dev/step-05-present.md
+.agents/skills/bmad-quick-dev/step-oneshot.md
+.agents/skills/bmad-code-review/steps/step-04-present.md
+.claude/skills/bmad-dev-story/SKILL.md
+.claude/skills/bmad-dev-auto/step-04-review.md
+.claude/skills/bmad-quick-dev/step-05-present.md
+.claude/skills/bmad-quick-dev/step-oneshot.md
+.claude/skills/bmad-code-review/steps/step-04-present.md
+_bmad/render/bmad-quick-dev/step-05-present.md
+_bmad/render/bmad-quick-dev/step-oneshot.md
+```
+
+**Verifier:** `_bmad/scripts/verify_evidence_boundary.py`; machine output uses
+`hexalith.conversations.evidence-boundary-result.v1`.
+**Candidate binding:** `SC-10.3`, Story 10.2 final-record digest, workflow
+inventory/digest, and the canonical candidate rule.
+**Rollback boundary:** remove verifier and all twelve workflow insertions as
+one unit, plus Story 10.3 fixtures/results/record; retain Stories 10.1-10.2.
+**Generated final record:**
+`docs/release-evidence/story-10.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-10.3-final-record-v2.md`.
+
+**Stable blocker codes:** `EVIDENCE_HELPER_NOT_USED`, `ADHOC_GIT_RUNNER`,
+`ADHOC_REPOSITORY_ROOT`, `ADHOC_HASH_HELPER`,
+`EVIDENCE_ARTIFACT_UNVALIDATED`, `EXEMPTION_EXPIRED`,
+`SCOPE_NOT_EVALUATED`, and `BASELINE_NOT_PROVIDED`. Stable warnings are
+`EXEMPTION_ACTIVE` and `EVIDENCE_TEST_OUTSIDE_CONFORMANCE`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-10.3-01` | Bound `PC`, `SC-10.3`, baseline resolved from bundle, evidence/test diff, and stable code registry | `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --candidate HEAD --format json --output artifacts/v9/10.3/AC-10.3-01.json` | Exit `0` only for `PASS` or explicit `not-applicable`; schema-valid result records evaluated paths/assertions. Applicable failure returns `1`; missing authority/history returns `2`. |
+| `AC-10.3-02` | One fixture per stable blocker and warning code | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k stable_code_contract --junitxml=artifacts/v9/10.3/AC-10.3-02.xml` | Exit `0`; every fixture produces its exact code and no synonym; blockers/warnings are ordinally unique. |
+| `AC-10.3-03` | All twelve paths and exact insertion anchor after promotion gate/before state transition | `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --candidate HEAD --verify-workflows --format json --output artifacts/v9/10.3/AC-10.3-03.json` | Exit `0`; `PASS`; each path contains one invocation at the exact span. Missing call is `EVIDENCE_GATE_NOT_USED`; displaced call is `EVIDENCE_GATE_DISPLACED`. |
+| `AC-10.3-04` | Five logical bodies in `.agents` and `.claude`, plus two quick-dev render twins | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k workflow_tree_and_render_parity --junitxml=artifacts/v9/10.3/AC-10.3-04.xml` | Exit `0`; normalized logical twins are identical. Difference is `EVIDENCE_WORKFLOW_PARITY_DRIFT`. |
+| `AC-10.3-05` | No evidence/test path changed between valid baseline and candidate | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k not_applicable_is_not_pass --junitxml=artifacts/v9/10.3/AC-10.3-05.xml` | Exit `0`; verifier reports `not-applicable`, evaluated `0`, never `PASS`; if evidence changed with zero evaluation it fails `SCOPE_NOT_EVALUATED`. |
+| `AC-10.3-06` | Each workflow receives verifier `FAIL`, `BLOCKED`, and `not-applicable` fixtures | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k lifecycle_transition_semantics --junitxml=artifacts/v9/10.3/AC-10.3-06.xml` | Exit `0`; `FAIL`/`BLOCKED` prevent review/done and preserve blockers; valid `not-applicable` continues but is recorded as such. |
+| `AC-10.3-07` | One invocation removed and another displaced while decoy vocabulary remains | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k invocation_removal_and_displacement --junitxml=artifacts/v9/10.3/AC-10.3-07.xml` | Exit `0`; exact `EVIDENCE_GATE_NOT_USED` and `EVIDENCE_GATE_DISPLACED` blockers occur and fixtures restore. |
+| `AC-10.3-08` | AC-10.3-01 through AC-10.3-07 and Story 10.2 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.3.json --format bundle --output-json docs/release-evidence/story-10.3-final-record-v2.json --output-markdown docs/release-evidence/story-10.3-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.3`, Story 10.2, verifier/workflow hashes, exact code registry, inventory digests, seven results, and summary `8/8/0/0/0/0`. |
+
+**Fault injection coverage:** every blocker/warning code, invocation removal,
+span displacement, parity drift, vacuous scope, and lifecycle result is
+mandatory and byte-restored.
+
+### Story 10.4: Migrate frozen readers, repair gate spans, publish the runbook, and prove fault injection
+
+As a release-evidence maintainer,
+I want all frozen readers using the shared boundary and every inherited guard still red-capable,
+so that consolidation closes real defects without weakening prior gates.
+
+**Bounded outcome:** all frozen readers migrate at equal strength, the runbook
+is complete, fault coverage is exhaustive, and promotion-gate span protection
+remains independently effective.
+**Exact predecessors:** `10.3`.
+**Frozen inventory:** `V9-10.4-ENTRY-v1` contains, in order,
+`V8-6.10-AC8`, `V8-6.10-AC9`, and `V8-6.10-AC10`; SHA-256
+`fbcf160a9d4beb407c33da4aa5cbdc12040fc71591a9bd9720a89f591d90cc34`.
+**Frozen reader inventory:** `V9-EVIDENCE-READERS-v1` contains exactly these 27
+paths in ordinal order; SHA-256
+`247cd610f7fd162f3e01f1db713f16328b2d009081da14a468e767411209a3bc`:
+
+```text
+tests/Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ClassificationChangeProcedureValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ConformanceManifestValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/LiveTenantFailClosedOracleCharacterizationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/OqTwoTargetInterpretationDecisionValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/OracleBlindSpotAnalysisArtifactGenerationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseBaselineValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseConformanceArtifactGenerationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseEvidenceArtifactCollection.cs
+tests/Hexalith.Conversations.Conformance.Tests/ReleaseWaiverValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs
+tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/Conformance/ConformanceManifestContractTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseConformanceArtifactContractTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/Conformance/ReleaseWaiverContractTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs
+tests/Hexalith.Conversations.Contracts.Tests/Documentation/ContractCompatibilityPolicyValidationTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/Documentation/DomainModuleAuthoringTemplateValidationTest.cs
+tests/Hexalith.Conversations.Contracts.Tests/Documentation/MinimalModuleAuthoringCostBaselineValidationTest.cs
+tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs
+```
+
+This resolves v8's dynamic “24 plus any reader added before implementation” to
+the exact 27-reader planning inventory. No later reader is silently absorbed;
+adding one requires an approved inventory successor.
+**Candidate binding:** `SC-10.4`, Story 10.3 record, before/after reader
+identity/strength digests, both frozen inventory digests, and the canonical
+candidate rule.
+**Rollback boundary:** restore all 27 readers from the before-inventory and
+remove only Story 10.4 runbook/fault fixtures/results/record; retain TestSupport
+and verifier.
+**Runbook:** `docs/runbooks/evidence-boundary-validation.md`.
+**Generated final record:**
+`docs/release-evidence/story-10.4-final-record-v2.json` and deterministic
+`docs/release-evidence/story-10.4-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-10.4-01` | The exact 27-path inventory and before identity/strength material | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.ReaderInventoryShouldMatchFrozenSet -trx artifacts/v9/10.4/AC-10.4-01.trx` | Exit `0`; `PASS`; exact set and inventory digest match. Missing/extra reader is `EVIDENCE_READER_INVENTORY_DRIFT`. |
+| `AC-10.4-02` | Before/after assertion identities, pinned constants, and strength material for all 27 readers | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.MigrationsShouldUseHelperAtEqualStrength -trx artifacts/v9/10.4/AC-10.4-02.trx` | Exit `0`; `PASS`; every reader uses TestSupport and identity/strength digests match. Violation is `EVIDENCE_HELPER_NOT_USED` or `ASSERTION_STRENGTH_WEAKENED`. |
+| `AC-10.4-03` | Exemption inventory at Story 10.4 entry | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.DayOneExemptionInventoryShouldBeEmpty -trx artifacts/v9/10.4/AC-10.4-03.trx` | Exit `0`; `PASS`; zero exemptions. Any entry is `DAY_ONE_EXEMPTION_FORBIDDEN`. |
+| `AC-10.4-04` | Deadlock-shaped Git output and unavailable-history fixtures applied through migrated readers | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.KnownGitDefectsShouldBeClosedWithoutChangingProjectionProof -trx artifacts/v9/10.4/AC-10.4-04.trx` | Exit `0`; concurrent draining and visible skip pass; Story 6.12/projection-proof identity and strength digest remain unchanged. Regression is `GIT_RUNNER_DEADLOCK`, `UNAVAILABLE_HISTORY_PASSED`, or `PROJECTION_PROOF_SCOPE_ABSORBED`. |
+| `AC-10.4-05` | Runbook path and required sections `Invariants`, `Authoring`, `Exemptions`, `Fault injection`, and `Known limitations` | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.EvidenceBoundaryAdoptionValidationTest.RunbookShouldDocumentTheExactContract -trx artifacts/v9/10.4/AC-10.4-05.trx` | Exit `0`; `PASS`; every section binds exact codes/commands and does not claim CI wiring. Missing/false guidance is `EVIDENCE_RUNBOOK_INVALID`. |
+| `AC-10.4-06` | Mutation IDs `HASH`, `PATH_ESCAPE`, `GENERATED_OUTPUT`, `GITLINK`, `SUBSET`, `SIGNED_ALLOWLIST`, `GIT_UNAVAILABLE`, `WORKFLOW_REMOVED`, `MARKER_MALFORMED`, and three frozen chain-table mutations | `python3 -m pytest -q _bmad/scripts/tests/test_verify_evidence_boundary.py -k complete_fault_matrix --junitxml=artifacts/v9/10.4/AC-10.4-06.xml` | Exit `0`; every mutation yields its exact Story 10.2/10.3 blocker, assertion ledger is nonempty, and fixtures restore. |
+| `AC-10.4-07` | Story 6.7 promotion positive span, follower marker, evidence insertion, and displaced-span fixture | `python3 -m pytest -q _bmad/scripts/tests/test_verify_submodule_promotion.py -k evidence_gate_span_coupling --junitxml=artifacts/v9/10.4/AC-10.4-07.xml` | Exit `0`; positive guard passes only at exact span and displaced guard fails. False green is `PROMOTION_GATE_SPAN_WEAKENED`. |
+| `AC-10.4-08` | AC-10.4-01 through AC-10.4-07 and Story 10.3 record are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/10.4.json --format bundle --output-json docs/release-evidence/story-10.4-final-record-v2.json --output-markdown docs/release-evidence/story-10.4-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-10.4`, Story 10.3, 27 reader before/after digests, runbook, mutation ledger, gate-span proof, both inventory digests, and summary `8/8/0/0/0/0`. |
+
+**Fault injection coverage:** all ten named boundary mutations, three chain-table
+mutations, both Git defects, reader drift, strength drift, exemption, and gate
+span displacement are mandatory and byte-restored.
+
+## Epic 11: Thin-Module Authoring Proof
+
+**Outcome:** Module authors receive a corrected platform-owned thin-module
+recipe, a reproducible minimal fixture, and decision-grade SM-2 evidence rather
+than an estimate-qualified historical claim.
+**Hard entry:** Story 6.2 plus Epics 7 and 10, concretely Stories 7.4 and 10.4.
+**Bounded exit:** Stories 11.1-11.3 are `done` at one compatible candidate
+chain and Checkpoints A-C are independently evidenced.
+**V8 source owner:** superseded Story 6.5.
+
+### Story 11.1: Correct and validate platform-hosted thin-module authoring guidance
+
+As a module author,
+I want one versioned recipe that assigns infrastructure to the platform,
+so that a module does not recreate runtime capabilities or ship its test host.
+
+**Bounded outcome:** Checkpoint A publishes one generated guidance bundle and
+reviewer decision covering exact ownership and prohibition rules; it does not
+create the fixture or calculate SM-2.
+**Exact predecessors:** `6.2`, `7.4`, `10.4`.
+**Frozen inventory:** `V9-11.1-ENTRY-v1` contains, in order,
+`V8-6.5-AC1`, `V8-6.5-AC2`, and `V8-6.5-CHECKPOINT-A`; SHA-256
+`b6c050f6eb387a645fb85bff6d98be90ef9286227c33974c93269f8acbde56ac`.
+**Guidance source:** `docs/domain-module-authoring-template.md`.
+**Generated evidence:**
+`docs/release-evidence/thin-authoring-guidance-v2.schema.json`,
+`docs/release-evidence/thin-authoring-guidance-v2.json`, and deterministic
+`docs/release-evidence/thin-authoring-guidance-v2.md`; schema identifier
+`hexalith.conversations.thin-authoring-guidance.v2`. Required fields are
+`schemaVersion`, `candidate`, `source`, `moduleOwned`, `platformOwned`,
+`prohibited`, `testAppHost`, `validation`, `reviewDecision`, and `digests`.
+**Exact ownership:** module-owned inventory is contracts, domain behavior,
+module registration, and module tests. Platform-owned inventory is
+`ServiceDefaults`, Dapr implementation/wiring, event subscription,
+projection/query runtime, publication, health, and telemetry. A module may
+contain exactly one repository-only test AppHost; it must set
+`IsPackable=false` and `IsPublishable=false` and is included in authoring cost.
+A reusable module Aspire library or module-owned implementation of any
+platform-owned capability is prohibited.
+**Candidate binding:** `SC-11.1`, predecessor final-record digests, source and
+generated-bundle digests, reviewer identity/decision time, and the canonical
+candidate rule.
+**Rollback boundary:** restore only the Story 11.1 guidance source and remove
+its generator, validator, generated v2 bundle, results, and final record;
+preserve all predecessor records and historical guidance evidence.
+**Generated final record:**
+`docs/release-evidence/story-11.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-11.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-11.1-01` | Bound authority bundle, `PC`, `SC-11.1`, and all three predecessor records | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --candidate HEAD --output artifacts/v9/11.1/AC-11.1-01.json` | Exit `0`; `PASS`; candidate and exact predecessor record digests are compatible. Missing or mixed binding is `CANDIDATE_UNBOUND` or `PREDECESSOR_CANDIDATE_MISMATCH`. |
+| `AC-11.1-02` | Guidance source and exact ownership inventory | `python3 _bmad/scripts/generate_thin_authoring_guidance.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --schema docs/release-evidence/thin-authoring-guidance-v2.schema.json --output-json docs/release-evidence/thin-authoring-guidance-v2.json --output-markdown docs/release-evidence/thin-authoring-guidance-v2.md` | Exit `0`; `PASS`; JSON/Markdown deterministically encode the exact module/platform ownership inventory. Missing, additional, or reassigned capability is `THIN_GUIDANCE_OWNERSHIP_INVALID`. |
+| `AC-11.1-03` | Generated bundle and project rules for the repository-only test AppHost | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldDefineOneNonShippingTestAppHost -trx artifacts/v9/11.1/AC-11.1-03.trx` | Exit `0`; `PASS`; exactly one test AppHost is allowed, is non-packable/non-publishable, remains repository-only, and is counted in SM-2. Violation is `APPHOST_BOUNDARY_INVALID`. |
+| `AC-11.1-04` | Guidance bundle and prohibited inventory | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.GuidanceShouldProhibitPlatformCapabilityOwnership -trx artifacts/v9/11.1/AC-11.1-04.trx` | Exit `0`; `PASS`; reusable Aspire/ServiceDefaults, Dapr implementation, projection/query runtime, publication, health, telemetry, and subscription ownership are explicitly forbidden. Violation is `PROHIBITED_CAPABILITY_PRESENT`. |
+| `AC-11.1-05` | Schema-valid bundle and a reviewer disposition bound to its signable-payload digest | `python3 _bmad/scripts/verify_thin_authoring_guidance.py --repository . --evidence docs/release-evidence/thin-authoring-guidance-v2.json --markdown docs/release-evidence/thin-authoring-guidance-v2.md --require-review-decision --output artifacts/v9/11.1/AC-11.1-05.json` | Exit `0`; `PASS`; decision is `approved`, names reviewer and UTC instant, and binds exact source/evidence digests. Absence is `REVIEW_DECISION_MISSING`; drift is `GUIDANCE_SOURCE_DRIFT` or `EVIDENCE_FORMAT_DRIFT`. |
+| `AC-11.1-06` | Fixtures reassign each platform capability, add a reusable Aspire library, make AppHost packable/publishable, omit its cost rule, alter source after generation, or remove review | `python3 -m pytest -q _bmad/scripts/tests/test_thin_authoring_guidance.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/11.1/AC-11.1-06.xml` | Exit `0`; every mutation yields its exact blocker from AC-11.1-02 through AC-11.1-05 and restores byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-11.1-07` | AC-11.1-01 through AC-11.1-06 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.1.json --format bundle --output-json docs/release-evidence/story-11.1-final-record-v2.json --output-markdown docs/release-evidence/story-11.1-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.1`, all predecessor records, source/generated/reviewer digests, entry inventory, mutation ledger, and summary `7/7/0/0/0/0`. |
+
+**Fault injection coverage:** every prohibited ownership transfer, reusable
+Aspire library, AppHost count/pack/publish/cost boundary, source/evidence drift,
+and missing reviewer decision are mandatory and byte-restored.
+
+### Story 11.2: Build the reproducible minimal-module fixture against live platform APIs
+
+As a module author,
+I want a clean minimal module that uses the public platform surface,
+so that the thin-authoring recipe is executable rather than aspirational.
+
+**Bounded outcome:** Checkpoint B produces one non-shipping fixture that
+restores, builds, and tests cleanly against live public platform APIs; it does
+not calculate or decide SM-2.
+**Exact predecessors:** `11.1`.
+**Frozen inventory:** `V9-11.2-ENTRY-v1` contains, in order,
+`V8-6.5-AC3` and `V8-6.5-CHECKPOINT-B`; SHA-256
+`2aa59728bdc866263bf31a5f258fb80935fa07485459f795f07f6eb60eb123ac`.
+**Fixture root:** `tests/fixtures/Hexalith.Conversations.MinimalModule/`.
+**Frozen fixture source inventory:** `V9-MINIMAL-MODULE-FIXTURE-v1` contains
+exactly the following NFC UTF-8 LF paths in ordinal order; SHA-256
+`4fa26d6fa11a365339d9ea39c79e38751340847cf963fe71a82c37062f7df15c`:
+
+```text
+tests/fixtures/Hexalith.Conversations.MinimalModule/Directory.Build.props
+tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx
+tests/fixtures/Hexalith.Conversations.MinimalModule/README.md
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/Hexalith.Conversations.MinimalModule.Contracts.csproj
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/CreateConversation.cs
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Contracts/ConversationCreated.cs
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/Hexalith.Conversations.MinimalModule.Server.csproj
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationAggregate.cs
+tests/fixtures/Hexalith.Conversations.MinimalModule/src/Hexalith.Conversations.MinimalModule.Server/ConversationModule.cs
+tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/Hexalith.Conversations.MinimalModule.Tests.csproj
+tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/MinimalModuleFixtureTests.cs
+tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/Hexalith.Conversations.MinimalModule.AppHost.csproj
+tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.AppHost/AppHost.cs
+```
+
+**Generated evidence:**
+`docs/release-evidence/thin-module-fixture-proof-v1.schema.json`,
+`docs/release-evidence/thin-module-fixture-proof-v1.json`, and deterministic
+`docs/release-evidence/thin-module-fixture-proof-v1.md`; schema identifier
+`hexalith.conversations.thin-module-fixture-proof.v1`. Required fields are
+`schemaVersion`, `candidate`, `guidanceDigest`, `fixtureInventory`,
+`resolvedPublicApis`, `restore`, `build`, `tests`, `appHost`, and `digests`.
+**Candidate binding:** `SC-11.2`, Story 11.1 final-record/guidance digests,
+exact fixture inventory, resolved platform project/assembly hashes, and the
+canonical candidate rule.
+**Rollback boundary:** remove only the frozen fixture, fixture proof generator,
+validator, results, generated proof, and Story 11.2 record; retain Story 11.1.
+**Generated final record:**
+`docs/release-evidence/story-11.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-11.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-11.2-01` | Story 11.1 record and exact frozen path inventory at `SC-11.2` | `python3 _bmad/scripts/verify_minimal_module_fixture.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --inventory-only --output artifacts/v9/11.2/AC-11.2-01.json` | Exit `0`; `PASS`; exact set/digest matches and every path is contained, source-controlled, hand-authored, and LF-normalized. Drift is `MINIMAL_FIXTURE_INVENTORY_DRIFT`. |
+| `AC-11.2-02` | Exact fixture solution and repository lock files | `dotnet restore tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --locked-mode` | Exit `0`; `PASS`; all assets resolve from repository-approved sources. Failure is `MINIMAL_FIXTURE_RESTORE_FAILED`. |
+| `AC-11.2-03` | Restored fixture at `SC-11.2` | `dotnet build tests/fixtures/Hexalith.Conversations.MinimalModule/Hexalith.Conversations.MinimalModule.slnx --configuration Release --no-restore` | Exit `0`; `PASS`; warnings-as-errors clean build uses live public platform APIs. Failure is `MINIMAL_FIXTURE_BUILD_FAILED`; private/internal API reference is `NONPUBLIC_PLATFORM_API_USED`. |
+| `AC-11.2-04` | Built minimal-module tests | `dotnet tests/fixtures/Hexalith.Conversations.MinimalModule/tests/Hexalith.Conversations.MinimalModule.Tests/bin/Release/net10.0/Hexalith.Conversations.MinimalModule.Tests.dll -automated sync -failSkips -trx artifacts/v9/11.2/minimal-module.trx` | Exit `0`; `PASS`; nonzero tests execute with zero failed/skipped/not-run and prove registration, command handling, event production, and platform-hosted subscription/projection/query/publication paths. Empty/vacuous execution is `MINIMAL_FIXTURE_TESTS_VACUOUS`. |
+| `AC-11.2-05` | Evaluated fixture project graph and AppHost properties | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.DomainModuleAuthoringTemplateValidationTest.MinimalFixtureShouldContainOneNonShippingAppHostAndNoReusableAspireLibrary -trx artifacts/v9/11.2/AC-11.2-05.trx` | Exit `0`; `PASS`; exactly one test AppHost is non-packable/non-publishable and no reusable module Aspire/ServiceDefaults project exists. Violation is `APPHOST_BOUNDARY_INVALID` or `REUSABLE_ASPIRE_LIBRARY_PRESENT`. |
+| `AC-11.2-06` | Build/test outputs, resolved public API graph, exact inventory, and guidance digest | `python3 _bmad/scripts/generate_minimal_module_fixture_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --fixture tests/fixtures/Hexalith.Conversations.MinimalModule --test-result artifacts/v9/11.2/minimal-module.trx --output-json docs/release-evidence/thin-module-fixture-proof-v1.json --output-markdown docs/release-evidence/thin-module-fixture-proof-v1.md` | Exit `0`; `PASS`; schema-valid JSON/Markdown bind exact commands, tool versions, candidate, public API/assembly hashes, AppHost facts, inventory, results, and signable-payload digest. Drift is `FIXTURE_PROOF_DRIFT`. |
+| `AC-11.2-07` | Fixtures add/remove AppHost, make it shipping, add reusable Aspire/ServiceDefaults or platform runtime ownership, use an internal API, remove tests, or change inventory | `python3 -m pytest -q _bmad/scripts/tests/test_minimal_module_fixture.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/11.2/AC-11.2-07.xml` | Exit `0`; every mutation produces its exact blocker from AC-11.2-01 through AC-11.2-06 and restores byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-11.2-08` | AC-11.2-01 through AC-11.2-07 and Story 11.1 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.2.json --format bundle --output-json docs/release-evidence/story-11.2-final-record-v2.json --output-markdown docs/release-evidence/story-11.2-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.2`, Story 11.1, fixture/project/public-API/result/proof digests, both inventories, mutation ledger, and summary `8/8/0/0/0/0`. |
+
+**Fault injection coverage:** fixture path drift, missing/extra/shipping AppHost,
+reusable Aspire/ServiceDefaults, platform-capability ownership, nonpublic API,
+empty/skipped tests, and proof drift are mandatory and byte-restored.
+
+### Story 11.3: Generate authoritative SM-2 v2 evidence and decide OQ-2
+
+As a release reviewer,
+I want authoring cost recomputed from the proved fixture and preserved baseline,
+so that OQ-2 is decided from reproducible facts.
+
+**Bounded outcome:** Checkpoint C publishes one authoritative SM-2 v2 bundle
+and OQ-2 disposition; it does not alter either fixture or historical baseline.
+**Exact predecessors:** `11.2`.
+**Frozen inventory:** `V9-11.3-ENTRY-v1` contains, in order,
+`V8-6.5-AC4`, `V8-6.5-AC5`, `V8-6.5-AC6`, and
+`V8-6.5-CHECKPOINT-C`; SHA-256
+`6e6c4f5c91c045274222652dbf43400eab1ddbd9641c2fd06b56977ecbf107f5`.
+**Preserved baselines:** the SM-1 compatibility surface remains exactly
+`13,289`;
+`docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json` and
+`docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.md` remain
+immutable historical evidence.
+**Generated evidence:**
+`docs/release-evidence/minimal-module-authoring-cost-sm2-v2.schema.json`,
+`docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json`, and
+deterministic
+`docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md`; schema
+identifier `hexalith.conversations.minimal-module-authoring-cost-sm2.v2`.
+Required fields are `schemaVersion`, `candidate`, `fixtureProofDigest`,
+`inclusionRules`, `sourceInventory`, `baseline`, `actual`, `reductions`,
+`confidence`, `oq2Decision`, `toolVersions`, and `digests`.
+**Decision rule:** all 13 frozen fixture paths, including the test AppHost, are
+counted when hand-authored; generated/build outputs are excluded. File-count
+reduction against the preserved reference is decisive and must be at least
+`50.00%`; LOC reduction is supporting evidence. `confidence` must be `high`
+only when every source path and line is reproducibly counted.
+**Candidate binding:** `SC-11.3`, Story 11.2 record/fixture-proof digests,
+historical baseline digests, exact source inventory and tool versions, and the
+canonical candidate rule. All Checkpoints A-C must resolve to this compatible
+candidate chain.
+**Rollback boundary:** remove only the SM-2 v2 generator, validator, results,
+generated v2 bundle, and Story 11.3 record; preserve the fixture, guidance,
+SM-1 `13,289`, and every v1 historical byte.
+**Generated final record:**
+`docs/release-evidence/story-11.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-11.3-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-11.3-01` | Story 11.2 fixture proof, exact source inventory, preserved reference baseline, and `SC-11.3` | `python3 _bmad/scripts/generate_sm2_evidence.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --fixture-proof docs/release-evidence/thin-module-fixture-proof-v1.json --baseline docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json --output-json docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --output-markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md` | Exit `0`; `PASS`; generator records exact files/physical LOC, inclusion/exclusion reasons, candidate, command/tool versions, reductions, confidence, and signable-payload digest. Missing source is `SM2_SOURCE_INVENTORY_DRIFT`; count failure is `SM2_MEASUREMENT_INVALID`. |
+| `AC-11.3-02` | Generated SM-2 v2 bundle and frozen inclusion rules | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.SmTwoV2ShouldCountEveryHandAuthoredFixtureFileIncludingAppHost -trx artifacts/v9/11.3/AC-11.3-02.trx` | Exit `0`; `PASS`; all 13 paths are classified exactly once and the test AppHost is included. Omission is `SM2_APPHOST_COST_OMITTED`; double/unclassified path is `SM2_INCLUSION_RULE_VIOLATION`. |
+| `AC-11.3-03` | Preserved SM-1 value and historical SM-2 v1 files plus their recorded hashes | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.Documentation.MinimalModuleAuthoringCostBaselineValidationTest.HistoricalBaselinesShouldRemainByteIdentical -trx artifacts/v9/11.3/AC-11.3-03.trx` | Exit `0`; `PASS`; SM-1 is exactly `13,289` and both v1 files retain recorded hashes. Mutation is `SM1_BASELINE_MUTATED` or `SM2_V1_HISTORY_MUTATED`. |
+| `AC-11.3-04` | Recomputed file/LOC reductions and OQ-2 target | `python3 _bmad/scripts/verify_sm2_evidence.py --repository . --evidence docs/release-evidence/minimal-module-authoring-cost-sm2-v2.json --markdown docs/release-evidence/minimal-module-authoring-cost-sm2-v2.md --require-oq2-decision --output artifacts/v9/11.3/AC-11.3-04.json` | Exit `0` only when schema, candidate, hashes, arithmetic, confidence, JSON/Markdown parity, and decision are valid. `oq2Decision` is `accepted` only for file reduction `>=50.00%`; otherwise it is `rejected` without hiding the result. Invalid acceptance is `OQ2_DECISION_INVALID`; format drift is `EVIDENCE_FORMAT_DRIFT`. |
+| `AC-11.3-05` | Story 11.1, 11.2, and current SM-2 candidate fields | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --candidate HEAD --output artifacts/v9/11.3/AC-11.3-05.json` | Exit `0`; `PASS`; Checkpoints A-C share one compatible `PC`/successor chain. Mismatch is `CHECKPOINT_CANDIDATE_MISMATCH`. |
+| `AC-11.3-06` | Faults add prohibited module ownership, omit AppHost or another source from cost, trust declared counts, mutate `13,289`/v1, alter arithmetic/confidence/decision, or drift JSON/Markdown | `python3 -m pytest -q _bmad/scripts/tests/test_sm2_evidence.py -k checkpoint_c_fault_matrix --junitxml=artifacts/v9/11.3/AC-11.3-06.xml` | Exit `0`; every mutation yields its exact blocker from AC-11.3-01 through AC-11.3-05, no vacuous evidence passes, and fixtures restore byte-identically. Undetected/unrestored mutation is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-11.3-07` | AC-11.3-01 through AC-11.3-06 and Stories 11.1-11.2 are current and compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/11.3.json --format bundle --output-json docs/release-evidence/story-11.3-final-record-v2.json --output-markdown docs/release-evidence/story-11.3-final-record-v2.md` | Exit `0`; `PASS`; final-record v2 binds `SC-11.3`, the A-C chain, guidance/fixture/baseline/SM-2 digests, actual metrics, OQ-2 decision, inventory, mutation ledger, and summary `7/7/0/0/0/0`. |
+
+**Fault injection coverage:** prohibited ownership, missing/double-counted source,
+omitted AppHost cost, trusted declaration, vacuous result, baseline/history
+mutation, arithmetic/confidence/decision error, candidate mismatch, and
+JSON/Markdown drift are mandatory and byte-restored.
+
+## Epic 12: Universal Performance Restoration
+
+**Outcome:** Operators receive correctness-preserving projection performance
+under the one universal SM-C2 rule for all four frozen hot paths.
+**Hard entry:** completed immutable Story 6.2.
+**Bounded exit:** Stories 12.1-12.4 are `done`; all four rows have usable,
+comparable evidence and individually satisfy the universal threshold.
+**V8 source owner:** superseded Story 6.11.
+
+### Story 12.1: Approve derived-key ownership, lifecycle, and rollback
+
+As a release owner,
+I want the derived-key lifecycle decided before production changes,
+so that optimization cannot create a second write authority.
+
+**Bounded outcome:** one approved ADR and generated decision bundle fixes key
+ownership and lifecycle; no production source or benchmark method changes.
+**Exact predecessors:** `6.2`.
+**Frozen inventory:** `V9-12.1-ENTRY-v1` contains, in order,
+`V8-6.11-AC1`, `V8-6.11-DEPENDENCY-6.2`, and
+`V8-6.11-PROHIBITION-EVENTSTORE-ONLY-WRITE-AUTHORITY`; SHA-256
+`b8b755088071d62e36f8e6829d90a8fef3dc8eb54e8f521297ef22b3bfdebf0b`.
+**ADR:** `docs/adrs/0005-conversation-derived-key-lifecycle.md`.
+**Generated evidence:**
+`docs/release-evidence/derived-key-lifecycle-decision-v1.schema.json`,
+`docs/release-evidence/derived-key-lifecycle-decision-v1.json`, and
+deterministic
+`docs/release-evidence/derived-key-lifecycle-decision-v1.md`; schema
+`hexalith.conversations.derived-key-lifecycle-decision.v1` requires
+`candidate`, `keyFamilies`, `ownership`, `writeOrdering`, `compatibility`,
+`rebuild`, `backfill`, `deletion`, `expiry`, `rollback`, `approval`, `digests`.
+**Candidate binding:** `SC-12.1`, immutable Story 6.2 candidate/record and
+baseline hashes, ADR/decision/approval digests, and the canonical rule.
+**Rollback boundary:** remove only ADR 0005, its validator/generated decision,
+fixtures/results, and Story 12.1 record; Story 6.2 and SM-C2 v1 stay immutable.
+**Generated final record:**
+`docs/release-evidence/story-12.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-12.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-12.1-01` | Story 6.2 record, baseline v1, `PC`, and `SC-12.1` | `python3 _bmad/scripts/verify_story_candidate.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --candidate HEAD --output artifacts/v9/12.1/AC-12.1-01.json` | Exit `0`; `PASS`; exact immutable predecessor identities resolve. Mismatch is `PREDECESSOR_CANDIDATE_MISMATCH`. |
+| `AC-12.1-02` | ADR 0005 and the frozen lifecycle fields | `python3 _bmad/scripts/generate_derived_key_decision.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --adr docs/adrs/0005-conversation-derived-key-lifecycle.md --output-json docs/release-evidence/derived-key-lifecycle-decision-v1.json --output-markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md` | Exit `0`; `PASS`; every per-conversation key family and lifecycle field is nonempty and deterministic. Omission is `DERIVED_KEY_ADR_INCOMPLETE`. |
+| `AC-12.1-03` | Generated decision and ownership/write-order rules | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.DerivedKeyLifecycleAdrValidationTest.EventStoreShouldRemainOnlyWriteAuthority -trx artifacts/v9/12.1/AC-12.1-03.trx` | Exit `0`; `PASS`; derived keys remain replaceable projection state and no read repairs durable state. Violation is `EVENTSTORE_AUTHORITY_VIOLATED`. |
+| `AC-12.1-04` | Compatibility, interrupted rebuild, deletion/expiry, rollback, and approval sections | `python3 _bmad/scripts/verify_derived_key_decision.py --repository . --evidence docs/release-evidence/derived-key-lifecycle-decision-v1.json --markdown docs/release-evidence/derived-key-lifecycle-decision-v1.md --require-approval --output artifacts/v9/12.1/AC-12.1-04.json` | Exit `0`; `PASS`; transitions fail closed and named owner approval binds digest. Unsafe transition is `DERIVED_KEY_TRANSITION_UNSAFE`; missing approval/rollback is `ADR_APPROVAL_MISSING`/`ROLLBACK_PLAN_INVALID`. |
+| `AC-12.1-05` | Faults omit each lifecycle field, assign write authority, permit read repair, break interrupted rebuild/rollback, or remove approval | `python3 -m pytest -q _bmad/scripts/tests/test_derived_key_decision.py -k lifecycle_fault_matrix --junitxml=artifacts/v9/12.1/AC-12.1-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED` or `FIXTURE_NOT_RESTORED`. |
+| `AC-12.1-06` | AC-12.1-01 through AC-12.1-05 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.1.json --format bundle --output-json docs/release-evidence/story-12.1-final-record-v2.json --output-markdown docs/release-evidence/story-12.1-final-record-v2.md` | Exit `0`; final record binds candidate, Story 6.2, ADR/decision/approval and inventory/mutation digests, summary `6/6/0/0/0/0`. |
+
+### Story 12.2: Freeze the benchmark method and signal-quality algorithm
+
+As a performance reviewer,
+I want the measurement and signal rules fixed before observation,
+so that adverse data cannot be selected away.
+
+**Bounded outcome:** one method bundle freezes measurement, comparability, and
+signal-quality rules; it changes neither production code nor measured verdicts.
+**Exact predecessors:** `12.1`.
+**Frozen inventory:** `V9-12.2-ENTRY-v1` contains, in order,
+`V8-6.11-AC5`, `V8-6.11-PROHIBITION-NO-THRESHOLD-CHANGE`, and
+`V8-6.11-PROHIBITION-NO-ADVERSE-SAMPLE-DISCARD`; SHA-256
+`be973a601eee4a029fb225a144a7c4dbbfa4a4ca9966a83e372eb2821ceeb649`.
+**Frozen rows:** ordinal `HP-APPEND`, `HP-CREATE`, `HP-LIST`, `HP-OPEN` under
+`sm-c2-hot-path-inventory-v1`; every row uses
+`postP95 <= 1.05 * baselineP95`. Cost acceptance is forbidden.
+**Generated evidence:**
+`docs/release-evidence/sm-c2-measurement-method-v2.schema.json`,
+`docs/release-evidence/sm-c2-measurement-method-v2.json`, and deterministic
+`docs/release-evidence/sm-c2-measurement-method-v2.md`; schema
+`hexalith.conversations.sm-c2-measurement-method.v2` requires
+`candidate`, `inventoryVersion`, `rows`, `warmup`, `repetitions`, `retention`,
+`classification`, `environment`, `p95Algorithm`, `comparability`,
+`signalAlgorithm`, `threshold`, `approval`, and `digests`.
+**Candidate binding:** `SC-12.2`, Story 12.1 record, immutable baseline fixture,
+project/result hashes, method and approval digests, canonical candidate rule.
+**Rollback boundary:** remove only the v2 method generator/validator/bundle,
+fixtures/results, and Story 12.2 record; retain ADR and all v1 evidence.
+**Generated final record:**
+`docs/release-evidence/story-12.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-12.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-12.2-01` | Frozen four-row inventory, baseline fixture, and ADR decision | `python3 _bmad/scripts/generate_sm_c2_method.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --output-json docs/release-evidence/sm-c2-measurement-method-v2.json --output-markdown docs/release-evidence/sm-c2-measurement-method-v2.md` | Exit `0`; all four exact rows and every required method field are generated. Drift is `SMC2_METHOD_INCOMPLETE`. |
+| `AC-12.2-02` | Method threshold and all legacy cost/record-only variants | `python3 _bmad/scripts/verify_sm_c2_method.py --repository . --evidence docs/release-evidence/sm-c2-measurement-method-v2.json --markdown docs/release-evidence/sm-c2-measurement-method-v2.md --output artifacts/v9/12.2/AC-12.2-02.json` | Exit `0`; every row uses exactly factor `1.05`; no ceiling, disclosure, approval, or recorded-only substitute exists. Violation is `SMC2_THRESHOLD_MUTATED`. |
+| `AC-12.2-03` | Fixed repetitions, raw retention, warm/cold split, environment, nearest-rank P95, and predeclared signal algorithm | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.SmC2MeasurementMethodValidationTest.MethodShouldBePredeclaredAndDeterministic -trx artifacts/v9/12.2/AC-12.2-03.trx` | Exit `0`; `PASS`; fields are executable and cannot discard samples after observation. Violation is `SMC2_SAMPLE_DISCARDED`, `SMC2_ENVIRONMENT_UNCONTROLLED`, or `SMC2_SIGNAL_RULE_MUTATED`. |
+| `AC-12.2-04` | Reordered/omitted rows, threshold variants, adverse-sample deletion, warm/cold substitution, environment drift, altered percentile/signal rule, or postdated approval | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_method.py -k method_fault_matrix --junitxml=artifacts/v9/12.2/AC-12.2-04.xml` | Exit `0`; each exact blocker occurs and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-12.2-05` | AC-12.2-01 through AC-12.2-04 and Story 12.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.2.json --format bundle --output-json docs/release-evidence/story-12.2-final-record-v2.json --output-markdown docs/release-evidence/story-12.2-final-record-v2.md` | Exit `0`; record binds method, four rows, baseline/fixture, ADR, approval and mutation digests, summary `5/5/0/0/0/0`. |
+
+### Story 12.3: Implement correctness-preserving list/open optimization and migration behavior
+
+As an operator,
+I want list and open paths to avoid unnecessary fan-out,
+so that performance improves without weakening fail-closed projection behavior.
+
+**Bounded outcome:** production derived-key and migration/replay behavior is
+implemented with all correctness lanes green; no final SM-C2 evidence is issued.
+**Exact predecessors:** `12.1`, `12.2`.
+**Frozen inventory:** `V9-12.3-ENTRY-v1` contains, in order,
+`V8-6.11-AC2`, `V8-6.11-AC3`, `V8-6.11-AC4`, `V8-6.11-AC8`,
+`V8-6.11-PROHIBITION-READS-NEVER-REPAIR-DURABLE-STATE`, and
+`V8-6.11-ROLLBACK-CORRECTNESS-PRESERVING`; SHA-256
+`90b74a649cd827494f199bb722c3e1708306cc212f5a12df7325218dc4c31546`.
+**Generated evidence:**
+`docs/release-evidence/derived-key-correctness-proof-v1.schema.json`,
+`docs/release-evidence/derived-key-correctness-proof-v1.json`, and deterministic
+`docs/release-evidence/derived-key-correctness-proof-v1.md`; schema
+`hexalith.conversations.derived-key-correctness-proof.v1` requires
+candidate, ADR/method digests, production path inventory, public-contract
+digest, unit/integration/Dapr results, mutation ledger, replay and rollback.
+**Candidate binding:** `SC-12.3`, both predecessor records, affected production
+paths and EventStore gitlink, public contract snapshot, result/proof digests.
+**Rollback boundary:** revert the exact Story 12.3 production migration as one
+unit and remove its tests/proof/record; derived state is rebuilt from EventStore
+under ADR rollback, never reverse-written. Retain Stories 12.1-12.2.
+**Generated final record:**
+`docs/release-evidence/story-12.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-12.3-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-12.3-01` | ADR key families and production list/open path inventory | `dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.ListAndOpenShouldUseApprovedBoundedReads -trx artifacts/v9/12.3/AC-12.3-01.trx` | Exit `0`; list/open remove only explicitly proved full-index/per-row fan-out. Unexpected read is `DERIVED_KEY_FANOUT_UNBOUNDED`. |
+| `AC-12.3-02` | Missing, duplicate, stale, advanced, malformed, misfiled, pending, and inconsistent derived-state fixtures | `dotnet tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Server.Tests.Projections.DerivedKeyOptimizationTests.InvalidDerivedStateShouldFailClosedWithoutRepair -trx artifacts/v9/12.3/AC-12.3-02.trx` | Exit `0`; every case fails closed and performs zero durable repair. Violation is `DERIVED_STATE_FAIL_CLOSED_VIOLATION` or `READ_SIDE_REPAIR_ATTEMPTED`. |
+| `AC-12.3-03` | Tenant collisions, retries/idempotency, delayed/out-of-order delivery, equal-position conflict, deletion, replay, and interrupted rebuild | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests -trx artifacts/v9/12.3/integration.trx` | Exit `0`; nonzero execution is deterministic/non-disclosing. Failure is `TENANT_DISCLOSURE`, `REPLAY_NONDETERMINISTIC`, or `DERIVED_KEY_TRANSITION_UNSAFE`. |
+| `AC-12.3-04` | Real Dapr state-store lane with partial writes, latency, unavailable store, poison records, retries, and concurrency faults | `dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net10.0/Hexalith.Conversations.AppHost.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.AppHost.Tests.DerivedKeyDaprFaultTests -trx artifacts/v9/12.3/dapr.trx` | Exit `0`; all faults fail closed/recover deterministically with zero cross-tenant disclosure. Red/skip/not-run is `DAPR_CORRECTNESS_LANE_RED`. |
+| `AC-12.3-05` | Public query snapshot, filters, ordering, cursors, freshness vocabulary, forbidden/nonexistent equivalence, and response shapes | `dotnet tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Contracts.Tests.PublicQueryCompatibilityTests.DerivedKeyOptimizationShouldPreserveQueryContract -trx artifacts/v9/12.3/AC-12.3-05.trx` | Exit `0`; exact snapshot unchanged; drift is `PUBLIC_QUERY_CONTRACT_DRIFT`. |
+| `AC-12.3-06` | Three lane results, path/contract inventories, ADR/method, and rollback rehearsal | `python3 _bmad/scripts/generate_derived_key_correctness_proof.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --unit-result artifacts/v9/12.3/AC-12.3-02.trx --integration-result artifacts/v9/12.3/integration.trx --dapr-result artifacts/v9/12.3/dapr.trx --output-json docs/release-evidence/derived-key-correctness-proof-v1.json --output-markdown docs/release-evidence/derived-key-correctness-proof-v1.md` | Exit `0`; proof recomputes identities/results and rollback; any empty/red lane is `CORRECTNESS_GATE_RED`. |
+| `AC-12.3-07` | Every invalid-state and Dapr fault plus tenant/replay/public-contract/read-repair mutations | `python3 -m pytest -q _bmad/scripts/tests/test_derived_key_correctness.py -k complete_fault_matrix --junitxml=artifacts/v9/12.3/AC-12.3-07.xml` | Exit `0`; exact blockers occur and all fixtures restore. |
+| `AC-12.3-08` | AC-12.3-01 through AC-12.3-07 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.3.json --format bundle --output-json docs/release-evidence/story-12.3-final-record-v2.json --output-markdown docs/release-evidence/story-12.3-final-record-v2.md` | Exit `0`; record binds source, predecessors, three lanes, proof/rollback/mutations/inventory, summary `8/8/0/0/0/0`. |
+
+### Story 12.4: Produce candidate-bound evidence and enforce universal SM-C2
+
+As a release owner,
+I want one additive four-row verdict at the optimized candidate,
+so that no row or correctness failure can be waived by narrative.
+
+**Bounded outcome:** one v2 bundle decides the universal four-row gate; it does
+not change production behavior, the method, baseline, or historical evidence.
+**Exact predecessors:** `12.3`.
+**Frozen inventory:** `V9-12.4-ENTRY-v1` contains, in order,
+`V8-6.11-AC6`, `V8-6.11-AC7`, `V8-6.11-AC9`, `V8-6.11-AC10`,
+`V8-6.11-EVIDENCE-RAW-SAMPLES-ENVIRONMENT-CALCULATION-SIGNAL-IDENTITY`, and
+`V8-6.11-COMPLETION-GATE-UNIVERSAL-SM-C2`; SHA-256
+`676ba1d04025defd4d1494d78e5c6e7c4fcad695707ada896ebf3476dc5f3577`.
+**Generated evidence:**
+`docs/release-evidence/sm-c2-universal-gate-v2.schema.json`,
+`docs/release-evidence/sm-c2-universal-gate-v2.json`, and deterministic
+`docs/release-evidence/sm-c2-universal-gate-v2.md`; schema
+`hexalith.conversations.sm-c2-universal-gate.v2` requires candidate, four rows,
+all baseline/candidate raw samples, environment, binary/source/gitlink hashes,
+P95 calculations, signal verdicts, threshold verdicts, correctness results,
+overall result, tool versions, and digests. JSON is authoritative.
+**Candidate binding:** `SC-12.4`, Story 12.3 record/proof, method/ADR, immutable
+baseline, exact root/EventStore gitlink, benchmark binary/source and raw results.
+**Rollback boundary:** remove only v2 run outputs, generator/validator, bundle,
+fault fixtures, and Story 12.4 record; retain optimized source and all prior
+story/historical evidence for separate review or Story 12.3 rollback.
+**Generated final record:**
+`docs/release-evidence/story-12.4-final-record-v2.json` and deterministic
+`docs/release-evidence/story-12.4-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-12.4-01` | Built IntegrationTests at `SC-12.4`, frozen method, and controlled environment | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Performance.SmC2HotPathBenchmark -parallel none -maxThreads 1 -showLiveOutput -reporter verbose -noColor -trx artifacts/v9/12.4/sm-c2-candidate.trx` | Exit `0`; exactly four nonempty raw-sample rows execute under the method. Missing/unusable sample is `SMC2_RAW_SAMPLE_MISSING`/`SMC2_SIGNAL_UNUSABLE`. |
+| `AC-12.4-02` | Immutable baseline, candidate TRX, method, and Story 12.3 proof | `python3 _bmad/scripts/generate_sm_c2_universal_gate.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --baseline docs/release-evidence/sm-c2-hot-path-baseline-v1.json --candidate-result artifacts/v9/12.4/sm-c2-candidate.trx --correctness-proof docs/release-evidence/derived-key-correctness-proof-v1.json --output-json docs/release-evidence/sm-c2-universal-gate-v2.json --output-markdown docs/release-evidence/sm-c2-universal-gate-v2.md` | Exit `0` only if inputs are comparable and every row has usable signal; mismatch is `SMC2_ENVELOPE_MISMATCH`. |
+| `AC-12.4-03` | Generated four-row bundle | `python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/12.4/AC-12.4-03.json` | Exit `0`; each row independently satisfies `postP95 <= 1.05 * baselineP95`, all correctness lanes are green/nonvacuous, identities are current, and JSON/Markdown agree. A miss is `SMC2_ROW_REGRESSION`; red lane `CORRECTNESS_GATE_RED`; stale identity `SMC2_STALE_BINDING`. |
+| `AC-12.4-04` | Four row IDs tested separately against the verified result | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k 'hp_create or hp_append or hp_list or hp_open' --junitxml=artifacts/v9/12.4/AC-12.4-04.xml` | Exit `0`; four independent assertions prove no cost/disclosure/approval/record-only substitute. |
+| `AC-12.4-05` | Missing/adverse sample, unusable signal, environment drift, arithmetic/threshold change, stale candidate/binary/gitlink, red/skip/not-run/vacuous correctness, and JSON/Markdown drift | `python3 -m pytest -q _bmad/scripts/tests/test_sm_c2_universal_gate.py -k complete_fault_matrix --junitxml=artifacts/v9/12.4/AC-12.4-05.xml` | Exit `0`; every mutation yields its exact blocker and restores; undetected/unrestored is `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-12.4-06` | AC-12.4-01 through AC-12.4-05 and Story 12.3 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/12.4.json --format bundle --output-json docs/release-evidence/story-12.4-final-record-v2.json --output-markdown docs/release-evidence/story-12.4-final-record-v2.md` | Exit `0`; record binds all four raw/calculated/signal/verdict rows, method, correctness, identities, mutations, inventory, summary `6/6/0/0/0/0`; otherwise Story 12.4 remains incomplete. |
+
+**Fault injection coverage:** every row, adverse/missing/unusable samples,
+environment/comparability, arithmetic/threshold, stale identities, all
+correctness result failures, prohibited substitute verdicts, and format drift
+are mandatory and byte-restored.
+
+## Epic 13: Current Projection-Proof Lifecycle
+
+**Outcome:** Release owners receive immutable historical validation plus one
+predecessor-bound current projection proof.
+**Hard entry:** Epics 7 and 9, concretely Stories 7.4 and 9.2.
+**Bounded exit:** Stories 13.1-13.3 are `done` at one compatible chain; v2 is
+historical and v3 is the sole approved current head.
+**V8 source owner:** superseded Story 6.12; its prepared story is provenance,
+not accepted implementation.
+
+### Story 13.1: Validate historical proof and approve predecessor-chain ADR/schema
+
+As a release owner,
+I want the completed projection proof checked at its recorded time basis,
+so later valid work cannot falsify or silently replace history.
+
+**Bounded outcome:** Checkpoint A validates v2 historically and approves ADR
+0004 plus a closed chain schema; it creates no v3 current-head claim.
+**Exact predecessors:** `7.4`, `9.2`.
+**Frozen inventory:** `V9-13.1-ENTRY-v1` contains, in order,
+`V8-6.12-AC1`, `V8-6.12-AC2`, `V8-6.12-AC3`,
+`V8-6.12-CHECKPOINT-A`, `V8-6.12-PROHIBITION-NO-V2-MUTATION`, and
+`V8-6.12-EVIDENCE-HISTORICAL-CANDIDATE-BLOBS`; SHA-256
+`e050f1cba4f2dbcb83cfd40f6ae4f855c7458503415623b28cc390a0946220b6`.
+**Protected history:** Story 6.2 record, v2 JSON/Markdown, its three xUnit
+results, generated final record, signed-v1 dependencies, recorded root commit,
+and recorded gitlinks are frozen by their existing hashes.
+**ADR/schema:** `docs/adrs/0004-projection-proof-supersession-lifecycle.md`
+and `docs/release-evidence/projection-proof-chain-v1.schema.json`.
+**Generated evidence:**
+`docs/release-evidence/projection-proof-history-validation-v1.schema.json`,
+`docs/release-evidence/projection-proof-history-validation-v1.json`, and
+deterministic
+`docs/release-evidence/projection-proof-history-validation-v1.md`; schema
+`hexalith.conversations.projection-proof-history-validation.v1`, with
+candidate, recordedCandidate, protectedInventory, blob/hash/mode/run checks,
+chainSchema, approval, result, blockers, and digests.
+**Candidate binding:** `SC-13.1`, 7.4/9.2 records, recorded Story 6.2 root and
+gitlinks, protected blob hashes, ADR/schema/approval digests.
+**Rollback boundary:** remove only ADR/schema approval additions, historical
+validator/results/generated validation and Story 13.1 record; mutate no v2 byte.
+**Generated final record:**
+`docs/release-evidence/story-13.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-13.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-13.1-01` | Story 6.2 record and protected-byte inventory | `python3 _bmad/scripts/verify_projection_proof_history.py --repository . --story-record docs/release-evidence/story-6.2-final-record-v2.json --proof docs/release-evidence/projection-read-store-population-proof-v2.json --format json --output artifacts/v9/13.1/AC-13.1-01.json` | Exit `0`; `PASS`; every root/submodule blob, hash, raw mode, gitlink, gate, and run identity resolves at the recorded candidate. Mutation/mismatch is `HISTORICAL_PROOF_MUTATED`/`HISTORICAL_IDENTITY_MISMATCH`; unavailable object returns `2` with `HISTORICAL_OBJECT_UNRESOLVABLE`. |
+| `AC-13.1-02` | Valid history plus unrelated later root/gitlink movement | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k current_worktree_independence --junitxml=artifacts/v9/13.1/AC-13.1-02.xml` | Exit `0`; historical pass is unchanged and never compares v2 to current bytes. |
+| `AC-13.1-03` | ADR 0004, full predecessor hashes, changed-dependency and owner/rationale rules | `python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --no-current-head --output artifacts/v9/13.1/AC-13.1-03.json` | Exit `0`; immutable predecessor-linked lifecycle is closed and exactly-zero current head is required at Checkpoint A. Invalid contract is `PROOF_CHAIN_SCHEMA_INVALID`. |
+| `AC-13.1-04` | ADR/schema signable payload and named owner disposition | `python3 _bmad/scripts/generate_projection_proof_history_validation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --history-result artifacts/v9/13.1/AC-13.1-01.json --output-json docs/release-evidence/projection-proof-history-validation-v1.json --output-markdown docs/release-evidence/projection-proof-history-validation-v1.md` | Exit `0`; approved bundle binds exact digests; missing approval is `PROOF_LIFECYCLE_APPROVAL_MISSING`. |
+| `AC-13.1-05` | Changed v2 byte, wrong root/gitlink/blob/mode/run identity, missing object, open schema, or approval removal | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_history.py -k checkpoint_a_fault_matrix --junitxml=artifacts/v9/13.1/AC-13.1-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-13.1-06` | AC-13.1-01 through AC-13.1-05 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.1.json --format bundle --output-json docs/release-evidence/story-13.1-final-record-v2.json --output-markdown docs/release-evidence/story-13.1-final-record-v2.md` | Exit `0`; record binds historical validation, ADR/schema/approval, protected inventory and mutation ledger, summary `6/6/0/0/0/0`. |
+
+### Story 13.2: Generate the current successor proof and enforce drift/current-head guards
+
+As a release owner,
+I want current assurance represented by one explicit v3 successor,
+so v2 alone cannot be mistaken for current readiness.
+
+**Bounded outcome:** Checkpoint B generates and approves one v3 current head
+and its dependency guard; closure fault/handoff work remains outside scope.
+**Exact predecessors:** `13.1`.
+**Frozen inventory:** `V9-13.2-ENTRY-v1` contains, in order,
+`V8-6.12-AC4`, `V8-6.12-AC5`, `V8-6.12-CHECKPOINT-B`,
+`V8-6.12-PROHIBITION-V2-ALONE-NOT-CURRENT`, and
+`V8-6.12-ROLLBACK-DISCARD-V3-PRESERVE-V2`; SHA-256
+`864d1caf3c429ecea78b7143f8bb63cc46a727ff1e9dd35dd0613e28a4b37067`.
+**Generated evidence:**
+`docs/release-evidence/projection-read-store-population-proof-v3.schema.json`,
+`docs/release-evidence/projection-read-store-population-proof-v3.json`, and
+deterministic
+`docs/release-evidence/projection-read-store-population-proof-v3.md`; schema
+`hexalith.conversations.projection-read-store-population-proof.v3`, plus exact
+result files `dispatch.trx`, `gateway-dapr.trx`, `state-store.trx`,
+`production-query.trx`, `deletion.trx`, and `replay.trx`. Required proof fields
+include candidate, predecessor path/hash, changedDependencies, approval,
+currentHead, six lanes, public/test identities, and digests.
+**Candidate binding:** `SC-13.2`, Story 13.1 record/history/chain digests, v2
+predecessor, root and relevant gitlinks, six binary/result identities.
+**Rollback boundary:** discard only v3, six new result files, guard/tests and
+Story 13.2 record; retain v2 and Story 13.1 byte-identically.
+**Generated final record:**
+`docs/release-evidence/story-13.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-13.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-13.2-01` | Built current proof lanes at `SC-13.2` | `dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll -automated sync -failSkips -class Hexalith.Conversations.IntegrationTests.Projections.ProjectionReadStorePopulationProofV3Tests -trx artifacts/v9/13.2/projection-v3.trx` | Exit `0`; nonzero deterministic dispatch, gateway/Dapr, state-store, production-query, deletion and replay assertions all pass. Missing/red lane is `PROJECTION_PROOF_LANE_RED`. |
+| `AC-13.2-02` | v2 predecessor, declared changed dependencies, approval, and current candidate | `python3 _bmad/scripts/generate_projection_proof_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --predecessor docs/release-evidence/projection-read-store-population-proof-v2.json --result artifacts/v9/13.2/projection-v3.trx --output-json docs/release-evidence/projection-read-store-population-proof-v3.json --output-markdown docs/release-evidence/projection-read-store-population-proof-v3.md` | Exit `0`; deterministic v3 records full predecessor hash, exact changed dependencies, owner/rationale, six lanes, and candidate identities. Bad link is `PROJECTION_PROOF_PREDECESSOR_INVALID`. |
+| `AC-13.2-03` | Chain schema, v2 and generated v3 | `python3 _bmad/scripts/verify_projection_proof_chain.py --repository . --adr docs/adrs/0004-projection-proof-supersession-lifecycle.md --schema docs/release-evidence/projection-proof-chain-v1.schema.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output artifacts/v9/13.2/AC-13.2-03.json` | Exit `0`; exactly one approved current head exists. Zero/duplicate/fork is `PROJECTION_PROOF_HEAD_INVALID`; missing approval is `PROJECTION_PROOF_APPROVAL_MISSING`. |
+| `AC-13.2-04` | Declared proof dependencies at predecessor and `SC-13.2` | `python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --output artifacts/v9/13.2/AC-13.2-04.json` | Exit `0`; hashes/runs are fresh; undeclared in-scope drift is `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; stale declared state is `PROJECTION_PROOF_STALE`; unrelated gitlink movement is ignored. |
+| `AC-13.2-05` | Missing/red/skipped/vacuous lane, broken predecessor, duplicate/fork head, undeclared drift, stale proof, and unrelated-gitlink control | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k checkpoint_b_fault_matrix --junitxml=artifacts/v9/13.2/AC-13.2-05.xml` | Exit `0`; exact blockers occur, control passes, fixtures restore. |
+| `AC-13.2-06` | Rollback rehearsal from v3 to Checkpoint A | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_v3.py -k rollback_preserves_v2 --junitxml=artifacts/v9/13.2/AC-13.2-06.xml` | Exit `0`; v3 outputs disappear and every protected v2 hash is unchanged. |
+| `AC-13.2-07` | AC-13.2-01 through AC-13.2-06 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.2.json --format bundle --output-json docs/release-evidence/story-13.2-final-record-v2.json --output-markdown docs/release-evidence/story-13.2-final-record-v2.md` | Exit `0`; record binds predecessor/current chain, six lanes, guard, approval, rollback and inventory, summary `7/7/0/0/0/0`. |
+
+### Story 13.3: Prove fault injection and bind manifest, conformance, handoff, and final record
+
+As a release owner,
+I want the complete proof chain closed mechanically,
+so downstream preservation and attestation consume explicit current assurance.
+
+**Bounded outcome:** Checkpoint C closes mutation, conformance, manifest and
+handoff evidence; it makes no release-readiness decision.
+**Exact predecessors:** `13.2`.
+**Frozen inventory:** `V9-13.3-ENTRY-v1` contains, in order,
+`V8-6.12-AC6`, `V8-6.12-AC7`, `V8-6.12-AC8`,
+`V8-6.12-CHECKPOINT-C`, `V8-6.12-COMPLETION-GATE-ALL-EIGHT-SAME-CANDIDATE`,
+`V8-6.12-DEPENDENCY-6.8`, and `V8-6.12-HANDOFF-6.3-6.6`; SHA-256
+`bf16171b2a6b2dd4870c11b2a160d2c8090efa3e42b2eca7e5aae900a0fb7666`.
+**Generated evidence:**
+`docs/release-evidence/projection-proof-closure-v1.schema.json`,
+`docs/release-evidence/projection-proof-closure-v1.json`, and deterministic
+`docs/release-evidence/projection-proof-closure-v1.md`; schema
+`hexalith.conversations.projection-proof-closure.v1` requires candidate,
+v2History, v3Current, mutationLedger, focused/manifest/portable/internal lane
+results, handoffs, assertion counts, and digests.
+**Candidate binding:** `SC-13.3`, full 13.1-13.2 chain, exact tier binaries and
+results, manifest/current-proof and mutation digests.
+**Rollback boundary:** remove only closure generator/bundle, fault fixtures,
+handoff declarations/results and Story 13.3 record; retain approved v3 and all
+history.
+**Generated final record:**
+`docs/release-evidence/story-13.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-13.3-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-13.3-01` | Mutations of v2 byte/identity, predecessor hash, head count/fork, v3 freshness, lane result, and dependency declaration | `python3 -m pytest -q _bmad/scripts/tests/test_projection_proof_closure.py -k complete_mutation_matrix --junitxml=artifacts/v9/13.3/AC-13.3-01.xml` | Exit `0`; each yields `HISTORICAL_PROOF_MUTATED`, `HISTORICAL_IDENTITY_MISMATCH`, `PROJECTION_PROOF_PREDECESSOR_INVALID`, `PROJECTION_PROOF_CHAIN_FORKED`, `PROJECTION_PROOF_STALE`, `PROJECTION_PROOF_RUN_INVALID`, or `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; fixtures restore. |
+| `AC-13.3-02` | Built focused current-proof lane | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest -trx artifacts/v9/13.3/focused.trx` | Exit `0`; nonzero current v3 and historical v2 assertions pass. |
+| `AC-13.3-03` | Built portable and internal conformance tiers | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/portable.trx` | Exit `0`; portable tier nonzero/all green. |
+| `AC-13.3-04` | Built internal conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/13.3/internal.trx` | Exit `0`; internal tier nonzero/all green. |
+| `AC-13.3-05` | v2 history, v3 current, mutation and three lane results, plus Epic 14/15 handoff IDs | `python3 _bmad/scripts/generate_projection_proof_closure.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --history docs/release-evidence/projection-proof-history-validation-v1.json --current docs/release-evidence/projection-read-store-population-proof-v3.json --output-json docs/release-evidence/projection-proof-closure-v1.json --output-markdown docs/release-evidence/projection-proof-closure-v1.md` | Exit `0`; handoffs bind v2 as history and v3 as current; v2 alone cannot satisfy them. Missing handoff is `PROJECTION_PROOF_HANDOFF_MISSING`; mixed chain is `PROJECTION_PROOF_CANDIDATE_MISMATCH`. |
+| `AC-13.3-06` | AC-13.3-01 through AC-13.3-05 and all three checkpoints are compatible | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/13.3.json --format bundle --output-json docs/release-evidence/story-13.3-final-record-v2.json --output-markdown docs/release-evidence/story-13.3-final-record-v2.md` | Exit `0`; final record binds all eight v8 criteria, three checkpoints, proof chain, lane counts, handoffs, inventories/mutations, summary `6/6/0/0/0/0`. |
+
+**Fault injection coverage:** changed history, wrong identities, broken/forked
+chain, stale successor, undeclared drift, every invalid lane state, missing
+handoff, candidate mismatch, and non-restoration are mandatory.
+
+## Epic 14: Complete Preservation Manifest
+
+**Outcome:** Release owners receive one zero-gap, candidate-bound preservation
+manifest across every requirement, contract, test, UX and evidence obligation.
+**Hard entry:** Epics 8, 9, 10 and 13, concretely Stories 8.2, 9.2, 10.4 and
+13.3.
+**Bounded exit:** Stories 14.1-14.3 are `done` at one compatible candidate and
+the generated v3 manifest has no missing, duplicate, orphaned or stale binding.
+**V8 source owner:** superseded Story 6.3; its partial work and v2 manifest are
+unaccepted provenance and cannot satisfy a v9 acceptance scenario.
+
+### Story 14.1: Freeze requirement, contract, test, UX and evidence denominators
+
+As a release owner,
+I want every preservation denominator frozen before dispositions are assigned,
+so denominator drift cannot manufacture completeness.
+
+**Bounded outcome:** one generated denominator inventory freezes exact
+identities and source hashes; it assigns no obligation disposition.
+**Exact predecessors:** `8.2`, `9.2`, `10.4`, `13.3`.
+**Frozen inventory:** `V9-14.1-ENTRY-v1` contains, in order,
+`V8-6.3-AC1`, `V8-6.3-PROHIBITION-DENOMINATOR-DRIFT`,
+`V8-6.3-PROHIBITION-FR16-ACTIVATION`, and
+`V8-6.3-PARTIAL-WORK-UNACCEPTED-INPUT`; SHA-256
+`6a6101ccdd2e4fea72fb6d7004dc649d18a418fdbae8884a6d4da3af7f3d4cdb`.
+**Exact denominators:** 20 `FR-*`, 104 `Feature-FR*`, 77 `Feature-NFR*`, 52
+`UX-DR*`, 28 UX AC identities, plus exact public-contract, current-control,
+portable/internal assertion, 27-reader evidence and projection-proof-chain
+inventories derived from their accepted predecessor records. Functional
+coverage denominator is exactly `124`; FR-16 alone is deferred/non-activated.
+**Generated evidence:**
+`docs/release-evidence/preservation-denominator-inventory-v3.schema.json`,
+`docs/release-evidence/preservation-denominator-inventory-v3.json`, and
+deterministic
+`docs/release-evidence/preservation-denominator-inventory-v3.md`; schema
+`hexalith.conversations.preservation-denominator-inventory.v3` requires
+candidate, sourceAuthorities, seven named denominator groups, identity/path/
+sourceHash rows, predecessor inventory digests, counts, deferred identities,
+result, blockers and digests.
+**Candidate binding:** `SC-14.1`, four predecessor records and their frozen
+inventories, exact authority/source blobs and relevant gitlinks.
+**Rollback boundary:** remove only v3 denominator generator/validator/bundle,
+fault fixtures/results and Story 14.1 record; preserve all sources and v2 files.
+**Generated final record:**
+`docs/release-evidence/story-14.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-14.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-14.1-01` | Canonical PRD/addendum and bound `SC-14.1` | `python3 _bmad/scripts/generate_preservation_denominators.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --output-json docs/release-evidence/preservation-denominator-inventory-v3.json --output-markdown docs/release-evidence/preservation-denominator-inventory-v3.md` | Exit `0`; exactly 20 initiative plus 104 Feature functional identities are unique and total `124`. Missing/extra/duplicate is `PRESERVATION_IDENTITY_MISSING`, `PRESERVATION_DENOMINATOR_DRIFT`, or `PRESERVATION_IDENTITY_DUPLICATE`. |
+| `AC-14.1-02` | Generated denominator inventory | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group feature-nfr --expected 77 --output artifacts/v9/14.1/AC-14.1-02.json` | Exit `0`; exact `77/77` unique Feature-NFRs resolve to pinned source hashes. |
+| `AC-14.1-03` | Story 8.2 UX record/inventories | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group ux --expected-decisions 52 --expected-acceptance 28 --output artifacts/v9/14.1/AC-14.1-03.json` | Exit `0`; exact `52/52` and `28/28`, with preserved-not-activated state. Drift or activation is `PRESERVATION_DENOMINATOR_DRIFT` or `UX_SCOPE_ACTIVATED`. |
+| `AC-14.1-04` | Stories 9.2, 10.4 and 13.3 inventories | `python3 _bmad/scripts/verify_preservation_denominators.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --group contracts-controls-tests-evidence-proofs --output artifacts/v9/14.1/AC-14.1-04.json` | Exit `0`; public-contract/control/assertion/reader/proof sets and predecessor digests match exactly. Drift is `PRESERVATION_DENOMINATOR_DRIFT`. |
+| `AC-14.1-05` | FR-16 and every other initiative identity | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.OnlyFr16ShouldBeDeferredAndNonActivated -trx artifacts/v9/14.1/AC-14.1-05.trx` | Exit `0`; only FR-16 has deferred/non-activated classification. Violation is `FR16_ACTIVATED` or `UNAUTHORIZED_REQUIREMENT_DEFERRED`. |
+| `AC-14.1-06` | Existing partial v2 manifest and v3 inventory | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationDenominatorV3ValidationTest.PartialV2ShouldRemainUnacceptedProvenance -trx artifacts/v9/14.1/AC-14.1-06.trx` | Exit `0`; v2 hashes are recorded only as provenance and never as a completed input. False inheritance is `PARTIAL_MANIFEST_TREATED_AS_ACCEPTED`. |
+| `AC-14.1-07` | Missing/extra/duplicate/orphan identity, count drift, source-hash drift, FR-16 activation, other deferral, UX activation and accepted-v2 mutations | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_denominators.py -k complete_fault_matrix --junitxml=artifacts/v9/14.1/AC-14.1-07.xml` | Exit `0`; each exact blocker occurs and every fixture restores; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-14.1-08` | AC-14.1-01 through AC-14.1-07 and four predecessor records are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.1.json --format bundle --output-json docs/release-evidence/story-14.1-final-record-v2.json --output-markdown docs/release-evidence/story-14.1-final-record-v2.md` | Exit `0`; final record binds every group count/digest, sources, predecessors, mutation ledger, summary `8/8/0/0/0/0`. |
+
+### Story 14.2: Bind dispositions, approvals, evidence, tiers, proof chains and candidate identity
+
+As a release owner,
+I want one evidence-bearing disposition for every frozen identity,
+so delivered, inactive, compatible and non-activated claims are reviewable.
+
+**Bounded outcome:** one generated binding map assigns exactly one disposition
+per Story 14.1 identity; it does not issue the final zero-gap verdict.
+**Exact predecessors:** `14.1`.
+**Frozen inventory:** `V9-14.2-ENTRY-v1` contains, in order,
+`V8-6.3-AC2`, `V8-6.3-AC3`, `V8-6.3-AC4`, `V8-6.3-AC5`,
+`V8-6.3-EVIDENCE-APPROVAL-COMPATIBILITY-HASH-TIER-PROOF`, and
+`V8-6.3-PROHIBITION-HISTORY-AS-CURRENT`; SHA-256
+`351a30fdc23b8951a19ff94d903b0e5ab5b25903fb47b43bfa079914c2b698c7`.
+**Generated evidence:**
+`docs/release-evidence/preservation-binding-map-v3.schema.json`,
+`docs/release-evidence/preservation-binding-map-v3.json`, and deterministic
+`docs/release-evidence/preservation-binding-map-v3.md`; schema
+`hexalith.conversations.preservation-binding-map.v3` requires for
+each frozen identity exactly one disposition, owner, rationale, candidate,
+evidence path/hash/role, source/build/test/baseline hashes, tier/control owner,
+approval/compatibility fields when applicable, proof-chain role and digests.
+**Disposition enum:** `delivered-active`, `delivered-inactive-approved`,
+`compatible-change-approved`, `preserved-not-activated`,
+`deferred-non-activated`, or `immutable-history`; no null/catch-all value.
+**Candidate binding:** `SC-14.2`, Story 14.1 inventory/record, 8.2/9.2/10.4/
+13.3 evidence digests and exact referenced root/gitlink blobs.
+**Rollback boundary:** remove only binding generator/validator/map, fixtures,
+results and Story 14.2 record; retain frozen denominator and all source evidence.
+**Generated final record:**
+`docs/release-evidence/story-14.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-14.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-14.2-01` | Story 14.1 inventory and candidate-bound evidence registry | `python3 _bmad/scripts/generate_preservation_bindings.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --output-json docs/release-evidence/preservation-binding-map-v3.json --output-markdown docs/release-evidence/preservation-binding-map-v3.md` | Exit `0`; one and only one enumerated disposition exists per frozen identity. Missing/duplicate is `PRESERVATION_DISPOSITION_MISSING`/`PRESERVATION_DISPOSITION_DUPLICATE`. |
+| `AC-14.2-02` | Every binding and its evidence path/hash/role | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check evidence --output artifacts/v9/14.2/AC-14.2-02.json` | Exit `0`; referenced evidence is contained, current for its declared time basis, hash-valid and nonvacuous. Failure is `PRESERVATION_EVIDENCE_INVALID`. |
+| `AC-14.2-03` | Delivered-inactive and compatible-change rows | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check approvals-compatibility --output artifacts/v9/14.2/AC-14.2-03.json` | Exit `0`; each names owner, rationale, UTC decision, signable digest and compatibility evidence. Missing data is `PRESERVATION_APPROVAL_MISSING` or `PRESERVATION_COMPATIBILITY_MISSING`. |
+| `AC-14.2-04` | Conformance assertions and Story 9.2 tier records | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.AssertionsShouldBindApprovedTierAndStrength -trx artifacts/v9/14.2/AC-14.2-04.trx` | Exit `0`; every assertion tier and strength digest matches 9.2. Violation is `PRESERVATION_TIER_MISMATCH` or `ASSERTION_STRENGTH_WEAKENED`. |
+| `AC-14.2-05` | Projection v2 history, v3 current head and complete predecessor chain | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationBindingMapV3ValidationTest.ProjectionRolesShouldDistinguishHistoryAndCurrent -trx artifacts/v9/14.2/AC-14.2-05.trx` | Exit `0`; v2 is immutable history and exactly one v3 is current. Substitution is `HISTORICAL_PROOF_USED_AS_CURRENT`; broken chain is `PROJECTION_PROOF_ROLE_INVALID`. |
+| `AC-14.2-06` | Module/platform controls, source/build/test/baseline hashes and Story 10 boundary result | `python3 _bmad/scripts/verify_preservation_bindings.py --repository . --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --check controls-hashes-candidate --output artifacts/v9/14.2/AC-14.2-06.json` | Exit `0`; ownership is separated and all identities bind one compatible chain. Failure is `PRESERVATION_CONTROL_OWNER_INVALID`, `PRESERVATION_HASH_INVALID`, or `PRESERVATION_CANDIDATE_MISMATCH`. |
+| `AC-14.2-07` | Missing/duplicate disposition, bad/stale/vacuous evidence, missing approval/compatibility, tier/strength drift, history-current swap, owner/hash/candidate fault | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_bindings.py -k complete_fault_matrix --junitxml=artifacts/v9/14.2/AC-14.2-07.xml` | Exit `0`; each exact blocker occurs and fixtures restore byte-identically. |
+| `AC-14.2-08` | AC-14.2-01 through AC-14.2-07 and Story 14.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.2.json --format bundle --output-json docs/release-evidence/story-14.2-final-record-v2.json --output-markdown docs/release-evidence/story-14.2-final-record-v2.md` | Exit `0`; record binds map, inventory, evidence/approval/tier/proof/control digests, mutations, summary `8/8/0/0/0/0`. |
+
+### Story 14.3: Run zero-gap validation and generate the manifest final record
+
+As a release owner,
+I want the complete binding set validated and published mechanically,
+so preservation completeness is a reproducible fact.
+
+**Bounded outcome:** one current v3 manifest and validation result are
+generated from Stories 14.1-14.2; no product or release decision is made.
+**Exact predecessors:** `14.2`.
+**Frozen inventory:** `V9-14.3-ENTRY-v1` contains, in order,
+`V8-6.3-AC6`, `V8-6.3-DEPENDENCY-6.8`, `V8-6.3-DEPENDENCY-6.9`,
+`V8-6.3-DEPENDENCY-6.10`, `V8-6.3-DEPENDENCY-6.12`,
+`V8-6.3-COMPLETION-GATE-SAME-CANDIDATE`,
+`V8-6.3-ROLLBACK-VERSIONED-MANIFEST`, and
+`V8-6.3-PROHIBITION-UI-ACTIVATION`; SHA-256
+`96fa64e4dda2a3fe0775ff96306562c290bbbd002092bbdd785ebb7400465a17`.
+**Generated evidence:**
+`docs/release-evidence/preservation-traceability-manifest-v3.schema.json`,
+`docs/release-evidence/preservation-traceability-manifest-v3.json`, and
+deterministic
+`docs/release-evidence/preservation-traceability-manifest-v3.md`, plus
+`docs/release-evidence/preservation-manifest-validation-v3.schema.json` and
+`docs/release-evidence/preservation-manifest-validation-v3.json`; manifest schema
+`hexalith.conversations.preservation-traceability-manifest.v3` embeds exact
+denominator/binding digests and rows; validation schema requires per-group
+expected/actual/missing/duplicate/orphan/stale counts, candidate, result,
+blockers and digests. JSON is authoritative and Markdown deterministic.
+**Candidate binding:** `SC-14.3`, Stories 14.1-14.2 and predecessor records,
+all referenced source/evidence/test binaries/results and relevant gitlinks.
+**Rollback boundary:** remove only v3 manifest/validation generators and
+outputs, faults/results and Story 14.3 record; v2 and Stories 14.1-14.2 remain.
+**Generated final record:**
+`docs/release-evidence/story-14.3-final-record-v2.json` and deterministic
+`docs/release-evidence/story-14.3-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-14.3-01` | v3 denominator and binding bundles at compatible candidates | `python3 _bmad/scripts/generate_preservation_manifest_v3.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --inventory docs/release-evidence/preservation-denominator-inventory-v3.json --bindings docs/release-evidence/preservation-binding-map-v3.json --output-json docs/release-evidence/preservation-traceability-manifest-v3.json --output-markdown docs/release-evidence/preservation-traceability-manifest-v3.md` | Exit `0`; generated rows are derived, ordinal and schema-valid; mismatch is `PRESERVATION_CANDIDATE_MISMATCH`. |
+| `AC-14.3-02` | Generated manifest | `python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output docs/release-evidence/preservation-manifest-validation-v3.json` | Exit `0`; `124/124`, `77/77`, `52/52`, `28/28`, and all control/contract/test/evidence/proof identities have zero missing/duplicate/orphan/stale. Failure is `PRESERVATION_ZERO_GAP_FAILED`; format drift `EVIDENCE_FORMAT_DRIFT`. |
+| `AC-14.3-03` | FR-16 and UX rows | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.DeferredAndUxStateShouldRemainNonActivated -trx artifacts/v9/14.3/AC-14.3-03.trx` | Exit `0`; FR-16 is sole deferred identity and UX is preserved-not-activated. Violation is `FR16_ACTIVATED` or `UX_SCOPE_ACTIVATED`. |
+| `AC-14.3-04` | Tier, evidence-boundary and projection-chain rows | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestV3ValidationTest.CurrentAssuranceBindingsShouldBeValid -trx artifacts/v9/14.3/AC-14.3-04.trx` | Exit `0`; tiers/strength, boundary evidence and v2-history/v3-current roles match predecessors. Failure is `PRESERVATION_TIER_MISMATCH`, `EVIDENCE_BOUNDARY_INVALID`, or `PROJECTION_PROOF_ROLE_INVALID`. |
+| `AC-14.3-05` | Missing/duplicate/orphan/stale binding, count drift, candidate mix, FR/UX activation, tier/boundary/proof fault and JSON/Markdown drift | `python3 -m pytest -q _bmad/scripts/tests/test_preservation_manifest_v3.py -k complete_fault_matrix --junitxml=artifacts/v9/14.3/AC-14.3-05.xml` | Exit `0`; exact blockers occur and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-14.3-06` | AC-14.3-01 through AC-14.3-05 and the complete predecessor chain are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/14.3.json --format bundle --output-json docs/release-evidence/story-14.3-final-record-v2.json --output-markdown docs/release-evidence/story-14.3-final-record-v2.md` | Exit `0`; record binds manifest/validation, every denominator and disposition count/digest, predecessor chain, mutations, summary `6/6/0/0/0/0`. |
+
+**Fault injection coverage:** every denominator group, missing/duplicate/orphan/
+stale mapping, evidence/approval/compatibility/tier/strength/control/proof role,
+candidate mix, FR-16 or UX activation and format drift are mandatory and
+byte-restored.
+
+## Epic 15: Superseding Release Attestation
+
+**Outcome:** Release owners receive bounded revalidation evidence and a
+signable additive attestation without a prescribed release verdict.
+**Hard entry:** Epics 7-14 at their exact bounded exits.
+**Bounded exit:** Stories 15.1-15.2 are `done` at one release candidate; only
+the separate non-story Gate RG-15 may decide release closure.
+**V8 source owner:** executable portions of Story 6.6; external assessment and
+release-decision semantics move exclusively to RG-15.
+
+### Story 15.1: Revalidate all preservation, topology, correctness, and metric gates
+
+As a release owner,
+I want every completed predecessor gate rerun at one candidate,
+so the attestation consumes current measured facts.
+
+**Bounded outcome:** one revalidation bundle records all current gate results;
+it creates neither an attestation nor a readiness/release decision.
+**Exact predecessors:** `7.4`, `8.2`, `9.2`, `10.4`, `11.3`, `12.4`, `13.3`,
+`14.3`.
+**Frozen inventory:** `V9-15.1-ENTRY-v1` contains, in order,
+`V8-6.6-AC1`, `V8-6.6-AC2`, `V8-6.6-AC4`,
+`V8-6.6-DEPENDENCY-6.3`, `V8-6.6-DEPENDENCY-6.4`,
+`V8-6.6-DEPENDENCY-6.5`, `V8-6.6-DEPENDENCY-6.8`,
+`V8-6.6-DEPENDENCY-6.9`, `V8-6.6-DEPENDENCY-6.10`,
+`V8-6.6-DEPENDENCY-6.11`, `V8-6.6-DEPENDENCY-6.12`, and
+`V8-6.6-COMPLETION-GATE-LAST`; SHA-256
+`996e98307e2db67aa3801dc401046d3d6216dc25c4ea3e9664ad5373dca55cd1`.
+**Generated evidence:**
+`docs/release-evidence/release-gate-revalidation-v2.schema.json`,
+`docs/release-evidence/release-gate-revalidation-v2.json`, and deterministic
+`docs/release-evidence/release-gate-revalidation-v2.md`; schema
+`hexalith.conversations.release-gate-revalidation.v2` requires `RC`,
+all predecessor record digests, four SM-C2 rows, manifest/public-contract/
+topology/security/health/publication/admin/SM-1/SM-2/SM-3/preservation results,
+both conformance tier results and sum, evidence-boundary result, v2 history,
+v3 current head and rerun lanes, blockers and digests.
+**Candidate binding:** `RC-15.1` is exact root commit plus canonical ten root
+gitlinks, all eight predecessor final-record digests, test binary/source/result
+hashes and frozen inventories. It is not `PC` or any prior `SC`.
+**Rollback boundary:** remove only Story 15.1 rerun results, generator/
+validator/bundle, faults and record; every predecessor remains immutable.
+**Generated final record:**
+`docs/release-evidence/story-15.1-final-record-v2.json` and deterministic
+`docs/release-evidence/story-15.1-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-15.1-01` | Eight exact predecessor records and `RC-15.1` | `python3 _bmad/scripts/verify_release_predecessors.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --candidate HEAD --output artifacts/v9/15.1/AC-15.1-01.json` | Exit `0`; every record is schema-valid, current for its time basis, nonvacuous and candidate-compatible. Failure is `RELEASE_GATE_PREDECESSOR_INVALID` or `RELEASE_GATE_CANDIDATE_MISMATCH`. |
+| `AC-15.1-02` | Story 12.4 universal SM-C2 evidence and benchmark identities | `python3 _bmad/scripts/verify_sm_c2_universal_gate.py --repository . --evidence docs/release-evidence/sm-c2-universal-gate-v2.json --markdown docs/release-evidence/sm-c2-universal-gate-v2.md --output artifacts/v9/15.1/AC-15.1-02.json` | Exit `0`; HP-CREATE/APPEND/LIST/OPEN each has usable comparable signal and satisfies `postP95 <= 1.05 * baselineP95`. Any row is `SMC2_ROW_REGRESSION` or `SMC2_SIGNAL_UNUSABLE`. |
+| `AC-15.1-03` | Story 14.3 manifest and public-contract/approval bindings | `python3 _bmad/scripts/verify_preservation_manifest_v3.py --repository . --manifest docs/release-evidence/preservation-traceability-manifest-v3.json --markdown docs/release-evidence/preservation-traceability-manifest-v3.md --format json --output artifacts/v9/15.1/AC-15.1-03.json` | Exit `0`; complete manifest passes and every contract is equal or has approved compatibility evidence. Failure is `RELEASE_GATE_REVALIDATION_RED`. |
+| `AC-15.1-04` | Topology, tenant security, health, publication, admin, SM-1/2/3 and preservation test inventories | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.ReleaseGateRevalidationV2Tests -trx artifacts/v9/15.1/revalidation.trx` | Exit `0`; every frozen lane executes nonzero with zero failed/skipped/not-run. Red/vacuous is `RELEASE_GATE_REVALIDATION_RED`/`RELEASE_GATE_RESULT_VACUOUS`. |
+| `AC-15.1-05` | Built portable conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Portable.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Portable.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/portable.trx` | Exit `0`; nonzero portable assertions all pass and retain tier digest. |
+| `AC-15.1-06` | Built internal conformance tier | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -trx artifacts/v9/15.1/internal.trx` | Exit `0`; nonzero internal assertions all pass; sum with portable is monotonic. |
+| `AC-15.1-07` | Story 10.4 boundary result and current release evidence diff | `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --candidate HEAD --format json --output artifacts/v9/15.1/AC-15.1-07.json` | Exit `0`; applicable evidence is current/nonvacuous/green. Failure is `EVIDENCE_BOUNDARY_INVALID`. |
+| `AC-15.1-08` | Immutable v2 history and sole v3 head | `python3 _bmad/scripts/verify_projection_proof_current.py --repository . --proof docs/release-evidence/projection-read-store-population-proof-v3.json --candidate HEAD --rerun --output artifacts/v9/15.1/AC-15.1-08.json` | Exit `0`; history validates, one current head resolves and all six functional lanes rerun green. Drift is `PROJECTION_PROOF_SUPERSESSION_REQUIRED`; invalid rerun `PROJECTION_PROOF_RUN_INVALID`. |
+| `AC-15.1-09` | All results from AC-15.1-01 through AC-15.1-08 | `python3 _bmad/scripts/generate_release_revalidation.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --results artifacts/v9/15.1 --output-json docs/release-evidence/release-gate-revalidation-v2.json --output-markdown docs/release-evidence/release-gate-revalidation-v2.md` | Exit `0`; authoritative bundle recomputes separate/summed counts, identities and digests; any red/blocked/stale/vacuous input is `RELEASE_GATE_REVALIDATION_RED`. |
+| `AC-15.1-10` | Mutations across every predecessor, row, manifest/contract, lane, tier, boundary, proof head/rerun and candidate/gitlink | `python3 -m pytest -q _bmad/scripts/tests/test_release_revalidation.py -k complete_fault_matrix --junitxml=artifacts/v9/15.1/AC-15.1-10.xml` | Exit `0`; exact owning blocker occurs and fixtures restore; otherwise `FAULT_NOT_DETECTED`/`FIXTURE_NOT_RESTORED`. |
+| `AC-15.1-11` | AC-15.1-01 through AC-15.1-10 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.1.json --format bundle --output-json docs/release-evidence/story-15.1-final-record-v2.json --output-markdown docs/release-evidence/story-15.1-final-record-v2.md` | Exit `0`; final record binds RC, eight predecessors, every lane/count/digest, mutations and summary `11/11/0/0/0/0`. |
+
+### Story 15.2: Generate the superseding attestation and predecessor-supersession record
+
+As a release owner,
+I want a signable additive attestation over the revalidated candidate,
+so the independent release gate receives a complete immutable input.
+
+**Bounded outcome:** one attestation and one supersession bundle are generated;
+the story makes no readiness or release-closure decision.
+**Exact predecessors:** `15.1`.
+**Frozen inventory:** `V9-15.2-ENTRY-v1` contains, in order,
+`V8-6.6-AC3`, `V8-6.6-EVIDENCE-SIGNED-V1-ADR3-PROOF-CHAIN-RERUN`,
+`V8-6.6-PROHIBITION-NO-PREDECESSOR-REWRITE`, and
+`V8-6.6-ROLLBACK-ADDITIVE-ATTESTATION`; SHA-256
+`db7bafbf2a36d673a6ca9c331f2fdb3f679cd22f9b5f386206412f3fb82a2318`.
+**Generated evidence:**
+`docs/release-evidence/release-attestation-v2.schema.json`,
+`docs/release-evidence/release-attestation-v2.json`, and deterministic
+`docs/release-evidence/release-attestation-v2.md`, plus
+`docs/release-evidence/release-attestation-supersession-v2.schema.json`,
+`docs/release-evidence/release-attestation-supersession-v2.json`, and
+deterministic
+`docs/release-evidence/release-attestation-supersession-v2.md`; schemas
+`hexalith.conversations.release-attestation.v2` and
+`hexalith.conversations.release-attestation-supersession.v2`. They require RC,
+authority bundle, revalidation and every predecessor digest, signed-v1/ADR0003/
+v2/v3/rerun bindings, complete supersession edges, signable payload and no
+decision field.
+**Candidate binding:** `RC` is exact final root and ten gitlinks plus Story 15.1
+record/revalidation, all predecessor records/evidence and test identities.
+**Rollback boundary:** remove only the additive v2 attestation/supersession
+generator/validator/bundles, faults/results and Story 15.2 record; rewrite no
+predecessor, signed evidence, baseline, ADR or proof.
+**Generated final record:**
+`docs/release-evidence/story-15.2-final-record-v2.json` and deterministic
+`docs/release-evidence/story-15.2-final-record-v2.md`.
+
+**Acceptance Criteria:**
+
+| ID | Given | When — exact command from repository root | Then |
+| --- | --- | --- | --- |
+| `AC-15.2-01` | Story 15.1 revalidation, signed-v1 evidence, ADR 0003, v2 history, v3 head and rerun result | `python3 _bmad/scripts/generate_release_attestation_v2.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --revalidation docs/release-evidence/release-gate-revalidation-v2.json --output-json docs/release-evidence/release-attestation-v2.json --output-markdown docs/release-evidence/release-attestation-v2.md` | Exit `0`; additive attestation binds exact RC/root/gitlinks and all required immutable/current identities. Invalid head/rerun is `ATTESTATION_PROOF_HEAD_INVALID`/`ATTESTATION_RERUN_INVALID`. |
+| `AC-15.2-02` | All predecessor evidence and v1-to-v2 relation inventory | `python3 _bmad/scripts/generate_attestation_supersession.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --attestation docs/release-evidence/release-attestation-v2.json --output-json docs/release-evidence/release-attestation-supersession-v2.json --output-markdown docs/release-evidence/release-attestation-supersession-v2.md` | Exit `0`; every predecessor has one immutable/additive supersession edge and no orphan/fork. Missing edge is `ATTESTATION_SUPERSESSION_INCOMPLETE`. |
+| `AC-15.2-03` | Generated attestation/supersession bundles and actual repository blobs | `python3 _bmad/scripts/verify_release_attestation_v2.py --repository . --attestation docs/release-evidence/release-attestation-v2.json --supersession docs/release-evidence/release-attestation-supersession-v2.json --output artifacts/v9/15.2/AC-15.2-03.json` | Exit `0`; hashes, RC/gitlinks, schemas, signable payload and JSON/Markdown parity recompute. Mismatch is `ATTESTATION_CANDIDATE_MISMATCH`, `ATTESTATION_PAYLOAD_INVALID`, or `EVIDENCE_FORMAT_DRIFT`. |
+| `AC-15.2-04` | Protected predecessor-byte inventory before and after generation | `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.ReleaseAttestationV2ValidationTest.PredecessorsShouldRemainByteIdentical -trx artifacts/v9/15.2/AC-15.2-04.trx` | Exit `0`; every protected byte/hash is unchanged. Mutation is `ATTESTATION_PREDECESSOR_MUTATED`. |
+| `AC-15.2-05` | Candidate/head/rerun/payload/supersession/format mutations and a forbidden readiness/release-decision field | `python3 -m pytest -q _bmad/scripts/tests/test_release_attestation_v2.py -k complete_fault_matrix --junitxml=artifacts/v9/15.2/AC-15.2-05.xml` | Exit `0`; exact blockers occur, forbidden decision is `ATTESTATION_OUTCOME_PRESCRIBED`, and fixtures restore. |
+| `AC-15.2-06` | AC-15.2-01 through AC-15.2-05 and Story 15.1 are current | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/15.2.json --format bundle --output-json docs/release-evidence/story-15.2-final-record-v2.json --output-markdown docs/release-evidence/story-15.2-final-record-v2.md` | Exit `0`; final record binds RC, attestation/supersession/signable digests, immutable inventory, mutation ledger, summary `6/6/0/0/0/0`; it contains no release verdict. |
+
+## Gate RG-15: Independent Release Closure (Non-Story)
+
+RG-15 runs only after Story 15.2 and cannot authorize earlier implementation.
+Its frozen inventory `V9-RG-15-ENTRY-v1` contains, in order,
+`V8-6.6-AC5`, `V8-6.6-AC6`,
+`V8-6.6-GATE-INDEPENDENT-READINESS-AND-RELEASE-DECISION`, and
+`V8-6.6-PROHIBITION-NO-PRESCRIBED-VERDICT`; SHA-256
+`5882c68fbc694b84659d758274ebe67177af270b6871e676d573f9637fe65565`.
+
+**Inputs:** Story 15.2 final record, attestation/supersession, exact `RC`, v9
+authority bundle and all gate evidence.
+**Generated records:**
+`docs/release-evidence/rg-15-independent-review-v1.schema.json`,
+`docs/release-evidence/rg-15-independent-review-v1.json`,
+`docs/release-evidence/rg-15-release-decision-v1.schema.json`, and
+`docs/release-evidence/rg-15-release-decision-v1.json`.
+**Exact review command:**
+`python3 _bmad/scripts/run_rg15_independent_review.py --repository . --authority-bundle _bmad-output/planning-artifacts/v9-authority-bundle-v1.json --attestation docs/release-evidence/release-attestation-v2.json --candidate HEAD --output docs/release-evidence/rg-15-independent-review-v1.json`.
+**Exact decision command:**
+`python3 _bmad/scripts/record_rg15_decision.py --repository . --review docs/release-evidence/rg-15-independent-review-v1.json --attestation docs/release-evidence/release-attestation-v2.json --owner-input artifacts/v9/rg-15/release-owner-decision.json --output docs/release-evidence/rg-15-release-decision-v1.json`.
+
+The complete independent review is published byte-for-byte as returned. The
+assessor is not instructed, prompted, patched or retried toward `READY`.
+`READY` is necessary but does not predetermine the explicit release-owner
+decision. `NOT_READY`, missing/incomplete/blocked review, evidence or candidate
+drift, or absent owner decision leaves release closure `OPEN`. RG-15 has no
+story status, final story record, implementation scope or rollback of evidence;
+a successor review/decision is additive and preserves prior actual outcomes.
+
+## Canonical V8-to-V9 Obligation Ledger
+
+This is the obligation-level supersession authority. It contains every one of
+the 66 effective acceptance criteria from unfinished v8 Stories 6.3-6.6 and
+6.8-6.12, followed by every separately binding checkpoint, prohibition,
+dependency, evidence obligation, rollback condition, completion gate, and
+global hold/publication condition. A row occurs exactly once. A comma-separated
+binding means the one compound v8 obligation requires the complete listed set
+of atomic successor scenarios; it is not duplicate ownership.
+
+Canonical digest input is one UTF-8 LF line
+`<v8-obligation-id>|<exact-v9-binding><LF>` in the two table orders below,
+excluding table syntax. Inventory version `V9-V8-OBLIGATION-LEDGER-v1` has
+156 rows and SHA-256 `4dbffda456c4f40055985f303ed9d10d8e7839573e2486c4d01ca5508dca8f87`.
+
+### Effective v8 acceptance-criterion mappings
+
+| V8 obligation | Exact v9 atomic binding or disposition |
+| --- | --- |
+| `V8-6.3-AC1` | `AC-14.1-01,AC-14.1-02,AC-14.1-03,AC-14.1-04` |
+| `V8-6.3-AC2` | `AC-14.2-01,AC-14.2-02,AC-14.2-03` |
+| `V8-6.3-AC3` | `AC-14.2-02,AC-14.2-06` |
+| `V8-6.3-AC4` | `AC-14.2-04` |
+| `V8-6.3-AC5` | `AC-14.2-05` |
+| `V8-6.3-AC6` | `AC-14.3-01,AC-14.3-02,AC-14.3-03,AC-14.3-04,AC-14.3-05,AC-14.3-06` |
+| `V8-6.4-AC1` | `AC-8.1-02,AC-8.1-05` |
+| `V8-6.4-AC2` | `AC-8.1-01` |
+| `V8-6.4-AC3` | `AC-8.1-02,AC-8.1-03,AC-8.1-04,AC-8.1-05` |
+| `V8-6.4-AC4` | `AC-8.1-05` |
+| `V8-6.4-AC5` | `AC-8.2-01,AC-8.2-02,AC-8.2-03,AC-8.2-04,AC-8.2-05,AC-8.2-06,AC-8.2-07,AC-8.2-08,AC-8.2-09,AC-8.2-10` |
+| `V8-6.4-AC6` | `AC-8.1-06` |
+| `V8-6.5-AC1` | `AC-11.1-03,AC-11.1-04` |
+| `V8-6.5-AC2` | `AC-11.1-02,AC-11.1-05` |
+| `V8-6.5-AC3` | `AC-11.2-01,AC-11.2-02,AC-11.2-03,AC-11.2-04,AC-11.2-05,AC-11.2-06` |
+| `V8-6.5-AC4` | `AC-11.3-01,AC-11.3-02,AC-11.3-04` |
+| `V8-6.5-AC5` | `AC-11.3-03,AC-11.3-06` |
+| `V8-6.5-AC6` | `AC-11.3-05,AC-11.3-07` |
+| `V8-6.6-AC1` | `AC-15.1-02` |
+| `V8-6.6-AC2` | `AC-15.1-03,AC-15.1-04` |
+| `V8-6.6-AC3` | `AC-15.2-01,AC-15.2-02,AC-15.2-03,AC-15.2-04` |
+| `V8-6.6-AC4` | `AC-15.1-01,AC-15.1-05,AC-15.1-06,AC-15.1-07` |
+| `V8-6.6-AC5` | `NONSTORY:RG-15-INDEPENDENT-REVIEW` |
+| `V8-6.6-AC6` | `NONSTORY:RG-15-RELEASE-DECISION` |
+| `V8-6.8-AC1` | `AC-7.1-02,AC-7.2-02,AC-7.2-03,AC-7.2-04,AC-7.2-05,AC-7.2-06` |
+| `V8-6.8-AC2` | `AC-7.2-01,AC-7.2-02,AC-7.2-03` |
+| `V8-6.8-AC3` | `AC-7.2-04,AC-7.2-05` |
+| `V8-6.8-AC4` | `AC-7.2-06,AC-7.2-07,AC-7.2-08,AC-7.2-09,AC-7.2-10,AC-7.2-11` |
+| `V8-6.8-AC5` | `AC-7.3-01,AC-7.3-02,AC-7.3-03,AC-7.3-06` |
+| `V8-6.8-AC6` | `AC-7.1-04,AC-7.3-04,AC-7.3-05,AC-7.3-06` |
+| `V8-6.8-AC7` | `AC-7.4-01,AC-7.4-02` |
+| `V8-6.8-AC8` | `AC-7.4-03,AC-7.4-04,AC-7.4-05` |
+| `V8-6.9-AC1` | `AC-9.1-02,AC-9.1-03,AC-9.1-07` |
+| `V8-6.9-AC2` | `AC-9.2-02` |
+| `V8-6.9-AC3` | `AC-9.1-04,AC-9.2-04,AC-9.2-08` |
+| `V8-6.9-AC4` | `AC-9.1-05,AC-9.1-06` |
+| `V8-6.9-AC5` | `AC-9.1-08` |
+| `V8-6.9-AC6` | `AC-9.2-05,AC-9.2-06,AC-9.2-07` |
+| `V8-6.10-AC1` | `AC-10.1-01,AC-10.1-02` |
+| `V8-6.10-AC2` | `AC-10.1-03,AC-10.1-04,AC-10.1-05,AC-10.1-06` |
+| `V8-6.10-AC3` | `AC-10.2-01,AC-10.2-02,AC-10.2-03,AC-10.2-06,AC-10.2-07` |
+| `V8-6.10-AC4` | `AC-10.2-04,AC-10.2-05` |
+| `V8-6.10-AC5` | `AC-10.2-06,AC-10.2-07` |
+| `V8-6.10-AC6` | `AC-10.3-01,AC-10.3-02` |
+| `V8-6.10-AC7` | `AC-10.3-03,AC-10.3-04,AC-10.3-05,AC-10.3-06` |
+| `V8-6.10-AC8` | `AC-10.4-01,AC-10.4-02,AC-10.4-03,AC-10.4-04` |
+| `V8-6.10-AC9` | `AC-10.4-05,AC-10.4-06` |
+| `V8-6.10-AC10` | `AC-10.4-07` |
+| `V8-6.11-AC1` | `AC-12.1-02,AC-12.1-03,AC-12.1-04` |
+| `V8-6.11-AC2` | `AC-12.3-01,AC-12.3-02` |
+| `V8-6.11-AC3` | `AC-12.3-03,AC-12.3-04` |
+| `V8-6.11-AC4` | `AC-12.3-05` |
+| `V8-6.11-AC5` | `AC-12.2-01,AC-12.2-02,AC-12.2-03` |
+| `V8-6.11-AC6` | `AC-12.4-01,AC-12.4-03,AC-12.4-04` |
+| `V8-6.11-AC7` | `AC-12.3-06,AC-12.4-02,AC-12.4-03` |
+| `V8-6.11-AC8` | `AC-12.3-02,AC-12.3-03,AC-12.3-04,AC-12.3-07` |
+| `V8-6.11-AC9` | `AC-12.4-01,AC-12.4-02,AC-12.4-03` |
+| `V8-6.11-AC10` | `AC-12.4-03,AC-12.4-05,AC-12.4-06` |
+| `V8-6.12-AC1` | `AC-13.1-01` |
+| `V8-6.12-AC2` | `AC-13.1-02` |
+| `V8-6.12-AC3` | `AC-13.1-03,AC-13.1-04` |
+| `V8-6.12-AC4` | `AC-13.2-01,AC-13.2-02` |
+| `V8-6.12-AC5` | `AC-13.2-03,AC-13.2-04` |
+| `V8-6.12-AC6` | `AC-13.3-01` |
+| `V8-6.12-AC7` | `AC-13.3-05` |
+| `V8-6.12-AC8` | `AC-13.3-02,AC-13.3-03,AC-13.3-04,AC-13.3-06` |
+
+### Checkpoint, prohibition, dependency, evidence, rollback, and gate mappings
+
+| V8 obligation | Exact v9 atomic binding or disposition |
+| --- | --- |
+| `V8-GLOBAL-HOLD` | `NONEXEC:HOLD-ACTIVE-UNTIL-VALIDATOR-PASS+IR0-READY+RELEASE-OWNER-LIFT` |
+| `V8-GLOBAL-NO-IMPLEMENTATION` | `NONEXEC:V9-PUBLICATION-ONLY` |
+| `V8-GLOBAL-V1-V8-HISTORY` | `IMMUTABLE:EPIC-6-HISTORICAL-FOUNDATION` |
+| `V8-6.3-PROHIBITION-DENOMINATOR-DRIFT` | `AC-14.1-01,AC-14.1-02,AC-14.1-03,AC-14.1-04` |
+| `V8-6.3-PROHIBITION-FR16-ACTIVATION` | `AC-14.1-05,AC-14.3-03` |
+| `V8-6.3-PROHIBITION-HISTORY-AS-CURRENT` | `AC-14.2-05` |
+| `V8-6.3-DEPENDENCY-6.8` | `AC-14.1-08` |
+| `V8-6.3-DEPENDENCY-6.9` | `AC-14.1-08` |
+| `V8-6.3-DEPENDENCY-6.10` | `AC-14.1-08` |
+| `V8-6.3-DEPENDENCY-6.12` | `AC-14.1-08` |
+| `V8-6.3-EVIDENCE-APPROVAL-COMPATIBILITY-HASH-TIER-PROOF` | `AC-14.2-02,AC-14.2-03,AC-14.2-04,AC-14.2-05,AC-14.2-06` |
+| `V8-6.3-ROLLBACK-VERSIONED-MANIFEST` | `AC-14.3-05` |
+| `V8-6.3-COMPLETION-GATE-SAME-CANDIDATE` | `AC-14.3-01,AC-14.3-06` |
+| `V8-6.4-DEPENDENCY-6.1` | `IMMUTABLE:STORY-6.1-DONE` |
+| `V8-6.4-DEPENDENCY-6.8` | `AC-8.1-07` |
+| `V8-6.4-PROHIBITION-UI-ACTIVATION` | `AC-8.1-06` |
+| `V8-6.4-EVIDENCE-UX-52-28-PARITY` | `AC-8.2-01,AC-8.2-08` |
+| `V8-6.4-ROLLBACK-PRESERVE-UX-SOURCES` | `AC-8.2-10` |
+| `V8-6.4-COMPLETION-GATE-ZERO-GAP` | `AC-8.2-11` |
+| `V8-6.5-CHECKPOINT-A` | `AC-11.1-02,AC-11.1-03,AC-11.1-04,AC-11.1-05` |
+| `V8-6.5-CHECKPOINT-B` | `AC-11.2-01,AC-11.2-02,AC-11.2-03,AC-11.2-04,AC-11.2-05,AC-11.2-06` |
+| `V8-6.5-CHECKPOINT-C` | `AC-11.3-01,AC-11.3-02,AC-11.3-03,AC-11.3-04` |
+| `V8-6.5-DEPENDENCY-6.2` | `AC-11.1-01` |
+| `V8-6.5-DEPENDENCY-6.8` | `AC-11.1-01` |
+| `V8-6.5-DEPENDENCY-6.10` | `AC-11.1-01` |
+| `V8-6.5-PROHIBITION-PLATFORM-CAPABILITY-OWNERSHIP` | `AC-11.1-04` |
+| `V8-6.5-EVIDENCE-SM2-FROZEN-INCLUSION` | `AC-11.3-01,AC-11.3-02,AC-11.3-04` |
+| `V8-6.5-ROLLBACK-CHECKPOINTS` | `AC-11.1-06,AC-11.2-07,AC-11.3-06` |
+| `V8-6.5-COMPLETION-GATE-ALL-CHECKPOINTS` | `AC-11.3-05,AC-11.3-07` |
+| `V8-6.6-DEPENDENCY-6.3` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.4` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.5` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.8` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.9` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.10` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.11` | `AC-15.1-01` |
+| `V8-6.6-DEPENDENCY-6.12` | `AC-15.1-01` |
+| `V8-6.6-EVIDENCE-SIGNED-V1-ADR3-PROOF-CHAIN-RERUN` | `AC-15.2-01,AC-15.2-02,AC-15.2-03,AC-15.2-04` |
+| `V8-6.6-PROHIBITION-V6-CEILING-OR-DISCLOSURE-PASS` | `AC-15.1-02` |
+| `V8-6.6-PROHIBITION-NO-PRESCRIBED-VERDICT` | `NONSTORY:RG-15-INDEPENDENT-REVIEW` |
+| `V8-6.6-ROLLBACK-ADDITIVE-ATTESTATION` | `AC-15.2-04,AC-15.2-05` |
+| `V8-6.6-COMPLETION-GATE-LAST` | `AC-15.1-01,AC-15.2-06` |
+| `V8-6.6-GATE-INDEPENDENT-READINESS-AND-RELEASE-DECISION` | `NONSTORY:RG-15-INDEPENDENT-REVIEW,RG-15-RELEASE-DECISION` |
+| `V8-6.8-DEPENDENCY-6.2` | `AC-7.1-01` |
+| `V8-6.8-EVIDENCE-FOUR-DERIVATION-SOURCES` | `AC-7.2-02,AC-7.2-04,AC-7.2-06,AC-7.2-09` |
+| `V8-6.8-PROHIBITION-PROTECTED-SOURCE-CONTRACT-PACKAGE-BASELINE-EVIDENCE` | `AC-7.2-05,AC-7.4-01` |
+| `V8-6.8-PROHIBITION-NO-CLOSED-RECORD-REWRITE` | `AC-7.4-01` |
+| `V8-6.8-PROHIBITION-NO-SUBMODULE-MUTATION-OR-TRAVERSAL` | `AC-7.2-07,AC-7.2-08,AC-7.2-09,AC-7.2-10` |
+| `V8-6.8-PROHIBITION-NO-CI-CLAIM` | `AC-7.3-06` |
+| `V8-6.8-ROLLBACK-FAULT-BYTE-RESTORATION` | `AC-7.4-04` |
+| `V8-6.8-COMPLETION-GATE-NONVACUOUS-MECHANICAL-RECORD` | `AC-7.4-05,AC-7.4-06` |
+| `V8-6.9-DEPENDENCY-6.1` | `AC-9.1-01` |
+| `V8-6.9-PROHIBITION-NO-PUBLIC-WIDENING` | `AC-9.1-07` |
+| `V8-6.9-PROHIBITION-NO-REMOVE-SKIP-RENAME-WEAKEN` | `AC-9.1-02,AC-9.1-04,AC-9.2-08` |
+| `V8-6.9-EVIDENCE-PRESPLIT-AND-SUMMED-EXECUTION` | `AC-9.2-04,AC-9.2-08` |
+| `V8-6.9-ROLLBACK-RESTORE-MIGRATED-ASSERTIONS` | `AC-9.2-09` |
+| `V8-6.9-COMPLETION-GATE-BOTH-TIERS` | `AC-9.2-06,AC-9.2-07,AC-9.2-10` |
+| `V8-6.10-DEPENDENCY-6.8` | `AC-10.1-07` |
+| `V8-6.10-DEPENDENCY-6.9` | `AC-10.1-07` |
+| `V8-6.10-PROHIBITION-SIGNED-EVIDENCE-ALLOWLIST` | `AC-10.2-07` |
+| `V8-6.10-PROHIBITION-UNAVAILABLE-HISTORY-PASS` | `AC-10.2-06` |
+| `V8-6.10-PROHIBITION-VACUOUS-PASS` | `AC-10.2-06` |
+| `V8-6.10-PROHIBITION-PROJECTION-PROOF-ABSORPTION` | `AC-10.4-04` |
+| `V8-6.10-PROHIBITION-NO-CI-CLAIM` | `AC-10.4-05` |
+| `V8-6.10-EVIDENCE-FROZEN-READERS-AND-STRENGTH` | `AC-10.4-01,AC-10.4-02` |
+| `V8-6.10-ROLLBACK-FAULT-BYTE-RESTORATION` | `AC-10.4-06` |
+| `V8-6.10-COMPLETION-GATE-BOUNDARY-AND-SPAN` | `AC-10.4-07,AC-10.4-08` |
+| `V8-6.11-DEPENDENCY-6.2` | `AC-12.1-01` |
+| `V8-6.11-PROHIBITION-EVENTSTORE-ONLY-WRITE-AUTHORITY` | `AC-12.1-03` |
+| `V8-6.11-PROHIBITION-READS-NEVER-REPAIR-DURABLE-STATE` | `AC-12.3-02` |
+| `V8-6.11-PROHIBITION-NO-PUBLIC-CONTRACT-DRIFT` | `AC-12.3-05` |
+| `V8-6.11-PROHIBITION-NO-THRESHOLD-CHANGE` | `AC-12.2-02` |
+| `V8-6.11-PROHIBITION-NO-ADVERSE-SAMPLE-DISCARD` | `AC-12.2-03` |
+| `V8-6.11-PROHIBITION-NO-CORRECTNESS-WEAKENING` | `AC-12.3-06,AC-12.4-03` |
+| `V8-6.11-PROHIBITION-NO-COST-DISCLOSURE-APPROVAL-SUBSTITUTE` | `AC-12.4-03,AC-12.4-04` |
+| `V8-6.11-EVIDENCE-RAW-SAMPLES-ENVIRONMENT-CALCULATION-SIGNAL-IDENTITY` | `AC-12.4-01,AC-12.4-02,AC-12.4-03` |
+| `V8-6.11-ROLLBACK-CORRECTNESS-PRESERVING` | `AC-12.3-07,AC-12.4-05` |
+| `V8-6.11-COMPLETION-GATE-UNIVERSAL-SM-C2` | `AC-12.4-03,AC-12.4-06` |
+| `V8-6.12-CHECKPOINT-A` | `AC-13.1-01,AC-13.1-02,AC-13.1-03,AC-13.1-04` |
+| `V8-6.12-CHECKPOINT-B` | `AC-13.2-01,AC-13.2-02,AC-13.2-03,AC-13.2-04` |
+| `V8-6.12-CHECKPOINT-C` | `AC-13.3-01,AC-13.3-02,AC-13.3-03,AC-13.3-04,AC-13.3-05` |
+| `V8-6.12-DEPENDENCY-6.8` | `AC-13.1-01` |
+| `V8-6.12-PROHIBITION-NO-V2-MUTATION` | `AC-13.1-01` |
+| `V8-6.12-PROHIBITION-NO-PRODUCTION-CONTRACT-PACKAGE-BASELINE-SUBMODULE-CHANGE` | `AC-13.2-04` |
+| `V8-6.12-PROHIBITION-NO-BACKLOG-AS-CURRENT-PROOF` | `AC-13.3-05` |
+| `V8-6.12-PROHIBITION-NO-ASSERTION-WEAKENING` | `AC-13.3-02,AC-13.3-03,AC-13.3-04` |
+| `V8-6.12-EVIDENCE-HISTORICAL-CANDIDATE-BLOBS` | `AC-13.1-01` |
+| `V8-6.12-EVIDENCE-CURRENT-PROOF-CHAIN` | `AC-13.3-05` |
+| `V8-6.12-ROLLBACK-CHECKPOINTS` | `AC-13.1-05,AC-13.2-06,AC-13.3-01` |
+| `V8-6.12-COMPLETION-GATE-ALL-EIGHT-SAME-CANDIDATE` | `AC-13.3-06` |
+
+## Publication State And Hold
+
+- Canonical epic authority remains
+  `epic-6-authority-2026-08-02-v9` and architecture authority remains
+  `conversations-architecture-2026-08-02-v9`.
+- Epic 6 is immutable completed historical foundation only; Epics 7-15 contain
+  exactly 27 topologically ordered successor stories.
+- `PC=UNBOUND`; no story candidate or release candidate is bound by this
+  publication.
+- The global implementation hold is `ACTIVE`. Missing, invalid, or
+  candidate-drifted validation, IR-0, or owner decision also evaluates to
+  `ACTIVE`.
+- This block specifies future work only. No story, product code, runtime,
+  contract, dependency, submodule, evidence record, baseline, or gate has been
+  implemented or executed by this publication.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V9:END version=epic-6-authority-2026-08-02-v9 architecture-authority=conversations-architecture-2026-08-02-v9 candidate=UNBOUND hold=ACTIVE -->

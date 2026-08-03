@@ -18,7 +18,8 @@ lastStep: 14
 workflowStatus: complete
 completedAt: 2026-05-13
 inputDocuments:
-  - _bmad-output/planning-artifacts/prd.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md
   - _bmad-output/planning-artifacts/product-brief-Hexalith.Conversations.md
   - _bmad-output/planning-artifacts/product-brief-Hexalith.Conversations-distillate.md
   - _bmad-output/planning-artifacts/research/technical-hexalith-frontcomposer-administration-ui-for-hexalith-conversations-research-2026-05-10.md
@@ -28,6 +29,9 @@ inputDocuments:
   - _bmad-output/planning-artifacts/research/technical-how-to-use-hexalithtenants-to-manage-tenant-isolation-in-hexalithconversations-research-2026-05-10.md
   - _bmad-output/planning-artifacts/research/technical-using-hexalith-eventstore-in-the-hexalith-conversations-module-research-2026-05-10.md
   - _bmad-output/project-context.md
+preservationAuthorityVersion: ux-preservation-planning-2026-08-01-v1
+currentDisposition: preserved-not-activated
+activationAuthority: separate-approved-release-authority-required
 ---
 
 # UX Design Specification Hexalith.Conversations
@@ -36,6 +40,18 @@ inputDocuments:
 **Date:** 2026-05-12
 
 ---
+
+> **Preservation-only UX authority.** This document preserves product UX
+> decisions and acceptance obligations. It does not activate product UI
+> implementation in the current corrective initiative. Activation requires
+> separate approved release authority.
+
+The historical workflow metadata and design content remain preservation
+provenance. Current initiative authority comes from the canonical PRD and
+addendum listed in frontmatter. The current disposition of every UX decision
+and explicit acceptance-criterion identifier is maintained in
+`ux-requirement-map.md`; historical story references are non-current provenance
+and cannot authorize implementation.
 
 <!-- UX design content will be appended sequentially through collaborative workflow steps -->
 
@@ -1102,7 +1118,11 @@ Component acceptance criteria:
 - Why-this-result and why-am-I-seeing-this explanations explain scope, source, and matching rationale without exposing inaccessible records, hidden fields, denied participants, ranking factors, or redacted content.
 - Complete means defensible within explicit scope; complete within permissions, complete within indexed data, incomplete due to withheld data, and unknown due to missing metadata must be distinct states.
 
-### Implementation Roadmap
+### Preserved Historical/Future Activation Sequence
+
+The Phase 0-3 sequence below is retained as design provenance for a separately
+approved future activation. It is not the active Epic 6 execution plan, does
+not assign current story ownership, and does not authorize product UI work.
 
 **Phase 0 - Trust Primitives and Contracts**
 
