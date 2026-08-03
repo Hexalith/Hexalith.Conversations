@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hexalith.conversations.v9-execution-graph.v1",
-  "planningCandidate": "4e7d754053cf8ea616bde308b551f42fa413c827",
+  "planningCandidate": "39c4b35dfa291ab94129f9787e4201dc0f621987",
   "authorities": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10"
