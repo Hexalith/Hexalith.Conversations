@@ -406,7 +406,7 @@ def parse_scenarios(section: str) -> list[dict[str, Any]]:
                     "passExitCodes": [0],
                     "failExitCodes": [1, 5] if direct_pytest else [1],
                     "blockedExitCodes": [2, 3, 4] if direct_pytest else [2],
-                    "notApplicableAllowed": match.group(1).startswith("AC-10.3-"),
+                    "notApplicableAllowed": match.group(1) == "AC-10.3-01",
                 },
             }
         )

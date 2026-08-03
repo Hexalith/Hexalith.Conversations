@@ -96,6 +96,16 @@ def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
         }
     assert len(contracts["10.3"]["scenarios"]) == 8
     assert len(contracts["10.4"]["scenarios"]) == 9
+    assert [
+        scenario["resultSemantics"]["notApplicableAllowed"]
+        for scenario in contracts["10.3"]["scenarios"]
+    ] == [True, False, False, False, False, False, False, False]
+    assert all(
+        not scenario["resultSemantics"]["notApplicableAllowed"]
+        for story_id, contract in contracts.items()
+        if story_id != "10.3"
+        for scenario in contract["scenarios"]
+    )
     assert contracts["10.4"]["scenarios"][-1]["id"] == "AC-10.4-09"
     ac_ten_four_eight = next(row for row in contracts["10.4"]["scenarios"] if row["id"] == "AC-10.4-08")
     assert "summary `9/9/0/0/0/0`" in ac_ten_four_eight["contract"]

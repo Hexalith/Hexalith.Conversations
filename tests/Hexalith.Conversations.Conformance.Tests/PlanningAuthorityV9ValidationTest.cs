@@ -154,6 +154,12 @@ public sealed class PlanningAuthorityV9ValidationTest
         contracts.Keys.ShouldContain("10.4");
         contracts["10.3"].GetProperty("scenarios").GetArrayLength().ShouldBe(8);
         contracts["10.4"].GetProperty("scenarios").GetArrayLength().ShouldBe(9);
+        contracts["10.3"].GetProperty("scenarios").EnumerateArray()
+            .Select(row => row.GetProperty("resultSemantics").GetProperty("notApplicableAllowed").GetBoolean())
+            .ShouldBe([true, false, false, false, false, false, false, false]);
+        contracts.Where(pair => pair.Key != "10.3")
+            .SelectMany(pair => pair.Value.GetProperty("scenarios").EnumerateArray())
+            .ShouldAllBe(row => !row.GetProperty("resultSemantics").GetProperty("notApplicableAllowed").GetBoolean());
         contracts["10.4"].GetProperty("scenarios")[8].GetProperty("id").GetString().ShouldBe("AC-10.4-09");
         foreach ((string storyId, JsonElement contract) in contracts)
         {
