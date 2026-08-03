@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "d7f184f8ac401a74f3042e934b9aaa08631da869",
+    "planningCandidate": "9c1287f9c6af8b479284ab7de3a18b0f6ae94666",
     "candidateBinding": "`SC-14.3`, Stories 14.1-14.2 and predecessor records, all referenced source/evidence/test binaries/results and relevant gitlinks.",
     "sectionSha256": "cd483e23c87e1327aff015fb024a324f7baa91a79813d4e8352ac22164854f2d"
   },
