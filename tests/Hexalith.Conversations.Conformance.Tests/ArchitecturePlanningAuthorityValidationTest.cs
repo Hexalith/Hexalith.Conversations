@@ -608,7 +608,10 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         string activeBlock = activeAmendment[..(activeAmendmentEndIndex + activeAmendmentEnd.Length)];
         string v8Amendment = activeAmendment[(activeAmendmentEndIndex + activeAmendmentEnd.Length)..].TrimStart('\r', '\n');
         v8Amendment.ShouldStartWith(v8AmendmentBegin, Case.Sensitive, "The v8 amendment must be appended immediately after the v7 amendment closes.");
-        v8Amendment.TrimEnd().ShouldEndWith(v8AmendmentEnd);
+        int v8AmendmentEndIndex = v8Amendment.IndexOf(v8AmendmentEnd, StringComparison.Ordinal);
+        v8AmendmentEndIndex.ShouldBeGreaterThan(0, "The immutable v8 amendment must remain present and closed before successor authority.");
+        string v8Block = v8Amendment[..(v8AmendmentEndIndex + v8AmendmentEnd.Length)];
+        v8Block.TrimEnd().ShouldEndWith(v8AmendmentEnd);
 
         string epics = Encoding.UTF8.GetString(epicBytes);
         CountOccurrences(epics, "EPIC-6-AUTHORITY-OVERLAY:BEGIN").ShouldBe(1, "Exactly one append-only authority overlay may exist.");
@@ -982,7 +985,9 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     public void EpicOverlayAndGeneratedContextShouldBeVersionAndStoryEquivalent()
     {
         string epics = ReadRepositoryFile(EpicsPath);
-        string context = ReadRepositoryFile(ContextPath);
+        TryReadGitBlobBytes("HEAD", ContextPath, out byte[] contextBytes)
+            .ShouldBeTrue("Historical v8 validation requires the committed Epic 6 context, independent of unrelated working-tree edits.");
+        string context = Encoding.UTF8.GetString(contextBytes);
         string contextFrontmatter = ExtractFrontmatter(context);
 
         epics.ShouldContain($"version={OverlayVersion}");
