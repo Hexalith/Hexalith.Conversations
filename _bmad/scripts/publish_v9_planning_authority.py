@@ -33,6 +33,7 @@ VIEW_V2_PATH = "_bmad-output/planning-artifacts/epic-6-current-execution-view-v2
 BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 GRAPH_PATH = "_bmad-output/planning-artifacts/v9-execution-graph-v1.json"
 SUPERSESSION_PATH = "_bmad-output/planning-artifacts/v9-supersession-map-v1.json"
+RUNBOOK_PATH = "docs/runbooks/evidence-boundary-validation.md"
 V9_EPIC_BLOCK_SIZE = 188677
 V9_EPIC_BLOCK_DIGEST = "e7d6ea5759c12ab70f21b472656828bb4e5bcce2023d845f06a40cf1373d1c9d"
 V9_ARCHITECTURE_BLOCK_SIZE = 18270
@@ -64,7 +65,47 @@ GUIDANCE_PATHS = (
     "_bmad/custom/bmad-build.toml",
     "_bmad/custom/bmad-build-auto.toml",
     "_bmad/custom/bmad-review.toml",
-    "docs/runbooks/evidence-boundary-validation.md",
+    RUNBOOK_PATH,
+)
+VALIDATOR_PATHS = (
+    "_bmad/scripts/tests/test_publish_v9_planning_authority.py",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+)
+ROOT_GITLINK_PATHS = (
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants",
+)
+EXPECTED_UX_DECISION_IDS = tuple(f"UX-DR{value}" for value in range(1, 53))
+EXPECTED_UX_ACCEPTANCE_IDS = (
+    *(f"AC-SAFE-{value:03d}" for value in range(1, 9)),
+    *(f"AC-RESP-{value:03d}" for value in range(1, 16)),
+    "AC-A11Y-001",
+    "AC-A11Y-002",
+    "AC-LEAK-001",
+    "AC-MOB-001",
+    "AC-PERF-001",
+)
+OBLIGATION_LEDGER_ID = "V9-V8-OBLIGATION-LEDGER-v1"
+OBLIGATION_LEDGER_DIGEST = "4dbffda456c4f40055985f303ed9d10d8e7839573e2486c4d01ca5508dca8f87"
+GUIDANCE_SEMANTICS = (
+    "Recompute every declared source hash",
+    "repository-relative, contained by the resolved",
+    "Recompute the signable payload from canonical manifest rows",
+    "exact set equality",
+    "raw Git mode `160000`",
+    "asserted inventory row identities to equal the frozen source inventory exactly",
+    "Pin roots of trust",
+    "nonempty evaluated assertion ledger",
 )
 READER_PATHS = (
     "tests/Hexalith.Conversations.Conformance.Tests/AtRiskTestRegisterGenerationTest.cs",
@@ -114,12 +155,14 @@ SCHEMA_PATHS = (
     "_bmad/schemas/v9-authority-bundle-v1.schema.json",
 )
 CANONICAL_PATHS = (
+    ".gitmodules",
     EPICS_PATH,
     ARCHITECTURE_PATH,
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-02.md",
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-03.md",
     *GUIDANCE_PATHS,
     "_bmad/scripts/publish_v9_planning_authority.py",
+    *VALIDATOR_PATHS,
     *SCHEMA_PATHS,
 )
 PROTECTED_CANDIDATE_PATHS = (
@@ -187,14 +230,19 @@ def inventory_digest(paths: tuple[str, ...] | list[str]) -> str:
 def git(root: Path, *arguments: str) -> bytes:
     """Run one bounded non-interactive Git command."""
 
-    result = subprocess.run(
-        ("git", "-C", str(root), *arguments),
-        check=False,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        timeout=30,
-        env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"},
-    )
+    try:
+        result = subprocess.run(
+            ("git", "-C", str(root), *arguments),
+            check=False,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=30,
+            env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"},
+        )
+    except subprocess.TimeoutExpired as error:
+        raise PublicationError("CANDIDATE_GIT_UNAVAILABLE", "Git command timed out") from error
+    except OSError as error:
+        raise PublicationError("CANDIDATE_GIT_UNAVAILABLE", str(error)) from error
     if result.returncode != 0:
         detail = result.stderr.decode("utf-8", errors="replace").strip()
         raise PublicationError("CANDIDATE_GIT_UNAVAILABLE", detail or "Git command failed")
@@ -204,7 +252,7 @@ def git(root: Path, *arguments: str) -> bytes:
 def resolve_candidate(root: Path, requested: str | None, check: bool) -> str:
     """Resolve the one immutable planning-candidate commit."""
 
-    if check:
+    if check and requested is None:
         bundle = root / BUNDLE_PATH
         if not bundle.is_file():
             raise PublicationError("BUNDLE_NOT_PUBLISHED", BUNDLE_PATH)
@@ -238,7 +286,11 @@ def require_candidate_bytes(root: Path, candidate: str, paths: tuple[str, ...]) 
         current_path = root / relative_path
         if not current_path.is_file():
             raise PublicationError("CANDIDATE_PATH_MISSING", relative_path)
-        if current_path.read_bytes() != candidate_blob(root, candidate, relative_path):
+        try:
+            current = current_path.read_bytes()
+        except OSError as error:
+            raise PublicationError("CANDIDATE_SOURCE_READ_FAILED", f"{relative_path}: {error}") from error
+        if current != candidate_blob(root, candidate, relative_path):
             raise PublicationError("CANDIDATE_SOURCE_DRIFT", relative_path)
 
 
@@ -249,9 +301,12 @@ def marker_block(content: bytes, begin_token: str, end_token: str) -> bytes:
     end = end_token.encode("utf-8")
     if content.count(begin) != 1 or content.count(end) != 1:
         raise PublicationError("AUTHORITY_MARKER_INVALID", f"{begin_token} / {end_token}")
-    start = content.index(begin)
-    end_start = content.index(end, start)
-    close = content.index(b"-->", end_start) + 3
+    start = content.find(begin)
+    end_start = content.find(end, start + len(begin))
+    close_start = content.find(b"-->", end_start + len(end)) if end_start >= 0 else -1
+    if start < 0 or end_start <= start or close_start < end_start:
+        raise PublicationError("AUTHORITY_MARKER_INVALID", f"{begin_token} / {end_token}")
+    close = close_start + 3
     return content[start:close]
 
 
@@ -275,16 +330,19 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
         or sha256(v9_architecture) != V9_ARCHITECTURE_BLOCK_DIGEST
     ):
         raise PublicationError("V9_ARCHITECTURE_PREFIX_DRIFT", sha256(v9_architecture))
-    v10_epic = marker_block(
-        epics,
-        "<!-- EPIC-6-AUTHORITY-OVERLAY-V10:BEGIN",
-        "<!-- EPIC-6-AUTHORITY-OVERLAY-V10:END",
-    ).decode("utf-8")
-    v10_architecture = marker_block(
-        architecture,
-        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:BEGIN",
-        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:END",
-    ).decode("utf-8")
+    try:
+        v10_epic = marker_block(
+            epics,
+            "<!-- EPIC-6-AUTHORITY-OVERLAY-V10:BEGIN",
+            "<!-- EPIC-6-AUTHORITY-OVERLAY-V10:END",
+        ).decode("utf-8")
+        v10_architecture = marker_block(
+            architecture,
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:BEGIN",
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:END",
+        ).decode("utf-8")
+    except UnicodeError as error:
+        raise PublicationError("AUTHORITY_MARKER_INVALID", str(error)) from error
     for source in (v10_epic, v10_architecture):
         if EPIC_AUTHORITY not in source or ARCHITECTURE_AUTHORITY not in source:
             raise PublicationError("AUTHORITY_IDENTITY_DRIFT", "v10 identity missing")
@@ -336,17 +394,20 @@ def parse_scenarios(section: str) -> list[dict[str, Any]]:
     scenarios: list[dict[str, Any]] = []
     for match in re.finditer(r"^\| `(AC-[^`]+)` \|(?P<rest>.*)\|$", section, re.MULTILINE):
         row = match.group(0)
-        results = [
-            result
-            for result in ("PASS", "FAIL", "BLOCKED", "not-applicable")
-            if result in row
-        ]
+        command = scenario_command(row)
+        direct_pytest = "pytest" in command
         scenarios.append(
             {
                 "id": match.group(1),
-                "command": scenario_command(row),
+                "command": command,
                 "contract": " ".join(row.split()),
-                "requiredResults": results,
+                "resultSemantics": {
+                    "expected": "PASS",
+                    "passExitCodes": [0],
+                    "failExitCodes": [1, 5] if direct_pytest else [1],
+                    "blockedExitCodes": [2, 3, 4] if direct_pytest else [2],
+                    "notApplicableAllowed": match.group(1).startswith("AC-10.3-"),
+                },
             }
         )
     if not scenarios:
@@ -408,12 +469,24 @@ def parse_contracts(epics: str, candidate: str, v10_block: str) -> dict[str, dic
                 scenario["contract"] = amendment_contracts[scenario["id"]]
             effective_section = f"{section}\n\n{ten_three_amendment}"
         elif story_id == "10.4":
+            for scenario in scenarios:
+                if scenario["id"] == "AC-10.4-08":
+                    scenario["contract"] = scenario["contract"].replace(
+                        "summary `8/8/0/0/0/0`",
+                        "summary `9/9/0/0/0/0`",
+                    )
             scenarios.append(
                 {
                     "id": "AC-10.4-09",
                     "command": "python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check",
                     "contract": " ".join(ten_four_amendment.split()),
-                    "requiredResults": ["PASS", "FAIL", "BLOCKED", "not-applicable"],
+                    "resultSemantics": {
+                        "expected": "PASS",
+                        "passExitCodes": [0],
+                        "failExitCodes": [1],
+                        "blockedExitCodes": [2],
+                        "notApplicableAllowed": False,
+                    },
                 }
             )
             effective_section = f"{section}\n\n{ten_four_amendment}"
@@ -422,7 +495,7 @@ def parse_contracts(epics: str, candidate: str, v10_block: str) -> dict[str, dic
             raise PublicationError("STORY_SCENARIO_ID_DRIFT", story_id)
 
         predecessor_text = field(section, "Exact predecessors")
-        predecessors = re.findall(r"`(\d+\.\d+)`", predecessor_text)
+        predecessors = sorted(re.findall(r"`(\d+\.\d+)`", predecessor_text))
         rollback = field(section, "Rollback boundary")
         candidate_binding = field(section, "Candidate binding")
         bounded_outcome = field(section, "Bounded outcome")
@@ -431,32 +504,44 @@ def parse_contracts(epics: str, candidate: str, v10_block: str) -> dict[str, dic
             section,
             re.DOTALL,
         )
+        final_record = field(section, "Generated final record")
         final_paths = sorted(
             set(
                 re.findall(
                     r"(?:docs|_bmad-output)/[A-Za-z0-9_./-]*story-[0-9.]+-final-record-v2\.(?:json|md)",
-                    section,
+                    final_record,
                 )
             )
         )
         contracts[story_id] = {
-            "schemaVersion": "hexalith.conversations.v9-story-contract.v1",
-            "planningCandidate": candidate,
-            "authorities": AUTHORITIES,
+            "schemaVersion": "hexalith.conversations.story-contract.v1",
             "storyId": story_id,
-            "title": title,
-            "boundedOutcome": bounded_outcome,
+            "authority": {
+                **AUTHORITIES,
+                "planningCandidate": candidate,
+                "candidateBinding": candidate_binding,
+                "sectionSha256": sha256(effective_section.encode("utf-8")),
+            },
             "predecessors": predecessors,
-            "rollbackBoundary": rollback,
-            "candidateBinding": candidate_binding,
-            "entryInventory": (
+            "outcome": {"title": title, "bounded": bounded_outcome},
+            "rollback": {"boundary": rollback},
+            "inventory": (
                 {"id": inventory_match.group(1), "sha256": inventory_match.group(2)}
                 if inventory_match
                 else None
             ),
-            "authoritySectionSha256": sha256(effective_section.encode("utf-8")),
-            "finalRecordPaths": final_paths,
             "scenarios": scenarios,
+            "finalRecord": {
+                "paths": final_paths,
+                "summary": {
+                    "required": len(scenarios),
+                    "passed": len(scenarios),
+                    "failed": 0,
+                    "blocked": 0,
+                    "skipped": 0,
+                    "notRun": 0,
+                },
+            },
         }
     return contracts
 
@@ -498,9 +583,20 @@ def render_resolved_customization(root: Path, candidate: str) -> dict[str, bytes
 
     outputs: dict[str, bytes] = {}
     runbook_reference = "file:{project-root}/docs/runbooks/evidence-boundary-validation.md"
+    try:
+        runbook = (root / RUNBOOK_PATH).read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as error:
+        raise PublicationError("EVIDENCE_GUIDANCE_DRIFT", f"{RUNBOOK_PATH}: {error}") from error
+    runbook_flat = " ".join(runbook.split())
+    missing_semantics = [semantic for semantic in GUIDANCE_SEMANTICS if semantic not in runbook_flat]
+    if missing_semantics:
+        raise PublicationError("EVIDENCE_GUIDANCE_DRIFT", repr(missing_semantics))
     for skill in ("bmad-build", "bmad-build-auto", "bmad-review"):
         agents_default = f".agents/skills/{skill}/customize.toml"
         claude_default = f".claude/skills/{skill}/customize.toml"
+        user_layer = root / f"_bmad/custom/{skill}.user.toml"
+        if user_layer.exists():
+            raise PublicationError("EVIDENCE_CUSTOMIZATION_RESOLUTION_FAILED", f"unbound user layer: {user_layer}")
         if candidate_blob(root, candidate, agents_default) != candidate_blob(root, candidate, claude_default):
             raise PublicationError("EVIDENCE_WORKFLOW_PARITY_DRIFT", f"{skill} customization default")
         try:
@@ -550,6 +646,13 @@ def render_inventory(
 ) -> bytes:
     """Render one path-and-blob-bound planning inventory."""
 
+    expected_by_id = {
+        "V9-EVIDENCE-WORKFLOWS-v2": MECHANICAL_PATHS,
+        "V9-EVIDENCE-GUIDANCE-v2": GUIDANCE_PATHS,
+        "V9-EVIDENCE-READERS-v1": READER_PATHS,
+    }
+    if len(paths) != len(set(paths)) or tuple(paths) != expected_by_id.get(inventory_id):
+        raise PublicationError("INVENTORY_ORDER_DRIFT", inventory_id)
     rows = []
     for ordinal, relative_path in enumerate(paths, start=1):
         row: dict[str, Any] = {
@@ -585,7 +688,14 @@ def render_graph(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
         "RG-15": {"id": "RG-15", "kind": "release-gate", "predecessors": ["15.2"]},
     }
     for story_id, contract in contracts.items():
-        nodes[story_id] = {"id": story_id, "kind": "story", "predecessors": contract["predecessors"]}
+        predecessors = list(contract["predecessors"])
+        if story_id in ("7.1", "12.1"):
+            predecessors.append("IR-0")
+        nodes[story_id] = {
+            "id": story_id,
+            "kind": "story",
+            "predecessors": sorted(set(predecessors)),
+        }
     for node in nodes.values():
         for predecessor in node["predecessors"]:
             if predecessor not in nodes:
@@ -607,6 +717,17 @@ def render_graph(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
 
     for node_id in nodes:
         visit(node_id)
+    for story_id in EXPECTED_STORY_IDS:
+        pending = list(nodes[story_id]["predecessors"])
+        ancestors: set[str] = set()
+        while pending:
+            predecessor = pending.pop()
+            if predecessor in ancestors:
+                continue
+            ancestors.add(predecessor)
+            pending.extend(nodes[predecessor]["predecessors"])
+        if "IR-0" not in ancestors:
+            raise PublicationError("EXECUTION_GRAPH_GAP", f"IR-0->{story_id}")
     edges = sorted(
         (
             {"from": predecessor, "to": node["id"]}
@@ -628,7 +749,7 @@ def render_graph(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
 
 
 def render_supersession(candidate: str, epics: str) -> bytes:
-    """Render all unfinished-story dispositions and 66 v8 AC obligations."""
+    """Render all dispositions and the complete canonical 156-row v8 ledger."""
 
     dispositions = (
         ("6.3", "in-progress", 14, ("14.1", "14.2", "14.3"), "partial work is unaccepted input"),
@@ -641,23 +762,68 @@ def render_supersession(candidate: str, epics: str) -> bytes:
         ("6.11", "backlog", 12, ("12.1", "12.2", "12.3", "12.4"), "superseded definition only"),
         ("6.12", "ready-for-dev", 13, ("13.1", "13.2", "13.3"), "prepared story remains provenance"),
     )
-    matches = re.findall(
-        r"^\| `(V8-6\.(?:3|4|5|6|8|9|10|11|12)-AC\d+)` \| `([^`]+)` \|$",
-        marker_block(
-            epics.encode("utf-8"),
-            "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:BEGIN",
-            "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:END",
-        ).decode("utf-8"),
+    v9_block = marker_block(
+        epics.encode("utf-8"),
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:BEGIN",
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:END",
+    ).decode("utf-8")
+    ledger_start = v9_block.find("### Effective v8 acceptance-criterion mappings")
+    supporting_start = v9_block.find(
+        "### Checkpoint, prohibition, dependency, evidence, rollback, and gate mappings",
+        ledger_start,
+    )
+    ledger_end = v9_block.find("## Publication State And Hold", supporting_start)
+    if ledger_start < 0 or supporting_start <= ledger_start or ledger_end <= supporting_start:
+        raise PublicationError("SUPERSESSION_OBLIGATION_DRIFT", "canonical ledger boundaries")
+    acceptance_matches = re.findall(
+        r"^\| `(V8-[^`]+)` \| `([^`]+)` \|$",
+        v9_block[ledger_start:supporting_start],
         re.MULTILINE,
     )
-    if len(matches) != 66 or len(dict(matches)) != 66:
-        raise PublicationError("SUPERSESSION_OBLIGATION_DRIFT", str(len(matches)))
+    supporting_matches = re.findall(
+        r"^\| `(V8-[^`]+)` \| `([^`]+)` \|$",
+        v9_block[supporting_start:ledger_end],
+        re.MULTILINE,
+    )
+    matches = acceptance_matches + supporting_matches
+    if len(acceptance_matches) != 66 or len(matches) != 156:
+        raise PublicationError(
+            "SUPERSESSION_OBLIGATION_DRIFT",
+            f"acceptance={len(acceptance_matches)} total={len(matches)}",
+        )
+    source_ids = [source_id for source_id, _ in matches]
+    if len(source_ids) != len(set(source_ids)):
+        raise PublicationError("SUPERSESSION_OBLIGATION_DRIFT", "duplicate obligation identity")
+    digest_input = "".join(f"{source_id}|{binding}\n" for source_id, binding in matches).encode("utf-8")
+    ledger_digest = sha256(digest_input)
+    if ledger_digest != OBLIGATION_LEDGER_DIGEST:
+        raise PublicationError("SUPERSESSION_OBLIGATION_DRIFT", ledger_digest)
     obligations = []
-    for source_id, raw_bindings in matches:
-        bindings = raw_bindings.split(",")
-        if source_id == "V8-6.10-AC9" and "AC-10.4-09" not in bindings:
-            bindings.append("AC-10.4-09")
-        obligations.append({"sourceId": source_id, "bindings": bindings})
+    for ordinal, (source_id, canonical_binding) in enumerate(matches, start=1):
+        effective_bindings = canonical_binding.split(",")
+        if source_id == "V8-6.10-AC9":
+            effective_bindings.append("AC-10.4-09")
+        obligations.append(
+            {
+                "ordinal": ordinal,
+                "table": "acceptance-criteria" if ordinal <= len(acceptance_matches) else "supporting-obligations",
+                "sourceId": source_id,
+                "canonicalBinding": canonical_binding,
+                "effectiveBindings": effective_bindings,
+            }
+        )
+    extraction_start = v9_block.find("### Confirmed Requirement Extraction")
+    extraction_end = v9_block.find("### Non-Goals And Active Hold", extraction_start)
+    extraction = v9_block[extraction_start:extraction_end]
+    required_denominator_clauses = (
+        "exactly 20 initiative FRs and 104 `Feature-FR`s, hence 124/124 functional",
+        "all 77 `Feature-NFR`s",
+        "all 52 UX decisions and all 28 UX acceptance identifiers",
+    )
+    if extraction_start < 0 or extraction_end <= extraction_start or any(
+        clause not in extraction for clause in required_denominator_clauses
+    ):
+        raise PublicationError("PRESERVATION_DENOMINATOR_DRIFT", "confirmed requirement extraction")
     if len([row for row in dispositions if row[0] == "6.10" and row[2] == 10]) != 1:
         raise PublicationError("SUPERSESSION_STORY_6_10_DRIFT", "expected one Epic 10 mapping")
     if len([row for row in obligations if row["sourceId"].startswith("V8-6.10-AC")]) != 10:
@@ -677,7 +843,19 @@ def render_supersession(candidate: str, epics: str) -> bytes:
                 }
                 for source, status, epic, stories, policy in dispositions
             ],
-            "v8AcceptanceObligations": obligations,
+            "preservationDenominators": {
+                "functionalRequirements": {"required": 124, "mapped": 124},
+                "nonFunctionalRequirements": {"required": 77, "mapped": 77},
+                "uxDecisions": {"required": 52, "mapped": 52},
+                "uxAcceptanceCriteria": {"required": 28, "mapped": 28},
+            },
+            "obligationLedger": {
+                "inventoryId": OBLIGATION_LEDGER_ID,
+                "sha256": ledger_digest,
+                "acceptanceCriteriaRows": len(acceptance_matches),
+                "totalRows": len(obligations),
+                "rows": obligations,
+            },
         }
     )
 
@@ -686,7 +864,7 @@ def render_view(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
     """Render the non-amending v2 current execution view."""
 
     rows = "\n".join(
-        f"| {story_id} | {contract['title']} | {', '.join(contract['predecessors'])} | {len(contract['scenarios'])} |"
+        f"| {story_id} | {contract['outcome']['title']} | {', '.join(contract['predecessors'])} | {len(contract['scenarios'])} |"
         for story_id, contract in contracts.items()
     )
     content = f"""---
@@ -735,21 +913,28 @@ def render_ux_map(source: bytes, candidate: str) -> bytes:
         count=1,
         flags=re.MULTILINE,
     )
-    if "planningCandidate:" not in text.split("---", 2)[1]:
-        text = text.replace(
-            "currentDisposition: preserved-not-activated\n",
-            "currentDisposition: preserved-not-activated\n"
-            f"planningCandidate: {candidate}\n"
-            f"epicAuthority: {EPIC_AUTHORITY}\n"
-            f"architectureAuthority: {ARCHITECTURE_AUTHORITY}\n",
-            1,
-        )
+    text = re.sub(
+        r"^(?:planningCandidate|epicAuthority|architectureAuthority):.*\n",
+        "",
+        text,
+        flags=re.MULTILINE,
+    )
+    text = text.replace(
+        "currentDisposition: preserved-not-activated\n",
+        "currentDisposition: preserved-not-activated\n"
+        f"planningCandidate: {candidate}\n"
+        f"epicAuthority: {EPIC_AUTHORITY}\n"
+        f"architectureAuthority: {ARCHITECTURE_AUTHORITY}\n",
+        1,
+    )
     text = text.replace("Story 6.4 disposition contract", "Stories 8.1-8.2 preservation contract")
     text = text.replace("defined by Epic 6 v8", "rebound by Epic 8 under v10")
-    decisions = re.findall(r"^\| UX-DR\d+ \|", text, re.MULTILINE)
-    criteria = re.findall(r"^\| AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3} \|", text, re.MULTILINE)
-    if len(decisions) != 52 or len(criteria) != 28:
-        raise PublicationError("UX_PARITY_DRIFT", f"{len(decisions)}/52 {len(criteria)}/28")
+    decisions = tuple(re.findall(r"^\| (UX-DR\d+) \|", text, re.MULTILINE))
+    criteria = tuple(
+        re.findall(r"^\| (AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3}) \|", text, re.MULTILINE)
+    )
+    if decisions != EXPECTED_UX_DECISION_IDS or criteria != EXPECTED_UX_ACCEPTANCE_IDS:
+        raise PublicationError("UX_PARITY_DRIFT", f"decisions={decisions!r} criteria={criteria!r}")
     if text.count("preserved-not-activated") < 81:
         raise PublicationError("UX_DISPOSITION_DRIFT", "preservation disposition missing")
     return text.encode("utf-8")
@@ -800,7 +985,7 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
         for story_id, contract in contracts.items():
             if story_id.startswith(f"{epic}."):
                 major, minor = story_id.split(".")
-                status_lines.append(f"  {major}-{minor}-{slugify(contract['title'])}: backlog")
+                status_lines.append(f"  {major}-{minor}-{slugify(contract['outcome']['title'])}: backlog")
         status_lines.append(f"  epic-{epic}-retrospective: optional")
     text = text[:start] + "\n".join(status_lines) + text[end:]
     successor_rows = re.findall(r"^  (?:[7-9]|1[0-5])-\d+-[^:]+: backlog$", text, re.MULTILINE)
@@ -817,15 +1002,26 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
 
 
 def gitlinks(root: Path, candidate: str) -> list[dict[str, str]]:
-    """Read candidate gitlinks from raw tree mode 160000."""
+    """Validate and read the exact ten root-declared raw mode-160000 gitlinks."""
 
-    output = git(root, "ls-tree", "-r", candidate).decode("utf-8")
+    try:
+        gitmodules = candidate_blob(root, candidate, ".gitmodules").decode("utf-8")
+        output = git(root, "ls-tree", "-rz", candidate).decode("utf-8")
+    except UnicodeError as error:
+        raise PublicationError("GITLINK_SCOPE_MISMATCH", str(error)) from error
+    declared = tuple(sorted(re.findall(r"^\s*path\s*=\s*(\S+)\s*$", gitmodules, re.MULTILINE)))
+    if declared != ROOT_GITLINK_PATHS or len(declared) != len(set(declared)):
+        raise PublicationError("GITLINK_SCOPE_MISMATCH", f".gitmodules={declared!r}")
     rows = []
-    for line in output.splitlines():
-        match = re.match(r"160000 commit ([0-9a-f]{40})\t(.+)$", line)
+    for entry in output.split("\0"):
+        match = re.fullmatch(r"160000 commit ([0-9a-f]{40})\t(.+)", entry)
         if match:
             rows.append({"path": match.group(2), "commit": match.group(1)})
-    return sorted(rows, key=lambda row: row["path"])
+    rows.sort(key=lambda row: row["path"])
+    raw_paths = tuple(row["path"] for row in rows)
+    if raw_paths != ROOT_GITLINK_PATHS:
+        raise PublicationError("GITLINK_SCOPE_MISMATCH", f"raw={raw_paths!r}")
+    return rows
 
 
 def artifact_row(path: str, content: bytes, role: str, owner: str, source: str, schema: str | None) -> dict[str, Any]:
@@ -856,7 +1052,7 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
         if path == BUNDLE_PATH:
             continue
         if "/story-contracts/" in path:
-            role, owner, schema = "story-contract", "Product Manager", "hexalith.conversations.v9-story-contract.v1"
+            role, owner, schema = "story-contract", "Product Manager", "hexalith.conversations.story-contract.v1"
         elif "/inventories/" in path:
             role, owner, schema = "inventory", "Workflow owner", "hexalith.conversations.v9-inventory.v1"
         elif path == GRAPH_PATH:
@@ -893,8 +1089,8 @@ def validate_schemas(root: Path, outputs: dict[str, bytes]) -> None:
         import jsonschema
     except ImportError as error:
         raise PublicationError("SCHEMA_VALIDATION_UNAVAILABLE", str(error)) from error
-    schemas = {path: json.loads((root / path).read_text(encoding="utf-8")) for path in SCHEMA_PATHS}
     try:
+        schemas = {path: json.loads((root / path).read_text(encoding="utf-8")) for path in SCHEMA_PATHS}
         for schema in schemas.values():
             jsonschema.Draft202012Validator.check_schema(schema)
         for path, content in outputs.items():
@@ -914,7 +1110,7 @@ def validate_schemas(root: Path, outputs: dict[str, bytes]) -> None:
             else:
                 continue
             jsonschema.Draft202012Validator(schemas[schema_path]).validate(document)
-    except (json.JSONDecodeError, jsonschema.SchemaError, jsonschema.ValidationError) as error:
+    except (OSError, UnicodeError, json.JSONDecodeError, jsonschema.SchemaError, jsonschema.ValidationError) as error:
         raise PublicationError("SCHEMA_VALIDATION_FAILED", str(error)) from error
 
 
@@ -955,25 +1151,86 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     return outputs
 
 
-def write_atomically(path: Path, content: bytes) -> None:
-    """Replace one generated artifact atomically."""
+def validate_managed_namespace(root: Path) -> None:
+    """Reject stale files only inside publication-owned namespaces."""
 
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(dir=path.parent, prefix=f".{path.name}.", delete=False) as temporary:
-        temporary.write(content)
-        temporary_path = Path(temporary.name)
-    os.replace(temporary_path, path)
+    expected = set(EXPECTED_OUTPUT_PATHS)
+    actual: set[str] = set()
+    v9_root = root / "_bmad-output/planning-artifacts/v9"
+    if v9_root.exists():
+        try:
+            actual.update(
+                path.relative_to(root).as_posix()
+                for path in v9_root.rglob("*")
+                if path.is_file()
+            )
+        except OSError as error:
+            raise PublicationError("PUBLICATION_SCOPE_DRIFT", str(error)) from error
+    planning_root = root / "_bmad-output/planning-artifacts"
+    if planning_root.exists():
+        try:
+            actual.update(path.relative_to(root).as_posix() for path in planning_root.glob("v9-*.json") if path.is_file())
+        except OSError as error:
+            raise PublicationError("PUBLICATION_SCOPE_DRIFT", str(error)) from error
+    unexpected = sorted(actual - expected)
+    if unexpected:
+        raise PublicationError("PUBLICATION_SCOPE_DRIFT", f"stale={unexpected!r}")
+
+
+def replace_managed_set(root: Path, outputs: dict[str, bytes]) -> None:
+    """Stage the complete set, then replace it with byte-restoring rollback."""
+
+    ordered = sorted(outputs)
+    prior: dict[str, bytes | None] = {}
+    replaced: list[str] = []
+    try:
+        root.mkdir(parents=True, exist_ok=True)
+        with tempfile.TemporaryDirectory(prefix=".v9-publication.", dir=root) as temporary:
+            staging_root = Path(temporary)
+            for ordinal, relative_path in enumerate(ordered):
+                target = root / relative_path
+                prior[relative_path] = target.read_bytes() if target.is_file() else None
+                staged = staging_root / "staged" / f"{ordinal:03d}"
+                staged.parent.mkdir(parents=True, exist_ok=True)
+                staged.write_bytes(outputs[relative_path])
+                if staged.read_bytes() != outputs[relative_path]:
+                    raise OSError(f"staged byte drift: {relative_path}")
+            try:
+                for ordinal, relative_path in enumerate(ordered):
+                    target = root / relative_path
+                    target.parent.mkdir(parents=True, exist_ok=True)
+                    os.replace(staging_root / "staged" / f"{ordinal:03d}", target)
+                    replaced.append(relative_path)
+            except OSError as error:
+                rollback_errors: list[str] = []
+                for rollback_ordinal, relative_path in enumerate(reversed(replaced)):
+                    target = root / relative_path
+                    try:
+                        previous = prior[relative_path]
+                        if previous is None:
+                            target.unlink(missing_ok=True)
+                        else:
+                            restore = staging_root / "restore" / f"{rollback_ordinal:03d}"
+                            restore.parent.mkdir(parents=True, exist_ok=True)
+                            restore.write_bytes(previous)
+                            os.replace(restore, target)
+                    except OSError as rollback_error:
+                        rollback_errors.append(f"{relative_path}: {rollback_error}")
+                if rollback_errors:
+                    raise PublicationError(
+                        "PUBLICATION_WRITE_FAILED",
+                        f"{error}; rollback={rollback_errors!r}",
+                    ) from error
+                raise PublicationError("PUBLICATION_WRITE_FAILED", str(error)) from error
+    except PublicationError:
+        raise
+    except OSError as error:
+        raise PublicationError("PUBLICATION_WRITE_FAILED", str(error)) from error
 
 
 def publish(root: Path, outputs: dict[str, bytes], check: bool) -> None:
     """Check or atomically replace every expected output after full validation."""
 
-    contract_directory = root / "_bmad-output/planning-artifacts/v9/story-contracts"
-    if contract_directory.exists():
-        actual = {path.name for path in contract_directory.glob("*.json")}
-        expected = {f"{story_id}.json" for story_id in EXPECTED_STORY_IDS}
-        if actual - expected:
-            raise PublicationError("STORY_CONTRACT_SET_DRIFT", repr(sorted(actual - expected)))
     actual_scope = set(outputs)
     expected_scope = set(EXPECTED_OUTPUT_PATHS)
     if actual_scope != expected_scope:
@@ -983,13 +1240,20 @@ def publish(root: Path, outputs: dict[str, bytes], check: bool) -> None:
             "PUBLICATION_SCOPE_DRIFT",
             f"missing={missing!r} unexpected={unexpected!r}",
         )
+    validate_managed_namespace(root)
     if check:
-        drift = [path for path, content in outputs.items() if not (root / path).is_file() or (root / path).read_bytes() != content]
+        try:
+            drift = [
+                path
+                for path, content in outputs.items()
+                if not (root / path).is_file() or (root / path).read_bytes() != content
+            ]
+        except OSError as error:
+            raise PublicationError("OUTPUT_DRIFT", str(error)) from error
         if drift:
             raise PublicationError("OUTPUT_DRIFT", ", ".join(drift))
         return
-    for relative_path, content in outputs.items():
-        write_atomically(root / relative_path, content)
+    replace_managed_set(root, outputs)
 
 
 def main() -> int:
@@ -1010,6 +1274,9 @@ def main() -> int:
         return 0
     except PublicationError as error:
         print(f"{error.code}: {error.detail}", file=sys.stderr)
+        return 1
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        print(f"PUBLICATION_INPUT_INVALID: {error}", file=sys.stderr)
         return 1
 
 

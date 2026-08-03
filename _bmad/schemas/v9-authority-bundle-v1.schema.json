@@ -24,15 +24,22 @@
     "epic5ActionA5": { "const": "open" },
     "gitlinks": {
       "type": "array",
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["path", "commit"],
-        "properties": {
-          "path": { "type": "string", "minLength": 1 },
-          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
-        }
-      }
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "$ref": "#/$defs/gitlinkAiTools" },
+        { "$ref": "#/$defs/gitlinkBuilds" },
+        { "$ref": "#/$defs/gitlinkCommons" },
+        { "$ref": "#/$defs/gitlinkEventStore" },
+        { "$ref": "#/$defs/gitlinkFolders" },
+        { "$ref": "#/$defs/gitlinkFrontComposer" },
+        { "$ref": "#/$defs/gitlinkMemories" },
+        { "$ref": "#/$defs/gitlinkParties" },
+        { "$ref": "#/$defs/gitlinkProjects" },
+        { "$ref": "#/$defs/gitlinkTenants" }
+      ],
+      "items": false
     },
     "artifacts": {
       "type": "array",
@@ -62,6 +69,25 @@
         "epic": { "const": "epic-6-authority-2026-08-03-v10" },
         "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
       }
-    }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "commit"],
+      "properties": {
+        "path": { "type": "string" },
+        "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+      }
+    },
+    "gitlinkAiTools": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.AI.Tools" } } },
+    "gitlinkBuilds": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Builds" } } },
+    "gitlinkCommons": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Commons" } } },
+    "gitlinkEventStore": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.EventStore" } } },
+    "gitlinkFolders": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Folders" } } },
+    "gitlinkFrontComposer": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.FrontComposer" } } },
+    "gitlinkMemories": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Memories" } } },
+    "gitlinkParties": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Parties" } } },
+    "gitlinkProjects": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Projects" } } },
+    "gitlinkTenants": { "$ref": "#/$defs/gitlink", "properties": { "path": { "const": "references/Hexalith.Tenants" } } }
   }
 }

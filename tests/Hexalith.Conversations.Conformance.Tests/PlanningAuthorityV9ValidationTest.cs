@@ -98,9 +98,37 @@ public sealed class PlanningAuthorityV9ValidationTest
                     || path == SupersessionPath))
             {
                 using JsonDocument companion = JsonDocument.Parse(Read(path));
-                companion.RootElement.GetProperty("planningCandidate").GetString().ShouldBe(candidate, path);
+                JsonElement candidateProperty = path.Contains("/story-contracts/", StringComparison.Ordinal)
+                    ? companion.RootElement.GetProperty("authority").GetProperty("planningCandidate")
+                    : companion.RootElement.GetProperty("planningCandidate");
+                candidateProperty.GetString().ShouldBe(candidate, path);
             }
         }
+
+        foreach (string validatorPath in new[]
+        {
+            "_bmad/scripts/tests/test_publish_v9_planning_authority.py",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+            "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+        })
+        {
+            paths.ShouldContain(validatorPath);
+        }
+
+        bundle.GetProperty("gitlinks").EnumerateArray().Select(row => row.GetProperty("path").GetString()).ShouldBe(new[]
+        {
+            "references/Hexalith.AI.Tools",
+            "references/Hexalith.Builds",
+            "references/Hexalith.Commons",
+            "references/Hexalith.EventStore",
+            "references/Hexalith.Folders",
+            "references/Hexalith.FrontComposer",
+            "references/Hexalith.Memories",
+            "references/Hexalith.Parties",
+            "references/Hexalith.Projects",
+            "references/Hexalith.Tenants",
+        });
 
         string digestPayload = string.Concat(
             artifacts
@@ -129,11 +157,21 @@ public sealed class PlanningAuthorityV9ValidationTest
         contracts["10.4"].GetProperty("scenarios")[8].GetProperty("id").GetString().ShouldBe("AC-10.4-09");
         foreach ((string storyId, JsonElement contract) in contracts)
         {
+            contract.GetProperty("schemaVersion").GetString().ShouldBe("hexalith.conversations.story-contract.v1");
             JsonElement[] scenarios = contract.GetProperty("scenarios").EnumerateArray().ToArray();
             scenarios.Length.ShouldBeGreaterThan(0, storyId);
             scenarios.Select(row => row.GetProperty("id").GetString()).Distinct(StringComparer.Ordinal).Count().ShouldBe(scenarios.Length);
             scenarios.ShouldAllBe(row => !string.IsNullOrWhiteSpace(row.GetProperty("command").GetString()));
+            scenarios.ShouldAllBe(row => row.GetProperty("resultSemantics").GetProperty("expected").GetString() == "PASS");
+            contract.GetProperty("finalRecord").GetProperty("summary").GetProperty("required").GetInt32().ShouldBe(scenarios.Length);
         }
+
+        contracts["14.3"].GetProperty("scenarios").EnumerateArray()
+            .Single(row => row.GetProperty("id").GetString() == "AC-14.3-02")
+            .GetProperty("resultSemantics").GetProperty("expected").GetString().ShouldBe("PASS");
+        contracts["10.4"].GetProperty("scenarios").EnumerateArray()
+            .Single(row => row.GetProperty("id").GetString() == "AC-10.4-08")
+            .GetProperty("contract").GetString()!.ShouldContain("summary `9/9/0/0/0/0`");
 
         using JsonDocument graphDocument = JsonDocument.Parse(Read(GraphPath));
         Dictionary<string, string[]> graph = graphDocument.RootElement.GetProperty("nodes")
@@ -146,6 +184,14 @@ public sealed class PlanningAuthorityV9ValidationTest
         graph.ShouldContainKey("RG-15");
         graph.ShouldContainKey("6.2");
         graph.Keys.Count(key => Regex.IsMatch(key, @"^(?:[7-9]|1[0-5])\.\d+$")).ShouldBe(27);
+        graph["7.1"].ShouldBe(["6.2", "IR-0"]);
+        graph["12.1"].ShouldBe(["6.2", "IR-0"]);
+        graph.Values.ShouldAllBe(predecessors => predecessors.SequenceEqual(predecessors.OrderBy(value => value, StringComparer.Ordinal)));
+        foreach (string storyId in contracts.Keys)
+        {
+            Ancestors(graph, storyId).ShouldContain("IR-0", $"{storyId} must remain downstream of IR-0.");
+        }
+
         HasCycle(graph).ShouldBeFalse();
     }
 
@@ -198,16 +244,49 @@ public sealed class PlanningAuthorityV9ValidationTest
         dispositions.Length.ShouldBe(9);
         dispositions.Count(row => row.GetProperty("sourceStory").GetString() == "6.10"
             && row.GetProperty("successorEpic").GetInt32() == 10).ShouldBe(1);
-        JsonElement[] obligations = supersession.GetProperty("v8AcceptanceObligations").EnumerateArray().ToArray();
-        obligations.Length.ShouldBe(66);
+        JsonElement ledger = supersession.GetProperty("obligationLedger");
+        ledger.GetProperty("inventoryId").GetString().ShouldBe("V9-V8-OBLIGATION-LEDGER-v1");
+        ledger.GetProperty("sha256").GetString().ShouldBe("4dbffda456c4f40055985f303ed9d10d8e7839573e2486c4d01ca5508dca8f87");
+        ledger.GetProperty("acceptanceCriteriaRows").GetInt32().ShouldBe(66);
+        ledger.GetProperty("totalRows").GetInt32().ShouldBe(156);
+        JsonElement[] obligations = ledger.GetProperty("rows").EnumerateArray().ToArray();
+        obligations.Length.ShouldBe(156);
+        obligations.Select(row => row.GetProperty("ordinal").GetInt32()).ShouldBe(Enumerable.Range(1, 156));
+        obligations.Select(row => row.GetProperty("sourceId").GetString()).Distinct(StringComparer.Ordinal).Count().ShouldBe(156);
+        string ledgerPayload = string.Concat(
+            obligations.Select(row => $"{row.GetProperty("sourceId").GetString()}|{row.GetProperty("canonicalBinding").GetString()}\n"));
+        ledger.GetProperty("sha256").GetString().ShouldBe(Sha256(Encoding.UTF8.GetBytes(ledgerPayload)));
         JsonElement[] storyTen = obligations.Where(row => row.GetProperty("sourceId").GetString()!.StartsWith("V8-6.10-AC", StringComparison.Ordinal)).ToArray();
         storyTen.Length.ShouldBe(10);
         storyTen.Single(row => row.GetProperty("sourceId").GetString() == "V8-6.10-AC9")
-            .GetProperty("bindings").EnumerateArray().Select(value => value.GetString()).ShouldContain("AC-10.4-09");
+            .GetProperty("effectiveBindings").EnumerateArray().Select(value => value.GetString()).ShouldContain("AC-10.4-09");
+
+        JsonElement denominators = supersession.GetProperty("preservationDenominators");
+        foreach ((string name, int expected) in new[]
+        {
+            ("functionalRequirements", 124),
+            ("nonFunctionalRequirements", 77),
+            ("uxDecisions", 52),
+            ("uxAcceptanceCriteria", 28),
+        })
+        {
+            denominators.GetProperty(name).GetProperty("required").GetInt32().ShouldBe(expected);
+            denominators.GetProperty(name).GetProperty("mapped").GetInt32().ShouldBe(expected);
+        }
 
         string ux = Read(UxMapPath);
-        Regex.Matches(ux, @"^\| UX-DR\d+ \|", RegexOptions.Multiline).Count.ShouldBe(52);
-        Regex.Matches(ux, @"^\| AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3} \|", RegexOptions.Multiline).Count.ShouldBe(28);
+        using JsonDocument bundleDocument = JsonDocument.Parse(Read(BundlePath));
+        ux.ShouldContain($"planningCandidate: {bundleDocument.RootElement.GetProperty("planningCandidate").GetString()}");
+        Regex.Matches(ux, @"^\| (UX-DR\d+) \|", RegexOptions.Multiline)
+            .Select(match => match.Groups[1].Value).ShouldBe(Enumerable.Range(1, 52).Select(value => $"UX-DR{value}"));
+        Regex.Matches(ux, @"^\| (AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3}) \|", RegexOptions.Multiline)
+            .Select(match => match.Groups[1].Value).ShouldBe(new[]
+            {
+                "AC-SAFE-001", "AC-SAFE-002", "AC-SAFE-003", "AC-SAFE-004", "AC-SAFE-005", "AC-SAFE-006", "AC-SAFE-007", "AC-SAFE-008",
+                "AC-RESP-001", "AC-RESP-002", "AC-RESP-003", "AC-RESP-004", "AC-RESP-005", "AC-RESP-006", "AC-RESP-007", "AC-RESP-008",
+                "AC-RESP-009", "AC-RESP-010", "AC-RESP-011", "AC-RESP-012", "AC-RESP-013", "AC-RESP-014", "AC-RESP-015",
+                "AC-A11Y-001", "AC-A11Y-002", "AC-LEAK-001", "AC-MOB-001", "AC-PERF-001",
+            });
         ux.ShouldContain("currentDisposition: preserved-not-activated");
 
         string sprint = Read(SprintPath);
@@ -249,6 +328,26 @@ public sealed class PlanningAuthorityV9ValidationTest
         }
 
         return graph.Keys.Any(Visit);
+    }
+
+    private static HashSet<string> Ancestors(Dictionary<string, string[]> graph, string node)
+    {
+        HashSet<string> ancestors = new(StringComparer.Ordinal);
+        Stack<string> pending = new(graph[node]);
+        while (pending.TryPop(out string? predecessor))
+        {
+            if (!ancestors.Add(predecessor))
+            {
+                continue;
+            }
+
+            foreach (string next in graph[predecessor])
+            {
+                pending.Push(next);
+            }
+        }
+
+        return ancestors;
     }
 
     private static string ExtractMarkerBlock(string content, string begin, string end)

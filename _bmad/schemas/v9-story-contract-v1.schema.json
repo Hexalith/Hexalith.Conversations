@@ -1,51 +1,113 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://hexalith.io/schemas/conversations/v9-story-contract-v1.schema.json",
-  "title": "Conversations V9 Story Contract V1",
+  "title": "Conversations Story Contract V1",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "schemaVersion",
-    "planningCandidate",
-    "authorities",
     "storyId",
-    "title",
-    "boundedOutcome",
+    "authority",
     "predecessors",
-    "rollbackBoundary",
-    "candidateBinding",
-    "authoritySectionSha256",
-    "scenarios"
+    "outcome",
+    "rollback",
+    "inventory",
+    "scenarios",
+    "finalRecord"
   ],
   "properties": {
-    "schemaVersion": { "const": "hexalith.conversations.v9-story-contract.v1" },
-    "planningCandidate": { "$ref": "#/$defs/commit" },
-    "authorities": { "$ref": "#/$defs/authorities" },
-    "storyId": { "type": "string", "pattern": "^(?:[7-9]|1[0-5])\\.[1-4]$" },
-    "title": { "type": "string", "minLength": 1 },
-    "boundedOutcome": { "type": "string", "minLength": 1 },
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-contract.v1"
+    },
+    "storyId": {
+      "type": "string",
+      "pattern": "^(?:[7-9]|1[0-5])\\.[1-4]$"
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "epic",
+        "architecture",
+        "planningCandidate",
+        "candidateBinding",
+        "sectionSha256"
+      ],
+      "properties": {
+        "epic": {
+          "const": "epic-6-authority-2026-08-03-v10"
+        },
+        "architecture": {
+          "const": "conversations-architecture-2026-08-03-v10"
+        },
+        "planningCandidate": {
+          "$ref": "#/$defs/commit"
+        },
+        "candidateBinding": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sectionSha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
     "predecessors": {
       "type": "array",
       "minItems": 1,
       "uniqueItems": true,
-      "items": { "type": "string", "pattern": "^(?:6\\.2|(?:[7-9]|1[0-5])\\.[1-4])$" }
-    },
-    "rollbackBoundary": { "type": "string", "minLength": 1 },
-    "candidateBinding": { "type": "string", "minLength": 1 },
-    "entryInventory": {
-      "type": ["object", "null"],
-      "additionalProperties": false,
-      "required": ["id", "sha256"],
-      "properties": {
-        "id": { "type": "string", "minLength": 1 },
-        "sha256": { "$ref": "#/$defs/digest" }
+      "items": {
+        "type": "string",
+        "pattern": "^(?:6\\.2|(?:[7-9]|1[0-5])\\.[1-4])$"
       }
     },
-    "authoritySectionSha256": { "$ref": "#/$defs/digest" },
-    "finalRecordPaths": {
-      "type": "array",
-      "uniqueItems": true,
-      "items": { "type": "string", "minLength": 1 }
+    "outcome": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "bounded"
+      ],
+      "properties": {
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "bounded": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "boundary"
+      ],
+      "properties": {
+        "boundary": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "inventory": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sha256"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
     },
     "scenarios": {
       "type": "array",
@@ -53,30 +115,114 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "command", "contract"],
+        "required": [
+          "id",
+          "command",
+          "contract",
+          "resultSemantics"
+        ],
         "properties": {
-          "id": { "type": "string", "pattern": "^AC-(?:[7-9]|1[0-5])\\.[1-4]-[0-9]{2}$" },
-          "command": { "type": "string", "minLength": 1 },
-          "contract": { "type": "string", "minLength": 1 },
-          "requiredResults": {
-            "type": "array",
-            "uniqueItems": true,
-            "items": { "enum": ["PASS", "FAIL", "BLOCKED", "not-applicable"] }
+          "id": {
+            "type": "string",
+            "pattern": "^AC-(?:[7-9]|1[0-5])\\.[1-4]-[0-9]{2}$"
+          },
+          "command": {
+            "type": "string",
+            "minLength": 1
+          },
+          "contract": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resultSemantics": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "expected",
+              "passExitCodes",
+              "failExitCodes",
+              "blockedExitCodes",
+              "notApplicableAllowed"
+            ],
+            "properties": {
+              "expected": {
+                "const": "PASS"
+              },
+              "passExitCodes": {
+                "$ref": "#/$defs/exitCodes"
+              },
+              "failExitCodes": {
+                "$ref": "#/$defs/exitCodes"
+              },
+              "blockedExitCodes": {
+                "$ref": "#/$defs/exitCodes"
+              },
+              "notApplicableAllowed": {
+                "type": "boolean"
+              }
+            }
+          }
+        }
+      }
+    },
+    "finalRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "paths",
+        "summary"
+      ],
+      "properties": {
+        "paths": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "summary": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "required",
+            "passed",
+            "failed",
+            "blocked",
+            "skipped",
+            "notRun"
+          ],
+          "properties": {
+            "required": { "type": "integer", "minimum": 1 },
+            "passed": { "type": "integer", "minimum": 1 },
+            "failed": { "const": 0 },
+            "blocked": { "const": 0 },
+            "skipped": { "const": 0 },
+            "notRun": { "const": 0 }
           }
         }
       }
     }
   },
   "$defs": {
-    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
-    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
-    "authorities": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": ["epic", "architecture"],
-      "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
-        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "exitCodes": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 0,
+        "maximum": 5
       }
     }
   }
