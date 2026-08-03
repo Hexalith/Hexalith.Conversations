@@ -19,7 +19,6 @@ namespace Hexalith.Conversations.Conformance.Tests;
 public sealed class PlanningAuthorityV8ValidationTest
 {
     private const string ArchitecturePath = "_bmad-output/planning-artifacts/architecture.md";
-    private const string ContextPath = "_bmad-output/implementation-artifacts/epic-6-context.md";
     private const string CurrentViewPath = "_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md";
     private const string EpicsPath = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md";
     private const string SprintPath = "_bmad-output/implementation-artifacts/sprint-status.yaml";
@@ -177,10 +176,9 @@ public sealed class PlanningAuthorityV8ValidationTest
     {
         string epicsBlock = ExtractInclusive(Read(EpicsPath), BeginMarker, EndMarker);
         string architecture = ExtractHeadingSection(Read(ArchitecturePath), "### 2026-08-01 Implementation Readiness Authority Correction");
-        string context = ExtractHeadingSection(Read(ContextPath), "## SM-C2 Contract");
         string view = Read(CurrentViewPath);
 
-        foreach (string source in new[] { epicsBlock, architecture, context, view })
+        foreach (string source in new[] { epicsBlock, architecture, view })
         {
             source.ShouldContain("post P95 <= 1.05 x baseline P95");
             source.ShouldContain("HP-CREATE");
@@ -214,7 +212,7 @@ public sealed class PlanningAuthorityV8ValidationTest
 
         MatchCollection decisions = Regex.Matches(
             map,
-            @"^\| UX-DR(?<id>\d+) \|.*\| preserved-not-activated; Story 6\.4 disposition contract \| Historical:",
+            @"^\| UX-DR(?<id>\d+) \|.*\| preserved-not-activated; Stories 8\.1-8\.2 preservation contract \| Historical:",
             RegexOptions.Multiline);
         decisions.Select(match => int.Parse(match.Groups["id"].Value, System.Globalization.CultureInfo.InvariantCulture))
             .ShouldBe(Enumerable.Range(1, 52));
@@ -237,7 +235,7 @@ public sealed class PlanningAuthorityV8ValidationTest
         mappedCriteria.Length.ShouldBe(mappedCriteria.Distinct(StringComparer.Ordinal).Count(), "Mapped UX acceptance identifiers must be unique.");
         mappedCriteria.OrderBy(value => value, StringComparer.Ordinal)
             .ShouldBe(sourceCriteria.OrderBy(value => value, StringComparer.Ordinal));
-        inventory.ShouldContain("preserved-not-activated; Story 6.4 disposition contract");
+        inventory.ShouldContain("preserved-not-activated; Stories 8.1-8.2 preservation contract");
 
         foreach (string futureStoryDeliverable in new[]
         {
@@ -256,8 +254,8 @@ public sealed class PlanningAuthorityV8ValidationTest
     public void SprintAndActiveGuidanceShouldPreserveStatusesAndEnforceTheHold()
     {
         string sprint = Read(SprintPath);
-        sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD: AUTHORITY CORRECTION ONLY — NOT READY");
-        sprint.ShouldContain("This publication stops at authority validation and does not run or predetermine readiness");
+        sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
+        sprint.ShouldContain("IR-0 was not run");
 
         Dictionary<string, string> statuses = Regex.Matches(
                 sprint,
@@ -267,17 +265,12 @@ public sealed class PlanningAuthorityV8ValidationTest
                 match => match.Groups["story"].Value,
                 match => match.Groups["status"].Value,
                 StringComparer.Ordinal);
-        statuses.Count.ShouldBe(12);
+        statuses.Count.ShouldBe(3);
         statuses["6-1-rebaseline-architecture-and-planning-authority"].ShouldBe("done");
         statuses["6-2-migrate-conversations-to-platform-owned-hosting"].ShouldBe("done");
         statuses["6-7-mechanically-block-incomplete-submodule-promotions-from-completion"].ShouldBe("done");
-        statuses["6-3-create-complete-preservation-traceability-manifest"].ShouldBe("in-progress");
-        statuses["6-8-generate-the-final-story-record-mechanically-from-measured-state"].ShouldBe("in-progress");
-        statuses["6-12-version-projection-proofs-without-rewriting-completed-history"].ShouldBe("ready-for-dev");
-        foreach (int story in new[] { 4, 5, 6, 9, 10, 11 })
-        {
-            statuses.Single(entry => entry.Key.StartsWith($"6-{story}-", StringComparison.Ordinal)).Value.ShouldBe("backlog");
-        }
+        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-5])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(27);
+        sprint.ShouldContain("epic-6: done");
 
         foreach (string path in new[]
         {
