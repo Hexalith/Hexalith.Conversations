@@ -1,0 +1,9 @@
+[workflow]
+
+activation_steps_append = [
+  "For applicable evidence or planning-authority changes, follow the canonical evidence-boundary runbook before unattended finalization; FAIL, BLOCKED, missing, or unevaluated results never complete the run.",
+]
+
+persistent_facts = [
+  "file:{project-root}/docs/runbooks/evidence-boundary-validation.md",
+]

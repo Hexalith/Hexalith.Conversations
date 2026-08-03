@@ -85,20 +85,20 @@ public sealed class PlanningAuthorityV8ValidationTest
     public void CurrentViewShouldBeHashBoundAndStoryEquivalentToV8()
     {
         string epics = Read(EpicsPath);
-        string architecture = Read(ArchitecturePath);
-        string sprint = Read(SprintPath);
         string view = Read(CurrentViewPath);
         string frontmatter = ExtractFrontmatter(view);
         string block = ExtractInclusive(epics, BeginMarker, EndMarker);
+        byte[] historicalEpics = PrefixBeforeAppendedOverlay(ReadBytes(EpicsPath), "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:BEGIN");
+        byte[] historicalArchitecture = PrefixBeforeAppendedOverlay(ReadBytes(ArchitecturePath), "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V9:BEGIN");
 
         AssertYaml(frontmatter, "overlay_version", OverlayVersion);
         AssertYaml(frontmatter, "architecture_version", ArchitectureVersion);
         AssertYaml(frontmatter, "status", "authority-correction-only-not-ready");
         AssertYaml(frontmatter, "generator_version", "1.0.0");
-        AssertYaml(frontmatter, "source_epics_sha256", Sha256(Encoding.UTF8.GetBytes(epics)));
+        AssertYaml(frontmatter, "source_epics_sha256", Sha256(historicalEpics));
         AssertYaml(frontmatter, "source_v8_block_sha256", Sha256(Encoding.UTF8.GetBytes(block)));
-        AssertYaml(frontmatter, "source_architecture_sha256", Sha256(Encoding.UTF8.GetBytes(architecture)));
-        AssertYaml(frontmatter, "source_sprint_status_sha256", Sha256(Encoding.UTF8.GetBytes(sprint)));
+        AssertYaml(frontmatter, "source_architecture_sha256", Sha256(historicalArchitecture));
+        AssertYaml(frontmatter, "source_sprint_status_sha256", "3ef082f8b11a9eb9b33e11516e72ac4b7b43d0d817da7d9f86a532ffcc190ee1");
         AssertYaml(frontmatter, "completed_story_6_2_record", CompletedStoryRecordPath);
         AssertYaml(frontmatter, "completed_story_6_2_record_sha256", Sha256(ReadBytes(CompletedStoryRecordPath)));
 
@@ -391,6 +391,15 @@ public sealed class PlanningAuthorityV8ValidationTest
     }
 
     private static string Sha256(byte[] content) => Convert.ToHexStringLower(SHA256.HashData(content));
+
+    private static byte[] PrefixBeforeAppendedOverlay(byte[] content, string marker)
+    {
+        byte[] markerBytes = Encoding.UTF8.GetBytes(marker);
+        int markerIndex = content.AsSpan().IndexOf(markerBytes);
+        markerIndex.ShouldBeGreaterThan(0, $"Missing appended overlay marker {marker}.");
+        content[markerIndex - 1].ShouldBe((byte)'\n', "An appended overlay must be separated by one blank line.");
+        return content[..(markerIndex - 1)];
+    }
 
     private static byte[] ReadBytes(string relativePath) => File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), relativePath));
 

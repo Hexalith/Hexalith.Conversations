@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v9-execution-graph-v1.schema.json",
+  "title": "Conversations V9 Execution Graph V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "planningCandidate", "authorities", "implementationHold", "nodes", "edges"],
+  "properties": {
+    "schemaVersion": { "const": "hexalith.conversations.v9-execution-graph.v1" },
+    "planningCandidate": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "authorities": { "$ref": "#/$defs/authorities" },
+    "implementationHold": { "const": "ACTIVE" },
+    "nodes": {
+      "type": "array",
+      "minItems": 30,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "kind", "predecessors"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "kind": { "enum": ["historical-story", "publication", "gate", "story", "release-gate"] },
+          "predecessors": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "minItems": 27,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "authorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["epic", "architecture"],
+      "properties": {
+        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
+        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+      }
+    }
+  }
+}

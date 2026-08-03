@@ -3993,3 +3993,166 @@ excluding table syntax. Inventory version `V9-V8-OBLIGATION-LEDGER-v1` has
   implemented or executed by this publication.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-V9:END version=epic-6-authority-2026-08-02-v9 architecture-authority=conversations-architecture-2026-08-02-v9 candidate=UNBOUND hold=ACTIVE -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V10:BEGIN version=epic-6-authority-2026-08-03-v10 architecture-authority=conversations-architecture-2026-08-03-v10 supersedes=epic-6-authority-2026-08-02-v9 v9-block-bytes=188677 v9-block-sha256=e7d6ea5759c12ab70f21b472656828bb4e5bcce2023d845f06a40cf1373d1c9d candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## Appendix: 2026-08-03 V10 Evidence-Boundary Planning Correction
+
+**Epic authority:** `epic-6-authority-2026-08-03-v10`
+
+**Architecture authority:** `conversations-architecture-2026-08-03-v10`
+
+**Supersedes:** `epic-6-authority-2026-08-02-v9` only for the Story 10.3 and
+Story 10.4 workflow/guidance projection
+
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-03.md`
+
+**Planning candidate (`PC`):** bound by
+`_bmad-output/planning-artifacts/v9-authority-bundle-v1.json`
+
+**Global implementation hold:** `ACTIVE`
+
+The exact 188,677-byte v9 authority block has SHA-256
+`e7d6ea5759c12ab70f21b472656828bb4e5bcce2023d845f06a40cf1373d1c9d`
+and remains immutable. This amendment creates no epic or story and changes no
+product, runtime, public-contract, persistence, package, UX, completed-record,
+accepted-evidence, or gitlink boundary. Epic 10, Stories 10.1-10.2, the 27-reader
+inventory, every inherited v8/v9 obligation, and all predecessor/successor
+relationships remain unchanged. Only Stories 10.3 and 10.4 are amended below.
+
+### Story 10.3 V10 Amendment: Govern Current Workflow Routes And Guidance
+
+**Bounded outcome:** one verifier governs every current or directly callable
+development/review transition route, proves deprecated aliases forward exactly
+once to a governed route, and validates resolved project-owned guidance with
+stable blocker/warning semantics.
+
+**Exact predecessors:** `10.2`.
+
+**Frozen entry inventory:** `V9-10.3-ENTRY-v1` and its digest remain unchanged.
+
+**Mechanical workflow inventory:** `V9-EVIDENCE-WORKFLOWS-v2` is the following
+NFC UTF-8 LF list; SHA-256
+`966745d95e24aeb95af58a2bbfab11de7b08b8ab9f2447aa6c90a99c444292d4`:
+
+```text
+.agents/skills/bmad-build/step-04-review.md
+.agents/skills/bmad-build/step-05-present.md
+.agents/skills/bmad-build/step-oneshot.md
+.agents/skills/bmad-build-auto/step-04-review.md
+.agents/skills/bmad-dev-story/SKILL.md
+.agents/skills/bmad-code-review/steps/step-04-present.md
+.claude/skills/bmad-build/step-04-review.md
+.claude/skills/bmad-build/step-05-present.md
+.claude/skills/bmad-build/step-oneshot.md
+.claude/skills/bmad-build-auto/step-04-review.md
+.claude/skills/bmad-dev-story/SKILL.md
+.claude/skills/bmad-code-review/steps/step-04-present.md
+```
+
+The six logical bodies must remain byte-identical across `.agents` and
+`.claude`. Generated render output is checked through deterministic render
+parity and is not a tracked authority path. `bmad-dev-auto` and
+`bmad-quick-dev` in both trees must forward exactly once to `bmad-build-auto`
+and `bmad-build`, respectively, and must not contain a second gate body.
+
+**Reusable guidance inventory:** `V9-EVIDENCE-GUIDANCE-v2` is the following
+NFC UTF-8 LF list; SHA-256
+`e0a9adf0319286763f44d586ac323203a4af3d7faa4005e23768ce4a7c8f335d`:
+
+```text
+_bmad/custom/bmad-build.toml
+_bmad/custom/bmad-build-auto.toml
+_bmad/custom/bmad-review.toml
+docs/runbooks/evidence-boundary-validation.md
+```
+
+Validation binds both the raw inventory and the resolved `bmad-build`,
+`bmad-build-auto`, and `bmad-review` customization results. Installed
+`customize.toml` defaults remain read-only.
+
+**Stable blocker-code additions:** `EVIDENCE_ALIAS_ROUTE_INVALID`,
+`EVIDENCE_GUIDANCE_NOT_USED`, `EVIDENCE_GUIDANCE_DRIFT`, and
+`EVIDENCE_CUSTOMIZATION_RESOLUTION_FAILED`. Every v9 code remains stable,
+including `EVIDENCE_GATE_NOT_USED`, `EVIDENCE_GATE_DISPLACED`,
+`EVIDENCE_WORKFLOW_PARITY_DRIFT`, `SCOPE_NOT_EVALUATED`, and
+`BASELINE_NOT_PROVIDED`.
+
+**Candidate binding:** `SC-10.3`, Story 10.2 final-record digest, both v2
+inventory digests, resolved customization digests, current BMAD version/route
+facts, and the canonical candidate rule.
+
+**Rollback boundary:** remove the verifier and current gate insertions as one
+unit, remove the three project-owned customization files, and restore the
+pre-10.3 workflow bytes. Retain Stories 10.1-10.2 and do not restore absent
+pre-6.10 workflow files.
+
+**Acceptance Criteria:** the existing identities `AC-10.3-01` through
+`AC-10.3-08` are retained with these effective contracts:
+
+| ID | Effective v10 contract |
+| --- | --- |
+| `AC-10.3-01` | Run the verifier with bound `PC`, `SC-10.3`, baseline, evidence/test diff, and stable registry. Exit `0` only for `PASS` or explicit `not-applicable`; applicable failure is `1`; missing authority/history is `2`; the result is schema-valid and records evaluated paths/assertions. |
+| `AC-10.3-02` | Every stable blocker/warning fixture produces its exact unique code with zero synonyms. |
+| `AC-10.3-03` | Validate the twelve-path `V9-EVIDENCE-WORKFLOWS-v2` inventory and exact insertion spans. Missing or displaced calls are `EVIDENCE_GATE_NOT_USED` or `EVIDENCE_GATE_DISPLACED`. |
+| `AC-10.3-04` | Validate six logical bodies across `.agents` and `.claude`, deterministic render parity, and no cross-tree drift. Difference is `EVIDENCE_WORKFLOW_PARITY_DRIFT`. |
+| `AC-10.3-05` | `not-applicable` remains distinct from `PASS`; applicable changes require a nonempty evaluated ledger. Empty applicable execution is `SCOPE_NOT_EVALUATED`. |
+| `AC-10.3-06` | `FAIL` and `BLOCKED` prevent every current review/done transition and unattended finalization; valid `not-applicable` continues but is recorded. |
+| `AC-10.3-07` | Remove and displace current gates, break one alias route, and remove one resolved guidance binding. Each fixture emits its exact gate, alias, or guidance code and restores byte-identically. |
+| `AC-10.3-08` | The generated final record binds both v2 inventory digests, resolved customization digests, current route facts, all seven updated results, and summary `8/8/0/0/0/0`. |
+
+### Story 10.4 V10 Amendment: Publish Reusable Resolved Guidance
+
+The Story 10.4 bounded outcome, predecessor, rollback boundary, exact
+27-reader `V9-EVIDENCE-READERS-v1` inventory and digest, and identities
+`AC-10.4-01` through `AC-10.4-08` remain unchanged. The final record now binds
+the three resolved customization results and canonical runbook digest and has
+summary `9/9/0/0/0/0`.
+
+#### AC-10.4-09 — Current dev/review guidance is reusable and resolved
+
+**Given:** the canonical runbook, three project-owned customization files,
+`V9-EVIDENCE-GUIDANCE-v2`, current BMAD defaults, and the Story 10.3 verifier
+result schema.
+
+**When:** resolve `bmad-build`, `bmad-build-auto`, and `bmad-review`
+customization and run
+`python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check`
+from the repository root.
+
+**Then:**
+
+1. Regular build, one-shot build, unattended build, and general code review
+   receive the same canonical evidence-boundary guidance.
+2. Guidance requires recomputed hashes, contained paths, canonical signable
+   payload, exact changed-path equality, raw-mode gitlink exclusion, exact
+   inventory identity, root-of-trust pinning, and anti-vacuity.
+3. Applicable changes invoke the verifier and preserve
+   `PASS`/`FAIL`/`BLOCKED`/`not-applicable` distinctions.
+4. Missing or drifted guidance fails with `EVIDENCE_GUIDANCE_NOT_USED` or
+   `EVIDENCE_GUIDANCE_DRIFT`.
+5. No shipped `DO NOT EDIT` default customization file changes.
+6. Removing an override, weakening exact equality to containment, trusting a
+   declared hash, or redirecting the runbook turns validation red and restores
+   the fixture byte-identically.
+
+`AC-10.4-09` atomically realizes the already-mapped `V8-6.10-AC9` guidance
+obligation; it creates no new v8 obligation.
+
+### Publication, Hold, And Action State
+
+The deterministic v9 companion publication binds one committed `PC` to the v10
+authorities, schemas, 27 story contracts, v2 workflow/guidance inventories,
+preserved reader inventory, execution graph, supersession map, v2 current view,
+52/28 UX projection, sprint projection, resolved customization results, and
+authority bundle. The bundle excludes itself and mutable decision/evidence
+records from its digest.
+
+The global implementation hold remains `ACTIVE`; IR-0 is neither run nor
+biased by this publication. Epic 5 action A5 remains `open` and closes only
+from a compatible passing Story 10.4 final record. No lifecycle status,
+runbook, customization file, validator result, or planning publication alone
+may close A5 or lift the hold.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V10:END version=epic-6-authority-2026-08-03-v10 architecture-authority=conversations-architecture-2026-08-03-v10 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

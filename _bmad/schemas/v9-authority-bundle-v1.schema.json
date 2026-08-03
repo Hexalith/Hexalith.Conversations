@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v9-authority-bundle-v1.schema.json",
+  "title": "Conversations V9 Authority Bundle V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "bundleVersion",
+    "planningCandidate",
+    "authorities",
+    "implementationHold",
+    "epic5ActionA5",
+    "gitlinks",
+    "artifacts",
+    "bundleDigest"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "hexalith.conversations.v9-authority-bundle.v1" },
+    "bundleVersion": { "const": "v9-authority-bundle-v1" },
+    "planningCandidate": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "authorities": { "$ref": "#/$defs/authorities" },
+    "implementationHold": { "const": "ACTIVE" },
+    "epic5ActionA5": { "const": "open" },
+    "gitlinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "commit"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 40,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "sha256", "role", "owner", "source", "schemaIdentity"],
+        "properties": {
+          "path": { "type": "string", "minLength": 1 },
+          "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+          "role": { "type": "string", "minLength": 1 },
+          "owner": { "type": "string", "minLength": 1 },
+          "source": { "enum": ["candidate", "generated"] },
+          "schemaIdentity": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "bundleDigest": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  },
+  "$defs": {
+    "authorities": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["epic", "architecture"],
+      "properties": {
+        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
+        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+      }
+    }
+  }
+}

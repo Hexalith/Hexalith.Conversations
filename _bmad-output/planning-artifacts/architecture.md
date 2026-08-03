@@ -2123,3 +2123,70 @@ companion may claim executable authority unless it matches the canonical v9
 identity and candidate digest mechanically.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V9:END version=conversations-architecture-2026-08-02-v9 -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:BEGIN version=conversations-architecture-2026-08-03-v10 epic-authority=epic-6-authority-2026-08-03-v10 supersedes=conversations-architecture-2026-08-02-v9 v9-block-bytes=18270 v9-block-sha256=4686212387189e78f98de5352d12eb8544d1a9f78c97dfc446266fa3d4d3f3d9 candidate-binding=v9-authority-bundle-v1.json -->
+
+## 2026-08-03 V10 Evidence-Boundary Workflow Correction
+
+**Architecture authority:** `conversations-architecture-2026-08-03-v10`
+
+**Epic authority:** `epic-6-authority-2026-08-03-v10`
+
+**Overlay status:** `final`
+
+**Updated:** `2026-08-03`
+
+**Supersedes:** `conversations-architecture-2026-08-02-v9` only for the
+Story 10.3/10.4 workflow and reusable-guidance projection
+
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-03.md`
+
+The exact 18,270-byte v9 architecture block has SHA-256
+`4686212387189e78f98de5352d12eb8544d1a9f78c97dfc446266fa3d4d3f3d9`
+and remains immutable. BMAD `6.10.1n46` superseded the workflow-path
+projection frozen by `V9-EVIDENCE-WORKFLOWS-v1`; it did not supersede Epic
+10's outcome, hard entry, bounded exit, non-shipping boundary, predecessor or
+successor graph, or any inherited v8/v9 technical invariant.
+
+The v10 epic authority binds the route-complete
+`V9-EVIDENCE-WORKFLOWS-v2` inventory and separately binds
+`V9-EVIDENCE-GUIDANCE-v2`. Current route coverage and resolved project-owned
+customization are authority inputs to Stories 10.3 and 10.4. Mechanical gate
+placement and reusable guidance remain separate durability and rollback
+boundaries. Installed `DO NOT EDIT` customization defaults are immutable;
+project-owned guidance lives in `_bmad/custom/` and the canonical runbook.
+
+Deprecated `bmad-dev-auto` and `bmad-quick-dev` surfaces are validated as
+single-hop routes to `bmad-build-auto` and `bmad-build`. They are not forked as
+second sources of gate or guidance implementation. The directly callable
+`bmad-dev-story` and `bmad-code-review` legacy bodies remain in the mechanical
+inventory until they become forwarding aliases or are removed by separately
+approved workflow authority.
+
+Any BMAD workflow generation change invalidates the workflow and guidance
+inventories and the Story 10.3/10.4 evidence until route coverage, cross-tree
+parity, deterministic render parity, and resolved customization are
+revalidated. Missing paths, alias loops/forks, empty applicable scope,
+unavailable history, schema drift, digest drift, customization merge failure,
+or parity drift block publication; no validator may weaken exact-set, hash,
+containment, raw-mode gitlink, source-inventory, root-of-trust, or anti-vacuity
+checks to obtain a pass.
+
+The deterministic companion set binds one committed planning candidate `PC`
+through `_bmad-output/planning-artifacts/v9-authority-bundle-v1.json`. The
+canonical authorities are committed before companion derivation so no source
+claims its own commit hash. The bundle excludes itself and mutable IR-0, hold,
+story-final-record, RG-15, and release-evidence outputs from its digest. Any
+later canonical repair invalidates and regenerates the candidate-bound
+companions.
+
+Every other v9 obligation remains unchanged: all 27 successor stories, the
+exact 27-reader inventory, the one-to-one Story 6.10 to Epic 10 supersession,
+124/124 functional-requirement coverage, 52 UX decisions, 28 UX acceptance
+identifiers, `preserved-not-activated` UX disposition, and unchanged
+obligation ownership. The global implementation hold remains `ACTIVE`; Epic 5
+action A5 remains `open`; this publication neither runs nor biases IR-0 and
+does not authorize product implementation, release closure, or a push.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:END version=conversations-architecture-2026-08-03-v10 epic-authority=epic-6-authority-2026-08-03-v10 candidate-binding=v9-authority-bundle-v1.json -->
