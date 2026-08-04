@@ -1,52 +1,52 @@
 installation:
-  version: 6.10.1-next.46
+  version: 6.10.1-next.48
   installDate: 2026-07-14T23:37:47.342Z
-  lastUpdated: 2026-08-03T05:13:23.423Z
+  lastUpdated: 2026-08-04T04:23:52.906Z
 modules:
   - name: core
-    version: 6.10.1-next.46
+    version: 6.10.1-next.48
     installDate: 2026-07-14T23:37:46.234Z
-    lastUpdated: 2026-08-03T05:13:23.411Z
+    lastUpdated: 2026-08-04T04:23:52.893Z
     source: built-in
     npmPackage: null
     repoUrl: null
   - name: bmm
-    version: 6.10.1-next.46
+    version: 6.10.1-next.48
     installDate: 2026-07-14T23:37:46.160Z
-    lastUpdated: 2026-08-03T05:13:23.413Z
+    lastUpdated: 2026-08-04T04:23:52.895Z
     source: built-in
     npmPackage: null
     repoUrl: null
-  - name: bmad-loop
-    version: main
-    installDate: 2026-07-14T23:37:46.270Z
-    lastUpdated: 2026-08-03T05:13:23.418Z
-    source: external
-    npmPackage: null
-    repoUrl: https://github.com/bmad-code-org/bmad-loop
-    channel: next
-    sha: 29c147c74db52336dfaa0f880226d44c74454597
-  - name: tea
-    version: main
-    installDate: 2026-07-14T23:37:47.109Z
-    lastUpdated: 2026-08-03T05:13:23.421Z
-    source: external
-    npmPackage: bmad-method-test-architecture-enterprise
-    repoUrl: https://github.com/bmad-code-org/bmad-method-test-architecture-enterprise
-    channel: next
-    sha: f3efa5527822a8370c8ac5bf0f581bb248c93a21
   - name: cis
     version: main
     installDate: 2026-07-14T23:37:47.171Z
-    lastUpdated: 2026-08-03T05:13:23.423Z
+    lastUpdated: 2026-08-04T04:23:52.898Z
     source: external
     npmPackage: bmad-creative-intelligence-suite
     repoUrl: https://github.com/bmad-code-org/bmad-module-creative-intelligence-suite
     channel: next
     sha: 07a8dd03d196a762f21c241d985293fe5b0f90e7
+  - name: tea
+    version: main
+    installDate: 2026-07-14T23:37:47.109Z
+    lastUpdated: 2026-08-04T04:23:52.901Z
+    source: external
+    npmPackage: bmad-method-test-architecture-enterprise
+    repoUrl: https://github.com/bmad-code-org/bmad-method-test-architecture-enterprise
+    channel: next
+    sha: 34f3535b05389905825f725b4b42776bd5bff555
+  - name: bmad-loop
+    version: main
+    installDate: 2026-07-14T23:37:46.270Z
+    lastUpdated: 2026-08-04T04:23:52.906Z
+    source: external
+    npmPackage: null
+    repoUrl: https://github.com/bmad-code-org/bmad-loop
+    channel: next
+    sha: dfeead201e45dbe52f0a41d33a86742450cef5ff
 ides:
   - claude-code
   - codex
+  - cursor
   - github-copilot
   - opencode
-  - cursor
