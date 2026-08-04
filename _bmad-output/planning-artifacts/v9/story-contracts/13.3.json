@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "9c1287f9c6af8b479284ab7de3a18b0f6ae94666",
+    "planningCandidate": "1e72e63cbf2b556b8dc6fe732428c66f51985ac7",
     "candidateBinding": "`SC-13.3`, full 13.1-13.2 chain, exact tier binaries and results, manifest/current-proof and mutation digests.",
     "sectionSha256": "6d2e736e5ed9263c6f550a4f1ded72eb31e0e050111c182b5bcbc7b73c5c6f60"
   },

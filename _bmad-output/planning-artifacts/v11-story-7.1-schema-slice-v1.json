@@ -1,0 +1,105 @@
+{
+  "schemaVersion": "hexalith.conversations.story-slice-authority.v1",
+  "sliceId": "7.1-SCHEMAS",
+  "storyId": "7.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-04-v11",
+    "architecture": "conversations-architecture-2026-08-04-v11",
+    "planningCandidate": "1e72e63cbf2b556b8dc6fe732428c66f51985ac7",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+  },
+  "baseStoryContract": {
+    "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+    "sha256": "7cf7a79732d863a07f5962c65940be8bed749bd1efccc9ca6586783d0edc6900",
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10"
+  },
+  "amendmentSectionSha256": "0913a4568c5491cf406dc5bca237b0b12f13fcd1c14b3ef89f85e9ca8448c9fe",
+  "predecessors": [
+    "6.2",
+    "IR-0"
+  ],
+  "holdRequirement": {
+    "effectiveState": "LIFTED",
+    "recordPath": "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+  },
+  "writablePaths": [
+    "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+    "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "artifacts/v9/schema-slice/v2-schema-contract.xml"
+  ],
+  "readOnlyInputs": [
+    "_bmad/schemas/v9-story-contract-v1.schema.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+    "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json"
+  ],
+  "prohibitedPaths": [
+    {
+      "match": "exact",
+      "path": "_bmad/scripts/generate_story_record.py"
+    },
+    {
+      "match": "exact",
+      "path": ".gitmodules"
+    },
+    {
+      "match": "exact",
+      "path": "Directory.Packages.props"
+    },
+    {
+      "match": "prefix",
+      "path": "src/"
+    },
+    {
+      "match": "prefix",
+      "path": "tests/"
+    },
+    {
+      "match": "prefix",
+      "path": "references/"
+    },
+    {
+      "match": "prefix",
+      "path": "docs/release-evidence/"
+    },
+    {
+      "match": "prefix",
+      "path": "artifacts/v9/7.1/"
+    },
+    {
+      "match": "prefix",
+      "path": "_bmad-output/implementation-artifacts/"
+    },
+    {
+      "match": "prefix",
+      "path": "_bmad-output/planning-artifacts/"
+    }
+  ],
+  "acceptance": {
+    "scenarioId": "AC-7.1-01",
+    "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml",
+    "result": "PASS",
+    "passExitCodes": [
+      0
+    ],
+    "failExitCodes": [
+      1,
+      5
+    ],
+    "blockedExitCodes": [
+      2,
+      3,
+      4
+    ]
+  },
+  "completionEffect": {
+    "storyDoneAllowed": false,
+    "finalRecordProduced": false,
+    "successorUnlocked": false
+  },
+  "rollback": {
+    "boundary": "Remove only the three new schemas, schema-specific test changes, and checkpoint result; preserve the existing story-contract schema, planning authority, publisher, completed history, and all non-checkpoint work."
+  }
+}

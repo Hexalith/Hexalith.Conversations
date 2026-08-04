@@ -224,3 +224,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core.md`
   summary: Implement the additive deterministic v2 generator core, contract-mode CLI, paired JSON/Markdown outputs, and Story 7.1 final record.
   evidence: Split from the schema-contract slice after the 1922-token draft exceeded the workflow limit; published v9 currently couples both scopes, so execution requires an approved authority amendment that preserves the existing obligation mapping.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-1-schema-checkpoint-authority-publication.md`
+  summary: Make managed planning publication crash-atomic for concurrent readers and process termination.
+  evidence: Review confirmed the pre-existing multi-file replacement uses in-process rollback but cannot prevent readers from observing mixed generations or recover from process termination; redesigning publication storage exceeds this authority-only correction.
