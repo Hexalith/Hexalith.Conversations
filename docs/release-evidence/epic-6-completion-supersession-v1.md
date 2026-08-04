@@ -1,6 +1,6 @@
 # Epic 6 Completion Supersession Evidence v1
 
-- Result: `BLOCKED`
+- Result: `FAIL`
 - Issued on: `2026-08-04`
 - Implementation hold: `ACTIVE`
 - Release authorized: `false`
