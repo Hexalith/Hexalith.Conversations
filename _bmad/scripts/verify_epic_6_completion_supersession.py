@@ -203,7 +203,16 @@ def clone_exact_tree(repository: Path, destination: Path, done: str, rows: Seque
     clone = destination / "repository"
     try:
         subprocess.run(
-            ("git", "clone", "--quiet", "--no-checkout", "--local", str(repository), str(clone)),
+            (
+                "git",
+                "clone",
+                "--quiet",
+                "--no-checkout",
+                "--local",
+                "--no-hardlinks",
+                str(repository),
+                str(clone),
+            ),
             check=True,
             timeout=COMMAND_TIMEOUT,
             env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"},
@@ -214,7 +223,16 @@ def clone_exact_tree(repository: Path, destination: Path, done: str, rows: Seque
             target = clone / row["path"]
             target.parent.mkdir(parents=True, exist_ok=True)
             subprocess.run(
-                ("git", "clone", "--quiet", "--no-checkout", "--local", str(source), str(target)),
+                (
+                    "git",
+                    "clone",
+                    "--quiet",
+                    "--no-checkout",
+                    "--local",
+                    "--no-hardlinks",
+                    str(source),
+                    str(target),
+                ),
                 check=True,
                 timeout=COMMAND_TIMEOUT,
                 env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"},

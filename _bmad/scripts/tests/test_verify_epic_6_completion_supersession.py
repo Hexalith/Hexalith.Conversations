@@ -139,3 +139,25 @@ def test_malformed_contract_schema_is_rejected() -> None:
 
     errors = list(verifier.Draft202012Validator(schema).iter_errors(malformed))
     assert errors
+
+
+def test_exact_tree_clones_disable_cross_device_hardlinks(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    calls: list[tuple[str, ...]] = []
+
+    def completed(arguments, **_kwargs):
+        calls.append(tuple(arguments))
+        return verifier.subprocess.CompletedProcess(arguments, 0, stdout=b"", stderr=b"")
+
+    monkeypatch.setattr(verifier.subprocess, "run", completed)
+    verifier.clone_exact_tree(
+        tmp_path / "source",
+        tmp_path / "destination",
+        "a" * 40,
+        [{"path": "references/Example", "objectId": "b" * 40}],
+    )
+
+    clone_calls = [arguments for arguments in calls if arguments[:2] == ("git", "clone")]
+    assert len(clone_calls) == 2
+    assert all("--no-hardlinks" in arguments for arguments in clone_calls)
