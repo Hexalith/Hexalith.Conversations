@@ -57,6 +57,7 @@ context: []
 ## Spec Change Log
 
 - 2026-08-04: Completed the V12 authority, pinned verifier environment, immutable reconstruction tooling, twelve-route evidence boundary, context preservation, and fail-closed preflight. A1 remains `BLOCKED` because the Story 6.2 historical Dapr lane cannot allocate a required Linux inotify watch; the independent decision and IR-0 remain unstarted.
+- 2026-08-04: After the user-approved temporary inotify limit increase, Story 6.2 integration tests passed 14/14 and exposed the substantive A1 result: 429 historical conformance tests passed and two failed because seven root gitlinks moved after the recorded proof candidate. The independent decision is `REJECTED`; A1 is unsatisfied, so V12 does not authorize the IR-0 rerun and the final task remains open.
 - 2026-08-04: Reran the exact A1 reconstruction after host inotify capacity was raised. The Story 6.2 integration lane passed 14/14, but its full historical solution lane failed two conformance tests with 429 passing and zero skipped; candidate-bound supersession evidence now records `FAIL`, and the independent decision and IR-0 remain unstarted.
 
 ## Verification
