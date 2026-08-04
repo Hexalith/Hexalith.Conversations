@@ -1,0 +1,55 @@
+{
+  "schemaVersion": "epic-6-completion-supersession-decision-v1",
+  "decisionId": "EPIC-6-COMPLETION-SUPERSESSION-DECISION-v1",
+  "decisionDate": "2026-08-04",
+  "decision": "REJECTED",
+  "decisionAuthority": {
+    "owner": "Release owner",
+    "name": "Jerome",
+    "mechanism": "Repository-recorded independent decision; no cryptographic-signature claim"
+  },
+  "authority": {
+    "checkpoint": "E6-REMEDIATION",
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12",
+    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "authorityBundleSha256": "a0436006ddc40fd08a4edd3fdeeaa5cdee649219dd277399859492064313ca0a",
+    "authorityBundleDigest": "32b4f7040a1f76e98b24a87d55f622a4c283d6f6b23c7dc5dd7ca2ac0d55e7df",
+    "implementationHold": "ACTIVE"
+  },
+  "sourceEvidence": {
+    "jsonPath": "docs/release-evidence/epic-6-completion-supersession-v1.json",
+    "jsonSha256": "b6533f3040e991c19298003a701a0ccf75cc76d933bc8b43f31f2fcd55e836df",
+    "markdownPath": "docs/release-evidence/epic-6-completion-supersession-v1.md",
+    "markdownSha256": "8d02a0bf509d349a5e0654c04fef635bb68a97e150461a542c1e844cb5c44019",
+    "evidenceCommit": "bac21045cdb3de59c3a427f63bc86ca2551cfbeb",
+    "result": "FAIL",
+    "story62CommandOutputSha256": "1ec4e001352e8bd9ff761b890dec126922f912cc6cd6dbf9d34b42bebad4578f"
+  },
+  "rationale": [
+    "A1 requires both exact done-tree reconstructions and rebuilt test commands to pass with zero failed, skipped, or not-run tests.",
+    "The Story 6.2 exact done tree executed 431 conformance tests with 429 passed, 2 failed, and 0 skipped.",
+    "The failures prove that seven root gitlinks moved after the recorded promotion-proof candidate, so the historical completion evidence cannot be accepted or superseded as passing."
+  ],
+  "effects": {
+    "a1Satisfied": false,
+    "a2Satisfied": true,
+    "a3Satisfied": true,
+    "ir0RerunAuthorized": false,
+    "implementationHold": "ACTIVE",
+    "successorStarted": false,
+    "releaseAuthorized": false
+  },
+  "preserves": [
+    "Story 6.7 completed record and status",
+    "Story 6.2 completed record and status",
+    "V1-V12 point-in-time authority and evidence",
+    "All root submodule content and gitlinks"
+  ],
+  "nonClaims": [
+    "This decision does not rewrite or invalidate Git history.",
+    "This decision does not lift the implementation hold.",
+    "This decision does not authorize IR-0, Story 7.1, a successor, or release."
+  ]
+}
