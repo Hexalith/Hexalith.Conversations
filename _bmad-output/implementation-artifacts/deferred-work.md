@@ -208,3 +208,19 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
   returned `pass`. Reapply the committed candidate-finality invariant in historical mode while allowing only
   declared final-record outputs after the candidate, and add a regression covering a later edit to an
   already-listed non-output path. [_bmad/scripts/generate_story_record.py:1359,1806]
+
+- source_spec: none
+  summary: Implement Story 7.2 to derive test, path, candidate, submodule, and gitlink facts mechanically.
+  evidence: Split from the requested mechanical final-record outcome because v9 defines fact extraction as an independently shippable story after the Story 7.1 generator core.
+
+- source_spec: none
+  summary: Implement Story 7.3 to integrate final-record generation into every blocking completion transition.
+  evidence: Split from the requested mechanical final-record outcome because v9 gives workflow integration its own predecessor, rollback boundary, acceptance scenarios, and final record.
+
+- source_spec: none
+  summary: Implement Story 7.4 to verify historical mode and the complete required fault-injection matrix.
+  evidence: Split from the requested mechanical final-record outcome because v9 makes historical verification and non-vacuity proof a separate successor story after workflow integration.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core.md`
+  summary: Implement the additive deterministic v2 generator core, contract-mode CLI, paired JSON/Markdown outputs, and Story 7.1 final record.
+  evidence: Split from the schema-contract slice after the 1922-token draft exceeded the workflow limit; published v9 currently couples both scopes, so execution requires an approved authority amendment that preserves the existing obligation mapping.
