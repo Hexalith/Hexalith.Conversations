@@ -4,7 +4,9 @@
 from __future__ import annotations
 
 import argparse
+import ctypes
 from datetime import date
+import errno
 import hashlib
 import json
 import os
@@ -24,6 +26,7 @@ SCHEMA_PATH = "_bmad/schemas/epic-6-completion-supersession-v1.schema.json"
 EVIDENCE_SCHEMA_VERSION = "epic-6-completion-supersession-evidence-v1"
 GIT_TIMEOUT = 60
 COMMAND_TIMEOUT = 900
+INOTIFY_MODIFY = 0x00000002
 
 
 class SupersessionError(RuntimeError):
@@ -286,7 +289,51 @@ def execute_command(root: Path, command: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def require_linux_inotify_watch(root: Path, command: dict[str, Any], story_id: str) -> None:
+    """Fail closed when daprd cannot watch its exact-tree resource directory."""
+    if not sys.platform.startswith("linux"):
+        return
+
+    try:
+        libc = ctypes.CDLL(None, use_errno=True)
+        descriptor = libc.inotify_init1(os.O_CLOEXEC)
+    except (AttributeError, OSError) as error:
+        raise SupersessionError(
+            "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+            f"{command['id']}: Linux inotify probe unavailable: {error}; argv={command['argv']!r}",
+            "BLOCKED",
+            story_id,
+        ) from error
+
+    if descriptor < 0:
+        error_number = ctypes.get_errno()
+        raise SupersessionError(
+            "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+            f"{command['id']}: inotify_init1 failed with errno {error_number} "
+            f"({os.strerror(error_number)}); argv={command['argv']!r}",
+            "BLOCKED",
+            story_id,
+        )
+
+    try:
+        watch = libc.inotify_add_watch(descriptor, os.fsencode(root), INOTIFY_MODIFY)
+        if watch < 0:
+            error_number = ctypes.get_errno()
+            classification = "capacity exhausted" if error_number in (errno.ENOSPC, errno.EMFILE, errno.ENFILE) else "probe failed"
+            raise SupersessionError(
+                "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+                f"{command['id']}: required Linux inotify watch {classification}: errno {error_number} "
+                f"({os.strerror(error_number)}); argv={command['argv']!r}",
+                "BLOCKED",
+                story_id,
+            )
+    finally:
+        os.close(descriptor)
+
+
 def execute_story_checks(repository: Path, story: dict[str, Any], done_rows: Sequence[dict[str, str]]) -> dict[str, Any]:
+    if story["storyId"] == "6.2":
+        require_linux_inotify_watch(repository, story["testCommands"][0], story["storyId"])
     with tempfile.TemporaryDirectory(prefix=f"epic-6-{story['storyId'].replace('.', '-')}-") as temporary:
         exact = clone_exact_tree(repository, Path(temporary), story["doneCommit"], done_rows)
         promotion_argv = [

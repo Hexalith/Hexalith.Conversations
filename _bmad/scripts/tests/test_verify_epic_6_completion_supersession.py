@@ -95,6 +95,30 @@ def test_unavailable_submodule_object_is_blocked(monkeypatch: pytest.MonkeyPatch
     assert error.value.state == "BLOCKED"
 
 
+def test_unavailable_inotify_capacity_blocks_exact_dapr_lane(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    contract, _contract_bytes, _schema_bytes = verifier.load_contract(ROOT)
+    story = contract["stories"][1]
+
+    def unavailable(_root: Path, command: dict, story_id: str) -> None:
+        raise verifier.SupersessionError(
+            "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+            f"{command['id']}: errno 28 (No space left on device)",
+            "BLOCKED",
+            story_id,
+        )
+
+    monkeypatch.setattr(verifier, "require_linux_inotify_watch", unavailable)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.execute_story_checks(ROOT, story, [])
+
+    assert error.value.code == "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE"
+    assert error.value.state == "BLOCKED"
+    assert error.value.story_id == "6.2"
+    assert "STORY-6-2-FULL-SOLUTION-TESTS" in error.value.message
+
+
 def test_skipped_rebuilt_test_never_becomes_pass() -> None:
     def skipped(_root: Path, story: dict, _rows: list[dict]) -> dict:
         result = passing_checks(_root, story, _rows)
