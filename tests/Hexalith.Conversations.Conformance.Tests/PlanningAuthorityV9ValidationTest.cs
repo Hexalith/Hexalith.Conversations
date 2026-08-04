@@ -31,6 +31,8 @@ public sealed class PlanningAuthorityV9ValidationTest
     private const string V9EpicDigest = "e7d6ea5759c12ab70f21b472656828bb4e5bcce2023d845f06a40cf1373d1c9d";
     private const string V10ArchitectureDigest = "893315bff3f12d7b949dbeae2a2dfbb301023461ad62c0c6066480a87700774b";
     private const string V10EpicDigest = "3c33462d0bc28f9fec36e571d7dcf4a60c77d02c94bd3675528a05d704d07588";
+    private const string V11ArchitectureDigest = "a97385c11b92fb95f1acf7f4ba370404c4781855581c81a427ed6895a5a4c4d1";
+    private const string V11EpicDigest = "6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19";
 
     /// <summary>
     /// Proves the v9/v10 prefixes remain byte-identical and the v11 scope is narrow.
@@ -73,6 +75,13 @@ public sealed class PlanningAuthorityV9ValidationTest
         Sha256(Encoding.UTF8.GetBytes(v10Epic)).ShouldBe(V10EpicDigest);
         Encoding.UTF8.GetByteCount(v10Architecture).ShouldBe(3846);
         Sha256(Encoding.UTF8.GetBytes(v10Architecture)).ShouldBe(V10ArchitectureDigest);
+        Encoding.UTF8.GetByteCount(v11Epic).ShouldBe(5474);
+        Sha256(Encoding.UTF8.GetBytes(v11Epic)).ShouldBe(V11EpicDigest);
+        Encoding.UTF8.GetByteCount(v11Architecture).ShouldBe(3042);
+        Sha256(Encoding.UTF8.GetBytes(v11Architecture)).ShouldBe(V11ArchitectureDigest);
+        CountOccurrences(
+            v11Epic,
+            "### Story 7.1 V11 Schema-Checkpoint Amendment: Authorize A Non-Story Slice").ShouldBe(1);
         CountOccurrences(v10Epic, "Story 10.3 V10 Amendment").ShouldBe(1);
         CountOccurrences(v10Epic, "Story 10.4 V10 Amendment").ShouldBe(1);
         v10Epic.ShouldContain("AC-10.4-09");
@@ -104,10 +113,13 @@ public sealed class PlanningAuthorityV9ValidationTest
         bundle.GetProperty("epic5ActionA5").GetString().ShouldBe("open");
 
         JsonElement[] artifacts = bundle.GetProperty("artifacts").EnumerateArray().ToArray();
-        artifacts.Length.ShouldBeGreaterThan(40);
+        artifacts.Length.ShouldBe(61);
         string[] paths = artifacts.Select(row => row.GetProperty("path").GetString()!).ToArray();
+        paths.ShouldBe(paths.OrderBy(path => path, StringComparer.Ordinal));
         paths.Distinct(StringComparer.Ordinal).Count().ShouldBe(paths.Length);
         paths.ShouldNotContain(BundlePath);
+        paths.ShouldAllBe(path => !path.Contains("IR-0", StringComparison.OrdinalIgnoreCase));
+        paths.ShouldAllBe(path => !path.EndsWith("implementation-hold-v1.json", StringComparison.Ordinal));
         foreach (JsonElement artifact in artifacts)
         {
             string path = artifact.GetProperty("path").GetString()!;
@@ -131,6 +143,9 @@ public sealed class PlanningAuthorityV9ValidationTest
 
         JsonElement sliceArtifact = artifacts.Single(row => row.GetProperty("path").GetString() == SlicePath);
         sliceArtifact.GetProperty("role").GetString().ShouldBe("story-slice-authority");
+        JsonElement baseStoryArtifact = artifacts.Single(
+            row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json");
+        baseStoryArtifact.GetProperty("role").GetString().ShouldBe("base-story-contract");
 
         foreach (string validatorPath in new[]
         {
@@ -219,6 +234,7 @@ public sealed class PlanningAuthorityV9ValidationTest
         graph.ShouldContainKey("RG-15");
         graph.ShouldContainKey("6.2");
         graph.ShouldContainKey("7.1-SCHEMAS");
+        graph.Count.ShouldBe(32);
         graph.Keys.Count(key => Regex.IsMatch(key, @"^(?:[7-9]|1[0-5])\.\d+$")).ShouldBe(27);
         graph["7.1-SCHEMAS"].ShouldBe(["6.2", "IR-0"]);
         graph["7.1"].ShouldBe(["6.2", "7.1-SCHEMAS", "IR-0"]);
@@ -278,6 +294,19 @@ public sealed class PlanningAuthorityV9ValidationTest
             .ShouldBe("33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0");
         Read(BundlePath).ShouldNotContain("\"LIFTED\"");
         Regex.IsMatch(Read(SprintPath), @"^  [^\n]*7\.1-SCHEMAS[^\n]*:", RegexOptions.Multiline).ShouldBeFalse();
+
+        string view = Read("_bmad-output/planning-artifacts/epic-6-current-execution-view-v2.md");
+        CountOccurrences(
+            view,
+            "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | 6.2, IR-0 | 1 |").ShouldBe(1);
+        Regex.Matches(view, @"^\| 7\.1 \|.*$", RegexOptions.Multiline)
+            .Select(match => match.Value).ShouldBe([
+                "| 7.1 | story | Define the final-record schema and deterministic generator core | 6.2, 7.1-SCHEMAS, IR-0 | 6 |",
+            ]);
+        Regex.Matches(view, @"^\| 7\.2 \|.*$", RegexOptions.Multiline)
+            .Select(match => match.Value).ShouldBe([
+                "| 7.2 | story | Derive test, path, candidate, submodule, and gitlink facts | 7.1 | 11 |",
+            ]);
     }
 
     /// <summary>
@@ -376,6 +405,8 @@ public sealed class PlanningAuthorityV9ValidationTest
 
         string sprint = Read(SprintPath);
         Regex.Matches(sprint, @"^  (?:[7-9]|1[0-5])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(27);
+        Regex.Matches(sprint, @"^last_updated: [^\n]+$", RegexOptions.Multiline).Count.ShouldBe(1);
+        Regex.IsMatch(sprint, @"^  [^:\n]*7\.1-SCHEMAS[^:\n]*:", RegexOptions.Multiline).ShouldBeFalse();
         sprint.ShouldContain("last_updated: 2026-08-04");
         sprint.ShouldContain("# V11 PLANNING PUBLICATION:");
         sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");

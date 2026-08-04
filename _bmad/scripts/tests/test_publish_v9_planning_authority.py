@@ -20,6 +20,70 @@ assert SPEC is not None and SPEC.loader is not None
 publisher = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(publisher)
 
+EXPECTED_BUNDLE_ARTIFACT_PATHS = (
+    ".gitmodules",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "_bmad-output/planning-artifacts/architecture.md",
+    "_bmad-output/planning-artifacts/epic-6-current-execution-view-v1.md",
+    "_bmad-output/planning-artifacts/epic-6-current-execution-view-v2.md",
+    "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-02.md",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-03.md",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-04.md",
+    "_bmad-output/planning-artifacts/ux-requirement-map.md",
+    "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+    "_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
+    "_bmad-output/planning-artifacts/v9-supersession-map-v1.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build-auto.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build.json",
+    "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-review.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/10.4.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/12.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/12.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/12.4.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/13.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/13.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/13.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/14.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/14.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/14.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/15.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/15.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/7.4.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json",
+    "_bmad-output/planning-artifacts/v9/story-contracts/9.2.json",
+    "_bmad/custom/bmad-build-auto.toml",
+    "_bmad/custom/bmad-build.toml",
+    "_bmad/custom/bmad-review.toml",
+    "_bmad/schemas/v11-story-slice-authority-v1.schema.json",
+    "_bmad/schemas/v9-authority-bundle-v1.schema.json",
+    "_bmad/schemas/v9-execution-graph-v1.schema.json",
+    "_bmad/schemas/v9-inventory-v1.schema.json",
+    "_bmad/schemas/v9-story-contract-v1.schema.json",
+    "_bmad/schemas/v9-supersession-map-v1.schema.json",
+    "_bmad/scripts/publish_v9_planning_authority.py",
+    "_bmad/scripts/tests/test_publish_v9_planning_authority.py",
+    "docs/runbooks/evidence-boundary-validation.md",
+    "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+)
+
 
 def published_candidate() -> str:
     """Read the committed candidate bound by the checked-in bundle."""
@@ -49,10 +113,14 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     assert bundle["implementationHold"] == "ACTIVE"
     assert bundle["epic5ActionA5"] == "open"
     assert [row["path"] for row in bundle["gitlinks"]] == list(publisher.ROOT_GITLINK_PATHS)
-    artifact_paths = {row["path"] for row in bundle["artifacts"]}
+    artifact_paths = tuple(row["path"] for row in bundle["artifacts"])
+    assert artifact_paths == EXPECTED_BUNDLE_ARTIFACT_PATHS
     assert publisher.BUNDLE_PATH not in artifact_paths
-    assert set(publisher.VALIDATOR_PATHS).issubset(artifact_paths)
-    assert publisher.SLICE_PATH in artifact_paths
+    assert not any("ir-0" in path.lower() for path in artifact_paths)
+    assert not any(path.endswith("implementation-hold-v1.json") for path in artifact_paths)
+    roles = {row["path"]: row["role"] for row in bundle["artifacts"]}
+    assert roles["_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"] == "base-story-contract"
+    assert roles[publisher.SLICE_PATH] == "story-slice-authority"
 
 
 def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
@@ -130,7 +198,7 @@ def test_story_slice_is_closed_candidate_bound_and_one_way_digest_ordered() -> N
     _, v11_epic = publisher.validate_authority_prefixes(epics, architecture)
     amendment = publisher.v11_story_slice_amendment(v11_epic)
 
-    publisher.validate_story_slice(sidecar, outputs[base_path], v11_epic)
+    publisher.validate_story_slice(sidecar, outputs[base_path], v11_epic, candidate)
     assert sidecar["authority"] == {
         "epic": publisher.EPIC_AUTHORITY,
         "architecture": publisher.ARCHITECTURE_AUTHORITY,
@@ -157,6 +225,41 @@ def test_story_slice_is_closed_candidate_bound_and_one_way_digest_ordered() -> N
     assert sidecar_row["role"] == "story-slice-authority"
 
 
+def test_v11_canonical_markers_are_byte_pinned_and_single_amendment() -> None:
+    """Current v11 semantics cannot drift behind hard-coded sidecar rendering."""
+
+    candidate = published_candidate()
+    epics = publisher.candidate_blob(ROOT, candidate, publisher.EPICS_PATH)
+    architecture = publisher.candidate_blob(ROOT, candidate, publisher.ARCHITECTURE_PATH)
+    v11_epic = publisher.marker_block(
+        epics,
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:BEGIN",
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:END",
+    )
+    v11_architecture = publisher.marker_block(
+        architecture,
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:BEGIN",
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:END",
+    )
+    assert len(v11_epic) == publisher.V11_EPIC_BLOCK_SIZE
+    assert hashlib.sha256(v11_epic).hexdigest() == publisher.V11_EPIC_BLOCK_DIGEST
+    assert len(v11_architecture) == publisher.V11_ARCHITECTURE_BLOCK_SIZE
+    assert hashlib.sha256(v11_architecture).hexdigest() == publisher.V11_ARCHITECTURE_BLOCK_DIGEST
+    assert v11_epic.decode().count(
+        "### Story 7.1 V11 Schema-Checkpoint Amendment: Authorize A Non-Story Slice"
+    ) == 1
+
+    epic_fault = epics.replace(b"non-story execution slice", b"story execution slice", 1)
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_authority_prefixes(epic_fault, architecture)
+    assert error.value.code == "V11_EPIC_AUTHORITY_DRIFT"
+
+    architecture_fault = architecture.replace(b"There is no scoped exception state", b"There is one scoped exception state", 1)
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_authority_prefixes(epics, architecture_fault)
+    assert error.value.code == "V11_ARCHITECTURE_AUTHORITY_DRIFT"
+
+
 def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
     """Closed-field and exact-edge faults turn the v11 publication red."""
 
@@ -181,11 +284,41 @@ def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
         publisher.validate_schemas(ROOT, {publisher.SLICE_PATH: publisher.json_bytes(extra_field)})
     assert error.value.code == "SCHEMA_VALIDATION_FAILED"
 
-    permissive_effect = json.loads(outputs[publisher.SLICE_PATH])
-    permissive_effect["completionEffect"]["storyDoneAllowed"] = True
-    with pytest.raises(publisher.PublicationError) as error:
-        publisher.validate_story_slice(permissive_effect, base_contract, v11_epic)
-    assert error.value.code == "STORY_SLICE_AUTHORITY_DRIFT"
+    mutations = (
+        (("schemaVersion",), "hexalith.conversations.story-slice-authority.v2"),
+        (("authority", "epic"), publisher.BASE_EPIC_AUTHORITY),
+        (("authority", "architecture"), publisher.BASE_ARCHITECTURE_AUTHORITY),
+        (("authority", "planningCandidate"), "f" * 40),
+        (("authority", "authorityBundlePath"), "other-bundle.json"),
+        (("baseStoryContract", "sha256"), "0" * 64),
+        (("baseStoryContract", "epic"), publisher.EPIC_AUTHORITY),
+        (("amendmentSectionSha256",), "1" * 64),
+        (("predecessors",), ["6.2"]),
+        (("holdRequirement", "effectiveState"), "ACTIVE"),
+        (("holdRequirement", "recordPath"), "other-hold.json"),
+        (("writablePaths",), list(reversed(publisher.SLICE_WRITABLE_PATHS))),
+        (("readOnlyInputs",), list(publisher.SLICE_READ_ONLY_INPUTS[:-1])),
+        (("prohibitedPaths",), [*publisher.SLICE_PROHIBITED_PATHS[:-1], {"match": "prefix", "path": "other/"}]),
+        (("acceptance", "scenarioId"), "AC-7.1-02"),
+        (("acceptance", "command"), "python3 -m pytest -q other.py"),
+        (("acceptance", "result"), "FAIL"),
+        (("acceptance", "passExitCodes"), [0, 1]),
+        (("acceptance", "failExitCodes"), [1]),
+        (("acceptance", "blockedExitCodes"), [2, 3]),
+        (("completionEffect", "storyDoneAllowed"), True),
+        (("completionEffect", "finalRecordProduced"), True),
+        (("completionEffect", "successorUnlocked"), True),
+        (("rollback", "boundary"), "Remove everything."),
+    )
+    for field_path, value in mutations:
+        mutation = json.loads(outputs[publisher.SLICE_PATH])
+        target = mutation
+        for field in field_path[:-1]:
+            target = target[field]
+        target[field_path[-1]] = value
+        with pytest.raises(publisher.PublicationError) as error:
+            publisher.validate_story_slice(mutation, base_contract, v11_epic, candidate)
+        assert error.value.code == "STORY_SLICE_AUTHORITY_DRIFT", field_path
 
     missing_edge = json.loads(outputs[publisher.GRAPH_PATH])
     missing_edge["edges"] = [
@@ -203,13 +336,27 @@ def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
         publisher.validate_slice_graph_parity(arbitrary_predecessor, contracts, sidecar)
     assert error.value.code == "CHECKPOINT_GRAPH_DRIFT"
 
+    arbitrary_node = json.loads(outputs[publisher.GRAPH_PATH])
+    next(node for node in arbitrary_node["nodes"] if node["id"] == "7.3")["id"] = "ARBITRARY"
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_slice_graph_parity(arbitrary_node, contracts, sidecar)
+    assert error.value.code == "CHECKPOINT_GRAPH_DRIFT"
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_schemas(ROOT, {publisher.GRAPH_PATH: publisher.json_bytes(arbitrary_node)})
+    assert error.value.code == "SCHEMA_VALIDATION_FAILED"
+
 
 def test_epic_six_retrospective_faults_fail_and_restore_byte_identically() -> None:
-    """Status and exact six-row inventory faults fail without losing committed evidence."""
+    """In-memory sprint faults fail while tracked evidence remains byte-identical."""
 
     path = ROOT / publisher.SPRINT_PATH
     before = path.read_bytes()
     source = before.decode()
+    contracts = {
+        document["storyId"]: document
+        for contract_path in (ROOT / "_bmad-output/planning-artifacts/v9/story-contracts").glob("*.json")
+        for document in [json.loads(contract_path.read_text(encoding="utf-8"))]
+    }
     matches = list(
         publisher.re.finditer(
             r'^  - id: "(epic-6-retro-item-[^"]+)"\n.*?(?=^  - |\Z)',
@@ -219,31 +366,50 @@ def test_epic_six_retrospective_faults_fail_and_restore_byte_identically() -> No
     )
     blocks = [match.group(0) for match in matches]
     mutations = (
-        source.replace("  epic-6-retrospective: done\n", "  epic-6-retrospective: optional\n", 1),
-        source.replace(blocks[0], "", 1),
-        source.replace(blocks[0], blocks[0] + blocks[0], 1),
-        source.replace(blocks[0] + blocks[1], blocks[1] + blocks[0], 1),
-        source.replace("Produce an additive Epic 6", "Produce a subtractive Epic 6", 1),
+        (
+            source.replace("  epic-6-retrospective: done\n", "  epic-6-retrospective: optional\n", 1),
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+        ),
+        (source.replace(blocks[0], "", 1), "EPIC_6_RETROSPECTIVE_DRIFT"),
+        (source.replace(blocks[0], blocks[0] + blocks[0], 1), "EPIC_6_RETROSPECTIVE_DRIFT"),
+        (source.replace(blocks[0] + blocks[1], blocks[1] + blocks[0], 1), "EPIC_6_RETROSPECTIVE_DRIFT"),
+        (
+            source.replace("Produce an additive Epic 6", "Produce a subtractive Epic 6", 1),
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+        ),
+        (
+            source.replace(
+                "last_updated: 2026-08-04\n",
+                "last_updated: 2026-08-04\nlast_updated: 2026-08-04\n",
+                1,
+            ),
+            "SPRINT_PROJECTION_DRIFT",
+        ),
+        (
+            source.replace(
+                "  7-1-define-the-final-record-schema-and-deterministic-generator-core: backlog\n",
+                "  7-1-define-the-final-record-schema-and-deterministic-generator-core: backlog\n"
+                "  7.1-SCHEMAS: backlog\n",
+                1,
+            ),
+            "SPRINT_PROJECTION_DRIFT",
+        ),
     )
-    for mutation in mutations:
-        try:
-            path.write_text(mutation, encoding="utf-8")
-            with pytest.raises(publisher.PublicationError) as error:
-                publisher.validate_epic_6_retrospective(path.read_text(encoding="utf-8"))
-            assert error.value.code == "EPIC_6_RETROSPECTIVE_DRIFT"
-        finally:
-            path.write_bytes(before)
+    for mutation, expected_code in mutations:
+        with pytest.raises(publisher.PublicationError) as error:
+            publisher.render_sprint(mutation.encode("utf-8"), contracts)
+        assert error.value.code == expected_code
         assert path.read_bytes() == before
 
     rendered = publisher.render_outputs(ROOT, published_candidate())[publisher.SPRINT_PATH].decode()
+    publisher.validate_sprint_structure(rendered)
     publisher.validate_epic_6_retrospective(rendered)
     assert "last_updated: 2026-08-04" in rendered
+    assert len(publisher.re.findall(r"^last_updated:", rendered, publisher.re.MULTILINE)) == 1
     assert "  epic-6-retrospective: done" in rendered
-    assert publisher.SLICE_ID not in {
-        line.strip().removesuffix(":")
-        for line in rendered.splitlines()
-        if line.startswith("  ") and line.endswith(":")
-    }
+    development = rendered[rendered.index("development_status:\n") : rendered.index("\naction_items:\n")]
+    assert publisher.SLICE_ID not in development
+    assert path.read_bytes() == before
 
 
 def test_bundle_schema_rejects_invalid_hold_or_gitlink_scope() -> None:
@@ -326,6 +492,14 @@ def test_graph_is_ordinal_and_every_successor_is_downstream_of_ir_zero() -> None
     outputs = publisher.render_outputs(ROOT, published_candidate())
     graph = json.loads(outputs[publisher.GRAPH_PATH])
     nodes = {node["id"]: node["predecessors"] for node in graph["nodes"]}
+    assert len(graph["nodes"]) == 32
+    assert set(nodes) == set(publisher.EXPECTED_STORY_IDS) | {
+        "6.2",
+        "PC-PUBLICATION",
+        "IR-0",
+        "RG-15",
+        publisher.SLICE_ID,
+    }
     assert nodes["IR-0"] == ["PC-PUBLICATION"]
     assert nodes[publisher.SLICE_ID] == ["6.2", "IR-0"]
     assert nodes["7.1"] == ["6.2", publisher.SLICE_ID, "IR-0"]
@@ -344,6 +518,39 @@ def test_graph_is_ordinal_and_every_successor_is_downstream_of_ir_zero() -> None
                 ancestors.add(predecessor)
                 pending.extend(nodes[predecessor])
         assert "IR-0" in ancestors, story_id
+
+
+def test_current_view_projects_exact_checkpoint_and_story_dependencies() -> None:
+    """The view has one exact checkpoint row and preserves Story 7.1/7.2 order."""
+
+    outputs = publisher.render_outputs(ROOT, published_candidate())
+    view = outputs[publisher.VIEW_V2_PATH].decode("utf-8")
+    contracts = {
+        json.loads(content)["storyId"]: json.loads(content)
+        for path, content in outputs.items()
+        if "/story-contracts/" in path
+    }
+    publisher.validate_current_view(view, contracts)
+    assert view.count(
+        "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | 6.2, IR-0 | 1 |"
+    ) == 1
+    assert publisher.re.findall(r"^\| 7\.1 \|.*$", view, publisher.re.MULTILINE) == [
+        "| 7.1 | story | Define the final-record schema and deterministic generator core | "
+        "6.2, 7.1-SCHEMAS, IR-0 | 6 |"
+    ]
+    assert publisher.re.findall(r"^\| 7\.2 \|.*$", view, publisher.re.MULTILINE) == [
+        "| 7.2 | story | Derive test, path, candidate, submodule, and gitlink facts | 7.1 | 11 |"
+    ]
+
+    mutations = (
+        view.replace("6.2, IR-0 | 1 |", "6.2 | 1 |", 1),
+        view.replace("6.2, 7.1-SCHEMAS, IR-0 | 6 |", "6.2, 7.1-SCHEMAS | 6 |", 1),
+        view.replace("| 7.2 | story |", "| 7.2 | story |", 1).replace("facts | 7.1 | 11 |", "facts | 7.1-SCHEMAS | 11 |", 1),
+    )
+    for mutation in mutations:
+        with pytest.raises(publisher.PublicationError) as error:
+            publisher.validate_current_view(mutation, contracts)
+        assert error.value.code == "CURRENT_VIEW_DRIFT"
 
 
 def test_supersession_projects_the_exact_full_ledger_and_denominators() -> None:
@@ -519,7 +726,7 @@ def test_dirty_worktree_scope_and_managed_namespaces_are_exact(tmp_path: Path) -
         "_bmad-output/planning-artifacts/v9/resolved-customization/stale.json",
         "_bmad-output/planning-artifacts/v9/story-contracts/stale.json",
         "_bmad-output/planning-artifacts/v9-stale-v1.json",
-        "_bmad-output/planning-artifacts/v11-story-7.1-slice-stale.json",
+        "_bmad-output/planning-artifacts/v11-unexpected-authority.json",
     ):
         stale = tmp_path / stale_path
         stale.parent.mkdir(parents=True, exist_ok=True)

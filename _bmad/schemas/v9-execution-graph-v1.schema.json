@@ -12,17 +12,43 @@
     "implementationHold": { "const": "ACTIVE" },
     "nodes": {
       "type": "array",
-      "minItems": 31,
-      "items": {
-        "type": "object",
-        "additionalProperties": false,
-        "required": ["id", "kind", "predecessors"],
-        "properties": {
-          "id": { "type": "string", "minLength": 1 },
-          "kind": { "enum": ["historical-story", "publication", "gate", "checkpoint", "story", "release-gate"] },
-          "predecessors": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
-        }
-      }
+      "minItems": 32,
+      "maxItems": 32,
+      "prefixItems": [
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.4" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "11.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "11.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "11.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "12.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "12.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "12.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "12.4" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "13.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "13.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "13.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "14.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "14.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "14.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "15.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "15.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "6.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.1-SCHEMAS" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.3" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.4" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "8.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "8.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "IR-0" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "PC-PUBLICATION" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "RG-15" } } }
+      ],
+      "items": false
     },
     "edges": {
       "type": "array",
@@ -40,6 +66,16 @@
     }
   },
   "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "predecessors"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["historical-story", "publication", "gate", "checkpoint", "story", "release-gate"] },
+        "predecessors": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
+      }
+    },
     "authorities": {
       "type": "object",
       "additionalProperties": false,

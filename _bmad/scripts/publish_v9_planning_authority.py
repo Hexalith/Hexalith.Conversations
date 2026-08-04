@@ -46,6 +46,10 @@ V10_EPIC_BLOCK_SIZE = 8746
 V10_EPIC_BLOCK_DIGEST = "3c33462d0bc28f9fec36e571d7dcf4a60c77d02c94bd3675528a05d704d07588"
 V10_ARCHITECTURE_BLOCK_SIZE = 3846
 V10_ARCHITECTURE_BLOCK_DIGEST = "893315bff3f12d7b949dbeae2a2dfbb301023461ad62c0c6066480a87700774b"
+V11_EPIC_BLOCK_SIZE = 5474
+V11_EPIC_BLOCK_DIGEST = "6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19"
+V11_ARCHITECTURE_BLOCK_SIZE = 3042
+V11_ARCHITECTURE_BLOCK_DIGEST = "a97385c11b92fb95f1acf7f4ba370404c4781855581c81a427ed6895a5a4c4d1"
 FROZEN_STORY_CONTRACT_SCHEMA_DIGEST = "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
 
 SLICE_ID = "7.1-SCHEMAS"
@@ -404,19 +408,28 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
         or sha256(v10_architecture_bytes) != V10_ARCHITECTURE_BLOCK_DIGEST
     ):
         raise PublicationError("V10_ARCHITECTURE_PREFIX_DRIFT", sha256(v10_architecture_bytes))
+    v11_epic_bytes = marker_block(
+        epics,
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:BEGIN",
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:END",
+    )
+    if len(v11_epic_bytes) != V11_EPIC_BLOCK_SIZE or sha256(v11_epic_bytes) != V11_EPIC_BLOCK_DIGEST:
+        raise PublicationError("V11_EPIC_AUTHORITY_DRIFT", sha256(v11_epic_bytes))
+    v11_architecture_bytes = marker_block(
+        architecture,
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:BEGIN",
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:END",
+    )
+    if (
+        len(v11_architecture_bytes) != V11_ARCHITECTURE_BLOCK_SIZE
+        or sha256(v11_architecture_bytes) != V11_ARCHITECTURE_BLOCK_DIGEST
+    ):
+        raise PublicationError("V11_ARCHITECTURE_AUTHORITY_DRIFT", sha256(v11_architecture_bytes))
     try:
         v10_epic = v10_epic_bytes.decode("utf-8")
         v10_architecture = v10_architecture_bytes.decode("utf-8")
-        v11_epic = marker_block(
-            epics,
-            "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:BEGIN",
-            "<!-- EPIC-6-AUTHORITY-OVERLAY-V11:END",
-        ).decode("utf-8")
-        v11_architecture = marker_block(
-            architecture,
-            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:BEGIN",
-            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:END",
-        ).decode("utf-8")
+        v11_epic = v11_epic_bytes.decode("utf-8")
+        v11_architecture = v11_architecture_bytes.decode("utf-8")
     except UnicodeError as error:
         raise PublicationError("AUTHORITY_MARKER_INVALID", str(error)) from error
     for source in (v10_epic, v10_architecture):
@@ -438,6 +451,10 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
         "never marks Story\n7.1 `done`, never produces a final record, and never unlocks a successor",
         "epic-6-retrospective: done",
     )
+    if v11_epic.count(
+        "### Story 7.1 V11 Schema-Checkpoint Amendment: Authorize A Non-Story Slice"
+    ) != 1:
+        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "checkpoint amendment heading count")
     if any(clause not in v11_epic for clause in required_v11_epic_clauses):
         raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "v11 epic checkpoint clause missing")
     required_v11_architecture_clauses = (
@@ -708,34 +725,44 @@ def validate_story_slice(
     slice_authority: dict[str, Any],
     base_contract: bytes,
     v11_epic: str,
+    candidate: str,
 ) -> None:
     """Recompute the sidecar bindings and reject semantic drift."""
 
-    amendment = v11_story_slice_amendment(v11_epic)
-    expected = {
-        "sliceId": SLICE_ID,
-        "storyId": "7.1",
-        "predecessors": list(SLICE_PREDECESSORS),
-        "writablePaths": list(SLICE_WRITABLE_PATHS),
-        "readOnlyInputs": list(SLICE_READ_ONLY_INPUTS),
-        "prohibitedPaths": list(SLICE_PROHIBITED_PATHS),
+    expected = json.loads(render_story_slice(candidate, base_contract, v11_epic))
+    if slice_authority != expected:
+        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "closed checkpoint authority mismatch")
+
+
+def expected_graph_nodes(
+    contracts: dict[str, dict[str, Any]],
+    slice_authority: dict[str, Any],
+) -> dict[str, dict[str, Any]]:
+    """Build the exact current 32-node execution graph authority."""
+
+    nodes: dict[str, dict[str, Any]] = {
+        "6.2": {"id": "6.2", "kind": "historical-story", "predecessors": []},
+        "PC-PUBLICATION": {"id": "PC-PUBLICATION", "kind": "publication", "predecessors": []},
+        "IR-0": {"id": "IR-0", "kind": "gate", "predecessors": ["PC-PUBLICATION"]},
+        SLICE_ID: {
+            "id": SLICE_ID,
+            "kind": "checkpoint",
+            "predecessors": list(slice_authority["predecessors"]),
+        },
+        "RG-15": {"id": "RG-15", "kind": "release-gate", "predecessors": ["15.2"]},
     }
-    if any(slice_authority.get(name) != value for name, value in expected.items()):
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "closed checkpoint field mismatch")
-    if slice_authority.get("baseStoryContract", {}).get("sha256") != sha256(base_contract):
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "base Story 7.1 digest mismatch")
-    if slice_authority.get("amendmentSectionSha256") != sha256(amendment.encode("utf-8")):
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "v11 amendment digest mismatch")
-    if slice_authority.get("completionEffect") != {
-        "storyDoneAllowed": False,
-        "finalRecordProduced": False,
-        "successorUnlocked": False,
-    }:
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "checkpoint completion effect mismatch")
-    if slice_authority.get("acceptance", {}).get("command") != SLICE_COMMAND:
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "checkpoint command mismatch")
-    if "bundleDigest" in json.dumps(slice_authority, sort_keys=True):
-        raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "sidecar cannot bind bundle digest")
+    for story_id, contract in contracts.items():
+        predecessors = list(contract["predecessors"])
+        if story_id in ("7.1", "12.1"):
+            predecessors.append("IR-0")
+        if story_id == "7.1":
+            predecessors.append(SLICE_ID)
+        nodes[story_id] = {
+            "id": story_id,
+            "kind": "story",
+            "predecessors": sorted(set(predecessors)),
+        }
+    return nodes
 
 
 def validate_slice_graph_parity(
@@ -745,24 +772,13 @@ def validate_slice_graph_parity(
 ) -> None:
     """Require exact sidecar, base-story, and graph checkpoint parity."""
 
-    nodes = {node["id"]: node for node in graph.get("nodes", [])}
-    if len(nodes) != len(graph.get("nodes", [])):
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "duplicate graph node identity")
-    checkpoint_nodes = [node for node in graph.get("nodes", []) if node.get("kind") == "checkpoint"]
-    if len(checkpoint_nodes) != 1 or checkpoint_nodes[0].get("id") != SLICE_ID:
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "expected one 7.1-SCHEMAS checkpoint")
-    if checkpoint_nodes[0].get("predecessors") != slice_authority.get("predecessors"):
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "checkpoint predecessor mismatch")
-    expected_story_predecessors = sorted(
-        set(contracts["7.1"]["predecessors"] + ["IR-0", SLICE_ID])
-    )
-    if nodes.get("7.1", {}).get("predecessors") != expected_story_predecessors:
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "Story 7.1 checkpoint edge mismatch")
-    if nodes.get("7.2", {}).get("predecessors") != ["7.1"]:
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "Story 7.2 predecessor mismatch")
+    expected_nodes = expected_graph_nodes(contracts, slice_authority)
+    expected_node_rows = [expected_nodes[node_id] for node_id in sorted(expected_nodes)]
+    if graph.get("nodes") != expected_node_rows or len(expected_node_rows) != 32:
+        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "exact 32-node graph inventory mismatch")
     expected_edges = {
         (predecessor, node["id"])
-        for node in graph.get("nodes", [])
+        for node in expected_node_rows
         for predecessor in node.get("predecessors", [])
     }
     actual_edges = {(edge.get("from"), edge.get("to")) for edge in graph.get("edges", [])}
@@ -909,24 +925,7 @@ def render_graph(
 ) -> bytes:
     """Render and validate the current acyclic story/gate graph."""
 
-    nodes: dict[str, dict[str, Any]] = {
-        "6.2": {"id": "6.2", "kind": "historical-story", "predecessors": []},
-        "PC-PUBLICATION": {"id": "PC-PUBLICATION", "kind": "publication", "predecessors": []},
-        "IR-0": {"id": "IR-0", "kind": "gate", "predecessors": ["PC-PUBLICATION"]},
-        SLICE_ID: {"id": SLICE_ID, "kind": "checkpoint", "predecessors": list(SLICE_PREDECESSORS)},
-        "RG-15": {"id": "RG-15", "kind": "release-gate", "predecessors": ["15.2"]},
-    }
-    for story_id, contract in contracts.items():
-        predecessors = list(contract["predecessors"])
-        if story_id in ("7.1", "12.1"):
-            predecessors.append("IR-0")
-        if story_id == "7.1":
-            predecessors.append(SLICE_ID)
-        nodes[story_id] = {
-            "id": story_id,
-            "kind": "story",
-            "predecessors": sorted(set(predecessors)),
-        }
+    nodes = expected_graph_nodes(contracts, slice_authority)
     for node in nodes.values():
         for predecessor in node["predecessors"]:
             if predecessor not in nodes:
@@ -1091,6 +1090,29 @@ def render_supersession(candidate: str, epics: str) -> bytes:
     )
 
 
+def validate_current_view(content: str, contracts: dict[str, dict[str, Any]]) -> None:
+    """Require exact checkpoint and Story 7.1/7.2 semantic projection rows."""
+
+    expected_checkpoint = (
+        "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | "
+        "6.2, IR-0 | 1 |"
+    )
+    expected_seven_one = (
+        f"| 7.1 | story | {contracts['7.1']['outcome']['title']} | "
+        f"6.2, {SLICE_ID}, IR-0 | {len(contracts['7.1']['scenarios'])} |"
+    )
+    expected_seven_two = (
+        f"| 7.2 | story | {contracts['7.2']['outcome']['title']} | "
+        f"7.1 | {len(contracts['7.2']['scenarios'])} |"
+    )
+    if content.count(expected_checkpoint) != 1:
+        raise PublicationError("CURRENT_VIEW_DRIFT", "checkpoint row mismatch")
+    seven_one_rows = re.findall(r"^\| 7\.1 \|.*$", content, re.MULTILINE)
+    seven_two_rows = re.findall(r"^\| 7\.2 \|.*$", content, re.MULTILINE)
+    if seven_one_rows != [expected_seven_one] or seven_two_rows != [expected_seven_two]:
+        raise PublicationError("CURRENT_VIEW_DRIFT", "Story 7.1/7.2 row mismatch")
+
+
 def render_view(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
     """Render the non-amending v2 current execution view."""
 
@@ -1139,6 +1161,7 @@ non-amending.
 - `7.1-SCHEMAS`: planning-only and non-executable while the hold is active.
 - Epic 5 action A5: `open` until a compatible Story 10.4 `9/9/0/0/0/0` final record passes.
 """
+    validate_current_view(content, contracts)
     return content.encode("utf-8")
 
 
@@ -1187,6 +1210,20 @@ def slugify(value: str) -> str:
     return re.sub(r"^-|-$", "", re.sub(r"[^a-z0-9]+", "-", value.lower()))
 
 
+def validate_sprint_structure(text: str) -> None:
+    """Require one top-level update date and no checkpoint lifecycle identity."""
+
+    if len(re.findall(r"^last_updated: [^\n]+$", text, re.MULTILINE)) != 1:
+        raise PublicationError("SPRINT_PROJECTION_DRIFT", "expected one top-level last_updated")
+    development_start = text.find("development_status:\n")
+    actions_start = text.find("\naction_items:\n", development_start)
+    if development_start < 0 or actions_start < 0:
+        raise PublicationError("SPRINT_PROJECTION_DRIFT", "development_status boundary missing")
+    development = text[development_start:actions_start]
+    if re.search(rf"^  [^:\n]*{re.escape(SLICE_ID)}[^:\n]*:", development, re.MULTILINE):
+        raise PublicationError("SPRINT_PROJECTION_DRIFT", "checkpoint cannot have a lifecycle key")
+
+
 def validate_epic_6_retrospective(text: str) -> None:
     """Preserve the completed retrospective and its six ordered open rows."""
 
@@ -1217,6 +1254,7 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
     """Regenerate the successor backlog while preserving comments and action items."""
 
     text = source.decode("utf-8")
+    validate_sprint_structure(text)
     validate_epic_6_retrospective(text)
     text = re.sub(r"^# V(?:10|11) PLANNING PUBLICATION:.*\n", "", text, flags=re.MULTILINE)
     text = re.sub(r"^last_updated: .*?$", "last_updated: 2026-08-04", text, count=1, flags=re.MULTILINE)
@@ -1268,8 +1306,7 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
     if a5 is None or a5.group(1) != "open":
         raise PublicationError("EPIC_5_ACTION_A5_DRIFT", "A5 must remain open")
     validate_epic_6_retrospective(text)
-    if re.search(rf"^  [^\n]*{re.escape(SLICE_ID)}[^\n]*:$", text, re.MULTILINE):
-        raise PublicationError("SPRINT_PROJECTION_DRIFT", "checkpoint cannot have a lifecycle key")
+    validate_sprint_structure(text)
     return text.encode("utf-8")
 
 
@@ -1309,6 +1346,20 @@ def artifact_row(path: str, content: bytes, role: str, owner: str, source: str, 
     }
 
 
+def expected_bundle_artifact_paths() -> tuple[str, ...]:
+    """Return the exact self-excluding canonical/generated bundle inventory."""
+
+    return tuple(
+        sorted(
+            (
+                *CANONICAL_PATHS,
+                VIEW_V1_PATH,
+                *(path for path in EXPECTED_OUTPUT_PATHS if path != BUNDLE_PATH),
+            )
+        )
+    )
+
+
 def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> bytes:
     """Render the self-excluding complete authority bundle."""
 
@@ -1346,6 +1397,19 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
     rows.sort(key=lambda row: row["path"])
     if len({row["path"] for row in rows}) != len(rows):
         raise PublicationError("BUNDLE_PATH_DUPLICATE", "artifact path repeated")
+    bundle_paths = tuple(row["path"] for row in rows)
+    if bundle_paths != expected_bundle_artifact_paths():
+        raise PublicationError("BUNDLE_INVENTORY_DRIFT", repr(bundle_paths))
+    roles = {row["path"]: row["role"] for row in rows}
+    if roles.get("_bmad-output/planning-artifacts/v9/story-contracts/7.1.json") != "base-story-contract":
+        raise PublicationError("BUNDLE_ROLE_DRIFT", "Story 7.1 base contract role")
+    if roles.get(SLICE_PATH) != "story-slice-authority":
+        raise PublicationError("BUNDLE_ROLE_DRIFT", "Story 7.1 sidecar role")
+    if any(
+        "ir-0" in path.lower() or path.endswith("implementation-hold-v1.json")
+        for path in bundle_paths
+    ):
+        raise PublicationError("BUNDLE_INVENTORY_DRIFT", "mutable gate or hold result")
     digest_payload = "".join(f"{row['sha256']}  {row['path']}\n" for row in rows).encode("utf-8")
     bundle = {
         "schemaVersion": "hexalith.conversations.v9-authority-bundle.v1",
@@ -1417,7 +1481,7 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     base_story_contract_path = "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
     outputs[SLICE_PATH] = render_story_slice(candidate, outputs[base_story_contract_path], v11_epic)
     slice_authority = json.loads(outputs[SLICE_PATH])
-    validate_story_slice(slice_authority, outputs[base_story_contract_path], v11_epic)
+    validate_story_slice(slice_authority, outputs[base_story_contract_path], v11_epic, candidate)
     outputs.update(render_resolved_customization(root, candidate))
     outputs["_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json"] = render_inventory(
         root, candidate, "V9-EVIDENCE-WORKFLOWS-v2", MECHANICAL_PATHS, mechanical=True
@@ -1459,7 +1523,7 @@ def validate_managed_namespace(root: Path) -> None:
             actual.update(path.relative_to(root).as_posix() for path in planning_root.glob("v9-*.json") if path.is_file())
             actual.update(
                 path.relative_to(root).as_posix()
-                for path in planning_root.glob("v11-story-*-slice-*.json")
+                for path in planning_root.glob("v11-*.json")
                 if path.is_file()
             )
         except OSError as error:
