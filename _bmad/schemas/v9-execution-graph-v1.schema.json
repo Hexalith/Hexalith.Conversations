@@ -12,14 +12,14 @@
     "implementationHold": { "const": "ACTIVE" },
     "nodes": {
       "type": "array",
-      "minItems": 30,
+      "minItems": 31,
       "items": {
         "type": "object",
         "additionalProperties": false,
         "required": ["id", "kind", "predecessors"],
         "properties": {
           "id": { "type": "string", "minLength": 1 },
-          "kind": { "enum": ["historical-story", "publication", "gate", "story", "release-gate"] },
+          "kind": { "enum": ["historical-story", "publication", "gate", "checkpoint", "story", "release-gate"] },
           "predecessors": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } }
         }
       }
@@ -27,6 +27,7 @@
     "edges": {
       "type": "array",
       "minItems": 27,
+      "uniqueItems": true,
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -44,8 +45,8 @@
       "additionalProperties": false,
       "required": ["epic", "architecture"],
       "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
-        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+        "epic": { "const": "epic-6-authority-2026-08-04-v11" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v11" }
       }
     }
   }

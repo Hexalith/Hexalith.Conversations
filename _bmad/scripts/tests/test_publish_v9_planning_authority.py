@@ -1,4 +1,4 @@
-"""Tests for atomic candidate-bound v9/v10 planning publication."""
+"""Tests for atomic candidate-bound v9/v11 planning publication."""
 
 from __future__ import annotations
 
@@ -41,6 +41,7 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
 
     assert set(outputs) == set(publisher.EXPECTED_OUTPUT_PATHS)
     assert len([path for path in outputs if "/story-contracts/" in path]) == 27
+    assert publisher.SLICE_PATH in outputs
     for path, content in outputs.items():
         assert (ROOT / path).read_bytes() == content
     bundle = json.loads(outputs[publisher.BUNDLE_PATH])
@@ -51,6 +52,7 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     artifact_paths = {row["path"] for row in bundle["artifacts"]}
     assert publisher.BUNDLE_PATH not in artifact_paths
     assert set(publisher.VALIDATOR_PATHS).issubset(artifact_paths)
+    assert publisher.SLICE_PATH in artifact_paths
 
 
 def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
@@ -80,6 +82,8 @@ def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
     for contract in contracts.values():
         assert set(contract) == required
         assert contract["schemaVersion"] == "hexalith.conversations.story-contract.v1"
+        assert contract["authority"]["epic"] == publisher.BASE_EPIC_AUTHORITY
+        assert contract["authority"]["architecture"] == publisher.BASE_ARCHITECTURE_AUTHORITY
         assert contract["authority"]["planningCandidate"] == candidate
         assert contract["predecessors"] == sorted(set(contract["predecessors"]))
         assert contract["scenarios"]
@@ -111,6 +115,135 @@ def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
     assert "summary `9/9/0/0/0/0`" in ac_ten_four_eight["contract"]
     ac_fourteen_three_two = next(row for row in contracts["14.3"]["scenarios"] if row["id"] == "AC-14.3-02")
     assert ac_fourteen_three_two["resultSemantics"]["expected"] == "PASS"
+
+
+def test_story_slice_is_closed_candidate_bound_and_one_way_digest_ordered() -> None:
+    """The v11 sidecar binds the base contract and amendment without self-reference."""
+
+    candidate = published_candidate()
+    outputs = publisher.render_outputs(ROOT, candidate)
+    sidecar = json.loads(outputs[publisher.SLICE_PATH])
+    base_path = "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
+    base_contract = json.loads(outputs[base_path])
+    epics = publisher.candidate_blob(ROOT, candidate, publisher.EPICS_PATH)
+    architecture = publisher.candidate_blob(ROOT, candidate, publisher.ARCHITECTURE_PATH)
+    _, v11_epic = publisher.validate_authority_prefixes(epics, architecture)
+    amendment = publisher.v11_story_slice_amendment(v11_epic)
+
+    publisher.validate_story_slice(sidecar, outputs[base_path], v11_epic)
+    assert sidecar["authority"] == {
+        "epic": publisher.EPIC_AUTHORITY,
+        "architecture": publisher.ARCHITECTURE_AUTHORITY,
+        "planningCandidate": candidate,
+        "authorityBundlePath": publisher.BUNDLE_PATH,
+    }
+    assert sidecar["baseStoryContract"]["sha256"] == hashlib.sha256(outputs[base_path]).hexdigest()
+    assert sidecar["amendmentSectionSha256"] == hashlib.sha256(amendment.encode()).hexdigest()
+    assert "bundleDigest" not in json.dumps(sidecar, sort_keys=True)
+    assert sidecar["predecessors"] == ["6.2", "IR-0"]
+    assert sidecar["writablePaths"] == list(publisher.SLICE_WRITABLE_PATHS)
+    assert sidecar["readOnlyInputs"] == list(publisher.SLICE_READ_ONLY_INPUTS)
+    assert base_contract["authority"]["epic"] == publisher.BASE_EPIC_AUTHORITY
+    assert base_contract["authority"]["architecture"] == publisher.BASE_ARCHITECTURE_AUTHORITY
+    assert len(base_contract["scenarios"]) == 6
+    assert len(base_contract["finalRecord"]["paths"]) == 2
+    assert hashlib.sha256((ROOT / publisher.SCHEMA_PATHS[0]).read_bytes()).hexdigest() == (
+        publisher.FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
+    )
+
+    bundle = json.loads(outputs[publisher.BUNDLE_PATH])
+    sidecar_row = next(row for row in bundle["artifacts"] if row["path"] == publisher.SLICE_PATH)
+    assert sidecar_row["sha256"] == hashlib.sha256(outputs[publisher.SLICE_PATH]).hexdigest()
+    assert sidecar_row["role"] == "story-slice-authority"
+
+
+def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
+    """Closed-field and exact-edge faults turn the v11 publication red."""
+
+    candidate = published_candidate()
+    outputs = publisher.render_outputs(ROOT, candidate)
+    sidecar = json.loads(outputs[publisher.SLICE_PATH])
+    graph = json.loads(outputs[publisher.GRAPH_PATH])
+    contracts = {
+        json.loads(content)["storyId"]: json.loads(content)
+        for path, content in outputs.items()
+        if "/story-contracts/" in path
+    }
+    _, v11_epic = publisher.validate_authority_prefixes(
+        publisher.candidate_blob(ROOT, candidate, publisher.EPICS_PATH),
+        publisher.candidate_blob(ROOT, candidate, publisher.ARCHITECTURE_PATH),
+    )
+    base_contract = outputs["_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"]
+
+    extra_field = json.loads(outputs[publisher.SLICE_PATH])
+    extra_field["unexpected"] = True
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_schemas(ROOT, {publisher.SLICE_PATH: publisher.json_bytes(extra_field)})
+    assert error.value.code == "SCHEMA_VALIDATION_FAILED"
+
+    permissive_effect = json.loads(outputs[publisher.SLICE_PATH])
+    permissive_effect["completionEffect"]["storyDoneAllowed"] = True
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_story_slice(permissive_effect, base_contract, v11_epic)
+    assert error.value.code == "STORY_SLICE_AUTHORITY_DRIFT"
+
+    missing_edge = json.loads(outputs[publisher.GRAPH_PATH])
+    missing_edge["edges"] = [
+        edge
+        for edge in missing_edge["edges"]
+        if not (edge["from"] == publisher.SLICE_ID and edge["to"] == "7.1")
+    ]
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_slice_graph_parity(missing_edge, contracts, sidecar)
+    assert error.value.code == "CHECKPOINT_GRAPH_DRIFT"
+
+    arbitrary_predecessor = json.loads(outputs[publisher.GRAPH_PATH])
+    next(node for node in arbitrary_predecessor["nodes"] if node["id"] == "7.1")["predecessors"].append("7.2")
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_slice_graph_parity(arbitrary_predecessor, contracts, sidecar)
+    assert error.value.code == "CHECKPOINT_GRAPH_DRIFT"
+
+
+def test_epic_six_retrospective_faults_fail_and_restore_byte_identically() -> None:
+    """Status and exact six-row inventory faults fail without losing committed evidence."""
+
+    path = ROOT / publisher.SPRINT_PATH
+    before = path.read_bytes()
+    source = before.decode()
+    matches = list(
+        publisher.re.finditer(
+            r'^  - id: "(epic-6-retro-item-[^"]+)"\n.*?(?=^  - |\Z)',
+            source[source.index("action_items:\n") :],
+            publisher.re.MULTILINE | publisher.re.DOTALL,
+        )
+    )
+    blocks = [match.group(0) for match in matches]
+    mutations = (
+        source.replace("  epic-6-retrospective: done\n", "  epic-6-retrospective: optional\n", 1),
+        source.replace(blocks[0], "", 1),
+        source.replace(blocks[0], blocks[0] + blocks[0], 1),
+        source.replace(blocks[0] + blocks[1], blocks[1] + blocks[0], 1),
+        source.replace("Produce an additive Epic 6", "Produce a subtractive Epic 6", 1),
+    )
+    for mutation in mutations:
+        try:
+            path.write_text(mutation, encoding="utf-8")
+            with pytest.raises(publisher.PublicationError) as error:
+                publisher.validate_epic_6_retrospective(path.read_text(encoding="utf-8"))
+            assert error.value.code == "EPIC_6_RETROSPECTIVE_DRIFT"
+        finally:
+            path.write_bytes(before)
+        assert path.read_bytes() == before
+
+    rendered = publisher.render_outputs(ROOT, published_candidate())[publisher.SPRINT_PATH].decode()
+    publisher.validate_epic_6_retrospective(rendered)
+    assert "last_updated: 2026-08-04" in rendered
+    assert "  epic-6-retrospective: done" in rendered
+    assert publisher.SLICE_ID not in {
+        line.strip().removesuffix(":")
+        for line in rendered.splitlines()
+        if line.startswith("  ") and line.endswith(":")
+    }
 
 
 def test_bundle_schema_rejects_invalid_hold_or_gitlink_scope() -> None:
@@ -194,10 +327,13 @@ def test_graph_is_ordinal_and_every_successor_is_downstream_of_ir_zero() -> None
     graph = json.loads(outputs[publisher.GRAPH_PATH])
     nodes = {node["id"]: node["predecessors"] for node in graph["nodes"]}
     assert nodes["IR-0"] == ["PC-PUBLICATION"]
-    assert nodes["7.1"] == ["6.2", "IR-0"]
+    assert nodes[publisher.SLICE_ID] == ["6.2", "IR-0"]
+    assert nodes["7.1"] == ["6.2", publisher.SLICE_ID, "IR-0"]
+    assert nodes["7.2"] == ["7.1"]
     assert nodes["12.1"] == ["6.2", "IR-0"]
     assert all(predecessors == sorted(predecessors) for predecessors in nodes.values())
     assert graph["edges"] == sorted(graph["edges"], key=lambda edge: (edge["from"], edge["to"]))
+    assert len([node for node in graph["nodes"] if node["kind"] == "checkpoint"]) == 1
 
     for story_id in publisher.EXPECTED_STORY_IDS:
         pending = list(nodes[story_id])
@@ -383,6 +519,7 @@ def test_dirty_worktree_scope_and_managed_namespaces_are_exact(tmp_path: Path) -
         "_bmad-output/planning-artifacts/v9/resolved-customization/stale.json",
         "_bmad-output/planning-artifacts/v9/story-contracts/stale.json",
         "_bmad-output/planning-artifacts/v9-stale-v1.json",
+        "_bmad-output/planning-artifacts/v11-story-7.1-slice-stale.json",
     ):
         stale = tmp_path / stale_path
         stale.parent.mkdir(parents=True, exist_ok=True)
@@ -529,15 +666,24 @@ def test_publication_preserves_the_unrun_independent_assessment_boundary() -> No
 
     outputs = publisher.render_outputs(ROOT, published_candidate())
     bundle = json.loads(outputs[publisher.BUNDLE_PATH])
+    slice_authority = json.loads(outputs[publisher.SLICE_PATH])
     view = outputs[publisher.VIEW_V2_PATH].decode("utf-8")
     sprint = outputs[publisher.SPRINT_PATH].decode("utf-8")
     assert bundle["implementationHold"] == "ACTIVE"
     assert bundle["epic5ActionA5"] == "open"
     assert "IR-0: not run by this publication." in view
-    assert "does not implement a story,\n> run IR-0, lift the hold" in view
+    assert "does not implement schemas or a story, run IR-0, lift the" in " ".join(view.split())
     assert "IR-0 was not run" in sprint
-    assert sprint.count("# V10 PLANNING PUBLICATION:") == 1
+    assert sprint.count("# V11 PLANNING PUBLICATION:") == 1
+    assert "7.1-SCHEMAS is planning-only and non-executable" in sprint
     assert not any("ir-0" in path.lower() for path in outputs)
     assert not any("ir-0" in row["path"].lower() for row in bundle["artifacts"])
     assert "READY" not in view
     assert "NOT READY" not in view
+    assert "LIFTED" not in json.dumps(bundle)
+    assert slice_authority["holdRequirement"]["effectiveState"] == "LIFTED"
+    assert slice_authority["completionEffect"] == {
+        "storyDoneAllowed": False,
+        "finalRecordProduced": False,
+        "successorUnlocked": False,
+    }

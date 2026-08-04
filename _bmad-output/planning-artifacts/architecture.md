@@ -2190,3 +2190,57 @@ action A5 remains `open`; this publication neither runs nor biases IR-0 and
 does not authorize product implementation, release closure, or a push.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V10:END version=conversations-architecture-2026-08-03-v10 epic-authority=epic-6-authority-2026-08-03-v10 candidate-binding=v9-authority-bundle-v1.json -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:BEGIN version=conversations-architecture-2026-08-04-v11 epic-authority=epic-6-authority-2026-08-04-v11 supersedes=conversations-architecture-2026-08-03-v10 v10-block-bytes=3846 v10-block-sha256=893315bff3f12d7b949dbeae2a2dfbb301023461ad62c0c6066480a87700774b candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## 2026-08-04 V11 Story 7.1 Schema-Checkpoint Architecture
+
+**Architecture authority:** `conversations-architecture-2026-08-04-v11`
+
+**Epic authority:** `epic-6-authority-2026-08-04-v11`
+
+**Overlay status:** `final`
+
+**Updated:** `2026-08-04`
+
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-04.md`
+
+The exact 3,846-byte v10 architecture block has SHA-256
+`893315bff3f12d7b949dbeae2a2dfbb301023461ad62c0c6066480a87700774b`
+and remains immutable. Every v10 product, runtime, preservation, workflow,
+evidence, UX, deployment, release, and graph invariant remains effective
+except for the additive Story 7.1 execution checkpoint below.
+
+The current graph adds one non-story node, `7.1-SCHEMAS`, with kind
+`checkpoint` and exact predecessors `6.2` and `IR-0`. Story 7.1 gains
+`7.1-SCHEMAS` as an additional execution predecessor. Its v10 base story
+contract still names `6.2` as the exact story predecessor, and Story 7.2 still
+depends on complete Story 7.1. The graph validator reconciles this one
+supplemental edge from the closed sidecar; arbitrary graph-only predecessors
+are invalid. The complete graph remains acyclic and every successor story
+remains downstream of `IR-0`.
+
+The recursively closed
+`hexalith.conversations.story-slice-authority.v1` sidecar is generated from
+the committed candidate. Digest direction is one-way: the canonical v11 Story
+7.1 amendment and regenerated v10 base Story 7.1 contract bind the sidecar;
+the self-excluding authority bundle then binds the sidecar. The sidecar records
+the bundle path but no bundle digest. Mutable IR-0, implementation-hold,
+checkpoint-result, story-final-record, RG-15, and release-evidence records are
+outside the bundle digest.
+
+Publication continues to project `implementationHold: ACTIVE`. Effective
+checkpoint authorization requires validator `PASS`, independent candidate-
+matched IR-0 `READY`, a valid release-owner `LIFTED` record, and no later
+authority or candidate drift. There is no scoped exception state. Missing,
+invalid, stale, mismatched, revoked, or non-ready evidence evaluates to
+`ACTIVE`, and planning publication never embeds a gate verdict.
+
+The sprint projection preserves the completed Epic 6 retrospective and all
+six ordered open action rows exactly, uses ISO date `2026-08-04`, and keeps
+Epic 7 and Story 7.1 at `backlog`. `7.1-SCHEMAS` has no lifecycle key, cannot
+produce a story final record, cannot mark Story 7.1 done, and cannot unlock
+Story 7.2.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:END version=conversations-architecture-2026-08-04-v11 epic-authority=epic-6-authority-2026-08-04-v11 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

@@ -150,8 +150,8 @@
       "additionalProperties": false,
       "required": ["epic", "architecture"],
       "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
-        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+        "epic": { "const": "epic-6-authority-2026-08-04-v11" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v11" }
       }
     },
     "denominator124": {

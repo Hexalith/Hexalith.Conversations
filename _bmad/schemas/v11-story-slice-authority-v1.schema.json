@@ -1,0 +1,181 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v11-story-slice-authority-v1.schema.json",
+  "title": "Conversations Story Slice Authority V1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "sliceId",
+    "storyId",
+    "authority",
+    "baseStoryContract",
+    "amendmentSectionSha256",
+    "predecessors",
+    "holdRequirement",
+    "writablePaths",
+    "readOnlyInputs",
+    "prohibitedPaths",
+    "acceptance",
+    "completionEffect",
+    "rollback"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "hexalith.conversations.story-slice-authority.v1" },
+    "sliceId": { "const": "7.1-SCHEMAS" },
+    "storyId": { "const": "7.1" },
+    "authority": { "$ref": "#/$defs/authority" },
+    "baseStoryContract": { "$ref": "#/$defs/baseStoryContract" },
+    "amendmentSectionSha256": { "$ref": "#/$defs/digest" },
+    "predecessors": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "6.2" },
+        { "const": "IR-0" }
+      ],
+      "items": false
+    },
+    "holdRequirement": { "$ref": "#/$defs/holdRequirement" },
+    "writablePaths": { "$ref": "#/$defs/writablePaths" },
+    "readOnlyInputs": { "$ref": "#/$defs/readOnlyInputs" },
+    "prohibitedPaths": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "$ref": "#/$defs/prohibitionGenerator" },
+        { "$ref": "#/$defs/prohibitionGitmodules" },
+        { "$ref": "#/$defs/prohibitionPackages" },
+        { "$ref": "#/$defs/prohibitionSource" },
+        { "$ref": "#/$defs/prohibitionDotnetTests" },
+        { "$ref": "#/$defs/prohibitionReferences" },
+        { "$ref": "#/$defs/prohibitionReleaseEvidence" },
+        { "$ref": "#/$defs/prohibitionStoryResults" },
+        { "$ref": "#/$defs/prohibitionImplementationArtifacts" },
+        { "$ref": "#/$defs/prohibitionPlanningArtifacts" }
+      ],
+      "items": false
+    },
+    "acceptance": { "$ref": "#/$defs/acceptance" },
+    "completionEffect": { "$ref": "#/$defs/completionEffect" },
+    "rollback": { "$ref": "#/$defs/rollback" }
+  },
+  "$defs": {
+    "commit": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "digest": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["epic", "architecture", "planningCandidate", "authorityBundlePath"],
+      "properties": {
+        "epic": { "const": "epic-6-authority-2026-08-04-v11" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v11" },
+        "planningCandidate": { "$ref": "#/$defs/commit" },
+        "authorityBundlePath": { "const": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json" }
+      }
+    },
+    "baseStoryContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "epic", "architecture"],
+      "properties": {
+        "path": { "const": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json" },
+        "sha256": { "$ref": "#/$defs/digest" },
+        "epic": { "const": "epic-6-authority-2026-08-03-v10" },
+        "architecture": { "const": "conversations-architecture-2026-08-03-v10" }
+      }
+    },
+    "holdRequirement": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effectiveState", "recordPath"],
+      "properties": {
+        "effectiveState": { "const": "LIFTED" },
+        "recordPath": { "const": "_bmad-output/planning-artifacts/implementation-hold-v1.json" }
+      }
+    },
+    "writablePaths": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "_bmad/schemas/v9-acceptance-result-v1.schema.json" },
+        { "const": "_bmad/schemas/v9-frozen-inventory-v1.schema.json" },
+        { "const": "_bmad/schemas/story-final-record-v2.schema.json" },
+        { "const": "_bmad/scripts/tests/test_generate_story_record.py" },
+        { "const": "artifacts/v9/schema-slice/v2-schema-contract.xml" }
+      ],
+      "items": false
+    },
+    "readOnlyInputs": {
+      "type": "array",
+      "minItems": 3,
+      "maxItems": 3,
+      "uniqueItems": true,
+      "prefixItems": [
+        { "const": "_bmad/schemas/v9-story-contract-v1.schema.json" },
+        { "const": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json" },
+        { "const": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json" }
+      ],
+      "items": false
+    },
+    "prohibition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["match", "path"],
+      "properties": {
+        "match": { "enum": ["exact", "prefix"] },
+        "path": { "type": "string", "minLength": 1 }
+      }
+    },
+    "prohibitionGenerator": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "exact" }, "path": { "const": "_bmad/scripts/generate_story_record.py" } } },
+    "prohibitionGitmodules": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "exact" }, "path": { "const": ".gitmodules" } } },
+    "prohibitionPackages": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "exact" }, "path": { "const": "Directory.Packages.props" } } },
+    "prohibitionSource": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "src/" } } },
+    "prohibitionDotnetTests": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "tests/" } } },
+    "prohibitionReferences": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "references/" } } },
+    "prohibitionReleaseEvidence": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "docs/release-evidence/" } } },
+    "prohibitionStoryResults": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "artifacts/v9/7.1/" } } },
+    "prohibitionImplementationArtifacts": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "_bmad-output/implementation-artifacts/" } } },
+    "prohibitionPlanningArtifacts": { "$ref": "#/$defs/prohibition", "properties": { "match": { "const": "prefix" }, "path": { "const": "_bmad-output/planning-artifacts/" } } },
+    "acceptance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scenarioId", "command", "result", "passExitCodes", "failExitCodes", "blockedExitCodes"],
+      "properties": {
+        "scenarioId": { "const": "AC-7.1-01" },
+        "command": { "const": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml" },
+        "result": { "const": "PASS" },
+        "passExitCodes": { "$ref": "#/$defs/passExitCodes" },
+        "failExitCodes": { "$ref": "#/$defs/failExitCodes" },
+        "blockedExitCodes": { "$ref": "#/$defs/blockedExitCodes" }
+      }
+    },
+    "passExitCodes": { "type": "array", "minItems": 1, "maxItems": 1, "prefixItems": [{ "const": 0 }], "items": false },
+    "failExitCodes": { "type": "array", "minItems": 2, "maxItems": 2, "prefixItems": [{ "const": 1 }, { "const": 5 }], "items": false },
+    "blockedExitCodes": { "type": "array", "minItems": 3, "maxItems": 3, "prefixItems": [{ "const": 2 }, { "const": 3 }, { "const": 4 }], "items": false },
+    "completionEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["storyDoneAllowed", "finalRecordProduced", "successorUnlocked"],
+      "properties": {
+        "storyDoneAllowed": { "const": false },
+        "finalRecordProduced": { "const": false },
+        "successorUnlocked": { "const": false }
+      }
+    },
+    "rollback": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["boundary"],
+      "properties": {
+        "boundary": { "const": "Remove only the three new schemas, schema-specific test changes, and checkpoint result; preserve the existing story-contract schema, planning authority, publisher, completed history, and all non-checkpoint work." }
+      }
+    }
+  }
+}

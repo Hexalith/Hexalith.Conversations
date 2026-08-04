@@ -4156,3 +4156,113 @@ runbook, customization file, validator result, or planning publication alone
 may close A5 or lift the hold.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-V10:END version=epic-6-authority-2026-08-03-v10 architecture-authority=conversations-architecture-2026-08-03-v10 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V11:BEGIN version=epic-6-authority-2026-08-04-v11 architecture-authority=conversations-architecture-2026-08-04-v11 supersedes=epic-6-authority-2026-08-03-v10 v10-block-bytes=8746 v10-block-sha256=3c33462d0bc28f9fec36e571d7dcf4a60c77d02c94bd3675528a05d704d07588 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## Appendix: 2026-08-04 V11 Story 7.1 Schema-Checkpoint Authority
+
+**Epic authority:** `epic-6-authority-2026-08-04-v11`
+
+**Architecture authority:** `conversations-architecture-2026-08-04-v11`
+
+**Supersedes:** `epic-6-authority-2026-08-03-v10` only for Story 7.1
+implementation order, the current execution graph, and candidate-bound
+publication companions
+
+**Approved source:**
+`_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-04.md`
+
+**Planning candidate (`PC`):** bound by
+`_bmad-output/planning-artifacts/v9-authority-bundle-v1.json`
+
+**Global implementation hold:** `ACTIVE`
+
+The exact 8,746-byte v10 epic block has SHA-256
+`3c33462d0bc28f9fec36e571d7dcf4a60c77d02c94bd3675528a05d704d07588`
+and remains immutable. The v9 story-contract schema and all 27 v10 base story
+contract shapes remain unchanged. Story 7.1 retains its complete six-scenario
+outcome, its two final-record paths, and `6.2` as its exact story predecessor.
+Story 7.2 still requires complete Story 7.1.
+
+### Story 7.1 V11 Schema-Checkpoint Amendment: Authorize A Non-Story Slice
+
+Checkpoint `7.1-SCHEMAS` is a non-story execution slice. It establishes the
+three missing closed Draft 2020-12 schemas and proves all four Story 7.1
+schemas through `AC-7.1-01` before generator implementation.
+
+**Entry conditions:** completed Story `6.2`; deterministic v11 publication and
+check `PASS` at one committed `PC`; independent `IR-0` result `READY` for that
+same candidate, bundle, and authority pair; and a separately governed,
+candidate-matched release-owner `LIFTED` decision. Missing, invalid, stale,
+mismatched, revoked, or non-ready evidence evaluates to `ACTIVE`.
+
+**Exact execution predecessors:** `6.2`, `IR-0`.
+
+**Writable implementation paths, in order:**
+
+```text
+_bmad/schemas/v9-acceptance-result-v1.schema.json
+_bmad/schemas/v9-frozen-inventory-v1.schema.json
+_bmad/schemas/story-final-record-v2.schema.json
+_bmad/scripts/tests/test_generate_story_record.py
+artifacts/v9/schema-slice/v2-schema-contract.xml
+```
+
+**Read-only inputs, in order:**
+
+```text
+_bmad/schemas/v9-story-contract-v1.schema.json
+_bmad-output/planning-artifacts/v9/story-contracts/7.1.json
+_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json
+```
+
+**Checkpoint command:**
+
+```text
+python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml
+```
+
+**Result semantics:** `PASS` with exit `0`; `FAIL` with exit `1` or `5`;
+`BLOCKED` with exit `2`, `3`, or `4`. The result is nonempty, all four schemas
+pass the Draft 2020-12 metaschema, representative valid instances pass, and
+missing, extra, malformed, duplicate, non-normalized, or permissive mutations
+fail with `OUTPUT_SCHEMA_INVALID` semantics and restore byte-identically.
+
+**Prohibitions:** no edit to `_bmad/scripts/generate_story_record.py`; no
+acceptance-result instance or Story 7.1 final record; no `AC-7.1-02` through
+`AC-7.1-06`; no Story 7.2-7.4 work; no product/public-contract, package,
+deployment, submodule, gitlink, completed-record, accepted-evidence, or
+signed-evidence change; and no story `done` transition.
+
+**Completion effect:** checkpoint evidence may support continued Story 7.1
+implementation and may move Story 7.1 to `in-progress`. It never marks Story
+7.1 `done`, never produces a final record, and never unlocks a successor.
+`AC-7.1-01` must run again or be proven current at final candidate `SC-7.1`.
+
+**Rollback boundary:** remove only the three new schemas, schema-specific test
+changes, and checkpoint result. Preserve the existing story-contract schema,
+planning authority, publisher, completed history, and all non-checkpoint work.
+
+### V11 Publication, Hold, And Retrospective State
+
+The generated
+`_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json` sidecar
+binds this amendment-section digest, the regenerated v10 base Story 7.1
+contract digest, the current authority pair, the exact ordered path sets,
+closed prohibitions, result semantics, completion effect, and rollback
+boundary. It records only the authority-bundle path. The self-excluding bundle
+records the sidecar digest, so no source or sidecar claims its own final digest.
+
+The execution graph contains exactly one `checkpoint` node named
+`7.1-SCHEMAS`, with predecessors `6.2` and `IR-0`. Story 7.1 has the checkpoint
+as an additional execution predecessor; Story 7.2 remains downstream of the
+complete Story 7.1 node. The checkpoint has no sprint lifecycle key and no
+final-record output.
+
+Publication-time state remains `implementationHold: ACTIVE`. This publication
+does not embed an IR-0 verdict or hold-decision verdict, run or bias IR-0, lift
+the hold, start Story 7.1, or unlock Story 7.2. The sprint projection preserves
+`epic-6-retrospective: done` and the six ordered open Epic 6 retrospective
+actions byte-for-byte while keeping Epic 7 and Story 7.1 at `backlog`.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V11:END version=epic-6-authority-2026-08-04-v11 architecture-authority=conversations-architecture-2026-08-04-v11 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
