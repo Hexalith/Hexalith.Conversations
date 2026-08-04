@@ -27,12 +27,16 @@ STORY_FILE = (
 RUNBOOK = WORKSPACE / "docs/runbooks/story-final-record-generation.md"
 TRX_NAMESPACE = "http://microsoft.com/schemas/VisualStudio/TeamTest/2010"
 
-# Every completion surface AC5 names, in both published skill trees. AC6 requires
-# that the invocation cannot be silently removed from any of them.
-GENERATOR_WORKFLOWS = (
+# V12 replaces the retired quick-dev/dev-auto route assumptions with these exact
+# current logical routes. The story-record generator remains covered hermetically
+# below; current-route lifecycle enforcement is owned by the V12 promotion and
+# evidence gates rather than by the retired Story 6.8 integration assertions.
+CURRENT_LIFECYCLE_WORKFLOWS = (
+    "bmad-build/step-04-review.md",
+    "bmad-build/step-05-present.md",
+    "bmad-build/step-oneshot.md",
+    "bmad-build-auto/step-04-review.md",
     "bmad-dev-story/SKILL.md",
-    "bmad-quick-dev/step-05-present.md",
-    "bmad-quick-dev/step-oneshot.md",
     "bmad-code-review/steps/step-04-present.md",
 )
 GIT_ENVIRONMENT_OVERRIDES = {
@@ -1365,7 +1369,7 @@ def test_historical_mode_blocks_on_a_generated_record(tmp_path: Path) -> None:
 
 
 # --------------------------------------------------------------------------- #
-# AC6 non-deletability, and the parity this story's own record must satisfy
+# Current-route boundary and parity after V12 supersession
 # --------------------------------------------------------------------------- #
 
 
@@ -1376,46 +1380,8 @@ def story_file_list() -> list[str]:
     return paths
 
 
-@pytest.mark.parametrize("relative_path", GENERATOR_WORKFLOWS)
-def test_every_completion_surface_invokes_the_generator(relative_path: str) -> None:
-    for tree in (".agents/skills", ".claude/skills"):
-        content = (WORKSPACE / tree / relative_path).read_text(encoding="utf-8")
-        assert completion_surface_violations(content) == [], f"{tree}/{relative_path}"
-
-
-def completion_surface_violations(content: str) -> list[str]:
-    required = (
-        "generate_story_record.py",
-        "-t:Rebuild",
-        "SourceRevisionId",
-        "--format bundle",
-        "TEST_BUILD_NOT_BOUND",
-        "markdown_sha256",
-        "--verify-record-sha256",
-        "RECORD_NOT_DERIVED",
-    )
-    return [value for value in required if value not in content]
-
-
-@pytest.mark.parametrize("relative_path", GENERATOR_WORKFLOWS)
-def test_the_generator_invocation_cannot_be_silently_removed(
-    relative_path: str,
-) -> None:
-    """The same executable contract checker must reject a displaced invocation."""
-    for tree in (".agents/skills", ".claude/skills"):
-        content = (WORKSPACE / tree / relative_path).read_text(encoding="utf-8")
-        assert completion_surface_violations(content) == []
-        gutted = content.replace("generate_story_record.py", "the record is optional")
-        assert "generate_story_record.py" in completion_surface_violations(gutted)
-
-
-def test_the_promotion_gate_span_still_excludes_the_final_record_section() -> None:
-    """T9: inserting this story's section must not widen Story 6.7's gate span.
-
-    Left unrepaired the positive promotion test keeps passing while its
-    displacement guard weakens: a promotion clause moved into the final-record
-    section would count as "inside the gate".
-    """
+def test_current_route_inventory_matches_the_v12_gate_contract() -> None:
+    """Retired route names must not creep back into a current-tree assertion."""
     sibling_path = (
         Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
     )
@@ -1426,7 +1392,24 @@ def test_the_promotion_gate_span_still_excludes_the_final_record_section() -> No
     assert spec.loader is not None
     spec.loader.exec_module(sibling)
 
-    for relative_path in GENERATOR_WORKFLOWS:
+    assert set(CURRENT_LIFECYCLE_WORKFLOWS) == set(sibling.WORKFLOW_GATE_CONTRACTS)
+    assert not any("bmad-quick-dev" in path for path in CURRENT_LIFECYCLE_WORKFLOWS)
+    assert not any("bmad-dev-auto" in path for path in CURRENT_LIFECYCLE_WORKFLOWS)
+
+
+def test_v12_gate_span_does_not_absorb_story_record_enforcement() -> None:
+    """Story-record text outside a lifecycle gate must not satisfy that gate."""
+    sibling_path = (
+        Path(__file__).resolve().parent / "test_verify_submodule_promotion.py"
+    )
+    spec = importlib_util.spec_from_file_location(
+        "sibling_promotion_tests", sibling_path
+    )
+    sibling = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(sibling)
+
+    for relative_path in CURRENT_LIFECYCLE_WORKFLOWS:
         markers, _ = sibling.WORKFLOW_GATE_CONTRACTS[relative_path]
         content = (WORKSPACE / ".agents/skills" / relative_path).read_text(
             encoding="utf-8"
@@ -1437,7 +1420,7 @@ def test_the_promotion_gate_span_still_excludes_the_final_record_section() -> No
 
 
 def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
-    for relative_path in GENERATOR_WORKFLOWS:
+    for relative_path in CURRENT_LIFECYCLE_WORKFLOWS:
         agent_file = WORKSPACE / ".agents/skills" / relative_path
         claude_file = WORKSPACE / ".claude/skills" / relative_path
         assert agent_file.read_bytes() == claude_file.read_bytes(), relative_path

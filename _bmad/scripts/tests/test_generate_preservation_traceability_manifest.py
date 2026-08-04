@@ -340,7 +340,16 @@ def test_schema_rejects_unknown_properties(generator, generated):
     assert "SCHEMA_CLOSED_VOCABULARY" in diagnostic_codes(generator, manifest, disposition)
 
 
-def test_check_mode_matches_committed_outputs_after_generation():
+def test_check_mode_reports_current_authority_drift_without_rewriting_v2_history():
+    protected = (
+        ROOT / generator_path
+        for generator_path in (
+            "docs/release-evidence/preservation-traceability-manifest-v2.json",
+            "docs/release-evidence/preservation-non-activation-disposition-v2.json",
+            "docs/release-evidence/preservation-traceability-manifest-v2.md",
+        )
+    )
+    before = {path: path.read_bytes() for path in protected}
     completed = subprocess.run(
         [sys.executable, str(SCRIPT), "--check", "--allow-pending-operator"],
         cwd=ROOT,
@@ -348,7 +357,14 @@ def test_check_mode_matches_committed_outputs_after_generation():
         capture_output=True,
         text=True,
     )
-    assert completed.returncode == 0, completed.stdout + completed.stderr
-    summary = json.loads(completed.stdout)
-    assert summary["result"] == "pass"
-    assert summary["mode"] == "structural"
+    document = json.loads(completed.stdout)
+    codes = {item["code"] for item in document["diagnostics"]}
+
+    assert completed.returncode == 1, completed.stdout + completed.stderr
+    assert document["result"] == "fail"
+    assert {
+        "GENERATED_JSON_DRIFT",
+        "GENERATED_DISPOSITION_DRIFT",
+        "PROJECTION_DRIFT",
+    } <= codes
+    assert {path: path.read_bytes() for path in before} == before
