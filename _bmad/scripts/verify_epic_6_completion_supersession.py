@@ -248,6 +248,14 @@ def skipped_count(output: str) -> int:
     return max(values, default=0)
 
 
+def not_run_count(output: str) -> int:
+    values = [
+        int(value)
+        for value in re.findall(r"(?i)\bnot[\s-]*run\s*[:=]?\s*(\d+)\b", output)
+    ]
+    return max(values, default=0)
+
+
 def execute_command(root: Path, command: dict[str, Any]) -> dict[str, Any]:
     try:
         result = subprocess.run(
@@ -263,13 +271,15 @@ def execute_command(root: Path, command: dict[str, Any]) -> dict[str, Any]:
         raise SupersessionError("E6_REBUILT_TEST_UNAVAILABLE", f"{command['id']}: {error}", "BLOCKED") from error
     output = result.stdout.decode("utf-8", errors="replace")
     skipped = skipped_count(output)
-    state = "PASS" if result.returncode == 0 and skipped == 0 and "not run" not in output.lower() else "FAIL"
+    not_run = not_run_count(output)
+    state = "PASS" if result.returncode == 0 and skipped == 0 and not_run == 0 else "FAIL"
     return {
         "id": command["id"],
         "argv": command["argv"],
         "state": state,
         "exitCode": result.returncode,
         "skippedCount": skipped,
+        "notRunCount": not_run,
         "outputSha256": digest(result.stdout),
         "outputTail": output[-4000:],
         "_output": output,
@@ -374,9 +384,28 @@ def reconstruct(
                 raise SupersessionError("E6_REBUILT_TESTS_SKIPPED", f"{story_id}: no rebuilt test result", "BLOCKED", story_id)
             if any(test.get("skippedCount", 0) != 0 for test in checks["tests"]):
                 raise SupersessionError("E6_REBUILT_TEST_SKIPPED", story_id, story_id=story_id)
+            if any(test.get("notRunCount", 0) != 0 for test in checks["tests"]):
+                raise SupersessionError("E6_REBUILT_TEST_NOT_RUN", story_id, story_id=story_id)
             states = [checks["promotion"]["state"], *(test["state"] for test in checks["tests"])]
             if not states or any(state != "PASS" for state in states):
-                raise SupersessionError("E6_REBUILT_CHECK_FAILED", f"{story_id}: {states!r}", story_id=story_id)
+                detail = [
+                    {
+                        "id": test.get("id"),
+                        "state": test.get("state"),
+                        "exitCode": test.get("exitCode"),
+                        "skippedCount": test.get("skippedCount"),
+                        "notRunCount": test.get("notRunCount"),
+                        "outputSha256": test.get("outputSha256"),
+                        "outputTail": test.get("outputTail"),
+                    }
+                    for test in checks["tests"]
+                    if test.get("state") != "PASS"
+                ]
+                raise SupersessionError(
+                    "E6_REBUILT_CHECK_FAILED",
+                    f"{story_id}: {json.dumps(detail, sort_keys=True)}",
+                    story_id=story_id,
+                )
         stories.append(
             {
                 "storyId": story_id,

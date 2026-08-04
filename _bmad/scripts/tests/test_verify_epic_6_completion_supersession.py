@@ -31,6 +31,7 @@ def passing_checks(_root: Path, story: dict, _rows: list[dict]) -> dict:
                 "state": "PASS",
                 "exitCode": 0,
                 "skippedCount": 0,
+                "notRunCount": 0,
                 "outputSha256": "0" * 64,
                 "outputTail": "passed",
             }
@@ -104,6 +105,31 @@ def test_skipped_rebuilt_test_never_becomes_pass() -> None:
         verifier.reconstruct(ROOT, execute_tests=True, check_executor=skipped)
 
     assert error.value.code == "E6_REBUILT_TEST_SKIPPED"
+
+
+def test_not_run_count_requires_a_positive_count() -> None:
+    assert verifier.not_run_count("Not Run: 0") == 0
+    assert verifier.not_run_count("not-run=2") == 2
+
+
+def test_failed_rebuilt_test_preserves_actionable_diagnostics() -> None:
+    def failed(_root: Path, story: dict, _rows: list[dict]) -> dict:
+        result = passing_checks(_root, story, _rows)
+        result["tests"][0].update(
+            {
+                "state": "FAIL",
+                "exitCode": 1,
+                "outputSha256": "f" * 64,
+                "outputTail": "exact failure detail",
+            }
+        )
+        return result
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.reconstruct(ROOT, execute_tests=True, check_executor=failed)
+
+    assert error.value.code == "E6_REBUILT_CHECK_FAILED"
+    assert "exact failure detail" in error.value.message
 
 
 def test_omitted_test_execution_is_blocked_with_nonempty_ledger() -> None:
