@@ -483,8 +483,8 @@ def reconstruct(
     }
 
 
-def failure_document(error: SupersessionError) -> dict[str, Any]:
-    return {
+def failure_document(error: SupersessionError, authority: dict[str, Any] | None = None) -> dict[str, Any]:
+    document = {
         "schemaVersion": EVIDENCE_SCHEMA_VERSION,
         "evidenceId": "EPIC-6-COMPLETION-SUPERSESSION-v1",
         "issuedOn": date.today().isoformat(),
@@ -497,6 +497,9 @@ def failure_document(error: SupersessionError) -> dict[str, Any]:
         "implementationHold": "ACTIVE",
         "releaseAuthorized": False,
     }
+    if authority is not None:
+        document["authorityBundle"] = authority
+    return document
 
 
 def markdown(document: dict[str, Any]) -> str:
@@ -512,6 +515,16 @@ def markdown(document: dict[str, Any]) -> str:
         "## Immutable reconstruction",
         "",
     ]
+    authority = document.get("authorityBundle")
+    if authority is not None:
+        lines.extend(
+            [
+                f"- Planning candidate: `{authority['candidateCommit']}`",
+                f"- Authority bundle: `{authority['path']}`",
+                f"- Authority bundle SHA-256: `{authority['sha256']}`",
+                "",
+            ]
+        )
     for story in document.get("stories", []):
         lines.extend(
             [
@@ -526,14 +539,16 @@ def markdown(document: dict[str, Any]) -> str:
                 "",
             ]
         )
-    lines.extend(
-        [
-            "## Boundary",
-            "",
-            "This evidence can support an independent acceptance-evidence supersession decision. It does not rewrite either completed story, lift the implementation hold, start a successor, or authorize release.",
-            "",
-        ]
-    )
+    lines.extend(["## Boundary", ""])
+    if document["result"] == "PASS":
+        lines.append(
+            "This evidence can support an independent acceptance-evidence supersession decision. It does not rewrite either completed story, lift the implementation hold, start a successor, or authorize release."
+        )
+    else:
+        lines.append(
+            "This evidence cannot support acceptance-evidence supersession while reconstruction is not PASS. The blocker must be resolved and the exact checkpoint rerun; completed stories remain immutable and the implementation hold stays active."
+        )
+    lines.append("")
     return "\n".join(lines)
 
 
@@ -567,7 +582,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         )
         exit_code = 0
     except SupersessionError as error:
-        document = failure_document(error)
+        authority = None
+        if args.planning_candidate is not None and args.authority_bundle is not None:
+            try:
+                authority = bind_authority_bundle(
+                    Path(args.repository),
+                    args.planning_candidate,
+                    args.authority_bundle,
+                )
+            except SupersessionError as authority_error:
+                if error.code not in {
+                    "E6_AUTHORITY_BUNDLE_UNAVAILABLE",
+                    "E6_AUTHORITY_BUNDLE_PC_MISMATCH",
+                    "E6_HISTORY_UNAVAILABLE",
+                }:
+                    error = authority_error
+        document = failure_document(error, authority)
         exit_code = 2 if error.state == "BLOCKED" else 1
     serialized = (json.dumps(document, indent=2, sort_keys=True) + "\n").encode()
     write_output(args.output_json, serialized)

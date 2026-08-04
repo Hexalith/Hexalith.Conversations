@@ -166,6 +166,27 @@ def test_omitted_test_execution_is_blocked_with_nonempty_ledger() -> None:
     assert document["assertionLedger"]
 
 
+def test_blocked_markdown_binds_authority_and_forbids_acceptance_decision() -> None:
+    error = verifier.SupersessionError(
+        "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+        "inotify capacity exhausted",
+        "BLOCKED",
+        "6.2",
+    )
+    authority = {
+        "candidateCommit": "a" * 40,
+        "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+        "sha256": "b" * 64,
+    }
+
+    document = verifier.failure_document(error, authority)
+    rendered = verifier.markdown(document)
+
+    assert document["authorityBundle"] == authority
+    assert "Planning candidate" in rendered
+    assert "cannot support acceptance-evidence supersession" in rendered
+
+
 def test_record_and_promotion_declaration_mutations_fail(monkeypatch: pytest.MonkeyPatch) -> None:
     original = verifier.recorded_story
 
