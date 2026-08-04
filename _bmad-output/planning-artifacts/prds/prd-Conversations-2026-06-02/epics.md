@@ -4266,3 +4266,90 @@ the hold, start Story 7.1, or unlock Story 7.2. The sprint projection preserves
 actions byte-for-byte while keeping Epic 7 and Story 7.1 at `backlog`.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-V11:END version=epic-6-authority-2026-08-04-v11 architecture-authority=conversations-architecture-2026-08-04-v11 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V12:BEGIN version=epic-6-authority-2026-08-04-v12 architecture-authority=conversations-architecture-2026-08-04-v12 supersedes=epic-6-authority-2026-08-04-v11 v11-block-bytes=5474 v11-block-sha256=6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## Appendix: 2026-08-04 V12 Pre-IR-0 Remediation Checkpoint
+
+**Epic authority:** `epic-6-authority-2026-08-04-v12`
+
+**Architecture authority:** `conversations-architecture-2026-08-04-v12`
+
+**Supersedes:** `epic-6-authority-2026-08-04-v11` only for the additive
+pre-IR-0 remediation checkpoint, its current-route inventory, and its
+candidate-bound companion projection
+
+**Approved source:**
+`_bmad-output/implementation-artifacts/spec-v12-pre-ir-0-remediation-checkpoint.md`
+
+**Planning candidate (`PC`):** bound by
+`_bmad-output/planning-artifacts/v9-authority-bundle-v1.json`
+
+**Global implementation hold:** `ACTIVE`
+
+The exact 5,474-byte v11 epic block has SHA-256
+`6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19`
+and remains immutable. V1-V11 authority, every completed story record,
+accepted or rejected retrospective evidence, signed evidence, and the prior
+IR-0 result remain point-in-time provenance. This amendment never changes a
+completed Story 6.7 or Story 6.2 status or byte and never treats current bytes
+as historical completion evidence.
+
+### E6-REMEDIATION: Own A1-A3 Before Independent IR-0
+
+`E6-REMEDIATION` is a non-story correction checkpoint with exact predecessor
+`PC-PUBLICATION` and exact successor `IR-0`. It has no sprint lifecycle key,
+does not produce a story final record, and authorizes only the closed A1-A3
+inventory below. The execution graph contains this node exactly once; IR-0
+depends on it instead of depending directly on `PC-PUBLICATION`.
+
+| ID | Remediation obligation | Owner | Required completion evidence |
+| --- | --- | --- | --- |
+| `A1` | Reconstruct the actual Story 6.7 and Story 6.2 done trees and obtain an independent completion-acceptance supersession decision. | Dev workflow produces evidence; Release owner independently decides. | The closed contract binds the two recorded candidates, two actual done commits, exact raw changed paths, and exactly ten root mode-`160000` gitlinks at each tree; every object is locally inspectable; exact done-tree promotion and rebuilt-test commands pass with zero skipped/not-run; the decision is `ACCEPTED` and supersedes acceptance evidence only. |
+| `A2` | Restore the submodule-promotion and evidence-boundary gates on every current review/done transition. | Dev workflow. | Exactly twelve active route files in the `.agents` and `.claude` trees are byte-paired, invoke both gates before lifecycle writes, preserve `PASS`/`FAIL`/`BLOCKED`/`not-applicable`, require a nonempty ledger, and reject removal, displacement, decoy, parity, unavailable-history, skipped, and empty-ledger faults. |
+| `A3` | Harden planning-authority history/signature/context validation and add automatic preflight. | Architecture / Quality. | Recorded submodule evidence never falls back to current checkout bytes; zero-parameter signatures are checked non-vacuously; generated Epic context carries exact governing version frontmatter; pytest/jsonschema run from the frozen lock; the root preflight runs Python publication/evidence checks and direct V9/V8/architecture validators. |
+
+A1-A3 are all required before IR-0 may run. `PASS` is not inferred from an
+empty set, an omitted command, a fallback lane, current-tree evidence, or an
+unavailable object. Such states are `FAIL` or `BLOCKED` with stable diagnostics.
+The A1 independent decision is a separate mutable planning result and is not
+part of the self-excluding authority-bundle digest.
+
+### Downstream Retrospective Ownership Preserved
+
+The remaining Epic 6 retrospective actions stay open and outside this
+checkpoint. V12 assigns no product implementation and creates no substitute
+successor story:
+
+| ID | Preserved owner | Execution authority after IR-0 |
+| --- | --- | --- |
+| `A4` | Architect / Runtime owner | Separately approved successor work for durable event-fed tenant access, freshness/gap detection, restart, and multi-replica convergence. |
+| `A5` | Projection owner | Separately approved successor work for deterministic event-derived replay timestamps and trustworthy missing-index semantics. |
+| `A6` | Test / AppHost owner | Separately approved successor work for endpoint/port diagnostics and live `project/v2/reconcile` terminal retry coverage. |
+
+Their six committed sprint action rows and original owners remain unchanged.
+The V12 publisher preserves their exact identifiers, order, text, and open
+status. E6-REMEDIATION completion cannot close A4-A6, Epic 5 action A5, or any
+successor outcome.
+
+### V12 Publication And Completion Effect
+
+The generated
+`_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json`
+sidecar binds the exact checkpoint inventory, ownership, current route set,
+prohibitions, and completion effect. The V12 authority bundle includes the
+sidecar, its recursively closed schema, the pinned verifier environment, the
+supersession contract/schema/verifiers, the workflow/context/preflight guards,
+and candidate-bound generated companions. Mutable reconstruction evidence,
+the independent decision, IR-0 reports, hold decisions, final records, and
+release evidence remain outside the bundle digest.
+
+Checkpoint completion permits only an independent IR-0 rerun against the same
+committed PC, bundle digest, V12 authority pair, and ten gitlinks. It does not
+lift the hold, start Story 7.1 or `7.1-SCHEMAS`, unlock another successor,
+authorize release, create `_bmad-output/planning-artifacts/implementation-hold-v1.json`,
+or modify a product, package, submodule, or gitlink. Even when IR-0 records
+`READY`, `implementationHold` remains `ACTIVE` until the separately governed
+release-owner decision required by inherited authority exists.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V12:END version=epic-6-authority-2026-08-04-v12 architecture-authority=conversations-architecture-2026-08-04-v12 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

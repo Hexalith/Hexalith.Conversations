@@ -1,0 +1,122 @@
+{
+  "$schema": "../../_bmad/schemas/epic-6-completion-supersession-v1.schema.json",
+  "schemaVersion": "epic-6-completion-supersession-v1",
+  "contractId": "E6-COMPLETION-SUPERSESSION-v1",
+  "authority": {
+    "checkpoint": "E6-REMEDIATION",
+    "implementationHold": "ACTIVE"
+  },
+  "rootGitlinkPaths": [
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants"
+  ],
+  "stories": [
+    {
+      "storyId": "6.7",
+      "recordPath": "_bmad-output/implementation-artifacts/6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md",
+      "candidateCommit": "aa2b6b7d05d277e1c083252462b9c8244914970e",
+      "doneCommit": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+      "changedPaths": [
+        ".agents/skills/bmad-code-review/steps/step-04-present.md",
+        ".claude/skills/bmad-code-review/steps/step-04-present.md",
+        "_bmad-output/implementation-artifacts/6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+        "_bmad/scripts/verify_submodule_promotion.py",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Memories"
+      ],
+      "declaredPromotionPaths": [
+        "references/Hexalith.Builds",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Memories",
+        "references/Hexalith.Tenants"
+      ],
+      "remoteRequiredPaths": [
+        "references/Hexalith.Builds",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Memories",
+        "references/Hexalith.Tenants"
+      ],
+      "testCommands": [
+        {
+          "id": "STORY-6-7-PROMOTION-TESTS",
+          "argv": ["uv", "run", "--no-cache", "_bmad/scripts/tests/test_verify_submodule_promotion.py"]
+        }
+      ]
+    },
+    {
+      "storyId": "6.2",
+      "recordPath": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md",
+      "candidateCommit": "2971ab79efcf3ef11d4fba7b9139d7cae457a3f9",
+      "doneCommit": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa",
+      "changedPaths": [
+        "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "references/Hexalith.Builds",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.FrontComposer",
+        "references/Hexalith.Memories",
+        "references/Hexalith.Parties",
+        "references/Hexalith.Projects",
+        "references/Hexalith.Tenants"
+      ],
+      "declaredPromotionPaths": [
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Builds",
+        "references/Hexalith.Tenants"
+      ],
+      "remoteRequiredPaths": [
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Builds",
+        "references/Hexalith.Tenants"
+      ],
+      "testCommands": [
+        {
+          "id": "STORY-6-2-FULL-SOLUTION-TESTS",
+          "argv": [
+            "dotnet",
+            "test",
+            "Hexalith.Conversations.slnx",
+            "--configuration",
+            "Release",
+            "-m:1",
+            "-p:NuGetAudit=false",
+            "-p:UseHexalithProjectReferences=true"
+          ]
+        }
+      ]
+    }
+  ],
+  "decisionPolicy": {
+    "required": true,
+    "allowedResults": ["ACCEPTED", "REJECTED", "BLOCKED"],
+    "supersedes": "Epic 6 completion acceptance evidence only",
+    "preserves": [
+      "Story 6.7 completed record",
+      "Story 6.2 completed record",
+      "V1-V11 authority"
+    ],
+    "doesNotAuthorize": [
+      "implementation hold lift",
+      "successor implementation",
+      "release approval"
+    ]
+  },
+  "assertions": [
+    "Candidate and done commits are exact Git objects and candidate is an ancestor of done.",
+    "Each candidate and done tree contains exactly the ten root mode-160000 gitlinks listed here.",
+    "Every recorded gitlink object is available from its root-declared local submodule repository.",
+    "Changed paths and raw diff records are derived from the immutable candidate/done pair.",
+    "Tests and promotion checks execute in isolated exact done-tree clones without current-tree substitution.",
+    "Only an independent decision may supersede the rejected acceptance evidence; completed records stay immutable."
+  ]
+}

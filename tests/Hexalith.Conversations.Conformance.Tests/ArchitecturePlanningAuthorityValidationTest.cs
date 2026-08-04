@@ -1210,9 +1210,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         if (parameterFragments.Length == 0)
         {
-            // An empty fragment list makes All(...) vacuously true, so require a non-empty parameter list
-            // to be matched explicitly rather than accepting name-and-return-type only.
-            matches.Any(match => match.Groups["parameters"].Value.Trim().Length >= 0).ShouldBeTrue();
+            matches.Any(match => match.Groups["parameters"].Value.Trim().Length == 0)
+                .ShouldBeTrue($"No public zero-parameter signature for {methodName} was found in {relativePath}.");
             return;
         }
 
@@ -1242,17 +1241,19 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     }
 
     /// <summary>
-    /// Reads public-surface evidence from the commit the umbrella actually records, falling back to the
-    /// working tree. Reading only the checkout would measure a surface the umbrella does not pin.
+    /// Reads submodule public-surface evidence only from the commit the umbrella actually records.
+    /// Current checkout bytes are not admissible substitutes for unavailable historical evidence.
     /// </summary>
     private static string ReadPlatformEvidence(string relativePath)
     {
         string submodule = SubmoduleRootOf(relativePath);
 
-        if (submodule.Length > 0
-            && TryReadRecordedGitlink(submodule, out string gitlink)
-            && TryReadSubmoduleBlob(submodule, gitlink, relativePath[(submodule.Length + 1)..], out string recorded))
+        if (submodule.Length > 0)
         {
+            TryReadRecordedGitlink(submodule, out string gitlink).ShouldBeTrue(
+                $"Platform evidence '{relativePath}' is unavailable because HEAD does not record a mode-160000 gitlink for '{submodule}'.");
+            TryReadSubmoduleBlob(submodule, gitlink, relativePath[(submodule.Length + 1)..], out string recorded).ShouldBeTrue(
+                $"Platform evidence '{relativePath}' is unavailable at recorded gitlink {gitlink}; current checkout bytes are not historical evidence.");
             return recorded;
         }
 

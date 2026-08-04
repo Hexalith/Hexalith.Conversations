@@ -628,6 +628,13 @@ def inspect_unrelated(
 ) -> None:
     worktree = repository / path
     if not own_worktree(repository, worktree):
+        warnings.append(
+            diagnostic(
+                "UNRELATED_SUBMODULE_UNINSPECTABLE",
+                f"unrelated root submodule {path} is not an inspectable initialized worktree",
+                path,
+            )
+        )
         return
     head = submodule_head(worktree)
     tracked, untracked = submodule_dirt(worktree, head)

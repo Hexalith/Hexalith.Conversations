@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Publish and validate the candidate-bound v9/v11 planning companion set."""
+"""Publish and validate the candidate-bound v9/v12 planning companion set."""
 
 from __future__ import annotations
 
@@ -24,8 +24,11 @@ from config_utils import ConfigError, load_customization  # noqa: E402
 BASE_EPIC_AUTHORITY = "epic-6-authority-2026-08-03-v10"
 BASE_ARCHITECTURE_AUTHORITY = "conversations-architecture-2026-08-03-v10"
 BASE_AUTHORITIES = {"epic": BASE_EPIC_AUTHORITY, "architecture": BASE_ARCHITECTURE_AUTHORITY}
-EPIC_AUTHORITY = "epic-6-authority-2026-08-04-v11"
-ARCHITECTURE_AUTHORITY = "conversations-architecture-2026-08-04-v11"
+V11_EPIC_AUTHORITY = "epic-6-authority-2026-08-04-v11"
+V11_ARCHITECTURE_AUTHORITY = "conversations-architecture-2026-08-04-v11"
+V11_AUTHORITIES = {"epic": V11_EPIC_AUTHORITY, "architecture": V11_ARCHITECTURE_AUTHORITY}
+EPIC_AUTHORITY = "epic-6-authority-2026-08-04-v12"
+ARCHITECTURE_AUTHORITY = "conversations-architecture-2026-08-04-v12"
 AUTHORITIES = {"epic": EPIC_AUTHORITY, "architecture": ARCHITECTURE_AUTHORITY}
 EPICS_PATH = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md"
 ARCHITECTURE_PATH = "_bmad-output/planning-artifacts/architecture.md"
@@ -37,6 +40,8 @@ BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 GRAPH_PATH = "_bmad-output/planning-artifacts/v9-execution-graph-v1.json"
 SUPERSESSION_PATH = "_bmad-output/planning-artifacts/v9-supersession-map-v1.json"
 SLICE_PATH = "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json"
+REMEDIATION_PATH = "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json"
+SUPERSESSION_CONTRACT_PATH = "_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json"
 RUNBOOK_PATH = "docs/runbooks/evidence-boundary-validation.md"
 V9_EPIC_BLOCK_SIZE = 188677
 V9_EPIC_BLOCK_DIGEST = "e7d6ea5759c12ab70f21b472656828bb4e5bcce2023d845f06a40cf1373d1c9d"
@@ -50,6 +55,10 @@ V11_EPIC_BLOCK_SIZE = 5474
 V11_EPIC_BLOCK_DIGEST = "6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19"
 V11_ARCHITECTURE_BLOCK_SIZE = 3042
 V11_ARCHITECTURE_BLOCK_DIGEST = "a97385c11b92fb95f1acf7f4ba370404c4781855581c81a427ed6895a5a4c4d1"
+V12_EPIC_BLOCK_SIZE = 6207
+V12_EPIC_BLOCK_DIGEST = "39f1b51920e4866c47586caf549aafaec5678639b64c64b4b235788fce76e878"
+V12_ARCHITECTURE_BLOCK_SIZE = 6075
+V12_ARCHITECTURE_BLOCK_DIGEST = "3050b326c5759fc51bc0e800944b0a1a591ab1782f6798f12abfdc10051b5796"
 FROZEN_STORY_CONTRACT_SCHEMA_DIGEST = "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
 
 SLICE_ID = "7.1-SCHEMAS"
@@ -119,6 +128,14 @@ MECHANICAL_LOGICAL_BODIES = (
     "bmad-dev-story/SKILL.md",
     "bmad-code-review/steps/step-04-present.md",
 )
+MECHANICAL_LIFECYCLE_TOKENS = {
+    "bmad-build/step-04-review.md": "Change `{spec_file}` status to `in-review`",
+    "bmad-build/step-05-present.md": "Change `{spec_file}` status to `done`",
+    "bmad-build/step-oneshot.md": "status: 'done'",
+    "bmad-build-auto/step-04-review.md": "Change `{spec_file}` status to `in-review`",
+    "bmad-dev-story/SKILL.md": '<action>Update the story Status to: "review"</action>',
+    "bmad-code-review/steps/step-04-present.md": "set `{new_status}` = `done`",
+}
 GUIDANCE_PATHS = (
     "_bmad/custom/bmad-build.toml",
     "_bmad/custom/bmad-build-auto.toml",
@@ -212,6 +229,29 @@ SCHEMA_PATHS = (
     "_bmad/schemas/v9-supersession-map-v1.schema.json",
     "_bmad/schemas/v9-authority-bundle-v1.schema.json",
     "_bmad/schemas/v11-story-slice-authority-v1.schema.json",
+    "_bmad/schemas/v12-pre-ir0-remediation-authority-v1.schema.json",
+    "_bmad/schemas/epic-6-completion-supersession-v1.schema.json",
+)
+V12_CANONICAL_PATHS = (
+    "_bmad-output/implementation-artifacts/epic-6-context.md",
+    SUPERSESSION_CONTRACT_PATH,
+    "pyproject.toml",
+    "uv.lock",
+    ".github/workflows/planning-authority-preflight.yml",
+    "_bmad/scripts/verify_submodule_promotion.py",
+    "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+    "_bmad/scripts/verify_evidence_boundary.py",
+    "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+    "_bmad/scripts/verify_epic_6_completion_supersession.py",
+    "_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py",
+    ".agents/skills/bmad-build/compile-epic-context.md",
+    ".agents/skills/bmad-build/step-01-clarify-and-route.md",
+    ".agents/skills/bmad-build-auto/compile-epic-context.md",
+    ".agents/skills/bmad-build-auto/step-01-clarify-and-route.md",
+    ".claude/skills/bmad-build/compile-epic-context.md",
+    ".claude/skills/bmad-build/step-01-clarify-and-route.md",
+    ".claude/skills/bmad-build-auto/compile-epic-context.md",
+    ".claude/skills/bmad-build-auto/step-01-clarify-and-route.md",
 )
 CANONICAL_PATHS = (
     ".gitmodules",
@@ -224,6 +264,7 @@ CANONICAL_PATHS = (
     "_bmad/scripts/publish_v9_planning_authority.py",
     *VALIDATOR_PATHS,
     *SCHEMA_PATHS,
+    *V12_CANONICAL_PATHS,
 )
 PROTECTED_CANDIDATE_PATHS = (
     VIEW_V1_PATH,
@@ -248,10 +289,12 @@ EXPECTED_OUTPUT_PATHS = (
     GRAPH_PATH,
     SUPERSESSION_PATH,
     SLICE_PATH,
+    REMEDIATION_PATH,
     VIEW_V2_PATH,
     UX_MAP_PATH,
     SPRINT_PATH,
     "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
+    "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v3.json",
     "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
     "_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json",
     "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build.json",
@@ -371,8 +414,8 @@ def marker_block(content: bytes, begin_token: str, end_token: str) -> bytes:
     return content[start:close]
 
 
-def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str, str]:
-    """Validate immutable v9/v10 blocks and complete v11 successors."""
+def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str, str, str]:
+    """Validate immutable v9-v11 blocks and the complete v12 successor."""
 
     v9_epic = marker_block(
         epics,
@@ -425,11 +468,30 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
         or sha256(v11_architecture_bytes) != V11_ARCHITECTURE_BLOCK_DIGEST
     ):
         raise PublicationError("V11_ARCHITECTURE_AUTHORITY_DRIFT", sha256(v11_architecture_bytes))
+    v12_epic_bytes = marker_block(
+        epics,
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V12:BEGIN",
+        "<!-- EPIC-6-AUTHORITY-OVERLAY-V12:END",
+    )
+    if len(v12_epic_bytes) != V12_EPIC_BLOCK_SIZE or sha256(v12_epic_bytes) != V12_EPIC_BLOCK_DIGEST:
+        raise PublicationError("V12_EPIC_AUTHORITY_DRIFT", sha256(v12_epic_bytes))
+    v12_architecture_bytes = marker_block(
+        architecture,
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:BEGIN",
+        "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:END",
+    )
+    if (
+        len(v12_architecture_bytes) != V12_ARCHITECTURE_BLOCK_SIZE
+        or sha256(v12_architecture_bytes) != V12_ARCHITECTURE_BLOCK_DIGEST
+    ):
+        raise PublicationError("V12_ARCHITECTURE_AUTHORITY_DRIFT", sha256(v12_architecture_bytes))
     try:
         v10_epic = v10_epic_bytes.decode("utf-8")
         v10_architecture = v10_architecture_bytes.decode("utf-8")
         v11_epic = v11_epic_bytes.decode("utf-8")
         v11_architecture = v11_architecture_bytes.decode("utf-8")
+        v12_epic = v12_epic_bytes.decode("utf-8")
+        v12_architecture = v12_architecture_bytes.decode("utf-8")
     except UnicodeError as error:
         raise PublicationError("AUTHORITY_MARKER_INVALID", str(error)) from error
     for source in (v10_epic, v10_architecture):
@@ -440,7 +502,7 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
     if v10_epic.count("Story 10.3 V10 Amendment") != 1 or v10_epic.count("Story 10.4 V10 Amendment") != 1:
         raise PublicationError("AUTHORITY_SCOPE_DRIFT", "effective Story 10.3/10.4 amendments missing")
     for source in (v11_epic, v11_architecture):
-        if EPIC_AUTHORITY not in source or ARCHITECTURE_AUTHORITY not in source:
+        if V11_EPIC_AUTHORITY not in source or V11_ARCHITECTURE_AUTHORITY not in source:
             raise PublicationError("AUTHORITY_IDENTITY_DRIFT", "v11 identity missing")
         if "hold" not in source.lower() or "ACTIVE" not in source:
             raise PublicationError("IMPLEMENTATION_HOLD_DRIFT", "ACTIVE hold missing")
@@ -465,7 +527,28 @@ def validate_authority_prefixes(epics: bytes, architecture: bytes) -> tuple[str,
     )
     if any(clause not in v11_architecture for clause in required_v11_architecture_clauses):
         raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "v11 architecture checkpoint clause missing")
-    return v10_epic, v11_epic
+    for source in (v12_epic, v12_architecture):
+        if EPIC_AUTHORITY not in source or ARCHITECTURE_AUTHORITY not in source:
+            raise PublicationError("AUTHORITY_IDENTITY_DRIFT", "v12 identity missing")
+        if "hold" not in source.lower() or "ACTIVE" not in source:
+            raise PublicationError("IMPLEMENTATION_HOLD_DRIFT", "v12 ACTIVE hold missing")
+    required_v12_epic_clauses = (
+        "### E6-REMEDIATION: Own A1-A3 Before Independent IR-0",
+        "A1-A3 are all required before IR-0 may run",
+        "Exactly twelve active route files",
+        "implementationHold` remains `ACTIVE`",
+    )
+    required_v12_architecture_clauses = (
+        "PC-PUBLICATION -> E6-REMEDIATION -> IR-0",
+        "The graph has exactly 33 nodes",
+        "Current root or\nsubmodule checkout bytes are never admissible substitutes",
+        "E6-REMEDIATION may authorize only an independent IR-0 rerun",
+    )
+    if any(clause not in v12_epic for clause in required_v12_epic_clauses):
+        raise PublicationError("REMEDIATION_AUTHORITY_DRIFT", "v12 epic checkpoint clause missing")
+    if any(clause not in v12_architecture for clause in required_v12_architecture_clauses):
+        raise PublicationError("REMEDIATION_AUTHORITY_DRIFT", "v12 architecture checkpoint clause missing")
+    return v10_epic, v11_epic, v12_epic
 
 
 def extract_story_section(v9_block: str, story_id: str) -> str:
@@ -685,7 +768,7 @@ def render_story_slice(
             "sliceId": SLICE_ID,
             "storyId": "7.1",
             "authority": {
-                **AUTHORITIES,
+                **V11_AUTHORITIES,
                 "planningCandidate": candidate,
                 "authorityBundlePath": BUNDLE_PATH,
             },
@@ -734,16 +817,130 @@ def validate_story_slice(
         raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "closed checkpoint authority mismatch")
 
 
+def render_remediation_authority(root: Path, candidate: str) -> bytes:
+    """Render the closed V12 pre-IR-0 remediation sidecar."""
+
+    actions = [
+        {
+            "id": "A1",
+            "owner": "Dev workflow / Release owner",
+            "scope": "Exact Story 6.7 and Story 6.2 done-tree reconstruction plus independent acceptance-evidence supersession decision.",
+            "executionAuthority": "E6-REMEDIATION",
+            "checkpointOwned": True,
+            "status": "open",
+        },
+        {
+            "id": "A2",
+            "owner": "Dev workflow",
+            "scope": "Promotion and evidence-boundary gates on exactly twelve active lifecycle routes.",
+            "executionAuthority": "E6-REMEDIATION",
+            "checkpointOwned": True,
+            "status": "open",
+        },
+        {
+            "id": "A3",
+            "owner": "Architecture / Quality",
+            "scope": "Fail-closed historical signatures, context identity, pinned planning verification, and automatic preflight.",
+            "executionAuthority": "E6-REMEDIATION",
+            "checkpointOwned": True,
+            "status": "open",
+        },
+        {
+            "id": "A4",
+            "owner": "Architect / Runtime owner",
+            "scope": "Durable event-fed tenant access, freshness and gap detection, restart, and multi-replica convergence.",
+            "executionAuthority": "separately approved successor",
+            "checkpointOwned": False,
+            "status": "open",
+        },
+        {
+            "id": "A5",
+            "owner": "Projection owner",
+            "scope": "Deterministic event-derived replay timestamps and trustworthy missing-index semantics.",
+            "executionAuthority": "separately approved successor",
+            "checkpointOwned": False,
+            "status": "open",
+        },
+        {
+            "id": "A6",
+            "owner": "Test / AppHost owner",
+            "scope": "Endpoint and Dapr port diagnostics plus live terminal reconciliation route coverage.",
+            "executionAuthority": "separately approved successor",
+            "checkpointOwned": False,
+            "status": "open",
+        },
+    ]
+    return json_bytes(
+        {
+            "schemaVersion": "hexalith.conversations.v12-pre-ir0-remediation-authority.v1",
+            "checkpointId": "E6-REMEDIATION",
+            "authority": {
+                **AUTHORITIES,
+                "planningCandidate": candidate,
+                "authorityBundlePath": BUNDLE_PATH,
+                "implementationHold": "ACTIVE",
+            },
+            "predecessors": ["PC-PUBLICATION"],
+            "successor": "IR-0",
+            "actionInventory": actions,
+            "activeRoutePaths": list(MECHANICAL_PATHS),
+            "rootGitlinkPaths": list(ROOT_GITLINK_PATHS),
+            "supersessionContract": {
+                "path": SUPERSESSION_CONTRACT_PATH,
+                "sha256": sha256(candidate_blob(root, candidate, SUPERSESSION_CONTRACT_PATH)),
+            },
+            "resultSemantics": {
+                "states": ["PASS", "FAIL", "BLOCKED", "not-applicable"],
+                "ledgerRequired": True,
+                "skipsAllowed": False,
+            },
+            "prohibitions": [
+                "rewrite completed Story 6.7 or Story 6.2 records",
+                "substitute current bytes for historical evidence",
+                "traverse nested submodules",
+                "modify product code, packages, submodules, or gitlinks",
+                "implement or start successors",
+                "create implementation-hold-v1.json",
+                "claim release approval",
+            ],
+            "completionEffect": {
+                "ir0RerunAllowed": True,
+                "holdLifted": False,
+                "successorStarted": False,
+                "releaseAuthorized": False,
+            },
+            "assertions": [
+                "A1-A3 pass before IR-0.",
+                "A4-A6 remain open under separately approved successor authority.",
+                "The global implementation hold remains ACTIVE after a READY IR-0.",
+            ],
+        }
+    )
+
+
+def validate_remediation_authority(root: Path, candidate: str, authority: dict[str, Any]) -> None:
+    """Recompute the V12 checkpoint sidecar and reject any closed-field drift."""
+
+    expected = json.loads(render_remediation_authority(root, candidate))
+    if authority != expected:
+        raise PublicationError("REMEDIATION_AUTHORITY_DRIFT", "closed checkpoint authority mismatch")
+
+
 def expected_graph_nodes(
     contracts: dict[str, dict[str, Any]],
     slice_authority: dict[str, Any],
 ) -> dict[str, dict[str, Any]]:
-    """Build the exact current 32-node execution graph authority."""
+    """Build the exact current 33-node execution graph authority."""
 
     nodes: dict[str, dict[str, Any]] = {
         "6.2": {"id": "6.2", "kind": "historical-story", "predecessors": []},
         "PC-PUBLICATION": {"id": "PC-PUBLICATION", "kind": "publication", "predecessors": []},
-        "IR-0": {"id": "IR-0", "kind": "gate", "predecessors": ["PC-PUBLICATION"]},
+        "E6-REMEDIATION": {
+            "id": "E6-REMEDIATION",
+            "kind": "checkpoint",
+            "predecessors": ["PC-PUBLICATION"],
+        },
+        "IR-0": {"id": "IR-0", "kind": "gate", "predecessors": ["E6-REMEDIATION"]},
         SLICE_ID: {
             "id": SLICE_ID,
             "kind": "checkpoint",
@@ -774,8 +971,8 @@ def validate_slice_graph_parity(
 
     expected_nodes = expected_graph_nodes(contracts, slice_authority)
     expected_node_rows = [expected_nodes[node_id] for node_id in sorted(expected_nodes)]
-    if graph.get("nodes") != expected_node_rows or len(expected_node_rows) != 32:
-        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "exact 32-node graph inventory mismatch")
+    if graph.get("nodes") != expected_node_rows or len(expected_node_rows) != 33:
+        raise PublicationError("CHECKPOINT_GRAPH_DRIFT", "exact 33-node graph inventory mismatch")
     expected_edges = {
         (predecessor, node["id"])
         for node in expected_node_rows
@@ -796,6 +993,21 @@ def validate_route_topology(root: Path, candidate: str) -> None:
         claude = candidate_blob(root, candidate, f".claude/skills/{logical}")
         if agents != claude:
             raise PublicationError("EVIDENCE_WORKFLOW_PARITY_DRIFT", logical)
+        text = agents.decode("utf-8")
+        marker = "V12 lifecycle evidence gates"
+        lifecycle = MECHANICAL_LIFECYCLE_TOKENS[logical]
+        required = (
+            "verify_submodule_promotion.py",
+            "verify_evidence_boundary.py",
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "not-applicable",
+        )
+        if text.count(marker) != 1 or lifecycle not in text or text.index(marker) > text.index(lifecycle):
+            raise PublicationError("EVIDENCE_GATE_DISPLACED", logical)
+        if any(token not in text[text.index(marker) :] for token in required):
+            raise PublicationError("EVIDENCE_GATE_NOT_USED", logical)
     aliases = {
         "bmad-dev-auto": "bmad-build-auto",
         "bmad-quick-dev": "bmad-build",
@@ -888,6 +1100,7 @@ def render_inventory(
 
     expected_by_id = {
         "V9-EVIDENCE-WORKFLOWS-v2": MECHANICAL_PATHS,
+        "V12-ACTIVE-LIFECYCLE-ROUTES-v1": MECHANICAL_PATHS,
         "V9-EVIDENCE-GUIDANCE-v2": GUIDANCE_PATHS,
         "V9-EVIDENCE-READERS-v1": READER_PATHS,
     }
@@ -1091,11 +1304,15 @@ def render_supersession(candidate: str, epics: str) -> bytes:
 
 
 def validate_current_view(content: str, contracts: dict[str, dict[str, Any]]) -> None:
-    """Require exact checkpoint and Story 7.1/7.2 semantic projection rows."""
+    """Require exact remediation/schema checkpoints and Story 7.1/7.2 rows."""
 
-    expected_checkpoint = (
+    expected_schema_checkpoint = (
         "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | "
         "6.2, IR-0 | 1 |"
+    )
+    expected_remediation_checkpoint = (
+        "| E6-REMEDIATION | checkpoint | Complete Epic 6 A1-A3 before independent IR-0 | "
+        "PC-PUBLICATION | 3 |"
     )
     expected_seven_one = (
         f"| 7.1 | story | {contracts['7.1']['outcome']['title']} | "
@@ -1105,7 +1322,7 @@ def validate_current_view(content: str, contracts: dict[str, dict[str, Any]]) ->
         f"| 7.2 | story | {contracts['7.2']['outcome']['title']} | "
         f"7.1 | {len(contracts['7.2']['scenarios'])} |"
     )
-    if content.count(expected_checkpoint) != 1:
+    if content.count(expected_schema_checkpoint) != 1 or content.count(expected_remediation_checkpoint) != 1:
         raise PublicationError("CURRENT_VIEW_DRIFT", "checkpoint row mismatch")
     seven_one_rows = re.findall(r"^\| 7\.1 \|.*$", content, re.MULTILINE)
     seven_two_rows = re.findall(r"^\| 7\.2 \|.*$", content, re.MULTILINE)
@@ -1122,9 +1339,13 @@ def render_view(candidate: str, contracts: dict[str, dict[str, Any]]) -> bytes:
         f"{len(contract['scenarios'])} |"
         for story_id, contract in contracts.items()
     )
-    checkpoint_row = (
+    schema_checkpoint_row = (
         "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | "
         "6.2, IR-0 | 1 |"
+    )
+    remediation_checkpoint_row = (
+        "| E6-REMEDIATION | checkpoint | Complete Epic 6 A1-A3 before independent IR-0 | "
+        "PC-PUBLICATION | 3 |"
     )
     content = f"""---
 artifact: epic-6-current-execution-view-v2
@@ -1141,8 +1362,8 @@ status: 'candidate-bound-planning-publication'
 # Epic 6 Current Execution View V2
 
 > **PLANNING PUBLICATION ONLY — IMPLEMENTATION HOLD ACTIVE.** This generated
-> view projects the v11-corrected authority and its non-story `7.1-SCHEMAS`
-> checkpoint. It does not implement schemas or a story, run IR-0, lift the
+> view projects the v12-corrected authority, `E6-REMEDIATION`, and the inherited
+> non-story `7.1-SCHEMAS` checkpoint. It does not implement schemas or a story, run IR-0, lift the
 > hold, close Epic 5 action A5, or authorize release.
 
 The canonical epic authority and architecture overlay remain the semantic
@@ -1151,13 +1372,15 @@ non-amending.
 
 | Execution unit | Kind | Bounded outcome | Effective predecessors | AC count |
 | --- | --- | --- | --- | ---: |
-{checkpoint_row}
+{remediation_checkpoint_row}
+{schema_checkpoint_row}
 {rows}
 
 ## Gate State
 
 - IR-0: not run by this publication.
 - Implementation hold: `ACTIVE`.
+- `E6-REMEDIATION`: planning-authorized A1-A3 checkpoint; completion evidence is external to this bundle.
 - `7.1-SCHEMAS`: planning-only and non-executable while the hold is active.
 - Epic 5 action A5: `open` until a compatible Story 10.4 `9/9/0/0/0/0` final record passes.
 """
@@ -1191,8 +1414,9 @@ def render_ux_map(source: bytes, candidate: str) -> bytes:
         1,
     )
     text = text.replace("Story 6.4 disposition contract", "Stories 8.1-8.2 preservation contract")
-    text = text.replace("defined by Epic 6 v8", "rebound by Epic 8 under v11")
-    text = text.replace("rebound by Epic 8 under v10", "rebound by Epic 8 under v11")
+    text = text.replace("defined by Epic 6 v8", "rebound by Epic 8 under v12")
+    text = text.replace("rebound by Epic 8 under v10", "rebound by Epic 8 under v12")
+    text = text.replace("rebound by Epic 8 under v11", "rebound by Epic 8 under v12")
     decisions = tuple(re.findall(r"^\| (UX-DR\d+) \|", text, re.MULTILINE))
     criteria = tuple(
         re.findall(r"^\| (AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3}) \|", text, re.MULTILINE)
@@ -1222,6 +1446,8 @@ def validate_sprint_structure(text: str) -> None:
     development = text[development_start:actions_start]
     if re.search(rf"^  [^:\n]*{re.escape(SLICE_ID)}[^:\n]*:", development, re.MULTILINE):
         raise PublicationError("SPRINT_PROJECTION_DRIFT", "checkpoint cannot have a lifecycle key")
+    if re.search(r"^  [^:\n]*E6-REMEDIATION[^:\n]*:", development, re.MULTILINE):
+        raise PublicationError("SPRINT_PROJECTION_DRIFT", "remediation checkpoint cannot have a lifecycle key")
 
 
 def validate_epic_6_retrospective(text: str) -> None:
@@ -1256,13 +1482,13 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
     text = source.decode("utf-8")
     validate_sprint_structure(text)
     validate_epic_6_retrospective(text)
-    text = re.sub(r"^# V(?:10|11) PLANNING PUBLICATION:.*\n", "", text, flags=re.MULTILINE)
+    text = re.sub(r"^# V(?:10|11|12) PLANNING PUBLICATION:.*\n", "", text, flags=re.MULTILINE)
     text = re.sub(r"^last_updated: .*?$", "last_updated: 2026-08-04", text, count=1, flags=re.MULTILINE)
     notice = (
-        "# V11 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-04-v11 and "
-        "conversations-architecture-2026-08-04-v11 are candidate-bound by "
+        "# V12 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-04-v12 and "
+        "conversations-architecture-2026-08-04-v12 are candidate-bound by "
         "v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; "
-        "IR-0 was not run, 7.1-SCHEMAS is planning-only and non-executable, Epic 5 action A5 "
+        "IR-0 was not run, E6-REMEDIATION owns A1-A3, 7.1-SCHEMAS is planning-only and non-executable, Epic 5 action A5 "
         "remains open, and successor stories remain backlog.\n"
     )
     updated_line = "last_updated: 2026-08-04\n"
@@ -1383,6 +1609,12 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
                 "Product Manager",
                 "hexalith.conversations.story-slice-authority.v1",
             )
+        elif path == REMEDIATION_PATH:
+            role, owner, schema = (
+                "pre-ir0-remediation-authority",
+                "Planning owner",
+                "hexalith.conversations.v12-pre-ir0-remediation-authority.v1",
+            )
         elif "/inventories/" in path:
             role, owner, schema = "inventory", "Workflow owner", "hexalith.conversations.v9-inventory.v1"
         elif path == GRAPH_PATH:
@@ -1405,8 +1637,11 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
         raise PublicationError("BUNDLE_ROLE_DRIFT", "Story 7.1 base contract role")
     if roles.get(SLICE_PATH) != "story-slice-authority":
         raise PublicationError("BUNDLE_ROLE_DRIFT", "Story 7.1 sidecar role")
+    if roles.get(REMEDIATION_PATH) != "pre-ir0-remediation-authority":
+        raise PublicationError("BUNDLE_ROLE_DRIFT", "E6 remediation sidecar role")
     if any(
-        "ir-0" in path.lower() or path.endswith("implementation-hold-v1.json")
+        "implementation-readiness-report" in path.lower()
+        or path.endswith("implementation-hold-v1.json")
         for path in bundle_paths
     ):
         raise PublicationError("BUNDLE_INVENTORY_DRIFT", "mutable gate or hold result")
@@ -1452,6 +1687,8 @@ def validate_schemas(root: Path, outputs: dict[str, bytes]) -> None:
                 schema_path = SCHEMA_PATHS[4]
             elif path == SLICE_PATH:
                 schema_path = SCHEMA_PATHS[5]
+            elif path == REMEDIATION_PATH:
+                schema_path = SCHEMA_PATHS[6]
             else:
                 continue
             jsonschema.Draft202012Validator(schemas[schema_path]).validate(document)
@@ -1465,7 +1702,7 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     require_candidate_bytes(root, candidate, CANONICAL_PATHS + PROTECTED_CANDIDATE_PATHS)
     epics = candidate_blob(root, candidate, EPICS_PATH)
     architecture = candidate_blob(root, candidate, ARCHITECTURE_PATH)
-    v10_epic, v11_epic = validate_authority_prefixes(epics, architecture)
+    v10_epic, v11_epic, _v12_epic = validate_authority_prefixes(epics, architecture)
     if sha256(candidate_blob(root, candidate, SCHEMA_PATHS[0])) != FROZEN_STORY_CONTRACT_SCHEMA_DIGEST:
         raise PublicationError("STORY_CONTRACT_SCHEMA_DRIFT", SCHEMA_PATHS[0])
     validate_route_topology(root, candidate)
@@ -1482,9 +1719,14 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     outputs[SLICE_PATH] = render_story_slice(candidate, outputs[base_story_contract_path], v11_epic)
     slice_authority = json.loads(outputs[SLICE_PATH])
     validate_story_slice(slice_authority, outputs[base_story_contract_path], v11_epic, candidate)
+    outputs[REMEDIATION_PATH] = render_remediation_authority(root, candidate)
+    validate_remediation_authority(root, candidate, json.loads(outputs[REMEDIATION_PATH]))
     outputs.update(render_resolved_customization(root, candidate))
     outputs["_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json"] = render_inventory(
         root, candidate, "V9-EVIDENCE-WORKFLOWS-v2", MECHANICAL_PATHS, mechanical=True
+    )
+    outputs["_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v3.json"] = render_inventory(
+        root, candidate, "V12-ACTIVE-LIFECYCLE-ROUTES-v1", MECHANICAL_PATHS, mechanical=True
     )
     outputs["_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json"] = render_inventory(
         root, candidate, "V9-EVIDENCE-GUIDANCE-v2", GUIDANCE_PATHS
@@ -1524,6 +1766,11 @@ def validate_managed_namespace(root: Path) -> None:
             actual.update(
                 path.relative_to(root).as_posix()
                 for path in planning_root.glob("v11-*.json")
+                if path.is_file()
+            )
+            actual.update(
+                path.relative_to(root).as_posix()
+                for path in planning_root.glob("v12-*.json")
                 if path.is_file()
             )
         except OSError as error:
@@ -1626,7 +1873,7 @@ def main() -> int:
         outputs = render_outputs(root, candidate)
         publish(root, outputs, args.check)
         bundle = json.loads(outputs[BUNDLE_PATH])
-        print(f"V9_PLANNING_AUTHORITY_OK PC={candidate} BUNDLE={bundle['bundleDigest']}")
+        print(f"V12_PLANNING_AUTHORITY_OK PC={candidate} BUNDLE={bundle['bundleDigest']}")
         return 0
     except PublicationError as error:
         print(f"{error.code}: {error.detail}", file=sys.stderr)

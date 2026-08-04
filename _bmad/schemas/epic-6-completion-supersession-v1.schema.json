@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/epic-6-completion-supersession-v1.schema.json",
+  "title": "Epic 6 completion supersession reconstruction contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "authority",
+    "rootGitlinkPaths",
+    "stories",
+    "decisionPolicy",
+    "assertions"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "const": "epic-6-completion-supersession-v1" },
+    "contractId": { "const": "E6-COMPLETION-SUPERSESSION-v1" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpoint", "implementationHold"],
+      "properties": {
+        "checkpoint": { "const": "E6-REMEDIATION" },
+        "implementationHold": { "const": "ACTIVE" }
+      }
+    },
+    "rootGitlinkPaths": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/rootGitlinkPath" }
+    },
+    "stories": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/story" }
+    },
+    "decisionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "allowedResults", "supersedes", "preserves", "doesNotAuthorize"],
+      "properties": {
+        "required": { "const": true },
+        "allowedResults": {
+          "const": ["ACCEPTED", "REJECTED", "BLOCKED"]
+        },
+        "supersedes": { "const": "Epic 6 completion acceptance evidence only" },
+        "preserves": {
+          "const": ["Story 6.7 completed record", "Story 6.2 completed record", "V1-V11 authority"]
+        },
+        "doesNotAuthorize": {
+          "const": ["implementation hold lift", "successor implementation", "release approval"]
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "repoPath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000-\\u001f]+$"
+    },
+    "rootGitlinkPath": {
+      "allOf": [
+        { "$ref": "#/$defs/repoPath" },
+        { "pattern": "^references/[^/]+$" }
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "argv"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "story": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "recordPath",
+        "candidateCommit",
+        "doneCommit",
+        "changedPaths",
+        "declaredPromotionPaths",
+        "remoteRequiredPaths",
+        "testCommands"
+      ],
+      "properties": {
+        "storyId": { "enum": ["6.7", "6.2"] },
+        "recordPath": { "$ref": "#/$defs/repoPath" },
+        "candidateCommit": { "$ref": "#/$defs/sha1" },
+        "doneCommit": { "$ref": "#/$defs/sha1" },
+        "changedPaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/repoPath" }
+        },
+        "declaredPromotionPaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/rootGitlinkPath" }
+        },
+        "remoteRequiredPaths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/rootGitlinkPath" }
+        },
+        "testCommands": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/command" }
+        }
+      }
+    }
+  }
+}

@@ -12,8 +12,8 @@
     "implementationHold": { "const": "ACTIVE" },
     "nodes": {
       "type": "array",
-      "minItems": 32,
-      "maxItems": 32,
+      "minItems": 33,
+      "maxItems": 33,
       "prefixItems": [
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.2" } } },
@@ -44,6 +44,7 @@
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "8.2" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "E6-REMEDIATION" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "IR-0" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "PC-PUBLICATION" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "RG-15" } } }
@@ -81,8 +82,8 @@
       "additionalProperties": false,
       "required": ["epic", "architecture"],
       "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-04-v11" },
-        "architecture": { "const": "conversations-architecture-2026-08-04-v11" }
+        "epic": { "const": "epic-6-authority-2026-08-04-v12" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v12" }
       }
     }
   }

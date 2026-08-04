@@ -1,0 +1,140 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/v12-pre-ir0-remediation-authority-v1.schema.json",
+  "title": "V12 pre-IR-0 remediation authority v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "checkpointId",
+    "authority",
+    "predecessors",
+    "successor",
+    "actionInventory",
+    "activeRoutePaths",
+    "rootGitlinkPaths",
+    "supersessionContract",
+    "resultSemantics",
+    "prohibitions",
+    "completionEffect",
+    "assertions"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "hexalith.conversations.v12-pre-ir0-remediation-authority.v1" },
+    "checkpointId": { "const": "E6-REMEDIATION" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["epic", "architecture", "planningCandidate", "authorityBundlePath", "implementationHold"],
+      "properties": {
+        "epic": { "const": "epic-6-authority-2026-08-04-v12" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v12" },
+        "planningCandidate": { "$ref": "#/$defs/sha1" },
+        "authorityBundlePath": { "const": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json" },
+        "implementationHold": { "const": "ACTIVE" }
+      }
+    },
+    "predecessors": { "const": ["PC-PUBLICATION"] },
+    "successor": { "const": "IR-0" },
+    "actionInventory": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/action" }
+    },
+    "activeRoutePaths": {
+      "const": [
+        ".agents/skills/bmad-build/step-04-review.md",
+        ".agents/skills/bmad-build/step-05-present.md",
+        ".agents/skills/bmad-build/step-oneshot.md",
+        ".agents/skills/bmad-build-auto/step-04-review.md",
+        ".agents/skills/bmad-dev-story/SKILL.md",
+        ".agents/skills/bmad-code-review/steps/step-04-present.md",
+        ".claude/skills/bmad-build/step-04-review.md",
+        ".claude/skills/bmad-build/step-05-present.md",
+        ".claude/skills/bmad-build/step-oneshot.md",
+        ".claude/skills/bmad-build-auto/step-04-review.md",
+        ".claude/skills/bmad-dev-story/SKILL.md",
+        ".claude/skills/bmad-code-review/steps/step-04-present.md"
+      ]
+    },
+    "rootGitlinkPaths": {
+      "const": [
+        "references/Hexalith.AI.Tools",
+        "references/Hexalith.Builds",
+        "references/Hexalith.Commons",
+        "references/Hexalith.EventStore",
+        "references/Hexalith.Folders",
+        "references/Hexalith.FrontComposer",
+        "references/Hexalith.Memories",
+        "references/Hexalith.Parties",
+        "references/Hexalith.Projects",
+        "references/Hexalith.Tenants"
+      ]
+    },
+    "supersessionContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "const": "_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "ledgerRequired", "skipsAllowed"],
+      "properties": {
+        "states": { "const": ["PASS", "FAIL", "BLOCKED", "not-applicable"] },
+        "ledgerRequired": { "const": true },
+        "skipsAllowed": { "const": false }
+      }
+    },
+    "prohibitions": {
+      "const": [
+        "rewrite completed Story 6.7 or Story 6.2 records",
+        "substitute current bytes for historical evidence",
+        "traverse nested submodules",
+        "modify product code, packages, submodules, or gitlinks",
+        "implement or start successors",
+        "create implementation-hold-v1.json",
+        "claim release approval"
+      ]
+    },
+    "completionEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ir0RerunAllowed", "holdLifted", "successorStarted", "releaseAuthorized"],
+      "properties": {
+        "ir0RerunAllowed": { "const": true },
+        "holdLifted": { "const": false },
+        "successorStarted": { "const": false },
+        "releaseAuthorized": { "const": false }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "action": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "owner", "scope", "executionAuthority", "checkpointOwned", "status"],
+      "properties": {
+        "id": { "enum": ["A1", "A2", "A3", "A4", "A5", "A6"] },
+        "owner": { "type": "string", "minLength": 1 },
+        "scope": { "type": "string", "minLength": 1 },
+        "executionAuthority": { "type": "string", "minLength": 1 },
+        "checkpointOwned": { "type": "boolean" },
+        "status": { "const": "open" }
+      }
+    }
+  }
+}

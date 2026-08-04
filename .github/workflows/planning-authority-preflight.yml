@@ -1,0 +1,68 @@
+name: Planning authority preflight
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  planning-authority:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact candidate and root submodules
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Set up repository .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+
+      - name: Install pinned uv client
+        run: python3 -m pip install --disable-pip-version-check uv==0.11.16
+
+      - name: Resolve immutable comparison range
+        id: range
+        shell: bash
+        env:
+          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          set -euo pipefail
+          baseline="$EVENT_BASE"
+          if [[ -z "$baseline" || "$baseline" == "0000000000000000000000000000000000000000" ]]; then
+            baseline="$(git rev-parse HEAD^)"
+          fi
+          git cat-file -e "$baseline^{commit}"
+          printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
+
+      - name: Synchronize frozen planning verifier environment
+        run: uv sync --frozen
+
+      - name: Verify lifecycle evidence before planning transitions
+        run: >-
+          uv run --frozen python3 _bmad/scripts/verify_evidence_boundary.py
+          --repository .
+          --baseline "${{ steps.range.outputs.baseline }}"
+          --candidate HEAD
+
+      - name: Verify Python planning authority
+        run: |
+          uv run --frozen python3 -m pytest -q _bmad/scripts/tests
+          uv run --frozen python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check
+
+      - name: Build conformance verifier
+        run: dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1
+
+      - name: Run direct planning authority validators
+        run: >-
+          dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj
+          --configuration Release
+          --no-build
+          --filter "FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|FullyQualifiedName~V9PlanningAuthorityValidationTest|FullyQualifiedName~V8PlanningAuthorityValidationTest"

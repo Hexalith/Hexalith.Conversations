@@ -8,13 +8,19 @@ Given an epic number, the epics file, the planning artifacts directory, and a de
 1. Read the epics file and extract the target epic's title, goal, and list of stories.
 2. Scan the planning artifacts directory for the standard files (PRD, architecture, UX/design, product brief).
 3. Pull only the information relevant to this epic.
-4. Write the compiled context to the exact output path using the format below.
+4. Derive the exact overlay and architecture version identities that govern the target epic from the planning artifacts. Do not use current worktree defaults or infer missing identities.
+5. Write the compiled context to the exact output path using the format below.
 
 ## Exact Output Format
 
 Use these headings:
 
 ```markdown
+---
+overlay_version: '{exact target-epic overlay identity}'
+architecture_version: '{exact target-epic architecture identity}'
+---
+
 # Epic {N} Context: {Epic Title}
 
 <!-- Generated from planning artifacts. Regenerate with compile-epic-context if planning docs change. -->
@@ -54,9 +60,10 @@ Use these headings:
 - **Nothing derivable from the codebase.** Don't document what a developer can learn by reading the code.
 - **Be concise and actionable.** Target 800–1500 tokens total. This file loads into bmad-build-auto's context alongside other material.
 - **Never hallucinate content.** If source material doesn't say something, don't invent it.
+- **Frontmatter is evidence.** Emit both version scalars exactly once. Never omit, duplicate, or replace them with a newer unrelated authority identity.
 - **Omit empty sections entirely**, except Goal and Stories, which are always required.
 
 ## Error handling
 
-- **If the epics file is missing or the target epic is not found:** write nothing and report the problem to the calling agent. Goal and Stories cannot be populated without a usable epics file.
+- **If the epics file is missing, the target epic is not found, or either governing version identity cannot be derived exactly:** write nothing and report the problem to the calling agent. Goal, Stories, and identity-bound frontmatter cannot be populated safely.
 - **If planning artifacts are missing or empty:** still produce the file with Goal and Stories populated from the epics file. Under Requirements & Constraints, write: "Planning artifacts were unavailable; only epics-file context was used." Never hallucinate content to fill missing sections.

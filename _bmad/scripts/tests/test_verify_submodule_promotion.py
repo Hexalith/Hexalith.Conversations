@@ -513,6 +513,29 @@ def test_uninitialized_submodule_does_not_fall_back_to_umbrella(
     assert blocker_codes(result) == {"SUBMODULE_NOT_INITIALIZED"}
 
 
+def test_uninitialized_unrelated_submodule_reports_stable_diagnostic(
+    clean_umbrella: tuple[Path, str],
+) -> None:
+    repository, candidate = clean_umbrella
+    run_git(repository, "submodule", "deinit", "--force", "references/Example")
+
+    result = run_checker(
+        repository,
+        "--baseline",
+        candidate,
+        "--candidate",
+        candidate,
+    )
+
+    document = payload(result)
+    assert result.returncode == 0, document
+    assert blocker_codes(result) == set()
+    assert warning_codes(result) == {
+        "UNRELATED_SUBMODULE_UNINSPECTABLE",
+        "SCOPE_NOT_EVALUATED",
+    }
+
+
 def test_candidate_with_no_gitlink_entry_blocks(clean_umbrella: tuple[Path, str]) -> None:
     repository, baseline = clean_umbrella
     run_git(repository, "rm", "--cached", "--force", "references/Example")
@@ -919,73 +942,38 @@ def test_safe_relative_path_rejects_embedded_control_characters() -> None:
 # follower; without naming the new section here, the span would silently widen
 # to swallow it, keeping the positive test green while weakening
 # test_workflow_contract_rejects_enforcement_clause_outside_gate.
+COMMON_V12_GATE_CLAUSES = (
+    "verify_submodule_promotion.py",
+    "verify_evidence_boundary.py",
+    "PASS",
+    "FAIL",
+    "BLOCKED",
+    "not-applicable",
+)
 WORKFLOW_GATE_CONTRACTS = {
-    "bmad-code-review/steps/step-04-present.md": (
-        (
-            "#### Promotion completion gate",
-            "#### Final record generation gate",
-            "If `promotion_gate_failed` is not true",
-            "set `{new_status}` = `done`",
-        ),
-        (
-            "SCOPE_NOT_EVALUATED",
-            "force `{new_status}` = `in-progress`",
-            "never write or synchronize `done`",
-        ),
+    "bmad-build/step-04-review.md": (
+        ("### V12 lifecycle evidence gates", "Change `{spec_file}` status to `in-review`"),
+        COMMON_V12_GATE_CLAUSES,
     ),
-    "bmad-quick-dev/step-05-present.md": (
-        (
-            "### Prepare Committed Candidate",
-            "### Promotion Completion Gate",
-            "### Final Record Generation Gate",
-            "### Mark Spec Done and Synchronize",
-            "### Commit Completion Record and Open",
-        ),
-        (
-            "SCOPE_NOT_EVALUATED",
-            "Never write `done`",
-            "HALT for remediation",
-        ),
+    "bmad-build/step-05-present.md": (
+        ("### V12 lifecycle evidence gates", "### Mark Spec Done"),
+        COMMON_V12_GATE_CLAUSES,
     ),
-    "bmad-quick-dev/step-oneshot.md": (
-        (
-            "### Capture Baseline and Promotion Scope",
-            "status: 'in-review'",
-            "### Commit Candidate",
-            "### Promotion Completion Gate",
-            "### Final Record Generation Gate",
-            "### Complete Trace and Commit Completion Record",
-        ),
-        (
-            "SCOPE_NOT_EVALUATED",
-            "Never write `done`",
-            "HALT for remediation",
-        ),
+    "bmad-build/step-oneshot.md": (
+        ("### V12 lifecycle evidence gates", "### Generate Spec Trace"),
+        COMMON_V12_GATE_CLAUSES,
     ),
-    "bmad-dev-auto/step-04-review.md": (
-        (
-            "commit every file in the reviewed diff",
-            "### Promotion Completion Gate",
-            "Capture `final_revision`",
-            "frontmatter `status: done`",
-        ),
-        (
-            "SCOPE_NOT_EVALUATED",
-            "HALT with status `blocked`",
-            "Never capture a successful `final_revision`",
-        ),
+    "bmad-build-auto/step-04-review.md": (
+        ("### V12 lifecycle evidence gates", "Change `{spec_file}` status to `in-review`"),
+        COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-dev-story/SKILL.md": (
-        (
-            "verify_submodule_promotion.py",
-            "generate_story_record.py",
-            "Update the story Status to: \"review\"",
-        ),
-        (
-            "SCOPE_NOT_EVALUATED",
-            "HALT: \"Submodule promotion completion gate failed",
-            "Set story frontmatter status and Status section to `in-progress`",
-        ),
+        ("<action>V12 lifecycle evidence gates:", '<action>Update the story Status to: "review"</action>'),
+        COMMON_V12_GATE_CLAUSES,
+    ),
+    "bmad-code-review/steps/step-04-present.md": (
+        ("#### V12 lifecycle evidence gates", "#### Determine new status based on review outcome"),
+        COMMON_V12_GATE_CLAUSES,
     ),
 }
 
@@ -994,8 +982,7 @@ def promotion_gate_span(content: str, markers: tuple[str, ...]) -> tuple[int, in
     gate_index = next(
         index
         for index, marker in enumerate(markers)
-        if "promotion completion gate" in marker.lower()
-        or "verify_submodule_promotion.py" in marker
+        if "lifecycle evidence gates" in marker.lower()
     )
     start = content.find(markers[gate_index])
     if start < 0:
@@ -1034,7 +1021,7 @@ def test_workflow_contract_check_catches_removed_gate(relative_path: str) -> Non
     """Every gated workflow -- not just dev-auto -- must fail when its gate heading goes."""
     markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
     content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
-    gate_marker = next(marker for marker in markers if "romotion" in marker)
+    gate_marker = next(marker for marker in markers if "lifecycle evidence gates" in marker.lower())
     mutated = content.replace(gate_marker, "### Removed Gate", 1)
 
     assert f"missing marker: {gate_marker}" in gate_contract_violations(mutated, markers, clauses)
@@ -1078,16 +1065,9 @@ def test_workflow_contract_rejects_enforcement_clause_outside_gate(relative_path
 
 
 def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
-    """Parity must cover every skill file this story touched, not just the gated five."""
-    skill_paths = [
-        path
-        for path in story_file_list()
-        if path.startswith((".claude/skills/", ".agents/skills/"))
-    ]
-    assert skill_paths, "story must list the skill files it changed"
-
-    for path in skill_paths:
-        relative_path = path.split("/skills/", 1)[1]
+    """Parity covers the current twelve-route inventory, not retired route names."""
+    assert len(WORKFLOW_GATE_CONTRACTS) == 6
+    for relative_path in WORKFLOW_GATE_CONTRACTS:
         agent_file = WORKSPACE / ".agents/skills" / relative_path
         claude_file = WORKSPACE / ".claude/skills" / relative_path
         assert agent_file.read_bytes() == claude_file.read_bytes(), relative_path

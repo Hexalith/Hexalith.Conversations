@@ -1,3 +1,8 @@
+---
+overlay_version: 'epic-6-authority-2026-08-01-v8'
+architecture_version: 'conversations-architecture-2026-08-01-v8'
+---
+
 # Epic 6 Context: Immutable Historical Corrective Foundation
 
 <!-- Compiled from planning artifacts. Edit freely. Regenerate with compile-epic-context if planning docs change. -->

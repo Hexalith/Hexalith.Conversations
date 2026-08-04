@@ -415,6 +415,7 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
     <action>Run the full regression suite (do not skip)</action>
     <action>Confirm File List includes every changed file</action>
     <action>Execute enhanced definition-of-done validation</action>
+    <action>V12 lifecycle evidence gates: before any lifecycle status write, run `_bmad/scripts/verify_submodule_promotion.py` with the story baseline, committed `HEAD`, and exact `submodule_promotions`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable`; continue only for promotion exit `0` plus evidence `PASS` or `not-applicable` with a nonempty assertion ledger. Missing, skipped, failed, blocked, or empty-ledger evidence leaves story and sprint `in-progress`, records diagnostics, and HALTs.</action>
     <action>Update the story Status to: "review"</action>
 
     <!-- Enhanced Definition of Done Validation -->

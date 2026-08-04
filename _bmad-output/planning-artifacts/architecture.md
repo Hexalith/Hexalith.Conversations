@@ -2244,3 +2244,115 @@ produce a story final record, cannot mark Story 7.1 done, and cannot unlock
 Story 7.2.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V11:END version=conversations-architecture-2026-08-04-v11 epic-authority=epic-6-authority-2026-08-04-v11 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:BEGIN version=conversations-architecture-2026-08-04-v12 epic-authority=epic-6-authority-2026-08-04-v12 supersedes=conversations-architecture-2026-08-04-v11 v11-block-bytes=3042 v11-block-sha256=a97385c11b92fb95f1acf7f4ba370404c4781855581c81a427ed6895a5a4c4d1 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## 2026-08-04 V12 Pre-IR-0 Remediation Architecture
+
+**Architecture authority:** `conversations-architecture-2026-08-04-v12`
+
+**Epic authority:** `epic-6-authority-2026-08-04-v12`
+
+**Overlay status:** `final`
+
+**Updated:** `2026-08-04`
+
+**Approved source:**
+`_bmad-output/implementation-artifacts/spec-v12-pre-ir-0-remediation-checkpoint.md`
+
+The exact 3,042-byte v11 architecture block has SHA-256
+`a97385c11b92fb95f1acf7f4ba370404c4781855581c81a427ed6895a5a4c4d1`
+and remains immutable. V12 adds one correction checkpoint and changes no
+product, runtime, public contract, package, deployment, submodule, gitlink,
+completed record, signed evidence, or successor story contract.
+
+### Graph And Authority Invariants
+
+The execution graph adds exactly one node:
+
+```text
+PC-PUBLICATION -> E6-REMEDIATION -> IR-0
+```
+
+`E6-REMEDIATION` has kind `checkpoint`, predecessor `PC-PUBLICATION`, successor
+`IR-0`, and owns exactly retrospective actions A1, A2, and A3. The prior direct
+`PC-PUBLICATION -> IR-0` edge is absent. All 27 successor story nodes remain
+downstream of IR-0, `7.1-SCHEMAS` retains its V11 sidecar predecessors `6.2`
+and `IR-0`, and no story contract, sprint key, or final-record contract is
+created for the remediation node. The graph has exactly 33 nodes.
+
+The recursively closed
+`hexalith.conversations.v12-pre-ir0-remediation-authority.v1` sidecar is
+generated from the committed V12 planning candidate. It carries the exact
+A1-A6 inventory and owners, the A1-A3 checkpoint paths and gates, the A4-A6
+separately-approved-successor disposition, the twelve active route paths, the
+ten root gitlink paths, the exact result vocabulary, and an explicit
+completion effect. Any missing, extra, duplicate, reordered, unbound, or
+permissive field blocks publication.
+
+Digest direction remains one-way. Canonical V12 sources and their candidate
+blobs determine generated companions; the self-excluding authority bundle
+then binds those companions. The sidecar records the bundle path but no final
+bundle digest. Mutable Epic 6 reconstruction evidence, its independent
+decision, IR-0 reports, hold decisions, story-final-records, RG-15, and release
+evidence are excluded from the authority-bundle digest.
+
+### Historical Reconstruction Boundary
+
+The A1 verifier resolves the exact Story 6.7 pair
+`aa2b6b7d05d277e1c083252462b9c8244914970e` to
+`29def441408becfbbbdc5c59b9af14a7717cb21f` and Story 6.2 pair
+`2971ab79efcf3ef11d4fba7b9139d7cae457a3f9` to
+`e480c3f3176cdc3d911baf91eb3e7a8cd38874aa`. It derives raw changed paths and
+all ten root mode-`160000` entries from each immutable tree, verifies every
+recorded object in the corresponding root-declared local submodule repository,
+materializes isolated exact done-tree clones without nested traversal, and
+runs the recorded promotion scope and rebuilt tests there. Current root or
+submodule checkout bytes are never admissible substitutes. Unavailable
+commits, blobs, gitlinks, submodule objects, tools, or exact test execution are
+`BLOCKED`; mismatch, mutation, skipped/not-run tests, or nonempty failures are
+`FAIL`.
+
+The release-evidence pair records the reconstruction result but does not decide
+it. A separately authored planning decision binds the reconstruction digest,
+the same PC and authority-bundle digest, and one of `ACCEPTED`, `REJECTED`, or
+`BLOCKED`. Only `ACCEPTED` satisfies A1, and it supersedes Epic 6 completion
+acceptance evidence only. It never rewrites completed story records or their
+statuses and never constitutes release approval.
+
+### Current-Route, Context, And Preflight Boundary
+
+The active mechanical route inventory is exactly twelve candidate blobs: six
+logical bodies mirrored across `.agents` and `.claude`. Every body invokes the
+promotion verifier and evidence-boundary verifier before its review/done
+lifecycle write, preserves `PASS`, `FAIL`, `BLOCKED`, and `not-applicable`, and
+requires a nonempty evaluated ledger. Forwarding aliases are not counted as
+second mechanical bodies. Removal, displacement, decoy, cross-tree parity
+drift, empty applicable scope, unavailable history, or omitted execution
+fails closed.
+
+Epic-context compilation emits exact governing `overlay_version` and
+`architecture_version` frontmatter. Cached context is valid only when both
+identities, the epic heading, and freshness match; heading-only or current-
+authority substitution is invalid. Historical platform signature validation
+requires an available recorded gitlink and blob. A zero-fragment signature
+expectation means exactly zero parameters, not a vacuous predicate.
+
+The repository preflight uses the committed comparison range, initializes only
+root-declared submodules, synchronizes the pinned `uv.lock`, runs the complete
+Python verifier suite and deterministic publisher check, then builds the
+Conformance project and directly runs V9, V8, and architecture validation
+classes. Any unavailable mandatory lane blocks; a fallback lane cannot convert
+the result to PASS.
+
+### Hold And Completion Effect
+
+Publication and checkpoint state remain `implementationHold: ACTIVE`.
+E6-REMEDIATION may authorize only an independent IR-0 rerun at the exact same
+PC, bundle, V12 authorities, and ten gitlinks after A1-A3 pass. A `READY` IR-0
+does not itself lift the hold, start `7.1-SCHEMAS` or Story 7.1, unlock a
+successor, authorize release, or create an implementation-hold record. A4-A6
+remain open under their existing Architect/Runtime, Projection, and Test/AppHost
+owners and require separately approved successor authority.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:END version=conversations-architecture-2026-08-04-v12 epic-authority=epic-6-authority-2026-08-04-v12 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

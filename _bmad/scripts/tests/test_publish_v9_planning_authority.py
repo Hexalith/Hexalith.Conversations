@@ -1,4 +1,4 @@
-"""Tests for atomic candidate-bound v9/v11 planning publication."""
+"""Tests for atomic candidate-bound v9/v12 planning publication."""
 
 from __future__ import annotations
 
@@ -83,6 +83,7 @@ EXPECTED_BUNDLE_ARTIFACT_PATHS = (
     "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
     "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
 )
+EXPECTED_BUNDLE_ARTIFACT_PATHS = publisher.expected_bundle_artifact_paths()
 
 
 def published_candidate() -> str:
@@ -106,6 +107,7 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     assert set(outputs) == set(publisher.EXPECTED_OUTPUT_PATHS)
     assert len([path for path in outputs if "/story-contracts/" in path]) == 27
     assert publisher.SLICE_PATH in outputs
+    assert publisher.REMEDIATION_PATH in outputs
     for path, content in outputs.items():
         assert (ROOT / path).read_bytes() == content
     bundle = json.loads(outputs[publisher.BUNDLE_PATH])
@@ -116,11 +118,12 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     artifact_paths = tuple(row["path"] for row in bundle["artifacts"])
     assert artifact_paths == EXPECTED_BUNDLE_ARTIFACT_PATHS
     assert publisher.BUNDLE_PATH not in artifact_paths
-    assert not any("ir-0" in path.lower() for path in artifact_paths)
+    assert not any("implementation-readiness-report" in path.lower() for path in artifact_paths)
     assert not any(path.endswith("implementation-hold-v1.json") for path in artifact_paths)
     roles = {row["path"]: row["role"] for row in bundle["artifacts"]}
     assert roles["_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"] == "base-story-contract"
     assert roles[publisher.SLICE_PATH] == "story-slice-authority"
+    assert roles[publisher.REMEDIATION_PATH] == "pre-ir0-remediation-authority"
 
 
 def test_story_contract_schema_and_representative_parsing_are_exact() -> None:
@@ -195,13 +198,13 @@ def test_story_slice_is_closed_candidate_bound_and_one_way_digest_ordered() -> N
     base_contract = json.loads(outputs[base_path])
     epics = publisher.candidate_blob(ROOT, candidate, publisher.EPICS_PATH)
     architecture = publisher.candidate_blob(ROOT, candidate, publisher.ARCHITECTURE_PATH)
-    _, v11_epic = publisher.validate_authority_prefixes(epics, architecture)
+    _, v11_epic, _ = publisher.validate_authority_prefixes(epics, architecture)
     amendment = publisher.v11_story_slice_amendment(v11_epic)
 
     publisher.validate_story_slice(sidecar, outputs[base_path], v11_epic, candidate)
     assert sidecar["authority"] == {
-        "epic": publisher.EPIC_AUTHORITY,
-        "architecture": publisher.ARCHITECTURE_AUTHORITY,
+        "epic": publisher.V11_EPIC_AUTHORITY,
+        "architecture": publisher.V11_ARCHITECTURE_AUTHORITY,
         "planningCandidate": candidate,
         "authorityBundlePath": publisher.BUNDLE_PATH,
     }
@@ -260,6 +263,44 @@ def test_v11_canonical_markers_are_byte_pinned_and_single_amendment() -> None:
     assert error.value.code == "V11_ARCHITECTURE_AUTHORITY_DRIFT"
 
 
+def test_v12_remediation_sidecar_is_closed_and_binds_exact_checkpoint_inventory() -> None:
+    candidate = published_candidate()
+    outputs = publisher.render_outputs(ROOT, candidate)
+    authority = json.loads(outputs[publisher.REMEDIATION_PATH])
+
+    publisher.validate_remediation_authority(ROOT, candidate, authority)
+    assert authority["checkpointId"] == "E6-REMEDIATION"
+    assert authority["predecessors"] == ["PC-PUBLICATION"]
+    assert authority["successor"] == "IR-0"
+    assert [row["id"] for row in authority["actionInventory"]] == ["A1", "A2", "A3", "A4", "A5", "A6"]
+    assert [row["checkpointOwned"] for row in authority["actionInventory"]] == [True, True, True, False, False, False]
+    assert authority["activeRoutePaths"] == list(publisher.MECHANICAL_PATHS)
+    assert authority["rootGitlinkPaths"] == list(publisher.ROOT_GITLINK_PATHS)
+    assert authority["resultSemantics"] == {
+        "states": ["PASS", "FAIL", "BLOCKED", "not-applicable"],
+        "ledgerRequired": True,
+        "skipsAllowed": False,
+    }
+    assert authority["completionEffect"] == {
+        "ir0RerunAllowed": True,
+        "holdLifted": False,
+        "successorStarted": False,
+        "releaseAuthorized": False,
+    }
+
+    mutation = json.loads(outputs[publisher.REMEDIATION_PATH])
+    mutation["actionInventory"] = list(reversed(mutation["actionInventory"]))
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_remediation_authority(ROOT, candidate, mutation)
+    assert error.value.code == "REMEDIATION_AUTHORITY_DRIFT"
+
+    extra = json.loads(outputs[publisher.REMEDIATION_PATH])
+    extra["unexpected"] = True
+    with pytest.raises(publisher.PublicationError) as error:
+        publisher.validate_schemas(ROOT, {publisher.REMEDIATION_PATH: publisher.json_bytes(extra)})
+    assert error.value.code == "SCHEMA_VALIDATION_FAILED"
+
+
 def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
     """Closed-field and exact-edge faults turn the v11 publication red."""
 
@@ -272,7 +313,7 @@ def test_story_slice_and_checkpoint_graph_mutations_fail_closed() -> None:
         for path, content in outputs.items()
         if "/story-contracts/" in path
     }
-    _, v11_epic = publisher.validate_authority_prefixes(
+    _, v11_epic, _ = publisher.validate_authority_prefixes(
         publisher.candidate_blob(ROOT, candidate, publisher.EPICS_PATH),
         publisher.candidate_blob(ROOT, candidate, publisher.ARCHITECTURE_PATH),
     )
@@ -492,22 +533,24 @@ def test_graph_is_ordinal_and_every_successor_is_downstream_of_ir_zero() -> None
     outputs = publisher.render_outputs(ROOT, published_candidate())
     graph = json.loads(outputs[publisher.GRAPH_PATH])
     nodes = {node["id"]: node["predecessors"] for node in graph["nodes"]}
-    assert len(graph["nodes"]) == 32
+    assert len(graph["nodes"]) == 33
     assert set(nodes) == set(publisher.EXPECTED_STORY_IDS) | {
         "6.2",
         "PC-PUBLICATION",
         "IR-0",
+        "E6-REMEDIATION",
         "RG-15",
         publisher.SLICE_ID,
     }
-    assert nodes["IR-0"] == ["PC-PUBLICATION"]
+    assert nodes["E6-REMEDIATION"] == ["PC-PUBLICATION"]
+    assert nodes["IR-0"] == ["E6-REMEDIATION"]
     assert nodes[publisher.SLICE_ID] == ["6.2", "IR-0"]
     assert nodes["7.1"] == ["6.2", publisher.SLICE_ID, "IR-0"]
     assert nodes["7.2"] == ["7.1"]
     assert nodes["12.1"] == ["6.2", "IR-0"]
     assert all(predecessors == sorted(predecessors) for predecessors in nodes.values())
     assert graph["edges"] == sorted(graph["edges"], key=lambda edge: (edge["from"], edge["to"]))
-    assert len([node for node in graph["nodes"] if node["kind"] == "checkpoint"]) == 1
+    assert len([node for node in graph["nodes"] if node["kind"] == "checkpoint"]) == 2
 
     for story_id in publisher.EXPECTED_STORY_IDS:
         pending = list(nodes[story_id])
@@ -533,6 +576,9 @@ def test_current_view_projects_exact_checkpoint_and_story_dependencies() -> None
     publisher.validate_current_view(view, contracts)
     assert view.count(
         "| 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | 6.2, IR-0 | 1 |"
+    ) == 1
+    assert view.count(
+        "| E6-REMEDIATION | checkpoint | Complete Epic 6 A1-A3 before independent IR-0 | PC-PUBLICATION | 3 |"
     ) == 1
     assert publisher.re.findall(r"^\| 7\.1 \|.*$", view, publisher.re.MULTILINE) == [
         "| 7.1 | story | Define the final-record schema and deterministic generator core | "
@@ -858,6 +904,7 @@ def test_inventory_outputs_are_exact_ordinal_tuples() -> None:
 
     cases = (
         ("evidence-workflows-v2.json", publisher.MECHANICAL_PATHS),
+        ("evidence-workflows-v3.json", publisher.MECHANICAL_PATHS),
         ("evidence-guidance-v2.json", publisher.GUIDANCE_PATHS),
         ("evidence-readers-v1.json", publisher.READER_PATHS),
     )
@@ -881,10 +928,11 @@ def test_publication_preserves_the_unrun_independent_assessment_boundary() -> No
     assert "IR-0: not run by this publication." in view
     assert "does not implement schemas or a story, run IR-0, lift the" in " ".join(view.split())
     assert "IR-0 was not run" in sprint
-    assert sprint.count("# V11 PLANNING PUBLICATION:") == 1
+    assert sprint.count("# V12 PLANNING PUBLICATION:") == 1
+    assert "E6-REMEDIATION owns A1-A3" in sprint
     assert "7.1-SCHEMAS is planning-only and non-executable" in sprint
     assert not any("ir-0" in path.lower() for path in outputs)
-    assert not any("ir-0" in row["path"].lower() for row in bundle["artifacts"])
+    assert not any("implementation-readiness-report" in row["path"].lower() for row in bundle["artifacts"])
     assert "READY" not in view
     assert "NOT READY" not in view
     assert "LIFTED" not in json.dumps(bundle)
