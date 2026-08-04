@@ -41,11 +41,11 @@ context: []
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md`, `_bmad-output/planning-artifacts/architecture.md`, `_bmad/scripts/publish_v9_planning_authority.py`, `_bmad/scripts/tests/test_publish_v9_planning_authority.py`, and `_bmad/schemas/v12-pre-ir0-remediation-authority-v1.schema.json` -- author append-only `E6-REMEDIATION`, its inventory, downstream ownership, and `ACTIVE` rule.
-- [ ] `pyproject.toml` and `uv.lock` -- pin pytest/jsonschema and make the frozen IR-0 command authoritative.
-- [ ] `_bmad/scripts/verify_epic_6_completion_supersession.py`, `_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py`, `_bmad/schemas/epic-6-completion-supersession-v1.schema.json`, and `_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json` -- derive exact Story 6.7/6.2 done-tree evidence without current-tree substitution.
-- [ ] `_bmad/scripts/verify_evidence_boundary.py`, `_bmad/scripts/tests/{test_verify_evidence_boundary.py,test_verify_submodule_promotion.py}`, and `{.agents,.claude}/skills/{bmad-build,bmad-build-auto,bmad-dev-story,bmad-code-review}` completion files -- gate all twelve mirrored routes before lifecycle writes and remove retired-route assumptions.
-- [ ] `_bmad-output/implementation-artifacts/epic-6-context.md`, `{.agents,.claude}/skills/{bmad-build,bmad-build-auto}/{compile-epic-context.md,step-01-clarify-and-route.md}`, `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs`, and `.github/workflows/planning-authority-preflight.yml` -- preserve frontmatter, fail closed on history/signature faults, and run preflight.
+- [x] `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md`, `_bmad-output/planning-artifacts/architecture.md`, `_bmad/scripts/publish_v9_planning_authority.py`, `_bmad/scripts/tests/test_publish_v9_planning_authority.py`, and `_bmad/schemas/v12-pre-ir0-remediation-authority-v1.schema.json` -- author append-only `E6-REMEDIATION`, its inventory, downstream ownership, and `ACTIVE` rule.
+- [x] `pyproject.toml` and `uv.lock` -- pin pytest/jsonschema and make the frozen IR-0 command authoritative.
+- [x] `_bmad/scripts/verify_epic_6_completion_supersession.py`, `_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py`, `_bmad/schemas/epic-6-completion-supersession-v1.schema.json`, and `_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json` -- derive exact Story 6.7/6.2 done-tree evidence without current-tree substitution.
+- [x] `_bmad/scripts/verify_evidence_boundary.py`, `_bmad/scripts/tests/{test_verify_evidence_boundary.py,test_verify_submodule_promotion.py}`, and `{.agents,.claude}/skills/{bmad-build,bmad-build-auto,bmad-dev-story,bmad-code-review}` completion files -- gate all twelve mirrored routes before lifecycle writes and remove retired-route assumptions.
+- [x] `_bmad-output/implementation-artifacts/epic-6-context.md`, `{.agents,.claude}/skills/{bmad-build,bmad-build-auto}/{compile-epic-context.md,step-01-clarify-and-route.md}`, `tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs`, and `.github/workflows/planning-authority-preflight.yml` -- preserve frontmatter, fail closed on history/signature faults, and run preflight.
 - [ ] `_bmad/scripts/publish_v9_planning_authority.py`, `docs/release-evidence/epic-6-completion-supersession-v1.{json,md}`, `_bmad-output/planning-artifacts/epic-6-completion-supersession-decision-v1.json`, and `_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-04-ir-0-v12.md` -- bind the committed PC, publish companions, obtain the independent decision, and rerun IR-0.
 
 **Acceptance Criteria:**
@@ -55,6 +55,8 @@ context: []
 - Given accepted A1 evidence and green A2/A3 gates, when independent IR-0 reruns at the same PC/bundle, then it records `READY`, the hold remains `ACTIVE`, and Story 7.1 remains unstarted.
 
 ## Spec Change Log
+
+- 2026-08-04: Completed the V12 authority, pinned verifier environment, immutable reconstruction tooling, twelve-route evidence boundary, context preservation, and fail-closed preflight. A1 remains `BLOCKED` because the Story 6.2 historical Dapr lane cannot allocate a required Linux inotify watch; the independent decision and IR-0 remain unstarted.
 
 ## Verification
 

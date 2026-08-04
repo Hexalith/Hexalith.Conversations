@@ -1,9 +1,9 @@
 {
   "schemaVersion": "hexalith.conversations.v9-execution-graph.v1",
-  "planningCandidate": "1e72e63cbf2b556b8dc6fe732428c66f51985ac7",
+  "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v11",
-    "architecture": "conversations-architecture-2026-08-04-v11"
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12"
   },
   "implementationHold": "ACTIVE",
   "nodes": [
@@ -228,10 +228,17 @@
       ]
     },
     {
+      "id": "E6-REMEDIATION",
+      "kind": "checkpoint",
+      "predecessors": [
+        "PC-PUBLICATION"
+      ]
+    },
+    {
       "id": "IR-0",
       "kind": "gate",
       "predecessors": [
-        "PC-PUBLICATION"
+        "E6-REMEDIATION"
       ]
     },
     {
@@ -429,6 +436,10 @@
       "to": "15.1"
     },
     {
+      "from": "E6-REMEDIATION",
+      "to": "IR-0"
+    },
+    {
       "from": "IR-0",
       "to": "12.1"
     },
@@ -442,7 +453,7 @@
     },
     {
       "from": "PC-PUBLICATION",
-      "to": "IR-0"
+      "to": "E6-REMEDIATION"
     }
   ]
 }

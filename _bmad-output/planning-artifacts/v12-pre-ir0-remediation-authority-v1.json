@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "hexalith.conversations.v12-pre-ir0-remediation-authority.v1",
+  "checkpointId": "E6-REMEDIATION",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12",
+    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "implementationHold": "ACTIVE"
+  },
+  "predecessors": [
+    "PC-PUBLICATION"
+  ],
+  "successor": "IR-0",
+  "actionInventory": [
+    {
+      "id": "A1",
+      "owner": "Dev workflow / Release owner",
+      "scope": "Exact Story 6.7 and Story 6.2 done-tree reconstruction plus independent acceptance-evidence supersession decision.",
+      "executionAuthority": "E6-REMEDIATION",
+      "checkpointOwned": true,
+      "status": "open"
+    },
+    {
+      "id": "A2",
+      "owner": "Dev workflow",
+      "scope": "Promotion and evidence-boundary gates on exactly twelve active lifecycle routes.",
+      "executionAuthority": "E6-REMEDIATION",
+      "checkpointOwned": true,
+      "status": "open"
+    },
+    {
+      "id": "A3",
+      "owner": "Architecture / Quality",
+      "scope": "Fail-closed historical signatures, context identity, pinned planning verification, and automatic preflight.",
+      "executionAuthority": "E6-REMEDIATION",
+      "checkpointOwned": true,
+      "status": "open"
+    },
+    {
+      "id": "A4",
+      "owner": "Architect / Runtime owner",
+      "scope": "Durable event-fed tenant access, freshness and gap detection, restart, and multi-replica convergence.",
+      "executionAuthority": "separately approved successor",
+      "checkpointOwned": false,
+      "status": "open"
+    },
+    {
+      "id": "A5",
+      "owner": "Projection owner",
+      "scope": "Deterministic event-derived replay timestamps and trustworthy missing-index semantics.",
+      "executionAuthority": "separately approved successor",
+      "checkpointOwned": false,
+      "status": "open"
+    },
+    {
+      "id": "A6",
+      "owner": "Test / AppHost owner",
+      "scope": "Endpoint and Dapr port diagnostics plus live terminal reconciliation route coverage.",
+      "executionAuthority": "separately approved successor",
+      "checkpointOwned": false,
+      "status": "open"
+    }
+  ],
+  "activeRoutePaths": [
+    ".agents/skills/bmad-build/step-04-review.md",
+    ".agents/skills/bmad-build/step-05-present.md",
+    ".agents/skills/bmad-build/step-oneshot.md",
+    ".agents/skills/bmad-build-auto/step-04-review.md",
+    ".agents/skills/bmad-dev-story/SKILL.md",
+    ".agents/skills/bmad-code-review/steps/step-04-present.md",
+    ".claude/skills/bmad-build/step-04-review.md",
+    ".claude/skills/bmad-build/step-05-present.md",
+    ".claude/skills/bmad-build/step-oneshot.md",
+    ".claude/skills/bmad-build-auto/step-04-review.md",
+    ".claude/skills/bmad-dev-story/SKILL.md",
+    ".claude/skills/bmad-code-review/steps/step-04-present.md"
+  ],
+  "rootGitlinkPaths": [
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants"
+  ],
+  "supersessionContract": {
+    "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json",
+    "sha256": "69e220a0a6ff49e954a70db266bbf2d46225aefaa52bfc8b40bdaa8859588bf4"
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "prohibitions": [
+    "rewrite completed Story 6.7 or Story 6.2 records",
+    "substitute current bytes for historical evidence",
+    "traverse nested submodules",
+    "modify product code, packages, submodules, or gitlinks",
+    "implement or start successors",
+    "create implementation-hold-v1.json",
+    "claim release approval"
+  ],
+  "completionEffect": {
+    "ir0RerunAllowed": true,
+    "holdLifted": false,
+    "successorStarted": false,
+    "releaseAuthorized": false
+  },
+  "assertions": [
+    "A1-A3 pass before IR-0.",
+    "A4-A6 remain open under separately approved successor authority.",
+    "The global implementation hold remains ACTIVE after a READY IR-0."
+  ]
+}

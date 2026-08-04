@@ -2,9 +2,9 @@
 authorityVersion: ux-preservation-planning-2026-08-04-v3
 source: _bmad-output/planning-artifacts/ux-design-specification.md
 currentDisposition: preserved-not-activated
-planningCandidate: 1e72e63cbf2b556b8dc6fe732428c66f51985ac7
-epicAuthority: epic-6-authority-2026-08-04-v11
-architectureAuthority: conversations-architecture-2026-08-04-v11
+planningCandidate: 2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8
+epicAuthority: epic-6-authority-2026-08-04-v12
+architectureAuthority: conversations-architecture-2026-08-04-v12
 currentOwner: Stories 8.1-8.2 preservation contract
 activationAuthority: separate-approved-release-authority-required
 ---
@@ -20,7 +20,7 @@ The `Current disposition` column is authoritative for the corrective
 initiative. `Historical provenance` retains the original story mapping solely
 for navigation and cannot authorize work. The Story 6.4 disposition artifacts
 will bind source hashes and owners during story execution; their planned paths
-are rebound by Epic 8 under v11 but are not implemented by this planning publication.
+are rebound by Epic 8 under v12 but are not implemented by this planning publication.
 
 ## UX Decision Inventory
 

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
-  "inventoryId": "V9-EVIDENCE-WORKFLOWS-v2",
+  "inventoryId": "V12-ACTIVE-LIFECYCLE-ROUTES-v1",
   "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
   "authorities": {
     "epic": "epic-6-authority-2026-08-04-v12",

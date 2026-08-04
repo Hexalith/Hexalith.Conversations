@@ -3,9 +3,9 @@ artifact: epic-6-current-execution-view-v2
 generated: '2026-08-04'
 generator_version: '1.0.0'
 generation_command: 'python3 _bmad/scripts/publish_v9_planning_authority.py --repository .'
-planning_candidate: '1e72e63cbf2b556b8dc6fe732428c66f51985ac7'
-epic_authority: 'epic-6-authority-2026-08-04-v11'
-architecture_authority: 'conversations-architecture-2026-08-04-v11'
+planning_candidate: '2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8'
+epic_authority: 'epic-6-authority-2026-08-04-v12'
+architecture_authority: 'conversations-architecture-2026-08-04-v12'
 implementation_hold: 'ACTIVE'
 status: 'candidate-bound-planning-publication'
 ---
@@ -13,8 +13,8 @@ status: 'candidate-bound-planning-publication'
 # Epic 6 Current Execution View V2
 
 > **PLANNING PUBLICATION ONLY — IMPLEMENTATION HOLD ACTIVE.** This generated
-> view projects the v11-corrected authority and its non-story `7.1-SCHEMAS`
-> checkpoint. It does not implement schemas or a story, run IR-0, lift the
+> view projects the v12-corrected authority, `E6-REMEDIATION`, and the inherited
+> non-story `7.1-SCHEMAS` checkpoint. It does not implement schemas or a story, run IR-0, lift the
 > hold, close Epic 5 action A5, or authorize release.
 
 The canonical epic authority and architecture overlay remain the semantic
@@ -23,6 +23,7 @@ non-amending.
 
 | Execution unit | Kind | Bounded outcome | Effective predecessors | AC count |
 | --- | --- | --- | --- | ---: |
+| E6-REMEDIATION | checkpoint | Complete Epic 6 A1-A3 before independent IR-0 | PC-PUBLICATION | 3 |
 | 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | 6.2, IR-0 | 1 |
 | 7.1 | story | Define the final-record schema and deterministic generator core | 6.2, 7.1-SCHEMAS, IR-0 | 6 |
 | 7.2 | story | Derive test, path, candidate, submodule, and gitlink facts | 7.1 | 11 |
@@ -56,5 +57,6 @@ non-amending.
 
 - IR-0: not run by this publication.
 - Implementation hold: `ACTIVE`.
+- `E6-REMEDIATION`: planning-authorized A1-A3 checkpoint; completion evidence is external to this bundle.
 - `7.1-SCHEMAS`: planning-only and non-executable while the hold is active.
 - Epic 5 action A5: `open` until a compatible Story 10.4 `9/9/0/0/0/0` final record passes.

@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "1e72e63cbf2b556b8dc6fe732428c66f51985ac7",
+    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
     "candidateBinding": "`SC-12.4`, Story 12.3 record/proof, method/ADR, immutable baseline, exact root/EventStore gitlink, benchmark binary/source and raw results.",
     "sectionSha256": "b4a231998f33d55beede9e84bf290685f0b91fbb3a8c9a93aadb6d9e4c2b26a8"
   },

@@ -1,0 +1,23 @@
+{
+  "assertionLedger": [
+    {
+      "id": "E6_REBUILT_TEST_ENVIRONMENT_UNAVAILABLE",
+      "message": "STORY-6-2-FULL-SOLUTION-TESTS: required Linux inotify watch capacity exhausted: errno 28 (No space left on device); argv=['dotnet', 'test', 'Hexalith.Conversations.slnx', '--configuration', 'Release', '-m:1', '-p:NuGetAudit=false', '-p:UseHexalithProjectReferences=true']",
+      "state": "BLOCKED",
+      "subject": "6.2"
+    }
+  ],
+  "authorityBundle": {
+    "candidateCommit": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "sha256": "a0436006ddc40fd08a4edd3fdeeaa5cdee649219dd277399859492064313ca0a"
+  },
+  "decisionRequired": true,
+  "evidenceId": "EPIC-6-COMPLETION-SUPERSESSION-v1",
+  "implementationHold": "ACTIVE",
+  "issuedOn": "2026-08-04",
+  "releaseAuthorized": false,
+  "result": "BLOCKED",
+  "schemaVersion": "epic-6-completion-supersession-evidence-v1",
+  "stories": []
+}
