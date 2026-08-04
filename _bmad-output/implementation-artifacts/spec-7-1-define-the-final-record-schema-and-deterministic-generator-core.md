@@ -2,7 +2,8 @@
 title: 'Define the final-record v2 schema contracts'
 type: 'feature'
 created: '2026-08-03'
-status: 'ready-for-dev'
+status: 'blocked'
+baseline_revision: '2a2387727323d96b6bc493e28ca6570488e64263'
 review_loop_iteration: 0
 context:
   - '{project-root}/_bmad-output/project-context.md'
@@ -74,3 +75,8 @@ Use shared `$defs` inside each schema rather than cross-file `$ref` resolution s
 - `python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml` -- expected: `PASS`, with all positive and negative schema assertions executed.
 - `python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check` -- expected: `V9_PLANNING_AUTHORITY_OK`, proving protected publication bytes remain unchanged.
 - `git diff --check` -- expected: no whitespace errors.
+
+## Auto Run Result
+
+Status: blocked
+Blocking condition: The frozen implementation gate is unsatisfied: no approved schema-only authority amendment exists, the canonical Story 7.1 contract still couples schemas with generator and final-record outputs, the global implementation hold remains `ACTIVE`, and `python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check` exits 1 with `OUTPUT_DRIFT: _bmad-output/implementation-artifacts/sprint-status.yaml`.
