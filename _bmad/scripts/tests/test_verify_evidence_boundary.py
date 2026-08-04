@@ -97,6 +97,27 @@ def test_context_frontmatter_is_closed_and_wrong_identity_fails(tmp_path: Path) 
         verifier.validate_context(tmp_path)
     assert error.value.code == "EVIDENCE_CONTEXT_INVALID"
 
+    valid_frontmatter_but_condensed = (
+        "---\n"
+        "overlay_version: epic-6-authority-2026-08-01-v8\n"
+        "architecture_version: conversations-architecture-2026-08-01-v8\n"
+        "---\n"
+        "# Epic 6 Context: condensed\n"
+    )
+    target.write_text(valid_frontmatter_but_condensed, encoding="utf-8")
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_context(tmp_path)
+    assert error.value.code == "EVIDENCE_CONTEXT_INVALID"
+
+    duplicate_identity = valid_frontmatter_but_condensed.replace(
+        "architecture_version:",
+        "overlay_version: epic-6-authority-2026-08-01-v8\narchitecture_version:",
+    )
+    target.write_text(duplicate_identity, encoding="utf-8")
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_context(tmp_path)
+    assert error.value.code == "EVIDENCE_CONTEXT_INVALID"
+
     target.write_text(
         "---\noverlay_version: wrong\narchitecture_version: conversations-architecture-2026-08-01-v8\n---\n# Epic 6\n",
         encoding="utf-8",

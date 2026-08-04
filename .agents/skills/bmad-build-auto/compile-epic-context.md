@@ -51,6 +51,10 @@ architecture_version: '{exact target-epic architecture identity}'
 {Dependencies between stories in this epic or with other epics/systems (omit if none).}
 ```
 
+### Historical Epic 6 v8 exception
+
+When the target is Epic 6 governed by `epic-6-authority-2026-08-01-v8` and `conversations-architecture-2026-08-01-v8`, the accepted detailed V8 context contract overrides the condensed Stories example above. Preserve or reconstruct that complete historical context from the exact V8 authority bytes; never replace it with a three-story retrospective summary or a newer V9-V12 identity. It must contain exactly one `### 6.1 ` through `### 6.12 ` heading, the complete FR-10 through FR-16 landing-zone table, the preservation denominators, the V8 dependency graph, projection-proof lifecycle, final-record, promotion, oracle-tier, SM-C2, AppHost, readiness-hold, and immutable-history semantics. If those exact governing bytes or any required semantic cannot be inspected, write nothing and report the context as blocked.
+
 ## Rules
 
 - **Scope aggressively.** Include only what a developer working on any story in this epic actually needs. When in doubt, leave it out — the developer can always read the full planning doc.

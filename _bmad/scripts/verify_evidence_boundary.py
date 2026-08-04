@@ -217,15 +217,47 @@ def validate_context(root: Path) -> dict[str, Any]:
     match = re.match(r"\A---\n(?P<body>.*?)\n---\n", text.replace("\r\n", "\n"), re.DOTALL)
     if match is None:
         raise BoundaryError("EVIDENCE_CONTEXT_INVALID", "Epic 6 context frontmatter is missing")
-    values = dict(
-        re.findall(r"^(overlay_version|architecture_version):\s*'?([^'\n]+?)'?\s*$", match.group("body"), re.MULTILINE)
+    pairs = re.findall(
+        r"^(overlay_version|architecture_version):\s*'?([^'\n]+?)'?\s*$",
+        match.group("body"),
+        re.MULTILINE,
     )
+    if len(pairs) != 2 or {name for name, _ in pairs} != {
+        "overlay_version",
+        "architecture_version",
+    }:
+        raise BoundaryError(
+            "EVIDENCE_CONTEXT_INVALID",
+            "Epic 6 context requires each governing identity exactly once",
+        )
+    values = dict(pairs)
     expected = {
         "overlay_version": "epic-6-authority-2026-08-01-v8",
         "architecture_version": "conversations-architecture-2026-08-01-v8",
     }
     if values != expected:
         raise BoundaryError("EVIDENCE_CONTEXT_INVALID", f"expected={expected!r} observed={values!r}")
+    normalized = text.replace("\r\n", "\n")
+    required = (
+        "# Epic 6 Context:",
+        "FR-16 is the only non-activation",
+        "AUTHORITY CORRECTION ONLY — NOT READY",
+        "Promotion Completion Invariant",
+        "Final Record Invariant",
+        "Conformance Oracle Tier Invariant",
+        "PROJECTION_PROOF_SUPERSESSION_REQUIRED",
+    )
+    if any(token not in normalized for token in required):
+        raise BoundaryError(
+            "EVIDENCE_CONTEXT_INVALID",
+            "Epic 6 V8 semantic context is incomplete",
+        )
+    for story in range(1, 13):
+        if normalized.count(f"### 6.{story} ") != 1:
+            raise BoundaryError(
+                "EVIDENCE_CONTEXT_INVALID",
+                f"Epic 6 V8 story heading 6.{story} must occur exactly once",
+            )
     return assertion("CONTEXT-01", "epic-6-context-frontmatter", "PASS", sha256=sha256(path.read_bytes()))
 
 
@@ -247,8 +279,23 @@ def validate_context_workflows(root: Path) -> list[dict[str, Any]]:
         required = ("overlay_version", "architecture_version", "frontmatter")
         if any(token not in text for token in required):
             raise BoundaryError("EVIDENCE_CONTEXT_WORKFLOW_INVALID", logical)
-        if "step-01" in logical and ("heading-only context" not in text or "historical authority" not in text):
-            raise BoundaryError("EVIDENCE_CONTEXT_WORKFLOW_INVALID", logical)
+        if "step-01" in logical:
+            required = (
+                "heading-only context",
+                "historical authority",
+                "filesystem mtime alone",
+                "`### 6.1 ` through `### 6.12 `",
+            )
+            if any(token not in text for token in required):
+                raise BoundaryError("EVIDENCE_CONTEXT_WORKFLOW_INVALID", logical)
+        if "compile-epic-context" in logical:
+            required = (
+                "Historical Epic 6 v8 exception",
+                "`### 6.1 ` through `### 6.12 `",
+                "write nothing",
+            )
+            if any(token not in text for token in required):
+                raise BoundaryError("EVIDENCE_CONTEXT_WORKFLOW_INVALID", logical)
         ledger.append(assertion(f"CONTEXT-WORKFLOW-{len(ledger) + 1:02d}", logical, "PASS", sha256=sha256(agents)))
     return ledger
 
