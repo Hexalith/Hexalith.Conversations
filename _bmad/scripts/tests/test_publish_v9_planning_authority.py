@@ -942,3 +942,17 @@ def test_publication_preserves_the_unrun_independent_assessment_boundary() -> No
         "finalRecordProduced": False,
         "successorUnlocked": False,
     }
+
+
+def test_preflight_directly_selects_all_three_planning_validator_classes() -> None:
+    """The CI filter must name real classes rather than fail-open aliases."""
+    workflow = (ROOT / ".github/workflows/planning-authority-preflight.yml").read_text(
+        encoding="utf-8"
+    )
+    assert (
+        'FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|'
+        'FullyQualifiedName~PlanningAuthorityV9ValidationTest|'
+        'FullyQualifiedName~PlanningAuthorityV8ValidationTest'
+    ) in workflow
+    assert "FullyQualifiedName~V9PlanningAuthorityValidationTest" not in workflow
+    assert "FullyQualifiedName~V8PlanningAuthorityValidationTest" not in workflow

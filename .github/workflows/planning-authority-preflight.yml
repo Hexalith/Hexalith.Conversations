@@ -65,4 +65,4 @@ jobs:
           dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj
           --configuration Release
           --no-build
-          --filter "FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|FullyQualifiedName~V9PlanningAuthorityValidationTest|FullyQualifiedName~V8PlanningAuthorityValidationTest"
+          --filter "FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|FullyQualifiedName~PlanningAuthorityV9ValidationTest|FullyQualifiedName~PlanningAuthorityV8ValidationTest"
