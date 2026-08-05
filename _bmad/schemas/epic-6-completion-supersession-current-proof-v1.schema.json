@@ -1,0 +1,130 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/epic-6-completion-supersession-current-proof-v1.schema.json",
+  "title": "Epic 6 completion supersession current-proof contract v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "contractId",
+    "authority",
+    "storyDoneCommits",
+    "currentHeadCommit",
+    "rootGitlinks",
+    "postDoneChangedPaths",
+    "testCommands",
+    "decisionPolicy",
+    "assertions"
+  ],
+  "properties": {
+    "$schema": { "type": "string", "minLength": 1 },
+    "schemaVersion": { "const": "epic-6-completion-supersession-current-proof-v1" },
+    "contractId": { "const": "E6-COMPLETION-SUPERSESSION-CURRENT-PROOF-v1" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpoint", "implementationHold"],
+      "properties": {
+        "checkpoint": { "const": "E6-CURRENT-PROOF" },
+        "implementationHold": { "const": "ACTIVE" }
+      }
+    },
+    "storyDoneCommits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["6.7", "6.2"],
+      "properties": {
+        "6.7": { "const": "29def441408becfbbbdc5c59b9af14a7717cb21f" },
+        "6.2": { "const": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa" }
+      }
+    },
+    "currentHeadCommit": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolution", "mustDescendFromStoryDoneCommits"],
+      "properties": {
+        "resolution": { "const": "HEAD" },
+        "mustDescendFromStoryDoneCommits": { "const": true }
+      }
+    },
+    "rootGitlinks": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/rootGitlinkPath" }
+    },
+    "postDoneChangedPaths": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scopePrefix", "sinceEachStoryDoneCommit"],
+      "properties": {
+        "scopePrefix": { "const": "references/" },
+        "sinceEachStoryDoneCommit": { "const": true }
+      }
+    },
+    "testCommands": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/command" }
+    },
+    "decisionPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "allowedResults", "supersedes", "preserves", "doesNotAuthorize"],
+      "properties": {
+        "required": { "const": true },
+        "allowedResults": { "const": ["ACCEPTED", "REJECTED", "BLOCKED"] },
+        "supersedes": { "const": "nothing; produces an additive present-state answer only" },
+        "preserves": {
+          "const": [
+            "Story 6.7 completed record",
+            "Story 6.2 completed record",
+            "V1-V12 authority",
+            "V12 historical FAIL/REJECTED completion-supersession result"
+          ]
+        },
+        "doesNotAuthorize": {
+          "const": [
+            "implementation hold lift",
+            "successor implementation",
+            "release approval",
+            "epic-6-retro-item-24 transition without human review"
+          ]
+        }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "repoPath": {
+      "type": "string",
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\)[^\\u0000-\\u001f]+$"
+    },
+    "rootGitlinkPath": {
+      "allOf": [
+        { "$ref": "#/$defs/repoPath" },
+        { "pattern": "^references/[^/]+$" }
+      ]
+    },
+    "command": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "argv"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z0-9-]+$" },
+        "argv": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

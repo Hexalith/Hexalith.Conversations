@@ -1,0 +1,64 @@
+{
+  "$schema": "../../_bmad/schemas/epic-6-completion-supersession-current-proof-v1.schema.json",
+  "schemaVersion": "epic-6-completion-supersession-current-proof-v1",
+  "contractId": "E6-COMPLETION-SUPERSESSION-CURRENT-PROOF-v1",
+  "authority": {
+    "checkpoint": "E6-CURRENT-PROOF",
+    "implementationHold": "ACTIVE"
+  },
+  "storyDoneCommits": {
+    "6.7": "29def441408becfbbbdc5c59b9af14a7717cb21f",
+    "6.2": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa"
+  },
+  "currentHeadCommit": {
+    "resolution": "HEAD",
+    "mustDescendFromStoryDoneCommits": true
+  },
+  "rootGitlinks": [
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants"
+  ],
+  "postDoneChangedPaths": {
+    "scopePrefix": "references/",
+    "sinceEachStoryDoneCommit": true
+  },
+  "testCommands": [
+    {
+      "id": "CURRENT-PROOF-TOOLING-TESTS",
+      "argv": ["uv", "run", "--frozen", "python3", "-m", "pytest", "-q", "_bmad/scripts/tests"]
+    }
+  ],
+  "decisionPolicy": {
+    "required": true,
+    "allowedResults": ["ACCEPTED", "REJECTED", "BLOCKED"],
+    "supersedes": "nothing; produces an additive present-state answer only",
+    "preserves": [
+      "Story 6.7 completed record",
+      "Story 6.2 completed record",
+      "V1-V12 authority",
+      "V12 historical FAIL/REJECTED completion-supersession result"
+    ],
+    "doesNotAuthorize": [
+      "implementation hold lift",
+      "successor implementation",
+      "release approval",
+      "epic-6-retro-item-24 transition without human review"
+    ]
+  },
+  "assertions": [
+    "Story 6.7 and Story 6.2 done commits are exact Git objects reachable from the repository history.",
+    "Current HEAD is a descendant of both immutable story done commits.",
+    "Every declared root path is a mode-160000 gitlink at current HEAD.",
+    "Every path changed under references/ since each story done commit is enumerated from immutable Git history.",
+    "The declared current-tree build/test surface executes in place without current-tree substitution and without skipped or not-run results.",
+    "Only an independent decision may accept this present-state answer; it never supersedes, rewrites, or narrows the historical V1-V12 evidence, decision, schema, or contract."
+  ]
+}
