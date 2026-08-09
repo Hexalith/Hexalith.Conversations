@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "8567d9a103007c9ee022a79b8dc14335a4b7ccd0",
+    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
     "candidateBinding": "`RC` is exact final root and ten gitlinks plus Story 15.1 record/revalidation, all predecessor records/evidence and test identities.",
     "sectionSha256": "2023b34142e863e11270d6e6d2ef26cef6a7da099d0f53b48944e7de421e7188"
   },

@@ -5,12 +5,12 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-04-v11",
     "architecture": "conversations-architecture-2026-08-04-v11",
-    "planningCandidate": "8567d9a103007c9ee022a79b8dc14335a4b7ccd0",
+    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
     "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
   },
   "baseStoryContract": {
     "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
-    "sha256": "16423d781d2d31264a9d86070abd3f8185cc4fdd595c9c5092bcf9479eea3cb6",
+    "sha256": "190a0578d1a8457d1f3cfd52d9e601f508e475a0f95abf6456a12dd5899c53e1",
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10"
   },

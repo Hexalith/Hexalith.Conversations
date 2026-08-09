@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V9-EVIDENCE-READERS-v1",
-  "planningCandidate": "8567d9a103007c9ee022a79b8dc14335a4b7ccd0",
+  "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
   "authorities": {
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12"
