@@ -1,3 +1,8 @@
+---
+overlay_version: 'epic-6-authority-2026-08-04-v12'
+architecture_version: 'conversations-architecture-2026-08-04-v12'
+---
+
 # Epic 7 Context: Reliable Mechanical Completion Records
 
 <!-- Compiled from planning artifacts. Edit freely. Regenerate with compile-epic-context if planning docs change. -->
@@ -24,8 +29,7 @@ Provide deterministic, candidate-bound completion records whose test counts, exa
 - Every governed review/done workflow and generated twin must invoke and verify the same generator before transition, with parity-checked commands, blocker handling, halt behavior, output paths, and insertion digest. `FAIL` or `BLOCKED` preserves the pre-review state and must not be presented as CI integration.
 - Historical verification is read-only: validate committed blobs, modes, gates, run identities, records, and gitlinks without rewriting closed evidence. Explicitly state that former uncommitted worktree state cannot be reconstructed.
 - Prove the guards through the frozen negative/fault matrix, including count, path, candidate, gitlink, test-result, assertion-ledger, workflow-placement, and Markdown-digest mutations. Every mutation must produce its expected blocker and restore fixtures byte-identically.
-- Epic 7 remains subject to the global implementation hold. Work is executable only after current authority passes mechanical validation, independent readiness is `READY` for the same planning candidate, and the release owner explicitly records `LIFTED`.
-- Before implementing the Story 7.1 generator, complete the V11 non-story `7.1-SCHEMAS` checkpoint. Its scope is limited to the three missing closed schemas, schema-contract tests, and the checkpoint result; it must not modify the generator, produce a Story 7.1 final record, execute later Story 7.1 criteria, begin Stories 7.2-7.4, change product/runtime/deployment/submodule surfaces, or mark a story `done`.
+- Before implementing the Story 7.1 generator, complete the non-story `7.1-SCHEMAS` checkpoint. Its scope is limited to the three missing closed schemas, schema-contract tests, and the checkpoint result; it must not modify the generator, produce a Story 7.1 final record, execute later Story 7.1 criteria, begin Stories 7.2-7.4, change product/runtime/deployment/submodule surfaces, or mark a story `done`.
 
 ## Technical Decisions
 
@@ -38,4 +42,4 @@ Provide deterministic, candidate-bound completion records whose test counts, exa
 
 ## Cross-Story Dependencies
 
-Completed Story 6.2 is the hard epic entry; superseded Story 6.8 and its partial implementation are unaccepted inputs only. The current execution graph first requires the `7.1-SCHEMAS` checkpoint after Story 6.2 and candidate-matched IR-0; the checkpoint can move Story 7.1 only to `in-progress`, creates no final record or lifecycle key, and cannot unlock Story 7.2. The remaining chain is strict: Story 7.1 completes the contracts and generator core, Story 7.2 adds measured fact extraction, Story 7.3 places the verified generator on every completion transition, and Story 7.4 closes the chain with read-only historical verification and the complete fault matrix. Epic 7 exits only when Stories 7.1-7.4 are done at compatible candidates, and its final-record chain is a hard input to successor preservation, conformance, evidence-boundary, authoring-proof, projection-proof, and release-attestation work.
+Completed Story 6.2 is the hard epic entry; superseded Story 6.8 and its partial implementation are unaccepted inputs only. Current publication keeps `implementationHold: ACTIVE`. The execution graph requires `E6-REMEDIATION` (A1-A3) after planning publication and before independent IR-0; IR-0 may only rerun at the same planning candidate, authority-bundle digest, V12 authority pair, and ten gitlinks. Checkpoint completion and even IR-0 `READY` do not lift the hold, start `7.1-SCHEMAS` or Story 7.1, unlock a successor, authorize release, or create the hold-decision record — only a separately governed, candidate-matched release-owner `LIFTED` decision does. After that lift, `7.1-SCHEMAS` runs with predecessors `6.2` and `IR-0`, may move Story 7.1 only to `in-progress`, creates no final record or lifecycle key, and cannot unlock Story 7.2. The remaining chain is strict: 7.1 completes contracts and generator core, 7.2 adds measured fact extraction, 7.3 places the verified generator on every completion transition, and 7.4 closes with read-only historical verification and the complete fault matrix. Epic 7 exits only when Stories 7.1-7.4 are done at compatible candidates; its final-record chain is a hard input to successor preservation, conformance, evidence-boundary, authoring-proof, projection-proof, and release-attestation work.
