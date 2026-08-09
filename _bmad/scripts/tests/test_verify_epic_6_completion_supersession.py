@@ -261,6 +261,16 @@ def test_current_proof_binds_head_gitlinks_and_nonempty_ledger() -> None:
     assert document["implementationHold"] == "ACTIVE"
     assert document["releaseAuthorized"] is False
     assert document["supersedesHistoricalEvidence"] is False
+    for story_id in ("6.7", "6.2"):
+        observed = document["postDoneChangedPaths"][story_id]
+        assert observed
+        expected = verifier.post_done_changed_paths(
+            ROOT,
+            document["storyDoneCommits"][story_id],
+            document["currentHeadCommit"],
+            "references/",
+        )
+        assert observed == expected
 
 
 def test_current_proof_unreachable_done_commit_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -288,15 +298,16 @@ def test_current_proof_unreachable_done_commit_is_blocked(monkeypatch: pytest.Mo
     assert (ROOT / verifier.CURRENT_PROOF_CONTRACT_PATH).read_bytes() == original_bytes
 
 
-def test_current_proof_non_gitlink_root_path_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
-    def drifted(_repository: Path, _head: str, paths) -> list[dict[str, str]]:
-        raise verifier.SupersessionError(
-            "E6_CURRENT_PROOF_GITLINK_MODE_DRIFT",
-            f"{paths[0]}: mode='100644' objectId=None",
-            "BLOCKED",
-        )
+def test_current_proof_non_gitlink_root_path_is_blocked_via_recorded_gitlink(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    promotion = verifier.promotion_module()
 
-    monkeypatch.setattr(verifier, "current_root_gitlinks", drifted)
+    def not_gitlink(_repository: Path, _head: str, _path: str) -> tuple[str | None, str | None]:
+        return "100644", "a" * 40
+
+    monkeypatch.setattr(promotion, "recorded_gitlink", not_gitlink)
+    monkeypatch.setattr(verifier, "promotion_module", lambda: promotion)
     with pytest.raises(verifier.SupersessionError) as error:
         verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
 
@@ -305,6 +316,59 @@ def test_current_proof_non_gitlink_root_path_is_blocked(monkeypatch: pytest.Monk
     document = verifier.current_proof_failure_document(error.value)
     assert document["assertionLedger"]
     assert document["result"] == "BLOCKED"
+
+
+def test_current_proof_head_not_descendant_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_git = verifier.git
+
+    def deny_ancestor(repository: Path, *arguments: str, allowed=(0,), timeout=60):
+        if arguments[:2] == ("merge-base", "--is-ancestor"):
+            return verifier.subprocess.CompletedProcess(arguments, 1, stdout=b"", stderr=b"")
+        return original_git(repository, *arguments, allowed=allowed, timeout=timeout)
+
+    monkeypatch.setattr(verifier, "git", deny_ancestor)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+
+    assert error.value.code == "E6_CURRENT_PROOF_HEAD_NOT_DESCENDANT"
+    assert error.value.state == "BLOCKED"
+
+
+def test_current_proof_skipped_surface_is_blocked() -> None:
+    def skipped(_root: Path, command: dict) -> dict:
+        result = passing_current_proof_test(_root, command)
+        result["skippedCount"] = 1
+        return result
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=skipped)
+
+    assert error.value.code == "E6_CURRENT_PROOF_TEST_SKIPPED"
+    assert error.value.state == "BLOCKED"
+
+
+def test_current_proof_not_run_surface_is_blocked() -> None:
+    def not_run(_root: Path, command: dict) -> dict:
+        result = passing_current_proof_test(_root, command)
+        result["notRunCount"] = 2
+        return result
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=not_run)
+
+    assert error.value.code == "E6_CURRENT_PROOF_TEST_NOT_RUN"
+    assert error.value.state == "BLOCKED"
+
+
+def test_current_proof_malformed_test_result_is_blocked() -> None:
+    def malformed(_root: Path, command: dict) -> dict:
+        return {"id": command["id"], "state": "PASS"}
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=malformed)
+
+    assert error.value.code == "E6_CURRENT_PROOF_TEST_MALFORMED"
+    assert error.value.state == "BLOCKED"
 
 
 def test_current_proof_empty_ledger_is_blocked() -> None:
@@ -344,6 +408,56 @@ def test_current_proof_failed_surface_preserves_diagnostics() -> None:
 
     assert error.value.code == "E6_CURRENT_PROOF_TEST_FAILED"
     assert "current-proof surface failure detail" in error.value.message
+
+
+def test_current_proof_cli_bypasses_historical_reconstruct(
+    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path,
+) -> None:
+    reconstruct_calls: list[object] = []
+
+    def forbidden(*_args, **_kwargs):
+        reconstruct_calls.append(True)
+        raise AssertionError("historical reconstruct() must not run on --current-proof")
+
+    monkeypatch.setattr(verifier, "reconstruct", forbidden)
+    monkeypatch.setattr(
+        verifier,
+        "current_proof",
+        lambda *_args, **_kwargs: {
+            "schemaVersion": verifier.CURRENT_PROOF_EVIDENCE_SCHEMA_VERSION,
+            "evidenceId": verifier.CURRENT_PROOF_EVIDENCE_ID,
+            "issuedOn": "2026-08-09",
+            "result": "PASS",
+            "implementationHold": "ACTIVE",
+            "releaseAuthorized": False,
+            "supersedesHistoricalEvidence": False,
+            "assertionLedger": [{"id": "CURRENT-PROOF-CLI", "state": "PASS"}],
+            "currentHeadCommit": "a" * 40,
+            "storyDoneCommits": {},
+            "rootGitlinks": [],
+            "postDoneChangedPaths": {},
+            "testResults": [],
+            "decisionRequired": True,
+        },
+    )
+    output_json = tmp_path / "current-proof.json"
+    exit_code = verifier.main(
+        [
+            "--repository",
+            str(ROOT),
+            "--current-proof",
+            "--execute-tests",
+            "--output-json",
+            str(output_json),
+        ]
+    )
+
+    assert exit_code == 0
+    assert reconstruct_calls == []
+    document = verifier.json.loads(output_json.read_text(encoding="utf-8"))
+    assert document["evidenceId"] == verifier.CURRENT_PROOF_EVIDENCE_ID
+    assert document["schemaVersion"] == verifier.CURRENT_PROOF_EVIDENCE_SCHEMA_VERSION
 
 
 def test_current_proof_markdown_forbids_hold_lift_and_historical_rewrite() -> None:

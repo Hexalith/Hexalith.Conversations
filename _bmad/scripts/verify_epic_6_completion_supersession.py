@@ -520,11 +520,20 @@ def promotion_module() -> Any:
     derivation logic.
     """
     module_path = Path(__file__).resolve().parent / "verify_submodule_promotion.py"
-    spec = importlib.util.spec_from_file_location("verify_submodule_promotion", module_path)
-    if spec is None or spec.loader is None:
-        raise SupersessionError("E6_CURRENT_PROOF_PROMOTION_MODULE_UNAVAILABLE", str(module_path), "BLOCKED")
-    module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(module)
+    try:
+        spec = importlib.util.spec_from_file_location("verify_submodule_promotion", module_path)
+        if spec is None or spec.loader is None:
+            raise SupersessionError("E6_CURRENT_PROOF_PROMOTION_MODULE_UNAVAILABLE", str(module_path), "BLOCKED")
+        module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(module)
+    except SupersessionError:
+        raise
+    except Exception as error:
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_PROMOTION_MODULE_UNAVAILABLE",
+            f"{module_path}: {error}",
+            "BLOCKED",
+        ) from error
     return module
 
 
@@ -536,14 +545,22 @@ def load_current_proof_contract(repository: Path) -> tuple[dict[str, Any], bytes
         schema = json.loads(schema_bytes)
     except (OSError, UnicodeError, json.JSONDecodeError) as error:
         raise SupersessionError("E6_CURRENT_PROOF_CONTRACT_UNAVAILABLE", str(error), "BLOCKED") from error
+    try:
+        Draft202012Validator.check_schema(schema)
+    except Exception as error:
+        raise SupersessionError("E6_CURRENT_PROOF_SCHEMA_INVALID", str(error), "BLOCKED") from error
     errors = sorted(Draft202012Validator(schema).iter_errors(contract), key=lambda item: list(item.absolute_path))
     if errors:
         detail = "; ".join(f"{'/'.join(map(str, error.absolute_path))}: {error.message}" for error in errors)
-        raise SupersessionError("E6_CURRENT_PROOF_CONTRACT_SCHEMA_INVALID", detail)
+        raise SupersessionError("E6_CURRENT_PROOF_CONTRACT_SCHEMA_INVALID", detail, "BLOCKED")
     if list(contract["storyDoneCommits"]) != ["6.7", "6.2"]:
-        raise SupersessionError("E6_CURRENT_PROOF_STORY_SET_DRIFT", repr(list(contract["storyDoneCommits"])))
+        raise SupersessionError("E6_CURRENT_PROOF_STORY_SET_DRIFT", repr(list(contract["storyDoneCommits"])), "BLOCKED")
     if contract["rootGitlinks"] != sorted(contract["rootGitlinks"]):
-        raise SupersessionError("E6_CURRENT_PROOF_GITLINK_SET_DRIFT", "root gitlink paths are not canonically sorted")
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_GITLINK_SET_DRIFT",
+            "root gitlink paths are not canonically sorted",
+            "BLOCKED",
+        )
     return contract, contract_bytes, schema_bytes
 
 
@@ -649,12 +666,28 @@ def current_proof(
     tests = [test_executor(root, command) for command in contract["testCommands"]]
     if not tests:
         raise SupersessionError("E6_CURRENT_PROOF_TESTS_SKIPPED", "no current-tree test result", "BLOCKED")
+    required_test_keys = ("id", "argv", "state", "exitCode", "skippedCount", "notRunCount", "outputSha256")
     for test in tests:
+        missing = [key for key in required_test_keys if key not in test]
+        if missing:
+            raise SupersessionError(
+                "E6_CURRENT_PROOF_TEST_MALFORMED",
+                f"missing keys {missing!r} in {test.get('id')!r}",
+                "BLOCKED",
+            )
         test.pop("_output", None)
-    if any(test.get("skippedCount", 0) != 0 for test in tests):
-        raise SupersessionError("E6_CURRENT_PROOF_TEST_SKIPPED", json.dumps([test.get("id") for test in tests]))
-    if any(test.get("notRunCount", 0) != 0 for test in tests):
-        raise SupersessionError("E6_CURRENT_PROOF_TEST_NOT_RUN", json.dumps([test.get("id") for test in tests]))
+    if any(test["skippedCount"] != 0 for test in tests):
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_TEST_SKIPPED",
+            json.dumps([test.get("id") for test in tests]),
+            "BLOCKED",
+        )
+    if any(test["notRunCount"] != 0 for test in tests):
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_TEST_NOT_RUN",
+            json.dumps([test.get("id") for test in tests]),
+            "BLOCKED",
+        )
     for test in tests:
         ledger.append(
             {

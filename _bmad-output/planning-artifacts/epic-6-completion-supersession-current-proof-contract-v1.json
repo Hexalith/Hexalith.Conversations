@@ -33,17 +33,7 @@
   "testCommands": [
     {
       "id": "CURRENT-PROOF-TOOLING-TESTS",
-      "argv": [
-        "uv",
-        "run",
-        "--frozen",
-        "python3",
-        "-m",
-        "pytest",
-        "-q",
-        "_bmad/scripts/tests",
-        "--ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
-      ]
+      "argv": ["uv", "run", "--frozen", "python3", "-m", "pytest", "-q", "_bmad/scripts/tests"]
     }
   ],
   "decisionPolicy": {

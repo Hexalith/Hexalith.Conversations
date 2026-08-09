@@ -13,6 +13,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -65,7 +66,7 @@ def resolve_bundle_candidate(root: Path) -> str:
         candidate = bundle["planningCandidate"]
     except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as error:
         raise CurrentProofAuthorityError("CURRENT_PROOF_BUNDLE_UNAVAILABLE", str(error)) from error
-    if not isinstance(candidate, str) or len(candidate) != 40:
+    if not isinstance(candidate, str) or re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
         raise CurrentProofAuthorityError("CURRENT_PROOF_BUNDLE_PC_INVALID", repr(candidate))
     return candidate
 

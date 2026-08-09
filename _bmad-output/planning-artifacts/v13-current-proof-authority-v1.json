@@ -36,7 +36,7 @@
   ],
   "currentProofContract": {
     "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json",
-    "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af"
+    "sha256": "de1a21c11f84f09b6af07d129ad9b9c8445ae76ebed448ff26175b7b94ab2de9"
   },
   "resultSemantics": {
     "states": [

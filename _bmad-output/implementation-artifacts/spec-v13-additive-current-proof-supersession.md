@@ -2,7 +2,7 @@
 title: 'Author and execute the V13 additive current-proof completion-supersession route'
 type: 'chore'
 created: '2026-08-05'
-status: 'in-progress'
+status: 'in-review'
 review_loop_iteration: 0
 baseline_commit: 'b6dec66bacc7dce84c06492c0f3c258eb338d69f'
 context:
@@ -39,7 +39,7 @@ context:
 
 ## Code Map
 
-- `_bmad/scripts/verify_epic_6_completion_supersession.py:387-483` (`reconstruct()`) -- existing historical-only PASS/FAIL/BLOCKED flow; frozen. Add a sibling `current_proof()` function plus a new `--current-proof` flag in `parse_args()` (L563)/`main()` (L574); no change to the historical CLI contract.
+- `_bmad/scripts/verify_epic_6_completion_supersession.py:408-504` (`reconstruct()`) -- existing historical-only PASS/FAIL/BLOCKED flow; frozen. Sibling `current_proof()` is at L609; `--current-proof` is wired in `parse_args()` (L875)/`main()` (L887); no change to the historical CLI contract.
 - `_bmad/schemas/epic-6-completion-supersession-v1.schema.json` -- existing historical schema (`contractId` const `E6-COMPLETION-SUPERSESSION-v1`); frozen. Model new `_bmad/schemas/epic-6-completion-supersession-current-proof-v1.schema.json` on it, per the established one-schema-per-checkpoint convention (v9/v11/v12 each have their own file; no schema is ever bumped to v2 in place).
 - `_bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json` -- existing historical contract binding Story 6.7 candidate `aa2b6b7d05d277e1c083252462b9c8244914970e`→done `29def441408becfbbbdc5c59b9af14a7717cb21f` and Story 6.2 candidate `2971ab79efcf3ef11d4fba7b9139d7cae457a3f9`→done `e480c3f3176cdc3d911baf91eb3e7a8cd38874aa`; frozen. New `epic-6-completion-supersession-current-proof-contract-v1.json` reuses the same immutable done SHAs as anchors, never the candidate SHAs (those anchor the dead historical route only).
 - `_bmad/scripts/verify_submodule_promotion.py:600-660` (`checkout_is_ahead()`, `inspect_unrelated()`, `recorded_gitlink()`) -- reuse for raw-mode-`160000` gitlink SHA derivation at current HEAD; do not duplicate this logic.
@@ -67,6 +67,7 @@ context:
 
 ## Spec Change Log
 
+- 2026-08-09: Review patches — removed obsolete `--ignore=test_publish_v9_planning_authority.py` from the current-proof contract; expanded current-proof fault injections (skipped/not-run/HEAD-not-descendant/`recorded_gitlink` mode drift/CLI bypass/`postDoneChangedPaths`); hardened verifier edge guards (schema load, promotion-module import, malformed test keys, BLOCKED skipped/not-run); tightened V13 authority PC to `^[0-9a-f]{40}$`; refreshed V13 authority sidecar. Re-run current-proof after removing the ignore records `FAIL` because the hardened verifier/tests are V12 `CANONICAL_PATHS` and currently only in the working tree (`CANDIDATE_SOURCE_DRIFT` vs PC `8567d9a`); decision retargeted to `REJECTED` on that FAIL evidence (nonClaims and `proposedSprintStatusTransition.applied: false` preserved). Restoring `ACCEPTED` requires commit of the hardened verifier/tests, another V12 PC rebind, and a PASS current-proof re-run. Historical V1-V12 bytes remain untouched. `epic-6-retro-item-24` remains `open`. Spec status left `in-review`.
 - 2026-08-09: Owner authorized V12 planning-candidate rebind. Published candidate-bound authority onto `8567d9a` (bundleDigest `bb584727…`), refreshed V13 current-proof authority sidecar and PASS evidence onto HEAD `7416583`, and updated the ACCEPTED decision bindings. Historical V1-V12 completion-supersession bytes remain untouched. `epic-6-retro-item-24` remains `open`.
 - 2026-08-09: Authored/executed the additive current-proof schema, contract, verifier route, fault-injection tests, V13 authority sidecar (sibling publisher outside the V12 companion set), PASS evidence, and ACCEPTED decision with explicit non-claims. Historical V1-V12 bytes remain untouched. `epic-6-retro-item-24` remains `open` pending human application. Contract test surface ignores the already-red V12 publisher suite (candidate drift from the prior V13 verifier commit) so the present-state question stays answerable without a PC rebind.
 - 2026-08-09: Step-04 V12 lifecycle gates HALTED before `in-review`. Promotion gate: exit `0` / `pass` (warnings: undeclared gitlink changes for `references/Hexalith.EventStore` and `references/Hexalith.FrontComposer`). Evidence gate: `FAIL` / nonempty ledger — `EVIDENCE_PUBLICATION_DRIFT` → `CANDIDATE_SOURCE_DRIFT: _bmad/scripts/verify_epic_6_completion_supersession.py` because HEAD `ba1722b` (which already contains the additive `current_proof()` route) differs from V12 planning candidate `2e89b9f`. Spec status left `in-progress`. No PC rebind attempted (would mutate V12 companion authority outside this additive route).
@@ -80,4 +81,5 @@ The historical route's own failing assertion targets a candidate baked into a di
 **Commands:**
 - `uv run --frozen python3 _bmad/scripts/verify_epic_6_completion_supersession.py --repository . --current-proof --execute-tests --output-json <path> --output-md <path>` -- expected: `PASS`/`FAIL`/`BLOCKED` with a nonempty ledger; zero historical-mode files touched.
 - `uv sync --frozen && uv run --frozen python3 -m pytest -q _bmad/scripts/tests` -- expected: non-vacuous pass, zero failures/skips/not-run, including new current-proof fault-injection tests.
+- `python3 _bmad/scripts/publish_v13_current_proof_authority.py --repository . --check` -- expected: `V13_CURRENT_PROOF_AUTHORITY_OK`.
 - `git diff --stat -- docs/release-evidence/epic-6-completion-supersession-v1.json docs/release-evidence/epic-6-completion-supersession-v1.md _bmad-output/planning-artifacts/epic-6-completion-supersession-decision-v1.json _bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json _bmad/schemas/epic-6-completion-supersession-v1.schema.json` -- expected: empty.
