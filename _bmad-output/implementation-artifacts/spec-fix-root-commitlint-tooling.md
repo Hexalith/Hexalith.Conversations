@@ -2,7 +2,7 @@
 title: 'Fix root commitlint tooling and complete pushall'
 type: 'bugfix'
 created: '2026-08-09'
-status: 'in-progress'
+status: 'in-review'
 review_loop_iteration: 0
 baseline_commit: '588381bb744ef2d81c0685e7f567c54f6dc37742'
 submodule_promotions:
@@ -46,7 +46,7 @@ context:
 
 - `package.json` -- new private root Node manifest; owns the exact commitlint CLI/config pins and compatible Node engine floor.
 - `package-lock.json` -- new npm v3 lockfile generated from the exact root manifest; makes `npm ci` reproducible.
-- `commitlint.config.mjs` -- new strict repository policy copied from the current Builds convention: conventional base, default ignores disabled, shared type allowlist, and 200-character limits.
+- `commitlint.config.mjs` -- new strict repository policy based on the current Builds convention: conventional base, default ignores disabled, shared type allowlist, 200-character limits, and a local exact header-format guard.
 - `_bmad-output/implementation-artifacts/spec-fix-root-commitlint-tooling.md` -- this workflow record; track its approved scope, execution status, and verification evidence with the change.
 - `.gitignore:316` -- existing `node_modules/` exclusion; read-only evidence that no ignore change is needed.
 - `references/Hexalith.Builds/package.json:40` -- read-only source for `@commitlint/cli` `21.2.1` and config `21.2.0` pins.
@@ -72,6 +72,7 @@ context:
 
 - 2026-08-09: Added the root commitlint manifest, npm lockfile, strict policy, and implementation verification evidence.
 - 2026-08-09: Declared the approved FrontComposer promotion and assigned the local pre-review commit to the coordinator so lifecycle gates can evaluate committed `HEAD`; preserved all tooling, path-boundary, and no-push constraints.
+- 2026-08-09: Applied review hardening for optional scope and post-colon spacing, added real default-ignore probes and exact length boundaries, and refreshed measured commit, promotion, and evidence-boundary results.
 
 ## Design Notes
 
@@ -84,10 +85,14 @@ The minimal three-file setup deliberately excludes Husky, semantic-release, and 
 - `npm ci --ignore-scripts --no-audit --no-fund` -- expected: exact lockfile installation succeeds.
 - `npm audit signatures` -- expected: dependency signatures verify.
 - `npx --no-install commitlint --edit <temporary-message-file> --verbose` -- expected: approved message passes; known-bad messages fail.
+- `npx --no-install commitlint --edit <temporary-message-file> --verbose` for `Merge branch main` and `1.2.3` -- expected: both default-ignored-by-default messages fail because `defaultIgnores` is disabled.
+- `npx --no-install commitlint --edit <temporary-message-file> --verbose` for `build(): empty scope`, `build( padded ): padded scope`, and `build:  doubled spacing` -- expected: all fail through the local `header-format` rule; unscoped and scoped breaking `!` forms pass.
+- Generated exact 200- and 201-character header and body-line messages -- expected: both 200-character boundaries pass and both 201-character boundaries fail through their corresponding max-length rule.
 - `git diff --check`, `git diff --cached --name-status`, and `git diff --cached --check` -- expected: exact path boundary and no whitespace or conflict-marker errors.
 - `npx --no-install commitlint --last --verbose` -- expected: the locally committed message passes before review.
+- `uv run --no-cache _bmad/scripts/verify_submodule_promotion.py --repository <root> --baseline 588381bb744ef2d81c0685e7f567c54f6dc37742 --candidate 28f6fbbb56937b1c30a3ff2523ae02e007a380a9 --submodule references/Hexalith.FrontComposer --require-remote references/Hexalith.FrontComposer --format json` -- expected: non-vacuous promotion-gate `pass`.
+- `uv run --no-cache _bmad/scripts/verify_evidence_boundary.py --repository <root> --baseline 588381bb744ef2d81c0685e7f567c54f6dc37742 --candidate 28f6fbbb56937b1c30a3ff2523ae02e007a380a9` -- expected: `not-applicable` with nonempty `PATHS-01` and `GITLINK-01` PASS ledger.
 - Post-review coordinator gate: fresh fetch, ff-only/divergence checks, outgoing-range validation, ordinary push, and final fetch/state checks must all succeed before completion.
-- Evidence-boundary validation -- expected: `not-applicable`, because no planning-authority, evidence, reader, or governing workflow artifact changes.
 
 **Implementation evidence (2026-08-09):**
 
@@ -95,10 +100,14 @@ The minimal three-file setup deliberately excludes Husky, semantic-release, and 
 - `npm ci --ignore-scripts --no-audit --no-fund` -- PASS; installed 75 locked packages.
 - `npm audit signatures` -- PASS; 75 package signatures and 9 attestations verified.
 - Lockfile assertions -- PASS; lockfile v3, root Node engine, exact root dependency pins, and installed `@commitlint/cli` `21.2.1` / `@commitlint/config-conventional` `21.2.0` entries verified.
-- `npx --no-install commitlint --edit <temporary-message-file> --verbose` -- PASS for `build: sync local changes via /pushall`; expected FAIL for `chore: bypass specific maintenance type` (`type-enum`) and `Update subproject reference` (`subject-empty`, `type-empty`).
-- Root state boundary -- PASS; unstaged paths are exactly `package.json`, `package-lock.json`, `commitlint.config.mjs`, this workflow record, and the `references/Hexalith.FrontComposer` gitlink. The index remains unchanged.
-- FrontComposer gitlink -- PASS; root moves from `0d0cf956e896817abc7a01f3e7f8f4d6cb753acd` to clean checkout and local `origin/main` target `a86176e9bca6721c459c513dbf0ca8249c67db03`.
-- `git diff --check` plus untracked-file whitespace and conflict-marker checks -- PASS.
-- Existing fetched-root alignment -- PASS; `git merge --ff-only origin/main` reported already up to date, divergence was `0 0`, and the branch remained `main`. A fresh fetch and repeat remain coordinator-only completion gates after review.
-- Evidence-boundary validation -- `not-applicable`; the changed implementation record is not planning authority, signed/release evidence, an evidence reader, or a governing workflow artifact.
-- The exact local commit and post-commit lint are the coordinator's immediate pre-review gates; fresh fetch, outgoing-range, push, and final-state gates remain pending mandatory review.
+- `npx --no-install commitlint --edit <temporary-message-file> --verbose` -- PASS for `build: sync local changes via /pushall`; expected FAIL for `chore: bypass specific maintenance type` (`type-enum`) and `Update subproject reference` (`subject-empty`, `type-empty`; this plain header is not relied on as a default-ignore probe).
+- Real default-ignore probes -- expected FAIL for `Merge branch main` and `1.2.3`, each with `subject-empty`, `type-empty`, and `header-format`; this directly proves `defaultIgnores: false` is active.
+- Local header-format review matrix -- expected FAIL through `header-format` for `build(): empty scope`, `build( padded ): padded scope`, and `build:  doubled spacing`; PASS for `build!: preserve breaking form` and `build(api)!: preserve scoped breaking form`.
+- Exact length boundaries -- PASS for a 200-character header and a 200-character body line; expected FAIL for a 201-character header (`header-max-length`) and a 201-character body line (`body-max-line-length`).
+- Local implementation commit -- PASS; `HEAD` is `28f6fbbb56937b1c30a3ff2523ae02e007a380a9` on `main`, and `npx --no-install commitlint --last --verbose` validates its exact `build: sync local changes via /pushall` message with zero problems or warnings.
+- Committed path boundary -- PASS; `588381bb744ef2d81c0685e7f567c54f6dc37742..28f6fbbb56937b1c30a3ff2523ae02e007a380a9` contains exactly `package.json`, `package-lock.json`, `commitlint.config.mjs`, this workflow record, and the `references/Hexalith.FrontComposer` gitlink.
+- FrontComposer promotion gate -- PASS; declared and changed gitlink sets both contain only `references/Hexalith.FrontComposer`; candidate mode is `160000`, recorded gitlink/worktree `HEAD`/local `origin/main` are all `a86176e9bca6721c459c513dbf0ca8249c67db03`, the submodule is initialized and clean, `remote_available` is true, and blockers/warnings are empty.
+- Evidence-boundary validation -- `not-applicable`; nonempty ledger contains `PATHS-01` PASS over the exact five changed paths and `GITLINK-01` PASS over `references/Hexalith.FrontComposer`; blockers are empty.
+- `git diff --check` for the committed range and review worktree, plus `git diff --cached --check` -- PASS.
+- Review patch boundary -- only `commitlint.config.mjs` and this workflow record are modified after `28f6fbbb56937b1c30a3ff2523ae02e007a380a9`; both remain unstaged and the index is unchanged for coordinator processing.
+- Fresh fetch, root divergence/ff-only handling, outgoing-range validation, ordinary push, and final-state checks remain pending coordinator gates after review.

@@ -249,3 +249,6 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
   summary: Leave unrelated dirty `epic-7-context.md` out of V13 closure or reconcile it in its owning story.
   evidence: The file remains unstaged beside the V13 work and is outside the additive current-proof scope.
 
+- source_spec: `_bmad-output/implementation-artifacts/spec-fix-root-commitlint-tooling.md`
+  summary: Add tracked root commit-message and pre-push hooks plus a blocking CI commitlint regression gate.
+  evidence: Review confirmed the new pinned validator fixes manual `/pushall` validation but the pre-existing root still has no normally executed hook or CI lane that installs the lockfile, exercises the policy matrix, and validates commit ranges; those enforcement changes were explicitly outside this minimal blocker fix.
