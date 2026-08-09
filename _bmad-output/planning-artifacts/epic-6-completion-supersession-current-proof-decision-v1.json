@@ -12,10 +12,10 @@
     "checkpoint": "E6-CURRENT-PROOF",
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12",
-    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
+    "planningCandidate": "195fde177e37992aa9df0b7132b6c04c67b11ae8",
     "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
-    "authorityBundleSha256": "d6930f6416cb676670ff26755d0f6b7d04fd1804c5ef5968d5aa7e1f56157fcf",
-    "authorityBundleDigest": "b704f60a956e78b280aff71c4fc12b37226e35260264aadc404d171a1bf945a5",
+    "authorityBundleSha256": "6c14e5e48d1a182878f968084551c9e21dcfc5e97d0badfec367e839fc7b6bc5",
+    "authorityBundleDigest": "d8237ced6206d26cb7e07d11a682a9a4e3111e08bdca45072186d618dbf9bf2e",
     "currentProofAuthorityPath": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
     "implementationHold": "ACTIVE"
   },
