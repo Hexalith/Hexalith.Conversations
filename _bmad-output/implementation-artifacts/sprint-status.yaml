@@ -324,7 +324,7 @@ action_items:
     epic: 6
     action: "Produce an additive Epic 6 completion-supersession record that binds the actual Story 6.7 and Story 6.2 done commits, every post-candidate changed path, and all ten root gitlinks; keep the global hold active until it passes."
     owner: "Dev workflow / Release owner"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-6-retro-item-25-restore-the-submodule-promotion-and-evid"
     epic: 6

@@ -419,6 +419,20 @@ def test_epic_six_retrospective_faults_fail_and_restore_byte_identically() -> No
             "EPIC_6_RETROSPECTIVE_DRIFT",
         ),
         (
+            source.replace(blocks[0], blocks[0].replace("    status: done
+", "    status: open
+", 1), 1),
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+        ),
+        (
+            source.replace(blocks[1], blocks[1].replace("    status: open
+", "    status: done
+", 1), 1),
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+        ),
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+        ),
+        (
             source.replace(
                 "last_updated: 2026-08-04\n",
                 "last_updated: 2026-08-04\nlast_updated: 2026-08-04\n",

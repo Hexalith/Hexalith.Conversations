@@ -104,7 +104,10 @@ EPIC_6_RETROSPECTIVE_IDS = (
     "epic-6-retro-item-28-create-approved-successor-work-for-deter",
     "epic-6-retro-item-29-add-explicit-preflight-diagnostics-for-a",
 )
-EPIC_6_RETROSPECTIVE_DIGEST = "6ab003037298a1be03ee29ff69009dd4a5a274e448e5305d96de1bb6e962a692"
+# Item 24 may be `done` after an ACCEPTED V13 current-proof decision is
+# human-applied; items 25-29 remain open until their owning checkpoints close.
+EPIC_6_RETROSPECTIVE_STATUSES = ("done", "open", "open", "open", "open", "open")
+EPIC_6_RETROSPECTIVE_DIGEST = "40ef127d1785c653a640554e75f6f16f2a9c3f92c14573aa21bdcb197ac2908c"
 
 MECHANICAL_PATHS = (
     ".agents/skills/bmad-build/step-04-review.md",
@@ -1451,7 +1454,7 @@ def validate_sprint_structure(text: str) -> None:
 
 
 def validate_epic_6_retrospective(text: str) -> None:
-    """Preserve the completed retrospective and its six ordered open rows."""
+    """Preserve the completed retrospective and its six ordered status-bound rows."""
 
     development_start = text.find("development_status:\n")
     actions_start = text.find("\naction_items:\n", development_start)
@@ -1472,8 +1475,17 @@ def validate_epic_6_retrospective(text: str) -> None:
     payload = "".join(match.group(0) for match in matches).encode("utf-8")
     if identities != EPIC_6_RETROSPECTIVE_IDS or sha256(payload) != EPIC_6_RETROSPECTIVE_DIGEST:
         raise PublicationError("EPIC_6_RETROSPECTIVE_DRIFT", f"rows={identities!r} digest={sha256(payload)}")
-    if any(re.search(r"^    status: open$", match.group(0), re.MULTILINE) is None for match in matches):
-        raise PublicationError("EPIC_6_RETROSPECTIVE_DRIFT", "every retrospective action must remain open")
+    observed_statuses = []
+    for match in matches:
+        status_match = re.search(r"^    status: (\w+)$", match.group(0), re.MULTILINE)
+        if status_match is None:
+            raise PublicationError("EPIC_6_RETROSPECTIVE_DRIFT", f"{match.group(1)} missing status")
+        observed_statuses.append(status_match.group(1))
+    if tuple(observed_statuses) != EPIC_6_RETROSPECTIVE_STATUSES:
+        raise PublicationError(
+            "EPIC_6_RETROSPECTIVE_DRIFT",
+            f"statuses={observed_statuses!r} expected={list(EPIC_6_RETROSPECTIVE_STATUSES)!r}",
+        )
 
 
 def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:

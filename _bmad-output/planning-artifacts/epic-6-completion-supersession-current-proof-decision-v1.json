@@ -5,7 +5,7 @@
   "decision": "ACCEPTED",
   "decisionAuthority": {
     "owner": "Release owner",
-    "name": "Proposed by implementing agent; pending release-owner ratification",
+    "name": "Jerome — release-owner ratification 2026-08-09",
     "mechanism": "Repository-recorded independent decision on additive present-state evidence; no cryptographic-signature claim"
   },
   "authority": {
@@ -49,7 +49,7 @@
     "implementationHold": "ACTIVE",
     "successorStarted": false,
     "releaseAuthorized": false,
-    "epic6RetroItem24Transition": "proposed-not-applied"
+    "epic6RetroItem24Transition": "applied"
   },
   "preserves": [
     "Story 6.7 completed record and status",
@@ -68,7 +68,9 @@
     "id": "epic-6-retro-item-24-produce-an-additive-epic-6-completion-su",
     "from": "open",
     "to": "done",
-    "applied": false,
-    "requiresHuman": true
+    "applied": true,
+    "requiresHuman": true,
+    "appliedOn": "2026-08-09",
+    "appliedBy": "Release owner"
   }
 }

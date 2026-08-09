@@ -108,7 +108,7 @@ def render_current_proof_authority(root: Path, bundle_candidate: str) -> bytes:
                     ),
                     "executionAuthority": "E6-CURRENT-PROOF",
                     "checkpointOwned": True,
-                    "status": "open",
+                    "status": "done",
                 }
             ],
             "rootGitlinkPaths": list(ROOT_GITLINK_PATHS),

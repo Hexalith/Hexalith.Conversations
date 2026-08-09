@@ -19,7 +19,7 @@
       "scope": "Additive present-state current-proof of Story 6.7 and Story 6.2 done-commit reachability, every post-done references/ path change, all ten root mode-160000 gitlinks at current HEAD, and the declared current-tree build/test surface, plus an independent decision that never rewrites V1-V12 historical evidence.",
       "executionAuthority": "E6-CURRENT-PROOF",
       "checkpointOwned": true,
-      "status": "open"
+      "status": "done"
     }
   ],
   "rootGitlinkPaths": [

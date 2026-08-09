@@ -37,6 +37,7 @@ def test_v13_current_proof_authority_is_closed_a1_only_and_outside_v12_bundle() 
     assert authority["predecessors"] == ["E6-REMEDIATION"]
     assert authority["successor"] == "none"
     assert [row["id"] for row in authority["actionInventory"]] == ["A1"]
+    assert authority["actionInventory"][0]["status"] == "done"
     assert authority["actionInventory"][0]["executionAuthority"] == "E6-CURRENT-PROOF"
     assert authority["authority"]["authorityBundlePath"] == publisher.BUNDLE_PATH
     assert authority["authority"]["planningCandidate"] == candidate
@@ -56,7 +57,7 @@ def test_v13_current_proof_authority_is_closed_a1_only_and_outside_v12_bundle() 
     publisher.validate_current_proof_authority(ROOT, candidate, committed)
 
     mutation = deepcopy(authority)
-    mutation["actionInventory"][0]["status"] = "done"
+    mutation["actionInventory"][0]["status"] = "open"
     with pytest.raises(publisher.CurrentProofAuthorityError) as error:
         publisher.validate_current_proof_authority(ROOT, candidate, mutation)
     assert error.value.code == "CURRENT_PROOF_AUTHORITY_DRIFT"
