@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "planningCandidate": "8567d9a103007c9ee022a79b8dc14335a4b7ccd0",
     "candidateBinding": "`SC-11.3`, Story 11.2 record/fixture-proof digests, historical baseline digests, exact source inventory and tool versions, and the canonical candidate rule. All Checkpoints A-C must resolve to this compatible candidate chain.",
     "sectionSha256": "482182b723549760a0ce31b4d1c9a4485157db5b0484a270254f2a14df063b64"
   },
