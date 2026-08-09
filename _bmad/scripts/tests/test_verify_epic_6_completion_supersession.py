@@ -232,3 +232,125 @@ def test_exact_tree_clones_disable_cross_device_hardlinks(
     clone_calls = [arguments for arguments in calls if arguments[:2] == ("git", "clone")]
     assert len(clone_calls) == 2
     assert all("--no-hardlinks" in arguments for arguments in clone_calls)
+
+
+def passing_current_proof_test(_root: Path, command: dict) -> dict:
+    return {
+        "id": command["id"],
+        "argv": command["argv"],
+        "state": "PASS",
+        "exitCode": 0,
+        "skippedCount": 0,
+        "notRunCount": 0,
+        "outputSha256": "0" * 64,
+        "outputTail": "passed",
+        "_output": "passed",
+    }
+
+
+def test_current_proof_binds_head_gitlinks_and_nonempty_ledger() -> None:
+    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+
+    assert document["result"] == "PASS"
+    assert document["evidenceId"] == verifier.CURRENT_PROOF_EVIDENCE_ID
+    assert document["schemaVersion"] == verifier.CURRENT_PROOF_EVIDENCE_SCHEMA_VERSION
+    assert set(document["storyDoneCommits"]) == {"6.7", "6.2"}
+    assert len(document["rootGitlinks"]) == 10
+    assert all(row["mode"] == "160000" for row in document["rootGitlinks"])
+    assert document["assertionLedger"]
+    assert document["implementationHold"] == "ACTIVE"
+    assert document["releaseAuthorized"] is False
+    assert document["supersedesHistoricalEvidence"] is False
+
+
+def test_current_proof_unreachable_done_commit_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
+    original_bytes = (ROOT / verifier.CURRENT_PROOF_CONTRACT_PATH).read_bytes()
+    original_loader = verifier.load_current_proof_contract
+
+    def mutated_loader(repository: Path):
+        contract, contract_bytes, schema_bytes = original_loader(repository)
+        contract = deepcopy(contract)
+        contract["storyDoneCommits"] = {
+            **contract["storyDoneCommits"],
+            "6.7": "f" * 40,
+        }
+        return contract, contract_bytes, schema_bytes
+
+    monkeypatch.setattr(verifier, "load_current_proof_contract", mutated_loader)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+
+    assert error.value.state == "BLOCKED"
+    assert error.value.code in {"E6_HISTORY_UNAVAILABLE", "E6_COMMIT_ID_MISMATCH"}
+    document = verifier.current_proof_failure_document(error.value)
+    assert document["result"] == "BLOCKED"
+    assert document["assertionLedger"]
+    assert (ROOT / verifier.CURRENT_PROOF_CONTRACT_PATH).read_bytes() == original_bytes
+
+
+def test_current_proof_non_gitlink_root_path_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
+    def drifted(_repository: Path, _head: str, paths) -> list[dict[str, str]]:
+        raise verifier.SupersessionError(
+            "E6_CURRENT_PROOF_GITLINK_MODE_DRIFT",
+            f"{paths[0]}: mode='100644' objectId=None",
+            "BLOCKED",
+        )
+
+    monkeypatch.setattr(verifier, "current_root_gitlinks", drifted)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+
+    assert error.value.code == "E6_CURRENT_PROOF_GITLINK_MODE_DRIFT"
+    assert error.value.state == "BLOCKED"
+    document = verifier.current_proof_failure_document(error.value)
+    assert document["assertionLedger"]
+    assert document["result"] == "BLOCKED"
+
+
+def test_current_proof_empty_ledger_is_blocked() -> None:
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.require_nonempty_ledger([], "E6_CURRENT_PROOF_LEDGER_EMPTY")
+
+    assert error.value.code == "E6_CURRENT_PROOF_LEDGER_EMPTY"
+    assert error.value.state == "BLOCKED"
+    document = verifier.current_proof_failure_document(error.value)
+    assert document["assertionLedger"]
+    assert document["result"] == "BLOCKED"
+
+
+def test_current_proof_omitted_test_execution_is_blocked() -> None:
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=False, test_executor=passing_current_proof_test)
+
+    assert error.value.code == "E6_CURRENT_PROOF_TESTS_SKIPPED"
+    assert error.value.state == "BLOCKED"
+
+
+def test_current_proof_failed_surface_preserves_diagnostics() -> None:
+    def failed(_root: Path, command: dict) -> dict:
+        result = passing_current_proof_test(_root, command)
+        result.update(
+            {
+                "state": "FAIL",
+                "exitCode": 1,
+                "outputSha256": "f" * 64,
+                "outputTail": "current-proof surface failure detail",
+            }
+        )
+        return result
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=failed)
+
+    assert error.value.code == "E6_CURRENT_PROOF_TEST_FAILED"
+    assert "current-proof surface failure detail" in error.value.message
+
+
+def test_current_proof_markdown_forbids_hold_lift_and_historical_rewrite() -> None:
+    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+    rendered = verifier.current_proof_markdown(document)
+
+    assert "does not by itself lift the implementation hold" in rendered
+    assert "never rewrites, narrows, or" in rendered or "never rewrites" in rendered
+    assert "epic-6-retro-item-24" in rendered
+    assert document["supersedesHistoricalEvidence"] is False

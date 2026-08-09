@@ -1,0 +1,77 @@
+{
+  "schemaVersion": "hexalith.conversations.v13-current-proof-authority.v1",
+  "checkpointId": "E6-CURRENT-PROOF",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12",
+    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "implementationHold": "ACTIVE"
+  },
+  "predecessors": [
+    "E6-REMEDIATION"
+  ],
+  "successor": "none",
+  "actionInventory": [
+    {
+      "id": "A1",
+      "owner": "Dev workflow / Release owner",
+      "scope": "Additive present-state current-proof of Story 6.7 and Story 6.2 done-commit reachability, every post-done references/ path change, all ten root mode-160000 gitlinks at current HEAD, and the declared current-tree build/test surface, plus an independent decision that never rewrites V1-V12 historical evidence.",
+      "executionAuthority": "E6-CURRENT-PROOF",
+      "checkpointOwned": true,
+      "status": "open"
+    }
+  ],
+  "rootGitlinkPaths": [
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants"
+  ],
+  "currentProofContract": {
+    "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json",
+    "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af"
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "prohibitions": [
+    "rewrite completed Story 6.7 or Story 6.2 records",
+    "substitute current bytes for historical evidence",
+    "edit V1-V12 historical schema, contract, decision, or evidence",
+    "traverse nested submodules",
+    "modify product code, packages, submodules, or gitlinks",
+    "implement or start successors",
+    "create implementation-hold-v1.json",
+    "claim release approval",
+    "lift the implementation hold",
+    "authorize IR-0",
+    "silently apply epic-6-retro-item-24 sprint-status transition"
+  ],
+  "completionEffect": {
+    "ir0RerunAllowed": false,
+    "holdLifted": false,
+    "successorStarted": false,
+    "releaseAuthorized": false,
+    "retroItem24TransitionRequiresHuman": true
+  },
+  "assertions": [
+    "A1 is answered only by the additive current-proof route and an independent decision.",
+    "V1-V12 historical FAIL/REJECTED completion-supersession evidence remains byte-identical and authoritative for the historical question.",
+    "An ACCEPTED current-proof decision never lifts the hold, authorizes IR-0, starts a successor, or authorizes release.",
+    "Any epic-6-retro-item-24 sprint-status transition requires explicit human application."
+  ]
+}

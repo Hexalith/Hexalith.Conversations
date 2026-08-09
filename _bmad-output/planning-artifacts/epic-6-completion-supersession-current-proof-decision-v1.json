@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "epic-6-completion-supersession-current-proof-decision-v1",
+  "decisionId": "EPIC-6-COMPLETION-SUPERSESSION-CURRENT-PROOF-DECISION-v1",
+  "decisionDate": "2026-08-09",
+  "decision": "ACCEPTED",
+  "decisionAuthority": {
+    "owner": "Release owner",
+    "name": "Proposed by implementing agent; pending release-owner ratification",
+    "mechanism": "Repository-recorded independent decision on additive present-state evidence; no cryptographic-signature claim"
+  },
+  "authority": {
+    "checkpoint": "E6-CURRENT-PROOF",
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12",
+    "planningCandidate": "2e89b9fd7b84d560285a23e0f71a4cc4c90a56f8",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "authorityBundleSha256": "a0436006ddc40fd08a4edd3fdeeaa5cdee649219dd277399859492064313ca0a",
+    "authorityBundleDigest": "32b4f7040a1f76e98b24a87d55f622a4c283d6f6b23c7dc5dd7ca2ac0d55e7df",
+    "currentProofAuthorityPath": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+    "implementationHold": "ACTIVE"
+  },
+  "sourceEvidence": {
+    "jsonPath": "docs/release-evidence/epic-6-completion-supersession-current-proof-v1.json",
+    "jsonSha256": "02c26ae46a644c1fd95e07692ef5c6657ae9a9756a340a5f8de92db974bf819f",
+    "markdownPath": "docs/release-evidence/epic-6-completion-supersession-current-proof-v1.md",
+    "markdownSha256": "a094d49800d1d997de9a7e42b4334af0bba059b12a4ccf9926620972540bc8e0",
+    "evidenceHeadCommit": "ba1722b9ba75193a3a3d1a94556a8375e8fa39a5",
+    "result": "PASS"
+  },
+  "historicalEvidencePreserved": {
+    "jsonPath": "docs/release-evidence/epic-6-completion-supersession-v1.json",
+    "markdownPath": "docs/release-evidence/epic-6-completion-supersession-v1.md",
+    "decisionPath": "_bmad-output/planning-artifacts/epic-6-completion-supersession-decision-v1.json",
+    "historicalResult": "FAIL",
+    "historicalDecision": "REJECTED",
+    "superseded": false
+  },
+  "rationale": [
+    "The additive current-proof route returned PASS with a nonempty assertion ledger.",
+    "Story 6.7 done 29def441408becfbbbdc5c59b9af14a7717cb21f and Story 6.2 done e480c3f3176cdc3d911baf91eb3e7a8cd38874aa are reachable ancestors of current HEAD.",
+    "All ten declared root paths are raw-mode-160000 gitlinks at current HEAD, and every references/ path changed since each done commit was enumerated from Git history.",
+    "The declared current-tree tooling surface passed with zero failed, skipped, or not-run results.",
+    "This acceptance answers only the present-state question and leaves the V12 historical FAIL/REJECTED completion-supersession record authoritative and byte-identical."
+  ],
+  "effects": {
+    "a1PresentStateSatisfied": true,
+    "historicalA1RouteRemainsRejected": true,
+    "ir0RerunAuthorized": false,
+    "implementationHold": "ACTIVE",
+    "successorStarted": false,
+    "releaseAuthorized": false,
+    "epic6RetroItem24Transition": "proposed-not-applied"
+  },
+  "preserves": [
+    "Story 6.7 completed record and status",
+    "Story 6.2 completed record and status",
+    "V1-V12 point-in-time authority and evidence",
+    "V12 historical FAIL/REJECTED completion-supersession result",
+    "All root submodule content and gitlinks"
+  ],
+  "nonClaims": [
+    "This decision does not rewrite, narrow, or supersede the V1-V12 historical evidence, schema, contract, or REJECTED decision.",
+    "This decision does not lift the implementation hold.",
+    "This decision does not authorize IR-0, Story 7.1, a successor, or release.",
+    "This decision does not silently apply the epic-6-retro-item-24 sprint-status transition."
+  ],
+  "proposedSprintStatusTransition": {
+    "id": "epic-6-retro-item-24-produce-an-additive-epic-6-completion-su",
+    "from": "open",
+    "to": "done",
+    "applied": false,
+    "requiresHuman": true
+  }
+}

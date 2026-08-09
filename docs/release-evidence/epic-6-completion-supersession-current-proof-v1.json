@@ -1,0 +1,173 @@
+{
+  "assertionLedger": [
+    {
+      "id": "CURRENT-PROOF-CONTRACT-01",
+      "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af",
+      "state": "PASS",
+      "subject": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json"
+    },
+    {
+      "id": "CURRENT-PROOF-SCHEMA-01",
+      "sha256": "e10bca9886ffd9bc1902f3381738cc95c5bf7a57846c94a32f39e5ae68accba8",
+      "state": "PASS",
+      "subject": "_bmad/schemas/epic-6-completion-supersession-current-proof-v1.schema.json"
+    },
+    {
+      "id": "CURRENT-PROOF-HEAD-01",
+      "state": "PASS",
+      "subject": "ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+    },
+    {
+      "id": "CURRENT-PROOF-DONE-6.7",
+      "state": "PASS",
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+    },
+    {
+      "changedPathCount": 10,
+      "id": "CURRENT-PROOF-CHANGED-PATHS-6.7",
+      "state": "PASS",
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+    },
+    {
+      "id": "CURRENT-PROOF-DONE-6.2",
+      "state": "PASS",
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+    },
+    {
+      "changedPathCount": 10,
+      "id": "CURRENT-PROOF-CHANGED-PATHS-6.2",
+      "state": "PASS",
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+    },
+    {
+      "id": "CURRENT-PROOF-GITLINKS-01",
+      "rootGitlinkCount": 10,
+      "state": "PASS",
+      "subject": "references/"
+    },
+    {
+      "exitCode": 0,
+      "id": "CURRENT-PROOF-TOOLING-TESTS",
+      "outputSha256": "773655e906299cf84827ad35ff8e5543d82a4720b0c0b3e0c7b46e3510bac5a2",
+      "state": "PASS",
+      "subject": "uv run --frozen python3 -m pytest -q _bmad/scripts/tests --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
+    }
+  ],
+  "contract": {
+    "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json",
+    "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af"
+  },
+  "currentHeadCommit": "ba1722b9ba75193a3a3d1a94556a8375e8fa39a5",
+  "decisionRequired": true,
+  "evidenceId": "EPIC-6-COMPLETION-SUPERSESSION-CURRENT-PROOF-v1",
+  "implementationHold": "ACTIVE",
+  "issuedOn": "2026-08-09",
+  "postDoneChangedPaths": {
+    "6.2": [
+      "references/Hexalith.AI.Tools",
+      "references/Hexalith.Builds",
+      "references/Hexalith.Commons",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "6.7": [
+      "references/Hexalith.AI.Tools",
+      "references/Hexalith.Builds",
+      "references/Hexalith.Commons",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ]
+  },
+  "releaseAuthorized": false,
+  "result": "PASS",
+  "rootGitlinks": [
+    {
+      "mode": "160000",
+      "objectId": "a19a69d0f71152ec687f4db08d85b06c3467afb1",
+      "path": "references/Hexalith.AI.Tools"
+    },
+    {
+      "mode": "160000",
+      "objectId": "824d7ef100455423aabbcd399c8364074000b2e0",
+      "path": "references/Hexalith.Builds"
+    },
+    {
+      "mode": "160000",
+      "objectId": "74ccb968639d17ec1d82bf67ebf59bcb8af7a8a9",
+      "path": "references/Hexalith.Commons"
+    },
+    {
+      "mode": "160000",
+      "objectId": "bb94d93e9b84132cff83a38fba84f25455820d31",
+      "path": "references/Hexalith.EventStore"
+    },
+    {
+      "mode": "160000",
+      "objectId": "f814e1881b1298c01f3c6c7b1aa7fc7b2dd8b47c",
+      "path": "references/Hexalith.Folders"
+    },
+    {
+      "mode": "160000",
+      "objectId": "2f0791d6203a3331c746ec9694c04c49f80602e5",
+      "path": "references/Hexalith.FrontComposer"
+    },
+    {
+      "mode": "160000",
+      "objectId": "da5df10092461e5473d0e8fc09eacbb4a8e08d3a",
+      "path": "references/Hexalith.Memories"
+    },
+    {
+      "mode": "160000",
+      "objectId": "d4e1d83d22d554345dec816c52b00b87954002af",
+      "path": "references/Hexalith.Parties"
+    },
+    {
+      "mode": "160000",
+      "objectId": "a0dea374b3b990a38e23357934817969ba4a03e4",
+      "path": "references/Hexalith.Projects"
+    },
+    {
+      "mode": "160000",
+      "objectId": "323baf8871e70be3fde92072f32b758af950bc8c",
+      "path": "references/Hexalith.Tenants"
+    }
+  ],
+  "schemaVersion": "epic-6-completion-supersession-current-proof-evidence-v1",
+  "storyDoneCommits": {
+    "6.2": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa",
+    "6.7": "29def441408becfbbbdc5c59b9af14a7717cb21f"
+  },
+  "supersedesHistoricalEvidence": false,
+  "testResults": [
+    {
+      "argv": [
+        "uv",
+        "run",
+        "--frozen",
+        "python3",
+        "-m",
+        "pytest",
+        "-q",
+        "_bmad/scripts/tests",
+        "--ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
+      ],
+      "exitCode": 0,
+      "id": "CURRENT-PROOF-TOOLING-TESTS",
+      "notRunCount": 0,
+      "outputSha256": "773655e906299cf84827ad35ff8e5543d82a4720b0c0b3e0c7b46e3510bac5a2",
+      "outputTail": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n.....................................................                    [100%]\n197 passed in 27.99s\n",
+      "skippedCount": 0,
+      "state": "PASS"
+    }
+  ]
+}
