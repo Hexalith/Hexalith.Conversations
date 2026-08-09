@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V12-ACTIVE-LIFECYCLE-ROUTES-v1",
-  "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
+  "planningCandidate": "195fde177e37992aa9df0b7132b6c04c67b11ae8",
   "authorities": {
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12"

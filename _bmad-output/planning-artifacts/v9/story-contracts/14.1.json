@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
+    "planningCandidate": "195fde177e37992aa9df0b7132b6c04c67b11ae8",
     "candidateBinding": "`SC-14.1`, four predecessor records and their frozen inventories, exact authority/source blobs and relevant gitlinks.",
     "sectionSha256": "9ea525128f98f59935d9e04d5e9c7d3102530cd6d7ac39e52a22b0c24a116256"
   },

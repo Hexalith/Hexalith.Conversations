@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
+    "planningCandidate": "195fde177e37992aa9df0b7132b6c04c67b11ae8",
     "candidateBinding": "`SC-12.2`, Story 12.1 record, immutable baseline fixture, project/result hashes, method and approval digests, canonical candidate rule.",
     "sectionSha256": "8ce0d09fc9b30081b75942f93d2af6cb61c8213aec42f74b340743f685ebe89c"
   },
