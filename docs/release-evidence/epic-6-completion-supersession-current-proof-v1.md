@@ -9,7 +9,7 @@
 
 ## Present-state binding
 
-- Current HEAD: `ba1722b9ba75193a3a3d1a94556a8375e8fa39a5`
+- Current HEAD: `741658304df1764ad5faf506ca6b3325f60e98cf`
 - Story 6.7 done: `29def441408becfbbbdc5c59b9af14a7717cb21f` -- changed paths under `references/` since done: `10`
 - Story 6.2 done: `e480c3f3176cdc3d911baf91eb3e7a8cd38874aa` -- changed paths under `references/` since done: `10`
 - Root gitlinks bound: `10`

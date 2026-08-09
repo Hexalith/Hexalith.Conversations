@@ -15,29 +15,29 @@
     {
       "id": "CURRENT-PROOF-HEAD-01",
       "state": "PASS",
-      "subject": "ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+      "subject": "741658304df1764ad5faf506ca6b3325f60e98cf"
     },
     {
       "id": "CURRENT-PROOF-DONE-6.7",
       "state": "PASS",
-      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..741658304df1764ad5faf506ca6b3325f60e98cf"
     },
     {
       "changedPathCount": 10,
       "id": "CURRENT-PROOF-CHANGED-PATHS-6.7",
       "state": "PASS",
-      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..741658304df1764ad5faf506ca6b3325f60e98cf"
     },
     {
       "id": "CURRENT-PROOF-DONE-6.2",
       "state": "PASS",
-      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..741658304df1764ad5faf506ca6b3325f60e98cf"
     },
     {
       "changedPathCount": 10,
       "id": "CURRENT-PROOF-CHANGED-PATHS-6.2",
       "state": "PASS",
-      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..ba1722b9ba75193a3a3d1a94556a8375e8fa39a5"
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..741658304df1764ad5faf506ca6b3325f60e98cf"
     },
     {
       "id": "CURRENT-PROOF-GITLINKS-01",
@@ -48,7 +48,7 @@
     {
       "exitCode": 0,
       "id": "CURRENT-PROOF-TOOLING-TESTS",
-      "outputSha256": "773655e906299cf84827ad35ff8e5543d82a4720b0c0b3e0c7b46e3510bac5a2",
+      "outputSha256": "683aa5d3163b67ad2012b23ab588c4bad8cb9f139ef591b882291165b27a311e",
       "state": "PASS",
       "subject": "uv run --frozen python3 -m pytest -q _bmad/scripts/tests --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
     }
@@ -57,7 +57,7 @@
     "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json",
     "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af"
   },
-  "currentHeadCommit": "ba1722b9ba75193a3a3d1a94556a8375e8fa39a5",
+  "currentHeadCommit": "741658304df1764ad5faf506ca6b3325f60e98cf",
   "decisionRequired": true,
   "evidenceId": "EPIC-6-COMPLETION-SUPERSESSION-CURRENT-PROOF-v1",
   "implementationHold": "ACTIVE",
@@ -164,8 +164,8 @@
       "exitCode": 0,
       "id": "CURRENT-PROOF-TOOLING-TESTS",
       "notRunCount": 0,
-      "outputSha256": "773655e906299cf84827ad35ff8e5543d82a4720b0c0b3e0c7b46e3510bac5a2",
-      "outputTail": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n.....................................................                    [100%]\n197 passed in 27.99s\n",
+      "outputSha256": "683aa5d3163b67ad2012b23ab588c4bad8cb9f139ef591b882291165b27a311e",
+      "outputTail": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n.....................................................                    [100%]\n197 passed in 24.09s\n",
       "skippedCount": 0,
       "state": "PASS"
     }
