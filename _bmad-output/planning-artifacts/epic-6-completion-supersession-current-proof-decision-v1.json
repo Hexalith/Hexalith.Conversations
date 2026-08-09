@@ -12,19 +12,19 @@
     "checkpoint": "E6-CURRENT-PROOF",
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12",
-    "planningCandidate": "8567d9a103007c9ee022a79b8dc14335a4b7ccd0",
+    "planningCandidate": "540fa0734cec2f5c8caffd7a3d76bc79ec06a7a4",
     "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
-    "authorityBundleSha256": "e0a1906495a07a5a6d1f70ec2bb7096916c837ca84f712e728fe00e9497c88cc",
-    "authorityBundleDigest": "bb584727b36f3689f6626b0981e6888be65daa7986d215663187d9dabf058688",
+    "authorityBundleSha256": "d6930f6416cb676670ff26755d0f6b7d04fd1804c5ef5968d5aa7e1f56157fcf",
+    "authorityBundleDigest": "b704f60a956e78b280aff71c4fc12b37226e35260264aadc404d171a1bf945a5",
     "currentProofAuthorityPath": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
     "implementationHold": "ACTIVE"
   },
   "sourceEvidence": {
     "jsonPath": "docs/release-evidence/epic-6-completion-supersession-current-proof-v1.json",
-    "jsonSha256": "465ebccf553b020d87d527fbe38330c7f6436f039398287ca8878cccaf9d1093",
+    "jsonSha256": "014b50013714a077e6404c40f1c65c70edc3d7835404b910401fe67e3d6887f6",
     "markdownPath": "docs/release-evidence/epic-6-completion-supersession-current-proof-v1.md",
-    "markdownSha256": "e672466b3da03e9b38cdba000703217f759cb7b4c1d83b32cd3250b8db7d7495",
-    "evidenceHeadCommit": "741658304df1764ad5faf506ca6b3325f60e98cf",
+    "markdownSha256": "200c132c92695c2c612944f5b89a9f25effb4f859f87e7d61d6194e82b7a5472",
+    "evidenceHeadCommit": "52240cff72f1b8dc985c52a1a50f67de9800a79f",
     "result": "PASS"
   },
   "historicalEvidencePreserved": {

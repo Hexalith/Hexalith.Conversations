@@ -2,7 +2,7 @@
   "assertionLedger": [
     {
       "id": "CURRENT-PROOF-CONTRACT-01",
-      "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af",
+      "sha256": "de1a21c11f84f09b6af07d129ad9b9c8445ae76ebed448ff26175b7b94ab2de9",
       "state": "PASS",
       "subject": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json"
     },
@@ -15,29 +15,29 @@
     {
       "id": "CURRENT-PROOF-HEAD-01",
       "state": "PASS",
-      "subject": "741658304df1764ad5faf506ca6b3325f60e98cf"
+      "subject": "52240cff72f1b8dc985c52a1a50f67de9800a79f"
     },
     {
       "id": "CURRENT-PROOF-DONE-6.7",
       "state": "PASS",
-      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..741658304df1764ad5faf506ca6b3325f60e98cf"
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..52240cff72f1b8dc985c52a1a50f67de9800a79f"
     },
     {
       "changedPathCount": 10,
       "id": "CURRENT-PROOF-CHANGED-PATHS-6.7",
       "state": "PASS",
-      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..741658304df1764ad5faf506ca6b3325f60e98cf"
+      "subject": "29def441408becfbbbdc5c59b9af14a7717cb21f..52240cff72f1b8dc985c52a1a50f67de9800a79f"
     },
     {
       "id": "CURRENT-PROOF-DONE-6.2",
       "state": "PASS",
-      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..741658304df1764ad5faf506ca6b3325f60e98cf"
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..52240cff72f1b8dc985c52a1a50f67de9800a79f"
     },
     {
       "changedPathCount": 10,
       "id": "CURRENT-PROOF-CHANGED-PATHS-6.2",
       "state": "PASS",
-      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..741658304df1764ad5faf506ca6b3325f60e98cf"
+      "subject": "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa..52240cff72f1b8dc985c52a1a50f67de9800a79f"
     },
     {
       "id": "CURRENT-PROOF-GITLINKS-01",
@@ -48,16 +48,16 @@
     {
       "exitCode": 0,
       "id": "CURRENT-PROOF-TOOLING-TESTS",
-      "outputSha256": "683aa5d3163b67ad2012b23ab588c4bad8cb9f139ef591b882291165b27a311e",
+      "outputSha256": "ffa01dfbaa180b875a04c498144a29d6ef22b401b395ded9e4cab6254d7806eb",
       "state": "PASS",
-      "subject": "uv run --frozen python3 -m pytest -q _bmad/scripts/tests --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
+      "subject": "uv run --frozen python3 -m pytest -q _bmad/scripts/tests"
     }
   ],
   "contract": {
     "path": "_bmad-output/planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json",
-    "sha256": "6392a6ab039c7408acfc7c10b3fde791221010ade0762f8766bc01867116c3af"
+    "sha256": "de1a21c11f84f09b6af07d129ad9b9c8445ae76ebed448ff26175b7b94ab2de9"
   },
-  "currentHeadCommit": "741658304df1764ad5faf506ca6b3325f60e98cf",
+  "currentHeadCommit": "52240cff72f1b8dc985c52a1a50f67de9800a79f",
   "decisionRequired": true,
   "evidenceId": "EPIC-6-COMPLETION-SUPERSESSION-CURRENT-PROOF-v1",
   "implementationHold": "ACTIVE",
@@ -158,14 +158,13 @@
         "-m",
         "pytest",
         "-q",
-        "_bmad/scripts/tests",
-        "--ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py"
+        "_bmad/scripts/tests"
       ],
       "exitCode": 0,
       "id": "CURRENT-PROOF-TOOLING-TESTS",
       "notRunCount": 0,
-      "outputSha256": "683aa5d3163b67ad2012b23ab588c4bad8cb9f139ef591b882291165b27a311e",
-      "outputTail": "........................................................................ [ 36%]\n........................................................................ [ 73%]\n.....................................................                    [100%]\n197 passed in 24.09s\n",
+      "outputSha256": "ffa01dfbaa180b875a04c498144a29d6ef22b401b395ded9e4cab6254d7806eb",
+      "outputTail": "........................................................................ [ 32%]\n........................................................................ [ 64%]\n........................................................................ [ 96%]\n.........                                                                [100%]\n225 passed in 26.28s\n",
       "skippedCount": 0,
       "state": "PASS"
     }
