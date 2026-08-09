@@ -2,7 +2,7 @@
 title: 'Fix root commitlint tooling and complete pushall'
 type: 'bugfix'
 created: '2026-08-09'
-status: 'in-review'
+status: 'done'
 review_loop_iteration: 0
 baseline_commit: '588381bb744ef2d81c0685e7f567c54f6dc37742'
 submodule_promotions:
@@ -111,3 +111,35 @@ The minimal three-file setup deliberately excludes Husky, semantic-release, and 
 - `git diff --check` for the committed range and review worktree, plus `git diff --cached --check` -- PASS.
 - Review patch boundary -- only `commitlint.config.mjs` and this workflow record are modified after `28f6fbbb56937b1c30a3ff2523ae02e007a380a9`; both remain unstaged and the index is unchanged for coordinator processing.
 - Fresh fetch, root divergence/ff-only handling, outgoing-range validation, ordinary push, and final-state checks remain pending coordinator gates after review.
+
+## Suggested Review Order
+
+**Intent and boundary**
+
+- Start with the minimal blocker fix and its deliberately excluded enforcement expansion.
+  [`spec-fix-root-commitlint-tooling.md:18`](spec-fix-root-commitlint-tooling.md#L18)
+
+- Confirm the FrontComposer promotion is explicitly declared for remote verification.
+  [`spec-fix-root-commitlint-tooling.md:7`](spec-fix-root-commitlint-tooling.md#L7)
+
+**Validation policy**
+
+- Review the conventional base, default-ignore behavior, length limits, and type allowlist.
+  [`commitlint.config.mjs:1`](../../commitlint.config.mjs#L1)
+
+- Inspect the review-added guard for exact scope and separator spacing.
+  [`commitlint.config.mjs:7`](../../commitlint.config.mjs#L7)
+
+- Verify the supported Node floor and exact owning-repository tool pins.
+  [`package.json:4`](../../package.json#L4)
+
+- Confirm lockfile v3 preserves the exact root dependency contract.
+  [`package-lock.json:3`](../../package-lock.json#L3)
+
+**Evidence and follow-up**
+
+- Read the complete verification commands and measured matrix evidence.
+  [`spec-fix-root-commitlint-tooling.md:81`](spec-fix-root-commitlint-tooling.md#L81)
+
+- Keep hooks and blocking CI visible as deliberately deferred enforcement work.
+  [`deferred-work.md:253`](deferred-work.md#L253)
