@@ -2,7 +2,7 @@
 title: 'Author and execute the V13 additive current-proof completion-supersession route'
 type: 'chore'
 created: '2026-08-05'
-status: 'in-review'
+status: 'done'
 review_loop_iteration: 0
 baseline_commit: 'b6dec66bacc7dce84c06492c0f3c258eb338d69f'
 context:
@@ -84,3 +84,49 @@ The historical route's own failing assertion targets a candidate baked into a di
 - `uv sync --frozen && uv run --frozen python3 -m pytest -q _bmad/scripts/tests` -- expected: non-vacuous pass, zero failures/skips/not-run, including new current-proof fault-injection tests.
 - `python3 _bmad/scripts/publish_v13_current_proof_authority.py --repository . --check` -- expected: `V13_CURRENT_PROOF_AUTHORITY_OK`.
 - `git diff --stat -- docs/release-evidence/epic-6-completion-supersession-v1.json docs/release-evidence/epic-6-completion-supersession-v1.md _bmad-output/planning-artifacts/epic-6-completion-supersession-decision-v1.json _bmad-output/planning-artifacts/epic-6-completion-supersession-contract-v1.json _bmad/schemas/epic-6-completion-supersession-v1.schema.json` -- expected: empty.
+
+## Suggested Review Order
+
+**Entry point**
+
+- Additive present-state route; historical `reconstruct()` stays untouched.
+  [`verify_epic_6_completion_supersession.py:609`](../../_bmad/scripts/verify_epic_6_completion_supersession.py#L609)
+
+**Contract and schema**
+
+- Own checkpoint contract; done SHAs anchor present-state, not candidates.
+  [`epic-6-completion-supersession-current-proof-contract-v1.json:4`](../planning-artifacts/epic-6-completion-supersession-current-proof-contract-v1.json#L4)
+
+- Schema const prevents accidental mutation of the historical v1 schema.
+  [`epic-6-completion-supersession-current-proof-v1.schema.json:22`](../../_bmad/schemas/epic-6-completion-supersession-current-proof-v1.schema.json#L22)
+
+**Gitlink and path binding**
+
+- Raw-mode-`160000` HEAD gitlinks via shared `recorded_gitlink()`.
+  [`verify_epic_6_completion_supersession.py:575`](../../_bmad/scripts/verify_epic_6_completion_supersession.py#L575)
+
+**CLI surface**
+
+- `--current-proof` flag and main branch select the additive route only.
+  [`verify_epic_6_completion_supersession.py:881`](../../_bmad/scripts/verify_epic_6_completion_supersession.py#L881)
+
+**V13 authority sidecar**
+
+- Sibling publisher keeps V13 outside the candidate-bound V12 companion set.
+  [`publish_v13_current_proof_authority.py:89`](../../_bmad/scripts/publish_v13_current_proof_authority.py#L89)
+
+- Closed A1-only checkpoint with hold/IR-0/release prohibitions.
+  [`v13-current-proof-authority-v1.json:3`](../planning-artifacts/v13-current-proof-authority-v1.json#L3)
+
+**Evidence and decision**
+
+- PASS evidence with nonempty ledger at rebound planning candidate.
+  [`epic-6-completion-supersession-current-proof-v1.json:1`](../../docs/release-evidence/epic-6-completion-supersession-current-proof-v1.json#L1)
+
+- ACCEPTED with explicit non-claims; sprint transition proposed, not applied.
+  [`epic-6-completion-supersession-current-proof-decision-v1.json:15`](../planning-artifacts/epic-6-completion-supersession-current-proof-decision-v1.json#L15)
+
+**Tests**
+
+- Fault injections for unreachable done, mode drift, skips, CLI, and paths.
+  [`test_verify_epic_6_completion_supersession.py:251`](../../_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py#L251)

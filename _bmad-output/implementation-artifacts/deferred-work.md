@@ -228,3 +228,24 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-1-schema-checkpoint-authority-publication.md`
   summary: Make managed planning publication crash-atomic for concurrent readers and process termination.
   evidence: Review confirmed the pre-existing multi-file replacement uses in-process rollback but cannot prevent readers from observing mixed generations or recover from process termination; redesigning publication storage exceeds this authority-only correction.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v13-additive-current-proof-supersession.md`
+  summary: Expand the frozen V13 I/O matrix to cover HEAD-not-descendant, omitted tests, skipped/not-run, and empty-ledger modes already enforced in code.
+  evidence: Review found these failure modes implemented and partly tested, but the frozen matrix still lists only four rows; amending frozen intent needs a human renegotiation.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v13-additive-current-proof-supersession.md`
+  summary: Clarify or remove unused `not-applicable` from V13 current-proof resultSemantics.
+  evidence: Authority/resultSemantics advertise `not-applicable`, but the route never emits it and docs do not define a valid production case.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v13-additive-current-proof-supersession.md`
+  summary: Add schemas for current-proof evidence and decision documents.
+  evidence: Contract and authority have schemas; evidence/decision JSON are validated only by publisher/tests convention, not by dedicated schema files.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v13-additive-current-proof-supersession.md`
+  summary: Enrich current-proof Markdown evidence with assertion ledger, gitlink objectIds, and test diagnostics.
+  evidence: JSON carries the audit detail; Markdown is a short boundary summary insufficient for offline PASS audit without opening JSON.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v13-additive-current-proof-supersession.md`
+  summary: Leave unrelated dirty `epic-7-context.md` out of V13 closure or reconcile it in its owning story.
+  evidence: The file remains unstaged beside the V13 work and is outside the additive current-proof scope.
+
