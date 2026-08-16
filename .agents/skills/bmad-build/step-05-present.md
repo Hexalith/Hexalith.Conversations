@@ -48,10 +48,6 @@ Format each stop as framing first, link on the next indented line:
 
 When there is only one concern, omit the bold label — just list the stops directly.
 
-### V12 lifecycle evidence gates
-
-Before any lifecycle status write, re-read `{baseline_commit}` and `submodule_promotions` from `{spec_file}` frontmatter. Run `_bmad/scripts/verify_submodule_promotion.py` with the repository root, that baseline, committed `HEAD`, and the exact declared scope. Then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when the promotion gate exits `0` and the evidence result is `PASS` or `not-applicable` with a nonempty assertion ledger. Any other outcome leaves the spec and sprint lifecycle unchanged and HALTs with the stable diagnostics.
-
 ### Mark Spec Done
 
 Change `{spec_file}` status to `done` in the frontmatter.

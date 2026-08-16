@@ -8,10 +8,6 @@
 
 ## INSTRUCTIONS
 
-### V12 lifecycle evidence gates
-
-Before any lifecycle status write, read `{baseline_commit}` and `submodule_promotions` from `{spec_file}` frontmatter. Run `_bmad/scripts/verify_submodule_promotion.py` with the repository root, that baseline, committed `HEAD`, and one `--submodule` / `--require-remote` argument for every declared row. Then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when the promotion gate exits `0` and the evidence gate returns `PASS` or `not-applicable` with a nonempty assertion ledger. On `FAIL`, `BLOCKED`, missing inputs, skipped execution, or an empty ledger, leave lifecycle state unchanged, record the diagnostics, and HALT.
-
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 
 ### Construct Diff

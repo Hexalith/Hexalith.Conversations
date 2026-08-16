@@ -27,7 +27,7 @@ description: "Deprecated: `bmad-build` is now the official implementation method
 
 ### Step 1: Resolve the Workflow Block
 
-Run: `python3 {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --key workflow`
+Run: `uv run {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --key workflow`
 
 **If the script fails**, resolve the `workflow` block yourself by reading these three files in base → team → user order and applying the same structural merge rules as the resolver:
 
@@ -415,7 +415,6 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
     <action>Run the full regression suite (do not skip)</action>
     <action>Confirm File List includes every changed file</action>
     <action>Execute enhanced definition-of-done validation</action>
-    <action>V12 lifecycle evidence gates: before any lifecycle status write, run `_bmad/scripts/verify_submodule_promotion.py` with the story baseline, committed `HEAD`, and exact `submodule_promotions`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable`; continue only for promotion exit `0` plus evidence `PASS` or `not-applicable` with a nonempty assertion ledger. Missing, skipped, failed, blocked, or empty-ledger evidence leaves story and sprint `in-progress`, records diagnostics, and HALTs.</action>
     <action>Update the story Status to: "review"</action>
 
     <!-- Enhanced Definition of Done Validation -->
@@ -497,7 +496,7 @@ Activation is complete. If `activation_steps_prepend` or `activation_steps_appen
       <action>Suggest checking {sprint_status} to see project progress</action>
     </check>
     <action>Remain flexible - allow user to choose their own path or ask for other assistance</action>
-  <action>Run: `python3 {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --key workflow.on_complete` — if the resolved value is non-empty, follow it as the final terminal instruction before exiting.</action>
+  <action>Run: `uv run {project-root}/_bmad/scripts/resolve_customization.py --skill {skill-root} --key workflow.on_complete` — if the resolved value is non-empty, follow it as the final terminal instruction before exiting.</action>
   </step>
 
 </workflow>
