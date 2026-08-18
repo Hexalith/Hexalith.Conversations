@@ -84,6 +84,10 @@ If `{spec_file}` is **not** set, present only options 1 and 2 (omit "Leave as ac
 
 Skip this section if `{spec_file}` is not set.
 
+#### V12 lifecycle evidence gates
+
+Before any lifecycle status write, read the baseline and exact `submodule_promotions` scope from `{spec_file}`. Run `_bmad/scripts/verify_submodule_promotion.py` against committed `HEAD`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only for promotion exit `0` plus evidence `PASS` or `not-applicable` with a nonempty assertion ledger. Otherwise force `{new_status}` to `in-progress`, preserve diagnostics in the review record, never execute the `done` branch, and synchronize only `in-progress`.
+
 #### Determine new status based on review outcome
 
 - If all `decision-needed` and `patch` findings were resolved (fixed or dismissed) AND no unresolved `high`/`medium` findings remain: set `{new_status}` = `done`. Update the story file Status section to `done`.
