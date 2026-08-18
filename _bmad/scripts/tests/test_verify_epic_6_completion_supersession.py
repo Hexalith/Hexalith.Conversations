@@ -249,7 +249,7 @@ def passing_current_proof_test(_root: Path, command: dict) -> dict:
 
 
 def test_current_proof_binds_head_gitlinks_and_nonempty_ledger() -> None:
-    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
 
     assert document["result"] == "PASS"
     assert document["evidenceId"] == verifier.CURRENT_PROOF_EVIDENCE_ID
@@ -270,7 +270,7 @@ def test_current_proof_binds_head_gitlinks_and_nonempty_ledger() -> None:
             document["currentHeadCommit"],
             "references/",
         )
-        assert observed == expected
+        assert observed == expected["paths"]
 
 
 def test_current_proof_unreachable_done_commit_is_blocked(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -288,7 +288,7 @@ def test_current_proof_unreachable_done_commit_is_blocked(monkeypatch: pytest.Mo
 
     monkeypatch.setattr(verifier, "load_current_proof_contract", mutated_loader)
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
 
     assert error.value.state == "BLOCKED"
     assert error.value.code in {"E6_HISTORY_UNAVAILABLE", "E6_COMMIT_ID_MISMATCH"}
@@ -309,7 +309,7 @@ def test_current_proof_non_gitlink_root_path_is_blocked_via_recorded_gitlink(
     monkeypatch.setattr(promotion, "recorded_gitlink", not_gitlink)
     monkeypatch.setattr(verifier, "promotion_module", lambda: promotion)
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_GITLINK_MODE_DRIFT"
     assert error.value.state == "BLOCKED"
@@ -328,7 +328,7 @@ def test_current_proof_head_not_descendant_is_blocked(monkeypatch: pytest.Monkey
 
     monkeypatch.setattr(verifier, "git", deny_ancestor)
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_HEAD_NOT_DESCENDANT"
     assert error.value.state == "BLOCKED"
@@ -341,7 +341,7 @@ def test_current_proof_skipped_surface_is_blocked() -> None:
         return result
 
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=skipped)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=skipped, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_TEST_SKIPPED"
     assert error.value.state == "BLOCKED"
@@ -354,7 +354,7 @@ def test_current_proof_not_run_surface_is_blocked() -> None:
         return result
 
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=not_run)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=not_run, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_TEST_NOT_RUN"
     assert error.value.state == "BLOCKED"
@@ -365,7 +365,7 @@ def test_current_proof_malformed_test_result_is_blocked() -> None:
         return {"id": command["id"], "state": "PASS"}
 
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=malformed)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=malformed, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_TEST_MALFORMED"
     assert error.value.state == "BLOCKED"
@@ -384,7 +384,7 @@ def test_current_proof_empty_ledger_is_blocked() -> None:
 
 def test_current_proof_omitted_test_execution_is_blocked() -> None:
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=False, test_executor=passing_current_proof_test)
+        verifier.current_proof(ROOT, execute_tests=False, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_TESTS_SKIPPED"
     assert error.value.state == "BLOCKED"
@@ -404,7 +404,7 @@ def test_current_proof_failed_surface_preserves_diagnostics() -> None:
         return result
 
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=failed)
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=failed, allow_dirty_worktree=True)
 
     assert error.value.code == "E6_CURRENT_PROOF_TEST_FAILED"
     assert "current-proof surface failure detail" in error.value.message
@@ -461,10 +461,135 @@ def test_current_proof_cli_bypasses_historical_reconstruct(
 
 
 def test_current_proof_markdown_forbids_hold_lift_and_historical_rewrite() -> None:
-    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+    document = verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True)
     rendered = verifier.current_proof_markdown(document)
 
     assert "does not by itself lift the implementation hold" in rendered
     assert "never rewrites, narrows, or" in rendered or "never rewrites" in rendered
     assert "epic-6-retro-item-24" in rendered
     assert document["supersedesHistoricalEvidence"] is False
+
+
+# --- E6-REMEDIATION A3 §4.6 evidence-integrity faults ----------------------
+
+
+def test_dirty_tracked_worktree_blocks_current_proof() -> None:
+    """F-10: uncommitted tracked bytes must never be attributed to the resolved commit."""
+    dirt = verifier.worktree_dirt(ROOT)
+    if not dirt:
+        pytest.skip("repository worktree is clean; the strict default is exercised by CI")
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+    assert error.value.state == "BLOCKED"
+    assert error.value.code == "E6_CURRENT_PROOF_WORKTREE_DIRTY"
+
+
+def test_contract_bytes_must_come_from_the_resolved_commit(monkeypatch: pytest.MonkeyPatch) -> None:
+    """R2: a worktree-only contract edit cannot be presented as the resolved commit's evidence."""
+    original_loader = verifier.load_current_proof_contract
+
+    def mutated_loader(repository: Path):
+        contract, contract_bytes, schema_bytes = original_loader(repository)
+        return contract, contract_bytes + b"\n", schema_bytes
+
+    monkeypatch.setattr(verifier, "load_current_proof_contract", mutated_loader)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_proof(
+            ROOT, execute_tests=True, test_executor=passing_current_proof_test, allow_dirty_worktree=True
+        )
+    assert error.value.state == "BLOCKED"
+    assert error.value.code == "E6_CURRENT_PROOF_INPUT_WORKTREE_DRIFT"
+
+
+def test_changed_path_enumeration_uses_history_union_not_endpoint_difference() -> None:
+    """F-11/F-12: the authoritative set is the history union, cross-checked by an independent oracle."""
+    head = verifier.resolve_head(ROOT)
+    contract, _contract_bytes, _schema_bytes = verifier.load_current_proof_contract(ROOT)
+    done = verifier.resolve_commit(ROOT, contract["storyDoneCommits"]["6.2"], "6.2")
+
+    enumeration = verifier.post_done_changed_paths(ROOT, done, head, "references/")
+    endpoint = verifier.endpoint_changed_paths(ROOT, done, head, "references/")
+    union = verifier.history_union_changed_paths(ROOT, done, head, "references/")
+
+    assert enumeration["paths"] == union
+    assert enumeration["endpointPaths"] == endpoint
+    # The union can never omit a path the endpoint diff reports; that asymmetry is the whole point.
+    assert set(endpoint) <= set(union)
+    assert enumeration["revertedWithinRange"] == sorted(set(union) - set(endpoint))
+    assert all(path.startswith("references/") for path in enumeration["paths"])
+
+
+def test_root_gitlink_inventory_requires_exact_equality(monkeypatch: pytest.MonkeyPatch) -> None:
+    """F-13: a root gitlink present at HEAD but absent from the contract must block."""
+    head = verifier.resolve_head(ROOT)
+    contract, _contract_bytes, _schema_bytes = verifier.load_current_proof_contract(ROOT)
+    declared = list(contract["rootGitlinks"])
+
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_root_gitlinks(ROOT, head, declared[:-1])
+    assert error.value.state == "BLOCKED"
+    assert error.value.code == "E6_CURRENT_PROOF_GITLINK_INVENTORY_DRIFT"
+
+
+def test_unavailable_gitlink_object_blocks_current_proof(monkeypatch: pytest.MonkeyPatch) -> None:
+    """F-14: a recorded object that is not reachable in its submodule is not evidence."""
+    head = verifier.resolve_head(ROOT)
+    contract, _contract_bytes, _schema_bytes = verifier.load_current_proof_contract(ROOT)
+    # promotion_module() re-executes a fresh module on every call, so patching the object it
+    # returns has no effect; the factory itself must be replaced.
+    real_module = verifier.promotion_module()
+    original = real_module.recorded_gitlink
+
+    class StubPromotionModule:
+        GateError = real_module.GateError
+
+        @staticmethod
+        def recorded_gitlink(repository: Path, commit: str, path: str):
+            mode, object_id = original(repository, commit, path)
+            if path.endswith("Hexalith.Tenants"):
+                return mode, "0" * 39 + "1"
+            return mode, object_id
+
+    monkeypatch.setattr(verifier, "promotion_module", lambda: StubPromotionModule)
+    with pytest.raises(verifier.SupersessionError) as error:
+        verifier.current_root_gitlinks(ROOT, head, list(contract["rootGitlinks"]))
+    assert error.value.state == "BLOCKED"
+    assert error.value.code == "E6_CURRENT_PROOF_GITLINK_OBJECT_UNAVAILABLE"
+
+
+def test_gitmodules_inventory_must_match_the_declared_roots() -> None:
+    """The declared roots, HEAD's mode-160000 tree entries, and .gitmodules must agree exactly."""
+    head = verifier.resolve_head(ROOT)
+    contract, _contract_bytes, _schema_bytes = verifier.load_current_proof_contract(ROOT)
+    declared = sorted(contract["rootGitlinks"])
+    assert verifier.declared_root_gitlink_inventory(ROOT, head) == declared
+    assert verifier.gitmodules_paths(ROOT, head) == declared
+
+
+@pytest.mark.parametrize(
+    ("output", "expected"),
+    [
+        ("1 skipped", 1),
+        ("3 passed, 1 skipped in 0.12s", 1),
+        ("Skipped: 2", 2),
+        ("skipped=4", 4),
+        ("12 passed in 0.30s", 0),
+        ("225 passed, 7 skipped, 1 failed", 7),
+    ],
+)
+def test_skip_parser_reads_count_first_and_label_first_forms(output: str, expected: int) -> None:
+    """F-15: pytest's normal count-first summary was previously invisible to the parser."""
+    assert verifier.skipped_count(output) == expected
+
+
+@pytest.mark.parametrize(
+    ("output", "expected"),
+    [
+        ("2 not run", 2),
+        ("Not run: 3", 3),
+        ("not-run = 5", 5),
+        ("all tests executed", 0),
+    ],
+)
+def test_not_run_parser_reads_both_orders(output: str, expected: int) -> None:
+    assert verifier.not_run_count(output) == expected

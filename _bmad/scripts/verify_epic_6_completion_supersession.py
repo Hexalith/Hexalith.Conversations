@@ -267,17 +267,30 @@ def clone_exact_tree(repository: Path, destination: Path, done: str, rows: Seque
     return clone
 
 
-def skipped_count(output: str) -> int:
-    values = [int(value) for value in re.findall(r"(?i)\bskipped\s*[:=]?\s*(\d+)\b", output)]
+# Runners report counts in both orders. pytest's normal summary is count-first ("1 skipped",
+# "3 passed, 1 skipped"); label-first ("Skipped: 1") is the VSTest/dotnet shape. Matching only one
+# form let a real skip read as zero and a narrowed lane read as complete verification.
+SKIPPED_PATTERNS = (
+    r"(?i)\bskipped\s*[:=]?\s*(\d+)\b",
+    r"(?i)\b(\d+)\s+skipped\b",
+)
+NOT_RUN_PATTERNS = (
+    r"(?i)\bnot[\s-]*run\s*[:=]?\s*(\d+)\b",
+    r"(?i)\b(\d+)\s+not[\s-]*run\b",
+)
+
+
+def _max_reported_count(output: str, patterns: Sequence[str]) -> int:
+    values = [int(value) for pattern in patterns for value in re.findall(pattern, output)]
     return max(values, default=0)
+
+
+def skipped_count(output: str) -> int:
+    return _max_reported_count(output, SKIPPED_PATTERNS)
 
 
 def not_run_count(output: str) -> int:
-    values = [
-        int(value)
-        for value in re.findall(r"(?i)\bnot[\s-]*run\s*[:=]?\s*(\d+)\b", output)
-    ]
-    return max(values, default=0)
+    return _max_reported_count(output, NOT_RUN_PATTERNS)
 
 
 def execute_command(root: Path, command: dict[str, Any]) -> dict[str, Any]:
@@ -589,13 +602,151 @@ def current_root_gitlinks(repository: Path, head: str, paths: Sequence[str]) -> 
                 "BLOCKED",
             )
         rows.append({"path": path, "mode": mode, "objectId": object_id})
+
+    # Exact inventory equality, not "the declared subset all happen to be gitlinks". A root gitlink
+    # that exists at HEAD but is missing from the contract would otherwise never be inspected.
+    declared = sorted({safe_path(path) for path in paths})
+    observed = declared_root_gitlink_inventory(repository, head)
+    if declared != observed:
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_GITLINK_INVENTORY_DRIFT",
+            f"declared={declared!r} observed={observed!r}",
+            "BLOCKED",
+        )
+    modules = gitmodules_paths(repository, head)
+    if declared != modules:
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_GITMODULES_DRIFT",
+            f"declared={declared!r} gitmodules={modules!r}",
+            "BLOCKED",
+        )
+
+    # A recorded object id is only evidence if the object is actually reachable in that submodule.
+    for row in rows:
+        submodule = repository / row["path"]
+        probe = git(submodule, "cat-file", "-e", f"{row['objectId']}^{{commit}}", allowed=(0, 1, 128))
+        if probe.returncode != 0:
+            raise SupersessionError(
+                "E6_CURRENT_PROOF_GITLINK_OBJECT_UNAVAILABLE",
+                f"{row['path']}: {row['objectId']}",
+                "BLOCKED",
+            )
     return rows
 
 
-def post_done_changed_paths(repository: Path, done: str, head: str, scope_prefix: str) -> list[str]:
-    """Enumerate every path changed under `scope_prefix` since a story's done commit."""
+def assert_inputs_come_from_the_resolved_commit(
+    repository: Path, head: str, inputs: Sequence[tuple[str, bytes]]
+) -> None:
+    """Require every declared input byte to equal its blob at the resolved commit.
+
+    Evidence labelled with a commit must execute only bytes from that commit. Loading the contract
+    or schema from the mutable worktree lets uncommitted bytes be attributed to `head`.
+    """
+    for relative_path, observed in inputs:
+        result = git(repository, "show", f"{head}:{safe_path(relative_path)}", allowed=(0, 128))
+        if result.returncode != 0:
+            raise SupersessionError(
+                "E6_CURRENT_PROOF_INPUT_NOT_IN_COMMIT", f"{relative_path}@{head}", "BLOCKED"
+            )
+        if result.stdout != observed:
+            raise SupersessionError(
+                "E6_CURRENT_PROOF_INPUT_WORKTREE_DRIFT",
+                f"{relative_path}: worktree bytes differ from {head}",
+                "BLOCKED",
+            )
+
+
+def worktree_dirt(repository: Path) -> list[str]:
+    """Return tracked paths whose worktree bytes differ from the index or HEAD."""
+    result = git(repository, "status", "--porcelain=v1", "--untracked-files=no")
+    return sorted(
+        line[3:].strip()
+        for line in result.stdout.decode("utf-8", errors="replace").splitlines()
+        if line.strip()
+    )
+
+
+def endpoint_changed_paths(repository: Path, done: str, head: str, scope_prefix: str) -> list[str]:
+    """Endpoint difference only: paths whose bytes differ between `done` and `head`."""
     diff_rows = raw_diff(repository, done, head, paths=(scope_prefix,))
     return sorted({row["path"] for row in diff_rows if row["path"].startswith(scope_prefix)})
+
+
+def history_union_changed_paths(repository: Path, done: str, head: str, scope_prefix: str) -> list[str]:
+    """Every path touched anywhere in `done..head`, derived independently of the endpoint diff.
+
+    Deliberately a separate raw-Git code path rather than a second call to the same helper: an oracle
+    that calls the implementation cannot detect a regression in it. History-union semantics also
+    catch a path changed and later reverted, which an endpoint diff silently drops.
+    """
+    result = git(
+        repository,
+        "log",
+        "--pretty=format:",
+        "--name-only",
+        "--no-renames",
+        f"{done}..{head}",
+        "--",
+        scope_prefix,
+    )
+    paths = {
+        safe_path(line)
+        for line in result.stdout.decode("utf-8", errors="strict").splitlines()
+        if line.strip()
+    }
+    return sorted(path for path in paths if path.startswith(scope_prefix))
+
+
+def post_done_changed_paths(repository: Path, done: str, head: str, scope_prefix: str) -> dict[str, Any]:
+    """Enumerate every path changed under `scope_prefix` since a story's done commit.
+
+    Returns the authoritative history-union set together with the endpoint difference and the paths
+    that differ between them, so a claim about "every path changed" is never silently narrowed to
+    "paths that happen to differ at the endpoints".
+    """
+    endpoint = endpoint_changed_paths(repository, done, head, scope_prefix)
+    union = history_union_changed_paths(repository, done, head, scope_prefix)
+    unexpected = sorted(set(endpoint) - set(union))
+    if unexpected:
+        # An endpoint difference outside the history union means the range or the diff is not
+        # describing the same commits; never report that as a complete enumeration.
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_CHANGED_PATH_ORACLE_DRIFT",
+            f"endpoint paths absent from history union: {unexpected!r}",
+            "BLOCKED",
+        )
+    return {
+        "paths": union,
+        "endpointPaths": endpoint,
+        "revertedWithinRange": sorted(set(union) - set(endpoint)),
+    }
+
+
+def declared_root_gitlink_inventory(repository: Path, head: str) -> list[str]:
+    """Derive the complete root mode-160000 inventory from HEAD's tree, not from a mutable contract."""
+    result = git(repository, "ls-tree", "-r", "--full-tree", "-z", head)
+    inventory: list[str] = []
+    for record in result.stdout.split(b"\0"):
+        if not record:
+            continue
+        try:
+            metadata, path = record.decode("utf-8", errors="strict").split("\t", 1)
+        except ValueError as error:
+            raise SupersessionError(
+                "E6_CURRENT_PROOF_GITLINK_INVENTORY_MALFORMED", repr(record), "BLOCKED"
+            ) from error
+        if metadata.split()[0] == "160000":
+            inventory.append(safe_path(path))
+    return sorted(inventory)
+
+
+def gitmodules_paths(repository: Path, head: str) -> list[str]:
+    """Read the declared submodule paths from `.gitmodules` at the resolved commit."""
+    result = git(repository, "show", f"{head}:.gitmodules", allowed=(0, 128))
+    if result.returncode != 0:
+        raise SupersessionError("E6_CURRENT_PROOF_GITMODULES_UNAVAILABLE", head, "BLOCKED")
+    text = result.stdout.decode("utf-8", errors="strict")
+    return sorted({safe_path(match) for match in re.findall(r"(?m)^\s*path\s*=\s*(\S+)\s*$", text)})
 
 
 def require_nonempty_ledger(ledger: Sequence[dict[str, Any]], code: str) -> None:
@@ -611,6 +762,7 @@ def current_proof(
     *,
     execute_tests: bool,
     test_executor: CurrentProofTestExecutor = execute_command,
+    allow_dirty_worktree: bool = False,
 ) -> dict[str, Any]:
     root = resolve_root(repository)
     contract, contract_bytes, schema_bytes = load_current_proof_contract(root)
@@ -620,6 +772,31 @@ def current_proof(
     ]
     head = resolve_head(root)
     ledger.append({"id": "CURRENT-PROOF-HEAD-01", "subject": head, "state": "PASS"})
+
+    # The result is labelled with `head`, so its inputs must be `head`'s bytes and the tree the
+    # declared commands run against must not carry uncommitted tracked changes.
+    assert_inputs_come_from_the_resolved_commit(
+        root,
+        head,
+        ((CURRENT_PROOF_CONTRACT_PATH, contract_bytes), (CURRENT_PROOF_SCHEMA_PATH, schema_bytes)),
+    )
+    ledger.append({"id": "CURRENT-PROOF-INPUT-BINDING-01", "subject": head, "state": "PASS"})
+
+    dirt = worktree_dirt(root)
+    if dirt and not allow_dirty_worktree:
+        raise SupersessionError(
+            "E6_CURRENT_PROOF_WORKTREE_DIRTY",
+            f"{len(dirt)} tracked path(s) differ from HEAD: {dirt[:10]!r}",
+            "BLOCKED",
+        )
+    ledger.append(
+        {
+            "id": "CURRENT-PROOF-WORKTREE-01",
+            "subject": "tracked-worktree-clean",
+            "state": "PASS" if not dirt else "not-applicable",
+            "dirtyTrackedPathCount": len(dirt),
+        }
+    )
 
     scope_prefix = contract["postDoneChangedPaths"]["scopePrefix"]
     done_commits: dict[str, str] = {}
@@ -635,14 +812,18 @@ def current_proof(
             )
         done_commits[story_id] = done
         ledger.append({"id": f"CURRENT-PROOF-DONE-{story_id}", "subject": f"{done}..{head}", "state": "PASS"})
-        paths = post_done_changed_paths(root, done, head, scope_prefix)
+        enumeration = post_done_changed_paths(root, done, head, scope_prefix)
+        paths = enumeration["paths"]
         changed_paths[story_id] = paths
         ledger.append(
             {
                 "id": f"CURRENT-PROOF-CHANGED-PATHS-{story_id}",
                 "subject": f"{done}..{head}",
                 "state": "PASS",
+                "semantics": "history-union",
                 "changedPathCount": len(paths),
+                "endpointPathCount": len(enumeration["endpointPaths"]),
+                "revertedWithinRangeCount": len(enumeration["revertedWithinRange"]),
             }
         )
 
@@ -879,6 +1060,9 @@ def parse_args(argv: Sequence[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--planning-candidate")
     parser.add_argument("--authority-bundle")
     parser.add_argument("--current-proof", action="store_true")
+    # Opting out must be an explicit, recorded choice: the default blocks so uncommitted bytes are
+    # never attributed to the resolved commit.
+    parser.add_argument("--allow-dirty-worktree", action="store_true")
     parser.add_argument("--output-json")
     parser.add_argument("--output-md")
     return parser.parse_args(argv)
@@ -890,7 +1074,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         # Additive V13 route: never shares state, output paths, or the
         # historical CLI contract with the `reconstruct()` branch below.
         try:
-            document = current_proof(Path(args.repository), execute_tests=args.execute_tests)
+            document = current_proof(
+                Path(args.repository),
+                execute_tests=args.execute_tests,
+                allow_dirty_worktree=args.allow_dirty_worktree,
+            )
             exit_code = 0
         except SupersessionError as error:
             document = current_proof_failure_document(error)

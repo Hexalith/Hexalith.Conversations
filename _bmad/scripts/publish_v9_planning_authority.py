@@ -263,6 +263,7 @@ CANONICAL_PATHS = (
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-02.md",
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-03.md",
     "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-04.md",
+    "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-e6-remediation-a3.md",
     *GUIDANCE_PATHS,
     "_bmad/scripts/publish_v9_planning_authority.py",
     *VALIDATOR_PATHS,

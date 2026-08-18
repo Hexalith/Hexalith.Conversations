@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/v14-current-candidate-authority-v1.schema.json",
+  "title": "V14 current-candidate authority v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "checkpointId",
+    "authority",
+    "predecessors",
+    "successor",
+    "pointInTimePredecessor",
+    "provenanceLedger",
+    "resultSemantics",
+    "prohibitions",
+    "completionEffect",
+    "assertions"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "hexalith.conversations.v14-current-candidate-authority.v1" },
+    "checkpointId": { "const": "E6-CURRENT-CANDIDATE" },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["epic", "architecture", "planningCandidate", "authorityBundlePath", "implementationHold"],
+      "properties": {
+        "epic": { "const": "epic-6-authority-2026-08-04-v12" },
+        "architecture": { "const": "conversations-architecture-2026-08-04-v12" },
+        "planningCandidate": { "$ref": "#/$defs/sha1" },
+        "authorityBundlePath": { "const": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json" },
+        "implementationHold": { "const": "ACTIVE" }
+      }
+    },
+    "predecessors": { "const": ["E6-REMEDIATION", "E6-CURRENT-PROOF"] },
+    "successor": { "const": "none" },
+    "pointInTimePredecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["checkpointId", "path", "sha256", "pinnedPlanningCandidate", "supersedesEvidence"],
+      "properties": {
+        "checkpointId": { "const": "E6-CURRENT-PROOF" },
+        "path": { "const": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "pinnedPlanningCandidate": { "$ref": "#/$defs/sha1" },
+        "supersedesEvidence": { "const": false }
+      }
+    },
+    "provenanceLedger": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "relocatedCommentCount", "statusValuesChanged"],
+      "properties": {
+        "path": { "const": "_bmad-output/implementation-artifacts/sprint-status-provenance-v1.md" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "relocatedCommentCount": { "const": 90 },
+        "statusValuesChanged": { "const": 0 }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "ledgerRequired", "skipsAllowed"],
+      "properties": {
+        "states": { "const": ["PASS", "FAIL", "BLOCKED", "not-applicable"] },
+        "ledgerRequired": { "const": true },
+        "skipsAllowed": { "const": false }
+      }
+    },
+    "prohibitions": {
+      "const": [
+        "rewrite completed Story 6.7 or Story 6.2 records",
+        "substitute current bytes for historical evidence",
+        "edit V1-V13 historical schema, contract, decision, or evidence",
+        "rewrite published history",
+        "traverse nested submodules",
+        "modify product code, packages, submodules, or gitlinks",
+        "implement or start successors",
+        "create implementation-hold-v1.json",
+        "claim release approval",
+        "lift the implementation hold",
+        "authorize IR-0",
+        "silently apply epic-6-retro-item-24 sprint-status transition"
+      ]
+    },
+    "completionEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ir0RerunAllowed", "holdLifted", "successorStarted", "releaseAuthorized"],
+      "properties": {
+        "ir0RerunAllowed": { "const": false },
+        "holdLifted": { "const": false },
+        "successorStarted": { "const": false },
+        "releaseAuthorized": { "const": false }
+      }
+    },
+    "assertions": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+  }
+}

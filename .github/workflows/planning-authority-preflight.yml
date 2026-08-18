@@ -42,6 +42,24 @@ jobs:
           git cat-file -e "$baseline^{commit}"
           printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
 
+      - name: Set up repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      - name: Install pinned commitlint
+        run: npm ci
+
+      # Self-contained rather than delegated to the commit-message workflow: a commit that carries
+      # planning authority must not be able to reach the evidence gates on an unvalidated message.
+      - name: Verify commit messages before planning verification
+        run: >-
+          npx --no-install commitlint
+          --config commitlint.config.mjs
+          --from "${{ steps.range.outputs.baseline }}"
+          --to HEAD
+          --verbose
+
       - name: Synchronize frozen planning verifier environment
         run: uv sync --frozen
 
@@ -56,6 +74,15 @@ jobs:
         run: |
           uv run --frozen python3 -m pytest -q _bmad/scripts/tests
           uv run --frozen python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check
+
+      # Consume the evidence and the independent decision, not just the authority shape. Without
+      # this step a V13 authority-shape check reports green while the decision it rests on may be
+      # absent, stale, or overreaching (E6-REMEDIATION A3 §4.5).
+      - name: Verify current-proof decision chain and candidate authorities
+        run: |
+          uv run --frozen python3 _bmad/scripts/verify_decision_chain.py --repository .
+          uv run --frozen python3 _bmad/scripts/publish_v13_current_proof_authority.py --repository . --check
+          uv run --frozen python3 _bmad/scripts/publish_v14_current_candidate_authority.py --repository . --check
 
       - name: Build conformance verifier
         run: dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1

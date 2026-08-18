@@ -1,0 +1,56 @@
+name: Commit message policy
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commitlint:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out full history for range validation
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up repository Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: package.json
+
+      - name: Install pinned commitlint
+        run: npm ci
+
+      - name: Resolve immutable commit range
+        id: range
+        shell: bash
+        env:
+          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          set -euo pipefail
+          baseline="$EVENT_BASE"
+          if [[ -z "$baseline" || "$baseline" == "0000000000000000000000000000000000000000" ]]; then
+            baseline="$(git rev-parse HEAD^)"
+          fi
+          git cat-file -e "$baseline^{commit}"
+          git cat-file -e "$EVENT_HEAD^{commit}"
+          printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
+          printf 'head=%s\n' "$EVENT_HEAD" >> "$GITHUB_OUTPUT"
+
+      # Fail closed: every commit in the range must satisfy the pinned policy. This gate exists because
+      # E6-REMEDIATION A3 finding N-1 found the CLI pinned but never invoked, so non-conforming subjects
+      # reached main unchecked.
+      - name: Validate every commit message in range
+        run: >-
+          npx --no-install commitlint
+          --config commitlint.config.mjs
+          --from "${{ steps.range.outputs.baseline }}"
+          --to "${{ steps.range.outputs.head }}"
+          --verbose

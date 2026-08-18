@@ -252,3 +252,22 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-fix-root-commitlint-tooling.md`
   summary: Add tracked root commit-message and pre-push hooks plus a blocking CI commitlint regression gate.
   evidence: Review confirmed the new pinned validator fixes manual `/pushall` validation but the pre-existing root still has no normally executed hook or CI lane that installs the lockfile, exercises the policy matrix, and validates commit ranges; those enforcement changes were explicitly outside this minimal blocker fix.
+
+## Deferred from: E6-REMEDIATION A3 (declaring-type guard, 2026-08-18)
+
+- **[MEDIUM] Consumer-callability is proven by parsing, not by the compiler.** A3 replaced the vacuous
+  whole-file `AssertDeclaringTypeIsPublic` (which passed whenever *any* type in the file was public) with
+  containing-type resolution: each matched member is now bound to its enclosing brace-balanced type span,
+  and every enclosing type must be public. That closes the retrospective finding and is covered by
+  `ConsumerReachabilityShouldBindEachMemberToItsDeclaringType`. It remains a text oracle: it can still be
+  fooled by constructs the span parser does not model (conditional compilation that survives the strip pass,
+  exotic generic/constraint layouts, partial types split across files). The stronger oracle is a compiled
+  fixture in a separate assembly that references each declared API, so a non-callable member fails at
+  compile time rather than at regex time. Deferred rather than executed because it adds a build/restore
+  surface referencing submodule assemblies to the conformance lane and the preflight job, which is not
+  appropriate under the active implementation hold.
+  [tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs:1209]
+
+- source_spec: sprint-change-proposal-2026-08-18-e6-remediation-a3.md
+  summary: Prove platform API consumer-callability with a compiled cross-assembly fixture instead of source parsing.
+  evidence: Approved as a separately scheduled successor in §4.7 of the A3 proposal; the retrospective accepts either containing-type parsing or a compiled fixture, and A3 shipped the former.

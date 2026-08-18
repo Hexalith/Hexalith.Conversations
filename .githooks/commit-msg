@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Validate the candidate commit message against the repository's pinned commitlint policy.
+#
+# Installed by the `prepare` script in package.json, which points core.hooksPath at this directory.
+# Fail closed: if the pinned CLI cannot run, reject rather than silently accepting the message.
+set -euo pipefail
+
+message_file="$1"
+repo_root="$(git rev-parse --show-toplevel)"
+
+if [[ ! -x "$repo_root/node_modules/.bin/commitlint" ]]; then
+  printf 'commit-msg: pinned commitlint is not installed. Run `npm ci` in %s.\n' "$repo_root" >&2
+  exit 1
+fi
+
+exec "$repo_root/node_modules/.bin/commitlint" \
+  --config "$repo_root/commitlint.config.mjs" \
+  --edit "$message_file"

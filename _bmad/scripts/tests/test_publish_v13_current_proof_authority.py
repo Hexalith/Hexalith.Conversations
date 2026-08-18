@@ -71,3 +71,65 @@ def test_v13_current_proof_authority_is_closed_a1_only_and_outside_v12_bundle() 
 
 def test_v13_current_proof_authority_check_mode_is_green() -> None:
     assert publisher.main(["--repository", str(ROOT), "--check"]) == 0
+
+
+def _decision() -> dict:
+    return json.loads((ROOT / publisher.CURRENT_PROOF_DECISION_PATH).read_text(encoding="utf-8"))
+
+
+def test_v13_candidate_is_pinned_to_its_decision_and_cannot_follow_a_bundle_rebind(tmp_path: Path) -> None:
+    """F-6: a later planning-candidate rebind must not rewrite point-in-time V13 bytes."""
+
+    decision = _decision()
+    pinned = publisher.resolve_pinned_candidate(ROOT, decision)
+    assert pinned == decision["authority"]["planningCandidate"]
+
+    # Stage a repository view whose bundle has been rebound to a different candidate.
+    rebound = "0" * 39 + "1"
+    assert rebound != pinned
+    staged = tmp_path / "repo"
+    for relative in (
+        publisher.BUNDLE_PATH,
+        publisher.CURRENT_PROOF_DECISION_PATH,
+        publisher.CURRENT_PROOF_CONTRACT_PATH,
+        publisher.CURRENT_PROOF_AUTHORITY_PATH,
+        publisher.CURRENT_PROOF_AUTHORITY_SCHEMA_PATH,
+    ):
+        target = staged / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / relative).read_bytes())
+    bundle_path = staged / publisher.BUNDLE_PATH
+    bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
+    bundle["planningCandidate"] = rebound
+    bundle_path.write_text(json.dumps(bundle, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    # The pin still resolves from the decision, and --check stays green against unchanged V13 bytes.
+    assert publisher.resolve_pinned_candidate(staged, _decision()) == pinned
+    assert publisher.main(["--repository", str(staged), "--check"]) == 0
+    assert publisher.resolve_bundle_candidate(staged) == rebound
+
+
+def test_v13_a1_status_is_derived_from_the_decision_not_asserted() -> None:
+    """F-9: forcing A1 done without a valid accepting decision must fail closed."""
+
+    accepted = _decision()
+    assert publisher.derive_a1_status(accepted) == "done"
+
+    for mutation, field in (
+        ({**accepted, "decision": "REJECTED"}, "decision"),
+        ({**accepted, "effects": {**accepted["effects"], "a1PresentStateSatisfied": False}}, "effects"),
+        ({**accepted, "sourceEvidence": {**accepted["sourceEvidence"], "result": "FAIL"}}, "sourceEvidence"),
+    ):
+        assert publisher.derive_a1_status(mutation) == "open", f"{field} must not yield done"
+
+    # A decision that overreaches is rejected before any status is derived.
+    for field in ("ir0RerunAuthorized", "successorStarted", "releaseAuthorized"):
+        overreach = {**accepted, "effects": {**accepted["effects"], field: True}}
+        with pytest.raises(publisher.CurrentProofAuthorityError) as error:
+            publisher.assert_decision_preserves_hold(overreach)
+        assert error.value.code == "CURRENT_PROOF_DECISION_OVERREACH"
+
+    lifted = {**accepted, "effects": {**accepted["effects"], "implementationHold": "LIFTED"}}
+    with pytest.raises(publisher.CurrentProofAuthorityError) as error:
+        publisher.assert_decision_preserves_hold(lifted)
+    assert error.value.code == "CURRENT_PROOF_DECISION_HOLD_DRIFT"

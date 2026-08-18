@@ -1169,6 +1169,35 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
             "BoundedTelemetryCounterDefinition definition");
     }
 
+    [Fact]
+    public void ConsumerReachabilityShouldBindEachMemberToItsDeclaringType()
+    {
+        // F-17: the previous guard scanned the whole file and passed when ANY type was public, so a
+        // public member of an internal type sitting next to an unrelated public type read as callable.
+        const string internalHost = "internal class Host { public void Member() { } }\npublic class Unrelated { }\n";
+        IsConsumerReachable(ParseTypeSpans(internalHost, "fault"), internalHost.IndexOf("public void Member", StringComparison.Ordinal))
+            .ShouldBeFalse("A public member of an internal type is not consumer-callable, whatever else the file declares.");
+
+        const string publicHost = "internal class Other { }\npublic class Host { public void Member() { } }\n";
+        IsConsumerReachable(ParseTypeSpans(publicHost, "positive"), publicHost.IndexOf("public void Member", StringComparison.Ordinal))
+            .ShouldBeTrue("A public member of a public type is consumer-callable.");
+
+        // A public type nested in a non-public one is still unreachable from outside the assembly.
+        const string nested = "internal class Outer { public class Inner { public void Member() { } } }\n";
+        IsConsumerReachable(ParseTypeSpans(nested, "nested"), nested.IndexOf("public void Member", StringComparison.Ordinal))
+            .ShouldBeFalse("Every enclosing type must be public for a member to be consumer-callable.");
+
+        // Braces inside literals must not truncate a type span and hand the member to the wrong type.
+        const string literals = "public class Host { public string Brace() => \"}\"; public void Member() { } }\ninternal class Trailing { }\n";
+        IsConsumerReachable(ParseTypeSpans(literals, "literals"), literals.IndexOf("public void Member", StringComparison.Ordinal))
+            .ShouldBeTrue("A '}' inside a string literal must not close the declaring type span.");
+
+        // A declaration with no body declares no members and must not swallow later offsets.
+        const string bodyless = "public record Marker(int Value);\ninternal class Host { public void Member() { } }\n";
+        IsConsumerReachable(ParseTypeSpans(bodyless, "bodyless"), bodyless.IndexOf("public void Member", StringComparison.Ordinal))
+            .ShouldBeFalse("A bodyless declaration must not be treated as the enclosing type.");
+    }
+
     private static void AssertDeclaredApiExists(string api)
     {
         string name = StripGenerics(api);
@@ -1205,31 +1234,138 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         MatchCollection matches = Regex.Matches(source, pattern, RegexOptions.CultureInvariant);
         matches.Count.ShouldBeGreaterThan(0, $"Expected public {(isStatic ? "static " : string.Empty)}{returnType} {methodName}(...) in {relativePath}.");
 
-        // A public member of a non-public type is not consumer-callable.
-        AssertDeclaringTypeIsPublic(source, relativePath, methodName);
+        // Bind each match to the type that actually declares it: a public member is consumer-callable
+        // only when every type enclosing THAT match is public. Nearby public syntax elsewhere in the
+        // file is not proof of reachability.
+        IReadOnlyList<TypeSpan> typeSpans = ParseTypeSpans(source, relativePath);
+        Match[] reachable = matches.Where(match => IsConsumerReachable(typeSpans, match.Index)).ToArray();
+        reachable.Length.ShouldBeGreaterThan(
+            0,
+            $"'{methodName}' in {relativePath} must be declared inside a public type, with every enclosing type public, to be consumer-callable.");
 
         if (parameterFragments.Length == 0)
         {
-            matches.Any(match => match.Groups["parameters"].Value.Trim().Length == 0)
+            reachable.Any(match => match.Groups["parameters"].Value.Trim().Length == 0)
                 .ShouldBeTrue($"No public zero-parameter signature for {methodName} was found in {relativePath}.");
             return;
         }
 
-        matches.Any(match => parameterFragments.All(fragment => match.Groups["parameters"].Value.Contains(fragment, StringComparison.Ordinal)))
+        reachable.Any(match => parameterFragments.All(fragment => match.Groups["parameters"].Value.Contains(fragment, StringComparison.Ordinal)))
             .ShouldBeTrue($"No public signature for {methodName} in {relativePath} contained required parameters: {string.Join(", ", parameterFragments)}.");
     }
 
-    private static void AssertDeclaringTypeIsPublic(string source, string relativePath, string memberName)
+    private static IReadOnlyList<TypeSpan> ParseTypeSpans(string source, string relativePath)
     {
-        MatchCollection typeDeclarations = Regex.Matches(
+        MatchCollection declarations = Regex.Matches(
             source,
-            @"^\s*(?<modifiers>(?:public|internal|private|protected|static|sealed|partial|abstract|file|\s)*)\b(?:class|record|struct|interface)\s+(?<name>\w+)",
-            RegexOptions.Multiline | RegexOptions.CultureInvariant);
+            @"(?<modifiers>(?:\b(?:public|internal|private|protected|static|sealed|partial|abstract|file|readonly|ref|unsafe)\b\s+)*)\b(?:class|record|struct|interface)\b(?:\s+(?:class|struct)\b)?\s+(?<name>\w+)",
+            RegexOptions.CultureInvariant);
 
-        typeDeclarations.Count.ShouldBeGreaterThan(0, $"Expected a type declaration in {relativePath}.");
-        typeDeclarations.Any(match => match.Groups["modifiers"].Value.Contains("public", StringComparison.Ordinal))
-            .ShouldBeTrue($"'{memberName}' in {relativePath} must be declared inside a public type to be consumer-callable.");
+        List<TypeSpan> spans = [];
+        foreach (Match declaration in declarations)
+        {
+            // A declaration with no brace-delimited body (e.g. `public record Foo(int X);`) declares no members.
+            int bodyStart = FindTypeBodyStart(source, declaration.Index + declaration.Length);
+            int bodyEnd = bodyStart < 0 ? -1 : FindMatchingBrace(source, bodyStart);
+            if (bodyEnd < 0)
+            {
+                continue;
+            }
+
+            spans.Add(new TypeSpan(
+                declaration.Groups["name"].Value,
+                declaration.Groups["modifiers"].Value.Contains("public", StringComparison.Ordinal),
+                bodyStart,
+                bodyEnd));
+        }
+
+        spans.Count.ShouldBeGreaterThan(0, $"Expected a type declaration with a body in {relativePath}.");
+        return spans;
     }
+
+    private static bool IsConsumerReachable(IReadOnlyList<TypeSpan> spans, int offset)
+    {
+        TypeSpan[] enclosing = spans.Where(span => offset > span.BodyStart && offset < span.BodyEnd).ToArray();
+
+        // Outside every type body it is not a member at all; a public nested type inside an
+        // internal one is still unreachable, so every enclosing type must be public.
+        return enclosing.Length > 0 && enclosing.All(span => span.IsPublic);
+    }
+
+    private static int FindTypeBodyStart(string source, int searchFrom)
+    {
+        for (int index = searchFrom; index < source.Length; index++)
+        {
+            if (source[index] == '{')
+            {
+                return index;
+            }
+
+            if (source[index] == ';')
+            {
+                return -1;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int FindMatchingBrace(string source, int openBraceIndex)
+    {
+        int depth = 0;
+        for (int index = openBraceIndex; index < source.Length; index++)
+        {
+            char current = source[index];
+
+            // Comments are already stripped, but string and character literals can still carry braces.
+            if (current is '"' or '\'')
+            {
+                index = SkipLiteral(source, index);
+                continue;
+            }
+
+            if (current == '{')
+            {
+                depth++;
+            }
+            else if (current == '}' && --depth == 0)
+            {
+                return index;
+            }
+        }
+
+        return -1;
+    }
+
+    private static int SkipLiteral(string source, int start)
+    {
+        char quote = source[start];
+        bool verbatim = quote == '"' && start > 0 && source[start - 1] == '@';
+        for (int index = start + 1; index < source.Length; index++)
+        {
+            char current = source[index];
+            if (!verbatim && current == '\\')
+            {
+                index++;
+                continue;
+            }
+
+            if (verbatim && current == '"' && index + 1 < source.Length && source[index + 1] == '"')
+            {
+                index++;
+                continue;
+            }
+
+            if (current == quote)
+            {
+                return index;
+            }
+        }
+
+        return source.Length - 1;
+    }
+
+    private readonly record struct TypeSpan(string Name, bool IsPublic, int BodyStart, int BodyEnd);
 
     private static void AssertPublicType(string relativePath, string typeKind, string typeName)
     {

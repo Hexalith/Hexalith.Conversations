@@ -1,0 +1,65 @@
+{
+  "schemaVersion": "hexalith.conversations.v14-current-candidate-authority.v1",
+  "checkpointId": "E6-CURRENT-CANDIDATE",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-04-v12",
+    "architecture": "conversations-architecture-2026-08-04-v12",
+    "planningCandidate": "08d38fc021c8c76115f1192d2971c980f7e86ea9",
+    "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "implementationHold": "ACTIVE"
+  },
+  "predecessors": [
+    "E6-REMEDIATION",
+    "E6-CURRENT-PROOF"
+  ],
+  "successor": "none",
+  "pointInTimePredecessor": {
+    "checkpointId": "E6-CURRENT-PROOF",
+    "path": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+    "sha256": "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f",
+    "pinnedPlanningCandidate": "08d38fc021c8c76115f1192d2971c980f7e86ea9",
+    "supersedesEvidence": false
+  },
+  "provenanceLedger": {
+    "path": "_bmad-output/implementation-artifacts/sprint-status-provenance-v1.md",
+    "sha256": "d60236386b2934c520f608adf235881da307d17e13111b853bc48c4bf814f9d2",
+    "relocatedCommentCount": 90,
+    "statusValuesChanged": 0
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "prohibitions": [
+    "rewrite completed Story 6.7 or Story 6.2 records",
+    "substitute current bytes for historical evidence",
+    "edit V1-V13 historical schema, contract, decision, or evidence",
+    "rewrite published history",
+    "traverse nested submodules",
+    "modify product code, packages, submodules, or gitlinks",
+    "implement or start successors",
+    "create implementation-hold-v1.json",
+    "claim release approval",
+    "lift the implementation hold",
+    "authorize IR-0",
+    "silently apply epic-6-retro-item-24 sprint-status transition"
+  ],
+  "completionEffect": {
+    "ir0RerunAllowed": false,
+    "holdLifted": false,
+    "successorStarted": false,
+    "releaseAuthorized": false
+  },
+  "assertions": [
+    "V14 binds the current planning candidate; V13 stays pinned to the candidate its own decision names.",
+    "V14 supersedes no V1-V13 evidence, schema, contract, or decision and rewrites no published history.",
+    "The relocated sprint-status provenance ledger is pinned by exact digest and changed no status value.",
+    "A green V14 never lifts the hold, authorizes IR-0, starts a successor, or authorizes release."
+  ]
+}

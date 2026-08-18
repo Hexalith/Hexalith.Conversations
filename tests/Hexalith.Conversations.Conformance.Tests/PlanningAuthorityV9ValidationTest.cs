@@ -132,7 +132,11 @@ public sealed class PlanningAuthorityV9ValidationTest
         bundle.GetProperty("epic5ActionA5").GetString().ShouldBe("open");
 
         JsonElement[] artifacts = bundle.GetProperty("artifacts").EnumerateArray().ToArray();
-        artifacts.Length.ShouldBe(84);
+
+        // 85 since E6-REMEDIATION A3 bound its own sprint-change proposal into CANONICAL_PATHS,
+        // matching how the 2026-08-02/03/04 proposals are candidate-bound. The count is pinned so a
+        // companion cannot silently join or leave the bundle.
+        artifacts.Length.ShouldBe(85);
         string[] paths = artifacts.Select(row => row.GetProperty("path").GetString()!).ToArray();
         paths.ShouldBe(paths.OrderBy(path => path, StringComparer.Ordinal));
         paths.Distinct(StringComparer.Ordinal).Count().ShouldBe(paths.Length);
