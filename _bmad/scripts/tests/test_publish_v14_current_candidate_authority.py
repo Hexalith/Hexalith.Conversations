@@ -89,7 +89,10 @@ def test_v14_follows_a_bundle_rebind_while_v13_stays_pinned(tmp_path: Path) -> N
     rebound = "0" * 39 + "1"
     bundle_path = staged / publisher.BUNDLE_PATH
     bundle = json.loads(bundle_path.read_text(encoding="utf-8"))
-    pinned_before = bundle["planningCandidate"]
+    # V13's pin comes from its own decision, not from whatever the bundle happens to say.
+    pinned_before = json.loads(
+        (staged / publisher.CURRENT_PROOF_AUTHORITY_PATH).read_text(encoding="utf-8")
+    )["authority"]["planningCandidate"]
     bundle["planningCandidate"] = rebound
     bundle_path.write_text(json.dumps(bundle, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 

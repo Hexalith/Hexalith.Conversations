@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V12-ACTIVE-LIFECYCLE-ROUTES-v1",
-  "planningCandidate": "08d38fc021c8c76115f1192d2971c980f7e86ea9",
+  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
   "authorities": {
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12"
@@ -39,14 +39,14 @@
     {
       "ordinal": 5,
       "path": ".agents/skills/bmad-dev-story/SKILL.md",
-      "sha256": "3a9b16c73468524bfc0973f8f20ab33b102e7b49a425df90f1c5992b797ce6aa",
+      "sha256": "4744f33e91142ae60ffc50ba1b3f7c218dd6ec3a9859553e421afe59cdc6ad49",
       "logicalBody": "bmad-dev-story/SKILL.md",
       "tree": "agents"
     },
     {
       "ordinal": 6,
       "path": ".agents/skills/bmad-code-review/steps/step-04-present.md",
-      "sha256": "98d25ee8679de482d618dfaf335c491680caa25da0625dcb46f9c9cd02e03aea",
+      "sha256": "ecbddc7ec0dfbd550164ed629958b3e3d2bf96bab0afb0657a5045a4394c590d",
       "logicalBody": "bmad-code-review/steps/step-04-present.md",
       "tree": "agents"
     },
@@ -81,14 +81,14 @@
     {
       "ordinal": 11,
       "path": ".claude/skills/bmad-dev-story/SKILL.md",
-      "sha256": "3a9b16c73468524bfc0973f8f20ab33b102e7b49a425df90f1c5992b797ce6aa",
+      "sha256": "4744f33e91142ae60ffc50ba1b3f7c218dd6ec3a9859553e421afe59cdc6ad49",
       "logicalBody": "bmad-dev-story/SKILL.md",
       "tree": "claude"
     },
     {
       "ordinal": 12,
       "path": ".claude/skills/bmad-code-review/steps/step-04-present.md",
-      "sha256": "98d25ee8679de482d618dfaf335c491680caa25da0625dcb46f9c9cd02e03aea",
+      "sha256": "ecbddc7ec0dfbd550164ed629958b3e3d2bf96bab0afb0657a5045a4394c590d",
       "logicalBody": "bmad-code-review/steps/step-04-present.md",
       "tree": "claude"
     }

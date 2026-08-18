@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "08d38fc021c8c76115f1192d2971c980f7e86ea9",
+    "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
     "candidateBinding": "`SC-11.2`, Story 11.1 final-record/guidance digests, exact fixture inventory, resolved platform project/assembly hashes, and the canonical candidate rule.",
     "sectionSha256": "c6692cf4d9a99bd7dac80847571b379f0d918ca86107cfdca37d267b8ed6b8ea"
   },
