@@ -63,7 +63,9 @@ jobs:
       - name: Synchronize frozen planning verifier environment
         run: uv sync --frozen
 
-      - name: Verify lifecycle evidence before planning transitions
+      # When the V14 scope manifest is in the comparison range the verifier also requires
+      # exact baseline-to-candidate path equality and zero raw mode-160000 changes.
+      - name: Verify lifecycle evidence and candidate-bound publication scope
         run: >-
           uv run --frozen python3 _bmad/scripts/verify_evidence_boundary.py
           --repository .

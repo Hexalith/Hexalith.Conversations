@@ -2623,3 +2623,76 @@ source, public contracts, package versions, accepted baselines, signed
 evidence, or submodule content.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V13:END version=conversations-architecture-2026-08-18-v13 epic-authority=epic-6-authority-2026-08-18-v13 sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V14:BEGIN version=conversations-architecture-2026-08-18-v14 epic-authority=epic-6-authority-2026-08-18-v14 supersedes=conversations-architecture-2026-08-18-v13 v13-block-bytes=17857 v13-block-sha256=c7d5c867385f22e359c5367fe2851fc4f7d016e0f28c04b5283b7b5ad604605a sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## 2026-08-18 V14 Epic 16 And Authority-Chain Closure
+
+**Architecture authority:** `conversations-architecture-2026-08-18-v14`
+
+**Epic authority:** `epic-6-authority-2026-08-18-v14`
+
+**Scope:** This append-only overlay corrects V13's unpublished Epic V13
+forward reference, carries DC-9–DC-11 into the paired Epic V14 block, and owns
+only the A4–A6 successor architecture, composed graph, and deterministic
+publication rules. V1–V13 architecture bytes and V1–V12 epic bytes remain
+immutable. The existing V14 checkpoint sidecar is point-in-time evidence and
+is pinned unchanged; this overlay does not mint or rebind a sidecar.
+
+### Runtime Ownership And Invariants
+
+1. Story 16.1 places durable tenant projection storage behind the additive
+   `ITenantProjectionStore` capability in `Hexalith.Tenants.Client`.
+   Conversations configures and consumes it; it does not duplicate generic
+   Dapr-state projection infrastructure.
+2. Tenant access remains local on the request hot path and fails closed for
+   missing, stale, gapped, corrupt, or unavailable state.
+3. Story 16.2 derives replay-visible time only from immutable event inputs and
+   uses an event-fed lifecycle/watermark fact. Query reads never repair state.
+4. Story 16.3 adds diagnostics and live-route proof; it does not create a
+   second reconciliation implementation.
+5. Epic 16 is downstream of IR-0 and the global hold gate, and upstream of
+   Stories 12.1, 13.1, 14.1, and 15.1. A numeric append-only ID never implies
+   execution after release attestation.
+
+### Effective Graph Composition
+
+The exact composed graph contains 30 story nodes; inherited nodes `6.2`,
+`PC-PUBLICATION`, `E6-REMEDIATION`, `IR-0`, `7.1-SCHEMAS`, and `RG-15`; and
+checkpoint nodes `E6-CURRENT-PROOF` and `E6-CURRENT-CANDIDATE`: 38 nodes and 61
+edges. V14 adds these edges:
+
+```text
+E6-REMEDIATION -> E6-CURRENT-PROOF
+E6-REMEDIATION -> E6-CURRENT-CANDIDATE
+E6-CURRENT-PROOF -> E6-CURRENT-CANDIDATE
+IR-0 -> 16.1
+7.4 -> 16.1
+16.1 -> 16.2
+16.2 -> 16.3
+16.3 -> 12.1
+16.3 -> 13.1
+16.3 -> 14.1
+16.3 -> 15.1
+```
+
+The release-owner hold decision is a separate global execution predicate and
+is not fabricated as a graph node. `implementationHold` remains `ACTIVE` and
+all Story 16 lifecycle rows remain `backlog`.
+
+### Publication Boundary
+
+The V14 publisher preserves historical authority pairs per artifact, validates
+the V9 story schema digest unchanged, routes effective V14 contracts through an
+additive schema, pins the existing V13/V14 checkpoint sidecars and schemas,
+and atomically regenerates the current bundle, graph, contracts, execution
+view, preserved UX metadata, and sprint projection. Baseline-to-publication
+paths must equal the candidate-bound scope manifest, every root gitlink must
+match, and all assertion ledgers must be nonempty. Failure, blocked evidence,
+or a skipped/not-run test cannot publish.
+
+This planning overlay authorizes no product source, dependency, submodule,
+gitlink, PRD, UX-scope, IR-0, hold, action-status, release, or story-execution
+change.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V14:END version=conversations-architecture-2026-08-18-v14 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

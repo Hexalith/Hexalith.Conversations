@@ -9,11 +9,14 @@ rewritten V13's bytes.
 V14 resolves that by splitting the two roles:
 
 * V13 stays byte-frozen and pinned to the candidate its own decision names.
-* V14 is the *current* candidate authority and deliberately follows the live bundle.
+* V14 recorded the then-current candidate when minted and is now pinned as point-in-time evidence.
 
 V14 supersedes nothing. It records V13 as a point-in-time predecessor by exact digest, pins the
 relocated sprint-status provenance ledger, and keeps the implementation hold ACTIVE. It authorizes
 neither IR-0, nor a successor, nor release.
+
+Both normal and ``--check`` invocations are validation-only: they validate the immutable
+point-in-time bytes and never rewrite the sidecar.
 """
 
 from __future__ import annotations
@@ -33,6 +36,7 @@ BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 CURRENT_PROOF_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json"
 PROVENANCE_LEDGER_PATH = "_bmad-output/implementation-artifacts/sprint-status-provenance-v1.md"
 RELOCATED_COMMENT_COUNT = 90
+PINNED_PLANNING_CANDIDATE = "151f96519a30f1b16530851e73e51ac5ad74b355"
 AUTHORITIES = {
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12",
@@ -64,7 +68,7 @@ def read_bytes(root: Path, relative_path: str, code: str) -> bytes:
 
 
 def resolve_bundle_candidate(root: Path) -> str:
-    """Resolve the live planning candidate. V14 follows the bundle by design; V13 must not."""
+    """Resolve the live bundle candidate for comparison without rebinding V14."""
 
     try:
         bundle = json.loads((root / BUNDLE_PATH).read_text(encoding="utf-8"))
@@ -73,6 +77,23 @@ def resolve_bundle_candidate(root: Path) -> str:
         raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_BUNDLE_UNAVAILABLE", str(error)) from error
     if not isinstance(candidate, str) or re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
         raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_BUNDLE_PC_INVALID", repr(candidate))
+    return candidate
+
+
+def resolve_pinned_candidate(root: Path) -> str:
+    """Resolve V14's immutable point-in-time candidate from its committed bytes."""
+
+    try:
+        candidate = json.loads((root / AUTHORITY_PATH).read_text(encoding="utf-8"))["authority"]["planningCandidate"]
+    except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as error:
+        raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_AUTHORITY_UNAVAILABLE", str(error)) from error
+    if not isinstance(candidate, str) or re.fullmatch(r"[0-9a-f]{40}", candidate) is None:
+        raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_AUTHORITY_PC_INVALID", repr(candidate))
+    if candidate != PINNED_PLANNING_CANDIDATE:
+        raise CurrentCandidateAuthorityError(
+            "CURRENT_CANDIDATE_AUTHORITY_PC_DRIFT",
+            f"expected {PINNED_PLANNING_CANDIDATE}; observed {candidate}",
+        )
     return candidate
 
 
@@ -115,6 +136,11 @@ def resolve_provenance_ledger(root: Path) -> str:
 def render_current_candidate_authority(root: Path, candidate: str) -> bytes:
     """Render the additive V14 E6-CURRENT-CANDIDATE sidecar."""
 
+    if candidate != PINNED_PLANNING_CANDIDATE:
+        raise CurrentCandidateAuthorityError(
+            "CURRENT_CANDIDATE_AUTHORITY_PC_DRIFT",
+            f"expected {PINNED_PLANNING_CANDIDATE}; observed {candidate}",
+        )
     v13_digest, v13_pinned = resolve_point_in_time_predecessor(root)
     return json_bytes(
         {
@@ -197,25 +223,25 @@ def validate_current_candidate_authority(root: Path, candidate: str, authority: 
 
 
 def publish(root: Path, *, check: bool) -> str:
-    """Check or write the additive V14 authority sidecar."""
+    """Validate the pinned V14 authority without rebinding its published bytes."""
 
-    candidate = resolve_bundle_candidate(root)
+    candidate = resolve_pinned_candidate(root)
     rendered = render_current_candidate_authority(root, candidate)
     validate_current_candidate_authority(root, candidate, json.loads(rendered))
     target = root / AUTHORITY_PATH
-    if check:
-        if not target.is_file() or target.read_bytes() != rendered:
-            raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_AUTHORITY_DRIFT", AUTHORITY_PATH)
-        return candidate
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_bytes(rendered)
+    if not target.is_file() or target.read_bytes() != rendered:
+        raise CurrentCandidateAuthorityError("CURRENT_CANDIDATE_AUTHORITY_DRIFT", AUTHORITY_PATH)
     return candidate
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repository", default=".")
-    parser.add_argument("--check", action="store_true")
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate the same immutable point-in-time bytes as normal mode; never rewrite them.",
+    )
     args = parser.parse_args(argv)
     root = Path(args.repository).resolve()
     try:

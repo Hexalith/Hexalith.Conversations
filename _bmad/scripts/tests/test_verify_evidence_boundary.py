@@ -1,8 +1,9 @@
-"""Fault-injection tests for the V12 evidence-boundary gate."""
+"""Fault-injection tests for the V14 evidence-boundary gate."""
 
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 
@@ -15,6 +16,21 @@ SPEC = importlib.util.spec_from_file_location("verify_evidence_boundary", MODULE
 assert SPEC is not None and SPEC.loader is not None
 verifier = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(verifier)
+
+
+def init_repository(path: Path) -> None:
+    subprocess.run(["git", "init", "-q", "-b", "main", str(path)], check=True)
+    subprocess.run(["git", "-C", str(path), "config", "user.name", "Verifier"], check=True)
+    subprocess.run(
+        ["git", "-C", str(path), "config", "user.email", "verifier@example.invalid"],
+        check=True,
+    )
+
+
+def commit_all(path: Path, message: str) -> str:
+    subprocess.run(["git", "-C", str(path), "add", "."], check=True)
+    subprocess.run(["git", "-C", str(path), "commit", "-q", "-m", message], check=True)
+    return subprocess.check_output(["git", "-C", str(path), "rev-parse", "HEAD"], text=True).strip()
 
 
 def test_active_route_inventory_is_exact_mirrored_and_pre_transition() -> None:
@@ -193,3 +209,219 @@ def test_not_applicable_still_has_a_nonempty_assertion_ledger(tmp_path: Path) ->
     assert document["changedPaths"] == ["README.md"]
     assert document["assertionLedger"]
     assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+
+
+def test_candidate_bound_publication_scope_is_exact_and_rejects_gitlinks(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    baseline = commit_all(tmp_path, "test: baseline")
+    path = tmp_path / verifier.PUBLICATION_SCOPE_PATH
+    path.parent.mkdir(parents=True)
+    expected = [verifier.PUBLICATION_SCOPE_PATH, "_bmad/scripts/example.py"]
+    example = tmp_path / expected[1]
+    example.parent.mkdir(parents=True)
+    example.write_text("example\n", encoding="utf-8")
+    path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "hexalith.conversations.v14-planning-publication-scope.v1",
+                "baseline": baseline,
+                "expectedChangedPaths": expected,
+                "requireNoGitlinkChanges": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    candidate = commit_all(tmp_path, "test: candidate")
+    row = verifier.validate_publication_scope(tmp_path, baseline, candidate, expected, {"paths": []})
+    assert row == {
+        "id": "SCOPE-01",
+        "subject": "candidate-bound-publication-allowlist",
+        "state": "PASS",
+        "count": 2,
+    }
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_publication_scope(
+            tmp_path,
+            baseline,
+            candidate,
+            [*expected, "src/product.cs"],
+            {"paths": []},
+        )
+    assert error.value.code == "EVIDENCE_PUBLICATION_SCOPE_DRIFT"
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_publication_scope(
+            tmp_path,
+            baseline,
+            candidate,
+            expected,
+            {"paths": ["references/Hexalith.Tenants"]},
+        )
+    assert error.value.code == "EVIDENCE_GITLINK_SET_DRIFT"
+
+
+def test_publication_scope_rejects_non_object_candidate_manifest(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    baseline = commit_all(tmp_path, "test: baseline")
+    path = tmp_path / verifier.PUBLICATION_SCOPE_PATH
+    path.parent.mkdir(parents=True)
+    path.write_text("[]\n", encoding="utf-8")
+    candidate = commit_all(tmp_path, "test: candidate")
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_publication_scope(
+            tmp_path,
+            baseline,
+            candidate,
+            [verifier.PUBLICATION_SCOPE_PATH],
+            {"paths": []},
+        )
+
+    assert error.value.code == "EVIDENCE_SCOPE_MANIFEST_INVALID"
+
+
+def test_publication_scope_uses_candidate_manifest_not_dirty_worktree_bytes(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    baseline = commit_all(tmp_path, "test: baseline")
+    expected = [verifier.PUBLICATION_SCOPE_PATH]
+    path = tmp_path / verifier.PUBLICATION_SCOPE_PATH
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "hexalith.conversations.v14-planning-publication-scope.v1",
+                "baseline": baseline,
+                "expectedChangedPaths": expected,
+                "requireNoGitlinkChanges": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    candidate = commit_all(tmp_path, "test: candidate")
+    path.write_text("[]\n", encoding="utf-8")
+
+    row = verifier.validate_publication_scope(
+        tmp_path,
+        baseline,
+        candidate,
+        expected,
+        {"paths": []},
+    )
+
+    assert row["state"] == "PASS"
+    assert row["count"] == 1
+
+
+def test_raw_gitlink_diff_is_rename_safe(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    commit_all(tmp_path, "test: repository baseline")
+    object_id = subprocess.check_output(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{object_id},references/Old",
+        ],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "test: add gitlink"], check=True)
+    baseline = subprocess.check_output(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "update-index", "--force-remove", "references/Old"],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(tmp_path),
+            "update-index",
+            "--add",
+            "--cacheinfo",
+            f"160000,{object_id},references/New",
+        ],
+        check=True,
+    )
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-q", "-m", "test: rename gitlink"], check=True)
+    candidate = subprocess.check_output(
+        ["git", "-C", str(tmp_path), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+
+    row = verifier.validate_gitlinks(tmp_path, baseline, candidate)
+
+    assert row["paths"] == ["references/New", "references/Old"]
+
+
+def test_verify_applies_candidate_scope_and_rejects_unlisted_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    baseline = commit_all(tmp_path, "test: baseline")
+    path = tmp_path / verifier.PUBLICATION_SCOPE_PATH
+    path.parent.mkdir(parents=True)
+    path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "hexalith.conversations.v14-planning-publication-scope.v1",
+                "baseline": baseline,
+                "expectedChangedPaths": [verifier.PUBLICATION_SCOPE_PATH],
+                "requireNoGitlinkChanges": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    candidate = commit_all(tmp_path, "test: scoped candidate")
+    monkeypatch.setattr(verifier, "validate_active_routes", lambda _root: [])
+    monkeypatch.setattr(
+        verifier,
+        "validate_context",
+        lambda _root: verifier.assertion("CONTEXT-01", "fixture", "PASS"),
+    )
+    monkeypatch.setattr(verifier, "validate_context_workflows", lambda _root: [])
+    monkeypatch.setattr(
+        verifier,
+        "validate_csharp_signature_guard",
+        lambda _root: verifier.assertion("SIGNATURE-01", "fixture", "PASS"),
+    )
+    monkeypatch.setattr(
+        verifier,
+        "run_publication_check",
+        lambda _root: verifier.assertion("PUBLICATION-01", "fixture", "PASS"),
+    )
+
+    document = verifier.verify(tmp_path, baseline, candidate)
+
+    scope = next(row for row in document["assertionLedger"] if row["id"] == "SCOPE-01")
+    assert document["result"] == "PASS"
+    assert scope == {
+        "id": "SCOPE-01",
+        "subject": "candidate-bound-publication-allowlist",
+        "state": "PASS",
+        "count": 1,
+    }
+
+    unexpected = tmp_path / "_bmad/scripts/unlisted.py"
+    unexpected.parent.mkdir(parents=True)
+    unexpected.write_text("unexpected\n", encoding="utf-8")
+    drifted_candidate = commit_all(tmp_path, "test: unlisted path")
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.verify(tmp_path, baseline, drifted_candidate)
+    assert error.value.code == "EVIDENCE_PUBLICATION_SCOPE_DRIFT"

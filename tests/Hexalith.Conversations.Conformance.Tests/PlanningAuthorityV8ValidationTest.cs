@@ -269,7 +269,7 @@ public sealed class PlanningAuthorityV8ValidationTest
         statuses["6-1-rebaseline-architecture-and-planning-authority"].ShouldBe("done");
         statuses["6-2-migrate-conversations-to-platform-owned-hosting"].ShouldBe("done");
         statuses["6-7-mechanically-block-incomplete-submodule-promotions-from-completion"].ShouldBe("done");
-        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-5])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(27);
+        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-6])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(30);
         sprint.ShouldContain("epic-6: done");
 
         foreach (string path in new[]

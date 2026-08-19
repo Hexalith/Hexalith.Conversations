@@ -47,16 +47,21 @@ def stage(tmp_path: Path) -> Path:
     return staged
 
 
-def test_v14_is_additive_and_outside_the_v12_managed_companion_set() -> None:
+def test_v14_is_additive_pinned_and_outside_the_generated_companion_set() -> None:
     assert publisher.AUTHORITY_PATH not in v9.EXPECTED_OUTPUT_PATHS
-    assert publisher.AUTHORITY_SCHEMA_PATH not in v9.CANONICAL_PATHS
+    assert publisher.AUTHORITY_SCHEMA_PATH in v9.CANONICAL_PATHS
     assert publisher.AUTHORITY_PATH not in v9.CANONICAL_PATHS
-    assert publisher.AUTHORITY_PATH not in v9.PROTECTED_CANDIDATE_PATHS
+    assert publisher.AUTHORITY_PATH in v9.PROTECTED_CANDIDATE_PATHS
+    assert publisher.AUTHORITY_PATH in v9.expected_bundle_artifact_paths()
 
 
-def test_v14_check_mode_is_green_and_preserves_the_hold() -> None:
+def test_v14_normal_and_check_modes_are_validation_only_and_preserve_the_hold() -> None:
+    before = (ROOT / publisher.AUTHORITY_PATH).read_bytes()
+    assert publisher.main(["--repository", str(ROOT)]) == 0
     assert publisher.main(["--repository", str(ROOT), "--check"]) == 0
+    assert (ROOT / publisher.AUTHORITY_PATH).read_bytes() == before
     authority = json.loads((ROOT / publisher.AUTHORITY_PATH).read_text(encoding="utf-8"))
+    assert authority["authority"]["planningCandidate"] == publisher.PINNED_PLANNING_CANDIDATE
     assert authority["authority"]["implementationHold"] == "ACTIVE"
     assert authority["completionEffect"] == {
         "ir0RerunAllowed": False,
@@ -77,8 +82,8 @@ def test_v14_records_v13_by_exact_digest_and_pinned_candidate() -> None:
     )["authority"]["planningCandidate"]
 
 
-def test_v14_follows_a_bundle_rebind_while_v13_stays_pinned(tmp_path: Path) -> None:
-    """The whole point of the split: V14 tracks the current candidate, V13 does not."""
+def test_v14_and_v13_stay_pinned_across_a_later_bundle_rebind(tmp_path: Path) -> None:
+    """Published checkpoint heads remain point-in-time evidence after a later bundle rebind."""
 
     staged = stage(tmp_path)
     for relative in (v13.CURRENT_PROOF_DECISION_PATH, v13.CURRENT_PROOF_CONTRACT_PATH, v13.CURRENT_PROOF_AUTHORITY_SCHEMA_PATH):
@@ -96,17 +101,39 @@ def test_v14_follows_a_bundle_rebind_while_v13_stays_pinned(tmp_path: Path) -> N
     bundle["planningCandidate"] = rebound
     bundle_path.write_text(json.dumps(bundle, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    # V14 must follow the rebind...
     assert publisher.resolve_bundle_candidate(staged) == rebound
+    assert publisher.resolve_pinned_candidate(staged) != rebound
+    before = (staged / publisher.AUTHORITY_PATH).read_bytes()
     publisher.publish(staged, check=False)
     rewritten = json.loads((staged / publisher.AUTHORITY_PATH).read_text(encoding="utf-8"))
-    assert rewritten["authority"]["planningCandidate"] == rebound
+    assert rewritten["authority"]["planningCandidate"] == publisher.resolve_pinned_candidate(staged)
+    assert (staged / publisher.AUTHORITY_PATH).read_bytes() == before
 
-    # ...while V13 stays pinned to its own decision's candidate and its bytes never move.
+    # V13 also stays pinned to its own decision's candidate and its bytes never move.
     assert rewritten["pointInTimePredecessor"]["pinnedPlanningCandidate"] == pinned_before
     assert (staged / publisher.CURRENT_PROOF_AUTHORITY_PATH).read_bytes() == (
         ROOT / publisher.CURRENT_PROOF_AUTHORITY_PATH
     ).read_bytes()
+
+
+def test_v14_rejects_a_different_well_formed_point_in_time_candidate(tmp_path: Path) -> None:
+    staged = stage(tmp_path)
+    authority_path = staged / publisher.AUTHORITY_PATH
+    before = authority_path.read_bytes()
+    authority = json.loads(before)
+    authority["authority"]["planningCandidate"] = "0" * 40
+    authority_path.write_text(
+        json.dumps(authority, indent=2, ensure_ascii=False) + "\n",
+        encoding="utf-8",
+    )
+
+    with pytest.raises(publisher.CurrentCandidateAuthorityError) as error:
+        publisher.publish(staged, check=False)
+
+    assert error.value.code == "CURRENT_CANDIDATE_AUTHORITY_PC_DRIFT"
+    assert json.loads(authority_path.read_text(encoding="utf-8"))["authority"][
+        "planningCandidate"
+    ] == "0" * 40
 
 
 def test_tampering_with_the_provenance_ledger_fails_closed(tmp_path: Path) -> None:
@@ -156,7 +183,7 @@ def test_missing_ledger_or_predecessor_fails_closed(tmp_path: Path) -> None:
 
 def test_closed_field_mutations_fail_closed(tmp_path: Path) -> None:
     staged = stage(tmp_path)
-    candidate = publisher.resolve_bundle_candidate(staged)
+    candidate = publisher.PINNED_PLANNING_CANDIDATE
     authority = json.loads(publisher.render_current_candidate_authority(staged, candidate))
 
     for mutate in (

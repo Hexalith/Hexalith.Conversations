@@ -24,14 +24,15 @@ v9 = importlib.util.module_from_spec(V9_SPEC)
 V9_SPEC.loader.exec_module(v9)
 
 
-def test_v13_current_proof_authority_is_closed_a1_only_and_outside_v12_bundle() -> None:
+def test_v13_current_proof_authority_is_closed_a1_only_and_pinned_by_v14_bundle() -> None:
     # V13 is pinned to the candidate its own decision names, which diverges from the live bundle
     # after any rebind. Resolving from the bundle here would re-couple the test to the drift the
     # pin exists to prevent.
     candidate = publisher.resolve_pinned_candidate(ROOT, publisher.load_current_proof_decision(ROOT))
     assert publisher.CURRENT_PROOF_AUTHORITY_PATH not in v9.EXPECTED_OUTPUT_PATHS
-    assert publisher.CURRENT_PROOF_AUTHORITY_SCHEMA_PATH not in v9.CANONICAL_PATHS
-    assert publisher.CURRENT_PROOF_AUTHORITY_PATH not in v9.expected_bundle_artifact_paths()
+    assert publisher.CURRENT_PROOF_AUTHORITY_SCHEMA_PATH in v9.CANONICAL_PATHS
+    assert publisher.CURRENT_PROOF_AUTHORITY_PATH in v9.PROTECTED_CANDIDATE_PATHS
+    assert publisher.CURRENT_PROOF_AUTHORITY_PATH in v9.expected_bundle_artifact_paths()
 
     authority = json.loads(publisher.render_current_proof_authority(ROOT, candidate))
     publisher.validate_current_proof_authority(ROOT, candidate, authority)

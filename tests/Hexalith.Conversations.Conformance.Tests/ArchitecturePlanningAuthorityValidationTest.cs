@@ -64,9 +64,12 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     /// initiative FRs", so the sources those numbers come from must be pinned too; otherwise the plan can
     /// keep asserting a stale count while the PRD moves underneath it.
     /// </summary>
-    private const string PrdSha256 = "884981cefea501e5d6636b8f797581487a5d83cc65f8f4ef53879f3484a140f8";
+    private const string PrdSha256 = "90d8fe27ae6c08b5ec7efde0b6e088c210420d805be2e73dc96f0b4e7a134ccc";
 
-    private const string AddendumSha256 = "5a0caab66c9eb4b0469d79e77a6c265dd24136e46cc980eeaf58a79cee53e96b";
+    private const string AddendumSha256 = "2f7a5018a90f8b0e5361c2e1109ac1ae92bcc1424a8e3a692224d8ad0eb8ca69";
+
+    private const string FrozenServiceDefaultsRemovalLine =
+        "`src/Hexalith.Conversations.ServiceDefaults/` removal anticipated by the";
 
     /// <summary>Reusable runtime projects the domain module must never own in target state.</summary>
     private static readonly string[] ProhibitedModuleOwnedRuntimeProjects =
@@ -471,6 +474,11 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     [Fact]
     public void NoTargetStateOwnershipOrUnqualifiedReadinessShouldSurviveAnywhereInTheDocument()
     {
+        IsQualifiedLine(FrozenServiceDefaultsRemovalLine).ShouldBeTrue();
+        IsQualifiedLine(
+            "Hexalith.Conversations.ServiceDefaults owns production; removal anticipated")
+            .ShouldBeFalse("Generic 'removal anticipated' words must not exempt a target-state ownership claim.");
+
         string architecture = ReadRepositoryFile(ArchitecturePath);
         string[] lines = architecture.Replace("\r\n", "\n").Split('\n');
         string currentHeading = string.Empty;
@@ -1527,7 +1535,8 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         => SectionSupersessionMarkers.Any(marker => heading.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsQualifiedLine(string line)
-        => LineSupersessionMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
+        => string.Equals(line.Trim(), FrozenServiceDefaultsRemovalLine, StringComparison.Ordinal)
+        || LineSupersessionMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase));
 
     private static bool IsQualifiedTestAppHostLine(string line)
         => TestAppHostBoundaryMarkers.Any(marker => line.Contains(marker, StringComparison.OrdinalIgnoreCase))

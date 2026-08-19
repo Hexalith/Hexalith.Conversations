@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 import importlib.util
 from pathlib import Path
+import subprocess
 
 import pytest
 
@@ -473,15 +474,33 @@ def test_current_proof_markdown_forbids_hold_lift_and_historical_rewrite() -> No
 # --- E6-REMEDIATION A3 §4.6 evidence-integrity faults ----------------------
 
 
-def test_dirty_tracked_worktree_blocks_current_proof() -> None:
+def test_dirty_tracked_worktree_blocks_current_proof(tmp_path: Path) -> None:
     """F-10: uncommitted tracked bytes must never be attributed to the resolved commit."""
-    dirt = verifier.worktree_dirt(ROOT)
-    if not dirt:
-        pytest.skip("repository worktree is clean; the strict default is exercised by CI")
+    for relative_path in (
+        verifier.CURRENT_PROOF_CONTRACT_PATH,
+        verifier.CURRENT_PROOF_SCHEMA_PATH,
+    ):
+        target = tmp_path / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / relative_path).read_bytes())
+    dirty_path = tmp_path / "controlled-dirty-input.txt"
+    dirty_path.write_text("committed\n", encoding="utf-8")
+    subprocess.run(("git", "init", "-q", "-b", "main", str(tmp_path)), check=True)
+    subprocess.run(("git", "-C", str(tmp_path), "config", "user.name", "Verifier"), check=True)
+    subprocess.run(
+        ("git", "-C", str(tmp_path), "config", "user.email", "verifier@example.invalid"),
+        check=True,
+    )
+    subprocess.run(("git", "-C", str(tmp_path), "add", "."), check=True)
+    subprocess.run(("git", "-C", str(tmp_path), "commit", "-q", "-m", "test: baseline"), check=True)
+    dirty_path.write_text("uncommitted\n", encoding="utf-8")
+
+    assert verifier.worktree_dirt(tmp_path) == [dirty_path.name]
     with pytest.raises(verifier.SupersessionError) as error:
-        verifier.current_proof(ROOT, execute_tests=True, test_executor=passing_current_proof_test)
+        verifier.current_proof(tmp_path, execute_tests=True, test_executor=passing_current_proof_test)
     assert error.value.state == "BLOCKED"
     assert error.value.code == "E6_CURRENT_PROOF_WORKTREE_DIRTY"
+    assert dirty_path.name in error.value.message
 
 
 def test_contract_bytes_must_come_from_the_resolved_commit(monkeypatch: pytest.MonkeyPatch) -> None:
