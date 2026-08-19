@@ -1,0 +1,313 @@
+<title>Conversations Authority Gate</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f7f7f4;
+    --surface: #fffffd;
+    --ink: #1d2021;
+    --ink-soft: #4d5257;
+    --ink-faint: #7a8085;
+    --line: #dcdcd4;
+    --accent: #0f6b64;
+    --accent-ink: #0b544e;
+    --accent-wash: #e7f0ee;
+    --crit: #b3261e;       --crit-wash: #f8e9e8;
+    --high: #a35a00;       --high-wash: #f7efe2;
+    --med:  #7d6b12;       --med-wash:  #f4f0dd;
+    --low:  #5c6670;       --low-wash:  #ebedef;
+    --pass: #2e6b34;       --pass-wash: #e8f0e7;
+    --mono-bg: #eeeee8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #131619;
+      --surface: #1a1e22;
+      --ink: #e7e5e0;
+      --ink-soft: #b0aea8;
+      --ink-faint: #83817c;
+      --line: #31363b;
+      --accent: #46b8ab;
+      --accent-ink: #6fcabf;
+      --accent-wash: #17302d;
+      --crit: #e5766f;      --crit-wash: #3a2220;
+      --high: #dfa050;      --high-wash: #362a1a;
+      --med:  #cdbb5a;      --med-wash:  #33301b;
+      --low:  #9aa5af;      --low-wash:  #272b30;
+      --pass: #7fbe84;      --pass-wash: #1e2e1f;
+      --mono-bg: #22262b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #131619;
+    --surface: #1a1e22;
+    --ink: #e7e5e0;
+    --ink-soft: #b0aea8;
+    --ink-faint: #83817c;
+    --line: #31363b;
+    --accent: #46b8ab;
+    --accent-ink: #6fcabf;
+    --accent-wash: #17302d;
+    --crit: #e5766f;      --crit-wash: #3a2220;
+    --high: #dfa050;      --high-wash: #362a1a;
+    --med:  #cdbb5a;      --med-wash:  #33301b;
+    --low:  #9aa5af;      --low-wash:  #272b30;
+    --pass: #7fbe84;      --pass-wash: #1e2e1f;
+    --mono-bg: #22262b;
+  }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    font-size: 16px;
+    line-height: 1.62;
+    margin: 0;
+    padding: 3rem 1.25rem 4.5rem;
+  }
+  .page { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 2.6rem; }
+  h1, h2, h3 { font-family: "Archivo", "IBM Plex Sans", system-ui, sans-serif; text-wrap: balance; margin: 0; }
+  h1 { font-size: 2.15rem; font-weight: 700; line-height: 1.15; letter-spacing: -0.015em; }
+  h2 { font-size: 1.28rem; font-weight: 700; letter-spacing: -0.005em; padding-bottom: .5rem; border-bottom: 2px solid var(--line); }
+  h3 { font-size: 1.02rem; font-weight: 600; line-height: 1.35; }
+  p { margin: 0; }
+  code, .mono {
+    font-family: "IBM Plex Mono", ui-monospace, "Cascadia Mono", monospace;
+    font-size: .855em;
+    background: var(--mono-bg);
+    border-radius: 3px;
+    padding: .08em .32em;
+  }
+  .eyebrow {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .74rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent-ink);
+    margin-bottom: .8rem;
+  }
+  header .target { color: var(--ink-soft); margin-top: .9rem; font-size: .95rem; }
+  header .target code { white-space: nowrap; }
+
+  .verdict {
+    border: 1px solid var(--crit);
+    border-left: 6px solid var(--crit);
+    background: var(--crit-wash);
+    border-radius: 6px;
+    padding: 1.3rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: .65rem;
+  }
+  .verdict .stamp {
+    font-family: "Archivo", system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: var(--crit);
+    letter-spacing: .02em;
+  }
+  .verdict p { color: var(--ink); }
+
+  table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+  .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: var(--surface); }
+  th, td { text-align: left; padding: .55rem .85rem; border-bottom: 1px solid var(--line); }
+  th { font-family: "Archivo", system-ui, sans-serif; font-size: .78rem; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-soft); }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  tr.total td { font-weight: 600; border-top: 2px solid var(--line); }
+
+  .chip {
+    display: inline-block;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .7rem;
+    font-weight: 500;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    border-radius: 999px;
+    padding: .14em .7em;
+    white-space: nowrap;
+  }
+  .chip.crit { color: var(--crit); background: var(--crit-wash); border: 1px solid var(--crit); }
+  .chip.high { color: var(--high); background: var(--high-wash); border: 1px solid var(--high); }
+  .chip.med  { color: var(--med);  background: var(--med-wash);  border: 1px solid var(--med); }
+  .chip.low  { color: var(--low);  background: var(--low-wash);  border: 1px solid var(--low); }
+  .chip.pass { color: var(--pass); background: var(--pass-wash); border: 1px solid var(--pass); }
+  .chip.fail { color: var(--crit); background: var(--crit-wash); border: 1px solid var(--crit); }
+  .chip.mixed { color: var(--high); background: var(--high-wash); border: 1px solid var(--high); }
+
+  section { display: flex; flex-direction: column; gap: 1.15rem; }
+  .cards { display: flex; flex-direction: column; gap: 1rem; }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left-width: 5px;
+    border-radius: 6px;
+    padding: 1.05rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: .6rem;
+  }
+  .card.crit { border-left-color: var(--crit); }
+  .card.high { border-left-color: var(--high); }
+  .card .head { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }
+  .card .id {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: .8rem; font-weight: 500; color: var(--ink-faint);
+  }
+  .card p { color: var(--ink-soft); font-size: .95rem; }
+  .card p strong { color: var(--ink); }
+  .card .repair { font-size: .92rem; color: var(--ink-soft); border-top: 1px dashed var(--line); padding-top: .6rem; }
+  .card .repair b { color: var(--accent-ink); font-weight: 600; }
+  .card .src { font-size: .78rem; color: var(--ink-faint); font-family: "IBM Plex Mono", ui-monospace, monospace; }
+
+  .rollup { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 1.05rem 1.3rem; }
+  .rollup h3 { margin-bottom: .45rem; }
+  .rollup p { color: var(--ink-soft); font-size: .93rem; }
+  .rollup + .rollup { margin-top: 1rem; }
+
+  .strengths { border-left: 5px solid var(--pass); }
+  ol.seq { margin: 0; padding-left: 1.4rem; display: flex; flex-direction: column; gap: .7rem; }
+  ol.seq li { color: var(--ink-soft); font-size: .96rem; }
+  ol.seq li::marker { font-family: "Archivo", system-ui, sans-serif; font-weight: 700; color: var(--accent-ink); }
+  ol.seq li strong { color: var(--ink); }
+
+  footer { color: var(--ink-faint); font-size: .84rem; border-top: 1px solid var(--line); padding-top: 1.2rem; line-height: 1.9; }
+  a { color: var(--accent-ink); }
+</style>
+
+<div class="page">
+
+<header>
+  <div class="eyebrow">Reviewer Gate · Validate Intent · 2026-08-18</div>
+  <h1>Conversations Authority Gate</h1>
+  <p class="target">Target <code>_bmad-output/planning-artifacts/architecture.md</code> — 2,359 lines · 150,505 bytes · v8 base + append-only overlays V9–V12 · implementation hold <strong>ACTIVE</strong></p>
+</header>
+
+<div class="verdict">
+  <span class="stamp">GATE VERDICT — FAIL</span>
+  <p>The document cannot currently serve as the single build authority. Its mechanical integrity is flawless — every overlay digest reproduces byte-exactly and every named platform surface exists — but its own discovery rule now resolves to stale V12 authority while true current authority (V13/V14 sidecars, two approved 2026-08-18 proposals) is invisible from the document, one approved proposal is untracked, and the adversarial lens built four letter-compliant builder pairs that diverge on currently-authorized or Wave-1 work. The ACTIVE hold means nothing burns today; the critical set must close before IR-0 is rerun, because IR-0 binds the exact authority bundle these ambiguities live in.</p>
+</div>
+
+<div class="verdict" style="border-color: var(--pass); border-left-color: var(--pass); background: var(--pass-wash);">
+  <span class="stamp" style="color: var(--pass);">UPDATE ADDENDUM — REMEDIATION APPLIED (2026-08-18/19)</span>
+  <p>At the release owner's direction the findings were rolled into an Update run. A <strong>V13 overlay</strong> (<code>conversations-architecture-2026-08-18-v13</code>, 17,857 bytes, SHA-256 <code>c7d5c867…605a</code>) now closes C1 (authority relocation + discovery rule with <code>sidecar-head</code> marker attributes), C2–C5 and H5–H10 (divergence closures DC-1…DC-11), H2/H4, and the chain-hygiene mediums. The update's own three-lens gate caught two closures contradicting shipped Story 6.2 contracts; DC-2 and DC-5 were rewritten to <strong>ratify</strong> the shipped <code>ProjectionTrustState</code> vocabulary and <code>ProjectionFreshnessV1</code> anchor, and a final verification pass confirmed all eleven findings RESOLVED with exact code match (<code>reviews/update-2026-08-18/</code>). All V9–V12 digests and the v8 prefix reproduce unchanged. <strong>Still owed (H1):</strong> one publication commit carrying the V13 overlay and both approved 2026-08-18 proposals, then companion regeneration and candidate rebind — now bound by the overlay as an IR-0 precondition. H3 is a declared open dimension owned by the release owner, due before hold-lift. The findings below are the original 2026-08-18 pre-remediation record.</p>
+</div>
+
+<section>
+  <h2>Scoreboard</h2>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Lens</th><th>Verdict</th><th class="num">Crit</th><th class="num">High</th><th class="num">Med</th><th class="num">Low</th></tr></thead>
+    <tbody>
+      <tr><td>Lint (deterministic)</td><td><span class="chip pass">Pass — 0 findings</span></td><td class="num">–</td><td class="num">–</td><td class="num">–</td><td class="num">–</td></tr>
+      <tr><td>Rubric walker</td><td><span class="chip mixed">Sound w/ reservations</span></td><td class="num">0</td><td class="num">2</td><td class="num">7</td><td class="num">5</td></tr>
+      <tr><td>Reality-check</td><td><span class="chip mixed">Pass w/ corrections</span></td><td class="num">0</td><td class="num">2</td><td class="num">3</td><td class="num">4</td></tr>
+      <tr><td>Adversarial</td><td><span class="chip fail">Fail</span></td><td class="num">4</td><td class="num">6</td><td class="num">5</td><td class="num">3</td></tr>
+      <tr><td>Authority-chain</td><td><span class="chip fail">Fail</span></td><td class="num">1</td><td class="num">2</td><td class="num">2</td><td class="num">1</td></tr>
+      <tr class="total"><td>Consolidated (deduped)</td><td><span class="chip fail">Fail</span></td><td class="num">5</td><td class="num">10</td><td class="num">~13</td><td class="num">~9</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section>
+  <h2>Critical</h2>
+  <div class="cards">
+
+    <div class="card crit">
+      <div class="head"><span class="chip crit">Critical</span><span class="id">C1</span><h3>Authority discovery resolves to stale authority; V13/V14 are invisible</h3></div>
+      <p>The discovery rule (lines 1840–1842) terminates at the V12 overlay, but current authority moved into <code>v13-current-proof-authority-v1.json</code> (A1 closed <em>done</em> 2026-08-09 via the current-proof route), <code>v14-current-candidate-authority-v1.json</code> (candidate rebound twice, now <code>151f9651</code>), and two approved 2026-08-18 proposals — none named anywhere in the document (grep: zero hits). A compliant reader concludes A1 is open, the graph has 33 nodes, and the candidate is unrebound — all wrong. The frozen v8 frontmatter compounds it for anyone starting at the top. This is the exact staleness failure the overlay machinery was built to prevent.</p>
+      <p class="repair"><b>Repair:</b> append (never edit) a V13 pointer overlay after V12 — <code>supersedes=…-v12</code>, <code>v12-block-bytes=6075</code>, <code>v12-block-sha256=3050b326…1b796</code> — carrying an authority-relocation rule that names the sidecars and proposals with digests, plus a restated frontmatter-freeze warning at the tail. Every future sidecar version gets an appended pointer amendment.</p>
+      <span class="src">chain F1 · rubric F1 · reality F5 · adversarial A15</span>
+    </div>
+
+    <div class="card crit">
+      <div class="head"><span class="chip crit">Critical</span><span class="id">C2</span><h3>SM-C2 usable-evidence rule contradicts the frozen envelope</h3></div>
+      <p>Immutable v6 records that the frozen envelope yields dispersion two orders of magnitude wider than the 5% threshold on HP-CREATE/HP-APPEND (lines 165–168); v8 then demands usable comparable evidence under that <em>identical frozen envelope</em> (lines 268–275). One Epic 12 builder reads its signal-work mandate as license to change repetition policy or tooling; another reads envelope identity as prohibiting exactly that, leaving the lane BLOCKED. Either Epic 12 ships evidence RG-15 must reject as envelope-drifted, or the release chain dead-ends at a gate no authorized work may unblock.</p>
+      <p class="repair"><b>Repair:</b> define “usable” numerically; split the envelope into frozen vs versioned members revisable only as a named, pair-re-measured envelope revision; state that an envelope revision is not a target change.</p>
+      <span class="src">adversarial A1</span>
+    </div>
+
+    <div class="card crit">
+      <div class="head"><span class="chip crit">Critical</span><span class="id">C3</span><h3>Trust/freshness/hydration vocabulary ordered but never pinned</h3></div>
+      <p>Line 1129 commands “one shared enum” across API, UI, diagnostics, and evidence — yet the trust list is only ever “candidate” (554, 918), the freshness list only “such as” (1211, 1277), the two share just 4 of 10 members, and the hydration category (1265) has no members in 2,359 lines. A one-enum Contracts builder and a two-enum Server/HP-OPEN builder are both letter-compliant and wire-incompatible, inside Epic 12’s comparability window.</p>
+      <p class="repair"><b>Repair:</b> publish the canonical vocabulary as a versioned contract table — one enum per category, exact members, trust↔freshness relation, hydration condition→state mapping — before hold-lift; mark the candidate lists superseded.</p>
+      <span class="src">adversarial A2, A12 · rubric F3</span>
+    </div>
+
+    <div class="card crit">
+      <div class="head"><span class="chip crit">Critical</span><span class="id">C4</span><h3>Record-generator dirt policy vs promotion-gate cleanliness on one candidate</h3></div>
+      <p>The v6 record contract admits declared TRX inputs as legitimate dirt (179–185) without constraining where they live; the Story 6.7 gate blocks any untracked file in a changed-gitlink submodule (423–425) with no carve-out. A candidate whose TRX inputs or byproducts land under <code>references/</code> is simultaneously generator-valid and gate-blocked — and since the record embeds the gate verdict verbatim, the generator’s own output turns itself red. This failure mode has already been observed operationally in this repository.</p>
+      <p class="repair"><b>Repair:</b> pin allowed dirt to root-owned paths only; state that gate cleanliness dominates the record contract; make submodule-touching test lanes redirect outputs before record generation.</p>
+      <span class="src">adversarial A3</span>
+    </div>
+
+    <div class="card crit">
+      <div class="head"><span class="chip crit">Critical</span><span class="id">C5</span><h3>Graph parity has no composition rule; “exactly 33 nodes” underdetermines the set</h3></div>
+      <p>V9 requires rejecting “any semantic difference” against the architecture overlay (1900–1903), but the immutable v9 mermaid lacks the v11/v12 nodes and contains an edge v12 removed. A validator comparing against each immutable overlay always fails; one comparing against an <em>undefined</em> overlay-composed effective graph passes. Two letter-compliant generators can also emit different 33-node sets. This sits in the E6-REMEDIATION / preflight lane that is authorized and running now.</p>
+      <p class="repair"><b>Repair:</b> state the composition rule (v9 canonical graph + each overlay’s enumerated deltas; immutable blocks are provenance, not comparison targets) and enumerate the exact 33 node IDs in the v12 sidecar instead of pinning a count.</p>
+      <span class="src">adversarial A4</span>
+    </div>
+
+  </div>
+</section>
+
+<section>
+  <h2>High</h2>
+  <div class="cards">
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H1</span><h3>Approved authority uncommitted / drifted</h3></div>
+      <p><code>…readiness-gate-ac10-ac11.md</code> is APPROVED yet <strong>untracked</strong> (unrecoverable if lost); <code>…e6-remediation-a3.md</code> is worktree-modified (<code>cbc2eb2f…</code>) against its bundle pin as <code>canonical-authority-input</code> (<code>fbac2624…</code> = committed blob) — candidate-source drift by the document’s own V9/V10 rules. Commit both (commitlint-validated), then regenerate and rebind the candidate-bound companions. <span class="src">chain F2</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H2</span><h3>Misleading entry points</h3></div>
+      <p>The byte-pinned frontmatter still claims v8 / execution-view v1 (a committed, bundle-pinned v2 exists), and the regenerated v12 sidecar says A1 <em>open</em> while v13 and sprint-status say <em>done</em> — two live sidecars disagreeing on one action. The only freeze warning sits ~1,800 lines in. Fix via the C1 pointer overlay plus regenerating the v12 sidecar with a <code>statusAsOf</code> marker. <span class="src">chain F3</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H3</span><h3>Operational / environmental envelope silent</h3></div>
+      <p>No environment topology, no module-owned infra strategy (projection-store consistency, secrets, backup/restore vs legal hold, residency), runbooks silently dropped from the target tree, delegation to “platform deployment” names no counterpart artifact, and capacity unknowns have no waiver owner. Decide, defer with an owner, or formally delegate before hold-lift. <span class="src">rubric F2</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H4</span><h3>Stale version premises in still-binding text</h3></div>
+      <p>“Siblings pin Aspire 13.2.x / Dapr 1.17.7” and “evaluate Aspire 13.3” — reality is Aspire <strong>13.4.6</strong> (shared props and this repo’s own AppHost SDK line) and Dapr <strong>1.18.5</strong>; 13.4 is current stable, 13.5 in development. The list was hand-refreshed for the SDK number only, so the stale values read as re-verified. <span class="src">reality F1, F2</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H5</span><h3>Temporal evidence anchor open but load-bearing</h3></div>
+      <p>Line 604’s open question must be answered now by both the Epic 12 HP-OPEN envelope and Epic 13 proof-v3 replay evidence — and the two natural picks (event position vs opaque projection version) fail each other’s conformance checks. Pin a composite anchor contract. <span class="src">adversarial A5</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H6</span><h3>Audit-unavailable boundary undecided; ADR backlog orphaned</h3></div>
+      <p>Whether non-governance commands proceed during audit degradation without an ADR is two-valued, and ADR-001..010 are “required before dependent stories” yet no Epic 7–15 story owns authoring any of them. Pin the default; map ADR authorship into the obligation inventory. <span class="src">adversarial A6 · rubric F9</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H7</span><h3>Derived-key grammar unpinned beneath the poison scenario</h3></div>
+      <p>“Keys must carry tenant scope” is the only shape rule beneath fail-closed cross-key validation and the cross-tenant poison BDD scenario; two compliant grammars make the validation vacuous or falsely red. Pin the exact grammar as a versioned contract. <span class="src">adversarial A7</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H8</span><h3>“Strength digest” undefined; tier membership has two deciders</h3></div>
+      <p>Epic 9’s migration inventory hinges on a term defined nowhere; count-based vs compile-surface digests give opposite verdicts on the same migration. Define the digest and name the single decider. <span class="src">adversarial A8</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H9</span><h3>AppHost baseline conflict acknowledged, then abandoned</h3></div>
+      <p>The platform baseline forbids a module AppHost; Epic 12’s post-measurement contract requires the harness to exist and run; v9 demands “a separate approved technical amendment” that no successor story owns and IR-0 never requires. Make its resolution an IR-0 entry criterion or an Epic 12 hard-entry condition. <span class="src">adversarial A9</span></p></div>
+    <div class="card high"><div class="head"><span class="chip high">High</span><span class="id">H10</span><h3>“Retiring the ceiling” is a two-valued obligation</h3></div>
+      <p>v6 assigns Story 6.11 a retirement obligation whose subject v8 dissolved without superseding the sentence; the zero-gap obligation inventory cannot be complete under both readings. One sentence in the next overlay closes it. <span class="src">adversarial A10</span></p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Medium &amp; low</h2>
+  <div class="rollup">
+    <h3><span class="chip med">Medium · ~13</span></h3>
+    <p>13 of 20 initiative FRs without in-document disposition [rubric F4] · one public-API prohibition literally unenforceable [F5] · three colliding ADR numbering spaces, ADR-003/004 doubly assigned [F6 · adv A14] · FR→structure mapping binds only the superseded May 14 tree [F7] · V10’s BMAD-6.10.1n46-frozen inventories presumptively self-invalidated by the 6.11.0 move (the A3 proposal is remediating the fallout) [F8] · seven legacy open questions with no disposition register [F9] · still-binding text claims <code>ServiceDefaults</code> exists (removed) [reality F3] · authoritative test tree drifted both directions [reality F4] · projection-handler duality + unowned dispatch ledger [adv A11] · hydration degraded-state mapping unassigned [adv A12] · UX denominator scan-vs-constant-28 deadlock [adv A13] · v14 chain head pinned by nothing; v13-era bundle pins silently stale [chain F4] · digest byte-range convention recorded nowhere — determined experimentally [chain F5].</p>
+  </div>
+  <div class="rollup">
+    <h3><span class="chip low">Low · ~9</span></h3>
+    <p>May-era currency notes in superseded sections (SDK 10.0.303/10.0.400 shipped 2026-08-11; xunit.v3 4.0.0 stable 2026-08-15 while the umbrella stays 3.2.2 by known NU1608 constraint; Fluent UI rides a 5.0 RC) [rubric F10 · reality F6–F9] · dead-in-place superseded rule text, the v6 SM-C2 ceiling prose being the most persuasive wrong layer [F11] · v4 append-only breach disclosed and structurally remediated [F12] · advisory-vs-binding pattern state unenumerated [F13] · two “A5” action namespaces [F14] · 27-reader inventory vs alias counting [adv A16] · legal-hold mutation vs absolute replay equivalence [adv A17] · metadata-only ID co-emission [adv A18] · inconsistent marker attribute schema [chain F6].</p>
+  </div>
+</section>
+
+<section>
+  <h2>Verified strengths</h2>
+  <div class="rollup strengths">
+    <p>All V9–V12 predecessor digests and the v8 prefix pin reproduce byte-exactly; marker pairing well-formed; supersession chain unbroken; the bundle digest and every testable sidecar cross-pin verify [chain §1]. Every landing-zone platform surface exists in the tracked submodules; the AppHost test-only boundary is mechanically real (<code>IsPackable/IsPublishable=false</code>); <code>.slnx</code> + CPM + shared version baseline + ten root gitlinks all match [reality F10–F12]. The OQ-1..5 disposition register is exemplary; supersession is declared at every layer; the one historical immutability breach (v4) was disclosed and structurally prevented [rubric].</p>
+  </div>
+</section>
+
+<section>
+  <h2>Recommended remediation sequence</h2>
+  <ol class="seq">
+    <li><strong>Protect the approved authority</strong> (H1): commit both 2026-08-18 proposals with commitlint-validated messages; do not capture the <code>references/Hexalith.FrontComposer</code> gitlink drift in that commit.</li>
+    <li><strong>Restore discovery</strong> (C1, H2, chain F5/F6): append the V13 pointer overlay — authority-relocation rule, frontmatter-freeze restatement, normative digest-convention sentence, full marker attribute set — regenerate the v12 sidecar with <code>statusAsOf</code>, regenerate the bundle including v13/v14 as pinned artifacts, rebind the candidate.</li>
+    <li><strong>Close the divergence pairs before IR-0 rerun</strong> (C2–C5, H5–H10): each has a small append-only closing rule specified in the adversarial review; none reopens immutable history.</li>
+    <li><strong>Before hold-lift</strong> (H3, H4): disposition the operational envelope and refresh the version premises in one dated overlay note.</li>
+    <li><strong>Structural relief</strong>: generate a current-rules AD-spine projection — like <code>epic-6-current-execution-view-v2</code>, non-amending and digest-bound — so builders stop computing 12-layer supersession by hand.</li>
+  </ol>
+</section>
+
+<footer>
+  Reviewer gate run 2026-08-18 · bmad-architecture, Validate intent · no changes applied to the spine.<br>
+  Full reviews: <code>_bmad-output/planning-artifacts/architecture/architecture-Conversations-2026-08-02/reviews/validate-2026-08-18/review-{rubric,reality-checked,adversarial,authority-chain}.md</code><br>
+  Markdown twin: <code>…/validation-report-2026-08-18.md</code>
+</footer>
+
+</div>

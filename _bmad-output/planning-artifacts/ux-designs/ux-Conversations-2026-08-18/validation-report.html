@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>UX Design Validation: Conversations UX Preservation Set</title>
+<style>
+  :root {
+    --bg: #fafaf9;
+    --surface: #ffffff;
+    --border: #e7e5e4;
+    --text: #1c1917;
+    --muted: #78716c;
+
+    --verdict-strong: #16a34a;
+    --verdict-adequate: #65a30d;
+    --verdict-thin: #d97706;
+    --verdict-broken: #dc2626;
+
+    --sev-low: #64748b;
+    --sev-medium: #ca8a04;
+    --sev-high: #ea580c;
+    --sev-critical: #dc2626;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    font-size: 15px;
+  }
+  .container { max-width: 960px; margin: 0 auto; padding: 32px 24px 64px; }
+
+  header.report-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .title h1 { margin: 0; font-size: 22px; font-weight: 600; letter-spacing: -0.01em; }
+  .title .subtitle { color: var(--muted); font-size: 13px; margin-top: 4px; font-family: ui-monospace, "SF Mono", Menlo, monospace; }
+
+  .synthesis {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--muted);
+    border-radius: 8px;
+    padding: 18px 22px;
+    margin-bottom: 24px;
+    font-size: 15.5px;
+  }
+  .synthesis p { margin: 0 0 10px; }
+  .synthesis p:last-child { margin-bottom: 0; }
+
+  .dimension-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .dim-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .dim-card .dim-name { font-size: 13px; color: var(--muted); margin-bottom: 6px; }
+  .dim-card .dim-verdict { font-size: 14px; font-weight: 600; }
+
+  section.dimension, section.reviewer-section { margin-bottom: 14px; }
+  section.dimension details, section.reviewer-section details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  section summary {
+    padding: 14px 20px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  section summary::-webkit-details-marker { display: none; }
+  section summary::before {
+    content: "▸";
+    display: inline-block;
+    color: var(--muted);
+    transition: transform 0.15s ease;
+  }
+  section details[open] summary::before { transform: rotate(90deg); }
+  section summary h2 {
+    display: inline;
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    flex: 1;
+  }
+  .verdict-pill {
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: white;
+  }
+  .verdict-strong { background: var(--verdict-strong); }
+  .verdict-adequate { background: var(--verdict-adequate); }
+  .verdict-thin { background: var(--verdict-thin); }
+  .verdict-broken { background: var(--verdict-broken); }
+
+  .dim-body { padding: 4px 20px 18px; }
+  .dim-judgment { color: var(--text); font-size: 14.5px; }
+  .dim-judgment p { margin: 0 0 10px; }
+
+  .findings-list { padding: 0 20px 4px; }
+  article.finding {
+    padding: 14px 0;
+    border-top: 1px solid var(--border);
+  }
+  article.finding:first-child { border-top: none; }
+  article.finding header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 6px;
+  }
+  .badge {
+    font-size: 10.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 1.4;
+  }
+  .badge-sev-low { background: rgba(100, 116, 139, 0.12); color: var(--sev-low); }
+  .badge-sev-medium { background: rgba(202, 138, 4, 0.14); color: var(--sev-medium); }
+  .badge-sev-high { background: rgba(234, 88, 12, 0.14); color: var(--sev-high); }
+  .badge-sev-critical { background: rgba(220, 38, 38, 0.14); color: var(--sev-critical); }
+  .finding-title { margin: 0; font-size: 15px; font-weight: 500; flex: 1; min-width: 200px; }
+  .finding-location { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 12.5px; color: var(--muted); }
+  .finding-note, .finding-fix { margin-top: 6px; font-size: 14px; }
+  .finding-fix strong { color: var(--muted); font-weight: 500; }
+
+  .reviewer-source {
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+
+  .mechanical {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-top: 24px;
+    font-size: 14px;
+  }
+  .mechanical h3 { margin: 0 0 10px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+  .mechanical ul { margin: 0; padding-left: 20px; }
+  .mechanical li { margin-bottom: 4px; color: var(--text); }
+
+  footer.report-footer {
+    margin-top: 40px;
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    color: var(--muted);
+    font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  footer .meta { display: flex; gap: 24px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+  <div class="container">
+
+    <header class="report-header">
+      <div class="title">
+        <h1>Conversations UX Preservation Set — UX Design Validation Report</h1>
+        <div class="subtitle">_bmad-output/planning-artifacts/ux-design-specification.md · ux-requirement-map.md · ux-design-directions.html</div>
+      </div>
+    </header>
+
+    <div class="synthesis">
+      <p>The legacy preservation set is an unusually rigorous <strong>behavioral and safety contract</strong> — states, fail-closed rules, leakage discipline, and acceptance identifiers extract cleanly, and the 52-decision/28-AC inventory is enforced by a named validator (epics.md:2599, Story 8.2). It is, however, <strong>not a visual contract</strong>: not one color value or Fluent token binding is committed anywhere in the markdown — the only concrete palette lives unbound in ux-design-directions.html — and 8 of the 11 frontmatter inputDocuments no longer exist on disk. A downstream consumer can build the behavior faithfully today; any consumer asked to mirror the visual design must invent values, which for a trust-critical UI (redaction vs. warning vs. degraded) is exactly where invention is unsafe.</p>
+      <p>The extra lenses sharpen rather than overturn that picture. <strong>Authority alignment is clean</strong>: the requirement map is a managed companion the V9 publisher rebinds at every candidate rebind, and at HEAD it pins exactly what the newest V14 sidecar pins — no critical or high findings — though its currency is time-limited by approved-but-uncommitted amendments that guarantee an imminent candidate rebind. <strong>Downstream consumability</strong> confirms identity-level extraction is exact (28/28 ordered AC parity) but finds that four required fields of the Story 8.1 disposition row schema have no source anywhere in the set, and that the freshness vocabulary splits three ways between spec and architecture despite the one-shared-enum mandate. <strong>Accessibility</strong> finds an unusually deep floor for a planning artifact, held back by two structural gaps: the floor is pinned to WCAG 2.1 AA rather than 2.2 AA, and blocked governance actions have a committed outcome but no committed mechanism for exposing their reason to keyboard and screen-reader users.</p>
+    </div>
+
+    <div class="dimension-summary">
+      <div class="dim-card">
+        <div class="dim-name">Flow coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Token completeness</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Component coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">State coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-strong)">strong</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Visual reference coverage</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Bloat &amp; overspecification</div>
+        <div class="dim-verdict" style="color: var(--verdict-adequate)">adequate</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Inheritance discipline</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+      <div class="dim-card">
+        <div class="dim-name">Shape fit</div>
+        <div class="dim-verdict" style="color: var(--verdict-thin)">thin</div>
+      </div>
+    </div>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>1. Flow coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>The PRD's nine preserved acceptance journeys (§14.3: Maya, Atlas, Sarah, Diego, Marcus, Julian, Helen, Naomi, Daniel) were checked against the spec's User Journey Flows (spec:847–952), which supply four Mermaid flows — Sarah, Maya+Atlas, Diego, Julian+Helen — each with a named protagonist, ordered steps, decision nodes, and an explicit failure branch. Persona names match §14.3 verbatim. Six of nine preserved actors are covered. The UJ-1..UJ-3 refactor journeys are developer-scope and correctly out of UX-surface scope.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Marcus (SRE) has no journey</h3>
+              <span class="finding-location">prd.md:421; spec:847–952</span>
+            </header>
+            <div class="finding-note">Audit-sink degradation with governance writes failing closed, machine-readable verification consumption, and privileged-action justification review (Feature-FR54–FR55, Feature-NFR47–NFR48, NFR75) have component states (<code>audit-unavailable</code>, degraded projections) but no ordered flow exercising them.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a Marcus flow, or record an explicit disposition (subsumed/deferred) in ux-requirement-map.md.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">No flow exercises a governance mutation</h3>
+              <span class="finding-location">prd.md:506–508; spec:972, 1273–1283</span>
+            </header>
+            <div class="finding-note">Redact-with-rationale and retention-policy commands (Feature-FR42–FR44) have fully specified machinery (Form Patterns, dialogs, Command Gate) but no journey; the v1 read-only boundary is stated only obliquely ("Keep v1 read-only where the PRD requires it").</div>
+            <div class="finding-fix"><strong>Fix:</strong> Either add the mutation flow or commit the read-only-v1 boundary as an explicit decision with a map row.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Daniel and Naomi have no flows and no disposition line</h3>
+              <span class="finding-location">prd.md:424–425</span>
+            </header>
+            <div class="finding-note">Daniel's investigation is plausibly subsumed by Sarah's; Naomi has no admin-UI surface — but neither absence is explained.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One disposition sentence each.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>2. Token completeness</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Structure, spacing, and breakpoints are concrete: an 8px spacing foundation with 4px compact and 16/24px section scales (spec:678–682), breakpoints 320/768/1024/1440 (spec:1399–1406), 44px touch targets (spec:1435), typography inherited from FrontComposer/Fluent defaults with monospace for identifiers (spec:646–676). Color is not: the eight semantic roles and five named domain tokens carry no values and no Fluent alias bindings anywhere in the markdown.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-critical">critical</span>
+              <h3 class="finding-title">Zero concrete color commitments in the spec</h3>
+              <span class="finding-location">spec:592–601, 719, 729–734</span>
+            </header>
+            <div class="finding-note">All eight semantic roles (primary, neutral, success/current, warning/stale, error/blocked, redaction, degraded, information) are prose only; the five <code>--conversation-*</code> tokens have names but no values, and "Semantic color tokens map to Fluent theme aliases" names no alias. For success/warning/error a consumer could guess at Fluent palette tokens; <strong>redaction</strong> and <strong>degraded</strong> are novel roles with no Fluent equivalent — downstream code must invent exactly the treatments the spec declares load-bearing ("Redaction: visible redaction marker distinct from warning and error").</div>
+            <div class="finding-fix"><strong>Fix:</strong> Bind each semantic role to a named Fluent UI Blazor design-token alias or a hex value; at minimum mint the redaction and degraded tokens.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No contrast pairs stated for load-bearing combinations</h3>
+              <span class="finding-location">spec:742, 1424, 1499</span>
+            </header>
+            <div class="finding-note">Contrast is committed only as blanket "WCAG 2.1 AA". No foreground/background pair or ratio is stated for status-chip text on status-soft fills, the redaction marker on the neutral evidence surface, or degraded/stale banners.</div>
+            <div class="finding-fix"><strong>Fix:</strong> State the pairs and target ratios for every trust-state chip and banner.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The only concrete palette sits orphaned in the directions HTML</h3>
+              <span class="finding-location">ux-design-directions.html:10–30</span>
+            </header>
+            <div class="finding-note"><code>--verified #1f7a4d</code>, <code>--warning #946200</code>, <code>--blocked #b42318</code>, <code>--redacted #6d3a9c</code>, <code>--info #0f6c8c</code>, <code>--primary #2563eb</code>, 6px radius, "Segoe UI" — never declared normative or illustrative by the spec: values a consumer can neither safely adopt nor safely ignore.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One sentence in the spec adopting or disclaiming the showcase palette.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">HTML has no degraded token and reuses warning styling, contradicting the spec</h3>
+              <span class="finding-location">html:739, 879 vs spec:588–589, 600</span>
+            </header>
+            <div class="finding-note">The spec requires degraded to be distinct from warning; the only visual artifact renders degraded states with <code>status warning</code> styling. The prose contract and the visual artifact contradict each other.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Mint the distinct degraded treatment and correct the showcase, or note the deviation.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Monospace usage rule names no face or token</h3>
+              <span class="finding-location">spec:657</span>
+            </header>
+            <div class="finding-note">Typography inheritance is otherwise a legitimate UI-system-inheritance pattern per the target shape.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name the face or the Fluent typography token.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>3. Component coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>All component names were extracted across the three artifacts: 8 trust primitives (spec:1027–1036) and 12 composites (spec:1040–1053), plus the §2.4 named patterns. <strong>Behavioral coverage is exemplary</strong> — every primitive has required inputs, forbidden inputs, fail-closed behavior, and test expectations; every composite has purpose, key states, and accessibility rules; component merges are documented (spec:1055–1060). Visual coverage is the gap.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">No custom component has a per-component visual spec</h3>
+              <span class="finding-location">spec:1027–1053; design-md-spec.md:29</span>
+            </header>
+            <div class="finding-note">No anatomy, sizing, color usage, or state appearance for any of the 20 components; visuals exist only in the unbound HTML mockups. A story-dev implementing Trust Posture Strip gets complete behavior and zero appearance.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Per-component visual notes, or an explicit binding of each composite to a named region of the chosen direction's mockup.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Three names for the record-level trust summary</h3>
+              <span class="finding-location">spec:514, 1045, 1265; map:60</span>
+            </header>
+            <div class="finding-note">"Trust Banner", "Trust Posture Strip", and "trust summary band" (the map uses "Trust summary band"). Unlike the citation/freshness merges, this rename is undocumented.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One canonical name plus an alias note.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The map abbreviates component names</h3>
+              <span class="finding-location">map:45–46</span>
+            </header>
+            <div class="finding-note">"SafeReason" for SafeReasonInline/SafeReasonDetail; "Trust Preview" and "Governed Header" for the full composite names — resolvable, but not verbatim, so mechanical name-matching fails.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Align map summaries to exact spec names.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>4. State coverage</h2>
+          <span class="verdict-pill verdict-strong">strong</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Every named surface was walked: Find pane (6 states), result row (10), record header (8), posture strip (8), completeness indicator (4 with defensible-scope semantics), timeline entry (10), safe state message (7), drawer (5), command gate (8), forensic mode (5), acceptance/waiver summaries. Freshness has a 5-value taxonomy; cold-load/skeleton rules, permission-denied, six redaction sub-causes, degraded hydration, stale/rebuilding projections, cross-tenant poison, and mid-session permission downgrade are all covered, with canonical fixtures (spec:1175–1186, 1348–1359, 1533–1545). This is the strongest category in the set.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No offline/disconnected or session-expiry state is named</h3>
+              <span class="finding-location">spec:1307–1311</span>
+            </header>
+            <div class="finding-note">Nearest coverage is generic "unavailable" plus the Trust Transition Pattern.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One row stating which existing state class carries connection loss and auth expiry.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>5. Visual reference coverage</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>The spec references the HTML exactly once, at the right section, by path, and names all six directions it illustrates (spec:783–794); the six names match the HTML's headings exactly. A winner <strong>is committed</strong> — "02. Split Investigation Lens" strengthened with Case File Console's header and Evidence Reader's timeline (spec:796–800) — with rationale and implementation notes.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The HTML read standalone is ambiguous about the winner</h3>
+              <span class="finding-location">html:680–682</span>
+            </header>
+            <div class="finding-note">Its comparison card recommends <em>two</em> directions ("Case File Console and Split Investigation Lens are the safest… Recommended base") and carries no marker that 02 won. A consumer opening the visual artifact without the spec sees an open decision.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a "chosen: 02 Split Investigation Lens (see ux-design-specification.md → Design Direction Decision)" banner to the HTML.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">The Design Direction Decision has no UX-DR row</h3>
+              <span class="finding-location">map (52 rows); epics.md:2599</span>
+            </header>
+            <div class="finding-note">The biggest layout commitment in the set is absent from the 52-row decision inventory. Note the coupling: Story 8.2's validator freezes the 52/28 counts, so adding a row means a versioned contract change, not a casual edit.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Either add UX-DR53 under a new authority version or record in the map preamble that the direction decision is intentionally preserved via UX-DR18.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The requirement map never references ux-design-directions.html</h3>
+              <span class="finding-location">map (whole file)</span>
+            </header>
+            <div class="finding-note">The HTML is reachable only through the spec.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Reference it from the map preamble as exploration provenance.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details>
+        <summary>
+          <h2>6. Bloat &amp; overspecification</h2>
+          <span class="verdict-pill verdict-adequate">adequate</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>The spec does not dump PRD content — personas and Feature-FRs are not restated wholesale, and most narrative sections terminate in binding rules or matrices. The real bloat is self-repetition, which in a machine-extraction contract becomes a drift hazard.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Duplicate "Core User Experience" section pair</h3>
+              <span class="finding-location">spec:76 and spec:410</span>
+            </header>
+            <div class="finding-note">Both contain a "Defining Experience" subsection with overlapping but non-identical content (spec:78–88 vs 412–429). Heading-based extraction is ambiguous.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Merge, or rename the first ("Experience Overview") with a provenance note.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Leakage-surface enumeration restated at least six times with varying membership</h3>
+              <span class="finding-location">spec:755, 1201, 1231, 1326, 1338, 1432</span>
+            </header>
+            <div class="finding-note">One adds "search indexes"; AC-SAFE-002 adds "route metadata"; others add "URLs… error messages… loading skeletons". A consumer cannot tell which enumeration is the canonical test surface.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One canonical list; every other statement references it.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">"Render trust, never infer" restated ~9 times</h3>
+              <span class="finding-location">spec:245, 317–319, 507, 558, 628, 824, 962, 1068, 1329</span>
+            </header>
+            <div class="finding-note">Consistent in meaning; expensive to verify each restatement stays consistent.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Collapse on migration.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Narrative beyond the load-bearing residue in two sections</h3>
+              <span class="finding-location">spec:127–157, 161–209</span>
+            </header>
+            <div class="finding-note">Desired Emotional Response and Inspiring Products Analysis carry narrative beyond their closing principles; the Pattern Fit Matrix and Non-Negotiable Pattern Minimum are the residue worth keeping.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Trim on migration.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>7. Inheritance discipline</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>What holds: the AC inventory has exact, ordered, one-to-one parity — AC-SAFE-001..008, AC-RESP-001..015, AC-A11Y-001/002, AC-LEAK-001, AC-MOB-001, AC-PERF-001 (map:91–118) match the spec with correct source sections; the map's epic and architecture authority strings both resolve; <code>planningCandidate 151f965…</code> is a real commit; the 52/28 counts are validator-enforced; journey personas match PRD §14.3 verbatim. What breaks: the declared provenance chain dangles.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">8 of 11 inputDocuments do not resolve on disk</h3>
+              <span class="finding-location">spec:20–31</span>
+            </header>
+            <div class="finding-note">All six <code>research/technical-*.md</code> files (directory now empty; deleted in commits 0664124 and 440fd19) and both product briefs are absent. For a preservation artifact whose banner rests on provenance, the declared source set dangles with no tombstone or archive pointer.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Annotate each missing entry with its disposition (deleted-at-commit / archived-at-path) or restore archive copies.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Date anachronism in the provenance chain</h3>
+              <span class="finding-location">spec frontmatter; spec:50–54</span>
+            </header>
+            <div class="finding-note"><code>completedAt: 2026-05-13</code> precedes the declared canonical input <code>prd-Conversations-2026-06-02</code>. The rebinding is asserted in prose but the frontmatter carries no rebinding date, so the chain reads as impossible on its face.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a <code>reboundAt</code>/note field distinguishing original inputs from rebound authority.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Authority-version skew between spec (v1) and map (v3)</h3>
+              <span class="finding-location">spec:32; map:2</span>
+            </header>
+            <div class="finding-note"><code>ux-preservation-planning-2026-08-01-v1</code> vs <code>ux-preservation-planning-2026-08-04-v3</code> with no supersession statement. A consumer checking "same preservation regime?" gets two answers. (The authority lens judges this stale-by-design; the ergonomic gap stands.)</div>
+            <div class="finding-fix"><strong>Fix:</strong> Stamp both artifacts with the current version or add a supersession line to the map.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">UX-DR Source Section labels resolve only by interpretation</h3>
+              <span class="finding-location">map:31–…; e.g. UX-DR3 → spec:124</span>
+            </header>
+            <div class="finding-note">Several labels match no literal spec heading (UX-DR3 "Trust as a contract" is a bullet; UX-DR4, DR6, DR7–10, DR13–16 name Customization Strategy bullets or Verification Expectations prose). All 52 resolve to real content — but not mechanically.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Use literal headings or add anchors.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">No Feature-FR/NFR identifier appears anywhere in the spec</h3>
+              <span class="finding-location">e.g. spec:967 (Feature-NFR12 unnamed)</span>
+            </header>
+            <div class="finding-note">The namespace postdates the spec; the map maps UX-DRs to stories, not Feature-FRs, so Feature-FR56–FR69 traceability runs through reading, not IDs.</div>
+            <div class="finding-fix"><strong>Fix (optional):</strong> A one-page Feature-FR ↔ UX-DR crosswalk.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="dimension">
+      <details open>
+        <summary>
+          <h2>8. Shape fit</h2>
+          <span class="verdict-pill verdict-thin">thin</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>Distance from DESIGN.md: large.</strong> There is no token frontmatter at all — the spec's YAML is workflow metadata. Colors are prose roles (the critical gap above); typography/spacing would translate directly; Shapes and Elevation are absent (the HTML's 6px radius and shadow are unbound); "Forbidden Visual Moves" (spec:768–779) is a ready-made Do's and Don'ts half. A migration must mint the frontmatter: Fluent alias references for standard roles, real values for redaction/degraded, radius/spacing scales, per-component token stubs for the 20 components.</p>
+            <p><strong>Distance from EXPERIENCE.md: moderate</strong> — mostly reorganization plus deduplication. Voice lives in the Accessibility Microcopy Rules; Component Patterns and State Patterns are over-supplied; Interaction Primitives, Accessibility Floor, Inspiration &amp; Anti-patterns, and Key Flows all have direct source material. Missing: an explicit Information Architecture table — the surfaces are named everywhere and tabulated nowhere. A migration could cut 40–50% of the token count without losing a decision.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">ux-design-directions.html carries no preservation-authority banner</h3>
+              <span class="finding-location">html (whole file) vs spec:44–47, map:13–17</span>
+            </header>
+            <div class="finding-note">Both markdown artifacts carry consistent banner text and identical preserved-not-activated dispositions; the HTML has zero preservation/authority markers — the only artifact of the three a viewer could mistake for live design work.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add the banner as a visible note plus an HTML comment.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Migration sequencing note</h3>
+              <span class="finding-location">—</span>
+            </header>
+            <div class="finding-note">Mint DESIGN.md tokens first (the only genuinely missing content), then split the spec into the spine pair — the behavioral material ports nearly verbatim. The AC identifiers and the 52-row map must survive any migration unchanged or under a new validator-blessed authority version (Story 8.2 coupling).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Sequence any future migration accordingly.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Authority alignment review</h2>
+          <span class="reviewer-source">review-authority-alignment.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p><strong>CURRENT and coherently pinned.</strong> The UX requirement map is a managed companion that the V9 publisher regenerates at every candidate rebind, and at HEAD it binds exactly the candidate (<code>151f965</code>, an ancestor of HEAD), epic authority, and architecture authority that the newest sidecar (V14) binds — it was itself rebound in commit <code>29c56fa</code>. The spec's older v1 stamp against the map's v3 is a designed asymmetry (frozen source vs advancing disposition authority), not drift. Stories 8.1–8.2 ownership is current in epics.md and the execution view and is validator-enforced. V13's different candidate is an explicit point-in-time predecessor, not a contradiction. Nothing in the 2026-08-18 proposals or execution views contradicts the preserved-not-activated disposition. No critical or high findings.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Currency is time-limited by pending approved amendments</h3>
+              <span class="finding-location">A3 proposal (worktree, +23/−3); publish_v9_planning_authority.py:266</span>
+            </header>
+            <div class="finding-note">The worktree A3 proposal carries applied-but-uncommitted CP-1..CP-3 amendments, and that file is in <code>CANONICAL_PATHS</code> — so the candidate check against <code>151f965</code> already fails on it, and landing the amendment forces a new candidate commit plus rebind that regenerates the map with a new <code>planningCandidate</code>. An agent caching <code>151f965</code> as durable authority will be consuming a stale binding the moment the rebind lands; the untracked readiness proposal is not yet candidate-bound anywhere.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Consumers must re-read the map/V14 pin at use time; when the amendment commits, add the readiness proposal to <code>CANONICAL_PATHS</code> so both 2026-08-18 authority records are candidate-bound.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">A3 proposal internally inconsistent about the map's regeneration</h3>
+              <span class="finding-location">A3 proposal §2 line 138 vs §5</span>
+            </header>
+            <div class="finding-note">§2 says "UX map regenerates byte-identically" while §5 lists it under "Regenerated atomically (42)" — and the actual regeneration at <code>29c56fa</code> changed the <code>planningCandidate</code> line. An agent auditing against the "byte-identically" claim would report phantom drift.</div>
+            <div class="finding-fix"><strong>Fix:</strong> In the forthcoming amendment commit, restate as "regenerates with only the designed planningCandidate rebind; all 52/28 rows byte-identical" — do not rewrite the committed text.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">The spec is not byte-protected by the candidate gate</h3>
+              <span class="finding-location">publish_v9_planning_authority.py:35; epics.md:2587; map:21–23</span>
+            </header>
+            <div class="finding-note">Source-hash binding is deferred to Story 8.1 AC-8.1-02 behind IR-0 and the ACTIVE hold. AC-identifier drift is caught by the C# validator, but non-identifier spec edits pass ungated until 8.1 executes. The gap is disclosed in the map, not silent.</div>
+            <div class="finding-fix"><strong>Fix:</strong> None required now; optionally add the spec path to the protected candidate set at the next rebind for interim byte-freeze.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">V8-era ownership prose in epics.md still names Story 6.4</h3>
+              <span class="finding-location">epics.md:2116–2121 vs :2548</span>
+            </header>
+            <div class="finding-note">The "UX Preservation Planning Contract" section still states Story 6.4 owns the disposition deliverables, while Epic 8's header records that ownership as superseded. epics.md is byte-frozen under A3 §5, so it cannot be edited now.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Rely on the map's provenance note as the navigational correction; retire the V8-era sentence if epics.md is ever reissued under a new authority version.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Downstream consumability review</h2>
+          <span class="reviewer-source">review-downstream-consumability.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>Mechanically consumable for its named owner — the map's 52 UX-DR rows and 28 acceptance IDs match Story 8.1's frozen inventories exactly and in order, and the spec is unusually well aligned with the FrontComposer generated-first mandate. But the map's addressing into the spec is lossy (roughly half the "Source Section" labels are not headings, several are ambiguous, and the spec has two same-named H2 sections), four of the disposition schema's required per-row fields have no declared source anywhere in the set, and the freshness vocabulary diverges between spec and architecture despite architecture's one-shared-enum mandate. A consumer can complete the Stories 8.1–8.2 parity extraction without guessing on identity, but must guess on row content and vocabulary reconciliation. Check verdicts: UX-DR traceability adequate · AC identifiers strong · decision commitment adequate · extraction ergonomics thin · FrontComposer fit strong · cross-artifact glossary thin.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Freshness vocabulary is split across the contract boundary</h3>
+              <span class="finding-location">spec:1096–1102 vs architecture.md:977, 1129, 1211</span>
+            </header>
+            <div class="finding-note">The spec's taxonomy is <code>current / possibly-stale / stale / unknown / conflicting</code>; architecture mandates one shared enum and enumerates <code>Current, Stale, Rebuilding, Unavailable, Forbidden, Redacted</code> in one place and "current, stale, rebuilding, unavailable, hidden-by-tenant" in another. The spec itself uses "rebuilding" as a visible state yet excludes it from its own taxonomy. A dev implementing the shared enum must reconcile three sets alone.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Record the canonical enum (or an explicit spec-to-architecture mapping) in the UX-DR22/UX-DR29 disposition rationale during Story 8.1 execution; the spec bytes stay untouched.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Map columns cannot populate the Story 8.1 disposition row schema</h3>
+              <span class="finding-location">epics.md:2567–2569; map:21–23</span>
+            </header>
+            <div class="finding-note">Each of the 80 rows requires owner, rationale, sourcePath, sourceSha256, evidenceOrControl, compatibility, and disclosureSafety. The map supplies id, status, and historical mapping plus one global owner; the hash/owner deferral is flagged, but rationale, evidenceOrControl, compatibility, and disclosureSafety have no declared source in any artifact — the 8.1 implementer must author them from scratch for 52 decisions and 28 criteria.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add these as map columns (or a companion table) before hash binding, or declare constant/default values per field class in the 8.1 story contract.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Non-resolving and ambiguous Source Section labels</h3>
+              <span class="finding-location">map UX-DR2, DR28, DR51; spec:76/410, 1175/1348, 1346/1508</span>
+            </header>
+            <div class="finding-note">UX-DR2 spans two same-named H2s plus a third section; UX-DR28 "Canonical fixtures" matches two distinct fixture lists; UX-DR51 content appears in both Quality Gates and Testing Strategy; UX-DR4/6/21/30 name content spread across three or more sections.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Normalize the map's Source Section values to exact heading text (optionally heading + line span) before Story 8.1 freezes the source hashes.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Generated-vs-custom boundary for search stated both ways</h3>
+              <span class="finding-location">spec:340–341 vs 825, 1042–1043</span>
+            </header>
+            <div class="finding-note">"Generated-first surfaces: Conversation search and filtering" versus custom composites Tenant-scoped Find Pane and Trust Preview Result Row. A FrontComposer implementer must decide which parts of search are generated.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Record the intended split (generated search/filter chrome, custom trust-preview result rows) in the UX-DR11/DR12/DR18 disposition rationale.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Two overlapping trust contract models, neither committed</h3>
+              <span class="finding-location">spec:247–251 vs 999, 1137</span>
+            </header>
+            <div class="finding-note">"Recommended contract concepts" TrustPosture/EvidenceItem/CommandAvailability versus a shared "EvidenceTrustModel or equivalent"; no statement of subsumption, and architecture names neither. "Or equivalent" leaves the binding contract name open.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Name the binding model in the UX-DR19 rationale, or record it as an explicitly open architecture decision with an owner.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Unnumbered acceptance sets sit outside the 28-ID denominator</h3>
+              <span class="finding-location">spec:361–369, 1109–1119</span>
+            </header>
+            <div class="finding-note">"Design System Acceptance Criteria" (7 bullets) and "Component acceptance criteria" (11 bullets) are testable obligations with no identifiers; a consumer keyed to the enforced 52/28 inventories will not surface them. They survive only via the whole-file hash.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a map note declaring which UX-DR rows carry them, or assign identifiers in a future authorized revision.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Record-level trust summary has four unreconciled names</h3>
+              <span class="finding-location">spec:225, 514, 818/1045, 1265; map:60</span>
+            </header>
+            <div class="finding-note">"Trust posture summary", "Trust Banner", "Trust Posture Strip", "trust summary band"; the merged-components list reconciles four other components but not these.</div>
+            <div class="finding-fix"><strong>Fix:</strong> One reconciliation sentence in the UX-DR32 disposition rationale naming the canonical component.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Normative force is unmarked: 124 "should" vs 101 "must"</h3>
+              <span class="finding-location">e.g. spec:755</span>
+            </header>
+            <div class="finding-note">No convention note, sometimes both in one paragraph. Obligation extraction cannot distinguish binding from advisory.</div>
+            <div class="finding-fix"><strong>Fix:</strong> A one-line convention in the map ("must = binding obligation; should = preserved design intent") — non-activating and cheap before freeze.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Map-coined names the spec never uses</h3>
+              <span class="finding-location">map UX-DR17, DR18, DR30</span>
+            </header>
+            <div class="finding-note">"SafeReason", "Find Pane"/"Trust Preview"/"Governed Header"/"Evidence Timeline", "no-access" state. UX-DR17 also lists 4 of 8 primitives, silently narrowing the preserved set for anyone acting from the summary.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Align summaries to exact spec names; list all 8 primitives or say "all eight primitives in the Custom Components table".</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Two canonical loop names at AC level</h3>
+              <span class="finding-location">AC-RESP-005/AC-A11Y-002 vs spec:1111; map UX-DR25</span>
+            </header>
+            <div class="finding-note">"Find → Read → Trust" versus "Find → Open → Verify → Cite, Act, or Stop"; the equivalence is inferable but never stated where the tests are defined.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Equivalence note in the UX-DR25 rationale.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">ux-design-directions.html sits outside the preservation contract</h3>
+              <span class="finding-location">epics.md:2587; spec:785; html:681–682</span>
+            </header>
+            <div class="finding-note">AC-8.1-02 fixes the source inventory to exactly spec + map, yet the spec cites the HTML as decision provenance. Drift or deletion of the HTML is invisible to the 8.2 validator; a consumer opening it alone could read the wrong decision (its "Recommended base" badge covers two directions).</div>
+            <div class="finding-fix"><strong>Fix:</strong> Annotate in the map that the HTML is non-canonical exploration provenance and the spec's Chosen Direction section is authoritative; optionally add the HTML to the source inventory via authorized change.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Authority-stamp skew across the pair, traceable only via proposals</h3>
+              <span class="finding-location">spec:32; map:2–7; v9/story-contracts/8.1.json</span>
+            </header>
+            <div class="finding-note">Spec carries v1, the map v3 with epic/architecture authority v12, the 8.1 story contract binds authority v10, and v13/v14 sidecars also exist. The map self-declares the rebinding, but a consumer must trace sprint-change proposals to confirm the governing chain.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Have the Story 8.1 disposition's authority block restate the full current chain; add a map note that its stamp supersedes the spec's frontmatter stamp.</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <section class="reviewer-section">
+      <details>
+        <summary>
+          <h2>Accessibility review</h2>
+          <span class="reviewer-source">review-accessibility.md</span>
+        </summary>
+        <div class="dim-body">
+          <div class="dim-judgment">
+            <p>For a planning artifact, this spec commits an unusually deep accessibility floor: accessibility is framed as part of the trust model rather than polish, every load-bearing trust state has a committed non-color treatment with a named component and fail-closed states, and the redacted-vs-missing-data distinction — the hardest screen-reader problem on this surface — is explicitly solved with a microcopy taxonomy and a dedicated fixture. Two structural gaps keep it below a current-standard commitment: the floor is pinned to WCAG 2.1 AA (not 2.2 AA) in all three normative places, and the mechanism by which a disabled governance action exposes its blocked reason to keyboard and screen-reader users is never specified, even though disabled buttons are unfocusable and silent by default. The direction mocks pass AA text contrast on all five status treatments, but with almost no headroom and with the token values never bound into the spec. Check verdicts: stated floor adequate · state perceivability strong · announcements adequate · keyboard &amp; focus adequate · Fluent inheritance adequate · direction mocks adequate · regulated-language surfaces thin.</p>
+          </div>
+        </div>
+        <div class="findings-list">
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Accessibility floor pinned to WCAG 2.1 AA, not 2.2 AA</h3>
+              <span class="finding-location">spec:744, 1424, 1499; map:72 (UX-DR44)</span>
+            </header>
+            <div class="finding-note">2.2-only AA criteria are formally untested: Focus Not Obscured (2.4.11) is directly load-bearing given sticky trust bands, persistent headers, and drawers over a focused timeline; Target Size Minimum (2.5.8) applies to all pointer input while the 44px commitment is conditioned on touch support; Redundant Entry (3.3.7) touches the rationale-driven governance forms. Automated checks scoped to "WCAG 2.1 AA issues" would pass a UI failing current AA.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Rebaseline all three statements and UX-DR44 to WCAG 2.2 AA; add an explicit Focus Not Obscured obligation for sticky trust bands/drawers and an unconditional 24×24 minimum target size.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-high">high</span>
+              <h3 class="finding-title">Blocked-action exposure: committed outcome, no committed mechanism</h3>
+              <span class="finding-location">spec:747, 1050, 1112; html:732</span>
+            </header>
+            <div class="finding-note">Disabled buttons are unfocusable and silent to keyboard/screen-reader navigation by default, so "reason text without requiring hover" is unreachable for exactly the users the spec protects; the mocks reinforce the trap by carrying the reason as the disabled button's own label in a WCAG-contrast-exempt treatment. A keyboard or screen-reader operator cannot discover why a governance action is blocked — and may wrongly infer the action does not exist.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Commit the pattern: blocked Command Gates stay focusable (<code>aria-disabled="true"</code>, not <code>disabled</code>), the safe reason is associated via <code>aria-describedby</code>, and adjacent visible reason text meets 4.5:1 independently of disabled styling; add this to the Command Gate row and the accessibility test list.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Live-update announcement is intent-level</h3>
+              <span class="finding-location">spec:1434; AC-RESP-006</span>
+            </header>
+            <div class="finding-note">One "should" sentence covers all trust, freshness, command-availability, and permission changes — no politeness levels, no rebuild-complete or stale→current announcements, no focus/announcement policy when redaction replaces content mid-read, no toast-vs-live-region channel decision. A screen-reader operator can keep relying on a view that silently went stale — the exact "no silent confidence" failure the spec forbids.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Specify per state-change class: politeness (freshness = polite; command-availability loss and redaction-in-place = assertive), required announcement copy pattern (state word + next safe action), and add stale-transition and redaction-replacement announcements to the acceptance criteria.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Contrast targets declared but never bound to values</h3>
+              <span class="finding-location">spec:729–734, 744; html chip values</span>
+            </header>
+            <div class="finding-note">Domain semantic tokens are named without colors; the only concrete values live in the non-normative mocks, where the two most safety-relevant treatments pass with almost no margin (verified 4.74:1, warning/stale 4.78:1 at 11px). Implementation-time token drift (theming, dark mode, Fluent alias remap) would silently drop freshness and trust treatments below AA with no spec-level check.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Bind minimum ratios (and the mock hex values as reference implementations) to each <code>--conversation-status-*</code> token, require ≥4.5:1 at rendered chip size in both themes, and add a token-level automated contrast test to the quality gates.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">No localization commitment for regulated microcopy</h3>
+              <span class="finding-location">spec:833, 1030, 1449–1456</span>
+            </header>
+            <div class="finding-note">The denial/redaction/audit state words and safe-reason explanations exist only as English strings; the taxonomy's semantic contrasts (Redacted ≠ Unavailable ≠ Restricted) carry governance meaning that must survive translation. A translated deployment could collapse the redacted/unavailable distinction and mislead operators about whether content exists.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Require reason codes + localizable message-catalog keys for all safe-state words, with a translation acceptance check that the five state words remain pairwise distinct in every supported locale.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-medium">medium</span>
+              <h3 class="finding-title">Fluent inheritance is category-level; rc.2 risk unacknowledged</h3>
+              <span class="finding-location">spec:978–989, 1315–1321</span>
+            </header>
+            <div class="finding-note">No component or variant is named (no FluentDataGrid/FluentDialog-level mapping), so "focus behavior, disabled states, keyboard behavior, and accessibility foundations from Fluent UI" is an unvalidated assumption for dialogs, drawers, grids, and tabs at 5.0.0-rc.2 quality. Teams may treat inherited surfaces as accessibility-done and skip verification exactly where the spec provides no custom obligations.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add a component inventory mapping each generated surface to the named Fluent component and require a one-time keyboard + screen-reader conformance smoke of the inherited components at the pinned version.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Mock component boundaries fail the 3:1 non-text minimum</h3>
+              <span class="finding-location">html:231–242 (#d4dbe4 on #ffffff = 1.40:1)</span>
+            </header>
+            <div class="finding-note">Most notably the search input and result-row cards; status-chip borders (~1.4:1 against chip fills) are decorative since text carries the state.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Note in the spec that mock border values are non-normative and require 3:1 boundaries for inputs and interactive rows, or rely explicitly on Fluent's compliant field styling.</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Mocks label redactions with the bare code "R2"</h3>
+              <span class="finding-location">html:848, 988, 1046 vs spec:1249</span>
+            </header>
+            <div class="finding-note">A screen reader announces "R2" with no meaning — conflicting with the spec's own requirement that visible text carry the state. As the concrete reference treatment, this invites terse-code shipping.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Show the committed pattern in mock-equivalent fixtures: visible "Redacted" word plus code, accessible name reading the full state ("Redacted — policy R2").</div>
+          </article>
+          <article class="finding">
+            <header>
+              <span class="badge badge-sev-low">low</span>
+              <h3 class="finding-title">Temporal-cursor navigation absent from keyboard enumerations</h3>
+              <span class="finding-location">spec:313, 819, 1044 vs 745, 970, 1561</span>
+            </header>
+            <div class="finding-note">A named custom trust-critical surface with no keyboard-access entry and no focus-management rule for cursor moves, which re-render the timeline — a focus-loss hotspot.</div>
+            <div class="finding-fix"><strong>Fix:</strong> Add temporal cursor operation to the keyboard-access list and specify focus behavior after a cursor jump (land on the trust summary region per AC-RESP-013).</div>
+          </article>
+        </div>
+      </details>
+    </section>
+
+    <div class="mechanical">
+      <h3>Mechanical notes</h3>
+      <ul>
+        <li><strong>Missing files (8):</strong> all six <code>research/technical-*.md</code> inputs and both <code>product-brief-Hexalith.Conversations*.md</code> inputs from the spec frontmatter; <code>research/</code> exists but is empty.</li>
+        <li><strong>Name variants:</strong> Trust Banner / Trust Posture Strip / trust summary band; SafeReason vs SafeReasonInline/SafeReasonDetail; Trust Preview / Governed Header vs the full composite names. "Citation Drawer" is superseded with a documented merge note — resolved, not drift.</li>
+        <li><strong>Duplicate literal headings:</strong> "Implementation Approach" twice (spec:296, 812); "Core User Experience" twice with variant numbering (spec:76, 410); heading numbering inconsistent overall (an artifact of the step-wise legacy workflow).</li>
+        <li><strong>Mermaid:</strong> 4 <code>flowchart TD</code> blocks (spec:853, 884, 910, 935) — syntax valid; no parse problems found.</li>
+        <li><strong>Frontmatter:</strong> spec carries workflow metadata + preservation fields but no rebinding date; map frontmatter fully resolves (source, candidate commit, epic/architecture authorities, owner stories verified against epics.md and architecture.md).</li>
+        <li><strong>AC parity:</strong> 28/28 identifiers, exact order, correct source sections; 52 UX-DR rows all resolve to real spec content, ~10 via non-literal section labels.</li>
+        <li><strong>HTML palette:</strong> <code>:root</code> tokens define verified/warning/blocked/redacted/info/primary pairs; no <code>--degraded</code> token exists and degraded states reuse <code>status warning</code>, contradicting the spec.</li>
+      </ul>
+    </div>
+
+    <footer class="report-footer">
+      <div class="meta">
+        <span>Rubric: _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/review-rubric.md</span>
+        <span>Generated: 2026-08-18T23:38:38+02:00</span>
+      </div>
+    </footer>
+  </div>
+</body>
+</html>

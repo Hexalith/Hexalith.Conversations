@@ -2,7 +2,7 @@
 title: "Conversations Boilerplate Reduction — A Thinner Domain-Authoring Surface"
 status: final
 created: "2026-06-02"
-updated: "2026-07-14"
+updated: "2026-08-18"
 ---
 
 # PRD: Conversations Boilerplate Reduction
@@ -13,7 +13,7 @@ This PRD defines a **refactoring initiative**, not a feature. Its audience inclu
 
 ## 1. Vision
 
-Hexalith.Conversations is roughly 35,800 lines of source, and about half of it is plumbing — DI ceremony, query-handler and cursor machinery, read-model store wiring, projection orchestration, tenant-access scaffolding, serialization converters, telemetry boilerplate, and wrappers around platform-owned Aspire/Dapr hosting. None of it is *about conversations*. Worse, the same plumbing is copy-pasted across the sibling domain modules (Folders, Projects, Memories, Parties): the same 80-line tenant-access handler, the same wrappers around platform-owned service defaults, the same typed-HttpClient registration. Every new business-domain module pays this tax again before it writes a single line of domain logic.
+Hexalith.Conversations is 35,769 lines of source, and the accepted baseline classifies 13,289 of them — 37.15% — as plumbing (the Discovery first pass estimated about half; the accepted FR-2-governed inventory in addendum §A is authoritative) — DI ceremony, query-handler and cursor machinery, read-model store wiring, projection orchestration, tenant-access scaffolding, serialization converters, telemetry boilerplate, and wrappers around platform-owned Aspire/Dapr hosting. None of it is *about conversations*. Worse, the same plumbing is copy-pasted across the sibling domain modules: the same 80-line tenant-access handler and its registration in Folders and Projects, the same wrappers around platform-owned service defaults in Folders, Memories, Tenants, and Parties, the same typed-HttpClient registration in Folders and Projects (evidence: addendum §E). Every new business-domain module pays this tax again before it writes a single line of domain logic.
 
 This initiative removes that tax. Conversations becomes the pilot: anything in it that is *not specific to conversations* either gets **consumed** from a technical module that already offers it, **extended in its platform-owned home** when an existing capability is partial, or **promoted** — extracted, generalized, and lifted into a technical module so every domain module inherits it instead of re-implementing it. What stays in Conversations is conversation logic: the validation rules, the aggregate behavior, the events and the read-model shapes. Exact SDK seams and migration mechanics are cataloged in the [addendum](addendum.md).
 
@@ -25,9 +25,10 @@ The payoff is two-sided and both sides matter equally. Conversations itself shed
 |---|---|
 | Outcome | Use Conversations as the pilot for consuming, extending, and promoting shared platform plumbing while leaving conversation-specific behavior in the domain module. |
 | Pilot scope | FR-1 through FR-15 and FR-17 through FR-20 are in scope; FR-16 is deferred. Fleet migration and unconsumed promotions remain follow-on work. |
-| Preservation gate | FR-20 and SM-C1 are authoritative: 100% of the frozen, versioned pre-refactor preservation manifest must pass, with no unapproved public-contract change or silent denominator reduction. |
-| Performance gate | SM-C2 is authoritative: post-refactor P95 command/read latency may be no more than 5% worse than the frozen reproducible pre-refactor baseline. Preserved absolute product targets block only when separately activated by the current release plan. |
+| Preservation gate | FR-20 and SM-C1 are authoritative: 100% of the frozen, versioned pre-refactor preservation manifest (repo-root `docs/release-evidence/release-baseline-v1.json`, captured 2026-06-02) must pass, with no unapproved public-contract change or silent denominator reduction. The no-silent-denominator-reduction rule protects both the FR-20 test manifest and the SM-1 plumbing-LOC baseline (§7). |
+| Performance gate | SM-C2 is authoritative: post-refactor P95 command/read latency may be no more than 5% worse than the frozen reproducible pre-refactor baseline (repo-root `docs/release-evidence/sm-c2-hot-path-baseline-v1.json`; SM-C2 declares the envelope's measurement boundary). Preserved absolute product targets block only when separately activated by the current release plan. |
 | Remaining dependency | OQ-1 is delegated to architecture and does not block PRD completion; the platform architect must resolve each FR-10 through FR-15 landing zone before its implementation story starts. |
+| Execution status (2026-08-18) | This PRD was finalized mid-initiative and later updated: Phases 0–3 (§5.3) have executed as Epics 1–6 (done in sprint status; Epics 7–9 remain backlog), and an implementation hold is ACTIVE pending an independent decision per repo-root `docs/release-evidence/epic-6-completion-supersession-current-proof-v1.md`. §5.3 and FR-20 "before the first refactor change" preconditions therefore read as satisfied preconditions evidenced by the frozen artifacts cited in this document, not as future work. |
 | Preserved legacy dispositions | §14 remains the normative product-contract baseline. Its unresolved product/release dispositions do not add refactor scope and require separate release decisions where activation is needed. |
 
 ## 3. Target User
@@ -50,9 +51,9 @@ The "users" of this initiative are developers, not end customers. This is an **i
 
 *Developer journeys; lighter form per scope dial. FRs reference these inline.*
 
-- **UJ-1. Maya retires hand-rolled plumbing from Conversations.** Maya, a Conversations maintainer, removes bespoke query and pagination infrastructure after confirming that the platform already supplies the generic capability. She retains only conversation-specific filters and response shapes, removes plumbing-only tests with their superseded implementation, and proves the public query behavior remains identical through the conformance gate. *Realizes FR-3..FR-9, gated by FR-20; technical mapping in addendum §D.*
+- **UJ-1. Nadia retires hand-rolled plumbing from Conversations.** Nadia, a Conversations maintainer, removes bespoke query and pagination infrastructure after confirming that the platform already supplies the generic capability. She retains only conversation-specific filters and response shapes, removes plumbing-only tests with their superseded implementation, and proves the public query behavior remains identical through the conformance gate. *Realizes FR-3..FR-9, gated by FR-20; technical mapping in addendum §D.*
 
-- **UJ-2. Sam promotes the tenant-access handler everyone copied.** Sam notices that the tenant-access projection behavior is duplicated in Folders and Projects and re-implemented in Conversations. He moves the domain-agnostic behavior into a shared technical capability with its own tests, then has Conversations supply only its domain-specific contracts. The Conversations copy disappears; the shared implementation is the single source of truth. *Realizes FR-11; technical mapping in addendum §E.*
+- **UJ-2. Sam promotes the tenant-access handler everyone copied.** Sam notices that the tenant-access projection behavior is duplicated in Folders and Projects and re-implemented in Conversations. He moves the domain-agnostic behavior into a shared technical capability with its own tests, then has Conversations supply only its domain-specific contracts. The Conversations copy disappears; the shared implementation becomes the canonical home, and the surviving Folders/Projects copies are registered as fleet-migration debt (SM-3). *Realizes FR-11; technical mapping in addendum §E.*
 
 - **UJ-3. Priya stands up a brand-new domain module on the thin template.** Priya needs a new business-domain module. She follows the documented authoring template, supplies the required domain contracts and behavior, and consumes the platform-owned hosting and runtime capabilities. She reaches a working module with a fraction of the files Conversations originally needed. The template, proven by Conversations, is what makes this trivial. *Realizes FR-17, FR-18, FR-19; technical grounding in addendum §§D–F.*
 
@@ -69,8 +70,8 @@ The "users" of this initiative are developers, not end customers. This is an **i
 - **Thin authoring template** — the documented, minimal skeleton + checklist for a new domain module, proven by the Conversations pilot.
 - **Promotion landing zone** — the technical module a promoted capability is moved into. `[ASSUMPTION: existing technical modules unless architecture proves a new shared module is warranted — Open Question OQ-1.]`
 - **Release-gate behavior** — the externally-observable behaviors that must be preserved: tenant isolation (fail-closed), governance/audit-pairing, command idempotency, redaction replay/auditability, projection freshness/degraded-state signaling, public contract shape.
-- **Conformance suite** — the existing tests that prove release-gate behavior (tenant isolation, idempotency, contract validation, redaction, provider portability, etc.).
-- **CORE** — the minimum non-cuttable capability and Foundation Gate set required for credible substrate behavior across all eight preserved acceptance journeys.
+- **Conformance suite** — the existing tests that prove release-gate behavior, in exactly the closed category list bound by FR-20: tenant isolation, idempotency, contract validation, redaction replay, provider portability, projection freshness, governance audit-pairing.
+- **CORE** — the minimum non-cuttable capability and Foundation Gate set required for credible substrate behavior across all nine preserved acceptance journeys (§14.3).
 - **Plumbing-only test** — a test that exists solely to cover hand-rolled infrastructure being removed; may be deleted with the code it covers.
 
 ## 5. MVP Scope and Boundaries
@@ -102,6 +103,8 @@ The "users" of this initiative are developers, not end customers. This is an **i
 2. **Phase 1 — Consume:** adopt existing surface (FR-3..FR-9). Low risk, Conversations-internal, conformance-gated.
 3. **Phase 2 — Promote:** extract/generalize the needed shared capabilities with their own tests (FR-10..FR-15); FR-16 remains deferred.
 4. **Phase 3 — Adopt & Prove:** Conversations consumes promotions; template + measurement; final gate (FR-17..FR-20).
+
+**Execution status (2026-08-18):** Phases 0–3 have executed (Epics 1–6 done in sprint status; implementation hold ACTIVE pending an independent decision). Phase 0's frozen artifacts, all at repo-root `docs/release-evidence/`: the FR-20 preservation manifest `release-baseline-v1.json` (2026-06-02), the FR-1/SM-1 inventory `consume-promote-keep-inventory-v1.json` (accepted 2026-06-03), and the SM-C2 baseline `sm-c2-hot-path-baseline-v1.json` (reconstructed 2026-07-31 under FR-20's reconstruction rule).
 
 ## 6. Features
 
@@ -145,7 +148,7 @@ A reviewer can challenge any Consume/Promote/Keep call, and the resolution is re
 Conversations operates through the platform-owned shared domain-service hosting capability instead of owning domain-agnostic runtime-host plumbing.
 
 **Consequences (testable):**
-- Conversations is discoverable and runnable through the platform host without a Conversations-owned AppHost, Aspire, ServiceDefaults, or equivalent runtime-host project.
+- Conversations is discoverable and runnable through the platform host; FR-3's acceptance evidence is host adoption and operation continuity only, while removal of the Conversations-owned AppHost, Aspire, and ServiceDefaults artifacts is asserted and evidenced solely under FR-10 and FR-13 per the §6.3 crosswalk.
 - All Conversations operations supported before the refactor remain available through the shared host.
 - Existing hosting behavior is covered by integration evidence against the platform host; only tests tied solely to superseded local plumbing may be removed.
 
@@ -205,14 +208,15 @@ Conversations test projects consume shared platform test infrastructure instead 
 
 | Requirements | Technical mapping |
 |---|---|
-| FR-10, FR-13, FR-16 | [Addendum §F — Gap catalog and current disposition](addendum.md#f-gap-catalog-and-current-disposition) |
-| FR-11, FR-12, FR-14, FR-15 | [Addendum §E — Cross-module duplication and shared-capability candidates](addendum.md#e-cross-module-duplication--shared-capability-candidates-fr-10fr-15) |
+| FR-10, FR-13, FR-16 | [Addendum §F — Gap catalog and current disposition](addendum.md#f-gap-catalog-and-current-disposition); duplication evidence for FR-10 and FR-13 in [Addendum §E](addendum.md#e-cross-module-duplication--shared-capability-candidates-fr-10fr-15) rows 1 and 5 |
+| FR-11, FR-12, FR-14 | [Addendum §E — Cross-module duplication and shared-capability candidates](addendum.md#e-cross-module-duplication--shared-capability-candidates-fr-10fr-15) rows 2–4 and 6; dispositions also in [Addendum §F](addendum.md#f-gap-catalog-and-current-disposition) rows 2, 3, and 5 |
+| FR-15 | [Addendum §C](addendum.md#c-conversations-boilerplate-inventory-first-pass) row 4 and the [Addendum §D](addendum.md#d-existing-technical-module-surface-to-consume-fr-3fr-9) ServiceDefaults row. FR-15 has no cross-module duplication evidence; it is a single-consumer promotion justified under R1's confirmed-Conversations-need branch. |
 
 FR-3, FR-10, and FR-13 are separate acceptance slices and must not produce duplicate stories:
 
 | Requirement | Acceptance slice | Boundary |
 |---|---|---|
-| FR-3 | Domain-service host adoption | Conversations removes its domain-agnostic host implementation and runs through the platform host. |
+| FR-3 | Domain-service host adoption | Conversations runs through the platform host with all prior operations available; artifact-removal evidence lives solely under FR-10 and FR-13. |
 | FR-10 | Shared ServiceDefaults | The platform supplies health, observability, resilience, and service-discovery defaults; Conversations supplies only domain telemetry definitions. |
 | FR-13 | Aspire/Dapr topology | The platform AppHost owns resource topology, infrastructure-mode wiring, dependency connectivity, and publication connectivity. |
 
@@ -275,7 +279,7 @@ Shared compile-time command/event contract metadata is deferred from this pilot.
 - The pilot does not add shared command/event metadata interfaces or reshape current Conversations command/event contracts.
 - The backlog record preserves the candidate and rationale without making it part of pilot acceptance or FR-20's change surface. `[OQ-4 resolved 2026-07-14.]`
 
-**Notes:** Governance/verification orchestration, temporal query reconstruction, and reference hydration remain Conversations-owned during this pilot. The pilot may consume an already-demonstrated generic SDK seam without moving the domain behavior, but creating or extracting new shared capabilities for these areas is follow-on work requiring a separate decision. `[OQ-3 resolved 2026-07-14.]`
+**Notes:** Governance/verification orchestration, temporal query reconstruction, and reference hydration remain Conversations-owned during this pilot. The pilot may consume an already-demonstrated generic SDK seam without moving the domain behavior, but creating or extracting new shared capabilities for these areas is follow-on work requiring a separate decision. A seam counts as **already-demonstrated** only when it ships in a released technical-module version and is exercised by at least one existing consumer or SDK conformance test; any other consumption under this clause requires an OQ-1-style architect sign-off recorded against the consuming story. `[OQ-3 resolved 2026-07-14.]`
 
 ### 6.4 Adopt, Prove & Templatize (Conversations as pilot)
 
@@ -297,7 +301,7 @@ A developer can follow a documented authoring template — minimal module skelet
 
 **Consequences (testable):**
 - The template enumerates the platform-host integration contract and the shared aggregate, query, projection, tenant-access, client, serialization, and telemetry responsibilities, including the minimal domain-owned inputs; AppHost, Aspire, DAPR, and ServiceDefaults remain platform-owned.
-- The template is validated against the post-refactor Conversations module (it describes what Conversations actually does).
+- The template is validated against the post-refactor Conversations module through a recorded step-by-step walkthrough mapping each template step to the post-refactor module, versioned at repo-root `docs/release-evidence/thin-authoring-template-validation-v1.md` and attached to pilot acceptance.
 
 #### FR-19: New-module authoring cost is measured
 
@@ -315,11 +319,15 @@ The initiative records the authoring cost of a minimal domain module on the temp
 
 #### FR-20: Behavior and contracts are provably preserved
 
-Before the first refactor change, the initiative produces and versions a preservation manifest from an accepted green pre-refactor build. The manifest binds the source commit/build identity, the public/adopter-facing contract baselines, and the exact set of passing release-gate conformance tests that form the preservation denominator. The refactored module must pass 100% of that frozen denominator with no unapproved public-contract shape change.
+Before the first refactor change, the initiative produces and versions a preservation manifest from an accepted green pre-refactor build. The manifest binds the source commit/build identity, the public/adopter-facing contract baselines, and the exact set of passing release-gate conformance tests that form the preservation denominator. The refactored module must pass 100% of that frozen denominator with no unapproved public-contract shape change. The frozen manifest is versioned at repo-root `docs/release-evidence/release-baseline-v1.json` (captured 2026-06-02 from accepted green pre-refactor commit `ceb7fbe9`, with `public-contract-shape-baseline-v1.json` as the contract baseline: 14 conformance suites, 214 tests, 100% pass).
+
+If a pre-change baseline artifact required by this PRD (including the SM-C2 benchmark baseline) must be reconstructed after the fact because its fixture did not exist at the commit it measures, the reconstruction is permitted only when the versioned artifact records the exact pre-change source commit and submodule gitlinks it reconstructs, overlays only byte-identical fixture/measurement files recorded by hash, reuses the identical measurement envelope, and self-declares as a reconstruction. The reconstructed commit may legitimately post-date the FR-20 manifest commit when the benchmark guards a later in-initiative change: the cited SM-C2 baseline binds `29def441` (the pre-change point of the Epic 6 hosting migration it gates), not the manifest's `ceb7fbe9`, for exactly this reason.
 
 **Consequences (testable):**
 - The versioned preservation manifest identifies every denominator test and contract baseline, with the accepted pre-refactor source commit/build identity and evidence that the listed tests passed.
 - All manifested release-gate conformance tests (tenant isolation, idempotency, contract validation, redaction replay, provider portability, projection freshness, governance audit-pairing) pass post-refactor: the required pass rate is 100% of the frozen manifest.
+- The conformance-suite category list above is closed; adding or removing a category is a manifest change requiring the same named approval as a test removal. Any deleted test that is *not* in the frozen manifest carries a plumbing-only justification in a versioned ledger (repo-root `docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json`; at-risk classifications in `at-risk-test-register-v1.json`).
+- The preservation package records which Feature-FR/Feature-NFR each denominator test traces to, and lists §14 obligations with no covering denominator test as explicitly unguarded (traceability map: repo-root `docs/release-evidence/preservation-traceability-manifest-v2.json`; its `2.0.0-draft` / pending-prerequisites status is itself a tracked gap owned by the release owner).
 - Public/adopter-facing contract shapes match the manifested baselines unless an explicit, named approval records the intentional change and its compatibility evidence.
 - Removing, replacing, or reclassifying any manifested test requires explicit named-owner approval, rationale, replacement evidence where applicable, and a versioned manifest update; no conformance test is silently dropped.
 
@@ -328,21 +336,21 @@ Before the first refactor change, the initiative produces and versions a preserv
 *Both headline outcomes weighted equally per owner decision.*
 
 **Primary**
-- **SM-1 — Conversations plumbing reduction.** Target: ≥40% of the frozen accepted classified-plumbing LOC removed or externalized, computed inclusively against the Story 1.4 baseline. Current evidence: 70.43%; target met. Validates FR-3..FR-17. `[OQ-2 resolved 2026-07-14.]`
-- **SM-2 — New-module authoring cost.** Target: ≥50% fewer hand-authored, module-owned files for a minimal valid domain module within the frozen Story 4.1 measurement boundary, computed inclusively against the pre-initiative equivalent. LOC reduction remains mandatory supporting evidence, not a second numeric threshold. Current figures (50.00% files / 67.95% LOC) are **provisional** because they come from an accepted low-confidence estimate and do not establish target attainment. SM-2 is evidenced only when the reproducible minimal-module fixture and versioned measurement artifact required by FR-19 record the frozen inclusion rules, source paths, measurement command/tool versions, commit/build identity, results, and named acceptance. Validates FR-18, FR-19. `[OQ-2 threshold interpretation resolved 2026-07-14; attainment evidence remains provisional.]`
+- **SM-1 — Conversations plumbing reduction.** Target: ≥40% of the frozen accepted classified-plumbing LOC removed or externalized, computed inclusively against the Story 1.4 baseline (repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json`, accepted 2026-06-03: 13,289 plumbing LOC of 35,769 total). The baseline is protected by the §2 no-silent-denominator-reduction rule: any reclassification that changes the frozen plumbing-LOC denominator requires an append-only inventory changeLog entry per repo-root `docs/release-evidence/classification-change-procedure-v1.json`, with the same named approval discipline FR-20 demands for tests. As of 2026-07-14 the versioned report (repo-root `docs/release-evidence/success-metric-report-and-attestation-v1.json`) records 70.43%, accepted by the signed release-owner decision as a directional measurement, not a target-pass claim; that artifact and decision, not this sentence, are authoritative for attainment. Validates FR-3..FR-15, FR-17. `[OQ-2 resolved 2026-07-14.]`
+- **SM-2 — New-module authoring cost.** Target: ≥50% fewer hand-authored, module-owned files for a minimal valid domain module within the frozen Story 4.1 measurement boundary, computed inclusively against the pre-initiative equivalent. The boundary and the counterfactual pre-initiative construction rules are frozen in repo-root `docs/release-evidence/minimal-module-authoring-cost-sm2-baseline-v1.json`; they are not reconstructible at attainment time. LOC reduction remains mandatory supporting evidence, not a second numeric threshold. Figures recorded 2026-07-14 (50.00% files / 67.95% LOC) are **provisional** because they come from an accepted low-confidence estimate and do not establish target attainment. SM-2 is evidenced only when the reproducible minimal-module fixture and versioned measurement artifact required by FR-19 record the frozen inclusion rules, source paths, measurement command/tool versions, commit/build identity, results, and named acceptance — and, because the provisional figure sits exactly at the inclusive 50.00% boundary, that artifact must also state which single-file decisions, if reversed, would flip attainment. Validates FR-18, FR-19. `[OQ-2 threshold interpretation resolved 2026-07-14; attainment evidence remains provisional.]`
 
 **Secondary**
-- **SM-3 — Duplication eliminated.** Count of boilerplate patterns that now have a single shared home instead of N copies (from the cross-module duplication set). Target: every in-scope promoted pattern has exactly one source of truth. Validates FR-10..FR-15.
+- **SM-3 — Duplication consolidated.** Count of boilerplate patterns from the cross-module duplication set that now have a canonical shared home. Target: every in-scope promoted pattern has a single shared implementation with its own tests, Conversations consumes it, and each surviving sibling-module copy (Folders, Projects, …) is registered as follow-on fleet-migration debt. Sibling copies are retired in the §5.2 fleet-migration follow-on, not in this pilot; their survival does not fail SM-3. Validates FR-10..FR-15.
 - **SM-4 — Maintainer signal (qualitative).** Conversations maintainers report the module reads as "mostly domain logic." `[ASSUMPTION: light qualitative check, not a survey instrument.]` Validates the Vision.
 
 **Counter-metrics (do not optimize)**
 - **SM-C1 — Behavior/contract stability (inviolable).** The post-refactor pass rate must remain 100% of the versioned pre-refactor preservation manifest, and public contract shapes must match its baselines unless a named approval records an intentional compatible change. Any manifested-test removal or reclassification requires explicit approval, rationale, replacement evidence where applicable, and a versioned manifest update. LOC reduction must **never** be bought by silently dropping conformance tests or reshaping contracts. Counterbalances SM-1, SM-2.
-- **SM-C2 — Hot-path performance.** For every identified command/read hot path, post-refactor P95 latency must be no more than 5% worse than the frozen pre-refactor P95 under the same reproducible benchmark envelope. The versioned evidence records workload/data shape, concurrency, environment and runtime, tool versions, warm/cold classification, repetitions, raw results, and baseline/post-refactor commit identities. Preserved absolute targets `Feature-NFR9` (warm full-context open P95 ≤500 ms under its defined envelope) and `Feature-NFR12` (defined operator investigation ≤90 seconds) remain product obligations; they block this refactor only when the current release plan separately activates them. Counterbalances over-abstraction from promotions. `[OQ-5 resolved 2026-07-14.]`
+- **SM-C2 — Hot-path performance.** For every identified command/read hot path, post-refactor P95 latency must be no more than 5% worse than the frozen pre-refactor P95 under the same reproducible benchmark envelope. The identified hot-path set is the versioned inventory `sm-c2-hot-path-inventory-v1` (HP-CREATE, HP-APPEND, HP-LIST, HP-OPEN) frozen in repo-root `docs/release-evidence/sm-c2-hot-path-baseline-v1.json` (reconstructed 2026-07-31 under FR-20's reconstruction rule); an empty identification does not satisfy this gate. The frozen envelope's measurement boundary is explicitly **in-process warm-path**: it proves closure-local regression only and cannot observe cross-process hops, so the §8 no-synchronous-cross-service-calls invariant is verified by its own structural check in §8, never by this metric. The versioned evidence records workload/data shape, concurrency, environment and runtime, tool versions, warm/cold classification, repetitions, raw results, and baseline/post-refactor commit identities. Preserved absolute targets `Feature-NFR9` (warm full-context open P95 ≤500 ms under its defined envelope) and `Feature-NFR12` (defined operator investigation ≤90 seconds) remain product obligations; they block this refactor only when the current release plan separately activates them. Counterbalances over-abstraction from promotions. `[OQ-5 resolved 2026-07-14.]`
 
 ## 8. Cross-Cutting NFRs
 
 - **Behavior preservation:** FR-20 / SM-C1 are authoritative for the dominant NFR and its frozen denominator.
-- **Performance:** SM-C2 is authoritative. Shared capabilities must not introduce synchronous cross-service calls on hot paths or unbounded history loads; snapshot/projection behavior is preserved.
+- **Performance:** SM-C2 is authoritative for latency regression. Shared capabilities must not introduce synchronous cross-service calls on hot paths or unbounded history loads; because SM-C2's in-process benchmark cannot observe cross-process calls, this invariant is verified by structural evidence per identified hot path (dependency/call-boundary conformance check or trace-based assertion recorded with the SM-C2 evidence). Snapshot/projection behavior is preserved.
 - **Fail-closed invariants:** promoted tenant-access and authorization capabilities must preserve fail-closed semantics by construction; cross-tenant access remains impossible and adversarially tested.
 - **Observability:** metric names, dimensions, and health endpoints are preserved through platform-owned shared telemetry/ServiceDefaults so existing dashboards/alerts keep working.
 - **Replay safety:** promoted projection/event handling must remain idempotent and tolerant of duplicate/out-of-order delivery (Dapr at-least-once).
@@ -373,7 +381,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 | ID | Status and decision | Owner / revisit |
 |---|---|---|
 | OQ-1 | **Architecture dependency; non-blocking for PRD.** Determine whether the landing zone for each of FR-10 through FR-15 is Commons, EventStore.*, FrontComposer, or an explicitly justified new shared technical module. Host, AppHost, Aspire, DAPR, ServiceDefaults, projection/query runtime, and subscription plumbing remain platform/domain-service SDK owned, never Conversations. | Platform architect, before the corresponding implementation story starts. |
-| OQ-2 | **Resolved 2026-07-14.** SM-1 is ≥40% classified-plumbing LOC removed or externalized; SM-2 is ≥50% fewer hand-authored, module-owned files within the frozen boundary. Both comparisons are inclusive; file count decides SM-2 and LOC supports it. Current SM-2 evidence remains provisional until the FR-19 reproducible fixture and artifact exist. See `docs/release-evidence/oq-2-target-interpretation-decision-v1.json`. | Pilot acceptance owner reviews the versioned FR-19 artifact at pilot close. |
+| OQ-2 | **Resolved 2026-07-14.** SM-1 is ≥40% classified-plumbing LOC removed or externalized; SM-2 is ≥50% fewer hand-authored, module-owned files within the frozen boundary. Both comparisons are inclusive; file count decides SM-2 and LOC supports it. Current SM-2 evidence remains provisional until the FR-19 reproducible fixture and artifact exist. See repo-root `docs/release-evidence/oq-2-target-interpretation-decision-v1.json`. | Pilot acceptance owner reviews the versioned FR-19 artifact at pilot close. |
 | OQ-3 | **Resolved 2026-07-14.** Governance orchestration, temporal reconstruction, and upstream hydration remain Conversations-owned. Only already-demonstrated generic SDK seams may be consumed; new extraction is follow-on work requiring a separate decision. | Reopen only through a separately approved follow-on decision. |
 | OQ-4 | **Resolved 2026-07-14.** FR-16 shared compile-time command/event metadata is backlog and excluded from pilot scope and acceptance. | Reopen only through a separately approved initiative. |
 | OQ-5 | **Resolved 2026-07-14.** SM-C2 permits at most a 5% post-refactor P95 regression against the frozen reproducible baseline under the same envelope. `Feature-NFR9` and `Feature-NFR12` remain product obligations and block only when separately activated by the current release plan. | Release owner identifies any separately activated absolute gate. |
@@ -387,7 +395,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 | §6.2 | Each consumed capability is functionally sufficient; shortfalls become Promote items. | Technical lead verifies during architecture and records any shortfall before implementation. |
 | §5.3 | Delivery is phased. | Product/platform owner confirms sequencing during sprint planning; scope gates remain authoritative if sequencing changes. |
 | §7 / SM-4 | Maintainer signal is a light qualitative check, not a survey instrument. | Pilot acceptance owner reviews the maintainer signal at pilot close. |
-| §9 | Existing technical-module consumers must not break; promotions are additive. Conversations is not yet in external production. | Release owner verifies consumer compatibility and production status before any shared-package or external release. |
+| §9 | Existing technical-module consumers must not break; promotions are additive. Conversations is not yet in external production. | Release owner verifies consumer compatibility and Conversations' production status **before any further plumbing-only test removal** (the deletions this assumption licenses are otherwise irreversible) and re-verifies before any shared-package or external release. |
 | §10 | No in-Conversations deprecation window is needed because Conversations is the pilot consumer. | Release owner revalidates before removing any package-visible type or if an external consumer is discovered. |
 
 
@@ -397,7 +405,7 @@ Before the first refactor change, the initiative produces and versions a preserv
 
 This section is the normative product-contract baseline reconciled from the [archived May 2026 feature contract](../../../archive/conversations-product-contract-2026-05-31.md). It replaces the former live dependency on that legacy root document. Refactoring requirements FR-1 through FR-20 remain the scope of this initiative; the preserved product requirements use the distinct Feature-FR1 through Feature-FR104 and Feature-NFR1 through Feature-NFR77 namespaces.
 
-Every Feature-FR and Feature-NFR below has the disposition **preserved** as a behavioral or quality constraint on FR-20 and SM-C1. “Preserved” does not mean implemented, shipped, accepted, or scheduled. Any requirement whose text is conditional on an active release remains conditional, and the current delivery state of every legacy v1/v1.1/vNext item is **open pending evidence or an explicit release decision**. This baseline does not expand the boilerplate-refactor scope, authorize customer-visible work, or override the initiative's non-goals.
+Every Feature-FR and Feature-NFR below has the disposition **preserved**, in one of two classes. **Behavioral and quality obligations** constrain FR-20 and SM-C1 through the preservation denominator and its traceability map. **Process, planning, and release-procedure requirements** (Feature-NFR1 through Feature-NFR8, Feature-NFR30, Feature-NFR37) and **UI accessibility/usability validations** (Feature-NFR69 through Feature-NFR75) are preserved for traceability and future release activation only: they cannot appear in a pre-refactor conformance run, they are not FR-20 denominator constraints, and their absence from the frozen manifest is not a manifest gap. “Preserved” does not mean implemented, shipped, accepted, or scheduled. Any requirement whose text is conditional on an active release remains conditional, and the current delivery state of every legacy v1/v1.1/vNext item is **open pending evidence or an explicit release decision**. This baseline does not expand the boilerplate-refactor scope, authorize customer-visible work, or override the initiative's non-goals.
 
 ### 14.2 Product intent
 
@@ -578,7 +586,7 @@ The archived contract also carried the following release-governance terms. They 
 
 - **Feature-FR100:** The product can explicitly identify capabilities that are v1, v1.1, vNext, deferred, waived, or conditional for a given release.
 - **Feature-FR101:** The product can expose release-scope consequences when substrate-defining capabilities are deferred.
-- **Feature-FR102:** The product can support buyer partial acceptance under the Option A v1 deal.
+- **Feature-FR102:** The product can support buyer partial acceptance under the Option A v1 deal. *[“Option A v1 deal” is a historical May 2026 term; per §14.4, no option is currently selected.]*
 - **Feature-FR103:** The product can track second-adopter status and trigger downgrade-rule review milestones.
 - **Feature-FR104:** The product can publish documentation that distinguishes Conversations responsibilities from chatbot, LLM provider, legal-hold, attachment storage, identity, tenant, project, folder, and upstream lifecycle responsibilities.
 
@@ -629,7 +637,7 @@ Numeric targets below preserve their target definitions but do not assert that e
 
 #### Scalability, Capacity, And Cost
 
-- **Feature-NFR30:** The PRD must define pre-kickoff numeric targets or buyer-accepted unknowns for events/sec, concurrent conversations, write-amplification budget, and concurrent opens/sec/tenant.
+- **Feature-NFR30:** The PRD *[here: the legacy feature PRD this baseline preserves, not this refactor PRD]* must define pre-kickoff numeric targets or buyer-accepted unknowns for events/sec, concurrent conversations, write-amplification budget, and concurrent opens/sec/tenant.
 - **Feature-NFR31:** Projection rebuild time must be measured at 1M, 10M, and 100M events with pass/fail thresholds set before implementation kickoff.
 - **Feature-NFR32:** Projection rebuild requirements are tiered: 1M-event rebuild is MVP-required, 10M-event rebuild is pre-scale validation, and 100M-event rebuild is capacity evidence unless the buyer explicitly requires it as a release blocker.
 - **Feature-NFR33:** Long-running projection rebuilds must support progress reporting, resumability, and safe tenant-scoped cancellation or isolation.

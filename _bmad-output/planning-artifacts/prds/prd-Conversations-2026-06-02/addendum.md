@@ -4,7 +4,7 @@ This addendum contains technical-how and grounding evidence that support the PRD
 
 ## A. Current baseline and implementation guardrail
 
-**Authoritative SM-1 baseline:** Story 1.4 measured and accepted **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed `docs/release-evidence/consume-promote-keep-inventory-v1.json`. Its `sourceTotalLoc` verifies exactly 35,769 LOC. Under OQ-3, governance and hydration were classified as Keep now. The classification of the Contracts/Testing domain surface as Keep moved ≈4.7k LOC out of plumbing. This inventory is the baseline Story 5.3 references.
+**Authoritative SM-1 baseline:** Story 1.4 measured and accepted **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json`. Its `sourceTotalLoc` verifies exactly 35,769 LOC. Under OQ-3, governance and hydration were classified as Keep now. The Contracts/Testing domain surface was classified Keep at the same Story 1.4 acceptance (moving ≈4.7k LOC out of the Discovery plumbing estimate); the authority for that call is the accepted inventory itself, whose split rows (`query-filters-response-shapes`, `domain-contract-types`, `conformance-contract-types`) record the per-row source-boundary rationale. Any post-acceptance reclassification appends to the inventory changeLog per repo-root `docs/release-evidence/classification-change-procedure-v1.json` — never silently (FR-2, §2 denominator rule). The inventory's acceptance record carries `status: accepted, acceptedDate: 2026-06-03` but no named acceptor; backfilling the named acceptance into the inventory changeLog is an open follow-up owned by the release owner. This inventory is the baseline Story 5.3 references.
 
 **Historical Discovery estimate:** Total source ≈ 35,769 LOC; plumbing (Consume + Promote) ≈ 18,000 LOC (~50%); domain logic (Keep) ≈ 17,000 LOC. This first-pass estimate is preserved as provenance, not as the accepted baseline.
 
@@ -46,7 +46,7 @@ This addendum contains technical-how and grounding evidence that support the PRD
 
 ## C. Conversations boilerplate inventory (first pass)
 
-The table preserves the first-pass area estimates and classifications; §A defines the accepted SM-1 baseline.
+The table preserves the first-pass area estimates and classifications as **superseded provenance**: the sole FR-1 inventory object is the accepted repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json` (§A), which resolves every mixed or dual first-pass label below into exactly-one-classification split rows. In particular, row 8's "Promote (partial)" is resolved there as `publication-transport-marshaling` (422 LOC, **Promote, FR-13**, Story 3.5) plus `publication-failure-taxonomy` (131 LOC, Keep), and row 11's "Mixed" resolves into paired Consume/Keep rows. Rows below marked with dual labels do not satisfy FR-1/FR-2's exactly-one-classification consequence and must not be read as the accepted inventory.
 
 | # | Area | ~LOC / files | Class | Target capability |
 |---|------|--------------|-------|-------------------|
@@ -73,8 +73,8 @@ Concrete implementation mappings remain here rather than in the normative PRD. F
 |---|---|---|---|
 | EventStore.DomainService | `AddEventStoreDomainService([options][,assemblies])` + `UseEventStoreDomainService()` | The platform-owned host uses this two-line integration to scan the domain assembly, register `IDomainProcessor`/`IDomainQueryHandler`/`IDomainProjectionHandler`, and map canonical endpoints. Conversations does not own the host. | FR-3 |
 | EventStore.Client | `EventStoreAggregate<TState>` | Reflection command dispatch (`Handle(TCommand,TState?)`) + replay (`Apply(TEvent)`); `OnConfiguring` hook. | FR-7 |
-| EventStore.Client | `IDomainQueryHandler`, `IQueryCursorCodec`, `QueryCursorScope` | Replace the local query orchestrator and HMAC cursor implementation while preserving accepted/rejected token behavior and page ordering. | FR-4 |
-| EventStore.Client | `IDomainProjectionHandler` | Stateless full-replay. | FR-6 |
+| EventStore.DomainService + Client | `IDomainQueryHandler` (DomainService); `IQueryCursorCodec`, `QueryCursorScope` (Client) | Replace the local query orchestrator and HMAC cursor implementation while preserving accepted/rejected token behavior and page ordering. | FR-4 |
+| EventStore.DomainService | `IDomainProjectionHandler` | Stateless full-replay. | FR-6 |
 | EventStore.Client | `IReadModelStore` (+ ETag) and `ReadModelWritePolicy` | Reload-merge, optimistic concurrency, retries. | FR-5 |
 | EventStore.Client | `IEventStoreGatewayClient` + `AddEventStoreGatewayClient()` | Existing gateway client and registration surface. | — |
 | EventStore.Client | `AddEventStore([options][,assemblies])` | Existing discovery surface. | — |
@@ -99,7 +99,7 @@ Modules compared: Conversations, Folders, Projects, Memories, Tenants, Parties.
 | 5 | Legacy per-module Aspire/Dapr topology | Folders, Projects `*.Aspire/*AspireModule.cs` | structurally similar | consume existing EventStore AppHost/domain-module capability; extend only in EventStore.Aspire for unsupported generic topology behavior | FR-13 |
 | 6 | JsonContext setup | Memories contexts (`[JsonSerializable]` lists + resolver combine) | identical pattern | source-gen context base | FR-14 |
 | 7 | Domain-processor registration (`TryAddEnumerable`) | Folders, Projects | identical | `AddDomainProcessor<T>()` helper | FR-3/FR-10 |
-| 8 | HealthCheck / client registration tests | Folders/Memories/EventStore | same shape | shared test fixtures (Commons.Testing) | FR-9 |
+| 8 | HealthCheck / client registration tests | Folders/Memories/EventStore | same shape | shared test fixtures (candidate landing zone only — e.g. a Commons testing package or EventStore.Testing; the final zone is an OQ-1 architecture decision) | FR-9 |
 | — | Program.cs wiring | historical module hosts | thin, minor variance | keep only in the platform host; domain modules supply SDK registration metadata | — |
 
 **Proven local standard to emulate:** EventStore's generic `AddEventStore<TAggregate>()` template-method extension — adopt this style for tenant-access, client, and health-check registration.

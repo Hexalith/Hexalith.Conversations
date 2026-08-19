@@ -1,0 +1,95 @@
+# Spine Pair Review — Conversations
+
+## Overall verdict
+
+The legacy preservation set is an unusually rigorous **behavioral and safety contract** — states, fail-closed rules, leakage discipline, and acceptance identifiers extract cleanly, and the 52-decision/28-AC inventory is enforced by a named validator (epics.md:2599, Story 8.2). It is, however, **not a visual contract**: not one color value or Fluent token binding is committed anywhere in the markdown — the only concrete palette lives unbound in ux-design-directions.html — and 8 of the 11 frontmatter inputDocuments no longer exist on disk. A downstream consumer can build the behavior faithfully today; any consumer asked to mirror the visual design must invent values, which for a trust-critical UI (redaction vs. warning vs. degraded) is exactly where invention is unsafe.
+
+## 1. Flow coverage — adequate
+
+Extracted the PRD's journey sets: §3.3 refactor journeys UJ-1..UJ-3 (prd.md:53-57, developer-refactor scope — correctly out of UX-surface scope) and §14.3's nine preserved acceptance journeys (prd.md:415-425: Maya, Atlas, Sarah, Diego, Marcus, Julian, Helen, Naomi, Daniel). The spec's User Journey Flows section (ux-design-specification.md:847-952) provides four Mermaid flows — Sarah (849), Maya+Atlas (880), Diego (906), Julian+Helen (931) — each with a named protagonist, ordered steps, decision nodes, and an explicit failure branch. Persona names match §14.3 verbatim. Six of nine preserved actors are covered.
+
+### Findings
+- **medium** Marcus (SRE, prd.md:421) has no journey: audit-sink degradation with governance writes failing closed, machine-readable verification consumption, and privileged-action justification review (Feature-FR54-FR55, prd.md:518-519; Feature-NFR47-NFR48, prd.md:655-656; NFR75's "diagnose a delayed or blocked projection" scenario, prd.md:695). Component states cover `audit-unavailable` and degraded projections, but no ordered flow exercises them. *Fix:* add a Marcus flow, or record an explicit disposition (subsumed/deferred) in ux-requirement-map.md.
+- **medium** No flow exercises a governance mutation — redact with rationale, retention policy set (Feature-FR42-FR44, prd.md:506-508) — even though Form Patterns (spec:1277-1283), dialogs (spec:1273), and Command Gate fully specify the machinery. The v1 read-only boundary is stated only obliquely ("Keep v1 read-only where the PRD requires it", spec:972). *Fix:* either add the mutation flow or commit the read-only-v1 boundary as an explicit decision with a map row.
+- **low** Daniel (prd.md:425) and Naomi (prd.md:424) have no flows and no disposition line saying why (Daniel ≈ Sarah's investigation; Naomi has no admin-UI surface). *Fix:* one disposition sentence each.
+
+## 2. Token completeness — thin
+
+Extracted every visual commitment: color strategy and semantic role mapping (spec:576-601), attention ladder (603-624), typography (646-676: inherit FrontComposer/Fluent defaults, monospace for identifiers), spacing (678-682: 8px foundation, 4px compact, 16/24px sections), breakpoints (1399-1406: 320/768/1024/1440), touch targets 44px (1435), example domain tokens `--conversation-status-verified|unverified|blocked`, `--conversation-command-unavailable`, `--conversation-redacted` (728-734). Structure, spacing, and breakpoints are concrete. Color is not.
+
+### Findings
+- **critical** Zero concrete color commitments in the spec. All eight semantic roles (primary, neutral, success/current, warning/stale, error/blocked, redaction, degraded, information — spec:592-601) are prose only; the five `--conversation-*` tokens (spec:729-734) have names but no values and no Fluent alias bindings ("Semantic color tokens map to Fluent theme aliases", spec:719, names no alias). For success/warning/error, Fluent UI Blazor supplies palette tokens a consumer could guess at; **redaction** and **degraded** are novel roles with no Fluent equivalent — downstream code must invent the exact treatments the spec declares load-bearing ("Redaction: visible redaction marker distinct from warning and error", spec:599-600). *Fix:* bind each semantic role to a named Fluent UI Blazor design-token alias or a hex value; at minimum mint the redaction and degraded tokens.
+- **high** Contrast is committed only as blanket "WCAG 2.1 AA" (spec:742, 1424, 1499). No foreground/background pair or ratio is stated for the load-bearing combinations: status-chip text on status-soft fills (trust banner states), redaction marker on neutral evidence surface, degraded/stale banners. *Fix:* state the pairs and target ratios for every trust-state chip and banner.
+- **medium** The only concrete palette in the set sits in ux-design-directions.html `:root` (lines 10-30: `--verified #1f7a4d`, `--warning #946200`, `--blocked #b42318`, `--redacted #6d3a9c`, `--info #0f6c8c`, `--primary #2563eb`, radius 6px, "Segoe UI") and the spec never declares it normative or illustrative — orphaned values a consumer cannot safely adopt or safely ignore. *Fix:* one sentence in the spec adopting or disclaiming the showcase palette.
+- **medium** The HTML defines no `--degraded` token and renders degraded states with `status warning` styling (html:739, 879), while the spec requires degraded to be distinct from warning (spec:600, 588-589). The prose contract and the only visual artifact contradict each other. *Fix:* mint the distinct degraded treatment and correct the showcase or note the deviation.
+- **low** Monospace usage rule (spec:657) names no face or token; typography inheritance is otherwise a legitimate UI-system-inheritance pattern per the target shape (design-md-spec.md:49).
+
+## 3. Component coverage — adequate
+
+Extracted all component names across the three artifacts: 8 trust primitives (Trust Fact, SafeReasonInline, SafeReasonDetail, Redaction Placeholder, Freshness Marker, Command Availability Marker, Citation Control, Participant Identity Marker — spec:1027-1036) and 12 composites (Tenant-scoped Find Pane, Trust Preview Result Row, Governed Record Header, Trust Posture Strip, Evidence Completeness Indicator, Evidence Timeline Entry, Safe State Message, Evidence Detail Drawer, Command Gate, Permission-gated Forensic Timeline Mode, Evidence Acceptance Summary, Waiver and Blocker Summary — spec:1040-1053), plus the §2.4 named patterns (spec:511-519). **Behavioral coverage is exemplary**: every primitive has required inputs, forbidden inputs, fail-closed behavior, and test expectations; every composite has purpose, key states, and accessibility rules; merges are documented (spec:1055-1060 resolves Citation Anchor → Citation Control + Citation Detail panel, etc.).
+
+### Findings
+- **high** No custom component has a per-component **visual** spec — no anatomy, sizing, color usage, or state appearance for any of the 20 components; visuals exist only in the unbound HTML mockups. The target shape expects per-component visual specs (design-md-spec.md:29). A story-dev implementing Trust Posture Strip gets complete behavior and zero appearance. *Fix:* per-component visual notes, or an explicit binding of each composite to a named region of the chosen direction's mockup.
+- **medium** Three names for the record-level trust summary: "Trust Banner" (spec:514), "Trust Posture Strip" (spec:1045), "trust summary band" (spec:1265, 1413); the map uses "Trust summary band" (UX-DR32, map:60). Unlike the citation/freshness merges, this rename is undocumented. *Fix:* one canonical name plus an alias note.
+- **low** The map abbreviates component names (UX-DR17 "SafeReason" for SafeReasonInline/SafeReasonDetail, map:45; UX-DR18 "Trust Preview", "Governed Header", map:46) — resolvable, but not verbatim, so mechanical name-matching fails.
+
+## 4. State coverage — strong
+
+Walked every named surface: Find pane (6 states, spec:1042), result row (10, spec:1043), record header (8, spec:1044), posture strip (8, spec:1045), completeness indicator (4 with defensible-scope semantics, spec:1046), timeline entry (10, spec:1047), safe state message (7, spec:1048), drawer (5, spec:1049), command gate (8, spec:1050), forensic mode (5), acceptance/waiver summaries. Freshness has a 5-value taxonomy (current/possibly-stale/stale/unknown/conflicting, spec:1096-1102). Cold-load/skeleton rules (1461-1468), permission-denied, redacted (6 redaction sub-causes, spec:841), degraded hydration, stale/rebuilding projection, cross-tenant poison, and mid-session permission downgrade all covered, with canonical fixtures (spec:1175-1186, 1348-1359, 1533-1545). This is the strongest category in the set.
+
+### Findings
+- **low** No offline/disconnected or session-expiry state is named for the admin surface; the nearest coverage is generic "unavailable" plus the Trust Transition Pattern (spec:1307-1311). *Fix:* one row stating which existing state class carries connection loss and auth expiry.
+
+## 5. Visual reference coverage — adequate
+
+The spec references the HTML exactly once, at the right section, by path, and names all six directions it illustrates (spec:783-794); the six names match the HTML's `<h2>`s exactly (html:700, 775, 859, 914, 964, 1011). A winner **is committed** — "02. Split Investigation Lens" strengthened with Case File Console's header and Evidence Reader's timeline (spec:796-800) — with rationale and implementation notes.
+
+### Findings
+- **medium** The HTML read standalone is ambiguous: its comparison card recommends **two** directions ("Case File Console and Split Investigation Lens are the safest… Recommended base", html:680-682) and carries no marker that 02 won. A consumer who opens the visual artifact without the spec sees an open decision. *Fix:* add a "chosen: 02 Split Investigation Lens (see ux-design-specification.md → Design Direction Decision)" banner to the HTML.
+- **medium** The Design Direction Decision itself has no UX-DR row — the biggest layout commitment in the set is absent from the 52-row decision inventory (closest proxies: UX-DR18 composites, UX-DR25 flow). Note the coupling: Story 8.2's validator freezes the 52/28 counts (epics.md:2599), so adding a row means a versioned contract change, not a casual edit. *Fix:* either add UX-DR53 under a new authority version or record in the map preamble that the direction decision is intentionally preserved via UX-DR18.
+- **low** The requirement map never references ux-design-directions.html at all; the HTML is reachable only through the spec.
+
+## 6. Bloat & overspecification — adequate
+
+The spec does not dump PRD content — personas and Feature-FRs are not restated wholesale, and most narrative sections terminate in binding rules or matrices. The real bloat is self-repetition, which in a machine-extraction contract becomes a drift hazard.
+
+### Findings
+- **medium** Duplicate section pair: "## Core User Experience" (spec:76) and "## 2. Core User Experience" (spec:410), both containing a "Defining Experience" subsection with overlapping but non-identical content (spec:78-88 vs 412-429). Heading-based extraction is ambiguous. *Fix:* merge, or rename the first ("Experience Overview") with a provenance note.
+- **medium** The redaction/leakage surface enumeration is restated at least six times with varying membership (spec:755 adds "search indexes"; AC-SAFE-002 at 1326 adds "route metadata"; 1201, 1231, 1338 add "URLs… error messages… loading skeletons"; 1432 differs again). A consumer cannot tell which enumeration is the canonical test surface. *Fix:* one canonical list; every other statement references it.
+- **low** The "render trust, never infer" invariant is restated ~9 times (spec:245, 317-319, 507, 558, 628, 824, 962, 1068, 1329). Consistent in meaning; expensive to verify each restatement stays consistent. Collapse on migration.
+- **low** Desired Emotional Response (spec:127-157) and Inspiring Products Analysis (spec:161-209) carry narrative beyond their closing principles/matrices; the Pattern Fit Matrix and Non-Negotiable Pattern Minimum are the load-bearing residue worth keeping.
+
+## 7. Inheritance discipline — thin
+
+Checked all 11 frontmatter inputDocuments on disk, all 52 UX-DR source-section references, the 28-row AC inventory against the spec's identifiers, the map's authority strings, and persona-name fidelity.
+
+**What holds:** AC inventory has exact, ordered, one-to-one parity — AC-SAFE-001..008, AC-RESP-001..015, AC-A11Y-001/002, AC-LEAK-001, AC-MOB-001, AC-PERF-001 (map:91-118) match the spec (1325-1332, 1512-1531) with correct source sections. `epicAuthority: epic-6-authority-2026-08-04-v12` and `architectureAuthority: conversations-architecture-2026-08-04-v12` both resolve (epics.md:4270, architecture.md:2248-2254); `planningCandidate: 151f965…` is a real commit; the 52/28 counts are validator-enforced (epics.md:2599). Journey personas match PRD §14.3 verbatim.
+
+### Findings
+- **high** 8 of 11 inputDocuments (spec:20-31) do not resolve: all six `research/technical-*.md` files (the research/ directory is empty; deleted in commits 0664124 and 440fd19) and both product briefs (`product-brief-Hexalith.Conversations.md`, `-distillate.md`) are absent from the repo. For a preservation artifact whose banner rests on provenance, the declared source set dangles with no tombstone or archive pointer. *Fix:* annotate each missing entry with its disposition (deleted-at-commit / archived-at-path) or restore archive copies.
+- **medium** Date anachronism: the spec's `completedAt: 2026-05-13` and author date 2026-05-12 precede its declared canonical input `prd-Conversations-2026-06-02` (created 2026-06-02). The rebinding is asserted in prose (spec:50-54) but the frontmatter carries no rebinding date, so the provenance chain reads as impossible on its face. *Fix:* add a `reboundAt`/note field distinguishing original inputs from rebound authority.
+- **medium** Authority-version skew: spec `preservationAuthorityVersion: ux-preservation-planning-2026-08-01-v1` (spec:32) vs map `authorityVersion: ux-preservation-planning-2026-08-04-v3` (map:2), with no statement that v3 supersedes or covers v1. A consumer checking "same preservation regime?" gets two answers. *Fix:* stamp both artifacts with the current version or add a supersession line to the map.
+- **medium** Several UX-DR Source Section labels match no literal spec heading and resolve only by interpretation: UX-DR3 "Trust as a contract" (a bullet at spec:124), UX-DR4 "Generated-first boundaries", UX-DR6 "Redaction safety", UX-DR7-10 and UX-DR13-16 (Customization Strategy bullets / Verification Expectations prose). All 52 do resolve to real content, but not mechanically. *Fix:* use literal headings or add anchors.
+- **low** No Feature-FR/NFR identifier appears anywhere in the spec (the namespace postdates it — e.g., "the PRD's 90-second investigation target" at spec:967 is Feature-NFR12 unnamed), and the map maps UX-DRs to stories, not to Feature-FRs. Feature-FR56-FR69 → spec-section traceability runs through reading, not IDs. *Fix (optional):* a one-page Feature-FR ↔ UX-DR crosswalk.
+
+## 8. Shape fit — thin (vs. spine-pair target; judgment, not a demand)
+
+**Distance from DESIGN.md:** large. There is no token frontmatter at all — the spec's YAML is workflow metadata. Colors are prose roles (the critical gap in §2); typography/spacing would translate directly (inheritance notes + the 8px scale); Shapes and Elevation are absent (the HTML's 6px radius and shadow are unbound); "Forbidden Visual Moves" (spec:768-779) is a ready-made Do's and Don'ts half. A migration must **mint** the frontmatter: Fluent alias references for standard roles, real values for redaction/degraded, radius/spacing scales, and per-component token stubs for the 20 components.
+
+**Distance from EXPERIENCE.md:** moderate — mostly reorganization plus deduplication. Voice lives in Accessibility Microcopy Rules (spec:1449-1458) and the safe-language rules; Component Patterns and State Patterns are over-supplied; Interaction Primitives, Accessibility Floor, Inspiration & Anti-patterns, and Key Flows all have direct source material. Missing: an explicit Information Architecture table — the surfaces (Find pane, governed record view, drawers, forensic mode, acceptance surfaces) are named everywhere and tabulated nowhere. A migration could cut 40-50% of the token count without losing a decision, chiefly by collapsing the repeated invariants and leakage lists into single canonical statements.
+
+**Preservation banners:** spec (spec:44-47) and map (map:13-17) carry consistent banner text and identical `preserved-not-activated` dispositions; the HTML carries **no banner or disposition marker at all** (zero matches for preservation/authority) — the only artifact of the three a viewer could mistake for live design work.
+
+### Findings
+- **medium** ux-design-directions.html has no preservation-authority banner while both markdown artifacts do. *Fix:* add the banner as a visible note plus an HTML comment.
+- **low** Migration sequencing note: mint DESIGN.md tokens first (it is the only genuinely missing content), then split the spec into spine pair — the behavioral material ports nearly verbatim. The AC identifiers and the 52-row map must survive any migration unchanged or under a new validator-blessed authority version (Story 8.2 coupling).
+
+## Mechanical notes
+
+- **Missing files (8):** all six `_bmad-output/planning-artifacts/research/technical-*.md` inputs and both `product-brief-Hexalith.Conversations*.md` inputs (spec frontmatter:20-31). `research/` exists but is empty.
+- **Name variants:** Trust Banner / Trust Posture Strip / trust summary band (spec:514, 1045, 1265); SafeReason (map:45) vs SafeReasonInline/SafeReasonDetail (spec:1030-1031); Trust Preview / Governed Header (map:46) vs Trust Preview Result Row / Governed Record Header (spec:1043-1044). "Citation Drawer" (spec:517) is superseded with a documented merge note (spec:1059) — resolved, not drift.
+- **Duplicate literal headings:** "Implementation Approach" appears twice (spec:296, 812); "Core User Experience" twice with variant numbering (spec:76, 410). Heading numbering is inconsistent overall ("1.1", "2.1-2.5" amid unnumbered H2/H3s) — an artifact of the step-wise legacy workflow.
+- **Mermaid:** 4 `flowchart TD` blocks (spec:853, 884, 910, 935) — syntax valid (quoted labels, labeled edges, decision braces); no parse problems found.
+- **Frontmatter completeness:** spec carries workflow metadata + preservation fields but no rebinding date (see §7); map frontmatter fully resolves (source, candidate commit, epic/architecture authorities, owner stories 8.1-8.2 all verified against epics.md and architecture.md).
+- **AC parity:** 28/28 identifiers, exact order, correct source sections (map:89-118 vs spec:1323-1332, 1510-1531). 52 UX-DR rows all resolve to real spec content; ~10 use non-literal section labels (see §7).
+- **HTML palette:** `:root` tokens at html:10-30 define verified/warning/blocked/redacted/info/primary pairs; no `--degraded` token exists and degraded states reuse `status warning` (html:739, 879), contradicting spec:600.

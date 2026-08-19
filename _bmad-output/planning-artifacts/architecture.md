@@ -2356,3 +2356,270 @@ remain open under their existing Architect/Runtime, Projection, and Test/AppHost
 owners and require separately approved successor authority.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:END version=conversations-architecture-2026-08-04-v12 epic-authority=epic-6-authority-2026-08-04-v12 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V13:BEGIN version=conversations-architecture-2026-08-18-v13 epic-authority=epic-6-authority-2026-08-18-v13 supersedes=conversations-architecture-2026-08-04-v12 v12-block-bytes=6075 v12-block-sha256=3050b326c5759fc51bc0e800944b0a1a591ab1782f6798f12abfdc10051b5796 sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## 2026-08-18 V13 Authority-Relocation And Divergence-Closure Amendment
+
+**Architecture authority:** `conversations-architecture-2026-08-18-v13`
+
+**Supersedes:** `conversations-architecture-2026-08-04-v12` only for authority
+discovery and relocation, marker and digest grammar, the enumerated divergence
+closures DC-1 through DC-11, the dated factual refresh, chain hygiene, and the
+operational-envelope disposition obligation. Every ownership, runtime,
+projection, topology, promotion, evidence, record-contract, preservation, and
+readiness decision in v12 remains in force unchanged. The global implementation
+hold remains **ACTIVE**. This overlay authorizes no implementation, no IR-0
+rerun, no hold lift, and no release.
+
+**Correction source:** the 2026-08-18 architecture validation report and gate
+reviews
+(`_bmad-output/planning-artifacts/architecture/architecture-Conversations-2026-08-02/validation-report-2026-08-18.md`,
+`reviews/validate-2026-08-18/`), applied at the release owner's direction on
+2026-08-18. The naming note below disambiguates version namespaces: the sidecar
+files named `v13-`/`v14-` are checkpoint authorities in the planning-authority
+file series, not architecture versions; this overlay is architecture version
+v13.
+
+### Authority Relocation And Discovery
+
+Since V12, checkpoint-level current authority has continued outside this
+document in versioned sidecar planning-authority files. As of this overlay the
+chain is:
+
+- `v13-current-proof-authority-v1.json` (SHA-256
+  `f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f`) —
+  checkpoint `E6-CURRENT-PROOF`, predecessor `E6-REMEDIATION`. Retro action A1
+  is `done` as of 2026-08-09, closed through the additive current-proof route by
+  the independent decision
+  `epic-6-completion-supersession-current-proof-decision-v1.json` (`ACCEPTED`,
+  release owner). The V1-V12 historical FAIL/REJECTED completion-supersession
+  evidence remains byte-identical and authoritative for the historical question;
+  V12's A1 description is the historical route only.
+- `v14-current-candidate-authority-v1.json` (SHA-256
+  `e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f`) —
+  checkpoint `E6-CURRENT-CANDIDATE`, predecessors `E6-REMEDIATION` and
+  `E6-CURRENT-PROOF`, current planning candidate
+  `151f96519a30f1b16530851e73e51ac5ad74b355`, `implementationHold: ACTIVE`.
+- Approved corrections `sprint-change-proposal-2026-08-18-e6-remediation-a3.md`
+  (SHA-256 `cbc2eb2f3db96f0451c5b6d7d18a915901e3890594b147cbd18194a67fd1d2c0`)
+  and `sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md` (SHA-256
+  `66d12d5f26bc38e0ee20e0b26827b5c1cf0b6f8d06512231edf408cd1b4494dd`), both
+  approved by the release owner on 2026-08-18; digests are of the approved bytes
+  staged for the next publication commit.
+- The deterministic current execution view is
+  `epic-6-current-execution-view-v2.md` (SHA-256
+  `8fce0f3863098ba4061b4ef0768e7855c54de091d18162acb8d34b2dcbdbed1e`); the
+  frontmatter's `v1` reference is frozen provenance.
+
+**Binding discovery rule.** Checkpoint-level authority lives in versioned
+sidecar planning-authority files, and the last complete overlay marker in this
+document names the current sidecar head through its `sidecar-head` and
+`sidecar-head-sha256` marker attributes. A new sidecar authority version and
+its appended pointer amendment are published in the same commit; publishing one
+without the other is an authority-publication failure. This rule governs
+checkpoint-level planning-authority sidecars (the `v<N>-*-authority` series);
+non-checkpoint contract sidecars such as `conversations-vocabulary-v1.json`
+are governed by bundle pinning, not by the pointer-amendment rule. The presently committed
+v13/v14 sidecars predate this rule; the staged state carrying this overlay is
+the sanctioned transition, and the rule binds from this overlay's publication
+commit forward. The publication obligation below tasks the planning validators
+with a current-sidecar-head check; until that validator lands, the rule is
+enforced at review. A reader resolving authority from this document resolves
+the architecture version from the last complete overlay marker and the
+checkpoint state from the sidecar head that marker names.
+
+### Frontmatter Provenance Restatement
+
+The frontmatter keys `authorityVersion`, `status`, `currentExecutionView`,
+`correctionAuthority`, `supersededAuthorityVersions`, and `baselineRevision`
+are v8-frozen provenance, byte-pinned by the V9 `v8-prefix-sha256`, and can
+never be edited. Their current values are carried by this overlay chain: the
+architecture authority is the last complete overlay marker's version, the
+execution view is `epic-6-current-execution-view-v2.md`, correction authority
+continues through the proposals named above, and the hold is `ACTIVE`.
+
+### Marker And Digest Grammar (Normative)
+
+A block digest is SHA-256 over the bytes from the first byte of the `BEGIN`
+marker line through the last byte of the `END` marker line, excluding the END
+line's trailing LF. A prefix digest covers bytes 0 through the byte immediately
+before the `BEGIN` marker line. Overlays are separated by exactly one blank
+line, and the file ends at the last END line's trailing LF. From V13 forward
+every `BEGIN` marker carries the full attribute set (`version`,
+`epic-authority`, `supersedes`, predecessor block bytes and SHA-256,
+`sidecar-head`, `sidecar-head-sha256`, `candidate-binding`, `hold`), and every
+`END` marker repeats `version`, `epic-authority`, `sidecar-head`,
+`sidecar-head-sha256`, `candidate-binding`, and `hold`. The absence of `hold=`
+on the V9 and V10 markers is a schema gap, not a hold gap; both bodies state
+the hold remained `ACTIVE`.
+
+### Divergence Closures
+
+- **DC-1 (SM-C2 evidence usability).** The frozen envelope partitions into
+  frozen members — workload/data shape, concurrency, environment/runtime, and
+  warm/cold classification — and versioned members — benchmark tool/version,
+  repetition policy, and raw-sample volume/processing. A versioned member may
+  change only through a named, recorded envelope revision under which baseline
+  and post are re-measured as a pair from the preserved fixture. A row is
+  **usable** when its paired P95 confidence half-width, computed by the declared
+  method over the retained raw samples, is no greater than 5% of baseline P95.
+  The method computing the half-width is declared in the baseline artifact and
+  is identical for baseline and post; absent a declaration, the method is the
+  percentile bootstrap over the retained raw samples. An envelope member not
+  explicitly enumerated as versioned above is frozen. An envelope revision is
+  not a target change under the v8 PRD-proposal rule; the
+  `post P95 <= 1.05 x baseline P95` target is untouched, PRD SM-C2/OQ-5
+  remains the sole metric authority, and a PRD-owner ruling that a specific
+  revision is a target change supersedes this clarification for that revision.
+- **DC-2 (shared vocabulary).** The shipped public contract
+  `Hexalith.Conversations.Contracts.TrustStates.ProjectionTrustState` — the
+  closed value set `Current, Stale, Rebuilding, Unavailable, Forbidden,
+  Redacted`, accepted by Story 6.2 as the single public trust-and-freshness
+  vocabulary for read contracts — is ratified as the normative v1 vocabulary
+  and is the "one shared enum or value contract" the pattern rules require. It
+  is consumed, never re-declared, by API, UI, diagnostics, and evidence. The
+  May-era candidate trust list (`Unknown, Pending, Verified, Contradicted, …`)
+  is historical candidate material, not a rename or widening requirement;
+  members from it may arrive only through compatible additive contract
+  evolution with named-owner approval under the preservation rules. The
+  redaction and hydration display-state sets, the condition-to-state mapping,
+  and the per-surface indistinguishability policy are owed by
+  `conversations-vocabulary-v1` — a candidate-bound planning sidecar at
+  `_bmad-output/planning-artifacts/conversations-vocabulary-v1.json`, authored
+  under the Quality owner, whose single-writer portfolio this assignment
+  explicitly extends — which must ratify shipped contracts and may not
+  require a public-contract change. No successor story that serializes
+  redaction or hydration display state may enter review before that contract
+  is published; the review gate enforces this until a validator carries it.
+- **DC-3 (record dirt vs promotion gate).** Promotion-gate cleanliness
+  dominates the record contract. Record outputs and declared TRX inputs must
+  resolve under root-owned paths, never under `references/`; a test lane that
+  writes under a submodule worktree must redirect or park those outputs before
+  record generation begins. A candidate violating this is gate-blocked and
+  generator-invalid — the two verdicts can never diverge.
+- **DC-4 (graph composition).** Graph parity is validated against the effective
+  overlay-composed graph: the V9 canonical graph amended by each later
+  overlay's and sidecar authority's explicitly enumerated node and edge deltas
+  (the V11 supplemental edge, the V12 `E6-REMEDIATION` node and edge set, and
+  the sidecar checkpoints `E6-CURRENT-PROOF` and `E6-CURRENT-CANDIDATE` with
+  their declared predecessors). Immutable overlay diagrams are provenance,
+  never direct comparison targets. The enumerated node-ID set in
+  `v9-execution-graph-v1.json`, regenerated under this overlay's publication to
+  include the sidecar checkpoint nodes, is the sole membership authority; a
+  bare cardinality — including V12's "exactly 33 nodes", which described the
+  graph at V12 publication before the sidecar checkpoints — is a derived
+  check, never the pin. A sidecar authority's architecture-version reference is
+  a point-in-time binding to the version current at its minting; a later
+  architecture overlay does not invalidate it, and each new sidecar version
+  binds the then-current architecture version.
+- **DC-5 (temporal evidence anchor).** Resolving the legacy open question by
+  ratifying the shipped Story 6.2 contract: the authoritative temporal evidence
+  anchor on public and trust-bearing surfaces is the `ProjectionFreshnessV1`
+  composite — `ProjectionContractSchemaVersion`, `ProjectionCursor`, and
+  `LastAppliedEventPosition`, the Conversations-owned public event position the
+  accepted contract deliberately exposes. Timestamps in that contract are
+  display and lag metadata, never the anchor. The public-surface prohibitions
+  on "event sequence numbers" and "storage offsets" — the API-pattern exposure
+  sentence and the enforceable-guardrail metadata sentence — are hereby scoped
+  to EventStore stream internals; the Conversations-owned public event position
+  is not an EventStore internal. Non-public evidence artifacts may additionally carry raw
+  EventStore positions. HP-OPEN envelope comparability and proof-v3 replay
+  evidence anchor on this same composite.
+- **DC-6 (audit-degradation default).** Audit-sink availability gates
+  governance mutations only. Non-governance commands and reads carry no
+  audit-sink dependency and proceed during audit degradation. An ADR is
+  required only to add continue-under-degradation behavior to a path that has
+  an audit dependency. This supersedes, in their default reading, the earlier
+  sentences "Non-governance commands may continue during audit degradation
+  only by explicit ADR" and "Non-governance behavior during audit degradation
+  requires an ADR before implementation". Tenant fail-closed rules are
+  unchanged.
+- **DC-7 (derived-key grammar).** The key grammar implemented by accepted Story
+  6.2 is ratified as `conversations-derived-keys-v1`: state store `statestore`;
+  conversation summary/detail key
+  `projection:conversations:<segment(tenantId)>:<segment(conversationId)>`;
+  tenant index key `projection:conversations-index:<segment(tenantId)>`;
+  dispatch-ledger key
+  `projection:conversations-dispatch:<sha256-lowercase-hex(dispatchId)>`;
+  where `segment` is unpadded base64url (`+`→`-`, `/`→`_`) over the UTF-8
+  identifier. The dispatch-ledger record is Conversations-owned; the stable
+  dispatch identity remains EventStore-owned. The dispatch-ledger key is the
+  declared exception to the key-level tenant-segment rule: it derives solely
+  from the platform-owned dispatch-identity digest, is fixed-length and
+  non-disclosing, and tenant fail-closed enforcement applies on every ledger
+  read and write path instead. The cross-tenant derived-key poison scenario
+  binds this grammar version and covers the tenant-segmented conversation and
+  index keys; ledger-path tenant isolation is asserted by the fail-closed
+  access lane rather than by key shape. Any grammar change requires a
+  versioned successor with explicit migration or rebuild treatment.
+- **DC-8 (ADR namespace).** The `docs/adrs` filename sequence is the sole ADR
+  namespace. The May 14 ADR-001 through ADR-010 backlog labels are historical
+  aliases, not identities: accepted `0003` is the projection read-store
+  population proof, and `0004` is reserved for the projection-proof lifecycle.
+  An unauthored backlog subject is numbered at authoring time; a successor
+  story that first implements a backlog subject either cites the covering rule
+  in this document or authors the ADR before entering review.
+- **DC-9 (tier-migration strength).** A migrated assertion's strength digest is
+  the triple (bound-assembly set, asserted-behavior identity, negative-case
+  count). The Quality owner is the single decider of tier membership, recorded
+  in a digest-bound per-assertion inventory carried by the Epic 9 story
+  contracts through the paired epic-authority amendment this overlay directs.
+- **DC-10 (AppHost interpretation).** The recorded working interpretation is
+  that the platform baseline's prohibition on shipping a domain-module AppHost
+  does not reach this repository-local, non-packable, non-publishable test
+  fixture. Resolving the interpretation is an Epic 12 hard-entry condition,
+  carried into the canonical epic authority and graph by the paired
+  epic-authority amendment this overlay directs; a contrary baseline-owner
+  declaration still triggers the separate approved technical amendment v9
+  requires, and until then the fixture stands.
+- **DC-11 (ceiling retirement).** The v6 approved-cost ceiling and its
+  retirement obligation are non-executable history; no successor story owes a
+  retirement artifact.
+
+### Factual Refresh (Dated 2026-08-18)
+
+Shared `Hexalith.Builds` props pin Aspire `13.4.6` (the Keycloak and Kubernetes
+hosting packages at `13.4.6-preview`) and Dapr `1.18.5`; the
+May-era `13.0`/`13.2.x`/`13.3` and `1.17.7` statements are historical
+observations, and sibling-pin alignment remains the rule. The
+`src/Hexalith.Conversations.ServiceDefaults/` removal anticipated by the
+rebaseline was completed by Story 6.2. The root `.slnx` is the authoritative
+test-project inventory per v6; it currently includes `Client.Tests` and
+`Admin.Web.Tests` and does not yet include the module-internal-tier conformance
+project owed by Epic 9.
+
+### Chain Hygiene And Publication Obligation
+
+At the next bundle regeneration the current sidecar authority heads and their
+schemas become pinned bundle artifacts. Every future sidecar authority version
+pins its predecessor's SHA-256; the v14 pattern is normative. A regenerated
+point-in-time sidecar carries a `statusAsOf` marker so frozen statuses cannot
+be read as current. Action identifiers are checkpoint-qualified from this
+overlay forward. This overlay's own append drifts `architecture.md` from the
+v9 bundle pin until one publication commit carries this overlay and the two
+2026-08-18 proposals and the candidate-bound companions are regenerated and
+rebound; performing that commit and rebind is a required completion step of
+this correction and a precondition of any IR-0 rerun. That same publication
+must author the paired canonical `epic-6-authority-2026-08-18-v13` epic
+amendment carrying the DC-9, DC-10, and DC-11 obligations into the epic block,
+story contracts, and obligation inventory; regenerate
+`v9-execution-graph-v1.json` with the composed node set per DC-4; and task the
+planning validators with the current-sidecar-head check the discovery rule
+names. Prose alone carries none of these obligations once their canonical
+carriers exist.
+
+### Open Dimension
+
+The operational envelope — environment topology, module-relevant infrastructure
+and provider strategy, operational runbooks, and capacity-waiver ownership — is
+declared an owned open dimension. The release owner must decide it, defer it
+with a named owner, or delegate it to a named counterpart artifact before any
+hold-lift decision.
+
+This amendment changes planning authority, authority discovery, and
+planning-authority validation only. It authorizes no change to production
+source, public contracts, package versions, accepted baselines, signed
+evidence, or submodule content.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V13:END version=conversations-architecture-2026-08-18-v13 epic-authority=epic-6-authority-2026-08-18-v13 sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

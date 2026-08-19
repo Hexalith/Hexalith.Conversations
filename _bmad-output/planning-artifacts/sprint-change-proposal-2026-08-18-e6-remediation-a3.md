@@ -483,9 +483,29 @@ type **fails**; the current code passes this case, so the fault must be shown re
 **AC-10 — Full lane.** `uv run --frozen python3 -m pytest -q _bmad/scripts/tests` reports **0 failed,
 0 skipped, 0 not-run**, with passed ≥ 225 (215 current + the 10 repaired) plus new tests.
 
+The lane result MUST additionally be **independent of ambient worktree state**: the same collected
+count, the same passed count, and 0 skipped on a **clean** tree and on a **dirty** tree alike. No
+test may condition its execution on `verifier.worktree_dirt(ROOT)` or on any other live repository
+state, and no test may call `pytest.skip`. Fault F-10 MUST be proven against **controlled** dirt
+supplied by the test itself, never against ambient dirt. A skipped test is never a pass, whatever
+the reason recorded in its skip message.
+
+*Amended 2026-08-18 by sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md. Rationale: at
+`29c56fa` the same lane produced 264 passed / 1 skipped and 265 passed / 0 skipped depending only on
+whether an unrelated sibling submodule happened to be dirty. `0 skipped` was therefore satisfiable by
+accident, and the skip's own justification ("exercised by CI") is false — CI checks out a clean tree,
+so the strict default was proven nowhere.*
+
 **AC-11 — A2 focused lane.** The A2 spec's `-k` selection returns **0 failed, 0 skipped, 0 not-run**.
-*Measured on rerun at this tree: **28 passed, 129 deselected**. The A2 spec text records 30/30; the
-delta is surfaced here rather than silently reconciled, and must be resolved before A2 closes.*
+*Measured at `29c56fa`: **28 collected / 28 passed / 0 failed / 0 skipped / 0 not-run / 129
+deselected**. All nine `-k` terms resolve to real test functions, so no selected assertion is
+silently absent.*
+
+***RESOLVED 2026-08-18.*** *The earlier note asserting "the A2 spec text records 30/30" was
+incorrect. The A2 spec is byte-identical to its only commit `a232614`, records **no** test count, and
+states its acceptance qualitatively ("zero failed, skipped, or not-run selected tests"). The `30/30`
+figure was misattributed from two unrelated records — Story 6.7's checker/workflow suite and Story
+6.2's EventStore dispatcher. **No discrepancy exists, and none blocks A2 closure.***
 
 **AC-12 — Boundary.** Zero mode-`160000` entries in either commit; all ten gitlinks remain at their
 `a232614` values; no product code under `src/` is modified.
@@ -513,7 +533,7 @@ Each must turn **red** with its stable code, then restore its fixture **byte-ide
 | F-7 | Mutate one byte of the V13 authority | V13 immutability assertion fails |
 | F-8 | Decision bound to an evidence HEAD ≠ the evidence artifact's | Decision-chain validator fails closed |
 | F-9 | Force A1 to `done` with no valid decision | Derived-status check fails |
-| F-10 | Dirty worktree during a current-proof run | Blocks visibly; must not attribute worktree bytes to the resolved commit |
+| F-10 | **Controlled** dirty worktree during a current-proof run (supplied by the test, never ambient) | `BLOCKED` with `E6_CURRENT_PROOF_WORKTREE_DIRTY`; must not attribute worktree bytes to the resolved commit; must execute on a clean tree too |
 | F-11 | Omit one changed path from the post-done set | Independent raw-Git oracle fails |
 | F-12 | Inject an unexpected path | Independent raw-Git oracle fails |
 | F-13 | Remove one root gitlink from `.gitmodules` | Inventory equality fails |
