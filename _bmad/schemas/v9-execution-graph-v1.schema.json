@@ -12,8 +12,8 @@
     "implementationHold": { "const": "ACTIVE" },
     "nodes": {
       "type": "array",
-      "minItems": 33,
-      "maxItems": 33,
+      "minItems": 38,
+      "maxItems": 38,
       "prefixItems": [
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "10.2" } } },
@@ -34,6 +34,9 @@
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "14.3" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "15.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "15.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "16.1" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "16.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "16.3" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "6.2" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "7.1-SCHEMAS" } } },
@@ -44,6 +47,8 @@
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "8.2" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.1" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "9.2" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "E6-CURRENT-CANDIDATE" } } },
+        { "$ref": "#/$defs/node", "properties": { "id": { "const": "E6-CURRENT-PROOF" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "E6-REMEDIATION" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "IR-0" } } },
         { "$ref": "#/$defs/node", "properties": { "id": { "const": "PC-PUBLICATION" } } },
@@ -53,7 +58,8 @@
     },
     "edges": {
       "type": "array",
-      "minItems": 27,
+      "minItems": 61,
+      "maxItems": 61,
       "uniqueItems": true,
       "items": {
         "type": "object",
@@ -82,8 +88,8 @@
       "additionalProperties": false,
       "required": ["epic", "architecture"],
       "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-04-v12" },
-        "architecture": { "const": "conversations-architecture-2026-08-04-v12" }
+        "epic": { "const": "epic-6-authority-2026-08-18-v14" },
+        "architecture": { "const": "conversations-architecture-2026-08-18-v14" }
       }
     }
   }

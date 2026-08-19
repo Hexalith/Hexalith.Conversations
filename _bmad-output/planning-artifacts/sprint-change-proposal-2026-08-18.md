@@ -406,3 +406,33 @@ This proposal does not:
 **Decision:** APPROVED by Jerome (release owner) on 2026-08-19.
 
 Approval means: authorize CP-1–CP-6 as planning/backlog authority while keeping the global implementation hold active. It does **not** authorize Story 16 implementation or lift the hold.
+
+## 9. Approved Publication Clarification — 2026-08-19
+
+Jerome approved the implementation specification
+`_bmad-output/implementation-artifacts/spec-epic-16-planning-authority-publication.md`
+on 2026-08-19. That approval resolves the publication details discovered while
+mapping CP-1–CP-6 onto the deterministic publisher:
+
+1. Epic V14, not an invented Epic V13, carries architecture V13 decisions
+   DC-9, DC-10, and DC-11 into the canonical epic authority.
+2. The already-published `v14-current-candidate-authority-v1.json` remains a
+   point-in-time checkpoint head and is pinned unchanged. No checkpoint sidecar
+   is minted or rebound by this publication.
+3. Graph parity composes the 30 story nodes, the six inherited non-story nodes,
+   and `E6-CURRENT-PROOF` plus `E6-CURRENT-CANDIDATE`: exactly 38 nodes and 61
+   edges.
+4. Story 16.1 has graph predecessors `7.4` and `IR-0`. The separately governed
+   release-owner hold decision remains a global execution predicate, not a new
+   graph node; while the hold is `ACTIVE`, Story 16.1 is non-executable.
+5. The V14 story rows carry one exact repository-root command per acceptance
+   scenario. AC-01 through AC-05 route through the story-specific
+   `verify_story_16_*.py` verifier; AC-06 uses `generate_story_record.py`.
+6. Publication validation compares the complete baseline-to-publication changed
+   path set to a candidate-bound allowlist and rejects every raw mode-160000
+   change.
+7. The previously reported duplicate Story 13.1 tracking key is absent from the
+   approved baseline and is not a repair target.
+
+This clarification changes no requirement, product scope, lifecycle state,
+action status, hold state, submodule, or gitlink.

@@ -66,8 +66,8 @@
       "additionalProperties": false,
       "required": ["epic", "architecture"],
       "properties": {
-        "epic": { "const": "epic-6-authority-2026-08-04-v12" },
-        "architecture": { "const": "conversations-architecture-2026-08-04-v12" }
+        "epic": { "const": "epic-6-authority-2026-08-18-v14" },
+        "architecture": { "const": "conversations-architecture-2026-08-18-v14" }
       }
     },
     "gitlink": {

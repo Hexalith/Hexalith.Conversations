@@ -47,11 +47,12 @@ def stage(tmp_path: Path) -> Path:
     return staged
 
 
-def test_v14_is_additive_and_outside_the_v12_managed_companion_set() -> None:
+def test_v14_is_additive_pinned_and_outside_the_generated_companion_set() -> None:
     assert publisher.AUTHORITY_PATH not in v9.EXPECTED_OUTPUT_PATHS
-    assert publisher.AUTHORITY_SCHEMA_PATH not in v9.CANONICAL_PATHS
+    assert publisher.AUTHORITY_SCHEMA_PATH in v9.CANONICAL_PATHS
     assert publisher.AUTHORITY_PATH not in v9.CANONICAL_PATHS
-    assert publisher.AUTHORITY_PATH not in v9.PROTECTED_CANDIDATE_PATHS
+    assert publisher.AUTHORITY_PATH in v9.PROTECTED_CANDIDATE_PATHS
+    assert publisher.AUTHORITY_PATH in v9.expected_bundle_artifact_paths()
 
 
 def test_v14_check_mode_is_green_and_preserves_the_hold() -> None:
@@ -77,8 +78,8 @@ def test_v14_records_v13_by_exact_digest_and_pinned_candidate() -> None:
     )["authority"]["planningCandidate"]
 
 
-def test_v14_follows_a_bundle_rebind_while_v13_stays_pinned(tmp_path: Path) -> None:
-    """The whole point of the split: V14 tracks the current candidate, V13 does not."""
+def test_v14_and_v13_stay_pinned_across_a_later_bundle_rebind(tmp_path: Path) -> None:
+    """Published checkpoint heads remain point-in-time evidence after a later bundle rebind."""
 
     staged = stage(tmp_path)
     for relative in (v13.CURRENT_PROOF_DECISION_PATH, v13.CURRENT_PROOF_CONTRACT_PATH, v13.CURRENT_PROOF_AUTHORITY_SCHEMA_PATH):
@@ -96,13 +97,15 @@ def test_v14_follows_a_bundle_rebind_while_v13_stays_pinned(tmp_path: Path) -> N
     bundle["planningCandidate"] = rebound
     bundle_path.write_text(json.dumps(bundle, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
-    # V14 must follow the rebind...
     assert publisher.resolve_bundle_candidate(staged) == rebound
+    assert publisher.resolve_pinned_candidate(staged) != rebound
+    before = (staged / publisher.AUTHORITY_PATH).read_bytes()
     publisher.publish(staged, check=False)
     rewritten = json.loads((staged / publisher.AUTHORITY_PATH).read_text(encoding="utf-8"))
-    assert rewritten["authority"]["planningCandidate"] == rebound
+    assert rewritten["authority"]["planningCandidate"] == publisher.resolve_pinned_candidate(staged)
+    assert (staged / publisher.AUTHORITY_PATH).read_bytes() == before
 
-    # ...while V13 stays pinned to its own decision's candidate and its bytes never move.
+    # V13 also stays pinned to its own decision's candidate and its bytes never move.
     assert rewritten["pointInTimePredecessor"]["pinnedPlanningCandidate"] == pinned_before
     assert (staged / publisher.CURRENT_PROOF_AUTHORITY_PATH).read_bytes() == (
         ROOT / publisher.CURRENT_PROOF_AUTHORITY_PATH

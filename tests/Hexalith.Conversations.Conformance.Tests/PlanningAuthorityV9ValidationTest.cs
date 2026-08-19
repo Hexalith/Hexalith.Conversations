@@ -11,16 +11,18 @@ using System.Text.RegularExpressions;
 namespace Hexalith.Conversations.Conformance.Tests;
 
 /// <summary>
-/// Validates the candidate-bound v9 companion publication and v12 remediation correction.
+/// Validates the candidate-bound V14 companion publication and historical checkpoints.
 /// </summary>
 public sealed class PlanningAuthorityV9ValidationTest
 {
-    private const string ArchitectureAuthority = "conversations-architecture-2026-08-04-v12";
+    private const string ArchitectureAuthority = "conversations-architecture-2026-08-18-v14";
     private const string BaseArchitectureAuthority = "conversations-architecture-2026-08-03-v10";
     private const string ArchitecturePath = "_bmad-output/planning-artifacts/architecture.md";
     private const string BundlePath = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json";
     private const string BaseEpicAuthority = "epic-6-authority-2026-08-03-v10";
-    private const string EpicAuthority = "epic-6-authority-2026-08-04-v12";
+    private const string EpicAuthority = "epic-6-authority-2026-08-18-v14";
+    private const string V12ArchitectureAuthority = "conversations-architecture-2026-08-04-v12";
+    private const string V12EpicAuthority = "epic-6-authority-2026-08-04-v12";
     private const string EpicsPath = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md";
     private const string GraphPath = "_bmad-output/planning-artifacts/v9-execution-graph-v1.json";
     private const string RemediationPath = "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json";
@@ -36,12 +38,15 @@ public sealed class PlanningAuthorityV9ValidationTest
     private const string V11EpicDigest = "6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19";
     private const string V12ArchitectureDigest = "3050b326c5759fc51bc0e800944b0a1a591ab1782f6798f12abfdc10051b5796";
     private const string V12EpicDigest = "39f1b51920e4866c47586caf549aafaec5678639b64c64b4b235788fce76e878";
+    private const string V13ArchitectureDigest = "c7d5c867385f22e359c5367fe2851fc4f7d016e0f28c04b5283b7b5ad604605a";
+    private const string V14ArchitectureDigest = "d33d977fda0776377684439bb7e78769a6b9a0279c293b8a08e44dfad8466dc5";
+    private const string V14EpicDigest = "acd5c07c72d5145bb6477877cab21af710beb8cf172ccfde66837992e41c35c1";
 
     /// <summary>
-    /// Proves the v9-v11 prefixes remain byte-identical and the v12 scope is narrow.
+    /// Proves V9-V13 remain byte-identical and V14 closes the authority chain.
     /// </summary>
     [Fact]
-    public void V12AuthorityShouldPreservePriorBlocksAndAddOnlyTheRemediationCheckpoint()
+    public void V14AuthorityShouldPreservePriorBlocksAndPublishEpic16()
     {
         string epics = Read(EpicsPath);
         string architecture = Read(ArchitecturePath);
@@ -77,6 +82,18 @@ public sealed class PlanningAuthorityV9ValidationTest
             architecture,
             "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:BEGIN",
             "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V12:END");
+        string v13Architecture = ExtractMarkerBlock(
+            architecture,
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V13:BEGIN",
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V13:END");
+        string v14Epic = ExtractMarkerBlock(
+            epics,
+            "<!-- EPIC-6-AUTHORITY-OVERLAY-V14:BEGIN",
+            "<!-- EPIC-6-AUTHORITY-OVERLAY-V14:END");
+        string v14Architecture = ExtractMarkerBlock(
+            architecture,
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V14:BEGIN",
+            "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V14:END");
 
         Encoding.UTF8.GetByteCount(v9Epic).ShouldBe(188677);
         Sha256(Encoding.UTF8.GetBytes(v9Epic)).ShouldBe(V9EpicDigest);
@@ -94,6 +111,12 @@ public sealed class PlanningAuthorityV9ValidationTest
         Sha256(Encoding.UTF8.GetBytes(v12Epic)).ShouldBe(V12EpicDigest);
         Encoding.UTF8.GetByteCount(v12Architecture).ShouldBe(6075);
         Sha256(Encoding.UTF8.GetBytes(v12Architecture)).ShouldBe(V12ArchitectureDigest);
+        Encoding.UTF8.GetByteCount(v13Architecture).ShouldBe(17857);
+        Sha256(Encoding.UTF8.GetBytes(v13Architecture)).ShouldBe(V13ArchitectureDigest);
+        Encoding.UTF8.GetByteCount(v14Epic).ShouldBe(11093);
+        Sha256(Encoding.UTF8.GetBytes(v14Epic)).ShouldBe(V14EpicDigest);
+        Encoding.UTF8.GetByteCount(v14Architecture).ShouldBe(3873);
+        Sha256(Encoding.UTF8.GetBytes(v14Architecture)).ShouldBe(V14ArchitectureDigest);
         CountOccurrences(
             v11Epic,
             "### Story 7.1 V11 Schema-Checkpoint Amendment: Authorize A Non-Story Slice").ShouldBe(1);
@@ -114,6 +137,14 @@ public sealed class PlanningAuthorityV9ValidationTest
         v12Epic.ShouldContain("A1-A3 are all required before IR-0 may run");
         v12Architecture.ShouldContain("PC-PUBLICATION -> E6-REMEDIATION -> IR-0");
         v12Architecture.ShouldContain("The graph has exactly 33 nodes");
+        v14Epic.ShouldContain("### Story 16.1:");
+        v14Epic.ShouldContain("### Story 16.2:");
+        v14Epic.ShouldContain("### Story 16.3:");
+        v14Epic.ShouldContain("DC-9");
+        v14Epic.ShouldContain("DC-10");
+        v14Epic.ShouldContain("DC-11");
+        v14Architecture.ShouldContain("38 nodes and 61");
+        v14Architecture.ShouldContain("global execution predicate");
     }
 
     /// <summary>
@@ -133,10 +164,8 @@ public sealed class PlanningAuthorityV9ValidationTest
 
         JsonElement[] artifacts = bundle.GetProperty("artifacts").EnumerateArray().ToArray();
 
-        // 85 since E6-REMEDIATION A3 bound its own sprint-change proposal into CANONICAL_PATHS,
-        // matching how the 2026-08-02/03/04 proposals are candidate-bound. The count is pinned so a
-        // companion cannot silently join or leave the bundle.
-        artifacts.Length.ShouldBe(85);
+        // Exact bundle membership is pinned so a companion cannot silently join or leave.
+        artifacts.Length.ShouldBe(100);
         string[] paths = artifacts.Select(row => row.GetProperty("path").GetString()!).ToArray();
         paths.ShouldBe(paths.OrderBy(path => path, StringComparer.Ordinal));
         paths.Distinct(StringComparer.Ordinal).Count().ShouldBe(paths.Length);
@@ -170,6 +199,10 @@ public sealed class PlanningAuthorityV9ValidationTest
         sliceArtifact.GetProperty("role").GetString().ShouldBe("story-slice-authority");
         JsonElement remediationArtifact = artifacts.Single(row => row.GetProperty("path").GetString() == RemediationPath);
         remediationArtifact.GetProperty("role").GetString().ShouldBe("pre-ir0-remediation-authority");
+        artifacts.Single(row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json")
+            .GetProperty("role").GetString().ShouldBe("checkpoint-authority");
+        artifacts.Single(row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json")
+            .GetProperty("role").GetString().ShouldBe("checkpoint-authority");
         JsonElement baseStoryArtifact = artifacts.Single(
             row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json");
         baseStoryArtifact.GetProperty("role").GetString().ShouldBe("base-story-contract");
@@ -214,7 +247,7 @@ public sealed class PlanningAuthorityV9ValidationTest
     {
         string contractsDirectory = Path.Combine(FindRepositoryRoot(), "_bmad-output/planning-artifacts/v9/story-contracts");
         string[] contractPaths = Directory.GetFiles(contractsDirectory, "*.json").OrderBy(path => path, StringComparer.Ordinal).ToArray();
-        contractPaths.Length.ShouldBe(27);
+        contractPaths.Length.ShouldBe(30);
         Dictionary<string, JsonElement> contracts = contractPaths.ToDictionary(
             path => JsonDocument.Parse(File.ReadAllText(path)).RootElement.Clone().GetProperty("storyId").GetString()!,
             path => JsonDocument.Parse(File.ReadAllText(path)).RootElement.Clone(),
@@ -233,8 +266,9 @@ public sealed class PlanningAuthorityV9ValidationTest
         foreach ((string storyId, JsonElement contract) in contracts)
         {
             contract.GetProperty("schemaVersion").GetString().ShouldBe("hexalith.conversations.story-contract.v1");
-            contract.GetProperty("authority").GetProperty("epic").GetString().ShouldBe(BaseEpicAuthority);
-            contract.GetProperty("authority").GetProperty("architecture").GetString().ShouldBe(BaseArchitectureAuthority);
+            bool isV14 = storyId.StartsWith("16.", StringComparison.Ordinal);
+            contract.GetProperty("authority").GetProperty("epic").GetString().ShouldBe(isV14 ? EpicAuthority : BaseEpicAuthority);
+            contract.GetProperty("authority").GetProperty("architecture").GetString().ShouldBe(isV14 ? ArchitectureAuthority : BaseArchitectureAuthority);
             JsonElement[] scenarios = contract.GetProperty("scenarios").EnumerateArray().ToArray();
             scenarios.Length.ShouldBeGreaterThan(0, storyId);
             scenarios.Select(row => row.GetProperty("id").GetString()).Distinct(StringComparer.Ordinal).Count().ShouldBe(scenarios.Length);
@@ -249,8 +283,15 @@ public sealed class PlanningAuthorityV9ValidationTest
         contracts["10.4"].GetProperty("scenarios").EnumerateArray()
             .Single(row => row.GetProperty("id").GetString() == "AC-10.4-08")
             .GetProperty("contract").GetString()!.ShouldContain("summary `9/9/0/0/0/0`");
+        foreach (string storyId in new[] { "16.1", "16.2", "16.3" })
+        {
+            contracts[storyId].GetProperty("scenarios").GetArrayLength().ShouldBe(6);
+            contracts[storyId].GetProperty("finalRecord").GetProperty("summary").GetProperty("skipped").GetInt32().ShouldBe(0);
+            contracts[storyId].GetProperty("finalRecord").GetProperty("summary").GetProperty("notRun").GetInt32().ShouldBe(0);
+        }
 
         using JsonDocument graphDocument = JsonDocument.Parse(Read(GraphPath));
+        graphDocument.RootElement.GetProperty("edges").GetArrayLength().ShouldBe(61);
         Dictionary<string, string[]> graph = graphDocument.RootElement.GetProperty("nodes")
             .EnumerateArray()
             .ToDictionary(
@@ -262,14 +303,21 @@ public sealed class PlanningAuthorityV9ValidationTest
         graph.ShouldContainKey("6.2");
         graph.ShouldContainKey("7.1-SCHEMAS");
         graph.ShouldContainKey("E6-REMEDIATION");
-        graph.Count.ShouldBe(33);
-        graph.Keys.Count(key => Regex.IsMatch(key, @"^(?:[7-9]|1[0-5])\.\d+$")).ShouldBe(27);
+        graph.ShouldContainKey("E6-CURRENT-PROOF");
+        graph.ShouldContainKey("E6-CURRENT-CANDIDATE");
+        graph.Count.ShouldBe(38);
+        graph.Keys.Count(key => Regex.IsMatch(key, @"^(?:[7-9]|1[0-6])\.\d+$")).ShouldBe(30);
         graph["7.1-SCHEMAS"].ShouldBe(["6.2", "IR-0"]);
         graph["E6-REMEDIATION"].ShouldBe(["PC-PUBLICATION"]);
+        graph["E6-CURRENT-PROOF"].ShouldBe(["E6-REMEDIATION"]);
+        graph["E6-CURRENT-CANDIDATE"].ShouldBe(["E6-CURRENT-PROOF", "E6-REMEDIATION"]);
         graph["IR-0"].ShouldBe(["E6-REMEDIATION"]);
         graph["7.1"].ShouldBe(["6.2", "7.1-SCHEMAS", "IR-0"]);
         graph["7.2"].ShouldBe(["7.1"]);
-        graph["12.1"].ShouldBe(["6.2", "IR-0"]);
+        graph["12.1"].ShouldBe(["16.3", "6.2", "IR-0"]);
+        graph["16.1"].ShouldBe(["7.4", "IR-0"]);
+        graph["16.2"].ShouldBe(["16.1"]);
+        graph["16.3"].ShouldBe(["16.2"]);
         graph.Values.ShouldAllBe(predecessors => predecessors.SequenceEqual(predecessors.OrderBy(value => value, StringComparer.Ordinal)));
         foreach (string storyId in contracts.Keys)
         {
@@ -350,8 +398,8 @@ public sealed class PlanningAuthorityV9ValidationTest
         authority.GetProperty("schemaVersion").GetString()
             .ShouldBe("hexalith.conversations.v12-pre-ir0-remediation-authority.v1");
         authority.GetProperty("checkpointId").GetString().ShouldBe("E6-REMEDIATION");
-        authority.GetProperty("authority").GetProperty("epic").GetString().ShouldBe(EpicAuthority);
-        authority.GetProperty("authority").GetProperty("architecture").GetString().ShouldBe(ArchitectureAuthority);
+        authority.GetProperty("authority").GetProperty("epic").GetString().ShouldBe(V12EpicAuthority);
+        authority.GetProperty("authority").GetProperty("architecture").GetString().ShouldBe(V12ArchitectureAuthority);
         authority.GetProperty("authority").GetProperty("implementationHold").GetString().ShouldBe("ACTIVE");
         authority.GetProperty("predecessors").EnumerateArray().Select(value => value.GetString())
             .ShouldBe(["PC-PUBLICATION"]);
@@ -472,12 +520,12 @@ public sealed class PlanningAuthorityV9ValidationTest
         ux.ShouldContain("currentDisposition: preserved-not-activated");
 
         string sprint = Read(SprintPath);
-        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-5])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(27);
+        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-6])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(30);
         Regex.Matches(sprint, @"^last_updated: [^\n]+$", RegexOptions.Multiline).Count.ShouldBe(1);
         Regex.IsMatch(sprint, @"^  [^:\n]*7\.1-SCHEMAS[^:\n]*:", RegexOptions.Multiline).ShouldBeFalse();
-        sprint.ShouldContain("last_updated: 2026-08-04");
-        sprint.ShouldContain("# V12 PLANNING PUBLICATION:");
-        sprint.ShouldContain("E6-REMEDIATION owns A1-A3");
+        sprint.ShouldContain("last_updated: 2026-08-19");
+        sprint.ShouldContain("# V14 PLANNING PUBLICATION:");
+        sprint.ShouldContain("A2-A6 remain open");
         sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
         sprint.ShouldContain("  epic-6-retrospective: done");
         Regex.Matches(sprint, "^  - id: \"(epic-6-retro-item-[^\"]+)\"$", RegexOptions.Multiline)

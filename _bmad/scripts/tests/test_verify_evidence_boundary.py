@@ -1,8 +1,9 @@
-"""Fault-injection tests for the V12 evidence-boundary gate."""
+"""Fault-injection tests for the V14 evidence-boundary gate."""
 
 from __future__ import annotations
 
 import importlib.util
+import json
 from pathlib import Path
 import subprocess
 
@@ -193,3 +194,36 @@ def test_not_applicable_still_has_a_nonempty_assertion_ledger(tmp_path: Path) ->
     assert document["changedPaths"] == ["README.md"]
     assert document["assertionLedger"]
     assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+
+
+def test_candidate_bound_publication_scope_is_exact_and_rejects_gitlinks(tmp_path: Path) -> None:
+    path = tmp_path / verifier.PUBLICATION_SCOPE_PATH
+    path.parent.mkdir(parents=True)
+    baseline = "a" * 40
+    expected = [verifier.PUBLICATION_SCOPE_PATH, "_bmad/scripts/example.py"]
+    path.write_text(
+        json.dumps(
+            {
+                "schemaVersion": "hexalith.conversations.v14-planning-publication-scope.v1",
+                "baseline": baseline,
+                "expectedChangedPaths": expected,
+                "requireNoGitlinkChanges": True,
+            }
+        ),
+        encoding="utf-8",
+    )
+    row = verifier.validate_publication_scope(tmp_path, baseline, expected, {"paths": []})
+    assert row == {
+        "id": "SCOPE-01",
+        "subject": "candidate-bound-publication-allowlist",
+        "state": "PASS",
+        "count": 2,
+    }
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_publication_scope(tmp_path, baseline, [*expected, "src/product.cs"], {"paths": []})
+    assert error.value.code == "EVIDENCE_PUBLICATION_SCOPE_DRIFT"
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_publication_scope(tmp_path, baseline, expected, {"paths": ["references/Hexalith.Tenants"]})
+    assert error.value.code == "EVIDENCE_GITLINK_SET_DRIFT"

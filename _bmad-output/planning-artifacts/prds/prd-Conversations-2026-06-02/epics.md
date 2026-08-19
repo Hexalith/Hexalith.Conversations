@@ -4353,3 +4353,146 @@ or modify a product, package, submodule, or gitlink. Even when IR-0 records
 release-owner decision required by inherited authority exists.
 
 <!-- EPIC-6-AUTHORITY-OVERLAY-V12:END version=epic-6-authority-2026-08-04-v12 architecture-authority=conversations-architecture-2026-08-04-v12 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V14:BEGIN version=epic-6-authority-2026-08-18-v14 architecture-authority=conversations-architecture-2026-08-18-v14 supersedes=epic-6-authority-2026-08-04-v12 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## Epic 16: Operational Projection Correctness And Recovery
+
+**Epic authority:** `epic-6-authority-2026-08-18-v14`
+
+**Architecture authority:** `conversations-architecture-2026-08-18-v14`
+
+**Supersedes:** V12 only for A4–A6 successor ownership, the effective story
+inventory, and the graph/predecessor additions enumerated below. Architecture
+V13's Epic V13 identity was an unpublished forward reference and is not
+reconstructed.
+
+**Implementation hold:** `ACTIVE`. Publication creates backlog contracts only.
+Story execution still requires independent IR-0 `READY` and a separately
+governed release-owner `LIFTED` decision.
+
+**Action mapping:** A4 → Story 16.1; A5 → Story 16.2; A6 → Story 16.3. Each
+action remains `open` until its compatible final record passes.
+
+**Epic outcome:** Operators and authorized callers receive durable tenant
+authorization, deterministic replay-derived projection truth, and diagnosable
+live reconciliation across restart and multi-replica execution.
+
+### Story 16.1: Persist tenant-access projection state and prove convergence
+
+**Exact predecessors:** `7.4`, `IR-0`.
+
+**Candidate binding:** The canonical contract, exact root/Tenants gitlinks,
+inputs, outputs, fault ledger, and final record bind the committed planning
+candidate through `v9-authority-bundle-v1.json`.
+
+**Frozen inventory:** `V14-16.1-ENTRY-v1`; SHA-256
+`eeb9eee87de7bc646cdf09acaf3f6e65351c71472a55f2d8b65de2e12b44511f`.
+
+**Bounded outcome:** Add a tenant-domain durable-store capability behind
+`ITenantProjectionStore`, configure its Conversations consumer, expose explicit
+freshness/sequence/gap state, prove restart and two-replica convergence, and
+remove the single-replica warning only after those proofs pass.
+
+**Rollback boundary:** Revert only the durable provider/configuration,
+Conversations adoption, tests/evidence, Tenants promotion commit, and root
+gitlink update. Preserve tenant events, public contracts, completed records,
+other gitlinks, and accepted evidence.
+
+**Generated final record:**
+`docs/release-evidence/story-16.1-final-record-v2.json` and
+`docs/release-evidence/story-16.1-final-record-v2.md`.
+
+| ID | Required proof | Command | Pass condition |
+| --- | --- | --- | --- |
+| `AC-16.1-01` | Closed storage/freshness/sequence contract | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-01 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-01.json` | `PASS`; unknown, stale, gapped, or corrupt state never authorizes access. |
+| `AC-16.1-02` | Restart without event redelivery | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-02 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-02.json` | `PASS`; decisions and sequence metadata reload identically. |
+| `AC-16.1-03` | Two replicas with one consumer-group delivery | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-03 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-03.json` | `PASS`; replicas converge to one decision and sequence. |
+| `AC-16.1-04` | Duplicate, ordering, gap, unavailable, and corrupt faults | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-04 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-04.json` | `PASS`; duplicates are idempotent and every unsafe state fails closed. |
+| `AC-16.1-05` | Focused builds, tests, safety, and contract diff | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-05 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-05.json` | `PASS`; additive surface, zero failed/skipped/not-run, no personal data leakage. |
+| `AC-16.1-06` | Canonical final record | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md` | `PASS`; summary `6/6/0/0/0/0` and rollback binding. |
+
+### Story 16.2: Make replay time deterministic and missing-index state truthful
+
+**Exact predecessors:** `16.1`.
+
+**Candidate binding:** The contract binds exact replay inputs, outputs, hashes,
+faults, and final record to the committed planning candidate.
+
+**Frozen inventory:** `V14-16.2-ENTRY-v1`; SHA-256
+`64403ee626140f90094caf804a1d0e1d98475054e6627cf9c5b282f32b6c5abe`.
+
+**Bounded outcome:** Derive domain/freshness time from immutable event inputs,
+eliminate replay clock fallbacks, add an event-fed lifecycle/watermark fact,
+and distinguish initialized-empty state from missing, erased, or unavailable
+state without query-side repair writes.
+
+**Rollback boundary:** Revert only timestamp derivation, the lifecycle/watermark
+addition, read semantics, tests/evidence, and the Story 16.2 record. Preserve
+event history, public contract shape, Story 16.1 state, and prior proof history.
+
+**Generated final record:**
+`docs/release-evidence/story-16.2-final-record-v2.json` and
+`docs/release-evidence/story-16.2-final-record-v2.md`.
+
+| ID | Required proof | Command | Pass condition |
+| --- | --- | --- | --- |
+| `AC-16.2-01` | Fixed-history materialization including absent/invalid time | `python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-01 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-01.json` | `PASS`; time is event-derived or produces the typed safe state. |
+| `AC-16.2-02` | Two clean rebuilds | `python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-02 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-02.json` | `PASS`; projection JSON and timestamps are byte-identical. |
+| `AC-16.2-03` | Empty, missing, surviving-detail, and erased-state fixtures | `python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-03 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-03.json` | `PASS`; only proven initialized-empty is current empty. |
+| `AC-16.2-04` | Query write ledger | `python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-04 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-04.json` | `PASS`; reads perform zero repair writes. |
+| `AC-16.2-05` | Query/freshness, redaction, isolation, and rebuild conformance | `python3 _bmad/scripts/verify_story_16_2.py --repository . --scenario AC-16.2-05 --candidate HEAD --output artifacts/v14/16.2/AC-16.2-05.json` | `PASS`; no shape drift or failed/skipped/not-run result. |
+| `AC-16.2-06` | Canonical final record | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.2.json --format bundle --output-json docs/release-evidence/story-16.2-final-record-v2.json --output-markdown docs/release-evidence/story-16.2-final-record-v2.md` | `PASS`; summary `6/6/0/0/0/0` and exact replay hashes. |
+
+### Story 16.3: Diagnose AppHost preflight failures and prove terminal reconciliation live
+
+**Exact predecessors:** `16.2`.
+
+**Candidate binding:** The contract binds AppHost/runtime identities, route
+proof, diagnostics, faults, gitlinks, and final record to the committed
+planning candidate.
+
+**Frozen inventory:** `V14-16.3-ENTRY-v1`; SHA-256
+`0a9c0dc63e95a76f7b6cc2a089fd866296965a09f64feed4ada6fe872e367458`.
+
+**Bounded outcome:** Add stable endpoint-readiness and Dapr control-plane
+port-collision diagnostics, then prove durable pending work is cleared through
+the live `project/v2/reconcile` production route and becomes query-visible.
+
+**Rollback boundary:** Remove only the diagnostics, AppHost fixtures/tests,
+route assertions, and Story 16.3 record. Preserve the production route,
+platform hosting ownership, Stories 16.1/16.2, and public contracts.
+
+**Generated final record:**
+`docs/release-evidence/story-16.3-final-record-v2.json` and
+`docs/release-evidence/story-16.3-final-record-v2.md`.
+
+| ID | Required proof | Command | Pass condition |
+| --- | --- | --- | --- |
+| `AC-16.3-01` | Healthy resource with endpoint not connect-ready | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-01 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-01.json` | `PASS`; stable `APPHOST_ENDPOINT_NOT_READY` without tenant leakage. |
+| `AC-16.3-02` | Occupied effective Dapr control-plane port | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-02 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-02.json` | `PASS`; stable `DAPR_CONTROL_PLANE_PORT_COLLISION` identifies the endpoint/port. |
+| `AC-16.3-03` | Live first projection failure | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-03 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-03.json` | `PASS`; durable pending work is visible and direct handler use is forbidden. |
+| `AC-16.3-04` | Production reconciliation request | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-04 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-04.json` | `PASS`; retry clears one terminal item and corrected state is query-visible. |
+| `AC-16.3-05` | Route, duplication, race, port, Dapr, and vacuity faults | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-05 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-05.json` | `PASS`; each stable blocker is observed and fixtures restore. |
+| `AC-16.3-06` | Canonical final record | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.3.json --format bundle --output-json docs/release-evidence/story-16.3-final-record-v2.json --output-markdown docs/release-evidence/story-16.3-final-record-v2.md` | `PASS`; summary `6/6/0/0/0/0` and rollback binding. |
+
+### V14 Effective Graph And Carried Decisions
+
+Graph deltas are `IR-0 -> 16.1`, `7.4 -> 16.1`, `16.1 -> 16.2`,
+`16.2 -> 16.3`, and `16.3 -> 12.1, 13.1, 14.1, 15.1`. The composed graph
+also includes `E6-CURRENT-PROOF <- E6-REMEDIATION` and
+`E6-CURRENT-CANDIDATE <- E6-REMEDIATION, E6-CURRENT-PROOF`, yielding exactly
+38 nodes and 61 edges.
+
+- **DC-9:** Epic 9 contracts carry the Quality-owner tier-migration strength
+  inventory; V14 adds no new Epic 9 story.
+- **DC-10:** Epic 12 hard entry retains the repository-local non-packable
+  AppHost interpretation until a contrary baseline-owner decision exists.
+- **DC-11:** The v6 approved-cost ceiling and retirement obligation remain
+  non-executable history; no successor owes a retirement artifact.
+
+No V14 planning publication runs IR-0, changes the hold, closes A2–A6, starts a
+story, authorizes release, or modifies product, dependency, submodule, or
+gitlink state.
+
+<!-- EPIC-6-AUTHORITY-OVERLAY-V14:END version=epic-6-authority-2026-08-18-v14 architecture-authority=conversations-architecture-2026-08-18-v14 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

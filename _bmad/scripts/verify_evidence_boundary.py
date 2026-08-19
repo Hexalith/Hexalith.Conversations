@@ -17,6 +17,7 @@ from typing import Any, Callable, Sequence
 SCHEMA = "hexalith.conversations.evidence-boundary-result.v1"
 GIT_TIMEOUT_SECONDS = 30
 GATE_MARKER = "V12 lifecycle evidence gates"
+PUBLICATION_SCOPE_PATH = "_bmad-output/planning-artifacts/v14-planning-publication-scope-v1.json"
 ACTIVE_ROUTE_PATHS = (
     ".agents/skills/bmad-build/step-04-review.md",
     ".agents/skills/bmad-build/step-05-present.md",
@@ -340,6 +341,45 @@ def validate_gitlinks(repository: Path, baseline: str, candidate: str) -> dict[s
     return assertion("GITLINK-01", "raw-mode-160000-changed-set", "PASS", paths=sorted(set(paths)))
 
 
+def validate_publication_scope(root: Path, baseline: str, paths: Sequence[str], gitlink_row: dict[str, Any]) -> dict[str, Any]:
+    """Apply the candidate-bound V14 exact path and zero-gitlink contract."""
+
+    if PUBLICATION_SCOPE_PATH not in paths:
+        return assertion("SCOPE-01", "candidate-bound-publication-allowlist", "PASS", applied=False)
+    try:
+        document = json.loads((root / PUBLICATION_SCOPE_PATH).read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as error:
+        raise BoundaryError("EVIDENCE_SCOPE_MANIFEST_INVALID", str(error), path=PUBLICATION_SCOPE_PATH) from error
+    expected_keys = {"schemaVersion", "baseline", "expectedChangedPaths", "requireNoGitlinkChanges"}
+    if set(document) != expected_keys or document.get("schemaVersion") != "hexalith.conversations.v14-planning-publication-scope.v1":
+        raise BoundaryError("EVIDENCE_SCOPE_MANIFEST_INVALID", "closed schema mismatch", path=PUBLICATION_SCOPE_PATH)
+    if document.get("baseline") != baseline:
+        raise BoundaryError(
+            "EVIDENCE_SCOPE_BASELINE_MISMATCH",
+            f"expected {document.get('baseline')}; observed {baseline}",
+            path=PUBLICATION_SCOPE_PATH,
+        )
+    expected = document.get("expectedChangedPaths")
+    if (
+        not isinstance(expected, list)
+        or not expected
+        or not all(isinstance(value, str) for value in expected)
+        or len(expected) != len(set(expected))
+    ):
+        raise BoundaryError("EVIDENCE_SCOPE_MANIFEST_INVALID", "expectedChangedPaths must be unique and nonempty")
+    normalized = tuple(sorted(safe_relative_path(value) for value in expected))
+    observed = tuple(sorted(paths))
+    if observed != normalized:
+        missing = sorted(set(normalized) - set(observed))
+        unexpected = sorted(set(observed) - set(normalized))
+        raise BoundaryError("EVIDENCE_PUBLICATION_SCOPE_DRIFT", f"missing={missing!r} unexpected={unexpected!r}")
+    if document.get("requireNoGitlinkChanges") is not True:
+        raise BoundaryError("EVIDENCE_SCOPE_MANIFEST_INVALID", "zero-gitlink requirement missing")
+    if gitlink_row.get("paths"):
+        raise BoundaryError("EVIDENCE_GITLINK_SET_DRIFT", repr(gitlink_row["paths"]))
+    return assertion("SCOPE-01", "candidate-bound-publication-allowlist", "PASS", count=len(normalized))
+
+
 def run_publication_check(root: Path) -> dict[str, Any]:
     """Run the current deterministic publication check without accepting skips."""
 
@@ -352,7 +392,7 @@ def run_publication_check(root: Path) -> dict[str, Any]:
         detail = (result.stderr or result.stdout).strip()
         raise BoundaryError("EVIDENCE_PUBLICATION_DRIFT", detail)
     output = result.stdout.strip()
-    if "V12_PLANNING_AUTHORITY_OK" not in output:
+    if "V14_PLANNING_AUTHORITY_OK" not in output:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "publication check emitted no success identity")
     return assertion("PUBLICATION-01", "deterministic-planning-publication", "PASS", output=output)
 
@@ -368,9 +408,11 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
         raise BoundaryError("BASELINE_NOT_ANCESTOR", f"{baseline} is not an ancestor of {candidate}", "BLOCKED")
     paths = changed_paths(root, baseline, candidate)
     applicable = is_applicable(paths)
+    gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
-        validate_gitlinks(root, baseline, candidate),
+        gitlink_row,
+        validate_publication_scope(root, baseline, paths, gitlink_row),
     ]
     if not applicable:
         return {
