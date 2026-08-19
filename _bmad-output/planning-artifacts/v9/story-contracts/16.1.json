@@ -1,0 +1,150 @@
+{
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "storyId": "16.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14",
+    "planningCandidate": "d15d576babfd37a2a7d4db2aad7d3ae7567484ac",
+    "candidateBinding": "The canonical contract, exact root/Tenants gitlinks, inputs, outputs, fault ledger, and final record bind the committed planning candidate through `v9-authority-bundle-v1.json`.",
+    "sectionSha256": "985eac2e880167b5524f3dbe10517e18714901dd8d1baab5d5a5ea3f94042408"
+  },
+  "predecessors": [
+    "7.4",
+    "IR-0"
+  ],
+  "outcome": {
+    "title": "Persist tenant-access projection state and prove convergence",
+    "bounded": "Add a tenant-domain durable-store capability behind `ITenantProjectionStore`, configure its Conversations consumer, expose explicit freshness/sequence/gap state, prove restart and two-replica convergence, and remove the single-replica warning only after those proofs pass."
+  },
+  "rollback": {
+    "boundary": "Revert only the durable provider/configuration, Conversations adoption, tests/evidence, Tenants promotion commit, and root gitlink update. Preserve tenant events, public contracts, completed records, other gitlinks, and accepted evidence."
+  },
+  "inventory": {
+    "id": "V14-16.1-ENTRY-v1",
+    "sha256": "eeb9eee87de7bc646cdf09acaf3f6e65351c71472a55f2d8b65de2e12b44511f"
+  },
+  "scenarios": [
+    {
+      "id": "AC-16.1-01",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-01 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-01.json",
+      "contract": "| `AC-16.1-01` | Closed storage/freshness/sequence contract | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-01 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-01.json` | `PASS`; unknown, stale, gapped, or corrupt state never authorizes access. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.1-02",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-02 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-02.json",
+      "contract": "| `AC-16.1-02` | Restart without event redelivery | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-02 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-02.json` | `PASS`; decisions and sequence metadata reload identically. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.1-03",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-03 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-03.json",
+      "contract": "| `AC-16.1-03` | Two replicas with one consumer-group delivery | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-03 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-03.json` | `PASS`; replicas converge to one decision and sequence. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.1-04",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-04 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-04.json",
+      "contract": "| `AC-16.1-04` | Duplicate, ordering, gap, unavailable, and corrupt faults | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-04 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-04.json` | `PASS`; duplicates are idempotent and every unsafe state fails closed. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.1-05",
+      "command": "python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-05 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-05.json",
+      "contract": "| `AC-16.1-05` | Focused builds, tests, safety, and contract diff | `python3 _bmad/scripts/verify_story_16_1.py --repository . --scenario AC-16.1-05 --candidate HEAD --output artifacts/v14/16.1/AC-16.1-05.json` | `PASS`; additive surface, zero failed/skipped/not-run, no personal data leakage. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md",
+      "contract": "| `AC-16.1-06` | Canonical final record | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.1.json --format bundle --output-json docs/release-evidence/story-16.1-final-record-v2.json --output-markdown docs/release-evidence/story-16.1-final-record-v2.md` | `PASS`; summary `6/6/0/0/0/0` and rollback binding. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    }
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-16.1-final-record-v2.json",
+      "docs/release-evidence/story-16.1-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 6,
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
+}

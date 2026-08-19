@@ -1,10 +1,10 @@
 {
   "schemaVersion": "hexalith.conversations.v9-authority-bundle.v1",
   "bundleVersion": "v9-authority-bundle-v1",
-  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+  "planningCandidate": "d15d576babfd37a2a7d4db2aad7d3ae7567484ac",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v12",
-    "architecture": "conversations-architecture-2026-08-04-v12"
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14"
   },
   "implementationHold": "ACTIVE",
   "epic5ActionA5": "open",
@@ -31,7 +31,7 @@
     },
     {
       "path": "references/Hexalith.FrontComposer",
-      "commit": "90954acc66f2c7554ea0490d5ecbc39b46cec05a"
+      "commit": "7a337a21d4ba261bf27aeb3feedde47789f0160a"
     },
     {
       "path": "references/Hexalith.Memories",
@@ -39,7 +39,7 @@
     },
     {
       "path": "references/Hexalith.Parties",
-      "commit": "37f4ec826c6f4aea4651cfbad94fb6ab7fc4f0a0"
+      "commit": "2b63ab9ca55ced5f3742b877cd16e01e9b7e37a1"
     },
     {
       "path": "references/Hexalith.Projects",
@@ -117,7 +117,7 @@
     },
     {
       "path": ".github/workflows/planning-authority-preflight.yml",
-      "sha256": "c3cf66cfa25ec2ececba3064ab518d09c58e1e26d5c1d56379e8a1019e964356",
+      "sha256": "cc9902258067ab6091bf038fc459c9c7392c3077dc2a4de2043c38db50c82c90",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -141,7 +141,7 @@
     },
     {
       "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
-      "sha256": "7d467999b95a75b317b713fec98a203886634e105a978a472b2ea4bdb04052e5",
+      "sha256": "b19141d720de34c1cdc8bb91542ed06d2909dc7bfe823fe95349bc18068ef72b",
       "role": "generated-projection",
       "owner": "Workflow owner",
       "source": "generated",
@@ -149,7 +149,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/architecture.md",
-      "sha256": "61ed00184867494698a1f3a940a2428019e27e729d84f42c27f02ccac3b0ea14",
+      "sha256": "f6c676868b42e0b1d0209ef3df7b4c4a518b9fdcc5dc875b734a6d378dca3666",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -173,7 +173,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/epic-6-current-execution-view-v2.md",
-      "sha256": "8fce0f3863098ba4061b4ef0768e7855c54de091d18162acb8d34b2dcbdbed1e",
+      "sha256": "fcaada2bdd1181eeebb8371d7e2c4d009f21bba26a4c4fe2e28fbec0c420ef18",
       "role": "generated-projection",
       "owner": "Workflow owner",
       "source": "generated",
@@ -181,7 +181,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md",
-      "sha256": "898459cf349fe516167b99d514010231423f5316b106e2a8e33dca7ef3fcd5d2",
+      "sha256": "7098e7355522f503e136dc8c5e84ce5c873cb5bad08b92aa54495811c54853b6",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -213,7 +213,23 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-e6-remediation-a3.md",
-      "sha256": "fbac262470d6991fea35091d996a42c509bc60b3ccf5efcd54a8978aacfa27e1",
+      "sha256": "cbc2eb2f3db96f0451c5b6d7d18a915901e3890594b147cbd18194a67fd1d2c0",
+      "role": "canonical-authority-input",
+      "owner": "Planning owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md",
+      "sha256": "66d12d5f26bc38e0ee20e0b26827b5c1cf0b6f8d06512231edf408cd1b4494dd",
+      "role": "canonical-authority-input",
+      "owner": "Planning owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18.md",
+      "sha256": "3e4cacb752c8e962691e391d6634d136274adbe2dfa4daea35f0d443ec455ddc",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -221,7 +237,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/ux-requirement-map.md",
-      "sha256": "095e6d366b7bf725511bd0222e50abb7cbe3cbea46c529a39941eed85360763f",
+      "sha256": "ebde6e99cca12067a913f0dad2380639edc46f4502260e896d77ce840e476adc",
       "role": "generated-projection",
       "owner": "Workflow owner",
       "source": "generated",
@@ -229,7 +245,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
-      "sha256": "22715125c34207c7d95057d006366ddba51f4c3b62fe99f32fae1923ad354c77",
+      "sha256": "5bf6b828b6d3c463d19a483c79fd30b823e60557fe575feced3ac47b49733529",
       "role": "story-slice-authority",
       "owner": "Product Manager",
       "source": "generated",
@@ -237,15 +253,39 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json",
-      "sha256": "e1c3b470b7705cddaa4b8a8d5bd9c6b49d292af30b6cd696e3bdd67146fc9497",
+      "sha256": "f990a296c9f81cc20d4b68bbb15ee4f5edd9cd47a78e59d7f8d0a017da079970",
       "role": "pre-ir0-remediation-authority",
       "owner": "Planning owner",
       "source": "generated",
       "schemaIdentity": "hexalith.conversations.v12-pre-ir0-remediation-authority.v1"
     },
     {
+      "path": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+      "sha256": "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f",
+      "role": "checkpoint-authority",
+      "owner": "Release owner",
+      "source": "candidate",
+      "schemaIdentity": "hexalith.conversations.v13-current-proof-authority.v1"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json",
+      "sha256": "e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f",
+      "role": "checkpoint-authority",
+      "owner": "Release owner",
+      "source": "candidate",
+      "schemaIdentity": "hexalith.conversations.v14-current-candidate-authority.v1"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v14-planning-publication-scope-v1.json",
+      "sha256": "38ff1eca5ae0df2748d11f8efcdcdde3706874aa9c565e582be5c80e019f8397",
+      "role": "canonical-authority-input",
+      "owner": "Planning owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
       "path": "_bmad-output/planning-artifacts/v9-execution-graph-v1.json",
-      "sha256": "44869254b848b6aa3348d10c4ae0eecd9ae51ff81aee8506437f5648ff4842ad",
+      "sha256": "ccb0a631cdf75c6f3e4a12f58ca58d114db075df4b424bc74918cbf16075cd04",
       "role": "execution-graph",
       "owner": "Workflow owner",
       "source": "generated",
@@ -253,7 +293,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9-supersession-map-v1.json",
-      "sha256": "f7607ce9e3c706ba08146e52e1e34f3b9facce25e3a521e64f75613604918093",
+      "sha256": "a0d22559bc6b8dd412b7130a2fcb9f8678e0c677b1dc19c7868dbc255ddff626",
       "role": "supersession-map",
       "owner": "Product Manager",
       "source": "generated",
@@ -261,7 +301,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-guidance-v2.json",
-      "sha256": "f0e50b2121351dcec0262ae6a65f6d574f5b5fdbb17fda856bc3ea502c46bfa6",
+      "sha256": "b399223c3fa180a70fc169498c65787b947da23726f2d0a798eee6f02d4902af",
       "role": "inventory",
       "owner": "Workflow owner",
       "source": "generated",
@@ -269,7 +309,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-readers-v1.json",
-      "sha256": "137588029550d28e09f14b3df437b313876915c0c2ef3f017569f0ee83b51762",
+      "sha256": "71251a8f852a448c280a1734e19aa948da2b4364b0b5286d7f42a51dc1a47b18",
       "role": "inventory",
       "owner": "Workflow owner",
       "source": "generated",
@@ -277,7 +317,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json",
-      "sha256": "1c26cc9f596ca2559d65ec0c8c8d95339d5c3f67a3027a3645976d802f3c2250",
+      "sha256": "9b4b1f2d92415cbd71b4c389bcf00cb3926a0d559291b3c9b4a9427c1689de20",
       "role": "inventory",
       "owner": "Workflow owner",
       "source": "generated",
@@ -285,7 +325,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v3.json",
-      "sha256": "ff792b9a4251203625d4bb3fdb6a078475f3f4f2316f627ee3f3f76c486beec6",
+      "sha256": "98779b8e2d9daa16a47a1b7660cce4e18afc91a329695364cf2e89e3af3ba663",
       "role": "inventory",
       "owner": "Workflow owner",
       "source": "generated",
@@ -293,7 +333,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build-auto.json",
-      "sha256": "47807c3adc6d24bd69abaa3021c8310fec0d8dbf63d3ea819c79a84b07ab95e7",
+      "sha256": "fccc1f4b1aaf767a677318bb5585ec83c48637e58f17dc91796f12f86723613c",
       "role": "resolved-customization",
       "owner": "Workflow owner",
       "source": "generated",
@@ -301,7 +341,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-build.json",
-      "sha256": "65492fcd8e2acdbf7d577d0ad1612039b075279ae2b985fcb55fef0df5b88e63",
+      "sha256": "af1079dd6c7cdf1ab2e9f98e09716a1bacc69d526a741432c5dec4150703b9ba",
       "role": "resolved-customization",
       "owner": "Workflow owner",
       "source": "generated",
@@ -309,7 +349,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/resolved-customization/bmad-review.json",
-      "sha256": "5987994819feef320dd94ef976ac1b9c5ce1287c04aff469fc8502f706e82401",
+      "sha256": "b8d3bb374c0247cb004ca20d352bf742d49f377b50d4b5a42f97f300ce3647aa",
       "role": "resolved-customization",
       "owner": "Workflow owner",
       "source": "generated",
@@ -317,7 +357,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.1.json",
-      "sha256": "80795b2c46d444328086a5a36b8f1938e1ed19cd5e19c5f48c5f016557db65b4",
+      "sha256": "987cec589493a57b0e1693b8232f508c76a5ba05671b2a819410c63005c22b5a",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -325,7 +365,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.2.json",
-      "sha256": "ff440e2b2079b888b25b90a32300908053f14be823c6e5f8a81c5ca090e268de",
+      "sha256": "c2657ff84e2aec13c85fb423a6e665d0e3c90aa7ccab2f6fb5dec269adad12c0",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -333,7 +373,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.3.json",
-      "sha256": "6d136953256968aad748a5049c36c8f07275272d3cd9b1c1eb3fdb3d0826b2a3",
+      "sha256": "a03883cf0939c1211cdfe59047b873ff93a6a4ebfa6ec0140992f40e1b4a4e73",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -341,7 +381,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/10.4.json",
-      "sha256": "b3cba4a1825e7153da8e88ab97aa2d8dde6f205deddd889c994e83f9ee030334",
+      "sha256": "cc6073ad826b8d39f16ac1a6750283954a1ec68ba2fa002dbb143da537dc5972",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -349,7 +389,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.1.json",
-      "sha256": "81d5f44038e979d1273e2eb1b9569362c99e5ace7c69f9ae470574e20a492df0",
+      "sha256": "6aa81987aa44276f8a4e6db842326df2c8d4a33e846a3286d4030d22f14d2702",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -357,7 +397,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.2.json",
-      "sha256": "90b1a1e131475c9ab67b34e21060b0aefdc267c9d3f8ba84dd21b1fb304b984c",
+      "sha256": "083f0c459c38c3bddc95f7de58c9ff77f61b5c359a4e0d417552e71cd3b3d3a3",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -365,7 +405,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/11.3.json",
-      "sha256": "9ef154ae819602193031c90f91fdb2749912ae4e2b61d17b8518c9491db2c319",
+      "sha256": "9ed44c434a0a0908689d33254366a141a0825110ff3ad581e4040816856b7057",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -373,7 +413,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.1.json",
-      "sha256": "233b11639e1859874d84459faf7cff1018bada86607e846e3689399471e8c31b",
+      "sha256": "9743c403599ee3c8590cfdcbcb6d96a426fa52cf830f9f936dcf2de4bebdceb8",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -381,7 +421,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.2.json",
-      "sha256": "fe4c06dbf5d3266dbd993d15a5455427834fd1af2689f7b87f6af96693906800",
+      "sha256": "bdd1d7f02e6d5b982f58270607dc10f3bb10ca0ad55c2e8708a67fb5dc802ee8",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -389,7 +429,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.3.json",
-      "sha256": "dc8f9a3080d8b95d4fa679e0b47c4eb6deff29538998e37be4cb30f0c3ca3163",
+      "sha256": "06043fcd981f687fd4f3e92e63a30b01eee7448b59919b65ef692d6bff011d37",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -397,7 +437,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/12.4.json",
-      "sha256": "0b246d19c2387aacd13b2deef550153dbbbc51547bc681267ec49ddb872a13fc",
+      "sha256": "c8c5ee5370fac8c0f65b6f62362b7028a0de5c9e2acb22b2298de1d9770b3645",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -405,7 +445,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/13.1.json",
-      "sha256": "1e9580dd570175bf13618886eb66e21b26ce6d2ef9845e7956dd40f11b5955a9",
+      "sha256": "7ba99b92f6338d37af052822152039b9f53e635a3ba05bc65df6c0dc6149b85e",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -413,7 +453,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/13.2.json",
-      "sha256": "3471e4dfc9bca9a95cfb639871af62748baa714edc35c3d79cfd37197628a111",
+      "sha256": "71f91e9a36baeafcc73eca8b60d2a2ce290ffc24630cdfd090fae8bb08137344",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -421,7 +461,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/13.3.json",
-      "sha256": "28eae74de0f90a8ce1644dc18b1dbdef8f1d6d61cca85596e0898b49be5c5c4a",
+      "sha256": "d1b822eb7824c4108367b64cedd8ef8202eb37d02223fda79797bb2618a92fa6",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -429,7 +469,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/14.1.json",
-      "sha256": "0dc4232561cf9086fa806d6fdd8d66dadbfa42b98049010f801a9e88f92b7229",
+      "sha256": "d63efb1d4ff5423a522f42d86c3f33e563bd4d11296f55fceeb387e274f4f9e2",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -437,7 +477,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/14.2.json",
-      "sha256": "20fe11c495be5e5f071a41a590d5e3b0d250d4a9df78a9df0bcfc6044e2d157c",
+      "sha256": "83f4ed4b2372b6c76c6c14314ddcc57617f39006989f27bb28caf1046689c1a0",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -445,7 +485,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/14.3.json",
-      "sha256": "31a1f27a9c2db0f8d4da5c6acaf6f62174f2d13661bc3dba24368b043c2f6df0",
+      "sha256": "6b7241f65e76a939841a3ecbd34fe65d263f6f298f6b300f6f0ae39a2493c2e9",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -453,7 +493,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/15.1.json",
-      "sha256": "17b37f07101a24756996db67fc2d9f64f8335a34aabd661444ab61dd947a6086",
+      "sha256": "74bae52617104299d0ebdaabf47773e6970a30c9298bbac2b7895c5731b0bfd9",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -461,7 +501,31 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/15.2.json",
-      "sha256": "693403469cd5d84c07703f443093c2d5b96dc2dbd8bab606aa801112f0593402",
+      "sha256": "b37d76771c2cfa601369e04a5261dc80bab43dbe3eee81647d8d080c2d86ea2e",
+      "role": "story-contract",
+      "owner": "Product Manager",
+      "source": "generated",
+      "schemaIdentity": "hexalith.conversations.story-contract.v1"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/16.1.json",
+      "sha256": "6234c6927e0dce0425e9fbe553452e5d5e0f8092607b709410dda185b2626547",
+      "role": "story-contract",
+      "owner": "Product Manager",
+      "source": "generated",
+      "schemaIdentity": "hexalith.conversations.story-contract.v1"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/16.2.json",
+      "sha256": "6690f0cb42be659141d4ad8dc02fb1e21ad0e39e699a56b4d1bfbc3ad9a03397",
+      "role": "story-contract",
+      "owner": "Product Manager",
+      "source": "generated",
+      "schemaIdentity": "hexalith.conversations.story-contract.v1"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/16.3.json",
+      "sha256": "73dfa5429f188fb935087044387e5b0fb3462319bc72051272e76ff790384eb3",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -469,7 +533,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
-      "sha256": "9ea6ee3d3025c6429ceb26615f251c258320812d3af83e22102ec33ac4860417",
+      "sha256": "9b1e0510bf8ec6fe15e7d983b0bd1429c7a5629978ef716c2730911e443fac49",
       "role": "base-story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -477,7 +541,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json",
-      "sha256": "f545830de43ab0229916c4b2cdd3a4d82a5db56e20610684e12c194faba4fa9a",
+      "sha256": "0c6b6c1fab093908c076a197e870a321c047bb4b4ffd29adec239046bb7decf3",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -485,7 +549,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json",
-      "sha256": "969e882dafe72b2b1c60c21d6fda51f1e63df8a66fbac74f35f5278f27c56dd4",
+      "sha256": "c7fcb9b5f45674fa17a7374fdea9fcf5e31cad60420721352876540bd89feab9",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -493,7 +557,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.4.json",
-      "sha256": "a476b627e5b667b13bed9cdb27728a1d45338ee7268efb67c0442471d02fc001",
+      "sha256": "e37cef8c0e8162341ebfd17e4844ddbb780e47305b1c8261297f8792f648f9a4",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -501,7 +565,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json",
-      "sha256": "2d264523760a22d7ad127b261d1e4c546b759dc7ac462bdd1d0b5f4bd1a6d7ec",
+      "sha256": "7de48ae2cf91230ff5e3fb38e8430d9ddd934f20e641c17b5d450c1fbc7f5398",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -509,7 +573,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json",
-      "sha256": "39c6cacd4909ffee9e84e6d7b8ad01241f21719550520fbb6773416e08fc51ad",
+      "sha256": "5ddb7b16861917dc4693abfdfb967ebac98a29c30a1fbcdb9c5c7758b87cca91",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -517,7 +581,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/9.1.json",
-      "sha256": "f3d5039a0050169a5db6f545b5fd10f8bc23dbb2d8ce93c04d2d21a08a199a5a",
+      "sha256": "5b9dfe1d8bdd7291cbfa12b1823c95964b96209afa9c6a1b848289c3d5aab4ad",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -525,7 +589,7 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/v9/story-contracts/9.2.json",
-      "sha256": "b3e30f6456d936b29552e0168d1a565bd77be3dcbe99171af89384d427c71a46",
+      "sha256": "6ce4cb6d350e2e50c0dcd56b4fee7661381613f2f8233b1e8a19f7378945f713",
       "role": "story-contract",
       "owner": "Product Manager",
       "source": "generated",
@@ -580,8 +644,32 @@
       "schemaIdentity": null
     },
     {
+      "path": "_bmad/schemas/v13-current-proof-authority-v1.schema.json",
+      "sha256": "e811152dcff8b23e609cae745d6907cc500ef75af1457c6f5a0399a1fead3cfd",
+      "role": "schema",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad/schemas/v14-current-candidate-authority-v1.schema.json",
+      "sha256": "3e6a2c98f713f7579a8a47328b8ef88675979e90365bbc63c98f6c963774c26f",
+      "role": "schema",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad/schemas/v14-story-contract-v1.schema.json",
+      "sha256": "671a41d4167d80280a379e5ea31e8b78baaf81cd38ac4bc3cde8e7cf27759540",
+      "role": "schema",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
       "path": "_bmad/schemas/v9-authority-bundle-v1.schema.json",
-      "sha256": "4f2ddf628b96aae19678f4747351eadc4d1b1158747187288bd7ed08251b8476",
+      "sha256": "ac52cb6a3add420ac3ce3411332f394149f9a95234211066e01843100ed0bc25",
       "role": "schema",
       "owner": "Quality owner",
       "source": "candidate",
@@ -589,7 +677,7 @@
     },
     {
       "path": "_bmad/schemas/v9-execution-graph-v1.schema.json",
-      "sha256": "f0cb1b7f0eefb3c7b07f0e8886e3709757c0e8f2b31eb71651c075d7d0f20967",
+      "sha256": "c10628b0899743713d400334d4b79321a2fcff45139049caa6347c98791b508b",
       "role": "schema",
       "owner": "Quality owner",
       "source": "candidate",
@@ -597,7 +685,7 @@
     },
     {
       "path": "_bmad/schemas/v9-inventory-v1.schema.json",
-      "sha256": "fb73f95d5ab75d12c02c8e7d4a36ea2fa6598d49e5e019c5530f02a10510b1b7",
+      "sha256": "b611c52f89c80eff04ec6b9ccfbf4c60eadd54653ce6c9cccf4e6d3078402abc",
       "role": "schema",
       "owner": "Quality owner",
       "source": "candidate",
@@ -613,15 +701,47 @@
     },
     {
       "path": "_bmad/schemas/v9-supersession-map-v1.schema.json",
-      "sha256": "9d97b26bd42709dbad8c1fac00e2aee3e9c8858d66de2c72b689d96509e91045",
+      "sha256": "09dc4bcd6f5f94bdcff85da8a7f1298034c86d40e3f901e2160b343fa4abc8df",
       "role": "schema",
       "owner": "Quality owner",
       "source": "candidate",
       "schemaIdentity": null
     },
     {
+      "path": "_bmad/scripts/publish_v13_current_proof_authority.py",
+      "sha256": "6c88119b5e98ec86b48ef346aff560ac6e39ba5c98b20b73d11aa17a7ae8cc06",
+      "role": "canonical-authority-input",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad/scripts/publish_v14_current_candidate_authority.py",
+      "sha256": "0d55f4c9956ebf1ca54d28599db55df918a40421a8d65f7cfea39d6b964f9ff6",
+      "role": "canonical-authority-input",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
       "path": "_bmad/scripts/publish_v9_planning_authority.py",
-      "sha256": "8ca661198f25776f527eece1a21d990abe3aad040c5bf2af2042cc2e51319c52",
+      "sha256": "145bf3dac8238b9760d06c76c656aea504e6eea916429585e70fbf558f055cfe",
+      "role": "canonical-authority-input",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_v13_current_proof_authority.py",
+      "sha256": "75be24ce5c7fc258224ab553afe702b1c75b7a3e318e2f2e33eede1219b408ad",
+      "role": "canonical-authority-input",
+      "owner": "Quality owner",
+      "source": "candidate",
+      "schemaIdentity": null
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_v14_current_candidate_authority.py",
+      "sha256": "4996956147b59829ec263ea716dbcd42f309daf7ac2ccb5e97e790a13cf074ed",
       "role": "canonical-authority-input",
       "owner": "Quality owner",
       "source": "candidate",
@@ -629,7 +749,7 @@
     },
     {
       "path": "_bmad/scripts/tests/test_publish_v9_planning_authority.py",
-      "sha256": "5dae37dca51662e1f2ba92878941d7ada8f52ce2c5340dbc9d8fee71a74beeb4",
+      "sha256": "7f9e5992086cf78ca71ea83d11f4275c73e4e838d0cd52151a4039581e66294f",
       "role": "canonical-authority-input",
       "owner": "Quality owner",
       "source": "candidate",
@@ -645,7 +765,7 @@
     },
     {
       "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
-      "sha256": "df18f239dd5e2af3e7fe6712aa8c810999fd987e581d58552a0b69732096d5b0",
+      "sha256": "0e1bbf324d5a01839e448703454db0437f709eb8ddc67e3e27869dc20982d4a7",
       "role": "canonical-authority-input",
       "owner": "Quality owner",
       "source": "candidate",
@@ -669,7 +789,7 @@
     },
     {
       "path": "_bmad/scripts/verify_evidence_boundary.py",
-      "sha256": "f530cdc1e6501ade647a2d5e0bd677b6c487ac5469357ba105717bd869616d69",
+      "sha256": "e7b6092dc61a1537f670490a3900e79ce744a76bb36f3c1073f54ac84ac60f60",
       "role": "canonical-authority-input",
       "owner": "Quality owner",
       "source": "candidate",
@@ -701,7 +821,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
-      "sha256": "a8cd957cb67579f22549d6a115253c019fe786020ce054857f7909ab41d09c85",
+      "sha256": "1c32882ed1d1ee47433f077ea135e0afee5aac6cb146e3e5d9a7e76154fed2d7",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -709,7 +829,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
-      "sha256": "6346067f54741ec84720c76146650f29fec5b644f52eeb146c55a999eb5d87cf",
+      "sha256": "5a61e8ea3e6eb2d8d5aed012ffbeeea55ee88014ba479acd0cfca24e75249028",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -717,7 +837,7 @@
     },
     {
       "path": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
-      "sha256": "e305778446de20b5cad29a8e15d64c89c4e43a71212c0c59d8b8cc6038f93c3d",
+      "sha256": "de3b14c71bf348f0dced22d0fe62bf95f913bf9909e3e8048b1247a985ccbdc1",
       "role": "canonical-authority-input",
       "owner": "Planning owner",
       "source": "candidate",
@@ -732,5 +852,5 @@
       "schemaIdentity": null
     }
   ],
-  "bundleDigest": "26747e43bcf7e7e6f6fbb56c9a00da055619002fb828c12a07ac9793db271610"
+  "bundleDigest": "34a57b7754cf6e59026afa95d980ae99636f1d0e823e7421f6a369bcce037ffe"
 }

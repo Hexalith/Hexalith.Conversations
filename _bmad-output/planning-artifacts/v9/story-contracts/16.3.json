@@ -1,0 +1,149 @@
+{
+  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "storyId": "16.3",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14",
+    "planningCandidate": "d15d576babfd37a2a7d4db2aad7d3ae7567484ac",
+    "candidateBinding": "The contract binds AppHost/runtime identities, route proof, diagnostics, faults, gitlinks, and final record to the committed planning candidate.",
+    "sectionSha256": "c798425ceb93f2424524d778c0c48b4df9657dfba2506a36849de41979b9267a"
+  },
+  "predecessors": [
+    "16.2"
+  ],
+  "outcome": {
+    "title": "Diagnose AppHost preflight failures and prove terminal reconciliation live",
+    "bounded": "Add stable endpoint-readiness and Dapr control-plane port-collision diagnostics, then prove durable pending work is cleared through the live `project/v2/reconcile` production route and becomes query-visible."
+  },
+  "rollback": {
+    "boundary": "Remove only the diagnostics, AppHost fixtures/tests, route assertions, and Story 16.3 record. Preserve the production route, platform hosting ownership, Stories 16.1/16.2, and public contracts."
+  },
+  "inventory": {
+    "id": "V14-16.3-ENTRY-v1",
+    "sha256": "0a9c0dc63e95a76f7b6cc2a089fd866296965a09f64feed4ada6fe872e367458"
+  },
+  "scenarios": [
+    {
+      "id": "AC-16.3-01",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-01 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-01.json",
+      "contract": "| `AC-16.3-01` | Healthy resource with endpoint not connect-ready | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-01 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-01.json` | `PASS`; stable `APPHOST_ENDPOINT_NOT_READY` without tenant leakage. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.3-02",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-02 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-02.json",
+      "contract": "| `AC-16.3-02` | Occupied effective Dapr control-plane port | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-02 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-02.json` | `PASS`; stable `DAPR_CONTROL_PLANE_PORT_COLLISION` identifies the endpoint/port. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.3-03",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-03 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-03.json",
+      "contract": "| `AC-16.3-03` | Live first projection failure | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-03 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-03.json` | `PASS`; durable pending work is visible and direct handler use is forbidden. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.3-04",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-04 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-04.json",
+      "contract": "| `AC-16.3-04` | Production reconciliation request | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-04 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-04.json` | `PASS`; retry clears one terminal item and corrected state is query-visible. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.3-05",
+      "command": "python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-05 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-05.json",
+      "contract": "| `AC-16.3-05` | Route, duplication, race, port, Dapr, and vacuity faults | `python3 _bmad/scripts/verify_story_16_3.py --repository . --scenario AC-16.3-05 --candidate HEAD --output artifacts/v14/16.3/AC-16.3-05.json` | `PASS`; each stable blocker is observed and fixtures restore. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    },
+    {
+      "id": "AC-16.3-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.3.json --format bundle --output-json docs/release-evidence/story-16.3-final-record-v2.json --output-markdown docs/release-evidence/story-16.3-final-record-v2.md",
+      "contract": "| `AC-16.3-06` | Canonical final record | `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/16.3.json --format bundle --output-json docs/release-evidence/story-16.3-final-record-v2.json --output-markdown docs/release-evidence/story-16.3-final-record-v2.md` | `PASS`; summary `6/6/0/0/0/0` and rollback binding. |",
+      "resultSemantics": {
+        "expected": "PASS",
+        "passExitCodes": [
+          0
+        ],
+        "failExitCodes": [
+          1
+        ],
+        "blockedExitCodes": [
+          2
+        ],
+        "notApplicableAllowed": false
+      }
+    }
+  ],
+  "finalRecord": {
+    "paths": [
+      "docs/release-evidence/story-16.3-final-record-v2.json",
+      "docs/release-evidence/story-16.3-final-record-v2.md"
+    ],
+    "summary": {
+      "required": 6,
+      "passed": 6,
+      "failed": 0,
+      "blocked": 0,
+      "skipped": 0,
+      "notRun": 0
+    }
+  }
+}

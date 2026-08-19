@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-04-v12",
     "architecture": "conversations-architecture-2026-08-04-v12",
-    "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+    "planningCandidate": "d15d576babfd37a2a7d4db2aad7d3ae7567484ac",
     "authorityBundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
     "implementationHold": "ACTIVE"
   },

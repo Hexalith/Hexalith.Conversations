@@ -1,10 +1,10 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V9-EVIDENCE-GUIDANCE-v2",
-  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+  "planningCandidate": "d15d576babfd37a2a7d4db2aad7d3ae7567484ac",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v12",
-    "architecture": "conversations-architecture-2026-08-04-v12"
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14"
   },
   "inventoryDigest": "e0a9adf0319286763f44d586ac323203a4af3d7faa4005e23768ce4a7c8f335d",
   "rows": [
