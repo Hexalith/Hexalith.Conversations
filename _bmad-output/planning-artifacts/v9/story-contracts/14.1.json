@@ -1,16 +1,17 @@
 {
-  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "schemaVersion": "hexalith.conversations.v14-story-contract.v1",
   "storyId": "14.1",
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
     "candidateBinding": "`SC-14.1`, four predecessor records and their frozen inventories, exact authority/source blobs and relevant gitlinks.",
     "sectionSha256": "9ea525128f98f59935d9e04d5e9c7d3102530cd6d7ac39e52a22b0c24a116256"
   },
   "predecessors": [
     "10.4",
     "13.3",
+    "16.3",
     "8.2",
     "9.2"
   ],

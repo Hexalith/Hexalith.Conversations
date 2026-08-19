@@ -1,14 +1,15 @@
 {
-  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "schemaVersion": "hexalith.conversations.v14-story-contract.v1",
   "storyId": "12.1",
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
     "candidateBinding": "`SC-12.1`, immutable Story 6.2 candidate/record and baseline hashes, ADR/decision/approval digests, and the canonical rule.",
     "sectionSha256": "218a77a7be15478f9dff69afd5e41848354dbdb402b3cf9a25ab4eec11624021"
   },
   "predecessors": [
+    "16.3",
     "6.2"
   ],
   "outcome": {

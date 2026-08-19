@@ -1,9 +1,9 @@
 {
   "schemaVersion": "hexalith.conversations.v9-execution-graph.v1",
-  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+  "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v12",
-    "architecture": "conversations-architecture-2026-08-04-v12"
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14"
   },
   "implementationHold": "ACTIVE",
   "nodes": [
@@ -63,6 +63,7 @@
       "id": "12.1",
       "kind": "story",
       "predecessors": [
+        "16.3",
         "6.2",
         "IR-0"
       ]
@@ -93,6 +94,7 @@
       "id": "13.1",
       "kind": "story",
       "predecessors": [
+        "16.3",
         "7.4",
         "9.2"
       ]
@@ -117,6 +119,7 @@
       "predecessors": [
         "10.4",
         "13.3",
+        "16.3",
         "8.2",
         "9.2"
       ]
@@ -144,6 +147,7 @@
         "12.4",
         "13.3",
         "14.3",
+        "16.3",
         "7.4",
         "8.2",
         "9.2"
@@ -154,6 +158,28 @@
       "kind": "story",
       "predecessors": [
         "15.1"
+      ]
+    },
+    {
+      "id": "16.1",
+      "kind": "story",
+      "predecessors": [
+        "7.4",
+        "IR-0"
+      ]
+    },
+    {
+      "id": "16.2",
+      "kind": "story",
+      "predecessors": [
+        "16.1"
+      ]
+    },
+    {
+      "id": "16.3",
+      "kind": "story",
+      "predecessors": [
+        "16.2"
       ]
     },
     {
@@ -225,6 +251,21 @@
       "kind": "story",
       "predecessors": [
         "9.1"
+      ]
+    },
+    {
+      "id": "E6-CURRENT-CANDIDATE",
+      "kind": "checkpoint",
+      "predecessors": [
+        "E6-CURRENT-PROOF",
+        "E6-REMEDIATION"
+      ]
+    },
+    {
+      "id": "E6-CURRENT-PROOF",
+      "kind": "checkpoint",
+      "predecessors": [
+        "E6-REMEDIATION"
       ]
     },
     {
@@ -348,6 +389,30 @@
       "to": "RG-15"
     },
     {
+      "from": "16.1",
+      "to": "16.2"
+    },
+    {
+      "from": "16.2",
+      "to": "16.3"
+    },
+    {
+      "from": "16.3",
+      "to": "12.1"
+    },
+    {
+      "from": "16.3",
+      "to": "13.1"
+    },
+    {
+      "from": "16.3",
+      "to": "14.1"
+    },
+    {
+      "from": "16.3",
+      "to": "15.1"
+    },
+    {
       "from": "6.2",
       "to": "11.1"
     },
@@ -397,6 +462,10 @@
     },
     {
       "from": "7.4",
+      "to": "16.1"
+    },
+    {
+      "from": "7.4",
       "to": "8.1"
     },
     {
@@ -436,12 +505,28 @@
       "to": "15.1"
     },
     {
+      "from": "E6-CURRENT-PROOF",
+      "to": "E6-CURRENT-CANDIDATE"
+    },
+    {
+      "from": "E6-REMEDIATION",
+      "to": "E6-CURRENT-CANDIDATE"
+    },
+    {
+      "from": "E6-REMEDIATION",
+      "to": "E6-CURRENT-PROOF"
+    },
+    {
       "from": "E6-REMEDIATION",
       "to": "IR-0"
     },
     {
       "from": "IR-0",
       "to": "12.1"
+    },
+    {
+      "from": "IR-0",
+      "to": "16.1"
     },
     {
       "from": "IR-0",

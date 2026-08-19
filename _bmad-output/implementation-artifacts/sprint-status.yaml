@@ -37,8 +37,8 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-08-04
-# V12 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-04-v12 and conversations-architecture-2026-08-04-v12 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, E6-REMEDIATION owns A1-A3, 7.1-SCHEMAS is planning-only and non-executable, Epic 5 action A5 remains open, and successor stories remain backlog.
+last_updated: 2026-08-19
+# V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
 project_key: NOKEY
@@ -130,6 +130,11 @@ development_status:
   15-1-revalidate-all-preservation-topology-correctness-and-metric-gates: backlog
   15-2-generate-the-superseding-attestation-and-predecessor-supersession-record: backlog
   epic-15-retrospective: optional
+  epic-16: backlog
+  16-1-persist-tenant-access-projection-state-and-prove-convergence: backlog
+  16-2-make-replay-time-deterministic-and-missing-index-state-truthful: backlog
+  16-3-diagnose-apphost-preflight-failures-and-prove-terminal-reconciliation-live: backlog
+  epic-16-retrospective: optional
 action_items:
   - epic: 3
     action: "Make final story record generation mechanical from final test counts, file list, submodule state, and root gitlink state."

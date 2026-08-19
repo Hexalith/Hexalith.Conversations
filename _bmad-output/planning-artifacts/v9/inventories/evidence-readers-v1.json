@@ -1,10 +1,10 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V9-EVIDENCE-READERS-v1",
-  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+  "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v12",
-    "architecture": "conversations-architecture-2026-08-04-v12"
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14"
   },
   "inventoryDigest": "247cd610f7fd162f3e01f1db713f16328b2d009081da14a468e767411209a3bc",
   "rows": [
@@ -59,7 +59,7 @@
     {
       "ordinal": 9,
       "path": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
-      "sha256": "6346067f54741ec84720c76146650f29fec5b644f52eeb146c55a999eb5d87cf",
+      "sha256": "5a61e8ea3e6eb2d8d5aed012ffbeeea55ee88014ba479acd0cfca24e75249028",
       "tree": "project"
     },
     {

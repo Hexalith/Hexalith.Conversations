@@ -1,14 +1,15 @@
 {
-  "schemaVersion": "hexalith.conversations.story-contract.v1",
+  "schemaVersion": "hexalith.conversations.v14-story-contract.v1",
   "storyId": "13.1",
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
     "candidateBinding": "`SC-13.1`, 7.4/9.2 records, recorded Story 6.2 root and gitlinks, protected blob hashes, ADR/schema/approval digests.",
     "sectionSha256": "e3fdfa1c93f7a65cd36cae5bbe950d0bb428cb53a455388c57542872b87649a8"
   },
   "predecessors": [
+    "16.3",
     "7.4",
     "9.2"
   ],

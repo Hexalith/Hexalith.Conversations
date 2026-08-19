@@ -1,9 +1,9 @@
 {
   "schemaVersion": "hexalith.conversations.v9-supersession-map.v1",
-  "planningCandidate": "151f96519a30f1b16530851e73e51ac5ad74b355",
+  "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
   "authorities": {
-    "epic": "epic-6-authority-2026-08-04-v12",
-    "architecture": "conversations-architecture-2026-08-04-v12"
+    "epic": "epic-6-authority-2026-08-18-v14",
+    "architecture": "conversations-architecture-2026-08-18-v14"
   },
   "storyDispositions": [
     {

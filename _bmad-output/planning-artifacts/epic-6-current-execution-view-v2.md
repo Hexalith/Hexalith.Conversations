@@ -1,11 +1,11 @@
 ---
 artifact: epic-6-current-execution-view-v2
-generated: '2026-08-04'
+generated: '2026-08-19'
 generator_version: '1.0.0'
 generation_command: 'python3 _bmad/scripts/publish_v9_planning_authority.py --repository .'
-planning_candidate: '151f96519a30f1b16530851e73e51ac5ad74b355'
-epic_authority: 'epic-6-authority-2026-08-04-v12'
-architecture_authority: 'conversations-architecture-2026-08-04-v12'
+planning_candidate: 'fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029'
+epic_authority: 'epic-6-authority-2026-08-18-v14'
+architecture_authority: 'conversations-architecture-2026-08-18-v14'
 implementation_hold: 'ACTIVE'
 status: 'candidate-bound-planning-publication'
 ---
@@ -13,8 +13,8 @@ status: 'candidate-bound-planning-publication'
 # Epic 6 Current Execution View V2
 
 > **PLANNING PUBLICATION ONLY — IMPLEMENTATION HOLD ACTIVE.** This generated
-> view projects the v12-corrected authority, `E6-REMEDIATION`, and the inherited
-> non-story `7.1-SCHEMAS` checkpoint. It does not implement schemas or a story, run IR-0, lift the
+> view projects V14, `E6-REMEDIATION`, the current-proof checkpoints, and the inherited
+> non-story `7.1-SCHEMAS` checkpoint. It does not implement a story, run IR-0, lift the
 > hold, close Epic 5 action A5, or authorize release.
 
 The canonical epic authority and architecture overlay remain the semantic
@@ -24,6 +24,8 @@ non-amending.
 | Execution unit | Kind | Bounded outcome | Effective predecessors | AC count |
 | --- | --- | --- | --- | ---: |
 | E6-REMEDIATION | checkpoint | Complete Epic 6 A1-A3 before independent IR-0 | PC-PUBLICATION | 3 |
+| E6-CURRENT-PROOF | checkpoint | Accepted current completion proof | E6-REMEDIATION | 1 |
+| E6-CURRENT-CANDIDATE | checkpoint | Pinned point-in-time candidate authority | E6-CURRENT-PROOF, E6-REMEDIATION | 1 |
 | 7.1-SCHEMAS | checkpoint | Closed Story 7.1 schema contracts | 6.2, IR-0 | 1 |
 | 7.1 | story | Define the final-record schema and deterministic generator core | 6.2, 7.1-SCHEMAS, IR-0 | 6 |
 | 7.2 | story | Derive test, path, candidate, submodule, and gitlink facts | 7.1 | 11 |
@@ -40,18 +42,21 @@ non-amending.
 | 11.1 | story | Correct and validate platform-hosted thin-module authoring guidance | 10.4, 6.2, 7.4 | 7 |
 | 11.2 | story | Build the reproducible minimal-module fixture against live platform APIs | 11.1 | 8 |
 | 11.3 | story | Generate authoritative SM-2 v2 evidence and decide OQ-2 | 11.2 | 7 |
-| 12.1 | story | Approve derived-key ownership, lifecycle, and rollback | 6.2, IR-0 | 6 |
+| 12.1 | story | Approve derived-key ownership, lifecycle, and rollback | 16.3, 6.2, IR-0 | 6 |
 | 12.2 | story | Freeze the benchmark method and signal-quality algorithm | 12.1 | 5 |
 | 12.3 | story | Implement correctness-preserving list/open optimization and migration behavior | 12.1, 12.2 | 8 |
 | 12.4 | story | Produce candidate-bound evidence and enforce universal SM-C2 | 12.3 | 6 |
-| 13.1 | story | Validate historical proof and approve predecessor-chain ADR/schema | 7.4, 9.2 | 6 |
+| 13.1 | story | Validate historical proof and approve predecessor-chain ADR/schema | 16.3, 7.4, 9.2 | 6 |
 | 13.2 | story | Generate the current successor proof and enforce drift/current-head guards | 13.1 | 7 |
 | 13.3 | story | Prove fault injection and bind manifest, conformance, handoff, and final record | 13.2 | 6 |
-| 14.1 | story | Freeze requirement, contract, test, UX and evidence denominators | 10.4, 13.3, 8.2, 9.2 | 8 |
+| 14.1 | story | Freeze requirement, contract, test, UX and evidence denominators | 10.4, 13.3, 16.3, 8.2, 9.2 | 8 |
 | 14.2 | story | Bind dispositions, approvals, evidence, tiers, proof chains and candidate identity | 14.1 | 8 |
 | 14.3 | story | Run zero-gap validation and generate the manifest final record | 14.2 | 6 |
-| 15.1 | story | Revalidate all preservation, topology, correctness, and metric gates | 10.4, 11.3, 12.4, 13.3, 14.3, 7.4, 8.2, 9.2 | 11 |
+| 15.1 | story | Revalidate all preservation, topology, correctness, and metric gates | 10.4, 11.3, 12.4, 13.3, 14.3, 16.3, 7.4, 8.2, 9.2 | 11 |
 | 15.2 | story | Generate the superseding attestation and predecessor-supersession record | 15.1 | 6 |
+| 16.1 | story | Persist tenant-access projection state and prove convergence | 7.4, IR-0 | 6 |
+| 16.2 | story | Make replay time deterministic and missing-index state truthful | 16.1 | 6 |
+| 16.3 | story | Diagnose AppHost preflight failures and prove terminal reconciliation live | 16.2 | 6 |
 
 ## Gate State
 
