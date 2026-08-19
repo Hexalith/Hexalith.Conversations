@@ -1,4 +1,22 @@
 <!doctype html>
+<!--
+  Preservation-only UX authority. This artifact preserves historical
+  design-direction exploration for Hexalith.Conversations. It does not
+  activate product UI implementation; activation requires separate approved
+  release authority. On any conflict, ux-design-specification.md is
+  authoritative. The current disposition of every UX decision is maintained
+  in ux-requirement-map.md.
+
+  Decision record: Direction 02 (Split Investigation Lens) was chosen,
+  strengthened with Case File Console's header band and Evidence Reader's
+  timeline treatment. See ux-design-specification.md, "Design Direction
+  Decision". The comparison card in this page predates that decision.
+
+  Color values, borders, and state styling in these mocks are illustrative,
+  not normative. Known deviation: degraded states are shown here with the
+  warning treatment; the specification requires degraded to be visually
+  distinct from warning.
+-->
 <html lang="en">
 <head>
   <meta charset="utf-8">
@@ -637,10 +655,29 @@
       .event { grid-template-columns: 1fr; }
       .compare { grid-template-columns: 1fr; }
     }
+
+    .preservation-banner {
+      max-width: 1480px;
+      width: calc(100% - 40px);
+      margin: 16px auto 0;
+      padding: 12px 18px;
+      background: var(--info-soft);
+      border: 1px solid var(--info);
+      border-left-width: 4px;
+      border-radius: var(--radius);
+      font-size: 13px;
+    }
+    .preservation-banner strong { color: var(--info); }
+    .preservation-banner p { margin: 4px 0; }
   </style>
 </head>
 <body>
   <div class="shell">
+    <aside class="preservation-banner" role="note" aria-label="Preservation and decision status">
+      <p><strong>Preservation-only UX authority.</strong> This artifact preserves historical design-direction exploration. It does not activate product UI implementation; activation requires separate approved release authority. On any conflict, <code>ux-design-specification.md</code> is authoritative; the current disposition of every UX decision is maintained in <code>ux-requirement-map.md</code>.</p>
+      <p><strong>Chosen direction: 02. Split Investigation Lens</strong> — strengthened with Case File Console's header band and Evidence Reader's timeline. Decision recorded in <code>ux-design-specification.md</code> → "Design Direction Decision". The comparison card below predates that decision.</p>
+      <p>Colors, borders, and state styling in these mocks are illustrative, not normative. Known deviation: degraded states appear here with the warning treatment; the specification requires degraded to be visually distinct from warning.</p>
+    </aside>
     <header class="topbar">
       <div class="topbar-main">
         <div class="title">
@@ -679,6 +716,7 @@
         <article class="compare-card">
           <h3>Strongest For V1</h3>
           <p>Case File Console and Split Investigation Lens are the safest first implementation directions because they map directly to Find -> Read -> Trust.</p>
+          <p><em>Decision recorded:</em> 02. Split Investigation Lens was chosen — see <code>ux-design-specification.md</code> → "Design Direction Decision".</p>
           <span class="status verified">Recommended base</span>
         </article>
         <article class="compare-card">
@@ -779,6 +817,7 @@
               <span class="tag">Find + Read together</span>
               <span class="tag">Strong search posture</span>
               <span class="status verified">Operator-friendly</span>
+              <span class="status verified">Chosen direction</span>
             </div>
           </div>
           <div class="mock">

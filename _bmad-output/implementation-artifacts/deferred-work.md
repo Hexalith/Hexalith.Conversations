@@ -271,3 +271,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: sprint-change-proposal-2026-08-18-e6-remediation-a3.md
   summary: Prove platform API consumer-callability with a compiled cross-assembly fixture instead of source parsing.
   evidence: Approved as a separately scheduled successor in §4.7 of the A3 proposal; the retrospective accepts either containing-type parsing or a compiled fixture, and A3 shipped the former.
+
+- source_spec: none
+  summary: Make F-10 hermetic and close E6-REMEDIATION actions A2 and A3 through their approved lifecycle gates.
+  evidence: Split from the approved Epic 16 planning-authority publication because the F-10 test repair and A2/A3 lifecycle closure are independently shippable and would otherwise mix implementation evidence with a separate planning-candidate publication.
