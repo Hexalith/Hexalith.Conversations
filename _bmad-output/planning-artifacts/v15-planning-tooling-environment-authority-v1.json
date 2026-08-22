@@ -1,0 +1,228 @@
+{
+  "schemaVersion": "hexalith.conversations.v15-planning-tooling-environment-authority.v1",
+  "authorityId": "V15-PLANNING-TOOLING-ENVIRONMENT",
+  "baselineCommit": "6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4",
+  "candidateCommit": "4586df9d35e1d50df401cd98cf62e4435d89007d",
+  "publication": {
+    "c1Paths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+      "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+      "_bmad/scripts/publish_v15_planning_tooling_environment.py",
+      "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py",
+      "pyproject.toml",
+      "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+      "uv.lock"
+    ],
+    "c2Path": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+    "combinedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+      "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+      "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+      "_bmad/scripts/publish_v15_planning_tooling_environment.py",
+      "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py",
+      "pyproject.toml",
+      "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+      "uv.lock"
+    ],
+    "changedGitlinks": []
+  },
+  "candidateFiles": [
+    {
+      "path": ".github/workflows/planning-authority-preflight.yml",
+      "sha256": "f5336352ef5b6e4211f96c7591e8aced4542c4827a45004564b53a50cbd4c649",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+      "sha256": "31cfec61d9bf23804c51265bfbdf207ba3b4efeb4b47e6bd4bfe7456ddde7eba",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+      "sha256": "daf78b9de66fbff22fe86972433b49b9a47c534bed4a7c0ef9abbbafffabb4d5",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/publish_v15_planning_tooling_environment.py",
+      "sha256": "559056b6c97ce3043562c3e08d7261d6c8cf524ad4c6df53d5da641303247e54",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+      "sha256": "7646a978654cd8754be57352221fc708e8778719f4ddfb6b914de4e4b72858f7",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "sha256": "c015eb60feeb0c221a60f2fbd38c0a16c1e987155da1622a05f2fa473d144267",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/verify_evidence_boundary.py",
+      "sha256": "4838a1b2de43c83d5f7409b89c5ebb9079c336e49fa0545faa71c5455bf94de1",
+      "mode": "100644"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "19a0826b998332b8fcd44fd094eab99a4a7c0c529401c9eb9c41c3e18348718d",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+      "sha256": "64c904d592fce629d7318f30be42ea844bc7455ae20f7ae91123efaf3a32985c",
+      "mode": "100644"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "bc416ecf9ffca757073fb0e9e11530b39ae41ff4d736afc1ee5c926852343221",
+      "mode": "100644"
+    }
+  ],
+  "environment": {
+    "packageCount": 13,
+    "packageNames": [
+      "attrs",
+      "colorama",
+      "hexalith-conversations-planning",
+      "iniconfig",
+      "jsonschema",
+      "jsonschema-specifications",
+      "packaging",
+      "pluggy",
+      "pygments",
+      "pytest",
+      "referencing",
+      "rpds-py",
+      "typing-extensions"
+    ],
+    "packages": [
+      {
+        "name": "jsonschema",
+        "version": "4.26.0",
+        "registry": "https://pypi.org/simple",
+        "sdist": {
+          "url": "https://files.pythonhosted.org/packages/b3/fc/e067678238fa451312d4c62bf6e6cf5ec56375422aee02f9cb5f909b3047/jsonschema-4.26.0.tar.gz",
+          "sha256": "0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326"
+        },
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/69/90/f63fb5873511e014207a475e2bb4e8b2e570d655b00ac19a9a0ca0a385ee/jsonschema-4.26.0-py3-none-any.whl",
+            "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce"
+          }
+        ]
+      },
+      {
+        "name": "pytest",
+        "version": "9.1.1",
+        "registry": "https://pypi.org/simple",
+        "sdist": {
+          "url": "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz",
+          "sha256": "1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313"
+        },
+        "wheels": [
+          {
+            "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+            "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+          }
+        ]
+      }
+    ]
+  },
+  "predecessor": {
+    "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "fileSha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "immutableAuthorities": [
+    {
+      "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json",
+      "sha256": "c082cde6923e9831eea768be6c547ca1ab87ed91244185b505bdf3ae1c116dcc",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+      "sha256": "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json",
+      "sha256": "e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+      "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+      "mode": "100644"
+    }
+  ],
+  "ir0Assessment": {
+    "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+    "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+    "result": "READY",
+    "effectiveHold": "ACTIVE",
+    "preserved": true
+  },
+  "authorityEffect": {
+    "implementationHold": "ACTIVE",
+    "ir0AuthorizationChanged": false,
+    "successorActivated": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "result": "PASS",
+  "assertionLedger": [
+    {
+      "id": "V15-BASELINE",
+      "subject": "baseline-and-candidate-parent",
+      "state": "PASS"
+    },
+    {
+      "id": "V15-SCOPE",
+      "subject": "exact-eleven-path-c1-c2-boundary",
+      "state": "PASS"
+    },
+    {
+      "id": "V15-GITLINKS",
+      "subject": "raw-mode-160000-changed-set",
+      "state": "PASS",
+      "paths": []
+    },
+    {
+      "id": "V15-ENVIRONMENT",
+      "subject": "manifest-lock-version-hash-parity",
+      "state": "PASS"
+    },
+    {
+      "id": "V15-PREDECESSOR",
+      "subject": "immutable-v9-v14-authority",
+      "state": "PASS"
+    },
+    {
+      "id": "V15-IR0",
+      "subject": "recorded-ready-result-with-active-hold",
+      "state": "PASS"
+    }
+  ]
+}
