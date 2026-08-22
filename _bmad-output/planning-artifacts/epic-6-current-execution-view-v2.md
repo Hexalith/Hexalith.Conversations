@@ -3,7 +3,7 @@ artifact: epic-6-current-execution-view-v2
 generated: '2026-08-19'
 generator_version: '1.0.0'
 generation_command: 'python3 _bmad/scripts/publish_v9_planning_authority.py --repository .'
-planning_candidate: 'aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db'
+planning_candidate: '1e9a61126d3b7a55b514b7c7c8942d5af03355e5'
 epic_authority: 'epic-6-authority-2026-08-18-v14'
 architecture_authority: 'conversations-architecture-2026-08-18-v14'
 implementation_hold: 'ACTIVE'

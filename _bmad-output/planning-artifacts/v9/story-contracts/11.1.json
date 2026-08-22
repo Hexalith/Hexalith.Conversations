@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
     "candidateBinding": "`SC-11.1`, predecessor final-record digests, source and generated-bundle digests, reviewer identity/decision time, and the canonical candidate rule.",
     "sectionSha256": "d6200354a29040f34c03a8df3dea18ba4eda0cb709d5bba402d96911ca0ed4b6"
   },

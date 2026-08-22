@@ -1,7 +1,7 @@
 {
   "schemaVersion": "hexalith.conversations.v9-inventory.v1",
   "inventoryId": "V9-EVIDENCE-WORKFLOWS-v2",
-  "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
+  "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
   "authorities": {
     "epic": "epic-6-authority-2026-08-18-v14",
     "architecture": "conversations-architecture-2026-08-18-v14"

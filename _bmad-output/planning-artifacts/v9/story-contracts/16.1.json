@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-18-v14",
     "architecture": "conversations-architecture-2026-08-18-v14",
-    "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
     "candidateBinding": "The canonical contract, exact root/Tenants gitlinks, inputs, outputs, fault ledger, and final record bind the committed planning candidate through `v9-authority-bundle-v1.json`.",
     "sectionSha256": "985eac2e880167b5524f3dbe10517e18714901dd8d1baab5d5a5ea3f94042408"
   },
