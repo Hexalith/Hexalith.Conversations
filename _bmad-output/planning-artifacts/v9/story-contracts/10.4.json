@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
+    "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
     "candidateBinding": "`SC-10.4`, Story 10.3 record, before/after reader identity/strength digests, both frozen inventory digests, and the canonical candidate rule.",
     "sectionSha256": "feff01961b82d2b921e3bd254fb08e05365983215b73d5ffb0ba5954effc0e59"
   },

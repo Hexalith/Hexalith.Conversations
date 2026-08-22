@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
+    "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
     "candidateBinding": "`RC-15.1` is exact root commit plus canonical ten root gitlinks, all eight predecessor final-record digests, test binary/source/result hashes and frozen inventories. It is not `PC` or any prior `SC`.",
     "sectionSha256": "4d09410eb32517d9ce84b268d46a61ae213297c8ace2e607c61c7fe082bd7d7c"
   },

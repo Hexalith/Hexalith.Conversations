@@ -4,7 +4,7 @@
   "authority": {
     "epic": "epic-6-authority-2026-08-03-v10",
     "architecture": "conversations-architecture-2026-08-03-v10",
-    "planningCandidate": "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029",
+    "planningCandidate": "aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db",
     "candidateBinding": "`SC-12.3`, both predecessor records, affected production paths and EventStore gitlink, public contract snapshot, result/proof digests.",
     "sectionSha256": "6a7c8ae697c2514dfb834d883e25f01e2bdee8da2fc702e44a534f23a7e7cf4d"
   },

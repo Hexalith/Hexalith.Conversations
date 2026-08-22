@@ -2,7 +2,7 @@
 authorityVersion: ux-preservation-planning-2026-08-18-v4
 source: _bmad-output/planning-artifacts/ux-design-specification.md
 currentDisposition: preserved-not-activated
-planningCandidate: fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029
+planningCandidate: aaf37a7ba0b99c2d4172d4a13c66be4bca24e1db
 epicAuthority: epic-6-authority-2026-08-18-v14
 architectureAuthority: conversations-architecture-2026-08-18-v14
 currentOwner: Stories 8.1-8.2 preservation contract
