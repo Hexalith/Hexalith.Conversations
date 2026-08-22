@@ -18,6 +18,8 @@ SCHEMA = "hexalith.conversations.evidence-boundary-result.v1"
 GIT_TIMEOUT_SECONDS = 30
 GATE_MARKER = "V12 lifecycle evidence gates"
 PUBLICATION_SCOPE_PATH = "_bmad-output/planning-artifacts/v14-planning-publication-scope-v1.json"
+V15_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json"
+V15_PUBLISHER_PATH = "_bmad/scripts/publish_v15_planning_tooling_environment.py"
 ACTIVE_ROUTE_PATHS = (
     ".agents/skills/bmad-build/step-04-review.md",
     ".agents/skills/bmad-build/step-05-present.md",
@@ -403,21 +405,113 @@ def validate_publication_scope(
     return assertion("SCOPE-01", "candidate-bound-publication-allowlist", "PASS", count=len(normalized))
 
 
-def run_publication_check(root: Path) -> dict[str, Any]:
-    """Run the current deterministic publication check without accepting skips."""
+def validate_v15_scope(
+    root: Path,
+    baseline: str,
+    candidate: str,
+    paths: Sequence[str],
+    gitlink_row: dict[str, Any],
+) -> dict[str, Any]:
+    """Apply the additive V15 two-commit exact boundary when its authority is present."""
 
-    command = [sys.executable, str(root / "_bmad/scripts/publish_v9_planning_authority.py"), "--repository", str(root), "--check"]
+    if V15_AUTHORITY_PATH not in paths:
+        return assertion("V15-SCOPE-01", "v15-planning-tooling-boundary", "PASS", applied=False)
     try:
-        result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=120, check=False)
-    except (OSError, subprocess.TimeoutExpired) as error:
-        raise BoundaryError("EVIDENCE_PREFLIGHT_UNAVAILABLE", str(error), "BLOCKED") from error
-    if result.returncode != 0:
-        detail = (result.stderr or result.stdout).strip()
-        raise BoundaryError("EVIDENCE_PUBLICATION_DRIFT", detail)
-    output = result.stdout.strip()
-    if "V14_PLANNING_AUTHORITY_OK" not in output:
-        raise BoundaryError("SCOPE_NOT_EVALUATED", "publication check emitted no success identity")
-    return assertion("PUBLICATION-01", "deterministic-planning-publication", "PASS", output=output)
+        content = run_git(root, "show", f"{candidate}:{V15_AUTHORITY_PATH}").stdout
+        document = json.loads(content.decode("utf-8"))
+    except (BoundaryError, UnicodeError, json.JSONDecodeError) as error:
+        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", str(error), path=V15_AUTHORITY_PATH) from error
+    if not isinstance(document, dict):
+        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "authority must be an object", path=V15_AUTHORITY_PATH)
+    publication = document.get("publication")
+    candidate_commit = document.get("candidateCommit")
+    if (
+        document.get("schemaVersion")
+        != "hexalith.conversations.v15-planning-tooling-environment-authority.v1"
+        or document.get("baselineCommit") != baseline
+        or not isinstance(candidate_commit, str)
+        or not isinstance(publication, dict)
+    ):
+        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "closed identity mismatch", path=V15_AUTHORITY_PATH)
+    c1 = resolve_commit(root, candidate_commit, "EVIDENCE_V15_CANDIDATE_UNAVAILABLE")
+    parent = resolve_commit(root, f"{candidate}^", "EVIDENCE_V15_PUBLICATION_PARENT_UNAVAILABLE")
+    if parent != c1:
+        raise BoundaryError("EVIDENCE_V15_PUBLICATION_PARENT_MISMATCH", f"expected {c1}; observed {parent}", "BLOCKED")
+    c1_paths = publication.get("c1Paths")
+    combined = publication.get("combinedPaths")
+    if (
+        not isinstance(c1_paths, list)
+        or not c1_paths
+        or not all(isinstance(path, str) for path in c1_paths)
+        or len(c1_paths) != len(set(c1_paths))
+        or not isinstance(combined, list)
+        or not combined
+        or not all(isinstance(path, str) for path in combined)
+        or len(combined) != len(set(combined))
+        or publication.get("c2Path") != V15_AUTHORITY_PATH
+        or publication.get("changedGitlinks") != []
+    ):
+        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "closed publication contract mismatch")
+    normalized_c1 = tuple(sorted(safe_relative_path(path) for path in c1_paths))
+    normalized_combined = tuple(sorted(safe_relative_path(path) for path in combined))
+    observed_c1 = changed_paths(root, baseline, c1)
+    observed_c2 = changed_paths(root, c1, candidate)
+    observed = tuple(sorted(paths))
+    if observed_c1 != normalized_c1 or observed_c2 != (V15_AUTHORITY_PATH,) or observed != normalized_combined:
+        missing = sorted(set(normalized_combined) - set(observed))
+        unexpected = sorted(set(observed) - set(normalized_combined))
+        raise BoundaryError(
+            "EVIDENCE_V15_SCOPE_DRIFT",
+            f"c1={observed_c1!r} c2={observed_c2!r} missing={missing!r} unexpected={unexpected!r}",
+        )
+    if gitlink_row.get("paths"):
+        raise BoundaryError("EVIDENCE_GITLINK_SET_DRIFT", repr(gitlink_row["paths"]))
+    return assertion("V15-SCOPE-01", "v15-planning-tooling-boundary", "PASS", applied=True, count=len(observed))
+
+
+def run_publication_check(root: Path, *, v15: bool = False) -> dict[str, Any]:
+    """Run the applicable deterministic publication checks without accepting skips."""
+
+    commands = (
+        (
+            [sys.executable, str(root / "_bmad/scripts/publish_v13_current_proof_authority.py"), "--repository", str(root), "--check"],
+            "V13_CURRENT_PROOF_AUTHORITY_OK",
+        ),
+        (
+            [sys.executable, str(root / "_bmad/scripts/publish_v14_current_candidate_authority.py"), "--repository", str(root), "--check"],
+            "V14_CURRENT_CANDIDATE_AUTHORITY_OK",
+        ),
+        (
+            [
+                sys.executable,
+                str(root / V15_PUBLISHER_PATH),
+                "--repository",
+                str(root),
+                "--check",
+                "--check-installed",
+            ],
+            "V15_PLANNING_TOOLING_AUTHORITY_OK",
+        ),
+    ) if v15 else (
+        (
+            [sys.executable, str(root / "_bmad/scripts/publish_v9_planning_authority.py"), "--repository", str(root), "--check"],
+            "V14_PLANNING_AUTHORITY_OK",
+        ),
+    )
+    outputs: list[str] = []
+    for command, success_token in commands:
+        try:
+            result = subprocess.run(command, cwd=root, capture_output=True, text=True, timeout=120, check=False)
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise BoundaryError("EVIDENCE_PREFLIGHT_UNAVAILABLE", str(error), "BLOCKED") from error
+        if result.returncode != 0:
+            detail = (result.stderr or result.stdout).strip()
+            raise BoundaryError("EVIDENCE_PUBLICATION_DRIFT", detail)
+        output = result.stdout.strip()
+        if success_token not in output:
+            raise BoundaryError("SCOPE_NOT_EVALUATED", f"publication check emitted no {success_token} identity")
+        outputs.append(output)
+    return assertion("PUBLICATION-01", "deterministic-planning-publication", "PASS", output=" | ".join(outputs))
 
 
 def verify(repository: Path, baseline_revision: str, candidate_revision: str) -> dict[str, Any]:
@@ -436,6 +530,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
+        validate_v15_scope(root, baseline, candidate, paths, gitlink_row),
     ]
     if not applicable:
         return {
@@ -452,7 +547,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
     ledger.append(validate_context(root))
     ledger.extend(validate_context_workflows(root))
     ledger.append(validate_csharp_signature_guard(root))
-    ledger.append(run_publication_check(root))
+    ledger.append(run_publication_check(root, v15=V15_AUTHORITY_PATH in paths))
     if not ledger:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "applicable scope produced an empty assertion ledger")
     return {

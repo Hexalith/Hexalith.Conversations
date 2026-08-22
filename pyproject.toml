@@ -4,8 +4,8 @@ version = "0.0.0"
 description = "Pinned planning-authority verification environment for Hexalith.Conversations"
 requires-python = ">=3.11"
 dependencies = [
-    "jsonschema==4.25.0",
-    "pytest==8.4.1",
+    "jsonschema==4.26.0",
+    "pytest==9.1.1",
 ]
 
 [tool.pytest.ini_options]

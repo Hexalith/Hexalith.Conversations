@@ -1,0 +1,295 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.com/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+  "title": "V15 planning-tooling environment authority v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "authorityId",
+    "baselineCommit",
+    "candidateCommit",
+    "publication",
+    "candidateFiles",
+    "environment",
+    "predecessor",
+    "immutableAuthorities",
+    "ir0Assessment",
+    "authorityEffect",
+    "resultSemantics",
+    "result",
+    "assertionLedger"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.v15-planning-tooling-environment-authority.v1"
+    },
+    "authorityId": { "const": "V15-PLANNING-TOOLING-ENVIRONMENT" },
+    "baselineCommit": { "const": "6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4" },
+    "candidateCommit": { "$ref": "#/$defs/sha1" },
+    "publication": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["c1Paths", "c2Path", "combinedPaths", "changedGitlinks"],
+      "properties": {
+        "c1Paths": {
+          "const": [
+            ".github/workflows/planning-authority-preflight.yml",
+            "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+            "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+            "_bmad/scripts/publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+            "pyproject.toml",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+            "uv.lock"
+          ]
+        },
+        "c2Path": {
+          "const": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json"
+        },
+        "combinedPaths": {
+          "const": [
+            ".github/workflows/planning-authority-preflight.yml",
+            "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+            "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+            "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+            "_bmad/scripts/publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+            "pyproject.toml",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+            "uv.lock"
+          ]
+        },
+        "changedGitlinks": { "const": [] }
+      }
+    },
+    "candidateFiles": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/fileBinding" },
+      "allOf": [
+        { "contains": { "properties": { "path": { "const": ".github/workflows/planning-authority-preflight.yml" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad/scripts/publish_v15_planning_tooling_environment.py" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "_bmad/scripts/verify_evidence_boundary.py" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "pyproject.toml" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs" } }, "required": ["path"] } },
+        { "contains": { "properties": { "path": { "const": "uv.lock" } }, "required": ["path"] } }
+      ]
+    },
+    "environment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packageCount", "packageNames", "packages"],
+      "properties": {
+        "packageCount": { "const": 13 },
+        "packageNames": {
+          "const": [
+            "attrs",
+            "colorama",
+            "hexalith-conversations-planning",
+            "iniconfig",
+            "jsonschema",
+            "jsonschema-specifications",
+            "packaging",
+            "pluggy",
+            "pygments",
+            "pytest",
+            "referencing",
+            "rpds-py",
+            "typing-extensions"
+          ]
+        },
+        "packages": {
+          "type": "array",
+          "prefixItems": [
+            { "$ref": "#/$defs/jsonschemaPackage" },
+            { "$ref": "#/$defs/pytestPackage" }
+          ],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "fileSha256", "planningCandidate", "bundleDigest"],
+      "properties": {
+        "path": { "const": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json" },
+        "fileSha256": { "const": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3" },
+        "planningCandidate": { "const": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5" },
+        "bundleDigest": { "const": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055" }
+      }
+    },
+    "immutableAuthorities": {
+      "const": [
+        {
+          "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+          "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+          "mode": "100644"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json",
+          "sha256": "c082cde6923e9831eea768be6c547ca1ab87ed91244185b505bdf3ae1c116dcc",
+          "mode": "100644"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+          "sha256": "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f",
+          "mode": "100644"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json",
+          "sha256": "e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f",
+          "mode": "100644"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+          "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+          "mode": "100644"
+        }
+      ]
+    },
+    "ir0Assessment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "result", "effectiveHold", "preserved"],
+      "properties": {
+        "path": { "const": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md" },
+        "sha256": { "const": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad" },
+        "result": { "const": "READY" },
+        "effectiveHold": { "const": "ACTIVE" },
+        "preserved": { "const": true }
+      }
+    },
+    "authorityEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementationHold",
+        "ir0AuthorizationChanged",
+        "successorActivated",
+        "releaseAuthorized",
+        "pushAuthorized"
+      ],
+      "properties": {
+        "implementationHold": { "const": "ACTIVE" },
+        "ir0AuthorizationChanged": { "const": false },
+        "successorActivated": { "const": false },
+        "releaseAuthorized": { "const": false },
+        "pushAuthorized": { "const": false }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "ledgerRequired", "skipsAllowed"],
+      "properties": {
+        "states": { "const": ["PASS", "FAIL", "BLOCKED", "not-applicable"] },
+        "ledgerRequired": { "const": true },
+        "skipsAllowed": { "const": false }
+      }
+    },
+    "result": { "const": "PASS" },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "subject", "state"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1 },
+          "subject": { "type": "string", "minLength": 1 },
+          "state": { "const": "PASS" },
+          "paths": {
+            "type": "array",
+            "items": { "type": "string" }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "fileBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "mode"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "mode": { "const": "100644" }
+      }
+    },
+    "distribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "sha256"],
+      "properties": {
+        "url": { "type": "string", "format": "uri" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "jsonschemaPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "registry", "sdist", "wheels"],
+      "properties": {
+        "name": { "const": "jsonschema" },
+        "version": { "const": "4.26.0" },
+        "registry": { "const": "https://pypi.org/simple" },
+        "sdist": {
+          "const": {
+            "url": "https://files.pythonhosted.org/packages/b3/fc/e067678238fa451312d4c62bf6e6cf5ec56375422aee02f9cb5f909b3047/jsonschema-4.26.0.tar.gz",
+            "sha256": "0c26707e2efad8aa1bfc5b7ce170f3fccc2e4918ff85989ba9ffa9facb2be326"
+          }
+        },
+        "wheels": {
+          "const": [
+            {
+              "url": "https://files.pythonhosted.org/packages/69/90/f63fb5873511e014207a475e2bb4e8b2e570d655b00ac19a9a0ca0a385ee/jsonschema-4.26.0-py3-none-any.whl",
+              "sha256": "d489f15263b8d200f8387e64b4c3a75f06629559fb73deb8fdfb525f2dab50ce"
+            }
+          ]
+        }
+      }
+    },
+    "pytestPackage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "version", "registry", "sdist", "wheels"],
+      "properties": {
+        "name": { "const": "pytest" },
+        "version": { "const": "9.1.1" },
+        "registry": { "const": "https://pypi.org/simple" },
+        "sdist": {
+          "const": {
+            "url": "https://files.pythonhosted.org/packages/e4/47/b9efed96c114afcfa3c9d3fe98a76a1d14c74a9e266d397cf6eb64be5e01/pytest-9.1.1.tar.gz",
+            "sha256": "1088fbde8f2b49d95a549a195707afa7a76a3ce9bcadc26b6d71f0ffda5fe313"
+          }
+        },
+        "wheels": {
+          "const": [
+            {
+              "url": "https://files.pythonhosted.org/packages/24/25/1de2678b631f5a49215c6c96fff41ba892b0a34df68d6d80292b1b48aa7f/pytest-9.1.1-py3-none-any.whl",
+              "sha256": "37a86b45efb9a47a61a36449063e8e18d0cab3161329fc099eb21783169c4f0c"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

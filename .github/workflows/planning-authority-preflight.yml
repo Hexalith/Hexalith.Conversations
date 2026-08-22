@@ -63,28 +63,56 @@ jobs:
       - name: Synchronize frozen planning verifier environment
         run: uv sync --frozen
 
-      # When the V14 scope manifest is in the comparison range the verifier also requires
-      # exact baseline-to-candidate path equality and zero raw mode-160000 changes.
+      # When a candidate-bound scope is in the comparison range the verifier requires exact
+      # baseline-to-candidate path equality and zero raw mode-160000 changes. V15 additionally
+      # verifies its two-commit candidate/authority transaction without synchronizing packages.
       - name: Verify lifecycle evidence and candidate-bound publication scope
         run: >-
-          uv run --frozen python3 _bmad/scripts/verify_evidence_boundary.py
+          uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py
           --repository .
           --baseline "${{ steps.range.outputs.baseline }}"
           --candidate HEAD
 
-      - name: Verify Python planning authority
+      - name: Verify current Python planning authority skip-free
+        shell: bash
         run: |
-          uv run --frozen python3 -m pytest -q _bmad/scripts/tests
-          uv run --frozen python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check
+          set -euo pipefail
+          uv run --frozen --no-sync python3 -m pytest -q -ra \
+            _bmad/scripts/tests \
+            --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py \
+            | awk '{ print } /[[:digit:]]+ skipped/ { skipped = 1 } END { exit skipped }'
+
+      - name: Verify complete predecessor Python suite and V9 authority skip-free
+        shell: bash
+        run: |
+          set -euo pipefail
+          historical="$(mktemp -d)"
+          git clone --shared --no-checkout . "$historical"
+          git -C "$historical" checkout --detach 6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4
+          while read -r key path; do
+            name="${key#submodule.}"
+            name="${name%.path}"
+            git -C "$historical" config "submodule.$name.url" "$GITHUB_WORKSPACE/$path"
+          done < <(git config --file .gitmodules --get-regexp '^submodule\..*\.path$')
+          git -c protocol.file.allow=always -C "$historical" submodule update --init --checkout
+          uv sync --project "$historical" --frozen
+          uv run --project "$historical" --frozen --no-sync python3 -m pytest -q -ra \
+            "$historical/_bmad/scripts/tests" \
+            | awk '{ print } /[[:digit:]]+ skipped/ { skipped = 1 } END { exit skipped }'
+          uv run --project "$historical" --frozen --no-sync python3 \
+            "$historical/_bmad/scripts/publish_v9_planning_authority.py" \
+            --repository "$historical" \
+            --check
 
       # Consume the evidence and the independent decision, not just the authority shape. Without
       # this step a V13 authority-shape check reports green while the decision it rests on may be
       # absent, stale, or overreaching (E6-REMEDIATION A3 §4.5).
       - name: Verify current-proof decision chain and candidate authorities
         run: |
-          uv run --frozen python3 _bmad/scripts/verify_decision_chain.py --repository .
-          uv run --frozen python3 _bmad/scripts/publish_v13_current_proof_authority.py --repository . --check
-          uv run --frozen python3 _bmad/scripts/publish_v14_current_candidate_authority.py --repository . --check
+          uv run --frozen --no-sync python3 _bmad/scripts/verify_decision_chain.py --repository .
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_v13_current_proof_authority.py --repository . --check
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_v14_current_candidate_authority.py --repository . --check
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_v15_planning_tooling_environment.py --repository . --check --check-installed
 
       - name: Build conformance verifier
         run: dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1
@@ -94,4 +122,4 @@ jobs:
           dotnet test tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj
           --configuration Release
           --no-build
-          --filter "FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|FullyQualifiedName~PlanningAuthorityV9ValidationTest|FullyQualifiedName~PlanningAuthorityV8ValidationTest"
+          --filter "FullyQualifiedName~ArchitecturePlanningAuthorityValidationTest|FullyQualifiedName~PlanningAuthorityV9ValidationTest|FullyQualifiedName~PlanningAuthorityV8ValidationTest|FullyQualifiedName~PlanningToolingEnvironmentAuthorityV15ValidationTest"
