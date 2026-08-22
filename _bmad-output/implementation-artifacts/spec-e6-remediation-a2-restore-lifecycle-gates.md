@@ -62,9 +62,35 @@ context:
 
 ## Spec Change Log
 
+- 2026-08-22: The human approved a narrow scope expansion to
+  `_bmad/scripts/tests/test_verify_submodule_promotion.py` after the matrix audit
+  showed that removing the post-review gate-rerun clause did not turn a test red.
+  The route contract now requires that clause and a byte-restoring mutation test
+  covers its removal.
+
 ## Verification
 
 **Commands:**
 - `uv run --frozen python3 -m pytest -q --tb=short _bmad/scripts/tests/test_verify_evidence_boundary.py _bmad/scripts/tests/test_verify_submodule_promotion.py _bmad/scripts/tests/test_generate_story_record.py -k 'active_route_inventory or route_gate_faults or displaced_gate_and_cross_tree_parity or completion_workflows_gate or workflow_contract_check or workflow_contract_rejects_enforcement_clause_outside_gate or both_skill_trees_stay_byte_identical or current_route_inventory or v12_gate_span'` -- expected: all selected A2 tests pass with no skips or not-run results.
 - `uv run --frozen python3 -m pytest -q --tb=short _bmad/scripts/tests` -- expected: all A2 route-contract failures are eliminated; any remaining failures are unchanged A3/protected-worktree failures and are reported distinctly.
 - `git diff --check` plus pairwise comparison of the six logical routes -- expected: no whitespace errors or mirror drift, and no product, planning-authority, submodule, or gitlink change.
+
+**Results (2026-08-22):**
+- Exact A2-focused lane: `29 passed, 134 deselected`; no selected failures or skips.
+- Explicit I/O and edge-case matrix audit: `10 passed`.
+- Complete Python tooling lane: `272 passed, 9 failed`; all nine failures were
+  protected `CANDIDATE_SOURCE_DRIFT:
+  _bmad/scripts/tests/test_verify_submodule_promotion.py`
+  publication-authority failures, distinct from the green A2 route-contract
+  lane. The user-authorized additive candidate rebind owns that prerequisite;
+  this A2 record does not weaken or bypass it.
+- Approved test-file `git diff --check`: passed. The focused lane also confirmed
+  exact twelve-route inventory and six-pair byte parity.
+- Review-transition promotion gate: `pass` at committed candidate
+  `36febdd94faaaf0db99fcb4d0feae82ab4df115c`, with seven visible
+  `UNDECLARED_GITLINK_CHANGE` warnings and no blockers.
+- Review-transition evidence gate: `FAIL` with nonempty assertion ledger and
+  stable code `EVIDENCE_SCOPE_BASELINE_MISMATCH`; the publication scope expects
+  baseline `4e3828cfaa189604c11be34e8d67bc94520785d8`, while this spec freezes
+  `1a7c08a4d37d826a151e4eb43faa092f21be0365`. Lifecycle status remains
+  `in-progress`.

@@ -950,6 +950,9 @@ COMMON_V12_GATE_CLAUSES = (
     "BLOCKED",
     "not-applicable",
 )
+AUTO_REVIEW_RERUN_CLAUSE = (
+    "Re-run both gates after review patches and before final `done` finalization."
+)
 WORKFLOW_GATE_CONTRACTS = {
     "bmad-build/step-04-review.md": (
         ("### V12 lifecycle evidence gates", "Change `{spec_file}` status to `in-review`"),
@@ -965,7 +968,7 @@ WORKFLOW_GATE_CONTRACTS = {
     ),
     "bmad-build-auto/step-04-review.md": (
         ("### V12 lifecycle evidence gates", "Change `{spec_file}` status to `in-review`"),
-        COMMON_V12_GATE_CLAUSES,
+        COMMON_V12_GATE_CLAUSES + (AUTO_REVIEW_RERUN_CLAUSE,),
     ),
     "bmad-dev-story/SKILL.md": (
         ("<action>V12 lifecycle evidence gates:", '<action>Update the story Status to: "review"</action>'),
@@ -1044,6 +1047,42 @@ def test_workflow_contract_check_catches_gutted_gate(relative_path: str) -> None
         assert f"missing enforcement clause: {clause}" in violations, (
             f"{relative_path}: removing {clause!r} was not detected"
         )
+
+
+def test_workflow_contract_check_catches_removed_post_review_rerun_clause_and_restores_fixture(
+    tmp_path: Path,
+) -> None:
+    """The automated review route cannot reuse stale pre-patch gate evidence."""
+    relative_path = "bmad-build-auto/step-04-review.md"
+    source = WORKSPACE / ".agents/skills" / relative_path
+    fixture = tmp_path / relative_path
+    fixture.parent.mkdir(parents=True)
+    before = source.read_bytes()
+    fixture.write_bytes(before)
+
+    try:
+        content = fixture.read_text(encoding="utf-8")
+        assert content.count(AUTO_REVIEW_RERUN_CLAUSE) == 1
+        fixture.write_text(
+            content.replace(AUTO_REVIEW_RERUN_CLAUSE, "", 1),
+            encoding="utf-8",
+        )
+
+        markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
+        violations = gate_contract_violations(
+            fixture.read_text(encoding="utf-8"),
+            markers,
+            clauses,
+        )
+
+        assert (
+            f"missing enforcement clause: {AUTO_REVIEW_RERUN_CLAUSE}"
+            in violations
+        )
+    finally:
+        fixture.write_bytes(before)
+
+    assert fixture.read_bytes() == before
 
 
 @pytest.mark.parametrize("relative_path", sorted(WORKFLOW_GATE_CONTRACTS))
