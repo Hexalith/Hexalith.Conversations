@@ -20,7 +20,7 @@ Epic 5 final-record workflow verification: live final-tree reconciliation, histo
 
 - PowerShell fault-injection fixtures: 12 / 12 scenarios passed.
 - Release conformance build: 0 warnings, 0 errors.
-- Broad Release conformance run: 453 total, 439 passed, 14 failed, 0 skipped.
+- Broad Release conformance run: 453 total, 438 passed, 15 failed, 0 skipped.
 - Focused non-mutating public-contract-shape comparison: 5 total, 5 passed, 0 failed, 0 skipped; expected diff state `empty`.
 - Original 2026-07-14 final-record JSON/Markdown: preserved as the authoritative failed predecessor at SHA-256 `a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1` / `0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710`.
-- 2026-08-22 successor live/historical record gate: `BLOCKED` by the 14 broad conformance failures; no release or action completion is claimed.
+- 2026-08-22 successor live/historical record gate: `BLOCKED` by the 15 broad conformance failures; no release or action completion is claimed.

@@ -135,6 +135,11 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
     $concurrentPath = Join-Path $fixtureRoot 'concurrent.txt'
     Write-Utf8File $concurrentPath 'concurrent task state'
     $concurrentHash = Get-FileHashValue $concurrentPath
+    $trackedAddedPath = Join-Path $fixtureRoot 'tracked-added.txt'
+    Write-Utf8File $trackedAddedPath 'tracked concurrent task state'
+    Invoke-FixtureGit $fixtureRoot add tracked-added.txt | Out-Null
+    $trackedAddedIndexBlob = @(Invoke-FixtureGit $fixtureRoot rev-parse ':tracked-added.txt')[0]
+    $trackedAddedHash = Get-FileHashValue $trackedAddedPath
 
     $storyContent = @'
 # Fixture Completion Record
@@ -201,6 +206,13 @@ This successor does not reconstruct the former uncommitted working tree.
                 baselineBlobOid = $concurrentBaselineBlob
                 indexBlobOid = $concurrentBaselineBlob
                 sha256 = $concurrentHash
+            },
+            [ordered]@{
+                path = 'tracked-added.txt'
+                kind = 'tracked-added-file'
+                status = 'A'
+                indexBlobOid = $trackedAddedIndexBlob
+                sha256 = $trackedAddedHash
             },
             [ordered]@{
                 path = 'dependency'
@@ -327,6 +339,11 @@ This successor does not reconstruct the former uncommitted working tree.
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "Frozen entry 'concurrent.txt'"
     $scenarioCount++
     Write-Utf8File $concurrentPath 'concurrent task state'
+
+    Write-Utf8File $trackedAddedPath 'changed after refreeze'
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "Frozen entry 'tracked-added.txt'"
+    $scenarioCount++
+    Write-Utf8File $trackedAddedPath 'tracked concurrent task state'
 
     $newDependencyPath = Join-Path $fixtureRoot 'new-dependency'
     New-Item -ItemType Directory -Path $newDependencyPath -Force | Out-Null

@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
   "artifact": "epic-5-final-record-check",
-  "generatedAtUtc": "2026-08-22T09:28:56Z",
-  "status": "fail",
-  "mechanicalResult": "FAIL",
+  "generatedAtUtc": "2026-08-22T13:11:20Z",
+  "status": "blocked",
+  "mechanicalResult": "BLOCKED",
   "approvedProposal": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
   "predecessor": {
     "id": "epic-5-final-record-check-2026-07-14",
@@ -23,26 +23,22 @@
     "id": "epic-5-final-record-successor-2026-08-22",
     "mode": "live-working-tree",
     "baselineCommit": "62f27c452b7ef8fb8d1f2a1c88e62e8c792b3893",
-    "evaluatedHead": "a72e3e5433173895cc5edfbc25d95e37d46f5e82",
-    "status": "fail",
-    "mechanicalResult": "FAIL",
-    "failures": [
-      "Frozen entry '_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md' changed: SHA-256 changed from 29e8a2bba7ff62a04d00ee8eb0818ea6e3559a4c7a796bc48d619a7f65f9ffee to a5d89f8fb8b77bde0d667d429b7468e5ab260190f1a9b888d993db468e48ffca.",
-      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md'.",
-      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md'.",
-      "Executable/test input fingerprint is stale: expected PENDING_FINAL_RUN, found 8de4bbb4f61b5878d361ec6a32a19e68ea59483bca113762b85d99144872b939."
-    ],
+    "evaluatedHead": "81e1a65a50731b9878b1ffd0d7290def8d155992",
+    "status": "blocked",
+    "mechanicalResult": "BLOCKED",
+    "failures": [],
     "testRun": {
       "status": "fail",
-      "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor.trx",
+      "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-current.trx",
       "counts": {
         "total": 453,
         "executed": 453,
-        "passed": 439,
-        "failed": 14,
+        "passed": 438,
+        "failed": 15,
         "skipped": 0
       },
       "failedTests": [
+        "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.AuthorityBundleShouldBindEveryCompanionWithoutSelfReference",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
@@ -60,24 +56,25 @@
       ],
       "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
       "contractTestOutcome": "Passed",
-      "sha256": "1961ffe215816fb158de00366cb7689f06fc5132c12e842f8f72f78eb24d4327"
+      "sha256": "d53c2b5e804886732e8b71a610501a55340f87791488c59c513d7d15f1c4e21d"
     },
     "blockedValidation": {
       "status": "blocked",
       "mechanicalResult": "BLOCKED",
       "code": "CURRENT_TREE_CONFORMANCE_FAILURES",
-      "rationale": "The full current-tree conformance lane has 14 failures in unrelated workflow-authority, projection-proof, and preservation-proof guards. Repair would require out-of-scope authority or hash-bound evidence changes.",
+      "rationale": "The full current-tree conformance lane has 15 failures in workflow-authority, projection-proof, preservation-proof, and retained workflow-skill guards. Repair would require out-of-scope authority or signed/hash-bound evidence changes.",
       "broadTestRun": {
         "status": "fail",
-        "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor.trx",
+        "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-current.trx",
         "counts": {
           "total": 453,
           "executed": 453,
-          "passed": 439,
-          "failed": 14,
+          "passed": 438,
+          "failed": 15,
           "skipped": 0
         },
         "failedTests": [
+          "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.AuthorityBundleShouldBindEveryCompanionWithoutSelfReference",
           "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
           "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
           "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
@@ -95,12 +92,13 @@
         ],
         "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
         "contractTestOutcome": "Passed",
-        "sha256": "1961ffe215816fb158de00366cb7689f06fc5132c12e842f8f72f78eb24d4327"
+        "sha256": "d53c2b5e804886732e8b71a610501a55340f87791488c59c513d7d15f1c4e21d"
       },
       "broadFailures": [
-        "TRX is not fully green: total=453, executed=453, passed=439."
+        "TRX is not fully green: total=453, executed=453, passed=438."
       ],
       "expectedFailedTests": [
+        "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.AuthorityBundleShouldBindEveryCompanionWithoutSelfReference",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
         "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
@@ -137,17 +135,17 @@
       {
         "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
         "kind": "regex",
-        "claim": "439 / 453 passed",
+        "claim": "438 / 453 passed",
         "status": "pass"
       },
       {
         "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
         "kind": "regex",
-        "claim": "453 total, 439 passed|439 / 453 passed",
+        "claim": "453 total, 438 passed|438 / 453 passed",
         "status": "pass"
       }
     ],
-    "executableInputFingerprint": "8de4bbb4f61b5878d361ec6a32a19e68ea59483bca113762b85d99144872b939",
+    "executableInputFingerprint": "bd468304194d9aa791185742c87d6334f4ab81855ae199fcaeacd30398982d04",
     "changedPaths": {
       "expected": [
         "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
@@ -167,9 +165,7 @@
       ],
       "observed": [
         "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
-        "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
         "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
-        "_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md",
         "_bmad-output/implementation-artifacts/sprint-status.yaml",
         "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
         "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json",
@@ -186,11 +182,8 @@
       "duplicateExpected": [],
       "duplicateObserved": [],
       "missing": [],
-      "unexpected": [
-        "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
-        "_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md"
-      ],
-      "status": "fail"
+      "unexpected": [],
+      "status": "pass"
     },
     "configuredFileList": {
       "expected": [
@@ -240,27 +233,55 @@
       },
       {
         "path": "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
-        "kind": "untracked-file",
-        "status": "changed-fail",
-        "failures": [
-          "SHA-256 changed from 29e8a2bba7ff62a04d00ee8eb0818ea6e3559a4c7a796bc48d619a7f65f9ffee to a5d89f8fb8b77bde0d667d429b7468e5ab260190f1a9b888d993db468e48ffca"
-        ]
+        "kind": "tracked-added-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md",
+        "kind": "tracked-added-file",
+        "status": "unchanged-excluded",
+        "failures": []
       },
       {
         "path": "_bmad-output/planning-artifacts/epics.md",
-        "kind": "untracked-file",
+        "kind": "tracked-added-file",
         "status": "unchanged-excluded",
         "failures": []
       },
       {
         "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-19.md",
-        "kind": "untracked-file",
+        "kind": "tracked-added-file",
         "status": "unchanged-excluded",
         "failures": []
       },
       {
         "path": "_bmad/scripts/tests/test_static_anti_skip_guard.py",
-        "kind": "untracked-file",
+        "kind": "tracked-added-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-e6-remediation-a2-restore-lifecycle-gates.md",
+        "kind": "tracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+        "kind": "tracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "package-lock.json",
+        "kind": "tracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "package.json",
+        "kind": "tracked-file",
         "status": "unchanged-excluded",
         "failures": []
       },
@@ -305,12 +326,12 @@
       {
         "path": "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
         "status": "present",
-        "sha256": "c0311234ce5f67c47749477b8d3e2da65ef1639f858027712a73ee22402842bc"
+        "sha256": "75af50f7b875198a154340f2036897aa4f39f5e8f69c13725dbf1f12fec69169"
       },
       {
         "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
         "status": "present",
-        "sha256": "537000c023eb50f8a6b963e2c92bdf06bd9ecad1fe3c312a57068e2d7ff9051d"
+        "sha256": "7d9166ad185c5094d1a6fc53358a3907ef8322dcb5e71453649411b3e6c8b012"
       },
       {
         "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
@@ -325,17 +346,17 @@
       {
         "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
         "status": "present",
-        "sha256": "97d32314af7e765da68398adc1e1e91f85c31c9d8ec9984639176c1c333f543e"
+        "sha256": "09cd66564a2073dc8363c10081593d29b07eed8cad8ccf97e0378270d24db7d7"
       },
       {
         "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
         "status": "present",
-        "sha256": "392322c3b0ae0d73ef0c7e21cf2a25e18f86d49582c1dad3b2545bb1a485d3d7"
+        "sha256": "b77026836699bd56b644f24debc1c93ae01c137eb7b832e22b6a10cdb029d2f6"
       },
       {
         "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
         "status": "present",
-        "sha256": "866ca78c806e4d92015aa08e2b4aa86b2268203116c6145eaa0504c6a6448c02"
+        "sha256": "3417fbea00ae0433464246c9284616f124d07740e73a4b97a7fb06eded7992ee"
       },
       {
         "path": "tests/README.md",
@@ -637,7 +658,7 @@
   "assertionLedger": [
     {
       "id": "live-final-tree",
-      "result": "FAIL"
+      "result": "BLOCKED"
     },
     {
       "id": "historical-5.1",
@@ -656,5 +677,5 @@
       "result": "PASS"
     }
   ],
-  "renderedMarkdownSha256": "a8c8638dcaa81fb7341a64deec0dfafee5bee78c374762b3e128f36e89554d91"
+  "renderedMarkdownSha256": "ea4d1434639c18a66a1a970024701a4f4c57faa3a80b7d96f005c7f5d6f087ae"
 }

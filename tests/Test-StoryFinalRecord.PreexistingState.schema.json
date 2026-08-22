@@ -28,7 +28,7 @@
             "minLength": 1
           },
           "kind": {
-            "enum": ["untracked-file", "tracked-file", "gitlink"]
+            "enum": ["untracked-file", "tracked-added-file", "tracked-file", "gitlink"]
           },
           "sha256": {
             "type": "string",
@@ -74,6 +74,18 @@
             },
             "then": {
               "required": ["sha256"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "tracked-added-file"
+                }
+              }
+            },
+            "then": {
+              "required": ["status", "indexBlobOid", "sha256"]
             }
           },
           {

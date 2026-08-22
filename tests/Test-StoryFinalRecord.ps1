@@ -379,6 +379,28 @@ function Test-PreexistingState {
                 }
             }
         }
+        elseif ([string]$entry.kind -eq 'tracked-added-file') {
+            if (-not $ObservedEntries.Contains($path) -or $ObservedEntries[$path] -cne [string]$entry.status) {
+                Add-Failure -Failures $entryFailures -Message "tracked status changed from $($entry.status) to $($ObservedEntries[$path])"
+            }
+            if (-not (Test-Path -LiteralPath $absolutePath -PathType Leaf)) {
+                Add-Failure -Failures $entryFailures -Message 'file is missing'
+            }
+            else {
+                $baselineEntries = @(Invoke-GitLines -Root $Root -GitArguments @('ls-tree', [string]$State.baselineCommit, '--', $path))
+                $indexBlob = @(Invoke-GitLines -Root $Root -GitArguments @('rev-parse', ":$path"))[0]
+                $actualHash = Get-Sha256ForFile $absolutePath
+                if ($baselineEntries.Count -ne 0) {
+                    Add-Failure -Failures $entryFailures -Message "path unexpectedly exists at baseline commit $($State.baselineCommit)"
+                }
+                if ($indexBlob -cne [string]$entry.indexBlobOid) {
+                    Add-Failure -Failures $entryFailures -Message "index blob changed from $($entry.indexBlobOid) to $indexBlob"
+                }
+                if ($actualHash -cne [string]$entry.sha256) {
+                    Add-Failure -Failures $entryFailures -Message "SHA-256 changed from $($entry.sha256) to $actualHash"
+                }
+            }
+        }
         elseif ([string]$entry.kind -eq 'tracked-file') {
             if (-not $ObservedEntries.Contains($path) -or $ObservedEntries[$path] -cne [string]$entry.status) {
                 Add-Failure -Failures $entryFailures -Message "tracked status changed from $($entry.status) to $($ObservedEntries[$path])"

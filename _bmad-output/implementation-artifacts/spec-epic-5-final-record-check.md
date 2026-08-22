@@ -66,7 +66,7 @@ context:
 
 ## Spec Change Log
 
-- 2026-08-22: The user approved preserving the failed July 14 record and adding a dated corrective amendment plus successor audit. The successor remains blocked on 14 unrelated current-tree conformance failures; the spec and Epic 4 action stay in progress.
+- 2026-08-22: The user approved preserving the failed July 14 record and adding a dated corrective amendment plus successor audit. The successor remains blocked on 15 current-tree conformance failures; the spec and Epic 4 action stay in progress.
 
 ## Design Notes
 
@@ -85,13 +85,13 @@ The 2026-08-22 successor separately verifies the byte-identical failed predecess
 
 ## Validation Results
 
-- PowerShell disposable-repository fault injection: 12 / 12 scenarios passed.
+- PowerShell disposable-repository fault injection: 13 / 13 scenarios passed.
 - Release conformance build: 0 warnings and 0 errors.
-- Release conformance run: 439 / 453 passed, 14 failed, 0 skipped — `BLOCKED` by unrelated workflow-authority, projection-proof, and preservation-proof guards.
+- Release conformance run: 438 / 453 passed, 15 failed, 0 skipped — `BLOCKED` by workflow-authority, projection-proof, preservation-proof, and retained workflow-skill guards.
 - Focused non-mutating public-contract-shape comparison: 5 / 5 passed; baseline working-tree diff empty.
 - Story 5.2 source record SHA-256 remains `ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21`, matching the signed Story 5.3 source manifest.
 - The original failed JSON/Markdown remain byte-identical at SHA-256 `a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1` / `0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710`.
-- Final successor live/historical gate: pending final fingerprint sealing; expected completion result remains `BLOCKED` until the 14 broad conformance failures are resolved outside this spec.
+- Final successor live/historical gate: pending final fingerprint sealing; expected completion result remains `BLOCKED` until the 15 broad conformance failures are resolved outside this spec.
 
 ### File List
 
