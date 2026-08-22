@@ -535,7 +535,7 @@ public sealed class PlanningAuthorityV9ValidationTest
         Regex.IsMatch(sprint, @"^  [^:\n]*7\.1-SCHEMAS[^:\n]*:", RegexOptions.Multiline).ShouldBeFalse();
         sprint.ShouldContain("last_updated: 2026-08-19");
         sprint.ShouldContain("# V14 PLANNING PUBLICATION:");
-        sprint.ShouldContain("A2-A6 remain open");
+        sprint.ShouldContain("A2 and A3 are done, A4-A6 remain open");
         sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
         sprint.ShouldContain("  epic-6-retrospective: done");
         Regex.Matches(sprint, "^  - id: \"(epic-6-retro-item-[^\"]+)\"$", RegexOptions.Multiline)

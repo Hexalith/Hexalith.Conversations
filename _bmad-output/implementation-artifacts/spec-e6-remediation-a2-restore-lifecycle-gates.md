@@ -2,7 +2,7 @@
 title: 'Restore E6-REMEDIATION A2 lifecycle evidence gates'
 type: 'bugfix'
 created: '2026-08-16'
-status: 'in-progress'
+status: 'done'
 baseline_commit: '1a7c08a4d37d826a151e4eb43faa092f21be0365'
 submodule_promotions: []
 review_loop_iteration: 0
@@ -62,6 +62,19 @@ context:
 
 ## Spec Change Log
 
+- 2026-08-18 — Closure note (record only; no acceptance change). The A2 focused lane measures
+  28 collected / 28 passed / 0 failed / 0 skipped / 0 not-run / 129 deselected at `29c56fa`, and all
+  nine `-k` terms resolve to real tests. The "30/30" count attributed to this spec in
+  sprint-change-proposal-2026-08-18-e6-remediation-a3.md AC-11 was never present here; it was
+  misattributed from the Story 6.7 and Story 6.2 records. Resolved by
+  sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md CP-2. The frozen intent, boundaries,
+  I/O matrix, and acceptance criteria are unchanged.
+- 2026-08-22: Candidate-bound closure evidence at `3240bfa3691cc6c2417e7dc288bad123eadf33fc`
+  records 29/29 focused A2 tests and 281/281 complete Python tooling tests, with zero failures,
+  skips, or not-run tests. The promotion gate returned `pass`, the evidence-boundary gate returned
+  `PASS` with a nonempty ledger, deterministic publication reproduced bundle
+  `c50e813e1932c69276fdb65b6773d291f86d1fb469cc42bbffa0e96b4b1c30ba`, and the Release
+  conformance build completed with zero warnings and zero errors.
 - 2026-08-22: The human approved a narrow scope expansion to
   `_bmad/scripts/tests/test_verify_submodule_promotion.py` after the matrix audit
   showed that removing the post-review gate-rerun clause did not turn a test red.

@@ -1082,7 +1082,7 @@ def test_publication_preserves_the_unrun_independent_assessment_boundary() -> No
     assert "does not implement a story, run IR-0, lift the" in " ".join(view.split())
     assert "IR-0 was not run" in sprint
     assert sprint.count("# V14 PLANNING PUBLICATION:") == 1
-    assert "A2-A6 remain open" in sprint
+    assert "A2 and A3 are done, A4-A6 remain open" in sprint
     assert "Epic 16 remain backlog" in sprint
     assert not any("ir-0" in path.lower() for path in outputs)
     assert not any("implementation-readiness-report" in row["path"].lower() for row in bundle["artifacts"])

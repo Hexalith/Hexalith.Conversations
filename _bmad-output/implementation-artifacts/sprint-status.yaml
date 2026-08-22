@@ -38,7 +38,7 @@
 
 generated: 2026-06-02
 last_updated: 2026-08-19
-# V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2-A6 remain open, and all successor stories including Epic 16 remain backlog.
+# V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
 project_key: NOKEY
@@ -247,13 +247,13 @@ action_items:
     epic: 6
     action: "Restore the submodule-promotion and evidence-boundary gates on every current review/done route and make the Story 6.7 workflow-contract suite pass against the active BMAD surfaces."
     owner: "Dev workflow"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-6-retro-item-26-harden-planning-authority-verification-t"
     epic: 6
     action: "Harden planning-authority verification to fail closed when candidate or recorded submodule evidence is unavailable, fix the vacuous parameter-signature predicate, and add mutation tests plus an automatic preflight."
     owner: "Architecture / Quality"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
   - id: "epic-6-retro-item-27-create-approved-successor-work-for-a-dur"
     epic: 6

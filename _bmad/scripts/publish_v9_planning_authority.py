@@ -127,8 +127,8 @@ EPIC_6_RETROSPECTIVE_IDS = (
 )
 # Item 24 may be `done` after an ACCEPTED V13 current-proof decision is
 # human-applied; items 25-29 remain open until their owning checkpoints close.
-EPIC_6_RETROSPECTIVE_STATUSES = ("done", "open", "open", "open", "open", "open")
-EPIC_6_RETROSPECTIVE_DIGEST = "40ef127d1785c653a640554e75f6f16f2a9c3f92c14573aa21bdcb197ac2908c"
+EPIC_6_RETROSPECTIVE_STATUSES = ("done", "done", "done", "open", "open", "open")
+EPIC_6_RETROSPECTIVE_DIGEST = "2295d2972b6d167865fc167f8ca172dd6604e27785ab800a685abe4951750305"
 
 MECHANICAL_PATHS = (
     ".agents/skills/bmad-build/step-04-review.md",
@@ -1686,7 +1686,7 @@ def render_sprint(source: bytes, contracts: dict[str, dict[str, Any]]) -> bytes:
         "# V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and "
         "conversations-architecture-2026-08-18-v14 are candidate-bound by "
         "v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; "
-        "IR-0 was not run, A2-A6 remain open, and all successor stories including Epic 16 remain backlog.\n"
+        "IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.\n"
     )
     updated_line = "last_updated: 2026-08-19\n"
     text = text.replace(updated_line, updated_line + notice, 1)
