@@ -49,11 +49,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Commit this approved continuation spec as the source candidate without unrelated changes.
-- [ ] `_bmad/scripts/publish_v9_planning_authority.py` and its managed outputs — rebind the existing bundle to the exact committed source candidate; preserve pinned V12–V14 sidecars.
-- [ ] `_bmad/scripts/tests` — run the focused A2 matrix and complete Python lane with zero failed, skipped, or not-run tests.
-- [ ] `_bmad-output/implementation-artifacts/spec-e6-remediation-a2-restore-lifecycle-gates.md` and `_bmad-output/implementation-artifacts/sprint-status.yaml` — close A2, then A3, only after both lifecycle gates continue.
-- [ ] `_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md` — run an independent, candidate-matched, outcome-neutral IR-0 and preserve its actual result.
+- [x] Commit this approved continuation spec as the source candidate without unrelated changes.
+- [x] `_bmad/scripts/publish_v9_planning_authority.py` and its managed outputs — rebind the existing bundle to the exact committed source candidate; preserve pinned V12–V14 sidecars.
+- [x] `_bmad/scripts/tests` — run the focused A2 matrix and complete Python lane with zero failed, skipped, or not-run tests.
+- [x] `_bmad-output/implementation-artifacts/spec-e6-remediation-a2-restore-lifecycle-gates.md` and `_bmad-output/implementation-artifacts/sprint-status.yaml` — close A2, then A3, only after both lifecycle gates continue.
+- [x] `_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md` — run an independent, candidate-matched, outcome-neutral IR-0 and preserve its actual result.
 
 **Acceptance Criteria:**
 - Given the committed continuation candidate, when publication is regenerated and checked, then every managed companion and bundle row binds that candidate exactly while V12–V14 bytes remain unchanged.
@@ -72,3 +72,4 @@ context:
 ## Spec Change Log
 
 - 2026-08-22: Jerome selected Option 1 and authorized ownership of the concurrent worktree plus creation of the committed continuation candidate.
+- 2026-08-22: Rebound planning candidate `1e9a61126d3b7a55b514b7c7c8942d5af03355e5`, preserved V12–V14 byte-for-byte, closed A2/A3 after passing gates, and recorded independent IR-0 `READY` with the implementation hold still `ACTIVE`.
