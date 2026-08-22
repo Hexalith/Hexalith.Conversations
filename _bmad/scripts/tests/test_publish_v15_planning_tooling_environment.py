@@ -65,7 +65,7 @@ def test_current_environment_has_exact_versions_hashes_modes_and_thirteen_packag
 
     document = publisher.publish(
         staged,
-        candidate_revision=candidate,
+        candidate_revision=publication,
         check=True,
         publication_revision=publication,
     )
@@ -177,7 +177,7 @@ def test_scope_self_reference_mode_and_publication_faults_fail_closed(tmp_path: 
         "build(deps): drift V15 publication fixture",
     )
     with pytest.raises(publisher.ToolingAuthorityError) as error:
-        publisher.validate_publication(staged, candidate, publication)
+        publisher.validate_publication(staged, candidate, publication, publication)
     assert error.value.code == "TOOLING_PUBLICATION_SCOPE_DRIFT"
 
 
@@ -209,16 +209,80 @@ def test_predecessor_and_ir0_faults_have_stable_failures(
     assert error.value.code == expected_code
 
 
-def test_dirty_candidate_blocks_and_failure_result_is_non_vacuous(tmp_path: Path) -> None:
-    staged, candidate = stage_candidate(tmp_path)
+def test_descendant_and_dirty_worktree_validate_committed_publication(tmp_path: Path) -> None:
+    staged, candidate, publication = stage_transaction(tmp_path)
+    (staged / "README.md").write_text("descendant\n", encoding="utf-8")
+    descendant = commit(staged, ("README.md",), "test: add V15 descendant")
     (staged / "unrelated.txt").write_text("dirty\n", encoding="utf-8")
 
-    with pytest.raises(publisher.ToolingAuthorityError) as error:
-        publisher.publish(staged, candidate_revision=candidate, check=False)
+    document = publisher.publish(staged, candidate_revision=descendant, check=True)
 
-    assert error.value.code == "TOOLING_CANDIDATE_DIRTY"
+    assert document["candidateCommit"] == candidate
+    assert publication == git(staged, "log", "--format=%H", "--diff-filter=A", descendant, "--", publisher.AUTHORITY_PATH)
+    assert (staged / "unrelated.txt").read_text(encoding="utf-8") == "dirty\n"
+
+
+def test_non_ancestor_descendant_and_multi_parent_candidate_block(tmp_path: Path) -> None:
+    staged, _, publication = stage_transaction(tmp_path / "ancestry")
+
+    with pytest.raises(publisher.ToolingAuthorityError) as error:
+        publisher.publish(staged, candidate_revision=publisher.BASELINE_COMMIT, check=True, publication_revision=publication)
+    assert error.value.code == "TOOLING_PUBLICATION_NOT_ANCESTOR"
     assert error.value.state == "BLOCKED"
-    result = publisher.failure_document(staged, error.value)
+
+    staged, candidate = stage_candidate(tmp_path / "merge")
+    subprocess.run(["git", "-C", str(staged), "branch", "side", publisher.BASELINE_COMMIT], check=True)
+    subprocess.run(["git", "-C", str(staged), "checkout", "-q", "side"], check=True)
+    (staged / "side.txt").write_text("side\n", encoding="utf-8")
+    side = commit(staged, ("side.txt",), "test: add side parent")
+    subprocess.run(["git", "-C", str(staged), "checkout", "-q", "main"], check=True)
+    subprocess.run(["git", "-C", str(staged), "merge", "--no-ff", "-q", "-m", "test: merge parent", side], check=True)
+    merge = git(staged, "rev-parse", "HEAD")
+    with pytest.raises(publisher.ToolingAuthorityError) as error:
+        publisher.render_authority(staged, merge)
+    assert error.value.code == "TOOLING_CANDIDATE_PARENT_MISMATCH"
+    assert error.value.state == "BLOCKED"
+
+
+def test_malformed_lock_utf8_path_and_installed_metadata_have_stable_results(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    staged, candidate = stage_candidate(
+        tmp_path,
+        lambda root: (root / "uv.lock").write_text('version = 1\npackage = "invalid"\n', encoding="utf-8"),
+    )
+    with pytest.raises(publisher.ToolingAuthorityError) as error:
+        publisher.package_rows(staged, candidate)
+    assert error.value.code == "TOOLING_LOCK_INVALID"
+
+    original_run_git = publisher.run_git
+
+    def invalid_path(_root: Path, *arguments: str, **_kwargs):
+        if arguments[:3] == ("diff", "--name-only", "-z"):
+            return subprocess.CompletedProcess(arguments, 0, stdout=b"\xff\0", stderr=b"")
+        return original_run_git(_root, *arguments, **_kwargs)
+
+    monkeypatch.setattr(publisher, "run_git", invalid_path)
+    with pytest.raises(publisher.ToolingAuthorityError) as error:
+        publisher.changed_paths(staged, publisher.BASELINE_COMMIT, candidate)
+    assert error.value.code == "TOOLING_PATH_ENCODING_INVALID"
+    monkeypatch.setattr(publisher, "run_git", original_run_git)
+
+    def unavailable(_name: str) -> str:
+        raise publisher.importlib.metadata.PackageNotFoundError("fixture")
+
+    monkeypatch.setattr(publisher.importlib.metadata, "version", unavailable)
+    with pytest.raises(publisher.ToolingAuthorityError) as error:
+        publisher.validate_installed_versions()
+    assert error.value.code == "TOOLING_INSTALLED_METADATA_UNAVAILABLE"
+    assert error.value.state == "BLOCKED"
+
+
+def test_failure_result_is_non_vacuous() -> None:
+    error = publisher.ToolingAuthorityError("TOOLING_HISTORY_UNAVAILABLE", "fixture", "BLOCKED")
+    result = publisher.failure_document(ROOT, error)
+
     assert result["result"] == "BLOCKED"
     assert result["assertionLedger"]
 

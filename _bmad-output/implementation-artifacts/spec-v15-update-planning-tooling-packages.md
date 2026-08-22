@@ -2,8 +2,8 @@
 title: 'Publish V15 authority for planning tooling package updates'
 type: 'chore'
 created: '2026-08-22'
-status: 'in-progress'
-review_loop_iteration: 0
+status: 'in-review'
+review_loop_iteration: 1
 baseline_commit: '6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4'
 submodule_promotions: []
 context:
@@ -72,6 +72,7 @@ context:
 - 2026-08-22: Rebased non-frozen execution details from `36febdd` to clean candidate `5900d9f` after the separately authorized E6/IR-0 transaction completed; removed obsolete V9 publisher modifications and made V15 authority-neutral for IR-0.
 - 2026-08-22: Rebased again to `6400c09` after the independent IR-0 `READY` report was committed; V15 preserves that result and the still-active global hold without granting any further authority.
 - 2026-08-22: Clarified the non-frozen Python verification split: run the complete historical suite at baseline and the complete current suite excluding only the unchanged V9 live-byte drift module, whose rejection of current package bytes is an invariant rather than a regression.
+- 2026-08-22: Adversarial review found descendant-head, PR/manual topology, lifecycle-dirty-state, closed-contract, failure-state, and negative-test gaps after V15 had already been pushed. Preserve the public V15 transaction and correct it additively through the approved V16 successor; keep the package pins, exact V15 C1/C2 boundary, V9-V15/IR-0 bytes, active hold, and zero-gitlink invariant.
 
 ## Design Notes
 

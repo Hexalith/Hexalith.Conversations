@@ -206,7 +206,8 @@ def test_not_applicable_still_has_a_nonempty_assertion_ledger(tmp_path: Path) ->
     document = verifier.verify(tmp_path, baseline, "HEAD")
 
     assert document["result"] == "not-applicable"
-    assert document["changedPaths"] == ["README.md"]
+    assert document["changedPaths"] == []
+    assert document["worktreePaths"] == ["README.md"]
     assert document["assertionLedger"]
     assert all(row["state"] == "PASS" for row in document["assertionLedger"])
 
@@ -431,18 +432,7 @@ def test_v15_two_commit_scope_is_exact_candidate_bound_and_zero_gitlink(tmp_path
     init_repository(tmp_path)
     (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
     baseline = commit_all(tmp_path, "test: baseline")
-    c1_paths = (
-        ".github/workflows/planning-authority-preflight.yml",
-        "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
-        "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
-        "_bmad/scripts/publish_v15_planning_tooling_environment.py",
-        "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
-        "_bmad/scripts/tests/test_verify_evidence_boundary.py",
-        "_bmad/scripts/verify_evidence_boundary.py",
-        "pyproject.toml",
-        "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
-        "uv.lock",
-    )
+    c1_paths = verifier.V15_C1_PATHS
     for relative in c1_paths:
         path = tmp_path / relative
         path.parent.mkdir(parents=True, exist_ok=True)
@@ -469,16 +459,22 @@ def test_v15_two_commit_scope_is_exact_candidate_bound_and_zero_gitlink(tmp_path
         encoding="utf-8",
     )
     c2 = commit_all(tmp_path, "test: V15 C2")
-    paths = verifier.changed_paths(tmp_path, baseline, c2)
-    gitlinks = verifier.validate_gitlinks(tmp_path, baseline, c2)
-
-    row = verifier.validate_v15_scope(tmp_path, baseline, c2, paths, gitlinks)
+    row = verifier.validate_authority_scope(
+        tmp_path,
+        c2,
+        version="v15",
+        authority_path=verifier.V15_AUTHORITY_PATH,
+        schema_version="hexalith.conversations.v15-planning-tooling-environment-authority.v1",
+        baseline=baseline,
+        expected_c1_paths=c1_paths,
+    )
 
     assert row == {
         "id": "V15-SCOPE-01",
         "subject": "v15-planning-tooling-boundary",
         "state": "PASS",
         "applied": True,
+        "publication": c2,
         "count": 11,
     }
 
@@ -507,25 +503,61 @@ def test_v15_scope_rejects_predecessor_scope_and_gitlink_faults(tmp_path: Path) 
     }
     authority_path.write_text(json.dumps(authority) + "\n", encoding="utf-8")
     c2 = commit_all(tmp_path, "test: authority")
-    paths = verifier.changed_paths(tmp_path, baseline, c2)
-
     authority["candidateCommit"] = baseline
     authority_path.write_text(json.dumps(authority) + "\n", encoding="utf-8")
     wrong_predecessor = commit_all(tmp_path, "test: wrong predecessor binding")
     with pytest.raises(verifier.BoundaryError) as error:
-        verifier.validate_v15_scope(tmp_path, baseline, wrong_predecessor, paths, {"paths": []})
-    assert error.value.code == "EVIDENCE_V15_PUBLICATION_PARENT_MISMATCH"
-
-    with pytest.raises(verifier.BoundaryError) as error:
-        verifier.validate_v15_scope(tmp_path, baseline, c2, [*paths, "unexpected.txt"], {"paths": []})
-    assert error.value.code == "EVIDENCE_V15_SCOPE_DRIFT"
-
-    with pytest.raises(verifier.BoundaryError) as error:
-        verifier.validate_v15_scope(
+        verifier.validate_authority_scope(
             tmp_path,
-            baseline,
-            c2,
-            paths,
-            {"paths": ["references/Hexalith.EventStore"]},
+            wrong_predecessor,
+            version="v15",
+            authority_path=verifier.V15_AUTHORITY_PATH,
+            schema_version="hexalith.conversations.v15-planning-tooling-environment-authority.v1",
+            baseline=baseline,
+            expected_c1_paths=(c1_path,),
         )
-    assert error.value.code == "EVIDENCE_GITLINK_SET_DRIFT"
+    assert error.value.code == "EVIDENCE_V15_AUTHORITY_DESCENDANT_DRIFT"
+
+    authority_path.write_text(json.dumps(authority) + "\n", encoding="utf-8")
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_authority_scope(
+            tmp_path,
+            wrong_predecessor,
+            version="v15",
+            authority_path=verifier.V15_AUTHORITY_PATH,
+            schema_version="hexalith.conversations.v15-planning-tooling-environment-authority.v1",
+            baseline=baseline,
+            expected_c1_paths=(c1_path, "unexpected.txt"),
+        )
+    assert error.value.code == "EVIDENCE_V15_AUTHORITY_INVALID"
+
+
+def test_child_blocked_result_is_preserved() -> None:
+    result = subprocess.CompletedProcess(
+        ["publisher"],
+        2,
+        stdout=json.dumps(
+            {
+                "result": "BLOCKED",
+                "blockers": [{"code": "LIFECYCLE_HISTORY_UNAVAILABLE", "detail": "fixture"}],
+            }
+        ),
+        stderr="",
+    )
+
+    error = verifier.child_failure(result)
+
+    assert error.code == "LIFECYCLE_HISTORY_UNAVAILABLE"
+    assert error.state == "BLOCKED"
+
+
+def test_authority_route_uses_candidate_tree_not_dirty_worktree(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    candidate = commit_all(tmp_path, "test: baseline")
+    dirty = tmp_path / verifier.V16_AUTHORITY_PATH
+    dirty.parent.mkdir(parents=True)
+    dirty.write_text("{}\n", encoding="utf-8")
+
+    assert verifier.authority_route(tmp_path, candidate) == "legacy"
+    assert verifier.V16_AUTHORITY_PATH in verifier.worktree_paths(tmp_path)

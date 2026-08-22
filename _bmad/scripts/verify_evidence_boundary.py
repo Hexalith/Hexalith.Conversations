@@ -20,6 +20,44 @@ GATE_MARKER = "V12 lifecycle evidence gates"
 PUBLICATION_SCOPE_PATH = "_bmad-output/planning-artifacts/v14-planning-publication-scope-v1.json"
 V15_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json"
 V15_PUBLISHER_PATH = "_bmad/scripts/publish_v15_planning_tooling_environment.py"
+V16_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json"
+V16_PUBLISHER_PATH = "_bmad/scripts/publish_v16_planning_tooling_lifecycle.py"
+V15_BASELINE_COMMIT = "6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4"
+V16_BASELINE_COMMIT = "08a4bdcc5a18067f8f93c777055d8097987a9da2"
+V15_C1_PATHS = tuple(
+    sorted(
+        (
+            ".github/workflows/planning-authority-preflight.yml",
+            "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+            "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json",
+            V15_PUBLISHER_PATH,
+            "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+            "pyproject.toml",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+            "uv.lock",
+        )
+    )
+)
+V16_C1_PATHS = tuple(
+    sorted(
+        (
+            ".github/workflows/planning-authority-preflight.yml",
+            "_bmad-output/implementation-artifacts/spec-v15-update-planning-tooling-packages.md",
+            "_bmad-output/implementation-artifacts/spec-v16-correct-planning-tooling-lifecycle-authority.md",
+            "_bmad/schemas/v16-planning-tooling-lifecycle-authority-v1.schema.json",
+            V15_PUBLISHER_PATH,
+            V16_PUBLISHER_PATH,
+            "_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py",
+            "_bmad/scripts/tests/test_publish_v16_planning_tooling_lifecycle.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
+            "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingLifecycleAuthorityV16ValidationTest.cs",
+        )
+    )
+)
 ACTIVE_ROUTE_PATHS = (
     ".agents/skills/bmad-build/step-04-review.md",
     ".agents/skills/bmad-build/step-05-present.md",
@@ -148,20 +186,72 @@ def resolve_commit(repository: Path, revision: str, code: str) -> str:
     return value
 
 
+def commit_parents(repository: Path, commit: str, code: str) -> tuple[str, ...]:
+    """Return every parent and preserve malformed or unavailable history as BLOCKED."""
+
+    try:
+        record = run_git(repository, "rev-list", "--parents", "-n", "1", commit).stdout.decode("ascii").strip().split()
+    except UnicodeError as error:
+        raise BoundaryError(code, str(error), "BLOCKED") from error
+    if not record or record[0] != commit or any(re.fullmatch(r"[0-9a-f]{40}", value) is None for value in record):
+        raise BoundaryError(code, repr(record), "BLOCKED")
+    return tuple(record[1:])
+
+
+def require_single_parent(repository: Path, commit: str, expected: str, code: str) -> None:
+    """Require exactly one parent with the expected identity."""
+
+    parents = commit_parents(repository, commit, code)
+    if len(parents) != 1 or parents[0] != expected:
+        raise BoundaryError(code, f"expected ({expected!r},); observed {parents!r}", "BLOCKED")
+
+
 def nul_paths(content: bytes) -> set[str]:
     """Parse normalized NUL-separated paths."""
 
-    return {safe_relative_path(value.decode("utf-8", errors="strict")) for value in content.split(b"\0") if value}
+    try:
+        return {safe_relative_path(value.decode("utf-8", errors="strict")) for value in content.split(b"\0") if value}
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_PATH_ENCODING_INVALID", str(error), "BLOCKED") from error
 
 
 def changed_paths(repository: Path, baseline: str, candidate: str) -> tuple[str, ...]:
-    """Return the exact committed plus staged, unstaged, and untracked path set."""
+    """Return the exact committed candidate path set without worktree contamination."""
 
-    paths = nul_paths(run_git(repository, "diff", "--name-only", "-z", baseline, candidate, "--").stdout)
+    return tuple(sorted(nul_paths(run_git(repository, "diff", "--name-only", "-z", baseline, candidate, "--").stdout)))
+
+
+def worktree_paths(repository: Path) -> tuple[str, ...]:
+    """Report staged, unstaged, and untracked paths separately from committed scope."""
+
+    paths = set[str]()
     paths.update(nul_paths(run_git(repository, "diff", "--name-only", "-z", "--").stdout))
     paths.update(nul_paths(run_git(repository, "diff", "--cached", "--name-only", "-z", "--").stdout))
     paths.update(nul_paths(run_git(repository, "ls-files", "--others", "--exclude-standard", "-z").stdout))
     return tuple(sorted(paths))
+
+
+def candidate_has_path(repository: Path, candidate: str, relative_path: str) -> bool:
+    """Return whether the candidate tree contains one exact path."""
+
+    result = run_git(
+        repository,
+        "cat-file",
+        "-e",
+        f"{candidate}:{safe_relative_path(relative_path)}",
+        allowed=(0, 1, 128),
+    )
+    return result.returncode == 0
+
+
+def authority_route(repository: Path, candidate: str) -> str:
+    """Choose authority exclusively from committed candidate-tree identity."""
+
+    if candidate_has_path(repository, candidate, V16_AUTHORITY_PATH):
+        return "v16"
+    if candidate_has_path(repository, candidate, V15_AUTHORITY_PATH):
+        return "v15"
+    return "legacy"
 
 
 def is_applicable(paths: Sequence[str]) -> bool:
@@ -405,74 +495,150 @@ def validate_publication_scope(
     return assertion("SCOPE-01", "candidate-bound-publication-allowlist", "PASS", count=len(normalized))
 
 
-def validate_v15_scope(
+def validate_authority_scope(
     root: Path,
+    evaluated_candidate: str,
+    *,
+    version: str,
+    authority_path: str,
+    schema_version: str,
     baseline: str,
-    candidate: str,
-    paths: Sequence[str],
-    gitlink_row: dict[str, Any],
+    expected_c1_paths: tuple[str, ...],
 ) -> dict[str, Any]:
-    """Apply the additive V15 two-commit exact boundary when its authority is present."""
+    """Validate an authority's original C1/C2 from committed objects at any descendant."""
 
-    if V15_AUTHORITY_PATH not in paths:
-        return assertion("V15-SCOPE-01", "v15-planning-tooling-boundary", "PASS", applied=False)
+    code_prefix = f"EVIDENCE_{version.upper()}"
     try:
-        content = run_git(root, "show", f"{candidate}:{V15_AUTHORITY_PATH}").stdout
-        document = json.loads(content.decode("utf-8"))
+        additions = run_git(
+            root,
+            "log",
+            "--format=%H",
+            "--diff-filter=A",
+            evaluated_candidate,
+            "--",
+            authority_path,
+        ).stdout.decode("ascii", errors="strict").splitlines()
+    except UnicodeError as error:
+        raise BoundaryError(f"{code_prefix}_PUBLICATION_UNAVAILABLE", str(error), "BLOCKED", authority_path) from error
+    publications = tuple(value for value in additions if value)
+    if len(publications) != 1:
+        raise BoundaryError(
+            f"{code_prefix}_PUBLICATION_UNAVAILABLE",
+            f"expected one publication; observed {publications!r}",
+            "BLOCKED",
+            authority_path,
+        )
+    publication_commit = resolve_commit(root, publications[0], f"{code_prefix}_PUBLICATION_UNAVAILABLE")
+    try:
+        published_bytes = run_git(root, "show", f"{publication_commit}:{authority_path}").stdout
+        candidate_bytes = run_git(root, "show", f"{evaluated_candidate}:{authority_path}").stdout
+        document = json.loads(published_bytes.decode("utf-8", errors="strict"))
     except (BoundaryError, UnicodeError, json.JSONDecodeError) as error:
-        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", str(error), path=V15_AUTHORITY_PATH) from error
+        state = error.state if isinstance(error, BoundaryError) else "FAIL"
+        raise BoundaryError(f"{code_prefix}_AUTHORITY_INVALID", str(error), state, path=authority_path) from error
     if not isinstance(document, dict):
-        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "authority must be an object", path=V15_AUTHORITY_PATH)
+        raise BoundaryError(f"{code_prefix}_AUTHORITY_INVALID", "authority must be an object", path=authority_path)
     publication = document.get("publication")
     candidate_commit = document.get("candidateCommit")
     if (
-        document.get("schemaVersion")
-        != "hexalith.conversations.v15-planning-tooling-environment-authority.v1"
+        document.get("schemaVersion") != schema_version
         or document.get("baselineCommit") != baseline
         or not isinstance(candidate_commit, str)
         or not isinstance(publication, dict)
     ):
-        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "closed identity mismatch", path=V15_AUTHORITY_PATH)
-    c1 = resolve_commit(root, candidate_commit, "EVIDENCE_V15_CANDIDATE_UNAVAILABLE")
-    parent = resolve_commit(root, f"{candidate}^", "EVIDENCE_V15_PUBLICATION_PARENT_UNAVAILABLE")
-    if parent != c1:
-        raise BoundaryError("EVIDENCE_V15_PUBLICATION_PARENT_MISMATCH", f"expected {c1}; observed {parent}", "BLOCKED")
-    c1_paths = publication.get("c1Paths")
-    combined = publication.get("combinedPaths")
-    if (
-        not isinstance(c1_paths, list)
-        or not c1_paths
-        or not all(isinstance(path, str) for path in c1_paths)
-        or len(c1_paths) != len(set(c1_paths))
-        or not isinstance(combined, list)
-        or not combined
-        or not all(isinstance(path, str) for path in combined)
-        or len(combined) != len(set(combined))
-        or publication.get("c2Path") != V15_AUTHORITY_PATH
-        or publication.get("changedGitlinks") != []
-    ):
-        raise BoundaryError("EVIDENCE_V15_AUTHORITY_INVALID", "closed publication contract mismatch")
-    normalized_c1 = tuple(sorted(safe_relative_path(path) for path in c1_paths))
-    normalized_combined = tuple(sorted(safe_relative_path(path) for path in combined))
-    observed_c1 = changed_paths(root, baseline, c1)
-    observed_c2 = changed_paths(root, c1, candidate)
-    observed = tuple(sorted(paths))
-    if observed_c1 != normalized_c1 or observed_c2 != (V15_AUTHORITY_PATH,) or observed != normalized_combined:
-        missing = sorted(set(normalized_combined) - set(observed))
-        unexpected = sorted(set(observed) - set(normalized_combined))
+        raise BoundaryError(f"{code_prefix}_AUTHORITY_INVALID", "closed identity mismatch", path=authority_path)
+    c1 = resolve_commit(root, candidate_commit, f"{code_prefix}_CANDIDATE_UNAVAILABLE")
+    require_single_parent(root, c1, baseline, f"{code_prefix}_C1_PARENT_MISMATCH")
+    require_single_parent(root, publication_commit, c1, f"{code_prefix}_C2_PARENT_MISMATCH")
+    ancestry = run_git(root, "merge-base", "--is-ancestor", publication_commit, evaluated_candidate, allowed=(0, 1))
+    if ancestry.returncode != 0:
         raise BoundaryError(
-            "EVIDENCE_V15_SCOPE_DRIFT",
-            f"c1={observed_c1!r} c2={observed_c2!r} missing={missing!r} unexpected={unexpected!r}",
+            f"{code_prefix}_PUBLICATION_NOT_ANCESTOR",
+            f"{publication_commit} is not an ancestor of {evaluated_candidate}",
+            "BLOCKED",
         )
-    if gitlink_row.get("paths"):
-        raise BoundaryError("EVIDENCE_GITLINK_SET_DRIFT", repr(gitlink_row["paths"]))
-    return assertion("V15-SCOPE-01", "v15-planning-tooling-boundary", "PASS", applied=True, count=len(observed))
+    normalized_combined = tuple(sorted((*expected_c1_paths, authority_path)))
+    if publication != {
+        "c1Paths": list(expected_c1_paths),
+        "c2Path": authority_path,
+        "combinedPaths": list(normalized_combined),
+        "changedGitlinks": [],
+    }:
+        raise BoundaryError(f"{code_prefix}_AUTHORITY_INVALID", "closed publication contract mismatch")
+    observed_c1 = changed_paths(root, baseline, c1)
+    observed_c2 = changed_paths(root, c1, publication_commit)
+    observed_combined = changed_paths(root, baseline, publication_commit)
+    if observed_c1 != expected_c1_paths or observed_c2 != (authority_path,) or observed_combined != normalized_combined:
+        raise BoundaryError(
+            f"{code_prefix}_SCOPE_DRIFT",
+            f"c1={observed_c1!r} c2={observed_c2!r} combined={observed_combined!r}",
+        )
+    transaction_gitlinks = validate_gitlinks(root, baseline, publication_commit)
+    if transaction_gitlinks.get("paths"):
+        raise BoundaryError("EVIDENCE_GITLINK_SET_DRIFT", repr(transaction_gitlinks["paths"]))
+    if candidate_bytes != published_bytes:
+        raise BoundaryError(f"{code_prefix}_AUTHORITY_DESCENDANT_DRIFT", authority_path)
+    return assertion(
+        f"{version.upper()}-SCOPE-01",
+        f"{version}-planning-tooling-boundary",
+        "PASS",
+        applied=True,
+        publication=publication_commit,
+        count=len(normalized_combined),
+    )
 
 
-def run_publication_check(root: Path, *, v15: bool = False) -> dict[str, Any]:
+def validate_v15_scope(root: Path, candidate: str) -> dict[str, Any]:
+    """Validate immutable V15 transaction at V15-only candidates."""
+
+    return validate_authority_scope(
+        root,
+        candidate,
+        version="v15",
+        authority_path=V15_AUTHORITY_PATH,
+        schema_version="hexalith.conversations.v15-planning-tooling-environment-authority.v1",
+        baseline=V15_BASELINE_COMMIT,
+        expected_c1_paths=V15_C1_PATHS,
+    )
+
+
+def validate_v16_scope(root: Path, candidate: str) -> dict[str, Any]:
+    """Validate immutable V16 transaction at V16 and later descendants."""
+
+    return validate_authority_scope(
+        root,
+        candidate,
+        version="v16",
+        authority_path=V16_AUTHORITY_PATH,
+        schema_version="hexalith.conversations.v16-planning-tooling-lifecycle-authority.v1",
+        baseline=V16_BASELINE_COMMIT,
+        expected_c1_paths=V16_C1_PATHS,
+    )
+
+
+def child_failure(result: subprocess.CompletedProcess[str]) -> BoundaryError:
+    """Preserve a structured child FAIL or BLOCKED result without state collapse."""
+
+    for content in (result.stdout, result.stderr):
+        try:
+            document = json.loads(content)
+        except (TypeError, json.JSONDecodeError):
+            continue
+        if not isinstance(document, dict) or document.get("result") not in ("FAIL", "BLOCKED"):
+            continue
+        blockers = document.get("blockers")
+        blocker = blockers[0] if isinstance(blockers, list) and blockers and isinstance(blockers[0], dict) else {}
+        code = blocker.get("code") if isinstance(blocker.get("code"), str) else "EVIDENCE_PUBLICATION_DRIFT"
+        detail = blocker.get("detail") or blocker.get("message") or content.strip()
+        return BoundaryError(code, str(detail), str(document["result"]))
+    detail = (result.stderr or result.stdout).strip()
+    return BoundaryError("EVIDENCE_PUBLICATION_DRIFT", detail)
+
+
+def run_publication_check(root: Path, *, route: str = "legacy", candidate: str = "HEAD") -> dict[str, Any]:
     """Run the applicable deterministic publication checks without accepting skips."""
 
-    commands = (
+    current_commands = (
         (
             [sys.executable, str(root / "_bmad/scripts/publish_v13_current_proof_authority.py"), "--repository", str(root), "--check"],
             "V13_CURRENT_PROOF_AUTHORITY_OK",
@@ -487,12 +653,32 @@ def run_publication_check(root: Path, *, v15: bool = False) -> dict[str, Any]:
                 str(root / V15_PUBLISHER_PATH),
                 "--repository",
                 str(root),
+                "--candidate",
+                candidate,
                 "--check",
                 "--check-installed",
             ],
             "V15_PLANNING_TOOLING_AUTHORITY_OK",
         ),
-    ) if v15 else (
+    )
+    if route == "v16":
+        current_commands = (
+            *current_commands,
+            (
+                [
+                    sys.executable,
+                    str(root / V16_PUBLISHER_PATH),
+                    "--repository",
+                    str(root),
+                    "--candidate",
+                    candidate,
+                    "--check",
+                    "--check-installed",
+                ],
+                "V16_PLANNING_TOOLING_LIFECYCLE_OK",
+            ),
+        )
+    commands = current_commands if route in ("v15", "v16") else (
         (
             [sys.executable, str(root / "_bmad/scripts/publish_v9_planning_authority.py"), "--repository", str(root), "--check"],
             "V14_PLANNING_AUTHORITY_OK",
@@ -505,8 +691,7 @@ def run_publication_check(root: Path, *, v15: bool = False) -> dict[str, Any]:
         except (OSError, subprocess.TimeoutExpired) as error:
             raise BoundaryError("EVIDENCE_PREFLIGHT_UNAVAILABLE", str(error), "BLOCKED") from error
         if result.returncode != 0:
-            detail = (result.stderr or result.stdout).strip()
-            raise BoundaryError("EVIDENCE_PUBLICATION_DRIFT", detail)
+            raise child_failure(result)
         output = result.stdout.strip()
         if success_token not in output:
             raise BoundaryError("SCOPE_NOT_EVALUATED", f"publication check emitted no {success_token} identity")
@@ -524,14 +709,22 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
     if ancestry.returncode != 0:
         raise BoundaryError("BASELINE_NOT_ANCESTOR", f"{baseline} is not an ancestor of {candidate}", "BLOCKED")
     paths = changed_paths(root, baseline, candidate)
-    applicable = is_applicable(paths)
+    dirty_paths = worktree_paths(root)
+    route = authority_route(root, candidate)
+    applicable = is_applicable(paths) or route in ("v15", "v16")
     gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
+        assertion("WORKTREE-01", "reported-uncommitted-paths", "PASS", paths=list(dirty_paths), count=len(dirty_paths)),
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
-        validate_v15_scope(root, baseline, candidate, paths, gitlink_row),
     ]
+    if route == "v16":
+        ledger.append(validate_v16_scope(root, candidate))
+    elif route == "v15":
+        ledger.append(validate_v15_scope(root, candidate))
+    else:
+        ledger.append(assertion("AUTHORITY-ROUTE-01", "candidate-tree-authority-route", "PASS", route=route))
     if not applicable:
         return {
             "schemaVersion": SCHEMA,
@@ -540,6 +733,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
             "baseline": baseline,
             "candidate": candidate,
             "changedPaths": list(paths),
+            "worktreePaths": list(dirty_paths),
             "assertionLedger": ledger,
             "blockers": [],
         }
@@ -547,7 +741,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
     ledger.append(validate_context(root))
     ledger.extend(validate_context_workflows(root))
     ledger.append(validate_csharp_signature_guard(root))
-    ledger.append(run_publication_check(root, v15=V15_AUTHORITY_PATH in paths))
+    ledger.append(run_publication_check(root, route=route, candidate=candidate))
     if not ledger:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "applicable scope produced an empty assertion ledger")
     return {
@@ -557,6 +751,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
         "baseline": baseline,
         "candidate": candidate,
         "changedPaths": list(paths),
+        "worktreePaths": list(dirty_paths),
         "assertionLedger": ledger,
         "blockers": [],
     }
@@ -573,6 +768,7 @@ def failure_document(repository: Path, error: BoundaryError) -> dict[str, Any]:
         "baseline": None,
         "candidate": None,
         "changedPaths": [],
+        "worktreePaths": [],
         "assertionLedger": [
             {"id": error.code, "subject": error.path or "evidence-boundary", "state": error.state, "message": error.message}
         ],

@@ -22,6 +22,9 @@ AUTHORITY_ID = "V15-PLANNING-TOOLING-ENVIRONMENT"
 BASELINE_COMMIT = "6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4"
 AUTHORITY_PATH = "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json"
 AUTHORITY_SCHEMA_PATH = "_bmad/schemas/v15-planning-tooling-environment-authority-v1.schema.json"
+PUBLICATION_COMMIT = "08a4bdcc5a18067f8f93c777055d8097987a9da2"
+PUBLICATION_SHA256 = "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea"
+PINNED_CANDIDATE_COMMIT = "4586df9d35e1d50df401cd98cf62e4435d89007d"
 V9_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 V9_AUTHORITY_SHA256 = "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3"
 V9_PLANNING_CANDIDATE = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
@@ -140,6 +143,7 @@ def safe_path(value: str) -> str:
         or path.is_absolute()
         or path.as_posix() != value
         or any(part in ("", ".", "..") for part in path.parts)
+        or any(ord(character) < 0x20 for character in value)
     ):
         raise ToolingAuthorityError("TOOLING_PATH_ESCAPE", repr(value), "BLOCKED")
     return value
@@ -177,6 +181,33 @@ def resolve_commit(root: Path, revision: str, code: str) -> str:
     return commit
 
 
+def commit_parents(root: Path, commit: str, code: str) -> tuple[str, ...]:
+    """Return every parent and require an unambiguous commit record."""
+
+    record = run_git(root, "rev-list", "--parents", "-n", "1", commit).stdout.decode("ascii").strip().split()
+    if not record or record[0] != commit or any(re.fullmatch(r"[0-9a-f]{40}", item) is None for item in record):
+        raise ToolingAuthorityError(code, repr(record), "BLOCKED")
+    return tuple(record[1:])
+
+
+def require_single_parent(root: Path, commit: str, expected: str, code: str) -> None:
+    """Require exactly one parent with the expected identity."""
+
+    parents = commit_parents(root, commit, code)
+    if len(parents) != 1:
+        raise ToolingAuthorityError(code, f"expected one parent; observed {parents!r}", "BLOCKED")
+    if parents[0] != expected:
+        raise ToolingAuthorityError(code, f"expected {expected}; observed {parents[0]}", "BLOCKED")
+
+
+def require_ancestor(root: Path, ancestor: str, descendant: str, code: str) -> None:
+    """Require one committed publication to remain reachable from the evaluated candidate."""
+
+    result = run_git(root, "merge-base", "--is-ancestor", ancestor, descendant, allowed=(0, 1))
+    if result.returncode != 0:
+        raise ToolingAuthorityError(code, f"{ancestor} is not an ancestor of {descendant}", "BLOCKED")
+
+
 def candidate_blob(root: Path, candidate: str, relative_path: str) -> bytes:
     """Read one exact candidate blob."""
 
@@ -201,7 +232,10 @@ def changed_paths(root: Path, baseline: str, candidate: str) -> tuple[str, ...]:
     """Return the exact committed path set for a transaction edge."""
 
     content = run_git(root, "diff", "--name-only", "-z", baseline, candidate, "--").stdout
-    return tuple(sorted(safe_path(item.decode("utf-8")) for item in content.split(b"\0") if item))
+    try:
+        return tuple(sorted(safe_path(item.decode("utf-8", errors="strict")) for item in content.split(b"\0") if item))
+    except UnicodeError as error:
+        raise ToolingAuthorityError("TOOLING_PATH_ENCODING_INVALID", str(error), "BLOCKED") from error
 
 
 def changed_gitlinks(root: Path, baseline: str, candidate: str) -> tuple[str, ...]:
@@ -223,38 +257,39 @@ def changed_gitlinks(root: Path, baseline: str, candidate: str) -> tuple[str, ..
     for index in range(0, len(records), 2):
         if index + 1 >= len(records):
             raise ToolingAuthorityError("TOOLING_GITLINK_DIFF_MALFORMED", "incomplete raw record", "BLOCKED")
-        metadata = records[index].decode("ascii")
-        path = safe_path(records[index + 1].decode("utf-8"))
+        try:
+            metadata = records[index].decode("ascii", errors="strict")
+            path = safe_path(records[index + 1].decode("utf-8", errors="strict"))
+        except UnicodeError as error:
+            raise ToolingAuthorityError("TOOLING_PATH_ENCODING_INVALID", str(error), "BLOCKED") from error
         fields = metadata.split()
         if len(fields) >= 5 and (fields[0] == ":160000" or fields[1] == "160000"):
             paths.append(path)
     return tuple(sorted(set(paths)))
 
 
-def require_clean(root: Path) -> None:
-    """Reject a dirty publication checkout rather than silently excluding files."""
-
-    status = run_git(root, "status", "--porcelain=v1", "-z", "--untracked-files=all").stdout
-    if status:
-        raise ToolingAuthorityError("TOOLING_CANDIDATE_DIRTY", status.decode("utf-8", errors="replace"), "BLOCKED")
-
-
 def lock_document(content: bytes) -> dict[str, Any]:
     """Parse the UTF-8 lock document with a stable failure."""
 
     try:
-        return tomllib.loads(content.decode("utf-8"))
+        document = tomllib.loads(content.decode("utf-8", errors="strict"))
     except (UnicodeError, tomllib.TOMLDecodeError) as error:
         raise ToolingAuthorityError("TOOLING_LOCK_INVALID", str(error)) from error
+    if not isinstance(document, dict):
+        raise ToolingAuthorityError("TOOLING_LOCK_INVALID", "lock document must be a table")
+    return document
 
 
 def manifest_document(content: bytes) -> dict[str, Any]:
     """Parse the UTF-8 project manifest with a stable failure."""
 
     try:
-        return tomllib.loads(content.decode("utf-8"))
+        document = tomllib.loads(content.decode("utf-8", errors="strict"))
     except (UnicodeError, tomllib.TOMLDecodeError) as error:
         raise ToolingAuthorityError("TOOLING_MANIFEST_INVALID", str(error)) from error
+    if not isinstance(document, dict):
+        raise ToolingAuthorityError("TOOLING_MANIFEST_INVALID", "manifest document must be a table")
+    return document
 
 
 def package_rows(root: Path, candidate: str) -> list[dict[str, Any]]:
@@ -263,10 +298,17 @@ def package_rows(root: Path, candidate: str) -> list[dict[str, Any]]:
     manifest = manifest_document(candidate_blob(root, candidate, "pyproject.toml"))
     baseline_manifest = manifest_document(candidate_blob(root, BASELINE_COMMIT, "pyproject.toml"))
     expected_dependencies = [f"{name}=={APPROVED_PACKAGES[name]['version']}" for name in APPROVED_PACKAGES]
-    if manifest.get("project", {}).get("dependencies") != expected_dependencies:
-        raise ToolingAuthorityError("TOOLING_MANIFEST_VERSION_MISMATCH", repr(manifest.get("project", {}).get("dependencies")))
+    project = manifest.get("project")
+    baseline_project = baseline_manifest.get("project")
+    if not isinstance(project, dict) or not isinstance(baseline_project, dict):
+        raise ToolingAuthorityError("TOOLING_MANIFEST_INVALID", "project table missing")
+    if project.get("dependencies") != expected_dependencies:
+        raise ToolingAuthorityError("TOOLING_MANIFEST_VERSION_MISMATCH", repr(project.get("dependencies")))
     normalized_baseline = deepcopy(baseline_manifest)
-    normalized_baseline["project"]["dependencies"] = expected_dependencies
+    normalized_project = normalized_baseline.get("project")
+    if not isinstance(normalized_project, dict):
+        raise ToolingAuthorityError("TOOLING_MANIFEST_INVALID", "baseline project table missing")
+    normalized_project["dependencies"] = expected_dependencies
     if manifest != normalized_baseline:
         raise ToolingAuthorityError("TOOLING_MANIFEST_SCOPE_DRIFT", "fields beyond the approved pins changed")
 
@@ -276,7 +318,11 @@ def package_rows(root: Path, candidate: str) -> list[dict[str, Any]]:
     baseline_packages = baseline_lock.get("package")
     if not isinstance(packages, list) or not isinstance(baseline_packages, list):
         raise ToolingAuthorityError("TOOLING_LOCK_INVALID", "package table missing")
-    names = tuple(sorted(record.get("name") for record in packages if isinstance(record, dict)))
+    if not all(isinstance(record, dict) and isinstance(record.get("name"), str) for record in packages):
+        raise ToolingAuthorityError("TOOLING_LOCK_INVALID", "every package row requires a string name")
+    if not all(isinstance(record, dict) and isinstance(record.get("name"), str) for record in baseline_packages):
+        raise ToolingAuthorityError("TOOLING_LOCK_INVALID", "every baseline package row requires a string name")
+    names = tuple(sorted(record["name"] for record in packages))
     if names != EXPECTED_PACKAGE_NAMES or len(packages) != len(EXPECTED_PACKAGE_NAMES):
         raise ToolingAuthorityError("TOOLING_LOCK_GRAPH_DRIFT", repr(names))
     by_name = {record["name"]: record for record in packages}
@@ -286,8 +332,13 @@ def package_rows(root: Path, candidate: str) -> list[dict[str, Any]]:
     for name in set(by_name) - set(APPROVED_PACKAGES) - {"hexalith-conversations-planning"}:
         if by_name[name] != baseline_by_name.get(name):
             raise ToolingAuthorityError("TOOLING_LOCK_GRAPH_DRIFT", name)
+    if "hexalith-conversations-planning" not in baseline_by_name:
+        raise ToolingAuthorityError("TOOLING_LOCK_GRAPH_DRIFT", "baseline root package missing")
     root_record = deepcopy(baseline_by_name["hexalith-conversations-planning"])
-    root_record["metadata"]["requires-dist"] = [
+    metadata = root_record.get("metadata")
+    if not isinstance(metadata, dict):
+        raise ToolingAuthorityError("TOOLING_LOCK_INVALID", "root package metadata missing")
+    metadata["requires-dist"] = [
         {"name": name, "specifier": f"=={APPROVED_PACKAGES[name]['version']}"} for name in APPROVED_PACKAGES
     ]
     if by_name["hexalith-conversations-planning"] != root_record:
@@ -309,9 +360,11 @@ def package_rows(root: Path, candidate: str) -> list[dict[str, Any]]:
             "sha256": str(observed_sdist.get("hash", "")).removeprefix("sha256:"),
         } != expected_sdist:
             raise ToolingAuthorityError("TOOLING_LOCK_HASH_MISMATCH", f"{name}:sdist")
+        if not isinstance(observed_wheels, list) or not all(isinstance(wheel, dict) for wheel in observed_wheels):
+            raise ToolingAuthorityError("TOOLING_LOCK_INVALID", f"{name}:wheels")
         normalized_wheels = tuple(
             {"url": wheel.get("url"), "sha256": str(wheel.get("hash", "")).removeprefix("sha256:")}
-            for wheel in observed_wheels or []
+            for wheel in observed_wheels
         )
         if normalized_wheels != expected_wheels:
             raise ToolingAuthorityError("TOOLING_LOCK_HASH_MISMATCH", f"{name}:wheels")
@@ -356,9 +409,7 @@ def validate_predecessors(root: Path, candidate: str) -> list[dict[str, str]]:
 def validate_candidate(root: Path, candidate: str) -> tuple[list[dict[str, Any]], list[dict[str, str]], list[dict[str, Any]]]:
     """Validate C1 as the direct, exact, zero-gitlink child of the frozen baseline."""
 
-    parent = resolve_commit(root, f"{candidate}^", "TOOLING_CANDIDATE_PARENT_UNAVAILABLE")
-    if parent != BASELINE_COMMIT:
-        raise ToolingAuthorityError("TOOLING_CANDIDATE_PARENT_MISMATCH", f"expected {BASELINE_COMMIT}; observed {parent}", "BLOCKED")
+    require_single_parent(root, candidate, BASELINE_COMMIT, "TOOLING_CANDIDATE_PARENT_MISMATCH")
     observed_paths = changed_paths(root, BASELINE_COMMIT, candidate)
     if AUTHORITY_PATH in observed_paths:
         raise ToolingAuthorityError("TOOLING_SELF_REFERENCE", AUTHORITY_PATH, "BLOCKED")
@@ -467,13 +518,52 @@ def validate_installed_versions() -> None:
             raise ToolingAuthorityError("TOOLING_INSTALLED_VERSION_MISMATCH", f"{name}: {observed}")
 
 
-def validate_publication(root: Path, candidate: str, publication_revision: str) -> str:
-    """Require C2 to be the clean, single-path direct child of C1."""
+def locate_publication(root: Path, evaluated_candidate: str, publication_revision: str | None) -> str:
+    """Locate the immutable V15 C2 from committed history, never from live bytes."""
 
-    publication = resolve_commit(root, publication_revision, "TOOLING_PUBLICATION_UNAVAILABLE")
-    parent = resolve_commit(root, f"{publication}^", "TOOLING_PUBLICATION_PARENT_UNAVAILABLE")
-    if parent != candidate:
-        raise ToolingAuthorityError("TOOLING_PUBLICATION_PARENT_MISMATCH", f"expected {candidate}; observed {parent}", "BLOCKED")
+    if publication_revision:
+        publication = resolve_commit(root, publication_revision, "TOOLING_PUBLICATION_UNAVAILABLE")
+        candidates = (publication,)
+    else:
+        output = run_git(
+            root,
+            "log",
+            "--format=%H",
+            "--diff-filter=A",
+            evaluated_candidate,
+            "--",
+            AUTHORITY_PATH,
+        ).stdout.decode("ascii", errors="strict")
+        candidates = tuple(line for line in output.splitlines() if line)
+    if len(candidates) != 1:
+        raise ToolingAuthorityError(
+            "TOOLING_PUBLICATION_UNAVAILABLE",
+            f"expected one V15 publication; observed {candidates!r}",
+            "BLOCKED",
+        )
+    publication = candidates[0]
+    pinned_reachable = run_git(
+        root,
+        "merge-base",
+        "--is-ancestor",
+        PUBLICATION_COMMIT,
+        evaluated_candidate,
+        allowed=(0, 1),
+    ).returncode == 0
+    if pinned_reachable and publication != PUBLICATION_COMMIT:
+        raise ToolingAuthorityError(
+            "TOOLING_PUBLICATION_IDENTITY_MISMATCH",
+            f"expected {PUBLICATION_COMMIT}; observed {publication}",
+        )
+    if pinned_reachable and sha256(candidate_blob(root, publication, AUTHORITY_PATH)) != PUBLICATION_SHA256:
+        raise ToolingAuthorityError("TOOLING_AUTHORITY_DRIFT", AUTHORITY_PATH)
+    return publication
+
+
+def validate_publication(root: Path, candidate: str, publication: str, evaluated_candidate: str) -> str:
+    """Require immutable C2 topology and unchanged authority bytes at a descendant."""
+
+    require_single_parent(root, publication, candidate, "TOOLING_PUBLICATION_PARENT_MISMATCH")
     if changed_paths(root, candidate, publication) != (AUTHORITY_PATH,):
         raise ToolingAuthorityError("TOOLING_PUBLICATION_SCOPE_DRIFT", repr(changed_paths(root, candidate, publication)))
     if changed_paths(root, BASELINE_COMMIT, publication) != COMBINED_PATHS:
@@ -482,6 +572,11 @@ def validate_publication(root: Path, candidate: str, publication_revision: str) 
         raise ToolingAuthorityError("TOOLING_GITLINK_DRIFT", "C2 introduced a gitlink")
     if tree_mode(root, publication, AUTHORITY_PATH) != "100644":
         raise ToolingAuthorityError("TOOLING_MODE_DRIFT", AUTHORITY_PATH)
+    require_ancestor(root, publication, evaluated_candidate, "TOOLING_PUBLICATION_NOT_ANCESTOR")
+    published = candidate_blob(root, publication, AUTHORITY_PATH)
+    current = candidate_blob(root, evaluated_candidate, AUTHORITY_PATH)
+    if published != current:
+        raise ToolingAuthorityError("TOOLING_AUTHORITY_DESCENDANT_DRIFT", AUTHORITY_PATH)
     return publication
 
 
@@ -490,24 +585,29 @@ def publish(
     *,
     candidate_revision: str | None,
     check: bool,
-    publication_revision: str = "HEAD",
+    publication_revision: str | None = None,
     check_installed: bool = False,
 ) -> dict[str, Any]:
     """Publish C2 bytes or validate the committed two-commit transaction."""
 
     root = root.resolve()
-    require_clean(root)
     if check:
+        evaluated_candidate = resolve_commit(root, candidate_revision or "HEAD", "TOOLING_CANDIDATE_UNAVAILABLE")
+        publication = locate_publication(root, evaluated_candidate, publication_revision)
         try:
-            existing = json.loads((root / AUTHORITY_PATH).read_text(encoding="utf-8"))
+            existing_bytes = candidate_blob(root, publication, AUTHORITY_PATH)
+            existing = json.loads(existing_bytes.decode("utf-8", errors="strict"))
             pinned_candidate = existing["candidateCommit"]
-        except (OSError, UnicodeError, json.JSONDecodeError, KeyError, TypeError) as error:
+        except (UnicodeError, json.JSONDecodeError, KeyError, TypeError) as error:
             raise ToolingAuthorityError("TOOLING_AUTHORITY_UNAVAILABLE", str(error), "BLOCKED") from error
         if not isinstance(pinned_candidate, str):
             raise ToolingAuthorityError("TOOLING_AUTHORITY_INVALID", "candidateCommit", "BLOCKED")
-        candidate = resolve_commit(root, candidate_revision or pinned_candidate, "TOOLING_CANDIDATE_UNAVAILABLE")
-        if candidate != pinned_candidate:
-            raise ToolingAuthorityError("TOOLING_CANDIDATE_BINDING_MISMATCH", f"expected {pinned_candidate}; observed {candidate}")
+        candidate = resolve_commit(root, pinned_candidate, "TOOLING_CANDIDATE_UNAVAILABLE")
+        if publication == PUBLICATION_COMMIT and candidate != PINNED_CANDIDATE_COMMIT:
+            raise ToolingAuthorityError(
+                "TOOLING_CANDIDATE_BINDING_MISMATCH",
+                f"expected {PINNED_CANDIDATE_COMMIT}; observed {candidate}",
+            )
     else:
         candidate = resolve_commit(root, candidate_revision or "HEAD", "TOOLING_CANDIDATE_UNAVAILABLE")
         existing = None
@@ -517,9 +617,9 @@ def publish(
         validate_installed_versions()
     target = root / AUTHORITY_PATH
     if check:
-        if existing != document or target.read_bytes() != json_bytes(document):
+        if existing != document or existing_bytes != json_bytes(document):
             raise ToolingAuthorityError("TOOLING_AUTHORITY_DRIFT", AUTHORITY_PATH)
-        validate_publication(root, candidate, publication_revision)
+        validate_publication(root, candidate, publication, evaluated_candidate)
     else:
         target.parent.mkdir(parents=True, exist_ok=True)
         temporary = target.with_suffix(target.suffix + ".tmp")
@@ -552,7 +652,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repository", default=".")
     parser.add_argument("--candidate")
-    parser.add_argument("--publication", default="HEAD")
+    parser.add_argument("--publication")
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--check-installed", action="store_true")
     args = parser.parse_args(arguments)
