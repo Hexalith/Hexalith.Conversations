@@ -39,6 +39,8 @@ public sealed class PlanningAuthorityV9ValidationTest
     private const string V11EpicDigest = "6c9bd7164ef35e4093d69226a5988fe73f5400aab3049911a3298b0987d79f19";
     private const string V12ArchitectureDigest = "3050b326c5759fc51bc0e800944b0a1a591ab1782f6798f12abfdc10051b5796";
     private const string V12EpicDigest = "39f1b51920e4866c47586caf549aafaec5678639b64c64b4b235788fce76e878";
+    private const string V12RemediationCandidate = "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029";
+    private const string V12RemediationDigest = "c082cde6923e9831eea768be6c547ca1ab87ed91244185b505bdf3ae1c116dcc";
     private const string V13ArchitectureDigest = "c7d5c867385f22e359c5367fe2851fc4f7d016e0f28c04b5283b7b5ad604605a";
     private const string V14ArchitectureDigest = "d33d977fda0776377684439bb7e78769a6b9a0279c293b8a08e44dfad8466dc5";
     private const string V14EpicDigest = "acd5c07c72d5145bb6477877cab21af710beb8cf172ccfde66837992e41c35c1";
@@ -186,13 +188,11 @@ public sealed class PlanningAuthorityV9ValidationTest
                     || path.Contains("/resolved-customization/", StringComparison.Ordinal)
                     || path == GraphPath
                     || path == SlicePath
-                    || path == RemediationPath
                     || path == SupersessionPath))
             {
                 using JsonDocument companion = JsonDocument.Parse(Read(path));
                 JsonElement candidateProperty = path.Contains("/story-contracts/", StringComparison.Ordinal)
                     || path == SlicePath
-                    || path == RemediationPath
                     ? companion.RootElement.GetProperty("authority").GetProperty("planningCandidate")
                     : companion.RootElement.GetProperty("planningCandidate");
                 candidateProperty.GetString().ShouldBe(candidate, path);
@@ -203,6 +203,8 @@ public sealed class PlanningAuthorityV9ValidationTest
         sliceArtifact.GetProperty("role").GetString().ShouldBe("story-slice-authority");
         JsonElement remediationArtifact = artifacts.Single(row => row.GetProperty("path").GetString() == RemediationPath);
         remediationArtifact.GetProperty("role").GetString().ShouldBe("pre-ir0-remediation-authority");
+        remediationArtifact.GetProperty("source").GetString().ShouldBe("candidate");
+        remediationArtifact.GetProperty("sha256").GetString().ShouldBe(V12RemediationDigest);
         artifacts.Single(row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json")
             .GetProperty("role").GetString().ShouldBe("checkpoint-authority");
         artifacts.Single(row => row.GetProperty("path").GetString() == "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json")
@@ -410,7 +412,9 @@ public sealed class PlanningAuthorityV9ValidationTest
         authority.GetProperty("checkpointId").GetString().ShouldBe("E6-REMEDIATION");
         authority.GetProperty("authority").GetProperty("epic").GetString().ShouldBe(V12EpicAuthority);
         authority.GetProperty("authority").GetProperty("architecture").GetString().ShouldBe(V12ArchitectureAuthority);
+        authority.GetProperty("authority").GetProperty("planningCandidate").GetString().ShouldBe(V12RemediationCandidate);
         authority.GetProperty("authority").GetProperty("implementationHold").GetString().ShouldBe("ACTIVE");
+        Sha256(ReadBytes(RemediationPath)).ShouldBe(V12RemediationDigest);
         authority.GetProperty("predecessors").EnumerateArray().Select(value => value.GetString())
             .ShouldBe(["PC-PUBLICATION"]);
         authority.GetProperty("successor").GetString().ShouldBe("IR-0");
