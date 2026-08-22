@@ -78,6 +78,7 @@ V14_ARCHITECTURE_BLOCK_DIGEST = "d33d977fda0776377684439bb7e78769a6b9a0279c293b8
 FROZEN_STORY_CONTRACT_SCHEMA_DIGEST = "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
 CURRENT_PROOF_DIGEST = "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f"
 CURRENT_CANDIDATE_DIGEST = "e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f"
+REMEDIATION_DIGEST = "c082cde6923e9831eea768be6c547ca1ab87ed91244185b505bdf3ae1c116dcc"
 V9_STORY_CONTRACT_SCHEMA_IDENTITY = "hexalith.conversations.story-contract.v1"
 V14_STORY_CONTRACT_SCHEMA_IDENTITY = "hexalith.conversations.v14-story-contract.v1"
 
@@ -324,13 +325,12 @@ EXPECTED_STORY_IDS = tuple(
 LEGACY_STORY_IDS = EXPECTED_STORY_IDS[:-3]
 V14_AMENDED_STORY_IDS = ("12.1", "13.1", "14.1", "15.1", "16.1", "16.2", "16.3")
 V14_PREDECESSOR_AMENDMENTS = {story_id: ("16.3",) for story_id in ("12.1", "13.1", "14.1", "15.1")}
-PINNED_AUTHORITY_PATHS = (CURRENT_PROOF_PATH, CURRENT_CANDIDATE_PATH)
+PINNED_AUTHORITY_PATHS = (REMEDIATION_PATH, CURRENT_PROOF_PATH, CURRENT_CANDIDATE_PATH)
 EXPECTED_OUTPUT_PATHS = (
     BUNDLE_PATH,
     GRAPH_PATH,
     SUPERSESSION_PATH,
     SLICE_PATH,
-    REMEDIATION_PATH,
     VIEW_V2_PATH,
     UX_MAP_PATH,
     SPRINT_PATH,
@@ -1074,115 +1074,6 @@ def validate_story_slice(
         raise PublicationError("STORY_SLICE_AUTHORITY_DRIFT", "closed checkpoint authority mismatch")
 
 
-def render_remediation_authority(root: Path, candidate: str) -> bytes:
-    """Render the closed V12 pre-IR-0 remediation sidecar."""
-
-    actions = [
-        {
-            "id": "A1",
-            "owner": "Dev workflow / Release owner",
-            "scope": "Exact Story 6.7 and Story 6.2 done-tree reconstruction plus independent acceptance-evidence supersession decision.",
-            "executionAuthority": "E6-REMEDIATION",
-            "checkpointOwned": True,
-            "status": "open",
-        },
-        {
-            "id": "A2",
-            "owner": "Dev workflow",
-            "scope": "Promotion and evidence-boundary gates on exactly twelve active lifecycle routes.",
-            "executionAuthority": "E6-REMEDIATION",
-            "checkpointOwned": True,
-            "status": "open",
-        },
-        {
-            "id": "A3",
-            "owner": "Architecture / Quality",
-            "scope": "Fail-closed historical signatures, context identity, pinned planning verification, and automatic preflight.",
-            "executionAuthority": "E6-REMEDIATION",
-            "checkpointOwned": True,
-            "status": "open",
-        },
-        {
-            "id": "A4",
-            "owner": "Architect / Runtime owner",
-            "scope": "Durable event-fed tenant access, freshness and gap detection, restart, and multi-replica convergence.",
-            "executionAuthority": "separately approved successor",
-            "checkpointOwned": False,
-            "status": "open",
-        },
-        {
-            "id": "A5",
-            "owner": "Projection owner",
-            "scope": "Deterministic event-derived replay timestamps and trustworthy missing-index semantics.",
-            "executionAuthority": "separately approved successor",
-            "checkpointOwned": False,
-            "status": "open",
-        },
-        {
-            "id": "A6",
-            "owner": "Test / AppHost owner",
-            "scope": "Endpoint and Dapr port diagnostics plus live terminal reconciliation route coverage.",
-            "executionAuthority": "separately approved successor",
-            "checkpointOwned": False,
-            "status": "open",
-        },
-    ]
-    return json_bytes(
-        {
-            "schemaVersion": "hexalith.conversations.v12-pre-ir0-remediation-authority.v1",
-            "checkpointId": "E6-REMEDIATION",
-            "authority": {
-                **V12_AUTHORITIES,
-                "planningCandidate": candidate,
-                "authorityBundlePath": BUNDLE_PATH,
-                "implementationHold": "ACTIVE",
-            },
-            "predecessors": ["PC-PUBLICATION"],
-            "successor": "IR-0",
-            "actionInventory": actions,
-            "activeRoutePaths": list(MECHANICAL_PATHS),
-            "rootGitlinkPaths": list(ROOT_GITLINK_PATHS),
-            "supersessionContract": {
-                "path": SUPERSESSION_CONTRACT_PATH,
-                "sha256": sha256(candidate_blob(root, candidate, SUPERSESSION_CONTRACT_PATH)),
-            },
-            "resultSemantics": {
-                "states": ["PASS", "FAIL", "BLOCKED", "not-applicable"],
-                "ledgerRequired": True,
-                "skipsAllowed": False,
-            },
-            "prohibitions": [
-                "rewrite completed Story 6.7 or Story 6.2 records",
-                "substitute current bytes for historical evidence",
-                "traverse nested submodules",
-                "modify product code, packages, submodules, or gitlinks",
-                "implement or start successors",
-                "create implementation-hold-v1.json",
-                "claim release approval",
-            ],
-            "completionEffect": {
-                "ir0RerunAllowed": True,
-                "holdLifted": False,
-                "successorStarted": False,
-                "releaseAuthorized": False,
-            },
-            "assertions": [
-                "A1-A3 pass before IR-0.",
-                "A4-A6 remain open under separately approved successor authority.",
-                "The global implementation hold remains ACTIVE after a READY IR-0.",
-            ],
-        }
-    )
-
-
-def validate_remediation_authority(root: Path, candidate: str, authority: dict[str, Any]) -> None:
-    """Recompute the V12 checkpoint sidecar and reject any closed-field drift."""
-
-    expected = json.loads(render_remediation_authority(root, candidate))
-    if authority != expected:
-        raise PublicationError("REMEDIATION_AUTHORITY_DRIFT", "closed checkpoint authority mismatch")
-
-
 def expected_graph_nodes(
     contracts: dict[str, dict[str, Any]],
     slice_authority: dict[str, Any],
@@ -1916,13 +1807,20 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
         artifact_row(VIEW_V1_PATH, candidate_blob(root, candidate, VIEW_V1_PATH), "immutable-v8-provenance", "Planning owner", "candidate", None)
     )
     for path in PINNED_AUTHORITY_PATHS:
-        schema = (
-            "hexalith.conversations.v13-current-proof-authority.v1"
-            if path == CURRENT_PROOF_PATH
-            else "hexalith.conversations.v14-current-candidate-authority.v1"
-        )
+        if path == REMEDIATION_PATH:
+            role = "pre-ir0-remediation-authority"
+            owner = "Planning owner"
+            schema = "hexalith.conversations.v12-pre-ir0-remediation-authority.v1"
+        elif path == CURRENT_PROOF_PATH:
+            role = "checkpoint-authority"
+            owner = "Release owner"
+            schema = "hexalith.conversations.v13-current-proof-authority.v1"
+        else:
+            role = "checkpoint-authority"
+            owner = "Release owner"
+            schema = "hexalith.conversations.v14-current-candidate-authority.v1"
         rows.append(
-            artifact_row(path, candidate_blob(root, candidate, path), "checkpoint-authority", "Release owner", "candidate", schema)
+            artifact_row(path, candidate_blob(root, candidate, path), role, owner, "candidate", schema)
         )
     for path, content in outputs.items():
         if path == BUNDLE_PATH:
@@ -1941,12 +1839,6 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
                 "story-slice-authority",
                 "Product Manager",
                 "hexalith.conversations.story-slice-authority.v1",
-            )
-        elif path == REMEDIATION_PATH:
-            role, owner, schema = (
-                "pre-ir0-remediation-authority",
-                "Planning owner",
-                "hexalith.conversations.v12-pre-ir0-remediation-authority.v1",
             )
         elif "/inventories/" in path:
             role, owner, schema = "inventory", "Workflow owner", "hexalith.conversations.v9-inventory.v1"
@@ -1974,7 +1866,10 @@ def render_bundle(root: Path, candidate: str, outputs: dict[str, bytes]) -> byte
         raise PublicationError("BUNDLE_ROLE_DRIFT", "E6 remediation sidecar role")
     if roles.get(SPEC_PATH) != "implementation-spec":
         raise PublicationError("BUNDLE_ROLE_DRIFT", "implementation spec role")
-    if any(roles.get(path) != "checkpoint-authority" for path in PINNED_AUTHORITY_PATHS):
+    if any(
+        roles.get(path) != "checkpoint-authority"
+        for path in (CURRENT_PROOF_PATH, CURRENT_CANDIDATE_PATH)
+    ):
         raise PublicationError("BUNDLE_ROLE_DRIFT", "current checkpoint authority role")
     if any(
         "implementation-readiness-report" in path.lower()
@@ -2031,6 +1926,7 @@ def validate_schemas(root: Path, outputs: dict[str, bytes]) -> None:
                 continue
             jsonschema.Draft202012Validator(schemas[schema_path]).validate(document)
         for path, schema_path in (
+            (REMEDIATION_PATH, SCHEMA_PATHS[6]),
             (CURRENT_PROOF_PATH, SCHEMA_PATHS[9]),
             (CURRENT_CANDIDATE_PATH, SCHEMA_PATHS[10]),
         ):
@@ -2056,6 +1952,7 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     if inventory_digest(list(READER_PATHS)) != "247cd610f7fd162f3e01f1db713f16328b2d009081da14a468e767411209a3bc":
         raise PublicationError("EVIDENCE_READER_INVENTORY_DRIFT", "reader inventory digest")
     for path, expected_digest in (
+        (REMEDIATION_PATH, REMEDIATION_DIGEST),
         (CURRENT_PROOF_PATH, CURRENT_PROOF_DIGEST),
         (CURRENT_CANDIDATE_PATH, CURRENT_CANDIDATE_DIGEST),
     ):
@@ -2077,8 +1974,6 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
     outputs[SLICE_PATH] = render_story_slice(candidate, outputs[base_story_contract_path], v11_epic)
     slice_authority = json.loads(outputs[SLICE_PATH])
     validate_story_slice(slice_authority, outputs[base_story_contract_path], v11_epic, candidate)
-    outputs[REMEDIATION_PATH] = render_remediation_authority(root, candidate)
-    validate_remediation_authority(root, candidate, json.loads(outputs[REMEDIATION_PATH]))
     outputs.update(render_resolved_customization(root, candidate))
     outputs["_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v2.json"] = render_inventory(
         root, candidate, "V9-EVIDENCE-WORKFLOWS-v2", MECHANICAL_PATHS, mechanical=True
@@ -2105,7 +2000,7 @@ def render_outputs(root: Path, candidate: str) -> dict[str, bytes]:
 def validate_managed_namespace(root: Path) -> None:
     """Reject stale files only inside publication-owned namespaces."""
 
-    expected = set(EXPECTED_OUTPUT_PATHS)
+    expected = set(EXPECTED_OUTPUT_PATHS) | set(PINNED_AUTHORITY_PATHS)
     actual: set[str] = set()
     v9_root = root / "_bmad-output/planning-artifacts/v9"
     if v9_root.exists():

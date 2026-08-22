@@ -116,7 +116,7 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     assert set(outputs) == set(publisher.EXPECTED_OUTPUT_PATHS)
     assert len([path for path in outputs if "/story-contracts/" in path]) == 30
     assert publisher.SLICE_PATH in outputs
-    assert publisher.REMEDIATION_PATH in outputs
+    assert publisher.REMEDIATION_PATH not in outputs
     for path, content in outputs.items():
         assert (ROOT / path).read_bytes() == content
     bundle = json.loads(outputs[publisher.BUNDLE_PATH])
@@ -138,6 +138,8 @@ def test_complete_publication_is_deterministic_and_candidate_bound() -> None:
     assert roles[publisher.CURRENT_CANDIDATE_PATH] == "checkpoint-authority"
     assert roles[publisher.SPEC_PATH] == "implementation-spec"
     rows = {row["path"]: row for row in bundle["artifacts"]}
+    assert rows[publisher.REMEDIATION_PATH]["source"] == "candidate"
+    assert rows[publisher.REMEDIATION_PATH]["sha256"] == publisher.REMEDIATION_DIGEST
     assert rows[publisher.SPEC_PATH]["source"] == "candidate"
     assert rows[publisher.SPEC_PATH]["sha256"] == publisher.sha256(
         publisher.candidate_blob(ROOT, candidate, publisher.SPEC_PATH)
@@ -383,6 +385,7 @@ def test_v14_authorities_preserve_v13_and_pin_existing_checkpoint_heads() -> Non
     assert hashlib.sha256(v14_architecture).hexdigest() == publisher.V14_ARCHITECTURE_BLOCK_DIGEST
     assert hashlib.sha256((ROOT / publisher.CURRENT_PROOF_PATH).read_bytes()).hexdigest() == publisher.CURRENT_PROOF_DIGEST
     assert hashlib.sha256((ROOT / publisher.CURRENT_CANDIDATE_PATH).read_bytes()).hexdigest() == publisher.CURRENT_CANDIDATE_DIGEST
+    assert hashlib.sha256((ROOT / publisher.REMEDIATION_PATH).read_bytes()).hexdigest() == publisher.REMEDIATION_DIGEST
 
     v13_fault = architecture.replace(b"DC-9 (tier-migration strength)", b"DC-9 (tier-migration weakness)", 1)
     with pytest.raises(publisher.PublicationError) as error:
@@ -395,12 +398,13 @@ def test_v14_authorities_preserve_v13_and_pin_existing_checkpoint_heads() -> Non
     assert error.value.code == "V14_EPIC_AUTHORITY_DRIFT"
 
 
-def test_v12_remediation_sidecar_is_closed_and_binds_exact_checkpoint_inventory() -> None:
+def test_v12_remediation_sidecar_is_pinned_and_binds_exact_checkpoint_inventory() -> None:
     candidate = published_candidate()
-    outputs = publisher.render_outputs(ROOT, candidate)
-    authority = json.loads(outputs[publisher.REMEDIATION_PATH])
+    content = publisher.candidate_blob(ROOT, candidate, publisher.REMEDIATION_PATH)
+    authority = json.loads(content)
 
-    publisher.validate_remediation_authority(ROOT, candidate, authority)
+    assert publisher.sha256(content) == publisher.REMEDIATION_DIGEST
+    assert authority["authority"]["planningCandidate"] == "fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029"
     assert authority["checkpointId"] == "E6-REMEDIATION"
     assert authority["predecessors"] == ["PC-PUBLICATION"]
     assert authority["successor"] == "IR-0"
@@ -420,13 +424,7 @@ def test_v12_remediation_sidecar_is_closed_and_binds_exact_checkpoint_inventory(
         "releaseAuthorized": False,
     }
 
-    mutation = json.loads(outputs[publisher.REMEDIATION_PATH])
-    mutation["actionInventory"] = list(reversed(mutation["actionInventory"]))
-    with pytest.raises(publisher.PublicationError) as error:
-        publisher.validate_remediation_authority(ROOT, candidate, mutation)
-    assert error.value.code == "REMEDIATION_AUTHORITY_DRIFT"
-
-    extra = json.loads(outputs[publisher.REMEDIATION_PATH])
+    extra = json.loads(content)
     extra["unexpected"] = True
     with pytest.raises(publisher.PublicationError) as error:
         publisher.validate_schemas(ROOT, {publisher.REMEDIATION_PATH: publisher.json_bytes(extra)})
