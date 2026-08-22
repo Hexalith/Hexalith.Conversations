@@ -90,8 +90,39 @@ try {
     Write-Utf8File (Join-Path $fixtureRoot 'concurrent.txt') 'baseline'
     Invoke-FixtureGit $fixtureRoot add contract.json concurrent.txt dependency | Out-Null
     Invoke-FixtureGit $fixtureRoot commit -m baseline | Out-Null
-    $baselineCommit = @(Invoke-FixtureGit $fixtureRoot rev-parse HEAD)[0]
+    $historicalBaselineCommit = @(Invoke-FixtureGit $fixtureRoot rev-parse HEAD)[0]
+
+    $historicalStory = @'
+# Historical Fixture Record
+
+Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
+
+### File List
+
+- `historical-evidence.json`
+- `historical-story.md`
+- `prior.json`
+- `prior.md`
+'@
+    Write-Utf8File (Join-Path $fixtureRoot 'historical-story.md') $historicalStory
+    Write-Utf8File (Join-Path $fixtureRoot 'historical-evidence.json') '{"total":1,"passed":1,"failed":0,"skipped":0}'
+    $predecessorJson = @{
+        schemaVersion = 1
+        status = 'fail'
+        live = @{
+            failures = @('original path mismatch', 'original fingerprint mismatch')
+        }
+    } | ConvertTo-Json -Depth 10
+    Write-Utf8File (Join-Path $fixtureRoot 'prior.json') ($predecessorJson + "`n")
+    Write-Utf8File (Join-Path $fixtureRoot 'prior.md') "# Preserved failed record`n"
+    Invoke-FixtureGit $fixtureRoot add historical-story.md historical-evidence.json prior.json prior.md | Out-Null
+    Invoke-FixtureGit $fixtureRoot commit -m 'historical final' | Out-Null
+    $historicalFinalCommit = @(Invoke-FixtureGit $fixtureRoot rev-parse HEAD)[0]
+    $baselineCommit = $historicalFinalCommit
     $concurrentBaselineBlob = @(Invoke-FixtureGit $fixtureRoot rev-parse "$baselineCommit`:concurrent.txt")[0]
+    $historicalEvidenceBlob = @(Invoke-FixtureGit $fixtureRoot rev-parse "$historicalFinalCommit`:historical-evidence.json")[0]
+    $priorJsonHash = Get-FileHashValue (Join-Path $fixtureRoot 'prior.json')
+    $priorMarkdownHash = Get-FileHashValue (Join-Path $fixtureRoot 'prior.md')
 
     Write-Utf8File (Join-Path $dependencyPath 'state.txt') 'two'
     Invoke-FixtureGit $dependencyPath add state.txt | Out-Null
@@ -113,6 +144,7 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
 ### File List
 
 - `code.ps1`
+- `corrective-amendment.md`
 - `evidence.json`
 - `input.json`
 - `out.json`
@@ -126,6 +158,18 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
     Write-Utf8File (Join-Path $fixtureRoot 'evidence.json') '{"total":1,"passed":1,"failed":0,"skipped":0}'
     Write-Utf8File (Join-Path $fixtureRoot 'out.json') '{}'
     Write-Utf8File (Join-Path $fixtureRoot 'out.md') '# pending'
+    $amendment = @"
+# Corrective Amendment
+
+Marker: FIXTURE-CORRECTIVE-AMENDMENT
+
+Source commit: $historicalFinalCommit
+JSON SHA-256: $priorJsonHash
+Markdown SHA-256: $priorMarkdownHash
+
+This successor does not reconstruct the former uncommitted working tree.
+"@
+    Write-Utf8File (Join-Path $fixtureRoot 'corrective-amendment.md') $amendment
 
     $trx = @'
 <?xml version="1.0" encoding="utf-8"?>
@@ -174,12 +218,24 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
     $codeHash = Get-FileHashValue (Join-Path $fixtureRoot 'code.ps1')
     $inputFingerprint = Get-TextHash "code.ps1`:$codeHash"
     $evidenceHash = Get-FileHashValue (Join-Path $fixtureRoot 'evidence.json')
-    $expectedPaths = @('code.ps1', 'evidence.json', 'input.json', 'out.json', 'out.md', 'result.trx', 'snapshot.json', 'story.md')
+    $expectedPaths = @('code.ps1', 'corrective-amendment.md', 'evidence.json', 'input.json', 'out.json', 'out.md', 'result.trx', 'snapshot.json', 'story.md')
     $input = [ordered]@{
         schemaVersion = 1
         approvedProposal = 'fixture'
         preexistingStatePath = 'snapshot.json'
         output = [ordered]@{ json = 'out.json'; markdown = 'out.md' }
+        predecessor = [ordered]@{
+            id = 'failed-predecessor'
+            sourceCommit = $historicalFinalCommit
+            jsonPath = 'prior.json'
+            jsonSha256 = $priorJsonHash
+            markdownPath = 'prior.md'
+            markdownSha256 = $priorMarkdownHash
+            expectedStatus = 'fail'
+            expectedFailures = @('original path mismatch', 'original fingerprint mismatch')
+            amendmentPath = 'corrective-amendment.md'
+            amendmentMarker = 'FIXTURE-CORRECTIVE-AMENDMENT'
+        }
         live = [ordered]@{
             id = 'fixture'
             baselineCommit = $baselineCommit
@@ -199,7 +255,26 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
             evidencePaths = @([ordered]@{ path = 'evidence.json'; sha256 = $evidenceHash })
             evidencePairs = @(, @('out.json', 'out.md'))
         }
-        historical = @()
+        historical = @(
+            [ordered]@{
+                id = 'historical-fixture'
+                baselineCommit = $historicalBaselineCommit
+                finalCommit = $historicalFinalCommit
+                storyPath = 'historical-story.md'
+                expectedCounts = [ordered]@{ total = 1; passed = 1; failed = 0; skipped = 0 }
+                fileListAmendments = @()
+                amendmentRecordPath = $null
+                amendmentPattern = $null
+                contractBaselinePath = 'contract.json'
+                countClaims = @(
+                    [ordered]@{ path = 'historical-story.md'; kind = 'regex'; pattern = '1 / 1 passed' },
+                    [ordered]@{ path = 'historical-evidence.json'; kind = 'json'; jsonPath = 'total'; expected = 1 }
+                )
+                evidence = @(
+                    [ordered]@{ path = 'historical-evidence.json'; blobOid = $historicalEvidenceBlob }
+                )
+            }
+        )
     }
     $inputPath = Join-Path $fixtureRoot 'input.json'
     $baseInput = ($input | ConvertTo-Json -Depth 30) + "`n"
@@ -207,6 +282,13 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
 
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $true -ExpectedText 'Final-record verification passed'
     $scenarioCount++
+
+    $invalidSchema = $baseInput | ConvertFrom-Json -Depth 30
+    $invalidSchema.live.PSObject.Properties.Remove('contractTestName')
+    Write-Utf8File $inputPath (($invalidSchema | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Final-record input schema validation failed'
+    $scenarioCount++
+    Write-Utf8File $inputPath $baseInput
 
     $stale = $baseInput | ConvertFrom-Json -Depth 30
     $stale.live.expectedCounts.total = 2
@@ -221,10 +303,20 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
     $scenarioCount++
     Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
 
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') ($storyContent + "`n- ``ghost.txt```n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "is missing 'ghost.txt'"
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'story.md') $storyContent
+
     Write-Utf8File (Join-Path $fixtureRoot 'evidence.json') '{"total":2,"passed":2,"failed":0,"skipped":0}'
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "evidence.json' SHA-256"
     $scenarioCount++
     Write-Utf8File (Join-Path $fixtureRoot 'evidence.json') '{"total":1,"passed":1,"failed":0,"skipped":0}'
+
+    Write-Utf8File (Join-Path $fixtureRoot 'prior.md') "# Altered failed record`n"
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "Predecessor artifact 'prior.md'"
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'prior.md') "# Preserved failed record`n"
 
     Write-Utf8File $unrelatedPath 'changed by another task'
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "Frozen entry 'unrelated.txt'"
@@ -252,6 +344,13 @@ Final conformance: 1 / 1 passed, 0 failed, 0 skipped.
 
     Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"shape":"drift"}'
     Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText "contract.json"
+    $scenarioCount++
+    Write-Utf8File (Join-Path $fixtureRoot 'contract.json') '{"shape":"stable"}'
+
+    $missingHistory = $baseInput | ConvertFrom-Json -Depth 30
+    $missingHistory.historical[0].finalCommit = 'ffffffffffffffffffffffffffffffffffffffff'
+    Write-Utf8File $inputPath (($missingHistory | ConvertTo-Json -Depth 30) + "`n")
+    Invoke-CheckerScenario -CheckerPath $checkerPath -InputPath $inputPath -ShouldPass $false -ExpectedText 'Required historical commit'
     $scenarioCount++
 
     Write-Host "Test-StoryFinalRecord fixtures passed: $scenarioCount scenarios."

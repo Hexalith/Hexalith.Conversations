@@ -1,0 +1,660 @@
+{
+  "schemaVersion": 1,
+  "artifact": "epic-5-final-record-check",
+  "generatedAtUtc": "2026-08-22T09:28:56Z",
+  "status": "fail",
+  "mechanicalResult": "FAIL",
+  "approvedProposal": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md",
+  "predecessor": {
+    "id": "epic-5-final-record-check-2026-07-14",
+    "status": "pass-with-approved-amendment",
+    "mechanicalResult": "PASS",
+    "sourceResult": "FAIL",
+    "sourceCommit": "8f8f14fd6e842eeb19b7410554366a93f8a93ce5",
+    "jsonPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json",
+    "jsonSha256": "a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1",
+    "markdownPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md",
+    "markdownSha256": "0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710",
+    "amendmentPath": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+    "failures": [],
+    "limitations": "The predecessor failure and exact bytes are preserved. The amendment disposes the named historical discrepancy; it does not reconstruct the former uncommitted working tree."
+  },
+  "live": {
+    "id": "epic-5-final-record-successor-2026-08-22",
+    "mode": "live-working-tree",
+    "baselineCommit": "62f27c452b7ef8fb8d1f2a1c88e62e8c792b3893",
+    "evaluatedHead": "a72e3e5433173895cc5edfbc25d95e37d46f5e82",
+    "status": "fail",
+    "mechanicalResult": "FAIL",
+    "failures": [
+      "Frozen entry '_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md' changed: SHA-256 changed from 29e8a2bba7ff62a04d00ee8eb0818ea6e3559a4c7a796bc48d619a7f65f9ffee to a5d89f8fb8b77bde0d667d429b7468e5ab260190f1a9b888d993db468e48ffca.",
+      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md'.",
+      "Live declared-vs-observed path inventory contains unexpected path '_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md'.",
+      "Executable/test input fingerprint is stale: expected PENDING_FINAL_RUN, found 8de4bbb4f61b5878d361ec6a32a19e68ea59483bca113762b85d99144872b939."
+    ],
+    "testRun": {
+      "status": "fail",
+      "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor.trx",
+      "counts": {
+        "total": 453,
+        "executed": 453,
+        "passed": 439,
+        "failed": 14,
+        "skipped": 0
+      },
+      "failedTests": [
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofShouldBindExactProductionRouteKeysAndBoundedOutcomes",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofSourceAndSignedV1BindingsShouldRemainByteIdentical",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.AnEnforcementClauseDisplacedOutsideTheGateSpanMustNotSatisfyTheContract",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.BothSkillTreesMustStayByteIdenticalForEverySkillFileThisStoryChanged",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.CodeReviewMustRequireExplicitCommitAuthorizationBeforeGating",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.EveryCompletionSurfaceMustInvokeTheGeneratorAndEnforceItsBlockers",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.GuttingTheGateBodyWhileKeepingTheHeadingMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingFinalRecordDependencyFromCompletionMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingTheGateHeadingMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.ReorderingEnforcementClausesMustBeDetected"
+      ],
+      "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+      "contractTestOutcome": "Passed",
+      "sha256": "1961ffe215816fb158de00366cb7689f06fc5132c12e842f8f72f78eb24d4327"
+    },
+    "blockedValidation": {
+      "status": "blocked",
+      "mechanicalResult": "BLOCKED",
+      "code": "CURRENT_TREE_CONFORMANCE_FAILURES",
+      "rationale": "The full current-tree conformance lane has 14 failures in unrelated workflow-authority, projection-proof, and preservation-proof guards. Repair would require out-of-scope authority or hash-bound evidence changes.",
+      "broadTestRun": {
+        "status": "fail",
+        "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor.trx",
+        "counts": {
+          "total": 453,
+          "executed": 453,
+          "passed": 439,
+          "failed": 14,
+          "skipped": 0
+        },
+        "failedTests": [
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
+          "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
+          "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofShouldBindExactProductionRouteKeysAndBoundedOutcomes",
+          "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofSourceAndSignedV1BindingsShouldRemainByteIdentical",
+          "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.AnEnforcementClauseDisplacedOutsideTheGateSpanMustNotSatisfyTheContract",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.BothSkillTreesMustStayByteIdenticalForEverySkillFileThisStoryChanged",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.CodeReviewMustRequireExplicitCommitAuthorizationBeforeGating",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.EveryCompletionSurfaceMustInvokeTheGeneratorAndEnforceItsBlockers",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.GuttingTheGateBodyWhileKeepingTheHeadingMustBeDetected",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingFinalRecordDependencyFromCompletionMustBeDetected",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingTheGateHeadingMustBeDetected",
+          "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.ReorderingEnforcementClausesMustBeDetected"
+        ],
+        "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+        "contractTestOutcome": "Passed",
+        "sha256": "1961ffe215816fb158de00366cb7689f06fc5132c12e842f8f72f78eb24d4327"
+      },
+      "broadFailures": [
+        "TRX is not fully green: total=453, executed=453, passed=439."
+      ],
+      "expectedFailedTests": [
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
+        "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofShouldBindExactProductionRouteKeysAndBoundedOutcomes",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofSourceAndSignedV1BindingsShouldRemainByteIdentical",
+        "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.AnEnforcementClauseDisplacedOutsideTheGateSpanMustNotSatisfyTheContract",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.BothSkillTreesMustStayByteIdenticalForEverySkillFileThisStoryChanged",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.CodeReviewMustRequireExplicitCommitAuthorizationBeforeGating",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.EveryCompletionSurfaceMustInvokeTheGeneratorAndEnforceItsBlockers",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.GuttingTheGateBodyWhileKeepingTheHeadingMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingFinalRecordDependencyFromCompletionMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingTheGateHeadingMustBeDetected",
+        "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.ReorderingEnforcementClausesMustBeDetected"
+      ],
+      "focusedTestRun": {
+        "status": "pass",
+        "path": "/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-focused.trx",
+        "counts": {
+          "total": 5,
+          "executed": 5,
+          "passed": 5,
+          "failed": 0,
+          "skipped": 0
+        },
+        "failedTests": [],
+        "contractTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+        "contractTestOutcome": "Passed",
+        "sha256": "a9ca51a6f32e30239b4d5329bffd5c4f1e1996d2890a5d26410f671a5977f368"
+      },
+      "failures": []
+    },
+    "countClaims": [
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "kind": "regex",
+        "claim": "439 / 453 passed",
+        "status": "pass"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "kind": "regex",
+        "claim": "453 total, 439 passed|439 / 453 passed",
+        "status": "pass"
+      }
+    ],
+    "executableInputFingerprint": "8de4bbb4f61b5878d361ec6a32a19e68ea59483bca113762b85d99144872b939",
+    "changedPaths": {
+      "expected": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.PreexistingState.schema.json",
+        "tests/Test-StoryFinalRecord.ps1",
+        "tests/Test-StoryFinalRecord.Tests.ps1"
+      ],
+      "observed": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.PreexistingState.schema.json",
+        "tests/Test-StoryFinalRecord.ps1",
+        "tests/Test-StoryFinalRecord.Tests.ps1"
+      ],
+      "duplicateExpected": [],
+      "duplicateObserved": [],
+      "missing": [],
+      "unexpected": [
+        "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
+        "_bmad-output/implementation-artifacts/spec-update-root-submodules-and-conversations-packages.md"
+      ],
+      "status": "fail"
+    },
+    "configuredFileList": {
+      "expected": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.PreexistingState.schema.json",
+        "tests/Test-StoryFinalRecord.ps1",
+        "tests/Test-StoryFinalRecord.Tests.ps1"
+      ],
+      "observed": [
+        "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
+        "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
+        "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "tests/README.md",
+        "tests/Test-StoryFinalRecord.Input.schema.json",
+        "tests/Test-StoryFinalRecord.PreexistingState.schema.json",
+        "tests/Test-StoryFinalRecord.ps1",
+        "tests/Test-StoryFinalRecord.Tests.ps1"
+      ],
+      "duplicateExpected": [],
+      "duplicateObserved": [],
+      "missing": [],
+      "unexpected": [],
+      "status": "pass"
+    },
+    "frozenPreexistingState": [
+      {
+        "path": "_bmad-output/planning-artifacts/implementation-readiness.md",
+        "kind": "tracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
+        "kind": "untracked-file",
+        "status": "changed-fail",
+        "failures": [
+          "SHA-256 changed from 29e8a2bba7ff62a04d00ee8eb0818ea6e3559a4c7a796bc48d619a7f65f9ffee to a5d89f8fb8b77bde0d667d429b7468e5ab260190f1a9b888d993db468e48ffca"
+        ]
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/epics.md",
+        "kind": "untracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-19.md",
+        "kind": "untracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "_bmad/scripts/tests/test_static_anti_skip_guard.py",
+        "kind": "untracked-file",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "kind": "gitlink",
+        "status": "unchanged-excluded",
+        "failures": []
+      }
+    ],
+    "changedDocumentationAndEvidence": [
+      {
+        "path": "_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md",
+        "status": "present",
+        "sha256": "c0311234ce5f67c47749477b8d3e2da65ef1639f858027712a73ee22402842bc"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md",
+        "status": "present",
+        "sha256": "537000c023eb50f8a6b963e2c92bdf06bd9ecad1fe3c312a57068e2d7ff9051d"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "status": "present",
+        "sha256": "fcdf15ca2c11ad7ea67a1943f96ad887778c4eaf3f83a3364b0f89c04f7b3ee0"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md",
+        "status": "present",
+        "sha256": "d02be0447b1c91474d1c423492f74f10cb50c434e6b1138a34a399a838ebb52e"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json",
+        "status": "present",
+        "sha256": "97d32314af7e765da68398adc1e1e91f85c31c9d8ec9984639176c1c333f543e"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json",
+        "status": "present",
+        "sha256": "392322c3b0ae0d73ef0c7e21cf2a25e18f86d49582c1dad3b2545bb1a485d3d7"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+        "status": "present",
+        "sha256": "866ca78c806e4d92015aa08e2b4aa86b2268203116c6145eaa0504c6a6448c02"
+      },
+      {
+        "path": "tests/README.md",
+        "status": "present",
+        "sha256": "abf63c32d57d70c99c09da71063c33addd2cbffd0d36a22b5128eb3a725ba75c"
+      }
+    ],
+    "publicContractShape": {
+      "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+      "baselineSha256": "ebfc2f67e90ecc8a7734719c6e2673b6e8392ab2cae9956a8e98b7bf769acfca",
+      "comparisonTest": "CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+      "diffState": "empty"
+    }
+  },
+  "historical": [
+    {
+      "id": "5.1",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "f7cee22495eb6eecec97e97a11adb580805edae5",
+      "finalCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "status": "pass",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 365,
+        "passed": 365,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "kind": "regex",
+          "claim": "365/365|365 / 365",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "kind": "json",
+          "claim": "conformanceRun.skipped",
+          "status": "pass"
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "claim": "365 total",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-1-final-full-module-conformance-run-consolidated-public-contract-shape-diff.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/FinalConformanceContractDiffEvidenceValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.json",
+          "status": "pass",
+          "blobOid": "3a0d59e0fabe6a6bf2f2d9f56150cb8b78a61b8f"
+        },
+        {
+          "path": "docs/release-evidence/final-conformance-contract-diff-v1.md",
+          "status": "pass",
+          "blobOid": "d3b1f8eef1f7d10a4ab8889567bb92ef0d8ee683"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    },
+    {
+      "id": "5.2",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "5afc695d74b95d36f5b8cbd481a0c1e7bfb3ef7b",
+      "finalCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "status": "pass-with-approved-amendment",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 374,
+        "passed": 374,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "kind": "regex",
+          "claim": "374/374|374 / 374",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.skipped",
+          "status": "pass"
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "kind": "regex",
+          "claim": "374 total",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-2-reconcile-the-removed-test-justification-ledger.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "_bmad-output/implementation-artifacts/tests/test-summary.md",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/RemovedTestJustificationLedgerReconciliationValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [
+        "_bmad-output/implementation-artifacts/tests/test-summary.md"
+      ],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.json",
+          "status": "pass",
+          "blobOid": "e67c3cae29edc16d7ddf25d24c4e21eb93e08761"
+        },
+        {
+          "path": "docs/release-evidence/removed-test-justification-ledger-reconciliation-v1.md",
+          "status": "pass",
+          "blobOid": "63a340b9f5494ebffe3b520f52d78bdf73438fde"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    },
+    {
+      "id": "5.3",
+      "mode": "historical-commit-record-consistency",
+      "baselineCommit": "2ab26d8ab3b61186c82ebe5d4776f6c223817126",
+      "finalCommit": "ba01c4fc8addfef777b2da5e2f96c0184deeeb3e",
+      "status": "pass",
+      "mechanicalResult": "PASS",
+      "limitations": "Committed bytes, path modes, and cross-record claims are verified. A former uncommitted working tree is not reconstructed or claimed.",
+      "failures": [],
+      "counts": {
+        "total": 384,
+        "passed": 384,
+        "failed": 0,
+        "skipped": 0,
+        "proof": "cross-record-consistency"
+      },
+      "countClaims": [
+        {
+          "path": "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "kind": "regex",
+          "claim": "384/384|384 / 384",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.total",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.passed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.failed",
+          "status": "pass"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "kind": "json",
+          "claim": "validation.fullConformance.skipped",
+          "status": "pass"
+        }
+      ],
+      "changedPaths": {
+        "expected": [
+          "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs"
+        ],
+        "observed": [
+          "_bmad-output/implementation-artifacts/5-3-assemble-the-success-metric-report-and-signable-attestation.md",
+          "_bmad-output/implementation-artifacts/sprint-status.yaml",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs"
+        ],
+        "duplicateExpected": [],
+        "duplicateObserved": [],
+        "missing": [],
+        "unexpected": [],
+        "status": "pass"
+      },
+      "fileListAmendments": [],
+      "evidence": [
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.json",
+          "status": "pass",
+          "blobOid": "1ee038462839a6f669138afd3d3462bcd6b90dbe"
+        },
+        {
+          "path": "docs/release-evidence/success-metric-report-and-attestation-v1.md",
+          "status": "pass",
+          "blobOid": "b86c215d2713c4a404fc3986ca2bdfa447dad983"
+        }
+      ],
+      "publicContractShape": {
+        "baselinePath": "docs/release-evidence/public-contract-shape-baseline-v1.json",
+        "baselineChangedInRange": false,
+        "diffState": "baseline-unchanged-and-recorded-diff-empty"
+      }
+    }
+  ],
+  "assertionLedger": [
+    {
+      "id": "live-final-tree",
+      "result": "FAIL"
+    },
+    {
+      "id": "historical-5.1",
+      "result": "PASS"
+    },
+    {
+      "id": "historical-5.2",
+      "result": "PASS"
+    },
+    {
+      "id": "historical-5.3",
+      "result": "PASS"
+    },
+    {
+      "id": "predecessor-disposition",
+      "result": "PASS"
+    }
+  ],
+  "renderedMarkdownSha256": "a8c8638dcaa81fb7341a64deec0dfafee5bee78c374762b3e128f36e89554d91"
+}

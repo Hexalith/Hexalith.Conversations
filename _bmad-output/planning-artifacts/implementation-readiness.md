@@ -1,78 +1,63 @@
 ---
 project: Conversations
-assessment_date: 2026-08-18
-intent: sprint-planning
+assessment_date: 2026-08-19
+intent: readiness
 gate: FAIL
 status_file_updated: false
 implementation_hold: ACTIVE
+planning_candidate: fe3f6fae3640ae2a6dc7629ac13e0ce0daa31029
+publication_candidate: 62f27c452b7ef8fb8d1f2a1c88e62e8c792b3893
 ---
 
 # Implementation Readiness Assessment
 
 ## Verdict
 
-**FAIL — the recorded plan is not currently implementable.** Sprint tracking was not generated or refreshed.
+**FAIL — implementation remains prohibited by recorded authority.** This readiness-only rerun did not regenerate sprint tracking.
 
-The planning set contains a final PRD, architecture authority, UX specification and requirement map, canonical epics, successor story contracts, an execution graph, and current remediation proposals. The successor graph is detailed, but current authority expressly prohibits its execution, required remediation evidence remains incomplete, and three open runtime obligations do not yet have approved successor stories.
+The V14 publication fixed the former F-10 proof defect and added approved Epic 16 successor contracts for A4–A6. The remaining block is now narrower: E6-REMEDIATION A2 and A3 are still formally open, the approved static anti-skip guard is absent, IR-0 has not run, and the global implementation hold remains `ACTIVE`.
 
 ## Blocking Findings
 
-### 1. The implementation hold blocks every successor story
+### 1. A2 and A3 remain open, so IR-0 cannot run
 
-`_bmad-output/implementation-artifacts/sprint-status.yaml:41` records the global implementation hold as `ACTIVE`, states that IR-0 has not run, and keeps all Epic 7–15 stories in backlog. The approved 2026-08-18 readiness correction also states that it does not close A2 or A3, authorize IR-0, start Story 7.1, or lift the hold.
+`_bmad-output/implementation-artifacts/sprint-status.yaml:245-255` still records both Epic 6 remediation actions as `open`; the A2 implementation spec itself remains `in-progress` at `_bmad-output/implementation-artifacts/spec-e6-remediation-a2-restore-lifecycle-gates.md:5`.
 
-Current remediation state:
+The approved correction sequence at `_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md:304-314` requires A2 closure, A3 closure, and only then independent IR-0. The V14 planning publication deliberately preserved those statuses and did not authorize their closure.
 
-- A1 is recorded as `done` in the current sprint projection.
-- A2 and A3 remain `open` at `_bmad-output/implementation-artifacts/sprint-status.yaml:240-250`.
-- IR-0 may run only after A1–A3 are closed.
-- Even a future `READY` IR-0 does not itself lift the hold; a separate release-owner decision is required.
+**Remediation:** use `bmad-build` on the approved A2/A3 remediation handoff, close each action through its lifecycle gates, then run independent IR-0 against the resulting committed candidate.
 
-**Remediation:** use `bmad-build` to complete the approved A2/A3 handoff, then rerun `bmad-sprint-planning` with readiness intent. Obtain the separately required release-owner hold decision before starting successors.
+### 2. The approved static anti-skip guard is missing
 
-### 2. A3 acceptance evidence is still non-hermetic
+F-10 itself is now hermetic at `_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py:478`: it creates a temporary Git repository, dirties a controlled tracked file, and asserts the stable `BLOCKED` result. The complete tooling lane passes `279/279` with no skips.
 
-`_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py:476-484` still conditions F-10 on ambient repository dirt and calls `pytest.skip` when the tree is clean. This violates the approved AC-10 requirement that the full lane have identical collected and passed counts with zero skips on both clean and dirty trees.
+However, the approved handoff separately requires a static test proving `_bmad/scripts/tests` contains no `pytest.skip`, `skipif`, or ambient `verifier.worktree_dirt(ROOT)` conditioning at `_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md:318-325`. No such guard test exists, so the accepted A3 completion contract is not yet fully evidenced.
 
-The approved implementation handoff at `_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-18-readiness-gate-ac10-ac11.md:304-339` requires:
+**Remediation:** add the approved static guard without weakening current tests, rerun the full clean/dirty lane, and include the passing evidence in the A2/A3 closure.
 
-- controlled, test-supplied worktree dirt;
-- F-10 execution on every run;
-- a static guard against `pytest.skip`, `skipif`, and ambient `worktree_dirt(ROOT)` conditioning;
-- a full tooling lane with zero failed, skipped, or not-run tests;
-- gate-verified closure of A2 and A3.
+### 3. No valid hold-lift decision can be obtained yet
 
-**Remediation:** use `bmad-build` to implement the already-approved bounded test repair and close A2/A3 through their lifecycle gates.
+`_bmad-output/implementation-artifacts/sprint-status.yaml:41` records `IR-0` as not run and the global implementation hold as `ACTIVE`. The current authority requires a candidate-matched independent IR-0 `READY` result before the separately governed release-owner `LIFTED` decision can authorize successor execution.
 
-### 3. Open runtime obligations A4–A6 have no approved successor stories
+No IR-0 result or implementation-hold decision artifact exists for the current candidate. A release-owner decision cannot safely be inferred or manufactured by this workflow.
 
-The V12 epic authority at `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md:4318-4333` expressly preserves A4–A6 as open, assigns them to separately approved successor work, and states that it creates no substitute successor story. They cover:
+**Remediation:** after A2/A3 closure, run independent IR-0 and obtain Jerome's explicit candidate-matched hold decision. If it is not `LIFTED`, all successor stories remain non-executable.
 
-- durable event-fed tenant access with freshness, gap detection, restart, and multi-replica convergence;
-- deterministic replay timestamps and trustworthy missing-index semantics;
-- endpoint and Dapr port diagnostics plus live terminal reconciliation coverage.
+## Resolved Since The Previous Assessment
 
-These requirements therefore do not yet trace forward into implementable, approved story contracts.
-
-**Remediation:** use `bmad-correct-course` to authorize and map A4–A6 into successor stories before implementation.
-
-## Readiness Strengths
-
-- The PRD is final and preserves both the boilerplate-reduction initiative and the Conversations product contract.
-- Architecture and UX decisions are recorded rather than left implicit.
-- Epics 7–15 have explicit outcomes, acceptance criteria, predecessors, and machine-readable story contracts.
-- The execution graph is topologically defined and keeps successors behind IR-0.
-- The 2026-08-18 AC-10/AC-11 correction is approved and supplies a bounded implementation handoff.
+- **F-10 is hermetic.** The controlled dirty-worktree test executes on every run; the full Python lane is `279 passed`, zero skipped.
+- **A4–A6 have approved successors.** `_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md:4370-4383` maps A4→16.1, A5→16.2, and A6→16.3 with explicit predecessors and hold semantics.
+- **Sprint tracking contains Epic 16.** The V14 publication regenerated `sprint-status.yaml` with Epic 16 and Stories 16.1–16.3 in `backlog`; this gate made no additional tracking change.
+- **Publication integrity is green.** The candidate-bound gate passes an exact 67-path allowlist with zero changed gitlinks; both checkpoint sidecars remain pinned.
 
 ## Required Sequence
 
-1. Complete the approved F-10 repair and full zero-skip verification with `bmad-build`.
-2. Close A2 and A3 through their lifecycle gates.
-3. Run an independent IR-0 readiness assessment against the authorized candidate.
-4. Record the separate release-owner hold decision required to authorize successor execution.
-5. Use `bmad-correct-course` to create approved successor ownership for A4–A6.
-6. Rerun sprint planning; generate or refresh `sprint-status.yaml` only after the readiness gate passes.
+1. Add the approved static anti-skip guard and finish the remaining A2/A3 evidence.
+2. Close A2 and A3 through `bmad-build` lifecycle gates.
+3. Run independent IR-0 against the closed, committed candidate.
+4. Obtain the separate candidate-matched release-owner hold decision.
+5. Rerun `bmad-sprint-planning` readiness; proceed only on `PASS`.
 
 ## Non-Authorization
 
-This assessment does not modify `sprint-status.yaml`, close any action, authorize IR-0, lift the implementation hold, start a story, or authorize release.
+This assessment does not change `sprint-status.yaml`, close an action, run or bias IR-0, lift the implementation hold, start a story, or authorize release.

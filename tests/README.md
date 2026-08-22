@@ -114,7 +114,9 @@ Full operating procedure, blocker→remediation table, exit codes, and safety bo
 
 ### Epic 5 historical asset
 
-`tests/Test-StoryFinalRecord.ps1` and `tests/Test-StoryFinalRecord.Tests.ps1` are the Epic 4 action A1 asset and the record of the Epic 5 final-record check. They verify a **hand-authored** manifest — the defect the generator above exists to remove — and are bound to Epic 5 artifacts. They are retained as the historical record and are not invoked by any workflow. Do not delete them, and do not re-mark Epic 4 action A1.
+`tests/Test-StoryFinalRecord.ps1` and `tests/Test-StoryFinalRecord.Tests.ps1` are the Epic 4 action A1 asset and the record of the Epic 5 final-record check. They verify a **hand-authored** manifest — the defect the generator above exists to remove — and are bound to Epic 5 artifacts. They are retained as the historical record and are not invoked by any workflow. Do not delete them.
+
+The original 2026-07-14 JSON and Markdown result remain byte-identical evidence of a failed run; they are not superseded by rewriting them. The approved 2026-08-22 corrective amendment binds those source bytes to a separately generated successor audit. That successor proves the focused non-mutating public-contract comparison but remains `BLOCKED` while the broad conformance run has unresolved failures. Epic 4 action A1 therefore remains in progress until a later successor audit is fully green.
 
 ## Architecture
 

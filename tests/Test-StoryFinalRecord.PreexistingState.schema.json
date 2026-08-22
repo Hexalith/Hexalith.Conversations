@@ -1,0 +1,108 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Story final-record frozen pre-existing state",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "capturedAtUtc", "baselineCommit", "excludedEntries"],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "capturedAtUtc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "baselineCommit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "excludedEntries": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "object",
+        "required": ["path", "kind"],
+        "properties": {
+          "path": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "enum": ["untracked-file", "tracked-file", "gitlink"]
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          },
+          "status": {
+            "type": "string",
+            "minLength": 1
+          },
+          "baselineBlobOid": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "indexBlobOid": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "baselineCommit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "indexCommit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "worktreeCommit": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{40}$"
+          },
+          "internalStatusSha256": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "untracked-file"
+                }
+              }
+            },
+            "then": {
+              "required": ["sha256"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "tracked-file"
+                }
+              }
+            },
+            "then": {
+              "required": ["status", "baselineBlobOid", "indexBlobOid", "sha256"]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "gitlink"
+                }
+              }
+            },
+            "then": {
+              "required": ["baselineCommit", "indexCommit", "worktreeCommit", "internalStatusSha256"]
+            }
+          }
+        ],
+        "unevaluatedProperties": false
+      }
+    }
+  }
+}

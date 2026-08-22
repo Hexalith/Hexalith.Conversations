@@ -1,0 +1,454 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Story final-record checker input",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "approvedProposal",
+    "preexistingStatePath",
+    "output",
+    "live",
+    "historical"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "approvedProposal": {
+      "$ref": "#/$defs/repositoryPath"
+    },
+    "preexistingStatePath": {
+      "$ref": "#/$defs/repositoryPath"
+    },
+    "output": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["json", "markdown"],
+      "properties": {
+        "json": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "markdown": {
+          "$ref": "#/$defs/repositoryPath"
+        }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "sourceCommit",
+        "jsonPath",
+        "jsonSha256",
+        "markdownPath",
+        "markdownSha256",
+        "expectedStatus",
+        "expectedFailures",
+        "amendmentPath",
+        "amendmentMarker"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sourceCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "jsonPath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "jsonSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "markdownPath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "markdownSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "expectedStatus": {
+          "const": "fail"
+        },
+        "expectedFailures": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "amendmentPath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "amendmentMarker": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "live": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "baselineCommit",
+        "recordPath",
+        "expectedChangedPaths",
+        "testResultPath",
+        "expectedCounts",
+        "contractTestName",
+        "contractBaselinePath",
+        "executableInputs",
+        "executableInputRoots",
+        "executableInputFingerprint",
+        "countClaims",
+        "evidencePaths",
+        "evidencePairs"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "baselineCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "recordPath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "expectedChangedPaths": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "testResultPath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "expectedCounts": {
+          "$ref": "#/$defs/counts"
+        },
+        "contractTestName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "contractBaselinePath": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "executableInputs": {
+          "$ref": "#/$defs/pathSet"
+        },
+        "executableInputRoots": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "extensions"],
+            "properties": {
+              "path": {
+                "$ref": "#/$defs/repositoryPath"
+              },
+              "extensions": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": true,
+                "items": {
+                  "type": "string",
+                  "pattern": "^\\.[A-Za-z0-9]+$"
+                }
+              }
+            }
+          }
+        },
+        "executableInputFingerprint": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "const": "PENDING_FINAL_RUN"
+            }
+          ]
+        },
+        "countClaims": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/countClaim"
+          }
+        },
+        "evidencePaths": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/repositoryPath"
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["path", "sha256"],
+                "properties": {
+                  "path": {
+                    "$ref": "#/$defs/repositoryPath"
+                  },
+                  "sha256": {
+                    "$ref": "#/$defs/sha256"
+                  }
+                }
+              }
+            ]
+          }
+        },
+        "evidencePairs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 2,
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/repositoryPath"
+            }
+          }
+        },
+        "blockedValidation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "code",
+            "rationale",
+            "expectedFailedTests",
+            "focusedTestResultPath",
+            "focusedExpectedCounts"
+          ],
+          "properties": {
+            "code": {
+              "type": "string",
+              "pattern": "^[A-Z][A-Z0-9_]+$"
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expectedFailedTests": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "focusedTestResultPath": {
+              "$ref": "#/$defs/repositoryPath"
+            },
+            "focusedExpectedCounts": {
+              "$ref": "#/$defs/counts"
+            }
+          }
+        }
+      }
+    },
+    "historical": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "baselineCommit",
+          "finalCommit",
+          "storyPath",
+          "expectedCounts",
+          "fileListAmendments",
+          "contractBaselinePath",
+          "countClaims",
+          "evidence"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "baselineCommit": {
+            "$ref": "#/$defs/commit"
+          },
+          "finalCommit": {
+            "$ref": "#/$defs/commit"
+          },
+          "storyPath": {
+            "$ref": "#/$defs/repositoryPath"
+          },
+          "expectedCounts": {
+            "$ref": "#/$defs/counts"
+          },
+          "fileListAmendments": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "$ref": "#/$defs/repositoryPath"
+            }
+          },
+          "amendmentRecordPath": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "$ref": "#/$defs/repositoryPath"
+              }
+            ]
+          },
+          "amendmentPattern": {
+            "anyOf": [
+              {
+                "type": "null"
+              },
+              {
+                "type": "string",
+                "minLength": 1
+              }
+            ]
+          },
+          "contractBaselinePath": {
+            "$ref": "#/$defs/repositoryPath"
+          },
+          "countClaims": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "$ref": "#/$defs/countClaim"
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["path", "blobOid"],
+              "properties": {
+                "path": {
+                  "$ref": "#/$defs/repositoryPath"
+                },
+                "blobOid": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{40}$"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "repositoryPath": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?![A-Za-z]:)(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))[^\\u0000]+$"
+    },
+    "pathSet": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/repositoryPath"
+      }
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "counts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["total", "passed", "failed", "skipped"],
+      "properties": {
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "passed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "failed": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "skipped": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "countClaim": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind"],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/repositoryPath"
+        },
+        "kind": {
+          "enum": ["json", "regex"]
+        },
+        "jsonPath": {
+          "type": "string",
+          "minLength": 1
+        },
+        "expected": {},
+        "pattern": {
+          "type": "string",
+          "minLength": 1
+        },
+        "revision": {
+          "anyOf": [
+            {
+              "const": "WORKTREE"
+            },
+            {
+              "$ref": "#/$defs/commit"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "json"
+              }
+            }
+          },
+          "then": {
+            "required": ["jsonPath", "expected"]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "kind": {
+                "const": "regex"
+              }
+            }
+          },
+          "then": {
+            "required": ["pattern"]
+          }
+        }
+      ]
+    }
+  }
+}

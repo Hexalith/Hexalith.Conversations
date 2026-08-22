@@ -51,11 +51,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `tests/Test-StoryFinalRecord.ps1`, `_bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json`, and `epic-5-final-record-preexisting-state.json` -- implement schema-validated live/historical inventory, claim, hash, TRX, gitlink, and contract-result checks.
-- [ ] `tests/Test-StoryFinalRecord.Tests.ps1` -- prove pass plus stale-count, missing/extra path, evidence-hash, altered-frozen-dirt, new-gitlink, and contract-drift failures in disposable repositories.
-- [ ] `tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs` -- compare the full regenerated serialization with the committed baseline without writing it; emit actionable drift.
-- [ ] `_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md` -- record the dated known `test-summary.md` File List amendment separately so the hash-bound Story 5.2 record remains byte-identical.
-- [ ] `_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json`, `epic-5-final-record-check.md`, and `test-summary.md` -- record historical 365/374/384 consistency and the new live final run from one authoritative result.
+- [x] `tests/Test-StoryFinalRecord.ps1`, `_bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json`, and `epic-5-final-record-preexisting-state.json` -- implement schema-validated live/historical inventory, claim, hash, TRX, gitlink, and contract-result checks.
+- [x] `tests/Test-StoryFinalRecord.Tests.ps1` -- prove pass plus stale-count, missing/extra path, evidence-hash, altered-frozen-dirt, new-gitlink, and contract-drift failures in disposable repositories.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs` -- compare the full regenerated serialization with the committed baseline without writing it; emit actionable drift.
+- [x] `_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md` -- record the dated known `test-summary.md` File List amendment separately so the hash-bound Story 5.2 record remains byte-identical.
+- [x] `_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json`, `epic-5-final-record-check.md`, and `test-summary.md` -- record historical 365/374/384 consistency and the new live final run from one authoritative result.
 - [ ] `tests/README.md`, `epic-5-retro-2026-06-27.md`, `sprint-status.yaml`, and the approved proposal/spec -- document the gate, record approval/completion, and close the action only after verification.
 
 **Acceptance Criteria:**
@@ -66,9 +66,13 @@ context:
 
 ## Spec Change Log
 
+- 2026-08-22: The user approved preserving the failed July 14 record and adding a dated corrective amendment plus successor audit. The successor remains blocked on 14 unrelated current-tree conformance failures; the spec and Epic 4 action stay in progress.
+
 ## Design Notes
 
 Live mode reads the current index/worktree relative to `baseline_commit` and subtracts only exact frozen entries. Historical mode reads bytes and path modes from Git objects. The final conformance TRX is authoritative for current counts; historical counts are cross-record consistency claims. Contract equality is proven by a dedicated non-mutating xUnit fact whose TRX result is consumed by the gate.
+
+The 2026-08-22 successor separately verifies the byte-identical failed predecessor and approved amendment. It records the current broad conformance failure as `BLOCKED`, preserves focused contract-comparison evidence, and does not reconstruct the former July 14 uncommitted tree.
 
 ## Verification
 
@@ -81,26 +85,27 @@ Live mode reads the current index/worktree relative to `baseline_commit` and sub
 
 ## Validation Results
 
-- PowerShell disposable-repository fault injection: 8 / 8 scenarios passed.
+- PowerShell disposable-repository fault injection: 12 / 12 scenarios passed.
 - Release conformance build: 0 warnings and 0 errors.
-- Release conformance run: 389 / 389 passed, 0 failed, 0 skipped.
-- Non-mutating full public-contract-shape comparison: passed; baseline working-tree diff empty.
+- Release conformance run: 439 / 453 passed, 14 failed, 0 skipped — `BLOCKED` by unrelated workflow-authority, projection-proof, and preservation-proof guards.
+- Focused non-mutating public-contract-shape comparison: 5 / 5 passed; baseline working-tree diff empty.
 - Story 5.2 source record SHA-256 remains `ab6d4970d1e7cc78738435b09e0777d0a2eefe473ba91ca2310c26aa4d220b21`, matching the signed Story 5.3 source manifest.
-- Final live/historical gate: pending final fingerprint and evidence-hash sealing.
+- The original failed JSON/Markdown remain byte-identical at SHA-256 `a6ec97c1fc3fb3e026d72ce5bd480561d71acf3c051f84ac73f9fd24671c65e1` / `0b8e1de3fcd132c2d0d226a38d9e7c94037a5b4db6c2448c5d418070f551a710`.
+- Final successor live/historical gate: pending final fingerprint sealing; expected completion result remains `BLOCKED` until the 14 broad conformance failures are resolved outside this spec.
 
 ### File List
 
 - `_bmad-output/implementation-artifacts/epic-5-retro-2026-06-27.md`
 - `_bmad-output/implementation-artifacts/spec-epic-5-final-record-check.md`
 - `_bmad-output/implementation-artifacts/sprint-status.yaml`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.json`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-check.md`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-input.json`
-- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-preexisting-state.json`
-- `_bmad-output/implementation-artifacts/tests/story-5-2-final-record-amendment.md`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-check.md`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-input.json`
+- `_bmad-output/implementation-artifacts/tests/epic-5-final-record-successor-preexisting-state.json`
 - `_bmad-output/implementation-artifacts/tests/test-summary.md`
-- `_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-14-epic-5-final-record-check.md`
-- `tests/Hexalith.Conversations.Conformance.Tests/PublicContractShapeSnapshotGenerationTest.cs`
 - `tests/README.md`
+- `tests/Test-StoryFinalRecord.Input.schema.json`
+- `tests/Test-StoryFinalRecord.PreexistingState.schema.json`
 - `tests/Test-StoryFinalRecord.Tests.ps1`
 - `tests/Test-StoryFinalRecord.ps1`

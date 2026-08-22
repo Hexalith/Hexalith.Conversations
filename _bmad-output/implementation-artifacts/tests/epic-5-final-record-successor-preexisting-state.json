@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "capturedAtUtc": "2026-08-22T09:18:33Z",
+  "baselineCommit": "62f27c452b7ef8fb8d1f2a1c88e62e8c792b3893",
+  "excludedEntries": [
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-readiness.md",
+      "kind": "tracked-file",
+      "status": "M",
+      "baselineBlobOid": "1cbf36b88a92ee0743b786ac54341d9763981c63",
+      "indexBlobOid": "1cbf36b88a92ee0743b786ac54341d9763981c63",
+      "sha256": "24f4233f417f606954d64fdfe32731b0f677a6d19080deec340da6c0be46b697"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-cp-1-cp-2-close-a2-after-anti-skip-guard.md",
+      "kind": "untracked-file",
+      "sha256": "29e8a2bba7ff62a04d00ee8eb0818ea6e3559a4c7a796bc48d619a7f65f9ffee"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/epics.md",
+      "kind": "untracked-file",
+      "sha256": "11b4678fc7298c8e1fef8c3c729436be6efed20c5115eda29cb42bb73f3520b6"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/sprint-change-proposal-2026-08-19.md",
+      "kind": "untracked-file",
+      "sha256": "f6a9122086feab745a9be7a087b48c7f77d1dec92bd724dcb086537b5f03d964"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_static_anti_skip_guard.py",
+      "kind": "untracked-file",
+      "sha256": "21f51240823ead2c8f2316301dbd2b0a5d516cc136bb0dbed34ab74b0ab7b84d"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "kind": "gitlink",
+      "baselineCommit": "a8a50859fa2f27f511a9470dfe1e3ae54d0ebc1a",
+      "indexCommit": "a8a50859fa2f27f511a9470dfe1e3ae54d0ebc1a",
+      "worktreeCommit": "761dc0187ef60599f12310fef2411dbaf0206742",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "kind": "gitlink",
+      "baselineCommit": "6fbac0c5dff2b8a58e90732c51b31911421a8a65",
+      "indexCommit": "6fbac0c5dff2b8a58e90732c51b31911421a8a65",
+      "worktreeCommit": "5ff390a46685c72145de2337893f71ec8bc6a62c",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "kind": "gitlink",
+      "baselineCommit": "454b4d100c8c095abf5077c6a8d408da6681e87e",
+      "indexCommit": "454b4d100c8c095abf5077c6a8d408da6681e87e",
+      "worktreeCommit": "94591f3539ce30372db58e5fdd3ba017ea8c07b8",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "kind": "gitlink",
+      "baselineCommit": "7a337a21d4ba261bf27aeb3feedde47789f0160a",
+      "indexCommit": "7a337a21d4ba261bf27aeb3feedde47789f0160a",
+      "worktreeCommit": "36efb0c3f774744cd9556f256c0b47f9b0b6bcad",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "kind": "gitlink",
+      "baselineCommit": "2b63ab9ca55ced5f3742b877cd16e01e9b7e37a1",
+      "indexCommit": "2b63ab9ca55ced5f3742b877cd16e01e9b7e37a1",
+      "worktreeCommit": "3d3abef4279e41cf0025870152e3fc597e26f872",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "kind": "gitlink",
+      "baselineCommit": "cff62ceb2d30b5ce4c34bfc282163bd1d94e9ca2",
+      "indexCommit": "cff62ceb2d30b5ce4c34bfc282163bd1d94e9ca2",
+      "worktreeCommit": "c910ea833fcdc6d838517f1ce29d52e729015792",
+      "internalStatusSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

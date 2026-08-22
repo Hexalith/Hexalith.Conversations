@@ -171,7 +171,8 @@ action_items:
   - epic: 4
     action: "Add a mechanical final-record check for Epic 5 story completion that verifies test counts, file lists, changed docs/evidence, and public-contract-shape diff state from the final working tree."
     owner: "Dev workflow"
-    status: done
+    status: in-progress
+    ref: "_bmad-output/implementation-artifacts/tests/epic-5-final-record-corrective-amendment-2026-08-22.md"
   - epic: 4
     action: "Promote the xUnit v3 executable fallback from story-local notes into reusable test workflow guidance."
     owner: "Test workflow"
