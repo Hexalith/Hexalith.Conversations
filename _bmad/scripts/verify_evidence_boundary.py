@@ -24,6 +24,10 @@ V16_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v16-planning-tooling-lifec
 V16_PUBLISHER_PATH = "_bmad/scripts/publish_v16_planning_tooling_lifecycle.py"
 V15_BASELINE_COMMIT = "6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4"
 V16_BASELINE_COMMIT = "08a4bdcc5a18067f8f93c777055d8097987a9da2"
+V17_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json"
+V17_RECORD_PATH = "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+V17_PUBLISHER_PATH = "_bmad/scripts/publish_implementation_hold_decision.py"
+V17_BASELINE_COMMIT = "074c5b7afb95dfb6365d62a9afa93b4ef75e6fcf"
 V15_C1_PATHS = tuple(
     sorted(
         (
@@ -55,6 +59,18 @@ V16_C1_PATHS = tuple(
             "_bmad/scripts/verify_evidence_boundary.py",
             "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingEnvironmentAuthorityV15ValidationTest.cs",
             "tests/Hexalith.Conversations.Conformance.Tests/PlanningToolingLifecycleAuthorityV16ValidationTest.cs",
+        )
+    )
+)
+V17_C1_PATHS = tuple(
+    sorted(
+        (
+            "_bmad/schemas/implementation-hold-v1.schema.json",
+            "_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json",
+            V17_PUBLISHER_PATH,
+            "_bmad/scripts/tests/test_publish_implementation_hold_decision.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
         )
     )
 )
@@ -244,6 +260,8 @@ def candidate_has_path(repository: Path, candidate: str, relative_path: str) -> 
 def authority_route(repository: Path, candidate: str) -> str:
     """Choose authority exclusively from committed candidate-tree identity."""
 
+    if candidate_has_path(repository, candidate, V17_AUTHORITY_PATH):
+        return "v17"
     if candidate_has_path(repository, candidate, V16_AUTHORITY_PATH):
         return "v16"
     if candidate_has_path(repository, candidate, V15_AUTHORITY_PATH):
@@ -502,6 +520,7 @@ def validate_authority_scope(
     schema_version: str,
     baseline: str,
     expected_c1_paths: tuple[str, ...],
+    extra_c2_paths: tuple[str, ...] = (),
 ) -> dict[str, Any]:
     """Validate an authority's original C1/C2 from committed objects at any descendant."""
 
@@ -555,18 +574,25 @@ def validate_authority_scope(
             f"{publication_commit} is not an ancestor of {evaluated_candidate}",
             "BLOCKED",
         )
-    normalized_combined = tuple(sorted((*expected_c1_paths, authority_path)))
-    if publication != {
+    expected_c2 = tuple(sorted((authority_path, *extra_c2_paths)))
+    normalized_combined = tuple(sorted((*expected_c1_paths, *expected_c2)))
+    expected_publication = {
+        "c1Paths": list(expected_c1_paths),
+        "c2Paths": list(expected_c2),
+        "combinedPaths": list(normalized_combined),
+        "changedGitlinks": [],
+    } if extra_c2_paths else {
         "c1Paths": list(expected_c1_paths),
         "c2Path": authority_path,
         "combinedPaths": list(normalized_combined),
         "changedGitlinks": [],
-    }:
+    }
+    if publication != expected_publication:
         raise BoundaryError(f"{code_prefix}_AUTHORITY_INVALID", "closed publication contract mismatch")
     observed_c1 = changed_paths(root, baseline, c1)
     observed_c2 = changed_paths(root, c1, publication_commit)
     observed_combined = changed_paths(root, baseline, publication_commit)
-    if observed_c1 != expected_c1_paths or observed_c2 != (authority_path,) or observed_combined != normalized_combined:
+    if observed_c1 != expected_c1_paths or observed_c2 != expected_c2 or observed_combined != normalized_combined:
         raise BoundaryError(
             f"{code_prefix}_SCOPE_DRIFT",
             f"c1={observed_c1!r} c2={observed_c2!r} combined={observed_combined!r}",
@@ -611,6 +637,21 @@ def validate_v16_scope(root: Path, candidate: str) -> dict[str, Any]:
         schema_version="hexalith.conversations.v16-planning-tooling-lifecycle-authority.v1",
         baseline=V16_BASELINE_COMMIT,
         expected_c1_paths=V16_C1_PATHS,
+    )
+
+
+def validate_v17_scope(root: Path, candidate: str) -> dict[str, Any]:
+    """Validate the immutable V17 hold-decision transaction at V17 and later descendants."""
+
+    return validate_authority_scope(
+        root,
+        candidate,
+        version="v17",
+        authority_path=V17_AUTHORITY_PATH,
+        schema_version="hexalith.conversations.v17-implementation-hold-decision-authority.v1",
+        baseline=V17_BASELINE_COMMIT,
+        expected_c1_paths=V17_C1_PATHS,
+        extra_c2_paths=(V17_RECORD_PATH,),
     )
 
 
@@ -676,7 +717,36 @@ def run_publication_check(root: Path, *, route: str = "legacy", candidate: str =
                 "V16_PLANNING_TOOLING_LIFECYCLE_OK",
             ),
         )
-    commands = current_commands if route in ("v15", "v16") else (
+    if route == "v17":
+        current_commands = (
+            *current_commands,
+            (
+                [
+                    sys.executable,
+                    str(root / V16_PUBLISHER_PATH),
+                    "--repository",
+                    str(root),
+                    "--candidate",
+                    candidate,
+                    "--check",
+                    "--check-installed",
+                ],
+                "V16_PLANNING_TOOLING_LIFECYCLE_OK",
+            ),
+            (
+                [
+                    sys.executable,
+                    str(root / V17_PUBLISHER_PATH),
+                    "--repository",
+                    str(root),
+                    "--candidate",
+                    candidate,
+                    "--check",
+                ],
+                "HOLD_DECISION_OK",
+            ),
+        )
+    commands = current_commands if route in ("v15", "v16", "v17") else (
         (
             [sys.executable, str(root / "_bmad/scripts/publish_v9_planning_authority.py"), "--repository", str(root), "--check"],
             "V14_PLANNING_AUTHORITY_OK",
@@ -709,7 +779,7 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
     paths = changed_paths(root, baseline, candidate)
     dirty_paths = worktree_paths(root)
     route = authority_route(root, candidate)
-    applicable = is_applicable(paths) or route in ("v15", "v16")
+    applicable = is_applicable(paths) or route in ("v15", "v16", "v17")
     gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
@@ -717,7 +787,10 @@ def verify(repository: Path, baseline_revision: str, candidate_revision: str) ->
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
     ]
-    if route == "v16":
+    if route == "v17":
+        ledger.append(validate_v17_scope(root, candidate))
+        ledger.append(validate_v16_scope(root, candidate))
+    elif route == "v16":
         ledger.append(validate_v16_scope(root, candidate))
     elif route == "v15":
         ledger.append(validate_v15_scope(root, candidate))

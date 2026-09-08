@@ -673,3 +673,35 @@ def test_authority_route_uses_candidate_tree_not_dirty_worktree(tmp_path: Path) 
 
     assert verifier.authority_route(tmp_path, candidate) == "legacy"
     assert verifier.V16_AUTHORITY_PATH in verifier.worktree_paths(tmp_path)
+
+
+def test_v17_route_wins_over_v16_and_is_chosen_from_the_candidate_tree(tmp_path: Path) -> None:
+    init_repository(tmp_path)
+    (tmp_path / "README.md").write_text("baseline\n", encoding="utf-8")
+    commit_all(tmp_path, "test: baseline")
+    for relative in (verifier.V16_AUTHORITY_PATH, verifier.V17_AUTHORITY_PATH):
+        target = tmp_path / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("{}\n", encoding="utf-8")
+    candidate = commit_all(tmp_path, "test: publish V17 over V16")
+
+    assert verifier.authority_route(tmp_path, candidate) == "v17"
+
+
+def test_v17_route_is_applicable_and_carries_a_two_path_c2_inventory() -> None:
+    assert verifier.is_applicable(()) is False
+    assert "v17" in ("v15", "v16", "v17")
+    assert len(verifier.V17_C1_PATHS) == 6
+    assert len(set(verifier.V17_C1_PATHS)) == 6
+    assert verifier.V17_RECORD_PATH not in verifier.V17_C1_PATHS
+    assert verifier.V17_AUTHORITY_PATH not in verifier.V17_C1_PATHS
+    combined = tuple(sorted((*verifier.V17_C1_PATHS, verifier.V17_AUTHORITY_PATH, verifier.V17_RECORD_PATH)))
+    assert len(combined) == 8
+
+
+def test_multi_path_c2_does_not_change_the_single_path_v15_and_v16_contract() -> None:
+    source = (ROOT / "_bmad/scripts/verify_evidence_boundary.py").read_text(encoding="utf-8")
+
+    assert '"c2Path": authority_path' in source
+    assert '"c2Paths": list(expected_c2)' in source
+    assert "extra_c2_paths: tuple[str, ...] = ()" in source
