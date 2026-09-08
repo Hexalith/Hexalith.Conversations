@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "hexalith.conversations.implementation-hold.v1",
+  "decisionId": "IMPLEMENTATION-HOLD-LIFT-2026-09-08",
+  "decisionDate": "2026-09-08",
+  "decisionAuthority": {
+    "owner": "Release owner",
+    "name": "Jerome - release-owner hold lift 2026-09-08",
+    "mechanism": "Repository-recorded independent release-owner decision; no cryptographic-signature claim"
+  },
+  "scope": {
+    "unlocks": [
+      "7.1-SCHEMAS"
+    ],
+    "global": false,
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055",
+    "ir0Sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+    "staleOnDrift": true
+  },
+  "expiry": {
+    "kind": "candidate-bound",
+    "calendarExpiry": null
+  },
+  "ir0Assessment": {
+    "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+    "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+    "result": "READY",
+    "effectiveHoldAtAssessment": "ACTIVE"
+  },
+  "rationale": "The independent IR-0 assessment of 2026-08-22 returned READY against planning candidate 1e9a61126d3b7a55b514b7c7c8942d5af03355e5 with the effective hold ACTIVE, and states that a separate release-owner decision is required to lift it. This record is that decision. It is candidate-bound and unlocks only the 7.1-SCHEMAS schema checkpoint.",
+  "nonClaims": [
+    "The readiness rerun required by AR-2 has not been performed; this decision does not satisfy or claim it.",
+    "This decision does not mark Story 7.1 done, produce a story final record, or unlock any successor beyond 7.1-SCHEMAS.",
+    "This decision does not authorize a release, a push, or any change to sprint-status row states.",
+    "This decision does not re-authorize, reissue, or alter IR-0 or any V1-V16 authority."
+  ],
+  "effectiveState": "LIFTED",
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "result": "PASS",
+  "assertionLedger": [
+    {
+      "id": "HOLD-DECISION",
+      "subject": "release-owner-decision-recorded",
+      "state": "PASS"
+    },
+    {
+      "id": "HOLD-BINDING",
+      "subject": "candidate-bundle-and-ir0-binding",
+      "state": "PASS"
+    },
+    {
+      "id": "HOLD-SCOPE",
+      "subject": "unlocks-7-1-schemas-only",
+      "state": "PASS"
+    },
+    {
+      "id": "HOLD-READINESS-RERUN",
+      "subject": "readiness-rerun-declared-unmet",
+      "state": "not-applicable"
+    }
+  ]
+}

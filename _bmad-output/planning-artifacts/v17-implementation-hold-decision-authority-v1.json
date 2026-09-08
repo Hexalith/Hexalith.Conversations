@@ -1,0 +1,187 @@
+{
+  "schemaVersion": "hexalith.conversations.v17-implementation-hold-decision-authority.v1",
+  "authorityId": "V17-IMPLEMENTATION-HOLD-DECISION",
+  "predecessorAuthorityId": "V16-PLANNING-TOOLING-LIFECYCLE",
+  "baselineCommit": "074c5b7afb95dfb6365d62a9afa93b4ef75e6fcf",
+  "candidateCommit": "82b91c10fe95f8ef7a7576d35199322481e359a7",
+  "publication": {
+    "c1Paths": [
+      "_bmad/schemas/implementation-hold-v1.schema.json",
+      "_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json",
+      "_bmad/scripts/publish_implementation_hold_decision.py",
+      "_bmad/scripts/tests/test_publish_implementation_hold_decision.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py"
+    ],
+    "c2Paths": [
+      "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json"
+    ],
+    "combinedPaths": [
+      "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json",
+      "_bmad/schemas/implementation-hold-v1.schema.json",
+      "_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json",
+      "_bmad/scripts/publish_implementation_hold_decision.py",
+      "_bmad/scripts/tests/test_publish_implementation_hold_decision.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py"
+    ],
+    "changedGitlinks": []
+  },
+  "candidateFiles": [
+    {
+      "path": "_bmad/schemas/implementation-hold-v1.schema.json",
+      "sha256": "0f239c6b221a2960848d3b0c62b3430b7b2db49feb502844057fe36b50a4caa6",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/schemas/v17-implementation-hold-decision-authority-v1.schema.json",
+      "sha256": "8ebcab3476d5d69280da1e52fdf601d885d39688dc26c4abba3675f3c8908671",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/publish_implementation_hold_decision.py",
+      "sha256": "01a29965781cc8f0f99db53ab339448cb5c9fbf2f869c2c84c2a71797ad7e41d",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_implementation_hold_decision.py",
+      "sha256": "34ef9a2953577f107c417f681b8b849adb14f55f4592fc9c62667b9313f510b1",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "sha256": "e4bf9b3cdb281919cbd339ae846656ee43d20fb8aa369771131ab95c6e008286",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/verify_evidence_boundary.py",
+      "sha256": "6ac96d59da37e5cc53880a7d1b224cbbda72c08420fc49ba90bd4089c2f1098c",
+      "mode": "100644"
+    }
+  ],
+  "holdRecord": {
+    "path": "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+    "sha256": "2c594075e8b212c7db05b00fa9bb3f1c626845437dc819c7f0e39460f5d80b12",
+    "mode": "100644",
+    "effectiveState": "LIFTED"
+  },
+  "predecessor": {
+    "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "fileSha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "immutableAuthorities": [
+    {
+      "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+      "sha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json",
+      "sha256": "c082cde6923e9831eea768be6c547ca1ab87ed91244185b505bdf3ae1c116dcc",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v13-current-proof-authority-v1.json",
+      "sha256": "f2f02115502d42d6e74f1e34351eeda1e1d778b35e2dee485821ac53e448138f",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v14-current-candidate-authority-v1.json",
+      "sha256": "e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+      "sha256": "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json",
+      "sha256": "5b71e6fbf8851f790af92f0a0d056d7f7e04b3b9749c3a2f3f4ef5f87312d45a",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+      "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+      "mode": "100644"
+    }
+  ],
+  "ir0Assessment": {
+    "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+    "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad",
+    "result": "READY",
+    "effectiveHoldAtAssessment": "ACTIVE",
+    "preserved": true
+  },
+  "authorityEffect": {
+    "implementationHold": "LIFTED",
+    "ir0AuthorizationChanged": false,
+    "successorActivated": true,
+    "unlocks": [
+      "7.1-SCHEMAS"
+    ],
+    "storyDoneAllowed": false,
+    "readinessRerunSatisfied": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "nonClaims": [
+    "The readiness rerun required by AR-2 has not been performed; this decision does not satisfy or claim it.",
+    "This decision does not mark Story 7.1 done, produce a story final record, or unlock any successor beyond 7.1-SCHEMAS.",
+    "This decision does not authorize a release, a push, or any change to sprint-status row states.",
+    "This decision does not re-authorize, reissue, or alter IR-0 or any V1-V16 authority."
+  ],
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "result": "PASS",
+  "assertionLedger": [
+    {
+      "id": "V17-C1",
+      "subject": "single-parent-exact-six-path-c1",
+      "state": "PASS"
+    },
+    {
+      "id": "V17-C2",
+      "subject": "record-and-authority-only-c2",
+      "state": "PASS"
+    },
+    {
+      "id": "V17-GITLINKS",
+      "subject": "raw-mode-160000-changed-set",
+      "state": "PASS",
+      "paths": []
+    },
+    {
+      "id": "V17-PREDECESSORS",
+      "subject": "immutable-v9-v16-and-ir0-identities",
+      "state": "PASS"
+    },
+    {
+      "id": "V17-BINDING",
+      "subject": "candidate-bundle-and-ir0-binding",
+      "state": "PASS"
+    },
+    {
+      "id": "V17-SLICE",
+      "subject": "slice-hold-requirement-satisfied",
+      "state": "PASS"
+    },
+    {
+      "id": "V17-LIFECYCLE",
+      "subject": "lifted-hold-no-release-or-push-authority",
+      "state": "PASS"
+    }
+  ]
+}
