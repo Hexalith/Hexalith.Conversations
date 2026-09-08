@@ -2,7 +2,7 @@
 title: 'Restore lifecycle evidence gates wiped by the BMAD 6.12.0 upgrade'
 type: 'bugfix'
 created: '2026-09-07'
-status: 'in-progress'
+status: 'done'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: '94dbb37694747e9dedee20591b84b5d6a69d19b3'
@@ -112,12 +112,39 @@ context:
   `planning-authority-preflight.yml` ahead of the evidence gate. It also reports gates found
   outside the frozen inventory (`LIFECYCLE_GATE_UNDECLARED_ROUTE`), which is how a renamed route
   is caught — the declared set alone would still pass.
+- Review fixes: the hook's staged-path decision comes from captured output, never a pipeline exit
+  status -- `git diff --cached | grep -q` fails open under `pipefail` (git dies of SIGPIPE),
+  reproduced at 2200 staged skill paths and now covered by a test that executes the hook. Its
+  pathspecs are `:(top)`-anchored and now include the detector and the hook itself. The preflight
+  also checks the four context workflows, reports unreadable skill files instead of skipping them,
+  and returns usage exit `2` when the two frozen structures disagree rather than a traceback that
+  would look like a finding.
 - `docs/runbooks/evidence-boundary-validation.md` was deliberately not edited: its bytes are hashed
   into the frozen V9 authority bundle.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+| # | Finding | Verdict | Evidence | Route |
+|---|---|---|---|---|
+| 1 | `.githooks/pre-commit` guard `git diff --cached ... \| grep -q .` under `set -o pipefail` fails open on large staged diffs | high | Reproduced: 2200 staged skill paths (150 KB). With GNU grep 3.12 the guard took the `exit 0` branch **30/30**; with this shell's ugrep it ran 50/50, which is why it looked sound at first. CI (`ubuntu-latest`) and normal dev boxes use GNU grep, so the hook silently skips exactly the BMAD-reinstall case it exists for. | patch |
+| 2 | Hook pathspec omits `check_lifecycle_gate_preflight.py`, so a commit gutting the detector never triggers the hook | medium | Confirmed at `.githooks/pre-commit:14-16`: filter lists only the two skill trees and `verify_evidence_boundary.py`. | patch |
+| 3 | Hook pathspecs are CWD-relative, so `git commit` from a subdirectory misfilters | low | Same lines; no `:/` prefix. Direct correction, no added complexity. | patch |
+| 4 | `check_orphan_gates` swallows unreadable files (`except (OSError, UnicodeError): continue`) in a script documented "fail closed" | medium | Confirmed at `check_lifecycle_gate_preflight.py:145-146`. Contradicts the header contract at `.githooks/pre-commit:7`. | patch |
+| 5 | Unguarded `path.split("/skills/",1)[1]` and `LIFECYCLE_TOKENS[logical]` raise IndexError/KeyError, exiting 1 (a "finding") instead of 2 (usage) | medium | Confirmed at lines 49 and 72; the duplicate-inventory guard directly above proves exit 2 was the intent for structural faults. | patch |
+| 6 | Preflight has zero coverage of `CONTEXT_WORKFLOW_PATHS`, half the demonstrated `1c36c45` regression class | medium | `grep -c "CONTEXT_WORKFLOW\|overlay_version\|architecture_version"` on the preflight returns **0**. The spec Intent names context workflows explicitly. | patch |
+| 7 | Context-workflow fault tests parametrize only `CONTEXT_WORKFLOW_PATHS[0]` and `[1]`; the two `bmad-build-auto/` counterparts get no token-strip case | low | Confirmed at `test_verify_evidence_boundary.py:177,199,218`. Same upgrade wiped all four. | patch |
+| 8 | `LIFECYCLE_GATE_GUTTED` scans `text[gate:]` to EOF rather than to the end of the gate section | low | Confirmed at line 101. Verified none of the six required tokens occurs after the gate in any of the five routes today, so currently sound; it mirrors the verifier's pre-existing `text[marker:]` span, so not caused by this change. | defer |
+| 9 | Nothing detects a *new* upstream lifecycle route that ships ungated | medium | Real: `LIFECYCLE_GATE_UNDECLARED_ROUTE` only fires on files already containing the marker. New capability beyond the restoration intent. | defer |
+| 10 | Hook validates the worktree, not staged content, so a partially-staged gutted gate can commit | medium | Confirmed: line 25 passes `--repository "$repo_root"`. Correct fix (stash or temp tree) is not trivial. | defer |
+| 11 | `bmad-build-auto/step-04-review.md` says `{baseline_revision}`; every other route and the spec frontmatter use `baseline_commit` | low | Confirmed 3 occurrences — and **3 at `63a1a2d`**, so pre-existing and re-frozen verbatim by design, not caused by this change. | defer |
+| 12 | `bmad-build/sync-sprint-status.md` left ungated with no tracked follow-up | low | Spec knowingly excluded it; the missing ledger entry is the fair part. | defer |
+| 13 | "Historical Epic 6 v8 exception" bakes one epic's contract into an evergreen skill, now load-bearing in tests | low | Restored verbatim from `63a1a2d`; pre-existing architectural concern. | defer |
+| 14 | Inventory count `10`/`5` restated across five files with no cross-check between `WORKFLOW_GATE_CONTRACTS` and `LOGICAL_ROUTE_PATHS` | low | Real duplication; same drift class the spec already accepts for `publish_v9_planning_authority.py`. | defer |
+| 15 | Duplicated Implementation Notes; spec records expected rather than observed results | — | Rejected: fix edits this build's spec. | rejected |
+| 16 | New CI step adds no protection the verifier did not already provide two steps later | low | True but not a defect; it improves the error message. | rejected |
+| 17 | Claims that the change is "not committed and not pushed", that the v17 spec was kept out, and that zero gitlinks changed | high | All three false as landed: `a2e1507` + `074c5b7` are on `origin/main`; `a2e1507` contains the v17 spec (+116) and six mode-160000 gitlinks. Not a code defect — escalated to the human, see Implementation Notes. | escalated |
 
 ## Design Notes
 

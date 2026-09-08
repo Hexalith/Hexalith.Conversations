@@ -150,31 +150,38 @@ def test_context_workflows_are_exact_mirrors_and_fail_closed() -> None:
     assert all(row["state"] == "PASS" for row in ledger)
 
 
-@pytest.mark.parametrize(
-    ("token", "logical_index"),
-    (
-        (b"overlay_version", 0),
-        (b"architecture_version", 0),
-        (b"frontmatter", 0),
-        ("`### 6.1 ` through `### 6.12 `".encode(), 0),
-        (b"write nothing", 0),
-        (b"Historical Epic 6 v8 exception", 0),
-        (b"filesystem mtime alone", 1),
-        (b"historical authority", 1),
-        (b"heading-only context", 1),
-    ),
+SHARED_CONTEXT_TOKENS = (b"overlay_version", b"architecture_version", b"frontmatter")
+COMPILE_CONTEXT_TOKENS = (
+    "`### 6.1 ` through `### 6.12 `".encode(),
+    b"write nothing",
+    b"Historical Epic 6 v8 exception",
 )
+STEP_01_CONTEXT_TOKENS = (
+    "`### 6.1 ` through `### 6.12 `".encode(),
+    b"filesystem mtime alone",
+    b"historical authority",
+    b"heading-only context",
+)
+CONTEXT_WORKFLOW_TOKEN_CASES = tuple(
+    (logical, token)
+    for logical in verifier.CONTEXT_WORKFLOW_PATHS
+    for token in SHARED_CONTEXT_TOKENS
+    + (COMPILE_CONTEXT_TOKENS if "compile-epic-context" in logical else STEP_01_CONTEXT_TOKENS)
+)
+
+
+@pytest.mark.parametrize(("logical", "token"), CONTEXT_WORKFLOW_TOKEN_CASES)
 def test_context_workflow_token_faults_fail_without_touching_files(
-    token: bytes, logical_index: int
+    logical: str, token: bytes
 ) -> None:
     """Stripping any required identity or semantic token turns the guard red.
 
-    The BMAD 6.12.0 upgrade removed exactly these sentences, so each one is proven to be
-    load-bearing rather than assumed to be. The mutation is injected through the reader; the
-    on-disk bytes are asserted unchanged afterwards, even though validation fails.
+    The BMAD 6.12.0 upgrade removed exactly these sentences from all four context workflows, so
+    every token is proven load-bearing in every declared path rather than assumed from one. The
+    mutation is injected through the reader; the on-disk bytes are asserted unchanged afterwards,
+    even though validation fails.
     """
 
-    logical = verifier.CONTEXT_WORKFLOW_PATHS[logical_index]
     agents_path = f".agents/skills/{logical}"
     claude_path = f".claude/skills/{logical}"
     before = {path: (ROOT / path).read_bytes() for path in (agents_path, claude_path)}

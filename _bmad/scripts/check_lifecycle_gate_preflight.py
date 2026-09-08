@@ -39,6 +39,29 @@ def load_verifier() -> Any:
     return module
 
 
+def inventory_error(verifier: Any) -> str | None:
+    """Return why the frozen structures cannot be walked, or None when they agree.
+
+    Indexing straight into them would raise IndexError or KeyError, and a traceback exits `1` --
+    indistinguishable at the hook and CI boundary from a legitimate gate finding. Disagreement
+    between the two frozen structures is a usage error, like the duplicate check beside it.
+    """
+
+    paths = verifier.ACTIVE_ROUTE_PATHS
+    if len(paths) != len(set(paths)):
+        return "frozen route inventory has duplicates"
+    if any("/skills/" not in path for path in paths):
+        return "frozen route inventory has a path outside a skill tree"
+    logical = {path.split("/skills/", 1)[1] for path in paths}
+    missing = sorted(logical - set(verifier.LIFECYCLE_TOKENS))
+    if missing:
+        return f"frozen routes have no lifecycle token: {', '.join(missing)}"
+    unused = sorted(set(verifier.LIFECYCLE_TOKENS) - logical)
+    if unused:
+        return f"lifecycle tokens name no frozen route: {', '.join(unused)}"
+    return None
+
+
 def check_routes(root: Path, verifier: Any) -> list[dict[str, str]]:
     """Report one finding per installed route that cannot enforce its gate."""
 
@@ -142,7 +165,14 @@ def check_orphan_gates(root: Path, verifier: Any) -> list[dict[str, str]]:
                 continue
             try:
                 text = candidate.read_text(encoding="utf-8")
-            except (OSError, UnicodeError):
+            except (OSError, UnicodeError) as error:
+                findings.append(
+                    {
+                        "code": "LIFECYCLE_TREE_UNREADABLE",
+                        "path": relative,
+                        "detail": f"cannot be scanned for a gate section: {error}",
+                    }
+                )
                 continue
             if verifier.GATE_MARKER in text:
                 findings.append(
@@ -152,6 +182,50 @@ def check_orphan_gates(root: Path, verifier: Any) -> list[dict[str, str]]:
                         "detail": "carries a gate section but is not in the frozen route inventory",
                     }
                 )
+    return findings
+
+
+def check_context_workflows(root: Path, verifier: Any) -> list[dict[str, str]]:
+    """Report context workflows that lost their governing identity requirements.
+
+    The same upgrade that erased the route gates stripped these tokens, so leaving them out here
+    would let half the regression class keep surfacing only as red CI.
+    """
+
+    findings: list[dict[str, str]] = []
+    required = ("overlay_version", "architecture_version", "frontmatter")
+    for logical in verifier.CONTEXT_WORKFLOW_PATHS:
+        contents: dict[str, str] = {}
+        for tree in (".agents/skills", ".claude/skills"):
+            relative = f"{tree}/{logical}"
+            try:
+                contents[relative] = (root / relative).read_text(encoding="utf-8")
+            except (OSError, UnicodeError) as error:
+                findings.append(
+                    {
+                        "code": "LIFECYCLE_CONTEXT_WORKFLOW_ABSENT",
+                        "path": relative,
+                        "detail": f"declared context workflow is not readable: {error}",
+                    }
+                )
+        for relative, text in contents.items():
+            missing = [token for token in required if token not in text]
+            if missing:
+                findings.append(
+                    {
+                        "code": "LIFECYCLE_CONTEXT_IDENTITY_STRIPPED",
+                        "path": relative,
+                        "detail": f"lost required identity text: {', '.join(missing)}",
+                    }
+                )
+        if len(contents) == 2 and len(set(contents.values())) != 1:
+            findings.append(
+                {
+                    "code": "LIFECYCLE_MIRROR_DRIFT",
+                    "path": logical,
+                    "detail": "the .agents and .claude copies are no longer identical",
+                }
+            )
     return findings
 
 
@@ -170,11 +244,16 @@ def main(argv: list[str] | None = None) -> int:
     except Exception as error:  # pragma: no cover - environment failure
         print(f"lifecycle-gate preflight: {error}", file=sys.stderr)
         return 2
-    if len(verifier.ACTIVE_ROUTE_PATHS) != len(set(verifier.ACTIVE_ROUTE_PATHS)):
-        print("lifecycle-gate preflight: frozen route inventory has duplicates", file=sys.stderr)
+    problem = inventory_error(verifier)
+    if problem is not None:
+        print(f"lifecycle-gate preflight: {problem}", file=sys.stderr)
         return 2
 
-    findings = check_routes(root, verifier) + check_orphan_gates(root, verifier)
+    findings = (
+        check_routes(root, verifier)
+        + check_context_workflows(root, verifier)
+        + check_orphan_gates(root, verifier)
+    )
     result = "FAIL" if findings else "PASS"
     if arguments.json:
         print(
@@ -183,6 +262,7 @@ def main(argv: list[str] | None = None) -> int:
                     "result": result,
                     "repository": root.as_posix(),
                     "routes": len(verifier.ACTIVE_ROUTE_PATHS),
+                    "contextWorkflows": len(verifier.CONTEXT_WORKFLOW_PATHS),
                     "findings": findings,
                 },
                 indent=2,
@@ -202,7 +282,8 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  {finding['code']} {finding['path']}: {finding['detail']}", file=sys.stderr)
     else:
         print(
-            f"lifecycle-gate preflight: PASS -- {len(verifier.ACTIVE_ROUTE_PATHS)} declared routes gated"
+            f"lifecycle-gate preflight: PASS -- {len(verifier.ACTIVE_ROUTE_PATHS)} declared routes"
+            f" gated, {len(verifier.CONTEXT_WORKFLOW_PATHS)} context workflows carry their identities"
         )
     return 1 if findings else 0
 

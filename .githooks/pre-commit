@@ -10,10 +10,21 @@ set -euo pipefail
 repo_root="$(git rev-parse --show-toplevel)"
 check="$repo_root/_bmad/scripts/check_lifecycle_gate_preflight.py"
 
-# Only staged changes to the skill trees or the frozen inventory can disarm a gate.
-if ! git diff --cached --name-only --diff-filter=ACMRD \
-  -- '.agents/skills' '.claude/skills' '_bmad/scripts/verify_evidence_boundary.py' \
-  | grep -q .; then
+# Only staged changes to these paths can disarm a gate -- including the detector and this hook,
+# so a commit that removes the enforcement is itself enforced. Pathspecs are anchored
+# with `:(top)` so they resolve from the repository root no matter where `git commit` was run.
+#
+# The decision is taken from the captured output, never from a pipeline's exit status: piping a
+# large staged file list into `grep -q` makes git die of SIGPIPE, and under `pipefail` that
+# non-zero pipeline would read as "nothing staged" and skip the check on exactly the huge
+# BMAD-reinstall diff this hook exists for.
+staged="$(git diff --cached --name-only --diff-filter=ACMRD \
+  -- ':(top).agents/skills' ':(top).claude/skills' \
+  ':(top)_bmad/scripts/verify_evidence_boundary.py' \
+  ':(top)_bmad/scripts/check_lifecycle_gate_preflight.py' \
+  ':(top).githooks/pre-commit')"
+
+if [[ -z "$staged" ]]; then
   exit 0
 fi
 

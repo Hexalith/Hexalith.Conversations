@@ -275,3 +275,31 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: none
   summary: Make F-10 hermetic and close E6-REMEDIATION actions A2 and A3 through their approved lifecycle gates.
   evidence: Split from the approved Epic 16 planning-authority publication because the F-10 test repair and A2/A3 lifecycle closure are independently shippable and would otherwise mix implementation evidence with a separate planning-candidate publication.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Bound the LIFECYCLE_GATE_GUTTED token scan to the gate section instead of scanning to end of file.
+  evidence: check_lifecycle_gate_preflight.py:101 uses text[gate:]; verified none of the six required tokens occurs after the gate in any of the five routes today, so it is currently sound, but it mirrors the verifier's pre-existing text[marker:] span and would silently weaken if any of those words later appears downstream.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Detect a new or resurrected upstream lifecycle route that ships without a gate.
+  evidence: LIFECYCLE_GATE_UNDECLARED_ROUTE only fires on files that already contain the gate marker, and validate_active_routes only checks declared paths, so a BMAD release adding an ungated status-writing route passes both gates. Needs an inverse scan for LIFECYCLE_TOKENS text in undeclared files.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Make the pre-commit hook validate staged content rather than the working tree.
+  evidence: .githooks/pre-commit:25 passes --repository "$repo_root", so a gate gutted only in the index commits cleanly while the clean worktree passes. Correct fix needs a stash or temp checkout of staged blobs, which is more than a direct correction.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Normalize the restored gate prose across the five routes onto baseline_commit and one command contract.
+  evidence: bmad-build-auto/step-04-review.md uses {baseline_revision} three times while every other route and the spec frontmatter use baseline_commit; confirmed identical at 63a1a2d, so it is pre-existing prose re-frozen verbatim rather than a regression from this change.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Gate bmad-build/sync-sprint-status.md, the helper that performs the development_status write.
+  evidence: It is a real lifecycle writer excluded from ACTIVE_ROUTE_PATHS by an explicit spec decision; all four current call sites pass in-progress or review and never done, so the exposure is limited, but the exclusion deserves a tracked entry rather than only a sentence in a closing spec.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Move the Epic 6 v8 exception out of the evergreen context-workflow skills into the epic's own authority artifact.
+  evidence: A paragraph naming epic-6-authority-2026-08-01-v8, FR-10-FR-16 and SM-C2 is embedded in all four context-workflow files and is now load-bearing in test_context_workflow_token_faults_fail_without_touching_files; every future epic pays the token cost and the guard is pinned to one epic's wording. Restored verbatim from 63a1a2d, so pre-existing.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
+  summary: Derive the route-inventory count from one frozen constant and cross-check WORKFLOW_GATE_CONTRACTS against LOGICAL_ROUTE_PATHS.
+  evidence: The counts 10 and 5 are restated across verify_evidence_boundary.py, test_verify_evidence_boundary.py, test_check_lifecycle_gate_preflight.py and test_verify_submodule_promotion.py, and no assertion ties WORKFLOW_GATE_CONTRACTS to the verifier inventory, so the next inventory change repeats a multi-file edit and can drift silently.
