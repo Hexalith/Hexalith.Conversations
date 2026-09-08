@@ -69,6 +69,10 @@ For each group:
 
   Do not edit old entries or check for duplicates.
 
+### V12 lifecycle evidence gates
+
+Before creating a trace with a terminal lifecycle status, resolve the current committed baseline and exact `submodule_promotions` scope. Run `_bmad/scripts/verify_submodule_promotion.py` against committed `HEAD`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when the promotion gate exits `0` and the evidence result is `PASS` or `not-applicable` with a nonempty assertion ledger. Any missing, skipped, failed, blocked, or empty-ledger result HALTs before `done` is written.
+
 ### Finalize Spec
 
 Update `{spec_file}`:

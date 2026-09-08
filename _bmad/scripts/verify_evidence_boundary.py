@@ -63,16 +63,14 @@ ACTIVE_ROUTE_PATHS = (
     ".agents/skills/bmad-build/step-05-present.md",
     ".agents/skills/bmad-build/step-oneshot.md",
     ".agents/skills/bmad-build-auto/step-04-review.md",
-    ".agents/skills/bmad-dev-story/SKILL.md",
     ".agents/skills/bmad-code-review/steps/step-04-present.md",
     ".claude/skills/bmad-build/step-04-review.md",
     ".claude/skills/bmad-build/step-05-present.md",
     ".claude/skills/bmad-build/step-oneshot.md",
     ".claude/skills/bmad-build-auto/step-04-review.md",
-    ".claude/skills/bmad-dev-story/SKILL.md",
     ".claude/skills/bmad-code-review/steps/step-04-present.md",
 )
-LOGICAL_ROUTE_PATHS = tuple(path.split("/skills/", 1)[1] for path in ACTIVE_ROUTE_PATHS[:6])
+LOGICAL_ROUTE_PATHS = tuple(path.split("/skills/", 1)[1] for path in ACTIVE_ROUTE_PATHS[:5])
 CONTEXT_WORKFLOW_PATHS = (
     "bmad-build/compile-epic-context.md",
     "bmad-build/step-01-clarify-and-route.md",
@@ -84,8 +82,7 @@ LIFECYCLE_TOKENS = {
     "bmad-build/step-05-present.md": "Change `{spec_file}` status to `done`",
     "bmad-build/step-oneshot.md": "status: 'done'",
     "bmad-build-auto/step-04-review.md": "Change `{spec_file}` status to `in-review`",
-    "bmad-dev-story/SKILL.md": "<action>Update the story Status to: \"review\"</action>",
-    "bmad-code-review/steps/step-04-present.md": "set `{new_status}` = `done`",
+    "bmad-code-review/steps/step-04-present.md": "set `new_status` = `done`",
 }
 APPLICABLE_PREFIXES = (
     ".agents/skills/",
@@ -273,8 +270,8 @@ def validate_active_routes(root: Path, reader: Callable[[Path, str], bytes] = re
     """Require exact mirrored route identity, parity, and pre-transition placement."""
 
     ledger: list[dict[str, Any]] = []
-    if len(ACTIVE_ROUTE_PATHS) != 12 or len(set(ACTIVE_ROUTE_PATHS)) != 12:
-        raise BoundaryError("EVIDENCE_ROUTE_INVENTORY_DRIFT", "active route inventory is not exactly twelve paths")
+    if len(ACTIVE_ROUTE_PATHS) != 10 or len(set(ACTIVE_ROUTE_PATHS)) != 10:
+        raise BoundaryError("EVIDENCE_ROUTE_INVENTORY_DRIFT", "active route inventory is not exactly ten paths")
     content_by_path: dict[str, bytes] = {}
     for path in ACTIVE_ROUTE_PATHS:
         content = reader(root, path)
@@ -354,16 +351,17 @@ def validate_context(root: Path) -> dict[str, Any]:
     return assertion("CONTEXT-01", "epic-6-context-frontmatter", "PASS", sha256=sha256(path.read_bytes()))
 
 
-def validate_context_workflows(root: Path) -> list[dict[str, Any]]:
+def validate_context_workflows(
+    root: Path, reader: Callable[[Path, str], bytes] | None = None
+) -> list[dict[str, Any]]:
     """Require both workflow trees to preserve and validate identity frontmatter."""
 
+    read = reader if reader is not None else (lambda base, relative: (base / relative).read_bytes())
     ledger: list[dict[str, Any]] = []
     for logical in CONTEXT_WORKFLOW_PATHS:
-        agents_path = root / ".agents/skills" / logical
-        claude_path = root / ".claude/skills" / logical
         try:
-            agents = agents_path.read_bytes()
-            claude = claude_path.read_bytes()
+            agents = read(root, f".agents/skills/{logical}")
+            claude = read(root, f".claude/skills/{logical}")
         except OSError as error:
             raise BoundaryError("EVIDENCE_CONTEXT_WORKFLOW_INVALID", str(error)) from error
         if agents != claude:

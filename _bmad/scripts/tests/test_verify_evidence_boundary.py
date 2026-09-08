@@ -38,8 +38,8 @@ def test_active_route_inventory_is_exact_mirrored_and_pre_transition() -> None:
 
     ledger = verifier.validate_active_routes(ROOT)
 
-    assert len(verifier.ACTIVE_ROUTE_PATHS) == 12
-    assert len(ledger) == 12
+    assert len(verifier.ACTIVE_ROUTE_PATHS) == 10
+    assert len(ledger) == 10
     assert all(row["state"] == "PASS" for row in ledger)
 
 
@@ -148,6 +148,118 @@ def test_context_workflows_are_exact_mirrors_and_fail_closed() -> None:
 
     assert len(ledger) == 4
     assert all(row["state"] == "PASS" for row in ledger)
+
+
+@pytest.mark.parametrize(
+    ("token", "logical_index"),
+    (
+        (b"overlay_version", 0),
+        (b"architecture_version", 0),
+        (b"frontmatter", 0),
+        ("`### 6.1 ` through `### 6.12 `".encode(), 0),
+        (b"write nothing", 0),
+        (b"Historical Epic 6 v8 exception", 0),
+        (b"filesystem mtime alone", 1),
+        (b"historical authority", 1),
+        (b"heading-only context", 1),
+    ),
+)
+def test_context_workflow_token_faults_fail_without_touching_files(
+    token: bytes, logical_index: int
+) -> None:
+    """Stripping any required identity or semantic token turns the guard red.
+
+    The BMAD 6.12.0 upgrade removed exactly these sentences, so each one is proven to be
+    load-bearing rather than assumed to be. The mutation is injected through the reader; the
+    on-disk bytes are asserted unchanged afterwards, even though validation fails.
+    """
+
+    logical = verifier.CONTEXT_WORKFLOW_PATHS[logical_index]
+    agents_path = f".agents/skills/{logical}"
+    claude_path = f".claude/skills/{logical}"
+    before = {path: (ROOT / path).read_bytes() for path in (agents_path, claude_path)}
+    assert token in before[agents_path], (logical, token)
+
+    def stripped(root: Path, relative_path: str) -> bytes:
+        content = (root / relative_path).read_bytes()
+        if relative_path in (agents_path, claude_path):
+            return content.replace(token, b"")
+        return content
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_context_workflows(ROOT, stripped)
+
+    assert error.value.code == "EVIDENCE_CONTEXT_WORKFLOW_INVALID"
+    assert {path: (ROOT / path).read_bytes() for path in before} == before
+
+
+def test_context_workflow_parity_drift_fails_without_touching_files() -> None:
+    """One tree drifting from the other is parity drift, reported per logical path."""
+
+    logical = verifier.CONTEXT_WORKFLOW_PATHS[0]
+    agents_path = f".agents/skills/{logical}"
+    before = (ROOT / agents_path).read_bytes()
+
+    def drifted(root: Path, relative_path: str) -> bytes:
+        content = (root / relative_path).read_bytes()
+        return content + b"\nparity drift\n" if relative_path == agents_path else content
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_context_workflows(ROOT, drifted)
+
+    assert error.value.code == "EVIDENCE_WORKFLOW_PARITY_DRIFT"
+    assert error.value.message == logical
+    assert (ROOT / agents_path).read_bytes() == before
+
+
+def test_context_workflow_absence_fails_closed() -> None:
+    """A declared context workflow that is not installed blocks; it is never a silent pass."""
+
+    logical = verifier.CONTEXT_WORKFLOW_PATHS[0]
+    agents_path = f".agents/skills/{logical}"
+    before = (ROOT / agents_path).read_bytes()
+
+    def absent(root: Path, relative_path: str) -> bytes:
+        if relative_path == agents_path:
+            raise FileNotFoundError(relative_path)
+        return (root / relative_path).read_bytes()
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_context_workflows(ROOT, absent)
+
+    assert error.value.code == "EVIDENCE_CONTEXT_WORKFLOW_INVALID"
+    assert logical in error.value.message
+    assert (ROOT / agents_path).read_bytes() == before
+
+
+def test_absent_declared_route_fails_and_is_never_not_applicable() -> None:
+    """An upstream route deletion must name the path, not disappear into a pass."""
+
+    path = verifier.ACTIVE_ROUTE_PATHS[0]
+    before = (ROOT / path).read_bytes()
+
+    def absent(root: Path, relative_path: str) -> bytes:
+        if relative_path == path:
+            return verifier.read_route(root, "does/not/exist.md")
+        return verifier.read_route(root, relative_path)
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_active_routes(ROOT, absent)
+
+    assert error.value.code == "EVIDENCE_GATE_NOT_USED"
+    assert error.value.state == "FAIL"
+    assert (ROOT / path).read_bytes() == before
+
+
+def test_retired_dev_story_route_is_recorded_as_deleted_not_inferred() -> None:
+    """`bmad-dev-story` was deleted upstream; the inventory must not silently carry it."""
+
+    assert len(verifier.ACTIVE_ROUTE_PATHS) == 10
+    assert not any("bmad-dev-story" in path for path in verifier.ACTIVE_ROUTE_PATHS)
+    assert not any("bmad-dev-story" in logical for logical in verifier.LIFECYCLE_TOKENS)
+    assert set(verifier.LIFECYCLE_TOKENS) == set(verifier.LOGICAL_ROUTE_PATHS)
+    for tree in (".agents/skills", ".claude/skills"):
+        assert not (ROOT / tree / "bmad-dev-story").exists()
 
 
 def test_wrong_signature_or_current_tree_fallback_is_rejected() -> None:

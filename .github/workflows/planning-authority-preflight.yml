@@ -69,6 +69,13 @@ jobs:
           uv lock --check
           uv sync --frozen
 
+      # Runs before the evidence gate so a skill-tree upgrade that erased the project-owned
+      # lifecycle gates is named directly, rather than surfacing as a downstream gate failure.
+      - name: Verify installed lifecycle routes still carry their evidence gates
+        run: >-
+          uv run --frozen --no-sync python3 _bmad/scripts/check_lifecycle_gate_preflight.py
+          --repository .
+
       # When a candidate-bound scope is in the comparison range the verifier requires exact
       # baseline-to-candidate path equality and raw mode-160000 changes remain event-owned.
       # V16 independently discovers and validates immutable V15/V16 C1/C2 transactions from Git.

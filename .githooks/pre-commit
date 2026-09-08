@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+# Reject a commit that leaves the installed lifecycle routes without their evidence gates.
+#
+# Installed by the `prepare` script in package.json, which points core.hooksPath at this
+# directory. A BMAD upgrade reinstalls the vendored skill trees and can silently overwrite the
+# project-owned `V12 lifecycle evidence gates` sections; this is the commit where that must stop.
+# Fail closed: if the check cannot run, reject rather than silently accepting the commit.
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+check="$repo_root/_bmad/scripts/check_lifecycle_gate_preflight.py"
+
+# Only staged changes to the skill trees or the frozen inventory can disarm a gate.
+if ! git diff --cached --name-only --diff-filter=ACMRD \
+  -- '.agents/skills' '.claude/skills' '_bmad/scripts/verify_evidence_boundary.py' \
+  | grep -q .; then
+  exit 0
+fi
+
+if [[ ! -f "$check" ]]; then
+  printf 'pre-commit: %s is missing; cannot verify the lifecycle evidence gates.\n' "$check" >&2
+  exit 1
+fi
+
+exec python3 "$check" --repository "$repo_root"

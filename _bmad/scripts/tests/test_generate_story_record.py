@@ -36,7 +36,6 @@ CURRENT_LIFECYCLE_WORKFLOWS = (
     "bmad-build/step-05-present.md",
     "bmad-build/step-oneshot.md",
     "bmad-build-auto/step-04-review.md",
-    "bmad-dev-story/SKILL.md",
     "bmad-code-review/steps/step-04-present.md",
 )
 GIT_ENVIRONMENT_OVERRIDES = {

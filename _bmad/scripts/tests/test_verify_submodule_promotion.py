@@ -963,16 +963,12 @@ WORKFLOW_GATE_CONTRACTS = {
         COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-build/step-oneshot.md": (
-        ("### V12 lifecycle evidence gates", "### Generate Spec Trace"),
+        ("### V12 lifecycle evidence gates", "### Finalize Spec"),
         COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-build-auto/step-04-review.md": (
         ("### V12 lifecycle evidence gates", "Change `{spec_file}` status to `in-review`"),
         COMMON_V12_GATE_CLAUSES + (AUTO_REVIEW_RERUN_CLAUSE,),
-    ),
-    "bmad-dev-story/SKILL.md": (
-        ("<action>V12 lifecycle evidence gates:", '<action>Update the story Status to: "review"</action>'),
-        COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-code-review/steps/step-04-present.md": (
         ("#### V12 lifecycle evidence gates", "#### Determine new status based on review outcome"),
@@ -1104,8 +1100,8 @@ def test_workflow_contract_rejects_enforcement_clause_outside_gate(relative_path
 
 
 def test_both_skill_trees_stay_byte_identical_for_every_changed_file() -> None:
-    """Parity covers the current twelve-route inventory, not retired route names."""
-    assert len(WORKFLOW_GATE_CONTRACTS) == 6
+    """Parity covers the current ten-route inventory, not retired route names."""
+    assert len(WORKFLOW_GATE_CONTRACTS) == 5
     for relative_path in WORKFLOW_GATE_CONTRACTS:
         agent_file = WORKSPACE / ".agents/skills" / relative_path
         claude_file = WORKSPACE / ".claude/skills" / relative_path
