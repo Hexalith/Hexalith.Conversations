@@ -27,7 +27,7 @@ jobs:
           global-json-file: global.json
 
       - name: Install pinned uv client
-        run: python3 -m pip install --disable-pip-version-check uv==0.11.16
+        run: python3 -m pip install --disable-pip-version-check uv==0.12.13
 
       - name: Resolve immutable comparison range
         id: range
@@ -93,6 +93,7 @@ jobs:
           report="$(mktemp)"
           uv run --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
             _bmad/scripts/tests \
+            --ignore=_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py \
             --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py \
             --junitxml="$report"
           uv run --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
@@ -111,7 +112,7 @@ jobs:
                   raise SystemExit(f"non-passing pytest result in {path}: {totals}")
           PY
 
-      - name: Verify complete predecessor Python suite and V9 authority skip-free
+      - name: Verify complete predecessor Python suites and V9 authority skip-free
         shell: bash
         run: |
           set -euo pipefail
@@ -129,15 +130,24 @@ jobs:
           uv run --project "$historical" --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
             "$historical/_bmad/scripts/tests" \
             --junitxml="$report"
-          python3 - "$report" <<'PY'
+          git -C "$historical" checkout --detach 08a4bdcc5a18067f8f93c777055d8097987a9da2
+          uv sync --project "$historical" --frozen
+          v15_report="$(mktemp)"
+          uv run --project "$historical" --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
+            "$historical/_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py" \
+            --junitxml="$v15_report"
+          python3 - "$report" "$v15_report" <<'PY'
           import sys
           import xml.etree.ElementTree as ET
-          root = ET.parse(sys.argv[1]).getroot()
-          suites = [root] if root.tag == "testsuite" else list(root.iter("testsuite"))
-          totals = {name: sum(int(suite.get(name, "0")) for suite in suites) for name in ("tests", "failures", "errors", "skipped")}
-          if totals["tests"] == 0 or any(totals[name] for name in ("failures", "errors", "skipped")):
-              raise SystemExit(f"non-passing historical pytest result: {totals}")
+          for path in sys.argv[1:]:
+              root = ET.parse(path).getroot()
+              suites = [root] if root.tag == "testsuite" else list(root.iter("testsuite"))
+              totals = {name: sum(int(suite.get(name, "0")) for suite in suites) for name in ("tests", "failures", "errors", "skipped")}
+              if totals["tests"] == 0 or any(totals[name] for name in ("failures", "errors", "skipped")):
+                  raise SystemExit(f"non-passing historical pytest result in {path}: {totals}")
           PY
+          git -C "$historical" checkout --detach 6400c09d0ab8352d2ed9dd0221ffe6f4f96b91c4
+          uv sync --project "$historical" --frozen
           uv run --project "$historical" --frozen --no-sync python3 \
             "$historical/_bmad/scripts/publish_v9_planning_authority.py" \
             --repository "$historical" \
@@ -153,6 +163,7 @@ jobs:
           uv run --frozen --no-sync python3 _bmad/scripts/publish_v14_current_candidate_authority.py --repository . --check
           uv run --frozen --no-sync python3 _bmad/scripts/publish_v15_planning_tooling_environment.py --repository . --candidate HEAD --check --check-installed
           uv run --frozen --no-sync python3 _bmad/scripts/publish_v16_planning_tooling_lifecycle.py --repository . --candidate HEAD --check --check-installed
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_v18_package_environment_authority.py --repository . --candidate HEAD --check
 
       - name: Build conformance verifier
         run: dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1
@@ -169,7 +180,8 @@ jobs:
             Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest \
             Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest \
             Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest \
-            Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest
+            Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest \
+            Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest
           do
             dotnet "$assembly" -class "$class"
           done
