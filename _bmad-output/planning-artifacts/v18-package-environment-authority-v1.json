@@ -1,0 +1,298 @@
+{
+  "schemaVersion": "hexalith.conversations.v18-package-environment-authority.v1",
+  "authorityId": "V18-PACKAGE-ENVIRONMENT-AUTHORITY",
+  "baselineCommit": "b819a7c43a7024295abaabd418a74f5f64cb5af0",
+  "candidateCommit": "5aef27014170e1ed971aed4c49eeb723d3912c4c",
+  "publication": {
+    "c1Paths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+      "_bmad/schemas/v18-package-environment-authority-v1.schema.json",
+      "_bmad/scripts/publish_v18_package_environment_authority.py",
+      "_bmad/scripts/tests/test_publish_v18_package_environment_authority.py",
+      "global.json",
+      "package-lock.json",
+      "references/Hexalith.Builds",
+      "tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs",
+      "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "uv.lock"
+    ],
+    "c2Path": "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json",
+    "combinedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+      "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json",
+      "_bmad/schemas/v18-package-environment-authority-v1.schema.json",
+      "_bmad/scripts/publish_v18_package_environment_authority.py",
+      "_bmad/scripts/tests/test_publish_v18_package_environment_authority.py",
+      "global.json",
+      "package-lock.json",
+      "references/Hexalith.Builds",
+      "tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs",
+      "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "uv.lock"
+    ],
+    "changedGitlinks": [
+      "references/Hexalith.Builds"
+    ]
+  },
+  "candidateFiles": [
+    {
+      "path": ".github/workflows/planning-authority-preflight.yml",
+      "sha256": "7ad334e989579e9f332fe0caa110b0e7a4f5a90d965f5342313913b8a052bd61",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-update-all-packages.md",
+      "sha256": "3cb9af307d51620a3684da31926eb331fbcdb68e83a8837752e3b9b07ee7c75d",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/schemas/v18-package-environment-authority-v1.schema.json",
+      "sha256": "2e77b796f871841c38b1c1c3d40f643b3ae2a658335234628a04e583a348135f",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/publish_v18_package_environment_authority.py",
+      "sha256": "2888663ba27c7e0148276f97743447c936a9aed57803ee4b48f8bc6aca38a734",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_v18_package_environment_authority.py",
+      "sha256": "bae41223228ef3c80ba4aaffef57590f1ff335bfdd48fc4c4e4319b6c5819ab6",
+      "mode": "100644"
+    },
+    {
+      "path": "global.json",
+      "sha256": "fc4602f9d88c9440f70f72732343a88c5e4190223fb9b77f9b8ac8eb1c4c8c2d",
+      "mode": "100644"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "3b47c3d2adc66cba8b8c1efddab5e5a1199afaa0f379dee4dd0ad6a9a0abd89e",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs",
+      "sha256": "ffaef17a52d668e64552f22a9b55cdfd3374b418c3fa894064dfa952058af4bd",
+      "mode": "100644"
+    },
+    {
+      "path": "tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs",
+      "sha256": "9d7e5c3f0846488c172fc3ba3955f3512c7673b37c2ddcd6dd299493dff2a62f",
+      "mode": "100644"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "21559067380dce0f8da1ff8f311bf451976b29d590a6cf8f630bc9fd9c59169e",
+      "mode": "100644"
+    }
+  ],
+  "gitlinks": [
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "baselineCommit": "a32cb422749352cce8dec948aa3e78c8f00eb4cf",
+      "candidateCommit": "cf52f74c983bf88496cf0280cd9788b5ebcf50de"
+    }
+  ],
+  "sourceBindings": [
+    {
+      "path": ".github/workflows/planning-authority-preflight.yml",
+      "sha256": "7ad334e989579e9f332fe0caa110b0e7a4f5a90d965f5342313913b8a052bd61",
+      "mode": "100644"
+    },
+    {
+      "path": "global.json",
+      "sha256": "fc4602f9d88c9440f70f72732343a88c5e4190223fb9b77f9b8ac8eb1c4c8c2d",
+      "mode": "100644"
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "3b47c3d2adc66cba8b8c1efddab5e5a1199afaa0f379dee4dd0ad6a9a0abd89e",
+      "mode": "100644"
+    },
+    {
+      "path": "package.json",
+      "sha256": "16a560ee53cffcdc0dfeb5fd27ff25d6af01d254cdbc6a6595459f6a7c8493fe",
+      "mode": "100644"
+    },
+    {
+      "path": "pyproject.toml",
+      "sha256": "19a0826b998332b8fcd44fd094eab99a4a7c0c529401c9eb9c41c3e18348718d",
+      "mode": "100644"
+    },
+    {
+      "path": "uv.lock",
+      "sha256": "21559067380dce0f8da1ff8f311bf451976b29d590a6cf8f630bc9fd9c59169e",
+      "mode": "100644"
+    }
+  ],
+  "directPins": {
+    "npm": {
+      "@commitlint/cli": "21.2.2",
+      "@commitlint/config-conventional": "21.2.2"
+    },
+    "python": [
+      "jsonschema==4.26.0",
+      "pytest==9.1.1"
+    ],
+    "unchangedFromBaseline": true
+  },
+  "pythonEnvironment": {
+    "packageCount": 13,
+    "packages": [
+      {
+        "name": "attrs",
+        "version": "26.1.0"
+      },
+      {
+        "name": "colorama",
+        "version": "0.4.6"
+      },
+      {
+        "name": "hexalith-conversations-planning",
+        "version": "0.0.0"
+      },
+      {
+        "name": "iniconfig",
+        "version": "2.3.0"
+      },
+      {
+        "name": "jsonschema",
+        "version": "4.26.0"
+      },
+      {
+        "name": "jsonschema-specifications",
+        "version": "2025.9.1"
+      },
+      {
+        "name": "packaging",
+        "version": "26.3"
+      },
+      {
+        "name": "pluggy",
+        "version": "1.6.0"
+      },
+      {
+        "name": "pygments",
+        "version": "2.21.0"
+      },
+      {
+        "name": "pytest",
+        "version": "9.1.1"
+      },
+      {
+        "name": "referencing",
+        "version": "0.37.0"
+      },
+      {
+        "name": "rpds-py",
+        "version": "2026.6.3"
+      },
+      {
+        "name": "typing-extensions",
+        "version": "4.16.0"
+      }
+    ]
+  },
+  "toolchain": {
+    "dotnetSdk": "10.0.401",
+    "uv": "0.12.13",
+    "aspire": "13.5.3",
+    "communityToolkitAspireDapr": "13.5.1-beta.751",
+    "microsoftNetTestSdk": "18.10.0"
+  },
+  "buildsCatalog": {
+    "catalogPath": "Props/Directory.Packages.props",
+    "catalogSha256": "2099eee175e0c2f82f1313d21f9b6ba44098851e4079c3b20c085b78edfcb4e2",
+    "aspireVersion": "13.5.3",
+    "communityToolkitAspireDaprVersion": "13.5.1-beta.751",
+    "microsoftNetTestSdkVersion": "18.10.0"
+  },
+  "immutableAuthorities": [
+    {
+      "path": "_bmad-output/planning-artifacts/v15-planning-tooling-environment-authority-v1.json",
+      "sha256": "bac4dc435bc200d2eb5b3601a794b20abe5afaa79dc51b79d4f9571a6f6a37ea",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v16-planning-tooling-lifecycle-authority-v1.json",
+      "sha256": "5b71e6fbf8851f790af92f0a0d056d7f7e04b3b9749c3a2f3f4ef5f87312d45a",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json",
+      "sha256": "1444f76dad9495d4c17354a9f2f5d3ce9f456cfd254c66d4a6e77e5abf446e50",
+      "mode": "100644"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "sha256": "2c594075e8b212c7db05b00fa9bb3f1c626845437dc819c7f0e39460f5d80b12",
+      "mode": "100644"
+    }
+  ],
+  "authorityEffect": {
+    "implementationHold": "ACTIVE",
+    "story71CandidateBindingResolved": false,
+    "historicalEvidenceRewritten": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true,
+    "skipsAllowed": false
+  },
+  "result": "PASS",
+  "assertionLedger": [
+    {
+      "id": "V18-C1",
+      "subject": "single-parent-exact-eleven-path-c1",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-C2",
+      "subject": "single-parent-authority-only-c2",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-GITLINK",
+      "subject": "exact-builds-mode-160000-promotion",
+      "state": "PASS",
+      "paths": [
+        "references/Hexalith.Builds"
+      ]
+    },
+    {
+      "id": "V18-NPM",
+      "subject": "unchanged-direct-pins-refreshed-lock",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-PYTHON",
+      "subject": "exact-thirteen-package-refreshed-lock",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-TOOLCHAIN",
+      "subject": "dotnet-uv-aspire-package-alignment",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-PREDECESSORS",
+      "subject": "immutable-v15-v16-v17-and-hold",
+      "state": "PASS"
+    },
+    {
+      "id": "V18-HOLD",
+      "subject": "story-7-1-binding-remains-unresolved",
+      "state": "PASS"
+    }
+  ]
+}
