@@ -1,6 +1,6 @@
 # /// script
 # requires-python = ">=3.11"
-# dependencies = ["pytest>=8.0"]
+# dependencies = ["pytest>=8.0", "jsonschema>=4.0"]
 # ///
 """Hermetic tests for the story final-record generator."""
 
@@ -11,9 +11,12 @@ import os
 import re
 import subprocess
 import sys
+import unicodedata
+from copy import deepcopy
 from importlib import util as importlib_util
 from pathlib import Path
 
+import jsonschema
 import pytest
 
 
@@ -1450,6 +1453,547 @@ def test_every_emitted_code_is_documented_in_the_runbook() -> None:
 
 def test_the_story_file_list_carries_no_submodule_internal_path() -> None:
     assert [path for path in story_file_list() if path.startswith("references/")] == []
+
+
+# --------------------------------------------------------------------------- #
+# 7.1-SCHEMAS checkpoint: v2_schema_contract (no generator import or call)
+# --------------------------------------------------------------------------- #
+
+OUTPUT_SCHEMA_INVALID = "OUTPUT_SCHEMA_INVALID"
+FROZEN_STORY_CONTRACT_SCHEMA_DIGEST = (
+    "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
+)
+HOLD_PATH = WORKSPACE / "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+STORY_CONTRACT_SCHEMA = WORKSPACE / "_bmad/schemas/v9-story-contract-v1.schema.json"
+ACCEPTANCE_RESULT_SCHEMA = WORKSPACE / "_bmad/schemas/v9-acceptance-result-v1.schema.json"
+FROZEN_INVENTORY_SCHEMA = WORKSPACE / "_bmad/schemas/v9-frozen-inventory-v1.schema.json"
+FINAL_RECORD_SCHEMA = WORKSPACE / "_bmad/schemas/story-final-record-v2.schema.json"
+STORY_7_1_CONTRACT = (
+    WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
+)
+NEW_SCHEMA_FIXTURES = (
+    ACCEPTANCE_RESULT_SCHEMA,
+    FROZEN_INVENTORY_SCHEMA,
+    FINAL_RECORD_SCHEMA,
+)
+CANONICAL_SCHEMA_PATHS = (STORY_CONTRACT_SCHEMA, *NEW_SCHEMA_FIXTURES)
+SCHEMA_IDENTITIES = {
+    STORY_CONTRACT_SCHEMA: "hexalith.conversations.story-contract.v1",
+    ACCEPTANCE_RESULT_SCHEMA: "hexalith.conversations.acceptance-result.v1",
+    FROZEN_INVENTORY_SCHEMA: "hexalith.conversations.frozen-inventory.v1",
+    FINAL_RECORD_SCHEMA: "hexalith.conversations.story-final-record.v2",
+}
+HOLD_PLANNING_CANDIDATE = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
+HOLD_BUNDLE_DIGEST = "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+HOLD_IR0_DIGEST = "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad"
+STORY_7_1_INVENTORY_ITEMS = (
+    "V8-6.8-AC1",
+    "V8-6.8-AC6-ANTI-VACUITY",
+    "V8-6.8-PROHIBITIONS-SOURCE-BOUNDARY",
+)
+STORY_7_1_INVENTORY_DIGEST = (
+    "5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e"
+)
+ROOT_GITLINK_PATHS = (
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.Builds",
+    "references/Hexalith.Commons",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Folders",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Tenants",
+)
+
+
+def v2_schema_contract_hold_is_lifted() -> None:
+    hold = json.loads(HOLD_PATH.read_text(encoding="utf-8"))
+    if (
+        hold.get("effectiveState") != "LIFTED"
+        or hold.get("scope", {}).get("unlocks") != ["7.1-SCHEMAS"]
+        or hold.get("scope", {}).get("planningCandidate") != HOLD_PLANNING_CANDIDATE
+        or hold.get("scope", {}).get("bundleDigest") != HOLD_BUNDLE_DIGEST
+        or hold.get("scope", {}).get("ir0Sha256") != HOLD_IR0_DIGEST
+    ):
+        raise AssertionError("BLOCKED: 7.1-SCHEMAS hold drift; treat hold as ACTIVE")
+
+
+def v2_schema_contract_load(path: Path) -> dict:
+    return json.loads(path.read_text(encoding="utf-8"))
+
+
+def v2_schema_contract_validator(schema: dict) -> jsonschema.Draft202012Validator:
+    jsonschema.Draft202012Validator.check_schema(schema)
+    return jsonschema.Draft202012Validator(schema)
+
+
+def v2_schema_contract_reject(schema: dict, instance: object) -> str:
+    with pytest.raises(jsonschema.ValidationError):
+        v2_schema_contract_validator(schema).validate(instance)
+    return OUTPUT_SCHEMA_INVALID
+
+
+def v2_schema_contract_object_nodes(schema: object) -> list[dict]:
+    nodes: list[dict] = []
+    if isinstance(schema, dict):
+        if schema.get("type") == "object":
+            nodes.append(schema)
+        for value in schema.values():
+            nodes.extend(v2_schema_contract_object_nodes(value))
+    elif isinstance(schema, list):
+        for item in schema:
+            nodes.extend(v2_schema_contract_object_nodes(item))
+    return nodes
+
+
+def v2_schema_contract_resolve(root: object, path: tuple) -> object:
+    current = root
+    for step in path:
+        current = current[step]
+    return current
+
+
+def v2_schema_contract_delete(root: dict, path: tuple) -> dict:
+    mutated = deepcopy(root)
+    parent = v2_schema_contract_resolve(mutated, path[:-1])
+    del parent[path[-1]]
+    return mutated
+
+
+def v2_schema_contract_inject(root: dict, path: tuple) -> dict:
+    mutated = deepcopy(root)
+    target = v2_schema_contract_resolve(mutated, path)
+    target["undeclaredField"] = True
+    return mutated
+
+
+def v2_schema_contract_object_paths(value: object, path: tuple = ()) -> list[tuple]:
+    found: list[tuple] = []
+    if isinstance(value, dict):
+        found.append(path)
+        for key, child in value.items():
+            found.extend(v2_schema_contract_object_paths(child, path + (key,)))
+    elif isinstance(value, list):
+        for index, child in enumerate(value):
+            found.extend(v2_schema_contract_object_paths(child, path + (index,)))
+    return found
+
+
+def v2_schema_contract_assert_closed(schema: dict) -> None:
+    for node in v2_schema_contract_object_nodes(schema):
+        if node.get("additionalProperties") is not False:
+            raise jsonschema.ValidationError("object is not recursively closed")
+        required = node.get("required")
+        properties = node.get("properties")
+        if isinstance(required, list) and isinstance(properties, dict):
+            missing = [name for name in required if name not in properties]
+            if missing:
+                raise jsonschema.ValidationError(
+                    f"required field missing from properties: {missing}"
+                )
+
+
+def v2_schema_contract_inventory_digest(items: list[str]) -> str:
+    payload = "".join(
+        f"{unicodedata.normalize('NFC', item)}\n" for item in items
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def v2_schema_contract_gitlinks() -> list[dict[str, str]]:
+    return [
+        {
+            "path": path,
+            "commit": HOLD_PLANNING_CANDIDATE,
+            "mode": "160000",
+        }
+        for path in ROOT_GITLINK_PATHS
+    ]
+
+
+def v2_schema_contract_acceptance_result(*, with_ledger: bool) -> dict:
+    document = {
+        "schemaVersion": "hexalith.conversations.acceptance-result.v1",
+        "storyId": "7.1",
+        "scenarioId": "AC-7.1-01",
+        "command": (
+            "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py "
+            "-k v2_schema_contract --junitxml=artifacts/v9/schema-slice/"
+            "v2-schema-contract.xml"
+        ),
+        "exitCode": 0,
+        "result": "PASS",
+        "blockers": [],
+        "candidate": HOLD_PLANNING_CANDIDATE,
+        "inputs": [
+            {
+                "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+                "sha256": FROZEN_STORY_CONTRACT_SCHEMA_DIGEST,
+            }
+        ],
+        "outputs": [
+            {
+                "path": "artifacts/v9/schema-slice/v2-schema-contract.xml",
+                "sha256": "a" * 64,
+            }
+        ],
+    }
+    if with_ledger:
+        document["assertionLedger"] = [
+            {
+                "id": "SCHEMA-METASCHEMA",
+                "subject": "draft-2020-12",
+                "state": "PASS",
+            }
+        ]
+    return document
+
+
+def v2_schema_contract_frozen_inventory() -> dict:
+    items = list(STORY_7_1_INVENTORY_ITEMS)
+    return {
+        "schemaVersion": "hexalith.conversations.frozen-inventory.v1",
+        "inventoryId": "V9-7.1-ENTRY-v1",
+        "digestAlgorithm": "sha256",
+        "canonicalization": "nfc-utf8-lf-displayed-ids",
+        "items": items,
+        "sha256": v2_schema_contract_inventory_digest(items),
+    }
+
+
+def v2_schema_contract_final_record() -> dict:
+    return {
+        "schemaVersion": "hexalith.conversations.story-final-record.v2",
+        "storyId": "7.1",
+        "authority": {
+            "epic": "epic-6-authority-2026-08-03-v10",
+            "architecture": "conversations-architecture-2026-08-03-v10",
+            "planningCandidate": HOLD_PLANNING_CANDIDATE,
+            "bundleDigest": HOLD_BUNDLE_DIGEST,
+        },
+        "candidate": {
+            "commit": HOLD_PLANNING_CANDIDATE,
+            "gitlinks": v2_schema_contract_gitlinks(),
+        },
+        "predecessors": ["6.2"],
+        "inventory": {
+            "id": "V9-7.1-ENTRY-v1",
+            "sha256": STORY_7_1_INVENTORY_DIGEST,
+        },
+        "scenarios": [
+            {
+                "scenarioId": "AC-7.1-01",
+                "command": (
+                    "python3 -m pytest -q "
+                    "_bmad/scripts/tests/test_generate_story_record.py "
+                    "-k v2_schema_contract"
+                ),
+                "exitCode": 0,
+                "result": "PASS",
+                "blockers": [],
+            }
+        ],
+        "faultInjection": {
+            "results": [
+                {
+                    "id": "MISSING_REQUIRED_FIELD",
+                    "expectedBlocker": "OUTPUT_SCHEMA_INVALID",
+                }
+            ]
+        },
+        "outputs": {
+            "json": {
+                "path": "docs/release-evidence/story-7.1-final-record-v2.json",
+                "sha256": "b" * 64,
+            },
+            "markdown": {
+                "path": "docs/release-evidence/story-7.1-final-record-v2.md",
+                "sha256": "c" * 64,
+            },
+        },
+        "rollback": {
+            "boundary": (
+                "remove only new v2 schemas, generator-core changes, "
+                "Story 7.1 tests/results, and Story 7.1 final-record outputs; "
+                "preserve the v1 generator, Story 6.8 provenance, all completed "
+                "records, and the v1-v8 prefix."
+            )
+        },
+        "summary": {
+            "required": 6,
+            "passed": 6,
+            "failed": 0,
+            "blocked": 0,
+            "skipped": 0,
+            "notRun": 0,
+        },
+        "renderedMarkdownSha256": "d" * 64,
+    }
+
+
+def v2_schema_contract_valid_pairs() -> list[tuple[Path, dict]]:
+    return [
+        (STORY_CONTRACT_SCHEMA, v2_schema_contract_load(STORY_7_1_CONTRACT)),
+        (ACCEPTANCE_RESULT_SCHEMA, v2_schema_contract_acceptance_result(with_ledger=False)),
+        (ACCEPTANCE_RESULT_SCHEMA, v2_schema_contract_acceptance_result(with_ledger=True)),
+        (FROZEN_INVENTORY_SCHEMA, v2_schema_contract_frozen_inventory()),
+        (FINAL_RECORD_SCHEMA, v2_schema_contract_final_record()),
+    ]
+
+
+def test_v2_schema_contract_hold_drift_is_blocked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    drifted = json.loads(HOLD_PATH.read_text(encoding="utf-8"))
+    drifted["scope"]["planningCandidate"] = "0" * 40
+    fake = tmp_path / "implementation-hold-v1.json"
+    fake.write_text(json.dumps(drifted), encoding="utf-8")
+    monkeypatch.setattr(
+        sys.modules[__name__],
+        "HOLD_PATH",
+        fake,
+    )
+    with pytest.raises(AssertionError, match="BLOCKED: 7.1-SCHEMAS hold drift"):
+        v2_schema_contract_hold_is_lifted()
+    real_hold = WORKSPACE / "_bmad-output/planning-artifacts/implementation-hold-v1.json"
+    assert (
+        json.loads(real_hold.read_text(encoding="utf-8"))["scope"]["planningCandidate"]
+        == HOLD_PLANNING_CANDIDATE
+    )
+
+
+def test_v2_schema_contract_hold_metaschema_and_identities() -> None:
+    v2_schema_contract_hold_is_lifted()
+    assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
+    for path in CANONICAL_SCHEMA_PATHS:
+        schema = v2_schema_contract_load(path)
+        v2_schema_contract_validator(schema)
+        v2_schema_contract_assert_closed(schema)
+        assert schema["properties"]["schemaVersion"]["const"] == SCHEMA_IDENTITIES[path]
+        assert schema["$id"].startswith("https://hexalith.io/schemas/conversations/")
+        assert schema["$defs"]["commit"]["pattern"] == "^[0-9a-f]{40}$"
+        assert schema["$defs"]["digest"]["pattern"] == "^[0-9a-f]{64}$"
+    empty_ledger = v2_schema_contract_acceptance_result(with_ledger=False)
+    empty_ledger["assertionLedger"] = []
+    v2_schema_contract_validator(
+        v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
+    ).validate(empty_ledger)
+
+
+def test_v2_schema_contract_valid_in_memory_instances() -> None:
+    v2_schema_contract_hold_is_lifted()
+    inventory = v2_schema_contract_frozen_inventory()
+    assert inventory["sha256"] == STORY_7_1_INVENTORY_DIGEST
+    assert inventory["schemaVersion"] != "hexalith.conversations.v9-inventory.v1"
+    for path, instance in v2_schema_contract_valid_pairs():
+        v2_schema_contract_validator(v2_schema_contract_load(path)).validate(instance)
+
+
+def test_v2_schema_contract_rejects_missing_and_extra_fields() -> None:
+    v2_schema_contract_hold_is_lifted()
+    nested_required = (
+        (
+            ACCEPTANCE_RESULT_SCHEMA,
+            v2_schema_contract_acceptance_result(with_ledger=True),
+            (
+                ("inputs", 0, "path"),
+                ("outputs", 0, "sha256"),
+                ("assertionLedger", 0, "subject"),
+            ),
+        ),
+        (
+            FROZEN_INVENTORY_SCHEMA,
+            v2_schema_contract_frozen_inventory(),
+            (("items",), ("sha256",)),
+        ),
+        (
+            FINAL_RECORD_SCHEMA,
+            v2_schema_contract_final_record(),
+            (
+                ("authority", "bundleDigest"),
+                ("candidate", "commit"),
+                ("candidate", "gitlinks", 0, "mode"),
+                ("inventory", "id"),
+                ("scenarios", 0, "scenarioId"),
+                ("faultInjection", "results"),
+                ("outputs", "json", "path"),
+                ("rollback", "boundary"),
+                ("summary", "notRun"),
+            ),
+        ),
+        (
+            STORY_CONTRACT_SCHEMA,
+            v2_schema_contract_load(STORY_7_1_CONTRACT),
+            (("authority", "planningCandidate"), ("finalRecord", "summary", "passed")),
+        ),
+    )
+    before = {fixture: fixture.read_bytes() for fixture in NEW_SCHEMA_FIXTURES}
+    try:
+        for path, instance in v2_schema_contract_valid_pairs():
+            schema = v2_schema_contract_load(path)
+            for field in schema["required"]:
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_delete(instance, (field,))
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+            for object_path in v2_schema_contract_object_paths(instance):
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_inject(instance, object_path)
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+        for path, instance, removals in nested_required:
+            schema = v2_schema_contract_load(path)
+            for removal in removals:
+                assert (
+                    v2_schema_contract_reject(
+                        schema, v2_schema_contract_delete(instance, removal)
+                    )
+                    == OUTPUT_SCHEMA_INVALID
+                )
+    finally:
+        for fixture, original in before.items():
+            fixture.write_bytes(original)
+    assert all(fixture.read_bytes() == original for fixture, original in before.items())
+
+
+def test_v2_schema_contract_rejects_invalid_bindings() -> None:
+    v2_schema_contract_hold_is_lifted()
+    acceptance_schema = v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
+    inventory_schema = v2_schema_contract_load(FROZEN_INVENTORY_SCHEMA)
+    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
+    before = {fixture: fixture.read_bytes() for fixture in NEW_SCHEMA_FIXTURES}
+    try:
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=True)
+        acceptance["schemaVersion"] = "hexalith.conversations.v9-inventory.v1"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["candidate"] = HOLD_PLANNING_CANDIDATE.upper()
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["candidate"] = "abc"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["inputs"][0]["sha256"] = "A" * 64
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "/tmp/escape.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "docs/../secrets.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["outputs"][0]["path"] = "docs\\release-evidence\\escape.json"
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        acceptance = v2_schema_contract_acceptance_result(with_ledger=False)
+        acceptance["blockers"] = ["OUTPUT_SCHEMA_INVALID", "OUTPUT_SCHEMA_INVALID"]
+        assert v2_schema_contract_reject(acceptance_schema, acceptance) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        inventory = v2_schema_contract_frozen_inventory()
+        inventory["items"] = [inventory["items"][0], *inventory["items"]]
+        assert v2_schema_contract_reject(inventory_schema, inventory) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        inventory = v2_schema_contract_frozen_inventory()
+        inventory["digestAlgorithm"] = "sha1"
+        assert v2_schema_contract_reject(inventory_schema, inventory) == (
+            OUTPUT_SCHEMA_INVALID
+        )
+
+        record = v2_schema_contract_final_record()
+        record["candidate"]["gitlinks"][0], record["candidate"]["gitlinks"][1] = (
+            record["candidate"]["gitlinks"][1],
+            record["candidate"]["gitlinks"][0],
+        )
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["candidate"]["gitlinks"][0]["mode"] = "100644"
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["faultInjection"]["results"] = [
+            record["faultInjection"]["results"][0],
+            record["faultInjection"]["results"][0],
+        ]
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["predecessors"] = ["6.2", "6.2"]
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+    finally:
+        for fixture, original in before.items():
+            fixture.write_bytes(original)
+    assert all(fixture.read_bytes() == original for fixture, original in before.items())
+
+
+def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> None:
+    v2_schema_contract_hold_is_lifted()
+    story_contract_before = STORY_CONTRACT_SCHEMA.read_bytes()
+    mutations = (
+        (
+            ACCEPTANCE_RESULT_SCHEMA,
+            lambda document: document.update({"additionalProperties": True}),
+        ),
+        (
+            FROZEN_INVENTORY_SCHEMA,
+            lambda document: document["properties"].pop("sha256"),
+        ),
+        (
+            FINAL_RECORD_SCHEMA,
+            lambda document: document["$defs"]["authority"]["properties"].pop(
+                "bundleDigest"
+            ),
+        ),
+    )
+    for path, mutate in mutations:
+        before = path.read_bytes()
+        try:
+            document = json.loads(before)
+            mutate(document)
+            path.write_bytes(
+                json.dumps(document, indent=2, ensure_ascii=True).encode("utf-8")
+                + b"\n"
+            )
+            try:
+                v2_schema_contract_assert_closed(document)
+                raise AssertionError("permissive or inconsistent schema was accepted")
+            except jsonschema.ValidationError:
+                assert OUTPUT_SCHEMA_INVALID == OUTPUT_SCHEMA_INVALID
+        finally:
+            path.write_bytes(before)
+        assert path.read_bytes() == before
+    assert STORY_CONTRACT_SCHEMA.read_bytes() == story_contract_before
+    assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
 
 
 if __name__ == "__main__":

@@ -303,3 +303,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-restore-lifecycle-evidence-gates-after-bmad-6-12.md`
   summary: Derive the route-inventory count from one frozen constant and cross-check WORKFLOW_GATE_CONTRACTS against LOGICAL_ROUTE_PATHS.
   evidence: The counts 10 and 5 are restated across verify_evidence_boundary.py, test_verify_evidence_boundary.py, test_check_lifecycle_gate_preflight.py and test_verify_submodule_promotion.py, and no assertion ties WORKFLOW_GATE_CONTRACTS to the verifier inventory, so the next inventory change repeats a multi-file edit and can drift silently.
+
+- source_spec: none
+  summary: Implement the Story 7.1 deterministic generator core, remaining acceptance criteria, and candidate-bound final-record outputs.
+  evidence: Split from `/bmad-build 7.1` because V17 lifts the hold for `7.1-SCHEMAS` only; the generator, AC-7.1-02 through AC-7.1-06, and Story 7.1 final records must wait until that checkpoint completes.
