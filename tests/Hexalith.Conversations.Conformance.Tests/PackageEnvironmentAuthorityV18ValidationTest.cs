@@ -315,7 +315,8 @@ public sealed class PackageEnvironmentAuthorityV18ValidationTest
     private static void ValidateBuildsCatalog(string candidate)
     {
         (_, _, string buildsCommit) = ReadTreeRecord(candidate, BuildsPath);
-        XDocument catalog = XDocument.Parse(Encoding.UTF8.GetString(ReadBuildsBlob(buildsCommit, BuildsCatalogPath)));
+        string catalogText = Encoding.UTF8.GetString(ReadBuildsBlob(buildsCommit, BuildsCatalogPath)).TrimStart('\uFEFF');
+        XDocument catalog = XDocument.Parse(catalogText);
         Dictionary<string, string> rows = catalog.Descendants("PackageVersion")
             .Where(row => row.Attribute("Include") is not null && row.Attribute("Version") is not null)
             .ToDictionary(row => row.Attribute("Include")!.Value, row => row.Attribute("Version")!.Value, StringComparer.OrdinalIgnoreCase);

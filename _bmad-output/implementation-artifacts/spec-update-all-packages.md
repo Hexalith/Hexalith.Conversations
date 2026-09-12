@@ -60,7 +60,7 @@ context:
 - [x] `package-lock.json` -- refresh the compatible npm graph without changing already-current direct pins.
 - [x] `uv.lock` -- refresh all compatible Python transitive packages without changing already-current direct pins.
 - [x] `global.json`, `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs`, `.github/workflows/planning-authority-preflight.yml` -- update SDK `10.0.400` to `10.0.401`, its exact assertion, and uv `0.11.16` to `0.12.13`.
-- [ ] `_bmad/schemas/v18-package-environment-authority-v1.schema.json`, `_bmad/scripts/publish_v18_package_environment_authority.py`, `_bmad/scripts/tests/test_publish_v18_package_environment_authority.py`, `_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json`, `tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs`, and `.github/workflows/planning-authority-preflight.yml` -- additively bind the refreshed Python/toolchain bytes and their non-vacuous consumers without rewriting V15/V16.
+- [x] `_bmad/schemas/v18-package-environment-authority-v1.schema.json`, `_bmad/scripts/publish_v18_package_environment_authority.py`, `_bmad/scripts/tests/test_publish_v18_package_environment_authority.py`, `_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json`, `tests/Hexalith.Conversations.Conformance.Tests/PackageEnvironmentAuthorityV18ValidationTest.cs`, and `.github/workflows/planning-authority-preflight.yml` -- additively bind the refreshed Python/toolchain bytes and their non-vacuous consumers without rewriting V15/V16.
 - [x] `references/Hexalith.Builds/Props/Directory.Packages.props` -- update the coherent `10.0.11` Microsoft.AspNetCore, Microsoft.Extensions, and System families to `10.0.12`, Microsoft.NET.Test.Sdk to `18.10.0`, and CommunityToolkit Dapr to `13.5.1-beta.751`; run the owning repository's catalog gates.
 - [ ] `references/Hexalith.Builds` -- record and promote the exact clean, remote-resolvable Builds commit as a mode-`160000` gitlink; halt before commit or push unless the separately required authority is explicit.
 
@@ -76,6 +76,7 @@ context:
 - npm retained the direct commitlint pins and refreshed seven transitive entries. uv retained both direct Python pins and refreshed Pygments from `2.20.0` to `2.21.0`.
 - The V18 implementation is staged as an exact two-commit C1/C2 authority. The C2 JSON cannot be truthfully generated before C1 is committed because it binds the canonical candidate commit and committed mode-`160000` Builds object.
 - The Builds catalog and audit are bound by authorized local commits ending at `cf52f74c983bf88496cf0280cd9788b5ebcf50de`. A push is still required before the umbrella gitlink can satisfy remote resolvability, and this workflow does not authorize one.
+- C1 `5aef27014170e1ed971aed4c49eeb723d3912c4c` records the exact eleven-path package change and C2 `d8e72d541838f7c9bfff8f60926389e8ae8d2d49` adds only the V18 authority. The descendant C# consumer strips the owning catalog's UTF-8 BOM before XML parsing.
 
 ## Spec Change Log
 
@@ -93,7 +94,13 @@ Current direct npm/Python versions and Aspire `13.5.3` are already current. Pack
 - `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1` -- PASS with 2 `MSB3277` warning groups for the pre-existing `Microsoft.IdentityModel.Tokens` 8.19.2/8.22.0 project-reference conflict.
 - Builds central catalog, authoritative catalog, central fixture, Dapr catalog, and Dapr fixture gates -- PASS; 286 entries, 50 identities, 17 central scenarios, 8 aligned Dapr packages, and 29 Dapr scenarios.
 - Builds package-audit generation and validation -- PASS after selecting CommunityToolkit Dapr `13.5.1-beta.751`; 286 packages across 141 families and one source, with generator and validator fixture suites passing.
-- Full current Python suite -- 381 passed, 13 failed; failures are the historical V15 fixture consuming the intentionally refreshed live lock and the eight already-separated V9 current-byte tests. Preflight now routes V15 tests to their historical publication checkout, matching the existing V9 preservation pattern; that complete workflow lane remains unrun locally.
+- `uv lock --check --no-cache && uv sync --frozen --no-cache && uv pip check && uv pip list --outdated` -- PASS; all 11 installed dependencies are compatible and no outdated package is reported.
+- Current Python preflight split -- PASS; 351 current tests and 23 unaffected V9 tests passed, with the eight historically governed V9 cases deselected by the tracked lane.
+- Historical Python preflight split -- PASS in a detached local clone; 281 V9-era tests, nine V15 publication tests, and the V9 authority checker passed against their committed locks.
+- V13/V14/V15/V16/V18 decision and authority chain -- PASS; V18 binds 13 Python packages and 12 combined paths, and its 14 Python mutation tests pass.
+- Serialized solution restore -- PASS. Release solution build -- PASS with four `MSB3277` warning groups; warning-as-error -- FAIL because Conversations resolves `Microsoft.IdentityModel.Tokens` `8.19.2` while unchanged EventStore project references expose `8.22.0`.
+- Compiled xUnit suites -- PASS for Admin Web 14, Client 29, Contracts 618, Server 684, core 185, and 13 non-benchmark Integration tests. V18/V15/V16 focused conformance classes pass 7/6/6 tests. Full Conformance has 15 unrelated installed-skill/traceability failures; AppHost has one environment failure after Dapr reports `no space left on device`; the SM-C2 benchmark exceeded the bounded local run and was canceled.
+- Evidence-boundary verifier -- PASS for the exact 12-path combined boundary and single Builds gitlink. Submodule-promotion gate -- BLOCKED with `REMOTE_COMMIT_UNAVAILABLE`; the clean mode-`160000` commit is contained by no locally known remote-tracking ref.
 
 **Commands:**
 - `npm ci --ignore-scripts && npm ls --all && npm outdated --json` -- expected: clean install, valid graph, and `{}`.
