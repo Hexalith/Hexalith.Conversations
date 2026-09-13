@@ -1,0 +1,904 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v20-story-7.1-input-inventory-v1.schema.json",
+  "title": "V20 Story 7.1 input inventory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "inventoryId",
+    "digestAlgorithm",
+    "canonicalization",
+    "pathInventories",
+    "authorityPrefix",
+    "currentInputObservations",
+    "candidateDerivedBindings",
+    "entryObligations",
+    "scenarioInventories",
+    "scenarioResultBinding"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-input-inventory.v1"
+    },
+    "inventoryId": {
+      "const": "V20-STORY-7.1-INPUT-INVENTORY-v1"
+    },
+    "digestAlgorithm": {
+      "const": "sha256"
+    },
+    "canonicalization": {
+      "const": {
+        "rule": "nfc-utf8-lf-path-list",
+        "itemEncoding": "one-repository-relative-path-per-line",
+        "terminalLf": true,
+        "orderSignificant": true
+      }
+    },
+    "pathInventories": {
+      "const": [
+        {
+          "role": "implementation-candidate-delta",
+          "inventoryId": "V20-7.1-IMPLEMENTATION-PATHS-v1",
+          "paths": [
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py",
+            "docs/runbooks/story-final-record-generation.md"
+          ],
+          "sha256": "4405332b49ec26ffff40c9b7424c858e7634e0d92313b2c0270011e29a132f4b"
+        },
+        {
+          "role": "machine-results",
+          "inventoryId": "V20-7.1-RESULT-PATHS-v1",
+          "paths": [
+            "artifacts/v9/7.1/AC-7.1-01.xml",
+            "artifacts/v9/7.1/AC-7.1-02.xml",
+            "artifacts/v9/7.1/AC-7.1-03.xml",
+            "artifacts/v9/7.1/AC-7.1-04.xml",
+            "artifacts/v9/7.1/AC-7.1-05.xml"
+          ],
+          "sha256": "f54595279fc201056604e56971f2e22f5483c505ddb1a2488b69e513f08b0fef"
+        },
+        {
+          "role": "post-candidate-record-outputs",
+          "inventoryId": "V20-7.1-RECORD-OUTPUT-PATHS-v1",
+          "paths": [
+            "docs/release-evidence/story-7.1-final-record-v2.json",
+            "docs/release-evidence/story-7.1-final-record-v2.md"
+          ],
+          "sha256": "80b1c47320b8f4ebb98e0dfb40d6777cded1e4e08541c7734678991ab5598b64"
+        }
+      ]
+    },
+    "authorityPrefix": {
+      "const": {
+        "inventoryId": "V20-7.1-AUTHORITY-PREFIX-v1",
+        "paths": [
+          "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+          "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+          "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+          "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+          "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+          "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+          "_bmad/schemas/v9-story-contract-v1.schema.json",
+          "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json"
+        ],
+        "sha256": "ef92b686c52d6d8b1f0e468da01a53fc2bb3ca46cf655ccad8058fd1d24e057b"
+      }
+    },
+    "currentInputObservations": {
+      "const": [
+        {
+          "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+          "role": "V9 authority index",
+          "rawSha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+          "role": "Six-scenario Story 7.1 contract",
+          "rawSha256": "548294d8e9752ff3354897efbfc30a1920bf8cea6a3187ac719c0ca9df618d2e"
+        },
+        {
+          "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+          "role": "Exact checkpoint scope",
+          "rawSha256": "14e95c44149594b87e5337b45fd546fdd48d58407fa0b61f3d4b94cba59da82d"
+        },
+        {
+          "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+          "role": "Story-contract schema",
+          "rawSha256": "33f0b5dc21f56811b8b4307e52f900f2431e31b5ec0301c314c23f47464dabb0"
+        },
+        {
+          "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+          "role": "Acceptance-result schema, pre-V19 observation",
+          "rawSha256": "3a0f417edaf9979d3d3ce3f7f06095c89a78cd42b1df20b1529e10f339c67cf9"
+        },
+        {
+          "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+          "role": "Frozen-inventory schema, pre-V19 observation",
+          "rawSha256": "3741bc4455d34fb0a0b575321eb3d5e909320bb5e17f185ce5cac15d0f992970"
+        },
+        {
+          "path": "_bmad/schemas/story-final-record-v2.schema.json",
+          "role": "Final-record schema, pre-V19 observation",
+          "rawSha256": "212bec3facdd2a68ace486be2919f8defdb01c4720afdb8b2fa77472fd45e5ec"
+        },
+        {
+          "path": "_bmad/scripts/generate_story_record.py",
+          "role": "Legacy v1 generator baseline",
+          "rawSha256": "150a293948ef760173fb7cef7b386e6bd81bfcfdeb9862fa761e0d2286addd8c"
+        },
+        {
+          "path": "_bmad/scripts/tests/test_generate_story_record.py",
+          "role": "Generator/schema tests, pre-V19 observation",
+          "rawSha256": "ef9c5c9d13d0d70f01b02f2f1093be7a11de5201cf4f1cd662cc809113f2155b"
+        },
+        {
+          "path": "docs/runbooks/story-final-record-generation.md",
+          "role": "Generator runbook baseline",
+          "rawSha256": "3068c63dcc3f8cf517634c10dfba7eaf4dae7cc469a7143994bda448a2c213c1"
+        },
+        {
+          "path": "_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md",
+          "role": "Approved semantic source",
+          "rawSha256": "90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d"
+        }
+      ]
+    },
+    "candidateDerivedBindings": {
+      "const": {
+        "checkpointCandidate": [
+          {
+            "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "rule": "recompute-raw-mode-and-sha256-at-V19-checkpoint-candidate"
+          },
+          {
+            "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "rule": "recompute-raw-mode-and-sha256-at-V19-checkpoint-candidate"
+          },
+          {
+            "path": "_bmad/schemas/story-final-record-v2.schema.json",
+            "rule": "recompute-raw-mode-and-sha256-at-V19-checkpoint-candidate"
+          },
+          {
+            "path": "_bmad/scripts/tests/test_generate_story_record.py",
+            "rule": "recompute-raw-mode-and-sha256-at-V19-checkpoint-candidate"
+          }
+        ],
+        "storyCandidate": [
+          {
+            "path": "_bmad/schemas/story-final-record-v2.schema.json",
+            "rule": "recompute-raw-mode-and-sha256-at-SC-7.1"
+          },
+          {
+            "path": "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+            "rule": "recompute-raw-mode-and-sha256-at-SC-7.1"
+          },
+          {
+            "path": "_bmad/scripts/generate_story_record.py",
+            "rule": "recompute-raw-mode-and-sha256-at-SC-7.1"
+          },
+          {
+            "path": "_bmad/scripts/tests/test_generate_story_record.py",
+            "rule": "recompute-raw-mode-and-sha256-at-SC-7.1"
+          },
+          {
+            "path": "docs/runbooks/story-final-record-generation.md",
+            "rule": "recompute-raw-mode-and-sha256-at-SC-7.1"
+          }
+        ],
+        "machineResults": [
+          {
+            "path": "artifacts/v9/7.1/AC-7.1-01.xml",
+            "rule": "generator-captured-actual-exit-and-ID-derived-XML-snapshot"
+          },
+          {
+            "path": "artifacts/v9/7.1/AC-7.1-02.xml",
+            "rule": "generator-captured-actual-exit-and-ID-derived-XML-snapshot"
+          },
+          {
+            "path": "artifacts/v9/7.1/AC-7.1-03.xml",
+            "rule": "generator-captured-actual-exit-and-ID-derived-XML-snapshot"
+          },
+          {
+            "path": "artifacts/v9/7.1/AC-7.1-04.xml",
+            "rule": "generator-captured-actual-exit-and-ID-derived-XML-snapshot"
+          },
+          {
+            "path": "artifacts/v9/7.1/AC-7.1-05.xml",
+            "rule": "generator-captured-actual-exit-and-ID-derived-XML-snapshot"
+          }
+        ]
+      }
+    },
+    "entryObligations": {
+      "const": {
+        "inventoryId": "V9-7.1-ENTRY-v1",
+        "items": [
+          "V8-6.8-AC1",
+          "V8-6.8-AC6-ANTI-VACUITY",
+          "V8-6.8-PROHIBITIONS-SOURCE-BOUNDARY"
+        ],
+        "sha256": "5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e"
+      }
+    },
+    "scenarioInventories": {
+      "const": [
+        {
+          "scenarioId": "AC-7.1-01",
+          "inventoryId": "V20-7.1-AC01-INPUT-PATHS-v1",
+          "paths": [
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/scripts/tests/test_generate_story_record.py"
+          ],
+          "sha256": "78a2fc7f6a53273a4c85ecc2a476cfc88c7896a86f5a6a8fd69eacc44c2540c7",
+          "orderedInputBindings": [
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            }
+          ]
+        },
+        {
+          "scenarioId": "AC-7.1-02",
+          "inventoryId": "V20-7.1-AC02-INPUT-PATHS-v1",
+          "paths": [
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py"
+          ],
+          "sha256": "4eb9da818aff7ded9b1f40234ce1702aa465a01edaf28075f95e399f120ef908",
+          "orderedInputBindings": [
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/scripts/generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100755",
+              "role": "story-record-generator"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            }
+          ]
+        },
+        {
+          "scenarioId": "AC-7.1-03",
+          "inventoryId": "V20-7.1-AC03-INPUT-PATHS-v1",
+          "paths": [
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py"
+          ],
+          "sha256": "4eb9da818aff7ded9b1f40234ce1702aa465a01edaf28075f95e399f120ef908",
+          "orderedInputBindings": [
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/scripts/generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100755",
+              "role": "story-record-generator"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            }
+          ]
+        },
+        {
+          "scenarioId": "AC-7.1-04",
+          "inventoryId": "V20-7.1-AC04-INPUT-PATHS-v1",
+          "paths": [
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py"
+          ],
+          "sha256": "4eb9da818aff7ded9b1f40234ce1702aa465a01edaf28075f95e399f120ef908",
+          "orderedInputBindings": [
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/scripts/generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100755",
+              "role": "story-record-generator"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            }
+          ]
+        },
+        {
+          "scenarioId": "AC-7.1-05",
+          "inventoryId": "V20-7.1-AC05-INPUT-PATHS-v1",
+          "paths": [
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py"
+          ],
+          "sha256": "2ba87bf3475e3dc799fafbefb30a132c7950057abe98eb887a107f59f6016e26",
+          "orderedInputBindings": [
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "generator-failure-schema"
+            },
+            {
+              "path": "_bmad/scripts/generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100755",
+              "role": "story-record-generator"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            }
+          ]
+        },
+        {
+          "scenarioId": "AC-7.1-06",
+          "inventoryId": "V20-7.1-AC06-AGGREGATE-INPUT-PATHS-v1",
+          "paths": [
+            ".gitmodules",
+            "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+            "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+            "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+            "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+            "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+            "_bmad/schemas/v9-story-contract-v1.schema.json",
+            "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+            "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+            "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+            "_bmad/schemas/story-final-record-v2.schema.json",
+            "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+            "_bmad/scripts/generate_story_record.py",
+            "_bmad/scripts/tests/test_generate_story_record.py",
+            "artifacts/v9/7.1/AC-7.1-01.xml",
+            "artifacts/v9/7.1/AC-7.1-02.xml",
+            "artifacts/v9/7.1/AC-7.1-03.xml",
+            "artifacts/v9/7.1/AC-7.1-04.xml",
+            "artifacts/v9/7.1/AC-7.1-05.xml"
+          ],
+          "sha256": "ab3e8bb068cf5fc8b1ade9225f004d6b8dcbbccc15eb59657b1af4bfcfbfb91c",
+          "orderedInputBindings": [
+            {
+              "path": ".gitmodules",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "root-submodule-inventory"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "planning-authority-bundle"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-scope-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "checkpoint-completion-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "release-owner-authority"
+            },
+            {
+              "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory"
+            },
+            {
+              "path": "_bmad/schemas/v9-story-contract-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-contract-schema"
+            },
+            {
+              "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-input-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "acceptance-result-schema"
+            },
+            {
+              "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "frozen-inventory-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-final-record-v2.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-final-record-schema"
+            },
+            {
+              "path": "_bmad/schemas/story-record-generator-failure-v1.schema.json",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "generator-failure-schema"
+            },
+            {
+              "path": "_bmad/scripts/generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100755",
+              "role": "story-record-generator"
+            },
+            {
+              "path": "_bmad/scripts/tests/test_generate_story_record.py",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "story-record-generator-tests"
+            },
+            {
+              "path": "artifacts/v9/7.1/AC-7.1-01.xml",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "machine-result-snapshot"
+            },
+            {
+              "path": "artifacts/v9/7.1/AC-7.1-02.xml",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "machine-result-snapshot"
+            },
+            {
+              "path": "artifacts/v9/7.1/AC-7.1-03.xml",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "machine-result-snapshot"
+            },
+            {
+              "path": "artifacts/v9/7.1/AC-7.1-04.xml",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "machine-result-snapshot"
+            },
+            {
+              "path": "artifacts/v9/7.1/AC-7.1-05.xml",
+              "sha256": "recompute-from-committed-SC-7.1-or-machine-result-snapshot",
+              "mode": "100644",
+              "role": "machine-result-snapshot"
+            }
+          ]
+        }
+      ]
+    },
+    "scenarioResultBinding": {
+      "const": {
+        "requiredFields": [
+          "path",
+          "sha256",
+          "mode",
+          "role"
+        ],
+        "orderedBy": "scenario-inventory-path-order",
+        "declaredDigestTrusted": false,
+        "candidateMoveInvalidatesResults": true
+      }
+    }
+  },
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}
