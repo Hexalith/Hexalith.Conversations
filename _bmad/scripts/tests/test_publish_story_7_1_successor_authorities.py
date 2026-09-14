@@ -32,13 +32,14 @@ AUTHORIZED_FILES = (
     publisher.PUBLISHER_PATH,
     publisher.PUBLISHER_TEST_PATH,
 )
-OWNER_IDENTITY = "release-owner-fixture-2026-09-12"
 DECIDED_AT_UTC = "2026-09-12T12:00:00Z"
 RATIONALE = (
     "Release-owner decision binds V19-STORY-7.1-CHECKPOINT-COMPLETION "
     "and V20-STORY-7.1-INPUT-INVENTORY-v1 after independent review."
 )
-TOOLING_BASELINE = "64b050831eea694cb2065342cf23a150646eef57"
+OWNER_IDENTITY = "Successor authority fixture <successor-authority@example.invalid>"
+TOOLING_BASELINE = "2ed96eff2adfd5190854165a01df657338def26f"
+PREFLIGHT_WORKFLOW = ROOT / ".github/workflows/planning-authority-preflight.yml"
 
 
 def git(root: Path, *arguments: str) -> str:
@@ -52,6 +53,7 @@ def commit(
     message: str,
     *,
     allow_empty: bool = False,
+    sign: bool = False,
     committed_at: str = "2026-09-12T10:00:00Z",
 ) -> str:
     """Commit a fixture index and return the exact commit identity."""
@@ -59,6 +61,8 @@ def commit(
     arguments = ["git", "-C", str(root), "commit", "-q", "-m", message]
     if allow_empty:
         arguments.insert(4, "--allow-empty")
+    if sign:
+        arguments.insert(4, "-S")
     environment = {
         **os.environ,
         "GIT_AUTHOR_DATE": committed_at,
@@ -66,6 +70,28 @@ def commit(
     }
     subprocess.run(arguments, check=True, env=environment)
     return git(root, "rev-parse", "HEAD")
+
+
+def configure_ssh_signing(root: Path) -> None:
+    """Configure one fixture-local SSH signing identity and trust file."""
+
+    key = root / ".git/v20-fixture-signing-key"
+    subprocess.run(
+        ["ssh-keygen", "-q", "-t", "ed25519", "-N", "", "-C", "successor-authority@example.invalid", "-f", str(key)],
+        check=True,
+    )
+    public_key = key.with_suffix(".pub").read_text(encoding="utf-8").strip()
+    allowed_signers = root / ".git/v20-fixture-allowed-signers"
+    allowed_signers.write_text(
+        f"successor-authority@example.invalid {public_key}\n",
+        encoding="utf-8",
+    )
+    subprocess.run(["git", "-C", str(root), "config", "gpg.format", "ssh"], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.signingkey", str(key)], check=True)
+    subprocess.run(
+        ["git", "-C", str(root), "config", "gpg.ssh.allowedSignersFile", str(allowed_signers)],
+        check=True,
+    )
 
 
 def clone_with_tooling(tmp_path: Path) -> tuple[Path, str]:
@@ -91,11 +117,26 @@ def clone_with_tooling(tmp_path: Path) -> tuple[Path, str]:
     return root, tooling
 
 
-def junit_xml(*, tests: int = 2, failures: int = 0, errors: int = 0, skipped: int = 0) -> str:
+def junit_xml(
+    *,
+    tests: int | None = None,
+    failures: int = 0,
+    errors: int = 0,
+    skipped: int = 0,
+    subjects: list[str] | None = None,
+) -> str:
     """Render a small deterministic JUnit snapshot."""
 
+    if subjects is None:
+        count = len(publisher.REQUIRED_CHECKPOINT_SUBJECTS) if tests is None else tests
+        subjects = list(publisher.REQUIRED_CHECKPOINT_SUBJECTS[:count])
+        subjects.extend(
+            f"{publisher.CHECKPOINT_SUBJECT_PREFIX}additional_{index}"
+            for index in range(len(subjects) + 1, count + 1)
+        )
+    tests = len(subjects)
     cases = []
-    for index in range(tests):
+    for index, subject in enumerate(subjects):
         child = ""
         if index < failures:
             child = '<failure message="failure" />'
@@ -103,7 +144,9 @@ def junit_xml(*, tests: int = 2, failures: int = 0, errors: int = 0, skipped: in
             child = '<error message="error" />'
         elif index < failures + errors + skipped:
             child = '<skipped message="skipped" />'
-        cases.append(f'<testcase classname="checkpoint.Schema" name="Case{index + 1}">{child}</testcase>')
+        classname, separator, name = subject.partition("::")
+        assert separator == "::"
+        cases.append(f'<testcase classname="{classname}" name="{name}">{child}</testcase>')
     return (
         '<?xml version="1.0" encoding="utf-8"?>\n'
         '<testsuites name="pytest">\n'
@@ -122,6 +165,8 @@ def stage_checkpoint(
     extra_path: str | None = None,
     gitlink_substitution: bool = False,
     normalization_only_path: str | None = None,
+    command_failure: bool = False,
+    rerun_extra_subject: bool = False,
 ) -> str:
     """Create one fresh checkpoint candidate, with optional single-fault mutations."""
 
@@ -134,14 +179,19 @@ def stage_checkpoint(
             document["$comment"] = f"substantive V19 fixture change for {relative_path}"
             path.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     test_path = root / publisher.CHECKPOINT_PATHS[-2]
-    test_path.write_text(
-        test_path.read_text(encoding="utf-8") + "\n# Substantive V19 fixture checkpoint assertion.\n",
-        encoding="utf-8",
-    )
+    test_change = "\n# Substantive V19 fixture checkpoint assertion.\n"
+    if command_failure:
+        test_change += "\ndef test_v2_schema_contract_forced_command_failure() -> None:\n    assert False\n"
+    elif rerun_extra_subject:
+        test_change += "\ndef test_v2_schema_contract_additional_rerun_case() -> None:\n    assert True\n"
+    test_path.write_text(test_path.read_text(encoding="utf-8") + test_change, encoding="utf-8")
     result_path = root / publisher.CHECKPOINT_RESULT_PATH
     if not omit_result:
         result_path.parent.mkdir(parents=True, exist_ok=True)
-        result_path.write_text(xml or junit_xml(), encoding="utf-8")
+        if xml is None:
+            subprocess.run(publisher.CHECKPOINT_COMMAND_ARGUMENTS, cwd=root, check=True)
+        else:
+            result_path.write_text(xml, encoding="utf-8")
     paths = list(publisher.CHECKPOINT_PATHS[:-1])
     if not omit_result:
         paths.append(publisher.CHECKPOINT_RESULT_PATH)
@@ -204,6 +254,7 @@ def stage_v20(
 ) -> str:
     """Publish and commit one exact-one-path V20 transaction."""
 
+    configure_ssh_signing(root)
     assert git(root, "status", "--porcelain=v1", "--untracked-files=all") == ""
     publisher.publish_v20(
         root,
@@ -215,7 +266,7 @@ def stage_v20(
     )
     assert git(root, "status", "--porcelain=v1", "--untracked-files=all") == f"?? {publisher.V20_PATH}"
     subprocess.run(["git", "-C", str(root), "add", "--", publisher.V20_PATH], check=True)
-    return commit(root, "build(planning): bind V20 fixture authority", committed_at=published_at)
+    return commit(root, "build(planning): bind V20 fixture authority", sign=True, committed_at=published_at)
 
 
 def full_transaction(tmp_path: Path) -> dict[str, Any]:
@@ -455,13 +506,19 @@ def test_future_v19_and_v20_transactions_pass_with_distinct_roles_and_narrow_eff
     v19 = publisher.publish_v19(root, candidate_revision=transaction["v20"], check=True)
     assert v19["historicalTransaction"]["result"] == "NONCONFORMING"
     assert v19["historicalTransaction"]["blockers"] == ["CHANGED_PATH_SET_MISMATCH"]
-    assert v19["freshCheckpoint"]["machineResult"]["tests"] == 2
+    machine_result = v19["freshCheckpoint"]["machineResult"]
+    assert machine_result["tests"] == len(publisher.REQUIRED_CHECKPOINT_SUBJECTS)
+    assert machine_result["command"] == publisher.CHECKPOINT_COMMAND
+    assert machine_result["exitCode"] == 0
     assert [row["path"] for row in v19["freshCheckpoint"]["changedPathBindings"]] == list(
         publisher.CHECKPOINT_PATHS
     )
     assert all(row["mode"] == "100644" for row in v19["freshCheckpoint"]["changedPathBindings"])
     assert v19["freshCheckpoint"]["assertionLedger"]
     assert all(row["state"] == "PASS" for row in v19["freshCheckpoint"]["assertionLedger"])
+    assert set(publisher.REQUIRED_CHECKPOINT_SUBJECTS) <= {
+        row["subject"] for row in v19["freshCheckpoint"]["assertionLedger"]
+    }
     assert [row["path"] for row in v19["freshCheckpoint"]["rootGitlinks"]] == list(
         publisher.ROOT_GITLINK_PATHS
     )
@@ -535,6 +592,13 @@ def test_future_v19_and_v20_transactions_pass_with_distinct_roles_and_narrow_eff
     assert git(root, "status", "--porcelain=v1", "--untracked-files=all") == before
     assert {path: (root / path).read_bytes() for path in authority_bytes} == authority_bytes
 
+    inventory_ledger: list[dict[str, str]] = []
+    inventory = publisher.inventory_route(root, check=True, assertion_ledger=inventory_ledger)
+    assert inventory == publisher.expected_inventory_document()
+    assert inventory_ledger
+    assert all(row["state"] == "PASS" for row in inventory_ledger)
+    assert any(row["id"].startswith("INVENTORY-CHECKPOINT-") for row in inventory_ledger)
+
 
 @pytest.mark.parametrize("extra_path", (None, "unexpected-checkpoint.txt"))
 def test_checkpoint_path_omission_and_addition_fail_with_exact_set_code(tmp_path: Path, extra_path: str | None) -> None:
@@ -569,7 +633,7 @@ def test_v17_v18_and_hold_digest_drift_have_a_stable_blocker(tmp_path: Path, pat
     target.write_bytes(target.read_bytes() + b"\ndrift\n")
     subprocess.run(["git", "-C", str(root), "add", "--", path], check=True)
     commit(root, "test: drift preserved point-in-time evidence")
-    candidate = stage_checkpoint(root)
+    candidate = stage_checkpoint(root, xml=junit_xml())
     assert_error("V19_PRESERVED_EVIDENCE_DRIFT", lambda: publisher.render_v19(root, candidate))
 
 
@@ -602,7 +666,9 @@ def test_committed_xml_is_authoritative_and_uncommitted_ignored_substitution_can
     result_path.write_text(junit_xml(tests=1, failures=1), encoding="utf-8")
     repeated = publisher.render_v19(valid_root, candidate)
     assert repeated == committed
-    assert repeated["freshCheckpoint"]["machineResult"]["tests"] == 2
+    assert repeated["freshCheckpoint"]["machineResult"]["tests"] == len(
+        publisher.REQUIRED_CHECKPOINT_SUBJECTS
+    )
 
     invalid_root, _ = clone_with_tooling(tmp_path / "ignored")
     invalid_candidate = stage_checkpoint(invalid_root, omit_result=True)
@@ -630,6 +696,56 @@ def test_empty_or_skipped_junit_never_passes_vacuously(tmp_path: Path, xml: str,
     ("xml", "code"),
     (
         (
+            junit_xml(subjects=list(publisher.REQUIRED_CHECKPOINT_SUBJECTS[:-1])),
+            "V19_RESULT_LEDGER_INSUFFICIENT",
+        ),
+        (
+            junit_xml(
+                subjects=[
+                    *publisher.REQUIRED_CHECKPOINT_SUBJECTS,
+                    "unrelated.module::test_v2_schema_contract_unrelated",
+                ]
+            ),
+            "V19_RESULT_SUBJECT_INVALID",
+        ),
+    ),
+)
+def test_insufficient_or_unrelated_junit_ledgers_fail_closed(
+    tmp_path: Path,
+    xml: str,
+    code: str,
+) -> None:
+    """Reject a passing XML ledger unless it contains every frozen canonical subject."""
+
+    root, _ = clone_with_tooling(tmp_path)
+    candidate = stage_checkpoint(root, xml=xml)
+    assert_error(code, lambda: publisher.render_v19(root, candidate))
+
+
+def test_frozen_checkpoint_command_failure_is_not_hidden_by_committed_passing_xml(tmp_path: Path) -> None:
+    """Capture the actual frozen-command exit and fail even when committed XML claims PASS."""
+
+    root, _ = clone_with_tooling(tmp_path)
+    candidate = stage_checkpoint(root, xml=junit_xml(), command_failure=True)
+    assert_error(
+        "V19_RESULT_COMMAND_FAILED",
+        lambda: publisher.render_v19(root, candidate),
+        state="FAIL",
+    )
+
+
+def test_isolated_rerun_ledger_must_equal_the_committed_ledger(tmp_path: Path) -> None:
+    """Reject a canonical passing snapshot that omits a testcase executed by the candidate."""
+
+    root, _ = clone_with_tooling(tmp_path)
+    candidate = stage_checkpoint(root, xml=junit_xml(), rerun_extra_subject=True)
+    assert_error("V19_RESULT_RERUN_DRIFT", lambda: publisher.render_v19(root, candidate))
+
+
+@pytest.mark.parametrize(
+    ("xml", "code"),
+    (
+        (
             '<testsuite tests="1" failures="0" errors="0" skipped="0">'
             '<testcase classname="checkpoint.Schema" name="Case1" />'
             "</testsuite>",
@@ -649,7 +765,8 @@ def test_empty_or_skipped_junit_never_passes_vacuously(tmp_path: Path, xml: str,
         ),
         (
             '<testsuites><testsuite tests="many" failures="0" errors="0" skipped="0">'
-            '<testcase classname="checkpoint.Schema" name="Case1" />'
+            '<testcase classname="_bmad.scripts.tests.test_generate_story_record" '
+            'name="test_v2_schema_contract_hold_drift_is_blocked" />'
             "</testsuite></testsuites>",
             "V19_RESULT_COUNT_DRIFT",
         ),
@@ -669,10 +786,12 @@ def test_duplicate_junit_subject_is_rejected_with_stable_ledger_code(tmp_path: P
     """Prevent two testcases from satisfying the ledger with one repeated identity."""
 
     root, _ = clone_with_tooling(tmp_path)
+    subject = publisher.REQUIRED_CHECKPOINT_SUBJECTS[0]
+    classname, _separator, name = subject.partition("::")
     xml = (
         '<testsuites><testsuite tests="2" failures="0" errors="0" skipped="0">'
-        '<testcase classname="checkpoint.Schema" name="Same" />'
-        '<testcase classname="checkpoint.Schema" name="Same" />'
+        f'<testcase classname="{classname}" name="{name}" />'
+        f'<testcase classname="{classname}" name="{name}" />'
         "</testsuite></testsuites>"
     )
     candidate = stage_checkpoint(root, xml=xml)
@@ -968,6 +1087,63 @@ def test_publication_writes_only_authority_paths_and_never_sprint_or_loop_state(
     assert {path: (root / path).read_bytes() for path in protected_paths} == protected_before
 
 
+def test_unsigned_v20_publication_keeps_the_effective_hold_active(tmp_path: Path) -> None:
+    """Require the human V20 publication commit itself to carry a verifiable signature."""
+
+    root, _ = clone_with_tooling(tmp_path)
+    candidate = stage_checkpoint(root)
+    stage_v19(root, candidate)
+    entry = stage_entry(root)
+    publisher.publish_v20(
+        root,
+        entry_revision=entry,
+        owner_identity=OWNER_IDENTITY,
+        decided_at_utc=DECIDED_AT_UTC,
+        rationale=RATIONALE,
+        check=False,
+    )
+    subprocess.run(["git", "-C", str(root), "add", "--", publisher.V20_PATH], check=True)
+    unsigned_publication = commit(
+        root,
+        "build(planning): bind unsigned V20 fixture authority",
+        committed_at="2026-09-12T13:00:00Z",
+    )
+    assert_error(
+        "V20_PUBLICATION_SIGNATURE_INVALID",
+        lambda: publisher.publish_v20(
+            root,
+            entry_revision=unsigned_publication,
+            owner_identity=None,
+            decided_at_utc=None,
+            rationale=None,
+            check=True,
+        ),
+    )
+    hold = publisher.effective_hold(root, evaluated_revision=unsigned_publication)
+    assert hold["effectiveHold"] == "ACTIVE"
+    assert hold["assertionLedger"]
+    assert hold["blockers"][0]["code"] == "V20_PUBLICATION_SIGNATURE_INVALID"
+
+
+def test_preflight_wires_successor_checks_in_order_before_conformance_build() -> None:
+    """Keep final-HEAD inventory, V19, V20, and hold checks ordered in normal CI."""
+
+    workflow = PREFLIGHT_WORKFLOW.read_text(encoding="utf-8")
+    commands = (
+        "publish_story_7_1_successor_authorities.py --repository . inventory --check",
+        "publish_story_7_1_successor_authorities.py --repository . v19 --candidate HEAD --check",
+        "publish_story_7_1_successor_authorities.py --repository . v20 --entry-candidate HEAD --check",
+        (
+            "publish_story_7_1_successor_authorities.py --repository . v20 "
+            "--entry-candidate HEAD --effective-hold --check"
+        ),
+        "- name: Build conformance verifier",
+    )
+    offsets = [workflow.index(command) for command in commands]
+    assert offsets == sorted(offsets)
+    assert workflow.count("publish_story_7_1_successor_authorities.py") == 4
+
+
 def test_operator_cli_routes_report_success_blocked_hold_and_lifted_hold(
     tmp_path: Path,
     capsys: pytest.CaptureFixture[str],
@@ -977,14 +1153,19 @@ def test_operator_cli_routes_report_success_blocked_hold_and_lifted_hold(
     root, _ = clone_with_tooling(tmp_path)
     repository_args = ["--repository", str(root)]
     assert publisher.main([*repository_args, "inventory"]) == 0
-    assert capsys.readouterr().out.startswith("V20_STORY_7_1_INVENTORY_OK INVENTORIES=")
+    inventory_result = json.loads(capsys.readouterr().out)
+    assert inventory_result["result"] == "PASS"
+    assert inventory_result["assertionLedger"]
     assert publisher.main([*repository_args, "inventory", "--check"]) == 0
-    assert capsys.readouterr().out.startswith("V20_STORY_7_1_INVENTORY_OK INVENTORIES=")
+    inventory_result = json.loads(capsys.readouterr().out)
+    assert inventory_result["result"] == "PASS"
+    assert inventory_result["assertionLedger"]
 
     candidate = stage_checkpoint(root)
     assert publisher.main([*repository_args, "v19", "--candidate", candidate]) == 0
     assert capsys.readouterr().out.startswith(
-        f"V19_STORY_7_1_CHECKPOINT_AUTHORITY_OK CANDIDATE={candidate} TESTS=2"
+        f"V19_STORY_7_1_CHECKPOINT_AUTHORITY_OK CANDIDATE={candidate} "
+        f"TESTS={len(publisher.REQUIRED_CHECKPOINT_SUBJECTS)}"
     )
     subprocess.run(["git", "-C", str(root), "add", "--", publisher.V19_PATH], check=True)
     v19_publication = commit(root, "build(planning): bind V19 through CLI")
@@ -1019,9 +1200,11 @@ def test_operator_cli_routes_report_success_blocked_hold_and_lifted_hold(
         f"V20_STORY_7_1_RELEASE_OWNER_AUTHORITY_OK ENTRY={entry} EFFECTIVE_HOLD=LIFTED"
     )
     subprocess.run(["git", "-C", str(root), "add", "--", publisher.V20_PATH], check=True)
+    configure_ssh_signing(root)
     v20_publication = commit(
         root,
         "build(planning): bind V20 through CLI",
+        sign=True,
         committed_at="2026-09-12T13:00:00Z",
     )
     assert publisher.main([*repository_args, "v20", "--entry-candidate", v20_publication, "--check"]) == 0

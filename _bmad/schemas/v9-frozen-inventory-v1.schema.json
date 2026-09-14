@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://hexalith.io/schemas/conversations/v9-frozen-inventory-v1.schema.json",
   "title": "Conversations Frozen Inventory V1",
+  "description": "Authority boundary: this schema validates document structure only; producers and verifiers must independently recompute the canonical NFC UTF-8 LF inventory digest from the ordered items.",
   "type": "object",
   "additionalProperties": false,
   "required": [

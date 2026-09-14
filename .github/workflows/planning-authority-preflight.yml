@@ -165,6 +165,13 @@ jobs:
           uv run --frozen --no-sync python3 _bmad/scripts/publish_v16_planning_tooling_lifecycle.py --repository . --candidate HEAD --check --check-installed
           uv run --frozen --no-sync python3 _bmad/scripts/publish_v18_package_environment_authority.py --repository . --candidate HEAD --check
 
+      - name: Verify Story 7.1 successor authorities and effective hold
+        run: |
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_story_7_1_successor_authorities.py --repository . inventory --check
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_story_7_1_successor_authorities.py --repository . v19 --candidate HEAD --check
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_story_7_1_successor_authorities.py --repository . v20 --entry-candidate HEAD --check
+          uv run --frozen --no-sync python3 _bmad/scripts/publish_story_7_1_successor_authorities.py --repository . v20 --entry-candidate HEAD --effective-hold --check
+
       - name: Build conformance verifier
         run: dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj --configuration Release -m:1
 

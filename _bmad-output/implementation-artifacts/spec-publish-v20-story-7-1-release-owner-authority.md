@@ -2,7 +2,7 @@
 title: 'Republish the hardened Story 7.1 V20 release-owner authority'
 type: 'feature'
 created: '2026-09-14'
-status: 'draft'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 1
 baseline_commit: '2ed96eff2adfd5190854165a01df657338def26f'

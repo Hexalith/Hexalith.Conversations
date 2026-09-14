@@ -1483,6 +1483,25 @@ SCHEMA_IDENTITIES = {
     FROZEN_INVENTORY_SCHEMA: "hexalith.conversations.frozen-inventory.v1",
     FINAL_RECORD_SCHEMA: "hexalith.conversations.story-final-record.v2",
 }
+SCHEMA_AUTHORITY_BOUNDARY_ANNOTATIONS = {
+    ACCEPTANCE_RESULT_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must derive command outcomes, candidate identity, "
+        "digest bindings, and any assertion ledger from executed commands and "
+        "committed evidence."
+    ),
+    FROZEN_INVENTORY_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must independently recompute the canonical NFC "
+        "UTF-8 LF inventory digest from the ordered items."
+    ),
+    FINAL_RECORD_SCHEMA: (
+        "Authority boundary: this schema validates document structure only; "
+        "producers and verifiers must derive candidate, gitlink, scenario, output, "
+        "and summary facts from committed evidence rather than caller-authored "
+        "claims."
+    ),
+}
 HOLD_PLANNING_CANDIDATE = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5"
 HOLD_BUNDLE_DIGEST = "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
 HOLD_IR0_DIGEST = "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad"
@@ -1780,6 +1799,12 @@ def test_v2_schema_contract_hold_metaschema_and_identities() -> None:
     v2_schema_contract_validator(
         v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
     ).validate(empty_ledger)
+
+
+def test_v2_schema_contract_authority_boundary_annotations() -> None:
+    v2_schema_contract_hold_is_lifted()
+    for path, annotation in SCHEMA_AUTHORITY_BOUNDARY_ANNOTATIONS.items():
+        assert v2_schema_contract_load(path)["description"] == annotation
 
 
 def test_v2_schema_contract_valid_in_memory_instances() -> None:

@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://hexalith.io/schemas/conversations/v9-acceptance-result-v1.schema.json",
   "title": "Conversations Acceptance Result V1",
+  "description": "Authority boundary: this schema validates document structure only; producers and verifiers must derive command outcomes, candidate identity, digest bindings, and any assertion ledger from executed commands and committed evidence.",
   "type": "object",
   "additionalProperties": false,
   "required": [
