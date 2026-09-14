@@ -10,6 +10,7 @@ import json
 import os
 from pathlib import Path, PurePosixPath
 import re
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -55,6 +56,18 @@ CHECKPOINT_RESULT_PATH = "artifacts/v9/schema-slice/v2-schema-contract.xml"
 CHECKPOINT_COMMAND = (
     "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py "
     "-k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml"
+)
+CHECKPOINT_COMMAND_ARGUMENTS = tuple(shlex.split(CHECKPOINT_COMMAND))
+CHECKPOINT_SUBJECT_PREFIX = (
+    "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_"
+)
+REQUIRED_CHECKPOINT_SUBJECTS = (
+    f"{CHECKPOINT_SUBJECT_PREFIX}hold_drift_is_blocked",
+    f"{CHECKPOINT_SUBJECT_PREFIX}hold_metaschema_and_identities",
+    f"{CHECKPOINT_SUBJECT_PREFIX}valid_in_memory_instances",
+    f"{CHECKPOINT_SUBJECT_PREFIX}rejects_missing_and_extra_fields",
+    f"{CHECKPOINT_SUBJECT_PREFIX}rejects_invalid_bindings",
+    f"{CHECKPOINT_SUBJECT_PREFIX}restores_permissive_and_inconsistent_fixtures",
 )
 
 CHECKPOINT_PATHS = (
@@ -732,6 +745,8 @@ def parse_junit(content: bytes) -> tuple[dict[str, Any], list[dict[str, str]]]:
                 f"testcase {ordinal} requires nonempty classname and name",
             )
         identity = f"{classname}::{name}"
+        if not identity.startswith(CHECKPOINT_SUBJECT_PREFIX):
+            raise SuccessorAuthorityError("V19_RESULT_SUBJECT_INVALID", identity)
         if identity in seen:
             raise SuccessorAuthorityError("V19_RESULT_LEDGER_DUPLICATE", identity)
         seen.add(identity)
@@ -767,12 +782,53 @@ def parse_junit(content: bytes) -> tuple[dict[str, Any], list[dict[str, str]]]:
         raise SuccessorAuthorityError("V19_RESULT_COUNT_DRIFT", f"declared={declared!r} observed={observed!r}")
     if declared_tests <= 0 or any((declared_failures, declared_errors, declared_skipped)):
         raise SuccessorAuthorityError("V19_RESULT_NOT_PASS", repr(declared))
+    missing_subjects = [subject for subject in REQUIRED_CHECKPOINT_SUBJECTS if subject not in seen]
+    if declared_tests < len(REQUIRED_CHECKPOINT_SUBJECTS) or missing_subjects:
+        raise SuccessorAuthorityError(
+            "V19_RESULT_LEDGER_INSUFFICIENT",
+            f"tests={declared_tests} missing={missing_subjects!r}",
+        )
     return {
         "tests": declared_tests,
         "failures": declared_failures,
         "errors": declared_errors,
         "skipped": declared_skipped,
     }, ledger
+
+
+def rerun_checkpoint_command(root: Path, candidate: str) -> tuple[int, bytes]:
+    """Rerun the exact frozen command in an isolated checkout of the candidate."""
+
+    with tempfile.TemporaryDirectory(prefix="story-7-1-v19-rerun-") as temporary_name:
+        checkout = Path(temporary_name) / "candidate"
+        run_git(root, "clone", "--shared", "--no-checkout", "--", str(root), str(checkout))
+        run_git(checkout, "checkout", "--detach", candidate)
+        environment = {
+            key: value
+            for key, value in os.environ.items()
+            if key not in {"PYTEST_ADDOPTS", "PYTHONPATH"} and not key.startswith("GIT_")
+        }
+        try:
+            completed = subprocess.run(
+                CHECKPOINT_COMMAND_ARGUMENTS,
+                cwd=checkout,
+                check=False,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                timeout=120,
+                env=environment,
+            )
+        except (OSError, subprocess.TimeoutExpired) as error:
+            raise SuccessorAuthorityError("V19_RESULT_COMMAND_UNAVAILABLE", str(error), "BLOCKED") from error
+        result_path = checkout / CHECKPOINT_RESULT_PATH
+        if not result_path.is_file():
+            detail = completed.stderr.decode("utf-8", errors="replace").strip() or "result XML was not produced"
+            raise SuccessorAuthorityError("V19_RESULT_COMMAND_OUTPUT_MISSING", detail, "BLOCKED")
+        try:
+            content = result_path.read_bytes()
+        except OSError as error:
+            raise SuccessorAuthorityError("V19_RESULT_COMMAND_OUTPUT_MISSING", str(error), "BLOCKED") from error
+        return completed.returncode, content
 
 
 def render_v19(root: Path, candidate_revision: str) -> dict[str, Any]:
@@ -806,6 +862,20 @@ def render_v19(root: Path, candidate_revision: str) -> dict[str, Any]:
     result_binding = bindings[-1]
     result_content = candidate_blob(root, candidate, CHECKPOINT_RESULT_PATH, "V19_RESULT_MISSING")
     counts, ledger = parse_junit(result_content)
+    command_exit, rerun_content = rerun_checkpoint_command(root, candidate)
+    if command_exit != 0:
+        state = "FAIL" if command_exit in (1, 5) else "BLOCKED"
+        raise SuccessorAuthorityError(
+            "V19_RESULT_COMMAND_FAILED",
+            f"command={CHECKPOINT_COMMAND!r} exit={command_exit}",
+            state,
+        )
+    rerun_counts, rerun_ledger = parse_junit(rerun_content)
+    if rerun_counts != counts or rerun_ledger != ledger:
+        raise SuccessorAuthorityError(
+            "V19_RESULT_RERUN_DRIFT",
+            f"committed={ledger!r} rerun={rerun_ledger!r}",
+        )
     return {
         "schemaVersion": V19_SCHEMA_VERSION,
         "authorityId": V19_AUTHORITY_ID,
@@ -837,6 +907,8 @@ def render_v19(root: Path, candidate_revision: str) -> dict[str, Any]:
                 "mode": result_binding["mode"],
                 "sha256": result_binding["sha256"],
                 "result": "PASS",
+                "command": CHECKPOINT_COMMAND,
+                "exitCode": command_exit,
                 **counts,
             },
             "assertionLedger": ledger,
@@ -1138,38 +1210,108 @@ def validate_inventory_document(document: dict[str, Any]) -> None:
             raise SuccessorAuthorityError("V20_SCENARIO_BINDING_ORDER_DRIFT", scenario["scenarioId"])
 
 
-def inventory_route(root: Path, *, check: bool) -> dict[str, Any]:
+def validate_inventory_observations(root: Path, evaluated: str) -> list[dict[str, str]]:
+    """Validate fixed observations and any V19-derived checkpoint bindings from history."""
+
+    ledger: list[dict[str, str]] = []
+    checkpoint_owned = set(CHECKPOINT_PATHS[:-1])
+    v19: dict[str, Any] | None = None
+    baseline = evaluated
+    if run_git(root, "ls-tree", "-z", evaluated, "--", V19_PATH).stdout:
+        v19, _publication, _content = check_v19_at(root, evaluated)
+        baseline = str(v19["freshCheckpoint"]["baselineCommit"])
+    for ordinal, (path, _role, expected_digest) in enumerate(CURRENT_INPUTS, start=1):
+        observation_revision = baseline if v19 is not None and path in checkpoint_owned else evaluated
+        mode, object_type, _ = raw_tree_record(
+            root,
+            observation_revision,
+            path,
+            "V20_FIXED_INPUT_MISSING",
+        )
+        content = candidate_blob(root, observation_revision, path, "V20_FIXED_INPUT_MISSING")
+        observed_digest = sha256(content)
+        if mode != binding_mode(path) or object_type != "blob" or observed_digest != expected_digest:
+            raise SuccessorAuthorityError(
+                "V20_FIXED_INPUT_DRIFT",
+                f"{path}@{observation_revision}: {mode} {observed_digest}",
+            )
+        ledger.append(
+            {
+                "id": f"INVENTORY-OBSERVATION-{ordinal:04d}",
+                "subject": f"{path}@{observation_revision}",
+                "state": "PASS",
+            }
+        )
+    if v19 is not None:
+        bindings = v19["freshCheckpoint"]["changedPathBindings"]
+        if [binding["path"] for binding in bindings] != list(CHECKPOINT_PATHS):
+            raise SuccessorAuthorityError("V20_CHECKPOINT_BINDING_DRIFT", repr(bindings))
+        for ordinal, binding in enumerate(bindings, start=1):
+            path = str(binding["path"])
+            mode, object_type, _ = raw_tree_record(root, evaluated, path, "V20_CHECKPOINT_INPUT_MISSING")
+            content = candidate_blob(root, evaluated, path, "V20_CHECKPOINT_INPUT_MISSING")
+            if mode != binding["mode"] or object_type != "blob" or sha256(content) != binding["sha256"]:
+                raise SuccessorAuthorityError("V20_CHECKPOINT_INPUT_DRIFT", f"{path}@{evaluated}")
+            ledger.append(
+                {
+                    "id": f"INVENTORY-CHECKPOINT-{ordinal:04d}",
+                    "subject": f"{path}@{evaluated}",
+                    "state": "PASS",
+                }
+            )
+    if not ledger:
+        raise SuccessorAuthorityError("V20_INVENTORY_LEDGER_EMPTY", evaluated, "BLOCKED")
+    return ledger
+
+
+def inventory_route(
+    root: Path,
+    *,
+    check: bool,
+    assertion_ledger: list[dict[str, str]] | None = None,
+) -> dict[str, Any]:
     """Write or validate the frozen V20 inventory without publishing an authority."""
 
     root = root.resolve()
     expected = expected_inventory_document()
-    schema_path = worktree_path(root, INVENTORY_SCHEMA_PATH)
-    try:
-        schema_content = schema_path.read_bytes()
-    except OSError as error:
-        raise SuccessorAuthorityError("V20_INVENTORY_SCHEMA_MISSING", str(error), "BLOCKED") from error
+    evaluated: str | None = None
+    if check:
+        evaluated = resolve_commit(root, "HEAD", "V20_INVENTORY_CANDIDATE_UNAVAILABLE")
+        schema_content = schema_at(root, evaluated, INVENTORY_SCHEMA_PATH, "V20_INVENTORY_SCHEMA_MISSING")
+    else:
+        schema_path = worktree_path(root, INVENTORY_SCHEMA_PATH)
+        try:
+            schema_content = schema_path.read_bytes()
+        except OSError as error:
+            raise SuccessorAuthorityError("V20_INVENTORY_SCHEMA_MISSING", str(error), "BLOCKED") from error
     validate_json_schema(schema_content, expected, "V20_INVENTORY_SCHEMA_INVALID")
     validate_inventory_document(expected)
-    for path, _role, digest in CURRENT_INPUTS:
-        try:
-            content = worktree_path(root, path).read_bytes()
-        except OSError as error:
-            raise SuccessorAuthorityError("V20_FIXED_INPUT_MISSING", f"{path}: {error}", "BLOCKED") from error
-        if sha256(content) != digest:
-            raise SuccessorAuthorityError("V20_FIXED_INPUT_DRIFT", f"{path}: {sha256(content)}")
     target = worktree_path(root, INVENTORY_PATH)
     expected_bytes = json_bytes(expected)
     if check:
-        try:
-            existing_bytes = target.read_bytes()
-        except OSError as error:
-            raise SuccessorAuthorityError("V20_INVENTORY_MISSING", str(error), "BLOCKED") from error
+        assert evaluated is not None
+        existing_bytes = candidate_blob(root, evaluated, INVENTORY_PATH, "V20_INVENTORY_MISSING")
+        mode, object_type, _ = raw_tree_record(root, evaluated, INVENTORY_PATH, "V20_INVENTORY_MISSING")
+        if mode != "100644" or object_type != "blob":
+            raise SuccessorAuthorityError("V20_INVENTORY_MODE_DRIFT", f"{mode} {object_type}")
         existing = parse_json(existing_bytes, "V20_INVENTORY_INVALID")
         validate_json_schema(schema_content, existing, "V20_INVENTORY_SCHEMA_INVALID")
         validate_inventory_document(existing)
         if existing_bytes != expected_bytes:
             raise SuccessorAuthorityError("V20_INVENTORY_BYTES_DRIFT", INVENTORY_PATH)
+        ledger = validate_inventory_observations(root, evaluated)
     else:
+        ledger = []
+        for ordinal, (path, _role, digest) in enumerate(CURRENT_INPUTS, start=1):
+            try:
+                content = worktree_path(root, path).read_bytes()
+            except OSError as error:
+                raise SuccessorAuthorityError("V20_FIXED_INPUT_MISSING", f"{path}: {error}", "BLOCKED") from error
+            if sha256(content) != digest:
+                raise SuccessorAuthorityError("V20_FIXED_INPUT_DRIFT", f"{path}: {sha256(content)}")
+            ledger.append(
+                {"id": f"INVENTORY-OBSERVATION-{ordinal:04d}", "subject": path, "state": "PASS"}
+            )
         if target.exists():
             try:
                 existing_bytes = target.read_bytes()
@@ -1179,6 +1321,8 @@ def inventory_route(root: Path, *, check: bool) -> dict[str, Any]:
                 raise SuccessorAuthorityError("V20_INVENTORY_OVERWRITE_REFUSED", INVENTORY_PATH)
         else:
             write_atomic(root, INVENTORY_PATH, expected_bytes, "V20_INVENTORY_WRITE_FAILED")
+    if assertion_ledger is not None:
+        assertion_ledger.extend(ledger)
     return expected
 
 
@@ -1225,6 +1369,46 @@ def commit_time(root: Path, commit: str, code: str) -> datetime:
     except (SuccessorAuthorityError, UnicodeError, ValueError, OverflowError, OSError) as error:
         detail = error.detail if isinstance(error, SuccessorAuthorityError) else str(error)
         raise SuccessorAuthorityError(code, detail, "BLOCKED") from error
+
+
+def verify_v20_publication_signature(root: Path, publication: str, owner_identity: str) -> None:
+    """Require a verifiable signature and bind the publication author/signer to the owner identity."""
+
+    match = re.fullmatch(r"(.+?)\s*<([^<>\s]+@[^<>\s]+)>", owner_identity.strip())
+    if match is None:
+        raise SuccessorAuthorityError("V20_OWNER_IDENTITY_INVALID", repr(owner_identity))
+    owner_name, owner_email = match.groups()
+    try:
+        author = run_git(root, "show", "-s", "--format=%an <%ae>", publication).stdout.decode("utf-8").strip()
+    except UnicodeError as error:
+        raise SuccessorAuthorityError("V20_PUBLICATION_AUTHOR_INVALID", str(error), "BLOCKED") from error
+    if author != owner_identity.strip():
+        raise SuccessorAuthorityError(
+            "V20_PUBLICATION_AUTHOR_MISMATCH",
+            f"expected={owner_identity.strip()!r} observed={author!r}",
+        )
+    verification = run_git(root, "verify-commit", "--raw", publication, allowed=tuple(range(256)))
+    if verification.returncode != 0:
+        detail = verification.stderr.decode("utf-8", errors="replace").strip() or "signature verification failed"
+        raise SuccessorAuthorityError("V20_PUBLICATION_SIGNATURE_INVALID", detail)
+    try:
+        signature = run_git(root, "show", "-s", "--format=%G?%x00%GS", publication).stdout.decode(
+            "utf-8", errors="strict"
+        ).rstrip("\n")
+    except UnicodeError as error:
+        raise SuccessorAuthorityError("V20_PUBLICATION_SIGNER_INVALID", str(error), "BLOCKED") from error
+    status, separator, signer = signature.partition("\0")
+    if separator != "\0" or status not in {"G", "U"} or not signer.strip():
+        raise SuccessorAuthorityError("V20_PUBLICATION_SIGNER_INVALID", repr(signature))
+    normalized_signer = signer.casefold()
+    if not any(
+        identity.casefold() in normalized_signer
+        for identity in (owner_identity.strip(), owner_name.strip(), owner_email.strip())
+    ):
+        raise SuccessorAuthorityError(
+            "V20_PUBLICATION_SIGNER_MISMATCH",
+            f"expected owner={owner_identity.strip()!r} observed signer={signer!r}",
+        )
 
 
 def check_v19_at(root: Path, evaluated: str) -> tuple[dict[str, Any], str, bytes]:
@@ -1466,6 +1650,7 @@ def publish_v20(
             path=V20_PATH,
             prefix="V20",
         )
+        verify_v20_publication_signature(root, publication, identity)
         entry_v19 = candidate_blob(root, entry, V19_PATH, "V20_CURRENT_V19_MISSING")
         evaluated_v19 = candidate_blob(root, evaluated, V19_PATH, "V20_CURRENT_V19_MISSING")
         if evaluated_v19 != entry_v19:
@@ -1549,8 +1734,22 @@ def main(arguments: Sequence[str] | None = None) -> int:
     root = Path(args.repository)
     try:
         if args.route == "inventory":
-            document = inventory_route(root, check=args.check)
-            print(f"V20_STORY_7_1_INVENTORY_OK INVENTORIES={len(document['scenarioInventories']) + 4}")
+            ledger: list[dict[str, str]] = []
+            document = inventory_route(root, check=args.check, assertion_ledger=ledger)
+            print(
+                json.dumps(
+                    {
+                        "schemaVersion": "hexalith.conversations.story-7.1-input-inventory-result.v1",
+                        "route": "inventory",
+                        "result": "PASS",
+                        "inventories": len(document["scenarioInventories"]) + 4,
+                        "assertionLedger": ledger,
+                        "blockers": [],
+                    },
+                    indent=2,
+                    ensure_ascii=False,
+                )
+            )
         elif args.route == "v19":
             document = publish_v19(
                 root,
