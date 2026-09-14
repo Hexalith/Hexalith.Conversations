@@ -1,0 +1,265 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-checkpoint-completion-authority.v1",
+  "authorityId": "V19-STORY-7.1-CHECKPOINT-COMPLETION",
+  "predecessor": {
+    "authorityId": "V18-PACKAGE-ENVIRONMENT-AUTHORITY",
+    "path": "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json",
+    "sha256": "24891d990b399fd9526f864c3e8be2b188db728a398f09d9129731d3169f1d94"
+  },
+  "preservedEvidence": [
+    {
+      "kind": "authority",
+      "identity": "V17-IMPLEMENTATION-HOLD-DECISION",
+      "path": "_bmad-output/planning-artifacts/v17-implementation-hold-decision-authority-v1.json",
+      "sha256": "1444f76dad9495d4c17354a9f2f5d3ce9f456cfd254c66d4a6e77e5abf446e50",
+      "interpretation": "valid-point-in-time-authority-lifted-only-7.1-SCHEMAS"
+    },
+    {
+      "kind": "authority",
+      "identity": "V18-PACKAGE-ENVIRONMENT-AUTHORITY",
+      "path": "_bmad-output/planning-artifacts/v18-package-environment-authority-v1.json",
+      "sha256": "24891d990b399fd9526f864c3e8be2b188db728a398f09d9129731d3169f1d94",
+      "interpretation": "valid-point-in-time-authority-full-story-hold-active-and-unresolved"
+    },
+    {
+      "kind": "hold-record",
+      "identity": "implementation-hold-v1",
+      "path": "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "sha256": "2c594075e8b212c7db05b00fa9bb3f1c626845437dc819c7f0e39460f5d80b12",
+      "interpretation": "valid-scoped-decision-unlocks-only-7.1-SCHEMAS-and-is-not-global"
+    },
+    {
+      "kind": "git-transaction",
+      "identity": "b819a7c43a7024295abaabd418a74f5f64cb5af0",
+      "parent": "73bcee6f04479d4743d5a65ce929728e22687d7d",
+      "tree": "89baa263615d1e510d15410be7f47b09bff30aca",
+      "interpretation": "immutable-mixed-transaction-with-additive-nonconformance-finding"
+    }
+  ],
+  "planningAuthority": {
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundlePath": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "bundleRawSha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "v11Authority": {
+    "epic": "epic-6-authority-2026-08-04-v11",
+    "architecture": "conversations-architecture-2026-08-04-v11",
+    "sidecarPath": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+    "sidecarRawSha256": "14e95c44149594b87e5337b45fd546fdd48d58407fa0b61f3d4b94cba59da82d"
+  },
+  "historicalTransaction": {
+    "commit": "b819a7c43a7024295abaabd418a74f5f64cb5af0",
+    "parent": "73bcee6f04479d4743d5a65ce929728e22687d7d",
+    "tree": "89baa263615d1e510d15410be7f47b09bff30aca",
+    "expectedChangedPaths": [
+      "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+      "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+      "_bmad/schemas/story-final-record-v2.schema.json",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "artifacts/v9/schema-slice/v2-schema-contract.xml"
+    ],
+    "expectedChangedPathInventorySha256": "5137dfa15a6c28253898b7edac5969684abddc2c77b35c2f3299b07faa72cf9d",
+    "actualChangedPaths": [
+      "_bmad-output/implementation-artifacts/deferred-work.md",
+      "_bmad-output/implementation-artifacts/epic-7-context.md",
+      "_bmad-output/implementation-artifacts/spec-7-1-schemas.md",
+      "_bmad/schemas/story-final-record-v2.schema.json",
+      "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+      "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "references/Hexalith.Builds",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "actualChangedPathInventorySha256": "be68d84d11534579092215b1f8a758cefb4edfd56644b046cb6687468e5a8212",
+    "missingPaths": [
+      "artifacts/v9/schema-slice/v2-schema-contract.xml"
+    ],
+    "missingPathInventorySha256": "f0fbd24ece1085ca146f67193721007ab06309d2d025ee1c1bcde0e5046d279e",
+    "unexpectedPaths": [
+      "_bmad-output/implementation-artifacts/deferred-work.md",
+      "_bmad-output/implementation-artifacts/epic-7-context.md",
+      "_bmad-output/implementation-artifacts/spec-7-1-schemas.md",
+      "references/Hexalith.Builds",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "unexpectedPathInventorySha256": "be3fb907bd3288d0b5d7df553aafa24be141e6b3f7c5012c2dad36e5eaf4b4db",
+    "machineResultCommitted": false,
+    "result": "NONCONFORMING",
+    "blockers": [
+      "CHANGED_PATH_SET_MISMATCH"
+    ]
+  },
+  "freshCheckpoint": {
+    "baselineCommit": "4505ff975c7ae7aa877ee077b50729cdd8652151",
+    "candidateCommit": "dbd2c5b11f16ddfce8b039e2c31eec38a2e99c8b",
+    "changedPaths": [
+      "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+      "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+      "_bmad/schemas/story-final-record-v2.schema.json",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "artifacts/v9/schema-slice/v2-schema-contract.xml"
+    ],
+    "changedPathInventorySha256": "5137dfa15a6c28253898b7edac5969684abddc2c77b35c2f3299b07faa72cf9d",
+    "changedPathBindings": [
+      {
+        "path": "_bmad/schemas/v9-acceptance-result-v1.schema.json",
+        "mode": "100644",
+        "sha256": "47f544d74688d07d8dd8631c187a3e9bfb641aac043811bf87275b97921979da"
+      },
+      {
+        "path": "_bmad/schemas/v9-frozen-inventory-v1.schema.json",
+        "mode": "100644",
+        "sha256": "e946373ab67301f8385a6700b8af7f692553c2438fc3791bb89d1147e6fe8efd"
+      },
+      {
+        "path": "_bmad/schemas/story-final-record-v2.schema.json",
+        "mode": "100644",
+        "sha256": "4f6e04230fff8ae04296414e6ea355676d3d2bab3db3d1cbf0ea4566e8f5f6e4"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_generate_story_record.py",
+        "mode": "100644",
+        "sha256": "8b60808493f9770a6068f2af57dd210392af4c096063a4549c37b39845c5fdbd"
+      },
+      {
+        "path": "artifacts/v9/schema-slice/v2-schema-contract.xml",
+        "mode": "100644",
+        "sha256": "28fbc41e2f6bc309c11b3fb2cd4ec74c3e52e2ea35918500c5309b9742ce0692"
+      }
+    ],
+    "changedGitlinkPaths": [],
+    "rootGitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "5f93d2ec8239494852c97032c819cb1689939e36",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "aee01323579adeda952bf41b2f3e0e61785075c6",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "e8886ec4c277460de3d3208b3fc0b9c261c4967d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "b409b03f9c3e35bc65c80ed03422c540e6201b20",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "6e064785e765102fa1a90039f06e10e0b252fdec",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "5829db422522b79c0d164df85adde53a996ba114",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "14d249fde316b0002aec84351d7a7cdf953d1d30",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "4f05a352edd67c4d5595913ee584539c1948dd58",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "c150d5b1af4f911ff3b2a7ab7901d94838be09d7",
+        "mode": "160000"
+      }
+    ],
+    "machineResult": {
+      "path": "artifacts/v9/schema-slice/v2-schema-contract.xml",
+      "mode": "100644",
+      "sha256": "28fbc41e2f6bc309c11b3fb2cd4ec74c3e52e2ea35918500c5309b9742ce0692",
+      "result": "PASS",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/schema-slice/v2-schema-contract.xml",
+      "exitCode": 0,
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "assertionLedger": [
+      {
+        "id": "JUNIT-0001",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_hold_drift_is_blocked",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0002",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_hold_metaschema_and_identities",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0003",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_authority_boundary_annotations",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0004",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_valid_in_memory_instances",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0005",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_rejects_missing_and_extra_fields",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0006",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_rejects_invalid_bindings",
+        "state": "PASS"
+      },
+      {
+        "id": "JUNIT-0007",
+        "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures",
+        "state": "PASS"
+      }
+    ]
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true
+  },
+  "result": "PASS",
+  "authorityEffect": {
+    "checkpointComplete": true,
+    "implementationHold": "ACTIVE",
+    "fullStoryExecutionAllowed": false,
+    "storyDoneAllowed": false,
+    "successorUnlocked": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}
