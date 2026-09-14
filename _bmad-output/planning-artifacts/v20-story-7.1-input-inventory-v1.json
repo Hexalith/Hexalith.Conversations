@@ -109,9 +109,14 @@
       "rawSha256": "3068c63dcc3f8cf517634c10dfba7eaf4dae7cc469a7143994bda448a2c213c1"
     },
     {
+      "path": "_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md",
+      "role": "Failed prepublication candidate correction",
+      "rawSha256": "de18a6b0ca87ca4712bb338c474abdadda1f3578a021d9badc6b5ef0d7d53fac"
+    },
+    {
       "path": "_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md",
       "role": "Approved semantic source",
-      "rawSha256": "90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d"
+      "rawSha256": "eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5"
     }
   ],
   "candidateDerivedBindings": {

@@ -213,15 +213,15 @@
     "semanticSource": {
       "const": {
         "path": "_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md",
-        "sha256": "90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d",
+        "sha256": "eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5",
         "mode": "100644",
         "preservedUnchanged": true
       }
     },
     "entryBindings": {
       "type": "array",
-      "minItems": 8,
-      "maxItems": 8,
+      "minItems": 9,
+      "maxItems": 9,
       "items": false,
       "prefixItems": [
         {
@@ -298,6 +298,17 @@
             },
             "role": {
               "const": "successor-authority-tests"
+            }
+          }
+        },
+        {
+          "$ref": "#/$defs/fileBinding",
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md"
+            },
+            "role": {
+              "const": "failed-prepublication-candidate-correction"
             }
           }
         },

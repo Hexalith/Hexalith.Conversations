@@ -10,6 +10,9 @@ implementationHold: ACTIVE
 approval: approved
 approvedBy: Jerome
 approvedOn: 2026-09-12
+prepublicationCorrection: approved
+correctionApprovedOn: 2026-09-13
+failedPrepublicationCandidate: 596cee6fa5ae12a7ff6e8ac35960f60863b55a27
 triggerStory: 7-1-define-the-final-record-schema-and-deterministic-generator-core
 triggerArtifact: _bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md
 affectedAuthority: V11 checkpoint scope, V17 scoped lift, and V18 active full-story hold
@@ -35,6 +38,23 @@ The approved Story 7.1 semantic specification correctly treats both facts as
 blocking. It cannot safely infer checkpoint completion from the existing mixed
 commit, and it cannot treat a slice-scoped release-owner decision as authority
 to implement the full story.
+
+### Approved prepublication correction
+
+Candidate `596cee6fa5ae12a7ff6e8ac35960f60863b55a27` committed the
+September 13 human amendments to the semantic source after this proposal had
+captured the pre-amendment digest. The pre-amendment `90477eb2...` bytes were
+never committed, while the first committed amended source hashes to
+`eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5`.
+Neither V19 nor V20 was published from that internally inconsistent candidate.
+
+The human-approved resolution classifies `596cee6...` as a failed
+prepublication candidate, preserves the committed amended semantic source, and
+corrects the unpublished V20 bindings before either authority transaction. The
+exact correction record is
+`_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md`,
+raw SHA-256
+`de18a6b0ca87ca4712bb338c474abdadda1f3578a021d9badc6b5ef0d7d53fac`.
 
 ### Exact historical transaction finding
 
@@ -414,7 +434,7 @@ frozenInputs:
   schemaSha256: <raw committed schema SHA-256>
 semanticSource:
   path: _bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md
-  sha256: 90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d
+  sha256: eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5
   mode: '100644'
   preservedUnchanged: true
 assertionLedger: <nonempty release-owner/authority/candidate/scope checks>
@@ -533,7 +553,8 @@ requires a new approved additive authority; it is not silently accepted:
 | `_bmad/scripts/generate_story_record.py` | Legacy v1 generator baseline | `150a293948ef760173fb7cef7b386e6bd81bfcfdeb9862fa761e0d2286addd8c` |
 | `_bmad/scripts/tests/test_generate_story_record.py` | Generator/schema tests, pre-V19 observation | `ef9c5c9d13d0d70f01b02f2f1093be7a11de5201cf4f1cd662cc809113f2155b` |
 | `docs/runbooks/story-final-record-generation.md` | Generator runbook baseline | `3068c63dcc3f8cf517634c10dfba7eaf4dae7cc469a7143994bda448a2c213c1` |
-| `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md` | Approved semantic source | `90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d` |
+| `_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md` | Failed prepublication candidate correction | `de18a6b0ca87ca4712bb338c474abdadda1f3578a021d9badc6b5ef0d7d53fac` |
+| `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md` | Approved semantic source | `eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5` |
 
 The three checkpoint-owned schema/test digests are observations before the
 fresh V19 transaction and are expected to receive new candidate-bound values.
@@ -642,11 +663,12 @@ generator, test, and XML digests are derived at the committed story candidate.
 The semantic source at
 `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md`
 remains byte-identical at SHA-256
-`90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d`.
-It is currently an untracked user file; this workflow neither adds, stages,
-commits, nor edits it. Before V20 can become effective, the authority
-publication must bind those exact bytes as a committed mode-`100644` source or
-block rather than consuming an uncommitted working-tree substitute.
+`eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5`.
+Those are the first committed bytes containing the human-approved separate
+V19-to-V20 chain and deterministic JUnit-ledger rules. The correction does not
+edit that source. Before V20 can become effective, the authority publication
+must bind those exact committed mode-`100644` bytes and the exact correction
+record or block rather than consuming a working-tree substitute.
 
 The following approved decisions are carried without reopening them:
 
@@ -883,6 +905,10 @@ checkpoint, supply the release-owner V20 decision, lift the current full-story
 hold, start or complete Story 7.1, change sprint status, authorize a release or
 push, commit current user changes, or write a bmad-loop resolution marker.
 
+On 2026-09-13 the human approved the controlled prepublication correction
+recorded in Section 1. It corrects the unpublished stale semantic digest and
+does not itself supply either successor authority decision.
+
 ## 10. Workflow Execution Log
 
 - `2026-09-12`: Required repository baseline, Git guidance, BMad workflow,
@@ -897,6 +923,11 @@ push, commit current user changes, or write a bmad-loop resolution marker.
   Story implementation or orchestrator-state mutation.
 - `2026-09-12`: Jerome explicitly approved the proposal for the additive
   V19/V20 planning-authority correction only.
+- `2026-09-13`: Candidate `596cee6fa5ae12a7ff6e8ac35960f60863b55a27`
+  was classified as a failed prepublication candidate because its V20 binding
+  named pre-amendment bytes that were never committed. The human approved
+  preserving the committed amended semantic source and correcting the
+  unpublished binding before V19/V20 publication.
 - **Final scope:** Moderate.
 - **Current effective state:** full Story 7.1 remains `ACTIVE`/blocked pending
   a valid V19 checkpoint-completion authority and separate V20 release-owner

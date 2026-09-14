@@ -307,3 +307,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: none
   summary: Implement the Story 7.1 deterministic generator core, remaining acceptance criteria, and candidate-bound final-record outputs.
   evidence: Split from `/bmad-build 7.1` because V17 lifts the hold for `7.1-SCHEMAS` only; the generator, AC-7.1-02 through AC-7.1-06, and Story 7.1 final records must wait until that checkpoint completes.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-v19-v20-successor-authority-correction.md`
+  summary: Reconcile the stale Auto Run Result in the approved Story 7.1 semantic specification with its later human-resolved V19/V20 authority chain.
+  evidence: Review confirmed the semantic source's tail still describes the authority questions as unresolved even though its earlier human-resolution section resolves them; this correction must preserve that source byte-identically, so cleanup belongs to a separately authorized change.

@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+import tempfile
 from typing import Any, Sequence
 import unicodedata
 import xml.etree.ElementTree as ET
@@ -29,6 +30,9 @@ V19_SCHEMA_PATH = "_bmad/schemas/v19-story-7.1-checkpoint-completion-authority-v
 V20_SCHEMA_PATH = "_bmad/schemas/v20-story-7.1-release-owner-authority-v1.schema.json"
 INVENTORY_PATH = "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json"
 INVENTORY_SCHEMA_PATH = "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json"
+FAILURE_SCHEMA_PATH = "_bmad/schemas/story-record-generator-failure-v1.schema.json"
+CORRECTION_PATH = "_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md"
+CORRECTION_SHA256 = "de18a6b0ca87ca4712bb338c474abdadda1f3578a021d9badc6b5ef0d7d53fac"
 PUBLISHER_PATH = "_bmad/scripts/publish_story_7_1_successor_authorities.py"
 PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
 
@@ -46,7 +50,7 @@ SEMANTIC_SOURCE_PATH = (
     "_bmad-output/implementation-artifacts/"
     "spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md"
 )
-SEMANTIC_SOURCE_SHA256 = "90477eb2666c2dc693192770b801664fedab385638917e6202dd9a7e09d4166d"
+SEMANTIC_SOURCE_SHA256 = "eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5"
 CHECKPOINT_RESULT_PATH = "artifacts/v9/schema-slice/v2-schema-contract.xml"
 CHECKPOINT_COMMAND = (
     "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py "
@@ -278,6 +282,7 @@ CURRENT_INPUTS = (
         "Generator runbook baseline",
         "3068c63dcc3f8cf517634c10dfba7eaf4dae7cc469a7143994bda448a2c213c1",
     ),
+    (CORRECTION_PATH, "Failed prepublication candidate correction", CORRECTION_SHA256),
     (SEMANTIC_SOURCE_PATH, "Approved semantic source", SEMANTIC_SOURCE_SHA256),
 )
 
@@ -330,6 +335,21 @@ def safe_path(value: str) -> str:
     return value
 
 
+def worktree_path(root: Path, relative_path: str) -> Path:
+    """Resolve one exact nonsymlink worktree path contained by the repository root."""
+
+    repository = root.resolve()
+    target = repository / safe_path(relative_path)
+    resolved = target.resolve(strict=False)
+    try:
+        resolved.relative_to(repository)
+    except ValueError as error:
+        raise SuccessorAuthorityError("SUCCESSOR_PATH_ESCAPE", relative_path, "BLOCKED") from error
+    if resolved != target:
+        raise SuccessorAuthorityError("SUCCESSOR_PATH_ESCAPE", relative_path, "BLOCKED")
+    return target
+
+
 def run_git(
     root: Path,
     *arguments: str,
@@ -337,14 +357,25 @@ def run_git(
 ) -> subprocess.CompletedProcess[bytes]:
     """Run bounded non-interactive Git and preserve unavailable history as BLOCKED."""
 
+    environment = {key: value for key, value in os.environ.items() if not key.startswith("GIT_")}
+    environment.update(
+        {
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_SYSTEM": os.devnull,
+            "GIT_CONFIG_GLOBAL": os.devnull,
+            "GIT_NO_REPLACE_OBJECTS": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+            "GCM_INTERACTIVE": "Never",
+        }
+    )
     try:
         result = subprocess.run(
-            ("git", "-C", str(root), *arguments),
+            ("git", "--no-replace-objects", "-C", str(root), *arguments),
             check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             timeout=30,
-            env={**os.environ, "GIT_CONFIG_NOSYSTEM": "1", "GIT_TERMINAL_PROMPT": "0"},
+            env=environment,
         )
     except (OSError, subprocess.TimeoutExpired) as error:
         raise SuccessorAuthorityError("SUCCESSOR_HISTORY_UNAVAILABLE", str(error), "BLOCKED") from error
@@ -450,6 +481,9 @@ def changed_gitlinks(root: Path, baseline: str, candidate: str) -> tuple[str, ..
 def root_gitlinks(root: Path, candidate: str) -> list[dict[str, str]]:
     """Validate `.gitmodules` and derive the exact ten root mode-160000 entries."""
 
+    mode, object_type, _ = raw_tree_record(root, candidate, ".gitmodules", "SUCCESSOR_GITMODULES_UNAVAILABLE")
+    if mode != "100644" or object_type != "blob":
+        raise SuccessorAuthorityError("SUCCESSOR_GITMODULES_MODE_DRIFT", f"{mode} {object_type}")
     try:
         modules = candidate_blob(root, candidate, ".gitmodules", "SUCCESSOR_GITMODULES_UNAVAILABLE").decode(
             "utf-8", errors="strict"
@@ -562,6 +596,34 @@ def validate_preserved_evidence(root: Path, candidate: str) -> None:
             raise SuccessorAuthorityError("V19_PRESERVED_EVIDENCE_DRIFT", f"{path}: {mode} {sha256(content)}")
 
 
+def validate_checkpoint_authority_inputs(root: Path, candidate: str) -> None:
+    """Require the approved correction and amended semantic source at the checkpoint."""
+
+    rows = (
+        (
+            CORRECTION_PATH,
+            CORRECTION_SHA256,
+            "V19_CORRECTION_NOT_COMMITTED",
+            "V19_CORRECTION_MODE_DRIFT",
+            "V19_CORRECTION_DRIFT",
+        ),
+        (
+            SEMANTIC_SOURCE_PATH,
+            SEMANTIC_SOURCE_SHA256,
+            "V19_SEMANTIC_SOURCE_NOT_COMMITTED",
+            "V19_SEMANTIC_SOURCE_MODE_DRIFT",
+            "V19_SEMANTIC_SOURCE_DRIFT",
+        ),
+    )
+    for path, expected_digest, missing_code, mode_code, drift_code in rows:
+        mode, object_type, _ = raw_tree_record(root, candidate, path, missing_code)
+        if mode != "100644" or object_type != "blob":
+            raise SuccessorAuthorityError(mode_code, f"{path}: {mode} {object_type}")
+        content = candidate_blob(root, candidate, path, missing_code)
+        if sha256(content) != expected_digest:
+            raise SuccessorAuthorityError(drift_code, f"{path}: {sha256(content)}")
+
+
 def validate_historical_transaction(root: Path) -> dict[str, Any]:
     """Independently reproduce the immutable b819a7c NONCONFORMING finding."""
 
@@ -648,19 +710,28 @@ def parse_junit(content: bytes) -> tuple[dict[str, Any], list[dict[str, str]]]:
         root = ET.fromstring(content.decode("utf-8-sig", errors="strict"))
     except (UnicodeError, ET.ParseError) as error:
         raise SuccessorAuthorityError("V19_RESULT_XML_INVALID", str(error)) from error
-    suites = [root] if root.tag == "testsuite" else list(root.findall("testsuite"))
-    if root.tag not in ("testsuite", "testsuites") or not suites:
-        raise SuccessorAuthorityError("V19_RESULT_XML_INVALID", f"root={root.tag!r}")
-    testcases = list(root.iter("testcase"))
+    suites = list(root.findall("testsuite"))
+    if root.tag != "testsuites" or len(suites) != 1:
+        raise SuccessorAuthorityError(
+            "V19_RESULT_XML_INVALID",
+            f"root={root.tag!r} directSuites={len(suites)}",
+        )
+    suite = suites[0]
+    testcases = list(suite.findall("testcase"))
+    if list(root.iter("testcase")) != testcases:
+        raise SuccessorAuthorityError("V19_RESULT_XML_INVALID", "testcases must be direct children of the one suite")
     ledger: list[dict[str, str]] = []
     seen: set[str] = set()
     failures = errors = skipped = 0
     for ordinal, testcase in enumerate(testcases, start=1):
-        classname = (testcase.get("classname") or "").strip()
-        name = (testcase.get("name") or "").strip()
-        identity = f"{classname}::{name}" if classname else name
-        if not identity:
-            raise SuccessorAuthorityError("V19_RESULT_LEDGER_INVALID", f"testcase {ordinal} has no identity")
+        classname = testcase.get("classname") or ""
+        name = testcase.get("name") or ""
+        if not classname.strip() or not name.strip():
+            raise SuccessorAuthorityError(
+                "V19_RESULT_LEDGER_INVALID",
+                f"testcase {ordinal} requires nonempty classname and name",
+            )
+        identity = f"{classname}::{name}"
         if identity in seen:
             raise SuccessorAuthorityError("V19_RESULT_LEDGER_DUPLICATE", identity)
         seen.add(identity)
@@ -678,10 +749,18 @@ def parse_junit(content: bytes) -> tuple[dict[str, Any], list[dict[str, str]]]:
         ledger.append({"id": f"JUNIT-{ordinal:04d}", "subject": identity, "state": state})
     if not ledger:
         raise SuccessorAuthorityError("V19_RESULT_LEDGER_EMPTY", CHECKPOINT_RESULT_PATH, "BLOCKED")
-    declared_tests = sum(int(suite.get("tests", "0")) for suite in suites)
-    declared_failures = sum(int(suite.get("failures", "0")) for suite in suites)
-    declared_errors = sum(int(suite.get("errors", "0")) for suite in suites)
-    declared_skipped = sum(int(suite.get("skipped", "0")) for suite in suites)
+    try:
+        declared_tests = int(suite.get("tests", ""))
+        declared_failures = int(suite.get("failures", ""))
+        declared_errors = int(suite.get("errors", ""))
+        declared_skipped = int(suite.get("skipped", ""))
+    except ValueError as error:
+        raise SuccessorAuthorityError("V19_RESULT_COUNT_DRIFT", str(error)) from error
+    if min(declared_tests, declared_failures, declared_errors, declared_skipped) < 0:
+        raise SuccessorAuthorityError(
+            "V19_RESULT_COUNT_DRIFT",
+            "JUnit counts must be nonnegative integers",
+        )
     observed = (len(testcases), failures, errors, skipped)
     declared = (declared_tests, declared_failures, declared_errors, declared_skipped)
     if declared != observed:
@@ -705,6 +784,7 @@ def render_v19(root: Path, candidate_revision: str) -> dict[str, Any]:
     if len(parents) != 1:
         raise SuccessorAuthorityError("V19_CANDIDATE_PARENT_MISMATCH", repr(parents), "BLOCKED")
     baseline = parents[0]
+    validate_checkpoint_authority_inputs(root, candidate)
     observed_paths = changed_paths(root, baseline, candidate)
     observed_gitlinks = changed_gitlinks(root, baseline, candidate)
     if observed_gitlinks:
@@ -800,6 +880,13 @@ def locate_publication(root: Path, evaluated: str, path: str, requested: str | N
     return candidates[0]
 
 
+def require_commit_path_absent(root: Path, candidate: str, path: str, code: str) -> None:
+    """Require a future authority path to be absent from its source candidate."""
+
+    if run_git(root, "ls-tree", "-z", candidate, "--", safe_path(path)).stdout:
+        raise SuccessorAuthorityError(code, f"{path}@{candidate}")
+
+
 def validate_publication(
     root: Path,
     *,
@@ -812,6 +899,9 @@ def validate_publication(
     """Validate a direct-child exact-one-path publication and immutable descendant bytes."""
 
     require_single_parent(root, publication, source, f"{prefix}_PUBLICATION_PARENT_MISMATCH")
+    prior_entry = run_git(root, "ls-tree", "-z", source, "--", safe_path(path)).stdout
+    if prior_entry:
+        raise SuccessorAuthorityError(f"{prefix}_PUBLICATION_NOT_ADDITIVE", path)
     paths = changed_paths(root, source, publication)
     if paths != (path,):
         raise SuccessorAuthorityError(f"{prefix}_PUBLICATION_SCOPE_DRIFT", repr(paths))
@@ -831,18 +921,27 @@ def validate_publication(
 def write_atomic(root: Path, relative_path: str, content: bytes, code: str) -> None:
     """Atomically replace one bounded repository file."""
 
-    target = (root / safe_path(relative_path)).resolve()
-    try:
-        target.relative_to(root.resolve())
-    except ValueError as error:
-        raise SuccessorAuthorityError("SUCCESSOR_PATH_ESCAPE", relative_path, "BLOCKED") from error
+    target = worktree_path(root, relative_path)
     target.parent.mkdir(parents=True, exist_ok=True)
-    temporary = target.with_suffix(target.suffix + ".tmp")
+    descriptor = -1
+    temporary: Path | None = None
     try:
-        temporary.write_bytes(content)
+        descriptor, temporary_name = tempfile.mkstemp(
+            prefix=f".{target.name}.",
+            suffix=".tmp",
+            dir=target.parent,
+        )
+        temporary = Path(temporary_name)
+        os.fchmod(descriptor, 0o644)
+        with os.fdopen(descriptor, "wb") as stream:
+            descriptor = -1
+            stream.write(content)
         os.replace(temporary, target)
     except OSError as error:
-        temporary.unlink(missing_ok=True)
+        if descriptor >= 0:
+            os.close(descriptor)
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
         raise SuccessorAuthorityError(code, str(error), "BLOCKED") from error
 
 
@@ -867,6 +966,9 @@ def publish_v19(
         candidate = resolve_commit(root, fresh["candidateCommit"], "V19_CANDIDATE_UNAVAILABLE")
     else:
         candidate = resolve_commit(root, candidate_revision or "HEAD", "V19_CANDIDATE_UNAVAILABLE")
+        require_commit_path_absent(root, candidate, V19_PATH, "V19_AUTHORITY_ALREADY_COMMITTED")
+        if worktree_path(root, V19_PATH).exists():
+            raise SuccessorAuthorityError("V19_AUTHORITY_ALREADY_EXISTS", V19_PATH)
         existing = None
         existing_bytes = b""
     document = render_v19(root, candidate)
@@ -1041,7 +1143,7 @@ def inventory_route(root: Path, *, check: bool) -> dict[str, Any]:
 
     root = root.resolve()
     expected = expected_inventory_document()
-    schema_path = root / INVENTORY_SCHEMA_PATH
+    schema_path = worktree_path(root, INVENTORY_SCHEMA_PATH)
     try:
         schema_content = schema_path.read_bytes()
     except OSError as error:
@@ -1050,12 +1152,13 @@ def inventory_route(root: Path, *, check: bool) -> dict[str, Any]:
     validate_inventory_document(expected)
     for path, _role, digest in CURRENT_INPUTS:
         try:
-            content = (root / safe_path(path)).read_bytes()
+            content = worktree_path(root, path).read_bytes()
         except OSError as error:
             raise SuccessorAuthorityError("V20_FIXED_INPUT_MISSING", f"{path}: {error}", "BLOCKED") from error
         if sha256(content) != digest:
             raise SuccessorAuthorityError("V20_FIXED_INPUT_DRIFT", f"{path}: {sha256(content)}")
-    target = root / INVENTORY_PATH
+    target = worktree_path(root, INVENTORY_PATH)
+    expected_bytes = json_bytes(expected)
     if check:
         try:
             existing_bytes = target.read_bytes()
@@ -1064,10 +1167,18 @@ def inventory_route(root: Path, *, check: bool) -> dict[str, Any]:
         existing = parse_json(existing_bytes, "V20_INVENTORY_INVALID")
         validate_json_schema(schema_content, existing, "V20_INVENTORY_SCHEMA_INVALID")
         validate_inventory_document(existing)
-        if existing_bytes != json_bytes(expected):
+        if existing_bytes != expected_bytes:
             raise SuccessorAuthorityError("V20_INVENTORY_BYTES_DRIFT", INVENTORY_PATH)
     else:
-        write_atomic(root, INVENTORY_PATH, json_bytes(expected), "V20_INVENTORY_WRITE_FAILED")
+        if target.exists():
+            try:
+                existing_bytes = target.read_bytes()
+            except OSError as error:
+                raise SuccessorAuthorityError("V20_INVENTORY_READ_FAILED", str(error), "BLOCKED") from error
+            if existing_bytes != expected_bytes:
+                raise SuccessorAuthorityError("V20_INVENTORY_OVERWRITE_REFUSED", INVENTORY_PATH)
+        else:
+            write_atomic(root, INVENTORY_PATH, expected_bytes, "V20_INVENTORY_WRITE_FAILED")
     return expected
 
 
@@ -1087,7 +1198,7 @@ def validate_committed_inventory(root: Path, entry: str) -> tuple[bytes, bytes]:
     return inventory_content, schema_content
 
 
-def validate_owner_fields(identity: str, decided_at_utc: str, rationale: str) -> None:
+def validate_owner_fields(identity: str, decided_at_utc: str, rationale: str) -> datetime:
     """Require a concrete independent human identity, UTC instant, and rationale."""
 
     if not identity.strip() or identity.strip().lower() == "release owner":
@@ -1102,6 +1213,18 @@ def validate_owner_fields(identity: str, decided_at_utc: str, rationale: str) ->
         raise SuccessorAuthorityError("V20_OWNER_DECISION_TIME_INVALID", str(error)) from error
     if parsed.year < 2026:
         raise SuccessorAuthorityError("V20_OWNER_DECISION_TIME_INVALID", decided_at_utc)
+    return parsed
+
+
+def commit_time(root: Path, commit: str, code: str) -> datetime:
+    """Return one commit's UTC committer instant."""
+
+    try:
+        value = run_git(root, "show", "-s", "--format=%ct", commit).stdout.decode("ascii").strip()
+        return datetime.fromtimestamp(int(value), tz=timezone.utc)
+    except (SuccessorAuthorityError, UnicodeError, ValueError, OverflowError, OSError) as error:
+        detail = error.detail if isinstance(error, SuccessorAuthorityError) else str(error)
+        raise SuccessorAuthorityError(code, detail, "BLOCKED") from error
 
 
 def check_v19_at(root: Path, evaluated: str) -> tuple[dict[str, Any], str, bytes]:
@@ -1151,9 +1274,12 @@ def render_v20(
 
     root = root.resolve()
     entry = resolve_commit(root, entry_revision, "V20_ENTRY_CANDIDATE_UNAVAILABLE")
-    validate_owner_fields(owner_identity, decided_at_utc, rationale)
+    decision_time = validate_owner_fields(owner_identity, decided_at_utc, rationale)
     v19, v19_publication, v19_bytes = check_v19_at(root, entry)
     require_ancestor(root, v19_publication, entry, "V20_ENTRY_NOT_AFTER_V19")
+    if decision_time < commit_time(root, entry, "V20_ENTRY_TIME_UNAVAILABLE"):
+        raise SuccessorAuthorityError("V20_OWNER_DECISION_PREDATES_ENTRY", decided_at_utc)
+    require_commit_path_absent(root, entry, FAILURE_SCHEMA_PATH, "V20_FAILURE_SCHEMA_ALREADY_COMMITTED")
     checkpoint = v19["freshCheckpoint"]["candidateCommit"]
     if len({PLANNING_CANDIDATE, checkpoint, entry}) != 3:
         raise SuccessorAuthorityError("V20_CANDIDATE_ROLE_CONFLATION", f"pc={PLANNING_CANDIDATE} checkpoint={checkpoint} entry={entry}")
@@ -1186,6 +1312,7 @@ def render_v20(
         (INVENTORY_SCHEMA_PATH, "frozen-input-inventory-schema"),
         (PUBLISHER_PATH, "successor-authority-publisher"),
         (PUBLISHER_TEST_PATH, "successor-authority-tests"),
+        (CORRECTION_PATH, "failed-prepublication-candidate-correction"),
         (SEMANTIC_SOURCE_PATH, "approved-semantic-source"),
     )
     entry_bindings = [committed_binding(root, entry, path, role) for path, role in entry_paths]
@@ -1308,6 +1435,9 @@ def publish_v20(
                 "BLOCKED",
             )
         entry = resolve_commit(root, str(entry_revision), "V20_ENTRY_CANDIDATE_UNAVAILABLE")
+        require_commit_path_absent(root, entry, V20_PATH, "V20_AUTHORITY_ALREADY_COMMITTED")
+        if worktree_path(root, V20_PATH).exists():
+            raise SuccessorAuthorityError("V20_AUTHORITY_ALREADY_EXISTS", V20_PATH)
         identity = str(owner_identity)
         decided = str(decided_at_utc)
         rationale_text = str(rationale)
@@ -1322,6 +1452,10 @@ def publish_v20(
     )
     validate_json_schema(schema_at(root, entry, V20_SCHEMA_PATH, "V20_SCHEMA_NOT_COMMITTED"), document, "V20_SCHEMA_INVALID")
     if check:
+        decision_time = validate_owner_fields(identity, decided, rationale_text)
+        publication_time = commit_time(root, publication, "V20_PUBLICATION_TIME_UNAVAILABLE")
+        if decision_time > publication_time:
+            raise SuccessorAuthorityError("V20_OWNER_DECISION_POSTDATES_PUBLICATION", decided)
         if existing != document or existing_bytes != json_bytes(document):
             raise SuccessorAuthorityError("V20_AUTHORITY_DRIFT", V20_PATH)
         validate_publication(
@@ -1332,6 +1466,10 @@ def publish_v20(
             path=V20_PATH,
             prefix="V20",
         )
+        entry_v19 = candidate_blob(root, entry, V19_PATH, "V20_CURRENT_V19_MISSING")
+        evaluated_v19 = candidate_blob(root, evaluated, V19_PATH, "V20_CURRENT_V19_MISSING")
+        if evaluated_v19 != entry_v19:
+            raise SuccessorAuthorityError("V20_CURRENT_V19_DRIFT", V19_PATH)
     else:
         write_atomic(root, V20_PATH, json_bytes(document), "V20_WRITE_FAILED")
     return document
