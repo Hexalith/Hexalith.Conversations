@@ -1,0 +1,178 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-release-owner-authority.v1",
+  "authorityId": "V20-STORY-7.1-RELEASE-OWNER-AUTHORITY",
+  "predecessor": {
+    "authorityId": "V19-STORY-7.1-CHECKPOINT-COMPLETION",
+    "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+    "sha256": "58b7bc8e70701718c20668fddddd492ab3da8fbae274a2ab507c004f649589ce"
+  },
+  "ownerDecision": {
+    "owner": "Release owner",
+    "identity": "Jerome Piquot <jpiquot@itaneo.com>",
+    "decidedAtUtc": "2026-09-14T13:53:41Z",
+    "rationale": "As release owner, I have independently reviewed and approve V19-STORY-7.1-CHECKPOINT-COMPLETION and V20-STORY-7.1-INPUT-INVENTORY-v1. I authorize lifting the implementation hold for Story 7.1 only; this does not mark the story done, unlock Story 7.2, authorize release, or authorize push.",
+    "decision": "LIFTED"
+  },
+  "scope": {
+    "unlocks": [
+      "7.1"
+    ],
+    "global": false,
+    "checkpointReauthorized": false,
+    "storyDoneAllowedWithoutAcceptance": false,
+    "successorUnlocked": false
+  },
+  "candidateRoles": {
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "checkpointCandidate": "dbd2c5b11f16ddfce8b039e2c31eec38a2e99c8b",
+    "entryCandidate": "5fa5612dd348259ce8fc46865409f678110cec87",
+    "eventualStoryCandidate": "SC-7.1",
+    "rolesAreInterchangeable": false,
+    "scKnownAtDecisionTime": false,
+    "scMustDescendFromEntry": true,
+    "scMustBindCurrentRawGitlinks": true
+  },
+  "storyWorkBaseline": {
+    "resolution": "unique-single-parent-authority-publication",
+    "parent": "5fa5612dd348259ce8fc46865409f678110cec87",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json"
+    ],
+    "resolvedAtSc": true
+  },
+  "authorityBundle": {
+    "path": "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json",
+    "rawSha256": "8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "v11Authority": {
+    "epic": "epic-6-authority-2026-08-04-v11",
+    "architecture": "conversations-architecture-2026-08-04-v11",
+    "sidecarPath": "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json",
+    "sidecarRawSha256": "14e95c44149594b87e5337b45fd546fdd48d58407fa0b61f3d4b94cba59da82d"
+  },
+  "frozenInputs": {
+    "inventoryPath": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+    "inventorySha256": "42f9b54014073eadbf48e5b6efd8492352c5877305f5312838ce6f3804a708da",
+    "schemaPath": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+    "schemaSha256": "dc2377e4344cc97265c22224d1fc5d178c14bcc1fa01f2953b1637eaa33ce7cc"
+  },
+  "semanticSource": {
+    "path": "_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md",
+    "sha256": "eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5",
+    "mode": "100644",
+    "preservedUnchanged": true
+  },
+  "entryBindings": [
+    {
+      "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+      "sha256": "58b7bc8e70701718c20668fddddd492ab3da8fbae274a2ab507c004f649589ce",
+      "mode": "100644",
+      "role": "checkpoint-completion-authority"
+    },
+    {
+      "path": "_bmad/schemas/v19-story-7.1-checkpoint-completion-authority-v1.schema.json",
+      "sha256": "da11307a1cd116807d88dc33cc96e2de4887cce72aff0f7c89bf3135fb6cf62a",
+      "mode": "100644",
+      "role": "checkpoint-completion-authority-schema"
+    },
+    {
+      "path": "_bmad/schemas/v20-story-7.1-release-owner-authority-v1.schema.json",
+      "sha256": "af35b1cfd5ed96f3385df1dfe1c8e09c03c9d51a426a2681b6f6f460dfa46c71",
+      "mode": "100644",
+      "role": "release-owner-authority-schema"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+      "sha256": "42f9b54014073eadbf48e5b6efd8492352c5877305f5312838ce6f3804a708da",
+      "mode": "100644",
+      "role": "frozen-input-inventory"
+    },
+    {
+      "path": "_bmad/schemas/v20-story-7.1-input-inventory-v1.schema.json",
+      "sha256": "dc2377e4344cc97265c22224d1fc5d178c14bcc1fa01f2953b1637eaa33ce7cc",
+      "mode": "100644",
+      "role": "frozen-input-inventory-schema"
+    },
+    {
+      "path": "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+      "sha256": "a426208fb7ffe13a3e838016f8a5e0ce5218eb3a7c5252a1143b85b02024582f",
+      "mode": "100644",
+      "role": "successor-authority-publisher"
+    },
+    {
+      "path": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py",
+      "sha256": "d6dc6963d41fd9aac3f4ab902cba86f11d375e3c5956da245777f3844c38dbcd",
+      "mode": "100644",
+      "role": "successor-authority-tests"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v20-story-7.1-prepublication-correction-v1.md",
+      "sha256": "de18a6b0ca87ca4712bb338c474abdadda1f3578a021d9badc6b5ef0d7d53fac",
+      "mode": "100644",
+      "role": "failed-prepublication-candidate-correction"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-2.md",
+      "sha256": "eeee633e7045d9636d4babe62b6bca9744c8137b490da2304fcc9192f84fbaf5",
+      "mode": "100644",
+      "role": "approved-semantic-source"
+    }
+  ],
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V20-C1",
+      "subject": "committed-current-v19-pass",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C2",
+      "subject": "independent-owner-fields-and-exact-7.1-scope",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C3",
+      "subject": "planning-checkpoint-entry-and-eventual-story-roles",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C4",
+      "subject": "committed-inventory-schema-data-and-semantic-source",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C5",
+      "subject": "exact-story-and-scenario-inventory-identities",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C6",
+      "subject": "narrow-no-done-no-7.2-no-release-no-push-effect",
+      "state": "PASS"
+    },
+    {
+      "id": "V20-C7",
+      "subject": "fail-closed-effective-hold-composition",
+      "state": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "authorityEffect": {
+    "implementationHold": "LIFTED",
+    "fullStoryExecutionAllowed": true,
+    "storyDoneAllowedWithoutAcceptance": false,
+    "story71CandidateBindingResolved": true,
+    "story72Unlocked": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}
