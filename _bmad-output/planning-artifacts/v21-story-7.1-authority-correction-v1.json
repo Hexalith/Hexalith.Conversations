@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-authority-correction.v1",
+  "authorityId": "V21-STORY-7.1-AUTHORITY-CORRECTION",
+  "predecessor": {
+    "authorityId": "V20-STORY-7.1-RELEASE-OWNER-AUTHORITY",
+    "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+    "sha256": "7719deb5787bd59a2194dd9f2a138e74fedcadb2db4f4b575b0974f38c4faa09"
+  },
+  "acceptedLineage": {
+    "baselineCommit": "2ed96eff2adfd5190854165a01df657338def26f",
+    "v19ToolingCommit": "4505ff975c7ae7aa877ee077b50729cdd8652151",
+    "checkpointCommit": "dbd2c5b11f16ddfce8b039e2c31eec38a2e99c8b",
+    "v19PublicationCommit": "3045060ce48acfed60b66bacd417de4dcfd1adb0",
+    "entryCommit": "5fa5612dd348259ce8fc46865409f678110cec87",
+    "v20PublicationCommit": "6fa990459dd72d6752e12bbc806d85bf607fff85"
+  },
+  "verifiedV20": {
+    "publicationCommit": "6fa990459dd72d6752e12bbc806d85bf607fff85",
+    "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+    "rawSha256": "7719deb5787bd59a2194dd9f2a138e74fedcadb2db4f4b575b0974f38c4faa09",
+    "signature": {
+      "status": "G",
+      "principal": "jpiquot@itaneo.com",
+      "fingerprint": "SHA256:8XlNQvE3ucPf/e509wU4qtNgiyWA+TKmLei7F7+TCvk",
+      "authorIdentity": "Jerome Piquot <jpiquot@itaneo.com>"
+    }
+  },
+  "hardenedTooling": {
+    "parentCommit": "6fa990459dd72d6752e12bbc806d85bf607fff85",
+    "commit": "239758d396d28372687b73f5dc128405892cb520",
+    "exactChangedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md",
+      "_bmad/schemas/v21-story-7.1-authority-correction-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
+    ],
+    "changedGitlinkPaths": [],
+    "changedPathBindings": [
+      {
+        "path": ".github/workflows/planning-authority-preflight.yml",
+        "sha256": "cd3b70e376ee10f6297ff9825c344bcf5523a02827673a621aea9c7369bc35bf",
+        "mode": "100644",
+        "role": "planning-authority-preflight"
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md",
+        "sha256": "3d32e5050ef4285022ff980c5bc021218827449fd48c1ce2dac0aaa83ccbacdb",
+        "mode": "100644",
+        "role": "approved-v21-correction-specification"
+      },
+      {
+        "path": "_bmad/schemas/v21-story-7.1-authority-correction-v1.schema.json",
+        "sha256": "c922f252e5a5466897f4458d1233c1026e18b40490d09c9df3ce76c6b2afafa4",
+        "mode": "100644",
+        "role": "v21-authority-correction-schema"
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+        "sha256": "2ddb6da7bfec48d33f555638b6e3175f7623cbc153c4ad2d3ffbe9494e5df126",
+        "mode": "100644",
+        "role": "successor-authority-publisher"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py",
+        "sha256": "81cfd6f0e88f879fe5c66939cf8a707e5e26c88950d0d6e21ae2e0c04842e18c",
+        "mode": "100644",
+        "role": "successor-authority-tests"
+      }
+    ]
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED",
+      "not-applicable"
+    ],
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V21-C1",
+      "subject": "accepted-baseline-through-v20-lineage",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C2",
+      "subject": "approved-checkpoint-paths-bytes-and-seven-subject-ledger",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C3",
+      "subject": "source-pinned-v20-signature-status-principal-fingerprint-author",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C4",
+      "subject": "historical-revision-aware-inventory",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C5",
+      "subject": "v20-direct-child-hardened-tooling-boundary",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C6",
+      "subject": "protected-default-branch-ruleset-source-workflow-contract",
+      "state": "PASS"
+    },
+    {
+      "id": "V21-C7",
+      "subject": "narrow-story-7.1-hold-lift-only",
+      "state": "PASS"
+    }
+  ],
+  "result": "PASS",
+  "authorityEffect": {
+    "implementationHold": "LIFTED",
+    "unlocks": [
+      "7.1"
+    ],
+    "global": false,
+    "fullStoryExecutionAllowed": true,
+    "ownerDecisionReplaced": false,
+    "storyDoneAllowedWithoutAcceptance": false,
+    "story72Unlocked": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  }
+}
