@@ -1,22 +1,24 @@
 # Addendum — Conversations Boilerplate Reduction
 
-This addendum contains technical-how and grounding evidence that support the PRD but belong downstream (architecture / solution design). The PRD stays at capability altitude; this file carries the library mappings, the gap catalog, and the cross-module duplication evidence gathered during Discovery (3 Explore subagents, 2026-06-02). Figures are first-pass and approximate — confirm during architecture.
+<!-- superseded-inventory-table: true; authoritative-inventory: docs/release-evidence/consume-promote-keep-inventory-v1.json; sha256: 20bbedb5d0aa1dcd35729aac6a8500f7cf75d8f0c0719b8e1364da5e19fa22b7 -->
+
+This addendum contains technical-how details and grounding evidence that support the PRD but belong in downstream architecture and solution-design documents. It records library mappings, the gap catalog, and historical cross-module duplication evidence gathered during Discovery (3 Explore subagents, 2026-06-02). The §C table is superseded provenance; do not use it as active architecture or inventory input. The marker above records the exact authoritative inventory path and hash. Other first-pass figures are approximate unless a versioned artifact is cited.
 
 ## A. Current baseline and implementation guardrail
 
-**Authoritative SM-1 baseline:** Story 1.4 measured and accepted **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json`. Its `sourceTotalLoc` verifies exactly 35,769 LOC. Under OQ-3, governance and hydration were classified as Keep now. The Contracts/Testing domain surface was classified Keep at the same Story 1.4 acceptance (moving ≈4.7k LOC out of the Discovery plumbing estimate); the authority for that call is the accepted inventory itself, whose split rows (`query-filters-response-shapes`, `domain-contract-types`, `conformance-contract-types`) record the per-row source-boundary rationale. Any post-acceptance reclassification appends to the inventory changeLog per repo-root `docs/release-evidence/classification-change-procedure-v1.json` — never silently (FR-2, §2 denominator rule). The inventory's acceptance record carries `status: accepted, acceptedDate: 2026-06-03` but no named acceptor; backfilling the named acceptance into the inventory changeLog is an open follow-up owned by the release owner. This inventory is the baseline Story 5.3 references.
+**Implementation guardrail:** Hosting, AppHost, Aspire, DAPR, ServiceDefaults, runtime projections/queries, telemetry scaffolding, and event subscriptions must reside in and remain owned by the platform/domain-service SDK, never the Conversations domain module.
+
+**Frozen SM-1 baseline pending authority completion:** Story 1.4 measured **13,289 LOC (37.15%)** on 2026-06-03 in the canonical, FR-2-governed repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json` (SHA-256 `20bbedb5d0aa1dcd35729aac6a8500f7cf75d8f0c0719b8e1364da5e19fa22b7`). Its `sourceTotalLoc` value verifies exactly 35,769 LOC. Under OQ-3, governance and hydration were classified as Keep now. The Contracts/Testing domain surface was classified Keep in the same artifact (moving ≈4.7k LOC out of the Discovery plumbing estimate); its split rows (`query-filters-response-shapes`, `domain-contract-types`, `conformance-contract-types`) record the per-row source-boundary rationale. Any reclassification appends to the inventory changeLog per repo-root `docs/release-evidence/classification-change-procedure-v1.json` — never silently (FR-2, §2 denominator rule). The inventory records `status: accepted` and `acceptedDate: 2026-06-03` but does not name an acceptor, so it freezes the denominator but does not establish SM-1 acceptance until an actual authority record ratifies this exact hash. No approver or owner is inferred here.
 
 **Historical Discovery estimate:** Total source ≈ 35,769 LOC; plumbing (Consume + Promote) ≈ 18,000 LOC (~50%); domain logic (Keep) ≈ 17,000 LOC. This first-pass estimate is preserved as provenance, not as the accepted baseline.
 
-**Implementation guardrail:** Hosting, AppHost, Aspire, DAPR, ServiceDefaults, runtime projections/queries, telemetry scaffolding, and event subscriptions must land in and remain owned by the platform/domain-service SDK, never the Conversations domain module.
-
 ## B. Architecture and release decision register
 
-### Open architecture decisions (OQ-1)
+### OQ-1 technical mapping and remaining authority gap
 
-- Landing zone per promotion: existing module (Commons vs EventStore.*) vs a new dedicated shared abstractions module.
-- Additive/backward-compatible API design so Folders/Projects/Memories/Parties/Tenants keep compiling.
-- Whether governance/temporal/hydration orchestration (areas 2, 3, and 7) generalizes cleanly enough to be promoted in a follow-on phase.
+The Initiative Landing-Zone Register in the repo-root `_bmad-output/planning-artifacts/architecture.md` records the technical mapping: FR-10 and FR-15 use EventStore ServiceDefaults/DomainService plus Commons Diagnostics; FR-11 uses Commons TenantAccess; FR-12 uses Commons Http; FR-13 uses EventStore Aspire plus applicable Commons helpers; and FR-14 uses Commons Serialization. The register also marks FR-16 as deferred and non-activated.
+
+That technical mapping does not supply the approval chain demanded by the PRD reviewer gate. For FR-10 through FR-15, acceptance remains pending until actual records bind the owning-repository approval, decision artifact/version, implementing revision and release vehicle, pinned compatibility evidence, and rollback authority. Without those records, affected acceptance claims do not conform; this addendum does not invent them. Governance/temporal/hydration orchestration (areas 2, 3, and 7) remains domain-owned unless separately authorized follow-on work changes that decision.
 
 ### Legacy technical-how provenance
 
@@ -46,7 +48,7 @@ This addendum contains technical-how and grounding evidence that support the PRD
 
 ## C. Conversations boilerplate inventory (first pass)
 
-The table preserves the first-pass area estimates and classifications as **superseded provenance**: the sole FR-1 inventory object is the accepted repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json` (§A), which resolves every mixed or dual first-pass label below into exactly-one-classification split rows. In particular, row 8's "Promote (partial)" is resolved there as `publication-transport-marshaling` (422 LOC, **Promote, FR-13**, Story 3.5) plus `publication-failure-taxonomy` (131 LOC, Keep), and row 11's "Mixed" resolves into paired Consume/Keep rows. Rows below marked with dual labels do not satisfy FR-1/FR-2's exactly-one-classification consequence and must not be read as the accepted inventory.
+This table preserves the first-pass area estimates and classifications as **superseded provenance**: the sole FR-1 inventory object is the accepted repo-root `docs/release-evidence/consume-promote-keep-inventory-v1.json` (§A), which resolves every mixed or dual first-pass label below into exactly-one-classification split rows. In particular, row 8's "Promote (partial)" is resolved there as `publication-transport-marshaling` (422 LOC, **Promote, FR-13**, Story 3.5) plus `publication-failure-taxonomy` (131 LOC, Keep), and row 11's "Mixed" resolves into paired Consume/Keep rows. Rows below marked with dual labels do not satisfy FR-1/FR-2's exactly-one-classification consequence and must not be read as the accepted inventory.
 
 | # | Area | ~LOC / files | Class | Target capability |
 |---|------|--------------|-------|-------------------|
@@ -63,9 +65,9 @@ The table preserves the first-pass area estimates and classifications as **super
 | 11 | Test scaffolding / fixtures | 1,755 / 11 | Mixed | consume EventStore.Testing assertions/fakes; keep domain conformance scenarios |
 | 12 | Aggregate scaffolding | — | Consume | `EventStoreAggregate<TState>` reflection dispatch (FR-7) |
 
-**Top hotspots by volume:** Queries/cursor (5.3k) → Governance (4.3k) → Projections (3.0k) → Diagnostics (2.4k) → Validation (2.7k, Keep).
+**Top hotspots by volume:** Queries/cursor (5.3k), Governance (4.3k), Projections (3.0k), Diagnostics (2.4k), and Validation (2.7k, Keep).
 
-## D. Existing technical-module surface to CONSUME (FR-3..FR-9)
+## D. Active technical-module surface
 
 Concrete implementation mappings remain here rather than in the normative PRD. FR-10 and FR-13 also consume this platform surface; §F identifies any platform-owned extension still required.
 
@@ -84,11 +86,11 @@ Concrete implementation mappings remain here rather than in the normative PRD. F
 | Commons | `TypeMapper`/`NameTypeMapper` (under-used polymorphic registry), `FluentValidateOptions<T>`, `IEquatableObject`/`EquatableHelper`, `UniqueIdHelper`/Ulid, `ISettings`/`SettingsHelper` | Consume the existing common helpers. | FR-8/FR-14 |
 | FrontComposer | `FrontComposerGenerator` (source-gen for `[Command]`/`[Projection]`), `FrontComposerTestBase`/host builder | Preserve generated behavior. | Feature-FR76 |
 
-## E. Cross-module duplication → shared-capability candidates (FR-10..FR-15)
+## E. Cross-module duplication evidence and capability candidates
 
 Modules compared: Conversations, Folders, Projects, Memories, Tenants, Parties.
 
-`Hexalith.Tenants` appears here only as a **domain module included in the comparison and as a dependency/consumer**. It is not a technical-module landing zone; generic hosting/runtime behavior belongs in EventStore, Commons, FrontComposer, or another genuine shared technical module.
+`Hexalith.Tenants` appears here only as a **domain module in the comparison and as a dependency/consumer**. It is not a technical-module landing zone; generic hosting/runtime behavior belongs in EventStore, Commons, FrontComposer, or another genuine shared technical module.
 
 | Rank | Pattern | Where | Similarity | Recommendation | FR |
 |------|---------|-------|-----------|----------------|----|
@@ -106,11 +108,11 @@ Modules compared: Conversations, Folders, Projects, Memories, Tenants, Parties.
 
 ## F. Gap catalog and current disposition
 
-Build only capabilities Conversations consumes in-pilot; all others remain follow-on backlog.
+Build only the capabilities that Conversations consumes in the pilot; treat all others as follow-on backlog.
 
 | # | Capability or gap | Current disposition | FR |
 |---|---|---|---|
-| 1 | `ICommandContract` / `IEventContract` compile-time metadata, parallel to existing `IQueryContract` | **Backlog.** Explicitly deferred from the pilot on 2026-07-14 because contract reshaping is unnecessary for the core boilerplate-reduction proof. | FR-16 |
+| 1 | `ICommandContract` / `IEventContract` compile-time metadata, parallel to existing `IQueryContract` | **Deferred and non-activated.** Story 3.7 records platform metadata/resolver work, but Conversations did not consume it. That work remains outside pilot authorization and metrics; it cannot count as FR-16 acceptance or be retroactively pulled into scope without separate authority. | FR-16 |
 | 2 | Polymorphic JSON registration helper / source-gen catalog | Publicize `TypeMapper` for in-pilot consumption. | FR-14 |
 | 3 | Generic tenant-access projection handler | Build for in-pilot consumption. | FR-11 |
 | 4 | Generic observability/health hook | **Consume/extend.** `EventStore.ServiceDefaults` already supplies `AddServiceDefaults`, `ConfigureOpenTelemetry`, `AddDefaultHealthChecks`, and `MapDefaultEndpoints`; `EventStore.DomainService` supplies `AddEventStoreDomainTelemetry`. Consume these. If Conversations requires a generic hook that the platform-owned surface does not yet support, extend that surface; do not create a Conversations ServiceDefaults or hosting module. | FR-10 |

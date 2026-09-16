@@ -10,38 +10,48 @@ sources:
   - _bmad-output/planning-artifacts/ux-design-directions.html
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/validation-report.md
   - _bmad-output/planning-artifacts/architecture.md
   - references/Hexalith.AI.Tools/hexalith-ux-instructions.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-prd.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-architecture.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-ux-validation.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/.memlog.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/TRACEABILITY.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/CONTRACT-BINDINGS.md
 ---
 
 # Hexalith.Conversations — Experience Spine
 
-> Draft preservation contract. It does not activate product UI implementation, lift any hold, or select a release slice. `DESIGN.md` owns visual identity. These spines win over the illustrative HTML on conflict; the UX requirement map controls disposition, the PRD controls preserved product obligations, and final Architecture V15 controls the public state mappings below.
+> Draft preservation contract. It does not activate product UI implementation, lift any hold, select a release slice, supersede an accepted source, or prove runtime conformance. `DESIGN.md` owns visual identity. The V4 UX requirement map controls disposition; final Architecture V15 controls normative target state and ownership; the legacy UX specification preserves detailed intent; and the PRD/addendum/epics supply preservation context only as qualified by current PRD validation and the reconciliation records. These spines win over the illustrative HTML on conflict. Separate approved release authority is required for activation.
 
 ## Foundation
 
-The primary product surface is a desktop-first, responsive operator/admin web experience composed through FrontComposer and Blazor Fluent UI V5. Standard shell, navigation, forms, lists, grids, dialogs, drawers, accordions, focus behavior, theme roles, typography, and density inherit from that system. This spine specifies only Conversations-specific behavioral deltas.
+The primary product surface is a desktop-first, responsive operator/admin web experience at the optional `Admin.Web` composition boundary through FrontComposer and Blazor Fluent UI V5. FrontComposer owns reusable composition; Conversations owns its domain-specific public contracts and projections. No Conversations component becomes a shared platform component without separate owner approval and reuse evidence. Standard shell, navigation, forms, lists, grids, dialogs, drawers, accordions, focus behavior, theme roles, typography, and density inherit from FrontComposer. This spine specifies only Conversations-specific behavioral deltas.
 
 The defining experience is **Find → Open → Verify → Cite, Act, or Stop**. The operator opens a governed case file—not a chat transcript—and leaves with an answer, a source-owned confidence state, and a safe next action. Adopter applications own business-user continuity; typed contracts, clients, diagnostics, and conformance evidence own the developer experience.
 
-Every trust-bearing value is supplied by Conversations-owned projections, public contracts, or command-availability metadata. The client formats state but never infers permission, freshness, completeness, redaction, audit readiness, participant identity, citation confidence, or action eligibility.
+Every trust-bearing value is supplied by Conversations-owned projections, public contracts, or command-availability metadata. The client formats individual source fields in a fixed order but never infers permission, freshness, completeness, redaction, audit readiness, participant identity, citation confidence, action eligibility, or an aggregate trust winner. Exact current and target bindings are recorded in `CONTRACT-BINDINGS.md`.
 
-Current status is `preserved-not-activated`. Architecture V15 is final but keeps the implementation hold active and authorizes no UX scope.
+Current status is `preserved-not-activated`. Architecture V15 is final but keeps the implementation hold active and authorizes no UX scope. Its AD-7/AD-8 mappings below are normative targets, not evidence that current runtime handlers, decoders, or persistence comply. Activation depends on approved successor Epic 16 carriers, implementation, and conformance evidence.
+
+The current FR-20 evidence denominator does not demonstrably prove projection-freshness or governance/audit-pairing preservation. Those behaviors remain obligations, but they cannot support acceptance or hold lift until `AB-01` is closed. Requirement closure is recorded in `TRACEABILITY.md`.
 
 ## Information Architecture
 
-| Surface | Reached from | Purpose | Journey closure |
-|---|---|---|---|
-| Investigation Workspace | FrontComposer tenant-scoped navigation | Keep safe discovery and governed reading in one operator workspace. | Sarah |
-| Governed Record View | Select `Trust Preview Result Row` in `Tenant-scoped Find Pane` | Establish identity, trust, evidence completeness, timeline, citation, and safe action. | Sarah; Daniel |
-| Evidence Detail View | Authorized `Citation Control`, trust detail, participant detail, or why-this-result action | Show one independently authorized evidence detail without losing record context. | Sarah; Helen |
-| Forensic Review | Authorized switch from Governed Record View | Show exact event-level evidence for audit/security review. | Helen; Daniel |
-| Evidence Acceptance Review | Acceptance/checklist entry point | Summarize conformance outcome, evidence, waiver, signer, scope, and downgrade state. | Julian; Helen |
-| Operational Degradation Review | Machine-readable verification or incident workflow | Show audit-sink/projection failure class and preserve fail-closed governance boundaries. | Marcus |
-| Adopter Continuity Surface | Adopter application requests a stable conversation or business context | Resume durable context without exposing storage/governance machinery. | Maya; Atlas |
-| Developer Integration Surface | Contract package, client, quickstart, diagnostics, and conformance suite | Create, append, and read through typed contracts without EventStore leakage. | Diego |
-| Stable-reference Boundary | Read-time hydration from upstream-owned identities | Preserve stable attribution while upstream modules own lifecycle state. | Naomi |
-| Mobile Triage and Handoff | Responsive Investigation Workspace | Read authorized summary, inspect trust, copy an allowed citation, and hand off safely. | Sarah |
+| Concern / surface | Delivery form and owner | UI artifact expectation | Reached from | Purpose | Flow closure |
+|---|---|---|---|---|---|
+| Investigation Workspace | Optional FrontComposer screen at `Admin.Web` | Product UI only after activation | FrontComposer tenant-scoped navigation | Keep safe discovery and governed reading in one operator workspace. | Flow 1 — Governed investigation |
+| Governed Record View | Optional FrontComposer screen at `Admin.Web` | Product UI only after activation | Select `Trust Preview Result Row` in `Tenant-scoped Find Pane` | Establish identity, trust fields, evidence completeness, timeline, citation, and safe action. | Flow 1; Flow 7 — Post-harm testimony |
+| Evidence Detail View | Optional FrontComposer drawer at `Admin.Web` | Product UI only after activation | Authorized `Citation Control`, trust detail, participant detail, or why-this-result action | Show one independently authorized detail without losing record context. | Flow 1; Flow 4 — Evidence-based acceptance |
+| Forensic Review | Optional permission-gated FrontComposer mode | Product UI only after activation | Authorized switch from Governed Record View | Show exact public evidence for audit/security review. | Flow 4; Flow 7 |
+| Evidence Acceptance Review | Conceptual read-only evidence view; evidence owner supplies contracts | No mutation UI until `OD-06` | Approved evidence/checklist entry point | Summarize conformance evidence and explicit downgrade state without claiming acceptance authority. | Flow 4 |
+| Operational Degradation Review | Machine-readable evidence / incident workflow | No product screen implied unless separately activated | Verification or incident workflow | Expose safe failure class and fail-closed governance boundary. | Flow 5 — Audit-sink degradation |
+| Adopter Continuity Surface | Adopter-owned UI contract | No Conversations screen implied | Adopter application requests stable conversation or business context | Resume durable context without exposing storage/governance machinery. | Flow 2 — Durable continuity |
+| Developer Integration Surface | Documentation, SDK/client, diagnostics, and conformance workflow | No product screen | Contract package and supported quickstart | Use typed contracts without EventStore leakage. | Flow 3 — Typed adopter integration |
+| Stable-reference Boundary | Read-time domain/integration boundary owned with upstream modules | No product screen | Hydration from upstream-owned identities | Preserve stable attribution while upstream modules own lifecycle state. | Flow 6 — Stable-reference continuity |
+| Mobile Triage and Handoff | Responsive form of activated Investigation Workspace | Product UI only after activation | Narrow viewport | Read an authorized summary, inspect trust, use an allowed citation, and hand off safely. | Flow 1 |
 
 Desktop uses the Split Investigation Lens: `Tenant-scoped Find Pane` at left and Governed Record View at right. On narrow surfaces, discovery moves to an inherited drawer, while tenant scope, record identity, `Trust Posture Strip`, `Evidence Completeness Indicator`, and command eligibility remain before timeline reliance.
 
@@ -55,12 +65,22 @@ Microcopy is calm, exact, non-blaming, and permission-safe. Brand posture lives 
 |---|---|---|
 | “Redacted” | The viewer may know content exists but may not see it. | Naming or hinting at the protected value. |
 | “Unavailable” | The system cannot confirm whether content exists or cannot supply authorized evidence. | Collapsing unavailable into missing or forbidden. |
-| “Restricted” | Access is denied by policy. | Raw policy names or protected entity hints. |
+| “Restricted” | Presentation copy for `Forbidden` / `forbidden`; nonexistent and unauthorized tenants receive the same non-disclosing response. | A seventh public state, raw policy names, or protected entity hints. |
 | “Still loading” | Trust metadata or content is pending. | An optimistic current/complete placeholder. |
 | “Some events unavailable” | Evidence is incomplete within an authorized scope. | Claiming the record is complete. |
 | “No accessible records match this query” | Permission-safe search result. | Confirming inaccessible records exist. |
 
 State-change copy names the safe state class and next action, not protected detail. Diagnostics use business-safe language first; infrastructure terms remain in authorized detail. Localization is not currently committed: activation must either declare English-only operation or approve reason-code-to-resource-key behavior without weakening the distinctions above.
+
+### Vocabulary layers
+
+| Layer | Examples | Contract rule |
+|---|---|---|
+| Contract state | `Current`, `Stale`, `Rebuilding`, `Unavailable`, `Forbidden`, `Redacted` | Serialized closed vocabulary owned by public contracts. |
+| Contract reason | `current`, `gap_detected`, `metadata_contradictory`, `forbidden` | Serialized closed vocabulary owned by public contracts. |
+| Display label | “Restricted”, “Still loading”, “Some events unavailable” | Presentation copy only; must map through `OD-05` and never serialize as contract state. |
+| Visual role | current/success, warning/stale, error/blocked, redaction, degraded | DESIGN-layer role only; exact Fluent binding is blocked by `OD-01`. |
+| Composite posture | “trust posture”, “safe stop”, “degraded evidence” | Human-readable description of several individual source fields; never a computed or serialized client state. |
 
 ## Component Patterns
 
@@ -68,32 +88,32 @@ Behavioral contract. Visual anatomy lives in `DESIGN.md.Components`.
 
 | Component | Use | Behavioral rules |
 |---|---|---|
-| Trust Fact | Results, headers, timelines, details, acceptance | Render source, timestamp, scope, confidence/status, and citation/audit reference when supplied. No source means no trust claim. |
+| Trust Fact | Results, headers, timelines, details, acceptance | Render only public fields approved in `CONTRACT-BINDINGS.md`; an unsupported generic source/scope/confidence field is non-renderable. Missing required metadata means no trust claim. |
 | SafeReasonInline | Blocked, degraded, denied, or unavailable decision point | Show a short permission-safe reason without hover; never include protected metadata or hidden entity hints. |
 | SafeReasonDetail | Authorized explanation from a summary | Reauthorize independently before rendering; denial yields only a safe unavailable state. |
 | Redaction Placeholder | Timeline/detail content replaced by policy | Receive no raw protected content; remain absent from hidden DOM, accessible names, tooltip, copy, title, telemetry, and responsive duplicates. |
-| Freshness Marker | Results, headers, timelines, details | Bind to `ProjectionFreshnessV1`; show source, timestamps, cursor/version, state, and reason without deriving freshness locally. |
+| Freshness Marker | Results, headers, timelines, details | Bind exactly to `ProjectionFreshnessV1`: schema version, cursor, public position, last-applied timestamp, generated timestamp, optional lag, stale flag, state, and reason. The DTO contains no generic source field. |
 | Command Availability Marker | Near governed actions | Bind to `ConversationCommandAvailabilityV1`; missing or contradictory metadata is unavailable and cannot enable an action. |
 | Citation Control | Timeline evidence and acceptance evidence | Copy only authorized citation DTO content; recheck authorization; missing citation blocks evidence acceptance. |
-| Participant Identity Marker | Results, header, timeline, detail | Bind to authorized attribution and resolution state; never merge identities client-side or expose unauthorized Parties data. |
+| Participant Identity Marker | Results, header, timeline, detail | Bind to authorized attribution supplied by the owning boundary plus `ParticipantResolutionState`; no hydration-source property is assumed. Never merge identities client-side or expose unauthorized Parties data. |
 | Tenant-scoped Find Pane | Investigation Workspace | Search and filter within tenant/permission scope; counts, facets, autocomplete, ordering, pagination, empty states, and material timing remain disclosure-safe. |
 | Trust Preview Result Row | Tenant-scoped Find Pane | Preview source-owned trust before selection; keyboard-selectable; why-this-result detail remains independently authorized. |
 | Governed Record Header | Governed Record View | Announce record and scope before evidence; keep temporal cursor, freshness, and action eligibility visible; deny without protected identity. |
-| Trust Posture Strip | Governed Record View | Roll up freshness, completeness, citation, participant, audit, verification, and command state using conservative precedence. |
-| Evidence Completeness Indicator | Immediately before timeline | State the scope of completeness; distinguish complete-within-permissions/index, incomplete-withheld, and unknown-metadata. |
+| Trust Posture Strip | Governed Record View | Present the fields of `ConversationEvidenceTrustPostureV1` in fixed order. Do not compute a winner or aggregate posture; an aggregate remains non-renderable until an owned public contract exists. |
+| Evidence Completeness Indicator | Immediately before timeline | Render only source-owned `EvidenceCompletenessState`. Display copy and allowed next action come from `OD-05`; the client does not invent scoped completeness categories. |
 | Evidence Timeline Entry | Governed Record View and Forensic Review | Preserve semantic chronology and keyboard access to citation/audit/redaction actions; never resemble chat bubbles. |
 | Safe State Message | Empty, loading, denied, unavailable, stale, rebuilding, redacted, degraded | State what is known, confidence, and next safe action without confirming protected existence. |
 | Evidence Detail Drawer | Evidence Detail View | Authorize on open, use generic pending framing, close on permission downgrade, return focus safely, and never flash protected content. |
-| Command Gate | Governed Record View and governance forms | Render only server-owned availability; recheck immediately before execution; missing/stale/contradictory metadata fails closed. The accessible blocked-control mechanism remains open. |
+| Command Gate | Governed Record View and governance forms | Render exact `ConversationCommandAvailabilityV1` fields only; recheck immediately before execution; missing/stale/contradictory metadata fails closed. The accessible blocked-control mechanism remains open under `OD-04`. |
 | Permission-gated Forensic Timeline Mode | Forensic Review | Require separate permission and audit logging; exact identifiers/positions appear only when authorized; degradation remains explicit. |
-| Evidence Acceptance Summary | Evidence Acceptance Review | Separate module evidence from inherited platform controls; expose pass/fail/waiver/synthetic status, signer, time, scope, and linked evidence. |
-| Waiver and Blocker Summary | Evidence Acceptance Review | Expose owner, risk, expiry, compensating control, review date, and downgrade trigger; expired or partial acceptance never appears complete. |
+| Evidence Acceptance Summary | Evidence Acceptance Review | Conceptual read-only view. Render only approved evidence-contract fields; recording accept/reject/waiver outcomes is non-renderable until `OD-06` closes. |
+| Waiver and Blocker Summary | Evidence Acceptance Review | Conceptual read-only view of approved evidence fields. Mutation is non-renderable until `OD-06`; expired or partial evidence never appears complete. |
 
 ## State Patterns
 
-### Source-owned public state mapping
+### Public vocabulary and V15 normative target mapping
 
-Architecture V15 and the public contract define these mappings. A client must not synthesize alternatives.
+The current public contracts ship the closed state/reason vocabulary. Architecture V15 defines the condition-to-state table below as a normative target, not current-runtime compliance evidence. A client must not synthesize alternatives, and activation requires `AB-02` successor carriers, implementation, and conformance evidence.
 
 | Public state / reason | Source condition | UX consequence | True empty allowed? |
 |---|---|---|---|
@@ -106,7 +126,7 @@ Architecture V15 and the public contract define these mappings. A client must no
 | `Forbidden` / `forbidden` | Nonexistent or unauthorized tenant at authorization boundary | Return a non-disclosing state; do not read the index or distinguish nonexistence from denial. | No. |
 | `Redacted` / `redacted` | Policy-redacted authorized content | Show `Redaction Placeholder`; never receive or retain the original value. | No. |
 
-Other public reason codes (`out_of_order_event`, `mixed_generation`, `poison_event`, `metadata_write_failed`) require a source-owned state/reason combination. Their exact display mapping is open; an unmapped or contradictory combination fails closed rather than being interpreted client-side.
+Other public reason codes (`out_of_order_event`, `mixed_generation`, `poison_event`, `metadata_write_failed`) require a source-owned state/reason combination. Their exact display mapping is blocked by `OD-05`; an unmapped or contradictory combination fails closed rather than being interpreted client-side.
 
 `ProjectionFreshnessV1.LastAppliedEventTimestamp` is the applicable replay/event-time anchor. `ProjectionFreshnessV1.ProjectionGeneratedAt` is the actual UTC instant generation completed. `LagDuration` is the interval between them. The UI labels these meanings distinctly and never substitutes processing/query time.
 
@@ -130,13 +150,14 @@ Other public reason codes (`out_of_order_event`, `mixed_generation`, `poison_eve
 
 - **Search and filter:** tenant-scoped, permission-filtered, keyboard reachable. Counts, facets, ordering, pagination, autocomplete, timing, recent items, and empty copy must not expose inaccessible records.
 - **Select and inspect:** selecting `Trust Preview Result Row` opens the governed record without losing search scope on wide surfaces. Focus lands on a safe record summary, not sensitive content.
-- **Timeline navigation:** chronological and keyboard navigable. Virtualization preserves order, position context, focus restoration, redaction semantics, and excludes protected offscreen DOM.
-- **Temporal reconstruction:** source-owned cursor changes reconstruct the governed record. Keyboard input, busy/change announcement, and post-reconstruction focus are open activation decisions; no local reconstruction inference is allowed.
-- **Detail drill-down:** `Evidence Detail Drawer` authorizes independently on every open and closes on permission downgrade.
+- **Workspace structure and bypass:** expose stable, uniquely named regions for tenant-scoped Find, governed-record summary, evidence timeline, and commands; use one safe page heading and a logical heading hierarchy. Provide keyboard-operable bypass navigation among those regions without announcing protected record identity.
+- **Timeline navigation:** chronological and keyboard navigable. Expose a programmatically determinable ordered collection and entry relationship; each authorized entry exposes actor, time, state, and accurate position context. Virtualization preserves order, total/position semantics, focus restoration, and redaction behavior while excluding protected offscreen entries from the DOM and accessibility tree.
+- **Temporal reconstruction:** source-owned cursor changes reconstruct the governed record. Keyboard input, busy/change announcement, and post-reconstruction focus are blocked by `OD-09`; no local reconstruction inference is allowed.
+- **Detail drill-down:** `Evidence Detail Drawer` authorizes independently on every open and closes on permission downgrade. On forced closure, clear protected drawer content first; return focus to the still-authorized opener when it exists, otherwise to a stable safe governed-summary or tenant-scope control; then announce only the safe state class and next action.
 - **Citation copy:** construct output from an authorized citation/export DTO after recheck, never from arbitrary rendered text or a full component model.
 - **Governed commands:** server metadata controls visibility/availability and every execution receives a fresh server recheck. A visible control is not proof of permission.
-- **Blocked action explanation:** the outcome is fixed—reason visible without hover and available to keyboard/screen-reader users—but the exact focusable-control and programmatic-association mechanism is an open decision.
-- **Forms:** collect operator intent only. Tenant, user, claims, tokens, and host authorization context are never editable. Local validation, server validation, and pre-execution recheck remain separate.
+- **Blocked action explanation:** the outcome is fixed—reason visible without hover and available to keyboard/screen-reader users—but the exact focusable-control and programmatic-association mechanism remains blocked by `OD-04`.
+- **Forms:** collect operator intent only. Tenant, user, claims, tokens, and host authorization context are never editable. Local validation, server validation, and pre-execution recheck remain separate. Errors remain visible and are programmatically associated with their fields; a content-safe summary is announced and receives focus before the first invalid control when multiple errors exist. Late permission, freshness, audit, or command-availability failure preserves only safe entered intent and returns focus to the summary, affected control, or `Command Gate` without exposing protected values.
 - **Dialogs and accordions:** dialogs are reserved for governance-changing confirmation. Multiple titled sibling sections use one inherited Fluent accordion; do not hide the sole primary content region.
 - **Trust transitions:** downgrade visibly, close gated details, clear protected content, preserve only safe operator-entered intent, and never announce protected detail.
 
@@ -146,6 +167,7 @@ The current preserved baseline is **WCAG 2.1 AA** for operator/admin web surface
 
 - Keyboard-only and screen-reader users receive the same tenant scope, trust posture, redaction state, evidence completeness, blocked-action reason, and next safe action as pointer users.
 - Focus order follows investigation order: scope, trust posture, completeness, timeline, evidence controls, command state, then diagnostics.
+- Named regions, the safe page-heading hierarchy, and bypass controls let keyboard and screen-reader users skip repeated search results and timeline entries without crossing a disclosure boundary.
 - Evidence details receive focus only after authorization and return focus safely when closed.
 - Color is never the only carrier of current, stale, rebuilding, unavailable, forbidden, redacted, degraded, incomplete, or blocked state.
 - Assistive output—including names, descriptions, live regions, headings, summaries, title, copy, and hidden helper text—obeys the same disclosure boundary as visible content.
@@ -153,7 +175,7 @@ The current preserved baseline is **WCAG 2.1 AA** for operator/admin web surface
 - Touch targets meet at least 44×44 px where touch operation is supported.
 - Leak Sentinel coverage spans visible DOM, hidden DOM, accessibility tree, tooltip, URL/query state, browser title, clipboard, telemetry, screenshot, loading placeholder, and responsive duplicate surfaces.
 
-Open accessibility decisions: the blocked-control mechanism; live-region transition matrix and urgency; explicit 200% text-resize and 320 CSS-pixel/equivalent 400% reflow criteria; localization; temporal-cursor focus/busy behavior; and the browser/assistive-technology evidence matrix.
+Open accessibility decisions are tracked under `OD-02`, `OD-04`, `OD-08`, and `OD-09`: WCAG 2.2 promotion; blocked-control mechanics; localization; live-region urgency; explicit resize/reflow acceptance; temporal-cursor focus/busy behavior; and the browser/assistive-technology evidence matrix.
 
 ## Responsive & Platform
 
@@ -185,7 +207,7 @@ The flows below are **preserved product journeys**. They do not activate UI scop
 4. She selects a candidate and opens Governed Record View.
 5. `Governed Record Header`, `Trust Posture Strip`, and `Evidence Completeness Indicator` establish scope and reliance before evidence.
 6. She reviews `Evidence Timeline Entry` items, authorized redaction, citations, audit linkage, and temporal state.
-7. **Climax:** Sarah copies a citation-ready reference or reaches an explicit safe stop with the trust state and next action understood.
+7. **Climax:** When `OD-06` authorizes citation copy for her role and surface, Sarah copies a citation-ready reference; otherwise she reaches an explicit safe stop with the trust fields and next action understood.
 
 Failure: no accessible result, forbidden scope, stale/rebuilding/unavailable evidence, missing citation, or incomplete evidence produces `Safe State Message` and no optimistic reliance or governance mutation.
 
@@ -215,8 +237,8 @@ Failure: unsupported contract, missing tenant context, stale projection, denied 
 1. Julian opens Evidence Acceptance Review for a declared scope.
 2. Helen runs the seeded/adversarial checks for tenant isolation, stale/missing projection, audit pairing, redaction replay, and release gates.
 3. They inspect signed artifacts, versioned manifests, scope, signer, time, and inherited-platform boundaries.
-4. `Evidence Acceptance Summary` and `Waiver and Blocker Summary` expose partial, waived, stale, or blocked evidence without hiding it.
-5. **Climax:** Julian records an explicit accept, reject, waiver, or blocker outcome linked to the authoritative evidence.
+4. The conceptual read-only `Evidence Acceptance Summary` and `Waiver and Blocker Summary` expose partial, waived, stale, or blocked evidence without hiding it.
+5. **Climax:** Julian reaches an explicit accept, reject, waiver, or blocker recommendation linked to authoritative evidence. Recording or mutating the outcome remains unavailable until `OD-06` approves a capability and source-owned command contract.
 
 Failure: missing, stale, unsigned, synthetic-only, or contradictory evidence remains non-accepted and names its owner/revisit condition without lifting a hold.
 
@@ -262,16 +284,25 @@ These current-initiative actors are deliberately **not product UX protagonists**
 
 ## Open Decisions
 
-These are phase blockers for activation, not blanks to fill by implementation:
+These stable records are phase blockers for activation, not blanks to fill by implementation. “Owner” identifies the closure role, not implementation assignment.
 
-1. Approve exact Fluent 2 mappings or custom values for redaction, degraded, current, stale, unavailable, forbidden, and blocked visual roles, including light/dark/high-contrast evidence.
-2. Decide whether and how to raise the accessibility floor from WCAG 2.1 AA to WCAG 2.2 AA.
-3. Decide the Fluent UI V5 prerelease/stable dependency policy.
-4. Choose and test the accessible blocked-action control/reason mechanism without changing the preserved outcome.
-5. Complete the source-owned mapping for all public reason codes and presentation labels; the client must not infer it.
-6. Decide the activation-time capability matrix for read-only, copy, export, retention, redaction, replay, restore, escalation, and other governance mutations.
-7. Define global offline/network-loss and authentication/session-expiry behavior.
-8. Decide English-only operation versus a governed localization/resource-key contract.
-9. Specify live-region transition behavior, zoom/reflow measurements, temporal-cursor focus, and the browser/assistive-technology validation matrix.
-10. Publish accepted source bindings/tombstones for the legacy UX provenance and current spine authority before treating these drafts as implementation contracts.
+| ID | Decision | Closure owner / authority | Affected contract | Required closure artifact and evidence | Gate |
+|---|---|---|---|---|---|
+| OD-01 | Exact Fluent 2 mappings or approved custom values for redaction, degraded, current, stale, unavailable, forbidden, and blocked roles. | Product/UX + FrontComposer platform UI owner | `DESIGN.md.Colors`; all trust-bearing components | Approved token table with foreground/background pairs and light, dark, high-contrast, and forced-colors evidence | Blocks visual implementation |
+| OD-02 | Whether and how to raise WCAG 2.1 AA to WCAG 2.2 AA. | Product/UX + accessibility authority | Accessibility Floor; acceptance evidence | Signed baseline decision and updated trace/test matrix | Blocks accessibility-baseline promotion, not the preserved 2.1 floor |
+| OD-03 | Fluent UI V5 stable/prerelease dependency policy and version ownership. | FrontComposer dependency owner | Foundation; inherited component semantics | Supported package policy, owner, and upgrade/conformance gate | Blocks reproducible implementation dependency |
+| OD-04 | Accessible blocked-action control and reason mechanism. | Product/UX + accessibility authority + FrontComposer owner | `Command Gate`; `SafeReasonInline` | Pattern decision covering focusability, disabled/`aria-disabled`, activation suppression, association, announcement, downgrade, and keyboard/screen-reader tests | Blocks Command Gate implementation |
+| OD-05 | Complete public state/reason to display-label, visual-role, severity, and allowed-next-action mapping. | Architecture/API contract owner + Product/UX | State Patterns; `Safe State Message`; `Freshness Marker`; `Command Gate` | Versioned mapping for every closed value, including `Restricted` → `Forbidden/forbidden`, plus contract tests | Blocks unmapped-state rendering |
+| OD-06 | Role × surface × capability × breakpoint matrix for read-only, copy, export, retention, redaction, replay, restore, escalation, acceptance, waiver, and governance mutation. | Product/release authority + security/audit owner | Key Flows; Evidence Acceptance; commands | Approved matrix, source-owned commands, failure/reauthorization/audit rules, and tests | Blocks capability activation and mutation UI |
+| OD-07 | Global offline/network-loss and authentication/session-expiry behavior. | FrontComposer authentication/session owner + Product/UX | Global shell; open drawers; protected content | Transition specification for detection, clearing, focus, announcement, safe retry/reauthentication, and tests | Blocks resilient shell behavior |
+| OD-08 | English-only operation versus governed localization/resource keys. | Product/UX + localization owner | Voice and Tone; state/reason copy | Locale policy or versioned reason-to-resource-key contract with safe-copy tests | Blocks localized release claim |
+| OD-09 | Live-region transitions, resize/reflow criteria, temporal-cursor focus/busy behavior, and browser/assistive-technology matrix. | Accessibility/QA authority + Product/UX | Dynamic states, timeline, reconstruction, responsive behavior | Transition matrix; 200% resize and 320 CSS-pixel/equivalent 400% reflow criteria; browser/AT evidence | Blocks accessibility acceptance |
+| OD-10 | Accepted source bindings and tombstones for legacy UX provenance and current spine authority. | Release-evidence owner | Both spine source manifests; missing historical inputs | Accepted binding/tombstone artifact with hashes, versions, precedence, and signer | Blocks promotion from draft to accepted UX authority |
 
+## Authority and Evidence Blockers
+
+| ID | Blocker | Closure owner | Required evidence | Gate |
+|---|---|---|---|---|
+| AB-01 | FR-20 preservation evidence does not demonstrably cover projection freshness or governance/audit pairing. | PRD/release-evidence owner | Approved denominator/trace correction and revalidated preservation evidence | No acceptance or hold lift for those obligations |
+| AB-02 | Architecture V15 AD-7/AD-8 mappings are normative targets, not proof of current runtime compliance. | Epic 16 / architecture implementation authority | Successor carriers, implementation, tests, and accepted conformance evidence | No claim that runtime delivers the target mapping |
+| AB-03 | Spine traceability and public contract bindings require acceptance. | Product/UX + architecture + QA authorities | Accepted `TRACEABILITY.md` and `CONTRACT-BINDINGS.md`, with zero unresolved required IDs/fields or explicit gated dispositions | No standalone planning, QA, or implementation handoff |

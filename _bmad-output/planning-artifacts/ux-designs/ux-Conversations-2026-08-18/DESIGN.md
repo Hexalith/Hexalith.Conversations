@@ -11,8 +11,16 @@ sources:
   - _bmad-output/planning-artifacts/ux-design-directions.html
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md
   - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md
+  - _bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/validation-report.md
   - _bmad-output/planning-artifacts/architecture.md
   - references/Hexalith.AI.Tools/hexalith-ux-instructions.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-prd.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-architecture.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/reconcile-ux-validation.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/.memlog.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/TRACEABILITY.md
+  - _bmad-output/planning-artifacts/ux-designs/ux-Conversations-2026-08-18/CONTRACT-BINDINGS.md
 colors: {}
 typography:
   interface:
@@ -31,7 +39,7 @@ spacing:
   region: 24px
 components:
   Trust Fact:
-    note: Inherit Fluent typography and status roles; add a compact source, timestamp, scope, and confidence arrangement.
+    note: Inherit Fluent typography and status roles; render only the public fields and display roles approved in CONTRACT-BINDINGS.md.
   SafeReasonInline:
     note: Inherit Fluent text roles; keep the safe reason visible beside the affected decision without revealing protected detail.
   SafeReasonDetail:
@@ -39,13 +47,13 @@ components:
   Redaction Placeholder:
     note: Replace protected content at the same reading level without exposing the original value or its length; exact trust-role color mapping is open.
   Freshness Marker:
-    note: Pair a stable text label with source and time evidence; never use color as the sole signal.
+    note: Pair public freshness state and reason with their exact cursor, position, timestamp, generation, and lag fields; never use color as the sole signal.
   Command Availability Marker:
     note: Pair the source-owned availability state with a safe reason; never make visual availability the authorization source.
   Citation Control:
     note: Keep the citation affordance adjacent to its evidence and visually subordinate to the evidence itself.
   Participant Identity Marker:
-    note: Show authorized attribution and its resolution state with equal legibility; degraded identity must not appear definitive.
+    note: Show only authorized public attribution plus ParticipantResolutionState; no hydration-source field is assumed.
   Tenant-scoped Find Pane:
     note: Use inherited search and list styling with persistent tenant scope and compact trust previews.
   Trust Preview Result Row:
@@ -53,9 +61,9 @@ components:
   Governed Record Header:
     note: Present record identity and tenant-safe context first, then temporal cursor, trust posture, and command eligibility.
   Trust Posture Strip:
-    note: Use restrained inline status treatments and stable geometry; visible labels carry meaning before color.
+    note: Present source-owned posture dimensions in fixed order with restrained inline treatments; do not compute an aggregate winner.
   Evidence Completeness Indicator:
-    note: Place immediately before timeline reliance and distinguish scoped completeness from unknown or incomplete evidence.
+    note: Place the source-owned EvidenceCompletenessState immediately before timeline reliance; do not invent additional serialized categories.
   Evidence Timeline Entry:
     note: Use chronological case-file structure rather than chat bubbles; keep actor, time, evidence state, citation, and audit linkage together.
   Safe State Message:
@@ -74,7 +82,9 @@ components:
 
 # Hexalith.Conversations — Design Spine
 
-> Draft preservation contract. This document does not activate product UI work. The UX requirement map controls disposition, Architecture V15 controls the source-owned public state mappings, and the legacy specification preserves detailed intent. This spine wins over the illustrative design-directions HTML on visual conflict; upstream authority still controls scope and activation.
+> Draft preservation contract. This document does not activate product UI work. The V4 UX requirement map controls disposition; Architecture V15 controls normative target state and ownership; the legacy specification preserves UX detail; and the PRD package supplies preservation context only as qualified by its current validation and the reconciliation records. This spine wins over the illustrative design-directions HTML on visual conflict, but does not supersede an accepted source or prove runtime conformance. Separate approved release authority is required for activation.
+
+Requirement closure is recorded in `TRACEABILITY.md`; public contract bindings and intentionally non-renderable gaps are recorded in `CONTRACT-BINDINGS.md`.
 
 ## Brand & Style
 
@@ -113,7 +123,7 @@ The Blazor Fluent UI V5 / Fluent 2 type ramp is the contract. No custom family, 
 - Timestamps, actor state, projection freshness, and citation anchors use an inherited metadata role but remain fully legible.
 - Status labels are short, stable, and never depend on weight or color alone.
 - Monospace is restricted to authorized identifiers, hashes, correlation IDs, immutable references, and citation blocks.
-- Long authorized identifiers may wrap or truncate only when full-value access and copy remain available.
+- Long authorized identifiers may wrap or truncate only when full-value access and copy remain available without hover through a keyboard-operable, screen-reader-named mechanism that remains usable at 200% text resize, 320 CSS-pixel reflow, high contrast, and forced colors.
 
 ## Layout & Spacing
 
@@ -139,26 +149,26 @@ The names below are canonical across both spines. Retired legacy labels are prov
 
 | Component | Visual anatomy | State appearance |
 |---|---|---|
-| Trust Fact | Compact label/value pair with source, timestamp, scope, and optional citation or audit reference. | No source means no confident visual claim; use an inherited neutral or unavailable treatment. |
+| Trust Fact | Compact label/value pair containing only fields approved in `CONTRACT-BINDINGS.md`. | Missing required source-owned metadata means no confident visual claim; use an inherited neutral or unavailable treatment. |
 | SafeReasonInline | Short visible explanation immediately adjacent to the affected state or action. | Calm, permission-safe text; no hover-only disclosure. |
 | SafeReasonDetail | Independently framed detail within `Evidence Detail Drawer`. | Generic pending or unavailable framing until authorization succeeds. |
 | Redaction Placeholder | Content-replacement block at the same reading level as the hidden evidence. | Visible “Redacted” semantics; no blur, hidden original, or length-revealing skeleton. |
-| Freshness Marker | State label plus projection source and timestamp/version evidence. | Current, stale, rebuilding, and unavailable remain text-distinct; exact color mappings are open. |
+| Freshness Marker | `FreshnessState`, `ReasonCode`, `ProjectionCursor`, public position, last-applied time, generated time, and lag when present. | Current, stale, rebuilding, and unavailable remain text-distinct; exact color mappings remain blocked by `OD-01`. |
 | Command Availability Marker | Action state, safe reason, required permission/precondition summary, and evaluation time. | Available never appears from missing metadata; unavailable or contradictory metadata is visibly fail-closed. |
 | Citation Control | Compact inline affordance beside the evidence it cites. | Broken or missing citation remains visible as degraded evidence rather than disappearing. |
-| Participant Identity Marker | Authorized display identity plus resolution state and hydration source. | Unresolved, stale, filtered, or unavailable identity never looks definitive. |
+| Participant Identity Marker | Authorized display identity supplied by the owning boundary plus source-owned `ParticipantResolutionState`; no hydration-source field is assumed. | Unresolved, stale, filtered, or unavailable identity never looks definitive; unsupported detail is non-renderable. |
 | Tenant-scoped Find Pane | Search, filters, permission-safe result count/facets, and result list under persistent tenant scope. | Loading, no accessible matches, stale results, restricted scope, and denied scope have distinct text treatments. |
 | Trust Preview Result Row | Record identity and business-safe context first; compact trust facts and safe next hint second. | Selection uses inherited focus/selection styling; trust state is never communicated by selection alone. |
 | Governed Record Header | Record identity, tenant-safe context, temporal cursor, freshness, and action eligibility in that order. | Denied or unavailable state does not expose protected identity. |
-| Trust Posture Strip | Restrained inline rollup of freshness, completeness, citation, participant, audit, verification, and command state. | Stable geometry; conservative source-owned state wins on conflict. |
-| Evidence Completeness Indicator | Compact statement immediately before timeline content. | “Complete” always names its defensible scope; incomplete and unknown remain distinct. |
+| Trust Posture Strip | Fixed-order presentation of freshness, completeness, citation, participant, audit, verification, and command fields from `ConversationEvidenceTrustPostureV1`. | Stable geometry; no client-computed aggregate or winner. An aggregate is non-renderable until an owned public contract exists. |
+| Evidence Completeness Indicator | Source-owned `EvidenceCompletenessState` immediately before timeline content. | Display copy must come from the approved mapping in `OD-05`; the client does not mint scoped completeness categories. |
 | Evidence Timeline Entry | Chronological marker, actor/time metadata, content or placeholder, and adjacent citation/audit affordances. | Redacted, permission-filtered, stale, missing-citation, and audit-unavailable entries stay ordered and visibly distinct. |
 | Safe State Message | Full-width governed message with state, safe explanation, and next action. | Empty, loading, denied, unavailable, stale, rebuilding, redacted, and degraded are not interchangeable. |
 | Evidence Detail Drawer | Inherited drawer shell with generic title until authorization; one detail concern at a time. | Pending, authorized, blocked, stale, unavailable, and audit-unavailable states do not flash protected content. |
-| Command Gate | Group of source-owned allowed and blocked actions with adjacent safe reasons. | Missing, stale, inconsistent, or unauthorized metadata presents a governed unavailable/blocked state. Exact blocked-control interaction mechanics are open. |
+| Command Gate | Group of `ConversationCommandAvailabilityV1` entries with source-owned action, permission, precondition, risk, freshness, audit, safe reason, evaluation time, classification, and recheck fields. | Missing, stale, inconsistent, or unauthorized metadata presents a governed unavailable/blocked state. Exact blocked-control interaction mechanics remain blocked by `OD-04`. |
 | Permission-gated Forensic Timeline Mode | Explicit mode banner plus exact authorized evidence fields in chronological order. | Unavailable, authorized, partially hidden, stale, and audit-required modes remain visibly labeled. |
-| Evidence Acceptance Summary | Review card/table showing scope, outcome, signer, timestamp, freshness, and linked evidence. | Accepted, blocked, waived, incomplete, stale, and synthetic-sample states remain explicit. |
-| Waiver and Blocker Summary | Structured owner, risk, expiry, compensating control, and review-date presentation. | Active, expired, blocked, and deferred states never collapse into a generic warning. |
+| Evidence Acceptance Summary | Conceptual read-only review card/table showing only fields backed by an approved evidence contract. | Mutation or acceptance recording is non-renderable until `OD-06` is resolved; no visual state proves hold lift. |
+| Waiver and Blocker Summary | Conceptual read-only presentation of approved waiver/blocker evidence only. | Mutation is non-renderable until `OD-06`; active, expired, blocked, and deferred never collapse into a generic warning. |
 
 ## Do's and Don'ts
 
@@ -168,8 +178,8 @@ The names below are canonical across both spines. Retired legacy labels are prov
 | Present the record as a governed case file with evidence and provenance in context. | Use chat bubbles, avatars as primary anchors, playful typing affordances, or AI “magic” decoration. |
 | Keep trust posture visible before evidence reliance. | Use a clean or green-looking screen as an implicit claim of completeness. |
 | Pair state with text, reason, time, and evidence. | Rely on color, weight, icon, or hidden tooltip alone. |
+| Present trust dimensions in the source DTO's fixed order. | Compute a client-side overall posture or precedence winner. |
 | Keep diagnostics one layer deeper than business-safe state. | Make raw EventStore streams or infrastructure logs the primary operator view. |
 | Render redaction from safe source data. | Blur, mask, hide with CSS, or retain original content in DOM, accessibility, copy, title, telemetry, or responsive duplicates. |
 | Keep the selected governed record visually dominant. | Turn the Split Investigation Lens into two competing dashboards. |
 | Preserve inherited component semantics and focus treatment. | Copy interaction semantics from the illustrative HTML mock. |
-
