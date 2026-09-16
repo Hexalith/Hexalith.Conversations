@@ -2696,3 +2696,509 @@ gitlink, PRD, UX-scope, IR-0, hold, action-status, release, or story-execution
 change.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V14:END version=conversations-architecture-2026-08-18-v14 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v14-current-candidate-authority-v1.json sidecar-head-sha256=e96c34dfdf7f2cd8619b75abc42aad40ab0d8606d3ab798bf2b9b58fac83da7f candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V15:BEGIN version=conversations-architecture-2026-09-16-v15 epic-authority=epic-6-authority-2026-08-18-v14 supersedes=conversations-architecture-2026-08-18-v14 v14-block-bytes=3873 v14-block-sha256=d33d977fda0776377684439bb7e78769a6b9a0279c293b8a08e44dfad8466dc5 sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+## 2026-09-16 V15 Current-Authority And Runtime-Convergence Amendment
+
+**Architecture authority:** `conversations-architecture-2026-09-16-v15`
+
+**Epic authority:** `epic-6-authority-2026-08-18-v14`
+
+**Status:** `FINAL`; implementation hold `ACTIVE`.
+
+**Scope:** This append-only overlay fixes current-authority discovery, qualifies
+checkpoint sidecars V15-V21 as point-in-time history, specifies the Story 7.1
+transition and Epic 16 runtime convergence contracts, dispositions the operational envelope, and
+publishes a short current-rules projection. V1-V14 bytes, accepted product
+scope, completed history, signed evidence, public value sets, and candidate
+artifacts remain immutable. No hold is lifted, no story is started or accepted,
+and no release or push is authorized.
+
+**Correction source:** the 2026-09-16 architecture validation report and its
+rubric, reality, adversarial, and authority-chain reviews under
+`_bmad-output/planning-artifacts/architecture/architecture-Conversations-2026-08-02/`.
+
+### Current Authority State
+
+| Concern | Selected authority | Current effect |
+| --- | --- | --- |
+| Technical architecture | Last complete architecture marker: V15 | This overlay plus every invariant it does not explicitly supersede. |
+| Planning candidate | `v9-authority-bundle-v1.json`, SHA-256 `8af7ba3bdbc5efe80c9534463089013d8408b5aa0f291f3c00b3dcd36f953ef3` | Point-in-time V14 publication evidence; not a live hold decision. |
+| Epic/backlog scope | `epic-6-authority-2026-08-18-v14` | Immutable product-scope and history carrier; its Epic 16 execution contracts require the V15 qualification below. |
+| Execution/checkpoint head | `v21-story-7.1-authority-correction-v1.json`, SHA-256 `296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636` | V21's recorded Story 7.1 lift is historical at its publication candidate. |
+| Current-head recovery | `AR-15` | `BLOCKED_BOOTSTRAP_AUTHORITY`; no external one-time validator is presently identity/digest-pinned in the active organization ruleset. |
+| Evaluated state on 2026-09-16 | Repository `fd3dd58c3c10b512c79cc425f94d57c4d3400b20` | V21 checker `FAIL`, blocker `V21_DESCENDANT_GITLINK_DRIFT`, effective Story 7.1 hold `ACTIVE`. |
+
+**Epic 16 carrier qualification:** the V14 Epic 16 block and Story 16.1-16.3
+contracts remain immutable point-in-time backlog evidence, but they are not
+sufficient execution contracts after AD-5 through AD-8. No Epic 16 story may
+enter `ready-for-dev`, implementation, or review until an append-only successor
+epic authority, story contracts, inventories, graph, and validators cite those
+ADs and pass the current marker-driven resolver. This qualification changes no
+accepted product scope and leaves every hold `ACTIVE`.
+
+A current consumer never scans filenames for the greatest version and never
+reads a raw `authorityEffect` as live state. It follows the last complete
+architecture marker, verifies the named sidecar digest, and runs the selected
+sidecar's current effective-hold checker against the evaluated commit. Missing
+inputs, digest mismatch, incomplete history, `FAIL`, `BLOCKED`, nonzero exit,
+candidate drift, or gitlink drift all resolve to `ACTIVE`. A later sidecar head
+must be published with its pointer-bearing architecture amendment in the same
+commit; either artifact alone is an authority-publication failure. V15 is the
+one-time fail-closed recovery amendment for the already-published V15-V21
+violation: it makes V21 discoverable but does not retroactively make that
+publication conforming, validate its recorded lift, or authorize execution.
+This recovery exception ends when V15 is published and cannot be reused.
+
+```mermaid
+flowchart LR
+    Marker[Last complete architecture marker] --> Architecture[Technical architecture]
+    Marker --> Head[Exact sidecar head and digest]
+    Head --> Check[Protected current-state checker]
+    Check -->|PASS and explicit scoped lift| Lift[Scoped execution authority]
+    Check -->|Missing, drifted, blocked, or failed| Active[Hold ACTIVE]
+    Bundle[V9 bundle] --> Evidence[Point-in-time candidate evidence]
+    Evidence -. never overrides .-> Check
+```
+
+### Design Paradigm And Ownership
+
+The governing paradigm remains an event-sourced, vertical-slice domain module
+with CQRS, pure aggregate mutation, derived read models, and fail-closed trust
+decisions. Production composition and reusable runtime mechanics stay outside
+the domain module.
+
+```mermaid
+flowchart LR
+    Commands[Conversation commands] --> Domain[Conversations aggregate]
+    Domain --> EventStore[Hexalith.EventStore authority]
+    EventStore --> Projections[Conversations derived projections]
+    TenantEvents[Tenants events] --> TenantProjection[Tenants-owned local projection]
+    TenantProjection --> Policy[Conversations tenant policy]
+    Parties[Hexalith.Parties] --> Hydration[Read-time hydration]
+    Projections --> API[Conversation query/API contracts]
+    Hydration --> API
+    API --> FrontComposer[FrontComposer UI composition]
+    Platform[Platform deployment] --> EventStore
+    Platform --> Projections
+```
+
+### AD-1 — Event-Sourced Mutation Authority [ADOPTED]
+
+- **Binds:** all Conversation command, aggregate, projection, query, export,
+  UI, cache, and evidence units.
+- **Prevents:** a transcript, table, cache, projection, or administrative view
+  becoming a second mutable source of Conversation truth.
+- **Rule:** EventStore history is the only Conversation write authority.
+  Aggregates produce immutable events; every projection, index, cache, export,
+  UI view, and evidence artifact is derived, rebuildable state and never repairs
+  source truth from a query path.
+
+### AD-2 — Module And Shared-Data Ownership [ADOPTED]
+
+- **Binds:** Conversations, EventStore, Tenants, Parties, FrontComposer, and
+  platform deployment integration boundaries.
+- **Prevents:** two modules owning the same shared datum or Conversations
+  duplicating reusable hosting, persistence, tenant, identity, or UI plumbing.
+- **Rule:** Conversations owns Conversation contracts, deterministic domain
+  behavior, domain projections, and domain telemetry definitions; EventStore
+  owns event persistence and reusable domain-service/runtime seams; Tenants
+  owns tenant lifecycle and the tenant-projection capability; Parties owns
+  personal data; FrontComposer owns UI composition; platform deployment owns
+  production topology. Consumers reference public additive surfaces inward and
+  never create a Conversations facade for missing generic platform capability.
+
+### AD-3 — Total Architecture And Execution Resolver
+
+- **Binds:** human readers, CI, planning publishers, hold decisions, checkpoint
+  authorities, and all story-entry gates.
+- **Prevents:** marker, bundle, filename, and raw-sidecar readers selecting
+  different architecture, candidate, or hold states.
+- **Rule:** The last complete architecture marker selects technical authority
+  and one exact sidecar head. The bundle is immutable point-in-time candidate
+  evidence. The sidecar's recorded effect applies only at its recorded
+  candidate; live execution state comes only from its protected current-state
+  checker at the evaluated commit. Every result other than a validated,
+  explicitly scoped `PASS` is `ACTIVE`. Successor sidecars must carry
+  `statusAsOf` plus separate `recordedEffectAtCandidate` and
+  `effectiveStateAtEvaluatedHead` fields; this overlay supplies that
+  qualification for immutable V15-V21 records without rewriting them. V21
+  remains historical evidence with a recorded publication defect. The current
+  V21 verifier cannot authorize its own replacement. Its source-pinned bridge
+  diagnostic is the verifier at commit
+  `239758d396d28372687b73f5dc128405892cb520`, path
+  `_bmad/scripts/publish_story_7_1_successor_authorities.py`, SHA-256
+  `2ddb6da7bfec48d33f555638b6e3175f7623cbc153c4ad2d3ffbe9494e5df126`.
+  Ruleset automation must load and verify that protected blob rather than trust
+  the candidate copy. Its bridge invocation is `uv run --frozen --no-sync
+  python3 <source-pinned-verifier> --repository . v21 --candidate
+  <evaluated-commit> --effective-hold --check`; missing output, nonzero exit, or
+  any result other than schema
+  `hexalith.conversations.story-7.1-effective-hold-result.v1` with `PASS` still
+  resolves to `ACTIVE`. Because that verifier intentionally rejects V22 and
+  resolver paths, it is evidence only and is not the AR-15 exception authority.
+
+  Release, Architecture, Quality, and the organization-ruleset administrator
+  jointly own AR-15. It is presently `BLOCKED_BOOTSTRAP_AUTHORITY`: no recovery
+  candidate may be opened, accepted, or merged until an active no-bypass
+  organization ruleset requires external check context `Hexalith Planning
+  Authority / AR-15 bootstrap` and pins an out-of-repository validator under
+  identity `Hexalith/Hexalith.Conversations:ar-15-bootstrap:v1` by its exact
+  SHA-256. Missing identity, digest, required check, or no-bypass proof resolves
+  to `ACTIVE`; candidate-owned workflow or validator bytes are never trusted to
+  supply them. The ruleset-owned command is fixed as `/usr/bin/python3 -I -B
+  <digest-pinned-validator> --repository . --expected-parent
+  <authorized-v15-main-commit> --candidate <candidate-commit>
+  --authorization-id ar-15-once-v1 --check`. Its only successful output schema
+  is `hexalith.conversations.ar-15-bootstrap-result.v1` with `result=PASS`,
+  `effectiveHold=ACTIVE`, the exact repository ID, parent/candidate commits and
+  trees, validator digest, policy digest, path-manifest digest, root-gitlink
+  manifest digest, check-run ID, and a single-use nonce. Every other output is
+  `ACTIVE`; the organization ruleset consumes that nonce on merge and rejects
+  reuse.
+
+  The external validator permits exactly these regular-file paths, in ordinal
+  order, and no rename, mode change, symlink, submodule, dependency, or other
+  path change:
+
+  1. `.github/workflows/planning-authority-preflight.yml`
+  2. `_bmad-output/planning-artifacts/architecture.md`
+  3. `_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json`
+  4. `_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json`
+  5. `_bmad/schemas/v22-current-authority-recovery-v1.schema.json`
+  6. `_bmad/schemas/v22-workflow-route-inventory-v1.schema.json`
+  7. `_bmad/scripts/resolve_current_planning_authority.py`
+  8. `_bmad/scripts/tests/test_resolve_current_planning_authority.py`
+
+  Before merge, the external check validates that one complete AR-15 candidate
+  tree, including V22's self-excluding path/digest and root-gitlink manifests.
+  The transaction changes no product, dependency, submodule, release, story
+  status, or hold. V22 and its pointer overlay publish together and pin V21 as
+  historical predecessor. The generic resolver must pass candidate validation
+  inside AR-15. After atomic merge, protected `main` reruns the newly pinned
+  generic resolver; only that post-merge `PASS` activates V22, still with
+  effective hold `ACTIVE`. AD-9's requirement that the resolver land before
+  successor publication applies to every publication after AR-15, not to this
+  explicitly single-use bootstrap. Until the external authority is installed
+  and the post-merge check passes, V15 plus the source-pinned V21 diagnostic
+  remains current and every execution hold is `ACTIVE`.
+
+### AD-4 — Story 7.1 Integration And Terminal Transition
+
+- **Binds:** Story 7.1 successor authority, protected-branch CI, merge
+  candidate, final record, acceptance, and Story 7.2 entry.
+- **Prevents:** a valid feature candidate becoming invalid when integrated, or
+  two builders choosing incompatible completion and descendant-policy exits.
+- **Rule:** Story 7.1 remains held at the current repository state. A successor
+  may resume it only when it binds the exact protected-branch merge candidate,
+  validates that merge result with protected-source tooling, enumerates the
+  admissible integration paths and gitlinks, and retains `ACTIVE` on any drift.
+  After integration, the checker must re-evaluate the committed `main` result;
+  the candidate-matched final record is consumed only at that accepted commit.
+  The same owner-approved successor explicitly retires or replaces V21's
+  temporary descendant-path restriction. Its state machine is strictly
+  `ACTIVE -> EXECUTION_ALLOWED -> MERGE_CANDIDATE_VERIFIED -> ACCEPTED`.
+  Drift or a failed gate may return only the first three states to `ACTIVE`;
+  `ACCEPTED` is immutable completed history and can never reopen. The merge
+  proof binds the Story candidate commit, the protected merge candidate's tree
+  and parent identities, all admissible integration paths, and every root
+  gitlink. The final record binds the Story candidate and verified merge-tree
+  digest. Terminal authority additionally binds that final-record digest and
+  the actual protected-`main` commit, proving its in-scope tree and gitlinks
+  equal the verified merge result. Recovery V22 ends only the authority
+  deadlock and stays `ACTIVE`; a later owner-approved successor may enter
+  `EXECUTION_ALLOWED`. Story 7.2 remains locked until a separate atomic terminal
+  authority/pointer publication reaches `ACCEPTED` after the post-integration
+  result and final record both pass. Story 7.2 consumes that terminal authority,
+  not a raw final record, pull-request result, or V21 `LIFTED` field. Later
+  descendant drift may block Story 7.2 entry, invalidate current release-candidate
+  evidence, or require new compatibility evidence; it does not change Story 7.1
+  from `ACCEPTED`.
+
+### AD-5 — Operational Envelope Ownership And Entry Gate
+
+- **Binds:** production environments, module-relevant Dapr/provider topology,
+  durable stores, recovery, observability, runbooks, capacity policy, Story
+  16.1, and product/runtime/release hold lifts.
+- **Prevents:** local test topology or an unstated provider assumption becoming
+  the production contract, and capacity/recovery waivers having no owner.
+- **Rule:** Architect/Runtime owns
+  `_bmad-output/planning-artifacts/production-operational-envelope-v1.md`; it
+  must name local/CI/staging/production parity, provider and infrastructure
+  responsibilities, state/pubsub/secret/identity dependencies, health and
+  telemetry expectations, backup/rebuild/disaster procedures, operator
+  runbooks, scaling limits, and waiver expiry. The Release owner alone accepts
+  a capacity or parity waiver. The artifact is a hard entry condition for Story
+  16.1 and for every future hold-lift decision of any scope, including
+  planning-only, checkpoint, schema, story, product, runtime, and release lifts.
+  This AD dispositions but does not supersede or narrow V13's "before any
+  hold-lift decision" condition. V17/V20/V21 remain immutable candidate-scoped
+  historical records; the late disposition does not cure, reactivate, or
+  broaden them, and they provide no current authorization. Until the artifact
+  exists and its gate passes, the effective hold remains `ACTIVE`.
+
+### AD-6 — Atomic Tenant-Projection Mutation And Recovery
+
+- **Binds:** Story 16.1, `ITenantProjectionStore`, its durable providers,
+  `TenantProjectionEventHandler`, and Conversations tenant authorization.
+- **Prevents:** two replicas losing or regressing a disable, membership, role,
+  or configuration event while both satisfy an unconditional save contract.
+- **Rule:** EventStore owns the generic transport and recovery substrate:
+  extraction of `(aggregateId, aggregateSequence, messageId, eventType,
+  SHA-256(exact persisted payload bytes))` from the immutable raw envelope,
+  `IReadModelStore` ETag/CAS, the three-total-attempt retry policy, replay
+  scheduling, fenced recovery leases, and delivery acknowledgement. Tenants
+  owns the pure transition policy and the projection/checkpoint schema and
+  consumes that platform seam rather than creating a parallel store.
+  `Healthy(lastContiguousSequence)` plus exact-next sequence applies projection
+  and checkpoint in one CAS. An identical accepted fingerprint is a no-op; an
+  identity mismatch at an accepted sequence becomes terminal `Corrupt`; and
+  provider or retry exhaustion becomes `Unavailable`. For
+  `sequence < lastContiguousSequence`, EventStore never reapplies the event: it
+  compares the delivery fingerprint with authoritative history at that
+  sequence; exact match is a no-op, missing or mismatched identity is
+  `Corrupt`, and unavailable verification is `Unavailable`.
+
+  `Gapped` persists immutable `expected`, monotonic `recoveryThrough`, and
+  durable observed evidence keyed by aggregate sequence as `(messageId,
+  eventType, payloadFingerprint)`. Each future delivery CAS-merges
+  `recoveryThrough = max(current, deliveredSequence)` and never removes or
+  replaces evidence; identical evidence is a no-op and conflicting evidence at
+  one sequence becomes `Corrupt`. A delivery is acknowledged only after its
+  accepted, duplicate, pending, or corrupt outcome commits durably; CAS failure,
+  provider failure, and retry exhaustion return a retryable failure and are not
+  acknowledged. Under a restart-safe lease carrying a fencing token and record
+  version, EventStore replays the authoritative stream from `expected` through
+  the current `recoveryThrough`, validates all observed evidence, and applies
+  the same Tenants transition function contiguously. Before returning
+  `Healthy`, it must CAS-prove that the lease, record version, checkpoint, and
+  recovery horizon remain unchanged and that no pending fingerprint remains;
+  otherwise it continues through the enlarged horizon. An expired or
+  superseded worker cannot clear or overwrite newer state. Missing or
+  conflicting authoritative history becomes `Corrupt`.
+
+  Every state except `Healthy` denies authorization, recovery is never
+  query-triggered, and Conversations never clears it. Provider and consumer
+  conformance tests must execute concurrent reverse-save, duplicate,
+  equal-sequence mismatch, at least three interleaved future deliveries,
+  concurrent horizon extension, retry exhaustion, lease expiry/restart,
+  failed and successful recovery, and two-replica schedules.
+
+### AD-7 — Conversations Lifecycle And Watermark Authority
+
+- **Binds:** Story 16.2, the tenant Conversation index, list reads, rebuilds,
+  projection erasure, and initialized-empty semantics.
+- **Prevents:** Tenants state, a separate lifecycle key, and the Conversation
+  index independently claiming whether an authorized tenant is current-empty.
+- **Rule:** `ConversationProjectionIndexReadModel` version 2 at the existing
+  `projection:conversations-index:<tenant-segment>` key is the sole
+  Conversations lifecycle/watermark record. It contains lifecycle state, the
+  Tenants lifecycle-stream watermark, per-Conversation aggregate watermarks,
+  dispatch references, and the rebuild barrier/manifest. Contiguous means
+  exact-next aggregate sequence within each covered aggregate stream;
+  EventStore global position is only a monotonic scan barrier, may contain
+  numeric gaps, and never proves tenant-wide contiguity. Only
+  `ConversationProjectionReadModelWriter` authors index transition plans;
+  lifecycle adapters plus rebuild/erase coordinators submit intents and
+  EventStore executes the writer-produced CAS plan. Initialization from
+  `TenantCreated` creates an empty v2 index. Legal transitions are
+  `Absent|v1 -> Rebuilding`, `TenantCreated + Absent -> Ready(empty)`,
+  `Ready -> Erasing -> Erased`, and `Ready|Erased -> Rebuilding -> Ready`;
+  only an explicit owner-authorized rebuild intent may leave `Erased`.
+  Lifecycle fields and index entries share one CAS boundary; existing
+  detail/index dispatch markers continue to make cross-key partial work fail
+  closed.
+
+  Every erase or rebuild increments an index generation. Detail records,
+  dispatch markers, manifests, watermarks, and queued delivery references carry
+  that generation, and the writer rejects stale-generation mutation. Erase
+  CAS-transitions the retained control index to `Erasing`, captures its barrier
+  and deletion manifest, deletes only retiring-generation derived targets, and
+  then writes an `Erased` tombstone at the same key. Deliveries observed during
+  `Erasing` or `Erased` are acknowledged only after a generation-scoped
+  reference to their authoritative EventStore location is durably quarantined;
+  they cannot recreate detail, summary, dispatch, or index content. Generic
+  erase code retains the control record and its non-payload quarantine refs.
+
+  Rebuild discovers a stream manifest from authoritative tenant-scoped
+  EventStore streams at scan barrier `B`, never from the old index. Deliveries
+  after `B` enter the durable generation-scoped catch-up queue. After all
+  manifest streams are exact-next and gap-free through `B`, the coordinator
+  captures cutover barrier `C`, drains and verifies every queued event through
+  `C`, and CAS-writes `Ready` with the complete manifest and watermarks. Events
+  after `C` remain durably queued for normal live delivery. Queries accept data
+  only when detail, dispatch, and index generations match; otherwise they return
+  `Rebuilding`. A rebuild CAS may merge only same-generation post-barrier
+  progress and may never overwrite a newer watermark. Migration from v1 uses
+  this replay/rebuild path and never infers lifecycle on read.
+
+| Observed condition after tenant authorization | Required public mapping |
+| --- | --- |
+| v2 `Ready` with zero summaries and no pending dispatch | `Current` / `current`, empty page |
+| v1, `Erasing`, `Erased`, or `Rebuilding` record | `Rebuilding` / `rebuilding` |
+| lifecycle or source-position gap | `Rebuilding` / `gap_detected` |
+| missing record for an authorized tenant or unavailable provider | `Unavailable` / `unavailable` |
+| corrupt, mixed-generation, or contradictory lifecycle record | `Unavailable` / `metadata_contradictory` |
+| nonexistent or unauthorized tenant | authorization-layer non-disclosing `Forbidden` / `forbidden`; no index read |
+
+### AD-8 — Replay Identity, Time, And Canonical Bytes
+
+- **Binds:** Story 16.2 materialization, rebuild hashes, freshness evidence,
+  lag calculation, and event-time diagnostics.
+- **Prevents:** payload-time and envelope-time consumers producing different
+  deterministic projections from the same history.
+- **Rule:** Validate identity, payload binding, and selected time before
+  duplicate suppression. Within a validated Conversation stream, a contract
+  event's identity is `ConversationEventMetadata.EventId` and its selected
+  replay time is `OccurredAt`; the envelope timestamp remains diagnostic and a
+  difference is not itself corruption. A position-only event's identity is its
+  nonblank persisted `ProjectionEventDto.MessageId` and its selected time is
+  `ProjectionEventDto.Timestamp`. Aggregate sequence proves contiguity, not
+  alternate identity. The decoder must retain the position-only message ID and
+  selected time. Duplicate tracking stores identity to the full binding
+  `(tenant, conversation, eventType, sequence, serializationFormat,
+  SHA-256(exact persisted payload bytes), selectedUtcTicks)`: exact match is a
+  no-op; reuse with any different binding is `Unavailable` /
+  `metadata_contradictory`. Missing identity, default or invalid selected time,
+  or a changed selected time fails before deduplication. Legacy records require
+  an explicit migration authority and never infer fallback identity.
+
+  Persisted v2 deterministic replay state records internal `ReplayAnchorAt`, the
+  maximum validated selected event or lifecycle time contributing to that
+  state. It is not public
+  `ProjectionFreshnessV1.ProjectionGeneratedAt`. Public mapping preserves the
+  existing contract: `LastAppliedEventTimestamp` is the applicable replay
+  anchor, `ProjectionGeneratedAt` is the actual UTC instant generation
+  completed, `LagDuration` is the interval between them, and `IsStale`, state,
+  and reason derive from that lag and explicit gap/corruption/rebuild state. A
+  generation instant earlier than its replay anchor is contradictory metadata
+  and maps fail closed rather than being clamped. These operational observation
+  fields are excluded from deterministic replay hashes; processing/query time
+  otherwise feeds telemetry only. Byte identity applies to the canonical v2
+  replay state and `ReplayAnchorAt`, not to a complete provider document that
+  also carries observation-time freshness.
+
+  The existing EventStore coordinated-batch canonicalizer is serialization
+  authority for persisted v2 replay-state values: fixed
+  `JsonSerializerDefaults.Web`, compact UTF-8, and recursively ordinal-sorted
+  object properties. Conversations supplies explicitly and ordinally ordered
+  arrays for summaries, manifests, watermarks, references, dictionaries, and
+  sets; an unordered collection without a stable composite key fails before
+  persistence. The `ReplayStateHash` is SHA-256 of the exact EventStore-produced
+  canonical value bytes for the deterministic replay-state operation, excluding
+  operational freshness, provider wrappers, ETags, batch IDs, and TTL. The
+  coordinated-batch fingerprint remains a separate platform protocol value.
+  Provider conformance proves deserialize-and-canonical-reserialize equality.
+  Conversations source-generated API options are not injected into the fixed
+  batch seam; any need for source-generated persistence metadata requires a
+  versioned EventStore API and golden vectors before Story 16.2.
+
+  This AD explicitly supersedes the V14 Story 16.2 requirement that clean
+  rebuilds produce byte-identical complete projection JSON and timestamps. Its
+  replacement acceptance rule is: canonical deterministic v2 replay-state JSON,
+  `ReplayAnchorAt`, and `ReplayStateHash` are byte-identical for identical
+  authoritative inputs, while public observation-time freshness is generated
+  anew, conforms to `ProjectionFreshnessV1`, is excluded from replay identity,
+  and is tested for semantic invariants rather than byte equality. The required
+  successor Story 16.2 carrier must state this replacement verbatim enough for
+  its validator to distinguish the two surfaces.
+
+  These are target contracts for Stories 16.1/16.2. Current handlers, decoder,
+  and persistence models do not claim compliance, and implementation remains
+  `ACTIVE`-held until the required platform seams and conformance tests exist.
+
+### AD-9 — Workflow Inventory And Code-Owned Technology Seed
+
+- **Binds:** planning workflow discovery, direct authority tests, package
+  guidance, and technology-currentness claims.
+- **Prevents:** removed aliases remaining mandatory and dated architecture
+  snapshots competing with tracked SDK/package authority.
+- **Rule:** For the installed BMad 6.12 route set, `bmad-build` and
+  `bmad-build-auto` are the canonical attended and unattended build routes in
+  both agent trees. The removed `bmad-dev-auto` and `bmad-quick-dev` aliases
+  are retired; their absence is valid and V10/V12/V14 alias-existence rules are
+  superseded. Exact SDK and package versions are code-owned seed: resolve .NET
+  from `global.json`, shared dependencies from the imported central package
+  catalog, and planning-tool versions from the installed manifest/current
+  package authority. Dated version prose is evidence only. Sibling alignment,
+  compatibility, central ownership, and no inline package versions remain the
+  architectural rules.
+  Planning Tooling owns the current route inventory and generic marker resolver;
+  Quality owns its conformance gate. They must land before any successor
+  planning-authority publication after AR-15 or Story 7.1 resumption.
+  The inventory covers the installed manifest, both skill trees,
+  `_bmad/config.yaml`, setup/module descriptions, generators, publisher
+  constants, workflows, and direct tests. Any active reference to
+  `bmad-dev-auto` or `bmad-quick-dev` fails validation unless explicitly labeled
+  historical or pre-rename guidance. Historical V9 checks stay candidate-bound
+  and are never used as the current route-set validator.
+
+### AD-10 — Public Boundary And Enforceability
+
+- **Binds:** REST/OpenAPI, DTOs, errors, logs, SDK packages, architecture
+  patterns, CI, and review gates.
+- **Prevents:** an impossible ban on public contract names and reviewers
+  disagreeing whether an unevaluated prose pattern blocks completion.
+- **Rule:** This AD explicitly supersedes the inherited API-naming sentence
+  beginning "Public APIs expose domain outcomes and stable vocabulary only"
+  only where that sentence prohibits Conversations-owned route names, DTO
+  property names, serialized contracts, safe error codes, client-safe logs,
+  OpenAPI descriptions, or SDK names. It does not supersede the prohibition on
+  EventStore or other internal implementation concepts, and DC-5's approved
+  public-position exception remains binding. The resulting public-boundary
+  prohibition applies to EventStore and other
+  internal implementation concepts: stream topology, storage identifiers,
+  raw envelopes/events, internal positions except the approved
+  Conversations-owned public position, internal exception types, and provider
+  payloads. Conversations-owned routes, DTO property names, serialized
+  contracts, stable safe error codes, client-safe logs, OpenAPI descriptions,
+  and SDK names are required public surfaces, not prohibited leaks. A pattern
+  is blocking only when a named test, analyzer, contract test, or validator
+  enforces it. Quality owns
+  `_bmad-output/planning-artifacts/architecture-rule-enforcement-v1.json`,
+  which maps stable rule IDs to enforcement and activation status. AD-1 through
+  AD-10 and inherited security, privacy, authority, and fail-closed rules remain
+  binding even before that ledger exists; only an inherited implementation
+  pattern explicitly marked uncovered is advisory until its named gate lands.
+
+### Current Capability And Boundary Map
+
+| Capability / requirement area | Current owner and location | Governing rule |
+| --- | --- | --- |
+| FR-1-FR-2 inventory and classification governance | Candidate-bound planning inventory and preservation manifest work | AD-3; Epics 10 and 14 |
+| FR-3-FR-9 consumed platform surface | Domain/Contracts/Client/Server/Testing using public EventStore and Commons seams | AD-1, AD-2 |
+| FR-10-FR-15 promoted platform capabilities | V8 landing-zone register and public technical-module surfaces | AD-2 |
+| FR-16 conditional metadata | Deferred and non-activated | Existing FR-16 gate |
+| FR-17-FR-20 adoption, template, measurement, preservation | Epics 8-15 and candidate-bound evidence/final records | AD-3, AD-10 |
+| Conversation writes and replay | `Hexalith.Conversations` plus `Server/CommandHandlers` | AD-1 |
+| Read models and queries | `Server/Projections`, `Server/Queries`, Contracts projections/query types | AD-1, AD-7, AD-8 |
+| Tenant authorization | Tenants.Client projection plus `Server/TenantAccess` policy | AD-2, AD-6 |
+| Governance, redaction, and hydration | Domain events, `Server/Governance`, `Server/Hydration`; Parties data read-time only | AD-1, AD-2, AD-10 |
+| Optional operator UI | `Admin.Web` composed through FrontComposer; preserved but not activated by this overlay | AD-2, AD-10 |
+| Verification and operations evidence | Conformance/Integration/AppHost tests, `docs/release-evidence`, platform telemetry | AD-3, AD-5, AD-10 |
+
+### Deferred With Owners And Revisit Conditions
+
+| Item | Owner | Revisit condition / gate |
+| --- | --- | --- |
+| `AR-15` external bootstrap authority and current-head recovery after V21 | Release, Architecture, Quality, and organization-ruleset administrator | First install the no-bypass external validator with the exact identity, digest, command, output schema, allowlist, and one-time authorization protocol in AD-3; until then status is `BLOCKED_BOOTSTRAP_AUTHORITY`. Then validate one atomic AR-15 candidate, consume its nonce on merge, rerun the generic resolver on protected `main`, preserve `ACTIVE`, and satisfy AD-3. |
+| Story 7.1 execution and terminal successors | Release owner with Architecture/Quality | After accepted `AR-15`; satisfy the AD-4 state machine in separate scoped execution and terminal authority/pointer publications. |
+| V15 Epic 16 carrier reconciliation | Planning Tooling with Release, Architecture, Quality, EventStore, Tenants, and Conversations owners | Before Story 16.1 entry: publish append-only successor Epic 16 and Story 16.1-16.3 carriers incorporating AD-5 through AD-8, regenerate their inventories/graph/validators, preserve accepted scope, and pass AD-3. V14 carriers remain immutable historical evidence. |
+| Production operational envelope | Architect/Runtime; Release owner for waivers | Before Story 16.1 and before every future hold-lift decision of any scope—including planning-only, checkpoint, schema, story, product, runtime, and release—per AD-5. |
+| `conversations-vocabulary-v1.json` condition mapping | Quality | Before any successor serializing redaction or hydration display state enters review; existing public value sets may not widen merely to close the planning gap. |
+| AppHost baseline interpretation | Hexalith baseline owner with Architect/Runtime | Before Epic 12 or Story 16.3 entry. Until an explicit exemption or relocation amendment exists, the non-packable fixture may remain as brownfield state but cannot establish baseline conformance or new runtime authority. |
+| Canonical SPEC refresh | Product/spec owner through `bmad-spec` | Before the next downstream planning refresh. Its V9/`UNBOUND`/global-`ACTIVE` statements are historical; AD-3 controls current execution meanwhile. |
+| Pattern-to-enforcement ledger | Quality | Before a completion or release gate claims every prose pattern is mechanically enforced. |
+| Successor workflow inventory and current-head resolver verification | Planning Tooling with Quality | Before any planning-authority publication or Story 7.1 resumption: publish the current route inventory/checker and a conformance test that follows the selected marker, verifies predecessor identities/digests, runs the protected checker, and asserts the recomputed hold. |
+| Portable conformance tier | Epic 9 Quality owner | Before Epic 9 completion; the current Server-referencing project is module-internal until a separate portable surface exists. |
+| Fluent UI V5 prerelease/stable policy and WCAG 2.2 adoption | Product/UX and platform UI owners | Before optional UI scope activates; current UX floor remains binding until explicitly raised. |
+
+These corrections amend architecture text only. This overlay authorizes no
+product code, source contract, dependency, submodule, gitlink, specification,
+UX scope, IR-0, epic/story artifact, story status, hold lift, release, or push
+change. Implementation remains `ACTIVE`-held until the named successor gates
+pass. Its marker's `hold=ACTIVE` is the fail-closed current result, not a new
+global hold record.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V15:END version=conversations-architecture-2026-09-16-v15 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Conversations Architecture Gate — 2026-09-16</title>
+  <style>
+    :root {
+      color-scheme: light dark;
+      --bg: #f4f5f2; --surface: #ffffff; --ink: #17201f; --muted: #5d6865;
+      --line: #d5dbd7; --accent: #08776f; --accent-wash: #e1f1ee;
+      --critical: #ad2a22; --critical-wash: #f9e8e6;
+      --high: #9a5700; --high-wash: #f8eedf;
+      --pass: #2d6b35; --pass-wash: #e7f1e7; --code: #ecefeb;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #111716; --surface: #18201e; --ink: #e6eeeb; --muted: #a8b4b0;
+        --line: #34423e; --accent: #61c8bc; --accent-wash: #183532;
+        --critical: #f08078; --critical-wash: #3a211f;
+        --high: #e1a35b; --high-wash: #382a19;
+        --pass: #86c98e; --pass-wash: #1e3121; --code: #222c29;
+      }
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 3rem 1.2rem 5rem; background: var(--bg); color: var(--ink); font: 16px/1.58 system-ui, -apple-system, "Segoe UI", sans-serif; }
+    main { width: min(980px, 100%); margin: 0 auto; display: grid; gap: 2.5rem; }
+    header { display: grid; gap: .8rem; }
+    .eyebrow { color: var(--accent); font: 700 .76rem/1.2 ui-monospace, monospace; letter-spacing: .14em; text-transform: uppercase; }
+    h1, h2, h3 { margin: 0; line-height: 1.2; text-wrap: balance; }
+    h1 { font-size: clamp(2rem, 5vw, 3.3rem); letter-spacing: -.035em; }
+    h2 { font-size: 1.35rem; border-bottom: 2px solid var(--line); padding-bottom: .55rem; }
+    h3 { font-size: 1.04rem; }
+    p { margin: 0; }
+    code { font: .86em ui-monospace, "Cascadia Mono", monospace; background: var(--code); padding: .1em .35em; border-radius: 4px; }
+    a { color: var(--accent); }
+    .meta { color: var(--muted); max-width: 80ch; }
+    .verdict { background: var(--critical-wash); border: 1px solid var(--critical); border-left-width: 7px; border-radius: 9px; padding: 1.35rem 1.5rem; display: grid; gap: .65rem; }
+    .stamp { color: var(--critical); font-weight: 800; letter-spacing: .05em; }
+    .safe { background: var(--pass-wash); border-color: var(--pass); }
+    .safe .stamp { color: var(--pass); }
+    section { display: grid; gap: 1rem; }
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 9px; background: var(--surface); }
+    table { border-collapse: collapse; width: 100%; font-size: .92rem; }
+    th, td { padding: .62rem .8rem; border-bottom: 1px solid var(--line); text-align: left; }
+    th { color: var(--muted); font-size: .76rem; text-transform: uppercase; letter-spacing: .07em; }
+    tr:last-child td { border-bottom: 0; }
+    .num { text-align: right; font-variant-numeric: tabular-nums; }
+    .cards { display: grid; gap: .9rem; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-left-width: 6px; border-radius: 9px; padding: 1.05rem 1.2rem; display: grid; gap: .58rem; }
+    .card.critical { border-left-color: var(--critical); }
+    .card.high { border-left-color: var(--high); }
+    .head { display: flex; align-items: baseline; gap: .65rem; flex-wrap: wrap; }
+    .chip { font: 700 .7rem/1 ui-monospace, monospace; letter-spacing: .08em; text-transform: uppercase; padding: .28rem .52rem; border-radius: 999px; }
+    .critical .chip { color: var(--critical); background: var(--critical-wash); border: 1px solid var(--critical); }
+    .high .chip { color: var(--high); background: var(--high-wash); border: 1px solid var(--high); }
+    .card p { color: var(--muted); }
+    .card strong { color: var(--ink); }
+    .action { border-top: 1px dashed var(--line); padding-top: .52rem; }
+    .sources { font: .76rem/1.45 ui-monospace, monospace; color: var(--muted); }
+    ol { margin: 0; padding-left: 1.35rem; display: grid; gap: .55rem; color: var(--muted); }
+    ol strong { color: var(--ink); }
+    .reviews { display: flex; flex-wrap: wrap; gap: .65rem; }
+    .reviews a { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: .42rem .65rem; text-decoration: none; }
+    footer { color: var(--muted); border-top: 1px solid var(--line); padding-top: 1rem; font-size: .86rem; }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">BMad Reviewer Gate · Validate · 2026-09-16</div>
+    <h1>Conversations Architecture Gate</h1>
+    <p class="meta"><code>architecture.md</code> · 2,698 lines · 172,239 bytes · SHA-256 <code>f6c67686…3666</code> · V14 immutable base with current repository authority through V21.</p>
+  </header>
+
+  <div class="verdict">
+    <div class="stamp">GATE VERDICT — FAIL</div>
+    <p><strong>Do not use the architecture file as the current standalone build authority.</strong> V14's immutable technical base is internally coherent, but its resolver stops at V14/ACTIVE while later authorities continue through V21. The current V21 checker rejects HEAD with <code>V21_DESCENDANT_GITLINK_DRIFT</code> and restores the effective Story 7.1 hold to <strong>ACTIVE</strong>.</p>
+  </div>
+
+  <div class="verdict safe">
+    <div class="stamp">FAIL-CLOSED HANDOFF</div>
+    <p>The recorded V17/V20/V21 lifts are valid only for their exact assessed candidates. No unsafe lift should be inferred. Preserve V1–V14, append a current-head pointer and successor authority, and require that successor's effective-hold check to pass before Story 7.1 resumes.</p>
+  </div>
+
+  <section>
+    <h2>Scoreboard</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Lens</th><th>Verdict</th><th class="num">Critical</th><th class="num">High</th><th class="num">Medium</th><th class="num">Low</th></tr></thead>
+      <tbody>
+        <tr><td>Deterministic lint</td><td>PASS — 0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num">0</td></tr>
+        <tr><td>Good-spine rubric</td><td>FAIL</td><td class="num">2</td><td class="num">2</td><td class="num">4</td><td class="num">2</td></tr>
+        <tr><td>Reality/currentness</td><td>FAIL</td><td class="num">1</td><td class="num">3</td><td class="num">2</td><td class="num">1</td></tr>
+        <tr><td>Adversarial divergence</td><td>FAIL</td><td class="num">2</td><td class="num">4</td><td class="num">1</td><td class="num">0</td></tr>
+        <tr><td>Authority-chain</td><td>FAIL</td><td class="num">1</td><td class="num">2</td><td class="num">1</td><td class="num">0</td></tr>
+        <tr><td><strong>Consolidated C/H</strong></td><td><strong>FAIL</strong></td><td class="num"><strong>3</strong></td><td class="num"><strong>9</strong></td><td class="num">—</td><td class="num">—</td></tr>
+      </tbody>
+    </table></div>
+    <p class="meta">The complete reviews also contain 8 medium and 3 low findings before cross-lens deduplication.</p>
+  </section>
+
+  <section>
+    <h2>Critical</h2>
+    <div class="cards">
+      <article class="card critical">
+        <div class="head"><span class="chip">Critical · C1</span><h3>Current authority is not deterministically resolvable</h3></div>
+        <p>V13 requires each new authority sidecar to ship with an architecture pointer. The last pointer remains V14/ACTIVE, committed authorities continue through V21, and the installed V21 says LIFTED while its current checker returns ACTIVE. A marker reader, filename reader, and checker reach incompatible results.</p>
+        <p class="action"><strong>Action:</strong> append a pointer-bearing overlay and successor authority; define one resolver for architecture, planning candidate, point-in-time checkpoint, and current scoped hold. Preserve V1–V14.</p>
+        <div class="sources">rubric F1 · reality F1 · adversarial ADV-1 · authority AUTH-01/02</div>
+      </article>
+
+      <article class="card critical">
+        <div class="head"><span class="chip">Critical · C2</span><h3>Operational-envelope precondition was bypassed</h3></div>
+        <p>V13 requires the environment, provider/infra strategy, runbooks, and capacity-waiver ownership to be decided, deferred with an owner, or delegated before any hold lift. No counterpart artifact exists, yet V17 and V20/V21 recorded scoped lifts.</p>
+        <p class="action"><strong>Action:</strong> disposition the envelope and define how the late decision cures the lifts, or explicitly amend the rule to exempt planning-only work. Do not infer the exception.</p>
+        <div class="sources">rubric F2 · adversarial ADV-6</div>
+      </article>
+
+      <article class="card critical">
+        <div class="head"><span class="chip">Critical · C3</span><h3>Tenant projection lacks cross-replica atomicity</h3></div>
+        <p><code>ITenantProjectionStore</code> permits unconditional last-write-wins saves, and the current semaphore is process-local. Two replicas can regress sequence/state or lose a disable transition while both satisfy the named interface.</p>
+        <p class="action"><strong>Action:</strong> bind the event identity, monotonic/CAS protocol, equal-sequence mismatch rule, retries, owner, and fail-closed outcome before Story 16.1.</p>
+        <div class="sources">adversarial ADV-2</div>
+      </article>
+    </div>
+  </section>
+
+  <section>
+    <h2>High</h2>
+    <div class="cards">
+      <article class="card high"><div class="head"><span class="chip">H1</span><h3>Story 7.1 has no terminal/integration transition</h3></div><p>Protected-main integration, merge-candidate CI, and retirement of the descendant-path restriction are unresolved; current gitlink drift makes that gap concrete. <strong>Discuss and publish successor terminal authority.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H2</span><h3>V14 workflow inventory is no longer executable</h3></div><p>BMAD 6.12 removed required forwarding aliases. The direct V9 class fails on missing <code>bmad-dev-auto</code>, and current-head V9 publication reports source drift. <strong>Publish a successor inventory or explicitly retire the alias rule.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H3</span><h3>Test AppHost conflicts with the effective baseline</h3></div><p>The architecture's non-shipping-fixture interpretation has no baseline-owner ruling. <strong>Obtain an explicit exemption or relocate/remove it additively.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H4</span><h3>Lifecycle/watermark authority is unspecified</h3></div><p>Tenant state, conversation index, and a separate lifecycle record are all compliant candidates, with no bound key, atomicity, rebuild, or migration rule. <strong>Select one owner and one persisted shape.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H5</span><h3>Replay-time precedence is ambiguous</h3></div><p>Envelope timestamp and payload <code>CommittedAt</code> can both satisfy “immutable event time”; absent/invalid time has multiple safe mappings. <strong>Bind precedence, normalization, conflict, and state/reason mapping.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H6</span><h3>Vocabulary sidecar is absent</h3></div><p><code>conversations-vocabulary-v1.json</code> is load-bearing for redaction/hydration mappings but is not published or bundled. <strong>Keep the blocker and publish the sidecar without widening public values.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H7</span><h3>Canonical spec still describes V9/UNBOUND/ACTIVE</h3></div><p>The spec package calls itself complete but no longer matches V14 plus scoped execution authorities. <strong>Refresh through <code>bmad-spec</code> after the resolver is fixed.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H8</span><h3>Point-in-time sidecars omit currentness metadata</h3></div><p>V15–V21 omit V13's required <code>statusAsOf</code>, making recorded state easy to confuse with recomputed state. <strong>Separate recorded effect from evaluated-head effect in successor schemas.</strong></p></article>
+      <article class="card high"><div class="head"><span class="chip">H9</span><h3>Exact technology versions are stale seed</h3></div><p>The architecture snapshot says Aspire 13.4.6 / Dapr 1.18.5; current tracked pins are SDK 10.0.401, Aspire 13.5.3, and Dapr 1.18.7. <strong>Point to V18/current central pins and keep only the alignment invariant here.</strong></p></article>
+    </div>
+  </section>
+
+  <section>
+    <h2>Mechanical evidence</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Check</th><th>Result</th></tr></thead>
+      <tbody>
+        <tr><td>Spine lint</td><td>PASS · 0 findings</td></tr>
+        <tr><td>V9–V14 marker digest walk</td><td>PASS · byte/prefix pins intact</td></tr>
+        <tr><td>Architecture conformance</td><td>PASS · 18/18</td></tr>
+        <tr><td>PlanningAuthorityV9 class</td><td>FAIL · 1/7, missing workflow alias</td></tr>
+        <tr><td>V14–V20 checkers</td><td>PASS</td></tr>
+        <tr><td>V21 current checker</td><td>FAIL · descendant gitlink drift · effective hold ACTIVE</td></tr>
+        <tr><td>Focused Debug build</td><td>PASS · 2 IdentityModel version-conflict warnings</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section>
+    <h2>Recommended update order</h2>
+    <ol>
+      <li><strong>Restore one resolver.</strong> Append the current-head pointer/successor and keep Story 7.1 ACTIVE until it validates.</li>
+      <li><strong>Resolve inherited preconditions.</strong> Disposition or explicitly narrow the operational-envelope rule.</li>
+      <li><strong>Close Epic 16 contracts.</strong> Atomic mutation, lifecycle/watermark authority, replay time, and recovery ownership.</li>
+      <li><strong>Repair planning-tooling authority.</strong> Replace/retire aliases and add a current-head resolver test.</li>
+      <li><strong>Refresh companions.</strong> Update the spec and delegate exact versions to V18/current package pins.</li>
+    </ol>
+  </section>
+
+  <section>
+    <h2>Full reviews</h2>
+    <div class="reviews">
+      <a href="reviews/validate-2026-09-16/review-rubric.md">Rubric</a>
+      <a href="reviews/validate-2026-09-16/review-reality-checked.md">Reality/currentness</a>
+      <a href="reviews/validate-2026-09-16/review-adversarial.md">Adversarial</a>
+      <a href="reviews/validate-2026-09-16/review-authority-chain.md">Authority-chain</a>
+      <a href="validation-report-2026-09-16.md">Markdown report</a>
+    </div>
+  </section>
+
+  <footer>Validation only. The architecture and authority artifacts were not modified. Offer: roll the findings into an append-only BMad Architecture Update.</footer>
+</main>
+</body>
+</html>
