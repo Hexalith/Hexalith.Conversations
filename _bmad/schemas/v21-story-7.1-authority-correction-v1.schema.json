@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v21-story-7.1-authority-correction-v1.schema.json",
+  "title": "Story 7.1 V21 Authority Correction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "authorityId",
+    "predecessor",
+    "acceptedLineage",
+    "verifiedV20",
+    "hardenedTooling",
+    "resultSemantics",
+    "assertionLedger",
+    "result",
+    "authorityEffect"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-authority-correction.v1"
+    },
+    "authorityId": {
+      "const": "V21-STORY-7.1-AUTHORITY-CORRECTION"
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorityId", "path", "sha256"],
+      "properties": {
+        "authorityId": {
+          "const": "V20-STORY-7.1-RELEASE-OWNER-AUTHORITY"
+        },
+        "path": {
+          "const": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json"
+        },
+        "sha256": {
+          "const": "7719deb5787bd59a2194dd9f2a138e74fedcadb2db4f4b575b0974f38c4faa09"
+        }
+      }
+    },
+    "acceptedLineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineCommit",
+        "v19ToolingCommit",
+        "checkpointCommit",
+        "v19PublicationCommit",
+        "entryCommit",
+        "v20PublicationCommit"
+      ],
+      "properties": {
+        "baselineCommit": {
+          "const": "2ed96eff2adfd5190854165a01df657338def26f"
+        },
+        "v19ToolingCommit": {
+          "const": "4505ff975c7ae7aa877ee077b50729cdd8652151"
+        },
+        "checkpointCommit": {
+          "const": "dbd2c5b11f16ddfce8b039e2c31eec38a2e99c8b"
+        },
+        "v19PublicationCommit": {
+          "const": "3045060ce48acfed60b66bacd417de4dcfd1adb0"
+        },
+        "entryCommit": {
+          "const": "5fa5612dd348259ce8fc46865409f678110cec87"
+        },
+        "v20PublicationCommit": {
+          "const": "6fa990459dd72d6752e12bbc806d85bf607fff85"
+        }
+      }
+    },
+    "verifiedV20": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["publicationCommit", "path", "rawSha256", "signature"],
+      "properties": {
+        "publicationCommit": {
+          "const": "6fa990459dd72d6752e12bbc806d85bf607fff85"
+        },
+        "path": {
+          "const": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json"
+        },
+        "rawSha256": {
+          "const": "7719deb5787bd59a2194dd9f2a138e74fedcadb2db4f4b575b0974f38c4faa09"
+        },
+        "signature": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "principal", "fingerprint", "authorIdentity"],
+          "properties": {
+            "status": {
+              "const": "G"
+            },
+            "principal": {
+              "const": "jpiquot@itaneo.com"
+            },
+            "fingerprint": {
+              "const": "SHA256:8XlNQvE3ucPf/e509wU4qtNgiyWA+TKmLei7F7+TCvk"
+            },
+            "authorIdentity": {
+              "const": "Jerome Piquot <jpiquot@itaneo.com>"
+            }
+          }
+        }
+      }
+    },
+    "hardenedTooling": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "parentCommit",
+        "commit",
+        "exactChangedPaths",
+        "changedGitlinkPaths",
+        "changedPathBindings"
+      ],
+      "properties": {
+        "parentCommit": {
+          "const": "6fa990459dd72d6752e12bbc806d85bf607fff85"
+        },
+        "commit": {
+          "$ref": "#/$defs/commit"
+        },
+        "exactChangedPaths": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {
+              "const": ".github/workflows/planning-authority-preflight.yml"
+            },
+            {
+              "const": "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md"
+            },
+            {
+              "const": "_bmad/schemas/v21-story-7.1-authority-correction-v1.schema.json"
+            },
+            {
+              "const": "_bmad/scripts/publish_story_7_1_successor_authorities.py"
+            },
+            {
+              "const": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
+            }
+          ],
+          "items": false
+        },
+        "changedGitlinkPaths": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "changedPathBindings": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/preflightBinding"
+            },
+            {
+              "$ref": "#/$defs/specificationBinding"
+            },
+            {
+              "$ref": "#/$defs/schemaBinding"
+            },
+            {
+              "$ref": "#/$defs/publisherBinding"
+            },
+            {
+              "$ref": "#/$defs/testBinding"
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "ledgerRequired"],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "const": "PASS"
+            },
+            {
+              "const": "FAIL"
+            },
+            {
+              "const": "BLOCKED"
+            },
+            {
+              "const": "not-applicable"
+            }
+          ],
+          "items": false
+        },
+        "ledgerRequired": {
+          "const": true
+        }
+      }
+    },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "result": {
+      "const": "PASS"
+    },
+    "authorityEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementationHold",
+        "unlocks",
+        "global",
+        "fullStoryExecutionAllowed",
+        "ownerDecisionReplaced",
+        "storyDoneAllowedWithoutAcceptance",
+        "story72Unlocked",
+        "releaseAuthorized",
+        "pushAuthorized"
+      ],
+      "properties": {
+        "implementationHold": {
+          "const": "LIFTED"
+        },
+        "unlocks": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "prefixItems": [
+            {
+              "const": "7.1"
+            }
+          ],
+          "items": false
+        },
+        "global": {
+          "const": false
+        },
+        "fullStoryExecutionAllowed": {
+          "const": true
+        },
+        "ownerDecisionReplaced": {
+          "const": false
+        },
+        "storyDoneAllowedWithoutAcceptance": {
+          "const": false
+        },
+        "story72Unlocked": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        }
+      }
+    }
+  },
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subject", "state"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "const": "PASS"
+        }
+      }
+    },
+    "preflightBinding": {
+      "$ref": "#/$defs/binding",
+      "properties": {
+        "path": {
+          "const": ".github/workflows/planning-authority-preflight.yml"
+        },
+        "role": {
+          "const": "planning-authority-preflight"
+        }
+      }
+    },
+    "specificationBinding": {
+      "$ref": "#/$defs/binding",
+      "properties": {
+        "path": {
+          "const": "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md"
+        },
+        "role": {
+          "const": "approved-v21-correction-specification"
+        }
+      }
+    },
+    "schemaBinding": {
+      "$ref": "#/$defs/binding",
+      "properties": {
+        "path": {
+          "const": "_bmad/schemas/v21-story-7.1-authority-correction-v1.schema.json"
+        },
+        "role": {
+          "const": "v21-authority-correction-schema"
+        }
+      }
+    },
+    "publisherBinding": {
+      "$ref": "#/$defs/binding",
+      "properties": {
+        "path": {
+          "const": "_bmad/scripts/publish_story_7_1_successor_authorities.py"
+        },
+        "role": {
+          "const": "successor-authority-publisher"
+        }
+      }
+    },
+    "testBinding": {
+      "$ref": "#/$defs/binding",
+      "properties": {
+        "path": {
+          "const": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
+        },
+        "role": {
+          "const": "successor-authority-tests"
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "mode", "role"],
+      "properties": {
+        "path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "mode": {
+          "const": "100644"
+        },
+        "role": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    }
+  }
+}
