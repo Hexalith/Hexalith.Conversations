@@ -1,0 +1,247 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-technical-evidence.v1",
+  "evidenceId": "OQ1-TECHNICAL-EVIDENCE-001",
+  "artifactVersion": "1.0.0",
+  "recordedDate": "2026-09-17",
+  "status": "current-source-evidence-with-blockers",
+  "result": "BLOCKED",
+  "ownerAuthority": {
+    "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+    "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325",
+    "authorityId": "OQ1-OWNER-AUTHORITY-001"
+  },
+  "sourceDeliveryVehicle": {
+    "id": "OQ1-SOURCE-BUNDLE-001",
+    "kind": "superproject-gitlink-source-bundle",
+    "scope": "Conversations pilot source integration only",
+    "rootRepository": "https://github.com/Hexalith/Hexalith.Conversations.git",
+    "rootCommit": "8bdf0268076761905107698c9d4e323d76f07f9e",
+    "gitlinks": [
+      {
+        "repository": "https://github.com/Hexalith/Hexalith.EventStore.git",
+        "path": "references/Hexalith.EventStore",
+        "commit": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
+        "nearestReachableTag": "v3.106.0",
+        "exactlyTagged": false
+      },
+      {
+        "repository": "https://github.com/Hexalith/Hexalith.Commons.git",
+        "path": "references/Hexalith.Commons",
+        "commit": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+        "nearestReachableTag": "v2.30.0",
+        "exactlyTagged": false
+      }
+    ],
+    "releaseOrder": [
+      "Validate Commons and EventStore independently at their pinned commits.",
+      "Validate Conversations against both pinned commits.",
+      "Do not authorize the bounded source vehicle while any required runtime or compatibility check is failed or blocked."
+    ],
+    "packagePublication": {
+      "authorized": false,
+      "claimed": false,
+      "evidence": []
+    }
+  },
+  "mappingDecision": {
+    "status": "approved-by-owner-authority",
+    "decision": "The hash-bound current architecture mapping supersedes the historical promote/adopt runbook mapping for OQ-1; the runbook remains historical provenance.",
+    "fr10": "Hexalith.EventStore.ServiceDefaults and Hexalith.EventStore.DomainService",
+    "fr11": "Hexalith.Commons.TenantAccess",
+    "fr12": "Hexalith.Commons.Http",
+    "fr13": "Hexalith.EventStore.Aspire plus applicable Hexalith.Commons Aspire helpers; reusable and production topology remains platform-owned, with the non-packable module test AppHost retained",
+    "fr14": "Hexalith.Commons.Serialization",
+    "fr15": "Hexalith.Commons.Diagnostics plus Hexalith.EventStore.DomainService telemetry registration"
+  },
+  "implementationProvenance": [
+    {
+      "requirementId": "FR-10",
+      "originCommits": [
+        "bb88124c41ff416ba61272f548f4caf92bc92b55",
+        "8110d83d8317b7142079b3156727790491b2d8bb",
+        "cc72a56619edd776cc0177c47599d63db16ecfb6",
+        "0eb365797d06207e42b517375664f46405a7ad7d",
+        "e645901928eed9759e28e1086f23dc96875c3ac3"
+      ],
+      "acceptedSourceSnapshot": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"
+    },
+    {
+      "requirementId": "FR-11",
+      "originCommits": [
+        "a8ac0322bf40e74633c907f57d9998412b52ea74",
+        "305a0a3b84c351a72c409ae904d1259bc58b0473"
+      ],
+      "acceptedSourceSnapshot": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+    },
+    {
+      "requirementId": "FR-12",
+      "originCommits": ["7425d4a4181cdf62a7244e62714f8ccf616702ac"],
+      "acceptedSourceSnapshot": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+      "note": "The origin commit is not the complete current implementation; later HTTP/helper changes are included in the accepted source snapshot."
+    },
+    {
+      "requirementId": "FR-13",
+      "originCommits": [
+        "b430cd64334f691ee28aa7aab05bc7b86a8d5a91",
+        "946016cefb95edecb2799566c1a291513c8c53c4",
+        "0eb365797d06207e42b517375664f46405a7ad7d",
+        "a8b36395897ba79c870e7075e0d0aa41a10de623"
+      ],
+      "acceptedSourceSnapshots": [
+        "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
+        "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+      ]
+    },
+    {
+      "requirementId": "FR-14",
+      "originCommits": [
+        "2dc8358462a625db964758c71d0db824dd3e0e75",
+        "305a0a3b84c351a72c409ae904d1259bc58b0473"
+      ],
+      "acceptedSourceSnapshot": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+    },
+    {
+      "requirementId": "FR-15",
+      "originCommits": [
+        "17820f8149e8ae20b5960977fd06bdc37f5f86cb",
+        "cc72a56619edd776cc0177c47599d63db16ecfb6"
+      ],
+      "acceptedSourceSnapshots": [
+        "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+        "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"
+      ]
+    }
+  ],
+  "compatibilityWindow": {
+    "status": "bounded-source-window-only",
+    "supportedCombination": {
+      "conversations": "8bdf0268076761905107698c9d4e323d76f07f9e",
+      "eventStore": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
+      "commons": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+    },
+    "externalNuGetConsumersCovered": false,
+    "packageCompatibilityClaimed": false,
+    "trackedConsumerMatrixScope": "Non-exhaustive named project references selected from the root repository and initialized root-declared repositories. Only the entries listed in trackedConsumerMatrix are claimed; completeness across production, sample, test, internal, nested, or unknown external consumers is not claimed."
+  },
+  "trackedConsumerMatrix": {
+    "Hexalith.Commons.Http": ["Conversations.Client", "Parties.Client", "Parties.Security", "Parties"],
+    "Hexalith.Commons.TenantAccess": ["Conversations.Server"],
+    "Hexalith.Commons.Diagnostics": ["Conversations.Server"],
+    "Hexalith.Commons.Serialization": ["Conversations.Contracts", "Conversations.Server"],
+    "Hexalith.EventStore.DomainService": [
+      "Conversations.Server",
+      "Folders.EventStore",
+      "Folders.Server",
+      "Folders.Workers",
+      "Parties",
+      "Parties.Projections",
+      "Projects.Server",
+      "Tenants",
+      "Tenants.Sample",
+      "EventStore.Sample"
+    ],
+    "Hexalith.EventStore.ServiceDefaults": [
+      "Tenants.Api",
+      "EventStore.DomainService",
+      "EventStore.Server",
+      "EventStore.Gateway",
+      "EventStore.Operations",
+      "EventStore.Admin.Server.Host",
+      "EventStore.Admin.UI",
+      "EventStore.Sample.Api",
+      "EventStore.Sample.BlazorUI"
+    ],
+    "Hexalith.EventStore.Aspire": [
+      "Conversations.AppHost",
+      "Folders.AppHost",
+      "FrontComposer.AppHost",
+      "Memories.AppHost",
+      "Parties.AppHost",
+      "Projects.AppHost",
+      "Tenants.AppHost",
+      "Tenants.Aspire",
+      "EventStore.AppHost",
+      "EventStore.Testing.Integration"
+    ]
+  },
+  "testEvidence": {
+    "summary": {
+      "passingRuns": 10,
+      "passedTests": 341,
+      "failedTests": 0,
+      "runtimeBoundaryRuns": 1,
+      "runtimeBoundaryFailures": 1
+    },
+    "passingRuns": [
+      {"id": "CONV-CLIENT", "path": "_bmad-output/planning-artifacts/oq-1-evidence/conversations-client.xml", "sha256": "461fdb8f00332494fc8fb84eca73a2cdb04891ff5e1fd3a0360cb654fb23d1ed", "total": 26, "passed": 26},
+      {"id": "CONV-CONTRACTS", "path": "_bmad-output/planning-artifacts/oq-1-evidence/conversations-contracts.xml", "sha256": "a1d3e49c0c7d9a8b66a2581540a95cdc949e356661516dac8d59dfcaaf7a2ee5", "total": 5, "passed": 5},
+      {"id": "CONV-SERVER", "path": "_bmad-output/planning-artifacts/oq-1-evidence/conversations-server.xml", "sha256": "c0c2586e9cd9d39e33ee5331cd974417faf234fa1b686d96a322b1bd03a4023b", "total": 21, "passed": 21},
+      {"id": "CONV-APPHOST-TOPOLOGY", "path": "_bmad-output/planning-artifacts/oq-1-evidence/conversations-apphost-topology.xml", "sha256": "a42e5a94395ad741a06dd3b45fa89deaa017bc38603f109c9cb25d67d12d84f1", "total": 8, "passed": 8},
+      {"id": "CONV-CONFORMANCE", "path": "_bmad-output/planning-artifacts/oq-1-evidence/conversations-conformance.xml", "sha256": "00af710308f57c7ca16b38ae5a5ee96e1609dc145fffa90f065940410fe13b14", "total": 100, "passed": 100},
+      {"id": "EVENTSTORE-DOMAINSERVICE", "path": "_bmad-output/planning-artifacts/oq-1-evidence/eventstore-domainservice.xml", "sha256": "b0aac971218df1f20dd9cbd63007c6db1ace9a3dffb4ac29bba3e5251ab503cb", "total": 58, "passed": 58},
+      {"id": "COMMONS-HTTP", "path": "_bmad-output/planning-artifacts/oq-1-evidence/commons-http.xml", "sha256": "faea54d6711f13499d7e427ee9e8f14f7f73b1ab015ee984c02ab41ebe23360c", "total": 16, "passed": 16},
+      {"id": "COMMONS-TENANTACCESS", "path": "_bmad-output/planning-artifacts/oq-1-evidence/commons-tenantaccess.xml", "sha256": "d918e32d0ba378da4874e6e4bb67a3bf9b9df319fcaccace276630358e9e2427", "total": 70, "passed": 70},
+      {"id": "COMMONS-DIAGNOSTICS", "path": "_bmad-output/planning-artifacts/oq-1-evidence/commons-diagnostics.xml", "sha256": "f76a2441ab33e2763749a2b385a8b86bb95c98c8cae9c25e87565c835bfcad91", "total": 16, "passed": 16},
+      {"id": "COMMONS-SERIALIZATION", "path": "_bmad-output/planning-artifacts/oq-1-evidence/commons-serialization.xml", "sha256": "d7855e639a2b8715df9bb5589bf2717051a9673871b6b75eee622a6e7549563e", "total": 21, "passed": 21}
+    ],
+    "runtimeBoundary": {
+      "id": "CONV-APPHOST-RUNTIME",
+      "command": "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest'",
+      "result": "FAIL",
+      "total": 1,
+      "failed": 1,
+      "failure": "The production-boundary activation request timed out after 100 seconds. Dapr sidecars exited after file-watcher creation returned 'no space left on device'; EventStore also failed startup because Authentication:JwtBearer had neither Authority nor SigningKey configured.",
+      "classification": "blocked-current-runtime-evidence",
+      "rawArtifact": null,
+      "hashBindingState": "unavailable",
+      "reproductionRequired": true,
+      "startedAtUtc": null,
+      "completedAtUtc": null,
+      "environmentIdentity": null
+    }
+  },
+  "buildObservations": [
+    {
+      "severity": "warning",
+      "code": "MSB3277",
+      "subject": "Microsoft.IdentityModel.Tokens",
+      "detail": "Conversations Server, AppHost, and Conformance builds selected 8.19.2 while EventStore ServiceDefaults referenced 8.22.0.",
+      "effect": "The focused builds succeeded, but the unresolved assembly-version conflict prevents an unqualified compatibility claim.",
+      "rawArtifact": null,
+      "hashBindingState": "unavailable",
+      "reproductionRequired": true
+    }
+  ],
+  "rollbackPlan": {
+    "status": "conditional-blocked",
+    "authority": "OQ1-OWNER-AUTHORITY-001",
+    "bundle": {
+      "conversations": "8bdf0268076761905107698c9d4e323d76f07f9e",
+      "eventStore": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
+      "commons": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+    },
+    "triggers": [
+      "public contract shape drift",
+      "tenant fail-open or denial regression",
+      "subscription or projection population failure",
+      "telemetry disclosure or cardinality regression",
+      "replay or idempotency failure",
+      "package restoration, startup, or topology failure"
+    ],
+    "executionRule": "Restore the complete source bundle; do not independently downgrade a repository or use nearest tags as rollback targets.",
+    "dataRule": "Preserve persisted events, deduplication data, projection checkpoints/read models, and encryption/key state. Require backward-reader and replay evidence before executing rollback with data written after a change.",
+    "knownSafeProductionRollback": false,
+    "blocker": "No known-good production deployment identity, backward-reader proof, or data/key migration proof is present."
+  },
+  "blockers": [
+    "The opt-in AppHost production runtime boundary failed.",
+    "Microsoft.IdentityModel.Tokens 8.19.2 versus 8.22.0 remains an unresolved build warning.",
+    "No package publication or package-consumer proof exists; approval is limited to the exact source bundle.",
+    "No unconditional safe production rollback is proven."
+  ],
+  "nonClaims": [
+    "Passing source-level tests do not authorize release or package publication.",
+    "This evidence does not close FR-20 or SM-C1, waive SM-C2, lift the implementation hold, or activate FR-16.",
+    "The tracked consumer matrix is not a claim about unknown external consumers."
+  ]
+}

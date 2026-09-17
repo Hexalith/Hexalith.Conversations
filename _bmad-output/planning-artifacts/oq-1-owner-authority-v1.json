@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-owner-authority.v1",
+  "authorityId": "OQ1-OWNER-AUTHORITY-001",
+  "artifactVersion": "1.0.0",
+  "status": "effective-self-attested",
+  "principal": {
+    "displayName": "Jérôme Piquot",
+    "role": "Owner",
+    "stableExternalIdentifier": null
+  },
+  "effectiveScope": {
+    "requirements": ["FR-10", "FR-11", "FR-12", "FR-13", "FR-14", "FR-15"],
+    "repositories": [
+      "https://github.com/Hexalith/Hexalith.EventStore.git",
+      "https://github.com/Hexalith/Hexalith.Commons.git",
+      "https://github.com/Hexalith/Hexalith.Conversations.git"
+    ],
+    "actions": [
+      "approve OQ-1 technical landing-zone decisions",
+      "issue versioned repository change grants",
+      "select the bounded source-delivery vehicle",
+      "accept or reject compatibility evidence",
+      "authorize or block rollback execution"
+    ]
+  },
+  "effectiveDate": "2026-09-17",
+  "effectiveAtUtc": null,
+  "datePrecision": "calendar-day-only",
+  "authorityRegistry": {
+    "id": "OQ1-OWNER-AUTHORITY-REGISTRY",
+    "version": "1",
+    "recordPath": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+    "basis": "direct-owner-attestation"
+  },
+  "attestation": {
+    "statements": [
+      {
+        "text": "I Jérôme Piquot approve",
+        "receivedDate": "2026-09-17",
+        "memlogEntry": "M88"
+      },
+      {
+        "text": "I am the Owner, do the needed records",
+        "receivedDate": "2026-09-17",
+        "memlogEntry": "M91"
+      }
+    ],
+    "approvalReference": "OQ1-OWNER-AUTHORITY-001",
+    "externalIdentityVerification": "not-performed"
+  },
+  "supersedes": [],
+  "supersededBy": null,
+  "nonClaims": [
+    "This authority record does not prove external forge permissions or package-registry permissions.",
+    "This authority record does not substitute for technical compatibility, release, or rollback evidence.",
+    "This authority record does not lift the implementation hold, authorize release, approve FR-20 or SM-C1, waive SM-C2, or activate FR-16."
+  ]
+}

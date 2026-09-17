@@ -1,0 +1,45 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-consumer-grant.v1",
+  "grantId": "OQ1-CONVERSATIONS-CONSUMER-GRANT-001",
+  "artifactVersion": "1.0.0",
+  "status": "issued-pending-evidence-closure",
+  "effective": false,
+  "grantor": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "principalName": "Jérôme Piquot",
+    "principalRole": "Owner",
+    "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+    "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325"
+  },
+  "repository": {
+    "name": "Hexalith.Conversations",
+    "url": "https://github.com/Hexalith/Hexalith.Conversations.git",
+    "acceptedSourceSnapshot": "8bdf0268076761905107698c9d4e323d76f07f9e"
+  },
+  "requirements": ["FR-10", "FR-11", "FR-12", "FR-13", "FR-14", "FR-15"],
+  "authorizedIntent": "Adopt the hash-bound current architecture mappings through the exact OQ1-SOURCE-BUNDLE-001 source vehicle after all evidence blockers close.",
+  "releaseBinding": {
+    "vehicleId": "OQ1-SOURCE-BUNDLE-001",
+    "packagePublicationAuthorized": false,
+    "releaseAuthorized": false
+  },
+  "compatibilityEvidence": {
+    "path": "_bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json",
+    "sha256": "94c29b9c576f599df05dead07d287c126322b2ca96ee899585314c8f2f79fa1b",
+    "state": "blocked",
+    "reason": "The source-level client, contracts, server, topology, and conformance lanes pass, but the opt-in production runtime boundary fails."
+  },
+  "rollbackAuthority": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "planRef": "OQ1-TECHNICAL-EVIDENCE-001#/rollbackPlan",
+    "state": "conditional-blocked"
+  },
+  "effectiveAtUtc": null,
+  "approvalReference": "OQ1-CONVERSATIONS-CONSUMER-GRANT-001",
+  "supersedes": [],
+  "supersededBy": null,
+  "activationCondition": "This immutable v1 grant never auto-activates. EventStore and Commons successor grants, runtime and assembly-version closure, accepted rollback evidence, and a hash-bound versioned Conversations successor grant that explicitly supersedes v1 and records effective=true with its effective time are all required.",
+  "nonClaims": [
+    "This pending grant does not authorize release, successor-story work, implementation-hold lift, FR-20/SM-C1 acceptance, SM-C2 waiver, or FR-16 activation."
+  ]
+}

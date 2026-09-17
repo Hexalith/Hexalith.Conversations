@@ -14,11 +14,11 @@ This addendum contains technical-how details and grounding evidence that support
 
 ## B. Architecture and release decision register
 
-### OQ-1 technical mapping and remaining authority gap
+### OQ-1 recorded authority and remaining evidence gaps
 
 The Initiative Landing-Zone Register in the repo-root `_bmad-output/planning-artifacts/architecture.md` records the technical mapping: FR-10 and FR-15 use EventStore ServiceDefaults/DomainService plus Commons Diagnostics; FR-11 uses Commons TenantAccess; FR-12 uses Commons Http; FR-13 uses EventStore Aspire plus applicable Commons helpers; and FR-14 uses Commons Serialization. The register also marks FR-16 as deferred and non-activated.
 
-That technical mapping does not supply the approval chain demanded by the PRD reviewer gate. For FR-10 through FR-15, acceptance remains pending until actual records bind the owning-repository approval, decision artifact/version, implementing revision and release vehicle, pinned compatibility evidence, and rollback authority. Without those records, affected acceptance claims do not conform; this addendum does not invent them. Governance/temporal/hydration orchestration (areas 2, 3, and 7) remains domain-owned unless separately authorized follow-on work changes that decision.
+`OQ1-OWNER-AUTHORITY-001` now records Jérôme Piquot's self-attested Owner scope over EventStore, Commons, and Conversations for FR-10 through FR-15. The hash-bound current architecture mapping supersedes the historical promote/adopt runbook account for OQ-1. `OQ1-EVENTSTORE-GRANT-001`, `OQ1-COMMONS-GRANT-001`, and `OQ1-CONVERSATIONS-CONSUMER-GRANT-001` bind the exact source snapshots and bounded `OQ1-SOURCE-BUNDLE-001` vehicle. `OQ1-TECHNICAL-EVIDENCE-001` records 341 passing focused tests across ten hash-bound XML-encoded test-result runs, but the opt-in AppHost runtime boundary fails, Microsoft.IdentityModel.Tokens 8.19.2/8.22.0 remains unresolved, package publication is unclaimed, and production rollback remains conditional. The grants are therefore issued but ineffective, and affected acceptance claims remain nonconforming. Governance/temporal/hydration orchestration (areas 2, 3, and 7) remains domain-owned unless separately authorized follow-on work changes that decision.
 
 ### Legacy technical-how provenance
 

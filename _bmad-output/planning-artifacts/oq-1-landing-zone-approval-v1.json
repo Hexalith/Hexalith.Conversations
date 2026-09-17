@@ -1,20 +1,32 @@
 {
   "schemaVersion": "hexalith.conversations.oq-1-landing-zone-approval.v1",
   "artifact": "oq-1-landing-zone-approval",
-  "artifactVersion": "1.0.0-draft.1",
+  "artifactVersion": "1.0.0-draft.3",
   "decisionId": "OQ-1",
   "recordedDate": "2026-09-16",
-  "status": "pending-confirmation",
+  "updatedDate": "2026-09-17",
+  "status": "evidence-blocked",
   "result": "BLOCKED",
   "authority": {
-    "confirmationState": "pending",
-    "principalName": null,
-    "principalRole": null,
-    "authorityRegistry": null,
-    "authorityRegistryVersion": null,
-    "effectiveScope": null,
+    "confirmationState": "effective-self-attested-owner-authority-recorded",
+    "principalName": "Jérôme Piquot",
+    "principalRole": "Owner",
+    "authorityRegistry": "OQ1-OWNER-AUTHORITY-REGISTRY",
+    "authorityRegistryVersion": "1",
+    "effectiveScope": "FR-10 through FR-15 across Hexalith.EventStore, Hexalith.Commons, and Hexalith.Conversations",
     "effectiveAtUtc": null,
-    "approvalReference": null,
+    "approvalReference": "OQ1-OWNER-AUTHORITY-001",
+    "authorityRecord": {
+      "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+      "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325",
+      "effectiveDate": "2026-09-17",
+      "datePrecision": "calendar-day-only"
+    },
+    "receivedStatement": {
+      "text": "I Jérôme Piquot approve",
+      "receivedDate": "2026-09-17",
+      "effect": "Combined with the later Owner attestation, this statement is preserved by OQ1-OWNER-AUTHORITY-001 as effective self-attested planning authority for the named scope; technical grant effectiveness remains evidence-gated."
+    },
     "supersedes": [],
     "supersededBy": null
   },
@@ -49,12 +61,12 @@
     },
     {
       "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
-      "sha256": "1eea231c4c951eb6218a1b8912e52d41ff35fbd39f82ffd08d72dbffd78bb84c",
+      "sha256": "9e1aa15eefb57fec8ba40e66fb9b108044945be85daf1de25988848101369442",
       "role": "normative-approval-contract"
     },
     {
       "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md",
-      "sha256": "fc35b13a12a42f3e46edf55b4194f6c6aa09a8b33ee2dc7eb3d18c36f09e660f",
+      "sha256": "cd9ec34690d2a653fb421d2f0dd9a3c5d3eede9802f7594ca916ebd925c14c23",
       "role": "technical-mapping-and-authority-gap"
     },
     {
@@ -78,11 +90,38 @@
       "role": "root-submodule-declarations"
     }
   ],
+  "recordBindings": [
+    {
+      "recordId": "OQ1-OWNER-AUTHORITY-001",
+      "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+      "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325"
+    },
+    {
+      "recordId": "OQ1-TECHNICAL-EVIDENCE-001",
+      "path": "_bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json",
+      "sha256": "94c29b9c576f599df05dead07d287c126322b2ca96ee899585314c8f2f79fa1b"
+    },
+    {
+      "recordId": "OQ1-EVENTSTORE-GRANT-001",
+      "path": "_bmad-output/planning-artifacts/oq-1-eventstore-change-grant-v1.json",
+      "sha256": "2d345663f5eb7008a9c06c78a500d4264976f20c67b488b596bc708716917882"
+    },
+    {
+      "recordId": "OQ1-COMMONS-GRANT-001",
+      "path": "_bmad-output/planning-artifacts/oq-1-commons-change-grant-v1.json",
+      "sha256": "df0dabf4005f968d76580d2e02cd6b469b814168daf3b5065040337cc8f157b1"
+    },
+    {
+      "recordId": "OQ1-CONVERSATIONS-CONSUMER-GRANT-001",
+      "path": "_bmad-output/planning-artifacts/oq-1-conversations-consumer-grant-v1.json",
+      "sha256": "f479628473ee525eb0114c83f72e513626d962512b545b817c30bf0446ff0337"
+    }
+  ],
   "rootCandidate": {
     "repository": "https://github.com/Hexalith/Hexalith.Conversations.git",
-    "commit": "b4ac3edfd2bd20d109d3cd4c513d91da69a425a4",
+    "commit": "8bdf0268076761905107698c9d4e323d76f07f9e",
     "branchObservation": "main",
-    "worktreeObservationAtDraft": "clean",
+    "worktreeObservationAtDraft": "modified by the OQ-1 authority, grant, evidence, PRD, addendum, memlog, and generated XML test-result record update",
     "approvalState": "not-approved-by-this-draft"
   },
   "repositoryBindings": [
@@ -90,13 +129,13 @@
       "id": "eventstore",
       "repository": "https://github.com/Hexalith/Hexalith.EventStore.git",
       "gitlinkPath": "references/Hexalith.EventStore",
-      "gitlinkCommit": "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
-      "observedHead": "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
+      "gitlinkCommit": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
+      "observedHead": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
       "branchObservation": "main",
       "worktreeObservationAtDraft": "clean",
       "nearestReachableTag": "v3.106.0",
       "nearestReachableTagCommit": "76051c70cbf868c40edc00ca0344fa5bd8879b69",
-      "commitsAheadOfTag": 1,
+      "commitsAheadOfTag": 2,
       "exactlyTagged": false,
       "publicationEvidence": null,
       "approvalState": "observed-not-approved"
@@ -118,16 +157,16 @@
     }
   ],
   "historicalMappingConflict": {
-    "status": "pending-confirmation",
+    "status": "resolved-by-owner-authority",
     "currentArchitecture": "FR-10 maps to EventStore ServiceDefaults/DomainService and FR-13 maps to EventStore Aspire plus applicable Commons helpers.",
     "historicalRunbook": "Story 3.4 and Story 3.5 recorded Commons ServiceDefaults, Aspire, and Publication placements.",
     "proposedResolution": "Use the hash-bound current architecture mapping for OQ-1 and retain the promote/adopt runbook mapping only as historical implementation provenance.",
-    "approvalEvidence": null
+    "approvalEvidence": "OQ1-OWNER-AUTHORITY-001"
   },
   "decisions": [
     {
       "requirementId": "FR-10",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["eventstore"],
       "targetSurface": [
         "Hexalith.EventStore.ServiceDefaults",
@@ -135,19 +174,22 @@
       ],
       "capability": "platform-owned service defaults, health, telemetry, and domain-service registration",
       "consumer": "Hexalith.Conversations",
-      "implementingRevisions": ["bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f"],
+      "implementingRevisions": ["27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"],
       "rejectedLandingZones": [
         "Hexalith.Conversations domain module",
         "Hexalith.Tenants domain module"
       ],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-EVENTSTORE-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     },
     {
       "requirementId": "FR-11",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["commons"],
       "targetSurface": ["Hexalith.Commons.TenantAccess"],
       "capability": "generic tenant-access projection handler and registration",
@@ -157,28 +199,34 @@
         "Hexalith.Conversations domain module",
         "Hexalith.Tenants domain module"
       ],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-COMMONS-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     },
     {
       "requirementId": "FR-12",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["commons"],
       "targetSurface": ["Hexalith.Commons.Http"],
       "capability": "generic typed-HttpClient registration",
       "consumer": "Hexalith.Conversations",
       "implementingRevisions": ["19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"],
       "rejectedLandingZones": ["Hexalith.Conversations domain module"],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-COMMONS-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     },
     {
       "requirementId": "FR-13",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["eventstore", "commons"],
       "targetSurface": [
         "Hexalith.EventStore.Aspire",
@@ -187,35 +235,42 @@
       "capability": "platform-owned Aspire and DAPR topology",
       "consumer": "Hexalith.Conversations",
       "implementingRevisions": [
-        "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
+        "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e",
         "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
       ],
       "rejectedLandingZones": [
         "reusable or production Hexalith.Conversations AppHost or Aspire ownership; the architecture-permitted non-packable, non-publishable module test AppHost remains an explicit exception",
         "Hexalith.Tenants domain module"
       ],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-EVENTSTORE-GRANT-001",
+        "OQ1-COMMONS-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     },
     {
       "requirementId": "FR-14",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["commons"],
       "targetSurface": ["Hexalith.Commons.Serialization"],
       "capability": "JSON context and type-mapping helpers",
       "consumer": "Hexalith.Conversations",
       "implementingRevisions": ["19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"],
       "rejectedLandingZones": ["Hexalith.Conversations-only serialization plumbing"],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-COMMONS-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     },
     {
       "requirementId": "FR-15",
-      "status": "proposed-pending-confirmation",
+      "status": "grant-issued-evidence-blocked",
       "targetRepositories": ["commons", "eventstore"],
       "targetSurface": [
         "Hexalith.Commons.Diagnostics",
@@ -225,43 +280,75 @@
       "consumer": "Hexalith.Conversations",
       "implementingRevisions": [
         "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
-        "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f"
+        "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"
       ],
       "rejectedLandingZones": ["Hexalith.Conversations-owned telemetry scaffolding"],
-      "owningRepositoryApproval": null,
-      "releaseBinding": null,
-      "compatibilityEvidence": [],
-      "rollbackAuthority": null
+      "owningRepositoryApproval": [
+        "OQ1-COMMONS-GRANT-001",
+        "OQ1-EVENTSTORE-GRANT-001",
+        "OQ1-CONVERSATIONS-CONSUMER-GRANT-001"
+      ],
+      "releaseBinding": "OQ1-SOURCE-BUNDLE-001",
+      "compatibilityEvidence": ["OQ1-TECHNICAL-EVIDENCE-001"],
+      "rollbackAuthority": "OQ1-OWNER-AUTHORITY-001"
     }
   ],
   "releasePlan": {
-    "status": "pending",
-    "releaseVehicle": null,
+    "status": "source-vehicle-selected-runtime-blocked",
+    "releaseVehicle": "OQ1-SOURCE-BUNDLE-001",
     "packageVersions": [],
     "registryOrFeed": null,
     "publicationEvidence": [],
-    "releaseOrder": [],
-    "compatibilityWindow": null,
-    "note": "Reachable tags are observations only. Neither current gitlink commit is exactly tagged, and this draft does not claim package publication."
+    "releaseOrder": [
+      "Validate Commons and EventStore independently at their pinned commits.",
+      "Validate Conversations against both pinned commits.",
+      "Keep the vehicle blocked while runtime or compatibility evidence is failed or blocked."
+    ],
+    "compatibilityWindow": "Exact source bundle only: Conversations 8bdf0268076761905107698c9d4e323d76f07f9e, EventStore 27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e, Commons 19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6.",
+    "evidence": {
+      "path": "_bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json",
+      "sha256": "94c29b9c576f599df05dead07d287c126322b2ca96ee899585314c8f2f79fa1b"
+    },
+    "note": "This is a bounded source-delivery vehicle, not a package publication or release authorization."
   },
   "compatibilityApproval": {
-    "status": "pending-evidence-and-confirmation",
+    "status": "partial-source-evidence-runtime-blocked",
     "policyBinding": "docs/release-evidence/contract-compatibility-policy.md",
-    "exactTestIds": [],
-    "consumerMatrix": [],
+    "exactTestIds": [
+      "CONV-CLIENT",
+      "CONV-CONTRACTS",
+      "CONV-SERVER",
+      "CONV-APPHOST-TOPOLOGY",
+      "CONV-CONFORMANCE",
+      "EVENTSTORE-DOMAINSERVICE",
+      "COMMONS-HTTP",
+      "COMMONS-TENANTACCESS",
+      "COMMONS-DIAGNOSTICS",
+      "COMMONS-SERIALIZATION",
+      "CONV-APPHOST-RUNTIME"
+    ],
+    "consumerMatrix": ["OQ1-TECHNICAL-EVIDENCE-001#/trackedConsumerMatrix"],
     "publicApiDiffEvidence": [],
-    "beforeAfterResults": [],
-    "approvalEvidence": null,
-    "note": "The descriptive policy is not compatibility evidence or approval."
+    "beforeAfterResults": ["341 focused source-level tests passed; 1 opt-in AppHost runtime test failed."],
+    "approvalEvidence": "OQ1-OWNER-AUTHORITY-001",
+    "note": "Compatibility remains blocked by the runtime failure, unresolved IdentityModel assembly-version warning, absent package proof, and conditional rollback."
   },
   "rollbackApproval": {
-    "status": "pending",
-    "authority": null,
-    "triggers": [],
-    "rollbackRevisionsOrTags": [],
-    "reversibleBoundary": null,
-    "dataMigrationImplications": null,
-    "approvalEvidence": null
+    "status": "conditional-blocked",
+    "authority": "OQ1-OWNER-AUTHORITY-001",
+    "triggers": [
+      "public contract shape drift",
+      "tenant fail-open or denial regression",
+      "subscription or projection population failure",
+      "telemetry disclosure or cardinality regression",
+      "replay or idempotency failure",
+      "package restoration, startup, or topology failure"
+    ],
+    "rollbackRevisionsOrTags": ["OQ1-SOURCE-BUNDLE-001"],
+    "reversibleBoundary": "Restore the complete bound source bundle; independent repository downgrades and nearest-tag rollback are prohibited.",
+    "dataMigrationImplications": "Persisted events, deduplication data, projection checkpoints/read models, and encryption/key state must be preserved; backward-reader and replay evidence is required before execution.",
+    "approvalEvidence": "OQ1-OWNER-AUTHORITY-001",
+    "blocker": "No known-good production deployment identity, backward-reader proof, or data/key migration proof is present."
   },
   "assertionLedger": [
     {
@@ -272,53 +359,57 @@
     {
       "id": "OQ1-MAPPING-01",
       "subject": "current-mapping-and-historical-conflict-resolution",
-      "state": "PENDING_CONFIRMATION"
+      "state": "PASS",
+      "evidence": "OQ1-OWNER-AUTHORITY-001 and OQ1-TECHNICAL-EVIDENCE-001"
     },
     {
       "id": "OQ1-AUTHORITY-01",
       "subject": "named-principal-and-effective-authority-scope",
-      "state": "BLOCKED"
+      "state": "PASS",
+      "evidence": "OQ1-OWNER-AUTHORITY-001 identifies Jérôme Piquot as Owner with the named three-repository FR-10 through FR-15 scope effective 2026-09-17."
     },
     {
       "id": "OQ1-GRANT-01",
       "subject": "owning-repository-change-grants",
-      "state": "BLOCKED"
+      "state": "BLOCKED",
+      "evidence": "OQ1-EVENTSTORE-GRANT-001, OQ1-COMMONS-GRANT-001, and OQ1-CONVERSATIONS-CONSUMER-GRANT-001 exist but are not effective until evidence blockers close."
     },
     {
       "id": "OQ1-REVISION-01",
       "subject": "accepted-implementing-revisions",
-      "state": "PENDING_CONFIRMATION"
+      "state": "PASS",
+      "evidence": "OQ1-TECHNICAL-EVIDENCE-001 distinguishes implementation provenance from the accepted source snapshots."
     },
     {
       "id": "OQ1-RELEASE-01",
       "subject": "release-vehicle-and-release-order",
-      "state": "BLOCKED"
+      "state": "BLOCKED",
+      "evidence": "OQ1-SOURCE-BUNDLE-001 and its order are recorded, but the runtime boundary is failed and no release is authorized."
     },
     {
       "id": "OQ1-COMPAT-01",
       "subject": "pinned-compatibility-evidence-and-window",
-      "state": "BLOCKED"
+      "state": "BLOCKED",
+      "evidence": "Ten hash-bound XML-encoded test-result runs report 341 passing focused tests; the AppHost runtime boundary fails and the IdentityModel version conflict remains unresolved."
     },
     {
       "id": "OQ1-ROLLBACK-01",
       "subject": "rollback-authority-triggers-and-revisions",
-      "state": "BLOCKED"
+      "state": "BLOCKED",
+      "evidence": "Owner authority, triggers, and the full-bundle boundary are recorded, but safe production rollback and data/backward-reader proof are absent."
     }
   ],
   "confirmationRequest": {
-    "state": "pending",
-    "requiredConfirmations": [
-      "Identify the approving principal, role, authority registry/version, effective scope, effective date, and approval reference.",
-      "Provide versioned, repository-specific EventStore and Commons change grants and bind each affected decision's owningRepositoryApproval to the applicable grant; each grant must cover the exact capability, pinned consumer evidence, release order, compatibility window, and rollback authority.",
-      "Confirm that the hash-bound current architecture mapping supersedes the historical runbook mapping for OQ-1.",
-      "Confirm or replace the observed EventStore and Commons implementing revisions.",
-      "Provide the exact release vehicle, package versions or source-delivery identity, publication evidence, and release order.",
-      "Provide pinned compatibility evidence, the complete consumer matrix, the compatibility window, and its acceptance record.",
-      "Provide rollback authority, triggers, exact rollback revisions or tags, migration implications, and approval evidence."
+    "state": "owner-confirmed-technical-closure-pending",
+    "remainingConditions": [
+      "Make the opt-in AppHost runtime boundary pass under a recorded reproducible environment.",
+      "Resolve the Microsoft.IdentityModel.Tokens 8.19.2 versus 8.22.0 assembly-version conflict.",
+      "Add package evidence before making any package-consumption or publication claim.",
+      "Produce backward-reader, replay, and data/key evidence before treating the rollback plan as unconditionally executable."
     ]
   },
   "nonClaims": [
-    "This draft is not an owning-repository approval or change grant.",
+    "This aggregate record is not itself an owning-repository change grant; it references the separately versioned EventStore, Commons, and Conversations grants, which remain ineffective while evidence is blocked.",
     "This draft does not authorize implementation, cross-repository changes, package publication, release, or successor-story work.",
     "This draft does not lift the implementation hold.",
     "This draft does not approve FR-20 or SM-C1 and does not change their immutable preservation denominator.",

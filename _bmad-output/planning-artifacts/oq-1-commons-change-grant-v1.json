@@ -1,0 +1,53 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-repository-change-grant.v1",
+  "grantId": "OQ1-COMMONS-GRANT-001",
+  "artifactVersion": "1.0.0",
+  "status": "issued-pending-evidence-closure",
+  "effective": false,
+  "grantor": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "principalName": "Jérôme Piquot",
+    "principalRole": "Owner",
+    "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+    "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325"
+  },
+  "repository": {
+    "name": "Hexalith.Commons",
+    "url": "https://github.com/Hexalith/Hexalith.Commons.git",
+    "gitlinkPath": "references/Hexalith.Commons",
+    "acceptedSourceSnapshot": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+  },
+  "requirements": ["FR-11", "FR-12", "FR-13", "FR-14", "FR-15"],
+  "capabilities": [
+    "Commons TenantAccess",
+    "Commons Http",
+    "applicable Commons Aspire helpers",
+    "Commons Serialization",
+    "Commons Diagnostics"
+  ],
+  "consumer": "Hexalith.Conversations",
+  "releaseBinding": {
+    "vehicleId": "OQ1-SOURCE-BUNDLE-001",
+    "packagePublicationAuthorized": false,
+    "order": "Validate Commons independently, then validate Conversations against both pinned repositories."
+  },
+  "compatibilityEvidence": {
+    "path": "_bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json",
+    "sha256": "94c29b9c576f599df05dead07d287c126322b2ca96ee899585314c8f2f79fa1b",
+    "state": "partial",
+    "reason": "All 123 focused Commons tests pass, but external consumer/package compatibility is not claimed and the aggregate source-bundle runtime boundary remains failed."
+  },
+  "rollbackAuthority": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "planRef": "OQ1-TECHNICAL-EVIDENCE-001#/rollbackPlan",
+    "state": "conditional-blocked"
+  },
+  "effectiveAtUtc": null,
+  "approvalReference": "OQ1-COMMONS-GRANT-001",
+  "supersedes": [],
+  "supersededBy": null,
+  "activationCondition": "This immutable v1 grant never auto-activates. Technical closure is necessary but not sufficient: a hash-bound, versioned successor grant must explicitly supersede v1 and record effective=true with its effective time.",
+  "nonClaims": [
+    "This pending grant does not authorize package publication, release, implementation-hold lift, or cross-repository mutation."
+  ]
+}

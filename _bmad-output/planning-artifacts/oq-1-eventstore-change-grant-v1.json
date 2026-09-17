@@ -1,0 +1,51 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-repository-change-grant.v1",
+  "grantId": "OQ1-EVENTSTORE-GRANT-001",
+  "artifactVersion": "1.0.0",
+  "status": "issued-pending-evidence-closure",
+  "effective": false,
+  "grantor": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "principalName": "Jérôme Piquot",
+    "principalRole": "Owner",
+    "path": "_bmad-output/planning-artifacts/oq-1-owner-authority-v1.json",
+    "sha256": "5b15d638b1574378cf5f866e5959680241824fcdd7a28fc538470187ed9d8325"
+  },
+  "repository": {
+    "name": "Hexalith.EventStore",
+    "url": "https://github.com/Hexalith/Hexalith.EventStore.git",
+    "gitlinkPath": "references/Hexalith.EventStore",
+    "acceptedSourceSnapshot": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"
+  },
+  "requirements": ["FR-10", "FR-13", "FR-15"],
+  "capabilities": [
+    "EventStore ServiceDefaults and DomainService hosting/telemetry registration",
+    "EventStore Aspire production topology",
+    "EventStore domain telemetry registration"
+  ],
+  "consumer": "Hexalith.Conversations",
+  "releaseBinding": {
+    "vehicleId": "OQ1-SOURCE-BUNDLE-001",
+    "packagePublicationAuthorized": false,
+    "order": "Validate EventStore independently, then validate Conversations against both pinned repositories."
+  },
+  "compatibilityEvidence": {
+    "path": "_bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json",
+    "sha256": "94c29b9c576f599df05dead07d287c126322b2ca96ee899585314c8f2f79fa1b",
+    "state": "blocked",
+    "reason": "The focused EventStore and source-consumer tests pass, but the AppHost runtime boundary fails and an IdentityModel assembly-version warning remains unresolved."
+  },
+  "rollbackAuthority": {
+    "authorityId": "OQ1-OWNER-AUTHORITY-001",
+    "planRef": "OQ1-TECHNICAL-EVIDENCE-001#/rollbackPlan",
+    "state": "conditional-blocked"
+  },
+  "effectiveAtUtc": null,
+  "approvalReference": "OQ1-EVENTSTORE-GRANT-001",
+  "supersedes": [],
+  "supersededBy": null,
+  "activationCondition": "This immutable v1 grant never auto-activates. Technical closure is necessary but not sufficient: a hash-bound, versioned successor grant must explicitly supersede v1 and record effective=true with its effective time.",
+  "nonClaims": [
+    "This pending grant does not authorize package publication, release, implementation-hold lift, or cross-repository mutation."
+  ]
+}
