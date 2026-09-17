@@ -1,0 +1,118 @@
+{
+  "schemaVersion": "hexalith.conversations.preservation-traceability-owner-approval.v1",
+  "artifact": "preservation-traceability-owner-approval",
+  "artifactVersion": "1.0.0",
+  "approvalId": "PRESERVATION-MANIFEST-V3-OWNER-APPROVAL-001",
+  "status": "effective",
+  "decision": "approved",
+  "effectiveDate": "2026-09-17",
+  "effectiveAtUtc": null,
+  "datePrecision": "calendar-day-only",
+  "detachedApproval": {
+    "enabled": true,
+    "reason": "The approval record binds the already confirmed canonical bytes without modifying their digest.",
+    "manifestInternalApprovalState": "pending-owner-approval",
+    "effectiveApprovalSource": "this detached hash-bound decision record"
+  },
+  "principal": {
+    "displayName": "Jérôme Piquot",
+    "role": "Owner",
+    "stableExternalIdentifier": null,
+    "externalIdentityVerification": "not-performed"
+  },
+  "authority": {
+    "authorityId": "PRESERVATION-MANIFEST-OWNER-AUTHORITY-001",
+    "recordPath": "_bmad-output/planning-artifacts/preservation-manifest-owner-authority-v1.json",
+    "recordSha256": "735bea27888f85477a64efc81b0a400f65657e85f9d525a5efddaa9964578cf0",
+    "effectiveScope": [
+      "FR-20",
+      "SM-C1"
+    ],
+    "basis": "direct-owner-attestation"
+  },
+  "manifestBinding": {
+    "path": "docs/release-evidence/preservation-traceability-manifest-v3.json",
+    "manifestVersion": "3.0.0-rc.1",
+    "sha256": "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc",
+    "summaryPath": "docs/release-evidence/preservation-traceability-manifest-v3.md",
+    "summarySha256": "c3dad90b6f0feb567bc1fa26a677dc3d88e23b112fd9767b30dfaecadf0e84f8",
+    "schemaPath": "docs/release-evidence/preservation-traceability-manifest-v3.schema.json",
+    "schemaSha256": "3abf8f0d90c2257e865353743ca612b71b0d425d53196769a57dcb66525fbdfb",
+    "digestSidecarPath": "docs/release-evidence/preservation-traceability-manifest-v3.sha256",
+    "digestSidecarSha256": "d88f1ccad166046cf17e3ae499dffb26cf3e8bfe9f7f24ac26d9190e67533979"
+  },
+  "approvedContract": {
+    "sourceCommit": "d956c9b1de73bcf15969d5e1a6435d6d98a2dd49",
+    "originalV1TestFloor": 214,
+    "laterApprovedAdditionCount": 170,
+    "approvedCumulativeFloor": 384,
+    "pendingAdditionCountRetained": 89,
+    "currentCandidateDenominator": 473,
+    "categoryCount": 7,
+    "requiredPreservationObligationCount": 969,
+    "closureCount": 969,
+    "orphanCount": 0,
+    "releaseActivatedLegacyRequirementCount": 0,
+    "prohibitedOperations": [
+      "removal",
+      "replacement",
+      "merging",
+      "reclassification",
+      "waiver",
+      "substitution",
+      "denominator-shrinkage"
+    ]
+  },
+  "attestation": {
+    "mechanism": "repository-recorded direct user statements; no cryptographic-signature claim",
+    "signature": null,
+    "statements": [
+      {
+        "text": "yes",
+        "effect": "Confirmed exact manifest version and digest.",
+        "memlogEntry": "M147"
+      },
+      {
+        "text": "formal",
+        "effect": "Declared the confirmation to be formal Owner approval.",
+        "memlogEntry": "M148"
+      },
+      {
+        "text": "yes",
+        "effect": "Confirmed Owner authority covers FR-20/SM-C1 manifest approval effective 2026-09-17.",
+        "memlogEntry": "M149"
+      }
+    ]
+  },
+  "validationSnapshot": {
+    "releaseBuild": {
+      "result": "pass",
+      "warnings": 0,
+      "errors": 0
+    },
+    "conformance": {
+      "result": "fail",
+      "passed": 456,
+      "failed": 17,
+      "total": 473,
+      "artifactPath": "_bmad-output/implementation-artifacts/preservation-traceability-v3/conformance-owner-review.xml",
+      "artifactSha256": "e918617c10d1b2722e7b72fc7e441429b068ef56699f1d8d6ef33a436c051549"
+    }
+  },
+  "gateEffect": {
+    "manifestApprovalPrerequisite": "satisfied-by-this-record",
+    "FR-20": "PENDING",
+    "SM-C1": "PENDING",
+    "SM-C2": "FAILED",
+    "OQ-1": "BLOCKED",
+    "implementationHold": "ACTIVE",
+    "reason": "Formal manifest approval does not satisfy the required 100% conformance result or any other failing or blocked gate."
+  },
+  "nonClaims": [
+    "This approval does not assert that the 473-test candidate passes; 17 tests remain failed.",
+    "This approval does not waive, replace, reclassify, merge, substitute, or remove any test, category, requirement, closure, or obligation.",
+    "This approval does not activate legacy requirements, FR-16, repository grants, package publication, release, or deployment.",
+    "This approval does not waive SM-C2, approve OQ-1, or lift the implementation hold.",
+    "This approval does not make any cryptographic-signature or external-identity-verification claim."
+  ]
+}

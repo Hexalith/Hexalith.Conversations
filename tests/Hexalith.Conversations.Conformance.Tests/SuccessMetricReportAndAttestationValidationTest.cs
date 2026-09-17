@@ -132,6 +132,40 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         markdown.ShouldContain("JSON artifact is authoritative");
     }
 
+    /// <summary>
+    /// Preserves the exact approved Story 5.3 denominator test identity and its original current-content hash contract.
+    /// </summary>
+    [Fact]
+    public void SourceArtifactsShouldBeRepositoryRelativeExistingFilesWithHashes()
+    {
+        using JsonDocument doc = LoadStoryArtifact();
+        string root = FindRepositoryRoot();
+        JsonElement sourceArtifacts = doc.RootElement.GetProperty("sourceArtifacts");
+
+        sourceArtifacts.GetArrayLength().ShouldBeGreaterThanOrEqualTo(18);
+
+        foreach (JsonElement entry in sourceArtifacts.EnumerateArray())
+        {
+            string path = entry.GetProperty("path").GetString() ?? string.Empty;
+            string sha256 = entry.GetProperty("sha256").GetString() ?? string.Empty;
+            string fullPath = Path.GetFullPath(Path.Combine(root, path));
+
+            path.ShouldNotBeNullOrWhiteSpace();
+            Path.IsPathRooted(path).ShouldBeFalse($"Source artifact path '{path}' must be repository-relative.");
+            fullPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
+                .ShouldBeTrue($"Source artifact path '{path}' must stay inside the repository root.");
+            File.Exists(fullPath).ShouldBeTrue($"Source artifact '{path}' must exist.");
+
+            sha256.Length.ShouldBe(64);
+            sha256.ShouldAllBe(character => Uri.IsHexDigit(character));
+            ComputeFileSha256(fullPath).ShouldBe(sha256, $"Source artifact '{path}' hash must match current file content.");
+
+            path.ShouldNotContain("bin/", Case.Insensitive);
+            path.ShouldNotContain("obj/", Case.Insensitive);
+            path.ShouldNotContain("/generated/", Case.Insensitive);
+        }
+    }
+
     [Fact]
     public void SignedReleaseOwnerDecisionShouldStillBindTheImmutableV1ReportAndSourceIdentity()
     {

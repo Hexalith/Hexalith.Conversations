@@ -1,0 +1,19 @@
+artifact: preservation-traceability-v3-toolchain-identity
+captureCommand: dotnet --info
+sourceState: d956c9b1de73bcf15969d5e1a6435d6d98a2dd49+uncommitted-owner-review-overlay
+capturedForRunFinishedAtUtc: 2026-09-17T12:05:49.9399389+00:00
+dotnetSdkVersion: 10.0.401
+dotnetSdkCommit: e34a38d2ae
+workloadVersion: 10.0.400-manifests.63b36e85
+msbuildVersion: 18.9.11+e34a38d2a
+hostVersion: 10.0.12
+hostCommit: 95017c711e
+architecture: x64
+osName: ubuntu
+osVersion: 26.04
+osPlatform: Linux
+rid: linux-x64
+globalJson: global.json
+targetFramework: .NETCoreApp,Version=v10.0
+testFramework: xUnit.net v3 4.0.1+8ed8aa354c
+testEnvironment: 64-bit (x64) .NET 10.0.12 [collection-per-class, parallel (collections, 24 threads)]

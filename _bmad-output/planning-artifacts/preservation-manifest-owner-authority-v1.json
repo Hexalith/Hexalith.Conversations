@@ -1,0 +1,66 @@
+{
+  "schemaVersion": "hexalith.conversations.preservation-manifest-owner-authority.v1",
+  "authorityId": "PRESERVATION-MANIFEST-OWNER-AUTHORITY-001",
+  "artifactVersion": "1.0.0",
+  "status": "effective-self-attested",
+  "principal": {
+    "displayName": "Jérôme Piquot",
+    "role": "Owner",
+    "stableExternalIdentifier": null,
+    "externalIdentityVerification": "not-performed"
+  },
+  "effectiveScope": {
+    "requirements": [
+      "FR-20",
+      "SM-C1"
+    ],
+    "repository": "https://github.com/Hexalith/Hexalith.Conversations.git",
+    "actions": [
+      "approve the exact versioned preservation-traceability manifest",
+      "approve its immutable and additive test denominator",
+      "approve its seven-category test-to-requirement mappings",
+      "approve its preservation-obligation closure and activation classifications"
+    ],
+    "manifestVersion": "3.0.0-rc.1",
+    "manifestSha256": "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc"
+  },
+  "effectiveDate": "2026-09-17",
+  "effectiveAtUtc": null,
+  "datePrecision": "calendar-day-only",
+  "authorityRegistry": {
+    "id": "PRESERVATION-MANIFEST-OWNER-AUTHORITY-REGISTRY",
+    "version": "1",
+    "recordPath": "_bmad-output/planning-artifacts/preservation-manifest-owner-authority-v1.json",
+    "basis": "direct-owner-attestation"
+  },
+  "attestation": {
+    "statements": [
+      {
+        "text": "yes",
+        "context": "Confirmation of manifest 3.0.0-rc.1 and SHA-256 a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc.",
+        "receivedDate": "2026-09-17",
+        "memlogEntry": "M147"
+      },
+      {
+        "text": "formal",
+        "context": "Explicit intent that the preceding confirmation is formal Owner approval, not identity confirmation only.",
+        "receivedDate": "2026-09-17",
+        "memlogEntry": "M148"
+      },
+      {
+        "text": "yes",
+        "context": "Explicit confirmation that Owner authority covers FR-20/SM-C1 manifest approval effective 2026-09-17.",
+        "receivedDate": "2026-09-17",
+        "memlogEntry": "M149"
+      }
+    ]
+  },
+  "supersedes": [],
+  "supersededBy": null,
+  "nonClaims": [
+    "This self-attested authority record does not prove external identity, forge permission, or package-registry permission.",
+    "This authority does not approve failing conformance results or change the FR-20/SM-C1 100% pass rule.",
+    "This authority does not waive SM-C2, approve OQ-1, make repository grants effective, authorize release, or lift the implementation hold.",
+    "This authority does not activate FR-16 or any legacy Feature-FR, Feature-NFR, UX, or release obligation marked pending or not applicable by the bound manifest."
+  ]
+}

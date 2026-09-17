@@ -1,0 +1,585 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "preservation-traceability-manifest-v3.schema.json",
+  "title": "Conversations preservation traceability manifest v3",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "$schema",
+    "artifact",
+    "schemaVersion",
+    "manifestVersion",
+    "status",
+    "approval",
+    "lineage",
+    "immutabilityPolicy",
+    "sourceBinding",
+    "buildBindings",
+    "commandBindings",
+    "artifactBindings",
+    "testDenominator",
+    "categoryMappings",
+    "obligationSummary",
+    "obligations",
+    "governedDispositions",
+    "zeroOrphanProof",
+    "gateStates",
+    "limitations"
+  ],
+  "properties": {
+    "$schema": { "const": "preservation-traceability-manifest-v3.schema.json" },
+    "artifact": { "const": "preservation-traceability-manifest" },
+    "schemaVersion": { "const": 3 },
+    "manifestVersion": { "const": "3.0.0-rc.1" },
+    "status": { "const": "pending-owner-approval" },
+    "approval": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "requestedRole", "approver", "approvedAtUtc", "approvalReference", "signature"],
+      "properties": {
+        "state": { "const": "pending" },
+        "requestedRole": { "const": "Owner" },
+        "approver": { "type": "null" },
+        "approvedAtUtc": { "type": "null" },
+        "approvalReference": { "type": "null" },
+        "signature": { "type": "null" }
+      }
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predecessor", "predecessorVersion", "v1Baseline", "laterApproval", "laterApprovalDecisionId", "laterApprovalScope", "supersessionBoundary"],
+      "properties": {
+        "predecessor": { "$ref": "#/$defs/artifactBinding" },
+        "predecessorVersion": { "const": "2.0.0-draft" },
+        "v1Baseline": { "$ref": "#/$defs/artifactBinding" },
+        "laterApproval": { "$ref": "#/$defs/artifactBinding" },
+        "laterApprovalDecisionId": { "type": "string", "minLength": 1 },
+        "laterApprovalScope": { "type": "string", "minLength": 1 },
+        "supersessionBoundary": { "type": "string", "minLength": 1 }
+      }
+    },
+    "immutabilityPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "appliesTo", "prohibitedOperations", "effect"],
+      "properties": {
+        "mode": { "const": "strict-add-only" },
+        "appliesTo": { "type": "string", "minLength": 1 },
+        "prohibitedOperations": {
+          "const": ["removal", "replacement", "merging", "reclassification", "waiver", "substitution", "denominator-shrinkage"]
+        },
+        "effect": { "type": "string", "minLength": 1 }
+      }
+    },
+    "sourceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["committedRemediation", "submoduleGitlinks", "ownerReviewOverlay", "schema"],
+      "properties": {
+        "committedRemediation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["commit", "tree", "parent", "branch", "remoteTracking", "headEqualsRemoteTrackingAtInitialVerification", "rootAndSubmodulesCleanAtInitialVerification", "changedPathCount", "changedPaths"],
+          "properties": {
+            "commit": { "const": "d956c9b1de73bcf15969d5e1a6435d6d98a2dd49" },
+            "tree": { "const": "85efb51da9e790550f0991c5c59312ae86dcc838" },
+            "parent": { "const": "c0abd5cb73d420bb2f4b5d04827461ad82c4528c" },
+            "branch": { "const": "main" },
+            "remoteTracking": { "const": "origin/main" },
+            "headEqualsRemoteTrackingAtInitialVerification": { "const": true },
+            "rootAndSubmodulesCleanAtInitialVerification": { "const": true },
+            "changedPathCount": { "const": 50 },
+            "changedPaths": { "type": "array", "minItems": 50, "maxItems": 50, "items": { "$ref": "#/$defs/committedPath" } }
+          }
+        },
+        "submoduleGitlinks": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["path", "gitlink"],
+            "properties": {
+              "path": { "type": "string", "pattern": "^references/Hexalith\\." },
+              "gitlink": { "$ref": "#/$defs/sha1" }
+            }
+          }
+        },
+        "ownerReviewOverlay": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["committed", "baseCommit", "bindings", "purpose"],
+          "properties": {
+            "committed": { "const": false },
+            "baseCommit": { "const": "d956c9b1de73bcf15969d5e1a6435d6d98a2dd49" },
+            "bindings": { "type": "array", "minItems": 3, "maxItems": 3, "items": { "$ref": "#/$defs/artifactBinding" } },
+            "purpose": { "type": "string", "minLength": 1 }
+          }
+        },
+        "schema": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["path", "sha256"],
+          "properties": {
+            "path": { "const": "docs/release-evidence/preservation-traceability-manifest-v3.schema.json" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          }
+        }
+      }
+    },
+    "buildBindings": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": { "$ref": "#/$defs/buildBinding" },
+      "allOf": [
+        { "contains": { "type": "object", "properties": { "id": { "const": "clean-head-release-solution-build" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "owner-review-overlay-conformance-build" } }, "required": ["id"] } }
+      ]
+    },
+    "commandBindings": {
+      "type": "array",
+      "minItems": 6,
+      "maxItems": 6,
+      "items": { "$ref": "#/$defs/commandBinding" },
+      "allOf": [
+        { "contains": { "type": "object", "properties": { "id": { "const": "owner-review-toolchain-capture" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "clean-head-restore" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "clean-head-release-build" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "clean-head-conformance" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "owner-review-overlay-build" } }, "required": ["id"] } },
+        { "contains": { "type": "object", "properties": { "id": { "const": "owner-review-overlay-conformance" } }, "required": ["id"] } }
+      ]
+    },
+    "artifactBindings": {
+      "type": "array",
+      "minItems": 13,
+      "maxItems": 13,
+      "items": { "$ref": "#/$defs/artifactBinding" },
+      "allOf": [
+        { "contains": { "properties": { "role": { "const": "v3-machine-contract" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "predecessor-manifest" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "predecessor-projection" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "v1-14-suite-214-test-authority" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "later-approved-384-test-report" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "later-approved-384-test-decision" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "signed-release-conformance-evidence" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "historical-runtime-boundary-evidence" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "clean-head-release-build-log" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "clean-head-conformance-result" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "owner-review-conformance-build-log" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "owner-review-conformance-result" } }, "required": ["role"] } },
+        { "contains": { "properties": { "role": { "const": "toolchain-identity-capture" } }, "required": ["role"] } }
+      ]
+    },
+    "testDenominator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["identityScheme", "originalV1Floor", "laterApprovedAdditions", "currentCandidate", "preservationProof"],
+      "properties": {
+        "identityScheme": { "const": "xunit-runtime-fully-qualified-display-id" },
+        "originalV1Floor": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["sourceCommit", "suiteCount", "testCount", "suiteClasses", "testIds", "testIdsSha256", "derivation"],
+          "properties": {
+            "sourceCommit": { "const": "ceb7fbe958a6b89a3b1ad01a3c98252cc766b4fe" },
+            "suiteCount": { "const": 14 },
+            "testCount": { "const": 214 },
+            "suiteClasses": { "type": "array", "minItems": 14, "maxItems": 14, "uniqueItems": true },
+            "testIds": { "$ref": "#/$defs/exact214Ids" },
+            "testIdsSha256": { "const": "31a3a21b58aa3d704458a242adf87a41b95cc69b5f9b2b38994354735d3fb4bc" },
+            "derivation": { "type": "string", "minLength": 1 }
+          }
+        },
+        "laterApprovedAdditions": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvalDecisionPath", "approvalDecisionSha256", "approvedSourceCommit", "approvedCumulativeCount", "approvedAdditionCount", "testIds", "testIdsSha256", "cumulativeTestIds", "cumulativeTestIdsSha256", "theoryMethods", "identityDerivation"],
+          "properties": {
+            "approvalDecisionPath": { "const": "docs/release-evidence/success-metric-report-and-attestation-v1-release-owner-decision.json" },
+            "approvalDecisionSha256": { "$ref": "#/$defs/sha256" },
+            "approvedSourceCommit": { "const": "c6670fac7347ecd7240f7bab7e5e23147c8dfc65" },
+            "approvedCumulativeCount": { "const": 384 },
+            "approvedAdditionCount": { "const": 170 },
+            "testIds": { "$ref": "#/$defs/exact170Ids" },
+            "testIdsSha256": { "const": "93632988fa4c409847cd0976e11d5deea8c5a7cef01eaea9e8889e5bcbb01180" },
+            "cumulativeTestIds": { "$ref": "#/$defs/exact384Ids" },
+            "cumulativeTestIdsSha256": { "const": "ec0d374dc6d947c662165de79eae9911acaa60bfaf4735e314923bbd9f0e6c61" },
+            "theoryMethods": { "type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": true },
+            "identityDerivation": { "$ref": "#/$defs/identityDerivation" }
+          }
+        },
+        "currentCandidate": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvalState", "sourceState", "testCount", "passed", "failed", "skipped", "testIds", "testIdsSha256", "pendingAdditionCount", "pendingAdditionIds", "failedTestIds"],
+          "properties": {
+            "approvalState": { "const": "pending-owner-approval" },
+            "sourceState": { "const": "d956c9b1de73bcf15969d5e1a6435d6d98a2dd49+uncommitted-owner-review-overlay" },
+            "testCount": { "const": 473 },
+            "passed": { "const": 456 },
+            "failed": { "const": 17 },
+            "skipped": { "const": 0 },
+            "testIds": { "$ref": "#/$defs/exact473Ids" },
+            "testIdsSha256": { "const": "282fb65c9637e6688fd8bb9a22fe228f6546c74b56c1d8fc387abae10291a332" },
+            "pendingAdditionCount": { "const": 89 },
+            "pendingAdditionIds": { "$ref": "#/$defs/exact89Ids" },
+            "failedTestIds": { "type": "array", "minItems": 17, "maxItems": 17, "uniqueItems": true }
+          }
+        },
+        "preservationProof": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["missingFromOriginalV1Floor", "missingFromApprovedCumulativeFloor", "duplicateCurrentTestIds", "originalV1RetainedCount", "approvedCumulativeRetainedCount", "denominatorShrinkage"],
+          "properties": {
+            "missingFromOriginalV1Floor": { "$ref": "#/$defs/emptyArray" },
+            "missingFromApprovedCumulativeFloor": { "$ref": "#/$defs/emptyArray" },
+            "duplicateCurrentTestIds": { "$ref": "#/$defs/emptyArray" },
+            "originalV1RetainedCount": { "const": 214 },
+            "approvedCumulativeRetainedCount": { "const": 384 },
+            "denominatorShrinkage": { "const": false }
+          }
+        }
+      }
+    },
+    "categoryMappings": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": { "$ref": "#/$defs/categoryMapping" },
+      "allOf": [
+        { "contains": { "properties": { "category": { "const": "tenant-isolation" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "idempotency" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "contract-validation" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "redaction-replay" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "provider-portability" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "projection-freshness" } }, "required": ["category"] } },
+        { "contains": { "properties": { "category": { "const": "governance-audit-pairing" } }, "required": ["category"] } }
+      ]
+    },
+    "obligationSummary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expected", "actual", "requiredPreservationObligations", "activeInitiativeRequirementCount", "activeInitiativeRequirementIds", "deferredInitiativeRequirementCount", "deferredInitiativeRequirementIds", "releaseActivatedLegacyRequirementCount", "pendingNotInferredCount", "activationNotApplicableCount", "closureCount", "pendingGovernedDispositionCount", "orphanCount", "duplicateIdCount", "byKind"],
+      "properties": {
+        "expected": { "const": 969 },
+        "actual": { "const": 969 },
+        "requiredPreservationObligations": { "const": 969 },
+        "activeInitiativeRequirementCount": { "const": 19 },
+        "activeInitiativeRequirementIds": { "type": "array", "minItems": 19, "maxItems": 19, "uniqueItems": true, "not": { "contains": { "const": "FR-16" } } },
+        "deferredInitiativeRequirementCount": { "const": 1 },
+        "deferredInitiativeRequirementIds": { "const": ["FR-16"] },
+        "releaseActivatedLegacyRequirementCount": { "const": 0 },
+        "pendingNotInferredCount": { "const": 285 },
+        "activationNotApplicableCount": { "const": 664 },
+        "closureCount": { "const": 969 },
+        "pendingGovernedDispositionCount": { "const": 277 },
+        "orphanCount": { "const": 0 },
+        "duplicateIdCount": { "const": 0 },
+        "byKind": { "type": "array", "minItems": 9, "maxItems": 9 }
+      }
+    },
+    "obligations": {
+      "type": "array",
+      "minItems": 969,
+      "maxItems": 969,
+      "items": { "$ref": "#/$defs/obligation" }
+    },
+    "governedDispositions": {
+      "type": "array",
+      "minItems": 277,
+      "maxItems": 277,
+      "items": { "$ref": "#/$defs/governedDisposition" }
+    },
+    "zeroOrphanProof": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["result", "expectedObligationCount", "actualObligationCount", "closureCount", "pendingGovernedDispositionCount", "orphanIds", "duplicateObligationIds", "missingSourceIds", "mappedCategoryCount", "unmappedCategories", "mappedMissingRequirementIds", "mappedMissingTestIds", "missingOriginalV1TestIds", "missingApprovedCumulativeTestIds"],
+      "properties": {
+        "result": { "const": "pass" },
+        "expectedObligationCount": { "const": 969 },
+        "actualObligationCount": { "const": 969 },
+        "closureCount": { "const": 969 },
+        "pendingGovernedDispositionCount": { "const": 277 },
+        "orphanIds": { "$ref": "#/$defs/emptyArray" },
+        "duplicateObligationIds": { "$ref": "#/$defs/emptyArray" },
+        "missingSourceIds": { "$ref": "#/$defs/emptyArray" },
+        "mappedCategoryCount": { "const": 7 },
+        "unmappedCategories": { "$ref": "#/$defs/emptyArray" },
+        "mappedMissingRequirementIds": { "$ref": "#/$defs/emptyArray" },
+        "mappedMissingTestIds": { "$ref": "#/$defs/emptyArray" },
+        "missingOriginalV1TestIds": { "$ref": "#/$defs/emptyArray" },
+        "missingApprovedCumulativeTestIds": { "$ref": "#/$defs/emptyArray" }
+      }
+    },
+    "gateStates": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["FR-20", "SM-C1", "SM-C2", "OQ-1", "implementationHold"],
+      "properties": {
+        "FR-20": { "$ref": "#/$defs/pendingGate" },
+        "SM-C1": { "$ref": "#/$defs/pendingGate" },
+        "SM-C2": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "rule"],
+          "properties": { "state": { "const": "FAILED" }, "rule": { "type": "string", "pattern": "<=5%" } }
+        },
+        "OQ-1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "reason"],
+          "properties": { "state": { "const": "BLOCKED" }, "reason": { "type": "string", "minLength": 1 } }
+        },
+        "implementationHold": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["state", "releaseAllowed", "exitCondition"],
+          "properties": {
+            "state": { "const": "ACTIVE" },
+            "releaseAllowed": { "const": false },
+            "exitCondition": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    },
+    "limitations": { "type": "array", "minItems": 5, "items": { "type": "string", "minLength": 1 } }
+  },
+  "$defs": {
+    "sha1": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "emptyArray": { "type": "array", "maxItems": 0 },
+    "exact89Ids": { "type": "array", "minItems": 89, "maxItems": 89, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "exact170Ids": { "type": "array", "minItems": 170, "maxItems": 170, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "exact214Ids": { "type": "array", "minItems": 214, "maxItems": 214, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "exact384Ids": { "type": "array", "minItems": 384, "maxItems": 384, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "exact473Ids": { "type": "array", "minItems": 473, "maxItems": 473, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "artifactBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "bytes", "role"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 0 },
+        "role": { "type": "string", "minLength": 1 }
+      }
+    },
+    "committedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "path", "mode", "gitObjectType", "gitObjectId"],
+      "properties": {
+        "status": { "type": "string", "minLength": 1 },
+        "path": { "type": "string", "minLength": 1 },
+        "mode": { "type": "string", "pattern": "^[0-9]{6}$" },
+        "gitObjectType": { "enum": ["blob", "commit"] },
+        "gitObjectId": { "$ref": "#/$defs/sha1" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "buildBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "sourceState", "dotnetSdk", "sdkCommit", "msbuild", "configuration", "targetFramework", "result", "warnings", "errors", "log", "toolchainCapture", "conformanceAssemblySha256"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "sourceState": { "type": "string", "minLength": 1 },
+        "dotnetSdk": { "const": "10.0.401" },
+        "sdkCommit": { "const": "e34a38d2ae" },
+        "msbuild": { "const": "18.9.11+e34a38d2a" },
+        "configuration": { "const": "Release" },
+        "targetFramework": { "const": "net10.0" },
+        "result": { "const": "pass" },
+        "warnings": { "const": 0 },
+        "errors": { "const": 0 },
+        "log": { "$ref": "#/$defs/artifactBinding" },
+        "toolchainCapture": { "$ref": "#/$defs/artifactBinding" },
+        "conformanceAssemblySha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "commandBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "command", "sourceState", "result"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "command": { "type": "string", "minLength": 1 },
+        "sourceState": { "type": "string", "minLength": 1 },
+        "result": { "enum": ["pass", "fail"] },
+        "summary": { "type": "object" }
+      }
+    },
+    "identityDerivation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["methodFactCount", "theoryMethodCount", "theoryCaseCount", "sourceIdentity", "displayIdentityDerivation", "historicalRunnerOutputAvailable", "note"],
+      "properties": {
+        "methodFactCount": { "const": 368 },
+        "theoryMethodCount": { "const": 2 },
+        "theoryCaseCount": { "const": 16 },
+        "sourceIdentity": { "type": "string", "minLength": 1 },
+        "displayIdentityDerivation": { "const": "reconstructed-from-approved-source" },
+        "historicalRunnerOutputAvailable": { "const": false },
+        "note": { "type": "string", "minLength": 1 }
+      }
+    },
+    "categoryMapping": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["category", "requirementIds", "testIds", "approvalState"],
+      "properties": {
+        "category": { "enum": ["tenant-isolation", "idempotency", "contract-validation", "redaction-replay", "provider-portability", "projection-freshness", "governance-audit-pairing"] },
+        "requirementIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "testIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+        "approvalState": { "const": "pending-owner-approval" }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "section", "line", "text", "textSha256", "fileSha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "section": { "type": "string", "minLength": 1 },
+        "line": { "type": "integer", "minimum": 1 },
+        "text": { "type": "string", "minLength": 1 },
+        "textSha256": { "$ref": "#/$defs/sha256" },
+        "fileSha256": { "$ref": "#/$defs/sha256" },
+        "ordinal": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "closure": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "state", "categories", "testIds"],
+          "properties": {
+            "kind": { "const": "exact-test-traceability" },
+            "state": { "const": "mapped-pending-owner-approval" },
+            "categories": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } },
+            "testIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "state", "testIds"],
+          "properties": {
+            "kind": { "const": "runtime-test-identity" },
+            "state": { "const": "mapped-current-candidate" },
+            "testIds": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "state", "evidence"],
+          "properties": {
+            "kind": { "const": "evidence" },
+            "state": { "const": "source-bound" },
+            "evidence": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidenceBinding" } }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "state", "dispositionId"],
+          "properties": {
+            "kind": { "const": "governed-disposition" },
+            "state": { "const": "pending" },
+            "dispositionId": { "type": "string", "pattern": "^DISP-" }
+          }
+        }
+      ]
+    },
+    "evidenceBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "evidenceType", "authorityPath", "authoritySha256"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "evidenceType": { "type": "string", "minLength": 1 },
+        "authorityPath": { "type": "string", "minLength": 1 },
+        "authoritySha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "obligation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "kind", "title", "source", "preservationState", "releaseActivationState", "closure", "orphan"],
+      "properties": {
+        "id": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["initiative-fr", "feature-fr", "feature-nfr", "ux-decision", "ux-acceptance", "public-contract", "public-client", "current-control", "conformance-assertion"] },
+        "title": { "type": "string", "minLength": 1 },
+        "source": { "$ref": "#/$defs/source" },
+        "preservationState": { "const": "required" },
+        "releaseActivationState": { "enum": ["active-initiative-scope", "deferred-not-active", "pending-not-inferred", "not-applicable"] },
+        "closure": { "$ref": "#/$defs/closure" },
+        "orphan": { "const": false },
+        "tier": { "type": "string", "minLength": 1 },
+        "controlOwner": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "initiative-fr" } }, "required": ["kind"] },
+          "then": {
+            "oneOf": [
+              {
+                "properties": {
+                  "id": { "const": "FR-16" },
+                  "releaseActivationState": { "const": "deferred-not-active" }
+                }
+              },
+              {
+                "properties": {
+                  "id": { "not": { "const": "FR-16" } },
+                  "releaseActivationState": { "const": "active-initiative-scope" }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["feature-fr", "feature-nfr", "ux-decision", "ux-acceptance"] } },
+            "required": ["kind"]
+          },
+          "then": { "properties": { "releaseActivationState": { "const": "pending-not-inferred" } } }
+        },
+        {
+          "if": {
+            "properties": { "kind": { "enum": ["public-contract", "public-client", "current-control", "conformance-assertion"] } },
+            "required": ["kind"]
+          },
+          "then": { "properties": { "releaseActivationState": { "const": "not-applicable" } } }
+        }
+      ]
+    },
+    "governedDisposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dispositionId", "obligationId", "status", "approvalEvidence", "releaseActivationEffect", "proposal"],
+      "properties": {
+        "dispositionId": { "type": "string", "pattern": "^DISP-" },
+        "obligationId": { "type": "string", "minLength": 1 },
+        "status": { "const": "pending" },
+        "approvalEvidence": { "type": "null" },
+        "releaseActivationEffect": { "const": "none" },
+        "proposal": { "type": "string", "minLength": 1 }
+      }
+    },
+    "pendingGate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["state", "reason"],
+      "properties": { "state": { "const": "PENDING" }, "reason": { "type": "string", "minLength": 1 } }
+    }
+  }
+}
