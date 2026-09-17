@@ -1,0 +1,328 @@
+{
+  "schemaVersion": "hexalith.conversations.oq-1-landing-zone-approval.v1",
+  "artifact": "oq-1-landing-zone-approval",
+  "artifactVersion": "1.0.0-draft.1",
+  "decisionId": "OQ-1",
+  "recordedDate": "2026-09-16",
+  "status": "pending-confirmation",
+  "result": "BLOCKED",
+  "authority": {
+    "confirmationState": "pending",
+    "principalName": null,
+    "principalRole": null,
+    "authorityRegistry": null,
+    "authorityRegistryVersion": null,
+    "effectiveScope": null,
+    "effectiveAtUtc": null,
+    "approvalReference": null,
+    "supersedes": [],
+    "supersededBy": null
+  },
+  "scope": {
+    "requirements": [
+      "FR-10",
+      "FR-11",
+      "FR-12",
+      "FR-13",
+      "FR-14",
+      "FR-15"
+    ],
+    "repositories": [
+      "https://github.com/Hexalith/Hexalith.EventStore.git",
+      "https://github.com/Hexalith/Hexalith.Commons.git",
+      "https://github.com/Hexalith/Hexalith.Conversations.git"
+    ],
+    "excluded": [
+      "FR-16 activation",
+      "package publication not explicitly identified below",
+      "release authorization",
+      "implementation-hold lift",
+      "FR-20 or SM-C1 acceptance",
+      "SM-C2 waiver or threshold change"
+    ]
+  },
+  "sourceBindings": [
+    {
+      "path": "_bmad-output/planning-artifacts/architecture.md",
+      "sha256": "fb14a118fe44df6a54e8d1ff60de6a3b90a7eac5fc1fbba7f45b066475b91d35",
+      "role": "current-technical-landing-zone-mapping"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "sha256": "1eea231c4c951eb6218a1b8912e52d41ff35fbd39f82ffd08d72dbffd78bb84c",
+      "role": "normative-approval-contract"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md",
+      "sha256": "fc35b13a12a42f3e46edf55b4194f6c6aa09a8b33ee2dc7eb3d18c36f09e660f",
+      "role": "technical-mapping-and-authority-gap"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/reconcile-2026-09-16-validation-update.md",
+      "sha256": "50f28a6945b1e211dcc71498300ed8a61e5f748654bdeb6bf696530a60e9d66a",
+      "role": "validation-reconciliation"
+    },
+    {
+      "path": "docs/release-evidence/promote-adopt-runbook.md",
+      "sha256": "2ae308e82f159b3f152077d6946ff220108266806668c6dfb0921f3df0920ce1",
+      "role": "historical-story-mapping"
+    },
+    {
+      "path": "docs/release-evidence/contract-compatibility-policy.md",
+      "sha256": "1ed09f3c503de971dc9048bc71f4946c075239a1ff3bb458664e2d96a7acad9d",
+      "role": "descriptive-compatibility-policy-not-approval-evidence"
+    },
+    {
+      "path": ".gitmodules",
+      "sha256": "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c",
+      "role": "root-submodule-declarations"
+    }
+  ],
+  "rootCandidate": {
+    "repository": "https://github.com/Hexalith/Hexalith.Conversations.git",
+    "commit": "b4ac3edfd2bd20d109d3cd4c513d91da69a425a4",
+    "branchObservation": "main",
+    "worktreeObservationAtDraft": "clean",
+    "approvalState": "not-approved-by-this-draft"
+  },
+  "repositoryBindings": [
+    {
+      "id": "eventstore",
+      "repository": "https://github.com/Hexalith/Hexalith.EventStore.git",
+      "gitlinkPath": "references/Hexalith.EventStore",
+      "gitlinkCommit": "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
+      "observedHead": "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
+      "branchObservation": "main",
+      "worktreeObservationAtDraft": "clean",
+      "nearestReachableTag": "v3.106.0",
+      "nearestReachableTagCommit": "76051c70cbf868c40edc00ca0344fa5bd8879b69",
+      "commitsAheadOfTag": 1,
+      "exactlyTagged": false,
+      "publicationEvidence": null,
+      "approvalState": "observed-not-approved"
+    },
+    {
+      "id": "commons",
+      "repository": "https://github.com/Hexalith/Hexalith.Commons.git",
+      "gitlinkPath": "references/Hexalith.Commons",
+      "gitlinkCommit": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+      "observedHead": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+      "branchObservation": "main",
+      "worktreeObservationAtDraft": "clean",
+      "nearestReachableTag": "v2.30.0",
+      "nearestReachableTagCommit": "426e1a196ed1b018d11500f43dc8d6740a5f4994",
+      "commitsAheadOfTag": 21,
+      "exactlyTagged": false,
+      "publicationEvidence": null,
+      "approvalState": "observed-not-approved"
+    }
+  ],
+  "historicalMappingConflict": {
+    "status": "pending-confirmation",
+    "currentArchitecture": "FR-10 maps to EventStore ServiceDefaults/DomainService and FR-13 maps to EventStore Aspire plus applicable Commons helpers.",
+    "historicalRunbook": "Story 3.4 and Story 3.5 recorded Commons ServiceDefaults, Aspire, and Publication placements.",
+    "proposedResolution": "Use the hash-bound current architecture mapping for OQ-1 and retain the promote/adopt runbook mapping only as historical implementation provenance.",
+    "approvalEvidence": null
+  },
+  "decisions": [
+    {
+      "requirementId": "FR-10",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["eventstore"],
+      "targetSurface": [
+        "Hexalith.EventStore.ServiceDefaults",
+        "Hexalith.EventStore.DomainService"
+      ],
+      "capability": "platform-owned service defaults, health, telemetry, and domain-service registration",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": ["bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f"],
+      "rejectedLandingZones": [
+        "Hexalith.Conversations domain module",
+        "Hexalith.Tenants domain module"
+      ],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    },
+    {
+      "requirementId": "FR-11",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["commons"],
+      "targetSurface": ["Hexalith.Commons.TenantAccess"],
+      "capability": "generic tenant-access projection handler and registration",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": ["19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"],
+      "rejectedLandingZones": [
+        "Hexalith.Conversations domain module",
+        "Hexalith.Tenants domain module"
+      ],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    },
+    {
+      "requirementId": "FR-12",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["commons"],
+      "targetSurface": ["Hexalith.Commons.Http"],
+      "capability": "generic typed-HttpClient registration",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": ["19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"],
+      "rejectedLandingZones": ["Hexalith.Conversations domain module"],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    },
+    {
+      "requirementId": "FR-13",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["eventstore", "commons"],
+      "targetSurface": [
+        "Hexalith.EventStore.Aspire",
+        "applicable Hexalith.Commons Aspire helpers"
+      ],
+      "capability": "platform-owned Aspire and DAPR topology",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": [
+        "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f",
+        "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+      ],
+      "rejectedLandingZones": [
+        "reusable or production Hexalith.Conversations AppHost or Aspire ownership; the architecture-permitted non-packable, non-publishable module test AppHost remains an explicit exception",
+        "Hexalith.Tenants domain module"
+      ],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    },
+    {
+      "requirementId": "FR-14",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["commons"],
+      "targetSurface": ["Hexalith.Commons.Serialization"],
+      "capability": "JSON context and type-mapping helpers",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": ["19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"],
+      "rejectedLandingZones": ["Hexalith.Conversations-only serialization plumbing"],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    },
+    {
+      "requirementId": "FR-15",
+      "status": "proposed-pending-confirmation",
+      "targetRepositories": ["commons", "eventstore"],
+      "targetSurface": [
+        "Hexalith.Commons.Diagnostics",
+        "Hexalith.EventStore.DomainService domain-telemetry registration"
+      ],
+      "capability": "shared diagnostics scaffolding and platform-owned telemetry registration",
+      "consumer": "Hexalith.Conversations",
+      "implementingRevisions": [
+        "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6",
+        "bf9d53eb4e54ef5b65a08fc46d600c6c08187b9f"
+      ],
+      "rejectedLandingZones": ["Hexalith.Conversations-owned telemetry scaffolding"],
+      "owningRepositoryApproval": null,
+      "releaseBinding": null,
+      "compatibilityEvidence": [],
+      "rollbackAuthority": null
+    }
+  ],
+  "releasePlan": {
+    "status": "pending",
+    "releaseVehicle": null,
+    "packageVersions": [],
+    "registryOrFeed": null,
+    "publicationEvidence": [],
+    "releaseOrder": [],
+    "compatibilityWindow": null,
+    "note": "Reachable tags are observations only. Neither current gitlink commit is exactly tagged, and this draft does not claim package publication."
+  },
+  "compatibilityApproval": {
+    "status": "pending-evidence-and-confirmation",
+    "policyBinding": "docs/release-evidence/contract-compatibility-policy.md",
+    "exactTestIds": [],
+    "consumerMatrix": [],
+    "publicApiDiffEvidence": [],
+    "beforeAfterResults": [],
+    "approvalEvidence": null,
+    "note": "The descriptive policy is not compatibility evidence or approval."
+  },
+  "rollbackApproval": {
+    "status": "pending",
+    "authority": null,
+    "triggers": [],
+    "rollbackRevisionsOrTags": [],
+    "reversibleBoundary": null,
+    "dataMigrationImplications": null,
+    "approvalEvidence": null
+  },
+  "assertionLedger": [
+    {
+      "id": "OQ1-SOURCE-01",
+      "subject": "source-and-repository-bindings",
+      "state": "PASS"
+    },
+    {
+      "id": "OQ1-MAPPING-01",
+      "subject": "current-mapping-and-historical-conflict-resolution",
+      "state": "PENDING_CONFIRMATION"
+    },
+    {
+      "id": "OQ1-AUTHORITY-01",
+      "subject": "named-principal-and-effective-authority-scope",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "OQ1-GRANT-01",
+      "subject": "owning-repository-change-grants",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "OQ1-REVISION-01",
+      "subject": "accepted-implementing-revisions",
+      "state": "PENDING_CONFIRMATION"
+    },
+    {
+      "id": "OQ1-RELEASE-01",
+      "subject": "release-vehicle-and-release-order",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "OQ1-COMPAT-01",
+      "subject": "pinned-compatibility-evidence-and-window",
+      "state": "BLOCKED"
+    },
+    {
+      "id": "OQ1-ROLLBACK-01",
+      "subject": "rollback-authority-triggers-and-revisions",
+      "state": "BLOCKED"
+    }
+  ],
+  "confirmationRequest": {
+    "state": "pending",
+    "requiredConfirmations": [
+      "Identify the approving principal, role, authority registry/version, effective scope, effective date, and approval reference.",
+      "Provide versioned, repository-specific EventStore and Commons change grants and bind each affected decision's owningRepositoryApproval to the applicable grant; each grant must cover the exact capability, pinned consumer evidence, release order, compatibility window, and rollback authority.",
+      "Confirm that the hash-bound current architecture mapping supersedes the historical runbook mapping for OQ-1.",
+      "Confirm or replace the observed EventStore and Commons implementing revisions.",
+      "Provide the exact release vehicle, package versions or source-delivery identity, publication evidence, and release order.",
+      "Provide pinned compatibility evidence, the complete consumer matrix, the compatibility window, and its acceptance record.",
+      "Provide rollback authority, triggers, exact rollback revisions or tags, migration implications, and approval evidence."
+    ]
+  },
+  "nonClaims": [
+    "This draft is not an owning-repository approval or change grant.",
+    "This draft does not authorize implementation, cross-repository changes, package publication, release, or successor-story work.",
+    "This draft does not lift the implementation hold.",
+    "This draft does not approve FR-20 or SM-C1 and does not change their immutable preservation denominator.",
+    "This draft does not waive SM-C2 or change its universal no-more-than-5-percent regression rule.",
+    "This draft does not activate FR-16."
+  ]
+}
