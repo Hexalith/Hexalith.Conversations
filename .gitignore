@@ -435,3 +435,10 @@ FodyWeavers.xsd
 .bmad-loop/cache/
 .bmad-loop/policy.toml
 _bmad/render/
+
+# Retain the exact package archives bound by the IdentityModel remediation evidence.
+!/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/
+!/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/
+!/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/*.nupkg
+!/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/
+!/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/*.nupkg

@@ -1,0 +1,114 @@
+--- _bmad-output/implementation-artifacts/identitymodel-evidence/baseline-affected-package-versions.tsv	2026-09-17 11:52:52.245274010 +0200
++++ _bmad-output/implementation-artifacts/identitymodel-evidence/candidate-affected-package-versions.tsv	2026-09-17 11:52:52.249274187 +0200
+@@ -49,12 +49,12 @@
+ Hexalith.Conversations.Conformance.Tests	Microsoft.Extensions.ServiceDiscovery.Abstractions	10.10.0
+ Hexalith.Conversations.Conformance.Tests	Microsoft.Extensions.Telemetry	10.10.0
+ Hexalith.Conversations.Conformance.Tests	Microsoft.Extensions.Telemetry.Abstractions	10.10.0
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Abstractions	8.19.2
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.JsonWebTokens	8.19.2
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Logging	8.19.2
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Protocols	8.19.2
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.19.2
+-Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Tokens	8.19.2
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Abstractions	8.22.0
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.JsonWebTokens	8.22.0
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Logging	8.22.0
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Protocols	8.22.0
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.22.0
++Hexalith.Conversations.Conformance.Tests	Microsoft.IdentityModel.Tokens	8.22.0
+ Hexalith.Conversations.Conformance.Tests	Microsoft.NET.Test.Sdk	18.10.1
+ Hexalith.Conversations.Conformance.Tests	Microsoft.TestPlatform.ObjectModel	18.10.1
+ Hexalith.Conversations.Conformance.Tests	Microsoft.TestPlatform.TestHost	18.10.1
+@@ -76,7 +76,7 @@
+ Hexalith.Conversations.Conformance.Tests	Polly.RateLimiting	8.4.2
+ Hexalith.Conversations.Conformance.Tests	Shouldly	4.3.0
+ Hexalith.Conversations.Conformance.Tests	System.CodeDom	6.0.0
+-Hexalith.Conversations.Conformance.Tests	System.IdentityModel.Tokens.Jwt	8.19.2
++Hexalith.Conversations.Conformance.Tests	System.IdentityModel.Tokens.Jwt	8.22.0
+ Hexalith.Conversations.Conformance.Tests	System.Management	6.0.1
+ Hexalith.Conversations.Conformance.Tests	System.Security.AccessControl	6.0.1
+ Hexalith.Conversations.Conformance.Tests	System.Threading.RateLimiting	8.0.0
+@@ -178,12 +178,12 @@
+ Hexalith.Conversations.IntegrationTests	Microsoft.Extensions.ServiceDiscovery.Abstractions	10.10.0
+ Hexalith.Conversations.IntegrationTests	Microsoft.Extensions.Telemetry	10.10.0
+ Hexalith.Conversations.IntegrationTests	Microsoft.Extensions.Telemetry.Abstractions	10.10.0
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Abstractions	8.19.2
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.JsonWebTokens	8.19.2
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Logging	8.19.2
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Protocols	8.19.2
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.19.2
+-Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Tokens	8.19.2
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Abstractions	8.22.0
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.JsonWebTokens	8.22.0
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Logging	8.22.0
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Protocols	8.22.0
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.22.0
++Hexalith.Conversations.IntegrationTests	Microsoft.IdentityModel.Tokens	8.22.0
+ Hexalith.Conversations.IntegrationTests	Microsoft.NET.StringTools	18.4.0
+ Hexalith.Conversations.IntegrationTests	Microsoft.NET.Test.Sdk	18.10.1
+ Hexalith.Conversations.IntegrationTests	Microsoft.TestPlatform.ObjectModel	18.10.1
+@@ -218,7 +218,7 @@
+ Hexalith.Conversations.IntegrationTests	System.CodeDom	6.0.0
+ Hexalith.Conversations.IntegrationTests	System.Diagnostics.EventLog	10.0.11
+ Hexalith.Conversations.IntegrationTests	System.IO.Hashing	10.0.8
+-Hexalith.Conversations.IntegrationTests	System.IdentityModel.Tokens.Jwt	8.19.2
++Hexalith.Conversations.IntegrationTests	System.IdentityModel.Tokens.Jwt	8.22.0
+ Hexalith.Conversations.IntegrationTests	System.Management	6.0.1
+ Hexalith.Conversations.IntegrationTests	System.Security.AccessControl	6.0.1
+ Hexalith.Conversations.IntegrationTests	System.Threading.RateLimiting	8.0.0
+@@ -259,12 +259,12 @@
+ Hexalith.Conversations.Server	Microsoft.Extensions.ServiceDiscovery.Abstractions	10.10.0
+ Hexalith.Conversations.Server	Microsoft.Extensions.Telemetry	10.10.0
+ Hexalith.Conversations.Server	Microsoft.Extensions.Telemetry.Abstractions	10.10.0
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.Abstractions	8.19.2
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.JsonWebTokens	8.19.2
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.Logging	8.19.2
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.Protocols	8.19.2
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.19.2
+-Hexalith.Conversations.Server	Microsoft.IdentityModel.Tokens	8.19.2
++Hexalith.Conversations.Server	Microsoft.IdentityModel.Abstractions	8.22.0
++Hexalith.Conversations.Server	Microsoft.IdentityModel.JsonWebTokens	8.22.0
++Hexalith.Conversations.Server	Microsoft.IdentityModel.Logging	8.22.0
++Hexalith.Conversations.Server	Microsoft.IdentityModel.Protocols	8.22.0
++Hexalith.Conversations.Server	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.22.0
++Hexalith.Conversations.Server	Microsoft.IdentityModel.Tokens	8.22.0
+ Hexalith.Conversations.Server	OpenTelemetry	1.18.0
+ Hexalith.Conversations.Server	OpenTelemetry.Api	1.18.0
+ Hexalith.Conversations.Server	OpenTelemetry.Api.ProviderBuilderExtensions	1.18.0
+@@ -276,7 +276,7 @@
+ Hexalith.Conversations.Server	Polly.Core	8.4.2
+ Hexalith.Conversations.Server	Polly.Extensions	8.4.2
+ Hexalith.Conversations.Server	Polly.RateLimiting	8.4.2
+-Hexalith.Conversations.Server	System.IdentityModel.Tokens.Jwt	8.19.2
++Hexalith.Conversations.Server	System.IdentityModel.Tokens.Jwt	8.22.0
+ Hexalith.Conversations.Server.Tests	ByteAether.Ulid	1.4.0
+ Hexalith.Conversations.Server.Tests	Dapr.Actors	1.18.7
+ Hexalith.Conversations.Server.Tests	Dapr.Actors.AspNetCore	1.18.7
+@@ -331,12 +331,12 @@
+ Hexalith.Conversations.Server.Tests	Microsoft.Extensions.ServiceDiscovery.Abstractions	10.10.0
+ Hexalith.Conversations.Server.Tests	Microsoft.Extensions.Telemetry	10.10.0
+ Hexalith.Conversations.Server.Tests	Microsoft.Extensions.Telemetry.Abstractions	10.10.0
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Abstractions	8.19.2
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.JsonWebTokens	8.19.2
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Logging	8.19.2
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Protocols	8.19.2
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.19.2
+-Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Tokens	8.19.2
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Abstractions	8.22.0
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.JsonWebTokens	8.22.0
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Logging	8.22.0
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Protocols	8.22.0
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Protocols.OpenIdConnect	8.22.0
++Hexalith.Conversations.Server.Tests	Microsoft.IdentityModel.Tokens	8.22.0
+ Hexalith.Conversations.Server.Tests	Microsoft.NET.Test.Sdk	18.10.1
+ Hexalith.Conversations.Server.Tests	Microsoft.TestPlatform.ObjectModel	18.10.1
+ Hexalith.Conversations.Server.Tests	Microsoft.TestPlatform.TestHost	18.10.1
+@@ -358,7 +358,7 @@
+ Hexalith.Conversations.Server.Tests	Polly.RateLimiting	8.4.2
+ Hexalith.Conversations.Server.Tests	Shouldly	4.3.0
+ Hexalith.Conversations.Server.Tests	System.CodeDom	6.0.0
+-Hexalith.Conversations.Server.Tests	System.IdentityModel.Tokens.Jwt	8.19.2
++Hexalith.Conversations.Server.Tests	System.IdentityModel.Tokens.Jwt	8.22.0
+ Hexalith.Conversations.Server.Tests	System.Management	6.0.1
+ Hexalith.Conversations.Server.Tests	System.Security.AccessControl	6.0.1
+ Hexalith.Conversations.Server.Tests	System.Threading.RateLimiting	8.0.0

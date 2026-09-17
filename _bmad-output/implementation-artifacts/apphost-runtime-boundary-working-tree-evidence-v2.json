@@ -1,0 +1,329 @@
+{
+  "schemaVersion": "hexalith.conversations.apphost-runtime-boundary-working-tree-evidence.v2",
+  "evidenceId": "APPHOST-RUNTIME-BOUNDARY-WORKTREE-002",
+  "artifactVersion": "2.0.0",
+  "recordedDate": "2026-09-17",
+  "status": "working-tree-validation-only",
+  "identityModelCompatibilityResult": "PASS",
+  "runtimeBoundaryResult": "PASS",
+  "broadConformanceResult": "FAIL",
+  "oq1AggregateResult": "BLOCKED",
+  "supersedesWorkingTreeEvidence": {
+    "evidenceId": "APPHOST-RUNTIME-BOUNDARY-WORKTREE-001",
+    "path": "_bmad-output/implementation-artifacts/apphost-runtime-boundary-working-tree-evidence-v1.json",
+    "sha256": "3989977750c3cf301932bd9f3d9be7b915b4a2a1c4856f22bcddb20226cb58cc",
+    "scope": "Working-tree validation only; no committed OQ-1 evidence or grant is superseded."
+  },
+  "sourceBinding": {
+    "rootBaseCommit": "c0abd5cb73d420bb2f4b5d04827461ad82c4528c",
+    "rootWorkingTreeCommitted": false,
+    "gitlinks": [
+      { "path": "references/Hexalith.EventStore", "commit": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e" },
+      { "path": "references/Hexalith.Commons", "commit": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6" },
+      { "path": "references/Hexalith.Tenants", "commit": "c150d5b1af4f911ff3b2a7ab7901d94838be09d7" },
+      { "path": "references/Hexalith.Builds", "commit": "04d961759994396132bb2b113ee465b64740a543" }
+    ],
+    "candidateFiles": [
+      { "path": ".gitignore", "sha256": "46a73a38903ad626bf53c5c37352f116c9606c2b6b9b7270dbdc64387bf45500" },
+      { "path": "Directory.Build.props", "sha256": "12eedc33143a4324f59203c0019bc58ca333e39e07c09161e8a09c661d68c640" },
+      { "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs", "sha256": "fc6957606fac15ecaa355e9483448f260383c3e824b43dd4eab4d4c36fe39f02" },
+      { "path": "tests/Hexalith.Conversations.AppHost.Tests/DaprComponents/runtime-boundary.yaml", "sha256": "d315774f33fe6b56b73f9b5213f96bc1bc6d3fe1cc87961d6e522823e7f3f6cb" }
+    ],
+    "candidateBundleDigest": {
+      "algorithm": "SHA-256 of the UTF-8 output produced by `sha256sum <candidate files> | LC_ALL=C sort`, including each newline",
+      "sha256": "a5efbd1c012f50ad7732b0c3254a76c76ab8b2d9db0a3524bfdf97398060d455"
+    },
+    "centralPackageAuthority": {
+      "path": "references/Hexalith.Builds/Props/Directory.Packages.props",
+      "sha256": "2a55d0c21d4cdfff39b4ff518d9866a1f380c6ae3d68ddb4a8b6095393ca9bf3"
+    }
+  },
+  "identityModelCompatibility": {
+    "remediation": "Added centrally versioned Microsoft.IdentityModel.Protocols.OpenIdConnect and System.IdentityModel.Tokens.Jwt compatibility references only to the four affected non-packable Conversations consumers. Repository-wide central transitive pinning was rejected after review because it promoted unrelated dependencies into packable package metadata.",
+    "affectedProjects": [
+      "Hexalith.Conversations.Server",
+      "Hexalith.Conversations.Server.Tests",
+      "Hexalith.Conversations.Conformance.Tests",
+      "Hexalith.Conversations.IntegrationTests"
+    ],
+    "packageResolution": [
+      { "package": "Microsoft.IdentityModel.Abstractions", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "Microsoft.IdentityModel.JsonWebTokens", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "Microsoft.IdentityModel.Logging", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "Microsoft.IdentityModel.Protocols", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "Microsoft.IdentityModel.Protocols.OpenIdConnect", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "Microsoft.IdentityModel.Tokens", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" },
+      { "package": "System.IdentityModel.Tokens.Jwt", "baselineVersion": "8.19.2", "resolvedVersion": "8.22.0" }
+    ],
+    "restore": {
+      "command": "dotnet restore Hexalith.Conversations.slnx --force-evaluate --verbosity:minimal",
+      "result": "PASS",
+      "processExitCode": 0,
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-restore.txt",
+      "sha256": "105ed67a96a113d0a1d39d39a2600cae8ed7f6d63695ce12da83d7da98b1abf9"
+    },
+    "solutionPackageResolution": {
+      "command": "dotnet list Hexalith.Conversations.slnx package --include-transitive --no-restore",
+      "result": "PASS",
+      "processExitCode": 0,
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-solution-package-resolution.txt",
+      "sha256": "b4cd6125d11e3ce1639a6dbeb35eb7c594dcf17971b0f5992f7c6b78146f19b5"
+    },
+    "affectedGraphComparison": {
+      "baselinePath": "_bmad-output/implementation-artifacts/identitymodel-evidence/baseline-affected-package-versions.tsv",
+      "baselineSha256": "14871a8a203f176b0821027ff5fd28e8be393ccfda86658bb83df71d70b67b41",
+      "candidatePath": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-affected-package-versions.tsv",
+      "candidateSha256": "cb0d3bd9f1fef13987b36b45a75f04d0204b7da10fab36bf07d76e9d110c7827",
+      "semanticDiffPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/affected-package-versions-semantic.diff",
+      "semanticDiffSha256": "37880f3525c82965b0e337cc29f7b1ed02ed4b3f4b22a07b5ab9dfa024bb0963",
+      "semanticResult": "Only the seven IdentityModel-family packages changed, from 8.19.2 to 8.22.0, in each affected project.",
+      "baselineScope": "The baseline/candidate comparison covers the four affected projects. The candidate solution graph is retained separately; no solution-wide baseline-confinement claim is made."
+    },
+    "packableMetadataComparison": {
+      "projects": [
+        "Hexalith.Conversations.Contracts",
+        "Hexalith.Conversations",
+        "Hexalith.Conversations.Testing",
+        "Hexalith.Conversations.Client"
+      ],
+      "baselinePackResult": "PASS",
+      "baselinePackCommands": [
+        "dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline -p:CentralPackageTransitivePinningEnabled=false",
+        "dotnet pack src/Hexalith.Conversations/Hexalith.Conversations.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline -p:CentralPackageTransitivePinningEnabled=false",
+        "dotnet pack src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline -p:CentralPackageTransitivePinningEnabled=false",
+        "dotnet pack src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline -p:CentralPackageTransitivePinningEnabled=false"
+      ],
+      "baselinePackProcessExitCode": 0,
+      "baselinePackPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/baseline-pack.txt",
+      "baselinePackSha256": "3825762c995803f734db0f8dfdcce084fbc1826712c2dd3a13b459e3e89acb76",
+      "baselinePackageHashListPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/baseline-package-sha256.txt",
+      "baselinePackageHashListSha256": "c19e5b7aa355f93cae3448db3fb494a3f9e5e432fcbbce7fcd8b736a157e7fb0",
+      "baselinePackages": [
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Client.1.0.0.nupkg", "sha256": "0e204110d1e096b3b392d4067f81fe268eeaa9cac18d2731a2541e2d9e71dfd6" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.1.0.0.nupkg", "sha256": "4b9427e437c03ddfb0a8cd3851478107d7e400dc80c696eed97054fa9c8ad0d3" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Testing.1.0.0.nupkg", "sha256": "9b1e5756124ec9d4e00baca436687e0e29e32583ecdb117613de891060b2692a" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Contracts.1.0.0.nupkg", "sha256": "c22a9d29f6ebae6bbf9cd047f0af6c25267dd25ecc3224b12c9e06c4707ccef1" }
+      ],
+      "candidatePackResult": "PASS",
+      "candidatePackCommands": [
+        "dotnet pack src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate",
+        "dotnet pack src/Hexalith.Conversations/Hexalith.Conversations.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate",
+        "dotnet pack src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate",
+        "dotnet pack src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj --configuration Debug --no-restore --no-build --output _bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate"
+      ],
+      "candidatePackProcessExitCode": 0,
+      "candidatePackPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-pack.txt",
+      "candidatePackSha256": "a51a6dec87a9278c07a562328a05882b61c8464db0c3976f726c6c1bd21dfc12",
+      "candidatePackageHashListPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-package-sha256.txt",
+      "candidatePackageHashListSha256": "df6b9c480bde3e8591de021c6844ef3970cd403332a6ded8b4c76d14953c2ccd",
+      "candidatePackages": [
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/Hexalith.Conversations.1.0.0.nupkg", "sha256": "4d9a0efe232a7808707c850a57178ae68e6298f07722995c40549559e0058eb3" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/Hexalith.Conversations.Testing.1.0.0.nupkg", "sha256": "8fe3a557b006f0999cd37096e6ed225291ae4e5a8fa85f2051a9cb8bfa479d36" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/Hexalith.Conversations.Contracts.1.0.0.nupkg", "sha256": "9e6db3129a482b71904cffab77f9344a0987cedcf2f476919b87436f03132842" },
+        { "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/packages/candidate/Hexalith.Conversations.Client.1.0.0.nupkg", "sha256": "fc426c63cdb8eb7d2f77428fa67945ce1ed9216470ec2012bbd3eeb60a5cad6f" }
+      ],
+      "baselineNuspecPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/baseline-nuspecs.txt",
+      "baselineNuspecSha256": "c85effb2ce6e6c6d03a1453cbd65e48473cda9ffbae64ee58e6948ada361592b",
+      "candidateNuspecPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/candidate-nuspecs.txt",
+      "candidateNuspecSha256": "c85effb2ce6e6c6d03a1453cbd65e48473cda9ffbae64ee58e6948ada361592b",
+      "diffPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/package-nuspec-diff.txt",
+      "diffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result": "PASS: zero-byte nuspec diff"
+    },
+    "solutionBuild": {
+      "command": "dotnet build Hexalith.Conversations.slnx --configuration Debug --no-restore --verbosity:minimal -m:1",
+      "result": "PASS",
+      "processExitCode": 0,
+      "warnings": 0,
+      "errors": 0,
+      "msb3277Present": false,
+      "identityModel8192Present": false,
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/solution-build.txt",
+      "sha256": "72b5cca9b62635d627b401691d9089ac65f9eee50e17d6ab42a89ad62d817ef9"
+    },
+    "releaseSolutionBuild": {
+      "command": "dotnet build Hexalith.Conversations.slnx --configuration Release --no-restore --verbosity:minimal -m:1",
+      "result": "PASS",
+      "processExitCode": 0,
+      "warnings": 0,
+      "errors": 0,
+      "msb3277Present": false,
+      "identityModel8192Present": false,
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/solution-build-release.txt",
+      "sha256": "01bd2e8d2962354f573dbd145c89aabd76cf7d6d16f59f3f1e0edca0a3bbdaba"
+    }
+  },
+  "validationRuns": [
+    {
+      "id": "SERVER-TESTS",
+      "command": "dotnet tests/Hexalith.Conversations.Server.Tests/bin/Debug/net10.0/Hexalith.Conversations.Server.Tests.dll -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/server-tests.xml",
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "360514d6ae726dc8a5c6db6d518028b9b88f4dabed5f800837a6619ed93ebdb2",
+      "result": "PASS",
+      "total": 684,
+      "passed": 684,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 2.128,
+      "startedAtUtc": "2026-09-17T09:45:04.5597029Z",
+      "completedAtUtc": "2026-09-17T09:45:06.6862205Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/server-tests.xml",
+      "sha256": "5706b1670403d83d0d7f649f9f25b055fa203ff07b53f6891638e65b0dc789c8"
+    },
+    {
+      "id": "APPHOST-TOPOLOGY",
+      "command": "dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostTopologyTest' -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/apphost-topology.xml",
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "df5f40a8b4e618d6e2f501c541ab01bc771ec73869a7bbf719376f65dadaf329",
+      "result": "PASS",
+      "total": 8,
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 0.622,
+      "startedAtUtc": "2026-09-17T10:13:06.8266618Z",
+      "completedAtUtc": "2026-09-17T10:13:07.4485025Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-topology.xml",
+      "sha256": "12587e49cc69a29e5e875a284d72caf2682e21768f1233b37b4033f8a2fc05a0"
+    },
+    {
+      "id": "APPHOST-RUNTIME-OPT-IN-DISABLED",
+      "command": "env -u HEXALITH_RUN_APPHOST_BOUNDARY_TESTS dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest' -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-opt-in-disabled.xml",
+      "environment": { "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS": "unset" },
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "df5f40a8b4e618d6e2f501c541ab01bc771ec73869a7bbf719376f65dadaf329",
+      "result": "PASS",
+      "assertion": "The real-infrastructure test is skipped unless explicitly enabled.",
+      "total": 1,
+      "passed": 0,
+      "failed": 0,
+      "skipped": 1,
+      "durationSeconds": 0.088,
+      "startedAtUtc": "2026-09-17T10:13:06.8442790Z",
+      "completedAtUtc": "2026-09-17T10:13:06.9316778Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-opt-in-disabled.xml",
+      "sha256": "a210b85fbe8d28b3b072b23b0c2d2d94ff025c6b2e1b971f2752b927b67b4bf3"
+    },
+    {
+      "id": "APPHOST-RUNTIME-BOUNDARY-PASS-1",
+      "command": "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest' -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-1.xml",
+      "environment": { "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS": "true" },
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "df5f40a8b4e618d6e2f501c541ab01bc771ec73869a7bbf719376f65dadaf329",
+      "launchedEventStoreBinding": {
+        "assemblyPath": "references/Hexalith.EventStore/src/Hexalith.EventStore/bin/Debug/net10.0/Hexalith.EventStore.dll",
+        "assemblySha256": "670fa5b0f2941e07cc1b129edd5e408bdf000a550359a19f55709924439aa7ef",
+        "projectAssetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore/obj/project.assets.json",
+        "projectAssetsSha256": "33627d62dd2eac531d21e3a0e359e04c8aa79df52a85fac891e6c41a89c7952b",
+        "hashRecordPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-1-eventstore-sha256.txt",
+        "hashRecordSha256": "7ec8da573be0fabb2ad41fce47a095cb851b73dc307df5c3fd19813b0e88735b"
+      },
+      "result": "PASS",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 93.898,
+      "startedAtUtc": "2026-09-17T10:13:11.6221321Z",
+      "completedAtUtc": "2026-09-17T10:14:45.5168321Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-1.xml",
+      "sha256": "9d387c70e787d069fb3acf43caa0f89f2efab21214bd1225f6a9a1da6806cfd9"
+    },
+    {
+      "id": "APPHOST-RUNTIME-BOUNDARY-PASS-2",
+      "command": "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest' -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-2.xml",
+      "environment": { "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS": "true" },
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "df5f40a8b4e618d6e2f501c541ab01bc771ec73869a7bbf719376f65dadaf329",
+      "launchedEventStoreBinding": {
+        "assemblyPath": "references/Hexalith.EventStore/src/Hexalith.EventStore/bin/Debug/net10.0/Hexalith.EventStore.dll",
+        "assemblySha256": "670fa5b0f2941e07cc1b129edd5e408bdf000a550359a19f55709924439aa7ef",
+        "projectAssetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore/obj/project.assets.json",
+        "projectAssetsSha256": "33627d62dd2eac531d21e3a0e359e04c8aa79df52a85fac891e6c41a89c7952b",
+        "hashRecordPath": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-2-eventstore-sha256.txt",
+        "hashRecordSha256": "7ec8da573be0fabb2ad41fce47a095cb851b73dc307df5c3fd19813b0e88735b"
+      },
+      "result": "PASS",
+      "total": 1,
+      "passed": 1,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 73.932,
+      "startedAtUtc": "2026-09-17T10:14:57.4452494Z",
+      "completedAtUtc": "2026-09-17T10:16:11.3736160Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/apphost-runtime-pass-2.xml",
+      "sha256": "55e34027ac3fb9bea0c9af3cea050ca1d9e4484a414f4d3a19cefd59c3a7a773"
+    },
+    {
+      "id": "INTEGRATION-TESTS",
+      "command": "Logging__LogLevel__Default=Warning dotnet tests/Hexalith.Conversations.IntegrationTests/bin/Debug/net10.0/Hexalith.Conversations.IntegrationTests.dll -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/integration-tests.xml",
+      "environment": { "Logging__LogLevel__Default": "Warning" },
+      "configuration": "Debug",
+      "processExitCode": 0,
+      "executedAssemblySha256": "dfe3a93bbfc8c35316b3552124a77dfc7dbf0bff446dd3194a8c1ee4395893cd",
+      "result": "PASS",
+      "total": 14,
+      "passed": 14,
+      "failed": 0,
+      "skipped": 0,
+      "durationSeconds": 232.117,
+      "startedAtUtc": "2026-09-17T09:47:54.4717196Z",
+      "completedAtUtc": "2026-09-17T09:51:46.5798164Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/integration-tests.xml",
+      "sha256": "6bf1ef94dbf8901d045b06c432483cdd039bbcc7a13828d03167fd4b47740ef7"
+    },
+    {
+      "id": "CONFORMANCE-TESTS",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Debug/net10.0/Hexalith.Conversations.Conformance.Tests.dll -result-xml _bmad-output/implementation-artifacts/identitymodel-evidence/conformance-tests.xml",
+      "configuration": "Debug",
+      "processExitCode": 1,
+      "executedAssemblySha256": "b943dc215778b58de62a6cced8ccc7c2c9e7ca98aacb1911fdc0444d277a158b",
+      "result": "FAIL",
+      "total": 472,
+      "passed": 456,
+      "failed": 16,
+      "skipped": 0,
+      "durationSeconds": 2.562,
+      "startedAtUtc": "2026-09-17T09:45:04.5843874Z",
+      "completedAtUtc": "2026-09-17T09:45:07.1457703Z",
+      "path": "_bmad-output/implementation-artifacts/identitymodel-evidence/conformance-tests.xml",
+      "sha256": "24ab5c2e9a0b833745e69c19052da8567426710aaec258b3e137cd227f902f0d",
+      "effect": "Retained as a broad validation failure. It does not reverse the narrow IdentityModel compatibility result and it prevents any unqualified overall-validation claim."
+    }
+  ],
+  "provedAssertions": [
+    "All seven centrally governed IdentityModel packages resolve to 8.22.0 in all four affected Conversations projects, while the semantic package diff shows no other version change.",
+    "The four packable Conversations NuGet manifests extracted from the retained control and candidate packages are byte-identical; each pack command, aggregate exit result, package archive hash, and extracted-manifest hash is retained.",
+    "A forced solution restore and the full serialized Debug and Release solution builds succeed; both builds record 0 warnings, 0 errors, and no MSB3277.",
+    "The server, AppHost topology, AppHost runtime boundary twice consecutively, and full integration assembly pass from DLLs produced by the retained Debug build.",
+    "The real-process runtime test is skipped without its explicit opt-in variable and enabled only when HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true.",
+    "Both enabled runtime passes retain the unauthenticated HTTP 401, HTTP 200 activation response, real command, projection, query, and implementation-provenance assertions, with the launched EventStore assembly and restored asset graph bound after each run."
+  ],
+  "reviewResiduals": [
+    "The harness still uses the shared dapr init state store and a stable test cutover marker; isolating that store requires a separately designed topology change. The second run can therefore exercise an idempotent re-activation rather than a second fresh cutover transition.",
+    "The runtime lane proves the missing-token 401 boundary but does not add a full invalid-signature, wrong-issuer, wrong-audience, expiry, and algorithm rejection matrix; existing unit and integration coverage was not expanded in this compatibility-only remediation.",
+    "FR-20/SM-C1 still require an authorized successor preservation manifest that maps all seven preservation categories to exact tests without shrinking the accumulated denominator."
+  ],
+  "releaseGateEffect": {
+    "supersedesOq1TechnicalEvidence": false,
+    "activatesRepositoryGrants": false,
+    "liftsImplementationHold": false,
+    "changesFr20OrSmC1": false,
+    "changesSmC2": false
+  },
+  "limitations": [
+    "This record binds uncommitted candidate files, not a source commit, and is therefore not release or approval evidence.",
+    "It does not supersede _bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json or activate any v1 grant.",
+    "The broad conformance assembly remains failed at 456 of 472 tests, including all three PreservationTraceabilityManifest validation tests; one failure explicitly reports that Directory.Build.props no longer matches the approved manifest hash.",
+    "An authorized, approved, hash-bound successor preservation manifest is required to bind the source change. No authority, approval, owner, or waiver is inferred by this working-tree evidence.",
+    "A versioned successor bound to committed source and reviewed raw artifacts is still required before OQ-1 can be reconsidered.",
+    "The retained baseline/candidate semantic package comparison covers the four affected projects; the candidate solution graph is retained, but this record makes no solution-wide baseline-confinement claim.",
+    "The two enabled runtime executions prove repeatable successful boundary execution, not two fresh cutover transitions; the stable shared-store marker permits the second activation to be idempotent.",
+    "The implementation hold remains ACTIVE, FR-20/SM-C1 remain PENDING until all seven preservation categories map to exact tests in an approved hash-bound manifest with the full non-shrinking denominator, and SM-C2 remains FAILED under the universal no-more-than-5-percent rule."
+  ]
+}

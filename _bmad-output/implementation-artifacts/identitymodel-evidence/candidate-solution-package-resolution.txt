@@ -1,0 +1,1680 @@
+Project 'Hexalith.Commons.Aspire' has the following package references
+   [net10.0]: 
+   Top-level Package                           Requested         Resolved       
+   > Aspire.Hosting                            13.5.4            13.5.4         
+   > CommunityToolkit.Aspire.Hosting.Dapr      13.5.1-beta.752   13.5.1-beta.752
+
+   Transitive Package                                                Resolved
+   > AspNetCore.HealthChecks.Uris                                    9.0.0   
+   > Fractions                                                       7.3.0   
+   > Google.Protobuf                                                 3.34.1  
+   > Grpc.AspNetCore                                                 2.80.0  
+   > Grpc.AspNetCore.Server                                          2.80.0  
+   > Grpc.AspNetCore.Server.ClientFactory                            2.80.0  
+   > Grpc.Core.Api                                                   2.80.0  
+   > Grpc.Net.Client                                                 2.80.0  
+   > Grpc.Net.ClientFactory                                          2.80.0  
+   > Grpc.Net.Common                                                 2.80.0  
+   > Grpc.Tools                                                      2.80.0  
+   > Humanizer.Core                                                  3.0.10  
+   > Json.More.Net                                                   3.0.1   
+   > JsonPatch.Net                                                   5.0.2   
+   > JsonPointer.Net                                                 7.0.1   
+   > KubernetesClient                                                19.0.2  
+   > MessagePack                                                     2.5.302 
+   > MessagePack.Annotations                                         2.5.302 
+   > Microsoft.Extensions.AI.Abstractions                            10.5.2  
+   > Microsoft.Extensions.Caching.Abstractions                       10.0.7  
+   > Microsoft.Extensions.Configuration                              10.0.11 
+   > Microsoft.Extensions.Configuration.Abstractions                 10.0.11 
+   > Microsoft.Extensions.Configuration.Binder                       10.0.11 
+   > Microsoft.Extensions.Configuration.CommandLine                  10.0.11 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables         10.0.11 
+   > Microsoft.Extensions.Configuration.FileExtensions               10.0.11 
+   > Microsoft.Extensions.Configuration.Json                         10.0.11 
+   > Microsoft.Extensions.Configuration.UserSecrets                  10.0.11 
+   > Microsoft.Extensions.DependencyInjection                        10.0.11 
+   > Microsoft.Extensions.DependencyInjection.Abstractions           10.0.11 
+   > Microsoft.Extensions.Diagnostics                                10.0.11 
+   > Microsoft.Extensions.Diagnostics.Abstractions                   10.0.11 
+   > Microsoft.Extensions.Diagnostics.HealthChecks                   8.0.30  
+   > Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions      8.0.30  
+   > Microsoft.Extensions.FileProviders.Abstractions                 10.0.11 
+   > Microsoft.Extensions.FileProviders.Physical                     10.0.11 
+   > Microsoft.Extensions.FileSystemGlobbing                         10.0.11 
+   > Microsoft.Extensions.Hosting                                    10.0.11 
+   > Microsoft.Extensions.Hosting.Abstractions                       10.0.11 
+   > Microsoft.Extensions.Http                                       10.0.11 
+   > Microsoft.Extensions.Logging                                    10.0.11 
+   > Microsoft.Extensions.Logging.Abstractions                       10.0.11 
+   > Microsoft.Extensions.Logging.Configuration                      10.0.11 
+   > Microsoft.Extensions.Logging.Console                            10.0.11 
+   > Microsoft.Extensions.Logging.Debug                              10.0.11 
+   > Microsoft.Extensions.Logging.EventLog                           10.0.11 
+   > Microsoft.Extensions.Logging.EventSource                        10.0.11 
+   > Microsoft.Extensions.Options                                    10.0.11 
+   > Microsoft.Extensions.Options.ConfigurationExtensions            10.0.11 
+   > Microsoft.Extensions.Primitives                                 10.0.11 
+   > Microsoft.NET.StringTools                                       18.4.0  
+   > Microsoft.VisualStudio.Threading.Only                           17.14.15
+   > Microsoft.VisualStudio.Validation                               17.13.22
+   > ModelContextProtocol                                            1.3.0   
+   > ModelContextProtocol.Core                                       1.3.0   
+   > Nerdbank.MessagePack                                            1.2.4   
+   > Nerdbank.Streams                                                2.13.16 
+   > Newtonsoft.Json                                                 13.0.4  
+   > OpenTelemetry                                                   1.15.3  
+   > OpenTelemetry.Api                                               1.15.3  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                     1.15.3  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                    1.15.3  
+   > OpenTelemetry.Extensions.Hosting                                1.15.3  
+   > Polly.Core                                                      8.6.6   
+   > PolyType                                                        1.3.1   
+   > Semver                                                          3.0.0   
+   > StreamJsonRpc                                                   2.25.29 
+   > System.Diagnostics.EventLog                                     10.0.11 
+   > System.IO.Hashing                                               10.0.8  
+   > YamlDotNet                                                      16.3.0  
+
+Project 'Hexalith.Commons.Diagnostics' has the following package references
+   [net10.0]: 
+   Top-level Package                                    Requested   Resolved
+   > Microsoft.Extensions.Diagnostics.Abstractions      10.0.12     10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions          10.0.12     10.0.12 
+
+   Transitive Package                                           Resolved
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+
+Project 'Hexalith.Commons.Http' has the following package references
+   [net10.0]: No packages were found for this framework.
+Project 'Hexalith.Commons.Publication' has the following package references
+   [net10.0]: No packages were found for this framework.
+Project 'Hexalith.Commons.Serialization' has the following package references
+   [net10.0]: No packages were found for this framework.
+Project 'Hexalith.Commons.ServiceDefaults' has the following package references
+   [net10.0]: 
+   Top-level Package                                   Requested   Resolved
+   > Microsoft.Extensions.Http.Resilience              10.10.0     10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery             10.10.0     10.10.0 
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol      1.18.0      1.18.0  
+   > OpenTelemetry.Extensions.Hosting                  1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore          1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.Http                1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime             1.18.0      1.18.0  
+
+   Transitive Package                                             Resolved
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+
+Project 'Hexalith.Commons.TenantAccess' has the following package references
+   [net10.0]: 
+   Top-level Package                                            Requested   Resolved
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12     10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12     10.0.12 
+
+Project 'Hexalith.Commons.UniqueIds' has the following package references
+   [net10.0]: 
+   Top-level Package      Requested   Resolved
+   > ByteAether.Ulid      1.4.0       1.4.0   
+
+Project 'Hexalith.Commons.Aspire.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                 Requested         Resolved       
+   > Aspire.Hosting                                  13.5.4            13.5.4         
+   > CommunityToolkit.Aspire.Hosting.Dapr            13.5.1-beta.752   13.5.1-beta.752
+   > coverlet.collector                              10.0.1            10.0.1         
+   > Microsoft.NET.Test.Sdk                          18.10.1           18.10.1        
+   > Microsoft.VisualStudio.Threading.Analyzers      18.7.23           18.7.23        
+   > Roslynator.Analyzers                            5.0.0             5.0.0          
+   > Roslynator.Formatting.Analyzers                 5.0.0             5.0.0          
+   > Shouldly                                        4.3.0             4.3.0          
+   > SonarAnalyzer.CSharp                            10.34.0.3385      10.34.0.3385   
+   > StyleCop.Analyzers                              1.2.0-beta.556    1.2.0-beta.556 
+   > xunit.runner.visualstudio                       4.0.0             4.0.0          
+   > xunit.v3                                        4.0.1             4.0.1          
+
+   Transitive Package                                                Resolved 
+   > AspNetCore.HealthChecks.Uris                                    9.0.0    
+   > DiffEngine                                                      11.3.0   
+   > EmptyFiles                                                      4.4.0    
+   > Fractions                                                       7.3.0    
+   > Google.Protobuf                                                 3.34.1   
+   > Grpc.AspNetCore                                                 2.80.0   
+   > Grpc.AspNetCore.Server                                          2.80.0   
+   > Grpc.AspNetCore.Server.ClientFactory                            2.80.0   
+   > Grpc.Core.Api                                                   2.80.0   
+   > Grpc.Net.Client                                                 2.80.0   
+   > Grpc.Net.ClientFactory                                          2.80.0   
+   > Grpc.Net.Common                                                 2.80.0   
+   > Grpc.Tools                                                      2.80.0   
+   > Humanizer.Core                                                  3.0.10   
+   > Json.More.Net                                                   3.0.1    
+   > JsonPatch.Net                                                   5.0.2    
+   > JsonPointer.Net                                                 7.0.1    
+   > KubernetesClient                                                19.0.2   
+   > MessagePack                                                     2.5.302  
+   > MessagePack.Annotations                                         2.5.302  
+   > Microsoft.ApplicationInsights                                   2.23.0   
+   > Microsoft.Bcl.AsyncInterfaces                                   6.0.0    
+   > Microsoft.CodeCoverage                                          18.10.1  
+   > Microsoft.Extensions.AI.Abstractions                            10.5.2   
+   > Microsoft.Extensions.Caching.Abstractions                       10.0.7   
+   > Microsoft.Extensions.Configuration                              10.0.11  
+   > Microsoft.Extensions.Configuration.Abstractions                 10.0.11  
+   > Microsoft.Extensions.Configuration.Binder                       10.0.11  
+   > Microsoft.Extensions.Configuration.CommandLine                  10.0.11  
+   > Microsoft.Extensions.Configuration.EnvironmentVariables         10.0.11  
+   > Microsoft.Extensions.Configuration.FileExtensions               10.0.11  
+   > Microsoft.Extensions.Configuration.Json                         10.0.11  
+   > Microsoft.Extensions.Configuration.UserSecrets                  10.0.11  
+   > Microsoft.Extensions.DependencyInjection                        10.0.11  
+   > Microsoft.Extensions.DependencyInjection.Abstractions           10.0.11  
+   > Microsoft.Extensions.Diagnostics                                10.0.11  
+   > Microsoft.Extensions.Diagnostics.Abstractions                   10.0.11  
+   > Microsoft.Extensions.Diagnostics.HealthChecks                   8.0.30   
+   > Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions      8.0.30   
+   > Microsoft.Extensions.FileProviders.Abstractions                 10.0.11  
+   > Microsoft.Extensions.FileProviders.Physical                     10.0.11  
+   > Microsoft.Extensions.FileSystemGlobbing                         10.0.11  
+   > Microsoft.Extensions.Hosting                                    10.0.11  
+   > Microsoft.Extensions.Hosting.Abstractions                       10.0.11  
+   > Microsoft.Extensions.Http                                       10.0.11  
+   > Microsoft.Extensions.Logging                                    10.0.11  
+   > Microsoft.Extensions.Logging.Abstractions                       10.0.11  
+   > Microsoft.Extensions.Logging.Configuration                      10.0.11  
+   > Microsoft.Extensions.Logging.Console                            10.0.11  
+   > Microsoft.Extensions.Logging.Debug                              10.0.11  
+   > Microsoft.Extensions.Logging.EventLog                           10.0.11  
+   > Microsoft.Extensions.Logging.EventSource                        10.0.11  
+   > Microsoft.Extensions.Options                                    10.0.11  
+   > Microsoft.Extensions.Options.ConfigurationExtensions            10.0.11  
+   > Microsoft.Extensions.Primitives                                 10.0.11  
+   > Microsoft.NET.StringTools                                       18.4.0   
+   > Microsoft.Testing.Extensions.Telemetry                          2.4.0    
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions             2.4.0    
+   > Microsoft.Testing.Platform                                      2.4.0    
+   > Microsoft.Testing.Platform.MSBuild                              2.4.0    
+   > Microsoft.TestPlatform.ObjectModel                              18.10.1  
+   > Microsoft.TestPlatform.TestHost                                 18.10.1  
+   > Microsoft.VisualStudio.Threading.Only                           17.14.15 
+   > Microsoft.VisualStudio.Validation                               17.13.22 
+   > Microsoft.Win32.Registry                                        5.0.0    
+   > ModelContextProtocol                                            1.3.0    
+   > ModelContextProtocol.Core                                       1.3.0    
+   > Nerdbank.MessagePack                                            1.2.4    
+   > Nerdbank.Streams                                                2.13.16  
+   > Newtonsoft.Json                                                 13.0.4   
+   > OpenTelemetry                                                   1.15.3   
+   > OpenTelemetry.Api                                               1.15.3   
+   > OpenTelemetry.Api.ProviderBuilderExtensions                     1.15.3   
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                    1.15.3   
+   > OpenTelemetry.Extensions.Hosting                                1.15.3   
+   > Polly.Core                                                      8.6.6    
+   > PolyType                                                        1.3.1    
+   > Semver                                                          3.0.0    
+   > StreamJsonRpc                                                   2.25.29  
+   > StyleCop.Analyzers.Unstable                                     1.2.0.556
+   > System.CodeDom                                                  6.0.0    
+   > System.Diagnostics.EventLog                                     10.0.11  
+   > System.IO.Hashing                                               10.0.8   
+   > System.Management                                               6.0.1    
+   > System.Security.AccessControl                                   6.0.1    
+   > xunit.analyzers                                                 2.1.0    
+   > xunit.v3.assert                                                 4.0.1    
+   > xunit.v3.common                                                 4.0.1    
+   > xunit.v3.core.mtp-v2                                            4.0.1    
+   > xunit.v3.extensibility.core                                     4.0.1    
+   > xunit.v3.mtp-v2                                                 4.0.1    
+   > xunit.v3.runner.common                                          4.0.1    
+   > xunit.v3.runner.inproc.console                                  4.0.1    
+   > YamlDotNet                                                      16.3.0   
+
+Project 'Hexalith.Commons.Diagnostics.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                 Requested        Resolved      
+   > coverlet.collector                              10.0.1           10.0.1        
+   > Microsoft.Extensions.Logging.Abstractions       10.0.12          10.0.12       
+   > Microsoft.NET.Test.Sdk                          18.10.1          18.10.1       
+   > Microsoft.VisualStudio.Threading.Analyzers      18.7.23          18.7.23       
+   > Roslynator.Analyzers                            5.0.0            5.0.0         
+   > Roslynator.Formatting.Analyzers                 5.0.0            5.0.0         
+   > Shouldly                                        4.3.0            4.3.0         
+   > SonarAnalyzer.CSharp                            10.34.0.3385     10.34.0.3385  
+   > StyleCop.Analyzers                              1.2.0-beta.556   1.2.0-beta.556
+   > xunit.runner.visualstudio                       4.0.0            4.0.0         
+   > xunit.v3                                        4.0.1            4.0.1         
+
+   Transitive Package                                           Resolved 
+   > DiffEngine                                                 11.3.0   
+   > EmptyFiles                                                 4.4.0    
+   > Microsoft.ApplicationInsights                              2.23.0   
+   > Microsoft.Bcl.AsyncInterfaces                              6.0.0    
+   > Microsoft.CodeCoverage                                     18.10.1  
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12  
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12  
+   > Microsoft.Extensions.Options                               10.0.12  
+   > Microsoft.Extensions.Primitives                            10.0.12  
+   > Microsoft.Testing.Extensions.Telemetry                     2.4.0    
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions        2.4.0    
+   > Microsoft.Testing.Platform                                 2.4.0    
+   > Microsoft.Testing.Platform.MSBuild                         2.4.0    
+   > Microsoft.TestPlatform.ObjectModel                         18.10.1  
+   > Microsoft.TestPlatform.TestHost                            18.10.1  
+   > Microsoft.Win32.Registry                                   5.0.0    
+   > StyleCop.Analyzers.Unstable                                1.2.0.556
+   > System.CodeDom                                             6.0.0    
+   > System.Management                                          6.0.1    
+   > System.Security.AccessControl                              6.0.1    
+   > xunit.analyzers                                            2.1.0    
+   > xunit.v3.assert                                            4.0.1    
+   > xunit.v3.common                                            4.0.1    
+   > xunit.v3.core.mtp-v2                                       4.0.1    
+   > xunit.v3.extensibility.core                                4.0.1    
+   > xunit.v3.mtp-v2                                            4.0.1    
+   > xunit.v3.runner.common                                     4.0.1    
+   > xunit.v3.runner.inproc.console                             4.0.1    
+
+Project 'Hexalith.Commons.Publication.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                 Requested        Resolved      
+   > coverlet.collector                              10.0.1           10.0.1        
+   > Microsoft.NET.Test.Sdk                          18.10.1          18.10.1       
+   > Microsoft.VisualStudio.Threading.Analyzers      18.7.23          18.7.23       
+   > Roslynator.Analyzers                            5.0.0            5.0.0         
+   > Roslynator.Formatting.Analyzers                 5.0.0            5.0.0         
+   > Shouldly                                        4.3.0            4.3.0         
+   > SonarAnalyzer.CSharp                            10.34.0.3385     10.34.0.3385  
+   > StyleCop.Analyzers                              1.2.0-beta.556   1.2.0-beta.556
+   > xunit.runner.visualstudio                       4.0.0            4.0.0         
+   > xunit.v3                                        4.0.1            4.0.1         
+
+   Transitive Package                                         Resolved 
+   > DiffEngine                                               11.3.0   
+   > EmptyFiles                                               4.4.0    
+   > Microsoft.ApplicationInsights                            2.23.0   
+   > Microsoft.Bcl.AsyncInterfaces                            6.0.0    
+   > Microsoft.CodeCoverage                                   18.10.1  
+   > Microsoft.Testing.Extensions.Telemetry                   2.4.0    
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions      2.4.0    
+   > Microsoft.Testing.Platform                               2.4.0    
+   > Microsoft.Testing.Platform.MSBuild                       2.4.0    
+   > Microsoft.TestPlatform.ObjectModel                       18.10.1  
+   > Microsoft.TestPlatform.TestHost                          18.10.1  
+   > Microsoft.Win32.Registry                                 5.0.0    
+   > StyleCop.Analyzers.Unstable                              1.2.0.556
+   > System.CodeDom                                           6.0.0    
+   > System.Management                                        6.0.1    
+   > System.Security.AccessControl                            6.0.1    
+   > xunit.analyzers                                          2.1.0    
+   > xunit.v3.assert                                          4.0.1    
+   > xunit.v3.common                                          4.0.1    
+   > xunit.v3.core.mtp-v2                                     4.0.1    
+   > xunit.v3.extensibility.core                              4.0.1    
+   > xunit.v3.mtp-v2                                          4.0.1    
+   > xunit.v3.runner.common                                   4.0.1    
+   > xunit.v3.runner.inproc.console                           4.0.1    
+
+Project 'Hexalith.Commons.Serialization.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                 Requested        Resolved      
+   > coverlet.collector                              10.0.1           10.0.1        
+   > Microsoft.NET.Test.Sdk                          18.10.1          18.10.1       
+   > Microsoft.VisualStudio.Threading.Analyzers      18.7.23          18.7.23       
+   > Roslynator.Analyzers                            5.0.0            5.0.0         
+   > Roslynator.Formatting.Analyzers                 5.0.0            5.0.0         
+   > Shouldly                                        4.3.0            4.3.0         
+   > SonarAnalyzer.CSharp                            10.34.0.3385     10.34.0.3385  
+   > StyleCop.Analyzers                              1.2.0-beta.556   1.2.0-beta.556
+   > xunit.runner.visualstudio                       4.0.0            4.0.0         
+   > xunit.v3                                        4.0.1            4.0.1         
+
+   Transitive Package                                         Resolved 
+   > DiffEngine                                               11.3.0   
+   > EmptyFiles                                               4.4.0    
+   > Microsoft.ApplicationInsights                            2.23.0   
+   > Microsoft.Bcl.AsyncInterfaces                            6.0.0    
+   > Microsoft.CodeCoverage                                   18.10.1  
+   > Microsoft.Testing.Extensions.Telemetry                   2.4.0    
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions      2.4.0    
+   > Microsoft.Testing.Platform                               2.4.0    
+   > Microsoft.Testing.Platform.MSBuild                       2.4.0    
+   > Microsoft.TestPlatform.ObjectModel                       18.10.1  
+   > Microsoft.TestPlatform.TestHost                          18.10.1  
+   > Microsoft.Win32.Registry                                 5.0.0    
+   > StyleCop.Analyzers.Unstable                              1.2.0.556
+   > System.CodeDom                                           6.0.0    
+   > System.Management                                        6.0.1    
+   > System.Security.AccessControl                            6.0.1    
+   > xunit.analyzers                                          2.1.0    
+   > xunit.v3.assert                                          4.0.1    
+   > xunit.v3.common                                          4.0.1    
+   > xunit.v3.core.mtp-v2                                     4.0.1    
+   > xunit.v3.extensibility.core                              4.0.1    
+   > xunit.v3.mtp-v2                                          4.0.1    
+   > xunit.v3.runner.common                                   4.0.1    
+   > xunit.v3.runner.inproc.console                           4.0.1    
+
+Project 'Hexalith.Commons.ServiceDefaults.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                 Requested        Resolved      
+   > coverlet.collector                              10.0.1           10.0.1        
+   > Microsoft.NET.Test.Sdk                          18.10.1          18.10.1       
+   > Microsoft.VisualStudio.Threading.Analyzers      18.7.23          18.7.23       
+   > Roslynator.Analyzers                            5.0.0            5.0.0         
+   > Roslynator.Formatting.Analyzers                 5.0.0            5.0.0         
+   > Shouldly                                        4.3.0            4.3.0         
+   > SonarAnalyzer.CSharp                            10.34.0.3385     10.34.0.3385  
+   > StyleCop.Analyzers                              1.2.0-beta.556   1.2.0-beta.556
+   > xunit.runner.visualstudio                       4.0.0            4.0.0         
+   > xunit.v3                                        4.0.1            4.0.1         
+
+   Transitive Package                                             Resolved 
+   > DiffEngine                                                   11.3.0   
+   > EmptyFiles                                                   4.4.0    
+   > Microsoft.ApplicationInsights                                2.23.0   
+   > Microsoft.Bcl.AsyncInterfaces                                6.0.0    
+   > Microsoft.CodeCoverage                                       18.10.1  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0  
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0  
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0  
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0  
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0  
+   > Microsoft.Extensions.Http.Resilience                         10.10.0  
+   > Microsoft.Extensions.Resilience                              10.10.0  
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0  
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0  
+   > Microsoft.Extensions.Telemetry                               10.10.0  
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0  
+   > Microsoft.Testing.Extensions.Telemetry                       2.4.0    
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions          2.4.0    
+   > Microsoft.Testing.Platform                                   2.4.0    
+   > Microsoft.Testing.Platform.MSBuild                           2.4.0    
+   > Microsoft.TestPlatform.ObjectModel                           18.10.1  
+   > Microsoft.TestPlatform.TestHost                              18.10.1  
+   > Microsoft.Win32.Registry                                     5.0.0    
+   > OpenTelemetry                                                1.18.0   
+   > OpenTelemetry.Api                                            1.18.0   
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0   
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0   
+   > OpenTelemetry.Extensions.Hosting                             1.18.0   
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0   
+   > OpenTelemetry.Instrumentation.Http                           1.18.0   
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0   
+   > Polly.Core                                                   8.4.2    
+   > Polly.Extensions                                             8.4.2    
+   > Polly.RateLimiting                                           8.4.2    
+   > StyleCop.Analyzers.Unstable                                  1.2.0.556
+   > System.CodeDom                                               6.0.0    
+   > System.Management                                            6.0.1    
+   > System.Security.AccessControl                                6.0.1    
+   > xunit.analyzers                                              2.1.0    
+   > xunit.v3.assert                                              4.0.1    
+   > xunit.v3.common                                              4.0.1    
+   > xunit.v3.core.mtp-v2                                         4.0.1    
+   > xunit.v3.extensibility.core                                  4.0.1    
+   > xunit.v3.mtp-v2                                              4.0.1    
+   > xunit.v3.runner.common                                       4.0.1    
+   > xunit.v3.runner.inproc.console                               4.0.1    
+
+Project 'Hexalith.EventStore.Client' has the following package references
+   [net10.0]: 
+   Top-level Package                                       Requested   Resolved
+   > Dapr.Client                                           1.18.7      1.18.7  
+   > Microsoft.AspNetCore.DataProtection.Abstractions      10.0.12     10.0.12 
+   > Microsoft.Extensions.Configuration.Binder             10.0.12     10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions             10.0.12     10.0.12 
+   > Microsoft.Extensions.Http                             10.0.12     10.0.12 
+
+   Transitive Package                                           Resolved
+   > ByteAether.Ulid                                            1.4.0   
+   > Dapr.Common                                                1.18.7  
+   > Dapr.Protos                                                1.18.7  
+   > Google.Api.CommonProtos                                    2.17.0  
+   > Google.Protobuf                                            3.35.0  
+   > Grpc.Core.Api                                              2.80.0  
+   > Grpc.Net.Client                                            2.80.0  
+   > Grpc.Net.Common                                            2.80.0  
+   > Grpc.Reflection                                            2.80.0  
+   > Hexalith.Commons.UniqueIds                                 2.30.0  
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions            10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+
+Project 'Hexalith.EventStore.Contracts' has the following package references
+   [net10.0]: 
+   Top-level Package                 Requested   Resolved
+   > Hexalith.Commons.UniqueIds      2.30.0      2.30.0  
+
+   Transitive Package      Resolved
+   > ByteAether.Ulid       1.4.0   
+
+Project 'Hexalith.EventStore.DomainService' has the following package references
+   [net10.0]: 
+   Top-level Package      Requested   Resolved
+   > Dapr.AspNetCore      1.18.7      1.18.7  
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Dapr.Client                                                  1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Http.Resilience                         10.10.0 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect              8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.IdentityModel.Tokens.Jwt                              8.22.0  
+
+Project 'Hexalith.EventStore.Server' has the following package references
+   [net10.0]: 
+   Top-level Package                           Requested   Resolved
+   > Dapr.Actors                               1.18.7      1.18.7  
+   > Dapr.Actors.AspNetCore                    1.18.7      1.18.7  
+   > Dapr.Client                               1.18.7      1.18.7  
+   > MediatR                                   14.2.0      14.2.0  
+   > Microsoft.Extensions.Http.Resilience      10.10.0     10.10.0 
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Dapr.AspNetCore                                              1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > MediatR.Contracts                                            2.0.1   
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.AspNetCore.DataProtection.Abstractions             10.0.12 
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.Configuration                           10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions              10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                    10.0.12 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables      10.0.0  
+   > Microsoft.Extensions.DependencyInjection                     10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions        10.0.12 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics                             10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions                10.0.12 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Features                                10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions              10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Http                                    10.0.12 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Logging                                 10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Logging.Configuration                   10.0.12 
+   > Microsoft.Extensions.ObjectPool                              10.0.12 
+   > Microsoft.Extensions.Options                                 10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions         10.0.12 
+   > Microsoft.Extensions.Primitives                              10.0.12 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect              8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.IdentityModel.Tokens.Jwt                              8.22.0  
+   > System.Threading.RateLimiting                                8.0.0   
+
+Project 'Hexalith.EventStore.ServiceDefaults' has the following package references
+   [net10.0]: 
+   Top-level Package                                    Requested   Resolved
+   > Microsoft.AspNetCore.Authentication.JwtBearer      10.0.12     10.0.12 
+   > Microsoft.Extensions.Http.Resilience               10.10.0     10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery              10.10.0     10.10.0 
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol       1.18.0      1.18.0  
+   > OpenTelemetry.Extensions.Hosting                   1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore           1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.Http                 1.18.0      1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime              1.18.0      1.18.0  
+
+   Transitive Package                                             Resolved
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect              8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.IdentityModel.Tokens.Jwt                              8.22.0  
+
+Project 'Hexalith.EventStore.Testing' has the following package references
+   [net10.0]: 
+   Top-level Package      Requested   Resolved
+   > NSubstitute          6.2.0       6.2.0   
+   > Shouldly             4.3.0       4.3.0   
+   > xunit.v3.assert      4.0.1       4.0.1   
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Castle.Core                                                  5.1.1   
+   > Dapr.Actors                                                  1.18.7  
+   > Dapr.Actors.AspNetCore                                       1.18.7  
+   > Dapr.AspNetCore                                              1.18.7  
+   > Dapr.Client                                                  1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > DiffEngine                                                   11.3.0  
+   > EmptyFiles                                                   4.4.0   
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > MediatR                                                      14.2.0  
+   > MediatR.Contracts                                            2.0.1   
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.AspNetCore.DataProtection.Abstractions             10.0.12 
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.Configuration                           10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions              10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                    10.0.12 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables      10.0.0  
+   > Microsoft.Extensions.DependencyInjection                     10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions        10.0.12 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics                             10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions                10.0.12 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Features                                10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions              10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Http                                    10.0.12 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Http.Resilience                         10.10.0 
+   > Microsoft.Extensions.Logging                                 10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Logging.Configuration                   10.0.12 
+   > Microsoft.Extensions.ObjectPool                              10.0.12 
+   > Microsoft.Extensions.Options                                 10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions         10.0.12 
+   > Microsoft.Extensions.Primitives                              10.0.12 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect              8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.CodeDom                                               6.0.0   
+   > System.Diagnostics.EventLog                                  6.0.0   
+   > System.IdentityModel.Tokens.Jwt                              8.22.0  
+   > System.Management                                            6.0.1   
+   > System.Threading.RateLimiting                                8.0.0   
+
+Project 'Hexalith.Tenants.Client' has the following package references
+   [net10.0]: 
+   Top-level Package                 Requested   Resolved
+   > Dapr.AspNetCore                 1.18.7      1.18.7  
+   > Hexalith.EventStore.Client      3.106.0     3.106.0 
+
+   Transitive Package                   Resolved
+   > ByteAether.Ulid                    1.4.0   
+   > Dapr.Client                        1.18.7  
+   > Dapr.Common                        1.18.7  
+   > Dapr.Protos                        1.18.7  
+   > Google.Api.CommonProtos            2.17.0  
+   > Google.Protobuf                    3.35.0  
+   > Grpc.Core.Api                      2.80.0  
+   > Grpc.Net.Client                    2.80.0  
+   > Grpc.Net.Common                    2.80.0  
+   > Grpc.Reflection                    2.80.0  
+   > Hexalith.Commons.UniqueIds         2.30.0  
+   > Hexalith.EventStore.Contracts      3.106.0 
+
+Project 'Hexalith.Tenants.Contracts' has the following package references
+   [net10.0]: 
+   Top-level Package                    Requested   Resolved
+   > Hexalith.EventStore.Contracts      3.106.0     3.106.0 
+
+   Transitive Package                Resolved
+   > ByteAether.Ulid                 1.4.0   
+   > Hexalith.Commons.UniqueIds      2.30.0  
+
+Project 'Hexalith.Conversations.Admin.Web' has the following package references
+   [net10.0]: 
+   Transitive Package                Resolved
+   > ByteAether.Ulid                 1.4.0   
+   > Dapr.Client                     1.18.7  
+   > Dapr.Common                     1.18.7  
+   > Dapr.Protos                     1.18.7  
+   > Google.Api.CommonProtos         2.17.0  
+   > Google.Protobuf                 3.35.0  
+   > Grpc.Core.Api                   2.80.0  
+   > Grpc.Net.Client                 2.80.0  
+   > Grpc.Net.Common                 2.80.0  
+   > Grpc.Reflection                 2.80.0  
+   > Hexalith.Commons.UniqueIds      2.30.0  
+
+Project 'Hexalith.Conversations.AppHost' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested    Resolved
+   > Aspire.Hosting.AppHost   (A)   [13.5.3, )   13.5.3  
+
+   Transitive Package                                                Resolved                
+   > Aspire.Hosting                                                  13.5.4                  
+   > Aspire.Hosting.Keycloak                                         13.5.4-preview.1.26464.4
+   > Aspire.Hosting.Redis                                            13.5.4                  
+   > AspNetCore.HealthChecks.Redis                                   9.0.0                   
+   > AspNetCore.HealthChecks.Uris                                    9.0.0                   
+   > CommunityToolkit.Aspire.Hosting.Dapr                            13.5.1-beta.752         
+   > Fractions                                                       7.3.0                   
+   > Google.Protobuf                                                 3.34.1                  
+   > Grpc.AspNetCore                                                 2.80.0                  
+   > Grpc.AspNetCore.Server                                          2.80.0                  
+   > Grpc.AspNetCore.Server.ClientFactory                            2.80.0                  
+   > Grpc.Core.Api                                                   2.80.0                  
+   > Grpc.Net.Client                                                 2.80.0                  
+   > Grpc.Net.ClientFactory                                          2.80.0                  
+   > Grpc.Net.Common                                                 2.80.0                  
+   > Grpc.Tools                                                      2.80.0                  
+   > Humanizer.Core                                                  3.0.10                  
+   > Json.More.Net                                                   3.0.1                   
+   > JsonPatch.Net                                                   5.0.2                   
+   > JsonPointer.Net                                                 7.0.1                   
+   > KubernetesClient                                                19.0.2                  
+   > MessagePack                                                     2.5.302                 
+   > MessagePack.Annotations                                         2.5.302                 
+   > Microsoft.Extensions.AI.Abstractions                            10.5.2                  
+   > Microsoft.Extensions.Caching.Abstractions                       10.0.7                  
+   > Microsoft.Extensions.Configuration                              10.0.11                 
+   > Microsoft.Extensions.Configuration.Abstractions                 10.0.11                 
+   > Microsoft.Extensions.Configuration.Binder                       10.0.11                 
+   > Microsoft.Extensions.Configuration.CommandLine                  10.0.11                 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables         10.0.11                 
+   > Microsoft.Extensions.Configuration.FileExtensions               10.0.11                 
+   > Microsoft.Extensions.Configuration.Json                         10.0.11                 
+   > Microsoft.Extensions.Configuration.UserSecrets                  10.0.11                 
+   > Microsoft.Extensions.DependencyInjection                        10.0.11                 
+   > Microsoft.Extensions.DependencyInjection.Abstractions           10.0.11                 
+   > Microsoft.Extensions.Diagnostics                                10.0.11                 
+   > Microsoft.Extensions.Diagnostics.Abstractions                   10.0.11                 
+   > Microsoft.Extensions.Diagnostics.HealthChecks                   10.0.11                 
+   > Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions      10.0.11                 
+   > Microsoft.Extensions.FileProviders.Abstractions                 10.0.11                 
+   > Microsoft.Extensions.FileProviders.Physical                     10.0.11                 
+   > Microsoft.Extensions.FileSystemGlobbing                         10.0.11                 
+   > Microsoft.Extensions.Hosting                                    10.0.11                 
+   > Microsoft.Extensions.Hosting.Abstractions                       10.0.11                 
+   > Microsoft.Extensions.Http                                       10.0.11                 
+   > Microsoft.Extensions.Logging                                    10.0.11                 
+   > Microsoft.Extensions.Logging.Abstractions                       10.0.11                 
+   > Microsoft.Extensions.Logging.Configuration                      10.0.11                 
+   > Microsoft.Extensions.Logging.Console                            10.0.11                 
+   > Microsoft.Extensions.Logging.Debug                              10.0.11                 
+   > Microsoft.Extensions.Logging.EventLog                           10.0.11                 
+   > Microsoft.Extensions.Logging.EventSource                        10.0.11                 
+   > Microsoft.Extensions.Options                                    10.0.11                 
+   > Microsoft.Extensions.Options.ConfigurationExtensions            10.0.11                 
+   > Microsoft.Extensions.Primitives                                 10.0.11                 
+   > Microsoft.NET.StringTools                                       18.4.0                  
+   > Microsoft.VisualStudio.Threading.Only                           17.14.15                
+   > Microsoft.VisualStudio.Validation                               17.13.22                
+   > ModelContextProtocol                                            1.3.0                   
+   > ModelContextProtocol.Core                                       1.3.0                   
+   > Nerdbank.MessagePack                                            1.2.4                   
+   > Nerdbank.Streams                                                2.13.16                 
+   > Newtonsoft.Json                                                 13.0.4                  
+   > OpenTelemetry                                                   1.15.3                  
+   > OpenTelemetry.Api                                               1.15.3                  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                     1.15.3                  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                    1.15.3                  
+   > OpenTelemetry.Extensions.Hosting                                1.15.3                  
+   > Pipelines.Sockets.Unofficial                                    2.2.16                  
+   > Polly.Core                                                      8.6.6                   
+   > PolyType                                                        1.3.1                   
+   > Semver                                                          3.0.0                   
+   > StackExchange.Redis                                             2.13.1                  
+   > StreamJsonRpc                                                   2.25.29                 
+   > System.Diagnostics.EventLog                                     10.0.11                 
+   > System.IO.Hashing                                               10.0.8                  
+   > YamlDotNet                                                      16.3.0                  
+
+Project 'Hexalith.Conversations.Client' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > Microsoft.Extensions.Http      10.0.12     10.0.12 
+
+   Transitive Package                                           Resolved
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+
+Project 'Hexalith.Conversations.Contracts' has the following package references
+   [net10.0]: No packages were found for this framework.
+Project 'Hexalith.Conversations.Server' has the following package references
+   [net10.0]: 
+   Top-level Package                                      Requested   Resolved
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect      8.22.0      8.22.0  
+   > System.IdentityModel.Tokens.Jwt                      8.22.0      8.22.0  
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Dapr.AspNetCore                                              1.18.7  
+   > Dapr.Client                                                  1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Http.Resilience                         10.10.0 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+
+Project 'Hexalith.Conversations.Testing' has the following package references
+   [net10.0]: 
+   Transitive Package                                           Resolved
+   > ByteAether.Ulid                                            1.4.0   
+   > Dapr.Client                                                1.18.7  
+   > Dapr.Common                                                1.18.7  
+   > Dapr.Protos                                                1.18.7  
+   > Google.Api.CommonProtos                                    2.17.0  
+   > Google.Protobuf                                            3.35.0  
+   > Grpc.Core.Api                                              2.80.0  
+   > Grpc.Net.Client                                            2.80.0  
+   > Grpc.Net.Common                                            2.80.0  
+   > Grpc.Reflection                                            2.80.0  
+   > Hexalith.Commons.UniqueIds                                 2.30.0  
+   > Microsoft.AspNetCore.DataProtection.Abstractions           10.0.12 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions            10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+
+Project 'Hexalith.Conversations' has the following package references
+   [net10.0]: 
+   Transitive Package                                           Resolved
+   > ByteAether.Ulid                                            1.4.0   
+   > Dapr.Client                                                1.18.7  
+   > Dapr.Common                                                1.18.7  
+   > Dapr.Protos                                                1.18.7  
+   > Google.Api.CommonProtos                                    2.17.0  
+   > Google.Protobuf                                            3.35.0  
+   > Grpc.Core.Api                                              2.80.0  
+   > Grpc.Net.Client                                            2.80.0  
+   > Grpc.Net.Common                                            2.80.0  
+   > Grpc.Reflection                                            2.80.0  
+   > Hexalith.Commons.UniqueIds                                 2.30.0  
+   > Microsoft.AspNetCore.DataProtection.Abstractions           10.0.12 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions            10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+
+Project 'Hexalith.Conversations.Admin.Web.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > coverlet.collector             10.0.1      10.0.1  
+   > Microsoft.NET.Test.Sdk         18.10.1     18.10.1 
+   > Microsoft.Playwright           1.62.0      1.62.0  
+   > Shouldly                       4.3.0       4.3.0   
+   > xunit.runner.visualstudio      4.0.0       4.0.0   
+   > xunit.v3                       4.0.1       4.0.1   
+
+   Transitive Package                                           Resolved
+   > ByteAether.Ulid                                            1.4.0   
+   > Dapr.Client                                                1.18.7  
+   > Dapr.Common                                                1.18.7  
+   > Dapr.Protos                                                1.18.7  
+   > DiffEngine                                                 11.3.0  
+   > EmptyFiles                                                 4.4.0   
+   > Google.Api.CommonProtos                                    2.17.0  
+   > Google.Protobuf                                            3.35.0  
+   > Grpc.Core.Api                                              2.80.0  
+   > Grpc.Net.Client                                            2.80.0  
+   > Grpc.Net.Common                                            2.80.0  
+   > Grpc.Reflection                                            2.80.0  
+   > Hexalith.Commons.UniqueIds                                 2.30.0  
+   > Microsoft.ApplicationInsights                              2.23.0  
+   > Microsoft.AspNetCore.DataProtection.Abstractions           10.0.12 
+   > Microsoft.Bcl.AsyncInterfaces                              6.0.0   
+   > Microsoft.CodeCoverage                                     18.10.1 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions            10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+   > Microsoft.Testing.Extensions.Telemetry                     2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions        2.4.0   
+   > Microsoft.Testing.Platform                                 2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                         2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                         18.10.1 
+   > Microsoft.TestPlatform.TestHost                            18.10.1 
+   > Microsoft.Win32.Registry                                   5.0.0   
+   > System.CodeDom                                             6.0.0   
+   > System.ComponentModel.Annotations                          5.0.0   
+   > System.Management                                          6.0.1   
+   > System.Security.AccessControl                              6.0.1   
+   > xunit.analyzers                                            2.1.0   
+   > xunit.v3.assert                                            4.0.1   
+   > xunit.v3.common                                            4.0.1   
+   > xunit.v3.core.mtp-v2                                       4.0.1   
+   > xunit.v3.extensibility.core                                4.0.1   
+   > xunit.v3.mtp-v2                                            4.0.1   
+   > xunit.v3.runner.common                                     4.0.1   
+   > xunit.v3.runner.inproc.console                             4.0.1   
+
+Project 'Hexalith.Conversations.AppHost.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                           Requested         Resolved       
+   > Aspire.Hosting                            13.5.4            13.5.4         
+   > Aspire.Hosting.Testing                    13.5.4            13.5.4         
+   > CommunityToolkit.Aspire.Hosting.Dapr      13.5.1-beta.752   13.5.1-beta.752
+   > coverlet.collector                        10.0.1            10.0.1         
+   > Microsoft.NET.Test.Sdk                    18.10.1           18.10.1        
+   > Shouldly                                  4.3.0             4.3.0          
+   > xunit.runner.visualstudio                 4.0.0             4.0.0          
+   > xunit.v3                                  4.0.1             4.0.1          
+
+   Transitive Package                                                Resolved                
+   > Aspire.Hosting.AppHost                                          13.5.4                  
+   > Aspire.Hosting.Keycloak                                         13.5.4-preview.1.26464.4
+   > Aspire.Hosting.Redis                                            13.5.4                  
+   > AspNetCore.HealthChecks.Redis                                   9.0.0                   
+   > AspNetCore.HealthChecks.Uris                                    9.0.0                   
+   > ByteAether.Ulid                                                 1.4.0                   
+   > Dapr.Client                                                     1.18.7                  
+   > Dapr.Common                                                     1.18.7                  
+   > Dapr.Protos                                                     1.18.7                  
+   > DiffEngine                                                      11.3.0                  
+   > EmptyFiles                                                      4.4.0                   
+   > Fractions                                                       7.3.0                   
+   > Google.Api.CommonProtos                                         2.17.0                  
+   > Google.Protobuf                                                 3.35.0                  
+   > Grpc.AspNetCore                                                 2.80.0                  
+   > Grpc.AspNetCore.Server                                          2.80.0                  
+   > Grpc.AspNetCore.Server.ClientFactory                            2.80.0                  
+   > Grpc.Core.Api                                                   2.80.0                  
+   > Grpc.Net.Client                                                 2.80.0                  
+   > Grpc.Net.ClientFactory                                          2.80.0                  
+   > Grpc.Net.Common                                                 2.80.0                  
+   > Grpc.Reflection                                                 2.80.0                  
+   > Grpc.Tools                                                      2.80.0                  
+   > Hexalith.Commons.UniqueIds                                      2.30.0                  
+   > Humanizer.Core                                                  3.0.10                  
+   > Json.More.Net                                                   3.0.1                   
+   > JsonPatch.Net                                                   5.0.2                   
+   > JsonPointer.Net                                                 7.0.1                   
+   > KubernetesClient                                                19.0.2                  
+   > MessagePack                                                     2.5.302                 
+   > MessagePack.Annotations                                         2.5.302                 
+   > Microsoft.ApplicationInsights                                   2.23.0                  
+   > Microsoft.AspNetCore.DataProtection.Abstractions                10.0.12                 
+   > Microsoft.Bcl.AsyncInterfaces                                   6.0.0                   
+   > Microsoft.CodeCoverage                                          18.10.1                 
+   > Microsoft.Extensions.AI.Abstractions                            10.5.2                  
+   > Microsoft.Extensions.AmbientMetadata.Application                10.8.0                  
+   > Microsoft.Extensions.Caching.Abstractions                       10.0.7                  
+   > Microsoft.Extensions.Compliance.Abstractions                    10.8.0                  
+   > Microsoft.Extensions.Configuration                              10.0.12                 
+   > Microsoft.Extensions.Configuration.Abstractions                 10.0.12                 
+   > Microsoft.Extensions.Configuration.Binder                       10.0.12                 
+   > Microsoft.Extensions.Configuration.CommandLine                  10.0.11                 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables         10.0.11                 
+   > Microsoft.Extensions.Configuration.FileExtensions               10.0.11                 
+   > Microsoft.Extensions.Configuration.Json                         10.0.11                 
+   > Microsoft.Extensions.Configuration.UserSecrets                  10.0.11                 
+   > Microsoft.Extensions.DependencyInjection                        10.0.12                 
+   > Microsoft.Extensions.DependencyInjection.Abstractions           10.0.12                 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation         10.8.0                  
+   > Microsoft.Extensions.Diagnostics                                10.0.12                 
+   > Microsoft.Extensions.Diagnostics.Abstractions                   10.0.12                 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization         10.8.0                  
+   > Microsoft.Extensions.Diagnostics.HealthChecks                   10.0.11                 
+   > Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions      10.0.11                 
+   > Microsoft.Extensions.FileProviders.Abstractions                 10.0.12                 
+   > Microsoft.Extensions.FileProviders.Physical                     10.0.11                 
+   > Microsoft.Extensions.FileSystemGlobbing                         10.0.11                 
+   > Microsoft.Extensions.Hosting                                    10.0.11                 
+   > Microsoft.Extensions.Hosting.Abstractions                       10.0.12                 
+   > Microsoft.Extensions.Http                                       10.0.12                 
+   > Microsoft.Extensions.Http.Diagnostics                           10.8.0                  
+   > Microsoft.Extensions.Http.Resilience                            10.8.0                  
+   > Microsoft.Extensions.Logging                                    10.0.12                 
+   > Microsoft.Extensions.Logging.Abstractions                       10.0.12                 
+   > Microsoft.Extensions.Logging.Configuration                      10.0.11                 
+   > Microsoft.Extensions.Logging.Console                            10.0.11                 
+   > Microsoft.Extensions.Logging.Debug                              10.0.11                 
+   > Microsoft.Extensions.Logging.EventLog                           10.0.11                 
+   > Microsoft.Extensions.Logging.EventSource                        10.0.11                 
+   > Microsoft.Extensions.ObjectPool                                 10.0.10                 
+   > Microsoft.Extensions.Options                                    10.0.12                 
+   > Microsoft.Extensions.Options.ConfigurationExtensions            10.0.12                 
+   > Microsoft.Extensions.Primitives                                 10.0.12                 
+   > Microsoft.Extensions.Resilience                                 10.8.0                  
+   > Microsoft.Extensions.Telemetry                                  10.8.0                  
+   > Microsoft.Extensions.Telemetry.Abstractions                     10.8.0                  
+   > Microsoft.NET.StringTools                                       18.4.0                  
+   > Microsoft.Testing.Extensions.Telemetry                          2.4.0                   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions             2.4.0                   
+   > Microsoft.Testing.Platform                                      2.4.0                   
+   > Microsoft.Testing.Platform.MSBuild                              2.4.0                   
+   > Microsoft.TestPlatform.ObjectModel                              18.10.1                 
+   > Microsoft.TestPlatform.TestHost                                 18.10.1                 
+   > Microsoft.VisualStudio.Threading.Only                           17.14.15                
+   > Microsoft.VisualStudio.Validation                               17.13.22                
+   > Microsoft.Win32.Registry                                        5.0.0                   
+   > ModelContextProtocol                                            1.3.0                   
+   > ModelContextProtocol.Core                                       1.3.0                   
+   > Nerdbank.MessagePack                                            1.2.4                   
+   > Nerdbank.Streams                                                2.13.16                 
+   > Newtonsoft.Json                                                 13.0.4                  
+   > OpenTelemetry                                                   1.15.3                  
+   > OpenTelemetry.Api                                               1.15.3                  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                     1.15.3                  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                    1.15.3                  
+   > OpenTelemetry.Extensions.Hosting                                1.15.3                  
+   > Pipelines.Sockets.Unofficial                                    2.2.16                  
+   > Polly.Core                                                      8.6.6                   
+   > Polly.Extensions                                                8.6.6                   
+   > Polly.RateLimiting                                              8.4.2                   
+   > PolyType                                                        1.3.1                   
+   > Semver                                                          3.0.0                   
+   > StackExchange.Redis                                             2.13.1                  
+   > StreamJsonRpc                                                   2.25.29                 
+   > System.CodeDom                                                  6.0.0                   
+   > System.Diagnostics.EventLog                                     10.0.11                 
+   > System.IO.Hashing                                               10.0.8                  
+   > System.Management                                               6.0.1                   
+   > System.Security.AccessControl                                   6.0.1                   
+   > System.Threading.RateLimiting                                   8.0.0                   
+   > xunit.analyzers                                                 2.1.0                   
+   > xunit.v3.assert                                                 4.0.1                   
+   > xunit.v3.common                                                 4.0.1                   
+   > xunit.v3.core.mtp-v2                                            4.0.1                   
+   > xunit.v3.extensibility.core                                     4.0.1                   
+   > xunit.v3.mtp-v2                                                 4.0.1                   
+   > xunit.v3.runner.common                                          4.0.1                   
+   > xunit.v3.runner.inproc.console                                  4.0.1                   
+   > YamlDotNet                                                      16.3.0                  
+
+Project 'Hexalith.Conversations.Client.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > coverlet.collector             10.0.1      10.0.1  
+   > Microsoft.NET.Test.Sdk         18.10.1     18.10.1 
+   > Shouldly                       4.3.0       4.3.0   
+   > xunit.runner.visualstudio      4.0.0       4.0.0   
+   > xunit.v3                       4.0.1       4.0.1   
+
+   Transitive Package                                           Resolved
+   > DiffEngine                                                 11.3.0  
+   > EmptyFiles                                                 4.4.0   
+   > Microsoft.ApplicationInsights                              2.23.0  
+   > Microsoft.Bcl.AsyncInterfaces                              6.0.0   
+   > Microsoft.CodeCoverage                                     18.10.1 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+   > Microsoft.Testing.Extensions.Telemetry                     2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions        2.4.0   
+   > Microsoft.Testing.Platform                                 2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                         2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                         18.10.1 
+   > Microsoft.TestPlatform.TestHost                            18.10.1 
+   > Microsoft.Win32.Registry                                   5.0.0   
+   > System.CodeDom                                             6.0.0   
+   > System.Management                                          6.0.1   
+   > System.Security.AccessControl                              6.0.1   
+   > xunit.analyzers                                            2.1.0   
+   > xunit.v3.assert                                            4.0.1   
+   > xunit.v3.common                                            4.0.1   
+   > xunit.v3.core.mtp-v2                                       4.0.1   
+   > xunit.v3.extensibility.core                                4.0.1   
+   > xunit.v3.mtp-v2                                            4.0.1   
+   > xunit.v3.runner.common                                     4.0.1   
+   > xunit.v3.runner.inproc.console                             4.0.1   
+
+Project 'Hexalith.Conversations.Conformance.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                      Requested   Resolved
+   > coverlet.collector                                   10.0.1      10.0.1  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect      8.22.0      8.22.0  
+   > Microsoft.NET.Test.Sdk                               18.10.1     18.10.1 
+   > Shouldly                                             4.3.0       4.3.0   
+   > System.IdentityModel.Tokens.Jwt                      8.22.0      8.22.0  
+   > xunit.runner.visualstudio                            4.0.0       4.0.0   
+   > xunit.v3                                             4.0.1       4.0.1   
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Dapr.AspNetCore                                              1.18.7  
+   > Dapr.Client                                                  1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > DiffEngine                                                   11.3.0  
+   > EmptyFiles                                                   4.4.0   
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > Hexalith.EventStore.Client                                   3.106.0 
+   > Microsoft.ApplicationInsights                                2.23.0  
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.AspNetCore.DataProtection.Abstractions             10.0.12 
+   > Microsoft.Bcl.AsyncInterfaces                                6.0.0   
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.CodeCoverage                                       18.10.1 
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.Configuration                           10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions              10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                    10.0.12 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables      10.0.0  
+   > Microsoft.Extensions.DependencyInjection                     10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions        10.0.12 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics                             10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions                10.0.12 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Features                                10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions              10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Http                                    10.0.12 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Http.Resilience                         10.10.0 
+   > Microsoft.Extensions.Logging                                 10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Logging.Configuration                   10.0.12 
+   > Microsoft.Extensions.ObjectPool                              10.0.12 
+   > Microsoft.Extensions.Options                                 10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions         10.0.12 
+   > Microsoft.Extensions.Primitives                              10.0.12 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > Microsoft.Testing.Extensions.Telemetry                       2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions          2.4.0   
+   > Microsoft.Testing.Platform                                   2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                           2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                           18.10.1 
+   > Microsoft.TestPlatform.TestHost                              18.10.1 
+   > Microsoft.Win32.Registry                                     5.0.0   
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.CodeDom                                               6.0.0   
+   > System.Management                                            6.0.1   
+   > System.Security.AccessControl                                6.0.1   
+   > System.Threading.RateLimiting                                8.0.0   
+   > xunit.analyzers                                              2.1.0   
+   > xunit.v3.assert                                              4.0.1   
+   > xunit.v3.common                                              4.0.1   
+   > xunit.v3.core.mtp-v2                                         4.0.1   
+   > xunit.v3.extensibility.core                                  4.0.1   
+   > xunit.v3.mtp-v2                                              4.0.1   
+   > xunit.v3.runner.common                                       4.0.1   
+   > xunit.v3.runner.inproc.console                               4.0.1   
+
+Project 'Hexalith.Conversations.Contracts.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > coverlet.collector             10.0.1      10.0.1  
+   > Microsoft.NET.Test.Sdk         18.10.1     18.10.1 
+   > Shouldly                       4.3.0       4.3.0   
+   > xunit.runner.visualstudio      4.0.0       4.0.0   
+   > xunit.v3                       4.0.1       4.0.1   
+
+   Transitive Package                                           Resolved
+   > DiffEngine                                                 11.3.0  
+   > EmptyFiles                                                 4.4.0   
+   > Microsoft.ApplicationInsights                              2.23.0  
+   > Microsoft.Bcl.AsyncInterfaces                              6.0.0   
+   > Microsoft.CodeCoverage                                     18.10.1 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+   > Microsoft.Testing.Extensions.Telemetry                     2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions        2.4.0   
+   > Microsoft.Testing.Platform                                 2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                         2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                         18.10.1 
+   > Microsoft.TestPlatform.TestHost                            18.10.1 
+   > Microsoft.Win32.Registry                                   5.0.0   
+   > System.CodeDom                                             6.0.0   
+   > System.Management                                          6.0.1   
+   > System.Security.AccessControl                              6.0.1   
+   > xunit.analyzers                                            2.1.0   
+   > xunit.v3.assert                                            4.0.1   
+   > xunit.v3.common                                            4.0.1   
+   > xunit.v3.core.mtp-v2                                       4.0.1   
+   > xunit.v3.extensibility.core                                4.0.1   
+   > xunit.v3.mtp-v2                                            4.0.1   
+   > xunit.v3.runner.common                                     4.0.1   
+   > xunit.v3.runner.inproc.console                             4.0.1   
+
+Project 'Hexalith.Conversations.IntegrationTests' has the following package references
+   [net10.0]: 
+   Top-level Package                                      Requested   Resolved
+   > coverlet.collector                                   10.0.1      10.0.1  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect      8.22.0      8.22.0  
+   > Microsoft.NET.Test.Sdk                               18.10.1     18.10.1 
+   > Shouldly                                             4.3.0       4.3.0   
+   > System.IdentityModel.Tokens.Jwt                      8.22.0      8.22.0  
+   > xunit.runner.visualstudio                            4.0.0       4.0.0   
+   > xunit.v3                                             4.0.1       4.0.1   
+
+   Transitive Package                                                Resolved
+   > Aspire.Hosting                                                  13.5.4  
+   > Aspire.Hosting.AppHost                                          13.5.4  
+   > Aspire.Hosting.Testing                                          13.5.4  
+   > AspNetCore.HealthChecks.Uris                                    9.0.0   
+   > ByteAether.Ulid                                                 1.4.0   
+   > Dapr.Actors                                                     1.18.7  
+   > Dapr.Actors.AspNetCore                                          1.18.7  
+   > Dapr.AspNetCore                                                 1.18.7  
+   > Dapr.Client                                                     1.18.7  
+   > Dapr.Common                                                     1.18.7  
+   > Dapr.Protos                                                     1.18.7  
+   > DiffEngine                                                      11.3.0  
+   > EmptyFiles                                                      4.4.0   
+   > Fractions                                                       7.3.0   
+   > Google.Api.CommonProtos                                         2.17.0  
+   > Google.Protobuf                                                 3.35.0  
+   > Grpc.AspNetCore                                                 2.80.0  
+   > Grpc.AspNetCore.Server                                          2.80.0  
+   > Grpc.AspNetCore.Server.ClientFactory                            2.80.0  
+   > Grpc.Core.Api                                                   2.80.0  
+   > Grpc.Net.Client                                                 2.80.0  
+   > Grpc.Net.ClientFactory                                          2.80.0  
+   > Grpc.Net.Common                                                 2.80.0  
+   > Grpc.Reflection                                                 2.80.0  
+   > Grpc.Tools                                                      2.80.0  
+   > Hexalith.Commons.UniqueIds                                      2.30.0  
+   > Hexalith.EventStore.Contracts                                   3.106.0 
+   > Humanizer.Core                                                  3.0.10  
+   > Json.More.Net                                                   3.0.1   
+   > JsonPatch.Net                                                   5.0.2   
+   > JsonPointer.Net                                                 7.0.1   
+   > KubernetesClient                                                19.0.2  
+   > MediatR                                                         14.2.0  
+   > MediatR.Contracts                                               2.0.1   
+   > MessagePack                                                     2.5.302 
+   > MessagePack.Annotations                                         2.5.302 
+   > Microsoft.ApplicationInsights                                   2.23.0  
+   > Microsoft.AspNetCore.Authentication.JwtBearer                   10.0.12 
+   > Microsoft.AspNetCore.DataProtection.Abstractions                10.0.12 
+   > Microsoft.Bcl.AsyncInterfaces                                   6.0.0   
+   > Microsoft.Bcl.Cryptography                                      10.0.2  
+   > Microsoft.CodeCoverage                                          18.10.1 
+   > Microsoft.Extensions.AI.Abstractions                            10.5.2  
+   > Microsoft.Extensions.AmbientMetadata.Application                10.10.0 
+   > Microsoft.Extensions.Caching.Abstractions                       10.0.7  
+   > Microsoft.Extensions.Compliance.Abstractions                    10.10.0 
+   > Microsoft.Extensions.Configuration                              10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions                 10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                       10.0.12 
+   > Microsoft.Extensions.Configuration.CommandLine                  10.0.11 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables         10.0.11 
+   > Microsoft.Extensions.Configuration.FileExtensions               10.0.11 
+   > Microsoft.Extensions.Configuration.Json                         10.0.11 
+   > Microsoft.Extensions.Configuration.UserSecrets                  10.0.11 
+   > Microsoft.Extensions.DependencyInjection                        10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions           10.0.12 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation         10.10.0 
+   > Microsoft.Extensions.Diagnostics                                10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions                   10.0.12 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization         10.10.0 
+   > Microsoft.Extensions.Diagnostics.HealthChecks                   10.0.11 
+   > Microsoft.Extensions.Diagnostics.HealthChecks.Abstractions      10.0.11 
+   > Microsoft.Extensions.Features                                   10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions                 10.0.12 
+   > Microsoft.Extensions.FileProviders.Physical                     10.0.11 
+   > Microsoft.Extensions.FileSystemGlobbing                         10.0.11 
+   > Microsoft.Extensions.Hosting                                    10.0.11 
+   > Microsoft.Extensions.Hosting.Abstractions                       10.0.12 
+   > Microsoft.Extensions.Http                                       10.0.12 
+   > Microsoft.Extensions.Http.Diagnostics                           10.10.0 
+   > Microsoft.Extensions.Http.Resilience                            10.10.0 
+   > Microsoft.Extensions.Logging                                    10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                       10.0.12 
+   > Microsoft.Extensions.Logging.Configuration                      10.0.12 
+   > Microsoft.Extensions.Logging.Console                            10.0.11 
+   > Microsoft.Extensions.Logging.Debug                              10.0.11 
+   > Microsoft.Extensions.Logging.EventLog                           10.0.11 
+   > Microsoft.Extensions.Logging.EventSource                        10.0.11 
+   > Microsoft.Extensions.ObjectPool                                 10.0.12 
+   > Microsoft.Extensions.Options                                    10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions            10.0.12 
+   > Microsoft.Extensions.Primitives                                 10.0.12 
+   > Microsoft.Extensions.Resilience                                 10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                           10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions              10.10.0 
+   > Microsoft.Extensions.Telemetry                                  10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                     10.10.0 
+   > Microsoft.IdentityModel.Abstractions                            8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                           8.22.0  
+   > Microsoft.IdentityModel.Logging                                 8.22.0  
+   > Microsoft.IdentityModel.Protocols                               8.22.0  
+   > Microsoft.IdentityModel.Tokens                                  8.22.0  
+   > Microsoft.NET.StringTools                                       18.4.0  
+   > Microsoft.Testing.Extensions.Telemetry                          2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions             2.4.0   
+   > Microsoft.Testing.Platform                                      2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                              2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                              18.10.1 
+   > Microsoft.TestPlatform.TestHost                                 18.10.1 
+   > Microsoft.VisualStudio.Threading.Only                           17.14.15
+   > Microsoft.VisualStudio.Validation                               17.13.22
+   > Microsoft.Win32.Registry                                        5.0.0   
+   > ModelContextProtocol                                            1.3.0   
+   > ModelContextProtocol.Core                                       1.3.0   
+   > Nerdbank.MessagePack                                            1.2.4   
+   > Nerdbank.Streams                                                2.13.16 
+   > Newtonsoft.Json                                                 13.0.4  
+   > OpenTelemetry                                                   1.18.0  
+   > OpenTelemetry.Api                                               1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                     1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                    1.18.0  
+   > OpenTelemetry.Extensions.Hosting                                1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                        1.18.0  
+   > OpenTelemetry.Instrumentation.Http                              1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                           1.18.0  
+   > Polly.Core                                                      8.6.6   
+   > Polly.Extensions                                                8.6.6   
+   > Polly.RateLimiting                                              8.4.2   
+   > PolyType                                                        1.3.1   
+   > Semver                                                          3.0.0   
+   > StreamJsonRpc                                                   2.25.29 
+   > System.CodeDom                                                  6.0.0   
+   > System.Diagnostics.EventLog                                     10.0.11 
+   > System.IO.Hashing                                               10.0.8  
+   > System.Management                                               6.0.1   
+   > System.Security.AccessControl                                   6.0.1   
+   > System.Threading.RateLimiting                                   8.0.0   
+   > xunit.analyzers                                                 2.1.0   
+   > xunit.v3.assert                                                 4.0.1   
+   > xunit.v3.common                                                 4.0.1   
+   > xunit.v3.core.mtp-v2                                            4.0.1   
+   > xunit.v3.extensibility.core                                     4.0.1   
+   > xunit.v3.mtp-v2                                                 4.0.1   
+   > xunit.v3.runner.common                                          4.0.1   
+   > xunit.v3.runner.inproc.console                                  4.0.1   
+   > YamlDotNet                                                      16.3.0  
+
+Project 'Hexalith.Conversations.Server.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                                      Requested   Resolved
+   > coverlet.collector                                   10.0.1      10.0.1  
+   > Microsoft.IdentityModel.Protocols.OpenIdConnect      8.22.0      8.22.0  
+   > Microsoft.NET.Test.Sdk                               18.10.1     18.10.1 
+   > Shouldly                                             4.3.0       4.3.0   
+   > System.IdentityModel.Tokens.Jwt                      8.22.0      8.22.0  
+   > xunit.runner.visualstudio                            4.0.0       4.0.0   
+   > xunit.v3                                             4.0.1       4.0.1   
+
+   Transitive Package                                             Resolved
+   > ByteAether.Ulid                                              1.4.0   
+   > Dapr.Actors                                                  1.18.7  
+   > Dapr.Actors.AspNetCore                                       1.18.7  
+   > Dapr.AspNetCore                                              1.18.7  
+   > Dapr.Client                                                  1.18.7  
+   > Dapr.Common                                                  1.18.7  
+   > Dapr.Protos                                                  1.18.7  
+   > DiffEngine                                                   11.3.0  
+   > EmptyFiles                                                   4.4.0   
+   > Google.Api.CommonProtos                                      2.17.0  
+   > Google.Protobuf                                              3.35.0  
+   > Grpc.Core.Api                                                2.80.0  
+   > Grpc.Net.Client                                              2.80.0  
+   > Grpc.Net.Common                                              2.80.0  
+   > Grpc.Reflection                                              2.80.0  
+   > Hexalith.Commons.UniqueIds                                   2.30.0  
+   > MediatR                                                      14.2.0  
+   > MediatR.Contracts                                            2.0.1   
+   > Microsoft.ApplicationInsights                                2.23.0  
+   > Microsoft.AspNetCore.Authentication.JwtBearer                10.0.12 
+   > Microsoft.AspNetCore.DataProtection.Abstractions             10.0.12 
+   > Microsoft.Bcl.AsyncInterfaces                                6.0.0   
+   > Microsoft.Bcl.Cryptography                                   10.0.2  
+   > Microsoft.CodeCoverage                                       18.10.1 
+   > Microsoft.Extensions.AmbientMetadata.Application             10.10.0 
+   > Microsoft.Extensions.Compliance.Abstractions                 10.10.0 
+   > Microsoft.Extensions.Configuration                           10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions              10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                    10.0.12 
+   > Microsoft.Extensions.Configuration.EnvironmentVariables      10.0.0  
+   > Microsoft.Extensions.DependencyInjection                     10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions        10.0.12 
+   > Microsoft.Extensions.DependencyInjection.AutoActivation      10.10.0 
+   > Microsoft.Extensions.Diagnostics                             10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions                10.0.12 
+   > Microsoft.Extensions.Diagnostics.ExceptionSummarization      10.10.0 
+   > Microsoft.Extensions.Features                                10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions              10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Http                                    10.0.12 
+   > Microsoft.Extensions.Http.Diagnostics                        10.10.0 
+   > Microsoft.Extensions.Http.Resilience                         10.10.0 
+   > Microsoft.Extensions.Logging                                 10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                    10.0.12 
+   > Microsoft.Extensions.Logging.Configuration                   10.0.12 
+   > Microsoft.Extensions.ObjectPool                              10.0.12 
+   > Microsoft.Extensions.Options                                 10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions         10.0.12 
+   > Microsoft.Extensions.Primitives                              10.0.12 
+   > Microsoft.Extensions.Resilience                              10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery                        10.10.0 
+   > Microsoft.Extensions.ServiceDiscovery.Abstractions           10.10.0 
+   > Microsoft.Extensions.Telemetry                               10.10.0 
+   > Microsoft.Extensions.Telemetry.Abstractions                  10.10.0 
+   > Microsoft.IdentityModel.Abstractions                         8.22.0  
+   > Microsoft.IdentityModel.JsonWebTokens                        8.22.0  
+   > Microsoft.IdentityModel.Logging                              8.22.0  
+   > Microsoft.IdentityModel.Protocols                            8.22.0  
+   > Microsoft.IdentityModel.Tokens                               8.22.0  
+   > Microsoft.Testing.Extensions.Telemetry                       2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions          2.4.0   
+   > Microsoft.Testing.Platform                                   2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                           2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                           18.10.1 
+   > Microsoft.TestPlatform.TestHost                              18.10.1 
+   > Microsoft.Win32.Registry                                     5.0.0   
+   > OpenTelemetry                                                1.18.0  
+   > OpenTelemetry.Api                                            1.18.0  
+   > OpenTelemetry.Api.ProviderBuilderExtensions                  1.18.0  
+   > OpenTelemetry.Exporter.OpenTelemetryProtocol                 1.18.0  
+   > OpenTelemetry.Extensions.Hosting                             1.18.0  
+   > OpenTelemetry.Instrumentation.AspNetCore                     1.18.0  
+   > OpenTelemetry.Instrumentation.Http                           1.18.0  
+   > OpenTelemetry.Instrumentation.Runtime                        1.18.0  
+   > Polly.Core                                                   8.4.2   
+   > Polly.Extensions                                             8.4.2   
+   > Polly.RateLimiting                                           8.4.2   
+   > System.CodeDom                                               6.0.0   
+   > System.Management                                            6.0.1   
+   > System.Security.AccessControl                                6.0.1   
+   > System.Threading.RateLimiting                                8.0.0   
+   > xunit.analyzers                                              2.1.0   
+   > xunit.v3.assert                                              4.0.1   
+   > xunit.v3.common                                              4.0.1   
+   > xunit.v3.core.mtp-v2                                         4.0.1   
+   > xunit.v3.extensibility.core                                  4.0.1   
+   > xunit.v3.mtp-v2                                              4.0.1   
+   > xunit.v3.runner.common                                       4.0.1   
+   > xunit.v3.runner.inproc.console                               4.0.1   
+
+Project 'Hexalith.Conversations.Tests' has the following package references
+   [net10.0]: 
+   Top-level Package                Requested   Resolved
+   > coverlet.collector             10.0.1      10.0.1  
+   > Microsoft.NET.Test.Sdk         18.10.1     18.10.1 
+   > Shouldly                       4.3.0       4.3.0   
+   > xunit.runner.visualstudio      4.0.0       4.0.0   
+   > xunit.v3                       4.0.1       4.0.1   
+
+   Transitive Package                                           Resolved
+   > ByteAether.Ulid                                            1.4.0   
+   > Dapr.Client                                                1.18.7  
+   > Dapr.Common                                                1.18.7  
+   > Dapr.Protos                                                1.18.7  
+   > DiffEngine                                                 11.3.0  
+   > EmptyFiles                                                 4.4.0   
+   > Google.Api.CommonProtos                                    2.17.0  
+   > Google.Protobuf                                            3.35.0  
+   > Grpc.Core.Api                                              2.80.0  
+   > Grpc.Net.Client                                            2.80.0  
+   > Grpc.Net.Common                                            2.80.0  
+   > Grpc.Reflection                                            2.80.0  
+   > Hexalith.Commons.UniqueIds                                 2.30.0  
+   > Microsoft.ApplicationInsights                              2.23.0  
+   > Microsoft.AspNetCore.DataProtection.Abstractions           10.0.12 
+   > Microsoft.Bcl.AsyncInterfaces                              6.0.0   
+   > Microsoft.CodeCoverage                                     18.10.1 
+   > Microsoft.Extensions.Configuration                         10.0.12 
+   > Microsoft.Extensions.Configuration.Abstractions            10.0.12 
+   > Microsoft.Extensions.Configuration.Binder                  10.0.12 
+   > Microsoft.Extensions.DependencyInjection                   10.0.12 
+   > Microsoft.Extensions.DependencyInjection.Abstractions      10.0.12 
+   > Microsoft.Extensions.Diagnostics                           10.0.12 
+   > Microsoft.Extensions.Diagnostics.Abstractions              10.0.12 
+   > Microsoft.Extensions.FileProviders.Abstractions            10.0.12 
+   > Microsoft.Extensions.Hosting.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Http                                  10.0.12 
+   > Microsoft.Extensions.Logging                               10.0.12 
+   > Microsoft.Extensions.Logging.Abstractions                  10.0.12 
+   > Microsoft.Extensions.Options                               10.0.12 
+   > Microsoft.Extensions.Options.ConfigurationExtensions       10.0.12 
+   > Microsoft.Extensions.Primitives                            10.0.12 
+   > Microsoft.Testing.Extensions.Telemetry                     2.4.0   
+   > Microsoft.Testing.Extensions.TrxReport.Abstractions        2.4.0   
+   > Microsoft.Testing.Platform                                 2.4.0   
+   > Microsoft.Testing.Platform.MSBuild                         2.4.0   
+   > Microsoft.TestPlatform.ObjectModel                         18.10.1 
+   > Microsoft.TestPlatform.TestHost                            18.10.1 
+   > Microsoft.Win32.Registry                                   5.0.0   
+   > System.CodeDom                                             6.0.0   
+   > System.Management                                          6.0.1   
+   > System.Security.AccessControl                              6.0.1   
+   > xunit.analyzers                                            2.1.0   
+   > xunit.v3.assert                                            4.0.1   
+   > xunit.v3.common                                            4.0.1   
+   > xunit.v3.core.mtp-v2                                       4.0.1   
+   > xunit.v3.extensibility.core                                4.0.1   
+   > xunit.v3.mtp-v2                                            4.0.1   
+   > xunit.v3.runner.common                                     4.0.1   
+   > xunit.v3.runner.inproc.console                             4.0.1   
+
+(A) : Auto-referenced package.

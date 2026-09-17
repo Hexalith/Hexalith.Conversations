@@ -1,0 +1,4 @@
+0e204110d1e096b3b392d4067f81fe268eeaa9cac18d2731a2541e2d9e71dfd6  _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Client.1.0.0.nupkg
+4b9427e437c03ddfb0a8cd3851478107d7e400dc80c696eed97054fa9c8ad0d3  _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.1.0.0.nupkg
+9b1e5756124ec9d4e00baca436687e0e29e32583ecdb117613de891060b2692a  _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Testing.1.0.0.nupkg
+c22a9d29f6ebae6bbf9cd047f0af6c25267dd25ecc3224b12c9e06c4707ccef1  _bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Contracts.1.0.0.nupkg

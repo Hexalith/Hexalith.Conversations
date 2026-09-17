@@ -1,0 +1,2 @@
+33627d62dd2eac531d21e3a0e359e04c8aa79df52a85fac891e6c41a89c7952b  references/Hexalith.EventStore/src/Hexalith.EventStore/obj/project.assets.json
+670fa5b0f2941e07cc1b129edd5e408bdf000a550359a19f55709924439aa7ef  references/Hexalith.EventStore/src/Hexalith.EventStore/bin/Debug/net10.0/Hexalith.EventStore.dll

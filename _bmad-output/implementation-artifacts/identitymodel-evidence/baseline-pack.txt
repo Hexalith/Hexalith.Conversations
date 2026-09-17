@@ -1,0 +1,2 @@
+  Successfully created package '/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/identitymodel-evidence/packages/baseline/Hexalith.Conversations.Testing.1.0.0.nupkg'.

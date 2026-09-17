@@ -1,0 +1,8 @@
+apiVersion: dapr.io/v1alpha1
+kind: Configuration
+metadata:
+  name: conversations-runtime-boundary
+spec:
+  features:
+    - name: HotReload
+      enabled: false

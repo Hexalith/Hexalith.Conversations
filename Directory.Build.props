@@ -39,4 +39,15 @@
   <ItemGroup Condition="'$(IsPackable)' == 'true' and Exists('$(MSBuildThisFileDirectory)README.md')">
     <None Include="$(MSBuildThisFileDirectory)README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
+
+  <!-- Source-referenced EventStore assemblies are built against the centrally governed IdentityModel
+       family. Keep the four Conversations consumers on that same graph without enabling repository-wide
+       transitive pinning, which would promote unrelated dependencies into packable package metadata. -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Hexalith.Conversations.Server'
+                     Or '$(MSBuildProjectName)' == 'Hexalith.Conversations.Server.Tests'
+                     Or '$(MSBuildProjectName)' == 'Hexalith.Conversations.Conformance.Tests'
+                     Or '$(MSBuildProjectName)' == 'Hexalith.Conversations.IntegrationTests'">
+    <PackageReference Include="Microsoft.IdentityModel.Protocols.OpenIdConnect" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" />
+  </ItemGroup>
 </Project>

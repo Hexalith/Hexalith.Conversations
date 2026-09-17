@@ -7,6 +7,8 @@ using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
 using Aspire.Hosting.Testing;
 
+using CommunityToolkit.Aspire.Hosting.Dapr;
+
 using Hexalith.Commons.UniqueIds;
 
 using Hexalith.Conversations.AppHost;
@@ -33,7 +35,14 @@ namespace Hexalith.Conversations.AppHost.Tests;
 /// </summary>
 public sealed class ConversationsAppHostRuntimeBoundaryTest
 {
-    private const string SigningKey = "DevOnlySigningKey-AtLeast32Chars!";
+    /// <summary>
+    /// Gets a value indicating whether the real-infrastructure runtime lane was explicitly enabled.
+    /// </summary>
+    public static bool RuntimeBoundaryTestsEnabled
+        => string.Equals(
+            Environment.GetEnvironmentVariable("HEXALITH_RUN_APPHOST_BOUNDARY_TESTS"),
+            "true",
+            StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
     /// Starts the real AppHost and submits a command through EventStore to the Conversations production host.
@@ -41,7 +50,9 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     /// <remarks>
     /// Keycloak is disabled so the test isolates the EventStore/Conversations hosting boundary under review.
     /// </remarks>
-    [Fact]
+    [Fact(
+        Skip = "Set HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true to run the real AppHost boundary lane.",
+        SkipUnless = nameof(RuntimeBoundaryTestsEnabled))]
     public async Task RetainedAppHostShouldRunEventStoreAndConversationsProductionBoundary()
     {
         // Separate budgets. The provenance prebuild stamps BOTH launchable configurations and can dominate a
@@ -51,12 +62,10 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         // production boundary is broken" (pass-10 review).
         using CancellationTokenSource prebuildTimeout = new(TimeSpan.FromMinutes(6));
         string gatewayProjectPath;
-        string gatewayRevision;
 
         try
         {
-            (gatewayProjectPath, gatewayRevision) =
-                await BuildEventStoreGatewayWithProvenanceAsync(prebuildTimeout.Token);
+            gatewayProjectPath = await BuildEventStoreGatewayWithProvenanceAsync(prebuildTimeout.Token);
         }
         catch (OperationCanceledException) when (prebuildTimeout.IsCancellationRequested)
         {
@@ -74,11 +83,31 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 [$"--{HexalithEventStoreSecurityOptions.DefaultEnableKeycloakConfigurationKey}=false"],
                 timeout.Token);
 
+        string signingKey = Convert.ToBase64String(RandomNumberGenerator.GetBytes(48));
+        IResourceBuilder<ParameterResource> signingKeyParameter = builder.AddParameter(
+            "eventstore-boundary-signing-key",
+            () => signingKey,
+            secret: true);
+
         // The provenance stamp proves nothing unless the binary Aspire launches IS a stamped one: bind the
         // model's resolved project path to the prebuilt checkout, and require SuppressBuild so Aspire cannot
         // rebuild the gateway (which would overwrite the stamp) between the assertion and the launch.
-        IResource eventStoreResource = builder.Resources.Single(resource =>
+        ProjectResource eventStoreResource = builder.Resources.OfType<ProjectResource>().Single(resource =>
             string.Equals(resource.Name, ConversationsAppHostTopology.EventStoreResourceName, StringComparison.Ordinal));
+        _ = builder.CreateResourceBuilder(eventStoreResource)
+            .WithEnvironment("Authentication__JwtBearer__Authority", string.Empty)
+            .WithEnvironment("Authentication__JwtBearer__Issuer", "hexalith-dev")
+            .WithEnvironment(
+                "Authentication__JwtBearer__Audience",
+                HexalithEventStoreSecurityOptions.DefaultAudience)
+            .WithEnvironment(
+                "Authentication__JwtBearer__ValidAudiences__0",
+                HexalithEventStoreSecurityOptions.DefaultAudience)
+            .WithEnvironment("Authentication__JwtBearer__AllowedAlgorithms__0", "HS256")
+            .WithEnvironment("Authentication__JwtBearer__SigningKey", signingKeyParameter)
+            .WithEnvironment("Authentication__JwtBearer__RequireHttpsMetadata", "false");
+        ConfigureRuntimeBoundarySidecars(builder);
+
         IProjectMetadata gatewayMetadata = eventStoreResource.Annotations.OfType<IProjectMetadata>().Single();
         Path.GetFullPath(gatewayMetadata.ProjectPath).ShouldBe(
             Path.GetFullPath(gatewayProjectPath),
@@ -103,18 +132,27 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         using HttpClient eventStore = application.CreateHttpClient(
             ConversationsAppHostTopology.EventStoreResourceName,
             "http");
+        await WaitForEndpointReadyAsync(eventStore, "/alive", timeout.Token);
+        using (HttpResponseMessage unauthenticated = await eventStore.GetAsync(
+                   "/api/v1/commands/status/auth-boundary-probe",
+                   timeout.Token))
+        {
+            unauthenticated.StatusCode.ShouldBe(
+                HttpStatusCode.Unauthorized,
+                "the runtime harness must preserve EventStore's fail-closed authentication boundary");
+        }
 
         // Named-projection dispatch is refused with delivery_state_unavailable until the store-global v2
         // writer protocol has been cut over — the documented operator maintenance action. Perform it through
         // the production admin endpoint before the first command so the dispatch under proof is admitted.
-        await ActivateProjectionDeliveryAsync(eventStore, HarnessCutoverCommit, timeout.Token);
+        await ActivateProjectionDeliveryAsync(eventStore, HarnessCutoverCommit, signingKey, timeout.Token);
 
         string tenantId = $"apphost-{Guid.NewGuid():N}";
         string conversationId = $"conversation-{Guid.NewGuid():N}";
         string messageId = Guid.NewGuid().ToString("N");
         string correlationId = Guid.NewGuid().ToString("N");
         eventStore.DefaultRequestHeaders.Authorization =
-            new AuthenticationHeaderValue("Bearer", CreateAccessToken(tenantId));
+            new AuthenticationHeaderValue("Bearer", CreateAccessToken(tenantId, signingKey));
 
         CreateConversation command = new(
             new CreateConversationCommand(
@@ -258,15 +296,120 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     /// </remarks>
     private const string HarnessCutoverCommit = "hexalith-conversations-apphost-boundary-harness";
 
+    private static async Task WaitForEndpointReadyAsync(
+        HttpClient client,
+        string path,
+        CancellationToken cancellationToken)
+    {
+        string? lastDiagnostic = null;
+        using CancellationTokenSource readinessTimeout = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+        readinessTimeout.CancelAfter(TimeSpan.FromSeconds(90));
+        try
+        {
+            while (true)
+            {
+                try
+                {
+                    using HttpResponseMessage response = await client.GetAsync(path, readinessTimeout.Token);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return;
+                    }
+
+                    string body = await response.Content.ReadAsStringAsync(readinessTimeout.Token);
+                    lastDiagnostic = $"Status={(int)response.StatusCode} ({response.StatusCode}); Body={body}";
+                }
+                catch (HttpRequestException exception)
+                {
+                    lastDiagnostic = exception.Message;
+                }
+
+                await Task.Delay(TimeSpan.FromMilliseconds(500), readinessTimeout.Token);
+            }
+        }
+        catch (OperationCanceledException) when (readinessTimeout.IsCancellationRequested)
+        {
+            string budget = cancellationToken.IsCancellationRequested
+                ? "the runtime-lane budget expired"
+                : "the 90-second endpoint-readiness budget expired";
+            throw new TimeoutException(
+                $"The EventStore endpoint did not become ready before {budget}. Last result: {lastDiagnostic}");
+        }
+    }
+
+    private static void ConfigureRuntimeBoundarySidecars(IDistributedApplicationTestingBuilder builder)
+    {
+        string configPath = Path.Combine(
+            FindRepositoryRoot(),
+            "tests",
+            "Hexalith.Conversations.AppHost.Tests",
+            "DaprComponents",
+            "runtime-boundary.yaml");
+        if (!File.Exists(configPath))
+        {
+            throw new FileNotFoundException("The runtime-boundary Dapr configuration was not found.", configPath);
+        }
+
+        const string expectedConfig = """
+            apiVersion: dapr.io/v1alpha1
+            kind: Configuration
+            metadata:
+              name: conversations-runtime-boundary
+            spec:
+              features:
+                - name: HotReload
+                  enabled: false
+
+            """;
+        string normalizedConfig = File.ReadAllText(configPath).Replace("\r\n", "\n", StringComparison.Ordinal);
+        normalizedConfig.ShouldBe(
+            expectedConfig,
+            "the runtime-boundary profile must be the exact reviewed HotReload-disabled configuration");
+
+        string[] projectNames =
+        [
+            ConversationsAppHostTopology.EventStoreResourceName,
+            ConversationsAppHostTopology.ConversationsResourceName,
+        ];
+        foreach (string projectName in projectNames)
+        {
+            ProjectResource project = builder.Resources.OfType<ProjectResource>().Single(resource =>
+                string.Equals(resource.Name, projectName, StringComparison.Ordinal));
+            DaprSidecarAnnotation sidecar = project.Annotations.OfType<DaprSidecarAnnotation>().Single();
+            DaprSidecarOptionsAnnotation options = sidecar.Sidecar.Annotations
+                .OfType<DaprSidecarOptionsAnnotation>()
+                .Single();
+            if (!string.IsNullOrWhiteSpace(options.Options.Config))
+            {
+                throw new InvalidOperationException(
+                    $"Dapr sidecar '{sidecar.Sidecar.Name}' already has configuration '{options.Options.Config}'. "
+                    + "The runtime-boundary harness refuses to replace it silently.");
+            }
+
+            _ = sidecar.Sidecar.Annotations.Remove(options);
+            sidecar.Sidecar.Annotations.Add(
+                new DaprSidecarOptionsAnnotation(options.Options with { Config = configPath }));
+            sidecar.Sidecar.Annotations
+                .OfType<DaprSidecarOptionsAnnotation>()
+                .Single()
+                .Options
+                .Config
+                .ShouldBe(configPath);
+        }
+    }
+
     private static async Task ActivateProjectionDeliveryAsync(
         HttpClient eventStore,
         string gatewayRevision,
+        string signingKey,
         CancellationToken cancellationToken)
     {
         using HttpRequestMessage activation = new(
             HttpMethod.Post,
             "/api/v1/admin/projections/delivery-writer-protocol/activate");
-        activation.Headers.Authorization = new AuthenticationHeaderValue("Bearer", CreateAdminAccessToken());
+        activation.Headers.Authorization = new AuthenticationHeaderValue(
+            "Bearer",
+            CreateAdminAccessToken(signingKey));
         activation.Content = JsonContent.Create(new
         {
             CutoverCommit = gatewayRevision,
@@ -290,7 +433,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             + $"reports a different marker already present, not an idempotent re-activation. Body: {body}");
     }
 
-    private static string CreateAdminAccessToken()
+    private static string CreateAdminAccessToken(string signingKey)
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         string header = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new { alg = "HS256", typ = "JWT" }));
@@ -306,7 +449,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         }));
         string unsignedToken = $"{header}.{payload}";
         byte[] signature = HMACSHA256.HashData(
-            Encoding.UTF8.GetBytes(SigningKey),
+            Encoding.UTF8.GetBytes(signingKey),
             Encoding.ASCII.GetBytes(unsignedToken));
         return $"{unsignedToken}.{Base64UrlEncode(signature)}";
     }
@@ -484,8 +627,6 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         // Diagnostics must never replace or outlive the primary failure: log streams of still-running
         // resources do not complete, so collection is bounded by its own short window, and a missing
         // resource state degrades to a note instead of a second assertion failure.
-        using CancellationTokenSource collection = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
-        collection.CancelAfter(TimeSpan.FromSeconds(15));
         ResourceLoggerService resourceLogs = application.Services.GetRequiredService<ResourceLoggerService>();
         var all = new List<string>();
         var matching = new List<string>();
@@ -501,6 +642,8 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 continue;
             }
 
+            using CancellationTokenSource collection = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            collection.CancelAfter(TimeSpan.FromSeconds(15));
             try
             {
                 await foreach (IReadOnlyList<LogLine> batch in resourceLogs
@@ -530,7 +673,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
             : string.Join(Environment.NewLine, selected.TakeLast(120));
     }
 
-    private static string CreateAccessToken(string tenantId)
+    private static string CreateAccessToken(string tenantId, string signingKey)
     {
         long now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
         string header = Base64UrlEncode(JsonSerializer.SerializeToUtf8Bytes(new { alg = "HS256", typ = "JWT" }));
@@ -548,7 +691,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         }));
         string unsignedToken = $"{header}.{payload}";
         byte[] signature = HMACSHA256.HashData(
-            Encoding.UTF8.GetBytes(SigningKey),
+            Encoding.UTF8.GetBytes(signingKey),
             Encoding.ASCII.GetBytes(unsignedToken));
         return $"{unsignedToken}.{Base64UrlEncode(signature)}";
     }
@@ -556,7 +699,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
     private static string Base64UrlEncode(byte[] value)
         => Convert.ToBase64String(value).TrimEnd('=').Replace('+', '-').Replace('/', '_');
 
-    private static async Task<(string ProjectPath, string SourceRevision)> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
+    private static async Task<string> BuildEventStoreGatewayWithProvenanceAsync(CancellationToken cancellationToken)
     {
         string repositoryRoot = FindRepositoryRoot();
         string eventStoreRoot = Path.Combine(repositoryRoot, "references", "Hexalith.EventStore");
@@ -622,7 +765,7 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
                 $"the {configuration} gateway binary Aspire may launch must carry the reviewed EventStore revision");
         }
 
-        return (projectPath, sourceRevision);
+        return projectPath;
     }
 
     private static async Task<string> ComputeWorkspaceRevisionAsync(

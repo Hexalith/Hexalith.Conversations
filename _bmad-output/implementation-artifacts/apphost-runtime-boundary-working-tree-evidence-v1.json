@@ -1,0 +1,114 @@
+{
+  "schemaVersion": "hexalith.conversations.apphost-runtime-boundary-working-tree-evidence.v1",
+  "evidenceId": "APPHOST-RUNTIME-BOUNDARY-WORKTREE-001",
+  "artifactVersion": "1.0.0",
+  "recordedDate": "2026-09-17",
+  "status": "working-tree-validation-only",
+  "result": "PASS",
+  "sourceBinding": {
+    "rootBaseCommit": "c0abd5cb73d420bb2f4b5d04827461ad82c4528c",
+    "rootWorkingTreeCommitted": false,
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "27cc17f37774dde958a4d5bf9ba1e9b8d04ce07e"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "19d7d4d6b21160557b7449f55a0ad0f55e6d7dc6"
+      }
+    ],
+    "candidateFiles": [
+      {
+        "path": "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs",
+        "sha256": "b91d0467e8ff4f458823cdee01102fb3b7c18013ba6b59ac1a197288eef984b4"
+      },
+      {
+        "path": "tests/Hexalith.Conversations.AppHost.Tests/DaprComponents/runtime-boundary.yaml",
+        "sha256": "d315774f33fe6b56b73f9b5213f96bc1bc6d3fe1cc87961d6e522823e7f3f6cb"
+      }
+    ],
+    "candidateBundleDigest": {
+      "algorithm": "SHA-256 of the UTF-8 output produced by `sha256sum <candidate files> | LC_ALL=C sort`, including each newline",
+      "sha256": "99ca41cf91d059bdb6e7acb41f7cc886f6d80e0c6b44dc4682307bf5d68c9a11"
+    }
+  },
+  "validation": {
+    "build": {
+      "command": "dotnet build tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj --no-restore",
+      "result": "PASS",
+      "rawArtifact": null,
+      "hashBindingState": "unavailable"
+    },
+    "runs": [
+      {
+        "id": "APPHOST-TOPOLOGY-POST-REVIEW",
+        "command": "dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostTopologyTest' -xml _bmad-output/implementation-artifacts/apphost-topology-post-review.xml",
+        "result": "PASS",
+        "total": 8,
+        "passed": 8,
+        "failed": 0,
+        "durationSeconds": 0.875,
+        "startedAtUtc": "2026-09-17T07:46:50.7215624Z",
+        "completedAtUtc": "2026-09-17T07:46:51.5960769Z",
+        "path": "_bmad-output/implementation-artifacts/apphost-topology-post-review.xml",
+        "sha256": "6cedf00954e20539bb10b206af8a2ed0049e4c093f06e9a447433fdf5abc4ec9"
+      },
+      {
+        "id": "APPHOST-RUNTIME-BOUNDARY-PASS-1",
+        "command": "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest' -xml _bmad-output/implementation-artifacts/apphost-runtime-boundary-pass-1.xml",
+        "result": "PASS",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "durationSeconds": 80.903,
+        "startedAtUtc": "2026-09-17T07:46:55.7526973Z",
+        "completedAtUtc": "2026-09-17T07:48:16.6514869Z",
+        "path": "_bmad-output/implementation-artifacts/apphost-runtime-boundary-pass-1.xml",
+        "sha256": "463200df9382e5351a8c2147b08c1b19c647be0a706049a15f0a5961bdb9dde4"
+      },
+      {
+        "id": "APPHOST-RUNTIME-BOUNDARY-PASS-2",
+        "command": "HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true dotnet tests/Hexalith.Conversations.AppHost.Tests/bin/Debug/net10.0/Hexalith.Conversations.AppHost.Tests.dll -class '*ConversationsAppHostRuntimeBoundaryTest' -xml _bmad-output/implementation-artifacts/apphost-runtime-boundary-pass-2.xml",
+        "result": "PASS",
+        "total": 1,
+        "passed": 1,
+        "failed": 0,
+        "durationSeconds": 71.461,
+        "startedAtUtc": "2026-09-17T07:48:22.4097542Z",
+        "completedAtUtc": "2026-09-17T07:49:33.8658702Z",
+        "path": "_bmad-output/implementation-artifacts/apphost-runtime-boundary-pass-2.xml",
+        "sha256": "307336ff63a2ec9f1b53763c971256923cf86579a7f4a8c8ccafd104082a57d5"
+      }
+    ]
+  },
+  "provedAssertions": [
+    "Both test-launched Dapr sidecars use the test-owned configuration with HotReload disabled.",
+    "EventStore starts with a fresh test-only secret symmetric signing key while the production fail-closed validator remains unchanged.",
+    "An unauthenticated request to the protected command-status route returns HTTP 401.",
+    "The projection-delivery activation endpoint returns the exact expected HTTP 200 response.",
+    "A real command traverses EventStore and Conversations, and the expected projection, query, and implementation-provenance assertions pass."
+  ],
+  "unresolvedObservations": [
+    {
+      "severity": "warning",
+      "code": "MSB3277",
+      "subject": "Microsoft.IdentityModel.Tokens",
+      "detail": "The build still reports the known 8.19.2 versus 8.22.0 assembly-version conflict.",
+      "effect": "The runtime repair does not close the compatibility gate."
+    }
+  ],
+  "releaseGateEffect": {
+    "supersedesOq1TechnicalEvidence": false,
+    "activatesRepositoryGrants": false,
+    "activatesImplementationHold": false,
+    "changesFr20OrSmC1": false,
+    "changesSmC2": false
+  },
+  "limitations": [
+    "This record binds uncommitted candidate files, not a source commit, and is therefore not release or approval evidence.",
+    "It does not supersede _bmad-output/planning-artifacts/oq-1-technical-evidence-v1.json or any v1 grant.",
+    "A versioned successor record bound to the committed source and reviewed raw artifacts is required before the runtime blocker can be reconsidered.",
+    "The implementation hold remains ACTIVE, FR-20/SM-C1 remain PENDING with the full non-shrinking denominator, and SM-C2 remains FAILED under the universal no-more-than-5-percent rule."
+  ]
+}
