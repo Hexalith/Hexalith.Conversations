@@ -20,6 +20,11 @@ namespace Hexalith.Conversations.Contracts.Tests;
 /// </summary>
 public sealed class ContractPackageInventoryTest
 {
+    private const string CommonsSerializationPackageId = "Hexalith.Commons.Serialization";
+    private const string CommonsVersion = "2.30.0";
+    private const string PackageModeCondition = "'$(UseHexalithProjectReferences)' != 'true'";
+    private const string SourceModeCondition = "'$(UseHexalithProjectReferences)' == 'true'";
+
     private static readonly string[] ForbiddenInventoryFragments =
     [
         "Hexalith.Conversations.Server",
@@ -52,6 +57,18 @@ public sealed class ContractPackageInventoryTest
         tags.ShouldNotBeNullOrWhiteSpace();
         tags.ShouldContain("contracts");
         GetProjectProperty(project, "PackageVersion").ShouldBeNull("Package versions are inherited from the root build configuration.");
+
+        XElement[] projectReferences = project.Descendants().Where(e => e.Name.LocalName == "ProjectReference").ToArray();
+        projectReferences.Length.ShouldBe(2, "both supported source layouts must remain available in Debug source mode");
+        projectReferences.ShouldAllBe(reference => GetItemGroupCondition(reference) == SourceModeCondition);
+        projectReferences.Select(GetDependencyCondition).ShouldBe(
+            ["'$(HexalithCommonsRoot)' != ''", "'$(HexalithCommonsRoot)' == ''"],
+            ignoreOrder: true);
+
+        XElement packageReference = project.Descendants()
+            .Single(e => e.Name.LocalName == "PackageReference"
+                && e.Attribute("Include")?.Value == CommonsSerializationPackageId);
+        GetItemGroupCondition(packageReference).ShouldBe(PackageModeCondition);
     }
 
     [Fact]
@@ -126,6 +143,10 @@ public sealed class ContractPackageInventoryTest
             metadata.Elements().Single(e => e.Name.LocalName == "license").Attribute("type")?.Value.ShouldBe("expression");
             metadata.Descendants().Single(e => e.Name.LocalName == "repository").Attribute("type")?.Value.ShouldBe("git");
             metadata.Elements().Single(e => e.Name.LocalName == "readme").Value.ShouldBe("README.md");
+            XElement commonsDependency = metadata.Descendants()
+                .Single(e => e.Name.LocalName == "dependency"
+                    && e.Attribute("id")?.Value == CommonsSerializationPackageId);
+            commonsDependency.Attribute("version")?.Value.ShouldBe(CommonsVersion);
 
             string nuspecText = nuspec.ToString(SaveOptions.DisableFormatting);
             foreach (string forbidden in ForbiddenInventoryFragments)
@@ -144,11 +165,31 @@ public sealed class ContractPackageInventoryTest
 
     private static void RunDotNetPack(string repositoryRoot, string packageOutput)
     {
+        string commonsRoot = ResolveCommonsRoot(repositoryRoot);
+        string commonsProjectPath = Path.Combine(
+            commonsRoot,
+            "src",
+            "libraries",
+            CommonsSerializationPackageId,
+            $"{CommonsSerializationPackageId}.csproj");
+        RunDotNet(
+            repositoryRoot,
+            $"pack \"{commonsProjectPath}\" -c Release -o \"{packageOutput}\" "
+            + $"-p:Version={CommonsVersion} -p:PackageVersion={CommonsVersion}");
+
         string projectPath = Path.Combine(repositoryRoot, "src", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Contracts.csproj");
+        RunDotNet(
+            repositoryRoot,
+            $"pack \"{projectPath}\" -c Release -o \"{packageOutput}\" "
+            + $"-p:RestoreAdditionalProjectSources=\"{packageOutput}\"");
+    }
+
+    private static void RunDotNet(string repositoryRoot, string arguments)
+    {
         using Process process = Process.Start(new ProcessStartInfo
         {
             FileName = "dotnet",
-            Arguments = $"pack \"{projectPath}\" -c Release -o \"{packageOutput}\"",
+            Arguments = arguments,
             WorkingDirectory = repositoryRoot,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
@@ -160,6 +201,22 @@ public sealed class ContractPackageInventoryTest
         process.WaitForExit();
 
         process.ExitCode.ShouldBe(0, $"dotnet pack failed.{Environment.NewLine}{output}{Environment.NewLine}{error}");
+    }
+
+    private static string ResolveCommonsRoot(string repositoryRoot)
+    {
+        string[] candidates =
+        [
+            Path.Combine(repositoryRoot, "references", "Hexalith.Commons"),
+            Path.GetFullPath(Path.Combine(repositoryRoot, "..", "Hexalith.Commons")),
+        ];
+
+        return candidates.Single(candidate => File.Exists(Path.Combine(
+            candidate,
+            "src",
+            "libraries",
+            CommonsSerializationPackageId,
+            $"{CommonsSerializationPackageId}.csproj")));
     }
 
     private static string FindRepositoryRoot()
@@ -182,4 +239,10 @@ public sealed class ContractPackageInventoryTest
 
     private static string? GetProjectProperty(XDocument project, string propertyName)
         => project.Descendants().SingleOrDefault(e => e.Name.LocalName == propertyName)?.Value;
+
+    private static string? GetDependencyCondition(XElement dependency)
+        => dependency.Attribute("Condition")?.Value;
+
+    private static string? GetItemGroupCondition(XElement dependency)
+        => dependency.Ancestors().FirstOrDefault(e => e.Name.LocalName == "ItemGroup")?.Attribute("Condition")?.Value;
 }
