@@ -311,3 +311,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-v19-v20-successor-authority-correction.md`
   summary: Reconcile the stale Auto Run Result in the approved Story 7.1 semantic specification with its later human-resolved V19/V20 authority chain.
   evidence: Review confirmed the semantic source's tail still describes the authority questions as unresolved even though its earlier human-resolution section resolves them; this correction must preserve that source byte-identically, so cleanup belongs to a separately authorized change.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-implement-agents-ci-cd.md`
+  summary: Add an operator-controlled reconciliation workflow for a partially published Hexalith.Agents release.
+  evidence: A sequential six-package NuGet push can fail after immutable side effects, while the collision-failing policy intentionally prevents an automatic retry; safe recovery needs a separately specified identity, hash, source, authorization, and already-published-package verification contract rather than a small CI/CD patch.
