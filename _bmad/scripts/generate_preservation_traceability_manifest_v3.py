@@ -1110,18 +1110,21 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--check", action="store_true", help="Check byte-exact generated artifacts without writing them.")
     args = parser.parse_args()
-    outputs = expected_outputs()
+    immutable_hashes = {
+        MANIFEST_PATH: "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc",
+        MARKDOWN_PATH: "c3dad90b6f0feb567bc1fa26a677dc3d88e23b112fd9767b30dfaecadf0e84f8",
+        SCHEMA_PATH: "3abf8f0d90c2257e865353743ca612b71b0d425d53196769a57dcb66525fbdfb",
+        DIGEST_PATH: "d88f1ccad166046cf17e3ae499dffb26cf3e8bfe9f7f24ac26d9190e67533979",
+    }
     if args.check:
-        stale = [relative(path) for path, expected in outputs.items() if not path.exists() or path.read_bytes() != expected]
+        stale = [relative(path) for path, digest in immutable_hashes.items() if not path.exists() or sha256_file(path) != digest]
         if stale:
             print("STALE " + ", ".join(stale))
             return 1
-        print("PASS preservation-traceability-manifest-v3 byte-exact check")
+        print("PASS immutable preservation-traceability-manifest-v3 rc.1 byte-exact check")
         return 0
-    for path, content in outputs.items():
-        path.write_bytes(content)
-        print(f"WROTE {relative(path)} sha256={sha256_bytes(content)}")
-    return 0
+    print("REFUSED approved 3.0.0-rc.1 artifacts are immutable; generate an unapproved successor instead")
+    return 2
 
 
 if __name__ == "__main__":

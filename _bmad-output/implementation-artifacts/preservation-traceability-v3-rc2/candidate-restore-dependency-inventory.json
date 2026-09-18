@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateDigestAlgorithm": "sha256-path-mode-hash-size-overlay-v2",
+  "candidateDigest": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840",
+  "rootProject": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+  "projects": [
+    {
+      "projectPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj",
+      "assetsPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/obj/project.assets.json",
+      "sha256": "4a9535bf87bfffff6e64d4b2dd34e882fd14eeaceb0626831fd441c8b6753519",
+      "bytes": 52605
+    },
+    {
+      "projectPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj",
+      "assetsPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/obj/project.assets.json",
+      "sha256": "672c77543a508c0397024352991a38c979f4c93a371aca9695c1d55add2fe0aa",
+      "bytes": 45010
+    },
+    {
+      "projectPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/Hexalith.Commons.Publication.csproj",
+      "assetsPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/obj/project.assets.json",
+      "sha256": "45f1ed35a776d68bbc390f27870c09e3c0bb02b93201500025f74bbd08d06b01",
+      "bytes": 35435
+    },
+    {
+      "projectPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj",
+      "assetsPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/obj/project.assets.json",
+      "sha256": "c48b9688fb8eca2905eb513041b1d5fe541f4c0188f0e9723be6fc24e806ca7d",
+      "bytes": 35447
+    },
+    {
+      "projectPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj",
+      "assetsPath": "references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/obj/project.assets.json",
+      "sha256": "24f589bf78ef01be80774fe9e8ee510eaa0ff9c8d51f1b24c76dbd82cc5b2222",
+      "bytes": 44895
+    },
+    {
+      "projectPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj",
+      "assetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Client/obj/project.assets.json",
+      "sha256": "11666b585ea39a6cab1619e81675027e0aff9cffe1f93efb5fe706ac79cd8825",
+      "bytes": 99438
+    },
+    {
+      "projectPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj",
+      "assetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/obj/project.assets.json",
+      "sha256": "8d451f0792bc05026fa1043bb2f2c54faefa38eef637cb5f8fc8a6db88aa4c0f",
+      "bytes": 38552
+    },
+    {
+      "projectPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj",
+      "assetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/obj/project.assets.json",
+      "sha256": "534928b737d267fcb951ac83cee0a2549be586ef4c1e87472a7544aea04b7c58",
+      "bytes": 127301
+    },
+    {
+      "projectPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj",
+      "assetsPath": "references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/obj/project.assets.json",
+      "sha256": "7bf67e357481756a8ad7d9ddd5fcf593b32ea4e017416f1b3787523dac55c6b9",
+      "bytes": 105681
+    },
+    {
+      "projectPath": "references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj",
+      "assetsPath": "references/Hexalith.Tenants/src/Hexalith.Tenants.Client/obj/project.assets.json",
+      "sha256": "c2f3539684b0fa9680c1ce6e902fc41e28d18c873ef310c6879b3cff0550563b",
+      "bytes": 67663
+    },
+    {
+      "projectPath": "references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj",
+      "assetsPath": "references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/obj/project.assets.json",
+      "sha256": "e77f57762eed5fd0613f78bb29f912996d4299a2652cd85060771fea2ae8fad4",
+      "bytes": 39609
+    },
+    {
+      "projectPath": "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
+      "assetsPath": "src/Hexalith.Conversations.Client/obj/project.assets.json",
+      "sha256": "cebfcb0e00b00c2cf3e9133523ec0299005e5b829c1047eba62a904aa800e661",
+      "bytes": 73986
+    },
+    {
+      "projectPath": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj",
+      "assetsPath": "src/Hexalith.Conversations.Contracts/obj/project.assets.json",
+      "sha256": "eb5b71c7b75bbd6d5c861f061604b75567dd51be75ab0bafe82ae678ecc2b1b2",
+      "bytes": 36489
+    },
+    {
+      "projectPath": "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+      "assetsPath": "src/Hexalith.Conversations.Server/obj/project.assets.json",
+      "sha256": "cfab4d75062669598978a835b9a56794f6577ebcd3ef2c5bed3df04962919777",
+      "bytes": 134815
+    },
+    {
+      "projectPath": "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj",
+      "assetsPath": "src/Hexalith.Conversations.Testing/obj/project.assets.json",
+      "sha256": "0ea1242ac4ad905042620ab6e29726b3aea44a053a63691e72dffe6709bdf385",
+      "bytes": 99759
+    },
+    {
+      "projectPath": "src/Hexalith.Conversations/Hexalith.Conversations.csproj",
+      "assetsPath": "src/Hexalith.Conversations/obj/project.assets.json",
+      "sha256": "9f13f02fa64d686e071c2d634192bec050229cb3e51c726bc161c111cc79879d",
+      "bytes": 99488
+    },
+    {
+      "projectPath": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+      "assetsPath": "tests/Hexalith.Conversations.Conformance.Tests/obj/project.assets.json",
+      "sha256": "843c58a3596e457555238b3f738b55d6e04479f031d3d3cb8255b19cb7031069",
+      "bytes": 278992
+    }
+  ]
+}

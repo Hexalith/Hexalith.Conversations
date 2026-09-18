@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateDigestAlgorithm": "sha256-path-mode-hash-size-overlay-v2",
+  "candidateDigest": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840",
+  "candidateKind": "base-plus-content-addressed-overlay",
+  "authorityEffect": "none",
+  "approvalState": "not-approved",
+  "artifacts": [
+    {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json",
+      "sha256": "d033756c84680dc6e671368966c60a1e2ee120965ea04dd0edf4e760cb702864",
+      "bytes": 1675128,
+      "role": "exact-final-manifest-tested-by-receipt"
+    },
+    {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.md",
+      "sha256": "22173e4de291366915c8ecf7de61652d18403eabf34645b68afa943e4a68e0dd",
+      "bytes": 1000,
+      "role": "final-manifest-projection"
+    },
+    {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.schema.json",
+      "sha256": "2ae52028517ca00f9c0a6e8c736b77a664f7092bbbc45b89d52b522dd4c95bf8",
+      "bytes": 53812,
+      "role": "final-manifest-schema"
+    },
+    {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.sha256",
+      "sha256": "90fb722d588e662bec38edb986ed03f1324ee7812e29078f4009db806208f7bd",
+      "bytes": 344,
+      "role": "final-manifest-digest"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-run-receipt.json",
+      "sha256": "c8ba4ac11702ff4001e8d24dbf6cbb66f9ebeb899351aac3a8bf6b94882b5c65",
+      "bytes": 90870,
+      "role": "runner-owned-final-manifest-receipt"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-remediated.xml",
+      "sha256": "bfac5f1745493c13c3cf3b5c40528ee8e04376e436bdffb95eaf767add8ae7f8",
+      "bytes": 326351,
+      "role": "runner-owned-raw-xunit-result"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-semantic-results.json",
+      "sha256": "c2e09f7d041bd2cd3de6c271383efd276be70347c58a81d00422b12e77818236",
+      "bytes": 90023,
+      "role": "stable-semantic-test-result"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-build-remediated.log",
+      "sha256": "36f09a1249f840ffe33cbc11897bf01758af76b4b78820501723632b7419afa3",
+      "bytes": 6198,
+      "role": "candidate-build-log"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-build-receipt.json",
+      "sha256": "638210b9bd40dcc0428c2eefa286caab57e2ea645d8fbd2bad456d3b294f8b43",
+      "bytes": 2731,
+      "role": "candidate-build-receipt"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-dotnet-info.txt",
+      "sha256": "d649c0709ac9cc2b8e07f561b0f3458aab2570ce8aaaeb0e2efe907b4eed3be0",
+      "bytes": 1770,
+      "role": "candidate-toolchain-capture"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log",
+      "sha256": "1407c6c5837cdbe1a170e08a04b3d4d2b9cae2236883636781804c7edd6e7b00",
+      "bytes": 2902,
+      "role": "candidate-restore-log"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json",
+      "sha256": "b003089f8044e8ca053c4aa4975d4dcabf01cfaa326547bdd15a79b00b09a611",
+      "bytes": 6063,
+      "role": "candidate-restore-dependency-inventory"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-receipt.json",
+      "sha256": "ebae68916bef68e96d3f3e98c40b6795a566bdebf7b5095001807292438bc25b",
+      "bytes": 1810,
+      "role": "candidate-restore-receipt"
+    }
+  ],
+  "testSummary": {
+    "total": 473,
+    "passed": 473,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "testFramework": "xUnit.net v3 4.0.1+8ed8aa354c",
+    "runtime": "64-bit (x64) .NET 10.0.12 [collection-per-class, parallel (collections, 24 threads)]",
+    "targetFramework": ".NETCoreApp,Version=v10.0"
+  },
+  "statement": "Detached post-run evidence only: the runner receipt proves the exact final manifest and DLL it tested; this index grants no approval, release, waiver, activation, or hold lift."
+}

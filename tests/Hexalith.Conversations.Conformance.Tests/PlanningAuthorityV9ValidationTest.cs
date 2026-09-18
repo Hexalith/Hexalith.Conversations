@@ -446,6 +446,8 @@ public sealed class PlanningAuthorityV9ValidationTest
     public void WorkflowAndGuidanceInventoriesShouldMatchRoutesAndResolvedCustomization()
     {
         using JsonDocument workflows = JsonDocument.Parse(Read("_bmad-output/planning-artifacts/v9/inventories/evidence-workflows-v3.json"));
+        string candidate = workflows.RootElement.GetProperty("planningCandidate").GetString()!;
+        candidate.ShouldBe("1e9a61126d3b7a55b514b7c7c8942d5af03355e5", "the historical inventory must remain bound to its recorded candidate");
         JsonElement[] rows = workflows.RootElement.GetProperty("rows").EnumerateArray().ToArray();
         rows.Length.ShouldBe(12);
         rows.Select(row => row.GetProperty("logicalBody").GetString()).Distinct(StringComparer.Ordinal).Count().ShouldBe(6);
@@ -460,7 +462,7 @@ public sealed class PlanningAuthorityV9ValidationTest
         {
             foreach (string tree in new[] { ".agents", ".claude" })
             {
-                string content = Read($"{tree}/skills/{alias}/SKILL.md");
+                string content = Encoding.UTF8.GetString(ReadCandidateBytes(candidate, $"{tree}/skills/{alias}/SKILL.md"));
                 CountOccurrences(content, $"invoke `{target}` exactly once").ShouldBe(2);
                 content.ShouldNotContain("verify_evidence_boundary.py");
             }

@@ -65,6 +65,7 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     /// keep asserting a stale count while the PRD moves underneath it.
     /// </summary>
     private const string PrdSha256 = "90d8fe27ae6c08b5ec7efde0b6e088c210420d805be2e73dc96f0b4e7a134ccc";
+    private const string InitiativeAuthorityCandidate = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5";
 
     private const string AddendumSha256 = "2f7a5018a90f8b0e5361c2e1109ac1ae92bcc1424a8e3a692224d8ad0eb8ca69";
 
@@ -226,10 +227,15 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     [Fact]
     public void InitiativeAuthoritySourcesShouldRemainPinned()
     {
-        ComputeSha256(File.ReadAllBytes(RepositoryPath(PrdPath)))
+        TryReadGitBlobBytes(InitiativeAuthorityCandidate, PrdPath, out byte[] prdBytes)
+            .ShouldBeTrue($"The initiative PRD must remain available at {InitiativeAuthorityCandidate}.");
+        ComputeSha256(prdBytes)
             .ShouldBe(PrdSha256, "The initiative PRD is the source of the asserted denominators and must be pinned.");
-        ComputeSha256(File.ReadAllBytes(RepositoryPath(AddendumPath)))
+        TryReadGitBlobBytes(InitiativeAuthorityCandidate, AddendumPath, out byte[] addendumBytes)
+            .ShouldBeTrue($"The initiative addendum must remain available at {InitiativeAuthorityCandidate}.");
+        ComputeSha256(addendumBytes)
             .ShouldBe(AddendumSha256, "The initiative addendum is initiative authority and must be pinned.");
+        ValidateHistoricalBlobModeFaults();
     }
 
     [Fact]
@@ -1769,10 +1775,34 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
         => Path.Combine(FindRepositoryRoot(), relativePath.Replace('/', Path.DirectorySeparatorChar));
 
     private static bool TryReadGitBlobBytes(string revision, string repositoryRelativePath, out byte[] content)
+        => TryReadGitBlobBytesIn(FindRepositoryRoot(), revision, repositoryRelativePath, out content);
+
+    private static bool TryReadGitBlobBytesIn(
+        string repositoryRoot,
+        string revision,
+        string repositoryRelativePath,
+        out byte[] content)
     {
         content = [];
 
-        if (!TryStartGit(FindRepositoryRoot(), out Process? process, "cat-file", "blob", $"{revision}:{repositoryRelativePath}"))
+        if (!TryRunGitIn(repositoryRoot, out string treeEntry, "ls-tree", "--full-tree", revision, "--", repositoryRelativePath))
+        {
+            return false;
+        }
+
+        string[] entries = treeEntry.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (entries.Length != 1)
+        {
+            return false;
+        }
+
+        string mode = entries[0].Split(' ', 2, StringSplitOptions.None)[0];
+        if (mode is not ("100644" or "100755"))
+        {
+            return false;
+        }
+
+        if (!TryStartGit(repositoryRoot, out Process? process, "cat-file", "blob", $"{revision}:{repositoryRelativePath}"))
         {
             return false;
         }
@@ -1796,6 +1826,40 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
 
         content = buffer.ToArray();
         return true;
+    }
+
+    private static void ValidateHistoricalBlobModeFaults()
+    {
+        string fixture = Path.Combine(Path.GetTempPath(), $"architecture-history-mode-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(fixture);
+        try
+        {
+            TryRunGitIn(fixture, out _, "init", "--quiet").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "config", "user.name", "Fixture").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "config", "user.email", "fixture@example.invalid").ShouldBeTrue();
+            File.WriteAllText(Path.Combine(fixture, "regular.txt"), "regular", new UTF8Encoding(false));
+            TryRunGitIn(fixture, out _, "add", "regular.txt").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: regular").ShouldBeTrue();
+            TryRunGitIn(fixture, out string commitOutput, "rev-parse", "HEAD").ShouldBeTrue();
+            string commit = commitOutput.Trim();
+            TryReadGitBlobBytesIn(fixture, commit, "regular.txt", out byte[] regular).ShouldBeTrue();
+            Encoding.UTF8.GetString(regular).ShouldBe("regular");
+
+            File.CreateSymbolicLink(Path.Combine(fixture, "link.txt"), "regular.txt");
+            TryRunGitIn(fixture, out _, "add", "link.txt").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: link").ShouldBeTrue();
+            TryRunGitIn(fixture, out string linkRevision, "rev-parse", "HEAD").ShouldBeTrue();
+            TryReadGitBlobBytesIn(fixture, linkRevision.Trim(), "link.txt", out _).ShouldBeFalse();
+
+            TryRunGitIn(fixture, out _, "update-index", "--add", "--cacheinfo", $"160000,{commit},gitlink").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: gitlink").ShouldBeTrue();
+            TryRunGitIn(fixture, out string gitlinkRevision, "rev-parse", "HEAD").ShouldBeTrue();
+            TryReadGitBlobBytesIn(fixture, gitlinkRevision.Trim(), "gitlink", out _).ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(fixture, recursive: true);
+        }
     }
 
     private static bool TryRunGit(out string output, params string[] arguments)

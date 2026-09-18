@@ -1,0 +1,99 @@
+{
+  "schemaVersion": "1.0.0",
+  "authorityEffect": "none",
+  "approvalState": "not-approved",
+  "proof": {
+    "path": "docs/release-evidence/projection-read-store-population-proof-v2.json",
+    "sha256": "b4bcdb5b181be66780f251ad8a3b563b7554e34e0fb4d255d46a3a17addfaf7c"
+  },
+  "productionCandidate": "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58",
+  "evidenceFinalizationRevision": "850228fcbd99ea35005fb329100e930d83b222c1",
+  "rationale": "The immutable proof records the last production and umbrella-gitlink candidate. Its finalization revision later amended one test-source binding only. This sidecar resolves each binding at its explicit source revision without changing the proof or transferring approval.",
+  "bindingRevisionSets": [
+    {
+      "bindingSection": "sourceBoundary.productionBindings",
+      "repository": ".",
+      "revision": "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58",
+      "mode": "100644",
+      "paths": [
+        "src/Hexalith.Conversations.AppHost/ConversationsAppHostTopology.cs",
+        "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+        "src/Hexalith.Conversations.Server/Governance/ConversationGovernanceVerificationService.cs",
+        "src/Hexalith.Conversations.Server/Governance/ConversationPrivilegedOperationalJustificationService.cs",
+        "src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj",
+        "src/Hexalith.Conversations.Server/Program.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationAsyncProjectionHandler.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectedReadModels.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionConsistencyException.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchLedger.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchReference.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionDispatchStatus.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionHandler.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexReadModel.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionIndexSnapshot.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionPositionOnlyEvent.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelKeys.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadModelWriter.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadService.cs",
+        "src/Hexalith.Conversations.Server/Projections/ConversationProjectionReadStore.cs",
+        "src/Hexalith.Conversations.Server/Projections/IConversationProjectionReadStore.cs",
+        "src/Hexalith.Conversations.Server/Queries/ConversationQueryHandler.cs"
+      ]
+    },
+    {
+      "bindingSection": "sourceBoundary.testBindings",
+      "repository": ".",
+      "revision": "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58",
+      "mode": "100644",
+      "paths": [
+        "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostTopologyTest.cs",
+        "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        "tests/Hexalith.Conversations.Conformance.Tests/ConsumePromoteKeepInventoryValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/SmC2BaselineReconstructionValidationTest.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Performance/SmC2HotPathBenchmark.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationGatewayLiveFixture.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionGatewayDispatchLiveTests.cs",
+        "tests/Hexalith.Conversations.IntegrationTests/Projections/ConversationProjectionReadStorePopulationLiveTests.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationAsyncProjectionHandlerTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadModelPersistenceTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadServiceTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionReadStoreFailClosedTest.cs",
+        "tests/Hexalith.Conversations.Server.Tests/Projections/ProjectionIndexSnapshotTestExtensions.cs"
+      ]
+    },
+    {
+      "bindingSection": "sourceBoundary.testBindings",
+      "repository": ".",
+      "revision": "850228fcbd99ea35005fb329100e930d83b222c1",
+      "mode": "100644",
+      "paths": [
+        "tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs"
+      ]
+    },
+    {
+      "bindingSection": "sourceBoundary.platformBindings",
+      "repository": "references/Hexalith.EventStore",
+      "revision": "e645901928eed9759e28e1086f23dc96875c3ac3",
+      "mode": "100644",
+      "paths": [
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/DomainProjectionDispatcher.cs",
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/EventStoreDomainServiceExtensions.cs",
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/IAsyncDomainProjectionReconciliationHandler.cs",
+        "references/Hexalith.EventStore/src/Hexalith.EventStore.Server/Projections/NamedProjectionDispatchCoordinator.cs",
+        "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/DomainProjectionDispatcherV2Tests.cs",
+        "references/Hexalith.EventStore/tests/Hexalith.EventStore.DomainService.Tests/EventStoreDomainServiceExtensionsTests.cs",
+        "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/NamedProjectionDispatchCoordinatorTests.cs",
+        "references/Hexalith.EventStore/tests/Hexalith.EventStore.Server.Tests/Projections/ProjectionDispatchHttpMessageHandler.cs"
+      ]
+    }
+  ],
+  "currentReadiness": {
+    "state": "blocked",
+    "reason": "This binding resolution validates immutable historical evidence only. It does not establish current projection readiness, approval, release authority, waiver, or hold lift."
+  }
+}

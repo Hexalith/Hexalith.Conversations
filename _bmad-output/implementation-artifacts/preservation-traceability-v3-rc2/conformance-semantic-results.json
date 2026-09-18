@@ -1,0 +1,1915 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateDigestAlgorithm": "sha256-path-mode-hash-size-overlay-v2",
+  "candidateDigest": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840",
+  "assembly": {
+    "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+    "sha256": "fdff67664bb17f38c321467a4fe473dc78c6b8e819761e9b62ffc8c26e98a74c",
+    "bytes": 1024512,
+    "sourceRevisionId": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840"
+  },
+  "summary": {
+    "total": 473,
+    "passed": 473,
+    "failed": 0,
+    "skipped": 0,
+    "notRun": 0,
+    "testFramework": "xUnit.net v3 4.0.1+8ed8aa354c",
+    "runtime": "64-bit (x64) .NET 10.0.12 [collection-per-class, parallel (collections, 24 threads)]",
+    "targetFramework": ".NETCoreApp,Version=v10.0"
+  },
+  "testResults": [
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.CompatibilityDiscoveryCheckShouldSurfaceUnsupportedAsBlockedTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.ErrorEnvelopeCheckShouldReuseSharedTypedErrorCatalog",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.EveryCheckShouldCarryTraceableRequirementPreconditionAndReleaseGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.EveryEmittedFailureClassificationMustBelongToTheClosedVocabulary",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.IdempotencyCheckShouldSurfaceNonRetryableConflictAsBlocked",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.NonReadyChecksMustCarryTypedErrorsAndReadyChecksMustNot",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.ProjectionFreshnessCheckShouldSurfaceStaleAsDegradedNonTrustBearing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.RunAggregationShouldBeDeterministicAndDegradedWhenAllChecksConformWithAStaleScenario",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.RunResultShouldRoundTripAndRemainAdditiveTolerantForCi",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.RunResultShouldRoundTripLosslesslyPreservingEveryCheckFieldForCi",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.RunResultShouldSerializeToDeterministicWebJsonForCi",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.RunShouldExerciseTheReadyDegradedAndBlockedOutcomesAcrossChecks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.SuiteShouldCoverEveryCoreConformanceCheck",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.SuiteShouldExerciseTheAc4ScenarioMatrix",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.SuiteShouldPassEveryCheckAgainstTheSyntheticFixture",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AdopterConformanceSuiteTest.TenantBindingCheckShouldExerciseCrossTenantHiddenSideChannelShape",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.ArchitectureFrontmatterShouldBindCanonicalCurrentAuthority",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.ArchitectureRegistersExactInitiativeLandingZonesAndDeferredFrSixteen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.ArchitectureShouldResolveEveryOpenQuestionExactlyOnce",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.ArchitectureShouldStateScopeAndPreservationDenominators",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.CanonicalDomainHostPairShouldBeTaughtInCurrentAuthority",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.ConsumerReachabilityShouldBindEachMemberToItsDeclaringType",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.EpicOverlayAndGeneratedContextShouldBeVersionAndStoryEquivalent",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.EpicOverlayShouldBindTheDependencyOrderItAuthorizes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.EpicOverlayShouldPreserveFullDenominatorAndCorrectiveFrCoverage",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.EpicPlanShouldPreserveHistoricalPrefixAndContainExactDispositionRows",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.InitiativeAuthoritySourcesShouldRemainPinned",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.NamedPlatformLandingZonesShouldExposeSignatureCompatiblePublicApis",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.NamedPlatformTypesShouldBePublic",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.NoTargetStateOwnershipOrUnqualifiedReadinessShouldSurviveAnywhereInTheDocument",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.PromotionCompletionInvariantShouldBeScopedToDeclaredRootGitlinks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.SmCTwoShouldFreezeNonemptyInventoryAndOneToOneComparablePostResults",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.StillBindingReplayProjectionParticipantIdempotencyAndLegalRulesShouldRemain",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest.TargetTreeAndReadinessShouldBeCorrectiveAndPlatformOwned",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryReExpressionShouldBeGreenAndAnchored",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryRetireOrRetargetEntryShouldNameItsOwningStory",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory21StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory22StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory23StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory24StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory25StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory26StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory27StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.EveryStory33StructuralDispositionShouldBeAnchoredAndGreen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.GenerateAndSaveAtRiskTestRegisterFile",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.RegisterShouldBeContentSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.AtRiskTestRegisterGenerationTest.RegisterShouldEnumerateEveryAtRiskTestDeterministically",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.AllChecksShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.AllChecksShouldCarryFR102RequirementAndBuyerAcceptanceMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.AllPassScenariosShouldProduceReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.ExpiredItemShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.MissingAckShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.PassScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.BuyerAcceptanceConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.BothProcedureArtifactsAndTheGovernedInventoryShouldBeCommitted",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.ChangeLogEntrySchemaShouldDefineBothEntryTypes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.CommittedProcedureShouldBeAcceptedAndDeclareGovernance",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.CommittedProcedureShouldPassScopedContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.EntryTemplateShouldProvideCopyPasteableShapesForBothTypes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.EveryEntryShouldTargetARealInventoryAreaId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.EveryRealReclassificationEntryShouldBeAppliedToTheLiveClassification",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.EveryReclassifiedChallengeShouldHaveAMatchingReclassificationEntry",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.EveryWorkedExampleShouldConformToItsTypeSchema",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.FoldingEachReclassificationExampleShouldPreserveFr2InvariantAndRecomputePlumbing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.GovernedInventoryShouldBackReferenceStoryOneFiveForBidirectionalDiscoverability",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.InventoryChangeLogShouldBeAnArrayAndEveryRealEntryShouldConform",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.ProcedureMarkdownShouldDocumentTheFiveStepProcedureAndCanonicalLog",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.ProcedureRecordedBaselineShouldMatchTheGovernedInventory",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.ReclassificationEntriesShouldNotOverrideApproxLocOrPaths",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.WorkedExampleEntriesShouldNotLeakIntoTheRealInventoryChangeLog",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ClassificationChangeProcedureValidationTest.WorkedExamplesShouldIncludeAnUpheldChallengeAndAReclassification",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.AllFixtureEntriesShouldPassContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.FixtureManifestShouldPassValidateManifestWithZeroErrors",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.LifecycleStageAllShouldReturnExactlySixStagesMatchingNfr1",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.ManifestShouldSerializeToStableCamelCaseJsonAndRoundTripDeterministically",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.ManifestWithDuplicateTestIdShouldReturnDuplicateTestIdError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceManifestValidationTest.ManifestWithWaivedEntryMissingWaiverReferenceShouldReturnMissingWaiverReferenceError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.AllChecksShouldCarryFR99RequirementAndConformanceStatusMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.FailScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.OnlyProductInvariantFailScenarioShouldHaveBlockingTrue",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.PassScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.PreconditionMappingsShouldNotBeEmpty",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConformanceStatusConformanceSuiteTest.WaivedGateScenarioShouldProduceReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.AddendumFirstPassShouldBeExplicitlyConfirmedOrCorrected",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.BothJsonAndMarkdownSiblingArtifactsShouldBeCommitted",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.CommittedInventoryShouldBeAcceptedAndDeclareFr2Governance",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.CommittedInventoryShouldPassScopedContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.ConsumePromoteCrossReferencesShouldUseWellFormedFrAndStoryIdentifiers",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.EveryAreaShouldAppearExactlyOnceWithASingleValidClassification",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.EveryConsumeOrPromoteEntryShouldNameItsCapabilityFrAndOwningStory",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.InventoryShouldRecordVersioningConventionAndLeaveOpenQuestionsOpen",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.NoSourceFileShouldBeDoubleCountedAcrossAreas",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.PerAreaLocShouldReconcileToTheRecordedSourceTotal",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.PlumbingBaselineShouldEqualConsumePlusPromoteLoc",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.PlumbingDerivationRowsShouldEnumerateExactlyTheConsumeAndPromoteAreas",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.PromoteLaterCandidatesShouldBeKeptNowNotPromoted",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.ReconciliationPerClassificationSubtotalsShouldBeConsistent",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.RecordedPlumbingPercentageShouldMatchTheComputedRatio",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConsumePromoteKeepInventoryValidationTest.Story62DispositionShouldPreserveSignedV1AndReproduceTheConsumedPath",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.AllChecksShouldCarryFR92RequirementAndContractCompatibilityGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.AllChecksShouldUseCompatibilityDiscoveryCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ContractValidationConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.DegradedProjectionShouldNotExposeTrustBearingDetail(degradedState: \\\"gap\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.DegradedProjectionShouldNotExposeTrustBearingDetail(degradedState: \\\"rebuilding\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.DegradedProjectionShouldNotExposeTrustBearingDetail(degradedState: \\\"stale\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.DegradedProjectionShouldNotExposeTrustBearingDetail(degradedState: \\\"unavailable\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.GovernanceEvidenceShouldBeAnchoredThroughPublicReadSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.PoisonProjectionShouldNotExposeDetailThroughPublicReadSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ConversationProjectionReadSurfaceConformanceTest.RedactedMessageShouldStaySuppressedThroughPublicReadSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.ConformanceRunResultShouldNotLeakPoisonSentinels",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.ConformanceRunResultShouldNotLeakProtectedIdentifiersOrInfrastructureTerms",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.ConformanceRunResultShouldPreserveClosedTraceabilityTokensContainingTenantAndPartySegments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.CrossTenantDenialShouldNotCarryClientActionThatDistinguishesExistence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.CrossTenantDenialShouldUseHiddenShapeAndNotRevealExistence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.EveryTypedFailureFixtureScenarioShouldExposeOnlySafeStructuredFields",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.FixtureShouldBeMarkedSyntheticAndDeterministic",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.PoisonProjectionShouldCarrySentinelsThatNeverAppearInAuthorizedSurfaces",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.CoreFixtureContentSafetyTest.TypedFailureCasesShouldRemainContentSafeOnTheWire",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.AllChecksShouldCarryFR91RequirementAndSchemaEvolutionGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.AllChecksShouldUseEventPublicationCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.EventSchemaEvolutionConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.FinalConformanceContractDiffEvidenceValidationTest.ContractShapeDiffShouldBeEmptyOrCarryApprovalReferences",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.FinalConformanceContractDiffEvidenceValidationTest.EvidenceShouldNotUseBuildArtifactsGeneratedOutputOrLocalPathsAsSourceOfTruth",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.FinalConformanceContractDiffEvidenceValidationTest.JsonAndMarkdownArtifactsShouldExistAndBeInternallyConsistent",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.FinalConformanceContractDiffEvidenceValidationTest.JsonShouldReferenceStoryOneOneBaselinesAndExactFinalConformanceCounts",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.AggregateGovernanceCommandSurfaceShouldMatchTheAuditPairedInventory",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.EveryGovernanceMutationShouldPairItsEventWithAuditEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.FutureGovernanceVocabularyShouldNotAppearAsImplementedMutationPaths",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.GovernanceMutationWithMismatchedAuditEvidenceShouldFailClosed",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.GovernanceMutationWithMissingAuditEvidenceShouldFailClosed",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditPairingSafetyNetConformanceTest.NonGovernanceCommandsShouldEmitEventsWithoutAuditEvidenceDependency",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditSinkFailClosedConformanceTest.GovernedMutationShouldEmitEventWhenAuditSinkHealthy",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.GovernanceAuditSinkFailClosedConformanceTest.GovernedMutationShouldFailClosedWhenAuditSinkThrows",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.AllChecksShouldCarryFR88RequirementAndIdempotencyMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.AllChecksShouldUseIdempotencyCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.RunResultShouldHaveExactly8Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.IdempotencyConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyConflictOracleCharacterizationTest.LiveExecutorReplayPayloadShouldExcludeCallerSuppliedSecrets",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyConflictOracleCharacterizationTest.LiveExecutorShouldPreserveOriginalReasonCodeOnDuplicateRejectionReplay",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyConflictOracleCharacterizationTest.LiveExecutorShouldRejectConflictingKeyReuseWithoutMutation",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyConflictOracleCharacterizationTest.LiveExecutorShouldReturnRetryableUncertaintyForPendingKeyWithoutMutation",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyOracleCharacterizationTest.LiveExecutorShouldInvokeMutationOnceForFirstSubmission",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveIdempotencyOracleCharacterizationTest.LiveExecutorShouldReplayDuplicateWithoutReinvokingMutation",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveFreshnessClassifierShouldNeverPromoteDegradedStatesToCurrent",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldPairEveryGovernanceMutationWithAuditEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldReportCurrentProjectionAsTrustBearing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSuppressRedactedContentWhenMessageReplaysAfterRedaction",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceActiveRebuildAsNonTrustBearing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceGapAsRebuildingNonTrustBearing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceMetadataWriteFailureAsUnavailable",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveProjectionFreshnessOracleCharacterizationTest.LiveMaterializerShouldSurfaceStaleProjectionAsNonTrustBearing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveGuardShouldNotRunProtectedOperationWhenLiveServiceDenies",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldAllowAuthorizedOwner",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldDenyContradictoryTenantBindings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldDenyCrossTenantMemberLeakage",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"ambiguous\\\", expectedReason: TenantProjectionPoisoned)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"disabled\\\", expectedReason: TenantDisabled)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"gap\\\", expectedReason: TenantAccessGapDetected)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"insufficient\\\", expectedReason: InsufficientRole)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"malformed-projection\\\", expectedReason: MalformedProjection)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"member-poisoned\\\", expectedReason: TenantProjectionPoisoned)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"rollback\\\", expectedReason: TenantAccessRolledBack)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"stale\\\", expectedReason: TenantAccessStale)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"unavailable\\\", expectedReason: TenantAccessUnavailable)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"unknown\\\", expectedReason: UnknownTenant)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"unmapped-role\\\", expectedReason: UnmappedRole)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedOnEveryReleaseGateTriggerState(trigger: \\\"unmapped-status\\\", expectedReason: UnmappedStatus)",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenCallerPrincipalIsMalformed",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenTenantBindingIsMissing",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.LiveTenantFailClosedOracleCharacterizationTest.LiveServiceShouldFailClosedWhenTenantIdIsMalformed",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.NoInModuleSharedFakeDuplicateConformanceTest.NoInModuleActorStateManagerDuplicateShouldExist",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.NoInModuleSharedFakeDuplicateConformanceTest.NoInModuleDomainResultAssertionsDuplicateShouldExist",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.NoInModuleSharedFakeDuplicateConformanceTest.NoInModuleEventStoreGatewayClientDuplicateShouldExist",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest.DecisionArtifactsShouldExistAndRecordApprovedResolution",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest.HistoricalEvidenceBindingsShouldMatchAndRemainPointInTimeEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest.SmOneTargetShouldRecomputeAndBeMetInclusively",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OqTwoTargetInterpretationDecisionValidationTest.SmTwoTargetShouldRecomputeAndRemainEstimateQualified",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OracleBlindSpotAnalysisArtifactGenerationTest.ArtifactShouldPassContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OracleBlindSpotAnalysisArtifactGenerationTest.BuiltArtifactShouldBeDeterministic",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OracleBlindSpotAnalysisArtifactGenerationTest.BuiltArtifactShouldBeStructurallyComplete",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OracleBlindSpotAnalysisArtifactGenerationTest.CommittedHeaderShouldDescribeTheArtifact",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.OracleBlindSpotAnalysisArtifactGenerationTest.GenerateAndSaveArtifactFile",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"gitlink\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"hash\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"hold\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"ledger\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"toolchain\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"unknown\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest.V18AuthorityShouldBindExactPackageEnvironmentAtAnyDescendant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.CurrentViewShouldBeHashBoundAndStoryEquivalentToV8",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.MetricAndReadinessAuthorityShouldBeConsistentAndOutcomeNeutral",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.SprintAndActiveGuidanceShouldPreserveStatusesAndEnforceTheHold",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.UxPlanningShouldHaveCanonicalProvenanceAndZeroGapPreservationMapping",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.V8DependencyGraphShouldBeClosedAndAcyclic",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest.V8ShouldPublishOneCompleteCurrentStorySetWithoutAuthorizingImplementation",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.AuthorityBundleShouldBindEveryCompanionWithoutSelfReference",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.RemediationAuthorityShouldBindExactActionsRoutesGitlinksAndCompletionEffect",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.StoryContractsAndExecutionGraphShouldBeCompleteAndAcyclic",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.StorySliceAuthorityShouldBindBaseContractAndCanonicalAmendment",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.SupersessionUxAndSprintProjectionsShouldPreserveEveryFrozenBoundary",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.V14AuthorityShouldPreservePriorBlocksAndPublishEpic16",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest.WorkflowAndGuidanceInventoriesShouldMatchRoutesAndResolvedCustomization",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"digest\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"ledger\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"scope\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"unknown\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"url\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest.V15AuthorityShouldBindExactEnvironmentAndOriginalPublication",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"hash\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"ledger\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"unknown\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"url\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityNamedClosedContractFaultShouldBeRejected(fault: \\\"v15\\\")",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest.V16AuthorityShouldBindExactLifecycleAtAnyDescendant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.AllChecksShouldCarryFR94RequirementAndPlatformEvidenceGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PlatformEvidenceSeparationConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.FaultInjectedCandidatesShouldFailWithStableDiagnostics",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.MarkdownProjectionShouldBeByteExact",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.RequirementAndUxDenominatorsShouldMatchIndependentExtraction",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.V2SchemaShouldBeSeparateClosedAndGoverned",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.AFailingProofResultMustBlockStoryCompletion",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.Ac5AndAc6ClaimsShouldBeBoundToPassingMachineReadableRuns",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.GatewayBoundaryEvidenceShouldCrossTheCoordinatorAndTheDaprStateStore",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.MarkdownShouldPresentTheAuthoritativeJsonBoundary",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofShouldBindExactProductionRouteKeysAndBoundedOutcomes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.ProofSourceAndSignedV1BindingsShouldRemainByteIdentical",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.RecordedPromotionCandidateShouldStillDescribeTheCurrentGitlinks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProjectionReadStorePopulationProofValidationTest.SmC2PostShouldUseIdenticalEnvelopeAndRecordEveryMechanicalP95Result",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.AllChecksShouldCarryFR90RequirementAndPortabilityGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.AllChecksShouldUseEventPublicationCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ProviderPortabilityConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.CurrentSnapshotShouldMatchCommittedBaselineWithoutWriting",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.GenerateAndSaveContractShapeSnapshotFile",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldBeContentSafe",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCaptureExportedPublicTypesDeterministically",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.PublicContractShapeSnapshotGenerationTest.SnapshotShouldCoverAllSixReleaseGateBehaviorAreas",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.AllChecksShouldCarryFR89RequirementAndRedactionGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RedactionConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineCommitShouldBeAFullFortyCharacterHexShaOnMain",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineEnumeratedSuiteClassesShouldMatchTheActualSuiteClassesInTheAssembly",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineReportedTypeCountShouldAgreeWithTheCommittedSnapshotAndLiveSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.BaselineSurvivabilityClassificationShouldAccountForAllFourteenSuites",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedBaselineRecordShouldExistAndDescribeAGreenAllPassOracle",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotCapturedSurfaceShouldPassContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotShouldExistAndDeclareItsAssemblyAndTypeCount",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseBaselineValidationTest.CommittedSnapshotTypeCountShouldMatchTheLiveExportedContractSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.AllGateStatusesShouldBelongToTheClosedVocabulary",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.ArtifactContentSafetyScanShouldPass",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.ArtifactShouldContainAllSevenRequiredGateEntries",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.AuditIntegrityGateShouldBePassWhenGovernancePreconditionIsReady",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.BuilderShouldBeFullyDeterministicWithSameInputs",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.BuilderShouldProduceValidArtifactFromCoreFixture",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.BuilderShouldRejectNullConformanceRunResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.BuilderShouldRejectNullSignerOrRunnerId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.GenerateAndSaveFixtureArtifactFile",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.OverallStatusShouldBeDeterministicAcrossRuns",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.ProviderPortabilityGateShouldAlwaysBeUnknownAcceptedWithNoAdopterMapping",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseConformanceArtifactGenerationTest.TenantIsolationGateShouldBeUnknownAcceptedBecauseTenantBindingUsesUnknownOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.AllChecksShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.AllChecksShouldCarryFR100RequirementAndReleaseScopeMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.AllPassScenariosShouldProduceReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.DeferredNoAreasShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.PassScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseScopeConformanceSuiteTest.WaivedNoRefShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.BlockerWithNullApproverShouldReturnBlockerRequiresApproverError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.FixtureWaiverShouldPassContentSafetyScan",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.FixtureWaiverShouldPassValidateWaiverWithZeroErrors",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.WaiverLifecycleStatusAllShouldReturnExactlyFourValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.WaiverShouldSerializeToStableCamelCaseJsonAndRoundTripDeterministically",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.WaiverWithPastExpiryDateShouldReturnExpiredWaiverError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.ReleaseWaiverValidationTest.WaiverWithPastReviewDateShouldReturnStaleReviewDateError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.ActualRemovalsShouldBeDeadPlumbingAndNeverDeleteRowsShouldStillExist",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.ConformanceSuiteContinuityShouldMatchCurrentTreeAndStoryFiveOneEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.EveryAtRiskRegisterEntryShouldBeAccountedFor",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.EveryStructuralDispositionSectionShouldBeAccountedFor",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.EvidenceShouldNotUseBuildArtifactsGeneratedOutputOrLocalPathsAsSourceOfTruth",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.InventoryChangeLogAndContractShapeImpactShouldBePreserved",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.JsonAndMarkdownArtifactsShouldExistAndExposeStoryFiveThreeFields",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.ProjectReferenceDispositionShouldMatchCurrentProjectAndServerUsingInventory",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.RemovedTestJustificationLedgerReconciliationValidationTest.SourceArtifactsShouldReferenceDurableRepositoryFiles",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.AllChecksShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.AllChecksShouldCarryFR103RequirementAndSecondAdopterMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.AllChecksShouldUseGovernancePreconditionCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.AllFailScenariosShouldProduceBlockedOutcomeWhenValidatorFails",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.AllPassScenariosShouldProduceReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.MilestoneOverdueShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.PassScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.RevertedNoRationaleShouldProduceConformantResult",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.RunResultShouldHaveExactly10Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SecondAdopterConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.EvaluatedProjectGraphShouldMatchTheRecordedWorkloadManifest",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.GitShouldConfirmTheFixtureIsAbsentAndTheBaselineSubmoduleIsPinned",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.MarkdownShouldPresentTheReconstructionProvenance",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.AnEnforcementClauseDisplacedOutsideTheGateSpanMustNotSatisfyTheContract",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.BothSkillTreesMustStayByteIdenticalForEverySkillFileThisStoryChanged",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.CodeReviewMustRequireExplicitCommitAuthorizationBeforeGating",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.EveryCompletionSurfaceMustInvokeTheGeneratorAndEnforceItsBlockers",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.GeneratorMustExistAndExposeTheContractedInvocationSurface",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.GuttingTheGateBodyWhileKeepingTheHeadingMustBeDetected",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingFinalRecordDependencyFromCompletionMustBeDetected",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.RemovingTheGateHeadingMustBeDetected",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.ReorderingEnforcementClausesMustBeDetected",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest.TheStoryRecordMustCarryExactlyOneFileListAndNoSubmoduleInternalPath",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.ArchivedLegacyPrdRelocationShouldStayNarrowAndContentIdentical",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.BehaviorPreservationAndRemovedTestFactsShouldMatchSourceArtifacts",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.EvidenceShouldNotUseBuildArtifactsGeneratedOutputOrLocalPathsAsSourceOfTruth",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.FinalDiffShouldMatchIntendedEvidenceBoundaryAndExcludeSubmoduleGitlinks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.JsonAndMarkdownArtifactsShouldExistAndExposeRequiredFields",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.ResidualRisksAndAttestationShouldBeSignableButUnsigned",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SignablePayloadHashShouldMatchSourceArtifactManifest",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SignedReleaseOwnerDecisionShouldStillBindTheImmutableV1ReportAndSourceIdentity",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SmOneFactsShouldMatchAcceptedInventoryAndRowDispositionMath",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SmOneRowEvidenceShouldBePartOfSignedSourceManifest",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SmTwoFactsShouldMatchStoryFourTwoEvidenceWithoutClosingOqTwo",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SourceArtifactsShouldBeRepositoryRelativeExistingFilesWithHashes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SourceArtifactsShouldBindToSignedV1ContentAtItsDeclaredSourceIdentity",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.SuccessMetricReportAndAttestationValidationTest.SupersessionAllowlistShouldStayNarrowAndExcludeSignedEvidence",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.ApprovedGateIdVocabularyShouldBeBoundedAndSmall",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.CardinalityGateShouldAcceptEveryApprovedGateId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.CardinalityGateShouldRejectUnboundedOrRawGateIdValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.CommandRejectionClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.ConformanceStatusClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.DistinctDimensionValueCountPerKeyShouldNotExceedItsCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.DistinctDimensionValuesUnderLoadShouldStayWithinTheApprovedClosedVocabulary",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.EachCounterShouldOnlyEverEmitItsApprovedDimensionKeySet",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.EveryApprovedCounterShouldBeExercisedUnderLoad",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.EveryClosedVocabularyEnumShouldStayWithinASmallBudgetCeiling",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.EveryEmittedGateIdUnderLoadShouldBeWithinTheBoundedApprovedSet",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.GateIdShouldBeTheOnlyDimensionCarryingValuesOutsideClassAndBooleanVocabularies",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.HighCardinalityLoadShouldProduceManyMeasurementsButFewDistinctTagValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.PrivilegedAccessClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.ProjectionFreshnessClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.ProjectionLagClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.PublicationFailureClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.TenantAccessRequirementShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryCardinalityConformanceSuiteTest.TenantDenialClassShouldHaveFixedCardinalityBudget",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.BooleanDimensionsShouldOnlyCarryBoundedTrueOrFalseTokens",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.ClassDimensionsShouldOnlyCarryClosedVocabularyTokens",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.EveryMeasurementShouldCarryOnlyApprovedDimensionKeys",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.EveryTelemetrySurfaceShouldRejectTheSentinelNoneValue",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.FixtureForbiddenValuesShouldCoverEveryRequiredDisclosureClass",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.GateIdDimensionShouldOnlyCarryApprovedBoundedGateIds",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.GateIdShouldBeTheOnlyStringDimensionOutsideTheClassAndBooleanVocabularies",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.NoMeasurementDimensionShouldCarryRawIdentifierShapes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.NoMeasurementDimensionShouldEverCarryAForbiddenValue",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.NoStructuredLogMessageShouldEverCarryAForbiddenValue",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.NoneSentinelGuardShouldPreventEmissionOfANoneDimensionValue",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.RunShouldEmitAtLeastOneMeasurementPerCounter",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TelemetryRedactionConformanceSuiteTest.StructuredLogMessagesShouldNotCarryTenantOrPartyOrConversationIdShapes",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.AllChecksShouldCarryFR87RequirementAndTenantIsolationGateMappings",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.AllChecksShouldUseTenantBindingCheckId",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.AllConformantScenariosProduceOverallReadyOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.BlockedScenariosShouldHaveNonNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.EachScenarioCheckShouldBeClassifiedAsConformant",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.EachScenarioShouldProduceExpectedConformanceOutcome",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.EmptyScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.NullCorrelationIdShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.NullScenariosListShouldThrow",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.ReadyScenariosShouldHaveNullTypedError",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.RunResultShouldHaveExactly12Checks",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.RunResultShouldNotLeakPoisonSentinelsOrForbiddenFragments",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.RunResultShouldSerializeToStableCamelCaseJsonAndRoundTrip",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.SuiteIdAndRunnerIdShouldMatchSpecifiedValues",
+      "result": "Pass"
+    },
+    {
+      "id": "Hexalith.Conversations.Conformance.Tests.TenantIsolationConformanceSuiteTest.UnknownScenariosShouldCarryAggregateNotFoundTypedError",
+      "result": "Pass"
+    }
+  ]
+}

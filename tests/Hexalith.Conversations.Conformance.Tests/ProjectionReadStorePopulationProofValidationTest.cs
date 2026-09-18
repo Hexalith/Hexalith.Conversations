@@ -6,6 +6,7 @@
 using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 
@@ -21,6 +22,14 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     private const string ProofMarkdownFileName = "projection-read-store-population-proof-v2.md";
     private const string BaselineFileName = "sm-c2-hot-path-baseline-v1.json";
     private const string PostFileName = "sm-c2-hot-path-post-v1.json";
+    // 856ee99 is the proof's last production/gitlink candidate. 850228f is a later evidence-only
+    // finalization commit whose tree supplies the one test binding amended after that candidate.
+    // They are separate roots of trust and must never be silently substituted for each other.
+    private const string ProductionCandidateRevision = "856ee997cd35eb1d432fcb288a75a7b5bf3c5b58";
+    private const string EvidenceFinalizationRevision = "850228fcbd99ea35005fb329100e930d83b222c1";
+    private const string ProofRepositoryPath = "docs/release-evidence/projection-read-store-population-proof-v2.json";
+    private const string BindingResolutionRepositoryPath = "docs/release-evidence/projection-read-store-population-proof-v2-binding-resolution.json";
+    private const string BindingResolutionSha256 = "dec9b003f0ffb6550a15494c388548cb34adc3c25e4635e21651f50997638a0a";
 
     private static readonly string[] ExpectedHotPaths = ["HP-APPEND", "HP-CREATE", "HP-LIST", "HP-OPEN"];
 
@@ -157,8 +166,8 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         // and puts the artifact and the guard out of step by default (pass-10 review).
         promotion.GetProperty("commit").GetString()
             .ShouldBe(
-                Git("rev-parse", "HEAD:references/Hexalith.EventStore"),
-                "the recorded EventStore promotion commit must be the gitlink actually committed at HEAD");
+                Git("rev-parse", $"{proof.GetProperty("sourceBoundary").GetProperty("candidate").GetString()}:references/Hexalith.EventStore"),
+                "the recorded EventStore promotion commit must be the gitlink committed at the evidence candidate");
         promotion.GetProperty("remoteContainsCommit").GetBoolean().ShouldBeTrue();
         GitIn("references/Hexalith.EventStore", "for-each-ref", "--contains", promotion.GetProperty("commit").GetString()!, "--format=%(refname)", "refs/remotes/")
             .ShouldNotBeNullOrWhiteSpace("the recorded EventStore commit must remain on a locally known remote-tracking ref");
@@ -274,7 +283,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     }
 
     /// <summary>
-    /// Re-derives the recorded promotion from the working tree so the evidence cannot go quietly stale.
+    /// Re-derives the recorded promotion from its candidate Git object so successor work cannot rewrite history.
     /// </summary>
     /// <remarks>
     /// A gate result cannot name the commit that contains it, so the evidence pins the last revision that moved
@@ -292,49 +301,17 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         GitExitCode("merge-base", "--is-ancestor", candidate, "HEAD")
             .ShouldBe(0, $"recorded candidate {candidate} must be an ancestor of HEAD");
 
-        Git("diff", "--name-only", $"{candidate}..HEAD", "--", "references/")
-            .ShouldBeEmpty("no root gitlink may move after the recorded promotion candidate");
-        Git("diff", "--name-only", $"{candidate}..HEAD", "--", "src/")
-            .ShouldBeEmpty("no production source may move after the recorded promotion candidate");
-        Git("status", "--porcelain=v1", "--", "src/")
-            .ShouldBeEmpty("the proof cannot bind a candidate while production source changes remain uncommitted");
-
-        // Scoped to the DECLARED promotion paths, not to every evaluated gitlink. The gate evaluates all
-        // seven changed gitlinks, but four of them (AI.Tools, Commons, FrontComposer, Memories) are
-        // deliberately undeclared and disclosed as non-blocking warnings — binding their worktrees here
-        // turned this module's own conformance suite red on drift the story has already accepted, and on
-        // any stray untracked file in a sibling worktree (pass-10 review).
-        HashSet<string> declaredPaths =
-        [
-            .. promotionGate.GetProperty("declaredScope")
-                .EnumerateArray()
-                .Select(entry => entry.GetProperty("path").GetString()!),
-        ];
-
-        declaredPaths.ShouldNotBeEmpty("the recorded gate must declare the promotion scope it evaluated");
-
         foreach (JsonElement evaluated in promotionGate.GetProperty("evaluated").EnumerateArray())
         {
             string path = evaluated.GetProperty("path").GetString()!;
             string recordedGitlink = evaluated.GetProperty("recordedGitlink").GetString()!;
-            Git("rev-parse", $"HEAD:{path}").ShouldBe(recordedGitlink, path);
-
-            if (!declaredPaths.Contains(path))
-            {
-                continue;
-            }
-
-            // The committed gitlink alone is not enough: a submodule worktree checked out away from it, or
-            // dirty, changes every compile input while the umbrella diff stays empty. The worktree state is
-            // re-derived live on every run rather than trusted from the recorded JSON.
-            GitIn(path, "rev-parse", "HEAD").ShouldBe(
-                recordedGitlink,
-                $"the {path} worktree must be checked out at the recorded gitlink");
-            GitIn(path, "status", "--porcelain").ShouldBeEmpty(
-                $"the {path} worktree must be clean so measurements bind the recorded promotion");
+            string treeEntry = Git("ls-tree", candidate, "--", path);
+            Match match = Regex.Match(treeEntry, @"^160000 commit ([0-9a-f]{40})\t");
+            match.Success.ShouldBeTrue($"{path} must resolve as a gitlink in recorded candidate {candidate}");
+            match.Groups[1].Value.ShouldBe(recordedGitlink, path);
         }
 
-        Git("rev-parse", "HEAD:references/Hexalith.EventStore")
+        Git("rev-parse", $"{candidate}:references/Hexalith.EventStore")
             .ShouldBe(promotion.GetProperty("requiredUmbrellaGitlinkCommit").GetString());
     }
 
@@ -519,11 +496,55 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
     {
         using JsonDocument proofDocument = LoadEvidence(ProofJsonFileName);
         JsonElement proof = proofDocument.RootElement;
+        using JsonDocument resolutionDocument = JsonDocument.Parse(
+            File.ReadAllText(Path.Combine(FindRepositoryRoot(), BindingResolutionRepositoryPath)));
+        JsonElement resolution = resolutionDocument.RootElement;
 
         JsonElement sourceBoundary = proof.GetProperty("sourceBoundary");
-        ValidateBindings(sourceBoundary.GetProperty("productionBindings"));
-        ValidateBindings(sourceBoundary.GetProperty("testBindings"));
-        ValidateBindings(sourceBoundary.GetProperty("platformBindings"));
+        sourceBoundary.GetProperty("candidate").GetString().ShouldBe(
+            ProductionCandidateRevision,
+            "the production boundary is rooted at the explicit last production/gitlink candidate");
+        proof.GetProperty("eventStorePromotion").GetProperty("umbrellaMechanicalGate").GetProperty("candidate").GetString()
+            .ShouldBe(ProductionCandidateRevision);
+        Git("rev-parse", $"{ProductionCandidateRevision}^{{commit}}").ShouldBe(ProductionCandidateRevision);
+        Git("rev-parse", $"{EvidenceFinalizationRevision}^{{commit}}").ShouldBe(EvidenceFinalizationRevision);
+        GitExitCode("merge-base", "--is-ancestor", ProductionCandidateRevision, EvidenceFinalizationRevision)
+            .ShouldBe(0, "evidence finalization must descend from the production candidate it describes");
+        Git("log", "-1", "--format=%H", "HEAD", "--", ProofRepositoryPath)
+            .ShouldBe(EvidenceFinalizationRevision, "the immutable proof bytes must still be rooted at their source-pinned finalization commit");
+        ReadGitBlobBytes(FindRepositoryRoot(), EvidenceFinalizationRevision, ProofRepositoryPath, out byte[] finalizedProofBytes)
+            .ShouldBeTrue($"{ProofRepositoryPath} must exist at the evidence-finalization root of trust");
+        Convert.ToHexString(SHA256.HashData(finalizedProofBytes)).ToLowerInvariant()
+            .ShouldBe(ComputeSha256(Path.Combine(FindRepositoryRoot(), ProofRepositoryPath)));
+        ValidateBindingResolutionSidecar(proof, resolution);
+        JsonObject resolutionObject = JsonNode.Parse(resolution.GetRawText())!.AsObject();
+        AssertBindingResolutionMutation(proof, resolutionObject, candidate => candidate["proof"]!["sha256"] = new string('0', 64), "BINDING_RESOLUTION_PROOF_HASH_MISMATCH");
+        AssertBindingResolutionMutation(
+            proof,
+            resolutionObject,
+            candidate => candidate["bindingRevisionSets"]![0]!["paths"]!.AsArray().Add(candidate["bindingRevisionSets"]![0]!["paths"]![0]!.DeepClone()),
+            "BINDING_RESOLUTION_DUPLICATE_PATH");
+        AssertBindingResolutionMutation(
+            proof,
+            resolutionObject,
+            candidate => candidate["bindingRevisionSets"]![0]!["paths"]!.AsArray().RemoveAt(0),
+            "BINDING_RESOLUTION_MISSING_PATH");
+        AssertBindingResolutionMutation(
+            proof,
+            resolutionObject,
+            candidate => candidate["bindingRevisionSets"]![0]!["paths"]![0] = "src/incorrect-binding-path.cs",
+            "BINDING_RESOLUTION_UNEXPECTED_PATH");
+        AssertBindingResolutionMutation(
+            proof,
+            resolutionObject,
+            candidate => candidate["bindingRevisionSets"]![0]!["revision"] = EvidenceFinalizationRevision,
+            "BINDING_RESOLUTION_REVISION_MISMATCH");
+        AssertBindingResolutionMutation(
+            proof,
+            resolutionObject,
+            candidate => candidate["bindingRevisionSets"]![0]!["mode"] = "120000",
+            "BINDING_RESOLUTION_MODE_MISMATCH");
+        ValidateHistoricalModeFaults();
         ValidateSourceBoundary(proof, sourceBoundary);
         ValidateBindings(proof.GetProperty("immutableSignedV1Bindings"));
 
@@ -766,6 +787,295 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         {
             ValidateBinding(binding);
         }
+    }
+
+    private static void AssertBindingResolutionMutation(
+        JsonElement proof,
+        JsonObject canonical,
+        Action<JsonObject> mutate,
+        string diagnostic)
+    {
+        JsonObject candidate = canonical.DeepClone().AsObject();
+        mutate(candidate);
+        BindingResolutionDiagnostics(proof, candidate).ShouldContain(diagnostic);
+    }
+
+    private static HashSet<string> BindingResolutionDiagnostics(JsonElement proof, JsonObject resolution)
+    {
+        var diagnostics = new HashSet<string>(StringComparer.Ordinal);
+        JsonObject? proofBinding = resolution["proof"] as JsonObject;
+        if (proofBinding?["path"]?.GetValue<string>() != ProofRepositoryPath
+            || proofBinding?["sha256"]?.GetValue<string>() != ComputeSha256(Path.Combine(FindRepositoryRoot(), ProofRepositoryPath)))
+        {
+            diagnostics.Add("BINDING_RESOLUTION_PROOF_HASH_MISMATCH");
+        }
+
+        JsonElement sourceBoundary = proof.GetProperty("sourceBoundary");
+        var expectedBySection = new Dictionary<string, HashSet<string>>(StringComparer.Ordinal)
+        {
+            ["sourceBoundary.productionBindings"] = sourceBoundary.GetProperty("productionBindings").EnumerateArray()
+                .Select(row => row.GetProperty("path").GetString()!).ToHashSet(StringComparer.Ordinal),
+            ["sourceBoundary.testBindings"] = sourceBoundary.GetProperty("testBindings").EnumerateArray()
+                .Select(row => row.GetProperty("path").GetString()!).ToHashSet(StringComparer.Ordinal),
+            ["sourceBoundary.platformBindings"] = sourceBoundary.GetProperty("platformBindings").EnumerateArray()
+                .Select(row => row.GetProperty("path").GetString()!).ToHashSet(StringComparer.Ordinal),
+        };
+        var assignedBySection = expectedBySection.Keys.ToDictionary(
+            section => section,
+            _ => new HashSet<string>(StringComparer.Ordinal),
+            StringComparer.Ordinal);
+        string eventStoreRevision = proof.GetProperty("eventStorePromotion").GetProperty("commit").GetString()!;
+        foreach (JsonNode? revisionNode in resolution["bindingRevisionSets"]?.AsArray() ?? [])
+        {
+            if (revisionNode is not JsonObject revisionSet)
+            {
+                diagnostics.Add("BINDING_RESOLUTION_UNEXPECTED_PATH");
+                continue;
+            }
+
+            string section = revisionSet["bindingSection"]?.GetValue<string>() ?? string.Empty;
+            string repository = revisionSet["repository"]?.GetValue<string>() ?? string.Empty;
+            string revision = revisionSet["revision"]?.GetValue<string>() ?? string.Empty;
+            string mode = revisionSet["mode"]?.GetValue<string>() ?? string.Empty;
+            if (!expectedBySection.TryGetValue(section, out HashSet<string>? expectedPaths))
+            {
+                diagnostics.Add("BINDING_RESOLUTION_UNEXPECTED_PATH");
+                continue;
+            }
+
+            foreach (JsonNode? pathNode in revisionSet["paths"]?.AsArray() ?? [])
+            {
+                string path = pathNode?.GetValue<string>() ?? string.Empty;
+                if (!assignedBySection[section].Add(path))
+                {
+                    diagnostics.Add("BINDING_RESOLUTION_DUPLICATE_PATH");
+                }
+
+                if (!expectedPaths.Contains(path))
+                {
+                    diagnostics.Add("BINDING_RESOLUTION_UNEXPECTED_PATH");
+                    continue;
+                }
+
+                string expectedRepository = section == "sourceBoundary.platformBindings" ? "references/Hexalith.EventStore" : ".";
+                string expectedRevision = section switch
+                {
+                    "sourceBoundary.productionBindings" => ProductionCandidateRevision,
+                    "sourceBoundary.testBindings" when path.EndsWith("ConversationsAppHostRuntimeBoundaryTest.cs", StringComparison.Ordinal) => EvidenceFinalizationRevision,
+                    "sourceBoundary.testBindings" => ProductionCandidateRevision,
+                    "sourceBoundary.platformBindings" => eventStoreRevision,
+                    _ => string.Empty,
+                };
+                if (repository != expectedRepository || revision != expectedRevision)
+                {
+                    diagnostics.Add("BINDING_RESOLUTION_REVISION_MISMATCH");
+                }
+
+                if (mode != "100644")
+                {
+                    diagnostics.Add("BINDING_RESOLUTION_MODE_MISMATCH");
+                }
+            }
+        }
+
+        foreach ((string section, HashSet<string> expectedPaths) in expectedBySection)
+        {
+            if (!expectedPaths.SetEquals(assignedBySection[section]))
+            {
+                diagnostics.Add("BINDING_RESOLUTION_MISSING_PATH");
+            }
+        }
+
+        return diagnostics;
+    }
+
+    private static void ValidateBindingResolutionSidecar(JsonElement proof, JsonElement resolution)
+    {
+        BindingResolutionDiagnostics(proof, JsonNode.Parse(resolution.GetRawText())!.AsObject()).ShouldBeEmpty();
+        ComputeSha256(Path.Combine(FindRepositoryRoot(), BindingResolutionRepositoryPath)).ShouldBe(BindingResolutionSha256);
+        resolution.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal).ShouldBe(
+            new[] { "approvalState", "authorityEffect", "bindingRevisionSets", "currentReadiness", "evidenceFinalizationRevision", "productionCandidate", "proof", "rationale", "schemaVersion" });
+        resolution.GetProperty("schemaVersion").GetString().ShouldBe("1.0.0");
+        resolution.GetProperty("authorityEffect").GetString().ShouldBe("none");
+        resolution.GetProperty("approvalState").GetString().ShouldBe("not-approved");
+        resolution.GetProperty("productionCandidate").GetString().ShouldBe(ProductionCandidateRevision);
+        resolution.GetProperty("evidenceFinalizationRevision").GetString().ShouldBe(EvidenceFinalizationRevision);
+        resolution.GetProperty("rationale").GetString().ShouldNotBeNullOrWhiteSpace();
+        JsonElement proofBinding = resolution.GetProperty("proof");
+        proofBinding.GetProperty("path").GetString().ShouldBe(ProofRepositoryPath);
+        proofBinding.GetProperty("sha256").GetString().ShouldBe(ComputeSha256(Path.Combine(FindRepositoryRoot(), ProofRepositoryPath)));
+
+        JsonElement sourceBoundary = proof.GetProperty("sourceBoundary");
+        sourceBoundary.GetProperty("candidate").GetString().ShouldBe(ProductionCandidateRevision);
+        string eventStoreRevision = proof.GetProperty("eventStorePromotion").GetProperty("commit").GetString()!;
+        var bindingsBySection = new Dictionary<string, Dictionary<string, JsonElement>>(StringComparer.Ordinal)
+        {
+            ["sourceBoundary.productionBindings"] = sourceBoundary.GetProperty("productionBindings").EnumerateArray()
+                .ToDictionary(row => row.GetProperty("path").GetString()!, row => row, StringComparer.Ordinal),
+            ["sourceBoundary.testBindings"] = sourceBoundary.GetProperty("testBindings").EnumerateArray()
+                .ToDictionary(row => row.GetProperty("path").GetString()!, row => row, StringComparer.Ordinal),
+            ["sourceBoundary.platformBindings"] = sourceBoundary.GetProperty("platformBindings").EnumerateArray()
+                .ToDictionary(row => row.GetProperty("path").GetString()!, row => row, StringComparer.Ordinal),
+        };
+        var resolvedBySection = bindingsBySection.Keys.ToDictionary(key => key, _ => new HashSet<string>(StringComparer.Ordinal), StringComparer.Ordinal);
+        int setCount = 0;
+        foreach (JsonElement revisionSet in resolution.GetProperty("bindingRevisionSets").EnumerateArray())
+        {
+            setCount++;
+            revisionSet.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal)
+                .ShouldBe(new[] { "bindingSection", "mode", "paths", "repository", "revision" });
+            string section = revisionSet.GetProperty("bindingSection").GetString()!;
+            bindingsBySection.ContainsKey(section).ShouldBeTrue($"unknown binding section {section}");
+            string repositoryPath = revisionSet.GetProperty("repository").GetString()!;
+            string revision = revisionSet.GetProperty("revision").GetString()!;
+            string expectedMode = revisionSet.GetProperty("mode").GetString()!;
+            expectedMode.ShouldBe("100644");
+            foreach (string boundPath in revisionSet.GetProperty("paths").EnumerateArray().Select(path => path.GetString()!))
+            {
+                resolvedBySection[section].Add(boundPath).ShouldBeTrue($"duplicate revision assignment for {boundPath}");
+                bindingsBySection[section].TryGetValue(boundPath, out JsonElement binding).ShouldBeTrue($"unbound sidecar path {boundPath}");
+                string expectedRepository = section == "sourceBoundary.platformBindings" ? "references/Hexalith.EventStore" : ".";
+                string expectedRevision = section switch
+                {
+                    "sourceBoundary.productionBindings" => ProductionCandidateRevision,
+                    "sourceBoundary.testBindings" when boundPath.EndsWith("ConversationsAppHostRuntimeBoundaryTest.cs", StringComparison.Ordinal) => EvidenceFinalizationRevision,
+                    "sourceBoundary.testBindings" => ProductionCandidateRevision,
+                    "sourceBoundary.platformBindings" => eventStoreRevision,
+                    _ => throw new InvalidOperationException(section),
+                };
+                repositoryPath.ShouldBe(expectedRepository, boundPath);
+                revision.ShouldBe(expectedRevision, boundPath);
+                string pathPrefix = section == "sourceBoundary.platformBindings" ? "references/Hexalith.EventStore/" : string.Empty;
+                boundPath.ShouldStartWith(pathPrefix);
+                string gitPath = boundPath[pathPrefix.Length..];
+                string repository = Path.GetFullPath(Path.Combine(FindRepositoryRoot(), repositoryPath));
+                ReadGitTreeMode(repository, revision, gitPath, out string actualMode).ShouldBeTrue(
+                    $"{boundPath} must have exactly one Git tree entry at explicit revision {revision}");
+                actualMode.ShouldBe(expectedMode, boundPath);
+                ReadGitBlobBytes(repository, revision, gitPath, out byte[] bytes)
+                    .ShouldBeTrue($"{boundPath} must remain available at explicit revision {revision}");
+                Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+                    .ShouldBe(binding.GetProperty("sha256").GetString(), boundPath);
+            }
+        }
+
+        setCount.ShouldBe(4);
+        foreach ((string section, Dictionary<string, JsonElement> bindings) in bindingsBySection)
+        {
+            resolvedBySection[section].ShouldBe(bindings.Keys, ignoreOrder: true, customMessage: section);
+        }
+
+        JsonElement readiness = resolution.GetProperty("currentReadiness");
+        readiness.EnumerateObject().Select(property => property.Name).Order(StringComparer.Ordinal).ShouldBe(new[] { "reason", "state" });
+        readiness.GetProperty("state").GetString().ShouldBe("blocked");
+        string readinessReason = readiness.GetProperty("reason").GetString()!;
+        readinessReason.ShouldContain("does not establish current projection readiness");
+        readinessReason.ShouldContain("release authority");
+    }
+
+    private static void ValidateBindingsAtRevision(
+        JsonElement bindings,
+        string repository,
+        string revision,
+        string pathPrefix = "")
+    {
+        foreach (JsonElement binding in bindings.EnumerateArray())
+        {
+            string boundPath = binding.GetProperty("path").GetString() ?? string.Empty;
+            Path.IsPathRooted(boundPath).ShouldBeFalse();
+            boundPath.ShouldStartWith(pathPrefix);
+            string gitPath = boundPath[pathPrefix.Length..];
+            ReadGitBlobBytes(repository, revision, gitPath, out byte[] bytes)
+                .ShouldBeTrue($"{boundPath} must remain available at {revision}");
+            Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+                .ShouldBe(binding.GetProperty("sha256").GetString(), boundPath);
+        }
+    }
+
+    private static bool ReadGitBlobBytes(string repository, string revision, string relativePath, out byte[] bytes)
+    {
+        if (!ReadGitTreeMode(repository, revision, relativePath, out string mode) || mode is not ("100644" or "100755"))
+        {
+            bytes = [];
+            return false;
+        }
+
+        var startInfo = new ProcessStartInfo("git")
+        {
+            WorkingDirectory = repository,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        startInfo.ArgumentList.Add("cat-file");
+        startInfo.ArgumentList.Add("blob");
+        startInfo.ArgumentList.Add($"{revision}:{relativePath.Replace('\\', '/')}");
+
+        using Process process = Process.Start(startInfo)!;
+        using var output = new MemoryStream();
+        Task copy = process.StandardOutput.BaseStream.CopyToAsync(output);
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        copy.GetAwaiter().GetResult();
+        bytes = output.ToArray();
+        return process.ExitCode == 0 && string.IsNullOrEmpty(error);
+    }
+
+    private static bool ReadGitTreeMode(
+        string repository,
+        string revision,
+        string relativePath,
+        out string mode)
+    {
+        (int exitCode, string output, string error) = RunGitRaw(
+            repository,
+            "ls-tree",
+            "--full-tree",
+            revision,
+            "--",
+            relativePath.Replace('\\', '/'));
+        string[] rows = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        mode = rows.Length == 1 ? rows[0].Split(' ', 2, StringSplitOptions.None)[0] : string.Empty;
+        return exitCode == 0 && string.IsNullOrEmpty(error) && rows.Length == 1 && mode is "100644" or "100755";
+    }
+
+    private static void ValidateHistoricalModeFaults()
+    {
+        string repository = Path.Combine(Path.GetTempPath(), $"projection-mode-fault-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(repository);
+        try
+        {
+            RunGit(repository, "init", "--quiet");
+            RunGit(repository, "config", "user.name", "Conformance Fixture");
+            RunGit(repository, "config", "user.email", "fixture@example.invalid");
+            File.WriteAllText(Path.Combine(repository, "regular.txt"), "regular", System.Text.Encoding.UTF8);
+            RunGit(repository, "add", "regular.txt");
+            RunGit(repository, "commit", "--quiet", "-m", "fixture: regular");
+            string regularCommit = RunGit(repository, "rev-parse", "HEAD");
+            ReadGitBlobBytes(repository, regularCommit, "regular.txt", out byte[] regularBytes).ShouldBeTrue();
+            regularBytes.ShouldNotBeEmpty();
+
+            File.CreateSymbolicLink(Path.Combine(repository, "link.txt"), "regular.txt");
+            RunGit(repository, "add", "link.txt");
+            RunGit(repository, "commit", "--quiet", "-m", "fixture: symlink");
+            string symlinkCommit = RunGit(repository, "rev-parse", "HEAD");
+            ReadGitTreeMode(repository, symlinkCommit, "link.txt", out string symlinkMode).ShouldBeFalse();
+            symlinkMode.ShouldBe("120000");
+            ReadGitBlobBytes(repository, symlinkCommit, "link.txt", out _).ShouldBeFalse();
+
+            RunGit(repository, "update-index", "--add", "--cacheinfo", $"160000,{regularCommit},nested");
+            RunGit(repository, "commit", "--quiet", "-m", "fixture: gitlink");
+            string gitlinkCommit = RunGit(repository, "rev-parse", "HEAD");
+            ReadGitTreeMode(repository, gitlinkCommit, "nested", out string gitlinkMode).ShouldBeFalse();
+            gitlinkMode.ShouldBe("160000");
+            ReadGitBlobBytes(repository, gitlinkCommit, "nested", out _).ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(repository, recursive: true);
+        }
+
+        Directory.Exists(repository).ShouldBeFalse("historical mode fixtures must be restored byte-identically");
     }
 
     private static void ValidateSourceBoundary(JsonElement proof, JsonElement sourceBoundary)

@@ -86,14 +86,31 @@ If `spec_file` is **not** set, present only options 1 and 2 (omit "Leave as acti
 
 Skip this section if `spec_file` is not set.
 
+#### Prepare committed review candidate
+
+Present the exact review-patch path set and ask the user for explicit authorization to create its local commit. **HALT** until the user authorizes or declines; choosing "Apply every patch" did not itself authorize a commit. If declined, preserve story and sprint state as `in-progress`, leave the patches uncommitted, and skip all completion gates. If authorized, stage only those paths, create a validated Conventional Commit, require every other source path clean, and resolve committed `HEAD` exactly once into `{candidate_revision}`.
+
+Authorization absent or declined is terminal for this run: HALT immediately after preserving `in-progress`. Do not fall through to status determination, sprint synchronization, the completion summary, next-step choices, or any `done` branch.
+
 #### V12 lifecycle evidence gates
 
-Before any lifecycle status write, read the baseline and exact `submodule_promotions` scope from `{spec_file}`. Run `_bmad/scripts/verify_submodule_promotion.py` against committed `HEAD`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only for promotion exit `0` plus evidence `PASS` or `not-applicable` with a nonempty assertion ledger. Otherwise force `{new_status}` to `in-progress`, preserve diagnostics in the review record, never execute the `done` branch, and synchronize only `in-progress`.
+Before any lifecycle status write, read the baseline and exact `submodule_promotions` scope from `{spec_file}`. Run `_bmad/scripts/verify_submodule_promotion.py` against `{candidate_revision}`, then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate {candidate_revision}`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only for promotion exit `0` plus evidence `PASS` or `not-applicable` with a nonempty assertion ledger. Otherwise force `{new_status}` to `in-progress`, preserve diagnostics in the review record, never execute the `done` branch, and synchronize only `in-progress`.
+
+#### Final record generation gate
+
+Clean-rebuild the committed candidate with `dotnet build <root-solution> -c Release -t:Rebuild -p:SourceRevisionId={candidate_revision}` and rerun every root-owned test project into fresh TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, with the trustworthy baseline, all declared test-result artifacts, and the exact submodule scope. Require `TEST_BUILD_NOT_BOUND` and `RECORD_NOT_DERIVED` to block the gate. Any nonzero exit or nested result other than `pass` sets `record_gate_failed`, forces `{new_status}` = `in-progress`; never write or synchronize `done`, and HALT with the stable diagnostics.
+
+On success, insert bundle field `markdown` VERBATIM into the story's final-record region and retain `markdown_sha256`. Run the generator again with `--verify-record-sha256 <markdown_sha256> --format json`. Any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` sets `record_gate_failed`, returns lifecycle state to `in-progress`, and HALTs. Only a candidate-bound, digest-verified final record permits status determination.
+
+#### Authorize completion record and lifecycle mutation
+
+Present the exact post-generation completion-record and lifecycle-status path set and request separate explicit authorization to commit that exact set. Review-candidate authorization does not authorize the completion-record commit. If authorization is absent or declined, preserve story and sprint state as `in-progress`, do not write or synchronize `done`, leave the verified record paths uncommitted, and HALT immediately without falling through to status determination, sprint synchronization, completion summary, or next-step choices. Once authorized, freeze that exact path set; no additional path may enter the completion commit.
 
 #### Determine new status based on review outcome
 
-- If all `decision-needed` and `patch` findings were resolved (fixed or rejected) AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`. Update the story file Status section to `done`.
+- If `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or rejected), AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`. Update the story file Status section to `done`.
 - If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`. Update the story file Status section to `in-progress`.
+- If `record_gate_failed` is true, preserve `new_status` = `in-progress`; never write or synchronize `done`.
 
 Save the story file.
 
@@ -109,6 +126,8 @@ If `{sprint_status}` file exists:
 4. If `{story_key}` not found in sprint status: warn the user that the story file was updated but sprint-status sync failed.
 
 If `{sprint_status}` file does not exist, note that story status was updated in the story file only.
+
+Stage and commit only the separately authorized completion-record and lifecycle-status path set with a validated Conventional Commit. Verify every authorized path is committed and no other path entered the commit. Any commit failure restores story and sprint state to `in-progress` and HALTs before completion.
 
 #### Completion summary
 

@@ -10,7 +10,7 @@
 
 ### V12 lifecycle evidence gates
 
-Before any lifecycle status write, read `{baseline_revision}` and `submodule_promotions` from `{spec_file}`. Run `_bmad/scripts/verify_submodule_promotion.py` with the repository root, the baseline, committed `HEAD`, and the exact declared scope. Then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_revision} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when the promotion gate exits `0` and the evidence result is `PASS` or `not-applicable` with a nonempty assertion ledger. On any missing, skipped, failed, blocked, or empty-ledger result, record diagnostics and HALT with lifecycle state unchanged. Re-run both gates after review patches and before final `done` finalization.
+Before the `in-review` lifecycle write, read `{baseline_revision}` and `submodule_promotions` from `{spec_file}`, capture the current committed revision, and run `_bmad/scripts/verify_submodule_promotion.py` plus `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py` against that fixed revision and exact declared scope. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when promotion exits `0` and evidence is `PASS` or `not-applicable` with a nonempty assertion ledger. Re-run both gates after review patches and before final `done` finalization. Use the authorized `{candidate_revision}` captured below for that rerun. Any missing, skipped, failed, blocked, or empty-ledger result preserves lifecycle state and HALTs.
 
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 
@@ -98,6 +98,20 @@ Announce skipped layers first, then launch every active layer before handling an
      ```
      After all appends, parse the complete frontmatter as YAML and verify that `deferred` is one list containing every prior item plus the new items with their intended text. Repair serialization errors before continuing.
 
+### Prepare Committed Candidate
+
+The unattended route may proceed only when the invocation already carries explicit authorization for the exact story-owned candidate path set. General permission to run unattended or apply patches is not commit authorization. If exact authorization is absent, preserve `in-progress`, leave the paths uncommitted, record the blocker, and HALT without asking a question. When authorized, stage only that exact path set, create a validated Conventional Commit, require all other source paths clean, and resolve committed `HEAD` exactly once into `{candidate_revision}`.
+
+### Require Separately Preauthorized Completion Commit
+
+Before generating or inserting a completion record, require the invocation to carry a second, separate preauthorization for the exact post-generation completion-record and lifecycle-status path set. Candidate-commit authorization never counts as completion-commit authorization. If the separate exact preauthorization is absent, preserve the spec and sprint lifecycle as `in-progress`, do not write or synchronize `done`, record the blocker, and HALT without asking a question. Freeze the separately preauthorized path set before continuing; no additional path may enter the completion commit.
+
+### Final Record Generation Gate
+
+Clean-rebuild the committed candidate with `dotnet build <root-solution> -c Release -t:Rebuild -p:SourceRevisionId={candidate_revision}` and rerun every root-owned test project into fresh TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, with the trustworthy baseline, all declared test-result artifacts, and the exact submodule scope. Require `TEST_BUILD_NOT_BOUND` and `RECORD_NOT_DERIVED` to block the gate. Any nonzero exit or nested result other than `pass` returns lifecycle state to `in-progress`; Never write `done`, and HALT with the stable diagnostics.
+
+On success, insert bundle field `markdown` VERBATIM into the story's final-record region and retain `markdown_sha256`. Run the generator again with `--verify-record-sha256 <markdown_sha256> --format json`. Any nonzero exit, result other than `pass`, or `RECORD_CONTENT_DRIFT` returns lifecycle state to `in-progress` and HALTs. Only a candidate-bound, digest-verified final record permits the terminal finalization below.
+
 ## Finalize
 
 Write the following details to `{spec_file}` under `## Auto Run Result`:
@@ -110,11 +124,11 @@ Write the following details to `{spec_file}` under `## Auto Run Result`:
 
 Set `{spec_file}` frontmatter `followup_review_recommended` from the computation above.
 
-If version control is unavailable, set `{spec_file}` frontmatter `status: done`, then proceed to HALT.
+If version control is unavailable, preserve `{spec_file}` and sprint lifecycle as `in-progress` and HALT with blocking condition `completion commit unavailable`; an uncommitted completion record cannot authorize `done`.
 
-If version control is available, write `status: done` into `{spec_file}` frontmatter, then:
+If version control is available, write `status: done` into `{spec_file}` frontmatter only because the exact completion-record and lifecycle-status path set was separately preauthorized, then:
 
-1. Commit any reviewed-diff files that remain uncommitted, including `{spec_file}` when it is tracked in that working copy. Keep commits already created during this run. Verify every reviewed-diff file appears in the change set after `{baseline_revision}` and none remains uncommitted. Do not push.
+1. Stage and commit only the separately preauthorized completion-record and lifecycle-status path set. Keep the candidate commit already created during this run. Verify every preauthorized completion path is committed and no other path entered that commit. Do not push. Any commit failure restores lifecycle state to `in-progress` and HALTs rather than completing.
 2. Verify the version-controlled working copy is clean. Otherwise HALT with status `blocked` and blocking condition `finalization left repository dirty`.
 
 HALT with status `done`.

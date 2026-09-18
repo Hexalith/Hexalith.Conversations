@@ -1,0 +1,52 @@
+{
+  "schemaVersion": "1.0.0",
+  "candidateDigestAlgorithm": "sha256-path-mode-hash-size-overlay-v2",
+  "candidateDigest": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840",
+  "toolchain": {
+    "command": [
+      "dotnet",
+      "--info"
+    ],
+    "exitCode": 0,
+    "sdkVersion": "10.0.401",
+    "sdkCommit": "e34a38d2ae",
+    "msbuildVersion": "18.9.11+e34a38d2a",
+    "capture": {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-dotnet-info.txt",
+      "sha256": "d649c0709ac9cc2b8e07f561b0f3458aab2570ce8aaaeb0e2efe907b4eed3be0",
+      "bytes": 1770,
+      "role": "candidate-toolchain-capture"
+    },
+    "globalJson": {
+      "path": "global.json",
+      "sha256": "fc4602f9d88c9440f70f72732343a88c5e4190223fb9b77f9b8ac8eb1c4c8c2d",
+      "bytes": 79,
+      "role": "candidate-sdk-pin"
+    }
+  },
+  "restore": {
+    "command": [
+      "dotnet",
+      "restore",
+      "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+      "--force-evaluate",
+      "-p:NuGetAudit=false",
+      "-p:MinVerVersionOverride=1.0.0"
+    ],
+    "exitCode": 0,
+    "result": "pass",
+    "log": {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log",
+      "sha256": "1407c6c5837cdbe1a170e08a04b3d4d2b9cae2236883636781804c7edd6e7b00",
+      "bytes": 2902,
+      "role": "candidate-restore-log"
+    },
+    "dependencyInventory": {
+      "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json",
+      "sha256": "b003089f8044e8ca053c4aa4975d4dcabf01cfaa326547bdd15a79b00b09a611",
+      "bytes": 6063,
+      "role": "candidate-restore-dependency-inventory"
+    },
+    "projectCount": 17
+  }
+}

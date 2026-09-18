@@ -959,11 +959,11 @@ WORKFLOW_GATE_CONTRACTS = {
         COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-build/step-05-present.md": (
-        ("### V12 lifecycle evidence gates", "### Mark Spec Done"),
+        ("### V12 lifecycle evidence gates", "### Final Record Generation Gate"),
         COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-build/step-oneshot.md": (
-        ("### V12 lifecycle evidence gates", "### Finalize Spec"),
+        ("### V12 lifecycle evidence gates", "### Final Record Generation Gate"),
         COMMON_V12_GATE_CLAUSES,
     ),
     "bmad-build-auto/step-04-review.md": (
@@ -971,7 +971,7 @@ WORKFLOW_GATE_CONTRACTS = {
         COMMON_V12_GATE_CLAUSES + (AUTO_REVIEW_RERUN_CLAUSE,),
     ),
     "bmad-code-review/steps/step-04-present.md": (
-        ("#### V12 lifecycle evidence gates", "#### Determine new status based on review outcome"),
+        ("#### V12 lifecycle evidence gates", "#### Final record generation gate"),
         COMMON_V12_GATE_CLAUSES,
     ),
 }

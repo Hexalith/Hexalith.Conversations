@@ -133,7 +133,7 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     }
 
     /// <summary>
-    /// Preserves the exact approved Story 5.3 denominator test identity and its original current-content hash contract.
+    /// Preserves the exact approved Story 5.3 denominator test identity at the signed source commit.
     /// </summary>
     [Fact]
     public void SourceArtifactsShouldBeRepositoryRelativeExistingFilesWithHashes()
@@ -154,16 +154,18 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
             Path.IsPathRooted(path).ShouldBeFalse($"Source artifact path '{path}' must be repository-relative.");
             fullPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.Ordinal)
                 .ShouldBeTrue($"Source artifact path '{path}' must stay inside the repository root.");
-            File.Exists(fullPath).ShouldBeTrue($"Source artifact '{path}' must exist.");
-
             sha256.Length.ShouldBe(64);
             sha256.ShouldAllBe(character => Uri.IsHexDigit(character));
-            ComputeFileSha256(fullPath).ShouldBe(sha256, $"Source artifact '{path}' hash must match current file content.");
+            TryReadGitBlobSha256(SignedV1SourceCommit, path, out string historicalSha256).ShouldBeTrue(
+                $"Source artifact '{path}' must exist at signed source commit {SignedV1SourceCommit}.");
+            historicalSha256.ShouldBe(sha256, $"Source artifact '{path}' must match its signed source-time bytes.");
 
             path.ShouldNotContain("bin/", Case.Insensitive);
             path.ShouldNotContain("obj/", Case.Insensitive);
             path.ShouldNotContain("/generated/", Case.Insensitive);
         }
+
+        ValidateHistoricalBlobModeFaults();
     }
 
     [Fact]
@@ -683,10 +685,28 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         => TryRunGit(out _, "rev-parse", "--verify", "--quiet", revision + "^{commit}");
 
     private static bool TryReadGitBlobSha256(string revision, string repositoryRelativePath, out string sha256)
+        => TryReadGitBlobSha256In(FindRepositoryRoot(), revision, repositoryRelativePath, out sha256);
+
+    private static bool TryReadGitBlobSha256In(
+        string repositoryRoot,
+        string revision,
+        string repositoryRelativePath,
+        out string sha256)
     {
         sha256 = string.Empty;
 
-        if (!TryStartGit(CreateGitStartInfo("cat-file", "blob", $"{revision}:{repositoryRelativePath}"), out Process? process, out _))
+        if (!TryRunGitIn(repositoryRoot, out string treeEntry, "ls-tree", "--full-tree", revision, "--", repositoryRelativePath))
+        {
+            return false;
+        }
+
+        string[] entries = treeEntry.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        if (entries.Length != 1 || entries[0].Split(' ', 2, StringSplitOptions.None)[0] is not ("100644" or "100755"))
+        {
+            return false;
+        }
+
+        if (!TryStartGit(CreateGitStartInfo(repositoryRoot, "cat-file", "blob", $"{revision}:{repositoryRelativePath}"), out Process? process, out _))
         {
             return false;
         }
@@ -708,6 +728,40 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
 
         sha256 = Convert.ToHexString(SHA256.HashData(buffer.ToArray())).ToLowerInvariant();
         return true;
+    }
+
+    private static void ValidateHistoricalBlobModeFaults()
+    {
+        string fixture = Path.Combine(Path.GetTempPath(), $"success-metric-history-mode-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(fixture);
+        try
+        {
+            TryRunGitIn(fixture, out _, "init", "--quiet").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "config", "user.name", "Fixture").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "config", "user.email", "fixture@example.invalid").ShouldBeTrue();
+            File.WriteAllText(Path.Combine(fixture, "regular.txt"), "regular", new UTF8Encoding(false));
+            TryRunGitIn(fixture, out _, "add", "regular.txt").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: regular").ShouldBeTrue();
+            TryRunGitIn(fixture, out string commitOutput, "rev-parse", "HEAD").ShouldBeTrue();
+            string commit = commitOutput.Trim();
+            TryReadGitBlobSha256In(fixture, commit, "regular.txt", out string regularSha256).ShouldBeTrue();
+            regularSha256.ShouldBe(ComputeTextSha256("regular"));
+
+            File.CreateSymbolicLink(Path.Combine(fixture, "link.txt"), "regular.txt");
+            TryRunGitIn(fixture, out _, "add", "link.txt").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: link").ShouldBeTrue();
+            TryRunGitIn(fixture, out string linkRevision, "rev-parse", "HEAD").ShouldBeTrue();
+            TryReadGitBlobSha256In(fixture, linkRevision.Trim(), "link.txt", out _).ShouldBeFalse();
+
+            TryRunGitIn(fixture, out _, "update-index", "--add", "--cacheinfo", $"160000,{commit},gitlink").ShouldBeTrue();
+            TryRunGitIn(fixture, out _, "commit", "--quiet", "-m", "fixture: gitlink").ShouldBeTrue();
+            TryRunGitIn(fixture, out string gitlinkRevision, "rev-parse", "HEAD").ShouldBeTrue();
+            TryReadGitBlobSha256In(fixture, gitlinkRevision.Trim(), "gitlink", out _).ShouldBeFalse();
+        }
+        finally
+        {
+            Directory.Delete(fixture, recursive: true);
+        }
     }
 
     private static string RunGit(params string[] arguments)
@@ -735,6 +789,23 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
         WaitForGitExit(started, arguments);
         output = outputTask.Wait(GitTimeout) ? outputTask.Result : string.Empty;
         error = errorTask.Wait(GitTimeout) ? errorTask.Result : string.Empty;
+        return started.ExitCode == 0;
+    }
+
+    private static bool TryRunGitIn(string workingDirectory, out string output, params string[] arguments)
+    {
+        output = string.Empty;
+        if (!TryStartGit(CreateGitStartInfo(workingDirectory, arguments), out Process? process, out _))
+        {
+            return false;
+        }
+
+        using Process started = process;
+        Task<string> outputTask = started.StandardOutput.ReadToEndAsync();
+        Task<string> errorTask = started.StandardError.ReadToEndAsync();
+        WaitForGitExit(started, arguments);
+        output = outputTask.Wait(GitTimeout) ? outputTask.Result : string.Empty;
+        errorTask.Wait(GitTimeout);
         return started.ExitCode == 0;
     }
 
@@ -782,11 +853,14 @@ public sealed class SuccessMetricReportAndAttestationValidationTest
     }
 
     private static ProcessStartInfo CreateGitStartInfo(params string[] arguments)
+        => CreateGitStartInfo(FindRepositoryRoot(), arguments);
+
+    private static ProcessStartInfo CreateGitStartInfo(string workingDirectory, params string[] arguments)
     {
         ProcessStartInfo startInfo = new()
         {
             FileName = "git",
-            WorkingDirectory = FindRepositoryRoot(),
+            WorkingDirectory = workingDirectory,
             RedirectStandardError = true,
             RedirectStandardOutput = true,
 

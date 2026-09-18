@@ -3,9 +3,11 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import os
 import shutil
 import subprocess
 import sys
+import types
 from pathlib import Path
 
 import pytest
@@ -13,10 +15,20 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[3]
 SCRIPT = ROOT / "_bmad/scripts/generate_preservation_traceability_manifest.py"
+RC2_SCRIPT = ROOT / "_bmad/scripts/generate_preservation_traceability_manifest_v3_rc2.py"
 
 
 def load_module():
     spec = importlib.util.spec_from_file_location("preservation_manifest", SCRIPT)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def load_rc2_module():
+    spec = importlib.util.spec_from_file_location("preservation_manifest_rc2_faults", RC2_SCRIPT)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
@@ -368,3 +380,346 @@ def test_check_mode_reports_current_authority_drift_without_rewriting_v2_history
         "PROJECTION_DRIFT",
     } <= codes
     assert {path: path.read_bytes() for path in before} == before
+
+
+def test_rc2_path_validation_rejects_real_symlink_fifo_directory_and_gitlink_modes(tmp_path, monkeypatch):
+    rc2 = load_rc2_module()
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    subprocess.run(["git", "init", "--quiet"], cwd=repository, check=True)
+    subprocess.run(["git", "config", "user.name", "Fixture"], cwd=repository, check=True)
+    subprocess.run(["git", "config", "user.email", "fixture@example.invalid"], cwd=repository, check=True)
+    regular = repository / "regular.txt"
+    regular.write_text("unchanged", encoding="utf-8")
+    subprocess.run(["git", "add", "regular.txt"], cwd=repository, check=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "fixture: regular"], cwd=repository, check=True)
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repository, check=True, capture_output=True, text=True).stdout.strip()
+    monkeypatch.setattr(rc2, "ROOT", repository)
+    monkeypatch.setattr(rc2, "ROOT_RESOLVED", repository.resolve())
+    monkeypatch.setattr(rc2, "BASE_COMMIT", commit)
+    monkeypatch.setattr(rc2, "SOURCE_INPUT_PATHS", ["regular.txt"])
+    monkeypatch.setattr(rc2, "EXPECTED_NEW_SOURCE_INPUT_PATHS", frozenset())
+    assert rc2.validate_repository_path(regular, require_file=True, purpose="fault fixture") == "regular.txt"
+    assert rc2.source_binding(regular)["mode"] == "100644"
+    original_mode = regular.stat().st_mode & 0o777
+    original_bytes = regular.read_bytes()
+    try:
+        regular.chmod(original_mode | 0o111)
+        with pytest.raises(ValueError, match="worktree mode mismatch"):
+            rc2.source_binding(regular)
+    finally:
+        regular.chmod(original_mode)
+    assert regular.read_text(encoding="utf-8") == "unchanged"
+
+    original_stage = subprocess.run(
+        ["git", "ls-files", "--stage", "--", "regular.txt"],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    ).stdout
+    original_digest = rc2.candidate_digest(rc2.source_bindings())
+    try:
+        subprocess.run(
+            ["git", "update-index", "--chmod=+x", "--", "regular.txt"], cwd=repository, check=True
+        )
+        assert rc2.worktree_git_mode(regular) == "100644"
+        with pytest.raises(ValueError, match="Source input index mode mismatch.*stage=100755"):
+            rc2.candidate_digest(rc2.source_bindings())
+    finally:
+        subprocess.run(
+            ["git", "update-index", "--chmod=-x", "--", "regular.txt"], cwd=repository, check=True
+        )
+        regular.write_bytes(original_bytes)
+        regular.chmod(original_mode)
+
+    assert subprocess.run(
+        ["git", "ls-files", "--stage", "--", "regular.txt"],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    ).stdout == original_stage
+    assert regular.read_bytes() == original_bytes
+    assert rc2.worktree_git_mode(regular) == "100644"
+    assert rc2.candidate_digest(rc2.source_bindings()) == original_digest
+
+    try:
+        subprocess.run(["git", "rm", "--cached", "--", "regular.txt"], cwd=repository, check=True)
+        regular.write_bytes(original_bytes)
+        regular.chmod(original_mode)
+        with pytest.raises(ValueError, match="index entry missing for baseline-present path"):
+            rc2.candidate_digest(rc2.source_bindings())
+    finally:
+        regular.write_bytes(original_bytes)
+        regular.chmod(original_mode)
+        subprocess.run(["git", "add", "--", "regular.txt"], cwd=repository, check=True)
+
+    assert subprocess.run(
+        ["git", "ls-files", "--stage", "--", "regular.txt"],
+        cwd=repository,
+        check=True,
+        capture_output=True,
+    ).stdout == original_stage
+    assert regular.read_bytes() == original_bytes
+    assert rc2.worktree_git_mode(regular) == "100644"
+    assert rc2.candidate_digest(rc2.source_bindings()) == original_digest
+
+    new_source = repository / "new-source.txt"
+    new_source.write_text("new overlay input", encoding="utf-8")
+    monkeypatch.setattr(rc2, "SOURCE_INPUT_PATHS", ["new-source.txt"])
+    monkeypatch.setattr(rc2, "EXPECTED_NEW_SOURCE_INPUT_PATHS", frozenset({"new-source.txt"}))
+    assert rc2.candidate_digest(rc2.source_bindings())
+
+    symlink = repository / "link.txt"
+    symlink.symlink_to(regular)
+    with pytest.raises(ValueError, match="symlink"):
+        rc2.validate_repository_path(symlink, require_file=True, purpose="fault fixture")
+    subprocess.run(["git", "add", "link.txt"], cwd=repository, check=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "fixture: symlink"], cwd=repository, check=True)
+    assert subprocess.run(
+        ["git", "ls-tree", "HEAD", "--", "link.txt"], cwd=repository, check=True, capture_output=True, text=True
+    ).stdout.startswith("120000 ")
+    symlink.unlink()
+    symlink.write_text("regular worktree bytes", encoding="utf-8")
+    with pytest.raises(ValueError, match="Git mode.*120000"):
+        rc2.validate_repository_path(symlink, require_file=True, purpose="fault fixture")
+
+    directory = repository / "directory"
+    directory.mkdir()
+    with pytest.raises(ValueError, match="non-regular"):
+        rc2.validate_repository_path(directory, require_file=True, purpose="fault fixture")
+
+    if hasattr(os, "mkfifo"):
+        fifo = repository / "fifo"
+        os.mkfifo(fifo)
+        with pytest.raises(ValueError, match="non-regular"):
+            rc2.validate_repository_path(fifo, require_file=True, purpose="fault fixture")
+
+    subprocess.run(["git", "update-index", "--add", "--cacheinfo", f"160000,{commit},nested"], cwd=repository, check=True)
+    subprocess.run(["git", "commit", "--quiet", "-m", "fixture: gitlink"], cwd=repository, check=True)
+    assert subprocess.run(
+        ["git", "ls-tree", "HEAD", "--", "nested"], cwd=repository, check=True, capture_output=True, text=True
+    ).stdout.startswith("160000 ")
+    nested = repository / "nested"
+    nested.write_text("regular worktree bytes", encoding="utf-8")
+    with pytest.raises(ValueError, match="Git mode.*160000"):
+        rc2.validate_repository_path(nested, require_file=True, purpose="fault fixture")
+    assert regular.read_text(encoding="utf-8") == "unchanged"
+
+
+def test_rc2_runner_rejects_dll_replacement_between_pre_and_post_observation(tmp_path, monkeypatch):
+    rc2 = load_rc2_module()
+    candidate = "a" * 64
+    repository = tmp_path / "repository"
+    assembly = repository / "assembly.dll"
+    manifest = repository / "manifest.json"
+    repository.mkdir()
+    subprocess.run(["git", "init", "--quiet"], cwd=repository, check=True)
+    assembly.write_bytes(b"assembly:" + candidate.encode())
+    manifest.write_text("{}", encoding="utf-8")
+    monkeypatch.setattr(rc2, "ROOT", repository)
+    monkeypatch.setattr(rc2, "ROOT_RESOLVED", repository.resolve())
+    monkeypatch.setattr(rc2, "ASSEMBLY_PATH", assembly)
+    monkeypatch.setattr(rc2, "RC2_JSON", manifest)
+    monkeypatch.setattr(rc2, "EVIDENCE_ROOT", repository / "evidence")
+    monkeypatch.setattr(rc2, "validate_changed_path_boundary", lambda _required: None)
+    before = rc2.assembly_binding(candidate)
+    monkeypatch.setattr(rc2, "validated_build_evidence", lambda _digest: {"assembly": before})
+    original_run = rc2.subprocess.run
+
+    def fake_run(command, **kwargs):
+        if command[:2] != ["dotnet", "exec"]:
+            return original_run(command, **kwargs)
+        assembly.write_bytes(assembly.read_bytes() + b":replacement")
+        Path(command[-1]).write_text("runner output", encoding="utf-8")
+        return types.SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(rc2.subprocess, "run", fake_run)
+    with pytest.raises(ValueError, match="assembly changed"):
+        rc2.run_conformance(candidate)
+
+
+def test_rc2_run_build_orders_restore_build_and_assembly_and_short_circuits_on_restore_failure(monkeypatch):
+    rc2 = load_rc2_module()
+    candidate = "a" * 64
+    events = []
+    restore_receipt = {
+        "restore": {
+            "command": ["dotnet", "restore", "fixture.csproj"],
+            "exitCode": 0,
+            "result": "pass",
+        }
+    }
+
+    monkeypatch.setattr(rc2, "validate_changed_path_boundary", lambda _required: None)
+    monkeypatch.setattr(
+        rc2,
+        "validated_restore_evidence",
+        lambda _digest: events.append("restore-validation") or restore_receipt,
+    )
+    monkeypatch.setattr(
+        rc2,
+        "binding",
+        lambda path, role: {"path": Path(path).name, "sha256": "b" * 64, "bytes": 1, "role": role},
+    )
+    monkeypatch.setattr(rc2, "build_command", lambda _digest: ["dotnet", "build", "fixture.csproj"])
+
+    def run_build_process(command, **_kwargs):
+        assert command == ["dotnet", "build", "fixture.csproj"]
+        events.append("subprocess-build")
+        return types.SimpleNamespace(returncode=0, stdout=b"controlled build output")
+
+    monkeypatch.setattr(rc2.subprocess, "run", run_build_process)
+    monkeypatch.setattr(rc2, "atomic_write", lambda _path, _data: None)
+    monkeypatch.setattr(rc2, "parse_build_log", lambda: {"result": "pass", "warnings": 0, "errors": 0})
+    monkeypatch.setattr(
+        rc2,
+        "assembly_binding",
+        lambda _digest: events.append("assembly-validation")
+        or {"path": "fixture.dll", "sha256": "c" * 64, "bytes": 1, "sourceRevisionId": candidate},
+    )
+
+    assert rc2.run_build(candidate) == 0
+    assert events == ["restore-validation", "subprocess-build", "assembly-validation"]
+
+    events.clear()
+
+    def reject_restore(_digest):
+        events.append("restore-validation")
+        raise ValueError("restore validation rejected")
+
+    monkeypatch.setattr(rc2, "validated_restore_evidence", reject_restore)
+    with pytest.raises(ValueError, match="restore validation rejected"):
+        rc2.run_build(candidate)
+    assert events == ["restore-validation"]
+
+
+def test_rc2_receipt_rejects_semantic_xml_drift_even_with_recomputed_hash(tmp_path, monkeypatch):
+    rc2 = load_rc2_module()
+    import xml.etree.ElementTree as element_tree
+
+    xml_path = tmp_path / "result.xml"
+    xml_path.write_bytes(rc2.XML_PATH.read_bytes())
+    tree = element_tree.parse(xml_path)
+    assembly_element = tree.getroot().find("assembly")
+    assert assembly_element is not None
+    first_test = next(assembly_element.iter("test"))
+    assert first_test.attrib["result"] == "Pass"
+    first_test.attrib["result"] = "Fail"
+    assembly_element.attrib["passed"] = str(int(assembly_element.attrib["passed"]) - 1)
+    assembly_element.attrib["failed"] = str(int(assembly_element.attrib["failed"]) + 1)
+    tree.write(xml_path, encoding="utf-8", xml_declaration=True)
+    receipt_path = tmp_path / "receipt.json"
+    receipt = json.loads(rc2.RUN_RECEIPT_PATH.read_text(encoding="utf-8"))
+    candidate = receipt["candidateDigest"]
+    assembly = receipt["assembly"]
+    receipt["xml"] = {
+        "path": xml_path.relative_to(Path("/")).as_posix(),
+        "sha256": rc2.sha256_bytes(xml_path.read_bytes()),
+        "bytes": xml_path.stat().st_size,
+    }
+    receipt_path.write_bytes(rc2.canonical_json(receipt))
+    v3 = rc2.load_v3_generator()
+    monkeypatch.setattr(rc2, "ROOT", Path("/"))
+    monkeypatch.setattr(rc2, "ROOT_RESOLVED", Path("/"))
+    monkeypatch.setattr(rc2, "RC2_JSON", Path("/") / receipt["preRunManifest"]["path"])
+    monkeypatch.setattr(rc2, "RUN_RECEIPT_PATH", receipt_path)
+    monkeypatch.setattr(rc2, "XML_PATH", xml_path)
+    monkeypatch.setattr(rc2, "validate_repository_path", lambda path, **_kwargs: Path(path).name)
+    with pytest.raises(ValueError, match="rows/counters"):
+        rc2.validated_receipt(v3, candidate, assembly, require_current_manifest=False)
+
+
+def test_rc2_restore_build_and_detached_faults_fail_closed_and_restore_bytes():
+    rc2 = load_rc2_module()
+    candidate = rc2.candidate_digest(rc2.source_bindings())
+    protected = [
+        rc2.TOOLCHAIN_PATH,
+        rc2.RESTORE_INVENTORY_PATH,
+        rc2.RESTORE_RECEIPT_PATH,
+        rc2.BUILD_LOG_PATH,
+        rc2.BUILD_RECEIPT_PATH,
+        rc2.SEMANTIC_RESULTS_PATH,
+        rc2.DETACHED_INDEX_PATH,
+        rc2.DETACHED_DIGEST_PATH,
+    ]
+    before = {path: path.read_bytes() for path in protected}
+
+    def restore(path):
+        path.write_bytes(before[path])
+
+    try:
+        restore_receipt = json.loads(before[rc2.RESTORE_RECEIPT_PATH])
+        mutated = copy.deepcopy(restore_receipt)
+        mutated["restore"]["command"][0] = "mutated-dotnet"
+        rc2.RESTORE_RECEIPT_PATH.write_bytes(rc2.canonical_json(mutated))
+        with pytest.raises(ValueError, match="restore command/exit/result"):
+            rc2.validated_restore_evidence(candidate)
+        restore(rc2.RESTORE_RECEIPT_PATH)
+
+        mutated = copy.deepcopy(restore_receipt)
+        mutated["restore"]["exitCode"] = 1
+        rc2.RESTORE_RECEIPT_PATH.write_bytes(rc2.canonical_json(mutated))
+        with pytest.raises(ValueError, match="restore command/exit/result"):
+            rc2.validated_restore_evidence(candidate)
+        restore(rc2.RESTORE_RECEIPT_PATH)
+
+        rc2.TOOLCHAIN_PATH.write_bytes(before[rc2.TOOLCHAIN_PATH].replace(b"10.0.401", b"10.0.999", 1))
+        with pytest.raises(ValueError, match="Candidate SDK mismatch"):
+            rc2.validated_restore_evidence(candidate)
+        restore(rc2.TOOLCHAIN_PATH)
+
+        inventory = json.loads(before[rc2.RESTORE_INVENTORY_PATH])
+        inventory["projects"][0]["sha256"] = "0" * 64
+        rc2.RESTORE_INVENTORY_PATH.write_bytes(rc2.canonical_json(inventory))
+        with pytest.raises(ValueError, match="dependency inventory drift"):
+            rc2.validated_restore_evidence(candidate)
+        restore(rc2.RESTORE_INVENTORY_PATH)
+
+        build_receipt = json.loads(before[rc2.BUILD_RECEIPT_PATH])
+        build_mutations = [
+            (lambda value: value["sequence"].reverse(), "restore/build order"),
+            (lambda value: value["build"]["command"].__setitem__(0, "mutated-dotnet"), "build receipt command"),
+            (lambda value: value["build"].__setitem__("exitCode", 1), "exit/result"),
+            (lambda value: value["preBuild"]["restoreReceipt"].__setitem__("sha256", "0" * 64), "pre-build restore/toolchain"),
+        ]
+        for mutate, diagnostic in build_mutations:
+            mutated = copy.deepcopy(build_receipt)
+            mutate(mutated)
+            rc2.BUILD_RECEIPT_PATH.write_bytes(rc2.canonical_json(mutated))
+            with pytest.raises(ValueError, match=diagnostic):
+                rc2.validated_build_evidence(candidate)
+            restore(rc2.BUILD_RECEIPT_PATH)
+
+        rc2.BUILD_LOG_PATH.write_bytes(before[rc2.BUILD_LOG_PATH] + b"\nmutated\n")
+        with pytest.raises(ValueError, match="build receipt log binding"):
+            rc2.validated_build_evidence(candidate)
+        restore(rc2.BUILD_LOG_PATH)
+
+        rc2.DETACHED_INDEX_PATH.write_bytes(before[rc2.DETACHED_INDEX_PATH] + b"\n")
+        completed = subprocess.run(
+            [sys.executable, str(RC2_SCRIPT), "--check", "--require-green"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert completed.returncode == 1
+        assert rc2.DETACHED_INDEX_PATH.relative_to(ROOT).as_posix() in completed.stdout
+        restore(rc2.DETACHED_INDEX_PATH)
+
+        rc2.SEMANTIC_RESULTS_PATH.write_bytes(before[rc2.SEMANTIC_RESULTS_PATH] + b"\n")
+        completed = subprocess.run(
+            [sys.executable, str(RC2_SCRIPT), "--check", "--require-green"],
+            cwd=ROOT,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        assert completed.returncode != 0
+        assert "Final manifest/core evidence must already be byte-exact" in completed.stderr
+        assert rc2.SEMANTIC_RESULTS_PATH.relative_to(ROOT).as_posix() in completed.stderr
+    finally:
+        for path, data in before.items():
+            path.write_bytes(data)
+
+    assert {path: path.read_bytes() for path in protected} == before
