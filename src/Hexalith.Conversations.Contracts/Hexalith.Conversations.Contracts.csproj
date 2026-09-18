@@ -10,12 +10,15 @@
     <None Remove="$(MSBuildProjectDirectory)\..\..\README.md" />
     <None Update="README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <!-- Consume the promoted ruleless value-converter bases from Commons (FR-14 / Story 3.6).
-         Resolves Commons from source as a root-declared submodule under references/; the dual condition mirrors the
-         HexalithCommonsRoot resolution in the repository-root Directory.Build.props. -->
+         Debug source mode resolves Commons as a root-declared submodule under references/; the dual condition
+         mirrors the HexalithCommonsRoot resolution in the repository-root Directory.Build.props. -->
     <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+    <PackageReference Include="Hexalith.Commons.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Contracts.Tests" />
