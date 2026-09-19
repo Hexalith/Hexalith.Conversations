@@ -316,3 +316,133 @@ No UX implementation requirements are activated for this analysis. The UX specif
 ## Epic List
 
 {{epics_list}}
+
+<!-- EPIC-7-PLANNING-AUTHORITY-ROUTE-CORRECTION:BEGIN correction-id=epic-7-planning-route-2026-09-19 source-prefix-bytes=28871 source-prefix-sha256=11b4678fc7298c8e1fef8c3c729436be6efed20c5115eda29cb42bb73f3520b6 overlay-version=epic-6-authority-2026-08-18-v14 architecture-version=conversations-architecture-2026-09-16-v15 hold=ACTIVE -->
+
+## Epic 7: Reliable Mechanical Completion Records
+
+**Authority status:** This is the last complete Epic 7 discovery block in this
+file and is the designated Epic 7 input for `bmad-build` context compilation.
+It supersedes this file's earlier `draft-non-authoritative` disclaimer, V14
+architecture selection, and unresolved `{{requirements_coverage_map}}` and
+`{{epics_list}}` placeholders only for Epic 7 discovery. The 28,871-byte prefix
+remains immutable and is bound by SHA-256
+`11b4678fc7298c8e1fef8c3c729436be6efed20c5115eda29cb42bb73f3520b6`.
+
+**Epic/backlog authority:** `epic-6-authority-2026-08-18-v14`, carried by
+`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md`.
+That carrier remains immutable and is not replaced or narrowed by this route.
+
+**Architecture authority:** `conversations-architecture-2026-09-16-v15`, the
+last complete marker in `_bmad-output/planning-artifacts/architecture.md`, plus
+every earlier invariant it does not explicitly supersede.
+
+**Required compiled-context frontmatter:**
+
+```yaml
+overlay_version: 'epic-6-authority-2026-08-18-v14'
+architecture_version: 'conversations-architecture-2026-09-16-v15'
+```
+
+**Goal:** Provide deterministic, candidate-bound completion records whose test
+counts, exact changed-path set, candidate identity, submodule condition, root
+gitlink state, and verdict are derived from machine results and Git objects
+rather than copied by a caller, so no story can reach review or done with
+vacuous scope, stale or incomplete tests, dirty or moved dependencies,
+displaced workflow integration, or rewritten historical evidence.
+
+### Stories
+
+- Story 7.1: Define the final-record schema and deterministic generator core
+- Story 7.2: Derive test, path, candidate, submodule, and gitlink facts
+- Story 7.3: Integrate generation into every blocking completion transition
+- Story 7.4: Verify historical mode and required fault-injection blockers
+
+### Governing constraints
+
+- Story 6.2 is the immutable hard epic predecessor. Superseded Story 6.8 and its
+  partial implementation remain unaccepted inputs only.
+- Records derive counts, commits, repository-relative paths, mode-`160000`
+  root gitlinks, and verdicts. Caller-authored completion facts are prohibited.
+- Required test results must be current, nonempty, passing, and contain zero
+  failed, unapproved-skipped, or not-run checks. Environmental inability is
+  `BLOCKED`, never `PASS`.
+- Changed-path and input/output bindings are repository-relative,
+  slash-separated, contain no `..` segment or backslash, and never name a path
+  beneath a root-declared `references/` gitlink as an owned mutation.
+- Submodules are never initialized, updated, or traversed to derive evidence.
+  Gitlink identity comes from raw root-tree mode `160000` entries and must match
+  the ordinal root `.gitmodules` inventory exactly.
+- One authoritative JSON final record and its digest-bound deterministic
+  Markdown rendering are produced only after every declared scenario passes.
+- Historical verification is read-only. V1-V21 authority, evidence, completed
+  records, accepted baselines, signed evidence, product scope, public value
+  sets, and gitlink evidence remain immutable point-in-time history.
+- V15-V21 sidecars are evidence at their recorded candidates. A raw
+  `authorityEffect`, including `LIFTED`, is never live authorization.
+- Epic 7 exits only when Stories 7.1-7.4 are `done` at compatible accepted
+  candidates. Story 7.2 remains locked until Story 7.1 reaches the V15 AD-4
+  terminal `ACCEPTED` state through atomic successor authority.
+
+### Current hold and Story 7.1 entry gates
+
+The effective implementation hold is `ACTIVE`. This block fixes discovery only
+and does not authorize Story 7.1 implementation, review, completion, release, or
+push. Story 7.1 may enter implementation only when **all** of the following are
+true at the evaluated protected candidate:
+
+1. The V15 AD-3 selected protected checker returns a schema-valid, explicitly
+   scoped `PASS`; missing input, digest mismatch, incomplete history, nonzero
+   exit, `FAIL`, `BLOCKED`, candidate drift, or gitlink drift resolves to
+   `ACTIVE`.
+2. AR-15 is no longer `BLOCKED_BOOTSTRAP_AUTHORITY`: the exact external
+   no-bypass organization-ruleset validator is identity/digest pinned, the
+   one-time atomic V22 recovery candidate passes and merges, its nonce is
+   consumed, and the generic resolver passes on protected `main`. V22 itself
+   preserves `ACTIVE` and grants no Story 7.1 execution authority.
+3. The current workflow-route inventory, generic marker resolver, and Quality
+   conformance gate required by V15 AD-9 exist and pass.
+4. `_bmad-output/planning-artifacts/production-operational-envelope-v1.md`
+   exists and its V15 AD-5 gate passes; any waiver is explicit, current, and
+   accepted by the Release owner.
+5. A later owner-approved AD-4 successor authority enters
+   `EXECUTION_ALLOWED`, binds the exact protected merge candidate, admissible
+   integration paths, every root gitlink, and current checkpoint/input
+   evidence, and explicitly retires or replaces V21's temporary descendant
+   restriction.
+6. The Story 6.2, `7.1-SCHEMAS`, IR-0, V19 checkpoint-completion, V20 input
+   inventory, and Story 7.1 contract bindings required by that successor are
+   present, digest-valid, candidate-compatible, and not stale. Their historical
+   `READY`, `PASS`, or `LIFTED` fields do not satisfy current-state gates by
+   themselves.
+7. The PRD's independently blocking current gates pass or receive an explicit
+   valid disposition under their own authority: FR-20/SM-C1 preservation is no
+   longer `PENDING`, SM-C2 is no longer `FAILED`, and OQ-1 is no longer
+   `BLOCKED`.
+8. Sprint linkage still contains exactly one `epic-7` row and exactly one row
+   for each Story 7.1-7.4. No lifecycle transition occurs before the preceding
+   gates pass; until then all five rows remain `backlog`.
+
+At repository commit `2c6a4af775eaa969deb4bbbfc294be1c472afd7d`,
+the selected V21 current-state diagnostic returns `FAIL` with blocker
+`V21_DESCENDANT_GITLINK_DRIFT`; AR-15 is `BLOCKED_BOOTSTRAP_AUTHORITY`; the V22
+recovery artifacts, generic resolver, and production operational envelope are
+absent; FR-20/SM-C1 is pending, SM-C2 is failed, and OQ-1 is blocked. Therefore
+Story 7.1 is **not authorized** and the effective hold remains `ACTIVE`.
+
+### Sprint-status linkage
+
+`_bmad-output/implementation-artifacts/sprint-status.yaml` remains the lifecycle
+projection and continues to link `source_epics` to the immutable V14 backlog
+carrier. Its canonical Epic 7 keys are:
+
+- `epic-7`
+- `7-1-define-the-final-record-schema-and-deterministic-generator-core`
+- `7-2-derive-test-path-candidate-submodule-and-gitlink-facts`
+- `7-3-integrate-generation-into-every-blocking-completion-transition`
+- `7-4-verify-historical-mode-and-required-fault-injection-blockers`
+- `epic-7-retrospective`
+
+This route correction changes none of their values.
+
+<!-- EPIC-7-PLANNING-AUTHORITY-ROUTE-CORRECTION:END correction-id=epic-7-planning-route-2026-09-19 overlay-version=epic-6-authority-2026-08-18-v14 architecture-version=conversations-architecture-2026-09-16-v15 hold=ACTIVE -->
