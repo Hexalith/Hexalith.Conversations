@@ -175,7 +175,7 @@ public sealed class ContractPackageInventoryTest
         RunDotNet(
             repositoryRoot,
             $"pack \"{commonsProjectPath}\" -c Release -o \"{packageOutput}\" "
-            + $"-p:Version={CommonsVersion} -p:PackageVersion={CommonsVersion}");
+            + $"-p:GeneratePackageOnBuild=false -p:Version={CommonsVersion} -p:PackageVersion={CommonsVersion}");
 
         string projectPath = Path.Combine(repositoryRoot, "src", "Hexalith.Conversations.Contracts", "Hexalith.Conversations.Contracts.csproj");
         RunDotNet(

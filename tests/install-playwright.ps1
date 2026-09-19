@@ -2,6 +2,8 @@
 [CmdletBinding()]
 param(
     [string] $Browser = 'chromium',
+    [ValidateSet('Debug', 'Release')]
+    [string] $Configuration = 'Debug',
     [switch] $SkipBuild
 )
 
@@ -17,13 +19,13 @@ if (-not (Test-Path $project)) {
 
 if (-not $SkipBuild) {
     Write-Host 'Building Admin Web E2E project to materialize the Playwright runtime...' -ForegroundColor Cyan
-    & dotnet build $project --configuration Debug --nologo --verbosity minimal
+    & dotnet build $project --configuration $Configuration --nologo --verbosity minimal
     if ($LASTEXITCODE -ne 0) {
         throw 'Build failed; cannot install browsers without the runtime.'
     }
 }
 
-$buildOutput = Join-Path $repoRoot 'tests\Hexalith.Conversations.Admin.Web.Tests\bin\Debug'
+$buildOutput = Join-Path $repoRoot "tests\Hexalith.Conversations.Admin.Web.Tests\bin\$Configuration"
 $installer = Get-ChildItem -Path $buildOutput -Recurse -Filter 'playwright.ps1' -ErrorAction SilentlyContinue | Select-Object -First 1
 
 if (-not $installer) {

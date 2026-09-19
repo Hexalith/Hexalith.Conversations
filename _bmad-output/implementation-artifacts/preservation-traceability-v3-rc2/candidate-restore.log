@@ -1,0 +1,18 @@
+  Determining projects to restore...
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/Hexalith.EventStore.ServiceDefaults.csproj (in 112 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/Hexalith.Commons.Serialization.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/Hexalith.Commons.Diagnostics.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj (in 110 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/Hexalith.Commons.Http.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/Hexalith.Tenants.Contracts.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/Hexalith.EventStore.DomainService.csproj (in 113 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/Hexalith.EventStore.Contracts.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/Hexalith.EventStore.Client.csproj (in 112 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj (in 112 ms).
+  Restored /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj (in 119 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations/Hexalith.Conversations.csproj (in 112 ms).
+  Restored /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj (in 114 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/Hexalith.Commons.Publication.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/Hexalith.Commons.TenantAccess.csproj (in 109 ms).
+  Restored /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Client/Hexalith.Tenants.Client.csproj (in 111 ms).

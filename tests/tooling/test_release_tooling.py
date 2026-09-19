@@ -526,11 +526,16 @@ class ReleaseToolingTests(unittest.TestCase):
 
     def test_ci_and_security_automation_cover_release_boundary(self) -> None:
         ci = (ROOT / ".github" / "workflows" / "ci.yml").read_text(encoding="utf-8")
+        tooling_job = ci.split("  tooling:", maxsplit=1)[1]
         self.assertIn("domain-ci.yml@main", ci)
         self.assertIn("run-consumer-validation: true", ci)
         self.assertIn("npm audit signatures", ci)
+        self.assertIn("uses: actions/setup-dotnet@v6.0.0", tooling_job)
+        self.assertIn("global-json-file: global.json", tooling_job)
         self.assertIn("npm test", ci)
         self.assertIn("tests/Hexalith.Conversations.Admin.Web.Tests", ci)
+        self.assertIn("./tests/install-playwright.ps1 -Configuration Release", ci)
+        self.assertIn("name: ci / admin-web", ci)
         self.assertIn("aspire-timeout-minutes: 20", ci)
         self.assertIn("fetch-depth: 0", ci)
         self.assertIn("npx --no-install commitlint --config commitlint.config.mjs --from", ci)

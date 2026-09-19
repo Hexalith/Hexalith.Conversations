@@ -119,6 +119,10 @@ StyleCopReport.xml
 *.tmp_proj
 *_wpftmp.csproj
 *.log
+# These immutable preservation artifacts are content-addressed by tracked receipts
+# and must be present in clean checkouts for the conformance verifier.
+!/_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log
+!/_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-build-remediated.log
 *.tlog
 *.vspscc
 *.vssscc
