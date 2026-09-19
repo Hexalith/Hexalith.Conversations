@@ -3202,3 +3202,109 @@ pass. Its marker's `hold=ACTIVE` is the fail-closed current result, not a new
 global hold record.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V15:END version=conversations-architecture-2026-09-16-v15 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V16:BEGIN version=conversations-architecture-2026-09-19-v16 epic-authority=epic-6-authority-2026-08-18-v14 supersedes=conversations-architecture-2026-09-16-v15 v15-block-bytes=35772 v15-block-sha256=85c7418ca55b1c67be90eed78e280c792ce92360e0cf2817237e41a3bcdfccbe sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+# Architecture Execution Authority Overlay V16 — Pragmatic AR-15 Recovery
+
+**Architecture authority:** `conversations-architecture-2026-09-19-v16`
+
+**Supersedes:** `conversations-architecture-2026-09-16-v15` only for AR-15's
+joint ownership, `BLOCKED_BOOTSTRAP_AUTHORITY` status, deferred action, and
+GitHub-ruleset, external-validator, no-bypass, check-run, and nonce mechanism.
+The repository owner is the sole AR-15 approval role; the earlier
+organization-ruleset administrator role is historical for this recovery.
+Every other V15 decision and inherited invariant remains binding. V1-V15
+architecture bytes and V1-V21 authority evidence remain immutable history.
+
+**Current effect:** `implementationHold=ACTIVE`. This correction authorizes no
+Story 7.1 implementation, product or dependency change, submodule or gitlink
+change, sprint transition, release, or push.
+
+### AR-15 — Repository-Validated Amendment To AD-3 [ADOPTED]
+
+- **Binds:** AR-15 recovery ownership, the atomic V22 candidate, ordinary CI,
+  merge approval, and post-merge current-authority resolution.
+- **Prevents:** an unnecessary GitHub administration dependency from blocking
+  a planning-only recovery, or an unreviewed candidate from presenting itself
+  as current authority.
+- **Rule:** The new AR-15 route must not require or invoke GitHub rulesets, an
+  external validator service, no-bypass proof, external check identity,
+  check-run identity, or a one-time nonce. The current V21 `ci-trust` route,
+  its publisher code, and its direct tests are frozen historical verification,
+  not current recovery gates; V22 leaves those historical files unchanged and
+  removes their invocation from the preflight workflow and current route
+  inventory.
+
+  AR-15 instead uses the repository owner's human review as its trust root.
+  The V22 candidate is exactly one commit whose sole parent is the current
+  `main` commit selected for recovery. Before approval, the owner independently
+  checks the parent/candidate commit graph, exact changed paths and modes,
+  unchanged V1-V16 architecture prefix, and root-gitlink tuples from raw Git
+  objects rather than trusting candidate-declared manifests. The owner then
+  runs the exact candidate's committed resolver locally and observes the
+  ordinary-CI `planning-authority` job complete successfully for that same
+  candidate SHA. Candidate-authored files, fields, commit messages, and test
+  output cannot assert owner approval.
+
+  V22 remains one atomic transaction containing exactly these regular-file
+  paths in ordinal order, with no rename, mode change, symlink, submodule,
+  dependency, or other path change:
+
+  1. `.github/workflows/planning-authority-preflight.yml`
+  2. `_bmad-output/planning-artifacts/architecture.md`
+  3. `_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json`
+  4. `_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json`
+  5. `_bmad/schemas/v22-current-authority-recovery-v1.schema.json`
+  6. `_bmad/schemas/v22-workflow-route-inventory-v1.schema.json`
+  7. `_bmad/scripts/resolve_current_planning_authority.py`
+  8. `_bmad/scripts/tests/test_resolve_current_planning_authority.py`
+
+  Candidate validation uses the exact candidate commit's repository-pinned
+  command `uv run --frozen
+  --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py
+  --repository . --candidate <candidate-commit> --check`. Success requires exit
+  `0`, schema `hexalith.conversations.current-planning-authority-result.v1`,
+  `result=PASS`, `effectiveHold=ACTIVE`, the exact observed parent and candidate
+  commits and trees, the exact raw-Git path/mode manifest, and a nonempty
+  all-`PASS` assertion ledger. The result contract is closed by
+  `_bmad/schemas/v22-current-authority-recovery-v1.schema.json`; the direct test
+  validates every `PASS`, `FAIL`, and `BLOCKED` envelope. Every invocation and
+  caller-synthesized missing/malformed-output result carries a nonempty
+  assertion ledger. Exit `1` is `FAIL`; exit `2`, missing output, malformed
+  output, parent or candidate drift, path or mode drift, gitlink drift, and
+  environmental inability are `BLOCKED`. Every non-`PASS` result preserves
+  `ACTIVE` and no result claims owner approval.
+
+  After technical `PASS`, the repository owner records one authenticated
+  repository-host approval for the emitted parent/candidate tuple. Approval is
+  stale if either SHA or the current `main` tip changes. While `main` still
+  equals the approved parent, the owner advances `main` by fast-forward only to
+  the exact approved candidate; merge commits, squash, and rebase are not AR-15
+  integration paths. This owner action uses existing repository authority and
+  grants no agent release or push authority. For parent, candidate, and
+  committed `main`, the ordinal root-tree `(path, mode=160000, object-id)`
+  tuples must be identical and their paths must equal the root `.gitmodules`
+  inventory without traversing submodules.
+
+  The V22 transaction appends one complete architecture marker that supersedes
+  V16, pins V16's exact block bytes and SHA-256 plus the V22 recovery-record
+  path/digest, and carries `hold=ACTIVE`; editing V1-V16 or publishing competing
+  tail markers is `BLOCKED`. Fast-forward makes committed `main` equal the
+  approved candidate, after which the resolver reruns from that exact committed
+  SHA. The committed V22 marker is selected immediately by the last-complete-
+  marker rule, but a failed or blocked post-merge resolver keeps recovery
+  incomplete and prohibits an AD-4 request. A post-merge `PASS` completes
+  AR-15, still with `implementationHold=ACTIVE`. V22 ends the authority deadlock
+  only. A later, separately owner-approved AD-4 successor is required before
+  Story 7.1 may enter `EXECUTION_ALLOWED`.
+
+### Current Recovery State
+
+At V16 publication, AR-15 is `PENDING_V22_RECOVERY`, not blocked on GitHub
+administration. The V22 records, schemas, resolver, and direct tests are not
+yet published, so no V22 candidate has passed and no merge has occurred. Live
+state must be recomputed by the selected resolver rather than inferred from
+this dated statement. The effective hold remains `ACTIVE`.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V16:END version=conversations-architecture-2026-09-19-v16 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->

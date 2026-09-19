@@ -446,3 +446,48 @@ carrier. Its canonical Epic 7 keys are:
 This route correction changes none of their values.
 
 <!-- EPIC-7-PLANNING-AUTHORITY-ROUTE-CORRECTION:END correction-id=epic-7-planning-route-2026-09-19 overlay-version=epic-6-authority-2026-08-18-v14 architecture-version=conversations-architecture-2026-09-16-v15 hold=ACTIVE -->
+
+<!-- EPIC-7-AR-15-RECOVERY-CORRECTION:BEGIN correction-id=epic-7-ar15-pragmatic-2026-09-19 overlay-version=epic-6-authority-2026-08-18-v14 architecture-version=conversations-architecture-2026-09-19-v16 hold=ACTIVE -->
+
+# Epic 7 AR-15 Recovery Route Correction
+
+**Architecture authority:** `conversations-architecture-2026-09-19-v16`
+
+This append replaces the preceding correction's AR-15 entry-gate item 2 and its
+`BLOCKED_BOOTSTRAP_AUTHORITY` current-status sentence. Those earlier clauses,
+including their joint ownership, organization-ruleset, external-validator,
+no-bypass, check-run, and nonce requirements, are historical and must not be
+evaluated. The repository owner is the sole AR-15 approval role. Every other
+Epic 7 requirement, dependency, status, and prohibition remains unchanged.
+
+**Replacement for entry-gate item 2:** AR-15 requires one V22 commit whose sole
+parent is the selected current-`main` commit. The repository owner independently
+checks its raw Git graph, exact eight-path/mode boundary, unchanged V1-V16
+prefix, and unchanged root-gitlink tuples, then requires the exact committed
+resolver to pass locally and in ordinary CI for that candidate SHA. The
+resolver reports technical facts only. The owner records authenticated approval
+of the emitted parent/candidate tuple outside candidate-authored bytes; approval
+is stale if either SHA or `main` changes. The V22 transaction permits no
+product, dependency, submodule, gitlink, story-status, release, or push change.
+Any missing input, nonzero result, malformed output, candidate drift, path or
+mode drift, gitlink drift, or environmental inability preserves `ACTIVE` and
+produces a nonempty assertion ledger.
+
+While `main` still equals the approved parent, the repository owner advances it
+by fast-forward only to the exact approved candidate; merge commits, squash,
+and rebase are not AR-15 integration paths. The resolver then reruns from that
+exact committed SHA. V22 is selected by the committed last-marker rule; only a
+post-merge `PASS` completes AR-15, still with the implementation hold `ACTIVE`.
+The new route does not invoke GitHub rulesets, an external validator service,
+no-bypass proof, external check identity, or a nonce. The old V21 `ci-trust`
+publisher and tests are frozen historical verification, and the V22 workflow
+must stop invoking them as current gates.
+
+**Replacement for the prior current-status sentence:** At V16 publication,
+AR-15 is `PENDING_V22_RECOVERY` because the V22 records, schemas, resolver, and
+direct tests are absent. Live state comes from the selected resolver, not this
+dated sentence. Story 7.1 remains unauthorized. After AR-15 passes, the next
+action is a separate owner-approved AD-4
+`EXECUTION_ALLOWED` authority request, not Story 7.1 implementation.
+
+<!-- EPIC-7-AR-15-RECOVERY-CORRECTION:END correction-id=epic-7-ar15-pragmatic-2026-09-19 overlay-version=epic-6-authority-2026-08-18-v14 architecture-version=conversations-architecture-2026-09-19-v16 hold=ACTIVE -->
