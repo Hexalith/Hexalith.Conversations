@@ -107,23 +107,109 @@ context:
 | VG-03 | medium | patch | Pre-verified gap: `verify_present()` has only a happy path; missing and unexpected asset rejection has no regression test. |
 | VG-04 | medium | patch | Pre-verified gap: XML inspection does not evaluate `UseHexalithProjectReferences`; add focused MSBuild checks for local Debug, local Release, and Debug under CI. |
 
-## Verification
+<!-- STORY-FINAL-RECORD:BEGIN -->
 
-**Commands:**
-- `actionlint .github/workflows/*.yml` -- all workflow syntax and expressions pass.
-- `npm ci --ignore-scripts && npm audit signatures && npm test` -- release toolchain and tooling tests pass.
-- `dotnet restore Hexalith.Conversations.slnx -p:UseHexalithProjectReferences=false && dotnet build Hexalith.Conversations.slnx -c Release --no-restore -warnaserror -p:UseHexalithProjectReferences=false` -- package-mode solution succeeds.
-- `python3 scripts/pack-release-packages.py ./nupkgs 1.0.0 && python3 scripts/validate-nuget-packages.py ./nupkgs 1.0.0 && python3 scripts/validate-consumer-package-references.py ./nupkgs` -- exact package boundary and consumers pass.
-- `dotnet test <each configured CI test project> -c Release --no-build` -- every blocking shard passes.
-- `gh run watch <release-run-id> --exit-status` plus official NuGet flat-container checks -- release succeeds and all four 1.0.0 versions exist.
+**Final record** — `story-final-record-v1`, result **PASS**, mode `live`. The JSON document is authoritative; this Markdown is rendered from it.
 
-**Observed locally:**
+Derived: test results **yes**, candidate **yes**, record section **yes** · 8 test artifact(s) parsed · 43 file-list path(s) · 3 gitlink promotion(s) evaluated.
 
-- `actionlint`, Python/shell syntax, package-mode Release restore/build and source-mode Debug restore/build with warnings as errors, `npm ci`, `npm audit signatures`, all 22 release-tooling tests, and the GitHub-Actions-shaped semantic-release `1.0.0` dry run passed.
-- Exact `1.0.0` and shared-CI `0.0.0-ci-test` pack/explicit-version validation/public-consumer/testing-consumer sequences passed. The post-publication fixture also proves NuGet repository signing does not break the canonical payload comparison.
-- Direct Microsoft.Testing.Platform runs passed Contracts (618), Client (29), Conversations (185), Server (684), and Admin.Web (14). The filtered current conformance lane passed 470/470, and the CI-enabled real AppHost lane passed 9/9 with zero skips.
-- `python3 _bmad/scripts/verify_evidence_boundary.py --repository . --baseline af3bfe369c40b634b7c7f45b3d05b079a47a4aa8 --candidate HEAD` returned `PASS` and reported the uncommitted implementation paths.
-- `npx --no-install commitlint --edit <temporary-file>` accepted the exact candidate `ci(release): publish conversations NuGet packages`.
-- `python3 scripts/verify-release-state.py absent 1.0.0 --repository Hexalith/Hexalith.Conversations` confirmed all first-release destinations are currently absent.
-- Blocking local results: preservation conformance is 470/473 with the three historical-evidence mismatches described above; the full integration run initially passed 11/14, the repaired scaffold guard passes on focused rerun, and the two Dapr-backed tests remain blocked by the local sidecar health failure.
-- Remote-only verification (`gh run watch`, NuGet/GitHub presence, and freeze restoration) is pending because no remote mutations are authorized in this implementation phase.
+Baseline `af3bfe369c40b634b7c7f45b3d05b079a47a4aa8` → candidate `c98b37958c6ed49bc82badc701b5a3d4f9b76229`.
+
+### File List
+
+- `.github/dependabot.yml` (new)
+- `.github/workflows/ci.yml` (new)
+- `.github/workflows/codeql.yml` (new)
+- `.github/workflows/dependency-review.yml` (new)
+- `.github/workflows/release.yml` (new)
+- `.gitignore` (modified)
+- `.releaserc.json` (new)
+- `Directory.Build.props` (modified)
+- `Directory.Packages.props` (modified)
+- `Hexalith.Conversations.slnx` (modified)
+- `_bmad-output/implementation-artifacts/deferred-work.md` (modified)
+- `_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log` (new)
+- `_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-build-remediated.log` (new)
+- `_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md` (new)
+- `_bmad-output/implementation-artifacts/sprint-status.yaml` (modified)
+- `global.json` (modified)
+- `package-lock.json` (modified)
+- `package.json` (modified)
+- `scripts/pack-release-packages.py` (new)
+- `scripts/release_contract.py` (new)
+- `scripts/release_state.py` (new)
+- `scripts/validate-consumer-package-references.py` (new)
+- `scripts/validate-nuget-packages.py` (new)
+- `scripts/validate-publication-preflight.sh` (new)
+- `scripts/validate-release-secrets.sh` (new)
+- `scripts/verify-release-source.py` (new)
+- `scripts/verify-release-state.py` (new)
+- `scripts/verify-semantic-release-plan.mjs` (new)
+- `src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj` (modified)
+- `src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj` (modified)
+- `src/Hexalith.Conversations.Server/Hexalith.Conversations.Server.csproj` (modified)
+- `src/Hexalith.Conversations/Hexalith.Conversations.csproj` (modified)
+- `tests/Hexalith.Conversations.AppHost.Tests/ConversationsAppHostRuntimeBoundaryTest.cs` (modified)
+- `tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj` (modified)
+- `tests/Hexalith.Conversations.Contracts.Tests/ContractPackageInventoryTest.cs` (modified)
+- `tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj` (modified)
+- `tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj` (modified)
+- `tests/Hexalith.Conversations.IntegrationTests/ScaffoldSmokeTest.cs` (modified)
+- `tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj` (modified)
+- `tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj` (modified)
+- `tests/install-playwright.ps1` (modified)
+- `tests/tooling/test_release_tooling.py` (new)
+- `tools/release-packages.json` (new)
+
+### Gitlink Promotions
+
+| Path | Declared | Recorded mode | Recorded commit | Baseline commit |
+| --- | --- | --- | --- | --- |
+| `references/Hexalith.EventStore` | yes | `160000` | `2d680d7d08e00baef63f5b2aca98c6ad6fcc178d` | `2d680d7d08e00baef63f5b2aca98c6ad6fcc178d` |
+| `references/Hexalith.Folders` | no | `160000` | `e2881d901b3f12e3f9023617fe622c5f11254916` | `5245ed9febd54455f505657dcb478f30698140e5` |
+| `references/Hexalith.Projects` | no | `160000` | `64e0f4f63c21a47a254565a5ce9797d71f12e9ad` | `1b154fde25a33b7af6dfcac75b26f1694d9bd3fb` |
+
+### Test Results
+
+| Test project | State | Total | Executed | Passed | Failed | Skipped | Artifact SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| Hexalith.Conversations.Admin.Web.Tests | PARSED | 14 | 14 | 14 | 0 | 0 | `43c2287c27ded380535da892bf5326762b003530ef0edf1b730e61a103700974` |
+| Hexalith.Conversations.AppHost.Tests | PARSED | 9 | 9 | 9 | 0 | 0 | `db3cc99b19940f423a0b9c4bcc4cae2b603b52a53c3b6902d5f73e180913cd3d` |
+| Hexalith.Conversations.Client.Tests | PARSED | 29 | 29 | 29 | 0 | 0 | `a40c972776f6fdcebcfbae383d8ec6cc1f79e3e3d5bcd78f5ab8b4a50cebbc52` |
+| Hexalith.Conversations.Conformance.Tests | PARSED | 470 | 470 | 470 | 0 | 0 | `092744d39e33a2f09c1ebbf7d4cddaf87d309cd0955e5b3e058c6ab7896ef5b9` |
+| Hexalith.Conversations.Contracts.Tests | PARSED | 618 | 618 | 618 | 0 | 0 | `dff506beff3d629f6418d9d02b2c8e1c49ff18d0e3721f37be751e91ddc8560c` |
+| Hexalith.Conversations.IntegrationTests | PARSED | 14 | 14 | 14 | 0 | 0 | `066b0193555c71a0d4a7237ec91b3b7d8055ea3bac1bd8177a4ccca9e8fd9369` |
+| Hexalith.Conversations.Server.Tests | PARSED | 684 | 684 | 684 | 0 | 0 | `15569e9b3dbe7a9ebc4a1483597b3d480fad8d724dbe62e245ccc1ee84a17e79` |
+| Hexalith.Conversations.Tests | PARSED | 185 | 185 | 185 | 0 | 0 | `cc12e4e2c65d17c7c0b1d8c48ed6e8d3fb4ffeaaf83cb14163a021ddf9514a0d` |
+| **Total (computed)** | **8 parsed** | **2023** | **2023** | **2023** | **0** | **0** | — |
+
+### Test Build Manifest
+
+Candidate `c98b37958c6ed49bc82badc701b5a3d4f9b76229` was clean-rebuilt; every test binary below embeds that SourceRevisionId.
+
+#### Candidate-Bound Test Binaries
+
+| Test project | Binary | Source revision | Binary SHA-256 |
+| --- | --- | --- | --- |
+| Hexalith.Conversations.Admin.Web.Tests | `tests/Hexalith.Conversations.Admin.Web.Tests/bin/Release/net10.0/Hexalith.Conversations.Admin.Web.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `e6d4750108a90e89822778a41c24d04382cced4611b7ecb6a9ff8b1543b4125c` |
+| Hexalith.Conversations.AppHost.Tests | `tests/Hexalith.Conversations.AppHost.Tests/bin/Release/net10.0/Hexalith.Conversations.AppHost.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `165ff1af1dd8b09f9713f2a026343fec8e3b888d5e694050834a909a3ff29733` |
+| Hexalith.Conversations.Client.Tests | `tests/Hexalith.Conversations.Client.Tests/bin/Release/net10.0/Hexalith.Conversations.Client.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `ad6f0341f315b1da9c7245ffb03bcbad83f588c893d31b057c9823a3e3824a4d` |
+| Hexalith.Conversations.Conformance.Tests | `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `e15052b8c4a633e24b1b16ba6dae245aa39f4e289bb7855a4a9c0fada34cba81` |
+| Hexalith.Conversations.Contracts.Tests | `tests/Hexalith.Conversations.Contracts.Tests/bin/Release/net10.0/Hexalith.Conversations.Contracts.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `bd4e176ad2c49e04cb97e40cb0107e399187bdb2d8e48ef8fecf217186de54bc` |
+| Hexalith.Conversations.IntegrationTests | `tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/Hexalith.Conversations.IntegrationTests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `6cdec2370f44bfd2079cce7408d9f47abeb154f7d2e896e4c1c9e3dfcd973e6f` |
+| Hexalith.Conversations.Server.Tests | `tests/Hexalith.Conversations.Server.Tests/bin/Release/net10.0/Hexalith.Conversations.Server.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `574708ccc76e021dbc1d8a3ca50118ac4a90f41cbc10946a7789c2fba837e185` |
+| Hexalith.Conversations.Tests | `tests/Hexalith.Conversations.Tests/bin/Release/net10.0/Hexalith.Conversations.Tests.dll` | `c98b37958c6ed49bc82badc701b5a3d4f9b76229` | `a05025d9f6337888f4f12806151d44b0c7dbba57cdb6f13291aae7585300bd99` |
+
+### Candidate Binding
+
+- Candidate `c98b37958c6ed49bc82badc701b5a3d4f9b76229` · committed head `c98b37958c6ed49bc82badc701b5a3d4f9b76229` · ancestor of head: **yes**
+- Gitlinks moved after the candidate: none
+- Paths changed after the candidate: none
+
+### Promotion Completion Gate
+
+- Result **PASS** · declared: references/Hexalith.EventStore · changed gitlinks: references/Hexalith.Folders, references/Hexalith.Projects · evaluated: references/Hexalith.EventStore, references/Hexalith.Folders, references/Hexalith.Projects
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Folders
+- WARNING `UNDECLARED_GITLINK_CHANGE`: gitlink changed between baseline and candidate without a declaration: references/Hexalith.Projects
+
+<!-- STORY-FINAL-RECORD:END -->
