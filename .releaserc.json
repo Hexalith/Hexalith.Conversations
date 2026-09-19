@@ -1,0 +1,25 @@
+{
+  "branches": ["main"],
+  "tagFormat": "v${version}",
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/exec",
+      {
+        "verifyReleaseCmd": "bash scripts/validate-release-secrets.sh && bash scripts/validate-publication-preflight.sh ${nextRelease.version} verify >&2",
+        "prepareCmd": "dotnet restore Hexalith.Conversations.slnx -p:Version=${nextRelease.version} -p:UseHexalithProjectReferences=false && dotnet build Hexalith.Conversations.slnx --configuration Release --no-restore -warnaserror -p:Version=${nextRelease.version} -p:UseHexalithProjectReferences=false && python3 scripts/pack-release-packages.py ./nupkgs ${nextRelease.version} && python3 scripts/validate-nuget-packages.py ./nupkgs ${nextRelease.version} && python3 scripts/validate-consumer-package-references.py ./nupkgs && bash scripts/validate-publication-preflight.sh ${nextRelease.version} verify >&2",
+        "publishCmd": "bash scripts/validate-release-secrets.sh && bash scripts/validate-publication-preflight.sh ${nextRelease.version} publish >&2 && dotnet nuget push \"./nupkgs/*.nupkg\" --source https://api.nuget.org/v3/index.json --api-key \"$NUGET_API_KEY\""
+      }
+    ],
+    [
+      "@semantic-release/github",
+      {
+        "assets": ["nupkgs/*.nupkg", "nupkgs/*.snupkg"],
+        "labels": [],
+        "successCommentCondition": false,
+        "releasedLabels": false
+      }
+    ]
+  ]
+}

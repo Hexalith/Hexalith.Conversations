@@ -5,6 +5,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations\Hexalith.Conversations.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Contracts\Hexalith.EventStore.Contracts.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
@@ -23,6 +25,17 @@
     <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Publication\Hexalith.Commons.Publication.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
     <ProjectReference Include="$(HexalithCommonsRoot)\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" Condition="'$(HexalithCommonsRoot)' == ''" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+    <PackageReference Include="Hexalith.Commons.Diagnostics" />
+    <PackageReference Include="Hexalith.Commons.Publication" />
+    <PackageReference Include="Hexalith.Commons.Serialization" />
+    <PackageReference Include="Hexalith.Commons.TenantAccess" />
+    <PackageReference Include="Hexalith.EventStore.Client" />
+    <PackageReference Include="Hexalith.EventStore.Contracts" />
+    <PackageReference Include="Hexalith.EventStore.DomainService" />
+    <PackageReference Include="Hexalith.Tenants.Client" />
+    <PackageReference Include="Hexalith.Tenants.Contracts" />
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Hexalith.Conversations.Server.Tests" />

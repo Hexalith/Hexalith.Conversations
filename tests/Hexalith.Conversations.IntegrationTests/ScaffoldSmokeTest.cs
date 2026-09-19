@@ -320,6 +320,7 @@ public sealed class ScaffoldSmokeTest
         string[] references = [.. project
             .Descendants()
             .Where(element => element.Name.LocalName is "PackageReference" or "FrameworkReference")
+            .Where(IsDefaultSourceModeReferenceActive)
             .Select(reference => reference.Attribute("Include")?.Value)
             .OfType<string>()
             .Where(reference => !string.IsNullOrWhiteSpace(reference))];
@@ -330,6 +331,34 @@ public sealed class ScaffoldSmokeTest
                 reference => reference.StartsWith(forbiddenPrefix, StringComparison.Ordinal),
                 $"{projectPath} should not reference {forbiddenPrefix} during scaffold-only coverage.");
         }
+    }
+
+    private static bool IsDefaultSourceModeReferenceActive(XElement reference)
+    {
+        foreach (XElement element in reference.AncestorsAndSelf())
+        {
+            string? condition = element.Attribute("Condition")?.Value;
+            if (string.IsNullOrWhiteSpace(condition))
+            {
+                continue;
+            }
+
+            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' == 'true'", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            throw new InvalidOperationException(
+                $"The scaffold dependency inventory cannot evaluate the condition \"{condition}\". "
+                + "Teach this evaluator the new clause instead of letting an unmodelled condition read as active.");
+        }
+
+        return true;
     }
 
     private static string FindRepositoryRoot()

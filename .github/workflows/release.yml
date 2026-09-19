@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: release-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  verify-source:
+    name: Verify exact green main and first-release destinations
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: read
+    outputs:
+      publish-enabled: ${{ steps.source.outputs.publish-enabled }}
+    steps:
+      - name: Check out complete release history
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve freeze and verify source
+        id: source
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PUBLISH_ENABLED: ${{ vars.HEXALITH_RELEASE_PUBLISH_ENABLED }}
+        run: >-
+          python3 scripts/verify-release-source.py
+          --publish-enabled "${PUBLISH_ENABLED-}"
+          --repository "${{ github.repository }}"
+          --dispatch-ref "${{ github.ref }}"
+          --dispatch-sha "${{ github.sha }}"
+          --workflow ci.yml
+          --github-output "$GITHUB_OUTPUT"
+
+      - name: Set up supported Node
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install locked release tooling
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm ci --ignore-scripts
+
+      - name: Verify npm dependency provenance and signatures
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm audit signatures
+
+      - name: Require the semantic plan to be exactly 1.0.0
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm run verify:release-plan -- 1.0.0
+
+  release:
+    needs: verify-source
+    if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}
+    permissions:
+      actions: read
+      attestations: write
+      contents: write
+      id-token: write
+      issues: write
+      pull-requests: write
+    uses: Hexalith/Hexalith.Builds/.github/workflows/domain-release.yml@b93e9889e9e7b67036837015b4b2b115e326c4da
+    with:
+      solution: Hexalith.Conversations.slnx
+      timeout-minutes: 60
+      environment-name: production
+      publish-containers: false
+      builds-execution-sha: b93e9889e9e7b67036837015b4b2b115e326c4da
+      source-branch: main
+      source-ci-workflow: ci.yml
+      package-manifest: tools/release-packages.json
+      expected-package-count: 4
+      test-projects: ''
+      reserved-version: ''
+      release-authority-issue-url: ''
+      release-authority-owner: ''
+      require-publication-authority: false
+    secrets:
+      NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  verify-publication:
+    name: Verify exact packages, symbols, tag, and source
+    if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}
+    needs: [verify-source, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Check out released source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Poll official publication endpoints
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/verify-release-state.py present 1.0.0
+          --repository "${{ github.repository }}"
+          --source-sha "${{ github.sha }}"
+          --attempts 61
+          --delay-seconds 15
