@@ -1447,9 +1447,12 @@ public sealed class ArchitecturePlanningAuthorityValidationTest
     private static bool TryReadSubmoduleBlob(string submodulePath, string commit, string pathInSubmodule, out string content)
     {
         content = string.Empty;
-        string workingDirectory = RepositoryPath(submodulePath);
-
-        if (!Directory.Exists(workingDirectory))
+        string workingDirectory;
+        try
+        {
+            workingDirectory = RepositoryEvidencePathResolver.Resolve(FindRepositoryRoot(), submodulePath);
+        }
+        catch (InvalidOperationException)
         {
             return false;
         }

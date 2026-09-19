@@ -2,10 +2,15 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
     <ProjectReference Include="..\..\references\Hexalith.Commons\src\libraries\Hexalith.Commons.Serialization\Hexalith.Commons.Serialization.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Client\Hexalith.Conversations.Client.csproj" />
+    <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
+    <PackageReference Include="Hexalith.Commons.Serialization" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" />

@@ -429,7 +429,7 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
         => RunGit(FindRepositoryRoot(), arguments);
 
     private static string GitIn(string relativePath, params string[] arguments)
-        => RunGit(Path.Combine(FindRepositoryRoot(), relativePath), arguments);
+        => RunGit(RepositoryEvidencePathResolver.Resolve(FindRepositoryRoot(), relativePath), arguments);
 
     private static string RunGit(string workingDirectory, params string[] arguments)
     {
@@ -948,7 +948,9 @@ public sealed class ProjectionReadStorePopulationProofValidationTest
                 string pathPrefix = section == "sourceBoundary.platformBindings" ? "references/Hexalith.EventStore/" : string.Empty;
                 boundPath.ShouldStartWith(pathPrefix);
                 string gitPath = boundPath[pathPrefix.Length..];
-                string repository = Path.GetFullPath(Path.Combine(FindRepositoryRoot(), repositoryPath));
+                string repository = repositoryPath == "."
+                    ? FindRepositoryRoot()
+                    : RepositoryEvidencePathResolver.Resolve(FindRepositoryRoot(), repositoryPath);
                 ReadGitTreeMode(repository, revision, gitPath, out string actualMode).ShouldBeTrue(
                     $"{boundPath} must have exactly one Git tree entry at explicit revision {revision}");
                 actualMode.ShouldBe(expectedMode, boundPath);

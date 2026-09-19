@@ -62,7 +62,7 @@ public sealed class SmC2BaselineReconstructionValidationTest
             .ShouldNotBeNull()
             .ShouldContain("can expose a Story 6.2 regression", Case.Sensitive);
 
-        // The declared overlay must be the file on disk, byte for byte.
+        // The fixture remains an active benchmark input, so its working-tree bytes must still match.
         string fixturePath = Path.Combine(FindRepositoryRoot(), overlay.GetProperty("path").GetString()!);
         File.Exists(fixturePath).ShouldBeTrue(fixturePath);
         ComputeSha256(fixturePath).ShouldBe(overlay.GetProperty("sha256").GetString());
@@ -72,8 +72,10 @@ public sealed class SmC2BaselineReconstructionValidationTest
         JsonElement projectOverlay = reconstruction.GetProperty("projectOverlay");
         projectOverlay.GetProperty("presentAtSourceCommit").GetBoolean().ShouldBeTrue();
         projectOverlay.GetProperty("identicalInPostRun").GetBoolean().ShouldBeTrue();
-        string projectPath = Path.Combine(FindRepositoryRoot(), projectOverlay.GetProperty("path").GetString()!);
-        ComputeSha256(projectPath).ShouldBe(projectOverlay.GetProperty("sha256").GetString());
+        byte[] recordedProject = ReadEvidenceBoundGitBlob(
+            BaselineJsonFileName,
+            projectOverlay.GetProperty("path").GetString()!);
+        ComputeSha256(recordedProject).ShouldBe(projectOverlay.GetProperty("sha256").GetString());
 
         ValidateBinding(document.RootElement.GetProperty("runArtifact"));
     }
@@ -85,32 +87,49 @@ public sealed class SmC2BaselineReconstructionValidationTest
         JsonElement reconstruction = document.RootElement.GetProperty("reconstruction");
         JsonElement workloadManifest = document.RootElement.GetProperty("workloadManifest");
         string projectPath = reconstruction.GetProperty("projectOverlay").GetProperty("path").GetString()!;
-        string output = RunProcess(
-            "dotnet",
-            "msbuild",
-            projectPath,
-            "-p:Configuration=Release",
-            "-p:UseHexalithProjectReferences=true",
-            "-getItem:ProjectReference");
-        using JsonDocument graph = ParseMsBuildJsonEnvelope(output);
-        string repositoryRoot = FindRepositoryRoot();
-        string[] evaluatedReferences =
-        [
-            .. graph.RootElement.GetProperty("Items")
-                .GetProperty("ProjectReference")
-                .EnumerateArray()
-                .Select(reference => reference.GetProperty("FullPath").GetString()!)
-                .Select(path => Path.GetRelativePath(repositoryRoot, path).Replace('\\', '/'))
-                .Order(StringComparer.Ordinal),
-        ];
-        string[] recordedReferences =
-        [
-            .. workloadManifest.GetProperty("directProjectReferences")
-                .EnumerateArray()
-                .Select(reference => reference.GetString()!)
-                .Order(StringComparer.Ordinal),
-        ];
-        recordedReferences.ShouldBe(evaluatedReferences);
+        byte[] recordedProject = ReadEvidenceBoundGitBlob(BaselineJsonFileName, projectPath);
+        string materializedRoot = Path.Combine(
+            Path.GetTempPath(),
+            $"hexalith-conversations-sm-c2-{Guid.NewGuid():N}");
+        string materializedProject = Path.Combine(materializedRoot, projectPath);
+        try
+        {
+            Directory.CreateDirectory(Path.GetDirectoryName(materializedProject)!);
+            File.WriteAllBytes(materializedProject, recordedProject);
+            string output = RunProcess(
+                "dotnet",
+                "msbuild",
+                materializedProject,
+                "-p:Configuration=Release",
+                "-p:UseHexalithProjectReferences=true",
+                $"-p:HexalithEventStoreRoot={Path.Combine(materializedRoot, "references", "Hexalith.EventStore")}",
+                "-getItem:ProjectReference");
+            using JsonDocument graph = ParseMsBuildJsonEnvelope(output);
+            string[] evaluatedReferences =
+            [
+                .. graph.RootElement.GetProperty("Items")
+                    .GetProperty("ProjectReference")
+                    .EnumerateArray()
+                    .Select(reference => reference.GetProperty("FullPath").GetString()!)
+                    .Select(path => Path.GetRelativePath(materializedRoot, path).Replace('\\', '/'))
+                    .Order(StringComparer.Ordinal),
+            ];
+            string[] recordedReferences =
+            [
+                .. workloadManifest.GetProperty("directProjectReferences")
+                    .EnumerateArray()
+                    .Select(reference => reference.GetString()!)
+                    .Order(StringComparer.Ordinal),
+            ];
+            recordedReferences.ShouldBe(evaluatedReferences);
+        }
+        finally
+        {
+            if (Directory.Exists(materializedRoot))
+            {
+                Directory.Delete(materializedRoot, recursive: true);
+            }
+        }
 
         workloadManifest.GetProperty("commandPaths").GetProperty("HP-CREATE").GetString()
             .ShouldBe("ConversationTenantAccessGuard -> CreateConversationBoundary.Dispatch -> ConversationAggregate.Handle");
@@ -218,6 +237,57 @@ public sealed class SmC2BaselineReconstructionValidationTest
         return output.Trim();
     }
 
+    private static byte[] ReadEvidenceBoundGitBlob(string evidenceFileName, string repositoryPath)
+    {
+        string evidencePath = $"docs/release-evidence/{evidenceFileName}";
+        string evidenceRevision = RunGit("log", "-1", "--format=%H", "HEAD", "--", evidencePath);
+        evidenceRevision.ShouldNotBeNullOrWhiteSpace(
+            $"{evidencePath} has no committed provenance, so its historical overlay cannot be resolved");
+
+        byte[] committedEvidence = RunGitBytes("show", $"{evidenceRevision}:{evidencePath}");
+        ComputeSha256(committedEvidence).ShouldBe(
+            ComputeSha256(Path.Combine(FindRepositoryRoot(), evidencePath)),
+            $"{evidencePath} differs from its evidence-bearing revision {evidenceRevision}");
+        return RunGitBytes("show", $"{evidenceRevision}:{repositoryPath}");
+    }
+
+    private static byte[] RunGitBytes(params string[] arguments)
+    {
+        ProcessStartInfo startInfo = new("git")
+        {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            WorkingDirectory = FindRepositoryRoot(),
+        };
+        foreach (string argument in arguments)
+        {
+            startInfo.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(startInfo)
+            ?? throw new InvalidOperationException("git could not be started; reconstruction evidence cannot be skipped.");
+        using var output = new MemoryStream();
+        Task outputTask = process.StandardOutput.BaseStream.CopyToAsync(output);
+        Task<string> errorTask = process.StandardError.ReadToEndAsync();
+        if (!process.WaitForExit(milliseconds: 60_000))
+        {
+            process.Kill(entireProcessTree: true);
+            throw new InvalidOperationException($"git {string.Join(' ', arguments)} did not complete within 60 seconds.");
+        }
+
+        Task.WhenAll(outputTask, errorTask).GetAwaiter().GetResult();
+        if (process.ExitCode != 0)
+        {
+            throw new InvalidOperationException(
+                $"git {string.Join(' ', arguments)} failed; reconstruction evidence cannot be skipped."
+                + Environment.NewLine
+                + errorTask.GetAwaiter().GetResult());
+        }
+
+        return output.ToArray();
+    }
+
     private static string RunProcess(string executable, params string[] arguments)
     {
         ProcessStartInfo startInfo = new(executable)
@@ -305,6 +375,9 @@ public sealed class SmC2BaselineReconstructionValidationTest
 
     private static string ComputeSha256(string path)
         => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+
+    private static string ComputeSha256(byte[] bytes)
+        => Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant();
 
     private static JsonDocument LoadEvidence(string fileName)
         => JsonDocument.Parse(File.ReadAllText(Path.Combine(ReleaseEvidenceDirectory(), fileName)));

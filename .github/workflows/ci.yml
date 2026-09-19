@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: Hexalith/Hexalith.Builds/.github/workflows/domain-ci.yml@main
+    with:
+      solution: Hexalith.Conversations.slnx
+      build-timeout-minutes: 45
+      aspire-timeout-minutes: 20
+      test-platform: microsoft-testing-platform
+      run-consumer-validation: true
+      unit-test-projects: |
+        tests/Hexalith.Conversations.Admin.Web.Tests
+        tests/Hexalith.Conversations.Client.Tests
+        tests/Hexalith.Conversations.Conformance.Tests
+        tests/Hexalith.Conversations.Contracts.Tests
+        tests/Hexalith.Conversations.Server.Tests
+        tests/Hexalith.Conversations.Tests
+      integration-test-projects: |
+        tests/Hexalith.Conversations.IntegrationTests
+      aspire-test-project: tests/Hexalith.Conversations.AppHost.Tests
+      aspire-continue-on-error: false

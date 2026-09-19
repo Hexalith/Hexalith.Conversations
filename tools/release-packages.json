@@ -1,0 +1,20 @@
+{
+  "packages": [
+    {
+      "id": "Hexalith.Conversations.Contracts",
+      "project": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
+    },
+    {
+      "id": "Hexalith.Conversations",
+      "project": "src/Hexalith.Conversations/Hexalith.Conversations.csproj"
+    },
+    {
+      "id": "Hexalith.Conversations.Client",
+      "project": "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj"
+    },
+    {
+      "id": "Hexalith.Conversations.Testing",
+      "project": "src/Hexalith.Conversations.Testing/Hexalith.Conversations.Testing.csproj"
+    }
+  ]
+}

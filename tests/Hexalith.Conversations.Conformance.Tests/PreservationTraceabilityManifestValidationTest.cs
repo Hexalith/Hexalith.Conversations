@@ -199,9 +199,11 @@ public sealed class PreservationTraceabilityManifestValidationTest
         overlay.GetProperty("candidateKind").GetString().ShouldBe(CandidateKind);
         string manifestBaseCommit = overlay.GetProperty("baseCommit").GetString()!;
         manifestBaseCommit.ShouldBe(BaseCommit);
+        string manifestRevision = GitText("log", "-1", "--format=%H", "HEAD", "--", ManifestPath);
+        manifestRevision.ShouldNotBeNullOrWhiteSpace("the preservation manifest must have committed provenance");
         foreach (JsonElement sourceBinding in overlay.GetProperty("bindings").EnumerateArray())
         {
-            ValidateBinding(sourceBinding);
+            ValidateBindingAtRevision(sourceBinding, manifestRevision);
             string path = sourceBinding.GetProperty("path").GetString()!;
             string declaredMode = sourceBinding.GetProperty("mode").GetString()!;
             TryValidateCandidateSourceMode(path, declaredMode, manifestBaseCommit, out string modeDiagnostic)
@@ -1324,6 +1326,32 @@ public sealed class PreservationTraceabilityManifestValidationTest
         string fullPath = FullPath(path);
         ComputeFileSha256(fullPath).ShouldBe(binding.GetProperty("sha256").GetString(), path);
         new FileInfo(fullPath).Length.ShouldBe(binding.GetProperty("bytes").GetInt64(), path);
+    }
+
+    private static void ValidateBindingAtRevision(JsonElement binding, string revision)
+    {
+        string path = binding.GetProperty("path").GetString()!;
+        Path.IsPathRooted(path).ShouldBeFalse(path);
+        path.Replace('\\', '/').Split('/', StringSplitOptions.RemoveEmptyEntries)
+            .Any(segment => segment == "." || segment == "..")
+            .ShouldBeFalse(path);
+
+        (int treeExitCode, string treeOutput, string treeError) = RunGit(
+            ["ls-tree", "--full-tree", revision, "--", path.Replace('\\', '/')]);
+        treeExitCode.ShouldBe(0, treeError);
+        string[] treeRows = treeOutput.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        treeRows.Length.ShouldBe(1, $"{path} must have exactly one tree entry at {revision}");
+        treeRows[0].ShouldStartWith(
+            "100644 blob ",
+            Case.Sensitive,
+            $"{path} must be a regular non-executable blob at {revision}");
+
+        (int blobExitCode, string blob, string blobError) = RunGit(["show", $"{revision}:{path.Replace('\\', '/')}"]);
+        blobExitCode.ShouldBe(0, blobError);
+        byte[] bytes = Encoding.UTF8.GetBytes(blob);
+        Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+            .ShouldBe(binding.GetProperty("sha256").GetString(), path);
+        bytes.LongLength.ShouldBe(binding.GetProperty("bytes").GetInt64(), path);
     }
 
     private static bool TryValidateRepositoryRegularFile(string repositoryPath, out string diagnostic, string? repositoryRoot = null)

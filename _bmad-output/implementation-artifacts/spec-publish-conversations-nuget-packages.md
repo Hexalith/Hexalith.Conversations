@@ -48,9 +48,9 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Build a clean Release/package-reference graph while retaining Debug source mode; add all required central package entries and remove external projects from the solution build surface.
-- [ ] Add the four-package manifest, deterministic pack/validation/consumer checks, semantic-release tooling, and tooling tests.
-- [ ] Add shared CI, security workflows, and the pinned manual Release workflow with supported authorization bypass and post-publication assertions.
+- [x] Build a clean Release/package-reference graph while retaining Debug source mode; add all required central package entries and remove external projects from the solution build surface.
+- [x] Add the four-package manifest, deterministic pack/validation/consumer checks, semantic-release tooling, and tooling tests.
+- [x] Add shared CI, security workflows, and the pinned manual Release workflow with supported authorization bypass and post-publication assertions.
 - [ ] Run local workflow, npm, Release build, unit/conformance, pack, archive, and tooling validations; validate the exact Conventional Commit message with the pinned commitlint CLI.
 - [ ] Commit and push the implementation, wait for exact-source CI success, create the main-only unreviewed `production` environment, temporarily unfreeze publication, dispatch Release, monitor it to completion, verify all four NuGet packages plus `v1.0.0`, then refreeze.
 
@@ -61,11 +61,18 @@ context:
 
 ## Implementation Notes
 
+- Release/package mode now builds only Conversations-owned projects and consumes external Hexalith dependencies through centrally versioned packages. Debug source mode remains available for local development.
+- CI, security automation, exact four-package tooling, and the pinned operator-dispatched Release caller are implemented locally. No remote workflow, environment, variable, tag, release, or NuGet mutation has been performed.
+- Historical conformance remains a blocking CI shard. Its Git-backed source/submodule checks now resolve exact repositories and evidence-bearing revisions without modifying signed evidence.
+- Release remains blocked because two rc.2 preservation artifacts named by the committed manifest and detached index are absent: `_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log` (SHA-256 `1407c6c5837cdbe1a170e08a04b3d4d2b9cae2236883636781804c7edd6e7b00`, 2,902 bytes) and `_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-build-remediated.log` (SHA-256 `36f09a1249f840ffe33cbc11897bf01758af76b4b78820501723632b7419afa3`, 6,198 bytes). Neither path is present in reachable Git history, and no reachable blob with either exact size/hash exists. The bytes cannot be reconstructed from digest metadata, so the gate fails closed rather than skipping or weakening the contract.
+
 ## Spec Change Log
 
 ## Review Triage Log
 
 ## Verification
+
+**Local result:** package-mode restore/build, exact package archives, isolated consumers, workflow lint, release tooling, npm audit/signatures, commitlint, and all non-preservation test coverage pass. Full conformance runs 473 tests with 470 passed, 3 failed, and 0 skipped/not-run; the three failures are `PreservationTraceabilityManifestValidationTest.FaultInjectedCandidatesShouldFailWithStableDiagnostics`, `.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently`, and `.CurrentControlsAndTierPrerequisiteShouldStayTruthful`, all caused by the two missing historical log byte streams above. This is a release blocker.
 
 **Commands:**
 - `actionlint .github/workflows/*.yml` -- all workflow syntax and expressions pass.

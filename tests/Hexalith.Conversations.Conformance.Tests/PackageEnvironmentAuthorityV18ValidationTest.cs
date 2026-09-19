@@ -393,7 +393,11 @@ public sealed class PackageEnvironmentAuthorityV18ValidationTest
 
     private static byte[] ReadGitBlob(string revision, string path) => RunGitBytes(FindRepositoryRoot(), "show", $"{revision}:{path}");
 
-    private static byte[] ReadBuildsBlob(string revision, string path) => RunGitBytes(Path.Combine(FindRepositoryRoot(), BuildsPath), "show", $"{revision}:{path}");
+    private static byte[] ReadBuildsBlob(string revision, string path)
+        => RunGitBytes(
+            RepositoryEvidencePathResolver.Resolve(FindRepositoryRoot(), BuildsPath),
+            "show",
+            $"{revision}:{path}");
 
     private static (string Mode, string Type, string ObjectId) ReadTreeRecord(string revision, string path)
     {

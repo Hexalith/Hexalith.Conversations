@@ -6,7 +6,7 @@
     <IsPublishable>false</IsPublishable>
     <UserSecretsId>hexalith-conversations</UserSecretsId>
   </PropertyGroup>
-  <ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
     <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Aspire\Hexalith.EventStore.Aspire.csproj" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
@@ -16,5 +16,10 @@
          runs. Gating this on Debug made a Release launch depend on an out-of-band prebuild. -->
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore\Hexalith.EventStore.csproj" ReferenceOutputAssembly="false" Private="false" IsAspireProjectResource="false" Condition="'$(HexalithEventStoreRoot)' == ''" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
+    <ProjectReference Include="..\Hexalith.Conversations.Admin.Web\Hexalith.Conversations.Admin.Web.csproj" />
+    <ProjectReference Include="..\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
+    <PackageReference Include="Hexalith.EventStore.Aspire" />
   </ItemGroup>
 </Project>

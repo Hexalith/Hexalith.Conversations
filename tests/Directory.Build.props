@@ -2,6 +2,9 @@
   <Import Project="..\Directory.Build.props" />
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <!-- Test methods intentionally resume on the xUnit runner context. CA2007 targets reusable
+         library code and is not actionable for this test-only tree. -->
+    <NoWarn>$(NoWarn);CA2007</NoWarn>
   </PropertyGroup>
   <ItemGroup>
     <Using Include="Shouldly" />

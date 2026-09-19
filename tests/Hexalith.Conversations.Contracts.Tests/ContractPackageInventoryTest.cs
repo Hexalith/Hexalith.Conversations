@@ -21,7 +21,7 @@ namespace Hexalith.Conversations.Contracts.Tests;
 public sealed class ContractPackageInventoryTest
 {
     private const string CommonsSerializationPackageId = "Hexalith.Commons.Serialization";
-    private const string CommonsVersion = "2.30.0";
+    private const string CommonsVersion = "2.30.1";
     private const string PackageModeCondition = "'$(UseHexalithProjectReferences)' != 'true'";
     private const string SourceModeCondition = "'$(UseHexalithProjectReferences)' == 'true'";
 

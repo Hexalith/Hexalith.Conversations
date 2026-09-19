@@ -79,7 +79,10 @@ public sealed class ConversationsDomainServiceHostCompositionTest
     private static string RepositoryRoot()
     {
         DirectoryInfo? directory = new(AppContext.BaseDirectory);
-        while (directory is not null && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
+        while (directory is not null
+            && !File.Exists(Path.Combine(directory.FullName, "Hexalith.Conversations.slnx"))
+            && !File.Exists(Path.Combine(directory.FullName, ".git"))
+            && !Directory.Exists(Path.Combine(directory.FullName, ".git")))
         {
             directory = directory.Parent;
         }
