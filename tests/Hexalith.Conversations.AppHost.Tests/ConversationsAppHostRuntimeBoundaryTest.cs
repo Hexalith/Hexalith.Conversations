@@ -42,7 +42,9 @@ public sealed class ConversationsAppHostRuntimeBoundaryTest
         => string.Equals(
             Environment.GetEnvironmentVariable("HEXALITH_RUN_APPHOST_BOUNDARY_TESTS"),
             "true",
-            StringComparison.OrdinalIgnoreCase);
+            StringComparison.OrdinalIgnoreCase)
+        || (string.Equals(Environment.GetEnvironmentVariable("GITHUB_ACTIONS"), "true", StringComparison.Ordinal)
+            && string.Equals(Environment.GetEnvironmentVariable("CI"), "true", StringComparison.OrdinalIgnoreCase));
 
     /// <summary>
     /// Starts the real AppHost and submits a command through EventStore to the Conversations production host.

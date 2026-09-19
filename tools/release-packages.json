@@ -1,12 +1,12 @@
 {
   "packages": [
     {
-      "id": "Hexalith.Conversations.Contracts",
-      "project": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
-    },
-    {
       "id": "Hexalith.Conversations",
       "project": "src/Hexalith.Conversations/Hexalith.Conversations.csproj"
+    },
+    {
+      "id": "Hexalith.Conversations.Contracts",
+      "project": "src/Hexalith.Conversations.Contracts/Hexalith.Conversations.Contracts.csproj"
     },
     {
       "id": "Hexalith.Conversations.Client",

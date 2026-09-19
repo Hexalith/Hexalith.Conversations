@@ -1,0 +1,37 @@
+  Hexalith.Commons.Serialization -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Release/net10.0/Hexalith.Commons.Serialization.dll
+  The package Hexalith.Commons.Serialization.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Release/Hexalith.Commons.Serialization.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Serialization/bin/Release/Hexalith.Commons.Serialization.1.0.0.snupkg'.
+  Hexalith.Conversations.Contracts -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Contracts/bin/Release/net10.0/Hexalith.Conversations.Contracts.dll
+  Hexalith.Commons.Http -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Release/net10.0/Hexalith.Commons.Http.dll
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Release/Hexalith.Commons.Http.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Http/bin/Release/Hexalith.Commons.Http.1.0.0.snupkg'.
+  Hexalith.Conversations.Client -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Client/bin/Release/net10.0/Hexalith.Conversations.Client.dll
+  Hexalith.EventStore.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Contracts/bin/Release/net10.0/Hexalith.EventStore.Contracts.dll
+  Hexalith.EventStore.Client -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.Client/bin/Release/net10.0/Hexalith.EventStore.Client.dll
+  Hexalith.Conversations -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations/bin/Release/net10.0/Hexalith.Conversations.dll
+  Hexalith.Conversations.Testing -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Testing/bin/Release/net10.0/Hexalith.Conversations.Testing.dll
+  Hexalith.EventStore.ServiceDefaults -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.ServiceDefaults/bin/Release/net10.0/Hexalith.EventStore.ServiceDefaults.dll
+  Hexalith.EventStore.DomainService -> /home/administrator/projects/hexalith/conversations/references/Hexalith.EventStore/src/Hexalith.EventStore.DomainService/bin/Release/net10.0/Hexalith.EventStore.DomainService.dll
+  Hexalith.Tenants.Contracts -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Contracts/bin/Release/net10.0/Hexalith.Tenants.Contracts.dll
+  Hexalith.Tenants.Client -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Tenants/src/Hexalith.Tenants.Client/bin/Release/net10.0/Hexalith.Tenants.Client.dll
+  Hexalith.Commons.TenantAccess -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Release/net10.0/Hexalith.Commons.TenantAccess.dll
+  The package Hexalith.Commons.TenantAccess.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Release/Hexalith.Commons.TenantAccess.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.TenantAccess/bin/Release/Hexalith.Commons.TenantAccess.1.0.0.snupkg'.
+  Hexalith.Commons.Diagnostics -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Release/net10.0/Hexalith.Commons.Diagnostics.dll
+  The package Hexalith.Commons.Diagnostics.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Release/Hexalith.Commons.Diagnostics.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Diagnostics/bin/Release/Hexalith.Commons.Diagnostics.1.0.0.snupkg'.
+  Hexalith.Commons.Publication -> /home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Release/net10.0/Hexalith.Commons.Publication.dll
+  The package Hexalith.Commons.Publication.1.0.0 is missing a readme. Go to https://aka.ms/nuget/authoring-best-practices/readme to learn why package readmes are important.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Release/Hexalith.Commons.Publication.1.0.0.nupkg'.
+  Successfully created package '/home/administrator/projects/hexalith/conversations/references/Hexalith.Commons/src/libraries/Hexalith.Commons.Publication/bin/Release/Hexalith.Commons.Publication.1.0.0.snupkg'.
+  Hexalith.Conversations.Server -> /home/administrator/projects/hexalith/conversations/src/Hexalith.Conversations.Server/bin/Release/net10.0/Hexalith.Conversations.Server.dll
+  Hexalith.Conversations.Conformance.Tests -> /home/administrator/projects/hexalith/conversations/tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:13.09

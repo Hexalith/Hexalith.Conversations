@@ -315,3 +315,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-implement-agents-ci-cd.md`
   summary: Add an operator-controlled reconciliation workflow for a partially published Hexalith.Agents release.
   evidence: A sequential six-package NuGet push can fail after immutable side effects, while the collision-failing policy intentionally prevents an automatic retry; safe recovery needs a separately specified identity, hash, source, authorization, and already-published-package verification contract rather than a small CI/CD patch.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
+  summary: Add a post-publication NuGet symbol-server consumption probe for every Conversations portable PDB.
+  evidence: `dotnet nuget push` uploads the adjacent `.snupkg` and fails on synchronous upload rejection, but NuGet.org validates and indexes symbols asynchronously; proving later availability requires extracting each portable-PDB signature and querying `symbols.nuget.org`, which is broader than a direct release-boundary correction.

@@ -10,9 +10,10 @@
   <Import Project="$(Hexalith1BuildPackageProps)" Condition="Exists('$(Hexalith1BuildPackageProps)') And '$(HexalithVersionsLoaded)' != 'true'" />
   <Import Project="$(Hexalith2BuildPackageProps)" Condition="Exists('$(Hexalith2BuildPackageProps)') And '$(HexalithVersionsLoaded)' != 'true'" />
   <Import Project="$(Hexalith3BuildPackageProps)" Condition="'$(HexalithVersionsLoaded)' != 'true'" />
-  <!-- These published Commons packages are consumed by Conversations Release builds but are not
-       yet listed in the shared catalog. Keep their versions aligned with that catalog's Commons pin. -->
   <ItemGroup>
+    <!-- These promoted Commons packages share the catalog's Hexalith.Commons version but are not
+         yet enumerated by the imported Builds package list. Keep their versions bound to the
+         catalog property rather than copying a literal version into this repository. -->
     <PackageVersion Include="Hexalith.Commons.Diagnostics" Version="$(HexalithCommonsVersion)" />
     <PackageVersion Include="Hexalith.Commons.Publication" Version="$(HexalithCommonsVersion)" />
     <PackageVersion Include="Hexalith.Commons.TenantAccess" Version="$(HexalithCommonsVersion)" />

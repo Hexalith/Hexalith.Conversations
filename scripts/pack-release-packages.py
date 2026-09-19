@@ -1,89 +1,54 @@
 #!/usr/bin/env python3
-"""Pack the exact Conversations NuGet release inventory."""
+"""Pack the exact Conversations release inventory in NuGet package mode."""
 
 from __future__ import annotations
 
 import argparse
-import pathlib
 import subprocess
 import sys
+from pathlib import Path
 
-from release_package_contract import ROOT, load_manifest
+from release_contract import ROOT, load_manifest, validate_semver
+
+
+def prepare_output_directory(output_directory: Path) -> Path:
+    """Resolve a repository-local package directory before removing stale archives."""
+    resolved = output_directory.resolve()
+    if resolved == ROOT or ROOT not in resolved.parents:
+        raise ValueError(f"package output must be a child of the repository root: {output_directory}")
+    resolved.mkdir(parents=True, exist_ok=True)
+    return resolved
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("output_directory", type=pathlib.Path)
+    parser = argparse.ArgumentParser(description="Pack Hexalith.Conversations release packages.")
+    parser.add_argument("output_directory", type=Path)
     parser.add_argument("version")
-    parser.add_argument("--source-revision")
     args = parser.parse_args()
 
-    source_revision = args.source_revision
-    if source_revision is None:
-        source_revision = subprocess.run(
-            ["git", "rev-parse", "HEAD"],
-            cwd=ROOT,
-            check=True,
-            capture_output=True,
-            text=True,
-        ).stdout.strip()
-    if len(source_revision) != 40 or any(character not in "0123456789abcdef" for character in source_revision):
-        raise ValueError("source revision must be an exact lowercase commit SHA")
-
-    output = args.output_directory.resolve()
-    expected_output = (ROOT / "nupkgs").resolve()
-    if output != expected_output or args.output_directory.is_symlink():
-        raise ValueError(f"output directory must be the repository-owned package directory: {expected_output}")
-    output.mkdir(parents=True, exist_ok=True)
+    packages = load_manifest()
+    version = validate_semver(args.version)
+    output_directory = prepare_output_directory(args.output_directory)
     for pattern in ("*.nupkg", "*.snupkg"):
-        for package in output.glob(pattern):
-            package.unlink()
+        for package_path in output_directory.glob(pattern):
+            package_path.unlink()
 
-    for package in load_manifest():
-        properties = ["-p:Configuration=Release", "-p:UseHexalithProjectReferences=false"]
-        subprocess.run(
-            ["dotnet", "restore", package.project, "--force", "-m:1", *properties],
-            cwd=ROOT,
-            check=True,
-        )
-        subprocess.run(
-            [
-                "dotnet",
-                "build",
-                package.project,
-                "--configuration",
-                "Release",
-                "--no-restore",
-                "-warnaserror",
-                "-m:1",
-                *properties,
-            ],
-            cwd=ROOT,
-            check=True,
-        )
+    for package in packages:
         subprocess.run(
             [
                 "dotnet",
                 "pack",
                 package.project,
+                "--no-restore",
                 "--configuration",
                 "Release",
-                "--no-build",
-                "--no-restore",
                 "--output",
-                str(output),
-                "-m:1",
-                *properties,
-                f"-p:PackageVersion={args.version}",
-                f"-p:Version={args.version}",
-                f"-p:RepositoryCommit={source_revision}",
-                f"-p:SourceRevisionId={source_revision}",
-                "-p:ContinuousIntegrationBuild=true",
-                "-p:IncludeSymbols=true",
-                "-p:SymbolPackageFormat=snupkg",
-                "-p:GeneratePackageOnBuild=false",
+                str(output_directory),
+                f"-p:Version={version}",
+                "-p:UseHexalithProjectReferences=false",
+                "/m:1",
+                "/nr:false",
             ],
-            cwd=ROOT,
             check=True,
         )
     return 0
@@ -92,6 +57,9 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except Exception as error:  # noqa: BLE001 - command-line gate reports a concise failure.
-        print(f"Package packing failed: {error}", file=sys.stderr)
+    except (OSError, ValueError) as exc:
+        print(f"Package packing failed: {exc}", file=sys.stderr)
         raise SystemExit(1)
+    except subprocess.CalledProcessError as exc:
+        print(f"Package packing failed with exit code {exc.returncode}.", file=sys.stderr)
+        raise SystemExit(exc.returncode)

@@ -2,10 +2,12 @@
   <PropertyGroup>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
+  <ItemGroup>
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
     <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseHexalithProjectReferences)' == 'true'">
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Client\Hexalith.EventStore.Client.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
     <ProjectReference Include="$(HexalithEventStoreRoot)\src\Hexalith.EventStore.Testing\Hexalith.EventStore.Testing.csproj" Condition="'$(HexalithEventStoreRoot)' != ''" />
@@ -22,12 +24,9 @@
     <ProjectReference Include="..\..\references\Hexalith.EventStore\src\Hexalith.EventStore.Testing.Integration\Hexalith.EventStore.Testing.Integration.csproj" Condition="'$(HexalithEventStoreRoot)' == ''" />
   </ItemGroup>
   <ItemGroup Condition="'$(UseHexalithProjectReferences)' != 'true'">
-    <ProjectReference Include="..\..\src\Hexalith.Conversations.Contracts\Hexalith.Conversations.Contracts.csproj" />
-    <ProjectReference Include="..\..\src\Hexalith.Conversations.Server\Hexalith.Conversations.Server.csproj" />
-    <ProjectReference Include="..\..\src\Hexalith.Conversations.Testing\Hexalith.Conversations.Testing.csproj" />
     <PackageReference Include="Hexalith.EventStore.Client" />
-    <PackageReference Include="Hexalith.EventStore.Testing" />
     <PackageReference Include="Hexalith.EventStore.Server" />
+    <PackageReference Include="Hexalith.EventStore.Testing" />
     <PackageReference Include="Hexalith.EventStore.Testing.Integration" />
   </ItemGroup>
   <ItemGroup>

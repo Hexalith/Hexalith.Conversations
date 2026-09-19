@@ -1,7 +1,5 @@
 name: Release
 
-# Publication is an explicit operator action. The unprotected source proof runs
-# before the production environment can expose publication credentials.
 on:
   workflow_dispatch:
 
@@ -14,81 +12,103 @@ permissions:
 
 jobs:
   verify-source:
-    name: Verify exact green main source
+    name: Verify exact green main and first-release destinations
     runs-on: ubuntu-latest
-    timeout-minutes: 10
+    timeout-minutes: 15
     permissions:
       actions: read
       contents: read
+    outputs:
+      publish-enabled: ${{ steps.source.outputs.publish-enabled }}
     steps:
-      - name: Require current main with successful exact-source CI
-        shell: bash
+      - name: Check out complete release history
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Resolve freeze and verify source
+        id: source
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPOSITORY: ${{ github.repository }}
-          DISPATCH_REF: ${{ github.ref }}
-          DISPATCH_SHA: ${{ github.sha }}
-        run: |
-          set -euo pipefail
-          if [ "$DISPATCH_REF" != "refs/heads/main" ]; then
-            echo "Release must be dispatched from refs/heads/main." >&2
-            exit 1
-          fi
-          if [[ ! "$DISPATCH_SHA" =~ ^[0-9a-f]{40}$ ]]; then
-            echo "The dispatch source must be an exact lowercase commit SHA." >&2
-            exit 1
-          fi
+          GITHUB_TOKEN: ${{ github.token }}
+          PUBLISH_ENABLED: ${{ vars.HEXALITH_RELEASE_PUBLISH_ENABLED }}
+        run: >-
+          python3 scripts/verify-release-source.py
+          --publish-enabled "${PUBLISH_ENABLED-}"
+          --repository "${{ github.repository }}"
+          --dispatch-ref "${{ github.ref }}"
+          --dispatch-sha "${{ github.sha }}"
+          --workflow ci.yml
+          --github-output "$GITHUB_OUTPUT"
 
-          live_main_sha="$(gh api "repos/${REPOSITORY}/git/ref/heads/main" --jq '.object.sha')"
-          if [[ ! "$live_main_sha" =~ ^[0-9a-f]{40}$ ]] || [ "$DISPATCH_SHA" != "$live_main_sha" ]; then
-            echo "The dispatched source is no longer the exact live main tip." >&2
-            exit 1
-          fi
+      - name: Set up supported Node
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        uses: actions/setup-node@v7.0.0
+        with:
+          node-version: '24'
+          cache: npm
 
-          ci_runs="$(gh api --method GET \
-            "repos/${REPOSITORY}/actions/workflows/ci.yml/runs" \
-            -f branch=main \
-            -f event=push \
-            -f head_sha="$DISPATCH_SHA" \
-            -f status=success \
-            -f per_page=100)"
-          if ! printf '%s\n' "$ci_runs" | jq -e --arg sha "$DISPATCH_SHA" '
-            [.workflow_runs[] | select(
-              .head_sha == $sha and
-              .head_branch == "main" and
-              .event == "push" and
-              .status == "completed" and
-              .conclusion == "success"
-            )] | length > 0
-          ' >/dev/null; then
-            echo "No successful push CI run exists for the exact current main SHA." >&2
-            exit 1
-          fi
+      - name: Install locked release tooling
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm ci --ignore-scripts
+
+      - name: Verify npm dependency provenance and signatures
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm audit signatures
+
+      - name: Require the semantic plan to be exactly 1.0.0
+        if: ${{ steps.source.outputs.publish-enabled == 'true' }}
+        run: npm run verify:release-plan -- 1.0.0
 
   release:
     needs: verify-source
+    if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}
     permissions:
       actions: read
+      attestations: write
       contents: write
+      id-token: write
       issues: write
       pull-requests: write
     uses: Hexalith/Hexalith.Builds/.github/workflows/domain-release.yml@b93e9889e9e7b67036837015b4b2b115e326c4da
     with:
       solution: Hexalith.Conversations.slnx
       timeout-minutes: 60
-      test-platform: microsoft-testing-platform
       environment-name: production
-      governed-release: false
       publish-containers: false
       builds-execution-sha: b93e9889e9e7b67036837015b4b2b115e326c4da
       source-branch: main
       source-ci-workflow: ci.yml
       package-manifest: tools/release-packages.json
       expected-package-count: 4
+      test-projects: ''
       reserved-version: ''
       release-authority-issue-url: ''
       release-authority-owner: ''
       require-publication-authority: false
-      test-projects: ''
     secrets:
       NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+
+  verify-publication:
+    name: Verify exact packages, symbols, tag, and source
+    if: ${{ needs.verify-source.outputs.publish-enabled == 'true' }}
+    needs: [verify-source, release]
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    permissions:
+      contents: read
+    steps:
+      - name: Check out released source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Poll official publication endpoints
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: >-
+          python3 scripts/verify-release-state.py present 1.0.0
+          --repository "${{ github.repository }}"
+          --source-sha "${{ github.sha }}"
+          --attempts 61
+          --delay-seconds 15

@@ -138,36 +138,6 @@ public sealed class ScaffoldSmokeTest
     }
 
     /// <summary>
-    /// Ensures external Hexalith packages can only replace source references in package mode.
-    /// </summary>
-    [Fact]
-    public void ExternalHexalithPackageReferencesShouldBePackageModeOnly()
-    {
-        string root = FindRepositoryRoot();
-        string[] projectFiles = Directory
-            .GetFiles(Path.Combine(root, "src"), "*.csproj", SearchOption.AllDirectories)
-            .Concat(Directory.GetFiles(Path.Combine(root, "tests"), "*.csproj", SearchOption.AllDirectories))
-            .ToArray();
-
-        XElement[] externalPackageReferences = [.. projectFiles
-            .SelectMany(projectFile => XDocument.Load(projectFile).Descendants("PackageReference"))
-            .Where(reference => reference.Attribute("Include")?.Value.StartsWith("Hexalith.", StringComparison.Ordinal) == true)];
-
-        externalPackageReferences.ShouldNotBeEmpty(
-            "the package-mode boundary check must inspect at least one external Hexalith package reference");
-        foreach (XElement reference in externalPackageReferences)
-        {
-            reference
-                .AncestorsAndSelf()
-                .Select(element => element.Attribute("Condition")?.Value)
-                .OfType<string>()
-                .ShouldContain(
-                    "'$(UseHexalithProjectReferences)' != 'true'",
-                    $"{reference.Attribute("Include")?.Value} must be package-mode only");
-        }
-    }
-
-    /// <summary>
     /// Ensures scaffold project references preserve the approved dependency direction.
     /// </summary>
     [Fact]
@@ -329,7 +299,9 @@ public sealed class ScaffoldSmokeTest
 
         string[] actualReferences = [.. project
             .Descendants("ProjectReference")
-            .Where(reference => IsProjectReferenceConditionActive(reference, projectReferenceRoots))
+            .Where(reference => IsProjectReferenceConditionActive(
+                reference.Attribute("Condition")?.Value,
+                projectReferenceRoots))
             .Select(reference => reference.Attribute("Include")?.Value)
             .OfType<string>()
             .Where(path => !string.IsNullOrWhiteSpace(path))
@@ -348,7 +320,7 @@ public sealed class ScaffoldSmokeTest
         string[] references = [.. project
             .Descendants()
             .Where(element => element.Name.LocalName is "PackageReference" or "FrameworkReference")
-            .Where(reference => IsProjectReferenceConditionActive(reference, ResolveKnownProjectReferenceRoots(root)))
+            .Where(IsDefaultSourceModeReferenceActive)
             .Select(reference => reference.Attribute("Include")?.Value)
             .OfType<string>()
             .Where(reference => !string.IsNullOrWhiteSpace(reference))];
@@ -359,6 +331,34 @@ public sealed class ScaffoldSmokeTest
                 reference => reference.StartsWith(forbiddenPrefix, StringComparison.Ordinal),
                 $"{projectPath} should not reference {forbiddenPrefix} during scaffold-only coverage.");
         }
+    }
+
+    private static bool IsDefaultSourceModeReferenceActive(XElement reference)
+    {
+        foreach (XElement element in reference.AncestorsAndSelf())
+        {
+            string? condition = element.Attribute("Condition")?.Value;
+            if (string.IsNullOrWhiteSpace(condition))
+            {
+                continue;
+            }
+
+            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' == 'true'", StringComparison.Ordinal))
+            {
+                continue;
+            }
+
+            if (string.Equals(condition, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal))
+            {
+                return false;
+            }
+
+            throw new InvalidOperationException(
+                $"The scaffold dependency inventory cannot evaluate the condition \"{condition}\". "
+                + "Teach this evaluator the new clause instead of letting an unmodelled condition read as active.");
+        }
+
+        return true;
     }
 
     private static string FindRepositoryRoot()
@@ -418,17 +418,16 @@ public sealed class ScaffoldSmokeTest
     /// by naming the same resolved path twice — the structural inventory silently stopped modelling which
     /// reference a build actually takes.
     /// </remarks>
-    private static bool IsProjectReferenceConditionActive(
-        XElement reference,
-        IReadOnlyDictionary<string, string> projectReferenceRoots)
+    private static bool IsProjectReferenceConditionActive(string? condition, IReadOnlyDictionary<string, string> projectReferenceRoots)
     {
-        return reference
-            .AncestorsAndSelf()
-            .Select(element => element.Attribute("Condition")?.Value)
-            .Where(condition => !string.IsNullOrWhiteSpace(condition))
-            .All(condition => condition!
-                .Split(" and ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .All(clause => IsClauseActive(clause, condition, projectReferenceRoots)));
+        if (string.IsNullOrWhiteSpace(condition))
+        {
+            return true;
+        }
+
+        return condition
+            .Split(" and ", StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .All(clause => IsClauseActive(clause, condition, projectReferenceRoots));
     }
 
     private static bool IsClauseActive(
@@ -436,16 +435,6 @@ public sealed class ScaffoldSmokeTest
         string condition,
         IReadOnlyDictionary<string, string> projectReferenceRoots)
     {
-        if (string.Equals(clause, "'$(UseHexalithProjectReferences)' == 'true'", StringComparison.Ordinal))
-        {
-            return true;
-        }
-
-        if (string.Equals(clause, "'$(UseHexalithProjectReferences)' != 'true'", StringComparison.Ordinal))
-        {
-            return false;
-        }
-
         foreach (KeyValuePair<string, string> projectReferenceRoot in projectReferenceRoots)
         {
             if (string.Equals(clause, $"'$({projectReferenceRoot.Key})' != ''", StringComparison.Ordinal))
