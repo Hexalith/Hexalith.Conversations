@@ -133,6 +133,9 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
+      - name: Initialize root-declared submodules
+        uses: Hexalith/Hexalith.Builds/Github/initialize-build@main
+
       - name: Set up supported Node
         uses: actions/setup-node@v7.0.0
         with:

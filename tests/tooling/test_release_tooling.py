@@ -530,6 +530,7 @@ class ReleaseToolingTests(unittest.TestCase):
         self.assertIn("domain-ci.yml@main", ci)
         self.assertIn("run-consumer-validation: true", ci)
         self.assertIn("npm audit signatures", ci)
+        self.assertIn("uses: Hexalith/Hexalith.Builds/Github/initialize-build@main", tooling_job)
         self.assertIn("uses: actions/setup-dotnet@v6.0.0", tooling_job)
         self.assertIn("global-json-file: global.json", tooling_job)
         self.assertIn("npm test", ci)
