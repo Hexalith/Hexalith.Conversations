@@ -3308,3 +3308,22 @@ state must be recomputed by the selected resolver rather than inferred from
 this dated statement. The effective hold remains `ACTIVE`.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V16:END version=conversations-architecture-2026-09-19-v16 epic-authority=epic-6-authority-2026-08-18-v14 sidecar-head=v21-story-7.1-authority-correction-v1.json sidecar-head-sha256=296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636 candidate-binding=v9-authority-bundle-v1.json hold=ACTIVE -->
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V22:BEGIN version=conversations-architecture-2026-09-20-v22 supersedes=conversations-architecture-2026-09-19-v16 v16-block-bytes=7022 v16-block-sha256=7d438ccb69391805973ff827f02457a4441b1e540f1fff0249e4eee0bb26b2ea recovery-record=v22-current-authority-recovery-v1.json recovery-record-sha256=5b3bd599ce67977e0f82b5794329361402622b219ff60dc005acebab18597b8b hold=ACTIVE -->
+
+# Architecture Execution Authority Overlay V22 — Current-Authority Recovery
+
+The V22 recovery record and committed resolver implement the pragmatic AR-15
+route adopted by V16. V22 supersedes only V16's pending-recovery state; all
+other V16 decisions and inherited invariants remain binding. A technical
+`PASS` completes AR-15 only after repository-owner review, exact-SHA ordinary
+CI, owner fast-forward, and a post-merge resolver `PASS`. Candidate-authored
+evidence claims none of those owner actions.
+
+The effective implementation hold remains `ACTIVE`. V22 authorizes no Story
+7.1 implementation, product or dependency change, submodule or gitlink change,
+sprint transition, release, push, or `EXECUTION_ALLOWED`. The next eligible
+request after completed AR-15 is a separately owner-approved AD-4
+`EXECUTION_ALLOWED` successor.
+
+<!-- ARCHITECTURE-EXECUTION-OVERLAY-V22:END version=conversations-architecture-2026-09-20-v22 recovery-record=v22-current-authority-recovery-v1.json recovery-record-sha256=5b3bd599ce67977e0f82b5794329361402622b219ff60dc005acebab18597b8b hold=ACTIVE -->

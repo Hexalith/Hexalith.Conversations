@@ -1,0 +1,32 @@
+{
+  "schemaVersion": "hexalith.conversations.v22-workflow-route-inventory.v1",
+  "inventoryId": "V22-WORKFLOW-ROUTE-INVENTORY",
+  "activeRoutes": [
+    {
+      "ordinal": 1,
+      "routeId": "current-planning-authority",
+      "status": "ACTIVE",
+      "workflowPath": ".github/workflows/planning-authority-preflight.yml",
+      "resolverPath": "_bmad/scripts/resolve_current_planning_authority.py",
+      "command": "uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate HEAD --check"
+    }
+  ],
+  "historicalRoutes": [
+    {
+      "ordinal": 2,
+      "routeId": "v21-ci-trust",
+      "status": "HISTORICAL_ONLY",
+      "sourceCommit": "239758d396d28372687b73f5dc128405892cb520",
+      "publisherPath": "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+      "testPath": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py",
+      "invokedAsCurrentAuthority": false
+    }
+  ],
+  "forbiddenMechanisms": [
+    "github-rulesets",
+    "external-validators",
+    "no-bypass",
+    "check-runs",
+    "nonces"
+  ]
+}
