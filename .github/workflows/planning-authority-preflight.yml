@@ -1,9 +1,12 @@
 name: Planning authority preflight
 
-# The committed V22 resolver establishes technical planning-authority status from raw Git
-# objects. Repository-owner approval and fast-forward remain separate authenticated actions.
+# pull_request_target runs only the protected, base-owned trust job. The unprivileged
+# pull_request event runs candidate tests separately, with read-only permissions and no secrets.
+# Push/manual runs require the protected verdict before candidate validation.
 
 on:
+  pull_request_target:
+    branches: [main]
   pull_request:
   push:
     branches: [main]
@@ -13,9 +16,14 @@ permissions:
   contents: read
 
 jobs:
-  planning-authority:
+  protected-planning-authority:
+    name: protected-planning-authority-${{ github.event_name }}
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    outputs:
+      baseline: ${{ steps.range.outputs.baseline }}
+      candidate: ${{ steps.range.outputs.candidate }}
     steps:
       - name: Check out exact candidate
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -23,14 +31,259 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          allow-unsafe-pr-checkout: true
 
-      - name: Check out pinned root submodules
+      - name: Set up exact protected Python
+        id: protected-python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: "3.11.15"
+          check-latest: false
+          update-environment: false
+
+      - name: Install pinned uv client
+        id: protected-uv
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9
+        with:
+          version: "0.12.13"
+          checksum: "745765a3b6e360ad76743599ae5c42e9278c7edf8bbff9fc76d05bf2623a04dd"
+          enable-cache: false
+          working-directory: ${{ runner.temp }}
+
+      - name: Resolve immutable comparison range
+        id: range
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          TRUSTED_EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
+          TRUSTED_EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+          PYTHONSAFEPATH: "1"
+          PYTHONNOUSERSITE: "1"
+        run: |
+          set -euo pipefail
+          trusted_git() {
+            env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-trusted-home" \
+              GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_OPTIONAL_LOCKS=0 \
+              /usr/bin/git -C "$GITHUB_WORKSPACE" \
+              -c core.hooksPath=/dev/null -c protocol.file.allow=never "$@"
+          }
+          install -d -m 0700 "$RUNNER_TEMP/planning-authority-trusted-home"
+          head="$(trusted_git rev-parse HEAD)"
+          test "$head" = "$TRUSTED_EVENT_HEAD"
+          baseline="$TRUSTED_EVENT_BASE"
+          if [[ -z "$baseline" || "$baseline" == "0000000000000000000000000000000000000000" ]]; then
+            baseline="$(trusted_git rev-parse HEAD^)"
+          fi
+          trusted_git cat-file -e "$baseline^{commit}"
+          printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
+          printf 'candidate=%s\n' "$TRUSTED_EVENT_HEAD" >> "$GITHUB_OUTPUT"
+          # The protected hosts always come from the protected event base, never the checked-out head.
+          trusted_host_commit="$baseline"
+          test "$trusted_host_commit" = "$baseline"
+          printf 'trusted_host_commit=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
+
+      - name: Materialize protected planning-authority trust hosts
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}
+          PYTHONSAFEPATH: "1"
+          PYTHONNOUSERSITE: "1"
+        run: |
+          set -euo pipefail
+          trusted_git() {
+            env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-trusted-home" \
+              GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_OPTIONAL_LOCKS=0 \
+              /usr/bin/git -C "$GITHUB_WORKSPACE" \
+              -c core.hooksPath=/dev/null -c protocol.file.allow=never "$@"
+          }
+          host_dir="$RUNNER_TEMP/planning-authority-protected-host"
+          install -d -m 0700 "$host_dir"
+          for path in \
+            _bmad/scripts/resolve_current_planning_authority.py \
+            _bmad/scripts/verify_evidence_boundary.py \
+            pyproject.toml \
+            uv.lock
+          do
+            name="${path##*/}"
+            trusted_git cat-file -e "$TRUSTED_HOST_COMMIT:$path"
+            trusted_git show "$TRUSTED_HOST_COMMIT:$path" > "$host_dir/$name"
+          done
+          chmod 0500 "$host_dir/resolve_current_planning_authority.py" "$host_dir/verify_evidence_boundary.py"
+          chmod 0400 "$host_dir/pyproject.toml" "$host_dir/uv.lock"
+          printf 'resolver=%s\n' "$(sha256sum "$host_dir/resolve_current_planning_authority.py" | cut -d' ' -f1)"
+          printf 'verifier=%s\n' "$(sha256sum "$host_dir/verify_evidence_boundary.py" | cut -d' ' -f1)"
+
+      - name: Synchronize protected planning verifier environment
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          PROTECTED_BASE_PYTHON: ${{ steps.protected-python.outputs.python-path }}
+          PROTECTED_UV: ${{ steps.protected-uv.outputs.uv-path }}
+        run: |
+          set -euo pipefail
+          install -d -m 0700 "$RUNNER_TEMP/planning-authority-protected-home"
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" UV_NO_CONFIG=1 UV_PYTHON="$PROTECTED_BASE_PYTHON" \
+            UV_PYTHON_DOWNLOADS=never "$PROTECTED_UV" sync \
+            --project "$RUNNER_TEMP/planning-authority-protected-host" --frozen \
+            --python "$PROTECTED_BASE_PYTHON"
+
+      - name: Verify synchronized protected Python identity
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          PYTHONSAFEPATH: "1"
+          PYTHONNOUSERSITE: "1"
+          PROTECTED_BASE_PYTHON: ${{ steps.protected-python.outputs.python-path }}
+        run: |
+          set -euo pipefail
+          protected_python="$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python"
+          test -x "$protected_python"
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+            "$protected_python" -I -P - "$PROTECTED_BASE_PYTHON" <<'PY'
+          import pathlib
+          import sys
+          import jsonschema
+          expected_base = pathlib.Path(sys.argv[1]).resolve(strict=True)
+          observed_base = pathlib.Path(sys._base_executable).resolve(strict=True)
+          if observed_base != expected_base:
+              raise SystemExit(f"protected venv base mismatch: expected={expected_base}; observed={observed_base}")
+          if sys.prefix == sys.base_prefix or sys.version_info[:3] != (3, 11, 15):
+              raise SystemExit(f"protected venv identity mismatch: prefix={sys.prefix}; base={sys.base_prefix}; version={sys.version}")
+          if not pathlib.Path(jsonschema.__file__).resolve(strict=True).is_relative_to(pathlib.Path(sys.prefix).resolve(strict=True)):
+              raise SystemExit("jsonschema was not imported from the synchronized protected venv")
+          PY
+
+      - name: Resolve current planning authority through the protected host
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          PYTHONSAFEPATH: "1"
+          PYTHONNOUSERSITE: "1"
+        run: |
+          set -euo pipefail
+          result="$RUNNER_TEMP/current-planning-authority-result.json"
+          protected_python="$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python"
+          set +e
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+            "$protected_python" -I -P \
+            "$RUNNER_TEMP/planning-authority-protected-host/resolve_current_planning_authority.py" \
+            --repository "$GITHUB_WORKSPACE" --candidate "${{ steps.range.outputs.candidate }}" --check > "$result"
+          resolver_exit="$?"
+          set -e
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+            "$protected_python" -I -P - "$result" "$resolver_exit" <<'PY'
+          import json
+          import sys
+          document = json.load(open(sys.argv[1], encoding="utf-8"))
+          observed_exit = int(sys.argv[2])
+          expected_exit = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
+          result = document.get("result")
+          common_keys = {
+              "schemaVersion", "result", "exitCode", "effectiveHold", "implementationHold",
+              "observed", "assertionLedger", "blockers", "ownerApprovalClaimed",
+              "releaseAuthorized", "pushAuthorized", "executionAllowed",
+          }
+          keys = set(document)
+          if keys not in (common_keys, common_keys | {"storyExecution"}):
+              raise SystemExit("protected current-authority host returned an incomplete result envelope")
+          if (
+              document.get("schemaVersion") != "hexalith.conversations.current-planning-authority-result.v1"
+              or result not in expected_exit
+              or document.get("exitCode") != expected_exit[result]
+              or observed_exit != expected_exit[result]
+              or not isinstance(document.get("observed"), dict)
+              or not isinstance(document.get("assertionLedger"), list)
+              or not document["assertionLedger"]
+              or not isinstance(document.get("blockers"), list)
+              or document.get("releaseAuthorized") is not False
+              or document.get("pushAuthorized") is not False
+          ):
+              raise SystemExit("protected current-authority host returned contradictory result semantics")
+          if result != "PASS" and (
+              document.get("effectiveHold") != "ACTIVE"
+              or document.get("implementationHold") != "ACTIVE"
+              or document.get("ownerApprovalClaimed") is not False
+              or document.get("executionAllowed") is not False
+              or not document["blockers"]
+          ):
+              raise SystemExit("nonpassing current-authority result enabled execution")
+          if "storyExecution" in document and document["storyExecution"] != {
+              "7.1": result == "PASS", "7.2": False, "7.3": False, "7.4": False,
+          }:
+              raise SystemExit("protected current-authority host returned contradictory story execution")
+          if result == "PASS" and "storyExecution" not in document and (
+              document.get("effectiveHold") != "ACTIVE"
+              or document.get("implementationHold") != "ACTIVE"
+              or document.get("ownerApprovalClaimed") is not False
+              or document.get("executionAllowed") is not False
+              or document["blockers"]
+          ):
+              raise SystemExit("protected V22 result violated its non-executable PASS contract")
+          if result == "PASS" and "storyExecution" in document and (
+              document.get("effectiveHold") != "EXECUTION_ALLOWED"
+              or document.get("implementationHold") != "EXECUTION_ALLOWED"
+              or document.get("ownerApprovalClaimed") is not True
+              or document.get("executionAllowed") is not True
+              or document["blockers"]
+          ):
+              raise SystemExit("protected successor result violated its executable PASS contract")
+          raise SystemExit(observed_exit)
+          PY
+
+      # When a candidate-bound scope is in the comparison range the verifier requires exact
+      # baseline-to-candidate path equality and raw mode-160000 changes remain event-owned.
+      # V16 independently discovers and validates immutable V15/V16 C1/C2 transactions from Git.
+      - name: Verify lifecycle evidence and candidate-bound publication scope
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          PYTHONSAFEPATH: "1"
+          PYTHONNOUSERSITE: "1"
+        run: |
+          set -euo pipefail
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+            "$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python" -I -P \
+            "$RUNNER_TEMP/planning-authority-protected-host/verify_evidence_boundary.py" \
+            --repository "$GITHUB_WORKSPACE" --baseline "${{ steps.range.outputs.baseline }}" \
+            --candidate "${{ steps.range.outputs.candidate }}"
+
+  candidate-validation:
+    name: candidate-validation-${{ github.event_name }}
+    needs: protected-planning-authority
+    if: >-
+      always() &&
+      (github.event_name == 'pull_request' ||
+      ((github.event_name == 'push' || github.event_name == 'workflow_dispatch') &&
+      needs.protected-planning-authority.result == 'success'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check out exact candidate with pinned root submodules
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           fetch-depth: 0
           persist-credentials: false
-          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          ref: ${{ github.event.pull_request.head.sha || needs.protected-planning-authority.outputs.candidate || github.sha }}
           submodules: true
+
+      - name: Verify checked-out candidate identity
+        shell: bash
+        working-directory: ${{ runner.temp }}
+        env:
+          TRUSTED_EVENT_HEAD: ${{ github.event.pull_request.head.sha || needs.protected-planning-authority.outputs.candidate || github.sha }}
+        run: |
+          set -euo pipefail
+          observed="$(env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-candidate-home" \
+            GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null GIT_OPTIONAL_LOCKS=0 \
+            /usr/bin/git -C "$GITHUB_WORKSPACE" --no-replace-objects \
+            -c core.hooksPath=/dev/null -c protocol.file.allow=never rev-parse HEAD)"
+          test "$observed" = "$TRUSTED_EVENT_HEAD"
 
       - name: Set up repository .NET SDK
         uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9
@@ -39,23 +292,6 @@ jobs:
 
       - name: Install pinned uv client
         run: python3 -m pip install --disable-pip-version-check uv==0.12.13
-
-      - name: Resolve immutable comparison range
-        id: range
-        shell: bash
-        env:
-          EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
-          EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          set -euo pipefail
-          head="$(git rev-parse HEAD)"
-          test "$head" = "$EVENT_HEAD"
-          baseline="$EVENT_BASE"
-          if [[ -z "$baseline" || "$baseline" == "0000000000000000000000000000000000000000" ]]; then
-            baseline="$(git rev-parse HEAD^)"
-          fi
-          git cat-file -e "$baseline^{commit}"
-          printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
 
       - name: Set up repository Node version
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
@@ -71,35 +307,21 @@ jobs:
         run: >-
           npx --no-install commitlint
           --config commitlint.config.mjs
-          --from "${{ steps.range.outputs.baseline }}"
-          --to HEAD
+          --from "${{ github.event.pull_request.base.sha || needs.protected-planning-authority.outputs.baseline }}"
+          --to "${{ github.event.pull_request.head.sha || needs.protected-planning-authority.outputs.candidate || github.sha }}"
           --verbose
 
-      - name: Synchronize frozen planning verifier environment
+      - name: Synchronize frozen candidate environment
         run: |
           uv lock --check
           uv sync --frozen
 
-      - name: Resolve V22 current planning authority
-        run: >-
-          uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate HEAD --check
-
-      # Runs before the evidence gate so a skill-tree upgrade that erased the project-owned
-      # lifecycle gates is named directly, rather than surfacing as a downstream gate failure.
+      # Runs before candidate suites so a skill-tree upgrade that erased the project-owned
+      # lifecycle gates is named directly, rather than surfacing as a downstream test failure.
       - name: Verify installed lifecycle routes still carry their evidence gates
         run: >-
           uv run --frozen --no-sync python3 _bmad/scripts/check_lifecycle_gate_preflight.py
           --repository .
-
-      # When a candidate-bound scope is in the comparison range the verifier requires exact
-      # baseline-to-candidate path equality and raw mode-160000 changes remain event-owned.
-      # V16 independently discovers and validates immutable V15/V16 C1/C2 transactions from Git.
-      - name: Verify lifecycle evidence and candidate-bound publication scope
-        run: >-
-          uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py
-          --repository .
-          --baseline "${{ steps.range.outputs.baseline }}"
-          --candidate HEAD
 
       - name: Verify current applicable Python planning authority skip-free
         shell: bash

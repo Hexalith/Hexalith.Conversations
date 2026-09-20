@@ -1,0 +1,438 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-entry-authority.v1",
+  "recordType": "REQUEST",
+  "authorityId": "V23-STORY-7.1-ENTRY-AUTHORITY",
+  "requestId": "V23-STORY-7.1-ENTRY-REQUEST-v1",
+  "protectedMain": {
+    "commit": "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607",
+    "tree": "62c8a0f8b72b10f3442bc4501461545d5586ed11",
+    "parents": [
+      "c610fbb8c5491fb0d7987c2f8294199887f4a44c",
+      "3159c170acb394e2951a6120bc3b7292be85fdc4"
+    ],
+    "diagnosticResult": "FAIL",
+    "diagnosticBlocker": "CANDIDATE_GRAPH_DRIFT"
+  },
+  "historicalV22": {
+    "candidateCommit": "cf82f8008d02b07d48338a545909d97faa302362",
+    "candidateTree": "47643a4ebd7a066137fd4b6676f6ccde51b9e075",
+    "result": "PASS",
+    "executionAllowed": false
+  },
+  "toolingTransaction": {
+    "baselineCommit": "e0b098fa1c056385e28ee8ac0efd0c55dfab324f",
+    "baselineTree": "bb1ffe77ca092988355e746bbd748ef5ed8a1de3",
+    "exactChangedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json",
+      "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_entry_authority.py",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py"
+    ],
+    "requiredMode": "100644",
+    "selfExcludedManifestSha256": "f395b03a30da16b5a59649289bc3fd52b2557c0757aec6e17f4e0e1c4cc346e5",
+    "manifest": [
+      {
+        "path": ".github/workflows/planning-authority-preflight.yml",
+        "mode": "100644",
+        "objectId": "72b1dbfd36ed365ce4c96a3aeee8df8ac7f84bfc",
+        "sha256": "328fdd95cb6edd546c735a0da329cc3d1505097b05d3fb2a855692d4b18c3478"
+      },
+      {
+        "path": "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json",
+        "mode": "100644",
+        "objectId": "e7cdb9200c548cf185747c8f2fa68a3e62551438",
+        "sha256": "d11340d9b2665c5295a4408f9e6b26218001a61f118d6ec979d6e9ca4da3ea1b"
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_entry_authority.py",
+        "mode": "100644",
+        "objectId": "6d5f1f9bbad42a926cabaeb5e9f0976566d3c01a",
+        "sha256": "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
+      },
+      {
+        "path": "_bmad/scripts/resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "89c5ad811249767558ba25237b30a22400143f68",
+        "sha256": "531e506843191768fc055b6b3309c60a0c7ec20d6fd2299e8c5f8a49aed7b2b1"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+        "mode": "100644",
+        "objectId": "29ab183b5ef024b0bab1da76721be355ead1c8db",
+        "sha256": "2ab458155055f8f1de8cdc34d79eefc445aba23071545cdb77e5e1742c9e3f96"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "d125c1b7a2cc7b2d94abab3db0c8c295531c527b",
+        "sha256": "396a0565db3136a68857d23ba131ca568f1f6174138f84028ab0c4e5c2e7a1e7"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "f0c56114148944382df1579ee9772737a35c9b6a",
+        "sha256": "bddcb047c4e3e641aa0b75e8576e88592f3d6ca465d6eb31563bec00e69488ab"
+      },
+      {
+        "path": "_bmad/scripts/verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "9ea058b7adf4d2ca57eb31de071b37e345672fd4",
+        "sha256": "adde953649966af3afd3e2ee0fbcc9ba37eedb18d4b533f58fb161c4bdf94c86"
+      }
+    ]
+  },
+  "sourceBindings": [
+    {
+      "path": "_bmad-output/planning-artifacts/architecture.md",
+      "mode": "100644",
+      "objectId": "389208a40ac4c47c7ce45861d6d082e7cf11792f",
+      "sha256": "317734853c9dd2cfbcdd070b9df0d80e15dd9498960fed1ce5d329caaa5749d8"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json",
+      "mode": "100644",
+      "objectId": "593a420c59d6e5d316d499541706342a378455a4",
+      "sha256": "5b3bd599ce67977e0f82b5794329361402622b219ff60dc005acebab18597b8b"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json",
+      "mode": "100644",
+      "objectId": "335b6aedea0a32418c987d2b6d5cbfe0e863b366",
+      "sha256": "f0e1c4f3497d5195a71f050dd74db7d4fc88ca674c6bfc0777b92d64199ace57"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md",
+      "mode": "100644",
+      "objectId": "c2ec3f3442d49dd38ba2cb88d605bab989e2f963",
+      "sha256": "1b87966f2b48d18c1f1d642e679febca26bbc591e8f270e6deb96393ea39034e"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-hold-v1.json",
+      "mode": "100644",
+      "objectId": "093e3a1637bf471838a4f6745535b88fdfa8940b",
+      "sha256": "2c594075e8b212c7db05b00fa9bb3f1c626845437dc819c7f0e39460f5d80b12"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+      "mode": "100644",
+      "objectId": "1abb099d5b2980eb01eecb911b61e3b6a76bf485",
+      "sha256": "862a880ca621c4f9b60328bc2f1ce353951d5ae7fcce811cffb6d050e8b122ad"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+      "mode": "100644",
+      "objectId": "a7fded0aedd8f103039843ba35f2606edcc8f69c",
+      "sha256": "58b7bc8e70701718c20668fddddd492ab3da8fbae274a2ab507c004f649589ce"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json",
+      "mode": "100644",
+      "objectId": "5dd27e8eee9bd5809f69d8e3487020e54b00f97a",
+      "sha256": "42f9b54014073eadbf48e5b6efd8492352c5877305f5312838ce6f3804a708da"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json",
+      "mode": "100644",
+      "objectId": "a26923eb7ebccf8eeab1308f5be38289145f435f",
+      "sha256": "7719deb5787bd59a2194dd9f2a138e74fedcadb2db4f4b575b0974f38c4faa09"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json",
+      "mode": "100644",
+      "objectId": "d7db16884d3616394f21eeffda13fa0e3d0f2ae7",
+      "sha256": "548294d8e9752ff3354897efbfc30a1920bf8cea6a3187ac719c0ca9df618d2e"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "mode": "100644",
+      "objectId": "d4a82c2cc49309ba3d1712dd3d3d1414a032bea3",
+      "sha256": "6bd69a8d06c607fbbc9d0d30560d00f2b8369c2674bad2bc1a8db0979d787b3d"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/oq-1-landing-zone-approval-v1.json",
+      "mode": "100644",
+      "objectId": "810f7470c9eafd3fe5c1cfeaae8f8e40d4052e8a",
+      "sha256": "00b4179e69bfe87259bc5af97be52e333d9adfcb5a53f2f404a05ddb9f1e5e47"
+    },
+    {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json",
+      "mode": "100644",
+      "objectId": "4b231130f4334e7e41b3a48b7c7874a3809bb4f5",
+      "sha256": "d033756c84680dc6e671368966c60a1e2ee120965ea04dd0edf4e760cb702864"
+    },
+    {
+      "path": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json",
+      "mode": "100644",
+      "objectId": "f24a83e6c6468aed367c40039acc813513ffa402",
+      "sha256": "4cb4e66744b26ead0a79a218aed662005f14007e8e103dd019836761569118ea"
+    },
+    {
+      "path": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "mode": "100644",
+      "objectId": "d6ebd9fd9429c10f762905e6862592d4196dbca5",
+      "sha256": "3cb6d1e745d78b9c1b34eba3382e577e33af6179583299a0cb7e78c35f9a9833"
+    }
+  ],
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "objectId": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "objectId": "4bc61d9a60fae13a65f23963c1cb731065222f2a"
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "objectId": "b10971ae6e17d4fca2933908531f80a5f58b6e5a"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "objectId": "237b39e89cb50d8d37596f4da9ce3f6993260165"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "objectId": "ffa922d0f7a278da3bb02ee09769564df02d5f01"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "objectId": "dfd84f4b9c93779f253672096fec5d717d6afc91"
+    }
+  ],
+  "entryGates": [
+    {
+      "id": "V22-HISTORICAL-CANDIDATE",
+      "state": "PASS",
+      "evidence": "cf82f8008d02b07d48338a545909d97faa302362",
+      "detail": "the immutable direct-child V22 candidate remains PASS with execution disabled"
+    },
+    {
+      "id": "V22-PROTECTED-MAIN-DIAGNOSTIC",
+      "state": "PASS",
+      "evidence": "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607",
+      "detail": "the two-parent protected merge is recorded as FAIL/CANDIDATE_GRAPH_DRIFT rather than reinterpreted"
+    },
+    {
+      "id": "STORY-6.2-PREDECESSOR",
+      "state": "PASS",
+      "evidence": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "detail": "the immutable Story 6.2 predecessor is recorded done"
+    },
+    {
+      "id": "7.1-SCHEMAS-CHECKPOINT",
+      "state": "PASS",
+      "evidence": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json",
+      "detail": "the historical schema checkpoint is bound as point-in-time evidence only"
+    },
+    {
+      "id": "IR-0-READINESS",
+      "state": "PASS",
+      "evidence": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md",
+      "detail": "the independent readiness result is bound without treating it as a hold lift"
+    },
+    {
+      "id": "CURRENT-WORKFLOW-ROUTE",
+      "state": "PASS",
+      "evidence": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json",
+      "detail": "the current marker resolver and route inventory are frozen inputs to V23"
+    },
+    {
+      "id": "PRODUCTION-OPERATIONAL-ENVELOPE",
+      "state": "MISSING",
+      "evidence": "_bmad-output/planning-artifacts/production-operational-envelope-v1.md",
+      "detail": "AD-5 requires the production operational envelope before every hold lift"
+    },
+    {
+      "id": "FR-20-SM-C1",
+      "state": "PENDING",
+      "evidence": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "detail": "the current preservation denominator has no passing successor disposition"
+    },
+    {
+      "id": "SM-C2",
+      "state": "FAIL",
+      "evidence": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "detail": "the current universal hot-path performance gate is failed"
+    },
+    {
+      "id": "OQ-1",
+      "state": "BLOCKED",
+      "evidence": "_bmad-output/planning-artifacts/oq-1-landing-zone-approval-v1.json",
+      "detail": "the current landing-zone acceptance remains evidence-blocked"
+    },
+    {
+      "id": "OWNER-APPROVAL",
+      "state": "MISSING",
+      "evidence": "",
+      "detail": "the technical request contains no copied or prefilled owner decision"
+    },
+    {
+      "id": "EPIC-7-SPRINT-INVENTORY",
+      "state": "PASS",
+      "evidence": "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "detail": "Epic 7 and Stories 7.1 through 7.4 each have exactly one backlog row"
+    }
+  ],
+  "publicationContract": {
+    "authorityPath": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json",
+    "architecturePath": "_bmad-output/planning-artifacts/architecture.md",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/architecture.md",
+      "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+    ],
+    "requiredCommitSignature": true,
+    "requiredDecision": "EXECUTION_ALLOWED",
+    "story7_2Locked": true
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V23.REQUEST.01",
+      "subject": "V22-HISTORICAL-CANDIDATE",
+      "state": "PASS",
+      "detail": "the immutable direct-child V22 candidate remains PASS with execution disabled"
+    },
+    {
+      "id": "V23.REQUEST.02",
+      "subject": "V22-PROTECTED-MAIN-DIAGNOSTIC",
+      "state": "PASS",
+      "detail": "the two-parent protected merge is recorded as FAIL/CANDIDATE_GRAPH_DRIFT rather than reinterpreted"
+    },
+    {
+      "id": "V23.REQUEST.03",
+      "subject": "STORY-6.2-PREDECESSOR",
+      "state": "PASS",
+      "detail": "the immutable Story 6.2 predecessor is recorded done"
+    },
+    {
+      "id": "V23.REQUEST.04",
+      "subject": "7.1-SCHEMAS-CHECKPOINT",
+      "state": "PASS",
+      "detail": "the historical schema checkpoint is bound as point-in-time evidence only"
+    },
+    {
+      "id": "V23.REQUEST.05",
+      "subject": "IR-0-READINESS",
+      "state": "PASS",
+      "detail": "the independent readiness result is bound without treating it as a hold lift"
+    },
+    {
+      "id": "V23.REQUEST.06",
+      "subject": "CURRENT-WORKFLOW-ROUTE",
+      "state": "PASS",
+      "detail": "the current marker resolver and route inventory are frozen inputs to V23"
+    },
+    {
+      "id": "V23_OPERATIONAL_ENVELOPE_MISSING",
+      "subject": "PRODUCTION-OPERATIONAL-ENVELOPE",
+      "state": "BLOCKED",
+      "detail": "AD-5 requires the production operational envelope before every hold lift"
+    },
+    {
+      "id": "V23_PRESERVATION_GATE_PENDING",
+      "subject": "FR-20-SM-C1",
+      "state": "BLOCKED",
+      "detail": "the current preservation denominator has no passing successor disposition"
+    },
+    {
+      "id": "V23_PERFORMANCE_GATE_FAILED",
+      "subject": "SM-C2",
+      "state": "FAIL",
+      "detail": "the current universal hot-path performance gate is failed"
+    },
+    {
+      "id": "V23_LANDING_ZONE_GATE_BLOCKED",
+      "subject": "OQ-1",
+      "state": "BLOCKED",
+      "detail": "the current landing-zone acceptance remains evidence-blocked"
+    },
+    {
+      "id": "V23_OWNER_APPROVAL_MISSING",
+      "subject": "OWNER-APPROVAL",
+      "state": "BLOCKED",
+      "detail": "the technical request contains no copied or prefilled owner decision"
+    },
+    {
+      "id": "V23.REQUEST.12",
+      "subject": "EPIC-7-SPRINT-INVENTORY",
+      "state": "PASS",
+      "detail": "Epic 7 and Stories 7.1 through 7.4 each have exactly one backlog row"
+    }
+  ],
+  "blockers": [
+    {
+      "code": "V23_OPERATIONAL_ENVELOPE_MISSING",
+      "detail": "AD-5 requires the production operational envelope before every hold lift",
+      "assertionIndex": 6
+    },
+    {
+      "code": "V23_PRESERVATION_GATE_PENDING",
+      "detail": "the current preservation denominator has no passing successor disposition",
+      "assertionIndex": 7
+    },
+    {
+      "code": "V23_PERFORMANCE_GATE_FAILED",
+      "detail": "the current universal hot-path performance gate is failed",
+      "assertionIndex": 8
+    },
+    {
+      "code": "V23_LANDING_ZONE_GATE_BLOCKED",
+      "detail": "the current landing-zone acceptance remains evidence-blocked",
+      "assertionIndex": 9
+    },
+    {
+      "code": "V23_OWNER_APPROVAL_MISSING",
+      "detail": "the technical request contains no copied or prefilled owner decision",
+      "assertionIndex": 10
+    }
+  ],
+  "result": "BLOCKED",
+  "implementationHold": "ACTIVE",
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false,
+  "executionAllowed": false
+}

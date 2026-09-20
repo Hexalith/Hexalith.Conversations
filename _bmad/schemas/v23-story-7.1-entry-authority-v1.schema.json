@@ -1,0 +1,1740 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v23-story-7.1-entry-authority-v1.schema.json",
+  "title": "V23 Story 7.1 Entry Authority",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/request"
+    },
+    {
+      "$ref": "#/$defs/authority"
+    },
+    {
+      "$ref": "#/$defs/result"
+    }
+  ],
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\x00-\\x1F\\x7F])[^/]+(?:/[^/]+)*$"
+    },
+    "utcInstant": {
+      "type": "string",
+      "format": "date-time",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "100644"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "160000"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_.-]+$"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "detail",
+        "assertionIndex"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]+$"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        },
+        "assertionIndex": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "states",
+        "exitCodes",
+        "ledgerRequired"
+      ],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "const": "PASS"
+            },
+            {
+              "const": "FAIL"
+            },
+            {
+              "const": "BLOCKED"
+            }
+          ],
+          "items": false
+        },
+        "exitCodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "properties": {
+            "PASS": {
+              "const": 0
+            },
+            "FAIL": {
+              "const": 1
+            },
+            "BLOCKED": {
+              "const": 2
+            }
+          }
+        },
+        "ledgerRequired": {
+          "const": true
+        }
+      }
+    },
+    "transaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineCommit",
+        "baselineTree",
+        "exactChangedPaths",
+        "requiredMode",
+        "selfExcludedManifestSha256",
+        "manifest"
+      ],
+      "properties": {
+        "baselineCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "baselineTree": {
+          "$ref": "#/$defs/commit"
+        },
+        "exactChangedPaths": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "prefixItems": [
+            { "const": ".github/workflows/planning-authority-preflight.yml" },
+            { "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json" },
+            { "const": "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json" },
+            { "const": "_bmad/scripts/publish_story_7_1_entry_authority.py" },
+            { "const": "_bmad/scripts/resolve_current_planning_authority.py" },
+            { "const": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py" },
+            { "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py" },
+            { "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py" },
+            { "const": "_bmad/scripts/verify_evidence_boundary.py" }
+          ],
+          "items": false
+        },
+        "requiredMode": {
+          "const": "100644"
+        },
+        "selfExcludedManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifest": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": ".github/workflows/planning-authority-preflight.yml" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/publish_story_7_1_entry_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/resolve_current_planning_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/verify_evidence_boundary.py" } } }] }
+          ],
+          "items": false
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "state",
+        "evidence",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED",
+            "MISSING",
+            "PENDING"
+          ]
+        },
+        "evidence": {
+          "type": "string"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "recordType",
+        "authorityId",
+        "requestId",
+        "protectedMain",
+        "historicalV22",
+        "toolingTransaction",
+        "sourceBindings",
+        "rootGitlinks",
+        "entryGates",
+        "publicationContract",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.story-7.1-entry-authority.v1"
+        },
+        "recordType": {
+          "const": "REQUEST"
+        },
+        "authorityId": {
+          "const": "V23-STORY-7.1-ENTRY-AUTHORITY"
+        },
+        "requestId": {
+          "const": "V23-STORY-7.1-ENTRY-REQUEST-v1"
+        },
+        "protectedMain": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "tree",
+            "parents",
+            "diagnosticResult",
+            "diagnosticBlocker"
+          ],
+          "properties": {
+            "commit": {
+              "$ref": "#/$defs/commit"
+            },
+            "tree": {
+              "$ref": "#/$defs/commit"
+            },
+            "parents": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "items": {
+                "$ref": "#/$defs/commit"
+              }
+            },
+            "diagnosticResult": {
+              "const": "FAIL"
+            },
+            "diagnosticBlocker": {
+              "const": "CANDIDATE_GRAPH_DRIFT"
+            }
+          }
+        },
+        "historicalV22": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "candidateCommit",
+            "candidateTree",
+            "result",
+            "executionAllowed"
+          ],
+          "properties": {
+            "candidateCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "candidateTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "result": {
+              "const": "PASS"
+            },
+            "executionAllowed": {
+              "const": false
+            }
+          }
+        },
+        "toolingTransaction": {
+          "$ref": "#/$defs/transaction"
+        },
+        "sourceBindings": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/architecture.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/implementation-hold-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-landing-zone-approval-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/implementation-artifacts/sprint-status.yaml" } } }] }
+          ],
+          "items": false
+        },
+        "rootGitlinks": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.AI.Tools" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Builds" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Commons" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.EventStore" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Folders" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.FrontComposer" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Memories" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Parties" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Projects" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Tenants" } } }] }
+          ],
+          "items": false
+        },
+        "entryGates": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "V22-HISTORICAL-CANDIDATE" }, "state": { "const": "PASS" }, "evidence": { "const": "cf82f8008d02b07d48338a545909d97faa302362" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "V22-PROTECTED-MAIN-DIAGNOSTIC" }, "state": { "const": "PASS" }, "evidence": { "const": "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "STORY-6.2-PREDECESSOR" }, "state": { "const": "PASS" }, "evidence": { "const": "_bmad-output/implementation-artifacts/sprint-status.yaml" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "7.1-SCHEMAS-CHECKPOINT" }, "state": { "const": "PASS" }, "evidence": { "const": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "IR-0-READINESS" }, "state": { "const": "PASS" }, "evidence": { "const": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "CURRENT-WORKFLOW-ROUTE" }, "state": { "const": "PASS" }, "evidence": { "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "PRODUCTION-OPERATIONAL-ENVELOPE" }, "state": { "const": "MISSING" }, "evidence": { "const": "_bmad-output/planning-artifacts/production-operational-envelope-v1.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "FR-20-SM-C1" }, "state": { "const": "PENDING" }, "evidence": { "const": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "SM-C2" }, "state": { "const": "FAIL" }, "evidence": { "const": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "OQ-1" }, "state": { "const": "BLOCKED" }, "evidence": { "const": "_bmad-output/planning-artifacts/oq-1-landing-zone-approval-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "OWNER-APPROVAL" }, "state": { "const": "MISSING" }, "evidence": { "const": "" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gate" }, { "properties": { "id": { "const": "EPIC-7-SPRINT-INVENTORY" }, "state": { "const": "PASS" }, "evidence": { "const": "_bmad-output/implementation-artifacts/sprint-status.yaml" } } }] }
+          ],
+          "items": false
+        },
+        "publicationContract": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "authorityPath",
+            "architecturePath",
+            "exactChangedPaths",
+            "requiredCommitSignature",
+            "requiredDecision",
+            "story7_2Locked"
+          ],
+          "properties": {
+            "authorityPath": {
+              "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+            },
+            "architecturePath": {
+              "const": "_bmad-output/planning-artifacts/architecture.md"
+            },
+            "exactChangedPaths": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "prefixItems": [
+                {
+                  "const": "_bmad-output/planning-artifacts/architecture.md"
+                },
+                {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+                }
+              ],
+              "items": false
+            },
+            "requiredCommitSignature": {
+              "const": true
+            },
+            "requiredDecision": {
+              "const": "EXECUTION_ALLOWED"
+            },
+            "story7_2Locked": {
+              "const": true
+            }
+          }
+        },
+        "resultSemantics": {
+          "$ref": "#/$defs/resultSemantics"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.01" }, "subject": { "const": "V22-HISTORICAL-CANDIDATE" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.02" }, "subject": { "const": "V22-PROTECTED-MAIN-DIAGNOSTIC" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.03" }, "subject": { "const": "STORY-6.2-PREDECESSOR" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.04" }, "subject": { "const": "7.1-SCHEMAS-CHECKPOINT" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.05" }, "subject": { "const": "IR-0-READINESS" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.06" }, "subject": { "const": "CURRENT-WORKFLOW-ROUTE" }, "state": { "const": "PASS" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_OPERATIONAL_ENVELOPE_MISSING" }, "subject": { "const": "PRODUCTION-OPERATIONAL-ENVELOPE" }, "state": { "const": "BLOCKED" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_PRESERVATION_GATE_PENDING" }, "subject": { "const": "FR-20-SM-C1" }, "state": { "const": "BLOCKED" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_PERFORMANCE_GATE_FAILED" }, "subject": { "const": "SM-C2" }, "state": { "const": "FAIL" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_LANDING_ZONE_GATE_BLOCKED" }, "subject": { "const": "OQ-1" }, "state": { "const": "BLOCKED" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_OWNER_APPROVAL_MISSING" }, "subject": { "const": "OWNER-APPROVAL" }, "state": { "const": "BLOCKED" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.12" }, "subject": { "const": "EPIC-7-SPRINT-INVENTORY" }, "state": { "const": "PASS" } } }] }
+          ],
+          "items": false
+        },
+        "blockers": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_OPERATIONAL_ENVELOPE_MISSING" }, "assertionIndex": { "const": 6 } } }] },
+            { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_PRESERVATION_GATE_PENDING" }, "assertionIndex": { "const": 7 } } }] },
+            { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_PERFORMANCE_GATE_FAILED" }, "assertionIndex": { "const": 8 } } }] },
+            { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_LANDING_ZONE_GATE_BLOCKED" }, "assertionIndex": { "const": 9 } } }] },
+            { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_OWNER_APPROVAL_MISSING" }, "assertionIndex": { "const": 10 } } }] }
+          ],
+          "items": false
+        },
+        "result": {
+          "const": "BLOCKED"
+        },
+        "implementationHold": {
+          "const": "ACTIVE"
+        },
+        "ownerApprovalClaimed": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "executionAllowed": {
+          "const": false
+        }
+      }
+    },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "recordType",
+        "authorityId",
+        "request",
+        "publication",
+        "ownerDecision",
+        "gateDispositions",
+        "sourceBindings",
+        "rootGitlinks",
+        "architecture",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.story-7.1-entry-authority.v1"
+        },
+        "recordType": {
+          "const": "AUTHORITY"
+        },
+        "authorityId": {
+          "const": "V23-STORY-7.1-ENTRY-AUTHORITY"
+        },
+        "request": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "publicationCommit",
+            "sha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json"
+            },
+            "publicationCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "publication": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "sourceCommit",
+            "sourceTree",
+            "exactChangedPaths",
+            "requiredMode",
+            "changedGitlinks"
+          ],
+          "properties": {
+            "sourceCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "sourceTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "exactChangedPaths": {
+              "type": "array",
+              "minItems": 2,
+              "maxItems": 2,
+              "prefixItems": [
+                {
+                  "const": "_bmad-output/planning-artifacts/architecture.md"
+                },
+                {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+                }
+              ],
+              "items": false
+            },
+            "requiredMode": {
+              "const": "100644"
+            },
+            "changedGitlinks": {
+              "type": "array",
+              "maxItems": 0
+            }
+          }
+        },
+        "ownerDecision": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "identity",
+            "decidedAtUtc",
+            "rationale",
+            "decision"
+          ],
+          "properties": {
+            "identity": {
+              "const": "Jerome Piquot <jpiquot@itaneo.com>"
+            },
+            "decidedAtUtc": {
+              "$ref": "#/$defs/utcInstant"
+            },
+            "rationale": {
+              "type": "string",
+              "minLength": 20
+            },
+            "decision": {
+              "const": "EXECUTION_ALLOWED"
+            }
+          }
+        },
+        "gateDispositions": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "prefixItems":
+          [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V22-HISTORICAL-CANDIDATE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "cf82f8008d02b07d48338a545909d97faa302362"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V22-PROTECTED-MAIN-DIAGNOSTIC"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "STORY-6.2-PREDECESSOR"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "7.1-SCHEMAS-CHECKPOINT"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "IR-0-READINESS"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "CURRENT-WORKFLOW-ROUTE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "PRODUCTION-OPERATIONAL-ENVELOPE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/planning-artifacts/production-operational-envelope-v1.md"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "FR-20-SM-C1"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "$ref": "#/$defs/path"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "SM-C2"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "$ref": "#/$defs/path"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "OQ-1"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "$ref": "#/$defs/path"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "OWNER-APPROVAL"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "Jerome Piquot <jpiquot@itaneo.com>"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/gate"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "EPIC-7-SPRINT-INVENTORY"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    },
+                    "evidence": {
+                      "const": "_bmad-output/implementation-artifacts/sprint-status.yaml"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "items": false
+        },
+        "sourceBindings": {
+          "type": "array",
+          "minItems": 29,
+          "maxItems": 29,
+          "uniqueItems": true,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/architecture.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/implementation-hold-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/implementation-readiness-report-2026-08-22-ir-0.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-landing-zone-approval-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "docs/release-evidence/sm-c2-hot-path-baseline-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/implementation-artifacts/sprint-status.yaml" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-commons-change-grant-effective-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-conversations-consumer-grant-effective-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-eventstore-change-grant-effective-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-10-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-11-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-12-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-13-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-14-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/oq-1-fr-15-approved-successor-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/production-operational-envelope-v1.md" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v23-story-7.1-landing-zone-gate-result-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v23-story-7.1-performance-gate-result-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v23-story-7.1-preservation-gate-result-v1.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "docs/runbooks/story-7.1-production-recovery.md" } } }] }
+          ],
+          "items": false
+        },
+        "rootGitlinks": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.AI.Tools" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Builds" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Commons" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.EventStore" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Folders" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.FrontComposer" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Memories" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Parties" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Projects" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Tenants" } } }] }
+          ],
+          "items": false
+        },
+        "architecture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "prefixBytes",
+            "prefixSha256",
+            "version",
+            "requestSha256"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/architecture.md"
+            },
+            "prefixBytes": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "prefixSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "version": {
+              "const": "conversations-architecture-2026-09-20-v23"
+            },
+            "requestSha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "resultSemantics": {
+          "$ref": "#/$defs/resultSemantics"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 12,
+          "maxItems": 12,
+          "prefixItems":
+          [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.01"
+                    },
+                    "subject": {
+                      "const": "V22-HISTORICAL-CANDIDATE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.02"
+                    },
+                    "subject": {
+                      "const": "V22-PROTECTED-MAIN-DIAGNOSTIC"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.03"
+                    },
+                    "subject": {
+                      "const": "STORY-6.2-PREDECESSOR"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.04"
+                    },
+                    "subject": {
+                      "const": "7.1-SCHEMAS-CHECKPOINT"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.05"
+                    },
+                    "subject": {
+                      "const": "IR-0-READINESS"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.06"
+                    },
+                    "subject": {
+                      "const": "CURRENT-WORKFLOW-ROUTE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.07"
+                    },
+                    "subject": {
+                      "const": "PRODUCTION-OPERATIONAL-ENVELOPE"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.08"
+                    },
+                    "subject": {
+                      "const": "FR-20-SM-C1"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.09"
+                    },
+                    "subject": {
+                      "const": "SM-C2"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.10"
+                    },
+                    "subject": {
+                      "const": "OQ-1"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.11"
+                    },
+                    "subject": {
+                      "const": "OWNER-APPROVAL"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/assertion"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "V23.AUTHORITY.12"
+                    },
+                    "subject": {
+                      "const": "EPIC-7-SPRINT-INVENTORY"
+                    },
+                    "state": {
+                      "const": "PASS"
+                    }
+                  }
+                }
+              ]
+            }
+          ],
+          "items": false
+        },
+        "blockers": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "result": {
+          "const": "PASS"
+        },
+        "implementationHold": {
+          "const": "EXECUTION_ALLOWED"
+        },
+        "ownerApprovalClaimed": {
+          "const": true
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "executionAllowed": {
+          "const": true
+        },
+        "storyExecution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "7.1",
+            "7.2",
+            "7.3",
+            "7.4"
+          ],
+          "properties": {
+            "7.1": {
+              "const": true
+            },
+            "7.2": {
+              "const": false
+            },
+            "7.3": {
+              "const": false
+            },
+            "7.4": {
+              "const": false
+            }
+          }
+        }
+      }
+    },
+    "result": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "result",
+        "exitCode",
+        "effectiveHold",
+        "implementationHold",
+        "observed",
+        "assertionLedger",
+        "blockers",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.current-planning-authority-result.v1"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "exitCode": {
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "effectiveHold": {
+          "enum": [
+            "ACTIVE",
+            "EXECUTION_ALLOWED"
+          ]
+        },
+        "implementationHold": {
+          "enum": [
+            "ACTIVE",
+            "EXECUTION_ALLOWED"
+          ]
+        },
+        "observed": {
+          "type": "object",
+          "additionalProperties": false,
+          "oneOf": [
+            { "maxProperties": 0 },
+            { "required": ["candidateCommit"], "minProperties": 1, "maxProperties": 1 },
+            { "required": ["candidateCommit", "candidateTree"], "minProperties": 2, "maxProperties": 2 },
+            { "required": ["candidateCommit", "candidateTree", "authorityPublication"], "minProperties": 3, "maxProperties": 3 },
+            { "required": ["candidateCommit", "candidateTree", "authorityPublication", "sourceCommit"], "minProperties": 4, "maxProperties": 4 },
+            { "required": ["candidateCommit", "candidateTree", "authorityPublication", "sourceCommit", "changedPaths"], "minProperties": 5, "maxProperties": 5 },
+            { "required": ["candidateCommit", "candidateTree", "authorityPublication", "sourceCommit", "changedPaths", "ownerSignature"], "minProperties": 6, "maxProperties": 6 },
+            { "required": ["requestPublication", "protectedMain", "historicalV22Candidate"], "minProperties": 3, "maxProperties": 3 }
+          ],
+          "properties": {
+            "requestPublication": {
+              "$ref": "#/$defs/commit"
+            },
+            "protectedMain": {
+              "$ref": "#/$defs/commit"
+            },
+            "historicalV22Candidate": {
+              "$ref": "#/$defs/commit"
+            },
+            "candidateCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "candidateTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "authorityPublication": {
+              "$ref": "#/$defs/commit"
+            },
+            "sourceCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "changedPaths": {
+              "type": "array",
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/path"
+              }
+            },
+            "ownerSignature": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "status",
+                "principal",
+                "fingerprint",
+                "authorIdentity"
+              ],
+              "properties": {
+                "status": {
+                  "const": "G"
+                },
+                "principal": {
+                  "const": "jpiquot@itaneo.com"
+                },
+                "fingerprint": {
+                  "const": "SHA256:8XlNQvE3ucPf/e509wU4qtNgiyWA+TKmLei7F7+TCvk"
+                },
+                "authorIdentity": {
+                  "const": "Jerome Piquot <jpiquot@itaneo.com>"
+                }
+              }
+            }
+          }
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/assertion"
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "ownerApprovalClaimed": {
+          "type": "boolean"
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "executionAllowed": {
+          "type": "boolean"
+        },
+        "storyExecution": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "7.1",
+            "7.2",
+            "7.3",
+            "7.4"
+          ],
+          "properties": {
+            "7.1": {
+              "type": "boolean"
+            },
+            "7.2": {
+              "const": false
+            },
+            "7.3": {
+              "const": false
+            },
+            "7.4": {
+              "const": false
+            }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "PASS"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 0
+              },
+              "effectiveHold": {
+                "const": "EXECUTION_ALLOWED"
+              },
+              "implementationHold": {
+                "const": "EXECUTION_ALLOWED"
+              },
+              "ownerApprovalClaimed": {
+                "const": true
+              },
+              "executionAllowed": {
+                "const": true
+              },
+              "storyExecution": {
+                "properties": {
+                  "7.1": {
+                    "const": true
+                  }
+                }
+              },
+              "observed": {
+                "required": [
+                  "candidateCommit",
+                  "candidateTree",
+                  "authorityPublication",
+                  "sourceCommit",
+                  "changedPaths",
+                  "ownerSignature"
+                ],
+                "properties": {
+                  "changedPaths": {
+                    "type": "array",
+                    "minItems": 2,
+                    "maxItems": 2,
+                    "prefixItems": [
+                      {
+                        "const": "_bmad-output/planning-artifacts/architecture.md"
+                      },
+                      {
+                        "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+                      }
+                    ],
+                    "items": false
+                  }
+                }
+              },
+              "blockers": {
+                "maxItems": 0
+              },
+              "assertionLedger": {
+                "minItems": 13,
+                "maxItems": 13,
+                "prefixItems": [
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.01" }, "subject": { "const": "V22-HISTORICAL-CANDIDATE" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.02" }, "subject": { "const": "V22-PROTECTED-MAIN-DIAGNOSTIC" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.03" }, "subject": { "const": "STORY-6.2-PREDECESSOR" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.04" }, "subject": { "const": "7.1-SCHEMAS-CHECKPOINT" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.05" }, "subject": { "const": "IR-0-READINESS" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.06" }, "subject": { "const": "CURRENT-WORKFLOW-ROUTE" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.07" }, "subject": { "const": "PRODUCTION-OPERATIONAL-ENVELOPE" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.08" }, "subject": { "const": "FR-20-SM-C1" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.09" }, "subject": { "const": "SM-C2" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.10" }, "subject": { "const": "OQ-1" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.11" }, "subject": { "const": "OWNER-APPROVAL" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.12" }, "subject": { "const": "EPIC-7-SPRINT-INVENTORY" }, "state": { "const": "PASS" } } }] },
+                  { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.AUTHORITY.SIGNATURE" }, "subject": { "const": "trusted-owner-publication-signature" }, "state": { "const": "PASS" } } }] }
+                ],
+                "items": false
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "FAIL"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 1
+              },
+              "effectiveHold": {
+                "const": "ACTIVE"
+              },
+              "implementationHold": {
+                "const": "ACTIVE"
+              },
+              "ownerApprovalClaimed": {
+                "const": false
+              },
+              "executionAllowed": {
+                "const": false
+              },
+              "storyExecution": {
+                "properties": {
+                  "7.1": {
+                    "const": false
+                  }
+                }
+              },
+              "observed": {
+                "not": {
+                  "required": [
+                    "requestPublication"
+                  ]
+                }
+              },
+              "blockers": {
+                "minItems": 1,
+                "maxItems": 1,
+                "items": {
+                  "allOf": [
+                    { "$ref": "#/$defs/blocker" },
+                    { "properties": { "assertionIndex": { "const": 0 } } }
+                  ]
+                }
+              },
+              "assertionLedger": {
+                "minItems": 1,
+                "maxItems": 1,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/assertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "const": "FAIL"
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "BLOCKED"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 2
+              },
+              "effectiveHold": {
+                "const": "ACTIVE"
+              },
+              "implementationHold": {
+                "const": "ACTIVE"
+              },
+              "ownerApprovalClaimed": {
+                "const": false
+              },
+              "executionAllowed": {
+                "const": false
+              },
+              "storyExecution": {
+                "properties": {
+                  "7.1": {
+                    "const": false
+                  }
+                }
+              }
+            },
+            "oneOf": [
+              {
+                "properties": {
+                  "observed": {
+                    "required": [
+                      "requestPublication",
+                      "protectedMain",
+                      "historicalV22Candidate"
+                    ]
+                  },
+                  "assertionLedger": {
+                    "minItems": 12,
+                    "maxItems": 12,
+                    "prefixItems": [
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.01" }, "subject": { "const": "V22-HISTORICAL-CANDIDATE" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.02" }, "subject": { "const": "V22-PROTECTED-MAIN-DIAGNOSTIC" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.03" }, "subject": { "const": "STORY-6.2-PREDECESSOR" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.04" }, "subject": { "const": "7.1-SCHEMAS-CHECKPOINT" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.05" }, "subject": { "const": "IR-0-READINESS" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.06" }, "subject": { "const": "CURRENT-WORKFLOW-ROUTE" }, "state": { "const": "PASS" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_OPERATIONAL_ENVELOPE_MISSING" }, "subject": { "const": "PRODUCTION-OPERATIONAL-ENVELOPE" }, "state": { "const": "BLOCKED" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_PRESERVATION_GATE_PENDING" }, "subject": { "const": "FR-20-SM-C1" }, "state": { "const": "BLOCKED" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_PERFORMANCE_GATE_FAILED" }, "subject": { "const": "SM-C2" }, "state": { "const": "FAIL" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_LANDING_ZONE_GATE_BLOCKED" }, "subject": { "const": "OQ-1" }, "state": { "const": "BLOCKED" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23_OWNER_APPROVAL_MISSING" }, "subject": { "const": "OWNER-APPROVAL" }, "state": { "const": "BLOCKED" } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V23.REQUEST.12" }, "subject": { "const": "EPIC-7-SPRINT-INVENTORY" }, "state": { "const": "PASS" } } }] }
+                    ],
+                    "items": false
+                  },
+                  "blockers": {
+                    "minItems": 5,
+                    "maxItems": 5,
+                    "prefixItems": [
+                      { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_OPERATIONAL_ENVELOPE_MISSING" }, "assertionIndex": { "const": 6 } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_PRESERVATION_GATE_PENDING" }, "assertionIndex": { "const": 7 } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_PERFORMANCE_GATE_FAILED" }, "assertionIndex": { "const": 8 } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_LANDING_ZONE_GATE_BLOCKED" }, "assertionIndex": { "const": 9 } } }] },
+                      { "allOf": [{ "$ref": "#/$defs/blocker" }, { "properties": { "code": { "const": "V23_OWNER_APPROVAL_MISSING" }, "assertionIndex": { "const": 10 } } }] }
+                    ],
+                    "items": false
+                  }
+                }
+              },
+              {
+                "properties": {
+                  "observed": {
+                    "not": {
+                      "required": [
+                        "requestPublication"
+                      ]
+                    }
+                  },
+                  "blockers": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": {
+                      "allOf": [
+                        { "$ref": "#/$defs/blocker" },
+                        { "properties": { "assertionIndex": { "const": 0 } } }
+                      ]
+                    }
+                  },
+                  "assertionLedger": {
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "items": {
+                      "allOf": [
+                        {
+                          "$ref": "#/$defs/assertion"
+                        },
+                        {
+                          "properties": {
+                            "state": {
+                              "const": "BLOCKED"
+                            }
+                          }
+                        }
+                      ]
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  }
+}
