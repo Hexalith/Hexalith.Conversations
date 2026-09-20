@@ -1,8 +1,7 @@
 name: Planning authority preflight
 
-# Enforcement authority is an active organization ruleset selecting this exact path from
-# Hexalith/Hexalith.Conversations protected main with no bypass and direct pushes blocked.
-# A pull-request candidate's copy is defense in depth only and cannot attest that ruleset.
+# The committed V22 resolver establishes technical planning-authority status from raw Git
+# objects. Repository-owner approval and fast-forward remain separate authenticated actions.
 
 on:
   pull_request:
@@ -24,155 +23,6 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
           ref: ${{ github.event.pull_request.head.sha || github.sha }}
-
-      - name: Bootstrap Story 7.1 successor authority boundary
-        shell: bash
-        env:
-          RULESET_TOKEN: ${{ github.token }}
-          SOURCE_REPOSITORY_ID: ${{ github.repository_id }}
-          SOURCE_WORKFLOW_REF: ${{ fromJSON(toJSON(job)).workflow_ref }}
-          SOURCE_WORKFLOW_REPOSITORY: ${{ fromJSON(toJSON(job)).workflow_repository }}
-          SOURCE_WORKFLOW_SHA: ${{ fromJSON(toJSON(job)).workflow_sha }}
-        run: |
-          set -euo pipefail
-          trusted_git() {
-            env -i \
-              GIT_CONFIG_GLOBAL=/dev/null \
-              GIT_CONFIG_NOSYSTEM=1 \
-              GIT_CONFIG_SYSTEM=/dev/null \
-              GIT_NO_REPLACE_OBJECTS=1 \
-              HOME=/tmp \
-              LANG=C.UTF-8 \
-              LC_ALL=C.UTF-8 \
-              PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-              git --no-replace-objects "$@"
-          }
-          require_exact_paths() {
-            local parent="$1"
-            local child="$2"
-            shift 2
-            local -a observed=()
-            local ordinal=0
-            local expected
-            mapfile -d '' -t observed < <(trusted_git diff --name-only --no-renames -z "$parent" "$child" --)
-            test "${#observed[@]}" -eq "$#"
-            for expected in "$@"; do
-              test "${observed[$ordinal]}" = "$expected"
-              ((ordinal += 1))
-            done
-          }
-          require_regular_blob() {
-            local commit="$1"
-            local path="$2"
-            local mode kind object observed extra
-            IFS=$' \t' read -r mode kind object observed extra <<< "$(trusted_git ls-tree "$commit" -- "$path")"
-            test "$mode" = "100644"
-            test "$kind" = "blob"
-            [[ "$object" =~ ^[0-9a-f]{40}$ ]]
-            test "$observed" = "$path"
-            test -z "${extra:-}"
-          }
-          source_repository="Hexalith/Hexalith.Conversations"
-          source_ref="refs/heads/main"
-          source_workflow=".github/workflows/planning-authority-preflight.yml"
-          source_workflow_ref="$source_repository/$source_workflow@$source_ref"
-          publisher_path="_bmad/scripts/publish_story_7_1_successor_authorities.py"
-          trusted_v20="6fa990459dd72d6752e12bbc806d85bf607fff85"
-          trusted_v19="3045060ce48acfed60b66bacd417de4dcfd1adb0"
-          trusted_entry="5fa5612dd348259ce8fc46865409f678110cec87"
-          v21_path="_bmad-output/planning-artifacts/v21-story-7.1-authority-correction-v1.json"
-          tooling_paths=(
-            ".github/workflows/planning-authority-preflight.yml"
-            "_bmad-output/implementation-artifacts/spec-publish-v20-story-7-1-release-owner-authority.md"
-            "_bmad/schemas/v21-story-7.1-authority-correction-v1.schema.json"
-            "_bmad/scripts/publish_story_7_1_successor_authorities.py"
-            "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
-          )
-          test "$SOURCE_WORKFLOW_REPOSITORY" = "$source_repository"
-          test "$SOURCE_WORKFLOW_REF" = "$source_workflow_ref"
-          [[ "$SOURCE_WORKFLOW_SHA" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$SOURCE_REPOSITORY_ID" =~ ^[1-9][0-9]*$ ]]
-          test "$(trusted_git rev-parse --is-shallow-repository)" = "false"
-          head="$(trusted_git rev-parse 'HEAD^{commit}')"
-          [[ "$head" =~ ^[0-9a-f]{40}$ ]]
-          trusted_git cat-file -e "$trusted_v20^{commit}"
-          test "$(trusted_git rev-parse "$SOURCE_WORKFLOW_SHA^{commit}")" = "$SOURCE_WORKFLOW_SHA"
-          require_regular_blob "$SOURCE_WORKFLOW_SHA" "$source_workflow"
-          require_regular_blob "$SOURCE_WORKFLOW_SHA" "$publisher_path"
-          v21_log="$(trusted_git log --full-history --format=%H --diff-filter=A "$head" -- "$v21_path")"
-          v21_publications=()
-          if [[ -n "$v21_log" ]]; then
-            mapfile -t v21_publications <<< "$v21_log"
-          fi
-          publication=""
-          compare_tooling=true
-          if [[ "$head" = "$trusted_v19" || "$head" = "$trusted_entry" || "$head" = "$trusted_v20" ]]; then
-            test "${#v21_publications[@]}" -eq 0
-            tooling="$head"
-            compare_tooling=false
-          elif [[ "${#v21_publications[@]}" -eq 0 ]]; then
-            tooling="$head"
-          elif [[ "${#v21_publications[@]}" -eq 1 ]]; then
-            publication="${v21_publications[0]}"
-            [[ "$publication" =~ ^[0-9a-f]{40}$ ]]
-            trusted_git merge-base --is-ancestor "$publication" "$head"
-            read -r publication_commit tooling extra <<< "$(trusted_git rev-list --parents -n 1 "$publication")"
-            test "$publication_commit" = "$publication"
-            [[ "$tooling" =~ ^[0-9a-f]{40}$ ]]
-            test -z "${extra:-}"
-          else
-            exit 1
-          fi
-          if [[ "$compare_tooling" = true ]]; then
-            test "$(trusted_git rev-list --parents -n 1 "$tooling")" = "$tooling $trusted_v20"
-            require_exact_paths "$trusted_v20" "$tooling" "${tooling_paths[@]}"
-            for path in "${tooling_paths[@]}"; do
-              require_regular_blob "$SOURCE_WORKFLOW_SHA" "$path"
-              require_regular_blob "$tooling" "$path"
-              test "$(trusted_git ls-tree "$SOURCE_WORKFLOW_SHA" -- "$path")" = \
-                "$(trusted_git ls-tree "$tooling" -- "$path")"
-            done
-            if [[ -n "$publication" ]]; then
-              test "$(trusted_git rev-list --parents -n 1 "$publication")" = "$publication $tooling"
-              require_exact_paths "$tooling" "$publication" "$v21_path"
-              require_regular_blob "$publication" "$v21_path"
-            fi
-          fi
-          successor_bootstrap="$(mktemp)"
-          effective_rulesets="$(mktemp)"
-          trap 'rm -f "$successor_bootstrap" "$effective_rulesets"' EXIT
-          trusted_git show "$SOURCE_WORKFLOW_SHA:$publisher_path" > "$successor_bootstrap"
-          env -i \
-            HOME=/tmp \
-            LANG=C.UTF-8 \
-            LC_ALL=C.UTF-8 \
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            TMPDIR=/tmp \
-            /usr/bin/python3 -I -B "$successor_bootstrap" --repository . bootstrap --candidate HEAD \
-              --source-workflow-repository "$SOURCE_WORKFLOW_REPOSITORY" \
-              --source-workflow-ref "$SOURCE_WORKFLOW_REF" \
-              --source-workflow-sha "$SOURCE_WORKFLOW_SHA"
-          if ! /usr/bin/curl --fail --silent --show-error --location \
-            --header "Accept: application/vnd.github+json" \
-            --header "Authorization: Bearer $RULESET_TOKEN" \
-            --header "X-GitHub-Api-Version: 2026-03-10" \
-            "https://api.github.com/repos/$source_repository/rulesets?includes_parents=true&per_page=100" \
-            > "$effective_rulesets"
-          then
-            : > "$effective_rulesets"
-          fi
-          env -i \
-            HOME=/tmp \
-            LANG=C.UTF-8 \
-            LC_ALL=C.UTF-8 \
-            PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin \
-            TMPDIR=/tmp \
-            /usr/bin/python3 -I -B "$successor_bootstrap" --repository . ci-trust \
-              --rulesets-file "$effective_rulesets" \
-              --source-repository-id "$SOURCE_REPOSITORY_ID" \
-              --source-workflow-repository "$SOURCE_WORKFLOW_REPOSITORY" \
-              --source-workflow-ref "$SOURCE_WORKFLOW_REF" \
-              --source-workflow-sha "$SOURCE_WORKFLOW_SHA"
 
       - name: Check out pinned root submodules
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
@@ -230,28 +80,9 @@ jobs:
           uv lock --check
           uv sync --frozen
 
-      - name: Verify Story 7.1 successor authorities and effective hold
-        shell: bash
-        env:
-          SOURCE_WORKFLOW_SHA: ${{ fromJSON(toJSON(job)).workflow_sha }}
-        run: |
-          set -euo pipefail
-          successor_verifier="$(mktemp)"
-          trap 'rm -f "$successor_verifier"' EXIT
-          git --no-replace-objects show "$SOURCE_WORKFLOW_SHA:_bmad/scripts/publish_story_7_1_successor_authorities.py" > "$successor_verifier"
-          if git cat-file -e HEAD:_bmad-output/planning-artifacts/v20-story-7.1-input-inventory-v1.json 2>/dev/null; then
-            uv run --frozen --no-sync python3 "$successor_verifier" --repository . inventory --check
-          fi
-          if git cat-file -e HEAD:_bmad-output/planning-artifacts/v19-story-7.1-checkpoint-completion-authority-v1.json 2>/dev/null; then
-            uv run --frozen --no-sync python3 "$successor_verifier" --repository . v19 --candidate HEAD --check
-          fi
-          if git cat-file -e HEAD:_bmad-output/planning-artifacts/v20-story-7.1-release-owner-authority-v1.json 2>/dev/null; then
-            uv run --frozen --no-sync python3 "$successor_verifier" --repository . v20 --entry-candidate HEAD --check
-          fi
-          if git cat-file -e HEAD:_bmad-output/planning-artifacts/v21-story-7.1-authority-correction-v1.json 2>/dev/null; then
-            uv run --frozen --no-sync python3 "$successor_verifier" --repository . v21 --candidate HEAD --check
-          fi
-          uv run --frozen --no-sync python3 "$successor_verifier" --repository . v21 --candidate HEAD --effective-hold --check
+      - name: Resolve V22 current planning authority
+        run: >-
+          uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate HEAD --check
 
       # Runs before the evidence gate so a skill-tree upgrade that erased the project-owned
       # lifecycle gates is named directly, rather than surfacing as a downstream gate failure.
@@ -278,6 +109,7 @@ jobs:
           uv run --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
             _bmad/scripts/tests \
             --ignore=_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py \
+            --ignore=_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py \
             --ignore=_bmad/scripts/tests/test_publish_v9_planning_authority.py \
             --junitxml="$report"
           uv run --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
@@ -320,7 +152,13 @@ jobs:
           uv run --project "$historical" --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
             "$historical/_bmad/scripts/tests/test_publish_v15_planning_tooling_environment.py" \
             --junitxml="$v15_report"
-          python3 - "$report" "$v15_report" <<'PY'
+          git -C "$historical" checkout --detach 239758d396d28372687b73f5dc128405892cb520
+          uv sync --project "$historical" --frozen
+          v21_report="$(mktemp)"
+          uv run --project "$historical" --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true \
+            "$historical/_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py" \
+            --junitxml="$v21_report"
+          python3 - "$report" "$v15_report" "$v21_report" <<'PY'
           import sys
           import xml.etree.ElementTree as ET
           for path in sys.argv[1:]:

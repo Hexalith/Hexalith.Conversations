@@ -1,0 +1,137 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v22-workflow-route-inventory-v1.schema.json",
+  "title": "V22 Workflow Route Inventory",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "inventoryId",
+    "activeRoutes",
+    "historicalRoutes",
+    "forbiddenMechanisms"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.v22-workflow-route-inventory.v1"
+    },
+    "inventoryId": {
+      "const": "V22-WORKFLOW-ROUTE-INVENTORY"
+    },
+    "activeRoutes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/currentRoute"
+        }
+      ],
+      "items": false
+    },
+    "historicalRoutes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 1,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/v21Route"
+        }
+      ],
+      "items": false
+    },
+    "forbiddenMechanisms": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "prefixItems": [
+        {
+          "const": "github-rulesets"
+        },
+        {
+          "const": "external-validators"
+        },
+        {
+          "const": "no-bypass"
+        },
+        {
+          "const": "check-runs"
+        },
+        {
+          "const": "nonces"
+        }
+      ],
+      "items": false
+    }
+  },
+  "$defs": {
+    "currentRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "routeId",
+        "status",
+        "workflowPath",
+        "resolverPath",
+        "command"
+      ],
+      "properties": {
+        "ordinal": {
+          "const": 1
+        },
+        "routeId": {
+          "const": "current-planning-authority"
+        },
+        "status": {
+          "const": "ACTIVE"
+        },
+        "workflowPath": {
+          "const": ".github/workflows/planning-authority-preflight.yml"
+        },
+        "resolverPath": {
+          "const": "_bmad/scripts/resolve_current_planning_authority.py"
+        },
+        "command": {
+          "const": "uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate HEAD --check"
+        }
+      }
+    },
+    "v21Route": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "ordinal",
+        "routeId",
+        "status",
+        "sourceCommit",
+        "publisherPath",
+        "testPath",
+        "invokedAsCurrentAuthority"
+      ],
+      "properties": {
+        "ordinal": {
+          "const": 2
+        },
+        "routeId": {
+          "const": "v21-ci-trust"
+        },
+        "status": {
+          "const": "HISTORICAL_ONLY"
+        },
+        "sourceCommit": {
+          "const": "239758d396d28372687b73f5dc128405892cb520"
+        },
+        "publisherPath": {
+          "const": "_bmad/scripts/publish_story_7_1_successor_authorities.py"
+        },
+        "testPath": {
+          "const": "_bmad/scripts/tests/test_publish_story_7_1_successor_authorities.py"
+        },
+        "invokedAsCurrentAuthority": {
+          "const": false
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,747 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v22-current-authority-recovery-v1.schema.json",
+  "title": "V22 Current Planning Authority Recovery",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/recoveryPolicy"
+    },
+    {
+      "$ref": "#/$defs/resolverResult"
+    }
+  ],
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "nullableCommit": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/commit"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$)).+$"
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "160000"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        }
+      }
+    },
+    "changedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "100644"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "policyAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "const": "PASS"
+        }
+      }
+    },
+    "recoveryPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "authorityId",
+        "selectedParent",
+        "architecture",
+        "historicalV21",
+        "transaction",
+        "routeInventory",
+        "rootGitlinks",
+        "resultSemantics",
+        "authorityEffect",
+        "assertionLedger"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.current-authority-recovery.v1"
+        },
+        "authorityId": {
+          "const": "V22-CURRENT-PLANNING-AUTHORITY-RECOVERY"
+        },
+        "selectedParent": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "tree"
+          ],
+          "properties": {
+            "commit": {
+              "const": "c610fbb8c5491fb0d7987c2f8294199887f4a44c"
+            },
+            "tree": {
+              "const": "a760f6ae98c51d2b377afb230648e8a451ac1cba"
+            }
+          }
+        },
+        "architecture": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "prefixBytes",
+            "prefixSha256",
+            "v16BlockBytes",
+            "v16BlockSha256",
+            "v16Version",
+            "v22Version"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/architecture.md"
+            },
+            "prefixBytes": {
+              "const": 215037
+            },
+            "prefixSha256": {
+              "const": "7bd3b7e54927565d9b32950b1b0554ceba28d5187370f067369d5891690094a3"
+            },
+            "v16BlockBytes": {
+              "const": 7022
+            },
+            "v16BlockSha256": {
+              "const": "7d438ccb69391805973ff827f02457a4441b1e540f1fff0249e4eee0bb26b2ea"
+            },
+            "v16Version": {
+              "const": "conversations-architecture-2026-09-19-v16"
+            },
+            "v22Version": {
+              "const": "conversations-architecture-2026-09-20-v22"
+            }
+          }
+        },
+        "historicalV21": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "recordPath",
+            "recordSha256",
+            "toolingCommit"
+          ],
+          "properties": {
+            "recordPath": {
+              "const": "_bmad-output/planning-artifacts/v21-story-7.1-authority-correction-v1.json"
+            },
+            "recordSha256": {
+              "const": "296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636"
+            },
+            "toolingCommit": {
+              "const": "239758d396d28372687b73f5dc128405892cb520"
+            }
+          }
+        },
+        "transaction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exactChangedPaths",
+            "requiredMode"
+          ],
+          "properties": {
+            "exactChangedPaths": {
+              "$ref": "#/$defs/exactChangedPaths"
+            },
+            "requiredMode": {
+              "const": "100644"
+            }
+          }
+        },
+        "routeInventory": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "path",
+            "sha256",
+            "schemaPath"
+          ],
+          "properties": {
+            "path": {
+              "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json"
+            },
+            "sha256": {
+              "const": "f0e1c4f3497d5195a71f050dd74db7d4fc88ca674c6bfc0777b92d64199ace57"
+            },
+            "schemaPath": {
+              "const": "_bmad/schemas/v22-workflow-route-inventory-v1.schema.json"
+            }
+          }
+        },
+        "rootGitlinks": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gitmodulesPath",
+            "entries"
+          ],
+          "properties": {
+            "gitmodulesPath": {
+              "const": ".gitmodules"
+            },
+            "entries": {
+              "type": "array",
+              "minItems": 10,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/gitlink"
+              }
+            }
+          }
+        },
+        "resultSemantics": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "states",
+            "exitCodes",
+            "ledgerRequired"
+          ],
+          "properties": {
+            "states": {
+              "type": "array",
+              "minItems": 3,
+              "maxItems": 3,
+              "prefixItems": [
+                {
+                  "const": "PASS"
+                },
+                {
+                  "const": "FAIL"
+                },
+                {
+                  "const": "BLOCKED"
+                }
+              ],
+              "items": false
+            },
+            "exitCodes": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "PASS",
+                "FAIL",
+                "BLOCKED"
+              ],
+              "properties": {
+                "PASS": {
+                  "const": 0
+                },
+                "FAIL": {
+                  "const": 1
+                },
+                "BLOCKED": {
+                  "const": 2
+                }
+              }
+            },
+            "ledgerRequired": {
+              "const": true
+            }
+          }
+        },
+        "authorityEffect": {
+          "$ref": "#/$defs/authorityEffect"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/policyAssertion"
+          }
+        }
+      }
+    },
+    "exactChangedPaths": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "prefixItems": [
+        {
+          "const": ".github/workflows/planning-authority-preflight.yml"
+        },
+        {
+          "const": "_bmad-output/planning-artifacts/architecture.md"
+        },
+        {
+          "const": "_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json"
+        },
+        {
+          "const": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json"
+        },
+        {
+          "const": "_bmad/schemas/v22-current-authority-recovery-v1.schema.json"
+        },
+        {
+          "const": "_bmad/schemas/v22-workflow-route-inventory-v1.schema.json"
+        },
+        {
+          "const": "_bmad/scripts/resolve_current_planning_authority.py"
+        },
+        {
+          "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py"
+        }
+      ],
+      "items": false
+    },
+    "authorityEffect": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "implementationHold",
+        "nextRequestedAuthority",
+        "story71ExecutionAllowed",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized"
+      ],
+      "properties": {
+        "implementationHold": {
+          "const": "ACTIVE"
+        },
+        "nextRequestedAuthority": {
+          "const": "AD-4 EXECUTION_ALLOWED"
+        },
+        "story71ExecutionAllowed": {
+          "const": false
+        },
+        "ownerApprovalClaimed": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        }
+      }
+    },
+    "resultAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "detail"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^[A-Z][A-Z0-9_]+$"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateCommit",
+        "candidateTree",
+        "parentCommit",
+        "parentTree",
+        "changedPaths",
+        "parentGitlinks",
+        "candidateGitlinks"
+      ],
+      "properties": {
+        "candidateCommit": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "candidateTree": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "parentCommit": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "parentTree": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "changedPaths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/changedPath"
+          }
+        },
+        "parentGitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        },
+        "candidateGitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        }
+      }
+    },
+    "passObserved": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateCommit",
+        "candidateTree",
+        "parentCommit",
+        "parentTree",
+        "changedPaths",
+        "parentGitlinks",
+        "candidateGitlinks"
+      ],
+      "properties": {
+        "candidateCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "candidateTree": {
+          "$ref": "#/$defs/commit"
+        },
+        "parentCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "parentTree": {
+          "$ref": "#/$defs/commit"
+        },
+        "changedPaths": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "items": {
+            "$ref": "#/$defs/changedPath"
+          }
+        },
+        "parentGitlinks": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        },
+        "candidateGitlinks": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        }
+      }
+    },
+    "resolverResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "result",
+        "exitCode",
+        "effectiveHold",
+        "implementationHold",
+        "observed",
+        "assertionLedger",
+        "blockers",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.current-planning-authority-result.v1"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "exitCode": {
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "effectiveHold": {
+          "const": "ACTIVE"
+        },
+        "implementationHold": {
+          "const": "ACTIVE"
+        },
+        "observed": {
+          "$ref": "#/$defs/observed"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/resultAssertion"
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "ownerApprovalClaimed": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "executionAllowed": {
+          "const": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "PASS"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 0
+              },
+              "observed": {
+                "$ref": "#/$defs/passObserved"
+              },
+              "assertionLedger": {
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "const": "PASS"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "blockers": {
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "FAIL"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 1
+              },
+              "assertionLedger": {
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "enum": [
+                            "PASS",
+                            "FAIL"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "contains": {
+                  "properties": {
+                    "state": {
+                      "const": "FAIL"
+                    }
+                  },
+                  "required": [
+                    "state"
+                  ]
+                }
+              },
+              "blockers": {
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "result": {
+                "const": "BLOCKED"
+              }
+            },
+            "required": [
+              "result"
+            ]
+          },
+          "then": {
+            "properties": {
+              "exitCode": {
+                "const": 2
+              },
+              "assertionLedger": {
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "enum": [
+                            "PASS",
+                            "BLOCKED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "contains": {
+                  "properties": {
+                    "state": {
+                      "const": "BLOCKED"
+                    }
+                  },
+                  "required": [
+                    "state"
+                  ]
+                }
+              },
+              "blockers": {
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

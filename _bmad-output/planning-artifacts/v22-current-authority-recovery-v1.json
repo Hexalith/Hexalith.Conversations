@@ -1,0 +1,133 @@
+{
+  "schemaVersion": "hexalith.conversations.current-authority-recovery.v1",
+  "authorityId": "V22-CURRENT-PLANNING-AUTHORITY-RECOVERY",
+  "selectedParent": {
+    "commit": "c610fbb8c5491fb0d7987c2f8294199887f4a44c",
+    "tree": "a760f6ae98c51d2b377afb230648e8a451ac1cba"
+  },
+  "architecture": {
+    "path": "_bmad-output/planning-artifacts/architecture.md",
+    "prefixBytes": 215037,
+    "prefixSha256": "7bd3b7e54927565d9b32950b1b0554ceba28d5187370f067369d5891690094a3",
+    "v16BlockBytes": 7022,
+    "v16BlockSha256": "7d438ccb69391805973ff827f02457a4441b1e540f1fff0249e4eee0bb26b2ea",
+    "v16Version": "conversations-architecture-2026-09-19-v16",
+    "v22Version": "conversations-architecture-2026-09-20-v22"
+  },
+  "historicalV21": {
+    "recordPath": "_bmad-output/planning-artifacts/v21-story-7.1-authority-correction-v1.json",
+    "recordSha256": "296b0307bdaea35dbe62972000693de4f244b4af36bdc440bbda2e74e3963636",
+    "toolingCommit": "239758d396d28372687b73f5dc128405892cb520"
+  },
+  "transaction": {
+    "exactChangedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/planning-artifacts/architecture.md",
+      "_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json",
+      "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json",
+      "_bmad/schemas/v22-current-authority-recovery-v1.schema.json",
+      "_bmad/schemas/v22-workflow-route-inventory-v1.schema.json",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py"
+    ],
+    "requiredMode": "100644"
+  },
+  "routeInventory": {
+    "path": "_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json",
+    "sha256": "f0e1c4f3497d5195a71f050dd74db7d4fc88ca674c6bfc0777b92d64199ace57",
+    "schemaPath": "_bmad/schemas/v22-workflow-route-inventory-v1.schema.json"
+  },
+  "rootGitlinks": {
+    "gitmodulesPath": ".gitmodules",
+    "entries": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "mode": "160000",
+        "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "mode": "160000",
+        "objectId": "141260881c0336f6dc6e434b00134f61eda0f50f"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "mode": "160000",
+        "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "mode": "160000",
+        "objectId": "ba7ac196e60db8820525961791eccfacec24633f"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "mode": "160000",
+        "objectId": "040cd14465bdec1aa275e997f637fe79485b31a6"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "mode": "160000",
+        "objectId": "b2bac5f193130ea08abc22fd78d6a936c2f419f4"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "mode": "160000",
+        "objectId": "5829db422522b79c0d164df85adde53a996ba114"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "mode": "160000",
+        "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "mode": "160000",
+        "objectId": "fd19bf86698e41a0d2a7c9441a5f7810f31647f0"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "mode": "160000",
+        "objectId": "c150d5b1af4f911ff3b2a7ab7901d94838be09d7"
+      }
+    ]
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "authorityEffect": {
+    "implementationHold": "ACTIVE",
+    "nextRequestedAuthority": "AD-4 EXECUTION_ALLOWED",
+    "story71ExecutionAllowed": false,
+    "ownerApprovalClaimed": false,
+    "releaseAuthorized": false,
+    "pushAuthorized": false
+  },
+  "assertionLedger": [
+    {
+      "id": "V22-POLICY",
+      "subject": "closed-acyclic-recovery-policy",
+      "state": "PASS"
+    },
+    {
+      "id": "V22-INVENTORY",
+      "subject": "single-active-current-authority-route",
+      "state": "PASS"
+    },
+    {
+      "id": "V22-HOLD",
+      "subject": "active-hold-no-owner-release-push-or-execution-claim",
+      "state": "PASS"
+    }
+  ]
+}

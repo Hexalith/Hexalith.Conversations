@@ -2,9 +2,10 @@
 title: 'Publish the pragmatic AR-15 V22 current-authority recovery'
 type: 'bugfix'
 created: '2026-09-20'
-status: 'draft'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
+baseline_commit: 'c610fbb8c5491fb0d7987c2f8294199887f4a44c'
 context:
   - '{project-root}/docs/runbooks/evidence-boundary-validation.md'
 ---
@@ -19,7 +20,7 @@ context:
 
 ## Boundaries & Constraints
 
-**Always:** Preserve parent `5cb0104315f5b12868fc7adb5fc8b4ec531d22df` as the candidate's sole parent; preserve the complete Architecture V1–V16 prefix byte-for-byte; append one complete V22 marker binding V16's 7,022 bytes and SHA-256 `7d438ccb69391805973ff827f02457a4441b1e540f1fff0249e4eee0bb26b2ea` plus the V22 recovery record digest; require all eight paths to be mode `100644`; compare exact ordinal root gitlink tuples and `.gitmodules` paths; retain nonempty assertion ledgers and `ACTIVE` for every result; leave authenticated approval outside candidate-authored evidence; integrate only by owner fast-forward after exact-tuple approval and exact-SHA ordinary CI.
+**Always:** Preserve current local and remote `main` parent `c610fbb8c5491fb0d7987c2f8294199887f4a44c` as the candidate's sole parent; preserve the complete Architecture V1–V16 prefix byte-for-byte; append one complete V22 marker binding V16's 7,022 bytes and SHA-256 `7d438ccb69391805973ff827f02457a4441b1e540f1fff0249e4eee0bb26b2ea` plus the V22 recovery record digest; require all eight paths to be mode `100644`; compare exact ordinal root gitlink tuples and `.gitmodules` paths; retain nonempty assertion ledgers and `ACTIVE` for every result; leave authenticated approval outside candidate-authored evidence; integrate only by owner fast-forward after exact-tuple approval and exact-SHA ordinary CI.
 
 **Never:** Modify the historical V21 record, schema, publisher, or tests; invoke or add GitHub rulesets, external validators, no-bypass/check-run mechanisms, or nonces; modify product code, dependencies, submodules, gitlinks, sprint status, or Story 7.1 artifacts; authorize release, push, owner approval, or `EXECUTION_ALLOWED`; use merge, squash, or rebase as AR-15 integration.
 
@@ -36,32 +37,31 @@ context:
 
 ## Code Map
 
-- `.github/workflows/planning-authority-preflight.yml` -- remove both active V21 publisher gates and ruleset API use; invoke the committed V22 resolver in job `planning-authority`; run immutable V21 tests only from frozen historical tooling.
-- `_bmad-output/planning-artifacts/architecture.md` -- immutable 215,037-byte V1–V16 parent blob followed by one V22 marker.
-- `_bmad-output/planning-artifacts/v22-current-authority-recovery-v1.json` -- acyclic recovery policy, selected parent/tree, exact transaction, V16 and historical V21 pins, route-inventory digest, and ACTIVE-only nonclaims.
-- `_bmad-output/planning-artifacts/v22-workflow-route-inventory-v1.json` -- one active V22 resolver route; V21 `ci-trust` is historical-only and not invoked; forbidden mechanisms explicit.
-- `_bmad/schemas/v22-current-authority-recovery-v1.schema.json` -- closed recovery-policy and resolver-result contract with conditional PASS/FAIL/BLOCKED requirements.
-- `_bmad/schemas/v22-workflow-route-inventory-v1.schema.json` -- closed ordinal route inventory.
-- `_bmad/scripts/resolve_current_planning_authority.py` -- isolated raw-Git resolver, duplicate-safe JSON/schema loading, marker checks, exact scope/mode/gitlink checks, and exit mapping.
-- `_bmad/scripts/tests/test_resolve_current_planning_authority.py` -- object-level happy/fault fixtures, schema-envelope coverage, anti-vacuity, ACTIVE-only, workflow retirement, and historical-byte preservation.
-- `_bmad/scripts/publish_story_7_1_successor_authorities.py` and its direct test -- frozen V21 historical verification; do not edit or import as current authority.
+- `.github/workflows/planning-authority-preflight.yml` -- activate V22, preserve unrelated gates, and run frozen V21 tests only from `239758d396d28372687b73f5dc128405892cb520`.
+- `_bmad-output/planning-artifacts/architecture.md` -- append V22 after the byte-exact prefix and bind the frozen V16 block.
+- `_bmad-output/planning-artifacts/v22-*.json` and `_bmad/schemas/v22-*.schema.json` -- acyclic policy/route artifacts and closed policy, route, and result contracts.
+- `_bmad/scripts/resolve_current_planning_authority.py` -- isolated raw-Git resolver using established safe loading, tree, marker, gitlink, ledger, and exit patterns.
+- `_bmad/scripts/tests/test_resolve_current_planning_authority.py` -- object fixtures for the matrix, schema closure, stable faults, anti-vacuity, retirement, and restoration.
+- `_bmad/scripts/publish_story_7_1_successor_authorities.py` and its direct test -- frozen V21 history; do not edit or invoke as current authority.
 
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] Create the two closed schemas and their matching acyclic V22 artifacts.
-- [ ] Implement and fault-test the current-authority resolver using committed raw Git objects only.
-- [ ] Append the V22 architecture successor and retire active V21 workflow invocations while preserving historical verification.
-- [ ] Validate, review, create one Conventional Commit over the frozen parent, and prove the candidate from raw objects.
-- [ ] Run the exact committed resolver locally; obtain ordinary-CI evidence for the same SHA; present the tuple for authenticated owner approval without inferring approval.
+- [x] `_bmad/schemas/v22-*.schema.json` and `_bmad-output/planning-artifacts/v22-*.json` -- create closed acyclic contracts and exact inventories.
+- [x] `_bmad/scripts/resolve_current_planning_authority.py` and its direct test -- implement and fault-test schema-valid raw-object resolution.
+- [x] `_bmad-output/planning-artifacts/architecture.md` and `.github/workflows/planning-authority-preflight.yml` -- append V22 and activate it while preserving historical V21 verification and unrelated gates.
+- [x] Exact eight-path candidate -- validate, commit over the approved parent without pushing, and hand off local PASS plus the tuple; CI, approval, and fast-forward remain owner gates.
 
 **Acceptance Criteria:**
-- Given the candidate commit, when raw Git graph, diff, tree modes, architecture prefix, and root gitlinks are inspected, then it has exactly the selected parent, exactly eight mode-`100644` paths, unchanged V1–V16 bytes, and parent-equal ordinal gitlink tuples.
-- Given any resolver outcome, when its output is validated, then it matches the closed result schema, has a nonempty ledger, distinguishes PASS/FAIL/BLOCKED, and preserves `implementationHold=ACTIVE`.
 - Given the current workflow and inventory, when inspected and executed, then no active ruleset or V21 publisher route remains and the ordinary `planning-authority` job checks the exact V22 candidate.
 - Given technical PASS and exact-SHA CI success, when evidence is presented, then owner approval remains a separate authenticated action and the next requested authority after post-merge PASS is AD-4 `EXECUTION_ALLOWED`, not Story 7.1 implementation.
 
 ## Implementation Notes
+
+- Published local candidate `cf82f8008d02b07d48338a545909d97faa302362` (tree `47643a4ebd7a066137fd4b6676f6ccde51b9e075`) as the sole child of the approved parent on `fix/v22-current-authority-recovery`; local and remote `main` remain unmoved.
+- Independent task audit added the missing closed `implementationHold=ACTIVE` result field alongside `effectiveHold=ACTIVE`; the existing candidate was amended so the transaction remains one commit.
+- Verification passed: 15 V22 matrix tests, 16 workflow/lifecycle tests, committed resolver PASS with 13 all-PASS assertions, evidence-boundary PASS with 23 assertions, actionlint, commitlint, and raw graph/scope/mode/prefix/gitlink checks. Ordinary exact-SHA CI, authenticated owner approval, owner fast-forward, and post-merge PASS remain external gates.
+- Review entry is halted before the `in-review` transition: the required system-Python command `python3 _bmad/scripts/verify_evidence_boundary.py --repository /home/administrator/projects/hexalith/conversations --baseline c610fbb8c5491fb0d7987c2f8294199887f4a44c --candidate HEAD` returned `FAIL` / `TOOLING_INSTALLED_VERSION_MISMATCH` because system Python resolves `jsonschema 4.19.2`. The pinned `uv` environment resolves the required `4.26.0` and passes, but does not replace this mandatory gate.
 
 ## Spec Change Log
 
@@ -69,7 +69,7 @@ context:
 
 ## Design Notes
 
-Avoid digest cycles: route inventory and schemas are finalized first; the recovery record pins the inventory; the architecture marker pins the recovery record; runtime output supplies candidate commit/tree identities. The recovery record must not embed its own digest or the candidate SHA.
+Finalize schemas and inventory first; the record pins the inventory, the marker pins the record, and runtime supplies commit/tree identities. Embed neither the record's digest nor candidate SHA. Keep both hold fields `ACTIVE`; do not move owner `main`.
 
 ## Verification
 
@@ -77,4 +77,4 @@ Avoid digest cycles: route inventory and schemas are finalized first; the recove
 - `uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_resolve_current_planning_authority.py` -- expected: nonzero test count, no failures/errors/skips.
 - `uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate <candidate> --check` -- expected: exit 0 and schema-valid PASS with ACTIVE hold.
 - `npx --no-install commitlint --config commitlint.config.mjs --from <parent> --to <candidate> --verbose` -- expected: exact candidate message accepted.
-- Raw `git rev-list`, `git diff-tree`, `git ls-tree`, `git cat-file`, and marker hash checks -- expected: exact graph, scope, modes, prefix, bindings, and gitlink equality.
+- Raw `git rev-list`, `git diff-tree`, `git ls-tree`, `git cat-file`, and marker hashes -- expected: exact graph, eight-path/mode scope, prefix, bindings, and ten-gitlink equality.
