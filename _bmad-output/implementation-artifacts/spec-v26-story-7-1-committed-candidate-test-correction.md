@@ -93,3 +93,4 @@ V26 is not a V25 repair. Its exact transaction is the new record, schema, publis
 - `FAIL` -- broad root lane: 2,023/2,026 and Conformance 470/473. The two frozen sprint backlog-row-count checks and one frozen sprint-status digest check are outside the V26 five-path transaction.
 - `PASS` -- raw Git inspection: exact parent, five-path scope, `100644` modes, committed blobs, sticky history, and ten mode-`160000` root gitlinks.
 - `BLOCKED` -- final-record/done transition. The broad 2,026/2,026 and Conformance 473/473 requirements remain unsatisfied.
+- `BLOCKED` -- lifecycle evidence-boundary gate at descendant `e3d22c78b00043ffe8ca7b004c81b636b07fc1ac`: `EVIDENCE_V24_DESCENDANT_REQUIRES_AUTHORITY` identifies correction `20e2cdd2b37e6387055b241c7ee45fc54e836742`; the submodule-promotion gate passed with no declared or changed gitlinks, and lifecycle status remains `in-progress`.
