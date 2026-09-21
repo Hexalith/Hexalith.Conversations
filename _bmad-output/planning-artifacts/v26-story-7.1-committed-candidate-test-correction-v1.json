@@ -1,0 +1,243 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-committed-candidate-test-correction.v1",
+  "recordType": "COMMITTED_CANDIDATE_TEST_CORRECTION",
+  "successorId": "V26-STORY-7.1-COMMITTED-CANDIDATE-TEST-CORRECTION-v1",
+  "lineage": {
+    "predecessorCommit": "bb7300a99336f2dcdd75411b173e0050980d6aa3",
+    "predecessorTree": "23d9b096ec1d7070a7f3fcb552b507bbb69b694c",
+    "v25Commit": "dbada954388430a6579b42508f51db806aebf3b8",
+    "v25Tree": "247843b255634a0c414f94eaf023c02cfdfc300f"
+  },
+  "historicalV25": {
+    "verificationRevision": "dbada954388430a6579b42508f51db806aebf3b8",
+    "result": "PASS",
+    "assertionCount": 10,
+    "testIdentityCount": 473,
+    "obligationIdentityCount": 969,
+    "originalBlobs": [
+      {
+        "path": "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json",
+        "mode": "100644",
+        "objectId": "f4b91580be8a23b0f5f95f84bbd0ae3f6d8b7c9b",
+        "sha256": "7994673c08f874ccc99813261db065081c24d33003ce5e926a679704e9a0dc3a",
+        "bytes": 18676
+      },
+      {
+        "path": "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+        "mode": "100644",
+        "objectId": "130f19e2a146e9b79dc8203972653ae59d9704b8",
+        "sha256": "f9fc069d16dcd1358c0473609d4d073382774c135694d4dd8b0da82494614a97",
+        "bytes": 10400
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py",
+        "mode": "100644",
+        "objectId": "91a4ff170ffdf44962ca709b9026426ae5f64d9e",
+        "sha256": "adbe8efbc10a60975b96dc4d0ad4f55a0be2cca8a8ea5e370389eb4ab9737787",
+        "bytes": 43342
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+        "mode": "100644",
+        "objectId": "dd08a0375311315836137cff7a1049063cd3bd17",
+        "sha256": "b65e00945a7b2022c6481903e324609ff9959b2c238369ecfcdd23f2274ab120",
+        "bytes": 17004
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs",
+        "mode": "100644",
+        "objectId": "5ca0183dc4adb3ac0fbb3191e7071d4464103887",
+        "sha256": "49b19b84f8fa5b9be8d7bb895a82338dbb5821f9bada011c725d0cb73504f548",
+        "bytes": 92222
+      }
+    ]
+  },
+  "correction": {
+    "authorizedPath": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+    "originalBinding": {
+      "path": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+      "mode": "100644",
+      "objectId": "dd08a0375311315836137cff7a1049063cd3bd17",
+      "sha256": "b65e00945a7b2022c6481903e324609ff9959b2c238369ecfcdd23f2274ab120",
+      "bytes": 17004
+    },
+    "replacementBinding": {
+      "path": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+      "mode": "100644",
+      "objectId": "9a54a99217e420f9fbfd7b394a6938a7ef742604",
+      "sha256": "a5fb0df9ba168cfcf9b672bb7026caa75ac41bd7dd4329dff472a0ce478d28ca",
+      "bytes": 18033
+    }
+  },
+  "successorTransaction": {
+    "baselineCommit": "bb7300a99336f2dcdd75411b173e0050980d6aa3",
+    "baselineTree": "23d9b096ec1d7070a7f3fcb552b507bbb69b694c",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json",
+      "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py"
+    ],
+    "requiredMode": "100644",
+    "selfExcludedManifestSha256": "434778e58bf025ac95e6b713af6e720281a6322e4ac5d791b7739f7dc81a7fee",
+    "manifest": [
+      {
+        "path": "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json",
+        "mode": "100644",
+        "objectId": "e575c402048b44083476f9e3b1a911d284bb1ab3",
+        "sha256": "38796306d9dc396c1fb4a45467cc9f4ee5a09535427ccc7bae4af4addd70f247",
+        "bytes": 10177
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py",
+        "mode": "100644",
+        "objectId": "a91690fc458f699111ab39b8c057f70de4e86814",
+        "sha256": "75de404a8776db052f520aa94e6babf8a2d548c083dc1dea82da8bd9355c81d8",
+        "bytes": 30920
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py",
+        "mode": "100644",
+        "objectId": "5469d1c1b883ab3a228ac409c0ec07bc3941f544",
+        "sha256": "aee1a6aac2c60b2b81ff4be9593f3c019d270308e9f6403d8bbd336d054ceb15",
+        "bytes": 20121
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+        "mode": "100644",
+        "objectId": "9a54a99217e420f9fbfd7b394a6938a7ef742604",
+        "sha256": "a5fb0df9ba168cfcf9b672bb7026caa75ac41bd7dd4329dff472a0ce478d28ca",
+        "bytes": 18033
+      }
+    ]
+  },
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "objectId": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "objectId": "4bc61d9a60fae13a65f23963c1cb731065222f2a"
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "objectId": "b10971ae6e17d4fca2933908531f80a5f58b6e5a"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "objectId": "237b39e89cb50d8d37596f4da9ce3f6993260165"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "objectId": "ffa922d0f7a278da3bb02ee09769564df02d5f01"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "objectId": "dfd84f4b9c93779f253672096fec5d717d6afc91"
+    }
+  ],
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V26.SUCCESSOR.01",
+      "subject": "immutable-v25-publication",
+      "state": "PASS",
+      "detail": "V25 retains its direct-child exact five-path publication and tree"
+    },
+    {
+      "id": "V26.SUCCESSOR.02",
+      "subject": "v25-original-blobs",
+      "state": "PASS",
+      "detail": "all five original V25 blobs retain pinned object, digest, and byte identities"
+    },
+    {
+      "id": "V26.SUCCESSOR.03",
+      "subject": "historical-v25-verification",
+      "state": "PASS",
+      "detail": "the authenticated V25 verifier passes only at its historical publication"
+    },
+    {
+      "id": "V26.SUCCESSOR.04",
+      "subject": "successor-five-path-scope",
+      "state": "PASS",
+      "detail": "V26 declares exactly five mode-100644 paths"
+    },
+    {
+      "id": "V26.SUCCESSOR.05",
+      "subject": "authorized-test-replacement",
+      "state": "PASS",
+      "detail": "only the V25 focused-test blob is replaced by V26"
+    },
+    {
+      "id": "V26.SUCCESSOR.06",
+      "subject": "self-excluded-manifest",
+      "state": "PASS",
+      "detail": "the four non-record V26 blobs are independently bound"
+    },
+    {
+      "id": "V26.SUCCESSOR.07",
+      "subject": "raw-root-gitlinks",
+      "state": "PASS",
+      "detail": "all ten root gitlinks equal the immutable V25 inventory"
+    },
+    {
+      "id": "V26.SUCCESSOR.08",
+      "subject": "sticky-successor-history",
+      "state": "PASS",
+      "detail": "V26 publication identities remain sticky for every evaluated descendant"
+    },
+    {
+      "id": "V26.SUCCESSOR.09",
+      "subject": "active-non-executable-hold",
+      "state": "PASS",
+      "detail": "V26 grants no approval, execution, release, or push authority"
+    }
+  ],
+  "blockers": [],
+  "result": "PASS",
+  "implementationHold": "ACTIVE",
+  "executionAllowed": false,
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false
+}

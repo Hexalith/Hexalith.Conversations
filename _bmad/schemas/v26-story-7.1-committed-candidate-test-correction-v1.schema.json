@@ -1,0 +1,333 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v26-story-7.1-committed-candidate-test-correction-v1.schema.json",
+  "title": "V26 Story 7.1 Committed Candidate Test Correction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "successorId",
+    "lineage",
+    "historicalV25",
+    "correction",
+    "successorTransaction",
+    "rootGitlinks",
+    "resultSemantics",
+    "assertionLedger",
+    "blockers",
+    "result",
+    "implementationHold",
+    "executionAllowed",
+    "ownerApprovalClaimed",
+    "releaseAuthorized",
+    "pushAuthorized"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-committed-candidate-test-correction.v1"
+    },
+    "recordType": {
+      "const": "COMMITTED_CANDIDATE_TEST_CORRECTION"
+    },
+    "successorId": {
+      "const": "V26-STORY-7.1-COMMITTED-CANDIDATE-TEST-CORRECTION-v1"
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predecessorCommit", "predecessorTree", "v25Commit", "v25Tree"],
+      "properties": {
+        "predecessorCommit": {
+          "const": "bb7300a99336f2dcdd75411b173e0050980d6aa3"
+        },
+        "predecessorTree": {
+          "const": "23d9b096ec1d7070a7f3fcb552b507bbb69b694c"
+        },
+        "v25Commit": {
+          "const": "dbada954388430a6579b42508f51db806aebf3b8"
+        },
+        "v25Tree": {
+          "const": "247843b255634a0c414f94eaf023c02cfdfc300f"
+        }
+      }
+    },
+    "historicalV25": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "verificationRevision",
+        "result",
+        "assertionCount",
+        "testIdentityCount",
+        "obligationIdentityCount",
+        "originalBlobs"
+      ],
+      "properties": {
+        "verificationRevision": {
+          "const": "dbada954388430a6579b42508f51db806aebf3b8"
+        },
+        "result": {
+          "const": "PASS"
+        },
+        "assertionCount": {
+          "const": 10
+        },
+        "testIdentityCount": {
+          "const": 473
+        },
+        "obligationIdentityCount": {
+          "const": 969
+        },
+        "originalBlobs": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs" } } }
+              ]
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "correction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorizedPath", "originalBinding", "replacementBinding"],
+      "properties": {
+        "authorizedPath": {
+          "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py"
+        },
+        "originalBinding": {
+          "allOf": [
+            { "$ref": "#/$defs/binding" },
+            { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" } } }
+          ]
+        },
+        "replacementBinding": {
+          "allOf": [
+            { "$ref": "#/$defs/binding" },
+            { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" } } }
+          ]
+        }
+      }
+    },
+    "successorTransaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineCommit",
+        "baselineTree",
+        "exactChangedPaths",
+        "requiredMode",
+        "selfExcludedManifestSha256",
+        "manifest"
+      ],
+      "properties": {
+        "baselineCommit": {
+          "const": "bb7300a99336f2dcdd75411b173e0050980d6aa3"
+        },
+        "baselineTree": {
+          "const": "23d9b096ec1d7070a7f3fcb552b507bbb69b694c"
+        },
+        "exactChangedPaths": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "const": "_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json" },
+            { "const": "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json" },
+            { "const": "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py" },
+            { "const": "_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py" },
+            { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" }
+          ],
+          "items": false
+        },
+        "requiredMode": {
+          "const": "100644"
+        },
+        "selfExcludedManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifest": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" } } }
+              ]
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "rootGitlinks": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/gitlink"
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "exitCodes", "ledgerRequired"],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            { "const": "PASS" },
+            { "const": "FAIL" },
+            { "const": "BLOCKED" }
+          ],
+          "items": false
+        },
+        "exitCodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["PASS", "FAIL", "BLOCKED"],
+          "properties": {
+            "PASS": { "const": 0 },
+            "FAIL": { "const": 1 },
+            "BLOCKED": { "const": 2 }
+          }
+        },
+        "ledgerRequired": {
+          "const": true
+        }
+      }
+    },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "result": {
+      "const": "PASS"
+    },
+    "implementationHold": {
+      "const": "ACTIVE"
+    },
+    "executionAllowed": {
+      "const": false
+    },
+    "ownerApprovalClaimed": {
+      "const": false
+    },
+    "releaseAuthorized": {
+      "const": false
+    },
+    "pushAuthorized": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "objectId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\x00-\\x1F\\x7F])[^/]+(?:/[^/]+)*$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId", "sha256", "bytes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "100644" },
+        "objectId": { "$ref": "#/$defs/objectId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "160000" },
+        "objectId": { "$ref": "#/$defs/objectId" }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subject", "state", "detail"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^V26\\.SUCCESSOR\\.[0-9]{2}$" },
+        "subject": { "type": "string", "minLength": 1 },
+        "state": { "const": "PASS" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
