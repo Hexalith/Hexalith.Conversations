@@ -673,11 +673,57 @@ def binding(root: Path, commit: str, path: str) -> dict[str, str]:
 def worktree_binding(root: Path, path: str) -> dict[str, str]:
     """Bind a prospective regular blob without inserting it into Git."""
 
-    target = root / safe_path(path)
+    parent_descriptor = -1
+    descriptor = -1
     try:
-        content = target.read_bytes()
-    except OSError as error:
+        parent_descriptor, name = open_parent_directory(root, path)
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+            dir_fd=parent_descriptor,
+        )
+        initial = os.fstat(descriptor)
+        named = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(initial.st_mode)
+            or not stat.S_ISREG(named.st_mode)
+            or stat.S_IMODE(initial.st_mode) != 0o644
+            or stat.S_IMODE(named.st_mode) != 0o644
+            or initial.st_nlink != 1
+            or named.st_nlink != 1
+            or (initial.st_dev, initial.st_ino) != (named.st_dev, named.st_ino)
+        ):
+            raise OSError("expected a mode-100644 single-link regular file")
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            content = stream.read()
+        final = os.fstat(descriptor)
+        final_named = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+        if (
+            (final.st_dev, final.st_ino) != (initial.st_dev, initial.st_ino)
+            or (final_named.st_dev, final_named.st_ino) != (initial.st_dev, initial.st_ino)
+            or final.st_size != initial.st_size
+            or final.st_mtime_ns != initial.st_mtime_ns
+            or final.st_ctime_ns != initial.st_ctime_ns
+            or final.st_nlink != 1
+            or final_named.st_nlink != 1
+        ):
+            raise OSError("mode, inode, link count, or bytes changed during read")
+    except (EntryAuthorityError, OSError) as error:
         raise EntryAuthorityError("V23_TOOLING_INPUT_UNAVAILABLE", f"{path}: {error}", "BLOCKED") from error
+    finally:
+        close_errors: list[OSError] = []
+        for open_descriptor in (descriptor, parent_descriptor):
+            if open_descriptor >= 0:
+                try:
+                    os.close(open_descriptor)
+                except OSError as error:
+                    close_errors.append(error)
+        if close_errors and sys.exception() is None:
+            raise EntryAuthorityError(
+                "V23_TOOLING_INPUT_UNAVAILABLE",
+                f"{path}: descriptor close failed: {close_errors!r}",
+                "BLOCKED",
+            )
     try:
         hashed = subprocess.run(
             (GIT_EXECUTABLE, "--no-replace-objects", "-C", str(root), "hash-object", "--stdin"),
@@ -2796,9 +2842,21 @@ def remove_owned_file(
             "BLOCKED",
         ) from error
     finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        os.close(parent_descriptor)
+        close_errors: list[OSError] = []
+        for open_descriptor in (descriptor, parent_descriptor):
+            if open_descriptor >= 0:
+                try:
+                    os.close(open_descriptor)
+                except OSError as error:
+                    close_errors.append(error)
+        if close_errors:
+            close_detail = f"descriptor close failed: {close_errors!r}; preserved={quarantine_path if renamed else relative_path}"
+            active_error = sys.exception()
+            if isinstance(active_error, EntryAuthorityError):
+                active_error.detail = f"{active_error.detail}; {close_detail}"
+                active_error.args = (f"{active_error.code}: {active_error.detail}",)
+            elif active_error is None:
+                raise EntryAuthorityError("V23_ROLLBACK_FAILED", close_detail, "BLOCKED")
 
 
 def quarantine_unverified_created_file(root: Path, relative_path: str) -> str:
@@ -2874,8 +2932,18 @@ def atomic_write(
                 if os.read(descriptor, len(content) + 1) != content:
                     raise OSError("post-write byte identity mismatch")
                 os.fsync(parent_descriptor)
+                closing_descriptor = descriptor
+                descriptor = -1
+                os.close(closing_descriptor)
+                closing_parent = parent_descriptor
+                parent_descriptor = -1
+                os.close(closing_parent)
             except BaseException as write_error:
-                os.close(descriptor)
+                if descriptor >= 0:
+                    try:
+                        os.close(descriptor)
+                    except OSError:
+                        pass
                 descriptor = -1
                 try:
                     quarantine = (
@@ -2931,8 +2999,15 @@ def atomic_write(
         raise EntryAuthorityError("V23_WRITE_FAILED", f"{relative_path}: {error}", "BLOCKED") from error
     finally:
         if descriptor >= 0:
-            os.close(descriptor)
-        os.close(parent_descriptor)
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+        if parent_descriptor >= 0:
+            try:
+                os.close(parent_descriptor)
+            except OSError:
+                pass
 
 
 def append_suffix_exact(
@@ -3362,8 +3437,16 @@ def main(arguments: Sequence[str] | None = None) -> int:
         root = repository_root(args.repository)
         if args.write_request:
             document = render_request(root)
-            atomic_write(root, REQUEST_PATH, json_bytes(document), no_clobber=True)
-            print(f"V23_STORY_7_1_ENTRY_REQUEST_WRITTEN path={REQUEST_PATH} sha256={sha256(json_bytes(document))}")
+            content = json_bytes(document)
+            _created, identity = atomic_write(root, REQUEST_PATH, content, no_clobber=True)
+            if identity is None:
+                raise EntryAuthorityError(
+                    "V23_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                    "request inode identity is unavailable",
+                    "BLOCKED",
+                )
+            revalidate_owned_file(root, REQUEST_PATH, content, identity)
+            print(f"V23_STORY_7_1_ENTRY_REQUEST_WRITTEN path={REQUEST_PATH} sha256={sha256(content)}")
             return 0
         if args.verify_request:
             request, publication, _content = validate_request(root, args.candidate)

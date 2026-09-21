@@ -661,7 +661,23 @@ def test_protected_host_rejects_contradictory_publisher_results(
                 "authorIdentity": resolver.V23_TRUSTED_OWNER_IDENTITY,
             },
         },
-        "assertionLedger": [{"id": "V23.TEST", "subject": "fixture", "state": "PASS", "detail": "fixture passed"}],
+        "assertionLedger": [
+            {
+                "id": f"V23.AUTHORITY.{index:02d}",
+                "subject": subject,
+                "state": "PASS",
+                "detail": f"{subject} passed",
+            }
+            for index, subject in enumerate(resolver.V23_AUTHORITY_GATE_SUBJECTS, start=1)
+        ]
+        + [
+            {
+                "id": "V23.AUTHORITY.SIGNATURE",
+                "subject": "trusted-owner-publication-signature",
+                "state": "PASS",
+                "detail": "trusted owner publication signature passed",
+            }
+        ],
         "blockers": [],
         "ownerApprovalClaimed": True,
         "releaseAuthorized": False,
@@ -669,6 +685,7 @@ def test_protected_host_rejects_contradictory_publisher_results(
         "executionAllowed": True,
         "storyExecution": {"7.1": True, "7.2": False, "7.3": False, "7.4": False},
     }
+    assert resolver.validate_v23_result(document) == document
     mutation(document)
 
     with pytest.raises(resolver.ResolutionError) as error:

@@ -91,6 +91,50 @@ def workflow_run_block(step_name: str) -> str:
     return "\n".join(line[10:] if line else "" for line in block_lines) + "\n"
 
 
+def workflow_current_authority_result(result: str, *, successor: bool) -> dict[str, object]:
+    """Build one closed result envelope for the workflow-owned checker harness."""
+
+    passing = result == "PASS"
+    executable = passing and successor
+    document: dict[str, object] = {
+        "schemaVersion": "hexalith.conversations.current-planning-authority-result.v1",
+        "result": result,
+        "exitCode": {"PASS": 0, "FAIL": 1, "BLOCKED": 2}[result],
+        "effectiveHold": "EXECUTION_ALLOWED" if executable else "ACTIVE",
+        "implementationHold": "EXECUTION_ALLOWED" if executable else "ACTIVE",
+        "observed": {},
+        "assertionLedger": [
+            {
+                "id": "FIXTURE.WORKFLOW",
+                "subject": "workflow-result-checker",
+                "state": result,
+                "detail": f"workflow checker {result.lower()} fixture",
+            }
+        ],
+        "blockers": []
+        if passing
+        else [
+            {
+                "code": "FIXTURE.WORKFLOW",
+                "detail": f"workflow checker {result.lower()} fixture",
+                "assertionIndex": 0,
+            }
+        ],
+        "ownerApprovalClaimed": executable,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": executable,
+    }
+    if successor:
+        document["storyExecution"] = {
+            "7.1": executable,
+            "7.2": False,
+            "7.3": False,
+            "7.4": False,
+        }
+    return document
+
+
 def copy_paths(root: Path, paths: tuple[str, ...]) -> None:
     """Copy declared paths from the implementation worktree."""
 
@@ -245,6 +289,22 @@ def test_request_and_result_schema_are_closed() -> None:
     }
     with pytest.raises(ValidationError):
         validator.validate(request_shaped_failure)
+
+
+@pytest.mark.parametrize(
+    "code",
+    ("V23_REQUEST_INVALID", "V23_AUTHORITY_INVALID", "V23_PRESERVATION_EVIDENCE_INVALID"),
+)
+def test_raw_json_control_duplicates_fail_closed(code: str) -> None:
+    """Request, authority, and gate records all retain duplicate-safe raw-byte parsing."""
+
+    content = b'{"ownerApprovalClaimed":false,"ownerApprovalClaimed":true}\n'
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.load_json(content, code)
+
+    assert error.value.code == code
+    assert "duplicate JSON property" in error.value.detail
 
 
 def test_schema_digest_and_runtime_controls_are_independent_authority_boundaries(
@@ -423,6 +483,63 @@ def test_write_request_cli_creates_exact_deterministic_bytes(tmp_path: Path) -> 
     assert retry.returncode == 2
     assert "V23_STORY_7_1_ENTRY_REQUEST_WRITTEN" not in retry.stdout
     assert retry_result["blockers"][0]["code"] == "V23_WRITE_PATH_INVALID"
+
+
+def test_write_request_cli_revalidates_the_visible_path_before_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A pathname replacement after the write cannot receive a request-success token."""
+
+    root = tmp_path / "write-request-race"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", publisher.TOOLING_BASELINE], check=True)
+    copy_paths(root, publisher.TOOLING_PATHS)
+    (root / publisher.REQUEST_PATH).unlink(missing_ok=True)
+    real_atomic_write = publisher.atomic_write
+
+    def replace_after_write(
+        base: Path,
+        relative_path: str,
+        content: bytes,
+        *,
+        no_clobber: bool,
+    ) -> tuple[bool, tuple[int, int] | None]:
+        result = real_atomic_write(base, relative_path, content, no_clobber=no_clobber)
+        replacement = base / f"{relative_path}.replacement"
+        replacement.write_bytes(b"concurrent replacement\n")
+        replacement.replace(base / relative_path)
+        return result
+
+    monkeypatch.setattr(publisher, "atomic_write", replace_after_write)
+
+    exit_code = publisher.main(["--repository", str(root), "--write-request"])
+    result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert result["blockers"][0]["code"] == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT"
+    assert "V23_STORY_7_1_ENTRY_REQUEST_WRITTEN" not in json.dumps(result)
+
+
+def test_worktree_binding_rejects_nonregular_link_and_mode_inputs(tmp_path: Path) -> None:
+    """Prospective request inputs are regular mode-100644 blobs before any read can block or escape."""
+
+    subprocess.run(["git", "init", "-q", "-b", "main", str(tmp_path)], check=True)
+    external = tmp_path.parent / "external-tooling.py"
+    external.write_bytes(b"external\n")
+    fixtures = {
+        "executable.py": lambda path: (path.write_bytes(b"executable\n"), path.chmod(0o755)),
+        "symlink.py": lambda path: path.symlink_to(external),
+        "fifo.py": lambda path: os.mkfifo(path),
+    }
+
+    for relative_path, create in fixtures.items():
+        target = tmp_path / relative_path
+        create(target)
+        with pytest.raises(publisher.EntryAuthorityError) as error:
+            publisher.worktree_binding(tmp_path, relative_path)
+        assert error.value.code == "V23_TOOLING_INPUT_UNAVAILABLE"
 
 
 def test_request_scope_manifest_and_descendant_faults_have_stable_codes(tmp_path: Path) -> None:
@@ -1795,6 +1912,75 @@ def test_successor_workflow_materializes_and_executes_protected_base_hosts(tmp_p
     ).strip() == "protected-base-verifier"
 
 
+def run_workflow_current_authority_checker(
+    tmp_path: Path,
+    document: dict[str, object],
+) -> subprocess.CompletedProcess[str]:
+    """Run the checked-in workflow checker against a controlled resolver result."""
+
+    runner_temp = tmp_path / "workflow-result-checker"
+    host = runner_temp / "planning-authority-protected-host"
+    python_path = host / ".venv/bin/python"
+    python_path.parent.mkdir(parents=True)
+    python_path.symlink_to(sys.executable)
+    (runner_temp / "planning-authority-protected-home").mkdir()
+    encoded = json.dumps(document, sort_keys=True)
+    (host / "resolve_current_planning_authority.py").write_text(
+        "import json\n"
+        "raise_code = {\"PASS\": 0, \"FAIL\": 1, \"BLOCKED\": 2}\n"
+        f"document = json.loads({encoded!r})\n"
+        "print(json.dumps(document, sort_keys=True))\n"
+        "raise SystemExit(raise_code[document[\"result\"]])\n",
+        encoding="utf-8",
+    )
+    command = workflow_run_block("Resolve current planning authority through the protected host").replace(
+        '"${{ steps.range.outputs.candidate }}"',
+        f'"{"a" * 40}"',
+    )
+    return subprocess.run(
+        ["/bin/bash", "-c", command],
+        cwd=runner_temp,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_WORKSPACE": str(tmp_path),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize(
+    ("result", "successor"),
+    (("PASS", False), ("PASS", True), ("FAIL", True), ("BLOCKED", True)),
+)
+def test_workflow_current_authority_checker_covers_every_result_alternative(
+    tmp_path: Path,
+    result: str,
+    successor: bool,
+) -> None:
+    """The runnable workflow checker accepts legacy PASS and all V23 result states."""
+
+    document = workflow_current_authority_result(result, successor=successor)
+    completed = run_workflow_current_authority_checker(tmp_path, document)
+
+    assert completed.returncode == document["exitCode"], completed.stderr
+
+
+def test_workflow_current_authority_checker_rejects_contradictory_successor_pass(
+    tmp_path: Path,
+) -> None:
+    """The runnable workflow checker rejects a V23 PASS that disables execution."""
+
+    document = workflow_current_authority_result("PASS", successor=True)
+    document["executionAllowed"] = False
+    completed = run_workflow_current_authority_checker(tmp_path, document)
+
+    assert completed.returncode != 0
+    assert "protected successor result violated its executable PASS contract" in completed.stderr
+
+
 def test_synchronized_project_venv_imports_jsonschema_in_clean_environment(tmp_path: Path) -> None:
     """Exact workflow blocks materialize, sync, identify, and run protected hosts in isolation."""
 
@@ -2432,6 +2618,40 @@ def test_authority_initial_fstat_failure_quarantines_created_path(
     assert quarantines[0].read_bytes() == b""
 
 
+def test_authority_descriptor_close_failure_quarantines_created_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A close fault before ownership returns remains inside rollback coverage."""
+
+    root = tmp_path / "authority-close-fault"
+    root.mkdir()
+    authority = root / publisher.AUTHORITY_PATH
+    authority.parent.mkdir(parents=True)
+    real_close = publisher.os.close
+    real_fstat = publisher.os.fstat
+    failed = False
+
+    def fail_first_regular_close(descriptor: int) -> None:
+        nonlocal failed
+        if not failed and publisher.stat.S_ISREG(real_fstat(descriptor).st_mode):
+            failed = True
+            raise OSError("fixture authority descriptor close failure")
+        real_close(descriptor)
+
+    monkeypatch.setattr(publisher.os, "close", fail_first_regular_close)
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.atomic_write(root, publisher.AUTHORITY_PATH, b"authority\n", no_clobber=True)
+
+    assert error.value.code == "V23_WRITE_FAILED"
+    assert "rollbackQuarantine=" in error.value.detail
+    assert failed is True
+    assert not authority.exists()
+    quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
+    assert len(quarantines) == 1
+    assert quarantines[0].read_bytes() == b"authority\n"
+
+
 def test_authority_post_create_hard_link_is_quarantined_without_erasing_alias(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2491,6 +2711,42 @@ def test_quarantine_open_failure_reports_exact_preserved_path(
         publisher.remove_owned_file(root, publisher.AUTHORITY_PATH, b"authority\n", identity)
 
     assert error.value.code == "V23_ROLLBACK_FAILED"
+    quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
+    assert len(quarantines) == 1
+    assert str(quarantines[0].relative_to(root)) in error.value.detail
+    assert quarantines[0].read_bytes() == b"authority\n"
+
+
+def test_quarantine_descriptor_close_failure_reports_exact_preserved_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A close fault after quarantine reports the stable path retaining the bytes."""
+
+    root = tmp_path / "quarantine-close-fault"
+    root.mkdir()
+    authority = root / publisher.AUTHORITY_PATH
+    authority.parent.mkdir(parents=True)
+    authority.write_bytes(b"authority\n")
+    identity = (authority.stat().st_dev, authority.stat().st_ino)
+    real_close = publisher.os.close
+    real_fstat = publisher.os.fstat
+    failed = False
+
+    def fail_owned_inode_close(descriptor: int) -> None:
+        nonlocal failed
+        metadata = real_fstat(descriptor)
+        if not failed and (metadata.st_dev, metadata.st_ino) == identity:
+            failed = True
+            raise OSError("fixture quarantine descriptor close failure")
+        real_close(descriptor)
+
+    monkeypatch.setattr(publisher.os, "close", fail_owned_inode_close)
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.remove_owned_file(root, publisher.AUTHORITY_PATH, b"authority\n", identity)
+
+    assert error.value.code == "V23_ROLLBACK_FAILED"
+    assert failed is True
     quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
     assert len(quarantines) == 1
     assert str(quarantines[0].relative_to(root)) in error.value.detail
