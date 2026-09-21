@@ -1,0 +1,414 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-preservation-evidence-tooling-successor.v1",
+  "recordType": "PRESERVATION_EVIDENCE_TOOLING_SUCCESSOR",
+  "successorId": "V25-STORY-7.1-PRESERVATION-EVIDENCE-TOOLING-SUCCESSOR-v1",
+  "lineage": {
+    "predecessorCommit": "69232b7209c079b0476349818d6251ca4dc83d92",
+    "predecessorTree": "9d0b726f205782138e19bd35b752750dfea87fde",
+    "v23": {
+      "commit": "5a7234b922371b5d0a12085a444d93783263f278",
+      "tree": "1d5ab0e9fd2e4f18bef0f605950a801723613b1e",
+      "recordPath": "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json",
+      "recordSha256": "caa3dfbefeb716233081b0df3c7dcbf2a326f105594b23d42db1624fc4cf9d39",
+      "schemaPath": "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json",
+      "schemaSha256": "d11340d9b2665c5295a4408f9e6b26218001a61f118d6ec979d6e9ca4da3ea1b",
+      "publisherPath": "_bmad/scripts/publish_story_7_1_entry_authority.py",
+      "publisherSha256": "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
+    },
+    "v24": {
+      "commit": "20e2cdd2b37e6387055b241c7ee45fc54e836742",
+      "tree": "7422b9ee859e668ed8293b0c04005c964ab28d52",
+      "recordPath": "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json",
+      "recordSha256": "dc9b6d26596e39fb10753a38e482d24ab0d3ac7a203331c7717ab284b6129a3e",
+      "schemaPath": "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+      "schemaSha256": "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a",
+      "publisherPath": "_bmad/scripts/publish_story_7_1_entry_authority.py",
+      "publisherSha256": "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
+    }
+  },
+  "preservationEvidence": {
+    "rc1": {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3.json",
+      "revision": "4b1ac8e0a792bd884ca22322ff2d957e93981766",
+      "mode": "100644",
+      "objectId": "ee38d9f8076e8aa235a85fb29d0ea2f29aa5f5bf",
+      "sha256": "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc",
+      "bytes": 1667463
+    },
+    "rc1Approval": {
+      "path": "docs/release-evidence/preservation-traceability-manifest-v3-owner-approval.json",
+      "revision": "4b1ac8e0a792bd884ca22322ff2d957e93981766",
+      "mode": "100644",
+      "objectId": "13cfc8a8975f38a4e858fe9055054b8d0d33da83",
+      "sha256": "23e07e8339d8822c35ef665d44a60238e237c4c29e37560d6f475585dd27df5a",
+      "bytes": 4655
+    },
+    "rc2PublicationCommit": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+    "rc2BaseCommit": "2d2ae57db1fdcc164fe01ac4b1d99af15c31b324",
+    "rc2CandidateDigest": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840",
+    "rc2ExactChangedPaths": [
+      ".agents/skills/bmad-build-auto/step-04-review.md",
+      ".agents/skills/bmad-build/step-05-present.md",
+      ".agents/skills/bmad-build/step-oneshot.md",
+      ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      ".claude/skills/bmad-build-auto/step-04-review.md",
+      ".claude/skills/bmad-build/step-05-present.md",
+      ".claude/skills/bmad-build/step-oneshot.md",
+      ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-build-receipt.json",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-dotnet-info.txt",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-receipt.json",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-remediated.xml",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-run-receipt.json",
+      "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-semantic-results.json",
+      "_bmad-output/implementation-artifacts/spec-remediate-preservation-traceability-v3-conformance.md",
+      "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/.memlog.md",
+      "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/addendum.md",
+      "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/prd.md",
+      "_bmad/scripts/generate_preservation_traceability_manifest_v3.py",
+      "_bmad/scripts/generate_preservation_traceability_manifest_v3_rc2.py",
+      "_bmad/scripts/tests/test_generate_preservation_traceability_manifest.py",
+      "_bmad/scripts/tests/test_verify_submodule_promotion.py",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.json",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.sha256",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2.md",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2.schema.json",
+      "docs/release-evidence/preservation-traceability-manifest-v3-rc2.sha256",
+      "docs/release-evidence/projection-read-store-population-proof-v2-binding-resolution.json",
+      "tests/Hexalith.Conversations.Conformance.Tests/ArchitecturePlanningAuthorityValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/ProjectionReadStorePopulationProofValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/SuccessMetricReportAndAttestationValidationTest.cs"
+    ],
+    "rc2Artifacts": [
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3.json",
+        "revision": "4b1ac8e0a792bd884ca22322ff2d957e93981766",
+        "mode": "100644",
+        "objectId": "ee38d9f8076e8aa235a85fb29d0ea2f29aa5f5bf",
+        "sha256": "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc",
+        "bytes": 1667463
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-owner-approval.json",
+        "revision": "4b1ac8e0a792bd884ca22322ff2d957e93981766",
+        "mode": "100644",
+        "objectId": "13cfc8a8975f38a4e858fe9055054b8d0d33da83",
+        "sha256": "23e07e8339d8822c35ef665d44a60238e237c4c29e37560d6f475585dd27df5a",
+        "bytes": 4655
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-build-receipt.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "0fd2ad6e6aea4d0d6eb67ecc14c9b44f32a13fa1",
+        "sha256": "638210b9bd40dcc0428c2eefa286caab57e2ea645d8fbd2bad456d3b294f8b43",
+        "bytes": 2731
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-dotnet-info.txt",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "368f882fae12ec9c714f2dfb2ff35fa98ddc9c9a",
+        "sha256": "d649c0709ac9cc2b8e07f561b0f3458aab2570ce8aaaeb0e2efe907b4eed3be0",
+        "bytes": 1770
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "774d2dc219f09f71e3584d0983fd914c8faa2c5f",
+        "sha256": "b003089f8044e8ca053c4aa4975d4dcabf01cfaa326547bdd15a79b00b09a611",
+        "bytes": 6063
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-receipt.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "b4ae610c3c7f9ffd6ed540430e4b83cd3fbd15c3",
+        "sha256": "ebae68916bef68e96d3f3e98c40b6795a566bdebf7b5095001807292438bc25b",
+        "bytes": 1810
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log",
+        "revision": "df482b4e652907e100f763615a8a8c4370565066",
+        "mode": "100644",
+        "objectId": "5642bf0de265135023fd5c87c9970610cfd4f4a0",
+        "sha256": "1407c6c5837cdbe1a170e08a04b3d4d2b9cae2236883636781804c7edd6e7b00",
+        "bytes": 2902
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-build-remediated.log",
+        "revision": "df482b4e652907e100f763615a8a8c4370565066",
+        "mode": "100644",
+        "objectId": "3fb064f50ef44b2b9b57a36cf1f75418effc6653",
+        "sha256": "36f09a1249f840ffe33cbc11897bf01758af76b4b78820501723632b7419afa3",
+        "bytes": 6198
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-remediated.xml",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "902ed9f3f7606c43c33cac786e1f7ed90c8a723e",
+        "sha256": "bfac5f1745493c13c3cf3b5c40528ee8e04376e436bdffb95eaf767add8ae7f8",
+        "bytes": 326351
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-run-receipt.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "95921b6aed83380c40253cd4fc33d6802f8b12ab",
+        "sha256": "c8ba4ac11702ff4001e8d24dbf6cbb66f9ebeb899351aac3a8bf6b94882b5c65",
+        "bytes": 90870
+      },
+      {
+        "path": "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/conformance-semantic-results.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "0245f9a4605aab362ab4a22351325bd54466c9c4",
+        "sha256": "c2e09f7d041bd2cd3de6c271383efd276be70347c58a81d00422b12e77818236",
+        "bytes": 90023
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "e38579bece6ef684156ba0b44897b5b9ba703b2e",
+        "sha256": "9d6e994069332e80a26734a2df6c523fe8cded068c9be92fc36bdb48449626df",
+        "bytes": 4379
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.sha256",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "0d64a76c8c088d993c5dda2234b1bef02217b0c3",
+        "sha256": "6d958c26ae7358356d54916fec489bbf1a5174ce66ac1aba032f567005f96082",
+        "bytes": 131
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "4b231130f4334e7e41b3a48b7c7874a3809bb4f5",
+        "sha256": "d033756c84680dc6e671368966c60a1e2ee120965ea04dd0edf4e760cb702864",
+        "bytes": 1675128
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.md",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "22e507fccfe8a687c995f2e621671e2546b6bbcd",
+        "sha256": "22173e4de291366915c8ecf7de61652d18403eabf34645b68afa943e4a68e0dd",
+        "bytes": 1000
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.schema.json",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "e8d4b09ea385501a4634937f42e3bd7fd0f82376",
+        "sha256": "2ae52028517ca00f9c0a6e8c736b77a664f7092bbbc45b89d52b522dd4c95bf8",
+        "bytes": 53812
+      },
+      {
+        "path": "docs/release-evidence/preservation-traceability-manifest-v3-rc2.sha256",
+        "revision": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d",
+        "mode": "100644",
+        "objectId": "4b9b3bc5e2157eade3d0c503a779948029438395",
+        "sha256": "90fb722d588e662bec38edb986ed03f1324ee7812e29078f4009db806208f7bd",
+        "bytes": 344
+      }
+    ],
+    "testIdentityCount": 473,
+    "obligationIdentityCount": 969,
+    "categoryCount": 7,
+    "governedDispositionCount": 277,
+    "gateStates": {
+      "FR-20": "PENDING",
+      "SM-C1": "PENDING",
+      "SM-C2": "FAILED",
+      "OQ-1": "BLOCKED",
+      "implementationHold": "ACTIVE"
+    }
+  },
+  "successorTransaction": {
+    "baselineCommit": "69232b7209c079b0476349818d6251ca4dc83d92",
+    "baselineTree": "9d0b726f205782138e19bd35b752750dfea87fde",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json",
+      "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+      "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs"
+    ],
+    "requiredMode": "100644",
+    "selfExcludedManifestSha256": "b3f3e2dc6ffb447bc88f168ddddc3b17c9387899365cb9384202cd48852b7c4c",
+    "manifest": [
+      {
+        "path": "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+        "mode": "100644",
+        "objectId": "130f19e2a146e9b79dc8203972653ae59d9704b8",
+        "sha256": "f9fc069d16dcd1358c0473609d4d073382774c135694d4dd8b0da82494614a97",
+        "bytes": 10400
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py",
+        "mode": "100644",
+        "objectId": "91a4ff170ffdf44962ca709b9026426ae5f64d9e",
+        "sha256": "adbe8efbc10a60975b96dc4d0ad4f55a0be2cca8a8ea5e370389eb4ab9737787",
+        "bytes": 43342
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py",
+        "mode": "100644",
+        "objectId": "dd08a0375311315836137cff7a1049063cd3bd17",
+        "sha256": "b65e00945a7b2022c6481903e324609ff9959b2c238369ecfcdd23f2274ab120",
+        "bytes": 17004
+      },
+      {
+        "path": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs",
+        "mode": "100644",
+        "objectId": "5ca0183dc4adb3ac0fbb3191e7071d4464103887",
+        "sha256": "49b19b84f8fa5b9be8d7bb895a82338dbb5821f9bada011c725d0cb73504f548",
+        "bytes": 92222
+      }
+    ]
+  },
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "objectId": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "objectId": "4bc61d9a60fae13a65f23963c1cb731065222f2a"
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "objectId": "b10971ae6e17d4fca2933908531f80a5f58b6e5a"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "objectId": "237b39e89cb50d8d37596f4da9ce3f6993260165"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "objectId": "ffa922d0f7a278da3bb02ee09769564df02d5f01"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "objectId": "dfd84f4b9c93779f253672096fec5d717d6afc91"
+    }
+  ],
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V25.SUCCESSOR.01",
+      "subject": "immutable-v23-publication",
+      "state": "PASS",
+      "detail": "V23 retains its exact nine-path publication and pinned identities"
+    },
+    {
+      "id": "V25.SUCCESSOR.02",
+      "subject": "immutable-v24-publication",
+      "state": "PASS",
+      "detail": "V24 retains its direct-child exact eight-path correction and pinned identities"
+    },
+    {
+      "id": "V25.SUCCESSOR.03",
+      "subject": "rc2-historical-publication",
+      "state": "PASS",
+      "detail": "rc.2 retains its direct-child exact 36-path publication"
+    },
+    {
+      "id": "V25.SUCCESSOR.04",
+      "subject": "rc2-retained-log-provenance",
+      "state": "PASS",
+      "detail": "both retained logs match their later committed provenance"
+    },
+    {
+      "id": "V25.SUCCESSOR.05",
+      "subject": "rc1-and-approval",
+      "state": "PASS",
+      "detail": "rc.1 and its detached approval retain their pinned bytes"
+    },
+    {
+      "id": "V25.SUCCESSOR.06",
+      "subject": "preservation-denominators",
+      "state": "PASS",
+      "detail": "473 tests, 969 obligations, seven categories, and 277 dispositions remain exact"
+    },
+    {
+      "id": "V25.SUCCESSOR.07",
+      "subject": "successor-five-path-scope",
+      "state": "PASS",
+      "detail": "V25 declares exactly five mode-100644 paths"
+    },
+    {
+      "id": "V25.SUCCESSOR.08",
+      "subject": "self-excluded-manifest",
+      "state": "PASS",
+      "detail": "the four non-record V25 blobs are independently bound"
+    },
+    {
+      "id": "V25.SUCCESSOR.09",
+      "subject": "raw-root-gitlinks",
+      "state": "PASS",
+      "detail": "all ten root gitlinks equal the V23/V24 inventory"
+    },
+    {
+      "id": "V25.SUCCESSOR.10",
+      "subject": "active-non-executable-hold",
+      "state": "PASS",
+      "detail": "V25 grants no approval, execution, release, or push authority"
+    }
+  ],
+  "blockers": [],
+  "result": "PASS",
+  "implementationHold": "ACTIVE",
+  "executionAllowed": false,
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false
+}

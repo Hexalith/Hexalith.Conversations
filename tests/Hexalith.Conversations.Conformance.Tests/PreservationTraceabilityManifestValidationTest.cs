@@ -38,6 +38,9 @@ public sealed class PreservationTraceabilityManifestValidationTest
     private const string Rc1Sha256 = "a85f6b6c544790a21523f9f37c3b5f1cbb0586ba3f79fb58b80516207d57f3fc";
     private const string Rc1ApprovalSha256 = "23e07e8339d8822c35ef665d44a60238e237c4c29e37560d6f475585dd27df5a";
     private const string BaseCommit = "2d2ae57db1fdcc164fe01ac4b1d99af15c31b324";
+    private const string Rc2PublicationCommit = "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d";
+    private const string Rc2LogProvenanceCommit = "df482b4e652907e100f763615a8a8c4370565066";
+    private const string V24PublicationCommit = "20e2cdd2b37e6387055b241c7ee45fc54e836742";
     private const string CandidateDigestAlgorithm = "sha256-path-mode-hash-size-overlay-v2";
     private const string CandidateKind = "base-plus-content-addressed-overlay";
     private const string SourceInputMode = "100644";
@@ -48,6 +51,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
     private const string BuildReceiptPath = "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-build-receipt.json";
     private const string ToolchainPath = "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-dotnet-info.txt";
     private const string RestoreReceiptPath = "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-receipt.json";
+    private const string RestoreLogPath = "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore.log";
     private const string DetachedIndexPath = "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.json";
     private const string DetachedDigestPath = "docs/release-evidence/preservation-traceability-manifest-v3-rc2-detached-evidence.sha256";
 
@@ -192,59 +196,49 @@ public sealed class PreservationTraceabilityManifestValidationTest
         boundSourcePaths.ShouldBe(SourceInputPaths);
         overlay.GetProperty("sourceInputPathInventorySha256").GetString().ShouldBe(ComputePathInventorySha256(SourceInputPaths));
         overlay.GetProperty("assessmentWorkflowRecords").EnumerateArray().Select(row => row.GetString()!).ShouldBe(AssessmentWorkflowRecordPaths);
-        AssessmentWorkflowRecordPaths.ShouldAllBe(path => IsRepositoryRegularFile(path));
+        AssessmentWorkflowRecordPaths.ShouldAllBe(path => IsRegularBlobAtRevision(path, Rc2PublicationCommit));
         overlay.GetProperty("assessmentWorkflowRecordPathInventorySha256").GetString().ShouldBe(ComputePathInventorySha256(AssessmentWorkflowRecordPaths));
         overlay.GetProperty("assessmentRecordsExcludedFromCandidateDigest").GetBoolean().ShouldBeTrue();
         overlay.GetProperty("candidateDigestAlgorithm").GetString().ShouldBe(CandidateDigestAlgorithm);
         overlay.GetProperty("candidateKind").GetString().ShouldBe(CandidateKind);
         string manifestBaseCommit = overlay.GetProperty("baseCommit").GetString()!;
         manifestBaseCommit.ShouldBe(BaseCommit);
-        string manifestRevision = GitText("log", "-1", "--format=%H", "HEAD", "--", ManifestPath);
-        manifestRevision.ShouldNotBeNullOrWhiteSpace("the preservation manifest must have committed provenance");
+        string manifestRevision = GitText("log", "--diff-filter=A", "--format=%H", "--reverse", "--", ManifestPath)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Single();
+        manifestRevision.ShouldBe(Rc2PublicationCommit);
         foreach (JsonElement sourceBinding in overlay.GetProperty("bindings").EnumerateArray())
         {
             ValidateBindingAtRevision(sourceBinding, manifestRevision);
-            string path = sourceBinding.GetProperty("path").GetString()!;
-            string declaredMode = sourceBinding.GetProperty("mode").GetString()!;
-            TryValidateCandidateSourceMode(path, declaredMode, manifestBaseCommit, out string modeDiagnostic)
-                .ShouldBeTrue(modeDiagnostic);
         }
 
         string candidateDigest = ComputeCandidateDigest(overlay.GetProperty("bindings"));
         overlay.GetProperty("candidateDigest").GetString().ShouldBe(candidateDigest);
         overlay.GetProperty("generatedOutputs").EnumerateArray().Select(row => row.GetString()!).ShouldBe(GeneratedOutputPaths);
         overlay.GetProperty("generatedOutputPathInventorySha256").GetString().ShouldBe(ComputePathInventorySha256(GeneratedOutputPaths));
-        string[] preRunOutputs = GeneratedOutputPaths
-            .Except([DetachedIndexPath, DetachedDigestPath], StringComparer.Ordinal)
+        string[] publicationOutputs = GeneratedOutputPaths
+            .Except([BuildLogPath, RestoreLogPath], StringComparer.Ordinal)
             .ToArray();
-        preRunOutputs.ShouldAllBe(path => IsRepositoryRegularFile(path));
-        bool detachedIndexExists = File.Exists(FullPath(DetachedIndexPath));
-        bool detachedDigestExists = File.Exists(FullPath(DetachedDigestPath));
-        detachedIndexExists.ShouldBe(detachedDigestExists, "detached index and digest must be published atomically");
-        if (detachedIndexExists)
-        {
-            IsRepositoryRegularFile(DetachedIndexPath).ShouldBeTrue();
-            IsRepositoryRegularFile(DetachedDigestPath).ShouldBeTrue();
-        }
+        publicationOutputs.ShouldAllBe(path => IsRegularBlobAtRevision(path, Rc2PublicationCommit));
+        IsRegularBlobAtRevision(DetachedIndexPath, Rc2PublicationCommit).ShouldBeTrue();
+        IsRegularBlobAtRevision(DetachedDigestPath, Rc2PublicationCommit).ShouldBeTrue();
 
         GitText("rev-parse", $"{BaseCommit}^{{commit}}").ShouldBe(BaseCommit);
-        GitExitCode("merge-base", "--is-ancestor", BaseCommit, "HEAD").ShouldBe(0);
-        string[] activeGeneratedOutputs = detachedIndexExists
-            ? GeneratedOutputPaths
-            : preRunOutputs;
-        HashSet<string> changedPaths = GitPaths("diff", "--name-only", BaseCommit, "--");
-        changedPaths.UnionWith(GitPaths("ls-files", "--others", "--exclude-standard"));
-        changedPaths.UnionWith(activeGeneratedOutputs.Where(path => File.Exists(FullPath(path))));
+        GitText("rev-parse", $"{Rc2PublicationCommit}^{{commit}}").ShouldBe(Rc2PublicationCommit);
+        GitText("rev-parse", $"{Rc2PublicationCommit}^").ShouldBe(BaseCommit);
+        HashSet<string> changedPaths = GitPaths("diff", "--name-only", BaseCommit, Rc2PublicationCommit, "--");
         HashSet<string> expectedPaths = SourceInputPaths
             .Concat(AssessmentWorkflowRecordPaths)
-            .Concat(activeGeneratedOutputs)
+            .Concat(publicationOutputs)
             .ToHashSet(StringComparer.Ordinal);
-        changedPaths.Except(expectedPaths).ShouldBeEmpty("unexpected BASE_COMMIT-to-overlay paths must fail closed");
-        expectedPaths.Except(changedPaths).ShouldBeEmpty("missing source/assessment/generated paths must fail closed");
+        changedPaths.Count.ShouldBe(36);
+        changedPaths.Except(expectedPaths).ShouldBeEmpty("unexpected rc.2 publication paths must fail closed");
+        expectedPaths.Except(changedPaths).ShouldBeEmpty("missing rc.2 publication paths must fail closed");
 
         foreach (JsonElement binding in root.GetProperty("artifactBindings").EnumerateArray())
         {
-            ValidateBinding(binding);
+            string path = binding.GetProperty("path").GetString()!;
+            ValidateBindingAtRevision(binding, HistoricalRevisionFor(path));
         }
 
         root.GetProperty("artifactBindings").EnumerateArray()
@@ -275,27 +269,28 @@ public sealed class PreservationTraceabilityManifestValidationTest
         lineage.GetProperty("predecessorVersion").GetString().ShouldBe("3.0.0-rc.1");
         lineage.GetProperty("predecessor").GetProperty("sha256").GetString().ShouldBe(Rc1Sha256);
         lineage.GetProperty("predecessorApproval").GetProperty("sha256").GetString().ShouldBe(Rc1ApprovalSha256);
-        ComputeFileSha256(FullPath(Rc1Path)).ShouldBe(Rc1Sha256);
-        ComputeFileSha256(FullPath(Rc1ApprovalPath)).ShouldBe(Rc1ApprovalSha256);
-        string[] digestLines = File.ReadAllLines(FullPath(DigestPath), Encoding.UTF8);
+        ComputeBlobSha256(Rc2PublicationCommit, Rc1Path).ShouldBe(Rc1Sha256);
+        ComputeBlobSha256(Rc2PublicationCommit, Rc1ApprovalPath).ShouldBe(Rc1ApprovalSha256);
+        string[] digestLines = ReadTextAtRevision(DigestPath, Rc2PublicationCommit)
+            .Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
         digestLines.Length.ShouldBe(3);
         foreach (string line in digestLines)
         {
             string[] parts = line.Split("  ", 2, StringSplitOptions.None);
             parts.Length.ShouldBe(2);
-            ComputeFileSha256(FullPath($"docs/release-evidence/{parts[1]}")).ShouldBe(parts[0], parts[1]);
+            ComputeBlobSha256(Rc2PublicationCommit, $"docs/release-evidence/{parts[1]}").ShouldBe(parts[0], parts[1]);
         }
     }
 
     [Fact]
     public void CurrentControlsAndTierPrerequisiteShouldStayTruthful()
     {
-        using JsonDocument manifest = LoadJson(ManifestPath);
-        using JsonDocument rc1 = LoadJson(Rc1Path);
-        using JsonDocument runReceipt = LoadJson(RunReceiptPath);
-        using JsonDocument semanticResults = LoadJson(SemanticResultsPath);
-        using JsonDocument restoreReceipt = LoadJson(RestoreReceiptPath);
-        using JsonDocument buildReceipt = LoadJson(BuildReceiptPath);
+        using JsonDocument manifest = LoadJsonAtRevision(ManifestPath, Rc2PublicationCommit);
+        using JsonDocument rc1 = LoadJsonAtRevision(Rc1Path, Rc2PublicationCommit);
+        using JsonDocument runReceipt = LoadJsonAtRevision(RunReceiptPath, Rc2PublicationCommit);
+        using JsonDocument semanticResults = LoadJsonAtRevision(SemanticResultsPath, Rc2PublicationCommit);
+        using JsonDocument restoreReceipt = LoadJsonAtRevision(RestoreReceiptPath, Rc2PublicationCommit);
+        using JsonDocument buildReceipt = LoadJsonAtRevision(BuildReceiptPath, Rc2PublicationCommit);
         JsonElement root = manifest.RootElement;
         root.GetProperty("status").GetString().ShouldBe("pending-owner-approval");
         root.GetProperty("approval").GetProperty("state").GetString().ShouldBe("pending");
@@ -331,21 +326,19 @@ public sealed class PreservationTraceabilityManifestValidationTest
         current.GetProperty("sourceState").GetString().ShouldBe($"{BaseCommit}+content-addressed-overlay-sha256:{candidateDigest}");
         JsonElement build = root.GetProperty("buildBindings").EnumerateArray().Single(row => row.GetProperty("id").GetString() == "owner-review-overlay-conformance-build");
         JsonElement semanticAssembly = semanticResults.RootElement.GetProperty("assembly");
-        ValidateBuildReceipt(buildReceipt.RootElement, candidateDigest, restoreReceipt.RootElement, semanticAssembly).ShouldBeEmpty();
-        ValidateRunReceipt(runReceipt.RootElement, candidateDigest, semanticResults.RootElement).ShouldBeEmpty();
-        string assemblyPath = FullPath(semanticAssembly.GetProperty("path").GetString()!);
-        ComputeFileSha256(assemblyPath).ShouldBe(semanticAssembly.GetProperty("sha256").GetString());
+        ValidateBuildReceipt(buildReceipt.RootElement, candidateDigest, restoreReceipt.RootElement, semanticAssembly, historical: true).ShouldBeEmpty();
+        ValidateRunReceipt(runReceipt.RootElement, candidateDigest, semanticResults.RootElement, historical: true).ShouldBeEmpty();
         build.GetProperty("conformanceAssemblySha256").GetString().ShouldBe(semanticAssembly.GetProperty("sha256").GetString());
         build.GetProperty("assemblySourceRevisionId").GetString().ShouldBe(candidateDigest);
         semanticAssembly.GetProperty("sourceRevisionId").GetString().ShouldBe(candidateDigest);
         restoreReceipt.RootElement.GetProperty("candidateDigest").GetString().ShouldBe(candidateDigest);
         JsonElement toolchain = restoreReceipt.RootElement.GetProperty("toolchain");
         JsonElement restore = restoreReceipt.RootElement.GetProperty("restore");
-        ValidateBinding(toolchain.GetProperty("capture"));
-        ValidateBinding(toolchain.GetProperty("globalJson"));
-        ValidateBinding(restore.GetProperty("log"));
-        ValidateBinding(restore.GetProperty("dependencyInventory"));
-        string toolchainText = File.ReadAllText(FullPath(ToolchainPath), Encoding.UTF8);
+        ValidateBindingAtRevision(toolchain.GetProperty("capture"), HistoricalRevisionFor(ToolchainPath));
+        ValidateBindingAtRevision(toolchain.GetProperty("globalJson"), HistoricalRevisionFor(toolchain.GetProperty("globalJson").GetProperty("path").GetString()!));
+        ValidateBindingAtRevision(restore.GetProperty("log"), HistoricalRevisionFor(RestoreLogPath));
+        ValidateBindingAtRevision(restore.GetProperty("dependencyInventory"), HistoricalRevisionFor(restore.GetProperty("dependencyInventory").GetProperty("path").GetString()!));
+        string toolchainText = ReadTextAtRevision(ToolchainPath, Rc2PublicationCommit);
         string sdkVersion = Regex.Match(toolchainText, "(?m)^ Version:\\s+([^\\s]+)$").Groups[1].Value;
         string msbuildVersion = Regex.Match(toolchainText, "(?m)^ MSBuild version:\\s+([^\\s]+)$").Groups[1].Value;
         toolchain.GetProperty("sdkVersion").GetString().ShouldBe(sdkVersion);
@@ -355,16 +348,18 @@ public sealed class PreservationTraceabilityManifestValidationTest
         build.GetProperty("dotnetSdk").GetString().ShouldBe(sdkVersion);
         build.GetProperty("sdkCommit").GetString().ShouldBe(sdkCommit);
         build.GetProperty("msbuild").GetString().ShouldBe(msbuildVersion);
-        ValidateBinding(build.GetProperty("toolchainCapture"));
+        ValidateBindingAtRevision(build.GetProperty("toolchainCapture"), Rc2PublicationCommit);
         build.GetProperty("toolchainCapture").GetProperty("path").GetString().ShouldBe(ToolchainPath);
         build.GetProperty("toolchainSdkVersion").GetString().ShouldBe(sdkVersion);
         build.GetProperty("toolchainMsbuildVersion").GetString().ShouldBe(msbuildVersion);
-        build.GetProperty("restoreReceiptSha256").GetString().ShouldBe(ComputeFileSha256(FullPath(RestoreReceiptPath)));
+        build.GetProperty("restoreReceiptSha256").GetString().ShouldBe(ComputeBlobSha256(Rc2PublicationCommit, RestoreReceiptPath));
         build.GetProperty("dependencyGraphSha256").GetString().ShouldBe(restore.GetProperty("dependencyInventory").GetProperty("sha256").GetString());
-        build.GetProperty("buildReceiptSha256").GetString().ShouldBe(ComputeFileSha256(FullPath(BuildReceiptPath)));
+        build.GetProperty("buildReceiptSha256").GetString().ShouldBe(ComputeBlobSha256(Rc2PublicationCommit, BuildReceiptPath));
+        string currentCandidate = GitText("rev-parse", "--verify", "HEAD^{commit}");
         string informationalVersion = Assembly.GetExecutingAssembly().GetCustomAttribute<AssemblyInformationalVersionAttribute>()!.InformationalVersion;
-        informationalVersion.ShouldEndWith($"+{candidateDigest}");
-        ParseBuildLog(BuildLogPath).ShouldBe((
+        ValidateCurrentCandidateIdentity(informationalVersion, currentCandidate, v24IsAncestor: true).ShouldBeEmpty();
+        GitExitCode("merge-base", "--is-ancestor", V24PublicationCommit, currentCandidate).ShouldBe(0);
+        ParseBuildLogAtRevision(BuildLogPath, Rc2LogProvenanceCommit).ShouldBe((
             build.GetProperty("result").GetString()!,
             build.GetProperty("warnings").GetInt32(),
             build.GetProperty("errors").GetInt32()));
@@ -452,63 +447,55 @@ public sealed class PreservationTraceabilityManifestValidationTest
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["build"]!["exitCode"] = 1, "BUILD_RECEIPT_RESULT_MISMATCH");
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["build"]!["log"]!["sha256"] = new string('0', 64), "BUILD_RECEIPT_LOG_MISMATCH");
         AssertBuildReceiptMutation(buildReceipt, candidate => candidate["assembly"]!["sha256"] = new string('0', 64), "BUILD_RECEIPT_ASSEMBLY_MISMATCH");
+        string currentCandidate = GitText("rev-parse", "--verify", "HEAD^{commit}");
+        ValidateCurrentCandidateIdentity("1.0.0", currentCandidate, v24IsAncestor: true)
+            .ShouldContain("CURRENT_CANDIDATE_REVISION_COUNT_MISMATCH");
+        ValidateCurrentCandidateIdentity($"1.0.0+{new string('0', 40)}", currentCandidate, v24IsAncestor: true)
+            .ShouldContain("CURRENT_CANDIDATE_IDENTITY_MISMATCH");
+        ValidateCurrentCandidateIdentity($"1.0.0+{currentCandidate}", currentCandidate, v24IsAncestor: false)
+            .ShouldContain("CURRENT_CANDIDATE_V24_ANCESTRY_MISSING");
         ValidateRealFilesystemFaults();
     }
 
     private static void ValidateRealFilesystemFaults()
     {
-        string relativeRoot = $".git/rc2-evidence-fault-{Guid.NewGuid():N}";
-        string fullRoot = FullPath(relativeRoot);
-        Directory.CreateDirectory(fullRoot);
+        string fixtureRoot = Path.Combine(Path.GetTempPath(), $"rc2-evidence-fault-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(fixtureRoot);
         try
         {
-            string regular = Path.Combine(fullRoot, "regular.txt");
+            RunProcessInDirectory(fixtureRoot, "git", ["init", "--quiet"]).ExitCode.ShouldBe(0);
+            RunProcessInDirectory(fixtureRoot, "git", ["config", "user.name", "Fixture"]).ExitCode.ShouldBe(0);
+            RunProcessInDirectory(fixtureRoot, "git", ["config", "user.email", "fixture@example.invalid"]).ExitCode.ShouldBe(0);
+            string regular = Path.Combine(fixtureRoot, "regular.txt");
             File.WriteAllText(regular, "unchanged", Encoding.UTF8);
-            string regularRelative = $"{relativeRoot}/regular.txt";
-            TryValidateRepositoryRegularFile(regularRelative, out string regularDiagnostic).ShouldBeTrue(regularDiagnostic);
+            RunProcessInDirectory(fixtureRoot, "git", ["add", "regular.txt"]).ExitCode.ShouldBe(0);
+            RunProcessInDirectory(fixtureRoot, "git", ["commit", "--quiet", "-m", "fixture: regular"]).ExitCode.ShouldBe(0);
+            string commit = RunProcessInDirectory(fixtureRoot, "git", ["rev-parse", "HEAD"]).Output.Trim();
+            TryValidateRepositoryRegularFile("regular.txt", out string regularDiagnostic, fixtureRoot).ShouldBeTrue(regularDiagnostic);
 
-            string symlink = Path.Combine(fullRoot, "symlink.txt");
+            string symlink = Path.Combine(fixtureRoot, "symlink.txt");
             File.CreateSymbolicLink(symlink, regular);
-            TryValidateRepositoryRegularFile($"{relativeRoot}/symlink.txt", out string symlinkDiagnostic).ShouldBeFalse();
+            TryValidateRepositoryRegularFile("symlink.txt", out string symlinkDiagnostic, fixtureRoot).ShouldBeFalse();
             symlinkDiagnostic.ShouldContain("symlink");
 
-            string directory = Path.Combine(fullRoot, "directory");
+            string directory = Path.Combine(fixtureRoot, "directory");
             Directory.CreateDirectory(directory);
-            TryValidateRepositoryRegularFile($"{relativeRoot}/directory", out string directoryDiagnostic).ShouldBeFalse();
+            TryValidateRepositoryRegularFile("directory", out string directoryDiagnostic, fixtureRoot).ShouldBeFalse();
             directoryDiagnostic.ShouldContain("regular file");
 
             if (OperatingSystem.IsLinux())
             {
-                string fifo = Path.Combine(fullRoot, "fifo");
-                (int exitCode, _, string error) = RunProcess("mkfifo", [fifo]);
+                string fifo = Path.Combine(fixtureRoot, "fifo");
+                (int exitCode, _, string error) = RunProcessInDirectory(fixtureRoot, "mkfifo", [fifo]);
                 exitCode.ShouldBe(0, error);
-                TryValidateRepositoryRegularFile($"{relativeRoot}/fifo", out string fifoDiagnostic).ShouldBeFalse();
+                TryValidateRepositoryRegularFile("fifo", out string fifoDiagnostic, fixtureRoot).ShouldBeFalse();
                 fifoDiagnostic.ShouldContain("regular file");
             }
 
             File.ReadAllText(regular, Encoding.UTF8).ShouldBe("unchanged");
-        }
-        finally
-        {
-            Directory.Delete(fullRoot, recursive: true);
-        }
-
-        Directory.Exists(fullRoot).ShouldBeFalse("fault fixtures must restore the repository byte-identically");
-
-        if (!OperatingSystem.IsWindows())
-        {
-            string fixtureRoot = Path.Combine(Path.GetTempPath(), $"rc2-current-mode-fault-{Guid.NewGuid():N}");
-            Directory.CreateDirectory(fixtureRoot);
-            try
+            if (!OperatingSystem.IsWindows())
             {
-                RunProcessInDirectory(fixtureRoot, "git", ["init", "--quiet"]).ExitCode.ShouldBe(0);
-                RunProcessInDirectory(fixtureRoot, "git", ["config", "user.name", "Fixture"]).ExitCode.ShouldBe(0);
-                RunProcessInDirectory(fixtureRoot, "git", ["config", "user.email", "fixture@example.invalid"]).ExitCode.ShouldBe(0);
-                File.WriteAllText(Path.Combine(fixtureRoot, "regular.txt"), "unchanged", Encoding.UTF8);
-                RunProcessInDirectory(fixtureRoot, "git", ["add", "regular.txt"]).ExitCode.ShouldBe(0);
-                RunProcessInDirectory(fixtureRoot, "git", ["commit", "--quiet", "-m", "fixture: regular"]).ExitCode.ShouldBe(0);
-                string commit = RunProcessInDirectory(fixtureRoot, "git", ["rev-parse", "HEAD"]).Output.Trim();
-                string regularPath = Path.Combine(fixtureRoot, "regular.txt");
+                string regularPath = regular;
                 byte[] regularBytes = File.ReadAllBytes(regularPath);
                 UnixFileMode executable = UnixFileMode.UserExecute | UnixFileMode.GroupExecute | UnixFileMode.OtherExecute;
                 UnixFileMode regularMode = File.GetUnixFileMode(regularPath) & ~executable;
@@ -571,11 +558,13 @@ public sealed class PreservationTraceabilityManifestValidationTest
                 gitlinkModeDiagnostic.ShouldContain("Git mode");
                 gitlinkModeDiagnostic.ShouldContain("160000");
             }
-            finally
-            {
-                Directory.Delete(fixtureRoot, recursive: true);
-            }
         }
+        finally
+        {
+            Directory.Delete(fixtureRoot, recursive: true);
+        }
+
+        Directory.Exists(fixtureRoot).ShouldBeFalse("fault fixtures must be isolated and cleaned up");
     }
 
     private static void AssertMutation(JsonObject canonical, Action<JsonObject> mutate, string diagnostic)
@@ -593,7 +582,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
         using JsonDocument semantic = LoadJson(SemanticResultsPath);
         string digest = manifest.RootElement.GetProperty("sourceBinding").GetProperty("ownerReviewOverlay").GetProperty("candidateDigest").GetString()!;
         using JsonDocument candidateDocument = JsonDocument.Parse(candidate.ToJsonString());
-        ValidateRunReceipt(candidateDocument.RootElement, digest, semantic.RootElement).ShouldContain(diagnostic);
+        ValidateRunReceipt(candidateDocument.RootElement, digest, semantic.RootElement, historical: true).ShouldContain(diagnostic);
     }
 
     private static void AssertBuildReceiptMutation(JsonObject canonical, Action<JsonObject> mutate, string diagnostic)
@@ -605,7 +594,7 @@ public sealed class PreservationTraceabilityManifestValidationTest
         using JsonDocument semantic = LoadJson(SemanticResultsPath);
         string digest = manifest.RootElement.GetProperty("sourceBinding").GetProperty("ownerReviewOverlay").GetProperty("candidateDigest").GetString()!;
         using JsonDocument candidateDocument = JsonDocument.Parse(candidate.ToJsonString());
-        ValidateBuildReceipt(candidateDocument.RootElement, digest, restore.RootElement, semantic.RootElement.GetProperty("assembly"))
+        ValidateBuildReceipt(candidateDocument.RootElement, digest, restore.RootElement, semantic.RootElement.GetProperty("assembly"), historical: true)
             .ShouldContain(diagnostic);
     }
 
@@ -752,7 +741,8 @@ public sealed class PreservationTraceabilityManifestValidationTest
         JsonElement receipt,
         string candidateDigest,
         JsonElement restoreReceipt,
-        JsonElement semanticAssembly)
+        JsonElement semanticAssembly,
+        bool historical = false)
     {
         var diagnostics = new HashSet<string>(StringComparer.Ordinal);
         if (receipt.GetProperty("schemaVersion").GetString() != "1.0.0"
@@ -775,12 +765,16 @@ public sealed class PreservationTraceabilityManifestValidationTest
 
         JsonElement preBuild = receipt.GetProperty("preBuild");
         JsonElement restore = restoreReceipt.GetProperty("restore");
-        bool preBuildMatches = BindingMatches(preBuild.GetProperty("restoreReceipt"), RestoreReceiptPath, "pre-build-candidate-restore-receipt")
-            && BindingMatches(preBuild.GetProperty("toolchainCapture"), ToolchainPath, "pre-build-candidate-toolchain-capture")
-            && BindingMatches(
-                preBuild.GetProperty("dependencyInventory"),
-                "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json",
-                "pre-build-candidate-restore-dependency-inventory")
+        const string dependencyInventoryPath = "_bmad-output/implementation-artifacts/preservation-traceability-v3-rc2/candidate-restore-dependency-inventory.json";
+        bool preBuildMatches = (historical
+                ? BindingMatchesAtRevision(preBuild.GetProperty("restoreReceipt"), RestoreReceiptPath, "pre-build-candidate-restore-receipt", Rc2PublicationCommit)
+                : BindingMatches(preBuild.GetProperty("restoreReceipt"), RestoreReceiptPath, "pre-build-candidate-restore-receipt"))
+            && (historical
+                ? BindingMatchesAtRevision(preBuild.GetProperty("toolchainCapture"), ToolchainPath, "pre-build-candidate-toolchain-capture", Rc2PublicationCommit)
+                : BindingMatches(preBuild.GetProperty("toolchainCapture"), ToolchainPath, "pre-build-candidate-toolchain-capture"))
+            && (historical
+                ? BindingMatchesAtRevision(preBuild.GetProperty("dependencyInventory"), dependencyInventoryPath, "pre-build-candidate-restore-dependency-inventory", Rc2PublicationCommit)
+                : BindingMatches(preBuild.GetProperty("dependencyInventory"), dependencyInventoryPath, "pre-build-candidate-restore-dependency-inventory"))
             && JsonNode.Parse(preBuild.GetProperty("restoreCommand").GetRawText())!.ToJsonString()
                 == JsonNode.Parse(restore.GetProperty("command").GetRawText())!.ToJsonString()
             && preBuild.GetProperty("restoreExitCode").GetInt32() == 0
@@ -810,7 +804,9 @@ public sealed class PreservationTraceabilityManifestValidationTest
             diagnostics.Add("BUILD_RECEIPT_COMMAND_MISMATCH");
         }
 
-        (string Result, int Warnings, int Errors) parsed = ParseBuildLog(BuildLogPath);
+        (string Result, int Warnings, int Errors) parsed = historical
+            ? ParseBuildLogAtRevision(BuildLogPath, Rc2LogProvenanceCommit)
+            : ParseBuildLog(BuildLogPath);
         if (build.GetProperty("exitCode").GetInt32() != 0
             || build.GetProperty("result").GetString() != "pass"
             || build.GetProperty("warnings").GetInt32() != parsed.Warnings
@@ -819,18 +815,28 @@ public sealed class PreservationTraceabilityManifestValidationTest
             diagnostics.Add("BUILD_RECEIPT_RESULT_MISMATCH");
         }
 
-        if (!BindingMatches(build.GetProperty("log"), BuildLogPath, "candidate-build-log"))
+        if (!(historical
+            ? BindingMatchesAtRevision(build.GetProperty("log"), BuildLogPath, "candidate-build-log", Rc2LogProvenanceCommit)
+            : BindingMatches(build.GetProperty("log"), BuildLogPath, "candidate-build-log")))
         {
             diagnostics.Add("BUILD_RECEIPT_LOG_MISMATCH");
         }
 
         JsonElement assembly = receipt.GetProperty("assembly");
         string assemblyPath = assembly.GetProperty("path").GetString()!;
-        if (!TryValidateRepositoryRegularFile(assemblyPath, out _)
-            || ComputeFileSha256(FullPath(assemblyPath)) != assembly.GetProperty("sha256").GetString()
-            || new FileInfo(FullPath(assemblyPath)).Length != assembly.GetProperty("bytes").GetInt64()
-            || assembly.GetProperty("sourceRevisionId").GetString() != candidateDigest
-            || JsonNode.Parse(assembly.GetRawText())!.ToJsonString() != JsonNode.Parse(semanticAssembly.GetRawText())!.ToJsonString())
+        bool assemblyIdentityMatches = Regex.IsMatch(assembly.GetProperty("sha256").GetString() ?? string.Empty, "^[0-9a-f]{64}$", RegexOptions.CultureInvariant)
+            && assembly.GetProperty("bytes").GetInt64() > 0
+            && assembly.GetProperty("sourceRevisionId").GetString() == candidateDigest
+            && JsonNode.Parse(assembly.GetRawText())!.ToJsonString() == JsonNode.Parse(semanticAssembly.GetRawText())!.ToJsonString();
+        if (!historical)
+        {
+            assemblyIdentityMatches = assemblyIdentityMatches
+                && TryValidateRepositoryRegularFile(assemblyPath, out _)
+                && ComputeFileSha256(FullPath(assemblyPath)) == assembly.GetProperty("sha256").GetString()
+                && new FileInfo(FullPath(assemblyPath)).Length == assembly.GetProperty("bytes").GetInt64();
+        }
+
+        if (!assemblyIdentityMatches)
         {
             diagnostics.Add("BUILD_RECEIPT_ASSEMBLY_MISMATCH");
         }
@@ -845,7 +851,48 @@ public sealed class PreservationTraceabilityManifestValidationTest
             && binding.GetProperty("sha256").GetString() == ComputeFileSha256(FullPath(path))
             && binding.GetProperty("bytes").GetInt64() == new FileInfo(FullPath(path)).Length;
 
-    private static HashSet<string> ValidateRunReceipt(JsonElement receipt, string candidateDigest, JsonElement semantic)
+    private static bool BindingMatchesAtRevision(JsonElement binding, string path, string role, string revision)
+    {
+        if (binding.GetProperty("path").GetString() != path
+            || binding.GetProperty("role").GetString() != role
+            || !IsRegularBlobAtRevision(path, revision))
+        {
+            return false;
+        }
+
+        byte[] content = ReadGitBlobBytes(revision, path);
+        return binding.GetProperty("sha256").GetString() == ComputeBytesSha256(content)
+            && binding.GetProperty("bytes").GetInt64() == content.LongLength;
+    }
+
+    private static HashSet<string> ValidateCurrentCandidateIdentity(
+        string informationalVersion,
+        string candidateCommit,
+        bool v24IsAncestor)
+    {
+        var diagnostics = new HashSet<string>(StringComparer.Ordinal);
+        MatchCollection revisions = Regex.Matches(
+            informationalVersion,
+            "(?<![0-9a-f])[0-9a-f]{40}(?![0-9a-f])",
+            RegexOptions.CultureInvariant);
+        if (revisions.Count != 1)
+        {
+            diagnostics.Add("CURRENT_CANDIDATE_REVISION_COUNT_MISMATCH");
+        }
+        else if (revisions[0].Value != candidateCommit)
+        {
+            diagnostics.Add("CURRENT_CANDIDATE_IDENTITY_MISMATCH");
+        }
+
+        if (!v24IsAncestor)
+        {
+            diagnostics.Add("CURRENT_CANDIDATE_V24_ANCESTRY_MISSING");
+        }
+
+        return diagnostics;
+    }
+
+    private static HashSet<string> ValidateRunReceipt(JsonElement receipt, string candidateDigest, JsonElement semantic, bool historical = false)
     {
         var diagnostics = new HashSet<string>(StringComparer.Ordinal);
         if (receipt.GetProperty("schemaVersion").GetString() != "1.0.0"
@@ -866,23 +913,37 @@ public sealed class PreservationTraceabilityManifestValidationTest
 
         JsonElement receiptAssembly = receipt.GetProperty("assembly");
         string assemblyPath = receiptAssembly.GetProperty("path").GetString()!;
-        if (assemblyPath != semantic.GetProperty("assembly").GetProperty("path").GetString()
-            || !TryValidateRepositoryRegularFile(assemblyPath, out _)
-            || ComputeFileSha256(FullPath(assemblyPath)) != receiptAssembly.GetProperty("sha256").GetString()
-            || new FileInfo(FullPath(assemblyPath)).Length != receiptAssembly.GetProperty("bytes").GetInt64()
-            || receiptAssembly.GetProperty("sourceRevisionId").GetString() != candidateDigest
-            || JsonNode.Parse(receiptAssembly.GetRawText())!.ToJsonString()
-                != JsonNode.Parse(semantic.GetProperty("assembly").GetRawText())!.ToJsonString())
+        bool receiptAssemblyMatches = assemblyPath == semantic.GetProperty("assembly").GetProperty("path").GetString()
+            && Regex.IsMatch(receiptAssembly.GetProperty("sha256").GetString() ?? string.Empty, "^[0-9a-f]{64}$", RegexOptions.CultureInvariant)
+            && receiptAssembly.GetProperty("bytes").GetInt64() > 0
+            && receiptAssembly.GetProperty("sourceRevisionId").GetString() == candidateDigest
+            && JsonNode.Parse(receiptAssembly.GetRawText())!.ToJsonString()
+                == JsonNode.Parse(semantic.GetProperty("assembly").GetRawText())!.ToJsonString();
+        if (!historical)
+        {
+            receiptAssemblyMatches = receiptAssemblyMatches
+                && TryValidateRepositoryRegularFile(assemblyPath, out _)
+                && ComputeFileSha256(FullPath(assemblyPath)) == receiptAssembly.GetProperty("sha256").GetString()
+                && new FileInfo(FullPath(assemblyPath)).Length == receiptAssembly.GetProperty("bytes").GetInt64();
+        }
+
+        if (!receiptAssemblyMatches)
         {
             diagnostics.Add("RUN_RECEIPT_ASSEMBLY_MISMATCH");
         }
 
         JsonElement xml = receipt.GetProperty("xml");
         string xmlPath = xml.GetProperty("path").GetString()!;
-        if (xmlPath != XmlResultsPath
-            || !TryValidateRepositoryRegularFile(xmlPath, out _)
-            || ComputeFileSha256(FullPath(xmlPath)) != xml.GetProperty("sha256").GetString()
-            || new FileInfo(FullPath(xmlPath)).Length != xml.GetProperty("bytes").GetInt64())
+        byte[] historicalXml = historical ? ReadGitBlobBytes(Rc2PublicationCommit, XmlResultsPath) : [];
+        bool xmlMatches = historical
+            ? IsRegularBlobAtRevision(XmlResultsPath, Rc2PublicationCommit)
+                && ComputeBytesSha256(historicalXml) == xml.GetProperty("sha256").GetString()
+                && historicalXml.LongLength == xml.GetProperty("bytes").GetInt64()
+            : xmlPath == XmlResultsPath
+                && TryValidateRepositoryRegularFile(xmlPath, out _)
+                && ComputeFileSha256(FullPath(xmlPath)) == xml.GetProperty("sha256").GetString()
+                && new FileInfo(FullPath(xmlPath)).Length == xml.GetProperty("bytes").GetInt64();
+        if (xmlPath != XmlResultsPath || !xmlMatches)
         {
             diagnostics.Add("RUN_RECEIPT_XML_MISMATCH");
         }
@@ -1164,6 +1225,14 @@ public sealed class PreservationTraceabilityManifestValidationTest
     private static (string Result, int Warnings, int Errors) ParseBuildLog(string path)
     {
         string text = File.ReadAllText(FullPath(path), Encoding.UTF8);
+        return ParseBuildLogText(text);
+    }
+
+    private static (string Result, int Warnings, int Errors) ParseBuildLogAtRevision(string path, string revision)
+        => ParseBuildLogText(ReadTextAtRevision(path, revision));
+
+    private static (string Result, int Warnings, int Errors) ParseBuildLogText(string text)
+    {
         MatchCollection warnings = Regex.Matches(text, "(?m)^\\s*([0-9]+) Warning\\(s\\)\\s*$");
         MatchCollection errors = Regex.Matches(text, "(?m)^\\s*([0-9]+) Error\\(s\\)\\s*$");
         warnings.Count.ShouldBeGreaterThan(0);
@@ -1346,13 +1415,58 @@ public sealed class PreservationTraceabilityManifestValidationTest
             Case.Sensitive,
             $"{path} must be a regular non-executable blob at {revision}");
 
-        (int blobExitCode, string blob, string blobError) = RunGit(["show", $"{revision}:{path.Replace('\\', '/')}"]);
-        blobExitCode.ShouldBe(0, blobError);
-        byte[] bytes = Encoding.UTF8.GetBytes(blob);
-        Convert.ToHexString(SHA256.HashData(bytes)).ToLowerInvariant()
+        byte[] bytes = ReadGitBlobBytes(revision, path);
+        ComputeBytesSha256(bytes)
             .ShouldBe(binding.GetProperty("sha256").GetString(), path);
         bytes.LongLength.ShouldBe(binding.GetProperty("bytes").GetInt64(), path);
     }
+
+    private static bool IsRegularBlobAtRevision(string repositoryPath, string revision)
+    {
+        (int exitCode, string output, _) = RunGit(
+            ["ls-tree", "--full-tree", revision, "--", repositoryPath.Replace('\\', '/')]);
+        if (exitCode != 0)
+        {
+            return false;
+        }
+
+        string[] rows = output.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return rows.Length == 1 && rows[0].StartsWith("100644 blob ", StringComparison.Ordinal);
+    }
+
+    private static string HistoricalRevisionFor(string repositoryPath)
+        => repositoryPath is BuildLogPath or RestoreLogPath
+            ? Rc2LogProvenanceCommit
+            : Rc2PublicationCommit;
+
+    private static byte[] ReadGitBlobBytes(string revision, string repositoryPath)
+    {
+        using var process = new Process
+        {
+            StartInfo = new ProcessStartInfo("git")
+            {
+                WorkingDirectory = RepositoryRoot(),
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+            },
+        };
+        process.StartInfo.ArgumentList.Add("show");
+        process.StartInfo.ArgumentList.Add($"{revision}:{repositoryPath.Replace('\\', '/')}");
+        process.Start();
+        using var output = new MemoryStream();
+        process.StandardOutput.BaseStream.CopyTo(output);
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        process.ExitCode.ShouldBe(0, error);
+        return output.ToArray();
+    }
+
+    private static string ReadTextAtRevision(string repositoryPath, string revision)
+        => Encoding.UTF8.GetString(ReadGitBlobBytes(revision, repositoryPath));
+
+    private static string ComputeBlobSha256(string revision, string repositoryPath)
+        => ComputeBytesSha256(ReadGitBlobBytes(revision, repositoryPath));
 
     private static bool TryValidateRepositoryRegularFile(string repositoryPath, out string diagnostic, string? repositoryRoot = null)
     {
@@ -1468,6 +1582,9 @@ public sealed class PreservationTraceabilityManifestValidationTest
         return JsonDocument.Parse(File.ReadAllText(FullPath(repositoryPath), Encoding.UTF8));
     }
 
+    private static JsonDocument LoadJsonAtRevision(string repositoryPath, string revision)
+        => JsonDocument.Parse(ReadGitBlobBytes(revision, repositoryPath));
+
     private static string FullPath(string repositoryPath)
         => Path.GetFullPath(Path.Combine(RepositoryRoot(), repositoryPath));
 
@@ -1489,6 +1606,9 @@ public sealed class PreservationTraceabilityManifestValidationTest
 
     private static string ComputeFileSha256(string path)
         => Convert.ToHexString(SHA256.HashData(File.ReadAllBytes(path))).ToLowerInvariant();
+
+    private static string ComputeBytesSha256(byte[] content)
+        => Convert.ToHexString(SHA256.HashData(content)).ToLowerInvariant();
 
     private static string ComputeTextSha256(string value)
         => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(value))).ToLowerInvariant();

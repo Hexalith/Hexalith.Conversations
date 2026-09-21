@@ -1,0 +1,347 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+  "title": "V25 Story 7.1 Preservation Evidence Tooling Successor",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "successorId",
+    "lineage",
+    "preservationEvidence",
+    "successorTransaction",
+    "rootGitlinks",
+    "resultSemantics",
+    "assertionLedger",
+    "blockers",
+    "result",
+    "implementationHold",
+    "executionAllowed",
+    "ownerApprovalClaimed",
+    "releaseAuthorized",
+    "pushAuthorized"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-preservation-evidence-tooling-successor.v1"
+    },
+    "recordType": {
+      "const": "PRESERVATION_EVIDENCE_TOOLING_SUCCESSOR"
+    },
+    "successorId": {
+      "const": "V25-STORY-7.1-PRESERVATION-EVIDENCE-TOOLING-SUCCESSOR-v1"
+    },
+    "lineage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["predecessorCommit", "predecessorTree", "v23", "v24"],
+      "properties": {
+        "predecessorCommit": {
+          "const": "69232b7209c079b0476349818d6251ca4dc83d92"
+        },
+        "predecessorTree": {
+          "const": "9d0b726f205782138e19bd35b752750dfea87fde"
+        },
+        "v23": {
+          "$ref": "#/$defs/predecessor"
+        },
+        "v24": {
+          "$ref": "#/$defs/predecessor"
+        }
+      }
+    },
+    "preservationEvidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "rc1",
+        "rc1Approval",
+        "rc2PublicationCommit",
+        "rc2BaseCommit",
+        "rc2CandidateDigest",
+        "rc2ExactChangedPaths",
+        "rc2Artifacts",
+        "testIdentityCount",
+        "obligationIdentityCount",
+        "categoryCount",
+        "governedDispositionCount",
+        "gateStates"
+      ],
+      "properties": {
+        "rc1": {
+          "$ref": "#/$defs/artifact"
+        },
+        "rc1Approval": {
+          "$ref": "#/$defs/artifact"
+        },
+        "rc2PublicationCommit": {
+          "const": "5ad5d3c0fb57c6ce5f5bbd4567ae9b5a5397e60d"
+        },
+        "rc2BaseCommit": {
+          "const": "2d2ae57db1fdcc164fe01ac4b1d99af15c31b324"
+        },
+        "rc2CandidateDigest": {
+          "const": "1ba2f3e23b56dc3c1caa05addb175461311e472487c5f2c4580317ee109d8840"
+        },
+        "rc2ExactChangedPaths": {
+          "type": "array",
+          "minItems": 36,
+          "maxItems": 36,
+          "items": {
+            "$ref": "#/$defs/path"
+          },
+          "uniqueItems": true
+        },
+        "rc2Artifacts": {
+          "type": "array",
+          "minItems": 17,
+          "maxItems": 17,
+          "items": {
+            "$ref": "#/$defs/artifact"
+          }
+        },
+        "testIdentityCount": {
+          "const": 473
+        },
+        "obligationIdentityCount": {
+          "const": 969
+        },
+        "categoryCount": {
+          "const": 7
+        },
+        "governedDispositionCount": {
+          "const": 277
+        },
+        "gateStates": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["FR-20", "SM-C1", "SM-C2", "OQ-1", "implementationHold"],
+          "properties": {
+            "FR-20": { "const": "PENDING" },
+            "SM-C1": { "const": "PENDING" },
+            "SM-C2": { "const": "FAILED" },
+            "OQ-1": { "const": "BLOCKED" },
+            "implementationHold": { "const": "ACTIVE" }
+          }
+        }
+      }
+    },
+    "successorTransaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineCommit",
+        "baselineTree",
+        "exactChangedPaths",
+        "requiredMode",
+        "selfExcludedManifestSha256",
+        "manifest"
+      ],
+      "properties": {
+        "baselineCommit": {
+          "const": "69232b7209c079b0476349818d6251ca4dc83d92"
+        },
+        "baselineTree": {
+          "const": "9d0b726f205782138e19bd35b752750dfea87fde"
+        },
+        "exactChangedPaths": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 5,
+          "prefixItems": [
+            { "const": "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json" },
+            { "const": "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json" },
+            { "const": "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py" },
+            { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" },
+            { "const": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs" }
+          ],
+          "items": false
+        },
+        "requiredMode": {
+          "const": "100644"
+        },
+        "selfExcludedManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifest": {
+          "type": "array",
+          "minItems": 4,
+          "maxItems": 4,
+          "prefixItems": [
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py" } } }
+              ]
+            },
+            {
+              "allOf": [
+                { "$ref": "#/$defs/binding" },
+                { "properties": { "path": { "const": "tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs" } } }
+              ]
+            }
+          ],
+          "items": false
+        }
+      }
+    },
+    "rootGitlinks": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/gitlink"
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "exitCodes", "ledgerRequired"],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            { "const": "PASS" },
+            { "const": "FAIL" },
+            { "const": "BLOCKED" }
+          ],
+          "items": false
+        },
+        "exitCodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["PASS", "FAIL", "BLOCKED"],
+          "properties": {
+            "PASS": { "const": 0 },
+            "FAIL": { "const": 1 },
+            "BLOCKED": { "const": 2 }
+          }
+        },
+        "ledgerRequired": {
+          "const": true
+        }
+      }
+    },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "$ref": "#/$defs/assertion"
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "result": {
+      "const": "PASS"
+    },
+    "implementationHold": {
+      "const": "ACTIVE"
+    },
+    "executionAllowed": {
+      "const": false
+    },
+    "ownerApprovalClaimed": {
+      "const": false
+    },
+    "releaseAuthorized": {
+      "const": false
+    },
+    "pushAuthorized": {
+      "const": false
+    }
+  },
+  "$defs": {
+    "objectId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\x00-\\x1F\\x7F])[^/]+(?:/[^/]+)*$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId", "sha256", "bytes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "100644" },
+        "objectId": { "$ref": "#/$defs/objectId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "revision", "mode", "objectId", "sha256", "bytes"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "revision": { "$ref": "#/$defs/objectId" },
+        "mode": { "const": "100644" },
+        "objectId": { "$ref": "#/$defs/objectId" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "bytes": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["commit", "tree", "recordPath", "recordSha256", "schemaPath", "schemaSha256", "publisherPath", "publisherSha256"],
+      "properties": {
+        "commit": { "$ref": "#/$defs/objectId" },
+        "tree": { "$ref": "#/$defs/objectId" },
+        "recordPath": { "$ref": "#/$defs/path" },
+        "recordSha256": { "$ref": "#/$defs/sha256" },
+        "schemaPath": { "$ref": "#/$defs/path" },
+        "schemaSha256": { "$ref": "#/$defs/sha256" },
+        "publisherPath": { "$ref": "#/$defs/path" },
+        "publisherSha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "160000" },
+        "objectId": { "$ref": "#/$defs/objectId" }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subject", "state", "detail"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^V25\\.SUCCESSOR\\.[0-9]{2}$" },
+        "subject": { "type": "string", "minLength": 1 },
+        "state": { "const": "PASS" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}
