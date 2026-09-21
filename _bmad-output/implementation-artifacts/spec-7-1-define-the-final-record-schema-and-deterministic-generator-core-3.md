@@ -2,7 +2,8 @@
 title: 'Define the final-record schema and deterministic generator core'
 type: 'feature'
 created: '2026-09-20'
-status: 'ready-for-dev'
+status: 'in-progress'
+baseline_commit: 'e0b098fa1c056385e28ee8ac0efd0c55dfab324f'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -60,6 +61,8 @@ context:
 - Given AC-01–05 pass on one committed candidate, when AC-06 runs, then it embeds nonempty ordered ledgers and generates the authoritative pair with `6/6/0/0/0/0`.
 
 ## Implementation Notes
+
+- 2026-09-20 entry preflight at baseline `e0b098fa1c056385e28ee8ac0efd0c55dfab324f`: resolver exit `1`, result `FAIL`, blocker `CANDIDATE_PARENT_DRIFT`, `executionAllowed: false`, and `implementationHold: ACTIVE`. No Story-owned implementation file was changed and no acceptance scenario was run.
 
 ## Spec Change Log
 

@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-08-19
+last_updated: 2026-09-21
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -85,8 +85,8 @@ development_status:
   6-2-migrate-conversations-to-platform-owned-hosting: done
   6-7-mechanically-block-incomplete-submodule-promotions-from-completion: done
   epic-6-retrospective: done
-  epic-7: backlog
-  7-1-define-the-final-record-schema-and-deterministic-generator-core: backlog
+  epic-7: in-progress
+  7-1-define-the-final-record-schema-and-deterministic-generator-core: in-progress
   7-2-derive-test-path-candidate-submodule-and-gitlink-facts: backlog
   7-3-integrate-generation-into-every-blocking-completion-transition: backlog
   7-4-verify-historical-mode-and-required-fault-injection-blockers: backlog

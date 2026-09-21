@@ -319,3 +319,17 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-publish-conversations-nuget-packages.md`
   summary: Add a post-publication NuGet symbol-server consumption probe for every Conversations portable PDB.
   evidence: `dotnet nuget push` uploads the adjacent `.snupkg` and fails on synchronous upload rejection, but NuGet.org validates and indexes symbols asynchronously; proving later availability requires extracting each portable-PDB signature and querying `symbols.nuget.org`, which is broader than a direct release-boundary correction.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-v23-story-7-1-entry-authority-successor.md`
+  summary: Verify whether same-name candidate and protected planning-authority checks can ambiguously satisfy the repository's external required-check policy.
+  evidence: The repository-owned workflow separates unprivileged `pull_request` validation from the `pull_request_target` protected-main job, but authenticated classic branch-protection or ruleset configuration is unavailable; the exact externally configured required-check names and app identities would settle whether the candidate check can mask the protected verdict.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-v23-story-7-1-entry-authority-successor.md`
+  summary: Verify whether introducing the event-qualified protected authority check name requires an externally coordinated required-check migration.
+  evidence: The pre-land request is intentionally fail-closed and no repository-owned branch-rule migration consumer exists, but authenticated branch-protection state is unavailable; the configured required-check names and enforcement transition would settle whether the name change can create a merge deadlock.
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-v24-story-7-1-entry-authority-tooling-successor.md`
+  summary: Define repository-wide canonical filtered-byte handling for generated tooling manifests on line-ending-converting checkouts.
+  evidence: The pre-existing worktree binding hashes raw bytes while Git may normalize them under `core.autocrlf`; an approved filtered-byte policy or tracked line-ending rule would settle the canonical staging representation without widening this exact-eight transaction.
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-v24-story-7-1-entry-authority-tooling-successor.md`
+  summary: Define a repository-wide maximum size policy for prospective planning-tool input files.
+  evidence: The pre-existing initial worktree reader is unbounded for an already oversized regular file; an approved maximum input size and compatibility audit would settle the safe cap without inventing one inside this story.
