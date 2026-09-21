@@ -14,6 +14,9 @@ import subprocess
 import sys
 from typing import Any, Callable, Sequence
 
+from jsonschema import Draft202012Validator
+from jsonschema.exceptions import SchemaError, ValidationError
+
 
 SCHEMA = "hexalith.conversations.evidence-boundary-result.v1"
 GIT_TIMEOUT_SECONDS = 30
@@ -37,9 +40,14 @@ V23_ARCHITECTURE_PATH = "_bmad-output/planning-artifacts/architecture.md"
 V23_TOOLING_BASELINE = "e0b098fa1c056385e28ee8ac0efd0c55dfab324f"
 V23_PROTECTED_MAIN = "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607"
 V23_HISTORICAL_V22_CANDIDATE = "cf82f8008d02b07d48338a545909d97faa302362"
+V23_REQUEST_PUBLICATION = "5a7234b922371b5d0a12085a444d93783263f278"
 V23_PUBLISHER_SHA256 = "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
 V23_WORKFLOW_SHA256 = "328fdd95cb6edd546c735a0da329cc3d1505097b05d3fb2a855692d4b18c3478"
 V23_SCHEMA_SHA256 = "d11340d9b2665c5295a4408f9e6b26218001a61f118d6ec979d6e9ca4da3ea1b"
+V24_CORRECTION_PATH = "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json"
+V24_SCHEMA_PATH = "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json"
+V24_SCHEMA_SHA256 = "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
+V24_PUBLISHER_SHA256 = "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
 V23_RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 V23_TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 V23_TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
@@ -61,6 +69,20 @@ V23_TOOLING_PATHS = tuple(
         )
     )
 )
+V24_MANIFEST_PATHS = tuple(
+    sorted(
+        (
+            V24_SCHEMA_PATH,
+            V23_PUBLISHER_PATH,
+            "_bmad/scripts/resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+            "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+        )
+    )
+)
+V24_TOOLING_PATHS = tuple(sorted((*V24_MANIFEST_PATHS, V24_CORRECTION_PATH)))
 V23_AUTHORITY_GATE_SUBJECTS = (
     "V22-HISTORICAL-CANDIDATE",
     "V22-PROTECTED-MAIN-DIAGNOSTIC",
@@ -201,12 +223,42 @@ def sha256(content: bytes) -> str:
     return hashlib.sha256(content).hexdigest()
 
 
+def canonical_digest(value: Any) -> str:
+    """Hash one canonical compact JSON value with a terminal LF."""
+
+    content = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return sha256(content + b"\n")
+
+
 def assertion(assertion_id: str, subject: str, state: str, **details: Any) -> dict[str, Any]:
     """Create one non-vacuous assertion-ledger row."""
 
     row = {"id": assertion_id, "subject": subject, "state": state}
     row.update(details)
     return row
+
+
+def reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    """Reject duplicate JSON properties at the independent host boundary."""
+
+    value: dict[str, Any] = {}
+    for key, item in pairs:
+        if key in value:
+            raise ValueError(f"duplicate JSON property {key!r}")
+        value[key] = item
+    return value
+
+
+def load_v23_json(content: bytes, code: str) -> dict[str, Any]:
+    """Load one duplicate-safe UTF-8 JSON object."""
+
+    try:
+        value = json.loads(content.decode("utf-8", errors="strict"), object_pairs_hook=reject_duplicate_keys)
+    except (UnicodeError, json.JSONDecodeError, ValueError) as error:
+        raise BoundaryError(code, str(error), "BLOCKED") from error
+    if not isinstance(value, dict):
+        raise BoundaryError(code, "top-level JSON value is not an object", "BLOCKED")
+    return value
 
 
 def safe_relative_path(value: str) -> str:
@@ -284,6 +336,15 @@ def resolve_commit(repository: Path, revision: str, code: str) -> str:
     return value
 
 
+def commit_tree(repository: Path, commit: str) -> str:
+    """Resolve one committed tree identity for V24 topology checks."""
+
+    value = run_git(repository, "rev-parse", "--verify", f"{commit}^{{tree}}").stdout.decode().strip()
+    if re.fullmatch(r"[0-9a-f]{40}", value) is None:
+        raise BoundaryError("EVIDENCE_V24_TREE_INVALID", repr(value), "BLOCKED")
+    return value
+
+
 def commit_parents(repository: Path, commit: str, code: str) -> tuple[str, ...]:
     """Return every parent and preserve malformed or unavailable history as BLOCKED."""
 
@@ -342,6 +403,27 @@ def candidate_has_path(repository: Path, candidate: str, relative_path: str) -> 
     return result.returncode == 0
 
 
+def candidate_history_has_path(repository: Path, candidate: str, relative_path: str) -> bool:
+    """Return whether one governed path occurs anywhere in candidate ancestry."""
+
+    try:
+        rows = run_git(
+            repository,
+            "log",
+            "--full-history",
+            "-1",
+            "--format=%H",
+            candidate,
+            "--",
+            safe_relative_path(relative_path),
+        ).stdout.decode("ascii", errors="strict").splitlines()
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if len(rows) > 1 or (rows and re.fullmatch(r"[0-9a-f]{40}", rows[0]) is None):
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return bool(rows)
+
+
 def candidate_blob(repository: Path, candidate: str, relative_path: str) -> bytes:
     """Read one exact committed candidate blob without consulting the worktree."""
 
@@ -354,8 +436,10 @@ def candidate_blob(repository: Path, candidate: str, relative_path: str) -> byte
 
 
 def authority_route(repository: Path, candidate: str) -> str:
-    """Choose authority exclusively from committed candidate-tree identity."""
+    """Choose authority from committed history while preventing a V24 route downgrade."""
 
+    if candidate_history_has_path(repository, candidate, V24_CORRECTION_PATH):
+        return "v24"
     if candidate_has_path(repository, candidate, V23_AUTHORITY_PATH):
         return "v23-authority"
     if candidate_has_path(repository, candidate, V23_REQUEST_PATH):
@@ -812,6 +896,7 @@ def load_v23_publisher(root: Path, evaluated: str) -> tuple[Any, str]:
             for row in run_git(
                 root,
                 "log",
+                "--full-history",
                 "--format=%H",
                 "--diff-filter=A",
                 evaluated,
@@ -882,6 +967,244 @@ def load_v23_publisher(root: Path, evaluated: str) -> tuple[Any, str]:
         getattr(module, "resolve_published_authority", None)
     ):
         raise BoundaryError("EVIDENCE_V23_PUBLISHER_INTERFACE_INVALID", V23_PUBLISHER_PATH, "BLOCKED")
+    return module, publication
+
+
+def v24_root_gitlinks(root: Path, commit: str) -> tuple[tuple[str, str, str], ...]:
+    """Derive the complete root gitlink inventory from raw mode-160000 rows."""
+
+    content = run_git(root, "ls-tree", "-r", "-z", commit).stdout
+    rows: list[tuple[str, str, str]] = []
+    for record in (row for row in content.split(b"\0") if row):
+        try:
+            header, raw_path = record.split(b"\t", 1)
+            mode, kind, object_id = header.decode("ascii", errors="strict").split(" ")
+            path = safe_relative_path(raw_path.decode("utf-8", errors="strict"))
+        except (UnicodeError, ValueError) as error:
+            raise BoundaryError("EVIDENCE_V24_TREE_INVALID", str(error), "BLOCKED") from error
+        if mode == "160000":
+            if kind != "commit" or re.fullmatch(r"[0-9a-f]{40}", object_id) is None:
+                raise BoundaryError("EVIDENCE_V24_GITLINK_INVALID", path, "BLOCKED")
+            rows.append((path, mode, object_id))
+    return tuple(rows)
+
+
+def v24_binding(root: Path, commit: str, relative_path: str) -> dict[str, str]:
+    """Bind one V24 regular blob through the independent evidence host."""
+
+    try:
+        mode, kind, object_id = v23_tree_record(root, commit, relative_path)
+    except BoundaryError as error:
+        raise BoundaryError(
+            "EVIDENCE_V24_TOOLING_MODE_DRIFT",
+            f"{relative_path}: {error.message}",
+            "BLOCKED",
+        ) from error
+    if (mode, kind) != ("100644", "blob"):
+        raise BoundaryError("EVIDENCE_V24_TOOLING_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    return {
+        "path": relative_path,
+        "mode": mode,
+        "objectId": object_id,
+        "sha256": sha256(candidate_blob(root, commit, relative_path)),
+    }
+
+
+def v24_correction_publication(root: Path, evaluated: str) -> tuple[dict[str, Any], str]:
+    """Independently authenticate immutable V23 and the exact V24 correction."""
+
+    historical_module, request_publication = load_v23_publisher(root, V23_REQUEST_PUBLICATION)
+    if request_publication != V23_REQUEST_PUBLICATION:
+        raise BoundaryError(
+            "EVIDENCE_V24_V23_PUBLICATION_DRIFT",
+            f"expected={V23_REQUEST_PUBLICATION}; observed={request_publication}",
+            "BLOCKED",
+        )
+    try:
+        historical_request, observed_request_publication, _request_content = historical_module.validate_request(
+            root,
+            V23_REQUEST_PUBLICATION,
+        )
+        historical_result = historical_module.request_check_result(
+            historical_request,
+            observed_request_publication,
+        )
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V24_V23_VALIDATION_FAILED", str(error), "BLOCKED") from error
+    if observed_request_publication != V23_REQUEST_PUBLICATION:
+        raise BoundaryError(
+            "EVIDENCE_V24_V23_PUBLICATION_DRIFT",
+            repr(observed_request_publication),
+            "BLOCKED",
+        )
+    validate_v23_result(
+        historical_result,
+        "BLOCKED",
+        route="request",
+        expected_publication=observed_request_publication,
+    )
+    try:
+        publications = tuple(
+            row
+            for row in run_git(
+                root,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                evaluated,
+                "--",
+                V24_CORRECTION_PATH,
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if len(publications) != 1 or re.fullmatch(r"[0-9a-f]{40}", publications[0]) is None:
+        raise BoundaryError(
+            "EVIDENCE_V24_CORRECTION_PUBLICATION_MISSING",
+            f"expected one publication; observed={publications!r}",
+            "BLOCKED",
+        )
+    publication = publications[0]
+    require_single_parent(root, publication, V23_REQUEST_PUBLICATION, "EVIDENCE_V24_TOOLING_PARENT_MISMATCH")
+    observed_paths = changed_paths(root, V23_REQUEST_PUBLICATION, publication)
+    if observed_paths != V24_TOOLING_PATHS:
+        missing = sorted(set(V24_TOOLING_PATHS) - set(observed_paths))
+        unexpected = sorted(set(observed_paths) - set(V24_TOOLING_PATHS))
+        raise BoundaryError(
+            "EVIDENCE_V24_TOOLING_SCOPE_DRIFT",
+            f"missing={missing!r}; unexpected={unexpected!r}",
+            "BLOCKED",
+        )
+    for path in V24_TOOLING_PATHS:
+        v24_binding(root, publication, path)
+    baseline_links = v24_root_gitlinks(root, V23_REQUEST_PUBLICATION)
+    if v24_root_gitlinks(root, publication) != baseline_links or v24_root_gitlinks(root, evaluated) != baseline_links:
+        raise BoundaryError("EVIDENCE_V24_ROOT_GITLINK_DRIFT", "V23, V24, and evaluated gitlinks differ", "BLOCKED")
+    schema_content = candidate_blob(root, publication, V24_SCHEMA_PATH)
+    observed_schema_digest = sha256(schema_content)
+    if observed_schema_digest != V24_SCHEMA_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V24_SCHEMA_IDENTITY_MISMATCH",
+            f"expected={V24_SCHEMA_SHA256}; observed={observed_schema_digest}",
+            "BLOCKED",
+        )
+    v24_binding(root, evaluated, V24_SCHEMA_PATH)
+    if candidate_blob(root, evaluated, V24_SCHEMA_PATH) != schema_content:
+        raise BoundaryError("EVIDENCE_V24_SCHEMA_DESCENDANT_DRIFT", V24_SCHEMA_PATH, "BLOCKED")
+    schema = load_v23_json(schema_content, "EVIDENCE_V24_SCHEMA_INVALID")
+    record_content = candidate_blob(root, publication, V24_CORRECTION_PATH)
+    v24_binding(root, evaluated, V24_CORRECTION_PATH)
+    v24_binding(root, evaluated, V23_REQUEST_PATH)
+    if candidate_blob(root, evaluated, V24_CORRECTION_PATH) != record_content:
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_DESCENDANT_DRIFT", V24_CORRECTION_PATH, "BLOCKED")
+    record = load_v23_json(record_content, "EVIDENCE_V24_CORRECTION_INVALID")
+    try:
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema).validate(record)
+    except (SchemaError, ValidationError) as error:
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_SCHEMA_INVALID", error.message, "BLOCKED") from error
+    predecessor = record.get("predecessor")
+    transaction = record.get("toolingTransaction")
+    expected_keys = {
+        "schemaVersion",
+        "recordType",
+        "correctionId",
+        "predecessor",
+        "toolingTransaction",
+        "rootGitlinks",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution",
+    }
+    if (
+        set(record) != expected_keys
+        or record.get("schemaVersion") != "hexalith.conversations.story-7.1-entry-tooling-correction.v1"
+        or record.get("recordType") != "TOOLING_CORRECTION"
+        or record.get("correctionId") != "V24-STORY-7.1-ENTRY-TOOLING-CORRECTION-v1"
+        or not isinstance(predecessor, dict)
+        or predecessor.get("publicationCommit") != V23_REQUEST_PUBLICATION
+        or predecessor.get("requestPath") != V23_REQUEST_PATH
+        or predecessor.get("publicationTree") != commit_tree(root, V23_REQUEST_PUBLICATION)
+        or predecessor.get("publisherSha256") != V23_PUBLISHER_SHA256
+        or predecessor.get("requestSha256")
+        != sha256(candidate_blob(root, V23_REQUEST_PUBLICATION, V23_REQUEST_PATH))
+        or not isinstance(transaction, dict)
+        or transaction.get("baselineCommit") != V23_REQUEST_PUBLICATION
+        or transaction.get("baselineTree") != commit_tree(root, V23_REQUEST_PUBLICATION)
+        or tuple(transaction.get("exactChangedPaths", ())) != V24_TOOLING_PATHS
+        or transaction.get("requiredMode") != "100644"
+        or record.get("result") != "PASS"
+        or record.get("implementationHold") != "ACTIVE"
+        or record.get("ownerApprovalClaimed") is not False
+        or record.get("releaseAuthorized") is not False
+        or record.get("pushAuthorized") is not False
+        or record.get("executionAllowed") is not False
+        or record.get("storyExecution")
+        != {"7.1": False, "7.2": False, "7.3": False, "7.4": False}
+        or record.get("blockers") != []
+        or not isinstance(record.get("assertionLedger"), list)
+        or not record["assertionLedger"]
+    ):
+        raise BoundaryError("EVIDENCE_V24_CORRECTION_CONTROL_DRIFT", "closed correction controls mismatch", "BLOCKED")
+    manifest = [v24_binding(root, publication, path) for path in V24_MANIFEST_PATHS]
+    if (
+        transaction.get("manifest") != manifest
+        or transaction.get("selfExcludedManifestSha256") != canonical_digest(manifest)
+        or [v24_binding(root, evaluated, path) for path in V24_MANIFEST_PATHS] != manifest
+    ):
+        raise BoundaryError("EVIDENCE_V24_TOOLING_MANIFEST_DRIFT", "self-excluded manifest mismatch", "BLOCKED")
+    declared_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in baseline_links
+    ]
+    if record.get("rootGitlinks") != declared_links:
+        raise BoundaryError("EVIDENCE_V24_ROOT_GITLINK_DRIFT", "declared root gitlinks differ from raw modes", "BLOCKED")
+    if candidate_blob(root, evaluated, V23_REQUEST_PATH) != candidate_blob(
+        root,
+        V23_REQUEST_PUBLICATION,
+        V23_REQUEST_PATH,
+    ):
+        raise BoundaryError("EVIDENCE_V24_V23_PUBLICATION_DRIFT", V23_REQUEST_PATH, "BLOCKED")
+    return record, publication
+
+
+def load_v24_publisher(root: Path, evaluated: str) -> tuple[Any, str]:
+    """Compile the corrected publisher only after the evidence host authenticates V24."""
+
+    _record, publication = v24_correction_publication(root, evaluated)
+    publisher_content = candidate_blob(root, publication, V23_PUBLISHER_PATH)
+    observed_digest = sha256(publisher_content)
+    if observed_digest != V24_PUBLISHER_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V24_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V24_PUBLISHER_SHA256}; observed={observed_digest}",
+            "BLOCKED",
+        )
+    if candidate_blob(root, evaluated, V23_PUBLISHER_PATH) != publisher_content:
+        raise BoundaryError("EVIDENCE_V24_PUBLISHER_DESCENDANT_DRIFT", V23_PUBLISHER_PATH, "BLOCKED")
+    spec = importlib.util.spec_from_loader("evidence_trusted_v24_entry_authority", loader=None)
+    if spec is None:
+        raise BoundaryError("EVIDENCE_V24_PUBLISHER_LOAD_FAILED", V23_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{publication}:{V23_PUBLISHER_PATH}"
+    try:
+        exec(compile(publisher_content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V24_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if any(
+        not callable(getattr(module, name, None))
+        for name in ("validate_correction", "validate_current_request", "request_check_result", "resolve_published_authority")
+    ):
+        raise BoundaryError("EVIDENCE_V24_PUBLISHER_INTERFACE_INVALID", V23_PUBLISHER_PATH, "BLOCKED")
     return module, publication
 
 
@@ -1165,6 +1488,97 @@ def validate_v23_scope(
     )
 
 
+def validate_v24_request_result(document: Any, publication: str) -> dict[str, Any]:
+    """Map any contradictory corrected request result to the V24 host boundary."""
+
+    try:
+        return validate_v23_result(
+            document,
+            "BLOCKED",
+            route="request",
+            expected_publication=publication,
+        )
+    except BoundaryError as error:
+        raise BoundaryError("EVIDENCE_V24_REQUEST_RESULT_INVALID", error.message, "BLOCKED") from error
+
+
+def validate_v24_scope(
+    root: Path,
+    candidate: str,
+    *,
+    signature_verifier: Callable[[Path, str, str], dict[str, str]] | None = None,
+) -> dict[str, Any]:
+    """Validate V24 before using corrected code for request or authority continuity."""
+
+    module, correction_publication = load_v24_publisher(root, candidate)
+    marker_complete = v23_marker_complete(root, candidate)
+    try:
+        _correction, observed_correction, _correction_content = module.validate_correction(root, candidate)
+        if observed_correction != correction_publication:
+            raise BoundaryError(
+                "EVIDENCE_V24_CORRECTION_PUBLICATION_DRIFT",
+                f"host={correction_publication}; publisher={observed_correction}",
+                "BLOCKED",
+            )
+        if not marker_complete:
+            if candidate != correction_publication:
+                raise BoundaryError(
+                    "EVIDENCE_V24_DESCENDANT_REQUIRES_AUTHORITY",
+                    f"correction={correction_publication}; candidate={candidate}",
+                    "BLOCKED",
+                )
+            request, request_publication, _content, observed_anchor = module.validate_current_request(root, candidate)
+            if observed_anchor != correction_publication or request_publication != V23_REQUEST_PUBLICATION:
+                raise BoundaryError(
+                    "EVIDENCE_V24_CORRECTION_PUBLICATION_DRIFT",
+                    f"host={correction_publication}; publisher={observed_anchor}",
+                    "BLOCKED",
+                )
+            result = module.request_check_result(request, request_publication)
+            validate_v24_request_result(result, request_publication)
+            return assertion(
+                "V24-SCOPE-01",
+                "v24-entry-tooling-correction-boundary",
+                "PASS",
+                route="correction",
+                publication=correction_publication,
+                count=len(V24_TOOLING_PATHS),
+                publisherSha256=V24_PUBLISHER_SHA256,
+                executionAllowed=False,
+            )
+        arguments: dict[str, Any] = {}
+        if signature_verifier is not None:
+            arguments["signature_verifier"] = signature_verifier
+        result = module.resolve_published_authority(root, candidate, **arguments)
+    except BoundaryError:
+        raise
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V24_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+    expected_result = result.get("result") if isinstance(result, dict) else None
+    if expected_result not in ("PASS", "FAIL", "BLOCKED"):
+        raise BoundaryError("EVIDENCE_V24_AUTHORITY_RESULT_INVALID", "missing authority result", "BLOCKED")
+    validate_v23_result(
+        result,
+        expected_result,
+        route="authority",
+        expected_candidate=candidate,
+        expected_publication=candidate,
+    )
+    if expected_result in ("FAIL", "BLOCKED"):
+        blocker = result["blockers"][0]
+        raise BoundaryError(blocker["code"], blocker["detail"], expected_result)
+    return assertion(
+        "V24-SCOPE-01",
+        "v24-entry-tooling-correction-boundary",
+        "PASS",
+        route="authority",
+        publication=correction_publication,
+        count=len(V24_TOOLING_PATHS),
+        publisherSha256=V24_PUBLISHER_SHA256,
+        executionAllowed=True,
+    )
+
+
 def child_failure(result: subprocess.CompletedProcess[str]) -> BoundaryError:
     """Preserve a structured child FAIL or BLOCKED result without state collapse."""
 
@@ -1295,7 +1709,7 @@ def verify(
     paths = changed_paths(root, baseline, candidate)
     dirty_paths = worktree_paths(root)
     route = authority_route(root, candidate)
-    applicable = is_applicable(paths) or route in ("v15", "v16", "v17", "v23-request", "v23-authority")
+    applicable = is_applicable(paths) or route in ("v15", "v16", "v17", "v23-request", "v23-authority", "v24")
     gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
@@ -1303,7 +1717,15 @@ def verify(
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
     ]
-    if route == "v23-authority":
+    if route == "v24":
+        ledger.append(
+            validate_v24_scope(
+                root,
+                candidate,
+                signature_verifier=signature_verifier,
+            )
+        )
+    elif route == "v23-authority":
         ledger.append(
             validate_v23_scope(
                 root,
@@ -1354,7 +1776,7 @@ def verify(
             ),
         )
     )
-    if route not in ("v23-request", "v23-authority"):
+    if route not in ("v23-request", "v23-authority", "v24"):
         ledger.append(run_publication_check(root, route=route, candidate=candidate))
     if not ledger:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "applicable scope produced an empty assertion ledger")

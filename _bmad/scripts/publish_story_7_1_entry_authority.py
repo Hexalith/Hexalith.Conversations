@@ -34,9 +34,13 @@ SCHEMA_VERSION = "hexalith.conversations.story-7.1-entry-authority.v1"
 RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 AUTHORITY_ID = "V23-STORY-7.1-ENTRY-AUTHORITY"
 REQUEST_ID = "V23-STORY-7.1-ENTRY-REQUEST-v1"
+CORRECTION_SCHEMA_VERSION = "hexalith.conversations.story-7.1-entry-tooling-correction.v1"
+CORRECTION_ID = "V24-STORY-7.1-ENTRY-TOOLING-CORRECTION-v1"
 SCHEMA_PATH = "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json"
+CORRECTION_SCHEMA_PATH = "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json"
 PUBLISHER_PATH = "_bmad/scripts/publish_story_7_1_entry_authority.py"
 REQUEST_PATH = "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json"
+CORRECTION_PATH = "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json"
 AUTHORITY_PATH = "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
 ARCHITECTURE_PATH = "_bmad-output/planning-artifacts/architecture.md"
 PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
@@ -63,6 +67,8 @@ GATE_EVIDENCE_PATHS = {
 PROTECTED_MAIN = "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607"
 HISTORICAL_V22_CANDIDATE = "cf82f8008d02b07d48338a545909d97faa302362"
 TOOLING_BASELINE = "e0b098fa1c056385e28ee8ac0efd0c55dfab324f"
+V23_REQUEST_PUBLICATION = "5a7234b922371b5d0a12085a444d93783263f278"
+V23_PUBLISHER_SHA256 = "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
 TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
 TRUSTED_SSH_PUBLIC_KEY = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIL0Kt34ByT8WvAx325SbxYRNLKBZ3ggbgWomqD1nCHq4"
@@ -77,6 +83,7 @@ V22_ROUTE_SHA256 = "f0e1c4f3497d5195a71f050dd74db7d4fc88ca674c6bfc0777b92d64199a
 # exact committed bytes; token presence is deliberately not a trust decision.
 V23_WORKFLOW_SHA256 = "328fdd95cb6edd546c735a0da329cc3d1505097b05d3fb2a855692d4b18c3478"
 V23_SCHEMA_SHA256 = "d11340d9b2665c5295a4408f9e6b26218001a61f118d6ec979d6e9ca4da3ea1b"
+V24_SCHEMA_SHA256 = "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
 V22_ACTIVE_COMMAND = (
     "uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py "
     "--repository . --candidate HEAD --check"
@@ -97,6 +104,20 @@ TOOLING_PATHS = tuple(
         )
     )
 )
+CORRECTION_MANIFEST_PATHS = tuple(
+    sorted(
+        (
+            CORRECTION_SCHEMA_PATH,
+            PUBLISHER_PATH,
+            PUBLISHER_TEST_PATH,
+            RESOLVER_PATH,
+            RESOLVER_TEST_PATH,
+            VERIFIER_PATH,
+            VERIFIER_TEST_PATH,
+        )
+    )
+)
+CORRECTION_PATHS = tuple(sorted((*CORRECTION_MANIFEST_PATHS, CORRECTION_PATH)))
 AUTHORITY_PATHS = (ARCHITECTURE_PATH, AUTHORITY_PATH)
 SOURCE_PATHS = (
     ARCHITECTURE_PATH,
@@ -656,6 +677,152 @@ def validate_schema(root: Path, document: dict[str, Any], *, schema_commit: str 
         raise EntryAuthorityError("V23_DOCUMENT_SCHEMA_INVALID", error.message, "BLOCKED") from error
 
 
+def correction_ledger() -> list[dict[str, str]]:
+    """Return the fixed nonvacuous V24 correction assertion inventory."""
+
+    return [
+        {
+            "id": "V24.CORRECTION.01",
+            "subject": "immutable-v23-request-publication",
+            "state": "PASS",
+            "detail": "the original V23 request publication and publisher identity remain exact",
+        },
+        {
+            "id": "V24.CORRECTION.02",
+            "subject": "direct-parent-topology",
+            "state": "PASS",
+            "detail": "the correction publication has the immutable V23 request as its only parent",
+        },
+        {
+            "id": "V24.CORRECTION.03",
+            "subject": "exact-eight-path-scope",
+            "state": "PASS",
+            "detail": "the correction changes exactly the eight declared tooling paths",
+        },
+        {
+            "id": "V24.CORRECTION.04",
+            "subject": "mode-100644-tooling",
+            "state": "PASS",
+            "detail": "every correction path is one mode-100644 regular blob",
+        },
+        {
+            "id": "V24.CORRECTION.05",
+            "subject": "self-excluding-tooling-manifest",
+            "state": "PASS",
+            "detail": "the seven non-record blobs equal the declared self-excluding manifest",
+        },
+        {
+            "id": "V24.CORRECTION.06",
+            "subject": "raw-root-gitlink-equality",
+            "state": "PASS",
+            "detail": "the raw root gitlink inventory is unchanged from V23",
+        },
+        {
+            "id": "V24.CORRECTION.07",
+            "subject": "active-non-executable-hold",
+            "state": "PASS",
+            "detail": "the correction grants no approval, execution, release, or push authority",
+        },
+    ]
+
+
+def validate_correction_controls(document: dict[str, Any]) -> None:
+    """Close every V24 field independently of the public correction schema."""
+
+    expected_keys = {
+        "schemaVersion",
+        "recordType",
+        "correctionId",
+        "predecessor",
+        "toolingTransaction",
+        "rootGitlinks",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution",
+    }
+    predecessor = document.get("predecessor")
+    transaction = document.get("toolingTransaction")
+    if (
+        set(document) != expected_keys
+        or document.get("schemaVersion") != CORRECTION_SCHEMA_VERSION
+        or document.get("recordType") != "TOOLING_CORRECTION"
+        or document.get("correctionId") != CORRECTION_ID
+        or not isinstance(predecessor, dict)
+        or set(predecessor)
+        != {"requestPath", "publicationCommit", "publicationTree", "requestSha256", "publisherSha256"}
+        or predecessor.get("requestPath") != REQUEST_PATH
+        or predecessor.get("publicationCommit") != V23_REQUEST_PUBLICATION
+        or predecessor.get("publisherSha256") != V23_PUBLISHER_SHA256
+        or not isinstance(transaction, dict)
+        or set(transaction)
+        != {
+            "baselineCommit",
+            "baselineTree",
+            "exactChangedPaths",
+            "requiredMode",
+            "selfExcludedManifestSha256",
+            "manifest",
+        }
+        or transaction.get("baselineCommit") != V23_REQUEST_PUBLICATION
+        or tuple(transaction.get("exactChangedPaths", ())) != CORRECTION_PATHS
+        or transaction.get("requiredMode") != "100644"
+        or document.get("resultSemantics") != result_semantics()
+        or document.get("assertionLedger") != correction_ledger()
+        or document.get("blockers") != []
+        or document.get("result") != "PASS"
+        or document.get("implementationHold") != "ACTIVE"
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or document.get("storyExecution")
+        != {"7.1": False, "7.2": False, "7.3": False, "7.4": False}
+    ):
+        raise EntryAuthorityError(
+            "V24_CORRECTION_CONTROL_DRIFT",
+            "correction identity, scope, hold, approval, release, push, or execution controls drifted",
+            "BLOCKED",
+        )
+
+
+def validate_correction_schema(
+    root: Path,
+    document: dict[str, Any],
+    *,
+    schema_commit: str | None = None,
+) -> None:
+    """Validate a correction against independently pinned, safely read schema bytes."""
+
+    try:
+        content = (
+            candidate_blob(root, schema_commit, CORRECTION_SCHEMA_PATH, "V24_SCHEMA_UNAVAILABLE")
+            if schema_commit is not None
+            else read_regular_worktree_file(root, CORRECTION_SCHEMA_PATH)[0]
+        )
+    except EntryAuthorityError as error:
+        raise EntryAuthorityError("V24_SCHEMA_UNAVAILABLE", error.detail, "BLOCKED") from error
+    observed_digest = sha256(content)
+    if observed_digest != V24_SCHEMA_SHA256:
+        raise EntryAuthorityError(
+            "V24_SCHEMA_IDENTITY_MISMATCH",
+            f"expected={V24_SCHEMA_SHA256}; observed={observed_digest}",
+            "BLOCKED",
+        )
+    schema = load_json(content, "V24_SCHEMA_INVALID")
+    try:
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema, format_checker=Draft202012Validator.FORMAT_CHECKER).validate(document)
+    except (SchemaError, ValidationError) as error:
+        raise EntryAuthorityError("V24_DOCUMENT_SCHEMA_INVALID", error.message, "BLOCKED") from error
+
+
 def binding(root: Path, commit: str, path: str) -> dict[str, str]:
     """Bind one regular committed blob by raw mode, object identity, and digest."""
 
@@ -673,11 +840,57 @@ def binding(root: Path, commit: str, path: str) -> dict[str, str]:
 def worktree_binding(root: Path, path: str) -> dict[str, str]:
     """Bind a prospective regular blob without inserting it into Git."""
 
-    target = root / safe_path(path)
+    parent_descriptor = -1
+    descriptor = -1
     try:
-        content = target.read_bytes()
-    except OSError as error:
+        parent_descriptor, name = open_parent_directory(root, path)
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+            dir_fd=parent_descriptor,
+        )
+        initial = os.fstat(descriptor)
+        named = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+        if (
+            not stat.S_ISREG(initial.st_mode)
+            or not stat.S_ISREG(named.st_mode)
+            or stat.S_IMODE(initial.st_mode) != 0o644
+            or stat.S_IMODE(named.st_mode) != 0o644
+            or initial.st_nlink != 1
+            or named.st_nlink != 1
+            or (initial.st_dev, initial.st_ino) != (named.st_dev, named.st_ino)
+        ):
+            raise OSError("expected a mode-100644 single-link regular file")
+        with os.fdopen(descriptor, "rb", closefd=False) as stream:
+            content = stream.read()
+        final = os.fstat(descriptor)
+        final_named = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+        if (
+            (final.st_dev, final.st_ino) != (initial.st_dev, initial.st_ino)
+            or (final_named.st_dev, final_named.st_ino) != (initial.st_dev, initial.st_ino)
+            or final.st_size != initial.st_size
+            or final.st_mtime_ns != initial.st_mtime_ns
+            or final.st_ctime_ns != initial.st_ctime_ns
+            or final.st_nlink != 1
+            or final_named.st_nlink != 1
+        ):
+            raise OSError("mode, inode, link count, or bytes changed during read")
+    except (EntryAuthorityError, OSError) as error:
         raise EntryAuthorityError("V23_TOOLING_INPUT_UNAVAILABLE", f"{path}: {error}", "BLOCKED") from error
+    finally:
+        close_errors: list[OSError] = []
+        for open_descriptor in (descriptor, parent_descriptor):
+            if open_descriptor >= 0:
+                try:
+                    os.close(open_descriptor)
+                except OSError as error:
+                    close_errors.append(error)
+        if close_errors and sys.exception() is None:
+            raise EntryAuthorityError(
+                "V23_TOOLING_INPUT_UNAVAILABLE",
+                f"{path}: descriptor close failed: {close_errors!r}",
+                "BLOCKED",
+            )
     try:
         hashed = subprocess.run(
             (GIT_EXECUTABLE, "--no-replace-objects", "-C", str(root), "hash-object", "--stdin"),
@@ -1094,9 +1307,16 @@ def publication_candidates(root: Path, evaluated: str, path: str) -> tuple[str, 
     """Locate all commits that add a declared immutable path."""
 
     try:
-        rows = run_git(root, "log", "--format=%H", "--diff-filter=A", evaluated, "--", safe_path(path)).stdout.decode(
-            "ascii", errors="strict"
-        ).splitlines()
+        rows = run_git(
+            root,
+            "log",
+            "--full-history",
+            "--format=%H",
+            "--diff-filter=A",
+            evaluated,
+            "--",
+            safe_path(path),
+        ).stdout.decode("ascii", errors="strict").splitlines()
     except UnicodeError as error:
         raise EntryAuthorityError("V23_PUBLICATION_HISTORY_INVALID", str(error), "BLOCKED") from error
     commits = tuple(row for row in rows if row)
@@ -1274,6 +1494,231 @@ def request_check_result(document: dict[str, Any], publication: str) -> dict[str
         "executionAllowed": False,
         "storyExecution": {"7.1": False, "7.2": False, "7.3": False, "7.4": False},
     }
+
+
+def correction_worktree_binding(root: Path, path: str) -> dict[str, str]:
+    """Bind one prospective V24 input and preserve a V24-specific stable blocker."""
+
+    try:
+        return worktree_binding(root, path)
+    except EntryAuthorityError as error:
+        raise EntryAuthorityError("V24_TOOLING_INPUT_UNAVAILABLE", f"{path}: {error.detail}", "BLOCKED") from error
+
+
+def correction_manifest_from_worktree(root: Path) -> list[dict[str, str]]:
+    """Bind the seven V24 blobs that do not contain the correction record."""
+
+    return [correction_worktree_binding(root, path) for path in CORRECTION_MANIFEST_PATHS]
+
+
+def correction_manifest_from_commit(root: Path, commit: str) -> list[dict[str, str]]:
+    """Bind the seven committed V24 blobs that do not contain the correction record."""
+
+    try:
+        return [binding(root, commit, path) for path in CORRECTION_MANIFEST_PATHS]
+    except EntryAuthorityError as error:
+        raise EntryAuthorityError("V24_TOOLING_MANIFEST_DRIFT", error.detail, error.state) from error
+
+
+def require_v24_blob_mode(root: Path, commit: str, path: str) -> None:
+    """Require one evaluated V24-bound path to remain a non-executable regular blob."""
+
+    try:
+        mode, kind, _object_id = tree_record(root, commit, path)
+    except EntryAuthorityError as error:
+        raise EntryAuthorityError("V24_TOOLING_MODE_DRIFT", f"{path}: {error.detail}", "BLOCKED") from error
+    if (mode, kind) != ("100644", "blob"):
+        raise EntryAuthorityError("V24_TOOLING_MODE_DRIFT", f"{path}: {mode} {kind}", "BLOCKED")
+
+
+def render_correction(root: Path) -> dict[str, Any]:
+    """Render the deterministic V24 correction after authenticating immutable V23."""
+
+    baseline = resolve_commit(root, V23_REQUEST_PUBLICATION, "V24_V23_PUBLICATION_UNAVAILABLE")
+    if baseline != V23_REQUEST_PUBLICATION:
+        raise EntryAuthorityError("V24_V23_PUBLICATION_DRIFT", repr(baseline), "BLOCKED")
+    head = resolve_commit(root, "HEAD", "V24_GENERATION_BASELINE_UNAVAILABLE")
+    if head != baseline:
+        raise EntryAuthorityError(
+            "V24_GENERATION_BASELINE_DRIFT",
+            f"expected HEAD={baseline}; observed={head}",
+            "BLOCKED",
+        )
+    request, request_publication, request_content = validate_request(root, baseline)
+    if request_publication != baseline:
+        raise EntryAuthorityError(
+            "V24_V23_PUBLICATION_DRIFT",
+            f"expected={baseline}; observed={request_publication}",
+            "BLOCKED",
+        )
+    historical_publisher = candidate_blob(root, baseline, PUBLISHER_PATH, "V24_V23_PUBLISHER_UNAVAILABLE")
+    if sha256(historical_publisher) != V23_PUBLISHER_SHA256:
+        raise EntryAuthorityError(
+            "V24_V23_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V23_PUBLISHER_SHA256}; observed={sha256(historical_publisher)}",
+            "BLOCKED",
+        )
+    manifest = correction_manifest_from_worktree(root)
+    document: dict[str, Any] = {
+        "schemaVersion": CORRECTION_SCHEMA_VERSION,
+        "recordType": "TOOLING_CORRECTION",
+        "correctionId": CORRECTION_ID,
+        "predecessor": {
+            "requestPath": REQUEST_PATH,
+            "publicationCommit": baseline,
+            "publicationTree": commit_tree(root, baseline),
+            "requestSha256": sha256(request_content),
+            "publisherSha256": V23_PUBLISHER_SHA256,
+        },
+        "toolingTransaction": {
+            "baselineCommit": baseline,
+            "baselineTree": commit_tree(root, baseline),
+            "exactChangedPaths": list(CORRECTION_PATHS),
+            "requiredMode": "100644",
+            "selfExcludedManifestSha256": canonical_digest(manifest),
+            "manifest": manifest,
+        },
+        "rootGitlinks": root_gitlinks(root, baseline),
+        "resultSemantics": result_semantics(),
+        "assertionLedger": correction_ledger(),
+        "blockers": [],
+        "result": "PASS",
+        "implementationHold": "ACTIVE",
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+        "storyExecution": {"7.1": False, "7.2": False, "7.3": False, "7.4": False},
+    }
+    # Keep the independently reconstructed V23 request live in this path. The value is
+    # intentionally unused beyond authentication because V24 must not reinterpret it.
+    if request.get("result") != "BLOCKED" or request.get("executionAllowed") is not False:
+        raise EntryAuthorityError("V24_V23_REQUEST_RESULT_DRIFT", "immutable V23 request is not BLOCKED/false")
+    validate_correction_controls(document)
+    validate_correction_schema(root, document)
+    return document
+
+
+def locate_correction_publication(root: Path, evaluated: str) -> str:
+    """Locate the single immutable V24 correction publication."""
+
+    return locate_publication(
+        root,
+        evaluated,
+        CORRECTION_PATH,
+        "V24_CORRECTION_PUBLICATION_MISSING",
+    )
+
+
+def validate_correction(
+    root: Path,
+    evaluated_revision: str,
+) -> tuple[dict[str, Any], str, bytes]:
+    """Validate V23 first, then the exact V24 correction from raw committed objects."""
+
+    evaluated = resolve_commit(root, evaluated_revision, "V24_EVALUATED_CANDIDATE_UNAVAILABLE")
+    publication = locate_correction_publication(root, evaluated)
+    require_ancestor(root, publication, evaluated, "V24_CORRECTION_NOT_ANCESTOR")
+    parents = commit_parents(root, publication)
+    if parents != (V23_REQUEST_PUBLICATION,):
+        raise EntryAuthorityError(
+            "V24_TOOLING_PARENT_DRIFT",
+            f"expected={(V23_REQUEST_PUBLICATION,)!r}; observed={parents!r}",
+            "BLOCKED",
+        )
+    observed_paths = changed_paths(root, V23_REQUEST_PUBLICATION, publication)
+    if observed_paths != CORRECTION_PATHS:
+        missing = sorted(set(CORRECTION_PATHS) - set(observed_paths))
+        unexpected = sorted(set(observed_paths) - set(CORRECTION_PATHS))
+        raise EntryAuthorityError(
+            "V24_TOOLING_SCOPE_DRIFT",
+            f"missing={missing!r}; unexpected={unexpected!r}",
+            "BLOCKED",
+        )
+    changed_links = changed_gitlinks(root, V23_REQUEST_PUBLICATION, publication)
+    if changed_links:
+        raise EntryAuthorityError("V24_TOOLING_GITLINK_DRIFT", repr(changed_links), "BLOCKED")
+    for path in CORRECTION_PATHS:
+        require_v24_blob_mode(root, publication, path)
+    require_v24_blob_mode(root, evaluated, CORRECTION_PATH)
+    require_v24_blob_mode(root, evaluated, REQUEST_PATH)
+    content = candidate_blob(root, publication, CORRECTION_PATH, "V24_CORRECTION_MISSING")
+    if candidate_blob(root, evaluated, CORRECTION_PATH, "V24_CORRECTION_MISSING") != content:
+        raise EntryAuthorityError("V24_CORRECTION_DESCENDANT_DRIFT", CORRECTION_PATH, "BLOCKED")
+    document = load_json(content, "V24_CORRECTION_INVALID")
+    validate_correction_schema(root, document, schema_commit=publication)
+    validate_correction_controls(document)
+    transaction = document["toolingTransaction"]
+    if (
+        transaction["baselineTree"] != commit_tree(root, V23_REQUEST_PUBLICATION)
+        or document["predecessor"]["publicationTree"] != commit_tree(root, V23_REQUEST_PUBLICATION)
+    ):
+        raise EntryAuthorityError("V24_V23_PUBLICATION_DRIFT", "V23 tree identity drifted", "BLOCKED")
+    request, request_publication, request_content = validate_request(root, V23_REQUEST_PUBLICATION)
+    historical_publisher = candidate_blob(
+        root,
+        V23_REQUEST_PUBLICATION,
+        PUBLISHER_PATH,
+        "V24_V23_PUBLISHER_UNAVAILABLE",
+    )
+    predecessor = document["predecessor"]
+    if (
+        request_publication != V23_REQUEST_PUBLICATION
+        or predecessor["requestSha256"] != sha256(request_content)
+        or predecessor["publisherSha256"] != sha256(historical_publisher)
+        or sha256(historical_publisher) != V23_PUBLISHER_SHA256
+        or request.get("result") != "BLOCKED"
+        or request.get("executionAllowed") is not False
+        or candidate_blob(root, evaluated, REQUEST_PATH, "V24_V23_REQUEST_UNAVAILABLE") != request_content
+    ):
+        raise EntryAuthorityError(
+            "V24_V23_PUBLICATION_DRIFT",
+            "immutable V23 request, publisher, or non-executable result drifted",
+            "BLOCKED",
+        )
+    manifest = correction_manifest_from_commit(root, publication)
+    if (
+        transaction["manifest"] != manifest
+        or transaction["selfExcludedManifestSha256"] != canonical_digest(manifest)
+    ):
+        raise EntryAuthorityError("V24_TOOLING_MANIFEST_DRIFT", "self-excluded manifest mismatch", "BLOCKED")
+    if correction_manifest_from_commit(root, evaluated) != manifest:
+        raise EntryAuthorityError(
+            "V24_TOOLING_DESCENDANT_DRIFT",
+            "correction-pinned tooling changed after publication",
+            "BLOCKED",
+        )
+    baseline_links = root_gitlinks(root, V23_REQUEST_PUBLICATION)
+    if (
+        document["rootGitlinks"] != baseline_links
+        or root_gitlinks(root, publication) != baseline_links
+        or root_gitlinks(root, evaluated) != baseline_links
+    ):
+        raise EntryAuthorityError("V24_ROOT_GITLINK_DRIFT", "V23, V24, and evaluated gitlinks differ", "BLOCKED")
+    return document, publication, content
+
+
+def validate_current_request(
+    root: Path,
+    evaluated_revision: str,
+    *,
+    v22_resolver: Callable[[Path, str], dict[str, Any]] | None = None,
+) -> tuple[dict[str, Any], str, bytes, str]:
+    """Keep V23 as request identity and V24 as the later evidence-scope anchor."""
+
+    _correction, correction_publication, _content = validate_correction(root, evaluated_revision)
+    request, request_publication, request_content = validate_request(
+        root,
+        V23_REQUEST_PUBLICATION,
+        v22_resolver=v22_resolver,
+    )
+    if request_publication != V23_REQUEST_PUBLICATION:
+        raise EntryAuthorityError(
+            "V24_V23_PUBLICATION_DRIFT",
+            f"expected={V23_REQUEST_PUBLICATION}; observed={request_publication}",
+            "BLOCKED",
+        )
+    return request, request_publication, request_content, correction_publication
 
 
 def validate_owner_fields(identity: str, decided_at_utc: str, rationale: str) -> None:
@@ -2141,8 +2586,8 @@ def render_authority(
     if owner_decision_time > validation_time:
         raise EntryAuthorityError("V23_OWNER_TIME_INVALID", "owner decision is later than validation")
     source = resolve_commit(root, source_revision, "V23_AUTHORITY_SOURCE_UNAVAILABLE")
-    request, request_publication, request_content = validate_request(root, source)
-    require_ancestor(root, request_publication, source, "V23_GATE_EVIDENCE_GRAPH_DRIFT")
+    request, request_publication, request_content, evidence_scope_anchor = validate_current_request(root, source)
+    require_ancestor(root, evidence_scope_anchor, source, "V23_GATE_EVIDENCE_GRAPH_DRIFT")
     if run_git(root, "cat-file", "-e", f"{source}:{AUTHORITY_PATH}", allowed=(0, 1, 128)).returncode == 0:
         raise EntryAuthorityError("V23_AUTHORITY_ALREADY_COMMITTED", f"{AUTHORITY_PATH}@{source}")
     operational = candidate_blob(root, source, OPERATIONAL_ENVELOPE_PATH, "V23_OPERATIONAL_ENVELOPE_MISSING")
@@ -2186,7 +2631,7 @@ def render_authority(
             )
         )
     )
-    observed_evidence_scope = changed_paths(root, request_publication, source)
+    observed_evidence_scope = changed_paths(root, evidence_scope_anchor, source)
     if observed_evidence_scope != evidence_scope:
         missing = sorted(set(evidence_scope) - set(observed_evidence_scope))
         unexpected = sorted(set(observed_evidence_scope) - set(evidence_scope))
@@ -2194,10 +2639,10 @@ def render_authority(
             "V23_GATE_EVIDENCE_SCOPE_DRIFT",
             f"missing={missing!r}; unexpected={unexpected!r}",
         )
-    if changed_gitlinks(root, request_publication, source):
+    if changed_gitlinks(root, evidence_scope_anchor, source):
         raise EntryAuthorityError(
             "V23_GATE_EVIDENCE_GITLINK_DRIFT",
-            repr(changed_gitlinks(root, request_publication, source)),
+            repr(changed_gitlinks(root, evidence_scope_anchor, source)),
         )
     for gate_id, path in (
         ("PRESERVATION", evidence_paths["preservation"]),
@@ -2209,7 +2654,7 @@ def render_authority(
             source,
             path,
             gate_id,
-            request_publication,
+            evidence_scope_anchor,
             validation_time=validation_time,
         )
         if disposition_time > owner_decision_time:
@@ -2444,7 +2889,11 @@ def resolve_published_authority(
             or tuple(declared_publication["exactChangedPaths"]) != AUTHORITY_PATHS
         ):
             raise EntryAuthorityError("V23_AUTHORITY_PUBLICATION_DRIFT", repr(declared_publication))
-        request, request_publication, request_content = validate_request(root, source, v22_resolver=v22_resolver)
+        request, request_publication, request_content, evidence_scope_anchor = validate_current_request(
+            root,
+            source,
+            v22_resolver=v22_resolver,
+        )
         if authority["request"] != {
             "path": REQUEST_PATH,
             "publicationCommit": request_publication,
@@ -2483,7 +2932,7 @@ def resolve_published_authority(
                 )
             )
         )
-        observed_evidence_scope = changed_paths(root, request_publication, source)
+        observed_evidence_scope = changed_paths(root, evidence_scope_anchor, source)
         if observed_evidence_scope != evidence_scope:
             missing = sorted(set(evidence_scope) - set(observed_evidence_scope))
             unexpected = sorted(set(observed_evidence_scope) - set(evidence_scope))
@@ -2491,17 +2940,17 @@ def resolve_published_authority(
                 "V23_GATE_EVIDENCE_SCOPE_DRIFT",
                 f"missing={missing!r}; unexpected={unexpected!r}",
             )
-        if changed_gitlinks(root, request_publication, source):
+        if changed_gitlinks(root, evidence_scope_anchor, source):
             raise EntryAuthorityError(
                 "V23_GATE_EVIDENCE_GITLINK_DRIFT",
-                repr(changed_gitlinks(root, request_publication, source)),
+                repr(changed_gitlinks(root, evidence_scope_anchor, source)),
             )
         owner = authority["ownerDecision"]
         validate_owner_fields(owner["identity"], owner["decidedAtUtc"], owner["rationale"])
         owner_decision_time = utc_instant(owner["decidedAtUtc"], "V23_OWNER_TIME_INVALID")
         if owner_decision_time > validation_time:
             raise EntryAuthorityError("V23_OWNER_TIME_INVALID", "owner decision is later than validation")
-        require_ancestor(root, request_publication, source, "V23_GATE_EVIDENCE_GRAPH_DRIFT")
+        require_ancestor(root, evidence_scope_anchor, source, "V23_GATE_EVIDENCE_GRAPH_DRIFT")
         validate_operational_envelope(
             candidate_blob(root, source, OPERATIONAL_ENVELOPE_PATH),
             owner["identity"],
@@ -2523,7 +2972,7 @@ def resolve_published_authority(
                 source,
                 evidence_path,
                 evidence_gate_id,
-                request_publication,
+                evidence_scope_anchor,
                 validation_time=validation_time,
             )
             if disposition_time > owner_decision_time:
@@ -2687,7 +3136,11 @@ def read_regular_worktree_file(root: Path, relative_path: str) -> tuple[bytes, t
     parent_descriptor, name = open_parent_directory(root, relative_path)
     descriptor = -1
     try:
-        descriptor = os.open(name, os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0), dir_fd=parent_descriptor)
+        descriptor = os.open(
+            name,
+            os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+            dir_fd=parent_descriptor,
+        )
         metadata = os.fstat(descriptor)
         if (
             not stat.S_ISREG(metadata.st_mode)
@@ -2725,9 +3178,23 @@ def read_regular_worktree_file(root: Path, relative_path: str) -> tuple[bytes, t
     except OSError as error:
         raise EntryAuthorityError("V23_WRITE_PATH_INVALID", f"{relative_path}: {error}", "BLOCKED") from error
     finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        os.close(parent_descriptor)
+        close_errors: list[OSError] = []
+        for open_descriptor in (descriptor, parent_descriptor):
+            if open_descriptor >= 0:
+                try:
+                    os.close(open_descriptor)
+                except OSError as error:
+                    close_errors.append(error)
+        if close_errors:
+            detail = f"{relative_path}: descriptor close failed: {close_errors!r}"
+            active_error = sys.exception()
+            if isinstance(active_error, EntryAuthorityError):
+                active_error.detail = f"{active_error.detail}; {detail}"
+                active_error.args = (f"{active_error.code}: {active_error.detail}",)
+            elif active_error is None:
+                raise EntryAuthorityError("V23_WRITE_PATH_INVALID", detail, "BLOCKED")
+            else:
+                raise EntryAuthorityError("V23_WRITE_PATH_INVALID", f"{active_error}; {detail}", "BLOCKED") from active_error
 
 
 def revalidate_owned_file(
@@ -2796,9 +3263,21 @@ def remove_owned_file(
             "BLOCKED",
         ) from error
     finally:
-        if descriptor >= 0:
-            os.close(descriptor)
-        os.close(parent_descriptor)
+        close_errors: list[OSError] = []
+        for open_descriptor in (descriptor, parent_descriptor):
+            if open_descriptor >= 0:
+                try:
+                    os.close(open_descriptor)
+                except OSError as error:
+                    close_errors.append(error)
+        if close_errors:
+            close_detail = f"descriptor close failed: {close_errors!r}; preserved={quarantine_path if renamed else relative_path}"
+            active_error = sys.exception()
+            if isinstance(active_error, EntryAuthorityError):
+                active_error.detail = f"{active_error.detail}; {close_detail}"
+                active_error.args = (f"{active_error.code}: {active_error.detail}",)
+            elif active_error is None:
+                raise EntryAuthorityError("V23_ROLLBACK_FAILED", close_detail, "BLOCKED")
 
 
 def quarantine_unverified_created_file(root: Path, relative_path: str) -> str:
@@ -2822,6 +3301,31 @@ def quarantine_unverified_created_file(root: Path, relative_path: str) -> str:
         ) from error
     finally:
         os.close(parent_descriptor)
+
+
+def quarantine_failed_creation(
+    root: Path,
+    relative_path: str,
+    content: bytes,
+    created: bool,
+    identity: tuple[int, int] | None,
+    error: EntryAuthorityError,
+) -> None:
+    """Quarantine a path created by this invocation while preserving the originating blocker."""
+
+    if not created:
+        return
+    try:
+        quarantine = (
+            remove_owned_file(root, relative_path, content, identity)
+            if identity is not None
+            else quarantine_unverified_created_file(root, relative_path)
+        )
+    except EntryAuthorityError as rollback_error:
+        error.detail = f"{error.detail}; rollbackError={rollback_error}"
+    else:
+        error.detail = f"{error.detail}; rollbackQuarantine={quarantine}"
+    error.args = (f"{error.code}: {error.detail}",)
 
 
 def atomic_write(
@@ -2874,8 +3378,18 @@ def atomic_write(
                 if os.read(descriptor, len(content) + 1) != content:
                     raise OSError("post-write byte identity mismatch")
                 os.fsync(parent_descriptor)
+                closing_descriptor = descriptor
+                descriptor = -1
+                os.close(closing_descriptor)
+                closing_parent = parent_descriptor
+                parent_descriptor = -1
+                os.close(closing_parent)
             except BaseException as write_error:
-                os.close(descriptor)
+                if descriptor >= 0:
+                    try:
+                        os.close(descriptor)
+                    except OSError:
+                        pass
                 descriptor = -1
                 try:
                     quarantine = (
@@ -2931,8 +3445,15 @@ def atomic_write(
         raise EntryAuthorityError("V23_WRITE_FAILED", f"{relative_path}: {error}", "BLOCKED") from error
     finally:
         if descriptor >= 0:
-            os.close(descriptor)
-        os.close(parent_descriptor)
+            try:
+                os.close(descriptor)
+            except OSError:
+                pass
+        if parent_descriptor >= 0:
+            try:
+                os.close(parent_descriptor)
+            except OSError:
+                pass
 
 
 def append_suffix_exact(
@@ -3102,15 +3623,18 @@ def publication_observation(
     """Read one locked named descriptor and return bytes plus stable ownership metadata."""
 
     before = os.fstat(descriptor)
-    named = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
+    named_before = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
     os.lseek(descriptor, 0, os.SEEK_SET)
     chunks: list[bytes] = []
-    while True:
-        chunk = os.read(descriptor, 1024 * 1024)
+    remaining = before.st_size
+    while remaining:
+        chunk = os.read(descriptor, min(1024 * 1024, remaining))
         if not chunk:
             break
         chunks.append(chunk)
+        remaining -= len(chunk)
     after = os.fstat(descriptor)
+    named_after = os.stat(name, dir_fd=parent_descriptor, follow_symlinks=False)
     before_identity = (
         before.st_dev,
         before.st_ino,
@@ -3131,13 +3655,18 @@ def publication_observation(
     )
     if (
         before_identity != after_identity
+        or remaining != 0
         or not stat.S_ISREG(after.st_mode)
-        or not stat.S_ISREG(named.st_mode)
+        or not stat.S_ISREG(named_before.st_mode)
+        or not stat.S_ISREG(named_after.st_mode)
         or stat.S_IMODE(after.st_mode) != 0o644
-        or stat.S_IMODE(named.st_mode) != 0o644
+        or stat.S_IMODE(named_before.st_mode) != 0o644
+        or stat.S_IMODE(named_after.st_mode) != 0o644
         or after.st_nlink != 1
-        or named.st_nlink != 1
-        or (named.st_dev, named.st_ino) != (after.st_dev, after.st_ino)
+        or named_before.st_nlink != 1
+        or named_after.st_nlink != 1
+        or (named_before.st_dev, named_before.st_ino) != (after.st_dev, after.st_ino)
+        or (named_after.st_dev, named_after.st_ino) != (after.st_dev, after.st_ino)
     ):
         raise EntryAuthorityError(
             "V23_PUBLICATION_FINAL_IDENTITY_DRIFT",
@@ -3145,6 +3674,126 @@ def publication_observation(
             "BLOCKED",
         )
     return b"".join(chunks), after_identity
+
+
+def validate_correction_publication_snapshot(
+    root: Path,
+    manifest: list[dict[str, str]],
+    correction_content: bytes,
+    correction_identity: tuple[int, int],
+) -> None:
+    """Retain one common stable snapshot of all V24 inputs and the visible correction record."""
+
+    manifest_by_path = {row["path"]: row for row in manifest}
+    paths = (*CORRECTION_MANIFEST_PATHS, CORRECTION_PATH)
+    opened: list[tuple[int, str, int, str]] = []
+    active_path = CORRECTION_PATH
+    try:
+        for active_path in paths:
+            parent_descriptor, name = open_parent_directory(root, active_path)
+            try:
+                descriptor = os.open(
+                    name,
+                    os.O_RDONLY | getattr(os, "O_NOFOLLOW", 0) | getattr(os, "O_NONBLOCK", 0),
+                    dir_fd=parent_descriptor,
+                )
+            except BaseException:
+                os.close(parent_descriptor)
+                raise
+            opened.append((parent_descriptor, name, descriptor, active_path))
+        for _parent_descriptor, _name, descriptor, active_path in opened:
+            acquire_bounded_lock(
+                descriptor,
+                code=(
+                    "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+                    if active_path == CORRECTION_PATH
+                    else "V24_TOOLING_INPUT_DRIFT"
+                ),
+            )
+        first: dict[str, tuple[bytes, tuple[int, int, int, int, int, int, int]]] = {}
+        second: dict[str, tuple[bytes, tuple[int, int, int, int, int, int, int]]] = {}
+        for parent_descriptor, name, descriptor, active_path in opened:
+            first[active_path] = publication_observation(
+                parent_descriptor,
+                name,
+                descriptor,
+                active_path,
+            )
+        for parent_descriptor, name, descriptor, active_path in reversed(opened):
+            second[active_path] = publication_observation(
+                parent_descriptor,
+                name,
+                descriptor,
+                active_path,
+            )
+        for active_path in paths:
+            if first[active_path] != second[active_path]:
+                raise EntryAuthorityError(
+                    "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+                    if active_path == CORRECTION_PATH
+                    else "V24_TOOLING_INPUT_DRIFT",
+                    f"{active_path}: bytes, inode, link count, or metadata changed across the retained snapshot",
+                    "BLOCKED",
+                )
+            content, metadata = second[active_path]
+            if active_path == CORRECTION_PATH:
+                if content != correction_content or metadata[:2] != correction_identity:
+                    raise EntryAuthorityError(
+                        "V24_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                        f"{active_path}: final inode or bytes changed",
+                        "BLOCKED",
+                    )
+            elif sha256(content) != manifest_by_path[active_path]["sha256"]:
+                raise EntryAuthorityError(
+                    "V24_TOOLING_INPUT_DRIFT",
+                    f"{active_path}: final bytes differ from the rendered manifest",
+                    "BLOCKED",
+                )
+    except EntryAuthorityError as error:
+        if error.code.startswith("V24_"):
+            raise
+        raise EntryAuthorityError(
+            "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+            if active_path == CORRECTION_PATH
+            else "V24_TOOLING_INPUT_DRIFT",
+            f"{active_path}: {error.detail}",
+            "BLOCKED",
+        ) from error
+    except OSError as error:
+        raise EntryAuthorityError(
+            "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+            if active_path == CORRECTION_PATH
+            else "V24_TOOLING_INPUT_DRIFT",
+            f"{active_path}: {error}",
+            "BLOCKED",
+        ) from error
+    finally:
+        close_errors: list[tuple[str, OSError]] = []
+        for parent_descriptor, _name, descriptor, _relative_path in reversed(opened):
+            try:
+                os.close(descriptor)
+            except OSError as error:
+                close_errors.append((_relative_path, error))
+            try:
+                os.close(parent_descriptor)
+            except OSError as error:
+                close_errors.append((_relative_path, error))
+        if close_errors:
+            close_paths = {path for path, _error in close_errors}
+            code = (
+                "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+                if CORRECTION_PATH in close_paths
+                else "V24_TOOLING_INPUT_DRIFT"
+            )
+            detail = f"descriptor close failed: {close_errors!r}"
+            active_error = sys.exception()
+            if isinstance(active_error, EntryAuthorityError):
+                active_error.detail = f"{active_error.detail}; {detail}"
+                active_error.args = (f"{active_error.code}: {active_error.detail}",)
+            elif active_error is None:
+                raise EntryAuthorityError(code, detail, "BLOCKED")
+            else:
+                raise EntryAuthorityError(code, f"{active_error}; {detail}", "BLOCKED") from active_error
 
 
 def validate_publication_pair(
@@ -3335,6 +3984,8 @@ def build_parser() -> argparse.ArgumentParser:
     actions = parser.add_mutually_exclusive_group(required=True)
     actions.add_argument("--write-request", action="store_true")
     actions.add_argument("--verify-request", action="store_true")
+    actions.add_argument("--write-correction", action="store_true")
+    actions.add_argument("--verify-correction", action="store_true")
     actions.add_argument("--publish-authority", action="store_true")
     actions.add_argument("--check", action="store_true")
     parser.add_argument("--owner-identity")
@@ -3362,8 +4013,31 @@ def main(arguments: Sequence[str] | None = None) -> int:
         root = repository_root(args.repository)
         if args.write_request:
             document = render_request(root)
-            atomic_write(root, REQUEST_PATH, json_bytes(document), no_clobber=True)
-            print(f"V23_STORY_7_1_ENTRY_REQUEST_WRITTEN path={REQUEST_PATH} sha256={sha256(json_bytes(document))}")
+            content = json_bytes(document)
+            created, identity = atomic_write(root, REQUEST_PATH, content, no_clobber=True)
+            try:
+                if identity is None:
+                    raise EntryAuthorityError(
+                        "V23_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                        "request inode identity is unavailable",
+                        "BLOCKED",
+                    )
+                revalidate_owned_file(root, REQUEST_PATH, content, identity)
+            except Exception as error:
+                mapped = (
+                    error
+                    if isinstance(error, EntryAuthorityError)
+                    else EntryAuthorityError(
+                        "V23_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                        str(error),
+                        "BLOCKED",
+                    )
+                )
+                quarantine_failed_creation(root, REQUEST_PATH, content, created, identity, mapped)
+                if mapped is not error:
+                    raise mapped from error
+                raise
+            print(f"V23_STORY_7_1_ENTRY_REQUEST_WRITTEN path={REQUEST_PATH} sha256={sha256(content)}")
             return 0
         if args.verify_request:
             request, publication, _content = validate_request(root, args.candidate)
@@ -3371,6 +4045,45 @@ def main(arguments: Sequence[str] | None = None) -> int:
             validate_schema(root, result, schema_commit=publication)
             print(json.dumps(result, indent=2, ensure_ascii=False))
             return int(result["exitCode"])
+        if args.write_correction:
+            document = render_correction(root)
+            content = json_bytes(document)
+            created, identity = atomic_write(root, CORRECTION_PATH, content, no_clobber=True)
+            try:
+                if identity is None:
+                    raise EntryAuthorityError(
+                        "V24_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                        "correction inode identity is unavailable",
+                        "BLOCKED",
+                    )
+                validate_correction_publication_snapshot(
+                    root,
+                    document["toolingTransaction"]["manifest"],
+                    content,
+                    identity,
+                )
+            except Exception as error:
+                if not isinstance(error, EntryAuthorityError) or error.code == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT":
+                    mapped = EntryAuthorityError(
+                        "V24_PUBLICATION_FINAL_IDENTITY_DRIFT",
+                        error.detail if isinstance(error, EntryAuthorityError) else str(error),
+                        "BLOCKED",
+                    )
+                else:
+                    mapped = error
+                quarantine_failed_creation(root, CORRECTION_PATH, content, created, identity, mapped)
+                if mapped is not error:
+                    raise mapped from error
+                raise
+            print(f"V24_STORY_7_1_TOOLING_CORRECTION_WRITTEN path={CORRECTION_PATH} sha256={sha256(content)}")
+            return 0
+        if args.verify_correction:
+            correction, publication, content = validate_correction(root, args.candidate)
+            print(
+                "V24_STORY_7_1_TOOLING_CORRECTION_OK "
+                f"publication={publication} sha256={sha256(content)} assertions={len(correction['assertionLedger'])}"
+            )
+            return 0
         if args.publish_authority:
             document, architecture = render_authority(
                 root,

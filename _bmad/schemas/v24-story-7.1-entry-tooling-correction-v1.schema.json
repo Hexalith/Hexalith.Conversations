@@ -1,0 +1,247 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+  "title": "V24 Story 7.1 Entry Tooling Correction",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "recordType",
+    "correctionId",
+    "predecessor",
+    "toolingTransaction",
+    "rootGitlinks",
+    "resultSemantics",
+    "assertionLedger",
+    "blockers",
+    "result",
+    "implementationHold",
+    "ownerApprovalClaimed",
+    "releaseAuthorized",
+    "pushAuthorized",
+    "executionAllowed",
+    "storyExecution"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-entry-tooling-correction.v1"
+    },
+    "recordType": {
+      "const": "TOOLING_CORRECTION"
+    },
+    "correctionId": {
+      "const": "V24-STORY-7.1-ENTRY-TOOLING-CORRECTION-v1"
+    },
+    "predecessor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "requestPath",
+        "publicationCommit",
+        "publicationTree",
+        "requestSha256",
+        "publisherSha256"
+      ],
+      "properties": {
+        "requestPath": {
+          "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json"
+        },
+        "publicationCommit": {
+          "const": "5a7234b922371b5d0a12085a444d93783263f278"
+        },
+        "publicationTree": {
+          "$ref": "#/$defs/objectId"
+        },
+        "requestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "publisherSha256": {
+          "const": "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
+        }
+      }
+    },
+    "toolingTransaction": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baselineCommit",
+        "baselineTree",
+        "exactChangedPaths",
+        "requiredMode",
+        "selfExcludedManifestSha256",
+        "manifest"
+      ],
+      "properties": {
+        "baselineCommit": {
+          "const": "5a7234b922371b5d0a12085a444d93783263f278"
+        },
+        "baselineTree": {
+          "$ref": "#/$defs/objectId"
+        },
+        "exactChangedPaths": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "prefixItems": [
+            { "const": "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json" },
+            { "const": "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json" },
+            { "const": "_bmad/scripts/publish_story_7_1_entry_authority.py" },
+            { "const": "_bmad/scripts/resolve_current_planning_authority.py" },
+            { "const": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py" },
+            { "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py" },
+            { "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py" },
+            { "const": "_bmad/scripts/verify_evidence_boundary.py" }
+          ],
+          "items": false
+        },
+        "requiredMode": {
+          "const": "100644"
+        },
+        "selfExcludedManifestSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "manifest": {
+          "type": "array",
+          "minItems": 7,
+          "maxItems": 7,
+          "prefixItems": [
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/publish_story_7_1_entry_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/resolve_current_planning_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py" } } }] },
+            { "allOf": [{ "$ref": "#/$defs/binding" }, { "properties": { "path": { "const": "_bmad/scripts/verify_evidence_boundary.py" } } }] }
+          ],
+          "items": false
+        }
+      }
+    },
+    "rootGitlinks": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "prefixItems": [
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.AI.Tools" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Builds" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Commons" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.EventStore" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Folders" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.FrontComposer" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Memories" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Parties" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Projects" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/gitlink" }, { "properties": { "path": { "const": "references/Hexalith.Tenants" } } }] }
+      ],
+      "items": false
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["states", "exitCodes", "ledgerRequired"],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [{ "const": "PASS" }, { "const": "FAIL" }, { "const": "BLOCKED" }],
+          "items": false
+        },
+        "exitCodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["PASS", "FAIL", "BLOCKED"],
+          "properties": {
+            "PASS": { "const": 0 },
+            "FAIL": { "const": 1 },
+            "BLOCKED": { "const": 2 }
+          }
+        },
+        "ledgerRequired": { "const": true }
+      }
+    },
+    "assertionLedger": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "prefixItems": [
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.01" }, "subject": { "const": "immutable-v23-request-publication" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.02" }, "subject": { "const": "direct-parent-topology" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.03" }, "subject": { "const": "exact-eight-path-scope" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.04" }, "subject": { "const": "mode-100644-tooling" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.05" }, "subject": { "const": "self-excluding-tooling-manifest" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.06" }, "subject": { "const": "raw-root-gitlink-equality" }, "state": { "const": "PASS" } } }] },
+        { "allOf": [{ "$ref": "#/$defs/assertion" }, { "properties": { "id": { "const": "V24.CORRECTION.07" }, "subject": { "const": "active-non-executable-hold" }, "state": { "const": "PASS" } } }] }
+      ],
+      "items": false
+    },
+    "blockers": {
+      "type": "array",
+      "maxItems": 0
+    },
+    "result": { "const": "PASS" },
+    "implementationHold": { "const": "ACTIVE" },
+    "ownerApprovalClaimed": { "const": false },
+    "releaseAuthorized": { "const": false },
+    "pushAuthorized": { "const": false },
+    "executionAllowed": { "const": false },
+    "storyExecution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["7.1", "7.2", "7.3", "7.4"],
+      "properties": {
+        "7.1": { "const": false },
+        "7.2": { "const": false },
+        "7.3": { "const": false },
+        "7.4": { "const": false }
+      }
+    }
+  },
+  "$defs": {
+    "objectId": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\x00-\\x1F\\x7F])[^/]+(?:/[^/]+)*$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "100644" },
+        "objectId": { "$ref": "#/$defs/objectId" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "mode", "objectId"],
+      "properties": {
+        "path": { "$ref": "#/$defs/path" },
+        "mode": { "const": "160000" },
+        "objectId": { "$ref": "#/$defs/objectId" }
+      }
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "subject", "state", "detail"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z][A-Z0-9_.-]+$" },
+        "subject": { "type": "string", "minLength": 1 },
+        "state": { "const": "PASS" },
+        "detail": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

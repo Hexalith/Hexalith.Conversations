@@ -91,6 +91,50 @@ def workflow_run_block(step_name: str) -> str:
     return "\n".join(line[10:] if line else "" for line in block_lines) + "\n"
 
 
+def workflow_current_authority_result(result: str, *, successor: bool) -> dict[str, object]:
+    """Build one closed result envelope for the workflow-owned checker harness."""
+
+    passing = result == "PASS"
+    executable = passing and successor
+    document: dict[str, object] = {
+        "schemaVersion": "hexalith.conversations.current-planning-authority-result.v1",
+        "result": result,
+        "exitCode": {"PASS": 0, "FAIL": 1, "BLOCKED": 2}[result],
+        "effectiveHold": "EXECUTION_ALLOWED" if executable else "ACTIVE",
+        "implementationHold": "EXECUTION_ALLOWED" if executable else "ACTIVE",
+        "observed": {},
+        "assertionLedger": [
+            {
+                "id": "FIXTURE.WORKFLOW",
+                "subject": "workflow-result-checker",
+                "state": result,
+                "detail": f"workflow checker {result.lower()} fixture",
+            }
+        ],
+        "blockers": []
+        if passing
+        else [
+            {
+                "code": "FIXTURE.WORKFLOW",
+                "detail": f"workflow checker {result.lower()} fixture",
+                "assertionIndex": 0,
+            }
+        ],
+        "ownerApprovalClaimed": executable,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": executable,
+    }
+    if successor:
+        document["storyExecution"] = {
+            "7.1": executable,
+            "7.2": False,
+            "7.3": False,
+            "7.4": False,
+        }
+    return document
+
+
 def copy_paths(root: Path, paths: tuple[str, ...]) -> None:
     """Copy declared paths from the implementation worktree."""
 
@@ -101,6 +145,38 @@ def copy_paths(root: Path, paths: tuple[str, ...]) -> None:
         target = root / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
         shutil.copy2(source, target)
+
+
+def configure_correction_sparse_checkout(root: Path) -> None:
+    """Materialize only the files used by correction and authority fixtures."""
+
+    paths = tuple(
+        sorted(
+            {
+                *publisher.CORRECTION_MANIFEST_PATHS,
+                *publisher.TOOLING_PATHS,
+                *publisher.SOURCE_PATHS,
+                *publisher.LANDING_ZONE_GRANT_PATHS.values(),
+                *publisher.LANDING_ZONE_SUCCESSOR_GRANT_PATHS.values(),
+                *publisher.LANDING_ZONE_SUCCESSOR_PATHS.values(),
+                publisher.CORRECTION_PATH,
+                publisher.AUTHORITY_PATH,
+                publisher.OPERATIONAL_ENVELOPE_PATH,
+                publisher.PRESERVATION_EVIDENCE_PATH,
+                publisher.PERFORMANCE_EVIDENCE_PATH,
+                publisher.LANDING_ZONE_EVIDENCE_PATH,
+                publisher.PRESERVATION_MANIFEST_PATH,
+                publisher.PERFORMANCE_BASELINE_PATH,
+                publisher.LANDING_ZONE_AUTHORITY_PATH,
+                publisher.LANDING_ZONE_APPROVAL_PATH,
+                publisher.RECOVERY_RUNBOOK_PATH,
+            }
+        )
+    )
+    subprocess.run(
+        ["git", "-C", str(root), "sparse-checkout", "set", "--no-cone", *paths],
+        check=True,
+    )
 
 
 def candidate_repository(tmp_path: Path) -> tuple[Path, str]:
@@ -245,6 +321,22 @@ def test_request_and_result_schema_are_closed() -> None:
     }
     with pytest.raises(ValidationError):
         validator.validate(request_shaped_failure)
+
+
+@pytest.mark.parametrize(
+    "code",
+    ("V23_REQUEST_INVALID", "V23_AUTHORITY_INVALID", "V23_PRESERVATION_EVIDENCE_INVALID"),
+)
+def test_raw_json_control_duplicates_fail_closed(code: str) -> None:
+    """Request, authority, and gate records all retain duplicate-safe raw-byte parsing."""
+
+    content = b'{"ownerApprovalClaimed":false,"ownerApprovalClaimed":true}\n'
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.load_json(content, code)
+
+    assert error.value.code == code
+    assert "duplicate JSON property" in error.value.detail
 
 
 def test_schema_digest_and_runtime_controls_are_independent_authority_boundaries(
@@ -423,6 +515,436 @@ def test_write_request_cli_creates_exact_deterministic_bytes(tmp_path: Path) -> 
     assert retry.returncode == 2
     assert "V23_STORY_7_1_ENTRY_REQUEST_WRITTEN" not in retry.stdout
     assert retry_result["blockers"][0]["code"] == "V23_WRITE_PATH_INVALID"
+
+
+def test_write_request_cli_revalidates_the_visible_path_before_success(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A pathname replacement after the write cannot receive a request-success token."""
+
+    root = tmp_path / "write-request-race"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", publisher.TOOLING_BASELINE], check=True)
+    copy_paths(root, publisher.TOOLING_PATHS)
+    (root / publisher.REQUEST_PATH).unlink(missing_ok=True)
+    real_atomic_write = publisher.atomic_write
+
+    def replace_after_write(
+        base: Path,
+        relative_path: str,
+        content: bytes,
+        *,
+        no_clobber: bool,
+    ) -> tuple[bool, tuple[int, int] | None]:
+        result = real_atomic_write(base, relative_path, content, no_clobber=no_clobber)
+        replacement = base / f"{relative_path}.replacement"
+        replacement.write_bytes(b"concurrent replacement\n")
+        replacement.replace(base / relative_path)
+        return result
+
+    monkeypatch.setattr(publisher, "atomic_write", replace_after_write)
+
+    exit_code = publisher.main(["--repository", str(root), "--write-request"])
+    result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert result["blockers"][0]["code"] == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT"
+    assert "V23_STORY_7_1_ENTRY_REQUEST_WRITTEN" not in json.dumps(result)
+    assert not (root / publisher.REQUEST_PATH).exists()
+    assert list((root / publisher.REQUEST_PATH).parent.glob(".v23-story-7.1-entry-candidate-v1.json.rollback.*"))
+
+
+@pytest.mark.parametrize("fault", ("bytes-only", "inode-only"))
+def test_owned_file_revalidation_independently_checks_bytes_and_inode(tmp_path: Path, fault: str) -> None:
+    """Either half of final byte/inode identity drift blocks independently."""
+
+    root = tmp_path / fault
+    root.mkdir()
+    relative_path = "publication.json"
+    content = b'{"result":"PASS"}\n'
+    created, identity = publisher.atomic_write(root, relative_path, content, no_clobber=True)
+    assert created is True
+    assert identity is not None
+    target = root / relative_path
+    if fault == "bytes-only":
+        with target.open("r+b") as stream:
+            stream.seek(0)
+            stream.write(b'{"result":"FAIL"}\n')
+            stream.truncate()
+    else:
+        replacement = root / "replacement.json"
+        replacement.write_bytes(content)
+        replacement.chmod(0o644)
+        replacement.replace(target)
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.revalidate_owned_file(root, relative_path, content, identity)
+
+    assert error.value.code == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT"
+
+
+def test_worktree_binding_rejects_nonregular_link_and_mode_inputs(tmp_path: Path) -> None:
+    """Prospective request inputs are regular mode-100644 blobs before any read can block or escape."""
+
+    subprocess.run(["git", "init", "-q", "-b", "main", str(tmp_path)], check=True)
+    external = tmp_path.parent / "external-tooling.py"
+    external.write_bytes(b"external\n")
+    fixtures = {
+        "executable.py": lambda path: (path.write_bytes(b"executable\n"), path.chmod(0o755)),
+        "symlink.py": lambda path: path.symlink_to(external),
+        "fifo.py": lambda path: os.mkfifo(path),
+    }
+
+    for relative_path, create in fixtures.items():
+        target = tmp_path / relative_path
+        create(target)
+        with pytest.raises(publisher.EntryAuthorityError) as error:
+            publisher.worktree_binding(tmp_path, relative_path)
+        assert error.value.code == "V23_TOOLING_INPUT_UNAVAILABLE"
+
+
+def test_v24_correction_is_deterministic_closed_and_non_executable(tmp_path: Path) -> None:
+    """The V24 record closes the exact eight-path correction without lifting the hold."""
+
+    root = correction_writer_root(tmp_path)
+    first = publisher.render_correction(root)
+    second = publisher.render_correction(root)
+    schema = json.loads((root / publisher.CORRECTION_SCHEMA_PATH).read_text(encoding="utf-8"))
+
+    Draft202012Validator(schema).validate(first)
+    assert publisher.json_bytes(first) == publisher.json_bytes(second)
+    assert tuple(first["toolingTransaction"]["exactChangedPaths"]) == publisher.CORRECTION_PATHS
+    assert [row["path"] for row in first["toolingTransaction"]["manifest"]] == list(
+        publisher.CORRECTION_MANIFEST_PATHS
+    )
+    assert publisher.CORRECTION_PATH not in {row["path"] for row in first["toolingTransaction"]["manifest"]}
+    assert first["toolingTransaction"]["selfExcludedManifestSha256"] == publisher.canonical_digest(
+        first["toolingTransaction"]["manifest"]
+    )
+    assert first["assertionLedger"]
+    assert first["result"] == "PASS"
+    assert first["implementationHold"] == "ACTIVE"
+    assert first["ownerApprovalClaimed"] is False
+    assert first["releaseAuthorized"] is False
+    assert first["pushAuthorized"] is False
+    assert first["executionAllowed"] is False
+
+
+def correction_writer_root(tmp_path: Path) -> Path:
+    """Materialize final V24 inputs without the self-containing correction record."""
+
+    root = tmp_path / "v24-writer"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
+    configure_correction_sparse_checkout(root)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", publisher.V23_REQUEST_PUBLICATION], check=True)
+    for relative_path in publisher.CORRECTION_MANIFEST_PATHS:
+        target = root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / relative_path, target)
+    (root / publisher.CORRECTION_PATH).unlink(missing_ok=True)
+    return root
+
+
+def test_v24_correction_generation_requires_exact_v23_head(tmp_path: Path) -> None:
+    """A descendant worktree cannot emit a direct-child V24 publication claim."""
+
+    root = correction_writer_root(tmp_path)
+    git(root, "config", "user.name", "V24 fixture")
+    git(root, "config", "user.email", "v24-fixture@example.invalid")
+    subprocess.run(
+        ["git", "-c", "commit.gpgsign=false", "-C", str(root), "commit", "-q", "--allow-empty", "-m", "test: drift V24 generation baseline"],
+        check=True,
+    )
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.render_correction(root)
+
+    assert error.value.code == "V24_GENERATION_BASELINE_DRIFT"
+
+
+def test_v24_correction_inputs_reject_regular_hard_links(tmp_path: Path) -> None:
+    """A regular hard-linked tooling input cannot enter the correction manifest."""
+
+    root = correction_writer_root(tmp_path)
+    target = root / publisher.CORRECTION_SCHEMA_PATH
+    alias = target.with_name("v24-schema-hardlink.json")
+    os.link(target, alias)
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.render_correction(root)
+
+    assert error.value.code == "V24_TOOLING_INPUT_UNAVAILABLE"
+    assert "single-link" in error.value.detail
+
+
+def test_write_correction_cli_writes_exact_bytes_and_success_token(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A successful correction write publishes the exact rendered bytes and one success token."""
+
+    root = correction_writer_root(tmp_path)
+    expected = publisher.json_bytes(publisher.render_correction(root))
+
+    exit_code = publisher.main(["--repository", str(root), "--write-correction"])
+    output = capsys.readouterr().out
+
+    assert exit_code == 0
+    assert output.count("V24_STORY_7_1_TOOLING_CORRECTION_WRITTEN") == 1
+    assert (root / publisher.CORRECTION_PATH).read_bytes() == expected
+
+
+def test_write_correction_failed_idempotent_retry_preserves_preexisting_record(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """A later snapshot failure never quarantines an identical preexisting correction."""
+
+    root = correction_writer_root(tmp_path)
+    content = publisher.json_bytes(publisher.render_correction(root))
+    correction = root / publisher.CORRECTION_PATH
+    correction.parent.mkdir(parents=True, exist_ok=True)
+    correction.write_bytes(content)
+    correction.chmod(0o644)
+
+    def fail_snapshot(*_args: object, **_kwargs: object) -> None:
+        raise publisher.EntryAuthorityError("V24_TOOLING_INPUT_DRIFT", "late retry fixture", "BLOCKED")
+
+    monkeypatch.setattr(publisher, "validate_correction_publication_snapshot", fail_snapshot)
+
+    exit_code = publisher.main(["--repository", str(root), "--write-correction"])
+    result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert result["blockers"][0]["code"] == "V24_TOOLING_INPUT_DRIFT"
+    assert correction.read_bytes() == content
+    assert not list(correction.parent.glob(f".{correction.name}.rollback.*"))
+    assert "V24_STORY_7_1_TOOLING_CORRECTION_WRITTEN" not in json.dumps(result)
+
+
+def test_ordinary_post_write_failures_quarantine_new_request_and_correction(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Unexpected validation exceptions become stable blockers and quarantine invocation-owned files."""
+
+    request_root = tmp_path / "request"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(request_root)], check=True)
+    subprocess.run(["git", "-C", str(request_root), "checkout", "-q", "--detach", publisher.TOOLING_BASELINE], check=True)
+    copy_paths(request_root, publisher.TOOLING_PATHS)
+    (request_root / publisher.REQUEST_PATH).unlink(missing_ok=True)
+
+    def fail_request_validation(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("ordinary request validation failure")
+
+    monkeypatch.setattr(publisher, "revalidate_owned_file", fail_request_validation)
+    exit_code = publisher.main(["--repository", str(request_root), "--write-request"])
+    request_result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert request_result["blockers"][0]["code"] == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT"
+    assert not (request_root / publisher.REQUEST_PATH).exists()
+
+    correction_root = correction_writer_root(tmp_path / "correction")
+
+    def fail_correction_validation(*_args: object, **_kwargs: object) -> None:
+        raise RuntimeError("ordinary correction validation failure")
+
+    monkeypatch.setattr(publisher, "validate_correction_publication_snapshot", fail_correction_validation)
+    exit_code = publisher.main(["--repository", str(correction_root), "--write-correction"])
+    correction_result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert correction_result["blockers"][0]["code"] == "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+    assert not (correction_root / publisher.CORRECTION_PATH).exists()
+
+
+def test_post_write_descriptor_close_failures_block_and_quarantine(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Request and retained-snapshot close failures are reported before any success token."""
+
+    request_root = tmp_path / "request-close"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(request_root)], check=True)
+    subprocess.run(["git", "-C", str(request_root), "checkout", "-q", "--detach", publisher.TOOLING_BASELINE], check=True)
+    copy_paths(request_root, publisher.TOOLING_PATHS)
+    (request_root / publisher.REQUEST_PATH).unlink(missing_ok=True)
+    real_close = publisher.os.close
+    real_revalidate = publisher.revalidate_owned_file
+    close_enabled = False
+    close_failed = False
+
+    def close_once(descriptor: int) -> None:
+        nonlocal close_failed
+        real_close(descriptor)
+        if close_enabled and not close_failed:
+            close_failed = True
+            raise OSError("request descriptor close fixture")
+
+    def revalidate_with_close_failure(*args: object, **kwargs: object) -> tuple[int, int]:
+        nonlocal close_enabled
+        close_enabled = True
+        try:
+            return real_revalidate(*args, **kwargs)
+        finally:
+            close_enabled = False
+
+    monkeypatch.setattr(publisher.os, "close", close_once)
+    monkeypatch.setattr(publisher, "revalidate_owned_file", revalidate_with_close_failure)
+    exit_code = publisher.main(["--repository", str(request_root), "--write-request"])
+    request_result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert request_result["blockers"][0]["code"] == "V23_WRITE_PATH_INVALID"
+    assert not (request_root / publisher.REQUEST_PATH).exists()
+
+    monkeypatch.setattr(publisher.os, "close", real_close)
+    correction_root = correction_writer_root(tmp_path / "correction-close")
+    close_enabled = False
+    close_failed = False
+    observations = 0
+    real_observation = publisher.publication_observation
+
+    def enable_close_after_observations(*args: object, **kwargs: object) -> object:
+        nonlocal close_enabled, observations
+        result = real_observation(*args, **kwargs)
+        observations += 1
+        if observations == 2 * (len(publisher.CORRECTION_MANIFEST_PATHS) + 1):
+            close_enabled = True
+        return result
+
+    monkeypatch.setattr(publisher.os, "close", close_once)
+    monkeypatch.setattr(publisher, "publication_observation", enable_close_after_observations)
+    exit_code = publisher.main(["--repository", str(correction_root), "--write-correction"])
+    correction_result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert correction_result["blockers"][0]["code"] in {
+        "V24_PUBLICATION_FINAL_IDENTITY_DRIFT",
+        "V24_TOOLING_INPUT_DRIFT",
+    }
+    assert "descriptor close failed" in correction_result["blockers"][0]["detail"]
+    assert not (correction_root / publisher.CORRECTION_PATH).exists()
+
+
+def test_publication_observation_bounds_growth_to_initial_snapshot_size(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A continuously growing file is read only to its initial size and rejected as drift."""
+
+    target = tmp_path / "growing.json"
+    target.write_bytes(b"x" * (1024 * 1024 + 1))
+    target.chmod(0o644)
+    parent_descriptor = os.open(tmp_path, os.O_RDONLY | os.O_DIRECTORY)
+    descriptor = os.open(target.name, os.O_RDONLY, dir_fd=parent_descriptor)
+    real_read = publisher.os.read
+    calls = 0
+
+    def grow_after_read(open_descriptor: int, count: int) -> bytes:
+        nonlocal calls
+        calls += 1
+        chunk = real_read(open_descriptor, count)
+        with target.open("ab") as stream:
+            stream.write(b"growth")
+        return chunk
+
+    monkeypatch.setattr(publisher.os, "read", grow_after_read)
+    try:
+        with pytest.raises(publisher.EntryAuthorityError) as error:
+            publisher.publication_observation(parent_descriptor, target.name, descriptor, "growing.json")
+    finally:
+        os.close(descriptor)
+        os.close(parent_descriptor)
+
+    assert calls == 2
+    assert error.value.code == "V23_PUBLICATION_FINAL_IDENTITY_DRIFT"
+
+
+def test_write_correction_revalidates_visible_record_and_all_inputs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Replacement and stale-input races cannot receive a V24 write-success token."""
+
+    for fault in ("record-replacement", "stale-input"):
+        root = correction_writer_root(tmp_path / fault)
+        real_atomic_write = publisher.atomic_write
+
+        def race_after_write(
+            base: Path,
+            relative_path: str,
+            content: bytes,
+            *,
+            no_clobber: bool,
+        ) -> tuple[bool, tuple[int, int] | None]:
+            result = real_atomic_write(base, relative_path, content, no_clobber=no_clobber)
+            if fault == "record-replacement":
+                replacement = base / f"{relative_path}.replacement"
+                replacement.write_bytes(b"concurrent replacement\n")
+                replacement.replace(base / relative_path)
+            else:
+                stale = base / publisher.VERIFIER_TEST_PATH
+                stale.write_bytes(stale.read_bytes() + b"\n# concurrent drift\n")
+            return result
+
+        monkeypatch.setattr(publisher, "atomic_write", race_after_write)
+        exit_code = publisher.main(["--repository", str(root), "--write-correction"])
+        result = json.loads(capsys.readouterr().out)
+
+        assert exit_code == 2
+        assert "V24_STORY_7_1_TOOLING_CORRECTION_WRITTEN" not in json.dumps(result)
+        assert result["blockers"][0]["code"] == (
+            "V24_PUBLICATION_FINAL_IDENTITY_DRIFT"
+            if fault == "record-replacement"
+            else "V24_TOOLING_INPUT_DRIFT"
+        )
+        assert not (root / publisher.CORRECTION_PATH).exists()
+        assert list((root / publisher.CORRECTION_PATH).parent.glob(".v24-story-7.1-entry-tooling-correction-v1.json.rollback.*"))
+        monkeypatch.setattr(publisher, "atomic_write", real_atomic_write)
+
+
+def test_write_correction_detects_early_input_change_during_final_snapshot(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Forward/reverse retained observations catch an early input changed during the final scan."""
+
+    root = correction_writer_root(tmp_path)
+    real_observation = publisher.publication_observation
+    changed = False
+
+    def mutate_during_turn(
+        parent_descriptor: int,
+        name: str,
+        descriptor: int,
+        relative_path: str,
+    ) -> tuple[bytes, tuple[int, int, int, int, int, int, int]]:
+        nonlocal changed
+        observation = real_observation(parent_descriptor, name, descriptor, relative_path)
+        if relative_path == publisher.CORRECTION_PATH and not changed:
+            changed = True
+            early_input = root / publisher.CORRECTION_MANIFEST_PATHS[0]
+            early_input.write_bytes(early_input.read_bytes() + b"\n")
+        return observation
+
+    monkeypatch.setattr(publisher, "publication_observation", mutate_during_turn)
+
+    exit_code = publisher.main(["--repository", str(root), "--write-correction"])
+    result = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert result["blockers"][0]["code"] == "V24_TOOLING_INPUT_DRIFT"
+    assert "V24_STORY_7_1_TOOLING_CORRECTION_WRITTEN" not in json.dumps(result)
+    assert not (root / publisher.CORRECTION_PATH).exists()
 
 
 def test_request_scope_manifest_and_descendant_faults_have_stable_codes(tmp_path: Path) -> None:
@@ -804,6 +1326,337 @@ def operational_envelope(
     )
 
 
+def correction_repository(tmp_path: Path) -> tuple[Path, str]:
+    """Build the exact direct-child V24 correction from immutable V23."""
+
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    root = tmp_path / "candidate"
+    subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
+    configure_correction_sparse_checkout(root)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", publisher.V23_REQUEST_PUBLICATION], check=True)
+    git(root, "config", "user.name", "V24 fixture")
+    git(root, "config", "user.email", "v24-fixture@example.invalid")
+    for relative_path in publisher.CORRECTION_MANIFEST_PATHS:
+        target = root / relative_path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(ROOT / relative_path, target)
+    correction = publisher.render_correction(root)
+    correction_path = root / publisher.CORRECTION_PATH
+    correction_path.parent.mkdir(parents=True, exist_ok=True)
+    correction_path.write_bytes(publisher.json_bytes(correction))
+    correction_commit = commit(
+        root,
+        "fix(planning): publish V24 tooling correction fixture",
+        *publisher.CORRECTION_PATHS,
+    )
+    return root, correction_commit
+
+
+def v24_full_history_repository(tmp_path: Path, scenario: str) -> tuple[Path, str]:
+    """Build one add/delete/re-add or TREESAME-merge V24 history."""
+
+    root, correction = correction_repository(tmp_path)
+    correction_content = (root / publisher.CORRECTION_PATH).read_bytes()
+    if scenario == "readd":
+        (root / publisher.CORRECTION_PATH).unlink()
+        commit(root, "test: delete V24 correction", publisher.CORRECTION_PATH)
+        (root / publisher.CORRECTION_PATH).write_bytes(correction_content)
+        return root, commit(root, "test: re-add V24 correction", publisher.CORRECTION_PATH)
+    if scenario != "treesame":
+        raise AssertionError(f"unknown V24 history scenario: {scenario}")
+
+    for relative_path in publisher.CORRECTION_MANIFEST_PATHS:
+        exists = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "cat-file",
+                "-e",
+                f"{publisher.V23_REQUEST_PUBLICATION}:{relative_path}",
+            ],
+            check=False,
+        ).returncode == 0
+        if exists:
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(root),
+                    "checkout",
+                    publisher.V23_REQUEST_PUBLICATION,
+                    "--",
+                    relative_path,
+                ],
+                check=True,
+            )
+        else:
+            (root / relative_path).unlink()
+    (root / publisher.CORRECTION_PATH).unlink()
+    side_tip = commit(
+        root,
+        "test: revert V24 correction on side branch",
+        *publisher.CORRECTION_PATHS,
+    )
+    subprocess.run(["git", "-C", str(root), "branch", "v24-side", side_tip], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-C",
+            str(root),
+            "switch",
+            "-q",
+            "-c",
+            "v24-main",
+            publisher.V23_REQUEST_PUBLICATION,
+        ],
+        check=True,
+    )
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "-C",
+            str(root),
+            "merge",
+            "-q",
+            "--no-ff",
+            "-m",
+            "test: merge TREESAME V24 side history",
+            "v24-side",
+        ],
+        check=True,
+    )
+    candidate = git(root, "rev-parse", "HEAD")
+    assert git(root, "rev-parse", f"{candidate}^{{tree}}") == git(
+        root,
+        "rev-parse",
+        f"{publisher.V23_REQUEST_PUBLICATION}^{{tree}}",
+    )
+    assert git(root, "rev-list", "--parents", "-n", "1", candidate).split() == [
+        candidate,
+        publisher.V23_REQUEST_PUBLICATION,
+        side_tip,
+    ]
+    assert correction != candidate
+    return root, candidate
+
+
+@pytest.mark.parametrize(
+    ("scenario", "expected_code"),
+    (
+        ("readd", "V24_CORRECTION_PUBLICATION_MISSING"),
+        ("treesame", "V24_TOOLING_MODE_DRIFT"),
+    ),
+)
+def test_v24_publication_search_traverses_full_history(
+    tmp_path: Path,
+    scenario: str,
+    expected_code: str,
+) -> None:
+    """Immutable publication lookup sees duplicate re-adds and TREESAME side history."""
+
+    root, candidate = v24_full_history_repository(tmp_path, scenario)
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.validate_correction(root, candidate)
+
+    assert error.value.code == expected_code
+
+
+def v24_fault_repository(tmp_path: Path, fault: str) -> tuple[Path, str]:
+    """Fault one independently authenticated V24 boundary in a production-shaped fixture."""
+
+    if fault == "corrected_blob":
+        root = correction_writer_root(tmp_path)
+        git(root, "config", "user.name", "V24 fixture")
+        git(root, "config", "user.email", "v24-fixture@example.invalid")
+        publisher_path = root / publisher.PUBLISHER_PATH
+        publisher_path.write_bytes(publisher_path.read_bytes() + b"\n# V24 corrected-blob fault\n")
+        correction_path = root / publisher.CORRECTION_PATH
+        correction_path.parent.mkdir(parents=True, exist_ok=True)
+        correction_path.write_bytes(publisher.json_bytes(publisher.render_correction(root)))
+        return root, commit(
+            root,
+            "test: publish hostile V24 corrected blob",
+            *publisher.CORRECTION_PATHS,
+        )
+    root, candidate = correction_repository(tmp_path)
+    correction_path = root / publisher.CORRECTION_PATH
+    if fault == "topology":
+        baseline_tree = git(root, "rev-parse", f"{publisher.V23_REQUEST_PUBLICATION}^{{tree}}")
+        intermediate = subprocess.check_output(
+            [
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "-C",
+                str(root),
+                "commit-tree",
+                baseline_tree,
+                "-p",
+                publisher.V23_REQUEST_PUBLICATION,
+                "-m",
+                "test: insert V24 topology fault",
+            ],
+            text=True,
+        ).strip()
+        candidate_tree = git(root, "rev-parse", f"{candidate}^{{tree}}")
+        fault_candidate = subprocess.check_output(
+            [
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "-C",
+                str(root),
+                "commit-tree",
+                candidate_tree,
+                "-p",
+                intermediate,
+                "-m",
+                "test: publish V24 with wrong parent",
+            ],
+            text=True,
+        ).strip()
+        return root, fault_candidate
+    if fault == "manifest":
+        correction = json.loads(correction_path.read_bytes())
+        correction["toolingTransaction"]["manifest"][0]["sha256"] = "0" * 64
+        correction_path.write_bytes(publisher.json_bytes(correction))
+        amended_paths = (publisher.CORRECTION_PATH,)
+    elif fault == "scope":
+        extra = root / "unexpected-v24.txt"
+        extra.write_text("unexpected V24 scope\n", encoding="utf-8")
+        amended_paths = ("unexpected-v24.txt",)
+    elif fault == "schema":
+        schema_path = root / publisher.CORRECTION_SCHEMA_PATH
+        schema_path.write_bytes(schema_path.read_bytes() + b" \n")
+        amended_paths = (publisher.CORRECTION_SCHEMA_PATH,)
+    elif fault == "root_gitlink":
+        gitlink_path = "references/v24-root-gitlink-fault"
+        subprocess.run(
+            [
+                "git",
+                "-C",
+                str(root),
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"160000,{publisher.V23_REQUEST_PUBLICATION},{gitlink_path}",
+            ],
+            check=True,
+        )
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "-C",
+                str(root),
+                "commit",
+                "-q",
+                "-m",
+                "test: drift V24 root gitlink state",
+            ],
+            check=True,
+        )
+        return root, git(root, "rev-parse", "HEAD")
+    else:
+        raise AssertionError(f"unknown V24 fault: {fault}")
+    subprocess.run(["git", "-C", str(root), "add", "--sparse", "--", *amended_paths], check=True)
+    subprocess.run(
+        ["git", "-c", "commit.gpgsign=false", "-C", str(root), "commit", "-q", "--amend", "--no-edit"],
+        check=True,
+    )
+    return root, git(root, "rev-parse", "HEAD")
+
+
+def test_verify_correction_cli_accepts_exact_v24_and_rejects_malformed_descendant(tmp_path: Path) -> None:
+    """The operator CLI exposes both valid and invalid correction dispatch paths."""
+
+    root, correction_commit = correction_repository(tmp_path)
+    command = [
+        sys.executable,
+        str(root / publisher.PUBLISHER_PATH),
+        "--repository",
+        str(root),
+        "--candidate",
+        correction_commit,
+        "--verify-correction",
+    ]
+    valid = subprocess.run(command, capture_output=True, text=True, check=False)
+
+    assert valid.returncode == 0, valid.stdout + valid.stderr
+    assert "V24_STORY_7_1_TOOLING_CORRECTION_OK" in valid.stdout
+
+    correction_path = root / publisher.CORRECTION_PATH
+    correction_path.write_bytes(correction_path.read_bytes().replace(b'"result": "PASS"', b'"result": "FAIL"', 1))
+    malformed = commit(root, "test: drift V24 correction", publisher.CORRECTION_PATH)
+    invalid = subprocess.run(command[:-2] + [malformed, "--verify-correction"], capture_output=True, text=True, check=False)
+    result = json.loads(invalid.stdout)
+
+    assert invalid.returncode == 2
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == "V24_CORRECTION_DESCENDANT_DRIFT"
+
+
+def test_v24_correction_raw_duplicate_controls_fail_closed(tmp_path: Path) -> None:
+    """A duplicate correction control is rejected before schema or publisher trust."""
+
+    root, _correction_commit = correction_repository(tmp_path)
+    path = root / publisher.CORRECTION_PATH
+    content = path.read_bytes().replace(
+        b'{\n  "schemaVersion":',
+        b'{\n  "executionAllowed": false,\n  "executionAllowed": true,\n  "schemaVersion":',
+        1,
+    )
+    path.write_bytes(content)
+    subprocess.run(["git", "-C", str(root), "add", "--", publisher.CORRECTION_PATH], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-q", "--amend", "--no-edit"], check=True)
+    candidate = git(root, "rev-parse", "HEAD")
+
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.validate_correction(root, candidate)
+
+    assert error.value.code == "V24_CORRECTION_INVALID"
+    assert "duplicate JSON property" in error.value.detail
+
+
+def test_v24_correction_rejects_ninth_path_and_descendant_record_modes(tmp_path: Path) -> None:
+    """The publisher closes the publication scope and both evaluated record modes."""
+
+    scope_root, scope_candidate = v24_fault_repository(tmp_path / "scope", "scope")
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.validate_correction(scope_root, scope_candidate)
+    assert error.value.code == "V24_TOOLING_SCOPE_DRIFT"
+
+    for relative_path in (publisher.CORRECTION_PATH, publisher.REQUEST_PATH):
+        root, correction_commit = correction_repository(tmp_path / Path(relative_path).name)
+        subprocess.run(["git", "-C", str(root), "update-index", "--chmod=+x", relative_path], check=True)
+        subprocess.run(
+            [
+                "git",
+                "-c",
+                "commit.gpgsign=false",
+                "-C",
+                str(root),
+                "commit",
+                "-q",
+                "-m",
+                "test: drift evaluated V24 record mode",
+            ],
+            check=True,
+        )
+        descendant = git(root, "rev-parse", "HEAD")
+
+        with pytest.raises(publisher.EntryAuthorityError) as error:
+            publisher.validate_correction(root, descendant)
+
+        assert descendant != correction_commit
+        assert error.value.code == "V24_TOOLING_MODE_DRIFT"
+
+
 def authority_repository(
     tmp_path: Path,
     *,
@@ -814,9 +1667,9 @@ def authority_repository(
     source_committed_at: str = "2026-09-20T10:00:00Z",
     publication_committed_at: str = "2026-09-20T13:00:00Z",
 ) -> tuple[Path, str, str, bytes]:
-    """Build a request, gate-evidence source, and unsigned two-path authority fixture."""
+    """Build a V24 correction, gate-evidence source, and two-path authority fixture."""
 
-    root, request_commit = candidate_repository(tmp_path)
+    root, request_commit = correction_repository(tmp_path)
     evidence_paths = {
         "preservation": publisher.PRESERVATION_EVIDENCE_PATH,
         "performance": publisher.PERFORMANCE_EVIDENCE_PATH,
@@ -1078,7 +1931,7 @@ def test_authority_chronology_uses_graph_ancestry_not_git_commit_dates(tmp_path:
 def test_authority_render_requires_request_ancestry(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """A request identity outside the evidence-source ancestry fails before evidence evaluation."""
 
-    root, source = candidate_repository(tmp_path)
+    root, source = correction_repository(tmp_path)
     empty_tree = subprocess.check_output(
         ["git", "-C", str(root), "mktree"],
         input=b"",
@@ -1113,7 +1966,7 @@ def test_authority_render_requires_request_ancestry(tmp_path: Path, monkeypatch:
             landing_zone_evidence=publisher.LANDING_ZONE_EVIDENCE_PATH,
         )
 
-    assert error.value.code == "V23_GATE_EVIDENCE_GRAPH_DRIFT"
+    assert error.value.code == "V24_V23_PUBLICATION_DRIFT"
 
 
 def test_publish_authority_cli_writes_exact_pair(tmp_path: Path) -> None:
@@ -1165,7 +2018,7 @@ def test_publish_authority_cli_writes_exact_pair(tmp_path: Path) -> None:
 def test_gate_evidence_source_rejects_unexpected_paths(tmp_path: Path) -> None:
     """The approval source may add only the declared gate-evidence paths."""
 
-    root, _request_commit = candidate_repository(tmp_path)
+    root, _request_commit = correction_repository(tmp_path)
     evidence_paths = {
         "preservation": publisher.PRESERVATION_EVIDENCE_PATH,
         "performance": publisher.PERFORMANCE_EVIDENCE_PATH,
@@ -1793,6 +2646,76 @@ def test_successor_workflow_materializes_and_executes_protected_base_hosts(tmp_p
         [sys.executable, str(materialized / "verify_evidence_boundary.py")],
         text=True,
     ).strip() == "protected-base-verifier"
+
+
+def run_workflow_current_authority_checker(
+    tmp_path: Path,
+    document: dict[str, object],
+) -> subprocess.CompletedProcess[str]:
+    """Run the checked-in workflow checker against a controlled resolver result."""
+
+    runner_temp = tmp_path / "workflow-result-checker"
+    host = runner_temp / "planning-authority-protected-host"
+    python_path = host / ".venv/bin/python"
+    python_path.parent.mkdir(parents=True)
+    python_path.symlink_to(sys.executable)
+    (runner_temp / "planning-authority-protected-home").mkdir()
+    encoded = json.dumps(document, sort_keys=True)
+    (host / "resolve_current_planning_authority.py").write_text(
+        "import json\n"
+        "raise_code = {\"PASS\": 0, \"FAIL\": 1, \"BLOCKED\": 2}\n"
+        f"document = json.loads({encoded!r})\n"
+        "print(json.dumps(document, sort_keys=True))\n"
+        "raise SystemExit(raise_code[document[\"result\"]])\n",
+        encoding="utf-8",
+    )
+    command = workflow_run_block("Resolve current planning authority through the protected host").replace(
+        '"${{ steps.range.outputs.candidate }}"',
+        f'"{"a" * 40}"',
+    )
+    return subprocess.run(
+        ["/bin/bash", "-c", command],
+        cwd=runner_temp,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_WORKSPACE": str(tmp_path),
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+@pytest.mark.parametrize(
+    ("result", "successor"),
+    (("PASS", False), ("PASS", True), ("FAIL", True), ("BLOCKED", True)),
+)
+def test_workflow_current_authority_checker_covers_every_result_alternative(
+    tmp_path: Path,
+    result: str,
+    successor: bool,
+) -> None:
+    """The runnable workflow checker accepts legacy PASS and all V23 result states."""
+
+    document = workflow_current_authority_result(result, successor=successor)
+    completed = run_workflow_current_authority_checker(tmp_path, document)
+
+    assert completed.returncode == document["exitCode"], completed.stderr
+    assert completed.stderr == ""
+
+
+def test_workflow_current_authority_checker_rejects_contradictory_successor_pass(
+    tmp_path: Path,
+) -> None:
+    """The runnable workflow checker rejects a V23 PASS that disables execution."""
+
+    document = workflow_current_authority_result("PASS", successor=True)
+    document["executionAllowed"] = False
+    completed = run_workflow_current_authority_checker(tmp_path, document)
+
+    assert completed.returncode != 0
+    assert "protected successor result violated its executable PASS contract" in completed.stderr
 
 
 def test_synchronized_project_venv_imports_jsonschema_in_clean_environment(tmp_path: Path) -> None:
@@ -2432,6 +3355,40 @@ def test_authority_initial_fstat_failure_quarantines_created_path(
     assert quarantines[0].read_bytes() == b""
 
 
+def test_authority_descriptor_close_failure_quarantines_created_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A close fault before ownership returns remains inside rollback coverage."""
+
+    root = tmp_path / "authority-close-fault"
+    root.mkdir()
+    authority = root / publisher.AUTHORITY_PATH
+    authority.parent.mkdir(parents=True)
+    real_close = publisher.os.close
+    real_fstat = publisher.os.fstat
+    failed = False
+
+    def fail_first_regular_close(descriptor: int) -> None:
+        nonlocal failed
+        if not failed and publisher.stat.S_ISREG(real_fstat(descriptor).st_mode):
+            failed = True
+            raise OSError("fixture authority descriptor close failure")
+        real_close(descriptor)
+
+    monkeypatch.setattr(publisher.os, "close", fail_first_regular_close)
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.atomic_write(root, publisher.AUTHORITY_PATH, b"authority\n", no_clobber=True)
+
+    assert error.value.code == "V23_WRITE_FAILED"
+    assert "rollbackQuarantine=" in error.value.detail
+    assert failed is True
+    assert not authority.exists()
+    quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
+    assert len(quarantines) == 1
+    assert quarantines[0].read_bytes() == b"authority\n"
+
+
 def test_authority_post_create_hard_link_is_quarantined_without_erasing_alias(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -2491,6 +3448,42 @@ def test_quarantine_open_failure_reports_exact_preserved_path(
         publisher.remove_owned_file(root, publisher.AUTHORITY_PATH, b"authority\n", identity)
 
     assert error.value.code == "V23_ROLLBACK_FAILED"
+    quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
+    assert len(quarantines) == 1
+    assert str(quarantines[0].relative_to(root)) in error.value.detail
+    assert quarantines[0].read_bytes() == b"authority\n"
+
+
+def test_quarantine_descriptor_close_failure_reports_exact_preserved_path(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A close fault after quarantine reports the stable path retaining the bytes."""
+
+    root = tmp_path / "quarantine-close-fault"
+    root.mkdir()
+    authority = root / publisher.AUTHORITY_PATH
+    authority.parent.mkdir(parents=True)
+    authority.write_bytes(b"authority\n")
+    identity = (authority.stat().st_dev, authority.stat().st_ino)
+    real_close = publisher.os.close
+    real_fstat = publisher.os.fstat
+    failed = False
+
+    def fail_owned_inode_close(descriptor: int) -> None:
+        nonlocal failed
+        metadata = real_fstat(descriptor)
+        if not failed and (metadata.st_dev, metadata.st_ino) == identity:
+            failed = True
+            raise OSError("fixture quarantine descriptor close failure")
+        real_close(descriptor)
+
+    monkeypatch.setattr(publisher.os, "close", fail_owned_inode_close)
+    with pytest.raises(publisher.EntryAuthorityError) as error:
+        publisher.remove_owned_file(root, publisher.AUTHORITY_PATH, b"authority\n", identity)
+
+    assert error.value.code == "V23_ROLLBACK_FAILED"
+    assert failed is True
     quarantines = list(authority.parent.glob(".v23-story-7.1-entry-authority-v1.json.rollback.*"))
     assert len(quarantines) == 1
     assert str(quarantines[0].relative_to(root)) in error.value.detail

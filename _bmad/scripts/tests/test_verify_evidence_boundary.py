@@ -7,6 +7,7 @@ import json
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 from typing import Any, Callable
 
 import pytest
@@ -24,6 +25,39 @@ PUBLISHER_SPEC = importlib.util.spec_from_file_location("v23_publisher_for_verif
 assert PUBLISHER_SPEC is not None and PUBLISHER_SPEC.loader is not None
 publisher = importlib.util.module_from_spec(PUBLISHER_SPEC)
 PUBLISHER_SPEC.loader.exec_module(publisher)
+
+
+def v24_correction_repository(tmp_path: Path) -> tuple[Path, str]:
+    """Build the production-shaped V24 correction through the publisher fixture."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_evidence_correction_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.correction_repository(tmp_path)
+
+
+def v24_fault_repository(tmp_path: Path, fault: str) -> tuple[Path, str]:
+    """Build one independently faulted V24 production-route fixture."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_evidence_fault_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.v24_fault_repository(tmp_path, fault)
+
+
+def v24_full_history_repository(tmp_path: Path, scenario: str) -> tuple[Path, str]:
+    """Build a V24 history fixture that path-limited Git traversal can prune."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_evidence_history_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.v24_full_history_repository(tmp_path, scenario)
 
 
 def init_repository(path: Path) -> None:
@@ -803,37 +837,10 @@ def test_evidence_host_authenticates_v23_publisher_before_loading(tmp_path: Path
 
     root = tmp_path / "v23"
     subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
-    subprocess.run(
-        [
-            "git",
-            "-C",
-            str(root),
-            "sparse-checkout",
-            "set",
-            "--no-cone",
-            *verifier.V23_TOOLING_PATHS,
-        ],
-        check=True,
-    )
-    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_TOOLING_BASELINE], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_REQUEST_PUBLICATION], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Verifier"], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.email", "verifier@example.invalid"], check=True)
-    for relative in verifier.V23_TOOLING_PATHS:
-        if relative == verifier.V23_REQUEST_PATH:
-            continue
-        target = root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative, target)
-    request = publisher.render_request(root)
-    request_path = root / verifier.V23_REQUEST_PATH
-    request_path.parent.mkdir(parents=True, exist_ok=True)
-    request_path.write_bytes(publisher.json_bytes(request))
-    subprocess.run(
-        ["git", "-C", str(root), "add", "--sparse", "--", *verifier.V23_TOOLING_PATHS],
-        check=True,
-    )
-    subprocess.run(["git", "-C", str(root), "commit", "-q", "-m", "test: V23 request"], check=True)
-    candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+    candidate = verifier.V23_REQUEST_PUBLICATION
 
     module, publication = verifier.load_v23_publisher(root, candidate)
 
@@ -848,24 +855,305 @@ def test_evidence_host_authenticates_v23_publisher_before_loading(tmp_path: Path
     assert result["assertionLedger"]
 
 
+def test_evidence_host_passes_exact_v24_with_eight_path_nonvacuous_scope(tmp_path: Path) -> None:
+    """Successor-aware evidence validates exact V24 while execution remains false."""
+
+    root, candidate = v24_correction_repository(tmp_path)
+    result = verifier.verify(root, verifier.V23_REQUEST_PUBLICATION, candidate)
+    row = next(item for item in result["assertionLedger"] if item["id"] == "V24-SCOPE-01")
+
+    assert result["result"] == "PASS"
+    assert tuple(result["changedPaths"]) == verifier.V24_TOOLING_PATHS
+    assert row["state"] == "PASS"
+    assert row["count"] == 8
+    assert row["executionAllowed"] is False
+    assert result["assertionLedger"]
+
+
+@pytest.mark.parametrize(
+    ("fault", "expected_code"),
+    (
+        ("topology", "EVIDENCE_V24_TOOLING_PARENT_MISMATCH"),
+        ("scope", "EVIDENCE_V24_TOOLING_SCOPE_DRIFT"),
+        ("manifest", "EVIDENCE_V24_TOOLING_MANIFEST_DRIFT"),
+        ("corrected_blob", "EVIDENCE_V24_PUBLISHER_IDENTITY_MISMATCH"),
+        ("schema", "EVIDENCE_V24_SCHEMA_IDENTITY_MISMATCH"),
+        ("root_gitlink", "EVIDENCE_V24_ROOT_GITLINK_DRIFT"),
+    ),
+)
+def test_v24_evidence_production_route_faults_block_before_execution(
+    tmp_path: Path,
+    capsys: pytest.CaptureFixture[str],
+    fault: str,
+    expected_code: str,
+) -> None:
+    """Each independent V24 fault reaches the production gate and blocks its route."""
+
+    root, candidate = v24_fault_repository(tmp_path, fault)
+
+    exit_code = verifier.main(
+        [
+            "--repository",
+            str(root),
+            "--baseline",
+            verifier.V23_REQUEST_PUBLICATION,
+            "--candidate",
+            candidate,
+        ]
+    )
+    document = json.loads(capsys.readouterr().out)
+
+    assert exit_code == 2
+    assert document["result"] == "BLOCKED"
+    assert document["candidate"] is None
+    assert document["assertionLedger"]
+    assert all(row["state"] == "BLOCKED" for row in document["assertionLedger"])
+    assert len(document["blockers"]) == 1
+    assert document["blockers"][0]["code"] == expected_code
+    assert document["blockers"][0]["state"] == "BLOCKED"
+    assert not any(row["id"] == "V24-SCOPE-01" for row in document["assertionLedger"])
+
+
+def test_evidence_host_rejects_v24_record_mode_drift(tmp_path: Path) -> None:
+    """The independent host checks the correction record's raw mode before execution."""
+
+    root, _candidate = v24_correction_repository(tmp_path)
+    subprocess.run(["git", "-C", str(root), "update-index", "--chmod=+x", verifier.V24_CORRECTION_PATH], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-q", "--amend", "--no-edit"], check=True)
+    candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.load_v24_publisher(root, candidate)
+
+    assert error.value.code == "EVIDENCE_V24_TOOLING_MODE_DRIFT"
+
+
+@pytest.mark.parametrize("relative_path", (verifier.V24_CORRECTION_PATH, verifier.V23_REQUEST_PATH))
+def test_evidence_host_rejects_descendant_request_and_correction_mode_drift(
+    tmp_path: Path,
+    relative_path: str,
+) -> None:
+    """Mode-only descendant drift stays on the V24 evidence route and blocks."""
+
+    root, correction = v24_correction_repository(tmp_path)
+    subprocess.run(["git", "-C", str(root), "update-index", "--chmod=+x", relative_path], check=True)
+    subprocess.run(
+        ["git", "-c", "commit.gpgsign=false", "-C", str(root), "commit", "-q", "-m", "test: drift evaluated V24 record mode"],
+        check=True,
+    )
+    candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_v24_scope(root, candidate)
+
+    assert candidate != correction
+    assert error.value.code == "EVIDENCE_V24_TOOLING_MODE_DRIFT"
+
+
+def test_evidence_route_is_sticky_for_marker_free_deleted_and_reverted_v24_descendants(tmp_path: Path) -> None:
+    """V24 ancestry cannot disappear into the legacy V23 evidence route."""
+
+    marker_root, correction = v24_correction_repository(tmp_path / "marker-free")
+    unrelated = marker_root / "unrelated-v24-descendant.txt"
+    unrelated.write_text("marker-free descendant\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(marker_root), "add", "--sparse", "--", unrelated.name], check=True)
+    subprocess.run(
+        [
+            "git",
+            "-c",
+            "commit.gpgsign=false",
+            "-C",
+            str(marker_root),
+            "commit",
+            "-q",
+            "-m",
+            "test: add marker-free V24 descendant",
+        ],
+        check=True,
+    )
+    marker_candidate = subprocess.check_output(
+        ["git", "-C", str(marker_root), "rev-parse", "HEAD"],
+        text=True,
+    ).strip()
+    assert marker_candidate != correction
+    assert verifier.authority_route(marker_root, marker_candidate) == "v24"
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_v24_scope(marker_root, marker_candidate)
+    assert error.value.code == "EVIDENCE_V24_DESCENDANT_REQUIRES_AUTHORITY"
+
+    for restore_v23_tooling in (False, True):
+        root, _correction = v24_correction_repository(tmp_path / f"deleted-{restore_v23_tooling}")
+        (root / verifier.V24_CORRECTION_PATH).unlink()
+        if restore_v23_tooling:
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(root),
+                    "checkout",
+                    verifier.V23_REQUEST_PUBLICATION,
+                    "--",
+                    verifier.V23_PUBLISHER_PATH,
+                    "_bmad/scripts/verify_evidence_boundary.py",
+                ],
+                check=True,
+            )
+        candidate = commit_all(root, "test: delete V24 route without authority")
+
+        assert verifier.authority_route(root, candidate) == "v24"
+        with pytest.raises(verifier.BoundaryError) as error:
+            verifier.validate_v24_scope(root, candidate)
+        assert error.value.code == "EVIDENCE_V24_TOOLING_MODE_DRIFT"
+
+
+@pytest.mark.parametrize(
+    ("scenario", "expected_code"),
+    (
+        ("readd", "EVIDENCE_V24_CORRECTION_PUBLICATION_MISSING"),
+        ("treesame", "EVIDENCE_V24_TOOLING_MODE_DRIFT"),
+    ),
+)
+def test_v24_evidence_production_route_traverses_full_history(
+    tmp_path: Path,
+    scenario: str,
+    expected_code: str,
+) -> None:
+    """Sticky routing sees TREESAME ancestry and rejects duplicate correction additions."""
+
+    root, candidate = v24_full_history_repository(tmp_path, scenario)
+
+    assert verifier.authority_route(root, candidate) == "v24"
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_v24_scope(root, candidate)
+
+    assert error.value.code == expected_code
+
+
+def test_evidence_host_rejects_self_consistent_hostile_v24_publisher(tmp_path: Path) -> None:
+    """A hostile publisher and matching manifest cannot redefine the evidence trust root."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_evidence_hostile_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    root = fixtures.correction_writer_root(tmp_path)
+    subprocess.run(["git", "-C", str(root), "config", "user.name", "V24 hostile fixture"], check=True)
+    subprocess.run(["git", "-C", str(root), "config", "user.email", "v24-hostile@example.invalid"], check=True)
+    (root / verifier.V23_PUBLISHER_PATH).write_text(
+        "def validate_correction(*args, **kwargs): return ({}, '0' * 40, b'')\n"
+        "def validate_current_request(*args, **kwargs): return ({}, '0' * 40, b'', '0' * 40)\n"
+        "def request_check_result(*args, **kwargs): return {'result': 'PASS'}\n"
+        "def resolve_published_authority(*args, **kwargs): return {'result': 'PASS'}\n",
+        encoding="utf-8",
+    )
+    correction = publisher.render_correction(root)
+    (root / verifier.V24_CORRECTION_PATH).write_bytes(publisher.json_bytes(correction))
+    subprocess.run(["git", "-C", str(root), "add", "--", *verifier.V24_TOOLING_PATHS], check=True)
+    subprocess.run(
+        ["git", "-c", "commit.gpgsign=false", "-C", str(root), "commit", "-q", "-m", "test: publish hostile V24 tooling"],
+        check=True,
+    )
+    candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.load_v24_publisher(root, candidate)
+
+    assert error.value.code == "EVIDENCE_V24_PUBLISHER_IDENTITY_MISMATCH"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    (
+        lambda document: document["assertionLedger"].__setitem__(0, "scalar"),
+        lambda document: document["assertionLedger"][0].update({"extra": "open"}),
+        lambda document: document["assertionLedger"][0].update({"detail": ""}),
+        lambda document: document["blockers"].__setitem__(0, "scalar"),
+        lambda document: document["blockers"][0].update({"extra": "open"}),
+        lambda document: document["blockers"][0].update({"detail": ""}),
+    ),
+)
+def test_evidence_v24_host_rejects_nonclosed_nested_request_rows(
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: Callable[[dict[str, Any]], None],
+) -> None:
+    """Corrected request rows remain closed under the independent evidence host."""
+
+    candidate = "0" * 40
+    request = publisher.render_request(ROOT)
+    malformed = publisher.request_check_result(request, verifier.V23_REQUEST_PUBLICATION)
+    mutation(malformed)
+
+    class MalformedModule:
+        @staticmethod
+        def validate_correction(*_args: object, **_kwargs: object) -> tuple[dict[str, object], str, bytes]:
+            return {}, candidate, b"correction"
+
+        @staticmethod
+        def validate_current_request(*_args: object, **_kwargs: object) -> tuple[dict[str, object], str, bytes, str]:
+            return request, verifier.V23_REQUEST_PUBLICATION, b"request", candidate
+
+        @staticmethod
+        def request_check_result(*_args: object, **_kwargs: object) -> dict[str, object]:
+            return malformed
+
+    monkeypatch.setattr(verifier, "load_v24_publisher", lambda _root, _candidate: (MalformedModule(), candidate))
+    monkeypatch.setattr(verifier, "v23_marker_complete", lambda _root, _candidate: False)
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_v24_scope(ROOT, candidate)
+
+    assert error.value.code == "EVIDENCE_V24_REQUEST_RESULT_INVALID"
+
+
+def test_protected_v23_base_host_exposes_v24_bootstrap_blocker(tmp_path: Path) -> None:
+    """The unchanged protected-base verifier visibly blocks V24 until host migration."""
+
+    root, candidate = v24_correction_repository(tmp_path / "candidate")
+    protected_host = tmp_path / "protected-v23-verifier.py"
+    protected_host.write_bytes(
+        subprocess.check_output(
+            [
+                "git",
+                "-C",
+                str(ROOT),
+                "show",
+                f"{verifier.V23_REQUEST_PUBLICATION}:_bmad/scripts/verify_evidence_boundary.py",
+            ]
+        )
+    )
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(protected_host),
+            "--repository",
+            str(root),
+            "--baseline",
+            verifier.V23_REQUEST_PUBLICATION,
+            "--candidate",
+            candidate,
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    document = json.loads(completed.stdout)
+
+    assert completed.returncode == 2
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "EVIDENCE_V23_PUBLISHER_DESCENDANT_DRIFT"
+
+
 def test_evidence_host_rejects_relaxed_candidate_schema_before_publisher_load(tmp_path: Path) -> None:
     """The evidence host pins schema bytes independently of candidate JSON Schema rules."""
 
     root = tmp_path / "relaxed-v23-schema"
     subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
-    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_TOOLING_BASELINE], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_REQUEST_PUBLICATION], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Verifier"], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.email", "verifier@example.invalid"], check=True)
-    for relative in verifier.V23_TOOLING_PATHS:
-        if relative == verifier.V23_REQUEST_PATH:
-            continue
-        target = root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative, target)
-    request = publisher.render_request(root)
     request_path = root / verifier.V23_REQUEST_PATH
-    request_path.parent.mkdir(parents=True, exist_ok=True)
-    request_path.write_bytes(publisher.json_bytes(request))
+    request = json.loads(request_path.read_bytes())
     (root / verifier.V23_SCHEMA_PATH).write_text(
         '{"$schema":"https://json-schema.org/draft/2020-12/schema"}\n',
         encoding="utf-8",
@@ -873,8 +1161,8 @@ def test_evidence_host_rejects_relaxed_candidate_schema_before_publisher_load(tm
     request["executionAllowed"] = True
     request["storyExecution"] = {"7.1": True, "7.2": True, "7.3": False, "7.4": False}
     request_path.write_bytes(publisher.json_bytes(request))
-    subprocess.run(["git", "-C", str(root), "add", "--", *verifier.V23_TOOLING_PATHS], check=True)
-    subprocess.run(["git", "-C", str(root), "commit", "-q", "-m", "test: relaxed V23 schema"], check=True)
+    subprocess.run(["git", "-C", str(root), "add", "--", verifier.V23_SCHEMA_PATH, verifier.V23_REQUEST_PATH], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-q", "--amend", "--no-edit"], check=True)
     candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
 
     with pytest.raises(verifier.BoundaryError) as error:
@@ -883,10 +1171,10 @@ def test_evidence_host_rejects_relaxed_candidate_schema_before_publisher_load(tm
     assert error.value.code == "EVIDENCE_V23_SCHEMA_IDENTITY_MISMATCH"
 
 
-def test_signed_v23_authority_passes_through_production_evidence_host(
+def test_signed_v24_corrected_authority_passes_through_production_evidence_host(
     tmp_path: Path,
 ) -> None:
-    """The evidence host accepts one real signed V23 authority only after authenticated loading."""
+    """The evidence host accepts signed authority only after V24 authenticated loading."""
 
     fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
     fixture_spec = importlib.util.spec_from_file_location("v23_evidence_authority_fixtures", fixture_path)
@@ -907,8 +1195,8 @@ def test_signed_v23_authority_passes_through_production_evidence_host(
         tmp_path / "authority",
         signing_key=private_key,
     )
-    authenticated_module, request_publication = verifier.load_v23_publisher(root, publication)
-    assert request_publication != publication
+    authenticated_module, correction_publication = verifier.load_v24_publisher(root, publication)
+    assert correction_publication != publication
 
     def verify(repo: Path, commit: str, owner: str) -> dict[str, str]:
         facts = authenticated_module.verify_publication_signature(
@@ -933,12 +1221,12 @@ def test_signed_v23_authority_passes_through_production_evidence_host(
         publication,
         signature_verifier=verify,
     )
-    row = next(row for row in result["assertionLedger"] if row["id"] == "V23-SCOPE-01")
+    row = next(row for row in result["assertionLedger"] if row["id"] == "V24-SCOPE-01")
 
     assert result["result"] == "PASS"
     assert row["state"] == "PASS"
     assert row["route"] == "authority"
-    assert row["publisherSha256"] == verifier.V23_PUBLISHER_SHA256
+    assert row["publisherSha256"] == verifier.V24_PUBLISHER_SHA256
 
 
 def test_v23_request_route_rejects_descendants_and_complete_markers(tmp_path: Path) -> None:
@@ -946,22 +1234,9 @@ def test_v23_request_route_rejects_descendants_and_complete_markers(tmp_path: Pa
 
     root = tmp_path / "request-route"
     subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
-    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_TOOLING_BASELINE], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_REQUEST_PUBLICATION], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Verifier"], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.email", "verifier@example.invalid"], check=True)
-    for relative in verifier.V23_TOOLING_PATHS:
-        if relative == verifier.V23_REQUEST_PATH:
-            continue
-        target = root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative, target)
-    request = publisher.render_request(root)
-    request_path = root / verifier.V23_REQUEST_PATH
-    request_path.parent.mkdir(parents=True, exist_ok=True)
-    request_path.write_bytes(publisher.json_bytes(request))
-    subprocess.run(["git", "-C", str(root), "add", "--", *verifier.V23_TOOLING_PATHS], check=True)
-    subprocess.run(["git", "-C", str(root), "commit", "-q", "-m", "test: V23 request"], check=True)
-
     unexpected = root / "unexpected-descendant.txt"
     unexpected.write_text("unexpected\n", encoding="utf-8")
     subprocess.run(["git", "-C", str(root), "add", "unexpected-descendant.txt"], check=True)
@@ -1031,7 +1306,23 @@ def test_evidence_host_rejects_contradictory_v23_results(
                 "authorIdentity": verifier.V23_TRUSTED_OWNER_IDENTITY,
             },
         },
-        "assertionLedger": [{"id": "V23.TEST", "subject": "fixture", "state": "PASS", "detail": "fixture passed"}],
+        "assertionLedger": [
+            {
+                "id": f"V23.AUTHORITY.{index:02d}",
+                "subject": subject,
+                "state": "PASS",
+                "detail": f"{subject} passed",
+            }
+            for index, subject in enumerate(verifier.V23_AUTHORITY_GATE_SUBJECTS, start=1)
+        ]
+        + [
+            {
+                "id": "V23.AUTHORITY.SIGNATURE",
+                "subject": "trusted-owner-publication-signature",
+                "state": "PASS",
+                "detail": "trusted owner publication signature passed",
+            }
+        ],
         "blockers": [],
         "ownerApprovalClaimed": True,
         "releaseAuthorized": False,
@@ -1039,6 +1330,7 @@ def test_evidence_host_rejects_contradictory_v23_results(
         "executionAllowed": True,
         "storyExecution": {"7.1": True, "7.2": False, "7.3": False, "7.4": False},
     }
+    assert verifier.validate_v23_result(document, "PASS") == document
     mutation(document)
 
     with pytest.raises(verifier.BoundaryError) as error:
@@ -1163,6 +1455,67 @@ def test_v23_authority_scope_preserves_authenticated_publisher_failure(
     assert error.value.message == detail
 
 
+@pytest.mark.parametrize("state", ("FAIL", "BLOCKED"))
+def test_v24_authority_scope_preserves_authenticated_publisher_failure(
+    monkeypatch: pytest.MonkeyPatch,
+    state: str,
+) -> None:
+    """Authenticated V24 authority failures preserve publisher state, code, and detail."""
+
+    candidate = "a" * 40
+    correction_publication = "b" * 40
+    code = f"V24_FIXTURE_{state}"
+    detail = f"authenticated V24 publisher returned {state}"
+    document = {
+        "schemaVersion": verifier.V23_RESULT_SCHEMA_VERSION,
+        "result": state,
+        "exitCode": {"FAIL": 1, "BLOCKED": 2}[state],
+        "effectiveHold": "ACTIVE",
+        "implementationHold": "ACTIVE",
+        "observed": {},
+        "assertionLedger": [
+            {
+                "id": code,
+                "subject": "v23-entry-authority",
+                "state": state,
+                "detail": detail,
+            }
+        ],
+        "blockers": [{"code": code, "detail": detail, "assertionIndex": 0}],
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+        "storyExecution": {"7.1": False, "7.2": False, "7.3": False, "7.4": False},
+    }
+
+    class AuthenticatedV24Publisher:
+        @staticmethod
+        def validate_correction(*_args: object, **_kwargs: object) -> tuple[dict[str, object], str, bytes]:
+            return {}, correction_publication, b"correction"
+
+        @staticmethod
+        def resolve_published_authority(*_args: object, **_kwargs: object) -> dict[str, Any]:
+            return document
+
+    loaded: list[str] = []
+
+    def load(_root: Path, evaluated: str) -> tuple[object, str]:
+        loaded.append(evaluated)
+        return AuthenticatedV24Publisher(), correction_publication
+
+    monkeypatch.setattr(verifier, "load_v24_publisher", load)
+    monkeypatch.setattr(verifier, "v23_marker_complete", lambda _root, _candidate: True)
+
+    with pytest.raises(verifier.BoundaryError) as error:
+        verifier.validate_v24_scope(ROOT, candidate)
+
+    assert loaded == [candidate]
+    assert error.value.code == code
+    assert error.value.state == state
+    assert error.value.message == detail
+
+
 def test_evidence_host_rejects_blocker_without_matching_ledger_row() -> None:
     """A blocker must correlate to an equally detailed non-PASS assertion."""
 
@@ -1279,22 +1632,10 @@ def test_production_verify_ignores_all_governed_dirty_worktree_categories(tmp_pa
 
     root = tmp_path / "dirty-production"
     subprocess.run(["git", "clone", "-q", "--shared", str(ROOT), str(root)], check=True)
-    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_TOOLING_BASELINE], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", verifier.V23_REQUEST_PUBLICATION], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.name", "Verifier"], check=True)
     subprocess.run(["git", "-C", str(root), "config", "user.email", "verifier@example.invalid"], check=True)
-    for relative in verifier.V23_TOOLING_PATHS:
-        if relative == verifier.V23_REQUEST_PATH:
-            continue
-        target = root / relative
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative, target)
-    request = publisher.render_request(root)
-    request_path = root / verifier.V23_REQUEST_PATH
-    request_path.parent.mkdir(parents=True, exist_ok=True)
-    request_path.write_bytes(publisher.json_bytes(request))
-    subprocess.run(["git", "-C", str(root), "add", "--", *verifier.V23_TOOLING_PATHS], check=True)
-    subprocess.run(["git", "-C", str(root), "commit", "-q", "-m", "test: V23 request"], check=True)
-    candidate = subprocess.check_output(["git", "-C", str(root), "rev-parse", "HEAD"], text=True).strip()
+    candidate = verifier.V23_REQUEST_PUBLICATION
 
     dirty_paths = (
         verifier.ACTIVE_ROUTE_PATHS[0],

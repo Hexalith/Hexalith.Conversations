@@ -1,0 +1,194 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-entry-tooling-correction.v1",
+  "recordType": "TOOLING_CORRECTION",
+  "correctionId": "V24-STORY-7.1-ENTRY-TOOLING-CORRECTION-v1",
+  "predecessor": {
+    "requestPath": "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json",
+    "publicationCommit": "5a7234b922371b5d0a12085a444d93783263f278",
+    "publicationTree": "1d5ab0e9fd2e4f18bef0f605950a801723613b1e",
+    "requestSha256": "caa3dfbefeb716233081b0df3c7dcbf2a326f105594b23d42db1624fc4cf9d39",
+    "publisherSha256": "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
+  },
+  "toolingTransaction": {
+    "baselineCommit": "5a7234b922371b5d0a12085a444d93783263f278",
+    "baselineTree": "1d5ab0e9fd2e4f18bef0f605950a801723613b1e",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json",
+      "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_entry_authority.py",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py"
+    ],
+    "requiredMode": "100644",
+    "selfExcludedManifestSha256": "c3288da05285efce068e23e5723d5b0af93b111de1abb9bed10c1237eba74518",
+    "manifest": [
+      {
+        "path": "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+        "mode": "100644",
+        "objectId": "6e3fafbe4d8a02c199429fe3c838a1edb93d9a2a",
+        "sha256": "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_entry_authority.py",
+        "mode": "100644",
+        "objectId": "b5500ca327f4b45dce4084ba39eebc647d4c5cfe",
+        "sha256": "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
+      },
+      {
+        "path": "_bmad/scripts/resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "c17f7888ddd16880d5376cc3bdff017f1b4a3140",
+        "sha256": "a9ab76fa73f5dbbc3e1558571881492b7743779f25f1c5a11ca34d0dfc34324e"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+        "mode": "100644",
+        "objectId": "1d79f2c2df53745ab5d862ddb33e239ef9008638",
+        "sha256": "e2528853f6a8b4ed3db694f820da70961cb09bd88b46190005aee55dc7828278"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "d8053736b05c70df7be4455ffd0f397463c326f0",
+        "sha256": "794768a535a85ab574ab2084e0338781561dfc09c61c3d99727a5f5ed356bb94"
+      },
+      {
+        "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "e4eb699f62c7809e38c038e84ebac912bb1a194d",
+        "sha256": "2a8587d5ee9682f3699bc97e76ca6eb3646f7c0ef98c4c3bb244f0acd4261dc3"
+      },
+      {
+        "path": "_bmad/scripts/verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "4439b803db3b8588a72f74fa2aded5aea9189676",
+        "sha256": "e504de0aacf0df9ae1d711ac3c0fc429fcda303a3284c8ea65fb1eb3d3344fa7"
+      }
+    ]
+  },
+  "rootGitlinks": [
+    {
+      "path": "references/Hexalith.AI.Tools",
+      "mode": "160000",
+      "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+    },
+    {
+      "path": "references/Hexalith.Builds",
+      "mode": "160000",
+      "objectId": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"
+    },
+    {
+      "path": "references/Hexalith.Commons",
+      "mode": "160000",
+      "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+    },
+    {
+      "path": "references/Hexalith.EventStore",
+      "mode": "160000",
+      "objectId": "4bc61d9a60fae13a65f23963c1cb731065222f2a"
+    },
+    {
+      "path": "references/Hexalith.Folders",
+      "mode": "160000",
+      "objectId": "b10971ae6e17d4fca2933908531f80a5f58b6e5a"
+    },
+    {
+      "path": "references/Hexalith.FrontComposer",
+      "mode": "160000",
+      "objectId": "237b39e89cb50d8d37596f4da9ce3f6993260165"
+    },
+    {
+      "path": "references/Hexalith.Memories",
+      "mode": "160000",
+      "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+    },
+    {
+      "path": "references/Hexalith.Parties",
+      "mode": "160000",
+      "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+    },
+    {
+      "path": "references/Hexalith.Projects",
+      "mode": "160000",
+      "objectId": "ffa922d0f7a278da3bb02ee09769564df02d5f01"
+    },
+    {
+      "path": "references/Hexalith.Tenants",
+      "mode": "160000",
+      "objectId": "dfd84f4b9c93779f253672096fec5d717d6afc91"
+    }
+  ],
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V24.CORRECTION.01",
+      "subject": "immutable-v23-request-publication",
+      "state": "PASS",
+      "detail": "the original V23 request publication and publisher identity remain exact"
+    },
+    {
+      "id": "V24.CORRECTION.02",
+      "subject": "direct-parent-topology",
+      "state": "PASS",
+      "detail": "the correction publication has the immutable V23 request as its only parent"
+    },
+    {
+      "id": "V24.CORRECTION.03",
+      "subject": "exact-eight-path-scope",
+      "state": "PASS",
+      "detail": "the correction changes exactly the eight declared tooling paths"
+    },
+    {
+      "id": "V24.CORRECTION.04",
+      "subject": "mode-100644-tooling",
+      "state": "PASS",
+      "detail": "every correction path is one mode-100644 regular blob"
+    },
+    {
+      "id": "V24.CORRECTION.05",
+      "subject": "self-excluding-tooling-manifest",
+      "state": "PASS",
+      "detail": "the seven non-record blobs equal the declared self-excluding manifest"
+    },
+    {
+      "id": "V24.CORRECTION.06",
+      "subject": "raw-root-gitlink-equality",
+      "state": "PASS",
+      "detail": "the raw root gitlink inventory is unchanged from V23"
+    },
+    {
+      "id": "V24.CORRECTION.07",
+      "subject": "active-non-executable-hold",
+      "state": "PASS",
+      "detail": "the correction grants no approval, execution, release, or push authority"
+    }
+  ],
+  "blockers": [],
+  "result": "PASS",
+  "implementationHold": "ACTIVE",
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false,
+  "executionAllowed": false,
+  "storyExecution": {
+    "7.1": false,
+    "7.2": false,
+    "7.3": false,
+    "7.4": false
+  }
+}

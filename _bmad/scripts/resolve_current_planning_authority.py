@@ -35,9 +35,14 @@ V23_AUTHORITY_PATH = "_bmad-output/planning-artifacts/v23-story-7.1-entry-author
 V23_PUBLISHER_PATH = "_bmad/scripts/publish_story_7_1_entry_authority.py"
 V23_SCHEMA_PATH = "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json"
 V23_TOOLING_BASELINE = "e0b098fa1c056385e28ee8ac0efd0c55dfab324f"
+V23_REQUEST_PUBLICATION = "5a7234b922371b5d0a12085a444d93783263f278"
 V23_PUBLISHER_SHA256 = "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
 V23_WORKFLOW_SHA256 = "328fdd95cb6edd546c735a0da329cc3d1505097b05d3fb2a855692d4b18c3478"
 V23_SCHEMA_SHA256 = "d11340d9b2665c5295a4408f9e6b26218001a61f118d6ec979d6e9ca4da3ea1b"
+V24_CORRECTION_PATH = "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json"
+V24_SCHEMA_PATH = "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json"
+V24_SCHEMA_SHA256 = "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
+V24_PUBLISHER_SHA256 = "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
 V23_RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 V23_TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 V23_TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
@@ -60,6 +65,41 @@ V23_TOOLING_PATHS = tuple(
             WORKFLOW_PATH,
         )
     )
+)
+V24_MANIFEST_PATHS = tuple(
+    sorted(
+        (
+            V24_SCHEMA_PATH,
+            V23_PUBLISHER_PATH,
+            "_bmad/scripts/resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py",
+            "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+        )
+    )
+)
+V24_TOOLING_PATHS = tuple(sorted((*V24_MANIFEST_PATHS, V24_CORRECTION_PATH)))
+V23_REQUEST_LEDGER = (
+    ("V23.REQUEST.01", "V22-HISTORICAL-CANDIDATE", "PASS"),
+    ("V23.REQUEST.02", "V22-PROTECTED-MAIN-DIAGNOSTIC", "PASS"),
+    ("V23.REQUEST.03", "STORY-6.2-PREDECESSOR", "PASS"),
+    ("V23.REQUEST.04", "7.1-SCHEMAS-CHECKPOINT", "PASS"),
+    ("V23.REQUEST.05", "IR-0-READINESS", "PASS"),
+    ("V23.REQUEST.06", "CURRENT-WORKFLOW-ROUTE", "PASS"),
+    ("V23_OPERATIONAL_ENVELOPE_MISSING", "PRODUCTION-OPERATIONAL-ENVELOPE", "BLOCKED"),
+    ("V23_PRESERVATION_GATE_PENDING", "FR-20-SM-C1", "BLOCKED"),
+    ("V23_PERFORMANCE_GATE_FAILED", "SM-C2", "FAIL"),
+    ("V23_LANDING_ZONE_GATE_BLOCKED", "OQ-1", "BLOCKED"),
+    ("V23_OWNER_APPROVAL_MISSING", "OWNER-APPROVAL", "BLOCKED"),
+    ("V23.REQUEST.12", "EPIC-7-SPRINT-INVENTORY", "PASS"),
+)
+V23_REQUEST_BLOCKERS = (
+    "V23_OPERATIONAL_ENVELOPE_MISSING",
+    "V23_PRESERVATION_GATE_PENDING",
+    "V23_PERFORMANCE_GATE_FAILED",
+    "V23_LANDING_ZONE_GATE_BLOCKED",
+    "V23_OWNER_APPROVAL_MISSING",
 )
 V23_AUTHORITY_GATE_SUBJECTS = (
     "V22-HISTORICAL-CANDIDATE",
@@ -131,6 +171,13 @@ def sha256(content: bytes) -> str:
     """Return the lowercase SHA-256 digest for exact bytes."""
 
     return hashlib.sha256(content).hexdigest()
+
+
+def canonical_digest(value: Any) -> str:
+    """Hash one canonical compact JSON value with a terminal LF."""
+
+    content = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    return sha256(content + b"\n")
 
 
 def safe_path(value: str) -> str:
@@ -230,6 +277,40 @@ def candidate_blob(repository: Path, commit: str, relative_path: str) -> bytes:
     """Read exact committed blob bytes without consulting the worktree."""
 
     return run_git(repository, "cat-file", "blob", f"{commit}:{safe_path(relative_path)}").stdout
+
+
+def candidate_has_path(repository: Path, commit: str, relative_path: str) -> bool:
+    """Return whether one exact committed path exists."""
+
+    result = run_git(
+        repository,
+        "cat-file",
+        "-e",
+        f"{commit}:{safe_path(relative_path)}",
+        allowed=(0, 1, 128),
+    )
+    return result.returncode == 0
+
+
+def candidate_history_has_path(repository: Path, commit: str, relative_path: str) -> bool:
+    """Return whether a governed path occurs anywhere in the candidate's ancestry."""
+
+    try:
+        rows = run_git(
+            repository,
+            "log",
+            "--full-history",
+            "-1",
+            "--format=%H",
+            commit,
+            "--",
+            safe_path(relative_path),
+        ).stdout.decode("ascii", errors="strict").splitlines()
+    except UnicodeError as error:
+        raise ResolutionError("V24_CORRECTION_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if len(rows) > 1 or (rows and _COMMIT.fullmatch(rows[0]) is None):
+        raise ResolutionError("V24_CORRECTION_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return bool(rows)
 
 
 def changed_paths(repository: Path, parent: str, candidate: str) -> tuple[str, ...]:
@@ -822,6 +903,217 @@ def load_v23_publisher(repository: Path, evaluated: str) -> tuple[Any, str]:
     return module, publication
 
 
+def v24_binding(repository: Path, commit: str, relative_path: str) -> dict[str, str]:
+    """Bind one V24 regular blob from raw committed objects."""
+
+    try:
+        mode, kind, object_id = tree_entry(repository, commit, relative_path)
+    except ResolutionError as error:
+        raise ResolutionError(
+            "V24_TOOLING_MODE_DRIFT",
+            f"{relative_path}: {error.detail}",
+            "BLOCKED",
+        ) from error
+    if (mode, kind) != ("100644", "blob"):
+        raise ResolutionError("V24_TOOLING_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    return {
+        "path": relative_path,
+        "mode": mode,
+        "objectId": object_id,
+        "sha256": sha256(candidate_blob(repository, commit, relative_path)),
+    }
+
+
+def v24_correction_publication(repository: Path, evaluated: str) -> tuple[dict[str, Any], str]:
+    """Authenticate V23 and the closed V24 transaction before corrected Python loads."""
+
+    historical_module, request_publication = load_v23_publisher(repository, V23_REQUEST_PUBLICATION)
+    if request_publication != V23_REQUEST_PUBLICATION:
+        raise ResolutionError(
+            "V24_V23_PUBLICATION_DRIFT",
+            f"expected={V23_REQUEST_PUBLICATION}; observed={request_publication}",
+            "BLOCKED",
+        )
+    try:
+        historical_request, observed_request_publication, _request_content = historical_module.validate_request(
+            repository,
+            V23_REQUEST_PUBLICATION,
+        )
+        historical_result = historical_module.request_check_result(
+            historical_request,
+            observed_request_publication,
+        )
+    except BaseException as error:
+        raise ResolutionError("V24_V23_VALIDATION_FAILED", str(error), "BLOCKED") from error
+    if observed_request_publication != V23_REQUEST_PUBLICATION:
+        raise ResolutionError("V24_V23_PUBLICATION_DRIFT", repr(observed_request_publication), "BLOCKED")
+    validate_v24_request_result(historical_result, observed_request_publication)
+    try:
+        publications = tuple(
+            row
+            for row in run_git(
+                repository,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                evaluated,
+                "--",
+                V24_CORRECTION_PATH,
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise ResolutionError("V24_CORRECTION_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if len(publications) != 1 or _COMMIT.fullmatch(publications[0]) is None:
+        raise ResolutionError(
+            "V24_CORRECTION_PUBLICATION_MISSING",
+            f"expected one publication; observed={publications!r}",
+            "BLOCKED",
+        )
+    publication = publications[0]
+    parent_row = run_git(repository, "rev-list", "--parents", "-n", "1", publication).stdout.decode(
+        "ascii", errors="strict"
+    ).split()
+    if parent_row != [publication, V23_REQUEST_PUBLICATION]:
+        raise ResolutionError("V24_TOOLING_PARENT_DRIFT", repr(parent_row), "BLOCKED")
+    observed_paths = changed_paths(repository, V23_REQUEST_PUBLICATION, publication)
+    if observed_paths != V24_TOOLING_PATHS:
+        missing = sorted(set(V24_TOOLING_PATHS) - set(observed_paths))
+        unexpected = sorted(set(observed_paths) - set(V24_TOOLING_PATHS))
+        raise ResolutionError(
+            "V24_TOOLING_SCOPE_DRIFT",
+            f"missing={missing!r}; unexpected={unexpected!r}",
+            "BLOCKED",
+        )
+    for path in V24_TOOLING_PATHS:
+        v24_binding(repository, publication, path)
+    baseline_links = gitlinks(repository, V23_REQUEST_PUBLICATION)
+    if gitlinks(repository, publication) != baseline_links or gitlinks(repository, evaluated) != baseline_links:
+        raise ResolutionError("V24_ROOT_GITLINK_DRIFT", "V23, V24, and evaluated gitlinks differ", "BLOCKED")
+    schema_content = candidate_blob(repository, publication, V24_SCHEMA_PATH)
+    observed_schema_digest = sha256(schema_content)
+    if observed_schema_digest != V24_SCHEMA_SHA256:
+        raise ResolutionError(
+            "V24_SCHEMA_IDENTITY_MISMATCH",
+            f"expected={V24_SCHEMA_SHA256}; observed={observed_schema_digest}",
+            "BLOCKED",
+        )
+    v24_binding(repository, evaluated, V24_SCHEMA_PATH)
+    if candidate_blob(repository, evaluated, V24_SCHEMA_PATH) != schema_content:
+        raise ResolutionError("V24_SCHEMA_DESCENDANT_DRIFT", V24_SCHEMA_PATH, "BLOCKED")
+    schema = load_json(schema_content, "V24_SCHEMA_INVALID")
+    record_content = candidate_blob(repository, publication, V24_CORRECTION_PATH)
+    v24_binding(repository, evaluated, V24_CORRECTION_PATH)
+    v24_binding(repository, evaluated, V23_REQUEST_PATH)
+    if candidate_blob(repository, evaluated, V24_CORRECTION_PATH) != record_content:
+        raise ResolutionError("V24_CORRECTION_DESCENDANT_DRIFT", V24_CORRECTION_PATH, "BLOCKED")
+    record = load_json(record_content, "V24_CORRECTION_INVALID")
+    validate_schema(schema, record, "V24_CORRECTION_SCHEMA_INVALID")
+    predecessor = record.get("predecessor")
+    transaction = record.get("toolingTransaction")
+    expected_keys = {
+        "schemaVersion",
+        "recordType",
+        "correctionId",
+        "predecessor",
+        "toolingTransaction",
+        "rootGitlinks",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution",
+    }
+    if (
+        set(record) != expected_keys
+        or record.get("schemaVersion") != "hexalith.conversations.story-7.1-entry-tooling-correction.v1"
+        or record.get("recordType") != "TOOLING_CORRECTION"
+        or record.get("correctionId") != "V24-STORY-7.1-ENTRY-TOOLING-CORRECTION-v1"
+        or not isinstance(predecessor, dict)
+        or predecessor.get("publicationCommit") != V23_REQUEST_PUBLICATION
+        or predecessor.get("requestPath") != V23_REQUEST_PATH
+        or predecessor.get("publicationTree") != commit_tree(repository, V23_REQUEST_PUBLICATION)
+        or predecessor.get("publisherSha256") != V23_PUBLISHER_SHA256
+        or predecessor.get("requestSha256")
+        != sha256(candidate_blob(repository, V23_REQUEST_PUBLICATION, V23_REQUEST_PATH))
+        or not isinstance(transaction, dict)
+        or transaction.get("baselineCommit") != V23_REQUEST_PUBLICATION
+        or transaction.get("baselineTree") != commit_tree(repository, V23_REQUEST_PUBLICATION)
+        or tuple(transaction.get("exactChangedPaths", ())) != V24_TOOLING_PATHS
+        or transaction.get("requiredMode") != "100644"
+        or record.get("result") != "PASS"
+        or record.get("implementationHold") != "ACTIVE"
+        or record.get("ownerApprovalClaimed") is not False
+        or record.get("releaseAuthorized") is not False
+        or record.get("pushAuthorized") is not False
+        or record.get("executionAllowed") is not False
+        or record.get("storyExecution")
+        != {"7.1": False, "7.2": False, "7.3": False, "7.4": False}
+        or record.get("blockers") != []
+        or not isinstance(record.get("assertionLedger"), list)
+        or not record["assertionLedger"]
+        or any(row.get("state") != "PASS" for row in record["assertionLedger"] if isinstance(row, dict))
+    ):
+        raise ResolutionError("V24_CORRECTION_CONTROL_DRIFT", "closed correction controls mismatch", "BLOCKED")
+    manifest = [v24_binding(repository, publication, path) for path in V24_MANIFEST_PATHS]
+    if (
+        transaction.get("manifest") != manifest
+        or transaction.get("selfExcludedManifestSha256") != canonical_digest(manifest)
+        or [v24_binding(repository, evaluated, path) for path in V24_MANIFEST_PATHS] != manifest
+    ):
+        raise ResolutionError("V24_TOOLING_MANIFEST_DRIFT", "self-excluded manifest mismatch", "BLOCKED")
+    declared_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in baseline_links
+    ]
+    if record.get("rootGitlinks") != declared_links:
+        raise ResolutionError("V24_ROOT_GITLINK_DRIFT", "declared root gitlinks differ from raw modes", "BLOCKED")
+    if candidate_blob(repository, evaluated, V23_REQUEST_PATH) != candidate_blob(
+        repository,
+        V23_REQUEST_PUBLICATION,
+        V23_REQUEST_PATH,
+    ):
+        raise ResolutionError("V24_V23_PUBLICATION_DRIFT", V23_REQUEST_PATH, "BLOCKED")
+    return record, publication
+
+
+def load_v24_publisher(repository: Path, evaluated: str) -> tuple[Any, str]:
+    """Load corrected publisher bytes only after independent V24 authentication."""
+
+    _record, publication = v24_correction_publication(repository, evaluated)
+    content = candidate_blob(repository, publication, V23_PUBLISHER_PATH)
+    observed_digest = sha256(content)
+    if observed_digest != V24_PUBLISHER_SHA256:
+        raise ResolutionError(
+            "V24_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V24_PUBLISHER_SHA256}; observed={observed_digest}",
+            "BLOCKED",
+        )
+    if candidate_blob(repository, evaluated, V23_PUBLISHER_PATH) != content:
+        raise ResolutionError("V24_PUBLISHER_DESCENDANT_DRIFT", V23_PUBLISHER_PATH, "BLOCKED")
+    spec = importlib.util.spec_from_loader("trusted_v24_entry_authority", loader=None)
+    if spec is None:
+        raise ResolutionError("V24_PUBLISHER_LOAD_FAILED", V23_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{publication}:{V23_PUBLISHER_PATH}"
+    try:
+        exec(compile(content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise ResolutionError("V24_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if any(
+        not callable(getattr(module, name, None))
+        for name in ("validate_correction", "validate_current_request", "request_check_result", "resolve_published_authority")
+    ):
+        raise ResolutionError("V24_PUBLISHER_INTERFACE_INVALID", V23_PUBLISHER_PATH, "BLOCKED")
+    return module, publication
+
+
 def valid_v23_authority_observed(observed: Any, result: Any, expected_candidate: str | None = None) -> bool:
     """Accept only the publisher's closed, progressively populated authority facts."""
 
@@ -1003,16 +1295,119 @@ def validate_v23_result(document: Any, *, expected_candidate: str | None = None)
     return document
 
 
+def validate_v24_request_result(document: Any, publication: str) -> dict[str, Any]:
+    """Host-validate the corrected publisher's unchanged non-executable V23 request result."""
+
+    expected_keys = {
+        "schemaVersion",
+        "result",
+        "exitCode",
+        "effectiveHold",
+        "implementationHold",
+        "observed",
+        "assertionLedger",
+        "blockers",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
+        "storyExecution",
+    }
+    if not isinstance(document, dict) or set(document) != expected_keys:
+        raise ResolutionError("V24_REQUEST_RESULT_INVALID", "result shape mismatch", "BLOCKED")
+    ledger = document.get("assertionLedger")
+    blockers = document.get("blockers")
+    observed = document.get("observed")
+    ledger_rows_valid = (
+        isinstance(ledger, list)
+        and bool(ledger)
+        and all(
+            isinstance(row, dict)
+            and set(row) == {"id", "subject", "state", "detail"}
+            and row.get("state") in {"PASS", "FAIL", "BLOCKED"}
+            and all(isinstance(row.get(key), str) and bool(row[key]) for key in ("id", "subject", "detail"))
+            for row in ledger
+        )
+    )
+    blocker_rows_valid = isinstance(blockers, list) and all(
+        isinstance(row, dict)
+        and set(row) == {"code", "detail", "assertionIndex"}
+        and all(isinstance(row.get(key), str) and bool(row[key]) for key in ("code", "detail"))
+        and type(row.get("assertionIndex")) is int
+        for row in blockers
+    )
+    if (
+        document.get("schemaVersion") != V23_RESULT_SCHEMA_VERSION
+        or document.get("result") != "BLOCKED"
+        or document.get("exitCode") != 2
+        or document.get("effectiveHold") != "ACTIVE"
+        or document.get("implementationHold") != "ACTIVE"
+        or observed
+        != {
+            "requestPublication": publication,
+            "protectedMain": "dcba5d4b1314eb67a95fa560b7cc0f88a9ab2607",
+            "historicalV22Candidate": "cf82f8008d02b07d48338a545909d97faa302362",
+        }
+        or not ledger_rows_valid
+        or [(row["id"], row["subject"], row["state"]) for row in ledger] != list(V23_REQUEST_LEDGER)
+        or not blocker_rows_valid
+        or [row["code"] for row in blockers] != list(V23_REQUEST_BLOCKERS)
+        or [row["assertionIndex"] for row in blockers] != [6, 7, 8, 9, 10]
+        or not v23_blockers_match_ledger("BLOCKED", ledger, blockers)
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or document.get("storyExecution")
+        != {"7.1": False, "7.2": False, "7.3": False, "7.4": False}
+    ):
+        raise ResolutionError("V24_REQUEST_RESULT_INVALID", "closed non-executable result mismatch", "BLOCKED")
+    return document
+
+
 def resolve_authority(
     repository: Path,
     revision: str,
     *,
     signature_verifier: Callable[[Path, str, str], dict[str, str]] | None = None,
 ) -> dict[str, Any]:
-    """Resolve immutable V22 or dispatch an authenticated complete V23 successor."""
+    """Resolve immutable V22/V23 or dispatch an authenticated V24-corrected successor."""
 
     try:
         candidate = resolve_commit(repository, revision)
+        if candidate_history_has_path(repository, candidate, V24_CORRECTION_PATH):
+            module, correction_publication = load_v24_publisher(repository, candidate)
+            marker_selected = v23_marker_selected(repository, candidate)
+            try:
+                if not marker_selected:
+                    if candidate != correction_publication:
+                        raise ResolutionError(
+                            "V24_DESCENDANT_REQUIRES_AUTHORITY",
+                            f"correction={correction_publication}; candidate={candidate}",
+                            "BLOCKED",
+                        )
+                    request, request_publication, _content, observed_correction = module.validate_current_request(
+                        repository,
+                        candidate,
+                        v22_resolver=resolve_v22_authority,
+                    )
+                    if observed_correction != correction_publication or request_publication != V23_REQUEST_PUBLICATION:
+                        raise ResolutionError(
+                            "V24_CORRECTION_PUBLICATION_DRIFT",
+                            f"host={correction_publication}; publisher={observed_correction}",
+                            "BLOCKED",
+                        )
+                    document = module.request_check_result(request, request_publication)
+                    return validate_v24_request_result(document, request_publication)
+                arguments: dict[str, Any] = {"v22_resolver": resolve_v22_authority}
+                if signature_verifier is not None:
+                    arguments["signature_verifier"] = signature_verifier
+                document = module.resolve_published_authority(repository, candidate, **arguments)
+            except ResolutionError:
+                raise
+            except BaseException as error:
+                raise ResolutionError("V24_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+            return validate_v23_result(document, expected_candidate=candidate)
         if not v23_marker_selected(repository, candidate):
             return resolve_v22_authority(repository, candidate)
         module, _publication = load_v23_publisher(repository, candidate)

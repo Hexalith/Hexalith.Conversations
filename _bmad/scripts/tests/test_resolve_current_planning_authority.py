@@ -423,40 +423,364 @@ def test_caller_synthesized_blocked_result_is_nonvacuous_and_closed() -> None:
 
 
 def v23_request_repository(tmp_path: Path) -> tuple[Path, str]:
-    """Create the exact V23 request transaction for host-boundary tests."""
+    """Materialize the immutable exact V23 request for host-boundary tests."""
 
     root = tmp_path / "v23"
     subprocess.run(["git", "clone", "-q", "--shared", "--no-checkout", str(ROOT), str(root)], check=True)
-    subprocess.run(
-        [
-            "git",
-            "-C",
-            str(root),
-            "sparse-checkout",
-            "set",
-            "--no-cone",
-            *resolver.V23_TOOLING_PATHS,
-            resolver.ARCHITECTURE_PATH,
-        ],
-        check=True,
-    )
-    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", resolver.V23_TOOLING_BASELINE], check=True)
+    subprocess.run(["git", "-C", str(root), "checkout", "-q", "--detach", resolver.V23_REQUEST_PUBLICATION], check=True)
     git(root, "config", "user.name", "V23 fixture")
     git(root, "config", "user.email", "v23-fixture@example.invalid")
-    for relative_path in resolver.V23_TOOLING_PATHS:
-        if relative_path == resolver.V23_REQUEST_PATH:
-            continue
-        target = root / relative_path
-        target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(ROOT / relative_path, target)
-    request = publisher.render_request(root)
-    (root / resolver.V23_REQUEST_PATH).parent.mkdir(parents=True, exist_ok=True)
-    (root / resolver.V23_REQUEST_PATH).write_bytes(publisher.json_bytes(request))
-    subprocess.run(
-        ["git", "-C", str(root), "add", "--sparse", "--", *resolver.V23_TOOLING_PATHS],
-        check=True,
+    return root, resolver.V23_REQUEST_PUBLICATION
+
+
+def v24_correction_repository(tmp_path: Path) -> tuple[Path, str]:
+    """Build the production-shaped V24 correction through the publisher fixture."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_resolver_correction_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.correction_repository(tmp_path)
+
+
+def v24_fault_repository(tmp_path: Path, fault: str) -> tuple[Path, str]:
+    """Build one independently faulted V24 production-route fixture."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_resolver_fault_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.v24_fault_repository(tmp_path, fault)
+
+
+def v24_full_history_repository(tmp_path: Path, scenario: str) -> tuple[Path, str]:
+    """Build a V24 history fixture that path-limited Git traversal can prune."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_resolver_history_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures.v24_full_history_repository(tmp_path, scenario)
+
+
+def test_exact_v24_correction_returns_host_validated_non_executable_request(tmp_path: Path) -> None:
+    """The correction is authenticated before the unchanged BLOCKED request result returns."""
+
+    root, candidate = v24_correction_repository(tmp_path)
+    module, publication = resolver.load_v24_publisher(root, candidate)
+    result = resolver.resolve_authority(root, candidate)
+
+    assert publication == candidate
+    assert callable(module.validate_current_request)
+    assert resolver.V23_PUBLISHER_SHA256 == "9c1ea485a5906d0a69e4c99058494ffab86b2f96ed47a936ab95d0d4d8be7364"
+    assert result["result"] == "BLOCKED"
+    assert result["exitCode"] == 2
+    assert result["implementationHold"] == "ACTIVE"
+    assert result["executionAllowed"] is False
+    assert result["assertionLedger"]
+
+
+@pytest.mark.parametrize(
+    ("fault", "expected_code"),
+    (
+        ("topology", "V24_TOOLING_PARENT_DRIFT"),
+        ("scope", "V24_TOOLING_SCOPE_DRIFT"),
+        ("manifest", "V24_TOOLING_MANIFEST_DRIFT"),
+        ("corrected_blob", "V24_PUBLISHER_IDENTITY_MISMATCH"),
+        ("schema", "V24_SCHEMA_IDENTITY_MISMATCH"),
+        ("root_gitlink", "V24_ROOT_GITLINK_DRIFT"),
+    ),
+)
+def test_v24_production_route_faults_block_without_execution(
+    tmp_path: Path,
+    fault: str,
+    expected_code: str,
+) -> None:
+    """Each V24 trust boundary fails through production dispatch with its stable code."""
+
+    root, candidate = v24_fault_repository(tmp_path, fault)
+
+    result = resolver.resolve_authority(root, candidate)
+
+    validate_result(result)
+    assert result["result"] == "BLOCKED"
+    assert result["exitCode"] == 2
+    assert result["implementationHold"] == "ACTIVE"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == expected_code
+
+
+def test_v24_record_mode_drift_blocks_before_corrected_publisher_load(tmp_path: Path) -> None:
+    """Canonical correction bytes at mode 100755 do not authenticate corrected Python."""
+
+    root, _candidate = v24_correction_repository(tmp_path)
+    subprocess.run(["git", "-C", str(root), "update-index", "--chmod=+x", resolver.V24_CORRECTION_PATH], check=True)
+    subprocess.run(["git", "-C", str(root), "commit", "-q", "--amend", "--no-edit"], check=True)
+    candidate = git(root, "rev-parse", "HEAD")
+
+    with pytest.raises(resolver.ResolutionError) as error:
+        resolver.load_v24_publisher(root, candidate)
+
+    assert error.value.code == "V24_TOOLING_MODE_DRIFT"
+
+
+@pytest.mark.parametrize("relative_path", (resolver.V24_CORRECTION_PATH, resolver.V23_REQUEST_PATH))
+def test_v24_descendant_record_mode_drift_blocks_legacy_fallback(tmp_path: Path, relative_path: str) -> None:
+    """Mode-only descendant drift of either governed record remains on the sticky V24 route."""
+
+    root, correction = v24_correction_repository(tmp_path)
+    subprocess.run(["git", "-C", str(root), "update-index", "--chmod=+x", relative_path], check=True)
+    candidate = commit(root, "test: drift evaluated V24 record mode")
+
+    result = resolver.resolve_authority(root, candidate)
+
+    assert candidate != correction
+    assert result["result"] == "BLOCKED"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == "V24_TOOLING_MODE_DRIFT"
+
+
+def test_v24_marker_free_and_deleted_descendants_never_downgrade_to_v23(tmp_path: Path) -> None:
+    """Once V24 occurs in ancestry, unrelated or reverted descendants cannot select legacy dispatch."""
+
+    marker_root, correction = v24_correction_repository(tmp_path / "marker-free")
+    unrelated = marker_root / "unrelated-v24-descendant.txt"
+    unrelated.write_text("marker-free descendant\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(marker_root), "add", "--sparse", "--", unrelated.name], check=True)
+    marker_candidate = commit(marker_root, "test: add marker-free V24 descendant")
+    marker_result = resolver.resolve_authority(marker_root, marker_candidate)
+
+    assert marker_candidate != correction
+    assert marker_result["blockers"][0]["code"] == "V24_DESCENDANT_REQUIRES_AUTHORITY"
+    assert marker_result["executionAllowed"] is False
+
+    for restore_v23_tooling in (False, True):
+        root, _correction = v24_correction_repository(tmp_path / f"deleted-{restore_v23_tooling}")
+        (root / resolver.V24_CORRECTION_PATH).unlink()
+        if restore_v23_tooling:
+            subprocess.run(
+                [
+                    "git",
+                    "-C",
+                    str(root),
+                    "checkout",
+                    resolver.V23_REQUEST_PUBLICATION,
+                    "--",
+                    resolver.V23_PUBLISHER_PATH,
+                ],
+                check=True,
+            )
+        subprocess.run(["git", "-C", str(root), "add", "-A", "--", resolver.V24_CORRECTION_PATH, resolver.V23_PUBLISHER_PATH], check=True)
+        candidate = commit(root, "test: delete V24 route without authority")
+        result = resolver.resolve_authority(root, candidate)
+
+        assert resolver.candidate_history_has_path(root, candidate, resolver.V24_CORRECTION_PATH) is True
+        assert result["result"] == "BLOCKED"
+        assert result["executionAllowed"] is False
+        assert result["blockers"][0]["code"] == "V24_TOOLING_MODE_DRIFT"
+
+
+@pytest.mark.parametrize(
+    ("scenario", "expected_code"),
+    (
+        ("readd", "V24_CORRECTION_PUBLICATION_MISSING"),
+        ("treesame", "V24_TOOLING_MODE_DRIFT"),
+    ),
+)
+def test_v24_production_route_traverses_full_history(
+    tmp_path: Path,
+    scenario: str,
+    expected_code: str,
+) -> None:
+    """Sticky routing sees TREESAME ancestry and rejects duplicate correction additions."""
+
+    root, candidate = v24_full_history_repository(tmp_path, scenario)
+    result = resolver.resolve_authority(root, candidate)
+
+    assert resolver.candidate_history_has_path(root, candidate, resolver.V24_CORRECTION_PATH) is True
+    assert result["result"] == "BLOCKED"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == expected_code
+
+
+def test_v24_host_rejects_self_consistent_hostile_publisher_identity(tmp_path: Path) -> None:
+    """A re-manifested hostile publisher remains outside the pinned V24 trust root."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v24_resolver_hostile_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    root = fixtures.correction_writer_root(tmp_path)
+    git(root, "config", "user.name", "V24 hostile fixture")
+    git(root, "config", "user.email", "v24-hostile@example.invalid")
+    (root / resolver.V23_PUBLISHER_PATH).write_text(
+        "def validate_correction(*args, **kwargs): return ({}, '0' * 40, b'')\n"
+        "def validate_current_request(*args, **kwargs): return ({}, '0' * 40, b'', '0' * 40)\n"
+        "def request_check_result(*args, **kwargs): return {'result': 'PASS'}\n"
+        "def resolve_published_authority(*args, **kwargs): return {'result': 'PASS'}\n",
+        encoding="utf-8",
     )
-    return root, commit(root, "fix(planning): add V23 request fixture")
+    correction = publisher.render_correction(root)
+    (root / resolver.V24_CORRECTION_PATH).write_bytes(publisher.json_bytes(correction))
+    subprocess.run(["git", "-C", str(root), "add", "--", *resolver.V24_TOOLING_PATHS], check=True)
+    candidate = commit(root, "test: publish hostile V24 tooling")
+
+    with pytest.raises(resolver.ResolutionError) as error:
+        resolver.load_v24_publisher(root, candidate)
+
+    assert error.value.code == "V24_PUBLISHER_IDENTITY_MISMATCH"
+
+
+def test_v24_host_rejects_contradictory_corrected_request_result(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Corrected code cannot convert the immutable BLOCKED request into execution authority."""
+
+    candidate = "0" * 40
+    request = publisher.render_request(ROOT)
+    contradictory = publisher.request_check_result(request, resolver.V23_REQUEST_PUBLICATION)
+    contradictory["executionAllowed"] = True
+
+    class ContradictoryModule:
+        @staticmethod
+        def validate_current_request(*_args: object, **_kwargs: object) -> tuple[dict[str, object], str, bytes, str]:
+            return request, resolver.V23_REQUEST_PUBLICATION, b"request", candidate
+
+        @staticmethod
+        def request_check_result(*_args: object, **_kwargs: object) -> dict[str, object]:
+            return contradictory
+
+    monkeypatch.setattr(resolver, "resolve_commit", lambda _root, _revision: candidate)
+    monkeypatch.setattr(resolver, "candidate_history_has_path", lambda _root, _candidate, _path: True)
+    monkeypatch.setattr(resolver, "load_v24_publisher", lambda _root, _candidate: (ContradictoryModule(), candidate))
+    monkeypatch.setattr(resolver, "v23_marker_selected", lambda _root, _candidate: False)
+
+    result = resolver.resolve_authority(ROOT, "HEAD")
+
+    assert result["result"] == "BLOCKED"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == "V24_REQUEST_RESULT_INVALID"
+
+
+def test_v24_marker_complete_dispatch_rejects_contradictory_authority_envelope(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Marker-complete V24 authority dispatch still crosses the host result validator."""
+
+    candidate = "a" * 40
+    document: dict[str, object] = {
+        "schemaVersion": resolver.V23_RESULT_SCHEMA_VERSION,
+        "result": "PASS",
+        "exitCode": 0,
+        "effectiveHold": "EXECUTION_ALLOWED",
+        "implementationHold": "EXECUTION_ALLOWED",
+        "observed": {
+            "candidateCommit": candidate,
+            "candidateTree": "b" * 40,
+            "authorityPublication": candidate,
+            "sourceCommit": "c" * 40,
+            "changedPaths": [resolver.ARCHITECTURE_PATH, resolver.V23_AUTHORITY_PATH],
+            "ownerSignature": {
+                "status": "G",
+                "principal": resolver.V23_TRUSTED_SSH_PRINCIPAL,
+                "fingerprint": resolver.V23_TRUSTED_SSH_FINGERPRINT,
+                "authorIdentity": resolver.V23_TRUSTED_OWNER_IDENTITY,
+            },
+        },
+        "assertionLedger": [
+            {
+                "id": f"V23.AUTHORITY.{index:02d}",
+                "subject": subject,
+                "state": "PASS",
+                "detail": f"{subject} passed",
+            }
+            for index, subject in enumerate(resolver.V23_AUTHORITY_GATE_SUBJECTS, start=1)
+        ]
+        + [
+            {
+                "id": "V23.AUTHORITY.SIGNATURE",
+                "subject": "trusted-owner-publication-signature",
+                "state": "PASS",
+                "detail": "trusted owner publication signature passed",
+            }
+        ],
+        "blockers": [],
+        "ownerApprovalClaimed": True,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+        "storyExecution": {"7.1": True, "7.2": False, "7.3": False, "7.4": False},
+    }
+
+    class ContradictoryModule:
+        @staticmethod
+        def resolve_published_authority(*_args: object, **_kwargs: object) -> dict[str, object]:
+            return document
+
+    validated: list[object] = []
+    real_validate = resolver.validate_v23_result
+
+    def validate(result: object, **kwargs: object) -> dict[str, object]:
+        validated.append(result)
+        return real_validate(result, **kwargs)
+
+    monkeypatch.setattr(resolver, "resolve_commit", lambda _root, _revision: candidate)
+    monkeypatch.setattr(resolver, "candidate_history_has_path", lambda _root, _candidate, _path: True)
+    monkeypatch.setattr(resolver, "load_v24_publisher", lambda _root, _candidate: (ContradictoryModule(), "d" * 40))
+    monkeypatch.setattr(resolver, "v23_marker_selected", lambda _root, _candidate: True)
+    monkeypatch.setattr(resolver, "validate_v23_result", validate)
+
+    result = resolver.resolve_authority(ROOT, "HEAD")
+
+    assert validated == [document]
+    assert result["result"] == "BLOCKED"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == "V23_PUBLISHER_RESULT_INVALID"
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    (
+        lambda document: document["assertionLedger"].__setitem__(0, "scalar"),
+        lambda document: document["assertionLedger"][0].update({"extra": "open"}),
+        lambda document: document["assertionLedger"][0].update({"detail": ""}),
+        lambda document: document["blockers"].__setitem__(0, "scalar"),
+        lambda document: document["blockers"][0].update({"extra": "open"}),
+        lambda document: document["blockers"][0].update({"detail": ""}),
+    ),
+)
+def test_v24_host_rejects_nonclosed_nested_request_rows(
+    monkeypatch: pytest.MonkeyPatch,
+    mutation: Callable[[dict[str, object]], None],
+) -> None:
+    """Malformed nested rows map to the stable host-owned invalid-result boundary."""
+
+    candidate = "0" * 40
+    request = publisher.render_request(ROOT)
+    malformed = publisher.request_check_result(request, resolver.V23_REQUEST_PUBLICATION)
+    mutation(malformed)
+
+    class MalformedModule:
+        @staticmethod
+        def validate_current_request(*_args: object, **_kwargs: object) -> tuple[dict[str, object], str, bytes, str]:
+            return request, resolver.V23_REQUEST_PUBLICATION, b"request", candidate
+
+        @staticmethod
+        def request_check_result(*_args: object, **_kwargs: object) -> dict[str, object]:
+            return malformed
+
+    monkeypatch.setattr(resolver, "resolve_commit", lambda _root, _revision: candidate)
+    monkeypatch.setattr(resolver, "candidate_history_has_path", lambda _root, _candidate, _path: True)
+    monkeypatch.setattr(resolver, "load_v24_publisher", lambda _root, _candidate: (MalformedModule(), candidate))
+    monkeypatch.setattr(resolver, "v23_marker_selected", lambda _root, _candidate: False)
+
+    result = resolver.resolve_authority(ROOT, "HEAD")
+
+    assert result["result"] == "BLOCKED"
+    assert result["executionAllowed"] is False
+    assert result["blockers"][0]["code"] == "V24_REQUEST_RESULT_INVALID"
 
 
 def test_complete_v23_marker_reaches_the_authenticated_production_loader(tmp_path: Path) -> None:
@@ -520,10 +844,10 @@ def test_protected_host_rejects_relaxed_candidate_schema_before_publisher_load(t
     assert error.value.code == "V23_SCHEMA_IDENTITY_MISMATCH"
 
 
-def test_signed_v23_authority_passes_through_production_resolver_host(
+def test_signed_v24_corrected_authority_passes_through_production_resolver_host(
     tmp_path: Path,
 ) -> None:
-    """A real signed authority traverses authenticated loading, dispatch, and host result closure."""
+    """A signed authority traverses V24 authentication, dispatch, and host result closure."""
 
     fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_entry_authority.py"
     fixture_spec = importlib.util.spec_from_file_location("v23_resolver_authority_fixtures", fixture_path)
@@ -544,8 +868,8 @@ def test_signed_v23_authority_passes_through_production_resolver_host(
         tmp_path / "authority",
         signing_key=private_key,
     )
-    authenticated_module, request_publication = resolver.load_v23_publisher(root, publication)
-    assert request_publication != publication
+    authenticated_module, correction_publication = resolver.load_v24_publisher(root, publication)
+    assert correction_publication != publication
 
     def verify(repo: Path, commit: str, owner: str) -> dict[str, str]:
         facts = authenticated_module.verify_publication_signature(
@@ -661,7 +985,23 @@ def test_protected_host_rejects_contradictory_publisher_results(
                 "authorIdentity": resolver.V23_TRUSTED_OWNER_IDENTITY,
             },
         },
-        "assertionLedger": [{"id": "V23.TEST", "subject": "fixture", "state": "PASS", "detail": "fixture passed"}],
+        "assertionLedger": [
+            {
+                "id": f"V23.AUTHORITY.{index:02d}",
+                "subject": subject,
+                "state": "PASS",
+                "detail": f"{subject} passed",
+            }
+            for index, subject in enumerate(resolver.V23_AUTHORITY_GATE_SUBJECTS, start=1)
+        ]
+        + [
+            {
+                "id": "V23.AUTHORITY.SIGNATURE",
+                "subject": "trusted-owner-publication-signature",
+                "state": "PASS",
+                "detail": "trusted owner publication signature passed",
+            }
+        ],
         "blockers": [],
         "ownerApprovalClaimed": True,
         "releaseAuthorized": False,
@@ -669,6 +1009,7 @@ def test_protected_host_rejects_contradictory_publisher_results(
         "executionAllowed": True,
         "storyExecution": {"7.1": True, "7.2": False, "7.3": False, "7.4": False},
     }
+    assert resolver.validate_v23_result(document) == document
     mutation(document)
 
     with pytest.raises(resolver.ResolutionError) as error:
@@ -797,6 +1138,7 @@ def test_malformed_v23_marker_is_structured_blocked(
 
     monkeypatch.setattr(resolver, "resolve_commit", lambda _root, _revision: "0" * 40)
     monkeypatch.setattr(resolver, "candidate_blob", lambda _root, _commit, _path: architecture)
+    monkeypatch.setattr(resolver, "candidate_history_has_path", lambda _root, _candidate, _path: False)
 
     result = resolver.resolve_authority(ROOT, "HEAD")
 
@@ -816,6 +1158,7 @@ def test_candidate_module_system_exit_is_caught_by_host_boundary(monkeypatch: py
             raise SystemExit(7)
 
     monkeypatch.setattr(resolver, "resolve_commit", lambda _root, _revision: "0" * 40)
+    monkeypatch.setattr(resolver, "candidate_history_has_path", lambda _root, _candidate, _path: False)
     monkeypatch.setattr(resolver, "v23_marker_selected", lambda _root, _candidate: True)
     monkeypatch.setattr(resolver, "load_v23_publisher", lambda _root, _candidate: (HostileModule(), "1" * 40))
 
