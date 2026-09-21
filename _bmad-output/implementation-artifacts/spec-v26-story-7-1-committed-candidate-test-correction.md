@@ -48,11 +48,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] This spec and the V25 blocker notes -- publish separately and pin the resulting V26 predecessor.
-- [ ] `_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py` -- move prospective generation to isolated predecessor fixtures and add the missing linked-generation matrix cell.
-- [ ] `_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py` and schema -- authenticate historical V25, authorize only the test replacement, and enforce exact scope, raw gitlinks, sticky history, snapshots, quarantine, and stable diagnostics.
-- [ ] `_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py` -- cover each matrix row, identity/stale/self-inclusion/empty-ledger faults, CLI states, and both worktree forms.
-- [ ] `_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json` -- generate last, commit exactly five mode-`100644` paths, and verify parent, scope, blobs, history, and gitlinks.
+- [x] This spec and the V25 blocker notes -- publish separately and pin the resulting V26 predecessor.
+- [x] `_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py` -- move prospective generation to isolated predecessor fixtures and add the missing linked-generation matrix cell.
+- [x] `_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py` and schema -- authenticate historical V25, authorize only the test replacement, and enforce exact scope, raw gitlinks, sticky history, snapshots, quarantine, and stable diagnostics.
+- [x] `_bmad/scripts/tests/test_publish_story_7_1_committed_candidate_test_correction.py` -- cover each matrix row, identity/stale/self-inclusion/empty-ledger faults, CLI states, and both worktree forms.
+- [x] `_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json` -- generate last, commit exactly five mode-`100644` paths, and verify parent, scope, blobs, history, and gitlinks.
 
 **Acceptance Criteria:**
 - Given immutable V25, when V26 authenticates it, then V25 passes at `dbada954…` and all five original blobs remain exact.
@@ -62,7 +62,13 @@ context:
 
 ## Implementation Notes
 
+The spec and V25 blocker notes were published first as `bb7300a99336f2dcdd75411b173e0050980d6aa3`, whose tree is `23d9b096ec1d7070a7f3fcb552b507bbb69b694c`. V26 was then published as direct child `119c75172b501213307fab9346aa671a22bb18d2`, tree `921a662a7ae525de75d9788751da68bf36e37bc6`, with exactly the five declared mode-`100644` paths and unchanged ten raw root gitlinks.
+
+The V26 record digest is `63ca38cce34eeeab0aafbcf0b0967347046bd1b71a9c0abe2f8ff5e361c94dcf`. Its historical boundary authenticates all five original V25 blobs before loading the pinned V25 publisher, verifies V25 only at `dbada954388430a6579b42508f51db806aebf3b8`, and grants no approval, execution, release, or push authority.
+
 ## Spec Change Log
+
+- 2026-09-21: Published and verified the exact-five V26 correction; retained `in-progress` because three unrelated frozen sprint-status Conformance checks keep the broad gate at 2,023/2,026.
 
 ## Review Triage Log
 
@@ -77,3 +83,13 @@ V26 is not a V25 repair. Its exact transaction is the new record, schema, publis
 - Verify V25 at `dbada954388430a6579b42508f51db806aebf3b8` and V26 at `HEAD` -- expected: nonvacuous PASS.
 - Build/run the Conformance preservation class and eight root assemblies -- expected: preservation stays 7/7; broad results remain truthful.
 - Run `git diff --check` plus raw Git parent/scope/mode/gitlink checks -- expected: exact V26 transaction and no unexpected path.
+
+**Observed results:**
+- `PASS` -- historical V25 verifier: 10/10 assertions at `dbada954388430a6579b42508f51db806aebf3b8`; all five original blobs remain exact.
+- `PASS` -- committed V26 verifier: 9/9 assertions at `119c75172b501213307fab9346aa671a22bb18d2`; hold `ACTIVE`; all authority flags false.
+- `PASS` -- combined V25/V26 focused suites: 47/47 in the primary worktree and 47/47 in a linked worktree, with no skips or xfails and both worktrees clean.
+- `BLOCKED` -- the first linked `uv --no-sync` invocation created an empty worktree-local environment and could not import pytest before collection; the pinned primary interpreter then ran the identical linked suite successfully.
+- `PASS` -- Release solution build: 0 warnings and 0 errors; preservation class: 7/7; opt-in AppHost boundary: 9/9.
+- `FAIL` -- broad root lane: 2,023/2,026 and Conformance 470/473. The two frozen sprint backlog-row-count checks and one frozen sprint-status digest check are outside the V26 five-path transaction.
+- `PASS` -- raw Git inspection: exact parent, five-path scope, `100644` modes, committed blobs, sticky history, and ten mode-`160000` root gitlinks.
+- `BLOCKED` -- final-record/done transition. The broad 2,026/2,026 and Conformance 473/473 requirements remain unsatisfied.
