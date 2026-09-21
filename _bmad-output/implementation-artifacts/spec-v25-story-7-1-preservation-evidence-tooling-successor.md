@@ -2,7 +2,7 @@
 title: 'Publish the V25 Story 7.1 preservation-evidence tooling successor'
 type: 'bugfix'
 created: '2026-09-21'
-status: 'ready-for-dev'
+status: 'in-progress'
 route: 'dispatch'
 review_loop_iteration: 0
 baseline_commit: 'e257c3f84bd3e88ea77e4cfb3032c4a15dd5dec5'
@@ -50,11 +50,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad-output/planning-artifacts/sprint-change-proposal-2026-09-21.md` and this spec -- publish separately; pin that commit as V25 predecessor.
-- [ ] `_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py` and its V25 schema -- implement exit semantics, exact sets, raw gitlinks, sticky history, snapshots, quarantine, and stable `V25_*` codes.
-- [ ] `tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs` -- check the 36-path publication, two logs at retained provenance, frozen receipts without the live DLL, and one live 40-hex revision equal to `HEAD` with V24 ancestry.
-- [ ] `_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py` -- test bad ancestry, duplicates/ninth path, drift, deletion/reversion, stale inputs, self-inclusion, empty ledger, and identity swaps.
-- [ ] `_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json` -- generate last; commit exactly five mode-`100644` paths and verify parent, scope, blobs, history, and gitlinks.
+- [x] `_bmad-output/planning-artifacts/sprint-change-proposal-2026-09-21.md` and this spec -- publish separately; pin that commit as V25 predecessor.
+- [x] `_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py` and its V25 schema -- implement exit semantics, exact sets, raw gitlinks, sticky history, snapshots, quarantine, and stable `V25_*` codes.
+- [x] `tests/Hexalith.Conversations.Conformance.Tests/PreservationTraceabilityManifestValidationTest.cs` -- check the 36-path publication, two logs at retained provenance, frozen receipts without the live DLL, and one live 40-hex revision equal to `HEAD` with V24 ancestry.
+- [x] `_bmad/scripts/tests/test_publish_story_7_1_preservation_evidence_successor.py` -- test bad ancestry, duplicates/ninth path, drift, deletion/reversion, stale inputs, self-inclusion, empty ledger, and identity swaps.
+- [x] `_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json` -- generate last; commit exactly five mode-`100644` paths and verify parent, scope, blobs, history, and gitlinks.
 
 **Acceptance Criteria:**
 - Given immutable rc.2, when checked from a descendant, then its transaction, retained logs, receipts, identities, counts, and gate states validate without mutable descendant scope.
@@ -63,13 +63,21 @@ context:
 
 ## Implementation Notes
 
+V25 was published as commit `dbada954388430a6579b42508f51db806aebf3b8`, a direct child of the pinned predecessor `69232b7209c079b0476349818d6251ca4dc83d92`. Raw Git inspection confirms exactly the five declared paths, all mode `100644`; the committed verifier reports `PASS` with ten assertions and all authority flags false.
+
+The required post-publication focused Python lane is `BLOCKED`: 20 tests pass, while `test_generation_is_deterministic_closed_non_executable_and_nonvacuous` and `test_empty_ledger_is_rejected_by_closed_schema` call the predecessor-only `generate_document(ROOT)` against committed V25 and correctly receive `V25_GENERATION_BASELINE_DRIFT`. The test blob is bound by V25, so amending V25 or changing that blob in a descendant would violate the sticky-history contract. Remediation requires explicit authority to replace V25 or publish an additive successor.
+
 ## Spec Change Log
+
+- 2026-09-21: Published and verified the exact-five V25 transaction; retained `in-progress` because the committed-candidate Python lane and the broad completion gate are not green.
 
 ## Review Triage Log
 
 ## Design Notes
 
 The rc.2 publication has 36 paths. Its two log files first become committed at `df482b4e652907e100f763615a8a8c4370565066`; bind their bytes and provenance separately.
+
+The immutable V25 publication remains preserved after the post-commit test-design defect was discovered. No amendment, rebase, deletion, descendant blob replacement, authority claim, or hold lift was performed.
 
 ## Verification
 
@@ -78,3 +86,11 @@ The rc.2 publication has 36 paths. Its two log files first become committed at `
 - `dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj -c Release -p:SourceRevisionId=$(git rev-parse HEAD)` then execute the built assembly with the preservation test class filter -- expected: PASS.
 - Run all eight root test assemblies and repeat Conformance in an isolated linked worktree -- expected: 2,026/2,026 and 473/473, zero failed/skipped/not-run.
 - Run V24/V25 verifiers, submodule gate, final-record digest verifier, `git diff --check`, and raw Git scope/mode/gitlink checks -- expected: nonvacuous `PASS` and no unexpected path.
+
+**Observed results:**
+- `PASS` -- V25 committed verifier: 10/10 assertions; exact parent, five-path scope, `100644` modes, blobs, frozen history, and ten raw gitlinks verified.
+- `PASS` -- committed-candidate Release build: 0 warnings and 0 errors; preservation class: 7/7 passed with 0 skipped.
+- `PASS` -- opt-in AppHost boundary lane: 9/9 passed with 0 skipped.
+- `FAIL` -- committed-candidate focused Python lane: 20 passed, 2 failed with `V25_GENERATION_BASELINE_DRIFT` because two generation tests use V25 `HEAD` instead of an isolated predecessor fixture.
+- `FAIL` -- broad root lane: 2,023/2,026 passed and Conformance 470/473; the remaining V8/V9 sprint-projection row-count and frozen-digest failures are outside the V25 five-path transaction.
+- `BLOCKED` -- final-record/done transition. The required 2,026/2,026, 473/473, and skip-free focused gate is not satisfied.
