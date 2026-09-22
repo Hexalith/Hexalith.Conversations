@@ -1653,3 +1653,354 @@ def test_production_verify_ignores_all_governed_dirty_worktree_categories(tmp_pa
     assert result["result"] == "PASS"
     assert set(dirty_paths).issubset(result["worktreePaths"])
     assert result["assertionLedger"]
+
+
+def v27_fixtures() -> Any:
+    """Load the shared V27 repository fixtures from the publisher test module."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v27_evidence_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures
+
+
+@pytest.fixture(scope="module")
+def v27_published(tmp_path_factory: pytest.TempPathFactory) -> tuple[Any, Path, str, str, str]:
+    """Provide one reusable V27 bootstrap, record, and preserved descendant."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap, publication, tip = fixtures.descendant_repository(tmp_path_factory.mktemp("v27-evidence"))
+    return fixtures, root, bootstrap, publication, tip
+
+
+def test_v27_route_requires_protected_host_provenance_and_precedes_v24(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """The evidence host selects V27 only from externally authorized provenance."""
+
+    fixtures, root, bootstrap, publication, _tip = v27_published
+    assert verifier.authority_route(root, publication) == "v24"
+    assert verifier.authority_route(root, publication, fixtures.PREDECESSOR_COMMIT) == "v24"
+    assert verifier.authority_route(root, publication, bootstrap) == "v27"
+    assert verifier.v27_bootstrap_publication(root, publication) == bootstrap
+
+
+def test_v27_record_only_child_and_descendant_pass_the_evidence_scope(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """Exact C2 and a preserved descendant both produce a non-executable PASS row."""
+
+    _fixtures, root, bootstrap, publication, tip = v27_published
+    record_row = verifier.validate_v27_scope(root, publication, bootstrap)
+    descendant_row = verifier.validate_v27_scope(root, tip, bootstrap)
+    assert record_row["id"] == "V27-SCOPE-01"
+    assert record_row["state"] == "PASS"
+    assert record_row["route"] == "V27.ROUTE.C2"
+    assert record_row["executionAllowed"] is False
+    assert descendant_row["route"] == "V27.ROUTE.DESCENDANT"
+    assert descendant_row["bootstrap"] == bootstrap
+
+
+def test_v27_exact_bootstrap_blocks_the_evidence_boundary(tmp_path: Path) -> None:
+    """The authorized bootstrap alone blocks with the stable missing-record code."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v27_scope(root, bootstrap, bootstrap)
+    assert failure.value.code == "EVIDENCE_V27_C2_PUBLICATION_MISSING"
+    assert failure.value.state == "BLOCKED"
+
+
+def test_v27_scope_without_provenance_is_blocked(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """Absent or pre-bootstrap provenance never reaches the V27 boundary."""
+
+    fixtures, root, _bootstrap, publication, _tip = v27_published
+    for provenance in (None, fixtures.PREDECESSOR_COMMIT):
+        with pytest.raises(verifier.BoundaryError) as failure:
+            verifier.validate_v27_scope(root, publication, provenance)
+        assert failure.value.code == "EVIDENCE_V27_BOOTSTRAP_NOT_PROTECTED"
+        assert failure.value.state == "BLOCKED"
+
+
+@pytest.mark.parametrize(
+    ("scenario", "code"),
+    [
+        ("governed-restore", "EVIDENCE_V27_GOVERNED_PATH_TOUCHED"),
+        ("gitlink", "EVIDENCE_V27_GOVERNED_PATH_TOUCHED"),
+        ("record", "EVIDENCE_V27_RECORD_HISTORY_TOUCHED"),
+    ],
+)
+def test_v27_governed_drift_fails_the_evidence_boundary(
+    tmp_path: Path,
+    scenario: str,
+    code: str,
+) -> None:
+    """Restored governed drift is a stable FAIL at the independent evidence host."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap, _publication, tip = fixtures.drift_repository(tmp_path, scenario)
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v27_scope(root, tip, bootstrap)
+    assert failure.value.code == code
+    assert failure.value.state == "FAIL"
+
+
+def test_v27_top_level_verify_dispatches_the_v27_scope(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """The complete gate, not only the focused helper, routes and records V27."""
+
+    _fixtures, root, bootstrap, publication, tip = v27_published
+    document = verifier.verify(root, bootstrap, publication, trusted_host=bootstrap)
+    assert document["result"] == "PASS"
+    assert document["changedPaths"] == [verifier.V27_RECORD_PATH]
+    rows = [row for row in document["assertionLedger"] if row["id"] == "V27-SCOPE-01"]
+    assert len(rows) == 1
+    assert rows[0]["route"] == "V27.ROUTE.C2"
+    assert not any(row["id"] == "V24-SCOPE-01" for row in document["assertionLedger"])
+
+    descendant = verifier.verify(root, publication, tip, trusted_host=bootstrap)
+    assert descendant["result"] == "PASS"
+    assert [row["route"] for row in descendant["assertionLedger"] if row["id"] == "V27-SCOPE-01"] == [
+        "V27.ROUTE.DESCENDANT"
+    ]
+
+
+def test_v27_top_level_verify_blocks_the_exact_bootstrap(tmp_path: Path) -> None:
+    """The complete gate preserves the missing-record blocker instead of passing."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.verify(root, fixtures.PREDECESSOR_COMMIT, bootstrap, trusted_host=bootstrap)
+    assert failure.value.code == "EVIDENCE_V27_C2_PUBLICATION_MISSING"
+    assert failure.value.state == "BLOCKED"
+
+
+def test_v27_cli_preserves_pass_and_blocked_exit_codes(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """The operator-facing gate carries provenance and exit semantics end to end."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    passing = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            "--repository",
+            str(root),
+            "--baseline",
+            bootstrap,
+            "--candidate",
+            publication,
+            "--trusted-host",
+            bootstrap,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert passing.returncode == 0
+    assert json.loads(passing.stdout)["result"] == "PASS"
+
+    blocked = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            "--repository",
+            str(root),
+            "--baseline",
+            bootstrap,
+            "--candidate",
+            bootstrap,
+            "--trusted-host",
+            bootstrap,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert blocked.returncode == 2
+    document = json.loads(blocked.stdout)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "EVIDENCE_V27_C2_PUBLICATION_MISSING"
+    assert document["assertionLedger"]
+
+
+def test_v27_evidence_host_rejects_an_untruthful_observed_parent_diff(
+    v27_published: tuple[Any, Path, str, str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The evidence host recomputes the parent diff instead of trusting the publisher."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    module, schema_content = verifier.load_v27_publisher(root, bootstrap)
+    honest = module.verify_revision(root, publication, bootstrap)
+
+    class Untruthful:
+        @staticmethod
+        def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+            document = json.loads(json.dumps(honest))
+            document["observed"]["parentCommit"] = "0" * 40
+            return document
+
+    monkeypatch.setattr(verifier, "load_v27_publisher", lambda root_, commit: (Untruthful, schema_content))
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v27_scope(root, publication, bootstrap)
+    assert failure.value.code in (
+        "EVIDENCE_V27_OBSERVED_DIFF_UNTRUTHFUL",
+        "EVIDENCE_V27_RESULT_SCHEMA_INVALID",
+    )
+    assert failure.value.state == "BLOCKED"
+
+
+def test_v27_unavailable_history_blocks_route_scope_and_top_level_gate(tmp_path: Path) -> None:
+    """Truncated history blocks selection, the focused scope, and the complete gate."""
+
+    fixtures = v27_fixtures()
+    shallow, tip = fixtures.shallow_repository(tmp_path)
+    for call in (
+        lambda: verifier.authority_route(shallow, tip, tip),
+        lambda: verifier.validate_v27_scope(shallow, tip, tip),
+        lambda: verifier.verify(shallow, tip, tip, trusted_host=tip),
+    ):
+        with pytest.raises(verifier.BoundaryError) as failure:
+            call()
+        assert failure.value.code == "EVIDENCE_V27_HISTORY_UNAVAILABLE"
+        assert failure.value.state == "BLOCKED"
+
+
+def test_v27_unavailable_history_cli_is_blocked_with_a_nonempty_ledger(tmp_path: Path) -> None:
+    """The operator-facing gate maps truncated history to BLOCKED and exit 2."""
+
+    fixtures = v27_fixtures()
+    shallow, tip = fixtures.shallow_repository(tmp_path)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            "--repository",
+            str(shallow),
+            "--baseline",
+            tip,
+            "--candidate",
+            tip,
+            "--trusted-host",
+            tip,
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 2
+    document = json.loads(completed.stdout)
+    assert document["result"] == "BLOCKED"
+    assert document["result"] not in ("PASS", "FAIL", "not-applicable")
+    assert document["blockers"][0]["code"] == "EVIDENCE_V27_HISTORY_UNAVAILABLE"
+    assert document["assertionLedger"]
+
+
+def test_v27_propagated_blocker_codes_use_one_evidence_namespace(tmp_path: Path) -> None:
+    """Every code this host raises or propagates carries the EVIDENCE_V27_ prefix."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    with pytest.raises(verifier.BoundaryError) as propagated:
+        verifier.validate_v27_scope(root, bootstrap, bootstrap)
+    assert propagated.value.code.startswith("EVIDENCE_V27_")
+    assert propagated.value.code == "EVIDENCE_V27_C2_PUBLICATION_MISSING"
+
+    with pytest.raises(verifier.BoundaryError) as native:
+        verifier.validate_v27_scope(root, bootstrap, None)
+    assert native.value.code.startswith("EVIDENCE_V27_")
+
+
+def test_every_evidence_document_states_the_hold_and_four_authority_flags(
+    v27_published: tuple[Any, Path, str, str, str],
+    tmp_path: Path,
+) -> None:
+    """AC3 holds at this host too: the hold and flags are stated, never inferred."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    passing = verifier.verify(root, bootstrap, publication, trusted_host=bootstrap)
+    failing = verifier.failure_document(root, verifier.BoundaryError("EVIDENCE_V27_HISTORY_UNAVAILABLE", "x", "BLOCKED"))
+
+    # The third evidence document is the not-applicable one; it states the same contract.
+    inapplicable = tmp_path / "inapplicable"
+    init_repository(inapplicable)
+    (inapplicable / "unrelated.txt").write_text("unrelated\n", encoding="utf-8")
+    baseline = commit_all(inapplicable, "test: baseline")
+    (inapplicable / "unrelated.txt").write_text("changed\n", encoding="utf-8")
+    candidate = commit_all(inapplicable, "test: candidate")
+    not_applicable = verifier.verify(inapplicable, baseline, candidate)
+    assert not_applicable["result"] == "not-applicable"
+
+    for document in (passing, failing, not_applicable):
+        assert document["effectiveHold"] == "ACTIVE"
+        assert document["implementationHold"] == "ACTIVE"
+        assert document["ownerApprovalClaimed"] is False
+        assert document["releaseAuthorized"] is False
+        assert document["pushAuthorized"] is False
+        assert document["executionAllowed"] is False
+
+
+def test_v27_empty_provenance_leaves_v24_authoritative_at_the_evidence_host(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """An unset workflow output is absent provenance, not a Git revision error."""
+
+    _fixtures, root, _bootstrap, publication, _tip = v27_published
+    assert verifier.v27_route_selected(root, publication, "") is None
+    assert verifier.authority_route(root, publication, "") == "v24"
+
+
+def test_v27_merge_and_partial_clone_candidates_block_the_evidence_boundary(tmp_path: Path) -> None:
+    """Neither a merge candidate nor a partial clone reaches a V27 pass at this host."""
+
+    fixtures = v27_fixtures()
+    merge_root = tmp_path / "merge"
+    merge_root.mkdir()
+    partial_root = tmp_path / "partial-clone"
+    partial_root.mkdir()
+
+    root, bootstrap, merged = fixtures.merge_repository(merge_root)
+    with pytest.raises(verifier.BoundaryError) as merge_failure:
+        verifier.validate_v27_scope(root, merged, bootstrap)
+    assert merge_failure.value.code == "EVIDENCE_V27_CANDIDATE_PARENT_DRIFT"
+    assert merge_failure.value.state == "BLOCKED"
+
+    partial, tip = fixtures.partial_clone_repository(partial_root)
+    with pytest.raises(verifier.BoundaryError) as partial_failure:
+        verifier.validate_v27_scope(partial, tip, tip)
+    assert partial_failure.value.code == "EVIDENCE_V27_HISTORY_UNAVAILABLE"
+    assert "partial clone" in partial_failure.value.message
+
+
+def test_v27_evidence_host_recomputes_the_full_identity_of_the_parent_diff(
+    v27_published: tuple[Any, Path, str, str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fabricated mode, object or digest values are rejected even when the paths are truthful."""
+
+    _fixtures, root, bootstrap, _publication, tip = v27_published
+    module, schema_content = verifier.load_v27_publisher(root, bootstrap)
+    honest = module.verify_revision(root, tip, bootstrap)
+
+    for field, value in (("mode", "100755"), ("objectId", "0" * 40), ("sha256", "1" * 64)):
+        class Fabricated:
+            @staticmethod
+            def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+                document = json.loads(json.dumps(honest))
+                document["observed"]["changedPaths"][0][field] = value
+                return document
+
+        monkeypatch.setattr(verifier, "load_v27_publisher", lambda root_, commit: (Fabricated, schema_content))
+        with pytest.raises(verifier.BoundaryError) as failure:
+            verifier.validate_v27_scope(root, tip, bootstrap)
+        assert failure.value.code == "EVIDENCE_V27_OBSERVED_DIFF_UNTRUTHFUL", field
+        monkeypatch.undo()

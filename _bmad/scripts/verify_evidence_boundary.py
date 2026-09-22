@@ -48,6 +48,31 @@ V24_CORRECTION_PATH = "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooli
 V24_SCHEMA_PATH = "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json"
 V24_SCHEMA_SHA256 = "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
 V24_PUBLISHER_SHA256 = "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
+V27_RECORD_PATH = "_bmad-output/planning-artifacts/v27-story-7.1-lifecycle-evidence-authority-v1.json"
+V27_SCHEMA_PATH = "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json"
+V27_PUBLISHER_PATH = "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py"
+V27_PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py"
+V27_WORKFLOW_PATH = ".github/workflows/planning-authority-preflight.yml"
+V27_GITMODULES_PATH = ".gitmodules"
+V27_BOOTSTRAP_PATHS = tuple(
+    sorted(
+        (
+            V27_WORKFLOW_PATH,
+            V27_SCHEMA_PATH,
+            V27_PUBLISHER_PATH,
+            V27_PUBLISHER_TEST_PATH,
+            "_bmad/scripts/resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+        )
+    )
+)
+V27_BOOTSTRAP_IDENTITY_PATHS = (V27_SCHEMA_PATH, V27_PUBLISHER_PATH, V27_PUBLISHER_TEST_PATH)
+V27_WORKFLOW_SHA256 = "7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d8bb775b"
+V27_SCHEMA_SHA256 = "d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399"
+V27_PUBLISHER_SHA256 = "a3c74b700ac8c3580629179868148b99ce4b7c113fe51936254a752e4c9ee522"
+V27_GITLINK_COUNT = 10
 V23_RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 V23_TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 V23_TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
@@ -435,9 +460,11 @@ def candidate_blob(repository: Path, candidate: str, relative_path: str) -> byte
     ).stdout
 
 
-def authority_route(repository: Path, candidate: str) -> str:
+def authority_route(repository: Path, candidate: str, trusted_host: str | None = None) -> str:
     """Choose authority from committed history while preventing a V24 route downgrade."""
 
+    if v27_route_selected(repository, candidate, trusted_host) is not None:
+        return "v27"
     if candidate_history_has_path(repository, candidate, V24_CORRECTION_PATH):
         return "v24"
     if candidate_has_path(repository, candidate, V23_AUTHORITY_PATH):
@@ -1488,6 +1515,430 @@ def validate_v23_scope(
     )
 
 
+def v27_additions(root: Path, candidate: str, relative_path: str) -> tuple[str, ...]:
+    """Return every full-history commit that introduces one governed V27 path."""
+
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                root,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                candidate,
+                "--",
+                safe_relative_path(relative_path),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V27_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(re.fullmatch(r"[0-9a-f]{40}", row) is None for row in rows):
+        raise BoundaryError("EVIDENCE_V27_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v27_touching_commits(root: Path, since: str, candidate: str, paths: Sequence[str]) -> tuple[str, ...]:
+    """Return every full-history commit after `since` that touches one governed V27 path."""
+
+    if since == candidate:
+        return ()
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                root,
+                "rev-list",
+                "--full-history",
+                candidate,
+                f"^{since}",
+                "--",
+                *(safe_relative_path(path) for path in paths),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V27_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(re.fullmatch(r"[0-9a-f]{40}", row) is None for row in rows):
+        raise BoundaryError("EVIDENCE_V27_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v27_bootstrap_publication(root: Path, candidate: str) -> str | None:
+    """Discover the unique V27 bootstrap publication from committed history alone."""
+
+    discovered: set[str] = set()
+    absent = 0
+    for relative_path in V27_BOOTSTRAP_IDENTITY_PATHS:
+        rows = v27_additions(root, candidate, relative_path)
+        if not rows:
+            absent += 1
+            continue
+        if len(rows) != 1:
+            raise BoundaryError(
+                "EVIDENCE_V27_DUPLICATE_BOOTSTRAP_PUBLICATION",
+                f"{relative_path}: {rows!r}",
+                "BLOCKED",
+            )
+        discovered.add(rows[0])
+    if absent == len(V27_BOOTSTRAP_IDENTITY_PATHS):
+        return None
+    if absent or len(discovered) != 1:
+        raise BoundaryError("EVIDENCE_V27_BOOTSTRAP_PUBLICATION_SPLIT", repr(sorted(discovered)), "BLOCKED")
+    return discovered.pop()
+
+
+def require_v27_history(root: Path) -> None:
+    """Require complete history before any V27 fact is derived; partial history is never a pass."""
+
+    observed = run_git(root, "rev-parse", "--is-shallow-repository").stdout.strip()
+    if observed != b"false":
+        raise BoundaryError(
+            "EVIDENCE_V27_HISTORY_UNAVAILABLE",
+            f"repository is shallow or history availability is unknown: {observed!r}",
+            "BLOCKED",
+        )
+    promisor = run_git(
+        root,
+        "config",
+        "--get-regexp",
+        r"^(extensions\.partialclone|remote\..*\.promisor)$",
+        allowed=(0, 1),
+    )
+    if promisor.returncode == 0 and promisor.stdout.strip():
+        raise BoundaryError(
+            "EVIDENCE_V27_HISTORY_UNAVAILABLE",
+            "repository is a partial clone; object availability is unknown",
+            "BLOCKED",
+        )
+
+
+def v27_candidate_parent(root: Path, candidate: str) -> str:
+    """Return the one immediate parent; truncated and merge candidates are never evaluated."""
+
+    parents = commit_parents(root, candidate, "EVIDENCE_V27_HISTORY_UNAVAILABLE")
+    if not parents:
+        raise BoundaryError(
+            "EVIDENCE_V27_HISTORY_UNAVAILABLE",
+            f"{candidate} has no available parent; its ancestry is truncated",
+            "BLOCKED",
+        )
+    if len(parents) != 1:
+        raise BoundaryError(
+            "EVIDENCE_V27_CANDIDATE_PARENT_DRIFT",
+            f"{candidate} has {len(parents)} parents; V27 evaluates only single-parent candidates",
+            "BLOCKED",
+        )
+    return parents[0]
+
+
+def v27_changed_path_rows(root: Path, parent: str, candidate: str) -> list[dict[str, Any]]:
+    """Recompute the full identity of the truthful immediate-parent diff."""
+
+    content = run_git(
+        root,
+        "diff-tree",
+        "--no-commit-id",
+        "--no-renames",
+        "-r",
+        "-z",
+        "--raw",
+        parent,
+        candidate,
+    ).stdout
+    fields = [part for part in content.split(b"\0") if part]
+    if len(fields) % 2 != 0:
+        raise BoundaryError("EVIDENCE_V27_DIFF_MALFORMED", f"unpaired raw diff fields: {len(fields)}", "BLOCKED")
+    rows: list[dict[str, Any]] = []
+    for index in range(0, len(fields), 2):
+        try:
+            metadata = fields[index].decode("ascii", errors="strict")
+            relative_path = fields[index + 1].decode("utf-8", errors="strict")
+        except UnicodeError as error:
+            raise BoundaryError("EVIDENCE_V27_DIFF_MALFORMED", str(error), "BLOCKED") from error
+        parts = metadata[1:].split() if metadata.startswith(":") else []
+        if (
+            len(parts) != 5
+            or re.fullmatch(r"[0-7]{6}", parts[1]) is None
+            or re.fullmatch(r"[0-9a-f]{40}", parts[3]) is None
+        ):
+            raise BoundaryError("EVIDENCE_V27_DIFF_MALFORMED", repr(metadata), "BLOCKED")
+        target_mode, target_object = parts[1], parts[3]
+        digest: str | None = None
+        if target_mode not in ("000000", "160000"):
+            digest = sha256(run_git(root, "cat-file", "blob", target_object).stdout)
+        rows.append(
+            {
+                "path": safe_relative_path(relative_path),
+                "mode": target_mode,
+                "objectId": target_object,
+                "sha256": digest,
+            }
+        )
+    return sorted(rows, key=lambda row: row["path"])
+
+
+def evidence_v27_code(code: str) -> str:
+    """Fold one code into this host's single V27 namespace."""
+
+    if code.startswith("EVIDENCE_V27_"):
+        return code
+    return "EVIDENCE_V27_" + re.sub(r"^(EVIDENCE_)?(V2[0-9]_)?", "", code)
+
+
+def normalized_v27(error: BoundaryError) -> BoundaryError:
+    """Re-raise a helper's diagnostic inside the V27 namespace without losing its meaning."""
+
+    code = evidence_v27_code(error.code)
+    if code == error.code:
+        return error
+    return BoundaryError(code, error.message, error.state, error.path)
+
+
+def v27_route_selected(root: Path, candidate: str, trusted_host: str | None) -> str | None:
+    """Select V27 only when an externally authorized bootstrap precedes the protected host."""
+
+    # An event that supplies no protected base is absent provenance, never a synthesized anchor:
+    # V27 does not select and the existing V24 route stays authoritative.
+    if not trusted_host:
+        return None
+    bootstrap = v27_bootstrap_publication(root, candidate)
+    if bootstrap is None:
+        # A candidate carrying V27 content whose publication is unreachable is truncated history,
+        # not a V24 candidate. A candidate with no V27 content keeps the legacy route untouched,
+        # even in a shallow or partial clone.
+        if candidate_has_path(root, candidate, V27_PUBLISHER_PATH) or candidate_has_path(
+            root,
+            candidate,
+            V27_RECORD_PATH,
+        ):
+            require_v27_history(root)
+            raise BoundaryError(
+                "EVIDENCE_V27_HISTORY_UNAVAILABLE",
+                "V27 artifacts exist without a reachable bootstrap publication",
+                "BLOCKED",
+            )
+        return None
+    host = resolve_commit(root, trusted_host, "EVIDENCE_V27_PROTECTED_HOST_UNAVAILABLE")
+    if run_git(root, "merge-base", "--is-ancestor", bootstrap, host, allowed=(0, 1)).returncode != 0:
+        return None
+    if run_git(root, "merge-base", "--is-ancestor", bootstrap, candidate, allowed=(0, 1)).returncode != 0:
+        raise BoundaryError(
+            "EVIDENCE_V27_BOOTSTRAP_NOT_ANCESTOR",
+            f"{bootstrap} precedes no candidate history",
+            "BLOCKED",
+        )
+    require_v27_history(root)
+    return bootstrap
+
+
+def v27_governed_no_touch(root: Path, bootstrap: str, candidate: str) -> None:
+    """Reject governed drift from raw objects before any V27 code is imported."""
+
+    try:
+        v27_governed_no_touch_unnormalized(root, bootstrap, candidate)
+    except BoundaryError as error:
+        raise normalized_v27(error) from error
+
+
+def v27_governed_no_touch_unnormalized(root: Path, bootstrap: str, candidate: str) -> None:
+    """Derive the governed no-touch facts; shared helpers may raise their own codes."""
+
+    baseline_links = v24_root_gitlinks(root, bootstrap)
+    if len(baseline_links) != V27_GITLINK_COUNT:
+        raise BoundaryError("EVIDENCE_V27_ROOT_GITLINK_DRIFT", repr(len(baseline_links)), "FAIL")
+    governed = (*V27_BOOTSTRAP_PATHS, V27_GITMODULES_PATH, *(row[0] for row in baseline_links))
+    touched = v27_touching_commits(root, bootstrap, candidate, governed)
+    if touched:
+        raise BoundaryError("EVIDENCE_V27_GOVERNED_PATH_TOUCHED", f"commits={sorted(touched)!r}", "FAIL")
+    for relative_path in V27_BOOTSTRAP_PATHS:
+        if v23_tree_record(root, candidate, relative_path) != v23_tree_record(root, bootstrap, relative_path):
+            raise BoundaryError("EVIDENCE_V27_GOVERNED_ARTIFACT_DRIFT", relative_path, "FAIL")
+    if candidate_blob(root, candidate, V27_GITMODULES_PATH) != candidate_blob(root, bootstrap, V27_GITMODULES_PATH):
+        raise BoundaryError("EVIDENCE_V27_GITMODULES_DRIFT", V27_GITMODULES_PATH, "FAIL")
+    if v24_root_gitlinks(root, candidate) != baseline_links:
+        raise BoundaryError("EVIDENCE_V27_ROOT_GITLINK_DRIFT", "bootstrap and candidate gitlinks differ", "FAIL")
+    observed_workflow = sha256(candidate_blob(root, bootstrap, V27_WORKFLOW_PATH))
+    if observed_workflow != V27_WORKFLOW_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V27_WORKFLOW_IDENTITY_MISMATCH",
+            f"expected={V27_WORKFLOW_SHA256}; observed={observed_workflow}",
+            "BLOCKED",
+        )
+    publications = v27_additions(root, candidate, V27_RECORD_PATH)
+    if len(publications) > 1:
+        raise BoundaryError("EVIDENCE_V27_DUPLICATE_RECORD_PUBLICATION", repr(publications), "BLOCKED")
+    if publications:
+        parents = commit_parents(root, publications[0], "EVIDENCE_V27_HISTORY_UNAVAILABLE")
+        if parents != (bootstrap,):
+            raise BoundaryError("EVIDENCE_V27_RECORD_PARENT_DRIFT", repr(parents), "FAIL")
+        observed_scope = changed_paths(root, bootstrap, publications[0])
+        if observed_scope != (V27_RECORD_PATH,):
+            raise BoundaryError("EVIDENCE_V27_RECORD_SCOPE_DRIFT", repr(observed_scope), "FAIL")
+
+
+def load_v27_publisher(root: Path, bootstrap: str) -> tuple[Any, bytes]:
+    """Load pinned V27 publisher bytes only from the externally authorized bootstrap."""
+
+    for relative_path in (V27_SCHEMA_PATH, V27_PUBLISHER_PATH):
+        mode, kind, _object_id = v23_tree_record(root, bootstrap, relative_path)
+        if (mode, kind) != ("100644", "blob"):
+            raise BoundaryError("EVIDENCE_V27_BOOTSTRAP_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    schema_content = candidate_blob(root, bootstrap, V27_SCHEMA_PATH)
+    if sha256(schema_content) != V27_SCHEMA_SHA256:
+        raise BoundaryError("EVIDENCE_V27_SCHEMA_IDENTITY_MISMATCH", sha256(schema_content), "BLOCKED")
+    content = candidate_blob(root, bootstrap, V27_PUBLISHER_PATH)
+    if sha256(content) != V27_PUBLISHER_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V27_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V27_PUBLISHER_SHA256}; observed={sha256(content)}",
+            "BLOCKED",
+        )
+    spec = importlib.util.spec_from_loader("evidence_v27_lifecycle_evidence_authority", loader=None)
+    if spec is None:
+        raise BoundaryError("EVIDENCE_V27_PUBLISHER_LOAD_FAILED", V27_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{bootstrap}:{V27_PUBLISHER_PATH}"
+    try:
+        exec(compile(content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V27_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if not callable(getattr(module, "verify_revision", None)):
+        raise BoundaryError("EVIDENCE_V27_PUBLISHER_INTERFACE_INVALID", V27_PUBLISHER_PATH, "BLOCKED")
+    return module, schema_content
+
+
+def validate_v27_result(root: Path, document: Any, candidate: str, schema_content: bytes) -> dict[str, Any]:
+    """Require a closed, route-discriminated, truthful, non-executable V27 result."""
+
+    try:
+        return validate_v27_result_unnormalized(root, document, candidate, schema_content)
+    except BoundaryError as error:
+        raise normalized_v27(error) from error
+
+
+def validate_v27_result_unnormalized(
+    root: Path,
+    document: Any,
+    candidate: str,
+    schema_content: bytes,
+) -> dict[str, Any]:
+    """Check the returned result; shared helpers may raise their own codes."""
+
+    if not isinstance(document, dict):
+        raise BoundaryError("EVIDENCE_V27_RESULT_INVALID", "result is not a JSON object", "BLOCKED")
+    schema = load_v23_json(schema_content, "EVIDENCE_V27_SCHEMA_INVALID")
+    try:
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema).validate(document)
+    except (SchemaError, ValidationError) as error:
+        raise BoundaryError("EVIDENCE_V27_RESULT_SCHEMA_INVALID", error.message, "BLOCKED") from error
+    exit_codes = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
+    result = document.get("result")
+    observed = document.get("observed")
+    if (
+        document.get("schemaVersion") != V23_RESULT_SCHEMA_VERSION
+        or result not in exit_codes
+        or document.get("exitCode") != exit_codes[result]
+        or document.get("effectiveHold") != "ACTIVE"
+        or document.get("implementationHold") != "ACTIVE"
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or not isinstance(document.get("assertionLedger"), list)
+        or not document["assertionLedger"]
+        or not isinstance(observed, dict)
+    ):
+        raise BoundaryError("EVIDENCE_V27_RESULT_INVALID", "closed non-executable result mismatch", "BLOCKED")
+    if result != "PASS":
+        if not document.get("blockers"):
+            raise BoundaryError("EVIDENCE_V27_RESULT_INVALID", "failing result without a blocker", "BLOCKED")
+        return document
+    if document.get("blockers") or any(row.get("state") != "PASS" for row in document["assertionLedger"]):
+        raise BoundaryError(
+            "EVIDENCE_V27_RESULT_INVALID",
+            "passing result carries a blocker or nonpassing row",
+            "BLOCKED",
+        )
+    parent = v27_candidate_parent(root, candidate)
+    truthful = v27_changed_path_rows(root, parent, candidate)
+    declared = observed.get("changedPaths")
+    if not isinstance(declared, list):
+        raise BoundaryError("EVIDENCE_V27_OBSERVED_DIFF_UNTRUTHFUL", "changedPaths is not a list", "BLOCKED")
+    declared = sorted(declared, key=lambda row: row.get("path") if isinstance(row, dict) else "")
+    expected_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in v24_root_gitlinks(root, candidate)
+    ]
+    if (
+        observed.get("candidateCommit") != candidate
+        or observed.get("candidateTree") != commit_tree(root, candidate)
+        or observed.get("parentCommit") != parent
+        or observed.get("parentTree") != commit_tree(root, parent)
+        or declared != truthful
+        or observed.get("candidateGitlinks") != expected_links
+        or observed.get("parentGitlinks")
+        != [
+            {"path": path, "mode": mode, "objectId": object_id}
+            for path, mode, object_id in v24_root_gitlinks(root, parent)
+        ]
+    ):
+        raise BoundaryError(
+            "EVIDENCE_V27_OBSERVED_DIFF_UNTRUTHFUL",
+            f"declared={[row.get('path') for row in declared]!r}; observed={[row['path'] for row in truthful]!r}",
+            "BLOCKED",
+        )
+    return document
+
+
+def validate_v27_scope(root: Path, candidate: str, trusted_host: str | None) -> dict[str, Any]:
+    """Validate the externally authorized V27 boundary from the independent evidence host."""
+
+    try:
+        bootstrap = v27_route_selected(root, candidate, trusted_host)
+    except BoundaryError as error:
+        raise normalized_v27(error) from error
+    if bootstrap is None:
+        raise BoundaryError(
+            "EVIDENCE_V27_BOOTSTRAP_NOT_PROTECTED",
+            "no externally authorized V27 bootstrap precedes the protected host",
+            "BLOCKED",
+        )
+    v27_candidate_parent(root, candidate)
+    v27_governed_no_touch(root, bootstrap, candidate)
+    module, schema_content = load_v27_publisher(root, bootstrap)
+    assert trusted_host is not None
+    host = resolve_commit(root, trusted_host, "EVIDENCE_V27_PROTECTED_HOST_UNAVAILABLE")
+    try:
+        result = module.verify_revision(root, candidate, host)
+    except BoundaryError:
+        raise
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V27_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+    document = validate_v27_result(root, result, candidate, schema_content)
+    if document["result"] != "PASS":
+        blocker = document["blockers"][0]
+        # Propagated publisher codes are normalized into this host's own namespace so a consumer
+        # filtering on EVIDENCE_V27_ never drops part of the set.
+        code = str(blocker["code"])
+        normalized = code if code.startswith("EVIDENCE_") else f"EVIDENCE_{code}"
+        raise BoundaryError(normalized, str(blocker["detail"]), str(document["result"]))
+    return assertion(
+        "V27-SCOPE-01",
+        "v27-lifecycle-evidence-authority-boundary",
+        "PASS",
+        route=str(document["assertionLedger"][0]["id"]),
+        bootstrap=bootstrap,
+        protectedHost=host,
+        count=len(V27_BOOTSTRAP_PATHS),
+        publisherSha256=V27_PUBLISHER_SHA256,
+        executionAllowed=False,
+    )
+
+
 def validate_v24_request_result(document: Any, publication: str) -> dict[str, Any]:
     """Map any contradictory corrected request result to the V24 host boundary."""
 
@@ -1697,6 +2148,7 @@ def verify(
     candidate_revision: str,
     *,
     signature_verifier: Callable[[Path, str, str], dict[str, str]] | None = None,
+    trusted_host: str | None = None,
 ) -> dict[str, Any]:
     """Evaluate the complete evidence boundary and return one closed result."""
 
@@ -1708,8 +2160,16 @@ def verify(
         raise BoundaryError("BASELINE_NOT_ANCESTOR", f"{baseline} is not an ancestor of {candidate}", "BLOCKED")
     paths = changed_paths(root, baseline, candidate)
     dirty_paths = worktree_paths(root)
-    route = authority_route(root, candidate)
-    applicable = is_applicable(paths) or route in ("v15", "v16", "v17", "v23-request", "v23-authority", "v24")
+    route = authority_route(root, candidate, trusted_host)
+    applicable = is_applicable(paths) or route in (
+        "v15",
+        "v16",
+        "v17",
+        "v23-request",
+        "v23-authority",
+        "v24",
+        "v27",
+    )
     gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
         assertion("PATHS-01", "exact-changed-path-set", "PASS", paths=list(paths), count=len(paths)),
@@ -1717,7 +2177,9 @@ def verify(
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
     ]
-    if route == "v24":
+    if route == "v27":
+        ledger.append(validate_v27_scope(root, candidate, trusted_host))
+    elif route == "v24":
         ledger.append(
             validate_v24_scope(
                 root,
@@ -1756,6 +2218,7 @@ def verify(
             "worktreePaths": list(dirty_paths),
             "assertionLedger": ledger,
             "blockers": [],
+            **non_executable_fields(),
         }
     committed_reader = lambda _base, relative: candidate_blob(root, candidate, relative)
     ledger.extend(validate_active_routes(root, committed_reader))
@@ -1776,7 +2239,7 @@ def verify(
             ),
         )
     )
-    if route not in ("v23-request", "v23-authority", "v24"):
+    if route not in ("v23-request", "v23-authority", "v24", "v27"):
         ledger.append(run_publication_check(root, route=route, candidate=candidate))
     if not ledger:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "applicable scope produced an empty assertion ledger")
@@ -1790,6 +2253,24 @@ def verify(
         "worktreePaths": list(dirty_paths),
         "assertionLedger": ledger,
         "blockers": [],
+        **non_executable_fields(),
+    }
+
+
+def non_executable_fields() -> dict[str, Any]:
+    """Return the hold and authority flags every evidence result must carry.
+
+    AC3 requires the ACTIVE hold and four false authority flags from *either* protected host, so
+    this document states them itself rather than leaving a caller to infer them.
+    """
+
+    return {
+        "effectiveHold": "ACTIVE",
+        "implementationHold": "ACTIVE",
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
     }
 
 
@@ -1809,6 +2290,7 @@ def failure_document(repository: Path, error: BoundaryError) -> dict[str, Any]:
             {"id": error.code, "subject": error.path or "evidence-boundary", "state": error.state, "message": error.message}
         ],
         "blockers": [blocker],
+        **non_executable_fields(),
     }
 
 
@@ -1819,6 +2301,11 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--repository", default=str(Path(__file__).resolve().parents[2]))
     parser.add_argument("--baseline", required=True)
     parser.add_argument("--candidate", default="HEAD")
+    parser.add_argument(
+        "--trusted-host",
+        default=None,
+        help="externally recorded protected-host provenance that may authorize the V27 route",
+    )
     parser.add_argument("--output")
     return parser
 
@@ -1829,7 +2316,7 @@ def main(arguments: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(arguments)
     repository = Path(args.repository)
     try:
-        document = verify(repository, args.baseline, args.candidate)
+        document = verify(repository, args.baseline, args.candidate, trusted_host=args.trusted_host)
     except BoundaryError as error:
         document = failure_document(repository, error)
     except (UnicodeError, ValueError, TypeError) as error:

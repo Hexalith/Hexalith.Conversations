@@ -9,7 +9,7 @@ from pathlib import Path
 import shutil
 import subprocess
 import sys
-from typing import Callable
+from typing import Any, Callable
 
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
@@ -320,7 +320,41 @@ def test_workflow_executes_authority_hosts_from_the_protected_event_base() -> No
     """The real PR entry point materializes both trust hosts from protected base bytes."""
 
     workflow = (ROOT / resolver.WORKFLOW_PATH).read_text(encoding="utf-8")
-    assert hashlib.sha256(workflow.encode("utf-8")).hexdigest() == resolver.V23_WORKFLOW_SHA256
+    assert hashlib.sha256(workflow.encode("utf-8")).hexdigest() == resolver.V27_WORKFLOW_SHA256
+    historical = subprocess.check_output(
+        ["git", "-C", str(ROOT), "cat-file", "blob", f"{resolver.V23_REQUEST_PUBLICATION}:{resolver.WORKFLOW_PATH}"]
+    )
+    assert hashlib.sha256(historical).hexdigest() == resolver.V23_WORKFLOW_SHA256
+    # The V27 anchor is event-derived and fail-closed: only a main-filtered trigger with a real
+    # base produces one, and the tautological self-comparison is gone.
+    assert 'TRUSTED_EVENT_NAME: ${{ github.event_name }}' in workflow
+    assert "            push|pall_request_target)".replace("pall", "pull") in workflow
+    assert 'trusted_host_commit=""' in workflow
+    assert 'trusted_host_commit="$TRUSTED_EVENT_BASE"' in workflow
+    assert 'trusted_host_commit="$baseline"' not in workflow
+    assert 'test "$trusted_host_commit" = "$baseline"' not in workflow
+    assert 'trusted_git rev-parse HEAD^' in workflow
+    # Host bytes come from the comparison-range base; the anchor never materializes anything.
+    assert 'PROTECTED_HOST_COMMIT: ${{ steps.range.outputs.baseline }}' in workflow
+    assert 'trusted_git show "$PROTECTED_HOST_COMMIT:$path"' in workflow
+    # The flag reaches only a host that advertises it, so a pre-V27 base still returns a verdict.
+    assert workflow.count("trusted_args=(--trusted-host \"$TRUSTED_HOST_COMMIT\")") == 2
+    assert workflow.count("supports_trusted_host() {") == 2
+    assert workflow.count('"$protected_python" -I -P "$host" --help') == 2
+    assert "TRUSTED_HOST_FLAG" not in workflow
+    assert workflow.count("TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}") == 2
+    assert "protected current-authority host produced no result document" in workflow
+    assert "protected evidence host produced no result document" in workflow
+    assert "protected evidence host returned an executable or unheld result" in workflow
+    assert "hexalith.conversations.evidence-boundary-result.v1" in workflow
+    assert resolver.V27_SCHEMA_PATH in workflow
+    assert f'v27_schema_sha256="{resolver.V27_SCHEMA_SHA256}"' in workflow
+    assert 'test "$observed_v27_schema" = "$v27_schema_sha256"' in workflow
+    assert 'jsonschema.Draft202012Validator(v27_schema).validate(document)' in workflow
+    assert 'route.startswith("V27.") or route.startswith("V27_")' in workflow
+    assert "protected V27 result violated its non-executable PASS contract" in workflow
+    assert "protected host returned a V27 route without the protected V27 schema" in workflow
+    assert resolver.V27_PUBLISHER_PATH not in workflow
     assert "\n  pull_request_target:\n" in workflow
     assert "\n  pull_request:\n" in workflow
     assert (
@@ -345,7 +379,6 @@ def test_workflow_executes_authority_hosts_from_the_protected_event_base() -> No
     assert '"$PROTECTED_UV" sync' in workflow
     assert '"$protected_python" -I -P' in workflow
     assert '--candidate "${{ steps.range.outputs.candidate }}"' in workflow
-    assert 'trusted_git show "$TRUSTED_HOST_COMMIT:$path"' in workflow
     assert "env -i PATH=/usr/bin:/bin" in workflow
     assert '/usr/bin/git -C "$GITHUB_WORKSPACE"' in workflow
     assert "-c core.hooksPath=/dev/null -c protocol.file.allow=never" in workflow
@@ -353,8 +386,6 @@ def test_workflow_executes_authority_hosts_from_the_protected_event_base() -> No
     assert 'PYTHONSAFEPATH: "1"' in workflow
     assert "/usr/bin/python3" not in workflow[: workflow.index("\n  candidate-validation:\n")]
     assert "TRUSTED_EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}" in workflow
-    assert 'trusted_host_commit="$baseline"' in workflow
-    assert 'test "$trusted_host_commit" = "$baseline"' in workflow
     assert "$RUNNER_TEMP/planning-authority-protected-host/resolve_current_planning_authority.py" in workflow
     assert "$RUNNER_TEMP/planning-authority-protected-host/verify_evidence_boundary.py" in workflow
     assert "- name: Verify checked-out candidate identity" in workflow
@@ -1167,3 +1198,767 @@ def test_candidate_module_system_exit_is_caught_by_host_boundary(monkeypatch: py
     assert result["result"] == "BLOCKED"
     assert result["blockers"][0]["code"] == "V23_PUBLISHER_EXECUTION_FAILED"
     assert result["executionAllowed"] is False
+
+
+def v27_fixtures() -> Any:
+    """Load the shared V27 repository fixtures from the publisher test module."""
+
+    fixture_path = ROOT / "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py"
+    fixture_spec = importlib.util.spec_from_file_location("v27_resolver_fixtures", fixture_path)
+    assert fixture_spec is not None and fixture_spec.loader is not None
+    fixtures = importlib.util.module_from_spec(fixture_spec)
+    fixture_spec.loader.exec_module(fixtures)
+    return fixtures
+
+
+def validate_v27_envelope(document: dict[str, Any]) -> None:
+    """Validate one V27 resolver result against the pinned closed V27 schema."""
+
+    content = (ROOT / resolver.V27_SCHEMA_PATH).read_bytes()
+    assert hashlib.sha256(content).hexdigest() == resolver.V27_SCHEMA_SHA256
+    Draft202012Validator(json.loads(content)).validate(document)
+    first = document["assertionLedger"][0]["id"]
+    assert first.startswith("V27.ROUTE.") or first.startswith("V27_")
+    assert document["effectiveHold"] == "ACTIVE"
+    assert document["implementationHold"] == "ACTIVE"
+    assert document["assertionLedger"]
+    assert document["ownerApprovalClaimed"] is False
+    assert document["releaseAuthorized"] is False
+    assert document["pushAuthorized"] is False
+    assert document["executionAllowed"] is False
+
+
+@pytest.fixture(scope="module")
+def v27_published(tmp_path_factory: pytest.TempPathFactory) -> tuple[Any, Path, str, str, str]:
+    """Provide one reusable V27 bootstrap, record, and preserved descendant."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap, publication, tip = fixtures.descendant_repository(tmp_path_factory.mktemp("v27-resolver"))
+    return fixtures, root, bootstrap, publication, tip
+
+
+def test_v27_exact_bootstrap_host_returns_nonempty_blocked(tmp_path: Path) -> None:
+    """The authorized bootstrap alone is BLOCKED with a stable missing-record blocker."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    document = resolver.resolve_authority(root, bootstrap, trusted_host=bootstrap)
+    validate_v27_envelope(document)
+    assert document["result"] == "BLOCKED"
+    assert document["exitCode"] == 2
+    assert document["blockers"][0]["code"] == "V27_C2_PUBLICATION_MISSING"
+    assert document["assertionLedger"][0]["id"] == "V27.ROUTE.C1"
+    assert [row["path"] for row in document["observed"]["changedPaths"]] == list(resolver.V27_BOOTSTRAP_PATHS)
+
+
+def test_v27_record_only_child_returns_non_executable_pass(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """Exact C2 returns the closed non-executable PASS with the record as its parent diff."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    document = resolver.resolve_authority(root, publication, trusted_host=bootstrap)
+    validate_v27_envelope(document)
+    assert document["result"] == "PASS"
+    assert document["exitCode"] == 0
+    assert document["blockers"] == []
+    assert document["assertionLedger"][0]["id"] == "V27.ROUTE.C2"
+    assert [row["path"] for row in document["observed"]["changedPaths"]] == [resolver.V27_RECORD_PATH]
+    assert document["observed"]["parentCommit"] == bootstrap
+    assert "storyExecution" not in document
+
+
+def test_v27_preserved_descendant_reports_its_truthful_parent_diff(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """An untouched descendant passes and its declared diff equals the raw parent diff."""
+
+    _fixtures, root, bootstrap, publication, tip = v27_published
+    document = resolver.resolve_authority(root, tip, trusted_host=bootstrap)
+    validate_v27_envelope(document)
+    assert document["result"] == "PASS"
+    assert document["assertionLedger"][0]["id"] == "V27.ROUTE.DESCENDANT"
+    declared = [row["path"] for row in document["observed"]["changedPaths"]]
+    assert declared == list(resolver.changed_paths(root, publication, tip))
+    assert document["observed"]["parentCommit"] == publication
+
+
+def test_v27_host_before_the_bootstrap_keeps_v24_authoritative(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """Protected-host provenance that predates C1 leaves the existing V24 blocker in force."""
+
+    fixtures, root, _bootstrap, publication, _tip = v27_published
+    assert resolver.v27_route_selected(root, publication, fixtures.PREDECESSOR_COMMIT) is None
+    document = resolver.resolve_authority(root, publication, trusted_host=fixtures.PREDECESSOR_COMMIT)
+    validate_result(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"].startswith("V24_")
+    unauthorized = resolver.resolve_authority(root, publication)
+    validate_result(unauthorized)
+    assert unauthorized["result"] == "BLOCKED"
+    assert unauthorized["blockers"] == document["blockers"]
+
+
+def test_v27_route_precedes_v24_for_an_authorized_bootstrap(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """The V27 route is selected before the V24 correction route it supersedes."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    assert resolver.candidate_history_has_path(root, publication, resolver.V24_CORRECTION_PATH)
+    assert resolver.v27_route_selected(root, publication, bootstrap) == bootstrap
+    assert resolver.resolve_authority(root, publication, trusted_host=bootstrap)["result"] == "PASS"
+
+
+@pytest.mark.parametrize(
+    ("scenario", "code"),
+    [
+        ("governed-restore", "V27_GOVERNED_PATH_TOUCHED"),
+        ("gitmodules", "V27_GOVERNED_PATH_TOUCHED"),
+        ("record", "V27_RECORD_HISTORY_TOUCHED"),
+    ],
+)
+def test_v27_governed_drift_preserves_fail_without_collapsing_to_blocked(
+    tmp_path: Path,
+    scenario: str,
+    code: str,
+) -> None:
+    """Restored governed drift stays a FAIL result with exit 1 at the resolver boundary."""
+
+    fixtures = v27_fixtures()
+    root, bootstrap, _publication, tip = fixtures.drift_repository(tmp_path, scenario)
+    document = resolver.resolve_authority(root, tip, trusted_host=bootstrap)
+    validate_v27_envelope(document)
+    assert document["result"] == "FAIL"
+    assert document["exitCode"] == 1
+    assert document["blockers"][0]["code"] == code
+    assert document["assertionLedger"][0]["state"] == "FAIL"
+
+
+def test_v27_host_rejects_a_hostile_bootstrap_publisher_identity(tmp_path: Path) -> None:
+    """An alternate eight-path bootstrap whose publisher differs never loads."""
+
+    fixtures = v27_fixtures()
+
+    def mutate(root: Path) -> None:
+        target = root / resolver.V27_PUBLISHER_PATH
+        target.write_bytes(target.read_bytes() + b"\n# hostile publisher\n")
+
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path, None, mutate)
+    document = resolver.resolve_authority(root, bootstrap, trusted_host=bootstrap)
+    validate_result(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "V27_PUBLISHER_IDENTITY_MISMATCH"
+
+
+def test_v27_host_rejects_an_untruthful_observed_parent_diff(
+    v27_published: tuple[Any, Path, str, str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A publisher that declares the eight V27 artifacts instead of the real diff is rejected."""
+
+    _fixtures, root, bootstrap, _publication, tip = v27_published
+    module, schema_content = resolver.load_v27_publisher(root, bootstrap)
+    honest = module.verify_revision(root, tip, bootstrap)
+
+    class Untruthful:
+        @staticmethod
+        def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+            document = json.loads(json.dumps(honest))
+            document["observed"]["changedPaths"] = [
+                {"path": path, "mode": "100644", "objectId": "0" * 40, "sha256": "0" * 64}
+                for path in resolver.V27_BOOTSTRAP_PATHS
+            ]
+            return document
+
+    monkeypatch.setattr(resolver, "load_v27_publisher", lambda repository, commit: (Untruthful, schema_content))
+    document = resolver.resolve_authority(root, tip, trusted_host=bootstrap)
+    validate_result(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "V27_OBSERVED_DIFF_UNTRUTHFUL"
+
+
+def test_v27_host_rejects_a_schema_invalid_publisher_result(
+    v27_published: tuple[Any, Path, str, str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A result whose route and scope contradict the declared schema cannot pass."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    module, schema_content = resolver.load_v27_publisher(root, bootstrap)
+    honest = module.verify_revision(root, publication, bootstrap)
+
+    class Contradictory:
+        @staticmethod
+        def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+            document = json.loads(json.dumps(honest))
+            document["assertionLedger"][0]["id"] = "V27.ROUTE.C1"
+            return document
+
+    monkeypatch.setattr(resolver, "load_v27_publisher", lambda repository, commit: (Contradictory, schema_content))
+    document = resolver.resolve_authority(root, publication, trusted_host=bootstrap)
+    validate_result(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "V27_RESULT_SCHEMA_INVALID"
+
+
+def test_v27_cli_emits_the_authorized_pass_envelope_and_exit_zero(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """The operator-facing command line carries protected-host provenance end to end."""
+
+    _fixtures, root, bootstrap, publication, _tip = v27_published
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            "--repository",
+            str(root),
+            "--candidate",
+            publication,
+            "--trusted-host",
+            bootstrap,
+            "--check",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    document = json.loads(completed.stdout)
+    validate_v27_envelope(document)
+    assert completed.returncode == 0
+    assert document["result"] == "PASS"
+
+
+def test_v27_failure_envelopes_validate_against_the_pinned_schema() -> None:
+    """Every V27 envelope this host emits is route-discriminated and schema valid."""
+
+    for state in ("FAIL", "BLOCKED"):
+        for detail in ("restored drift", ""):
+            document = resolver.v27_error_result("V27_PUBLISHER_LOAD_FAILED", detail, state)
+            validate_v27_envelope(document)
+            assert document["result"] == state
+            assert document["blockers"][0]["detail"] == (detail or "V27_PUBLISHER_LOAD_FAILED")
+            assert document["assertionLedger"][0]["id"] in ("V27.ROUTE.DRIFT", "V27.ROUTE.BLOCKED")
+
+
+def test_v27_error_result_preserves_fail_versus_blocked() -> None:
+    """The caller-safe failing envelope never collapses FAIL into BLOCKED."""
+
+    failed = resolver.error_result("V27_GOVERNED_PATH_TOUCHED", "restored drift", "FAIL")
+    blocked = resolver.error_result("V27_C2_PUBLICATION_MISSING", "record absent", "BLOCKED")
+    validate_result(failed)
+    validate_result(blocked)
+    assert (failed["result"], failed["exitCode"]) == ("FAIL", 1)
+    assert (blocked["result"], blocked["exitCode"]) == ("BLOCKED", 2)
+    assert failed["assertionLedger"][0]["state"] == "FAIL"
+
+
+def test_v27_unavailable_history_is_blocked_and_never_downgraded(tmp_path: Path) -> None:
+    """Truncated history blocks the V27 route with a stable code and a nonempty ledger."""
+
+    fixtures = v27_fixtures()
+    shallow, tip = fixtures.shallow_repository(tmp_path)
+    with pytest.raises(resolver.ResolutionError) as failure:
+        resolver.v27_route_selected(shallow, tip, tip)
+    assert failure.value.code == "V27_HISTORY_UNAVAILABLE"
+    assert failure.value.state == "BLOCKED"
+
+    document = resolver.resolve_authority(shallow, tip, trusted_host=tip)
+    validate_v27_envelope(document)
+    assert document["result"] == "BLOCKED"
+    assert document["exitCode"] == 2
+    assert document["result"] not in ("PASS", "FAIL")
+    assert document["blockers"][0]["code"] == "V27_HISTORY_UNAVAILABLE"
+    assert document["assertionLedger"]
+    assert document["executionAllowed"] is False
+
+
+def test_v27_unavailable_history_cli_preserves_blocked_exit(tmp_path: Path) -> None:
+    """The operator-facing resolver reports BLOCKED and exit 2 on truncated history."""
+
+    fixtures = v27_fixtures()
+    shallow, tip = fixtures.shallow_repository(tmp_path)
+    completed = subprocess.run(
+        [
+            sys.executable,
+            str(MODULE_PATH),
+            "--repository",
+            str(shallow),
+            "--candidate",
+            tip,
+            "--trusted-host",
+            tip,
+            "--check",
+        ],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 2
+    document = json.loads(completed.stdout)
+    validate_v27_envelope(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"] == "V27_HISTORY_UNAVAILABLE"
+    assert document["assertionLedger"]
+
+
+def workflow_run_block(step_name: str) -> str:
+    """Extract one literal-block shell program from the checked-in protected workflow."""
+
+    workflow = (ROOT / resolver.WORKFLOW_PATH).read_text(encoding="utf-8")
+    marker = f"      - name: {step_name}\n"
+    start = workflow.index(marker)
+    run_start = workflow.index("        run: |\n", start) + len("        run: |\n")
+    next_step = workflow.find("\n      - name: ", run_start)
+    next_job = workflow.find("\n  candidate-validation:\n", run_start)
+    bounds = [bound for bound in (next_step, next_job) if bound >= 0]
+    end = min(bounds) if bounds else len(workflow)
+    lines: list[str] = []
+    for line in workflow[run_start:end].splitlines():
+        if line and not line.startswith("          "):
+            break
+        lines.append(line)
+    assert lines, step_name
+    return "\n".join(line[10:] if line else "" for line in lines) + "\n"
+
+
+def workflow_range_repository(tmp_path: Path) -> tuple[Path, str, str]:
+    """Create a two-commit repository for the protected comparison-range harness."""
+
+    root = tmp_path / "range-repository"
+    root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q", "-b", "main", str(root)], check=True)
+    git(root, "config", "user.name", "V27 fixture")
+    git(root, "config", "user.email", "v27-fixture@example.invalid")
+    (root / "base.txt").write_text("base\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root), "add", "base.txt"], check=True)
+    base = commit(root, "test: protected base")
+    (root / "head.txt").write_text("head\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root), "add", "head.txt"], check=True)
+    head = commit(root, "test: protected head")
+    return root, base, head
+
+
+def run_range_block(tmp_path: Path, root: Path, event: str, base: str, head: str) -> dict[str, str]:
+    """Run the checked-in comparison-range block for one event shape."""
+
+    runner_temp = tmp_path / f"range-{event}-{base[:7] or 'empty'}"
+    runner_temp.mkdir(parents=True, exist_ok=True)
+    output = runner_temp / "github-output"
+    output.write_text("", encoding="utf-8")
+    subprocess.run(
+        ["/bin/bash", "-c", workflow_run_block("Resolve immutable comparison range")],
+        cwd=runner_temp,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_WORKSPACE": str(root),
+            "GITHUB_OUTPUT": str(output),
+            "TRUSTED_EVENT_NAME": event,
+            "TRUSTED_EVENT_BASE": base,
+            "TRUSTED_EVENT_HEAD": head,
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    return dict(line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines())
+
+
+def test_workflow_anchor_comes_only_from_a_main_filtered_trigger_with_a_real_base(tmp_path: Path) -> None:
+    """A trigger without a branch filter or a real base yields no anchor at all."""
+
+    root, base, head = workflow_range_repository(tmp_path)
+    zero = "0" * 40
+
+    for event in ("push", "pull_request_target"):
+        values = run_range_block(tmp_path, root, event, base, head)
+        assert values == {"baseline": base, "candidate": head, "trusted_host_commit": base}
+
+    dispatched = run_range_block(tmp_path, root, "workflow_dispatch", "", head)
+    assert dispatched["baseline"] == base
+    assert dispatched["candidate"] == head
+    assert dispatched["trusted_host_commit"] == ""
+
+    created = run_range_block(tmp_path, root, "push", zero, head)
+    assert created["baseline"] == base
+    assert created["trusted_host_commit"] == ""
+
+    unfiltered = run_range_block(tmp_path, root, "schedule", base, head)
+    assert unfiltered["trusted_host_commit"] == ""
+
+
+def materialize_host(tmp_path: Path, name: str, *, advertises: bool, schema: bool) -> dict[str, str]:
+    """Run the checked-in materialize block against a synthetic protected base."""
+
+    root = tmp_path / f"hosts-{name}"
+    root.mkdir(parents=True, exist_ok=True)
+    subprocess.run(["git", "init", "-q", "-b", "main", str(root)], check=True)
+    git(root, "config", "user.name", "V27 fixture")
+    git(root, "config", "user.email", "v27-fixture@example.invalid")
+    flag = "--trusted-host" if advertises else "--check"
+    for relative in ("_bmad/scripts/resolve_current_planning_authority.py", "_bmad/scripts/verify_evidence_boundary.py"):
+        target = root / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(f'PARSER = "{flag}"\n', encoding="utf-8")
+    for relative in ("pyproject.toml", "uv.lock"):
+        (root / relative).write_text("# fixture\n", encoding="utf-8")
+    paths = [
+        "_bmad/scripts/resolve_current_planning_authority.py",
+        "_bmad/scripts/verify_evidence_boundary.py",
+        "pyproject.toml",
+        "uv.lock",
+    ]
+    if schema:
+        target = root / resolver.V27_SCHEMA_PATH
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / resolver.V27_SCHEMA_PATH).read_bytes())
+        paths.append(resolver.V27_SCHEMA_PATH)
+    subprocess.run(["git", "-C", str(root), "add", *paths], check=True)
+    protected_base = commit(root, "test: synthetic protected base")
+
+    runner_temp = tmp_path / f"runner-{name}"
+    runner_temp.mkdir(parents=True, exist_ok=True)
+    (runner_temp / "planning-authority-trusted-home").mkdir(exist_ok=True)
+    output = runner_temp / "github-output"
+    output.write_text("", encoding="utf-8")
+    completed = subprocess.run(
+        ["/bin/bash", "-c", workflow_run_block("Materialize protected planning-authority trust hosts")],
+        cwd=runner_temp,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_WORKSPACE": str(root),
+            "GITHUB_OUTPUT": str(output),
+            "PROTECTED_HOST_COMMIT": protected_base,
+        },
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    values = dict(line.split("=", 1) for line in output.read_text(encoding="utf-8").splitlines())
+    values["stdout"] = completed.stdout
+    values["host_dir"] = str(runner_temp / "planning-authority-protected-host")
+    return values
+
+
+def test_workflow_materializes_and_digest_compares_the_pinned_schema(tmp_path: Path) -> None:
+    """Both the present and the absent protected-schema paths run, and the present one is pinned."""
+
+    current = materialize_host(tmp_path, "current", advertises=True, schema=True)
+    assert f"v27-result-schema={resolver.V27_SCHEMA_SHA256}" in current["stdout"]
+    materialized = Path(current["host_dir"]) / Path(resolver.V27_SCHEMA_PATH).name
+    assert hashlib.sha256(materialized.read_bytes()).hexdigest() == resolver.V27_SCHEMA_SHA256
+
+    legacy = materialize_host(tmp_path, "legacy", advertises=False, schema=False)
+    assert "v27-result-schema=absent" in legacy["stdout"]
+    assert not (Path(legacy["host_dir"]) / Path(resolver.V27_SCHEMA_PATH).name).exists()
+
+
+def run_protected_checker(
+    tmp_path: Path,
+    name: str,
+    document: dict[str, Any] | None,
+    *,
+    anchor: str = "b" * 40,
+    legacy_host: bool = False,
+) -> subprocess.CompletedProcess[str]:
+    """Run the checked-in protected resolver step against a controlled host."""
+
+    runner_temp = tmp_path / f"checker-{name}"
+    host = runner_temp / "planning-authority-protected-host"
+    host.mkdir(parents=True)
+    # The protected host runs inside a synchronized virtual environment, so the harness reuses the
+    # repository's own: the V27 branch of the checker imports jsonschema exactly as production does.
+    (host / ".venv").symlink_to(ROOT / ".venv")
+    (runner_temp / "planning-authority-protected-home").mkdir()
+    (host / Path(resolver.V27_SCHEMA_PATH).name).write_bytes((ROOT / resolver.V27_SCHEMA_PATH).read_bytes())
+    # A legacy host mentions the flag only in a comment, so a source grep would wrongly accept it.
+    advertises = (
+        "# this host does not accept --trusted-host\n"
+        if legacy_host
+        else "parser.add_argument('--trusted-host')\n"
+    )
+    emit = (
+        "raise SystemExit(2)\n"
+        if legacy_host
+        else "raise SystemExit({'PASS': 0, 'FAIL': 1, 'BLOCKED': 2}[document['result']])\n"
+    )
+    body = (
+        "import json\n"
+        f"document = json.loads({json.dumps(document)!r})\n"
+        "print(json.dumps(document, sort_keys=True))\n" + emit
+        if document is not None
+        else "raise SystemExit(0)\n"
+    )
+    source = (
+        "import argparse\n"
+        "parser = argparse.ArgumentParser()\n"
+        "parser.add_argument('--repository', required=True)\n"
+        "parser.add_argument('--candidate', required=True)\n"
+        "parser.add_argument('--check', action='store_true', required=True)\n"
+        + advertises
+        + "parser.parse_args()\n"
+        + body
+    )
+    (host / "resolve_current_planning_authority.py").write_text(source, encoding="utf-8")
+    command = workflow_run_block("Resolve current planning authority through the protected host").replace(
+        '"${{ steps.range.outputs.candidate }}"',
+        f'"{"a" * 40}"',
+    )
+    return subprocess.run(
+        ["/bin/bash", "-c", command],
+        cwd=runner_temp,
+        env={
+            "PATH": "/usr/bin:/bin",
+            "RUNNER_TEMP": str(runner_temp),
+            "GITHUB_WORKSPACE": str(tmp_path),
+            "TRUSTED_HOST_COMMIT": anchor,
+        },
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+
+def v27_workflow_envelope(route: str, result: str, *, changed: list[dict[str, Any]] | None = None) -> dict[str, Any]:
+    """Build one closed V27 envelope for the executing workflow harness."""
+
+    links = [
+        {"path": f"references/Fixture{index}", "mode": "160000", "objectId": f"{index}" * 40}
+        for index in range(10)
+    ]
+    observed = {
+        "candidateCommit": "a" * 40,
+        "candidateTree": "c" * 40,
+        "parentCommit": "d" * 40,
+        "parentTree": "e" * 40,
+        "changedPaths": changed if changed is not None else [],
+        "parentGitlinks": links,
+        "candidateGitlinks": links,
+    }
+    ledger: list[dict[str, str]] = [
+        {"id": route, "subject": "v27-lifecycle-evidence-authority-route", "state": result, "detail": "harness"}
+    ]
+    if result == "PASS":
+        ledger.extend(
+            {"id": f"V27.SUCCESSOR.{index:02d}", "subject": "s", "state": "PASS", "detail": "d"}
+            for index in range(1, 11)
+        )
+    return {
+        "schemaVersion": resolver.V23_RESULT_SCHEMA_VERSION,
+        "result": result,
+        "exitCode": {"PASS": 0, "FAIL": 1, "BLOCKED": 2}[result],
+        "effectiveHold": "ACTIVE",
+        "implementationHold": "ACTIVE",
+        "observed": observed,
+        "assertionLedger": ledger,
+        "blockers": [] if result == "PASS" else [{"code": "V27_HISTORY_UNAVAILABLE", "detail": "harness"}],
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+    }
+
+
+def test_workflow_checker_validates_both_v27_discriminator_forms(tmp_path: Path) -> None:
+    """A routed V27 envelope and a V27_ blocker envelope both reach the pinned schema."""
+
+    descendant = v27_workflow_envelope(
+        "V27.ROUTE.DESCENDANT",
+        "PASS",
+        changed=[{"path": "docs/runbooks/x.md", "mode": "100644", "objectId": "f" * 40, "sha256": "0" * 64}],
+    )
+    passing = run_protected_checker(tmp_path, "route-pass", descendant)
+    assert passing.returncode == 0, passing.stderr
+    assert passing.stderr == ""
+
+    blocked = v27_workflow_envelope("V27.ROUTE.BLOCKED", "BLOCKED")
+    blocked["assertionLedger"][0]["id"] = "V27_HISTORY_UNAVAILABLE"
+    underscore = run_protected_checker(tmp_path, "underscore", blocked)
+    assert underscore.returncode == 2
+    assert "protected host returned a V27 route" not in underscore.stderr
+
+    contradictory = v27_workflow_envelope("V27.ROUTE.C2", "PASS", changed=[])
+    rejected = run_protected_checker(tmp_path, "contradictory", contradictory)
+    assert rejected.returncode != 0
+    assert rejected.returncode != 0 and "ValidationError" in rejected.stderr
+
+
+def test_workflow_gives_a_pre_v27_host_a_governed_verdict_instead_of_a_crash(tmp_path: Path) -> None:
+    """Withholding the flag lets a predecessor host return its own V24 result."""
+
+    legacy = {
+        "schemaVersion": resolver.V23_RESULT_SCHEMA_VERSION,
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "effectiveHold": "ACTIVE",
+        "implementationHold": "ACTIVE",
+        "observed": resolver.empty_observed(),
+        "assertionLedger": [
+            {
+                "id": "V24_TOOLING_MANIFEST_DRIFT",
+                "subject": "current-authority-resolution",
+                "state": "BLOCKED",
+                "detail": "self-excluded manifest mismatch",
+            }
+        ],
+        "blockers": [{"code": "V24_TOOLING_MANIFEST_DRIFT", "detail": "self-excluded manifest mismatch"}],
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+    }
+    governed = run_protected_checker(tmp_path, "legacy-host", legacy, legacy_host=True)
+    assert governed.returncode == 2
+    assert "unrecognized arguments" not in governed.stderr
+    assert "Traceback" not in governed.stderr
+    result = json.loads((tmp_path / "checker-legacy-host/current-planning-authority-result.json").read_text())
+    assert result["blockers"][0]["code"] == "V24_TOOLING_MANIFEST_DRIFT"
+
+
+def test_v27_empty_provenance_is_absent_provenance_not_a_git_error(
+    v27_published: tuple[Any, Path, str, str, str],
+) -> None:
+    """An unset workflow output routes to V24 instead of blocking on a Git revision error."""
+
+    _fixtures, root, _bootstrap, publication, _tip = v27_published
+    assert resolver.v27_route_selected(root, publication, "") is None
+    document = resolver.resolve_authority(root, publication, trusted_host="")
+    validate_result(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"][0]["code"].startswith("V24_")
+    assert document["blockers"][0]["code"] != "CANDIDATE_MALFORMED"
+
+
+@pytest.mark.parametrize(
+    "code",
+    ("V16_MARKER_CARDINALITY", "V16_MARKER_INCOMPLETE", "TRANSACTION_MODE_DRIFT"),
+)
+def test_legacy_dispatch_faults_keep_their_blocked_exit_after_the_v27_route_exists(
+    valid_candidate: tuple[Path, str],
+    monkeypatch: pytest.MonkeyPatch,
+    code: str,
+) -> None:
+    """Only V27 owns a FAIL result state; every legacy code keeps the BLOCKED / 2 it always had."""
+
+    root, candidate = valid_candidate
+
+    def raising(repository: Path, evaluated: str, trusted_host: str | None) -> str | None:
+        raise resolver.ResolutionError(code, "legacy dispatch fault", "FAIL")
+
+    monkeypatch.setattr(resolver, "v27_route_selected", raising)
+    document = resolver.resolve_authority(root, candidate)
+    validate_result(document)
+    assert document["blockers"][0]["code"] == code
+    assert (document["result"], document["exitCode"]) == ("BLOCKED", 2)
+    assert document["assertionLedger"][0]["state"] == "BLOCKED"
+
+
+def test_v27_dispatch_faults_still_carry_their_own_fail_state(
+    valid_candidate: tuple[Path, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The publisher's FAIL versus BLOCKED distinction survives the scoped pass-through."""
+
+    root, candidate = valid_candidate
+
+    def raising(repository: Path, evaluated: str, trusted_host: str | None) -> str | None:
+        raise resolver.ResolutionError("V27_GOVERNED_PATH_TOUCHED", "restored drift", "FAIL")
+
+    monkeypatch.setattr(resolver, "v27_route_selected", raising)
+    document = resolver.resolve_authority(root, candidate, trusted_host=candidate)
+    validate_result(document)
+    assert (document["result"], document["exitCode"]) == ("FAIL", 1)
+    assert document["blockers"][0]["code"] == "V27_GOVERNED_PATH_TOUCHED"
+
+
+def test_v27_host_recomputes_the_full_identity_of_the_parent_diff(
+    v27_published: tuple[Any, Path, str, str, str],
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Fabricated mode, object or digest values are rejected even when the paths are truthful."""
+
+    _fixtures, root, bootstrap, _publication, tip = v27_published
+    module, schema_content = resolver.load_v27_publisher(root, bootstrap)
+    honest = module.verify_revision(root, tip, bootstrap)
+
+    for field, value in (("mode", "100755"), ("objectId", "0" * 40), ("sha256", "1" * 64)):
+        class Fabricated:
+            @staticmethod
+            def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+                document = json.loads(json.dumps(honest))
+                document["observed"]["changedPaths"][0][field] = value
+                return document
+
+        monkeypatch.setattr(resolver, "load_v27_publisher", lambda repository, commit: (Fabricated, schema_content))
+        document = resolver.resolve_authority(root, tip, trusted_host=bootstrap)
+        validate_result(document)
+        assert document["result"] == "BLOCKED"
+        assert document["blockers"][0]["code"] == "V27_OBSERVED_DIFF_UNTRUTHFUL", field
+        monkeypatch.undo()
+
+
+def test_v27_merge_and_partial_clone_candidates_are_blocked(tmp_path: Path) -> None:
+    """Merge candidates and partial clones never reach a V27 pass at the resolver boundary."""
+
+    fixtures = v27_fixtures()
+    merge_root = tmp_path / "merge"
+    merge_root.mkdir()
+    partial_root = tmp_path / "partial-clone"
+    partial_root.mkdir()
+    root, bootstrap, merged = fixtures.merge_repository(merge_root)
+    merge_document = resolver.resolve_authority(root, merged, trusted_host=bootstrap)
+    validate_v27_envelope(merge_document)
+    assert merge_document["result"] == "BLOCKED"
+    assert merge_document["blockers"][0]["code"] == "V27_CANDIDATE_PARENT_DRIFT"
+
+    partial, tip = fixtures.partial_clone_repository(partial_root)
+    partial_document = resolver.resolve_authority(partial, tip, trusted_host=tip)
+    validate_v27_envelope(partial_document)
+    assert partial_document["result"] == "BLOCKED"
+    assert partial_document["blockers"][0]["code"] == "V27_HISTORY_UNAVAILABLE"
+    assert "partial clone" in partial_document["blockers"][0]["detail"]
+
+
+def test_workflow_aborts_with_a_stable_message_when_the_host_writes_nothing(tmp_path: Path) -> None:
+    """A host that produces no result document is named, not a bare set -e abort."""
+
+    silent = run_protected_checker(tmp_path, "silent-host", None)
+    assert silent.returncode == 2
+    assert "protected current-authority host produced no result document" in silent.stderr
+    assert "Traceback" not in silent.stderr
+
+
+def test_workflow_probe_rejects_a_host_that_only_mentions_the_flag(tmp_path: Path) -> None:
+    """The probe asks the host what it accepts; a mention in the source proves nothing."""
+
+    legacy = {
+        "schemaVersion": resolver.V23_RESULT_SCHEMA_VERSION,
+        "result": "BLOCKED",
+        "exitCode": 2,
+        "effectiveHold": "ACTIVE",
+        "implementationHold": "ACTIVE",
+        "observed": resolver.empty_observed(),
+        "assertionLedger": [
+            {
+                "id": "V24_TOOLING_MANIFEST_DRIFT",
+                "subject": "current-authority-resolution",
+                "state": "BLOCKED",
+                "detail": "self-excluded manifest mismatch",
+            }
+        ],
+        "blockers": [{"code": "V24_TOOLING_MANIFEST_DRIFT", "detail": "self-excluded manifest mismatch"}],
+        "ownerApprovalClaimed": False,
+        "releaseAuthorized": False,
+        "pushAuthorized": False,
+        "executionAllowed": False,
+    }
+    mentioning = run_protected_checker(tmp_path, "mentions-only", legacy, legacy_host=True)
+    assert mentioning.returncode == 2
+    assert "unrecognized arguments" not in mentioning.stderr
+    usage = (tmp_path / "checker-mentions-only/resolve_current_planning_authority.py.usage.txt")
+    assert usage.is_file()
+    assert "--trusted-host" not in usage.read_text(encoding="utf-8")

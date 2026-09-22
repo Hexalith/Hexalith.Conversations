@@ -43,6 +43,31 @@ V24_CORRECTION_PATH = "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooli
 V24_SCHEMA_PATH = "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json"
 V24_SCHEMA_SHA256 = "2cfb5fa98cc523375202deb6e00bd2024a44490a604fc0dbf9785fd13d9b195a"
 V24_PUBLISHER_SHA256 = "be3419d41ff48b741d6c156662ad87fd2c04fc8530bf4f202e959e92424f0c86"
+V27_RECORD_PATH = "_bmad-output/planning-artifacts/v27-story-7.1-lifecycle-evidence-authority-v1.json"
+V27_SCHEMA_PATH = "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json"
+V27_PUBLISHER_PATH = "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py"
+V27_PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py"
+V27_BOOTSTRAP_PATHS = tuple(
+    sorted(
+        (
+            WORKFLOW_PATH,
+            V27_SCHEMA_PATH,
+            V27_PUBLISHER_PATH,
+            V27_PUBLISHER_TEST_PATH,
+            "_bmad/scripts/resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+            "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+            "_bmad/scripts/verify_evidence_boundary.py",
+        )
+    )
+)
+V27_BOOTSTRAP_IDENTITY_PATHS = (V27_SCHEMA_PATH, V27_PUBLISHER_PATH, V27_PUBLISHER_TEST_PATH)
+V27_SCHEMA_SHA256 = "d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399"
+V27_PUBLISHER_SHA256 = "a3c74b700ac8c3580629179868148b99ce4b7c113fe51936254a752e4c9ee522"
+V27_GITLINK_COUNT = 10
+# The live protected workflow is republished by the V27 bootstrap. The immutable V23 blob
+# keeps its own historical digest above; this pin governs only the current tree.
+V27_WORKFLOW_SHA256 = "7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d8bb775b"
 V23_RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 V23_TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 V23_TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
@@ -478,11 +503,40 @@ def result_document(
     }
 
 
+def error_result(code: str, detail: str, state: str = "BLOCKED") -> dict[str, Any]:
+    """Build a nonvacuous caller-safe failing result that preserves FAIL versus BLOCKED."""
+
+    if state not in ("FAIL", "BLOCKED"):
+        state = "BLOCKED"
+    detail = detail or code
+    ledger = [{"id": code, "subject": "current-authority-resolution", "state": state, "detail": detail}]
+    return result_document(state, empty_observed(), ledger, [{"code": code, "detail": detail}])
+
+
+def v27_error_result(code: str, detail: str, state: str) -> dict[str, Any]:
+    """Build a route-discriminated V27 failure envelope for the dispatch boundary.
+
+    Every envelope this host emits for the V27 route leads with a `V27.ROUTE.*` row, so the closed
+    schema constrains it on the route rather than leaving a blocker-code row to a fallback branch.
+    """
+
+    route = "V27.ROUTE.DRIFT" if state == "FAIL" else "V27.ROUTE.BLOCKED"
+    ledger = [
+        {
+            "id": route,
+            "subject": "v27-lifecycle-evidence-authority-route",
+            "state": state,
+            "detail": detail or code,
+        },
+        {"id": code, "subject": "current-authority-resolution", "state": state, "detail": detail or code},
+    ]
+    return result_document(state, empty_observed(), ledger, [{"code": code, "detail": detail or code}])
+
+
 def blocked_result(code: str, detail: str) -> dict[str, Any]:
     """Build a nonvacuous caller-safe BLOCKED result for unavailable evidence."""
 
-    ledger = [{"id": code, "subject": "current-authority-resolution", "state": "BLOCKED", "detail": detail}]
-    return result_document("BLOCKED", empty_observed(), ledger, [{"code": code, "detail": detail}])
+    return error_result(code, detail, "BLOCKED")
 
 
 def fail(
@@ -1365,16 +1419,374 @@ def validate_v24_request_result(document: Any, publication: str) -> dict[str, An
     return document
 
 
+def v27_additions(repository: Path, candidate: str, relative_path: str) -> tuple[str, ...]:
+    """Return every full-history commit that introduces one governed V27 path."""
+
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                repository,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                candidate,
+                "--",
+                safe_path(relative_path),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise ResolutionError("V27_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(_COMMIT.fullmatch(row) is None for row in rows):
+        raise ResolutionError("V27_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v27_touching_commits(
+    repository: Path,
+    since: str,
+    candidate: str,
+    paths: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Return every full-history commit after `since` that touches one governed V27 path."""
+
+    if since == candidate:
+        return ()
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                repository,
+                "rev-list",
+                "--full-history",
+                candidate,
+                f"^{since}",
+                "--",
+                *(safe_path(path) for path in paths),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise ResolutionError("V27_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(_COMMIT.fullmatch(row) is None for row in rows):
+        raise ResolutionError("V27_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v27_bootstrap_publication(repository: Path, candidate: str) -> str | None:
+    """Discover the unique V27 bootstrap publication from committed history alone."""
+
+    discovered: set[str] = set()
+    absent = 0
+    for relative_path in V27_BOOTSTRAP_IDENTITY_PATHS:
+        rows = v27_additions(repository, candidate, relative_path)
+        if not rows:
+            absent += 1
+            continue
+        if len(rows) != 1:
+            raise ResolutionError("V27_DUPLICATE_BOOTSTRAP_PUBLICATION", f"{relative_path}: {rows!r}", "BLOCKED")
+        discovered.add(rows[0])
+    if absent == len(V27_BOOTSTRAP_IDENTITY_PATHS):
+        return None
+    if absent or len(discovered) != 1:
+        raise ResolutionError("V27_BOOTSTRAP_PUBLICATION_SPLIT", repr(sorted(discovered)), "BLOCKED")
+    return discovered.pop()
+
+
+def require_v27_history(repository: Path) -> None:
+    """Require complete history before any V27 fact is derived; partial history is never a pass."""
+
+    observed = run_git(repository, "rev-parse", "--is-shallow-repository").stdout.strip()
+    if observed != b"false":
+        raise ResolutionError(
+            "V27_HISTORY_UNAVAILABLE",
+            f"repository is shallow or history availability is unknown: {observed!r}",
+            "BLOCKED",
+        )
+    promisor = run_git(
+        repository,
+        "config",
+        "--get-regexp",
+        r"^(extensions\.partialclone|remote\..*\.promisor)$",
+        allowed=(0, 1),
+    )
+    if promisor.returncode == 0 and promisor.stdout.strip():
+        raise ResolutionError(
+            "V27_HISTORY_UNAVAILABLE",
+            "repository is a partial clone; object availability is unknown",
+            "BLOCKED",
+        )
+
+
+def v27_candidate_parent(repository: Path, candidate: str) -> str:
+    """Return the one immediate parent; truncated and merge candidates are never evaluated."""
+
+    row = run_git(repository, "rev-list", "--parents", "-n", "1", candidate).stdout.decode(
+        "ascii", errors="strict"
+    ).split()
+    if not row or row[0] != candidate:
+        raise ResolutionError("V27_HISTORY_UNAVAILABLE", repr(row), "BLOCKED")
+    parents = row[1:]
+    if not parents:
+        raise ResolutionError(
+            "V27_HISTORY_UNAVAILABLE",
+            f"{candidate} has no available parent; its ancestry is truncated",
+            "BLOCKED",
+        )
+    if len(parents) != 1 or _COMMIT.fullmatch(parents[0]) is None:
+        raise ResolutionError(
+            "V27_CANDIDATE_PARENT_DRIFT",
+            f"{candidate} has {len(parents)} parents; V27 evaluates only single-parent candidates",
+            "BLOCKED",
+        )
+    return parents[0]
+
+
+def v27_changed_path_rows(repository: Path, parent: str, candidate: str) -> list[dict[str, Any]]:
+    """Recompute the full identity of the truthful immediate-parent diff."""
+
+    content = run_git(
+        repository,
+        "diff-tree",
+        "--no-commit-id",
+        "--no-renames",
+        "-r",
+        "-z",
+        "--raw",
+        parent,
+        candidate,
+    ).stdout
+    fields = [part for part in content.split(b"\0") if part]
+    if len(fields) % 2 != 0:
+        raise ResolutionError("V27_DIFF_MALFORMED", f"unpaired raw diff fields: {len(fields)}", "BLOCKED")
+    rows: list[dict[str, Any]] = []
+    for index in range(0, len(fields), 2):
+        try:
+            metadata = fields[index].decode("ascii", errors="strict")
+            relative_path = fields[index + 1].decode("utf-8", errors="strict")
+        except UnicodeDecodeError as error:
+            raise ResolutionError("V27_DIFF_MALFORMED", str(error), "BLOCKED") from error
+        parts = metadata[1:].split() if metadata.startswith(":") else []
+        if len(parts) != 5 or re.fullmatch(r"[0-7]{6}", parts[1]) is None or _COMMIT.fullmatch(parts[3]) is None:
+            raise ResolutionError("V27_DIFF_MALFORMED", repr(metadata), "BLOCKED")
+        target_mode, target_object = parts[1], parts[3]
+        digest: str | None = None
+        if target_mode not in ("000000", "160000"):
+            digest = sha256(run_git(repository, "cat-file", "blob", target_object).stdout)
+        rows.append(
+            {
+                "path": safe_path(relative_path),
+                "mode": target_mode,
+                "objectId": target_object,
+                "sha256": digest,
+            }
+        )
+    return sorted(rows, key=lambda row: row["path"])
+
+
+def v27_route_selected(repository: Path, candidate: str, trusted_host: str | None) -> str | None:
+    """Select V27 only when an externally authorized bootstrap precedes the protected host."""
+
+    # An event that supplies no protected base is absent provenance, never a synthesized anchor:
+    # V27 does not select and the existing V24 route stays authoritative.
+    if not trusted_host:
+        return None
+    bootstrap = v27_bootstrap_publication(repository, candidate)
+    if bootstrap is None:
+        # A candidate carrying V27 content whose publication is unreachable is truncated history,
+        # not a V24 candidate. A candidate with no V27 content keeps the legacy route untouched,
+        # even in a shallow or partial clone.
+        if candidate_has_path(repository, candidate, V27_PUBLISHER_PATH) or candidate_has_path(
+            repository,
+            candidate,
+            V27_RECORD_PATH,
+        ):
+            require_v27_history(repository)
+            raise ResolutionError(
+                "V27_HISTORY_UNAVAILABLE",
+                "V27 artifacts exist without a reachable bootstrap publication",
+                "BLOCKED",
+            )
+        return None
+    host = resolve_commit(repository, trusted_host)
+    if run_git(repository, "merge-base", "--is-ancestor", bootstrap, host, allowed=(0, 1)).returncode != 0:
+        return None
+    if run_git(repository, "merge-base", "--is-ancestor", bootstrap, candidate, allowed=(0, 1)).returncode != 0:
+        raise ResolutionError("V27_BOOTSTRAP_NOT_ANCESTOR", f"{bootstrap} precedes no candidate history", "BLOCKED")
+    require_v27_history(repository)
+    return bootstrap
+
+
+def v27_governed_no_touch(repository: Path, bootstrap: str, candidate: str) -> None:
+    """Reject governed drift from raw objects before any V27 code is imported."""
+
+    baseline_links = gitlinks(repository, bootstrap)
+    if len(baseline_links) != V27_GITLINK_COUNT:
+        raise ResolutionError("V27_ROOT_GITLINK_DRIFT", repr(len(baseline_links)), "FAIL")
+    governed = (*V27_BOOTSTRAP_PATHS, GITMODULES_PATH, *(row[0] for row in baseline_links))
+    touched = v27_touching_commits(repository, bootstrap, candidate, governed)
+    if touched:
+        raise ResolutionError("V27_GOVERNED_PATH_TOUCHED", f"commits={sorted(touched)!r}", "FAIL")
+    for relative_path in V27_BOOTSTRAP_PATHS:
+        if tree_entry(repository, candidate, relative_path) != tree_entry(repository, bootstrap, relative_path):
+            raise ResolutionError("V27_GOVERNED_ARTIFACT_DRIFT", relative_path, "FAIL")
+    if candidate_blob(repository, candidate, GITMODULES_PATH) != candidate_blob(repository, bootstrap, GITMODULES_PATH):
+        raise ResolutionError("V27_GITMODULES_DRIFT", GITMODULES_PATH, "FAIL")
+    if gitlinks(repository, candidate) != baseline_links:
+        raise ResolutionError("V27_ROOT_GITLINK_DRIFT", "bootstrap and candidate gitlinks differ", "FAIL")
+    observed_workflow = sha256(candidate_blob(repository, bootstrap, WORKFLOW_PATH))
+    if observed_workflow != V27_WORKFLOW_SHA256:
+        raise ResolutionError(
+            "V27_WORKFLOW_IDENTITY_MISMATCH",
+            f"expected={V27_WORKFLOW_SHA256}; observed={observed_workflow}",
+            "BLOCKED",
+        )
+    publications = v27_additions(repository, candidate, V27_RECORD_PATH)
+    if len(publications) > 1:
+        raise ResolutionError("V27_DUPLICATE_RECORD_PUBLICATION", repr(publications), "BLOCKED")
+    if publications:
+        row = run_git(repository, "rev-list", "--parents", "-n", "1", publications[0]).stdout.decode(
+            "ascii", errors="strict"
+        ).split()
+        if row != [publications[0], bootstrap]:
+            raise ResolutionError("V27_RECORD_PARENT_DRIFT", repr(row), "FAIL")
+        if changed_paths(repository, bootstrap, publications[0]) != (V27_RECORD_PATH,):
+            raise ResolutionError(
+                "V27_RECORD_SCOPE_DRIFT",
+                repr(changed_paths(repository, bootstrap, publications[0])),
+                "FAIL",
+            )
+
+
+def load_v27_publisher(repository: Path, bootstrap: str) -> tuple[Any, bytes]:
+    """Load pinned V27 publisher bytes only from the externally authorized bootstrap."""
+
+    for relative_path in (V27_SCHEMA_PATH, V27_PUBLISHER_PATH):
+        mode, kind, _object_id = tree_entry(repository, bootstrap, relative_path)
+        if (mode, kind) != ("100644", "blob"):
+            raise ResolutionError("V27_BOOTSTRAP_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    schema_content = candidate_blob(repository, bootstrap, V27_SCHEMA_PATH)
+    if sha256(schema_content) != V27_SCHEMA_SHA256:
+        raise ResolutionError("V27_SCHEMA_IDENTITY_MISMATCH", sha256(schema_content), "BLOCKED")
+    content = candidate_blob(repository, bootstrap, V27_PUBLISHER_PATH)
+    if sha256(content) != V27_PUBLISHER_SHA256:
+        raise ResolutionError(
+            "V27_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V27_PUBLISHER_SHA256}; observed={sha256(content)}",
+            "BLOCKED",
+        )
+    spec = importlib.util.spec_from_loader("trusted_v27_lifecycle_evidence_authority", loader=None)
+    if spec is None:
+        raise ResolutionError("V27_PUBLISHER_LOAD_FAILED", V27_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{bootstrap}:{V27_PUBLISHER_PATH}"
+    try:
+        exec(compile(content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise ResolutionError("V27_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if not callable(getattr(module, "verify_revision", None)):
+        raise ResolutionError("V27_PUBLISHER_INTERFACE_INVALID", V27_PUBLISHER_PATH, "BLOCKED")
+    return module, schema_content
+
+
+def validate_v27_result(
+    repository: Path,
+    document: Any,
+    candidate: str,
+    schema_content: bytes,
+) -> dict[str, Any]:
+    """Require a closed, route-discriminated, truthful, non-executable V27 result."""
+
+    if not isinstance(document, dict):
+        raise ResolutionError("V27_RESULT_INVALID", "result is not a JSON object", "BLOCKED")
+    schema = load_json(schema_content, "V27_SCHEMA_INVALID")
+    validate_schema(schema, document, "V27_RESULT_SCHEMA_INVALID")
+    exit_codes = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
+    result = document.get("result")
+    observed = document.get("observed")
+    if (
+        document.get("schemaVersion") != V23_RESULT_SCHEMA_VERSION
+        or result not in exit_codes
+        or document.get("exitCode") != exit_codes[result]
+        or document.get("effectiveHold") != "ACTIVE"
+        or document.get("implementationHold") != "ACTIVE"
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or not isinstance(document.get("assertionLedger"), list)
+        or not document["assertionLedger"]
+        or not isinstance(observed, dict)
+    ):
+        raise ResolutionError("V27_RESULT_INVALID", "closed non-executable result mismatch", "BLOCKED")
+    if result != "PASS":
+        if not document.get("blockers"):
+            raise ResolutionError("V27_RESULT_INVALID", "failing result without a blocker", "BLOCKED")
+        return document
+    if document.get("blockers") or any(row.get("state") != "PASS" for row in document["assertionLedger"]):
+        raise ResolutionError("V27_RESULT_INVALID", "passing result carries a blocker or nonpassing row", "BLOCKED")
+    parent = v27_candidate_parent(repository, candidate)
+    truthful = v27_changed_path_rows(repository, parent, candidate)
+    declared = observed.get("changedPaths")
+    if not isinstance(declared, list):
+        raise ResolutionError("V27_OBSERVED_DIFF_UNTRUTHFUL", "changedPaths is not a list", "BLOCKED")
+    declared = sorted(declared, key=lambda row: row.get("path") if isinstance(row, dict) else "")
+    expected_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in gitlinks(repository, candidate)
+    ]
+    if (
+        observed.get("candidateCommit") != candidate
+        or observed.get("candidateTree") != commit_tree(repository, candidate)
+        or observed.get("parentCommit") != parent
+        or observed.get("parentTree") != commit_tree(repository, parent)
+        or declared != truthful
+        or observed.get("candidateGitlinks") != expected_links
+        or observed.get("parentGitlinks")
+        != [
+            {"path": path, "mode": mode, "objectId": object_id}
+            for path, mode, object_id in gitlinks(repository, parent)
+        ]
+    ):
+        raise ResolutionError(
+            "V27_OBSERVED_DIFF_UNTRUTHFUL",
+            f"declared={[row.get('path') for row in declared]!r}; observed={[row['path'] for row in truthful]!r}",
+            "BLOCKED",
+        )
+    return document
+
+
+def resolve_v27_authority(repository: Path, candidate: str, bootstrap: str, trusted_host: str) -> dict[str, Any]:
+    """Run the externally authorized V27 boundary and validate its complete result."""
+
+    v27_candidate_parent(repository, candidate)
+    v27_governed_no_touch(repository, bootstrap, candidate)
+    module, schema_content = load_v27_publisher(repository, bootstrap)
+    try:
+        document = module.verify_revision(repository, candidate, trusted_host)
+    except ResolutionError:
+        raise
+    except BaseException as error:
+        raise ResolutionError("V27_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+    return validate_v27_result(repository, document, candidate, schema_content)
+
+
 def resolve_authority(
     repository: Path,
     revision: str,
     *,
     signature_verifier: Callable[[Path, str, str], dict[str, str]] | None = None,
+    trusted_host: str | None = None,
 ) -> dict[str, Any]:
-    """Resolve immutable V22/V23 or dispatch an authenticated V24-corrected successor."""
+    """Resolve immutable V22/V23 or dispatch an authenticated V24 or V27 successor."""
 
     try:
         candidate = resolve_commit(repository, revision)
+        bootstrap = v27_route_selected(repository, candidate, trusted_host)
+        if bootstrap is not None:
+            return resolve_v27_authority(repository, candidate, bootstrap, resolve_commit(repository, trusted_host))
         if candidate_history_has_path(repository, candidate, V24_CORRECTION_PATH):
             module, correction_publication = load_v24_publisher(repository, candidate)
             marker_selected = v23_marker_selected(repository, candidate)
@@ -1420,7 +1832,12 @@ def resolve_authority(
             raise ResolutionError("V23_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
         return validate_v23_result(document, expected_candidate=candidate)
     except ResolutionError as error:
-        return blocked_result(error.code, error.detail)
+        # Only V27 owns a FAIL result state, and only V27 emits a route-discriminated envelope.
+        # Every legacy code keeps the BLOCKED/2 semantics it had before the V27 route existed,
+        # because ResolutionError defaults to FAIL.
+        if error.code.startswith("V27_"):
+            return v27_error_result(error.code, error.detail, error.state)
+        return error_result(error.code, error.detail, "BLOCKED")
     except BaseException as error:
         return blocked_result("V23_DISPATCH_UNAVAILABLE", str(error))
 
@@ -1432,6 +1849,11 @@ def parse_args(arguments: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--repository", type=Path, required=True)
     parser.add_argument("--candidate", required=True)
     parser.add_argument("--check", action="store_true", required=True)
+    parser.add_argument(
+        "--trusted-host",
+        default=None,
+        help="externally recorded protected-host provenance that may authorize the V27 route",
+    )
     return parser.parse_args(arguments)
 
 
@@ -1444,7 +1866,7 @@ def main(arguments: list[str] | None = None) -> int:
         if not repository.is_dir():
             document = blocked_result("REPOSITORY_UNAVAILABLE", str(repository))
         else:
-            document = resolve_authority(repository, args.candidate)
+            document = resolve_authority(repository, args.candidate, trusted_host=args.trusted_host)
     except (OSError, SystemExit) as error:
         if isinstance(error, SystemExit):
             raise

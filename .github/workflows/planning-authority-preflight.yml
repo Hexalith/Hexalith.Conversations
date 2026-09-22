@@ -55,6 +55,7 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         env:
+          TRUSTED_EVENT_NAME: ${{ github.event_name }}
           TRUSTED_EVENT_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
           TRUSTED_EVENT_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
           PYTHONSAFEPATH: "1"
@@ -77,16 +78,32 @@ jobs:
           trusted_git cat-file -e "$baseline^{commit}"
           printf 'baseline=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
           printf 'candidate=%s\n' "$TRUSTED_EVENT_HEAD" >> "$GITHUB_OUTPUT"
-          # The protected hosts always come from the protected event base, never the checked-out head.
-          trusted_host_commit="$baseline"
-          test "$trusted_host_commit" = "$baseline"
-          printf 'trusted_host_commit=%s\n' "$baseline" >> "$GITHUB_OUTPUT"
+          # V27 provenance is the event-supplied base of a trigger that is itself branch-filtered to
+          # the protected branch. push and pull_request_target are both `branches: [main]`;
+          # workflow_dispatch carries no branch filter and supplies no base. An anchor is therefore
+          # never synthesized from HEAD^, from the checked-out head, or from an all-zero base: when
+          # the event supplies none, this output is empty, V27 does not select, and the existing V24
+          # route stays authoritative.
+          trusted_host_commit=""
+          case "$TRUSTED_EVENT_NAME" in
+            push|pull_request_target)
+              if [[ -n "$TRUSTED_EVENT_BASE" && "$TRUSTED_EVENT_BASE" != "0000000000000000000000000000000000000000" ]]; then
+                trusted_git cat-file -e "$TRUSTED_EVENT_BASE^{commit}"
+                trusted_host_commit="$TRUSTED_EVENT_BASE"
+              fi
+              ;;
+          esac
+          printf 'trusted_host_commit=%s\n' "$trusted_host_commit" >> "$GITHUB_OUTPUT"
 
       - name: Materialize protected planning-authority trust hosts
         shell: bash
         working-directory: ${{ runner.temp }}
         env:
-          TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}
+          # Host bytes come from the comparison-range baseline, which is the protected event base
+          # when the event supplies one and falls back to HEAD^ when it does not. That fallback is
+          # good enough to choose host bytes but is never a trust anchor, so the V27 anchor is a
+          # separate, stricter value that stays empty unless a main-filtered event supplied a base.
+          PROTECTED_HOST_COMMIT: ${{ steps.range.outputs.baseline }}
           PYTHONSAFEPATH: "1"
           PYTHONNOUSERSITE: "1"
         run: |
@@ -106,13 +123,27 @@ jobs:
             uv.lock
           do
             name="${path##*/}"
-            trusted_git cat-file -e "$TRUSTED_HOST_COMMIT:$path"
-            trusted_git show "$TRUSTED_HOST_COMMIT:$path" > "$host_dir/$name"
+            trusted_git cat-file -e "$PROTECTED_HOST_COMMIT:$path"
+            trusted_git show "$PROTECTED_HOST_COMMIT:$path" > "$host_dir/$name"
           done
           chmod 0500 "$host_dir/resolve_current_planning_authority.py" "$host_dir/verify_evidence_boundary.py"
           chmod 0400 "$host_dir/pyproject.toml" "$host_dir/uv.lock"
           printf 'resolver=%s\n' "$(sha256sum "$host_dir/resolve_current_planning_authority.py" | cut -d' ' -f1)"
           printf 'verifier=%s\n' "$(sha256sum "$host_dir/verify_evidence_boundary.py" | cut -d' ' -f1)"
+          # The V27 result schema comes from the protected host, never from the candidate, and is
+          # optional: a host that predates the externally authorized V27 bootstrap keeps the legacy
+          # V22/V23/V24 branches and validates no V27 envelope.
+          v27_schema="_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json"
+          v27_schema_sha256="d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399"
+          if trusted_git cat-file -e "$PROTECTED_HOST_COMMIT:$v27_schema"; then
+            trusted_git show "$PROTECTED_HOST_COMMIT:$v27_schema" > "$host_dir/${v27_schema##*/}"
+            observed_v27_schema="$(sha256sum "$host_dir/${v27_schema##*/}" | cut -d' ' -f1)"
+            test "$observed_v27_schema" = "$v27_schema_sha256"
+            chmod 0400 "$host_dir/${v27_schema##*/}"
+            printf 'v27-result-schema=%s\n' "$observed_v27_schema"
+          else
+            printf 'v27-result-schema=absent\n'
+          fi
 
       - name: Synchronize protected planning verifier environment
         shell: bash
@@ -160,27 +191,55 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         env:
+          TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}
           PYTHONSAFEPATH: "1"
           PYTHONNOUSERSITE: "1"
         run: |
           set -euo pipefail
           result="$RUNNER_TEMP/current-planning-authority-result.json"
           protected_python="$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python"
+          v27_schema="$RUNNER_TEMP/planning-authority-protected-host/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json"
+          host_script="$RUNNER_TEMP/planning-authority-protected-host/resolve_current_planning_authority.py"
+          # The flag is offered only to a host that actually accepts it. The probe asks the host
+          # itself: argparse lists exactly the arguments it registered, so a comment, docstring or
+          # help string cannot satisfy it and a predecessor host fails the probe, not the run.
+          supports_trusted_host() {
+            local host="$1"
+            local usage="$RUNNER_TEMP/$(basename "$host").usage.txt"
+            set +e
+            env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+              TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+              "$protected_python" -I -P "$host" --help > "$usage" 2>&1
+            local probe_exit="$?"
+            set -e
+            test "$probe_exit" -eq 0 && grep -q -e '--trusted-host' "$usage"
+          }
+          trusted_args=()
+          if [[ -n "$TRUSTED_HOST_COMMIT" ]] && supports_trusted_host "$host_script"; then
+            trusted_args=(--trusted-host "$TRUSTED_HOST_COMMIT")
+          fi
           set +e
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
             TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
             "$protected_python" -I -P \
             "$RUNNER_TEMP/planning-authority-protected-host/resolve_current_planning_authority.py" \
-            --repository "$GITHUB_WORKSPACE" --candidate "${{ steps.range.outputs.candidate }}" --check > "$result"
+            --repository "$GITHUB_WORKSPACE" --candidate "${{ steps.range.outputs.candidate }}" \
+            "${trusted_args[@]+"${trusted_args[@]}"}" --check > "$result"
           resolver_exit="$?"
           set -e
+          if [[ ! -s "$result" ]]; then
+            echo "protected current-authority host produced no result document" >&2
+            exit 2
+          fi
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
             TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
-            "$protected_python" -I -P - "$result" "$resolver_exit" <<'PY'
+            "$protected_python" -I -P - "$result" "$resolver_exit" "$v27_schema" <<'PY'
           import json
+          import pathlib
           import sys
           document = json.load(open(sys.argv[1], encoding="utf-8"))
           observed_exit = int(sys.argv[2])
+          v27_schema_path = pathlib.Path(sys.argv[3])
           expected_exit = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
           result = document.get("result")
           common_keys = {
@@ -232,6 +291,30 @@ jobs:
               or document["blockers"]
           ):
               raise SystemExit("protected successor result violated its executable PASS contract")
+          # V27 owns a closed route-discriminated envelope. The discriminator and the schema both
+          # come from the protected host, so a candidate cannot declare or relax its own route.
+          first = document["assertionLedger"][0]
+          route = first.get("id", "") if isinstance(first, dict) else ""
+          # Both discriminator forms are V27: a routed envelope names V27.ROUTE.*, while a
+          # resolver-boundary failure names its V27_ blocker code as the first ledger id.
+          if isinstance(route, str) and (route.startswith("V27.") or route.startswith("V27_")):
+              if not v27_schema_path.is_file():
+                  raise SystemExit("protected host returned a V27 route without the protected V27 schema")
+              import jsonschema
+              v27_schema = json.loads(v27_schema_path.read_text(encoding="utf-8"))
+              jsonschema.Draft202012Validator.check_schema(v27_schema)
+              jsonschema.Draft202012Validator(v27_schema).validate(document)
+              if "storyExecution" in document or document.get("effectiveHold") != "ACTIVE":
+                  raise SystemExit("protected V27 result claimed story execution")
+              if result == "PASS" and (
+                  document.get("executionAllowed") is not False
+                  or document.get("ownerApprovalClaimed") is not False
+                  or document["blockers"]
+                  or any(row.get("state") != "PASS" for row in document["assertionLedger"])
+              ):
+                  raise SystemExit("protected V27 result violated its non-executable PASS contract")
+              if result != "PASS" and not document["blockers"]:
+                  raise SystemExit("nonpassing protected V27 result carried no blocker")
           raise SystemExit(observed_exit)
           PY
 
@@ -242,16 +325,78 @@ jobs:
         shell: bash
         working-directory: ${{ runner.temp }}
         env:
+          TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}
           PYTHONSAFEPATH: "1"
           PYTHONNOUSERSITE: "1"
         run: |
           set -euo pipefail
+          evidence="$RUNNER_TEMP/evidence-boundary-result.json"
+          protected_python="$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python"
+          host_script="$RUNNER_TEMP/planning-authority-protected-host/verify_evidence_boundary.py"
+          # The flag is offered only to a host that actually accepts it. The probe asks the host
+          # itself: argparse lists exactly the arguments it registered, so a comment, docstring or
+          # help string cannot satisfy it and a predecessor host fails the probe, not the run.
+          supports_trusted_host() {
+            local host="$1"
+            local usage="$RUNNER_TEMP/$(basename "$host").usage.txt"
+            set +e
+            env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+              TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+              "$protected_python" -I -P "$host" --help > "$usage" 2>&1
+            local probe_exit="$?"
+            set -e
+            test "$probe_exit" -eq 0 && grep -q -e '--trusted-host' "$usage"
+          }
+          trusted_args=()
+          if [[ -n "$TRUSTED_HOST_COMMIT" ]] && supports_trusted_host "$host_script"; then
+            trusted_args=(--trusted-host "$TRUSTED_HOST_COMMIT")
+          fi
+          set +e
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
             TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
-            "$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python" -I -P \
-            "$RUNNER_TEMP/planning-authority-protected-host/verify_evidence_boundary.py" \
+            "$protected_python" -I -P "$host_script" \
             --repository "$GITHUB_WORKSPACE" --baseline "${{ steps.range.outputs.baseline }}" \
-            --candidate "${{ steps.range.outputs.candidate }}"
+            --candidate "${{ steps.range.outputs.candidate }}" \
+            "${trusted_args[@]+"${trusted_args[@]}"}" --output "$evidence" > /dev/null
+          evidence_exit="$?"
+          set -e
+          if [[ ! -s "$evidence" ]]; then
+            echo "protected evidence host produced no result document" >&2
+            exit 2
+          fi
+          env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
+            TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
+            "$protected_python" -I -P - "$evidence" "$evidence_exit" <<'PY'
+          import json
+          import sys
+          document = json.load(open(sys.argv[1], encoding="utf-8"))
+          observed_exit = int(sys.argv[2])
+          expected_exit = {"PASS": 0, "not-applicable": 0, "FAIL": 1, "BLOCKED": 2}
+          result = document.get("result")
+          if (
+              document.get("schemaVersion") != "hexalith.conversations.evidence-boundary-result.v1"
+              or result not in expected_exit
+              or observed_exit != expected_exit[result]
+              or not isinstance(document.get("assertionLedger"), list)
+              or not document["assertionLedger"]
+              or not isinstance(document.get("blockers"), list)
+          ):
+              raise SystemExit("protected evidence host returned contradictory result semantics")
+          # The evidence host states its own non-executable contract; it is never inferred from an
+          # exit status, and it is never allowed to disagree with the current-authority host.
+          if (
+              document.get("effectiveHold") != "ACTIVE"
+              or document.get("implementationHold") != "ACTIVE"
+              or document.get("ownerApprovalClaimed") is not False
+              or document.get("releaseAuthorized") is not False
+              or document.get("pushAuthorized") is not False
+              or document.get("executionAllowed") is not False
+          ):
+              raise SystemExit("protected evidence host returned an executable or unheld result")
+          if result != "PASS" and result != "not-applicable" and not document["blockers"]:
+              raise SystemExit("nonpassing protected evidence result carried no blocker")
+          raise SystemExit(observed_exit)
+          PY
 
   candidate-validation:
     name: candidate-validation-${{ github.event_name }}
