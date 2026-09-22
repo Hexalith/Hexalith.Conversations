@@ -1,0 +1,453 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "7.1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "69c8906081627ca15b1692099343d8311f3fcd70",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "5f93d2ec8239494852c97032c819cb1689939e36",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "9f4809d37095e64e3732abc3e766535f9e836563",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "4bc61d9a60fae13a65f23963c1cb731065222f2a",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "b10971ae6e17d4fca2933908531f80a5f58b6e5a",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "237b39e89cb50d8d37596f4da9ce3f6993260165",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "8884933571e2738c406feea37e57f7124378b3e3",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "14d249fde316b0002aec84351d7a7cdf953d1d30",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "ffa922d0f7a278da3bb02ee09769564df02d5f01",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "dfd84f4b9c93779f253672096fec5d717d6afc91",
+        "mode": "160000"
+      }
+    ]
+  },
+  "predecessors": [
+    "6.2"
+  ],
+  "inventory": {
+    "id": "V9-7.1-ENTRY-v1",
+    "sha256": "5fb79e8d9251c3187f2a2de7d4ae3766ab962015e628d345f8033bf14ba8e36e"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-7.1-01",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_schema_contract --junitxml=artifacts/v9/7.1/AC-7.1-01.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.1/AC-7.1-01.xml",
+        "sha256": "9834dd2827064d47a7955393d3b62b60dc47e6273bd867deabefe01f67617e65"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-01#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_hold_drift_is_blocked",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0002",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_hold_metaschema_and_identities",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0003",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_authority_boundary_annotations",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0004",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_valid_in_memory_instances",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0005",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_rejects_missing_and_extra_fields",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0006",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_rejects_invalid_bindings",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0007",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.1-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_deterministic_bundle --junitxml=artifacts/v9/7.1/AC-7.1-02.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.1/AC-7.1-02.xml",
+        "sha256": "bb3c15c0619a7a13a423ef2eb8b262a42e95f37ef87107fd2243396ab4a384f5"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-02#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_is_byte_identical_schema_valid_and_cross_bound",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-02#0002",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_is_identical_across_rebuilt_fixtures",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-02#0003",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_rendering_drift_is_record_content_drift",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-02#0004",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_verifier_detects_tampered_pairs",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.1-03",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_caller_authored_facts --junitxml=artifacts/v9/7.1/AC-7.1-03.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.1/AC-7.1-03.xml",
+        "sha256": "94c1a15575be2fd08fd8eebc0f2e208ac3c9a8dde8c76c539ba553299a04faa4"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-03#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--passed]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0002",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--summary]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0003",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--test-results]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0004",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--candidate]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0005",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--commit]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0006",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--changed-path]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0007",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--gitlink]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0008",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--result]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0009",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts[--verdict]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0010",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts_in_output_paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-03#0011",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_caller_authored_facts_before_any_passing_record",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.1-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_rejects_empty_derivation --junitxml=artifacts/v9/7.1/AC-7.1-04.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.1/AC-7.1-04.xml",
+        "sha256": "e09a150d89a87129e69f08fccaf2b9123f15413f358dfdb4ee073f91e85969f6"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-04#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_empty_derivation_without_any_parsed_result",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-04#0002",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_empty_derivation_without_any_executed_assertion",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-04#0003",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_empty_derivation_without_a_resolved_candidate",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-04#0004",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_empty_derivation_without_a_derived_gitlink_path",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-04#0005",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_rejects_empty_derivation_for_one_empty_scenario",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.1-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_malformed_input_is_schema_valid_failure --junitxml=artifacts/v9/7.1/AC-7.1-05.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.1/AC-7.1-05.xml",
+        "sha256": "f626a16cd8aeaf099f7f3c492460776c2d594f4a687280ff9083b7502b30152c"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-05#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[malformed-json]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0002",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[unknown-schema-identity]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0003",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[closed-schema-violation]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0004",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[duplicate-key]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0005",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unsupported-format]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0006",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unknown-option]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0007",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[positional]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0008",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[duplicate-option]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0009",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[missing-value]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0010",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[empty-value]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0011",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0012",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[malformed-xml]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0013",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[doctype]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0014",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[nested-suite]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0015",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_schema_is_closed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0016",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_schemas_are_unavailable",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0017",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_git_fails",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0018",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0019",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0020",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.1-06",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-7.1-06#0001",
+          "subject": "generator::contract-schema-and-identity",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0002",
+          "subject": "generator::authority-bundle-digest-recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0003",
+          "subject": "generator::raw-gitlinks-equal-root-gitmodules",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0004",
+          "subject": "generator::committed-candidate-worktree-clean",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0005",
+          "subject": "generator::predecessor-scenarios-pass-with-ledgers",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0006",
+          "subject": "generator::declared-output-paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0007",
+          "subject": "generator::record-schema-valid",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0008",
+          "subject": "generator::deterministic-rendering",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-06#0009",
+          "subject": "generator::json-markdown-digest-cross-binding",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": []
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-7.1-final-record-v2.json",
+      "sha256": "a19d300acd8a93f51370fc106e11d93da868522e502f1772f6a236550a86b8cf"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-7.1-final-record-v2.md",
+      "sha256": "d7e122e92695ca7b393082592dab43bc8f3f36be10f3f76bbd11202c250b083e"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only new v2 schemas, generator-core changes, Story 7.1 tests/results, and Story 7.1 final-record outputs; preserve the v1 generator, Story 6.8 provenance, all completed records, and the v1-v8 prefix."
+  },
+  "summary": {
+    "required": 6,
+    "passed": 6,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "d7e122e92695ca7b393082592dab43bc8f3f36be10f3f76bbd11202c250b083e"
+}
