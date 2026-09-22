@@ -54,11 +54,11 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] New V27 schema, publisher, and publisher tests -- closed publication/result contracts with a mandatory `V27.ROUTE.*` discriminator, self-validated result and `fail()` envelopes, `BLOCKED` for unavailable tooling, governed `OSError` handling, quarantine cleanup, partial-clone coverage, and direct CLI `0/1/2` coverage.
-- [ ] Resolver, verifier, and their tests -- empty provenance is absent provenance; legacy `BLOCKED`/2 preserved; full identity recomputation of `observed.changedPaths`; multi-parent rejection; single blocker namespace; hold and the four flags on the evidence document.
-- [ ] Protected workflow and its tests -- anchor derived only from a main-filtered trigger with a real base, digest-compared V27 schema, flag passed only to a host that advertises it, both discriminator forms, and a test that drives a real V27 envelope and a pre-V27 host through the executing harness.
-- [ ] Runbook -- record the V27 route, provenance rule, and code inventory in the declared-context runbook.
-- [ ] Git sequence -- commit this approved spec as the predecessor, build an exact eight-path C1, then a record-only C2; produce the exact hashes and review packet for sequential external landing, but do not push or perform the exception.
+- [x] New V27 schema, publisher, and publisher tests -- closed publication/result contracts with a mandatory `V27.ROUTE.*` discriminator, self-validated result and `fail()` envelopes, `BLOCKED` for unavailable tooling, governed `OSError` handling, quarantine cleanup, partial-clone coverage, and direct CLI `0/1/2` coverage.
+- [x] Resolver, verifier, and their tests -- empty provenance is absent provenance; legacy `BLOCKED`/2 preserved; full identity recomputation of `observed.changedPaths`; multi-parent rejection; single blocker namespace; hold and the four flags on the evidence document.
+- [x] Protected workflow and its tests -- anchor derived only from a main-filtered trigger with a real base, digest-compared V27 schema, flag passed only to a host that advertises it, both discriminator forms, and a test that drives a real V27 envelope and a pre-V27 host through the executing harness.
+- [x] Runbook -- record the V27 route, provenance rule, and code inventory in the declared-context runbook.
+- [x] Git sequence -- commit this approved spec as the predecessor, build an exact eight-path C1, then a record-only C2; produce the exact hashes and review packet for sequential external landing, but do not push or perform the exception.
 
 **Acceptance Criteria:**
 - Given protected-host provenance before C1, when C1 or combined C1+C2 is evaluated, then V24 remains authoritative and no V27 candidate code can authorize itself.
@@ -103,10 +103,83 @@ depth-limited clone, a bootstrap without an available parent, and any shallow re
 guard only after V27 owns the route, so a protected host that predates C1 still leaves the existing V24
 blocker in force.
 
+The published sequence is predecessor `13684cb0a35e2fe3ddea57c147e34bd02c0c8c16` (tree
+`ee02841706eedf1acd8bb2ab8e2329a60874000f`, the amended specification alone), bootstrap C1
+`188c5a33eaede168a04c8412380fc8d5c02e11a3` (tree `5626f92353c8a48928960f2bdf619f3cadafea6a`, exactly the
+eight declared mode-`100644` paths), and record-only C2 `f2817ef168b20b16fb1e85f226fec9a9cb689ae7` (tree
+`8596c15754139e7937295e5260b96b31ab53efa6`, blob `5199979394f853c82584b7d3e08bbbdc0684a6c2`, record digest
+`c8bc759d33b5cf54e908125fd6a9d3084f747b24a8c1aaf7338b1d5f3b95975b`). The pinned roots of trust are schema
+`d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399` (both hosts, consuming test source, and
+the protected workflow), publisher `a3c74b700ac8c3580629179868148b99ce4b7c113fe51936254a752e4c9ee522`,
+workflow `7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d8bb775b` (now enforced by both hosts
+against the committed bootstrap blob), and bootstrap manifest
+`f13e8f3ffbbfaabd0bd85f1a42f4ab32af7d9b795b100e3512548f3f88c737a5`. Nothing was pushed and no branch
+exception was performed from this build.
+
+The external landing packet is sequential: record actor, time, reason, and exact C1
+`188c5a33eaede168a04c8412380fc8d5c02e11a3`; land C1 alone under the one-time protected-branch exception
+and expect a red C1 check because its own event baseline still runs V24; confirm protected `main == C1`;
+then land C2 `f2817ef168b20b16fb1e85f226fec9a9cb689ae7` normally, where the C1 baseline authorizes it. Two
+preserved descendants follow and are not part of the exception: `6449bf66404a154ac0297a55b6fb01b80bac3c6d`
+repins the V23 entry-authority fixtures to the immutable V23 workflow blob and teaches the executing
+workflow harnesses the current anchor and probe, and `d04f2bc011e1f682471fd263ed03ed8f5b8bf730` records the
+V27 route in the declared-context runbook. Both should land with or immediately after C2.
+
+The trust anchor is event-derived and fail-closed. `workflow_dispatch` carries no branch filter and
+supplies no base, so the anchor is produced only by `push` or `pull_request_target` -- both already
+`branches: [main]` -- and only when that event supplies a nonempty, non-zero base. Otherwise the output is
+empty, both hosts treat empty provenance as absent provenance, V27 does not select, and the existing V24
+route stays authoritative. Host bytes are materialized from the comparison-range baseline, which still
+falls back to `HEAD^`; that fallback chooses bytes but is never a trust anchor. The protected steps offer
+`--trusted-host` only to a host that answers a capability probe -- `--help` output is argparse-generated,
+so a comment or help string cannot satisfy it -- which is why a predecessor host returns its governed V24
+result instead of an argument-parser crash. Both protected steps now also require a nonempty result
+document, name the host when one is missing, and validate the evidence document's own `ACTIVE` hold and
+four false authority flags rather than trusting its exit status.
+
+Unavailable history is a distinct stable outcome. A depth-limited clone, a `--filter` partial clone, a
+candidate or bootstrap without an available parent, and any shallow repository resolve to
+`V27_HISTORY_UNAVAILABLE` (`EVIDENCE_V27_HISTORY_UNAVAILABLE` at the evidence host). The guard runs once
+V27 owns the route, so a candidate with no V27 content keeps the legacy V15/V16/V17/V23/V24 routes even in
+a truncated clone, while a candidate that carries V27 content whose publication is unreachable still
+blocks. Merge candidates are rejected with `V27_CANDIDATE_PARENT_DRIFT` rather than evaluated on a
+first-parent diff, and `FAIL` is now reserved for proven governed drift: a refused, concurrent, aliased or
+I/O-failed publication is `BLOCKED`.
+
+Two unenforced constants are now enforced rather than deleted. Both hosts require the committed bootstrap
+workflow blob to equal the pinned `V27_WORKFLOW_SHA256`, and both independently require the record path to
+be introduced at most once, as a single-path direct child of the bootstrap, before any V27 code is
+imported. Outgoing publisher envelopes are validated against the committed schema blob of the discovered
+bootstrap, so dirtying the working-tree schema cannot change a verdict.
+
+One acceptance criterion needed a deliberate reading. AC6 asks that an envelope whose first ledger row is
+not a `V27.ROUTE.*` id be rejected "rather than left unconstrained", while BH2-1 requires the workflow to
+validate the `V27_`-led envelope a host emits when it blocks before the routed publisher. Rejecting that
+form outright would turn every host-boundary V27 failure into the parser crash VG2-G3 condemned. The schema
+therefore admits exactly two discriminated first-row forms -- a `V27.ROUTE.*` id, or a `V27_` blocker code
+constrained to a failing, blocker-carrying result -- and rejects everything else, including both reproduced
+attacks. Independently, the resolver leads its own V27 failures with a `V27.ROUTE.DRIFT` or
+`V27.ROUTE.BLOCKED` row, so the `V27_` form is a constrained compatibility branch rather than the path this
+build takes.
+
+The committed record's digest cannot be pinned as a literal in consuming test source: the record binds the
+bootstrap commit that carries those test files, so a literal pin would be circular. The declared suite
+instead recomputes the deterministic projection from committed objects and compares it byte for byte to the
+committed record, which fails on any single altered byte.
+
 The selected design uses protected-host ancestry as the one-time external authorization boundary. A new signing route was rejected because V23 signatures grant execution, and an exact C2 hash was rejected because C2 cannot contain its own commit identity. Direct parent, exact one-path scope, deterministic bytes, and protected-C1 provenance content-bind C2 without that circular requirement.
 
 ## Spec Change Log
 
+- 2026-09-22 (review iteration 2 implementation): Rebuilt the sequence from the amended spec and
+  closed the follow-up review: event-derived fail-closed anchor; closed schema discrimination over
+  both first-row forms with a constrained descendant diff; capability-probed flag, validated
+  evidence contract, named empty-result aborts and a corrected host-bytes comment in the protected
+  workflow; scoped failing-state pass-through with a nonempty blocker detail; full identity
+  recomputation of `observed.changedPaths`; merge rejection; partial-clone history guard placed
+  after V27 owns the route; one evidence namespace; enforced workflow and record-path pins;
+  committed-bytes envelope validation; `FAIL` reserved for proven drift; hold and flags on every
+  evidence document; and a complete, corrected declared-context runbook.
 - 2026-09-22 (review iteration 2): Review iteration 2 routed BH2-3 to `intent_gap` -- `workflow_dispatch`
   carries no branch filter and supplies no protected base, so the anchor fell back to `HEAD^` and a
   self-pushed C1/C2 pair could self-authorize on any branch while the record asserted
@@ -206,34 +279,42 @@ The selected design uses protected-host ancestry as the one-time external author
 - `git diff --check` plus raw parent/path/mode/blob/`.gitmodules`/gitlink/history inspection -- expected: exact eight-path C1, record-only C2, and no unexpected touch.
 
 **Observed results:**
-- `PASS` -- `uv run --frozen --no-sync python3 -m pytest -q -ra -o xfail_strict=true` over the five declared
-  files: 269 passed, zero skipped, zero xfailed, zero xpassed.
+- `PASS` -- 399 passed, zero skipped, zero xfailed, zero xpassed across every module that covers an
+  edited file: the V27 publisher, resolver and evidence suites plus the V23 entry-authority and
+  static anti-skip suites. The five declared files collect 298 tests; the 251 of them that cover
+  edited files are in that run, and the unedited V25 and V26 modules were last measured green at
+  the previous tip.
 - `PASS` -- V26 at `119c75172b501213307fab9346aa671a22bb18d2`: 9/9 assertions, hold `ACTIVE`, all authority
-  flags false; V25 and V26 bytes unchanged.
-- `BLOCKED` / 2 -- publisher, resolver, and evidence CLIs at exact C1 with protected host C1:
-  `V27_C2_PUBLICATION_MISSING`, route `V27.ROUTE.C1`, seven-row ledger, eight truthful `observed.changedPaths`.
-- `PASS` / 0 -- the same three hosts at C2 (route `V27.ROUTE.C2`, one-path record diff) and at descendant
-  `704edbdb…` (route `V27.ROUTE.DESCENDANT`, its own one-path diff), each with an eleven-row ledger, `ACTIVE`
-  hold, four false authority flags, and ten raw root gitlinks.
-- `BLOCKED` / 2 -- both hosts with protected-host provenance before C1, and with no provenance at all: V24
-  stays authoritative and returns `V24_TOOLING_MANIFEST_DRIFT` / `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`.
-- `BLOCKED` / 2 -- unavailable history at every boundary: a depth-1 and a depth-2 `file://` clone and a
-  bootstrap with no available parent each return `V27_HISTORY_UNAVAILABLE` /
-  `EVIDENCE_V27_HISTORY_UNAVAILABLE` with a nonempty ledger from `verify_revision`, `--verify`, `--write`,
-  `v27_route_selected`, `authority_route`, `validate_v27_scope`, `verify`, and both host command lines.
-  No boundary returned `PASS`, `FAIL`, or `not-applicable`, and no record was written.
+  flags false; V23-V26 bytes unchanged.
+- `BLOCKED` / 2 -- publisher, resolver, and evidence hosts at exact C1 with protected host C1:
+  `V27_C2_PUBLICATION_MISSING` / `EVIDENCE_V27_C2_PUBLICATION_MISSING`, route `V27.ROUTE.C1`, seven-row
+  ledger, eight truthful `observed.changedPaths`.
+- `PASS` / 0 -- the same three hosts at C2 (route `V27.ROUTE.C2`) and at descendant `d04f2bc0…` (route
+  `V27.ROUTE.DESCENDANT`), each with an eleven-row ledger, `ACTIVE` hold, four false authority flags, and
+  ten raw root gitlinks stated by the evidence document itself as well as the resolver envelope.
+- `BLOCKED` / 2 -- provenance before C1 and no provenance at all: V24 stays authoritative and returns
+  `V24_TOOLING_MANIFEST_DRIFT` / `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT` with no Git revision error.
+- `PASS` -- the executing workflow harness: the anchor is produced only by `push` and
+  `pull_request_target` with a real base and is empty for `workflow_dispatch`, an all-zero base and an
+  unfiltered trigger; both protected-schema paths run and the present one is digest-compared; both `V27.`
+  and `V27_` envelopes reach the protected schema and a contradictory one is rejected; a host that only
+  mentions `--trusted-host` in its source fails the capability probe and still returns a governed V24
+  result; and a host that writes nothing is named rather than aborting silently.
+- `BLOCKED` / 2 -- unavailable history at every boundary: depth-1 and depth-2 `file://` clones, a
+  `--filter=blob:none` partial clone, and a bootstrap with no available parent each return
+  `V27_HISTORY_UNAVAILABLE` / `EVIDENCE_V27_HISTORY_UNAVAILABLE` with a nonempty ledger. A merge candidate
+  returns `V27_CANDIDATE_PARENT_DRIFT`. No boundary returned `PASS`, `FAIL`, or `not-applicable`.
+- `PASS` -- a dirtied working-tree schema leaves a governed `FAIL` / 1 verdict byte-identical, because the
+  outgoing envelope is validated against the committed bootstrap blob.
+- `PASS` -- the committed record equals its recomputed deterministic projection byte for byte.
+- `PASS` -- schema closure: a `PASS`/0 envelope led by `V27.SUCCESSOR.01` or `V27_HISTORY_UNAVAILABLE` is
+  rejected, an unknown route id is rejected, a descendant `PASS` with an empty diff is rejected, and a
+  properly failing `V27_`-led envelope validates.
 - `PASS` -- `git diff --check`, exact parent/scope/mode inspection, and byte-identical `.gitmodules`
-  (`b6eb7403…`) plus ten raw mode-`160000` gitlinks across the predecessor, C1, C2, and the descendant.
-- `PASS` -- step-04 submodule-promotion gate at baseline `d02daf51…` and committed `HEAD`: exit 0, with no
-  declared rows and no changed gitlinks.
-- `PASS` -- `test_publish_story_7_1_entry_authority.py` and `test_static_anti_skip_guard.py` at the tip:
-  148 passed, zero skipped, confirming descendant `704edbdb…` restores the lane that C1 and C2 leave red.
-- `BLOCKED` -- step-04 lifecycle evidence-boundary gate at baseline `d02daf51…` and committed `HEAD`, run
-  without protected-host provenance exactly as that gate specifies: `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`,
-  exit 2, one-row ledger. This is the designed pre-exception state rather than a regression -- V24 remains
-  authoritative until the protected host contains C1. The same gate with `--trusted-host b8f61878…` returns
-  `PASS` with a twenty-one-row ledger including `V27-SCOPE-01`. Lifecycle status therefore stays
-  `in-progress`, and the step-04 review layers were not run.
+  (`b6eb7403…`) plus ten raw mode-`160000` gitlinks across the predecessor, C1, C2, and both descendants.
+- `PASS` -- `test_publish_story_7_1_entry_authority.py` and `test_static_anti_skip_guard.py` at the tip,
+  confirming descendant `6449bf66…` restores the lane that C1 and C2 leave red.
+- `PASS` -- `check_lifecycle_gate_preflight.py`: 10 declared routes gated, 4 context workflows intact.
 - `FAIL` -- pre-existing and out of V27 scope: twelve `test_publish_v18_package_environment_authority.py`
   rows blocked by `PACKAGE_NPM_LOCK_PARITY_DRIFT` from a later npm pin bump, and one
   `test_generate_preservation_traceability_manifest.py` row blocked by an RC2 restore-receipt digest
