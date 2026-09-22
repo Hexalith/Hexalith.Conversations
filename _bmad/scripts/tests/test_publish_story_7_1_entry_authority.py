@@ -136,15 +136,34 @@ def workflow_current_authority_result(result: str, *, successor: bool) -> dict[s
 
 
 def copy_paths(root: Path, paths: tuple[str, ...]) -> None:
-    """Copy declared paths from the implementation worktree."""
+    """Copy declared paths from the implementation worktree.
+
+    The protected workflow is the one tooling identity V23 pins by digest, so it is restored
+    from the immutable V23 publication instead of the evolving worktree. Keeping that root of
+    trust in consuming test source stops a later workflow successor from redefining the V23
+    identity these fixtures validate. Every other tooling path still comes from the worktree.
+    """
 
     for relative_path in paths:
         if relative_path == publisher.REQUEST_PATH:
             continue
-        source = ROOT / relative_path
         target = root / relative_path
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(source, target)
+        if relative_path == publisher.WORKFLOW_PATH:
+            target.write_bytes(
+                subprocess.check_output(
+                    [
+                        "git",
+                        "-C",
+                        str(ROOT),
+                        "cat-file",
+                        "blob",
+                        f"{publisher.V23_REQUEST_PUBLICATION}:{relative_path}",
+                    ]
+                )
+            )
+            continue
+        shutil.copy2(ROOT / relative_path, target)
 
 
 def configure_correction_sparse_checkout(root: Path) -> None:
@@ -2680,6 +2699,9 @@ def run_workflow_current_authority_checker(
             "PATH": "/usr/bin:/bin",
             "RUNNER_TEMP": str(runner_temp),
             "GITHUB_WORKSPACE": str(tmp_path),
+            # The protected step reads its V27 anchor and advertisement signal from the step env.
+            # This legacy harness drives the non-V27 branches, so it advertises no flag.
+            "TRUSTED_HOST_COMMIT": "",
         },
         capture_output=True,
         text=True,
@@ -2721,6 +2743,13 @@ def test_workflow_current_authority_checker_rejects_contradictory_successor_pass
 def test_synchronized_project_venv_imports_jsonschema_in_clean_environment(tmp_path: Path) -> None:
     """Exact workflow blocks materialize, sync, identify, and run protected hosts in isolation."""
 
+    # The anchor reaches the protected steps through env mappings, not through the run bodies these
+    # harnesses extract, so the mappings themselves are asserted statically.
+    workflow = (ROOT / publisher.WORKFLOW_PATH).read_text(encoding="utf-8")
+    assert workflow.count("TRUSTED_HOST_COMMIT: ${{ steps.range.outputs.trusted_host_commit }}") == 2
+    assert "PROTECTED_HOST_COMMIT: ${{ steps.range.outputs.baseline }}" in workflow
+    assert "TRUSTED_HOST_FLAG" not in workflow
+
     root = tmp_path / "production-shaped-protected-flow"
     root.mkdir()
     subprocess.run(["git", "init", "-q", "-b", "main", str(root)], check=True)
@@ -2738,7 +2767,18 @@ candidate = subprocess.check_output(
 baseline = subprocess.check_output(
     ["/usr/bin/git", "-C", repository, "rev-parse", "HEAD^"], text=True
 ).strip()
-expected = ["--repository", repository, "--candidate", candidate, "--check"]
+if sys.argv[1:] == ["--help"]:
+    print("usage: resolve [--repository R] [--candidate C] [--trusted-host REVISION] [--check]")
+    raise SystemExit(0)
+expected = [
+    "--repository",
+    repository,
+    "--candidate",
+    candidate,
+    "--trusted-host",
+    baseline,
+    "--check",
+]
 if sys.argv[1:] != expected:
     raise SystemExit(f"resolver arguments drifted: {{sys.argv[1:]!r}} != {{expected!r}}")
 tree = subprocess.check_output(
@@ -2779,18 +2819,34 @@ document = {{
 }}
 print(json.dumps(document))
 """
+    evidence_literal = repr(str(tmp_path / "runner-temp" / "evidence-boundary-result.json"))
     verifier_source = f"""import json
 import subprocess
 import sys
 
 repository = {repository_literal}
+output = {evidence_literal}
 candidate = subprocess.check_output(
     ["/usr/bin/git", "-C", repository, "rev-parse", "HEAD"], text=True
 ).strip()
 baseline = subprocess.check_output(
     ["/usr/bin/git", "-C", repository, "rev-parse", "HEAD^"], text=True
 ).strip()
-expected = ["--repository", repository, "--baseline", baseline, "--candidate", candidate]
+if sys.argv[1:] == ["--help"]:
+    print("usage: verify [--repository R] [--baseline B] [--candidate C] [--trusted-host REVISION]")
+    raise SystemExit(0)
+expected = [
+    "--repository",
+    repository,
+    "--baseline",
+    baseline,
+    "--candidate",
+    candidate,
+    "--trusted-host",
+    baseline,
+    "--output",
+    output,
+]
 if sys.argv[1:] != expected:
     raise SystemExit(f"verifier arguments drifted: {{sys.argv[1:]!r}} != {{expected!r}}")
 changed = subprocess.check_output(
@@ -2811,7 +2867,15 @@ document = {{
         "detail": "verifier received the exact workflow-owned comparison range",
     }}],
     "blockers": [],
+    "effectiveHold": "ACTIVE",
+    "implementationHold": "ACTIVE",
+    "ownerApprovalClaimed": False,
+    "releaseAuthorized": False,
+    "pushAuthorized": False,
+    "executionAllowed": False,
 }}
+with open(output, "w", encoding="utf-8") as handle:
+    handle.write(json.dumps(document))
 print(json.dumps(document))
 """
     base_hosts = {
@@ -2851,6 +2915,7 @@ print(json.dumps(document))
         "PATH": "/usr/bin:/bin",
         "RUNNER_TEMP": str(runner_temp),
         "GITHUB_WORKSPACE": str(root),
+        "TRUSTED_EVENT_NAME": "push",
         "TRUSTED_EVENT_BASE": protected_base,
         "TRUSTED_EVENT_HEAD": hostile_head,
         "GITHUB_OUTPUT": str(range_output),
@@ -2880,6 +2945,9 @@ print(json.dumps(document))
     }
     environment.update(
         {
+            # Host bytes come from the comparison-range base; the V27 anchor is the stricter,
+            # event-derived value the protected steps forward to an advertising host.
+            "PROTECTED_HOST_COMMIT": range_values["baseline"],
             "TRUSTED_HOST_COMMIT": range_values["trusted_host_commit"],
             "RANGE_BASELINE": range_values["baseline"],
             "RANGE_CANDIDATE": range_values["candidate"],
@@ -2916,6 +2984,7 @@ print(json.dumps(document))
         capture_output=True,
         text=True,
     )
+    assert evidence_completed.returncode == 0
 
     resolver_result = json.loads(
         (runner_temp / "current-planning-authority-result.json").read_text(encoding="utf-8")
@@ -2944,7 +3013,9 @@ print(json.dumps(document))
             "detail": "resolver received the exact workflow-owned candidate arguments",
         }
     ]
-    evidence_result = json.loads(evidence_completed.stdout)
+    evidence_result = json.loads(
+        (runner_temp / "evidence-boundary-result.json").read_text(encoding="utf-8")
+    )
     assert set(evidence_result) == {
         "schemaVersion",
         "result",
@@ -2955,6 +3026,12 @@ print(json.dumps(document))
         "worktreePaths",
         "assertionLedger",
         "blockers",
+        "effectiveHold",
+        "implementationHold",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed",
     }
     assert evidence_result["baseline"] == range_values["baseline"]
     assert evidence_result["candidate"] == range_values["candidate"]
