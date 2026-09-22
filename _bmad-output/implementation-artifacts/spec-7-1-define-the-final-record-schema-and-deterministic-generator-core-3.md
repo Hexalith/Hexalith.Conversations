@@ -2,7 +2,7 @@
 title: 'Define the final-record schema and deterministic generator core'
 type: 'feature'
 created: '2026-09-20'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'c744d818c66b7c97db9a78506cc32357dc1df411'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -107,6 +107,7 @@ Chunk-1 review (generator + schemas, 2026-09-22):
 - 2026-09-20 entry preflight at baseline `e0b098fa1c056385e28ee8ac0efd0c55dfab324f`: resolver exit `1`, result `FAIL`, blocker `CANDIDATE_PARENT_DRIFT`, `executionAllowed: false`, and `implementationHold: ACTIVE`. No Story-owned implementation file was changed and no acceptance scenario was run.
 - 2026-09-22 owner waiver: the project owner waived the planning-authority entry gate for Story 7.1 ("over complicated … no ROI. Simplify, be pragmatic, bypass if needed"). The resolver `--check` preflight, the implementation hold, and the V27 protected-branch exception are no longer preconditions. Before the waiver, the preflight at `c744d818c66b7c97db9a78506cc32357dc1df411` was `BLOCKED V24_TOOLING_MANIFEST_DRIFT`, and `origin/main` (`2de5b4d62812ddd553bb27c0299e03b1e10d5cf0`) did not contain the V27 bootstrap.
 - 2026-09-22 completion at candidate `69c8906081627ca15b1692099343d8311f3fcd70`. The whole generator test file passes 127/127. Scenarios AC-7.1-01 through AC-7.1-05 each exited `0`, with 7, 4, 11, 5 and 20 testcases. AC-7.1-06 exited `0` with a `PASS` pair: summary `6/6/0/0/0/0`, ten gitlinks, and every scenario ledger nonempty. A rerun reproduced both output files byte for byte. The V12 `verify_evidence_boundary.py` check exited `2` with `BLOCKED EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`; this is the authority-route ceremony the owner waived, and it does not block completion.
+- 2026-09-23 completion at candidate `8ff1a96c1628e7d4f25f84d7660f8482bf9215a2`, with no code change since the review patches at `210a1fa4f04e0af1595ec59cd84494c33b47935d`. The whole generator test file passes 133/133. Scenarios AC-7.1-01 through AC-7.1-05 each exited `0`, with 7, 4, 11, 5 and 25 testcases. AC-7.1-06 exited `0` with a `PASS` pair: summary `6/6/0/0/0/0` and ten gitlinks. A rerun from the committed record reproduced both files byte for byte. The promotion gate passed with exit `0` and no declared or changed gitlinks. The evidence gate exited `2` with `BLOCKED EVIDENCE_V24_TOOLING_MANIFEST_DRIFT` and a one-row ledger; the owner waived this check. The .NET Release rebuild and TRX rerun were not run because the story changes no .NET files.
 
 ## Spec Change Log
 

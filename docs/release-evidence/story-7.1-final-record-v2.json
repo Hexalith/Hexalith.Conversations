@@ -8,7 +8,7 @@
     "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
   },
   "candidate": {
-    "commit": "69c8906081627ca15b1692099343d8311f3fcd70",
+    "commit": "8ff1a96c1628e7d4f25f84d7660f8482bf9215a2",
     "gitlinks": [
       {
         "path": "references/Hexalith.AI.Tools",
@@ -78,7 +78,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-01.xml",
-        "sha256": "9834dd2827064d47a7955393d3b62b60dc47e6273bd867deabefe01f67617e65"
+        "sha256": "f9a7080c19be4deb1dbdbe1486adec80a58a322394e289990bdbfba4927951f5"
       },
       "assertionLedger": [
         {
@@ -126,7 +126,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-02.xml",
-        "sha256": "bb3c15c0619a7a13a423ef2eb8b262a42e95f37ef87107fd2243396ab4a384f5"
+        "sha256": "384b160756d8c360caa0de7f501a108ef615affe50f451f01b5c47ee11876b23"
       },
       "assertionLedger": [
         {
@@ -159,7 +159,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-03.xml",
-        "sha256": "94c1a15575be2fd08fd8eebc0f2e208ac3c9a8dde8c76c539ba553299a04faa4"
+        "sha256": "d4206549867988e45ba38285ac78dc33a3b0ac514fba2922d1dff2d79523e734"
       },
       "assertionLedger": [
         {
@@ -227,7 +227,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-04.xml",
-        "sha256": "e09a150d89a87129e69f08fccaf2b9123f15413f358dfdb4ee073f91e85969f6"
+        "sha256": "83068587e71749a8f815682695a5a42226da8f8e2c47b84414197242f07e05ef"
       },
       "assertionLedger": [
         {
@@ -265,7 +265,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-05.xml",
-        "sha256": "f626a16cd8aeaf099f7f3c492460776c2d594f4a687280ff9083b7502b30152c"
+        "sha256": "f9579e12d502c7aa30af5bc164db024a7c186ed5be1ec7e7ef526ad50edacf04"
       },
       "assertionLedger": [
         {
@@ -355,16 +355,41 @@
         },
         {
           "id": "AC-7.1-05#0018",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_head_resolution_git_fails",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0019",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_jsonschema_is_unavailable",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0020",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0021",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0022",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails_without_seeded_outputs",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0023",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_output_restore_fails",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0024",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs_without_seeded_outputs",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-05#0025",
           "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs",
           "state": "PASS"
         }
@@ -431,11 +456,11 @@
   "outputs": {
     "json": {
       "path": "docs/release-evidence/story-7.1-final-record-v2.json",
-      "sha256": "a19d300acd8a93f51370fc106e11d93da868522e502f1772f6a236550a86b8cf"
+      "sha256": "fee1dbcb001167a4a99aaf50187067dc60d465158ef1ad4377b4f3aae100e525"
     },
     "markdown": {
       "path": "docs/release-evidence/story-7.1-final-record-v2.md",
-      "sha256": "d7e122e92695ca7b393082592dab43bc8f3f36be10f3f76bbd11202c250b083e"
+      "sha256": "2c80364e84b1bcb4c3ff187483925318aa5d281acd557444c1015c294763e1b2"
     }
   },
   "rollback": {
@@ -449,5 +474,5 @@
     "skipped": 0,
     "notRun": 0
   },
-  "renderedMarkdownSha256": "d7e122e92695ca7b393082592dab43bc8f3f36be10f3f76bbd11202c250b083e"
+  "renderedMarkdownSha256": "2c80364e84b1bcb4c3ff187483925318aa5d281acd557444c1015c294763e1b2"
 }

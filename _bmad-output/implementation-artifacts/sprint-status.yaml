@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 2026-06-02
+# last_updated: 2026-09-23
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -86,7 +86,7 @@ development_status:
   6-7-mechanically-block-incomplete-submodule-promotions-from-completion: done
   epic-6-retrospective: done
   epic-7: in-progress
-  7-1-define-the-final-record-schema-and-deterministic-generator-core: in-progress
+  7-1-define-the-final-record-schema-and-deterministic-generator-core: review
   7-2-derive-test-path-candidate-submodule-and-gitlink-facts: backlog
   7-3-integrate-generation-into-every-blocking-completion-transition: backlog
   7-4-verify-historical-mode-and-required-fault-injection-blockers: backlog
