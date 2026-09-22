@@ -72,7 +72,7 @@ context:
 - [x] [Review][Defer] Duplicate .gitmodules path declarations are collapsed [_bmad/scripts/generate_story_record.py:456] — deferred: pre-existing `root_submodule_paths` helper; git last-wins and v2 only compares the collapsed set to raw gitlinks
 - [x] [Review][Defer] Contract resultSemantics blocked/not-applicable exits are unused [_bmad/scripts/generate_story_record.py:3515] — deferred: v2 allows no skip and Story 7.1 pytest exits are 0/1/5; consulting blockedExitCodes is leftover contract surface for later stories
 
-Review gate at committed candidate `05c83ccd3433fad1599c03eb74bc91bd21fa70f0`: the empty-scope submodule promotion check passed with exit `0`; `verify_evidence_boundary.py --repository . --baseline c744d818c66b7c97db9a78506cc32357dc1df411 --candidate 05c83ccd3433fad1599c03eb74bc91bd21fa70f0` returned exit `2`, `BLOCKED`, `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`, with a nonempty assertion ledger. The review workflow stopped before final-record regeneration and completion.
+Review gate at committed candidate `210a1fa4f04e0af1595ec59cd84494c33b47935d`: the empty-scope submodule promotion check passed with exit `0`; `verify_evidence_boundary.py --repository . --baseline c744d818c66b7c97db9a78506cc32357dc1df411 --candidate 210a1fa4f04e0af1595ec59cd84494c33b47935d` returned exit `2`, `BLOCKED`, `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`, with a nonempty assertion ledger. The review workflow stopped before final-record regeneration and completion. Story status remains `in-progress`.
 
 #### Rejected
 
