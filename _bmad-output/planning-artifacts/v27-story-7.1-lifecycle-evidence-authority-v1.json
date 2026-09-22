@@ -1,0 +1,244 @@
+{
+  "schemaVersion": "hexalith.conversations.story-7.1-lifecycle-evidence-authority.v1",
+  "recordType": "LIFECYCLE_EVIDENCE_AUTHORITY_SUCCESSOR",
+  "successorId": "V27-STORY-7.1-LIFECYCLE-EVIDENCE-AUTHORITY-v1",
+  "authorization": {
+    "model": "PROTECTED_HOST_ANCESTRY",
+    "bootstrapCommit": "188c5a33eaede168a04c8412380fc8d5c02e11a3",
+    "bootstrapTree": "5626f92353c8a48928960f2bdf619f3cadafea6a",
+    "bootstrapParent": "13684cb0a35e2fe3ddea57c147e34bd02c0c8c16",
+    "bootstrapParentTree": "ee02841706eedf1acd8bb2ab8e2329a60874000f",
+    "externalExceptionRequired": true,
+    "selfAuthorized": false
+  },
+  "bootstrapTransaction": {
+    "exactChangedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json",
+      "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py"
+    ],
+    "requiredMode": "100644",
+    "manifestSha256": "f13e8f3ffbbfaabd0bd85f1a42f4ab32af7d9b795b100e3512548f3f88c737a5",
+    "manifest": [
+      {
+        "path": ".github/workflows/planning-authority-preflight.yml",
+        "mode": "100644",
+        "objectId": "be8144c8d0be9d8b637a54a9864f2a31be667617",
+        "sha256": "7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d8bb775b",
+        "bytes": 32326
+      },
+      {
+        "path": "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json",
+        "mode": "100644",
+        "objectId": "6b64c6a5c644898ba58fe9f62ee262fe3ec225d6",
+        "sha256": "d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399",
+        "bytes": 37578
+      },
+      {
+        "path": "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py",
+        "mode": "100644",
+        "objectId": "b959c670bfbce0263aa8a8e266532970a5212f8f",
+        "sha256": "a3c74b700ac8c3580629179868148b99ce4b7c113fe51936254a752e4c9ee522",
+        "bytes": 45765
+      },
+      {
+        "path": "_bmad/scripts/resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "da84d7472b4feba63c37ae98671dfd64d0a40e7b",
+        "sha256": "bfa5ee03d74544e37fad53f77c926834ab046367c9ef7a4d32a96b0965fcf38f",
+        "bytes": 82655
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_story_7_1_lifecycle_evidence_authority.py",
+        "mode": "100644",
+        "objectId": "aedc0be350ec130156140fadc3ba41efeb8cedc6",
+        "sha256": "a04bd6d88d01c3f0d8ae4385b1fa794568f0ccc32cf91f7915412356fdc559a1",
+        "bytes": 41569
+      },
+      {
+        "path": "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "52a6e001eabfaaa14eb7726a6004dadc4e019ba4",
+        "sha256": "3ce92d85184b98da73fcac46435bb83aed438c60df40105af22d36292ab6b88c",
+        "bytes": 85458
+      },
+      {
+        "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "466db16713fac2501f6693e75da7620398d90f11",
+        "sha256": "e791e931b6f7603aee620126decf2e2dc26398fab5479712191efbb3d7a0e490",
+        "bytes": 83168
+      },
+      {
+        "path": "_bmad/scripts/verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "8f2785cb4a093f35b1039b319db892e54ebbfdf7",
+        "sha256": "63afa701452e7c40af73903a0cb513e5183d577321bc8567654b14255ea20983",
+        "bytes": 101253
+      }
+    ]
+  },
+  "recordTransaction": {
+    "parentCommit": "188c5a33eaede168a04c8412380fc8d5c02e11a3",
+    "parentTree": "5626f92353c8a48928960f2bdf619f3cadafea6a",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v27-story-7.1-lifecycle-evidence-authority-v1.json"
+    ],
+    "requiredMode": "100644"
+  },
+  "submoduleBinding": {
+    "gitmodulesPath": ".gitmodules",
+    "gitmodulesSha256": "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c",
+    "declaredPaths": [
+      "references/Hexalith.AI.Tools",
+      "references/Hexalith.Builds",
+      "references/Hexalith.Commons",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "rootGitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "mode": "160000",
+        "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "mode": "160000",
+        "objectId": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "mode": "160000",
+        "objectId": "9f4809d37095e64e3732abc3e766535f9e836563"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "mode": "160000",
+        "objectId": "4bc61d9a60fae13a65f23963c1cb731065222f2a"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "mode": "160000",
+        "objectId": "b10971ae6e17d4fca2933908531f80a5f58b6e5a"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "mode": "160000",
+        "objectId": "237b39e89cb50d8d37596f4da9ce3f6993260165"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "mode": "160000",
+        "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "mode": "160000",
+        "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "mode": "160000",
+        "objectId": "ffa922d0f7a278da3bb02ee09769564df02d5f01"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "mode": "160000",
+        "objectId": "dfd84f4b9c93779f253672096fec5d717d6afc91"
+      }
+    ]
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V27.SUCCESSOR.01",
+      "subject": "bootstrap-publication-discovery",
+      "state": "PASS",
+      "detail": "full history introduces exactly one V27 bootstrap publication"
+    },
+    {
+      "id": "V27.SUCCESSOR.02",
+      "subject": "protected-host-authorization",
+      "state": "PASS",
+      "detail": "the bootstrap publication is contained in protected-host ancestry"
+    },
+    {
+      "id": "V27.SUCCESSOR.03",
+      "subject": "bootstrap-exact-scope",
+      "state": "PASS",
+      "detail": "the bootstrap declares exactly eight mode-100644 paths under one parent"
+    },
+    {
+      "id": "V27.SUCCESSOR.04",
+      "subject": "pinned-bootstrap-identities",
+      "state": "PASS",
+      "detail": "the pinned V27 schema digest matches the committed bootstrap blob"
+    },
+    {
+      "id": "V27.SUCCESSOR.05",
+      "subject": "submodule-binding",
+      "state": "PASS",
+      "detail": "the .gitmodules inventory binds exactly ten raw mode-160000 root gitlinks"
+    },
+    {
+      "id": "V27.SUCCESSOR.06",
+      "subject": "governed-no-touch-history",
+      "state": "PASS",
+      "detail": "no commit after the bootstrap touches a governed path, even when restored"
+    },
+    {
+      "id": "V27.SUCCESSOR.07",
+      "subject": "record-only-publication",
+      "state": "PASS",
+      "detail": "the record is a direct single-path mode-100644 child of the bootstrap"
+    },
+    {
+      "id": "V27.SUCCESSOR.08",
+      "subject": "deterministic-record-identity",
+      "state": "PASS",
+      "detail": "the committed record equals its deterministic canonical projection"
+    },
+    {
+      "id": "V27.SUCCESSOR.09",
+      "subject": "sticky-record-history",
+      "state": "PASS",
+      "detail": "the record remains byte-identical through the evaluated candidate"
+    },
+    {
+      "id": "V27.SUCCESSOR.10",
+      "subject": "non-executable-authority",
+      "state": "PASS",
+      "detail": "V27 grants no approval, execution, release, or push authority"
+    }
+  ],
+  "blockers": [],
+  "result": "PASS",
+  "implementationHold": "ACTIVE",
+  "executionAllowed": false,
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false
+}
