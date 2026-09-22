@@ -2,7 +2,7 @@
 title: 'Define the final-record schema and deterministic generator core'
 type: 'feature'
 created: '2026-09-20'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'c744d818c66b7c97db9a78506cc32357dc1df411'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -66,6 +66,8 @@ context:
 - [x] [Review][Patch] Require an assertion ledger for every passing scenario [_bmad/schemas/story-final-record-v2.schema.json:292] — require `assertionLedger` when `result` is `PASS` and cover omission in the schema test.
 - [x] [Review][Defer] Bind JUnit exits and test inputs to the candidate [_bmad/scripts/generate_story_record.py:3419] — deferred: Story 7.2 owns measured test and candidate derivation; mtime and testcase counts alone cannot prove the process exit or the tested checkout. Already recorded in the deferred-work ledger.
 - [x] [Review][Defer] Derive inventory and predecessor facts from their sources [_bmad/scripts/generate_story_record.py:4078] — deferred: Story 7.2 owns these fact bindings; the v2 core currently copies them from the contract. Already recorded in the deferred-work ledger.
+
+Review gate at committed candidate `05c83ccd3433fad1599c03eb74bc91bd21fa70f0`: the empty-scope submodule promotion check passed with exit `0`; `verify_evidence_boundary.py --repository . --baseline c744d818c66b7c97db9a78506cc32357dc1df411 --candidate 05c83ccd3433fad1599c03eb74bc91bd21fa70f0` returned exit `2`, `BLOCKED`, `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`, with a nonempty assertion ledger. The review workflow stopped before final-record regeneration and completion.
 
 #### Rejected
 
