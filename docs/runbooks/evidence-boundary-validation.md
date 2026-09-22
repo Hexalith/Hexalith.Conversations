@@ -88,11 +88,101 @@ frozen chain-table relation. The expected stable code must occur, the assertion
 ledger must be nonempty, and the fixture must restore byte-identically even
 when validation fails.
 
+## V27 lifecycle-evidence route
+
+The current-authority resolver and this verifier both expose a V27 route that supersedes V24 for
+candidates descended from an externally authorized bootstrap publication.
+
+- **Provenance.** Both hosts accept a `--trusted-host REVISION` argument. Its only legitimate value
+  is the protected base supplied by an event whose trigger is itself branch-filtered to the
+  protected branch: `push` or `pull_request_target` on `main`. A manual or otherwise unfiltered
+  trigger supplies no base, and the anchor is then **empty**. An empty or absent anchor is absent
+  provenance, not an error: V27 does not select and the existing V24 route stays authoritative.
+  Never synthesize an anchor from `HEAD^`, from the checked-out head, or from an all-zero base.
+- **Selection.** V27 is selected only when the candidate's full history introduces exactly one
+  bootstrap publication and that publication is already contained in the anchor's ancestry. The
+  bootstrap is an exact eight-path, single-parent, mode-`100644` commit; its record-only child is a
+  single-path direct child. Candidate content never authorizes the route.
+- **History.** Complete history is required before any V27 fact is derived. Shallow clones, partial
+  (`--filter`) clones, and a candidate or bootstrap with no available parent are `BLOCKED`, never
+  `PASS`, `FAIL`, or `not-applicable`. Merge candidates are rejected rather than evaluated on a
+  first-parent diff.
+- **Results.** The V27 result envelope is closed and discriminated on its first assertion row, which
+  must be one of two forms and nothing else. A routed envelope names exactly one of `V27.ROUTE.C1`,
+  `V27.ROUTE.C2`, `V27.ROUTE.DESCENDANT`, `V27.ROUTE.DRIFT`, or `V27.ROUTE.BLOCKED`. A protected host
+  that blocks before it reaches the routed publisher may instead lead with its own `V27_` blocker
+  code, and that form is constrained to a failing, blocker-carrying result. Every host validates the
+  envelope against the digest-pinned V27 schema before acting on it, and every result carries the
+  `ACTIVE` hold with four false authority flags.
+- **Exception procedure.** The bootstrap can never authorize itself, so landing it is a human-owned,
+  one-time protected-branch exception performed outside this tooling. Record actor, time, reason and
+  the exact bootstrap commit; land the bootstrap alone and expect its own check to be red, because
+  its event baseline still runs the predecessor route; confirm that protected `main` equals the
+  bootstrap; then land the record-only child normally, where the bootstrap baseline authorizes it.
+  Never combine the two, never push either from an automated build, and never reuse the exception.
+
+### Blocker code inventory
+
+Publisher and resolver codes use the `V27_` prefix; this verifier normalizes everything it emits or
+propagates into `EVIDENCE_V27_`. Filtering on one prefix at one host therefore never drops part of
+the set. The stable codes a reader should recognize are:
+
+- Provenance and selection: `V27_TRUSTED_HOST_REQUIRED`, `V27_TRUSTED_HOST_NOT_APPLICABLE`,
+  `V27_PROTECTED_HOST_UNAVAILABLE`, `V27_BOOTSTRAP_NOT_PROTECTED`, `V27_BOOTSTRAP_NOT_ANCESTOR`,
+  `V27_BOOTSTRAP_PUBLICATION_MISSING`, `V27_BOOTSTRAP_PUBLICATION_SPLIT`,
+  `V27_DUPLICATE_BOOTSTRAP_PUBLICATION`.
+- History availability: `V27_HISTORY_UNAVAILABLE`, `V27_HISTORY_INVALID`,
+  `V27_CANDIDATE_PARENT_DRIFT`, `V27_LINEAGE_UNAVAILABLE`.
+- Publication shape: `V27_BOOTSTRAP_SCOPE_DRIFT`, `V27_BOOTSTRAP_PARENT_DRIFT`,
+  `V27_BOOTSTRAP_MODE_DRIFT`, `V27_COMBINED_PUBLICATION_REJECTED`, `V27_C2_PUBLICATION_MISSING`,
+  `V27_DUPLICATE_RECORD_PUBLICATION`, `V27_RECORD_PARENT_DRIFT`, `V27_RECORD_SCOPE_DRIFT`,
+  `V27_RECORD_MODE_DRIFT`.
+- Governed no-touch: `V27_GOVERNED_PATH_TOUCHED`, `V27_GOVERNED_ARTIFACT_DRIFT`,
+  `V27_GITMODULES_DRIFT`, `V27_ROOT_GITLINK_DRIFT`, `V27_SUBMODULE_BINDING_DRIFT`,
+  `V27_RECORD_HISTORY_TOUCHED`, `V27_RECORD_DESCENDANT_DRIFT`, `V27_RECORD_REVERTED_OR_DELETED`.
+- Record identity: `V27_RECORD_IDENTITY_MISMATCH`, `V27_RECORD_INVALID`,
+  `V27_EMPTY_ASSERTION_LEDGER`, `V27_AUTHORITY_FLAG_DRIFT`, `V27_OBSERVED_DIFF_UNTRUTHFUL`,
+  `V27_RESULT_INVALID`, `V27_RESULT_SCHEMA_INVALID`, `V27_RESULT_ENVELOPE_INVALID`.
+- Publication safety: `V27_RECORD_ALREADY_EXISTS`, `V27_RECORD_CONCURRENT_PUBLICATION`,
+  `V27_RECORD_PARENT_ALIAS`, `V27_PUBLICATION_FINAL_IDENTITY_DRIFT`, `V27_PUBLICATION_IO_FAILED`.
+- Record identity, continued: `V27_MANIFEST_SCOPE_DRIFT`, `V27_RECORD_SELF_INCLUSION`,
+  `V27_DOCUMENT_SCHEMA_INVALID`, `V27_RESULT_ENVELOPE_INVALID`.
+- Loading and executing the pinned publisher: `V27_PUBLISHER_LOAD_FAILED`,
+  `V27_PUBLISHER_INTERFACE_INVALID`, `V27_PUBLISHER_EXECUTION_FAILED`.
+- Raw object and inventory reading: `V27_DIFF_MALFORMED`, `V27_DIFF_UNAVAILABLE`,
+  `V27_CHANGED_PATH_DUPLICATE`, `V27_TREE_UNAVAILABLE`, `V27_GIT_OBJECT_UNAVAILABLE`,
+  `V27_GITLINK_INVENTORY_UNAVAILABLE`, `V27_GITLINK_INVENTORY_INVALID`,
+  `V27_GITMODULES_MALFORMED`, `V27_GITMODULES_DUPLICATE_PATH`, `V27_PATH_INVALID`,
+  `V27_LINEAGE_UNAVAILABLE`, `V27_ANCESTRY_UNAVAILABLE`, `V27_BOOTSTRAP_NOT_ANCESTOR`,
+  `V27_BOOTSTRAP_ARTIFACT_UNAVAILABLE`, `V27_GOVERNED_ARTIFACT_MISSING`,
+  `V27_EVALUATED_CANDIDATE_UNAVAILABLE`, `V27_REVISION_UNAVAILABLE`, `V27_SCHEMA_INVALID`,
+  `V27_RECORD_UNAVAILABLE`, `V27_WORKFLOW_IDENTITY_MISMATCH`.
+- Generation and command line: `V27_GENERATION_BASELINE_UNAVAILABLE`,
+  `V27_GENERATION_BASELINE_DRIFT`, `V27_TRUSTED_HOST_REQUIRED`, `V27_TRUSTED_HOST_NOT_APPLICABLE`,
+  `V27_COMBINED_PUBLICATION_REJECTED`, `V27_BOOTSTRAP_MODE_DRIFT`.
+- Tooling and environment: `V27_TOOLING_UNAVAILABLE`, `V27_SCHEMA_UNAVAILABLE`,
+  `V27_SCHEMA_IDENTITY_MISMATCH`, `V27_PUBLISHER_IDENTITY_MISMATCH`, `V27_GIT_UNAVAILABLE`,
+  `V27_REPOSITORY_UNAVAILABLE`, `V27_REPOSITORY_ROOT_MISMATCH`, `V27_PUBLICATION_IO_FAILED`.
+
+An unavailable dependency, an unavailable schema, an unreadable repository, a filesystem fault, a
+refused or concurrent publication, and an aliased publication parent are all `BLOCKED`, never `FAIL`.
+`FAIL` is reserved for proven governed drift: a touched governed path, a drifted `.gitmodules` or
+gitlink, a record that is not its deterministic projection, and a publication whose installed bytes
+do not match what was generated.
+
 ## Known limitations
 
 - This runbook does not install workflow gates or replace the verifier.
 - It does not claim CI wiring, story completion, readiness, hold lift, or
   release approval.
 - Shallow or partial history may prevent validation; that state is `BLOCKED`.
+- The V27 route is only as current as its pinned roots of trust. Changing the V27 schema, publisher,
+  or protected workflow changes a digest that both hosts pin, so those pins and the bootstrap they
+  authenticate must be republished together rather than edited in place.
+- V27 evaluates single-parent candidates only. A merge candidate is rejected rather than evaluated
+  on a first-parent diff, so a merge into the protected branch needs a fresh evaluation of the
+  resulting commit before its evidence is current.
+- The one-time protected-branch exception above is outside this runbook's enforcement. Nothing here
+  verifies that it was recorded, and no tooling can grant it.
 - Workflow upgrades require inventory, route, parity, and resolved-
   customization revalidation before prior evidence is current again.
