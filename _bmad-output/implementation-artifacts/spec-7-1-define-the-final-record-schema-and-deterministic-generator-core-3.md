@@ -66,6 +66,11 @@ context:
 - [x] [Review][Patch] Require an assertion ledger for every passing scenario [_bmad/schemas/story-final-record-v2.schema.json:292] — require `assertionLedger` when `result` is `PASS` and cover omission in the schema test.
 - [x] [Review][Defer] Bind JUnit exits and test inputs to the candidate [_bmad/scripts/generate_story_record.py:3419] — deferred: Story 7.2 owns measured test and candidate derivation; mtime and testcase counts alone cannot prove the process exit or the tested checkout. Already recorded in the deferred-work ledger.
 - [x] [Review][Defer] Derive inventory and predecessor facts from their sources [_bmad/scripts/generate_story_record.py:4078] — deferred: Story 7.2 owns these fact bindings; the v2 core currently copies them from the contract. Already recorded in the deferred-work ledger.
+- [x] [Review][Patch] Do not claim output restore when restore is best-effort [_bmad/scripts/generate_story_record.py:3736] — `v2_restore_outputs` reports whether every restore succeeded; write diagnostics use that result, and tests cover unseeded rollback plus a failed restore.
+- [x] [Review][Patch] Cover SCHEMA_VALIDATOR_UNAVAILABLE when jsonschema import fails [_bmad/scripts/generate_story_record.py:2953] — refuse `jsonschema` via `__import__` and expect blocker `SCHEMA_VALIDATOR_UNAVAILABLE`, exit `2`.
+- [x] [Review][Patch] Do not map Git faults during HEAD resolution to RECORD_NOT_DERIVED [_bmad/scripts/generate_story_record.py:3851] — re-raise `GIT_COMMAND_FAILED` / `GIT_UNAVAILABLE` from `resolve_commit`; cover HEAD `rev-parse` failure as `BLOCKED`.
+- [x] [Review][Defer] Duplicate .gitmodules path declarations are collapsed [_bmad/scripts/generate_story_record.py:456] — deferred: pre-existing `root_submodule_paths` helper; git last-wins and v2 only compares the collapsed set to raw gitlinks
+- [x] [Review][Defer] Contract resultSemantics blocked/not-applicable exits are unused [_bmad/scripts/generate_story_record.py:3515] — deferred: v2 allows no skip and Story 7.1 pytest exits are 0/1/5; consulting blockedExitCodes is leftover contract surface for later stories
 
 Review gate at committed candidate `05c83ccd3433fad1599c03eb74bc91bd21fa70f0`: the empty-scope submodule promotion check passed with exit `0`; `verify_evidence_boundary.py --repository . --baseline c744d818c66b7c97db9a78506cc32357dc1df411 --candidate 05c83ccd3433fad1599c03eb74bc91bd21fa70f0` returned exit `2`, `BLOCKED`, `EVIDENCE_V24_TOOLING_MANIFEST_DRIFT`, with a nonempty assertion ledger. The review workflow stopped before final-record regeneration and completion.
 
@@ -77,6 +82,25 @@ Review gate at committed candidate `05c83ccd3433fad1599c03eb74bc91bd21fa70f0`: t
 - An escaped unpaired surrogate can become `INTERNAL_ERROR` rather than `INPUT_SCHEMA_INVALID`, but the committed contract has none and accommodating this malformed edge case needs extra validation branches.
 - The two output files are replaced sequentially, so a concurrent reader could observe a mixed pair. Each file is atomically replaced and the pair is digest-bound; the contract does not require one atomic multi-file visibility point.
 - A selector matching a pytest class or module rather than the testcase name can be rejected. The frozen Story 7.1 commands use simple function-name selectors, so that broader selector support is outside this route.
+
+Chunk-1 review (generator + schemas, 2026-09-22):
+- false: JUnit `Path.resolve` follows symlinks — the frozen contract uses dedicated result paths; extra alias guards were already rejected for this scoped route.
+- false: unknown testcase children counting as PASS — pytest emits `system-out`/`system-err`; treating only `failure`/`error`/`skipped` as non-pass is correct. The unused `V2_JUNIT_NON_PASS_CHILDREN` constant is cosmetic.
+- false: `.pytest_cache/` trips `WORKTREE_NOT_CLEAN` — `.pytest_cache/.gitignore` already ignores cache files; `git status` does not list them.
+- false: `INTERNAL_ERROR` as `BLOCKED` — `V2_CODES` defines `BLOCKED` as an environment that cannot support a trustworthy record; an unexpected exception is that class.
+- false: self-invocation caller-fact options become `SCENARIO_COMMAND_UNSUPPORTED` — that string is the nested contract command, not the CLI; CLI caller facts still raise `CALLER_AUTHORED_FACT`. The frozen command is valid.
+- false: testcase skipped/failed via attributes — this parser requires the pytest JUnit child-element shape.
+- false: result-file and output-path `OSError` must be `BLOCKED` — the story matrix treats unusable evidence as `FAIL`; write-install faults are already `BLOCKED`.
+- false: optional `-q`/`-k` — the frozen Story 7.1 commands include both; expanding selector policy was already rejected.
+- low: PASS schema still allows missing `resultFile`, nonempty `blockers`, nonzero `exitCode`, `FAIL` ledger rows, and a summary that does not match `scenarios` — the schema is structural; the generator refuses those shapes before write.
+- low: assertion `subject` is not run through `v2_clean_text` and has no `maxLength` — pytest names do not carry C0 controls in everyday use; extra sanitizing branches are not worth it here.
+- low: production `v2_main` does not re-validate the failure document — fixture tests already schema-validate stdout; validating CLI faults before schemas load needs extra branches.
+- low: two unrecognized flags collapse to one `argv` diagnostic — `uniqueItems` requires that, and the message is still true.
+- low: UTF-16/`<!doctype` DTD bypass, unbounded testsuite counters, FIFO/symlink races, stdout failure after a successful install — already rejected as unlikely local operation needing extra guards.
+- low: sequential `os.replace` can expose a mixed pair to a concurrent reader — already rejected; the pair is digest-bound.
+- low: hardcoded self-invocation ledger — already rejected; the record is written only on a full PASS.
+- low: authority artifact paths with newlines, complex `-k` selectors, substring `-k` matches, JUnit path aliases after resolve — frozen inputs do not present these; extra guards add complexity.
+- already deferred to Story 7.2: result mtime truncated to committer seconds, and dirty submodule worktrees hidden by `--ignore-submodules=all`.
 
 ## Implementation Notes
 

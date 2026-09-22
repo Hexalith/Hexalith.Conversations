@@ -6,6 +6,8 @@ Real findings that are not actionable in the story that surfaced them. Each entr
 
 - Bind JUnit exits and test inputs to the exact committed candidate. `v2_scenario_from_results` infers exits from testcase children and uses result-file mtime for freshness, so partial runs or another checkout can appear passing. This is already assigned to Story 7.2 below.
 - Derive the inventory digest and predecessor facts from their source artifacts. `v2_generate` copies them from the contract; this is already assigned to Story 7.2 below.
+- Duplicate `.gitmodules` `submodule.*.path` declarations are collapsed by `sorted(set(paths))` in pre-existing `root_submodule_paths`. The v2 route only compares that collapsed set to raw gitlinks, so a duplicate declaration is invisible. Git last-wins; not actionable in the v2 generator core.
+- Contract `resultSemantics.blockedExitCodes` / `notApplicableAllowed` are not used when classifying pytest scenarios. v2 allows no skip and Story 7.1 exits are 0/1/5; leftover contract surface for later stories.
 
 ## Deferred from: code review of spec-6-1-rebaseline-architecture-and-planning-authority (2026-07-26)
 

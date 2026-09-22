@@ -5,6 +5,7 @@
 """Hermetic tests for the story final-record generator."""
 
 import ast
+import builtins
 import hashlib
 import json
 import os
@@ -3094,6 +3095,56 @@ def test_v2_malformed_input_is_schema_valid_failure_when_git_fails(
     assert v2_snapshot(repository) == before
 
 
+def test_v2_malformed_input_is_schema_valid_failure_when_head_resolution_git_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:3] == ("rev-parse", "--verify", "HEAD^{commit}"):
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_jsonschema_is_unavailable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    real_import = builtins.__import__
+
+    def refuse(name: str, *arguments: object, **keywords: object) -> object:
+        if name == "jsonschema":
+            raise ImportError("no module named jsonschema")
+        return real_import(name, *arguments, **keywords)
+
+    monkeypatch.setattr(builtins, "__import__", refuse)
+    exit_code = module.main(v2_arguments(repository))
+    monkeypatch.undo()
+    assert exit_code == 2
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "Traceback" not in captured.out
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["exitCode"] == 2
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == ["SCHEMA_VALIDATOR_UNAVAILABLE"]
+    assert v2_snapshot(repository) == before
+
+
 def test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf(
     tmp_path: Path,
 ) -> None:
@@ -3140,6 +3191,82 @@ def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fail
     assert len(staged) == 2
     assert v2_outputs(repository) == pair
     assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails_without_seeded_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    assert len(staged) == 2
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_output_restore_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    monkeypatch.setattr(module, "v2_restore_outputs", lambda replaced, originals: False)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    payload = json.dumps(document)
+    assert "one or more replaced outputs could not be restored" in payload
+    assert "every replaced output was restored" not in payload
+    assert v2_outputs(repository)[0] is not None
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs_without_seeded_outputs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+
+    def concurrent_writer(source, target) -> None:
+        original(source, target)
+        if str(source).endswith(".tmp") and str(target).endswith(".md"):
+            with open(target, "ab") as handle:
+                handle.write(b"concurrent edit\n")
+
+    monkeypatch.setattr(module.os, "replace", concurrent_writer)
+    document = v2_in_process(module, repository, capsys, 1)
+    assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+    assert "every replaced output was restored" in json.dumps(document)
 
 
 def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs(
