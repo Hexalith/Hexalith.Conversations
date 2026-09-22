@@ -333,3 +333,9 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-v24-story-7-1-entry-authority-tooling-successor.md`
   summary: Define a repository-wide maximum size policy for prospective planning-tool input files.
   evidence: The pre-existing initial worktree reader is unbounded for an already oversized regular file; an approved maximum input size and compatibility audit would settle the safe cap without inventing one inside this story.
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md`
+  summary: The v2 generator binds JUnit results to the candidate only by mtime, so it misses partial or interrupted runs, results from another checkout, submodule worktree HEADs that differ from the gitlinks, and skip-worktree or ignored test inputs.
+  evidence: Story 7.1 review (edge-case and blind hunters). The staleness check is `mtime_ns < %ct`, and the exit code is inferred from the JUnit content. Story 7.2 ("derive test, path, candidate, submodule, and gitlink facts") owns this derivation.
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md`
+  summary: The v2 generator copies the inventory digest and predecessors from the contract, never compares bundle rows to the candidate blobs, and does not consult the contract's resultSemantics exit-code classes.
+  evidence: Story 7.1 review (blind hunter). The `record["inventory"]` and `record["predecessors"]` fields are passed through from the contract, and `v2_authority` checks only that the bundle digest matches the bundle itself. Story 7.2 should derive these.

@@ -2021,5 +2021,1180 @@ def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> N
     assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
 
 
+# --------------------------------------------------------------------------- #
+# Story 7.1 v2 generator route (`--contract`)
+# --------------------------------------------------------------------------- #
+#
+# Roots of trust are pinned here, in the consuming test source: the schema
+# files, the frozen gitlink order, and the digest rules are re-derived below
+# rather than read back from the generator under test.
+
+V2_FAILURE_SCHEMA = WORKSPACE / "_bmad/schemas/story-record-generator-failure-v1.schema.json"
+V2_AUTHORITY_BUNDLE = WORKSPACE / "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+V2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.1.json"
+V2_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+V2_TARGET_PATH = "_bmad/scripts/tests/test_generate_story_record.py"
+V2_TARGET_MODULE = "_bmad.scripts.tests.test_generate_story_record"
+V2_OUTPUT_JSON = "docs/release-evidence/story-7.1-final-record-v2.json"
+V2_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.1-final-record-v2.md"
+V2_FIXED_DATE = "2026-01-01T00:00:00+00:00"
+V2_FIXED_EPOCH = 1767225600
+V2_RESULT_MTIME_NS = (V2_FIXED_EPOCH + 86400) * 1_000_000_000
+V2_ZERO = "0" * 64
+V2_GIT_ENV = dict(
+    GIT_ENV, GIT_AUTHOR_DATE=V2_FIXED_DATE, GIT_COMMITTER_DATE=V2_FIXED_DATE
+)
+# The real root declaration order, deliberately not ordinal, so the fixture
+# proves the generator sorts raw gitlinks ordinally instead of echoing input order.
+V2_DECLARATION_ORDER = (
+    "references/Hexalith.AI.Tools",
+    "references/Hexalith.EventStore",
+    "references/Hexalith.Projects",
+    "references/Hexalith.Folders",
+    "references/Hexalith.Tenants",
+    "references/Hexalith.FrontComposer",
+    "references/Hexalith.Parties",
+    "references/Hexalith.Memories",
+    "references/Hexalith.Commons",
+    "references/Hexalith.Builds",
+)
+
+
+def v2_git(repository: Path, *arguments: str) -> subprocess.CompletedProcess[str]:
+    return subprocess.run(
+        [
+            "git",
+            "-c",
+            "init.defaultBranch=main",
+            "-c",
+            "commit.gpgsign=false",
+            "-C",
+            str(repository),
+            *arguments,
+        ],
+        check=True,
+        capture_output=True,
+        env=V2_GIT_ENV,
+        text=True,
+        timeout=30,
+    )
+
+
+def v2_gitlink_commit(path: str) -> str:
+    return hashlib.sha1(f"fixture-gitlink:{path}".encode("utf-8")).hexdigest()
+
+
+def v2_contract() -> dict:
+    return json.loads(STORY_7_1_CONTRACT.read_text(encoding="utf-8"))
+
+
+def v2_pytest_scenarios() -> list[tuple[str, str, str]]:
+    """(scenario id, -k selector, JUnit path) read from the frozen contract."""
+    scenarios = []
+    for scenario in v2_contract()["scenarios"][:5]:
+        command = scenario["command"]
+        selector = re.search(r" -k (\S+) ", command).group(1)
+        junit = re.search(r"--junitxml=(\S+)$", command).group(1)
+        scenarios.append((scenario["id"], selector, junit))
+    return scenarios
+
+
+def v2_junit(
+    selector: str,
+    cases: list[tuple[str, str | None]] | None = None,
+    *,
+    classname: str = V2_TARGET_MODULE,
+    counters: dict[str, int] | None = None,
+) -> bytes:
+    """A pytest-shaped JUnit document whose counters agree with its testcases."""
+    if cases is None:
+        cases = [(f"test_{selector}_first", None), (f"test_{selector}_second", None)]
+    counted = {
+        "tests": len(cases),
+        "failures": sum(1 for _, child in cases if child == "failure"),
+        "errors": sum(1 for _, child in cases if child == "error"),
+        "skipped": sum(1 for _, child in cases if child == "skipped"),
+    }
+    counted.update(counters or {})
+    body = []
+    for name, child in cases:
+        if child is None:
+            body.append(f'<testcase classname="{classname}" name="{name}" time="0.001" />')
+        else:
+            body.append(
+                f'<testcase classname="{classname}" name="{name}" time="0.001">'
+                f'<{child} message="fixture" /></testcase>'
+            )
+    return (
+        '<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests">'
+        f'<testsuite name="pytest" errors="{counted["errors"]}" '
+        f'failures="{counted["failures"]}" skipped="{counted["skipped"]}" '
+        f'tests="{counted["tests"]}" time="0.010" timestamp="2026-01-02T00:00:00+00:00" '
+        'hostname="fixture">' + "".join(body) + "</testsuite></testsuites>"
+    ).encode("utf-8")
+
+
+def v2_write_result(repository: Path, junit: str, content: bytes) -> None:
+    path = repository / junit
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(content)
+    os.utime(path, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+
+
+def build_v2_repository(tmp_path: Path, *, gitlinks: bool = True) -> dict[str, object]:
+    """A hermetic committed candidate carrying the real Story 7.1 contract."""
+    repository = tmp_path / "v2-candidate"
+    repository.mkdir(parents=True)
+    v2_git(repository, "init")
+    (repository / ".gitignore").write_text("artifacts/\n", encoding="utf-8")
+    for relative, source in (
+        (V2_CONTRACT_PATH, STORY_7_1_CONTRACT),
+        (V2_BUNDLE_PATH, V2_AUTHORITY_BUNDLE),
+    ):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source.read_bytes())
+    target = repository / V2_TARGET_PATH
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("# fixture scenario target\n", encoding="utf-8")
+    if gitlinks:
+        (repository / ".gitmodules").write_text(
+            "".join(
+                f'[submodule "{path}"]\n\tpath = {path}\n'
+                f"\turl = https://example.invalid/{path.rsplit('/', 1)[1]}.git\n"
+                for path in V2_DECLARATION_ORDER
+            ),
+            encoding="utf-8",
+        )
+    v2_git(repository, "add", "--all")
+    if gitlinks:
+        for path in V2_DECLARATION_ORDER:
+            # An uninitialized submodule checkout: the gitlink exists, its
+            # directory is empty, and nothing is ever cloned or traversed.
+            (repository / path).mkdir(parents=True)
+            v2_git(
+                repository,
+                "update-index",
+                "--add",
+                "--cacheinfo",
+                f"160000,{v2_gitlink_commit(path)},{path}",
+            )
+    v2_git(repository, "commit", "-m", "story 7.1 fixture candidate")
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    results = {}
+    for scenario_id, selector, junit in v2_pytest_scenarios():
+        v2_write_result(repository, junit, v2_junit(selector))
+        results[scenario_id] = junit
+    return {"repository": repository, "candidate": candidate, "results": results}
+
+
+def v2_arguments(repository: Path, *overrides: str, replace: bool = False) -> list[str]:
+    if replace:
+        return ["--repository", str(repository), *overrides]
+    return [
+        "--repository",
+        str(repository),
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        V2_OUTPUT_JSON,
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        *overrides,
+    ]
+
+
+def v2_run(arguments: list[str]) -> subprocess.CompletedProcess[bytes]:
+    return subprocess.run(
+        [sys.executable, str(SCRIPT), *arguments],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        timeout=120,
+    )
+
+
+def v2_outputs(repository: Path) -> tuple[bytes | None, bytes | None]:
+    return tuple(
+        (repository / path).read_bytes() if (repository / path).exists() else None
+        for path in (V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN)
+    )
+
+
+def v2_snapshot(repository: Path) -> tuple[str | None, dict[str, tuple]]:
+    """HEAD plus every non-.git file's bytes, symlink target, and result-file mtime."""
+    head = subprocess.run(
+        ["git", "-C", str(repository), "rev-parse", "--verify", "-q", "HEAD"],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+    ).stdout.strip() or None
+    files: dict[str, tuple] = {}
+    for path in sorted(repository.rglob("*")):
+        relative = path.relative_to(repository).as_posix()
+        if relative == ".git" or relative.startswith(".git/"):
+            continue
+        if path.is_symlink():
+            files[relative] = ("symlink", os.readlink(path))
+        elif path.is_file():
+            # Result-file mtimes are evidence (staleness); other mtimes are not.
+            mtime = path.stat().st_mtime_ns if relative.startswith("artifacts/") else None
+            files[relative] = ("file", path.read_bytes(), mtime)
+    return head, files
+
+
+def v2_failure_validator() -> jsonschema.Draft202012Validator:
+    return v2_schema_contract_validator(v2_schema_contract_load(V2_FAILURE_SCHEMA))
+
+
+def v2_assert_failure(
+    result: subprocess.CompletedProcess[bytes],
+    expected: set[str],
+    *,
+    exit_code: int = 1,
+) -> dict:
+    """A failure is schema-valid, payload-free, traceback-free, and never a record."""
+    document = json.loads(result.stdout.decode("utf-8"))
+    v2_failure_validator().validate(document)
+    assert result.returncode == exit_code, document
+    assert document["exitCode"] == exit_code
+    assert document["result"] == ("FAIL" if exit_code == 1 else "BLOCKED")
+    assert expected <= set(document["blockers"]), document
+    assert document["blockers"] == list(
+        dict.fromkeys(item["code"] for item in document["diagnostics"])
+    )
+    assert "schemaVersion" in document
+    assert document["schemaVersion"] != "hexalith.conversations.story-final-record.v2"
+    assert result.stderr == b""
+    assert b"Traceback" not in result.stdout
+    return document
+
+
+def v2_json_digest(record: dict) -> str:
+    """Pinned rule: SHA-256 of the canonical JSON with all three digest fields zeroed."""
+    draft = deepcopy(record)
+    draft["outputs"]["json"]["sha256"] = V2_ZERO
+    draft["outputs"]["markdown"]["sha256"] = V2_ZERO
+    draft["renderedMarkdownSha256"] = V2_ZERO
+    rendered = json.dumps(draft, indent=2, ensure_ascii=False) + "\n"
+    return hashlib.sha256(rendered.encode("utf-8")).hexdigest()
+
+
+def v2_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert result.stderr == b""
+    json_bytes, markdown_bytes = v2_outputs(repository)
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes.decode("utf-8"))
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(
+        record
+    )
+    json_digest = v2_json_digest(record)
+    markdown_digest = hashlib.sha256(markdown_bytes).hexdigest()
+    assert record["outputs"]["json"]["sha256"] == json_digest
+    assert record["outputs"]["markdown"]["sha256"] == markdown_digest
+    assert record["renderedMarkdownSha256"] == markdown_digest
+    assert f"`{json_digest}`".encode("ascii") in markdown_bytes
+    assert b"\r" not in json_bytes and b"\r" not in markdown_bytes
+    assert json_bytes.endswith(b"\n") and markdown_bytes.endswith(b"\n")
+    json_bytes.decode("utf-8")
+    markdown_bytes.decode("utf-8")
+    return record
+
+
+# ---- AC-7.1-02: v2_deterministic_bundle ------------------------------------ #
+
+
+def test_v2_deterministic_bundle_is_byte_identical_schema_valid_and_cross_bound(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    first = v2_run(v2_arguments(repository))
+    record = v2_assert_pass(repository, first)
+    first_outputs = v2_outputs(repository)
+    second = v2_run(v2_arguments(repository))
+    v2_assert_pass(repository, second)
+    assert v2_outputs(repository) == first_outputs
+    assert second.stdout == first.stdout
+
+    contract = v2_contract()
+    assert record["storyId"] == "7.1"
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert [item["path"] for item in record["candidate"]["gitlinks"]] == list(
+        ROOT_GITLINK_PATHS
+    )
+    assert record["candidate"]["gitlinks"] == [
+        {"path": path, "commit": v2_gitlink_commit(path), "mode": "160000"}
+        for path in ROOT_GITLINK_PATHS
+    ]
+    bundle = json.loads(V2_AUTHORITY_BUNDLE.read_text(encoding="utf-8"))
+    recomputed_bundle = hashlib.sha256(
+        "".join(f"{row['sha256']}  {row['path']}\n" for row in bundle["artifacts"]).encode(
+            "utf-8"
+        )
+    ).hexdigest()
+    assert record["authority"] == {
+        "epic": contract["authority"]["epic"],
+        "architecture": contract["authority"]["architecture"],
+        "planningCandidate": contract["authority"]["planningCandidate"],
+        "bundleDigest": recomputed_bundle,
+    }
+    assert recomputed_bundle == HOLD_BUNDLE_DIGEST
+    assert record["inventory"] == contract["inventory"]
+    assert record["inventory"]["sha256"] == v2_schema_contract_inventory_digest(
+        list(STORY_7_1_INVENTORY_ITEMS)
+    )
+    assert record["predecessors"] == contract["predecessors"]
+    assert record["rollback"] == contract["rollback"]
+    assert record["summary"] == {
+        "required": 6,
+        "passed": 6,
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0,
+    }
+    assert record["outputs"]["json"]["path"] == V2_OUTPUT_JSON
+    assert record["outputs"]["markdown"]["path"] == V2_OUTPUT_MARKDOWN
+    assert [item["scenarioId"] for item in record["scenarios"]] == [
+        item["id"] for item in contract["scenarios"]
+    ]
+    for scenario, declared in zip(record["scenarios"], contract["scenarios"]):
+        assert scenario["command"] == declared["command"]
+        assert (scenario["exitCode"], scenario["result"], scenario["blockers"]) == (
+            0,
+            "PASS",
+            [],
+        )
+        assert scenario["assertionLedger"]
+        assert [entry["id"] for entry in scenario["assertionLedger"]] == [
+            f"{declared['id']}#{ordinal:04d}"
+            for ordinal in range(1, len(scenario["assertionLedger"]) + 1)
+        ]
+        assert {entry["state"] for entry in scenario["assertionLedger"]} == {"PASS"}
+    for scenario_id, selector, junit in v2_pytest_scenarios():
+        scenario = next(item for item in record["scenarios"] if item["scenarioId"] == scenario_id)
+        assert scenario["resultFile"] == {
+            "path": junit,
+            "sha256": sha256_file(repository / junit),
+        }
+        assert [entry["subject"] for entry in scenario["assertionLedger"]] == [
+            f"{V2_TARGET_MODULE}::test_{selector}_first",
+            f"{V2_TARGET_MODULE}::test_{selector}_second",
+        ]
+    assert "resultFile" not in record["scenarios"][5]
+    assert record["faultInjection"] == {"results": []}
+    assert load_generator().v2_verify_pair(*first_outputs) == []
+
+
+def test_v2_deterministic_bundle_is_identical_across_rebuilt_fixtures(
+    tmp_path: Path,
+) -> None:
+    left = build_v2_repository(tmp_path / "left")
+    right = build_v2_repository(tmp_path / "right")
+    assert left["candidate"] == right["candidate"]
+    for fixture in (left, right):
+        v2_assert_pass(fixture["repository"], v2_run(v2_arguments(fixture["repository"])))
+    assert v2_outputs(left["repository"]) == v2_outputs(right["repository"])
+
+
+def test_v2_deterministic_bundle_rendering_drift_is_record_content_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    sentinel = b"previous output\n"
+    for path in (V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN):
+        (repository / path).parent.mkdir(parents=True, exist_ok=True)
+        (repository / path).write_bytes(sentinel)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.v2_render_markdown
+    calls = iter(range(1_000))
+
+    def drifting(record: dict, json_digest: str) -> str:
+        return original(record, json_digest) + f"<!-- drift {next(calls)} -->\n"
+
+    monkeypatch.setattr(module, "v2_render_markdown", drifting)
+    assert module.main(v2_arguments(repository)) == 1
+    document = json.loads(capsys.readouterr().out)
+    v2_failure_validator().validate(document)
+    assert "RECORD_CONTENT_DRIFT" in document["blockers"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_deterministic_bundle_verifier_detects_tampered_pairs(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    json_bytes, markdown_bytes = v2_outputs(repository)
+    module = load_generator()
+    assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+    assert module.v2_verify_pair(json_bytes, markdown_bytes + b"edited\n")
+    tampered = json.loads(json_bytes)
+    tampered["summary"]["passed"] = 5
+    assert module.v2_verify_pair(
+        (json.dumps(tampered, indent=2, ensure_ascii=False) + "\n").encode("utf-8"),
+        markdown_bytes,
+    )
+    assert module.v2_verify_pair(json_bytes.replace(b"\n", b"\r\n"), markdown_bytes)
+
+
+# ---- AC-7.1-03: v2_rejects_caller_authored_facts ---------------------------- #
+
+V2_CALLER_FACTS = (
+    ("--passed", "6"),
+    ("--summary=6/6/0/0/0/0",),
+    ("--test-results", "AC-7.1-01=artifacts/v9/7.1/AC-7.1-01.xml"),
+    ("--candidate", "HEAD"),
+    ("--commit", "0" * 40),
+    ("--changed-path", "docs/runbooks/story-final-record-generation.md"),
+    ("--gitlink", "references/Hexalith.Builds=" + "0" * 40),
+    ("--result", "PASS"),
+    ("--verdict=PASS",),
+)
+
+
+@pytest.mark.parametrize("fact", V2_CALLER_FACTS, ids=lambda fact: fact[0].split("=")[0])
+def test_v2_rejects_caller_authored_facts(tmp_path: Path, fact: tuple[str, ...]) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    document = v2_assert_failure(
+        v2_run(v2_arguments(repository, *fact)), {"CALLER_AUTHORED_FACT"}
+    )
+    assert fact[0].split("=")[0] in {item["subject"] for item in document["diagnostics"]}
+    assert v2_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_caller_authored_facts_in_output_paths(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    arguments = v2_arguments(
+        repository,
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        "docs/release-evidence/caller-chosen.json",
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+    v2_assert_failure(v2_run(arguments), {"CALLER_AUTHORED_FACT"})
+    assert not (repository / "docs/release-evidence/caller-chosen.json").exists()
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_caller_authored_facts_before_any_passing_record(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    passing = v2_outputs(repository)
+    v2_assert_failure(
+        v2_run(v2_arguments(repository, "--passed", "6", "--failed", "0")),
+        {"CALLER_AUTHORED_FACT"},
+    )
+    assert v2_outputs(repository) == passing
+
+
+# ---- AC-7.1-04: v2_rejects_empty_derivation --------------------------------- #
+
+
+def test_v2_rejects_empty_derivation_without_any_parsed_result(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    saved = {junit: (repository / junit).read_bytes() for junit in fixture["results"].values()}
+    try:
+        for junit in saved:
+            (repository / junit).unlink()
+        v2_assert_failure(
+            v2_run(v2_arguments(repository)),
+            {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY", "TEST_RESULTS_MISSING"},
+        )
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        for junit, content in saved.items():
+            v2_write_result(repository, junit, content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_rejects_empty_derivation_without_any_executed_assertion(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    saved = {junit: (repository / junit).read_bytes() for junit in fixture["results"].values()}
+    try:
+        for _, selector, junit in v2_pytest_scenarios():
+            v2_write_result(repository, junit, v2_junit(selector, cases=[]))
+        document = v2_assert_failure(
+            v2_run(v2_arguments(repository)),
+            {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY"},
+        )
+        assert "TEST_RESULTS_MISSING" not in document["blockers"]
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        for junit, content in saved.items():
+            v2_write_result(repository, junit, content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_rejects_empty_derivation_without_a_resolved_candidate(tmp_path: Path) -> None:
+    repository = tmp_path / "unborn"
+    repository.mkdir()
+    v2_git(repository, "init")
+    target = repository / V2_CONTRACT_PATH
+    target.parent.mkdir(parents=True)
+    target.write_bytes(STORY_7_1_CONTRACT.read_bytes())
+    before = v2_snapshot(repository)
+    v2_assert_failure(
+        v2_run(v2_arguments(repository)),
+        {"RECORD_NOT_DERIVED", "ASSERTION_LEDGER_EMPTY"},
+    )
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_empty_derivation_without_a_derived_gitlink_path(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path, gitlinks=False)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    v2_assert_failure(v2_run(v2_arguments(repository)), {"RECORD_NOT_DERIVED"})
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_rejects_empty_derivation_for_one_empty_scenario(tmp_path: Path) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    _, selector, junit = v2_pytest_scenarios()[2]
+    original = (repository / junit).read_bytes()
+    try:
+        v2_write_result(repository, junit, v2_junit(selector, cases=[]))
+        document = v2_assert_failure(
+            v2_run(v2_arguments(repository)), {"ASSERTION_LEDGER_EMPTY"}
+        )
+        assert {item["subject"] for item in document["diagnostics"]} >= {"AC-7.1-03"}
+    finally:
+        v2_write_result(repository, junit, original)
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+# ---- AC-7.1-05: v2_malformed_input_is_schema_valid_failure ------------------ #
+
+V2_PAYLOAD_SENTINEL = "PAYLOAD-SENTINEL-4b1d"
+
+
+def v2_commit_contract(repository: Path, content: bytes) -> None:
+    (repository / V2_CONTRACT_PATH).write_bytes(content)
+    v2_git(repository, "add", V2_CONTRACT_PATH)
+    v2_git(repository, "commit", "-m", "mutated contract")
+
+
+@pytest.mark.parametrize(
+    "content",
+    (
+        b'{"schemaVersion": "' + V2_PAYLOAD_SENTINEL.encode("ascii") + b'", ',
+        json.dumps(
+            dict(v2_contract(), schemaVersion="hexalith.conversations.story-contract.v9")
+            | {"storyId": V2_PAYLOAD_SENTINEL}
+        ).encode("utf-8"),
+        json.dumps(v2_contract() | {"undeclared": V2_PAYLOAD_SENTINEL}).encode("utf-8"),
+        b'{"storyId": "7.1", "storyId": "' + V2_PAYLOAD_SENTINEL.encode("ascii") + b'"}',
+    ),
+    ids=("malformed-json", "unknown-schema-identity", "closed-schema-violation", "duplicate-key"),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_contracts(
+    tmp_path: Path, content: bytes
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    try:
+        v2_commit_contract(repository, content)
+        result = v2_run(v2_arguments(repository))
+        v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+        assert v2_outputs(repository) == (None, None)
+    finally:
+        v2_git(repository, "reset", "--hard", "-q", str(fixture["candidate"]))
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+@pytest.mark.parametrize(
+    "arguments",
+    (
+        ("--format", "markdown"),
+        ("--bogus-" + V2_PAYLOAD_SENTINEL.lower(), "x"),
+        ("positional-" + V2_PAYLOAD_SENTINEL,),
+        ("--contract", V2_CONTRACT_PATH),
+        ("--output-json",),
+        ("--contract=",),
+    ),
+    ids=(
+        "unsupported-format",
+        "unknown-option",
+        "positional",
+        "duplicate-option",
+        "missing-value",
+        "empty-value",
+    ),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_arguments(
+    tmp_path: Path, arguments: tuple[str, ...]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    result = v2_run(v2_arguments(repository, *arguments))
+    v2_assert_failure(result, {"ARGUMENT_INVALID"})
+    assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+    assert V2_PAYLOAD_SENTINEL.lower().encode("ascii") not in result.stdout
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    arguments = v2_arguments(repository, "--contract", V2_CONTRACT_PATH, replace=True)
+    document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+    assert {"--output-json", "--output-markdown"} <= {
+        item["subject"] for item in document["diagnostics"]
+    }
+    v2_assert_failure(
+        v2_run(v2_arguments(tmp_path / "missing-repository")), {"ARGUMENT_INVALID"}
+    )
+    v2_assert_failure(
+        v2_run(v2_arguments(repository, "--contract", "../escape.json", replace=True)),
+        {"ARGUMENT_INVALID"},
+    )
+
+
+@pytest.mark.parametrize(
+    "content",
+    (
+        b"<testsuites><testsuite " + V2_PAYLOAD_SENTINEL.encode("ascii"),
+        b'<?xml version="1.0"?><!DOCTYPE lol [<!ENTITY a "' + V2_PAYLOAD_SENTINEL.encode(
+            "ascii"
+        ) + b'">]><testsuites />',
+        b'<testsuites><testsuite tests="0" failures="0" errors="0" skipped="0">'
+        b'<testsuite tests="0" failures="0" errors="0" skipped="0" /></testsuite></testsuites>',
+    ),
+    ids=("malformed-xml", "doctype", "nested-suite"),
+)
+def test_v2_malformed_input_is_schema_valid_failure_for_results(
+    tmp_path: Path, content: bytes
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    junit = fixture["results"]["AC-7.1-02"]
+    original = (repository / junit).read_bytes()
+    before = v2_snapshot(repository)
+    try:
+        v2_write_result(repository, junit, content)
+        result = v2_run(v2_arguments(repository))
+        v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
+    finally:
+        v2_write_result(repository, junit, original)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+
+
+def test_v2_malformed_input_is_schema_valid_failure_schema_is_closed() -> None:
+    schema = v2_schema_contract_load(V2_FAILURE_SCHEMA)
+    v2_schema_contract_validator(schema)
+    v2_schema_contract_assert_closed(schema)
+    assert schema["properties"]["schemaVersion"]["const"] == (
+        "hexalith.conversations.story-record-generator-failure.v1"
+    )
+    assert schema["$id"].startswith("https://hexalith.io/schemas/conversations/")
+    validator = v2_failure_validator()
+    valid = {
+        "schemaVersion": "hexalith.conversations.story-record-generator-failure.v1",
+        "result": "FAIL",
+        "exitCode": 1,
+        "blockers": ["ARGUMENT_INVALID"],
+        "diagnostics": [
+            {"code": "ARGUMENT_INVALID", "subject": "argv", "message": "fixture"}
+        ],
+    }
+    validator.validate(valid)
+    for mutation in (
+        {"exitCode": 2},
+        {"result": "PASS", "exitCode": 0},
+        {"blockers": []},
+        {"diagnostics": []},
+        {"record": {}},
+        {"storyId": "6.8"},
+        {"diagnostics": [{"code": "X", "subject": "argv", "message": "line\nbreak"}]},
+    ):
+        assert v2_schema_contract_reject(schema, valid | mutation) == OUTPUT_SCHEMA_INVALID
+    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
+    record = v2_schema_contract_final_record()
+    record["scenarios"][0]["assertionLedger"] = []
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+    record["scenarios"][0]["assertionLedger"] = [
+        {"id": "AC-7.1-01#1", "subject": "x", "state": "PASS"}
+    ]
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+
+# ---- Fault injection and byte-identical restoration ------------------------- #
+
+
+def v2_fault_result(repository: Path, fixture: dict, scenario: int, content: bytes) -> None:
+    _, _, junit = v2_pytest_scenarios()[scenario]
+    v2_write_result(repository, junit, content)
+
+
+def v2_fault_stale(repository: Path, fixture: dict) -> None:
+    junit = fixture["results"]["AC-7.1-04"]
+    stale = (V2_FIXED_EPOCH - 1) * 1_000_000_000
+    os.utime(repository / junit, ns=(stale, stale))
+
+
+def v2_fault_dirt(repository: Path, fixture: dict) -> None:
+    (repository / "unrelated-dirt.txt").write_text("dirt\n", encoding="utf-8")
+
+
+def v2_fault_dirty_contract(repository: Path, fixture: dict) -> None:
+    path = repository / V2_CONTRACT_PATH
+    path.write_bytes(path.read_bytes() + b"\n")
+
+
+def v2_fault_symlink(repository: Path, fixture: dict) -> None:
+    junit = repository / fixture["results"]["AC-7.1-05"]
+    outside = repository.parent / "outside.xml"
+    outside.write_bytes(junit.read_bytes())
+    junit.unlink()
+    junit.symlink_to(outside)
+
+
+def v2_fault_commit(mutate):
+    def apply(repository: Path, fixture: dict) -> None:
+        mutate(repository)  # stages exactly its own change; outputs stay untracked
+        v2_git(repository, "commit", "-q", "-m", "fault")
+        for junit in fixture["results"].values():
+            os.utime(repository / junit, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+
+    return apply
+
+
+def v2_mutate_bundle_digest(repository: Path) -> None:
+    path = repository / V2_BUNDLE_PATH
+    bundle = json.loads(path.read_text(encoding="utf-8"))
+    bundle["artifacts"][0]["sha256"] = "f" * 64
+    path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+    v2_git(repository, "add", V2_BUNDLE_PATH)
+
+
+def v2_mutate_extra_gitlink(repository: Path) -> None:
+    v2_git(
+        repository,
+        "update-index",
+        "--add",
+        "--cacheinfo",
+        f"160000,{v2_gitlink_commit('extra')},references/Hexalith.Undeclared",
+    )
+
+
+def v2_mutate_gitlink_mode(repository: Path) -> None:
+    path = "references/Hexalith.Builds"
+    v2_git(repository, "rm", "-q", "--cached", path)
+    (repository / path).rmdir()
+    (repository / path).write_text("not a gitlink\n", encoding="utf-8")
+    v2_git(repository, "add", path)
+
+
+def v2_mutate_bundle(mutate):
+    """Rewrite the committed V9 bundle with its digest recomputed from its own rows."""
+
+    def apply(repository: Path) -> None:
+        path = repository / V2_BUNDLE_PATH
+        bundle = json.loads(path.read_text(encoding="utf-8"))
+        mutate(bundle)
+        bundle["bundleDigest"] = hashlib.sha256(
+            "".join(f"{row['sha256']}  {row['path']}\n" for row in bundle["artifacts"]).encode(
+                "utf-8"
+            )
+        ).hexdigest()
+        path.write_text(json.dumps(bundle, indent=2) + "\n", encoding="utf-8")
+        v2_git(repository, "add", V2_BUNDLE_PATH)
+
+    return apply
+
+
+def v2_swap_rows(bundle: dict) -> None:
+    rows = bundle["artifacts"]
+    rows[0], rows[1] = rows[1], rows[0]
+
+
+def v2_duplicate_row(bundle: dict) -> None:
+    bundle["artifacts"][1]["path"] = bundle["artifacts"][0]["path"]
+
+
+def v2_remove_bundle(repository: Path) -> None:
+    v2_git(repository, "rm", "-q", V2_BUNDLE_PATH)
+
+
+def v2_mutate_contract(mutate):
+    """Commit a still schema-valid contract whose scenario commands were edited."""
+
+    def apply(repository: Path) -> None:
+        path = repository / V2_CONTRACT_PATH
+        contract = json.loads(path.read_text(encoding="utf-8"))
+        mutate(contract["scenarios"])
+        v2_schema_contract_validator(v2_schema_contract_load(STORY_CONTRACT_SCHEMA)).validate(
+            contract
+        )
+        path.write_text(json.dumps(contract, indent=2) + "\n", encoding="utf-8")
+        v2_git(repository, "add", V2_CONTRACT_PATH)
+
+    return apply
+
+
+def v2_self_not_last(scenarios: list[dict]) -> None:
+    scenarios[4], scenarios[5] = scenarios[5], scenarios[4]
+
+
+def v2_self_output_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_OUTPUT_JSON, "docs/release-evidence/elsewhere.json"
+    )
+
+
+def v2_uncommitted_target(scenarios: list[dict]) -> None:
+    scenarios[0]["command"] = scenarios[0]["command"].replace(
+        V2_TARGET_PATH, "_bmad/scripts/tests/test_not_committed.py"
+    )
+
+
+def v2_shared_junit(scenarios: list[dict]) -> None:
+    scenarios[1]["command"] = scenarios[1]["command"].replace(
+        "AC-7.1-02.xml", "AC-7.1-01.xml"
+    )
+
+
+V2_FAULTS = {
+    "failing-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            1,
+            v2_junit(
+                "v2_deterministic_bundle",
+                [("test_v2_deterministic_bundle_a", None), ("test_v2_deterministic_bundle_b", "failure")],
+            ),
+        ),
+        "TEST_RESULTS_FAILED",
+    ),
+    "erroring-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            1,
+            v2_junit("v2_deterministic_bundle", [("test_v2_deterministic_bundle_a", "error")]),
+        ),
+        "TEST_RESULTS_FAILED",
+    ),
+    "skipped-testcase": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            0,
+            v2_junit(
+                "v2_schema_contract",
+                [("test_v2_schema_contract_a", None), ("test_v2_schema_contract_b", "skipped")],
+            ),
+        ),
+        "TEST_SKIP_NOT_ALLOWED",
+    ),
+    "counter-disagreement": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            3,
+            v2_junit("v2_rejects_empty_derivation", counters={"tests": 7}),
+        ),
+        "TEST_COUNT_INCONSISTENT",
+    ),
+    "foreign-selector": (
+        lambda repository, fixture: v2_fault_result(
+            repository, fixture, 4, v2_junit("v2_schema_contract")
+        ),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "foreign-module": (
+        lambda repository, fixture: v2_fault_result(
+            repository,
+            fixture,
+            4,
+            v2_junit("v2_malformed_input_is_schema_valid_failure", classname="tests.other"),
+        ),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "stale-result": (v2_fault_stale, "TEST_RESULTS_STALE"),
+    "symlinked-result": (v2_fault_symlink, "INPUT_SCHEMA_INVALID"),
+    "unrelated-dirt": (v2_fault_dirt, "WORKTREE_NOT_CLEAN"),
+    "uncommitted-contract-edit": (v2_fault_dirty_contract, "WORKTREE_NOT_CLEAN"),
+    "bundle-digest-drift": (v2_fault_commit(v2_mutate_bundle_digest), "AUTHORITY_BINDING_INVALID"),
+    "undeclared-gitlink": (v2_fault_commit(v2_mutate_extra_gitlink), "GITLINK_INVENTORY_DRIFT"),
+    "non-gitlink-mode": (v2_fault_commit(v2_mutate_gitlink_mode), "GITLINK_INVENTORY_DRIFT"),
+    "bundle-planning-candidate-drift": (
+        v2_fault_commit(
+            v2_mutate_bundle(lambda bundle: bundle.update(planningCandidate="0" * 40))
+        ),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-rows-unsorted": (
+        v2_fault_commit(v2_mutate_bundle(v2_swap_rows)),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-rows-duplicated": (
+        v2_fault_commit(v2_mutate_bundle(v2_duplicate_row)),
+        "AUTHORITY_BINDING_INVALID",
+    ),
+    "bundle-missing": (v2_fault_commit(v2_remove_bundle), "AUTHORITY_BINDING_INVALID"),
+    "self-invocation-not-last": (
+        v2_fault_commit(v2_mutate_contract(v2_self_not_last)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "self-invocation-output-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_output_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "uncommitted-pytest-target": (
+        v2_fault_commit(v2_mutate_contract(v2_uncommitted_target)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "shared-junit-path": (
+        v2_fault_commit(v2_mutate_contract(v2_shared_junit)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+}
+
+
+@pytest.mark.parametrize("fault", sorted(V2_FAULTS))
+def test_v2_fault_injection_blocks_and_restores_byte_identically(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    baseline_outputs = v2_outputs(repository)
+    before = v2_snapshot(repository)
+    mutate, expected = V2_FAULTS[fault]
+    try:
+        mutate(repository, fixture)
+        v2_assert_failure(v2_run(v2_arguments(repository)), {expected})
+        assert v2_outputs(repository) == baseline_outputs
+    finally:
+        v2_git(repository, "reset", "--hard", "-q", str(fixture["candidate"]))
+        (repository / "unrelated-dirt.txt").unlink(missing_ok=True)
+        (repository.parent / "outside.xml").unlink(missing_ok=True)
+        for path in V2_DECLARATION_ORDER:
+            (repository / path).mkdir(parents=True, exist_ok=True)
+        for scenario_id, selector, junit in v2_pytest_scenarios():
+            (repository / junit).unlink(missing_ok=True)
+            v2_write_result(repository, junit, v2_junit(selector))
+        for path, content in zip((V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN), baseline_outputs):
+            (repository / path).write_bytes(content)
+    assert v2_snapshot(repository) == before
+    v2_assert_pass(repository, v2_run(v2_arguments(repository)))
+    assert v2_outputs(repository) == baseline_outputs
+
+
+# ---- BLOCKED class, output containment, and output rollback ---------------- #
+
+
+def v2_in_process(
+    module, repository: Path, capsys: pytest.CaptureFixture[str], exit_code: int
+) -> dict:
+    assert module.main(v2_arguments(repository)) == exit_code
+    captured = capsys.readouterr()
+    assert captured.err == ""
+    assert "Traceback" not in captured.out
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["exitCode"] == exit_code
+    assert document["result"] == ("FAIL" if exit_code == 1 else "BLOCKED")
+    return document
+
+
+def v2_seed_outputs(repository: Path) -> tuple[bytes, bytes]:
+    pair = (b"previous json\n", b"previous markdown\n")
+    for path, content in zip((V2_OUTPUT_JSON, V2_OUTPUT_MARKDOWN), pair):
+        (repository / path).parent.mkdir(parents=True, exist_ok=True)
+        (repository / path).write_bytes(content)
+    return pair
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_schemas_are_unavailable(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    empty = tmp_path / "no-schemas"
+    empty.mkdir()
+    monkeypatch.setattr(module, "V2_SCHEMA_DIRECTORY", empty)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["SCHEMA_UNAVAILABLE"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_git_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:2] == ("ls-tree", "-r"):
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    decoy = repository / "docs/release-evidence/decoy.json"
+    decoy.parent.mkdir(parents=True)
+    decoy.write_bytes(b"decoy\n")
+    leaf = repository / V2_OUTPUT_JSON
+    leaf.symlink_to("decoy.json")
+    v2_git(repository, "add", "docs/release-evidence/decoy.json")
+    v2_git(repository, "commit", "-q", "-m", "decoy")
+    for junit in fixture["results"].values():
+        os.utime(repository / junit, ns=(V2_RESULT_MTIME_NS, V2_RESULT_MTIME_NS))
+    before = v2_snapshot(repository)
+    v2_assert_failure(v2_run(v2_arguments(repository)), {"OUTPUT_PATH_INVALID"})
+    assert leaf.is_symlink() and os.readlink(leaf) == "decoy.json"
+    assert decoy.read_bytes() == b"decoy\n"
+    assert not (repository / V2_OUTPUT_MARKDOWN).exists()
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    pair = v2_seed_outputs(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+    staged: list[str] = []
+
+    def failing_second(source, target) -> None:
+        if str(source).endswith(".tmp"):
+            staged.append(str(target))
+            if len(staged) == 2:
+                raise OSError("forced second replace failure")
+        original(source, target)
+
+    monkeypatch.setattr(module.os, "replace", failing_second)
+    document = v2_in_process(module, repository, capsys, 2)
+    assert document["blockers"] == ["OUTPUT_WRITE_FAILED"]
+    assert len(staged) == 2
+    assert v2_outputs(repository) == pair
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    pair = v2_seed_outputs(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = os.replace
+
+    def concurrent_writer(source, target) -> None:
+        original(source, target)
+        if str(source).endswith(".tmp") and str(target).endswith(".md"):
+            with open(target, "ab") as handle:
+                handle.write(b"concurrent edit\n")
+
+    monkeypatch.setattr(module.os, "replace", concurrent_writer)
+    document = v2_in_process(module, repository, capsys, 1)
+    assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_outputs(repository) == pair
+    assert v2_snapshot(repository) == before
+
+
+# ---- v1 regression and documentation ---------------------------------------- #
+
+
+def test_v2_route_leaves_the_v1_route_unchanged(umbrella: dict[str, object]) -> None:
+    code, document = measured(umbrella)
+    assert code == 0, document["blockers"]
+    assert document["schema"] == "story-final-record-v1"
+    assert "schemaVersion" not in document
+    abbreviated = subprocess.run(
+        [
+            sys.executable,
+            str(SCRIPT),
+            "--repository",
+            str(umbrella["repository"]),
+            "--contr",
+            V2_CONTRACT_PATH,
+        ],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        text=True,
+        timeout=120,
+    )
+    assert abbreviated.returncode == 2
+    legacy = json.loads(abbreviated.stdout)
+    assert legacy["schema"] == "story-final-record-v1"
+    assert [item["code"] for item in legacy["blockers"]] == ["INVALID_SCOPE"]
+    module = load_generator()
+    assert module.is_v2_invocation(["--contract", "x"])
+    assert module.is_v2_invocation(["--contract=x"])
+    assert not module.is_v2_invocation(["--contr", "x", "--story", "--contract-x"])
+
+
+def test_v2_every_code_is_documented_in_the_runbook() -> None:
+    module = load_generator()
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+    assert "## 9. Contract-bound v2 route" in runbook
+    for code, exit_class in module.V2_CODES.items():
+        assert exit_class in {"FAIL", "BLOCKED"}
+        assert f"`{code}`" in runbook, code
+    assert set(module.V2_SCHEMA_FILES.values()) == {
+        FINAL_RECORD_SCHEMA.name,
+        V2_FAILURE_SCHEMA.name,
+        STORY_CONTRACT_SCHEMA.name,
+        "v9-authority-bundle-v1.schema.json",
+    }
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))

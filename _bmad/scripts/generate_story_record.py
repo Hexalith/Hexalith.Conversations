@@ -9,6 +9,7 @@ import hashlib
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -2685,6 +2686,1573 @@ def write_output(document: dict[str, Any], output_format: str) -> None:
     sys.stdout.write(render_markdown(document))
 
 
+# --------------------------------------------------------------------------- #
+# Story final record v2: the isolated `--contract` route
+# --------------------------------------------------------------------------- #
+#
+# The v2 route is additive. `main()` dispatches to it only when the exact
+# `--contract` option is present, before the legacy parser runs, so every v1
+# invocation, document, and exit code is unchanged. The v2 route reuses the
+# hardened v1 Git, containment, snapshot, `.gitmodules`, raw-tree, and Markdown
+# escaping helpers above, and accepts no caller-authored completion fact: every
+# count, path, commit, gitlink, digest, exit, and verdict is derived from Git
+# objects of the committed candidate and from measured JUnit result files.
+
+V2_RECORD_SCHEMA_VERSION = "hexalith.conversations.story-final-record.v2"
+V2_FAILURE_SCHEMA_VERSION = "hexalith.conversations.story-record-generator-failure.v1"
+V2_CONTRACT_SCHEMA_VERSION = "hexalith.conversations.story-contract.v1"
+V2_BUNDLE_SCHEMA_VERSION = "hexalith.conversations.v9-authority-bundle.v1"
+
+# Roots of trust: the tooling's own schema copies, never the evaluated
+# repository's, so an evaluated candidate cannot redefine its own validator.
+V2_SCHEMA_DIRECTORY = Path(__file__).resolve().parents[1] / "schemas"
+V2_SCHEMA_FILES = {
+    "record": "story-final-record-v2.schema.json",
+    "failure": "story-record-generator-failure-v1.schema.json",
+    "contract": "v9-story-contract-v1.schema.json",
+    "bundle": "v9-authority-bundle-v1.schema.json",
+}
+V2_AUTHORITY_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+V2_GENERATOR_PATH = "_bmad/scripts/generate_story_record.py"
+V2_ZERO_DIGEST = "0" * 64
+V2_MESSAGE_LIMIT = 1900
+V2_PATH_REPORT_LIMIT = 20
+V2_LEDGER_LIMIT = 9999
+
+V2_ACCEPTED_OPTIONS = (
+    "--repository",
+    "--contract",
+    "--format",
+    "--output-json",
+    "--output-markdown",
+)
+V2_FORMATS = ("bundle",)
+
+# Options that would let a caller author a completion fact. They are refused by
+# name, before any derivation, whatever value accompanies them.
+V2_CALLER_FACT_OPTIONS = frozenset(
+    {
+        "--assertion",
+        "--assertions",
+        "--baseline",
+        "--blocked",
+        "--bundle-digest",
+        "--candidate",
+        "--changed-path",
+        "--changed-paths",
+        "--commit",
+        "--commits",
+        "--count",
+        "--counts",
+        "--digest",
+        "--exit-code",
+        "--exit-codes",
+        "--failed",
+        "--file-list",
+        "--gitlink",
+        "--gitlinks",
+        "--inventory",
+        "--junit",
+        "--ledger",
+        "--not-run",
+        "--notrun",
+        "--passed",
+        "--path",
+        "--paths",
+        "--planning-candidate",
+        "--require-remote",
+        "--required",
+        "--result",
+        "--results",
+        "--scenario",
+        "--scenario-result",
+        "--sha256",
+        "--skipped",
+        "--status",
+        "--story",
+        "--submodule",
+        "--summary",
+        "--test-results",
+        "--total",
+        "--totals",
+        "--verdict",
+    }
+)
+
+# Every v2 code, its exit class, and the runbook remediation summary. `BLOCKED`
+# codes describe an environment that cannot support a trustworthy record;
+# everything else is a proven `FAIL`.
+V2_CODES = {
+    "ARGUMENT_INVALID": "FAIL",
+    "CALLER_AUTHORED_FACT": "FAIL",
+    "INPUT_SCHEMA_INVALID": "FAIL",
+    "RECORD_NOT_DERIVED": "FAIL",
+    "ASSERTION_LEDGER_EMPTY": "FAIL",
+    "AUTHORITY_BINDING_INVALID": "FAIL",
+    "GITLINK_INVENTORY_DRIFT": "FAIL",
+    "WORKTREE_NOT_CLEAN": "FAIL",
+    "SCENARIO_COMMAND_UNSUPPORTED": "FAIL",
+    "SCENARIO_RESULT_MISMATCH": "FAIL",
+    "TEST_RESULTS_MISSING": "FAIL",
+    "TEST_RESULTS_STALE": "FAIL",
+    "TEST_RESULTS_FAILED": "FAIL",
+    "TEST_SKIP_NOT_ALLOWED": "FAIL",
+    "TEST_COUNT_INCONSISTENT": "FAIL",
+    "OUTPUT_PATH_INVALID": "FAIL",
+    "OUTPUT_SCHEMA_INVALID": "FAIL",
+    "RECORD_CONTENT_DRIFT": "FAIL",
+    "GIT_UNAVAILABLE": "BLOCKED",
+    "GIT_COMMAND_FAILED": "BLOCKED",
+    "SCHEMA_UNAVAILABLE": "BLOCKED",
+    "SCHEMA_VALIDATOR_UNAVAILABLE": "BLOCKED",
+    "OUTPUT_WRITE_FAILED": "BLOCKED",
+    "INTERNAL_ERROR": "BLOCKED",
+}
+
+V2_JUNIT_SUITE_CHILDREN = ("testcase", "properties", "system-out", "system-err")
+V2_JUNIT_NON_PASS_CHILDREN = ("failure", "error", "skipped")
+V2_SIMPLE_SELECTOR = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
+
+
+class V2Stop(Exception):
+    """Stop the v2 route and emit a schema-valid failure document."""
+
+    def __init__(self, findings: list[dict[str, str]], story_id: str | None = None) -> None:
+        super().__init__("v2 generation stopped")
+        self.findings = findings
+        self.story_id = story_id
+
+
+def v2_clean_text(value: str, limit: int = V2_MESSAGE_LIMIT) -> str:
+    """Generator-authored text only: no control characters, no lone surrogates."""
+    text = value.encode("utf-8", errors="backslashreplace").decode("utf-8")
+    text = "".join("?" if ord(character) < 0x20 else character for character in text)
+    if len(text) > limit:
+        text = text[: limit - 3] + "..."
+    return text or "?"
+
+
+def v2_finding(code: str, subject: str, message: str) -> dict[str, str]:
+    if code not in V2_CODES:  # pragma: no cover - programming error guard
+        raise ValueError(f"undocumented v2 code: {code}")
+    return {
+        "code": code,
+        "subject": v2_clean_text(subject, 400),
+        "message": v2_clean_text(message),
+    }
+
+
+def v2_path_summary(paths: Sequence[str]) -> str:
+    shown = [v2_clean_text(path, 200) for path in list(paths)[:V2_PATH_REPORT_LIMIT]]
+    remainder = len(paths) - len(shown)
+    suffix = f" (and {remainder} more)" if remainder > 0 else ""
+    return ", ".join(shown) + suffix
+
+
+def v2_sha256(content: bytes) -> str:
+    return hashlib.sha256(content).hexdigest()
+
+
+def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
+    """Parse the exact v2 option set without argparse prefix matching.
+
+    Caller-fact options are reported by their canonical name; no other caller
+    value is ever echoed into the failure document.
+    """
+    findings: list[dict[str, str]] = []
+    values: dict[str, str] = {}
+    tokens = list(raw_arguments)
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        index += 1
+        if not token.startswith("--") or token == "--":
+            findings.append(
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "argv",
+                    "positional arguments and short options are not accepted by the v2 route",
+                )
+            )
+            continue
+        name, separator, inline_value = token.partition("=")
+        takes_following = (
+            not separator
+            and index < len(tokens)
+            and not tokens[index].startswith("--")
+        )
+        if name in V2_CALLER_FACT_OPTIONS:
+            findings.append(
+                v2_finding(
+                    "CALLER_AUTHORED_FACT",
+                    name,
+                    f"{name} would supply a caller-authored completion fact; the v2 route "
+                    "derives every count, path, commit, gitlink, exit, and verdict itself",
+                )
+            )
+            if takes_following:
+                index += 1
+            continue
+        if name not in V2_ACCEPTED_OPTIONS:
+            findings.append(
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "argv",
+                    "an unrecognized option was supplied; the v2 route accepts exactly "
+                    + ", ".join(V2_ACCEPTED_OPTIONS),
+                )
+            )
+            if takes_following:
+                index += 1
+            continue
+        if separator:
+            value = inline_value
+        elif takes_following:
+            value = tokens[index]
+            index += 1
+        else:
+            findings.append(v2_finding("ARGUMENT_INVALID", name, f"{name} requires a value"))
+            continue
+        if name in values:
+            findings.append(
+                v2_finding("ARGUMENT_INVALID", name, f"{name} may appear only once")
+            )
+            continue
+        if not value:
+            findings.append(
+                v2_finding("ARGUMENT_INVALID", name, f"{name} requires a non-empty value")
+            )
+            continue
+        values[name] = value
+
+    for required in ("--contract", "--output-json", "--output-markdown"):
+        if required not in values and not any(
+            item["subject"] == required for item in findings
+        ):
+            findings.append(
+                v2_finding("ARGUMENT_INVALID", required, f"{required} is required")
+            )
+    output_format = values.get("--format", "bundle")
+    if output_format not in V2_FORMATS:
+        findings.append(
+            v2_finding(
+                "ARGUMENT_INVALID",
+                "--format",
+                "the v2 route supports only --format bundle",
+            )
+        )
+    if findings:
+        raise V2Stop(findings)
+    values.setdefault("--format", "bundle")
+    return values
+
+
+def v2_load_schemas() -> tuple[Any, dict[str, Any]]:
+    try:
+        import jsonschema  # noqa: PLC0415 - optional for the v1 route only
+    except ImportError as error:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "SCHEMA_VALIDATOR_UNAVAILABLE",
+                    "jsonschema",
+                    "the jsonschema package is unavailable; run through the pinned "
+                    "`uv run --frozen --no-sync` environment",
+                )
+            ]
+        ) from error
+    validators: dict[str, Any] = {}
+    for role, name in V2_SCHEMA_FILES.items():
+        path = V2_SCHEMA_DIRECTORY / name
+        try:
+            schema = json.loads(path.read_text(encoding="utf-8"))
+            jsonschema.Draft202012Validator.check_schema(schema)
+        except (OSError, ValueError, jsonschema.SchemaError) as error:
+            raise V2Stop(
+                [
+                    v2_finding(
+                        "SCHEMA_UNAVAILABLE",
+                        f"_bmad/schemas/{name}",
+                        "a tooling schema is missing, unreadable, or not a valid "
+                        "draft 2020-12 schema",
+                    )
+                ]
+            ) from error
+        validators[role] = jsonschema.Draft202012Validator(schema)
+    return jsonschema, validators
+
+
+def v2_schema_errors(validator: Any, instance: Any) -> list[str]:
+    """Stable, payload-free error locations for one schema validation."""
+    locations = []
+    for error in sorted(
+        validator.iter_errors(instance), key=lambda item: list(map(str, item.absolute_path))
+    ):
+        location = "/".join(str(part) for part in error.absolute_path) or "(root)"
+        locations.append(f"{location}: {error.validator}")
+    return locations
+
+
+def v2_reject_constant(value: str) -> NoReturn:
+    raise ValueError("non-finite JSON number")
+
+
+def v2_reject_duplicate_keys(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    document: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in document:
+            raise ValueError("duplicate JSON object key")
+        document[key] = value
+    return document
+
+
+def v2_parse_json(content: bytes) -> Any:
+    return json.loads(
+        content.decode("utf-8"),
+        object_pairs_hook=v2_reject_duplicate_keys,
+        parse_constant=v2_reject_constant,
+    )
+
+
+def v2_committed_blob(repository: Path, candidate: str, path: str) -> bytes | None:
+    """Read one regular-file blob from the candidate tree; None when absent."""
+    mode, object_id = tree_entry(repository, candidate, path)
+    if mode not in ("100644", "100755") or object_id is None:
+        return None
+    return run_git(repository, "cat-file", "blob", object_id).stdout
+
+
+def v2_raw_gitlinks(repository: Path, candidate: str) -> list[tuple[str, str]]:
+    """Every mode-160000 entry of the candidate tree, read from its own mode column.
+
+    `ls-tree -r` recurses into trees only; it never enters a submodule.
+    """
+    result = run_git(repository, "ls-tree", "-r", "-z", "--full-tree", candidate)
+    gitlinks: list[tuple[str, str]] = []
+    for record in result.stdout.split(b"\0"):
+        if not record:
+            continue
+        metadata, separator, encoded_path = record.partition(b"\t")
+        fields = decode(metadata).split()
+        if not separator or len(fields) != 3:
+            raise GateError("GIT_COMMAND_FAILED", "could not parse git ls-tree output")
+        mode, _, object_id = fields
+        if mode == "160000":
+            gitlinks.append((decode(encoded_path), object_id))
+    return sorted(gitlinks)
+
+
+def v2_below(path: str, roots: Sequence[str]) -> bool:
+    return any(path == root or path.startswith(root + "/") for root in roots)
+
+
+def v2_validate_contract(
+    content: bytes | None, contract_path: str, validator: Any
+) -> dict[str, Any]:
+    if content is None:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "--contract",
+                    "--contract does not name a regular file committed at the candidate",
+                )
+            ]
+        )
+    try:
+        contract = v2_parse_json(content)
+    except (UnicodeDecodeError, ValueError):
+        raise V2Stop(
+            [
+                v2_finding(
+                    "INPUT_SCHEMA_INVALID",
+                    contract_path,
+                    "the story contract is not well-formed UTF-8 JSON without duplicate keys",
+                )
+            ]
+        ) from None
+    if not isinstance(contract, dict) or contract.get("schemaVersion") != (
+        V2_CONTRACT_SCHEMA_VERSION
+    ):
+        raise V2Stop(
+            [
+                v2_finding(
+                    "INPUT_SCHEMA_INVALID",
+                    contract_path,
+                    "the story contract does not carry the known schema identity "
+                    f"{V2_CONTRACT_SCHEMA_VERSION}",
+                )
+            ]
+        )
+    errors = v2_schema_errors(validator, contract)
+    if errors:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "INPUT_SCHEMA_INVALID",
+                    contract_path,
+                    "the story contract violates its schema at " + "; ".join(errors[:10]),
+                )
+            ]
+        )
+
+    story_id = contract["storyId"]
+    findings: list[dict[str, str]] = []
+    identifiers = [scenario["id"] for scenario in contract["scenarios"]]
+    if len(identifiers) != len(set(identifiers)):
+        findings.append(
+            v2_finding("INPUT_SCHEMA_INVALID", contract_path, "scenario identifiers repeat")
+        )
+    foreign = [item for item in identifiers if not item.startswith(f"AC-{story_id}-")]
+    if foreign:
+        findings.append(
+            v2_finding(
+                "INPUT_SCHEMA_INVALID",
+                contract_path,
+                "scenario identifiers do not belong to story "
+                f"{story_id}: {v2_path_summary(foreign)}",
+            )
+        )
+    expected_summary = {
+        "required": len(identifiers),
+        "passed": len(identifiers),
+        "failed": 0,
+        "blocked": 0,
+        "skipped": 0,
+        "notRun": 0,
+    }
+    if contract["finalRecord"]["summary"] != expected_summary:
+        findings.append(
+            v2_finding(
+                "INPUT_SCHEMA_INVALID",
+                contract_path,
+                "finalRecord.summary must require and pass every declared scenario",
+            )
+        )
+    json_path, markdown_path = contract["finalRecord"]["paths"]
+    try:
+        safe_relative_path(json_path)
+        safe_relative_path(markdown_path)
+        valid_paths = json_path.endswith(".json") and markdown_path.endswith(".md")
+    except GateError:
+        valid_paths = False
+    if not valid_paths:
+        findings.append(
+            v2_finding(
+                "INPUT_SCHEMA_INVALID",
+                contract_path,
+                "finalRecord.paths must be normalized repository-relative [JSON, Markdown] paths",
+            )
+        )
+    if findings:
+        raise V2Stop(findings, story_id)
+    return contract
+
+
+def v2_authority(
+    repository: Path,
+    candidate: str,
+    contract: dict[str, Any],
+    validator: Any,
+    findings: list[dict[str, str]],
+) -> dict[str, Any] | None:
+    """Bind the contract's planning candidate to the recomputed V9 bundle digest."""
+    content = v2_committed_blob(repository, candidate, V2_AUTHORITY_BUNDLE_PATH)
+    if content is None:
+        findings.append(
+            v2_finding(
+                "AUTHORITY_BINDING_INVALID",
+                V2_AUTHORITY_BUNDLE_PATH,
+                "the V9 authority bundle is not committed at the candidate",
+            )
+        )
+        return None
+    try:
+        bundle = v2_parse_json(content)
+    except (UnicodeDecodeError, ValueError):
+        bundle = None
+    if (
+        not isinstance(bundle, dict)
+        or bundle.get("schemaVersion") != V2_BUNDLE_SCHEMA_VERSION
+        or v2_schema_errors(validator, bundle)
+    ):
+        findings.append(
+            v2_finding(
+                "AUTHORITY_BINDING_INVALID",
+                V2_AUTHORITY_BUNDLE_PATH,
+                "the V9 authority bundle is malformed or violates its schema",
+            )
+        )
+        return None
+    rows = bundle["artifacts"]
+    paths = [row["path"] for row in rows]
+    recomputed = v2_sha256(
+        "".join(f"{row['sha256']}  {row['path']}\n" for row in rows).encode("utf-8")
+    )
+    authority = contract["authority"]
+    problems = []
+    if paths != sorted(set(paths)):
+        problems.append("artifact rows are not unique and ordinally sorted")
+    if recomputed != bundle["bundleDigest"]:
+        problems.append("the declared bundle digest differs from the recomputed row digest")
+    if bundle["planningCandidate"] != authority["planningCandidate"]:
+        problems.append("the bundle planning candidate differs from the contract's")
+    if problems:
+        findings.append(
+            v2_finding(
+                "AUTHORITY_BINDING_INVALID", V2_AUTHORITY_BUNDLE_PATH, "; ".join(problems)
+            )
+        )
+        return None
+    return {
+        "epic": authority["epic"],
+        "architecture": authority["architecture"],
+        "planningCandidate": authority["planningCandidate"],
+        "bundleDigest": recomputed,
+    }
+
+
+def v2_gitlinks(
+    repository: Path, candidate: str, findings: list[dict[str, str]]
+) -> list[dict[str, str]]:
+    """Raw root gitlinks, required to equal the ordinal root `.gitmodules` inventory."""
+    try:
+        declared = root_submodule_paths(repository, candidate)
+    except GateError as error:
+        if error.code != "INVALID_SCOPE":
+            raise
+        findings.append(
+            v2_finding(
+                "GITLINK_INVENTORY_DRIFT",
+                ".gitmodules",
+                "the candidate .gitmodules declares a path outside references/ or with no value",
+            )
+        )
+        return []
+    raw = v2_raw_gitlinks(repository, candidate)
+    raw_paths = [path for path, _ in raw]
+    if not raw_paths and not declared:
+        findings.append(
+            v2_finding(
+                "RECORD_NOT_DERIVED",
+                "candidate.gitlinks",
+                "the candidate tree yields no mode-160000 root gitlink path to bind",
+            )
+        )
+        return []
+    missing = sorted(set(declared) - set(raw_paths))
+    extra = sorted(set(raw_paths) - set(declared))
+    if missing or extra or len(raw_paths) != len(set(raw_paths)):
+        details = []
+        if missing:
+            details.append(f"declared without a raw gitlink: {v2_path_summary(missing)}")
+        if extra:
+            details.append(f"raw gitlink not declared: {v2_path_summary(extra)}")
+        if not details:
+            details.append("a raw gitlink path repeats")
+        findings.append(
+            v2_finding("GITLINK_INVENTORY_DRIFT", "candidate.gitlinks", "; ".join(details))
+        )
+        return []
+    return [{"path": path, "commit": commit, "mode": "160000"} for path, commit in raw]
+
+
+def v2_pytest_command(tokens: list[str]) -> dict[str, str | None] | None:
+    """Recognize `python3 -m pytest -q TARGET [-k SELECTOR] --junitxml=PATH`."""
+    if tokens[:3] != ["python3", "-m", "pytest"]:
+        return None
+    target: str | None = None
+    selector: str | None = None
+    junit: str | None = None
+    index = 3
+    while index < len(tokens):
+        token = tokens[index]
+        index += 1
+        if token == "-q":
+            continue
+        if token == "-k":
+            if selector is not None or index >= len(tokens):
+                return None
+            selector = tokens[index]
+            index += 1
+            continue
+        if token.startswith("--junitxml="):
+            if junit is not None:
+                return None
+            junit = token.partition("=")[2]
+            continue
+        if token.startswith("-") or target is not None or not token.endswith(".py"):
+            return None
+        target = token
+    if target is None or not junit:
+        return None
+    return {"target": target, "selector": selector, "junit": junit}
+
+
+def v2_generator_command(tokens: list[str]) -> dict[str, str] | None:
+    """Recognize the self-invocation `python3 _bmad/scripts/generate_story_record.py ...`."""
+    if tokens[:2] != ["python3", V2_GENERATOR_PATH]:
+        return None
+    try:
+        return v2_parse_arguments(tokens[2:])
+    except V2Stop:
+        return None
+
+
+def v2_parse_junit(content: bytes) -> dict[str, Any]:
+    """Parse the single direct pytest suite of one JUnit XML file.
+
+    Raises ValueError for anything that is not exactly one direct `testsuite`
+    under a `testsuites` root.
+    """
+    if b"<!DOCTYPE" in content or b"<!ENTITY" in content:
+        raise ValueError("JUnit XML must not declare a document type or entities")
+    root = ElementTree.fromstring(content)
+    if root.tag != "testsuites":
+        raise ValueError("JUnit XML root must be testsuites")
+    suites = list(root)
+    if len(suites) != 1 or suites[0].tag != "testsuite":
+        raise ValueError("JUnit XML must contain exactly one direct testsuite")
+    suite = suites[0]
+    unexpected = [child.tag for child in suite if child.tag not in V2_JUNIT_SUITE_CHILDREN]
+    if unexpected:
+        raise ValueError("the testsuite contains a nested suite or unknown element")
+    reported = {}
+    for name in ("tests", "failures", "errors", "skipped"):
+        raw = suite.get(name)
+        if raw is None or re.fullmatch(r"[0-9]+", raw) is None:
+            raise ValueError(f"testsuite has no integer {name} attribute")
+        reported[name] = int(raw)
+    cases = []
+    for element in suite.findall("testcase"):
+        classname = element.get("classname") or ""
+        name = element.get("name") or ""
+        if not classname or not name:
+            raise ValueError("a testcase has no classname or name")
+        children = {child.tag for child in element}
+        cases.append(
+            {
+                "classname": classname,
+                "name": name,
+                "failure": "failure" in children,
+                "error": "error" in children,
+                "skipped": "skipped" in children,
+            }
+        )
+    return {"reported": reported, "cases": cases}
+
+
+def v2_scenario_from_results(
+    repository: Path,
+    scenario: dict[str, Any],
+    command: dict[str, str | None],
+    candidate_time_ns: int,
+) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
+    """Derive one pytest scenario from its measured JUnit file.
+
+    Returns (scenario record, summary category, findings). The category is one
+    of passed, failed, skipped, notRun.
+    """
+    scenario_id = scenario["id"]
+    junit = str(command["junit"])
+    findings: list[dict[str, str]] = []
+    record: dict[str, Any] = {
+        "scenarioId": scenario_id,
+        "command": scenario["command"],
+        "exitCode": 0,
+        "result": "FAIL",
+        "blockers": [],
+    }
+
+    def fail(code: str, message: str, category: str) -> tuple[dict[str, Any], str, list]:
+        findings.append(v2_finding(code, scenario_id, message))
+        record["blockers"] = sorted({item["code"] for item in findings})
+        return record, category, findings
+
+    lexical = repository / junit
+    try:
+        resolved = lexical.resolve(strict=True)
+    except FileNotFoundError:
+        record["exitCode"] = 5
+        return fail(
+            "TEST_RESULTS_MISSING",
+            f"the declared result file {junit} does not exist; the scenario was not run",
+            "notRun",
+        )
+    except OSError:
+        return fail(
+            "INPUT_SCHEMA_INVALID", f"the result file {junit} cannot be resolved", "failed"
+        )
+    try:
+        resolved.relative_to(repository)
+    except ValueError:
+        return fail(
+            "INPUT_SCHEMA_INVALID",
+            f"the result file {junit} resolves outside the repository",
+            "failed",
+        )
+    if not resolved.is_file():
+        return fail("INPUT_SCHEMA_INVALID", f"the result file {junit} is not a file", "failed")
+    try:
+        content, mtime_ns = read_file_snapshot(resolved)
+    except OSError:
+        return fail(
+            "INPUT_SCHEMA_INVALID", f"the result file {junit} could not be read stably", "failed"
+        )
+    try:
+        parsed = v2_parse_junit(content)
+    except (ValueError, ElementTree.ParseError):
+        return fail(
+            "INPUT_SCHEMA_INVALID",
+            f"the result file {junit} is not a single-suite pytest JUnit XML document",
+            "failed",
+        )
+
+    cases = parsed["cases"]
+    reported = parsed["reported"]
+    counted = {
+        "tests": len(cases),
+        "failures": sum(1 for case in cases if case["failure"]),
+        "errors": sum(1 for case in cases if case["error"]),
+        "skipped": sum(1 for case in cases if case["skipped"]),
+    }
+    record["resultFile"] = {"path": junit, "sha256": v2_sha256(content)}
+    if not cases:
+        record["exitCode"] = 5
+    elif counted["failures"] or counted["errors"]:
+        record["exitCode"] = 1
+    if len(cases) > V2_LEDGER_LIMIT:
+        return fail(
+            "INPUT_SCHEMA_INVALID",
+            f"the result file {junit} exceeds {V2_LEDGER_LIMIT} testcases",
+            "failed",
+        )
+    ledger = []
+    for ordinal, case in enumerate(cases, start=1):
+        passing = not (case["failure"] or case["error"] or case["skipped"])
+        ledger.append(
+            {
+                "id": f"{scenario_id}#{ordinal:04d}",
+                "subject": f"{case['classname']}::{case['name']}",
+                "state": "PASS" if passing else "FAIL",
+            }
+        )
+    if ledger:
+        record["assertionLedger"] = ledger
+
+    category = "passed"
+    if counted != reported:
+        findings.append(
+            v2_finding(
+                "TEST_COUNT_INCONSISTENT",
+                scenario_id,
+                f"the testsuite counters in {junit} disagree with the testcases it contains",
+            )
+        )
+        category = "failed"
+    if not cases:
+        findings.append(
+            v2_finding(
+                "ASSERTION_LEDGER_EMPTY",
+                scenario_id,
+                f"the result file {junit} records no executed testcase",
+            )
+        )
+        category = "failed"
+    if counted["failures"] or counted["errors"]:
+        findings.append(
+            v2_finding(
+                "TEST_RESULTS_FAILED",
+                scenario_id,
+                f"{counted['failures'] + counted['errors']} testcase(s) in {junit} failed or errored",
+            )
+        )
+        category = "failed"
+    if counted["skipped"]:
+        findings.append(
+            v2_finding(
+                "TEST_SKIP_NOT_ALLOWED",
+                scenario_id,
+                f"{counted['skipped']} testcase(s) in {junit} were skipped; v2 allows no skip",
+            )
+        )
+        if category == "passed":
+            category = "skipped"
+
+    module = str(command["target"])[: -len(".py")].replace("/", ".")
+    selector = command["selector"]
+    foreign = [
+        case
+        for case in cases
+        if not (case["classname"] == module or case["classname"].startswith(module + "."))
+        or (
+            selector is not None
+            and V2_SIMPLE_SELECTOR.fullmatch(selector) is not None
+            and selector not in case["name"]
+        )
+    ]
+    subjects = [entry["subject"] for entry in ledger]
+    if foreign or len(subjects) != len(set(subjects)):
+        findings.append(
+            v2_finding(
+                "SCENARIO_RESULT_MISMATCH",
+                scenario_id,
+                f"the testcases in {junit} do not all belong to the scenario's target "
+                "and selector, or a testcase identity repeats",
+            )
+        )
+        category = "failed"
+    if mtime_ns < candidate_time_ns:
+        findings.append(
+            v2_finding(
+                "TEST_RESULTS_STALE",
+                scenario_id,
+                f"the result file {junit} predates the candidate commit",
+            )
+        )
+        category = "failed"
+
+    passing = (
+        not findings
+        and record["exitCode"] in scenario["resultSemantics"]["passExitCodes"]
+    )
+    if passing:
+        record["result"] = "PASS"
+    else:
+        if not findings:
+            findings.append(
+                v2_finding(
+                    "TEST_RESULTS_FAILED",
+                    scenario_id,
+                    "the derived exit code is not a declared passing exit code",
+                )
+            )
+        category = "failed" if category == "passed" else category
+    record["blockers"] = sorted({item["code"] for item in findings})
+    return record, category, findings
+
+
+def v2_render_json(record: dict[str, Any]) -> bytes:
+    return (json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+
+
+def v2_zero_digests(record: dict[str, Any]) -> dict[str, Any]:
+    draft = json.loads(json.dumps(record))
+    draft["outputs"]["json"]["sha256"] = V2_ZERO_DIGEST
+    draft["outputs"]["markdown"]["sha256"] = V2_ZERO_DIGEST
+    draft["renderedMarkdownSha256"] = V2_ZERO_DIGEST
+    return draft
+
+
+def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
+    """Deterministic UTF-8/LF projection of a digest-free record draft."""
+    code = markdown_table_code
+    lines = [
+        f"# Story {record['storyId']} Final Record",
+        "",
+        "<!-- hexalith.conversations.story-final-record.v2 markdown projection -->",
+        "",
+        "Generated by `_bmad/scripts/generate_story_record.py` from the committed "
+        "candidate and measured JUnit results. The JSON record is authoritative; "
+        "this rendering is bound to it by digest.",
+        "",
+        f"- Schema: {markdown_code(record['schemaVersion'])}",
+        "- Result: `PASS`",
+        f"- Story: {markdown_code(record['storyId'])}",
+        f"- Candidate: {markdown_code(record['candidate']['commit'])}",
+        "- JSON content SHA-256 (all three digest fields zeroed): "
+        f"{markdown_code(json_digest)}",
+        "",
+        "## Authority",
+        "",
+        "| Field | Value |",
+        "| --- | --- |",
+        f"| Epic | {code(record['authority']['epic'])} |",
+        f"| Architecture | {code(record['authority']['architecture'])} |",
+        f"| Planning candidate | {code(record['authority']['planningCandidate'])} |",
+        f"| Bundle digest | {code(record['authority']['bundleDigest'])} |",
+        "",
+        "## Root gitlinks",
+        "",
+        "| Path | Mode | Commit |",
+        "| --- | --- | --- |",
+    ]
+    for gitlink in record["candidate"]["gitlinks"]:
+        lines.append(
+            f"| {code(gitlink['path'])} | {code(gitlink['mode'])} | {code(gitlink['commit'])} |"
+        )
+    lines.extend(
+        [
+            "",
+            "## Inventory",
+            "",
+            "| Inventory | SHA-256 |",
+            "| --- | --- |",
+            f"| {code(record['inventory']['id'])} | {code(record['inventory']['sha256'])} |",
+            "",
+            "## Predecessors",
+            "",
+        ]
+    )
+    lines.extend(f"- {markdown_code(item)}" for item in record["predecessors"])
+    lines.extend(
+        [
+            "",
+            "## Scenarios",
+            "",
+            "| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for scenario in record["scenarios"]:
+        result_file = scenario.get("resultFile")
+        blockers = ", ".join(scenario["blockers"]) or "none"
+        lines.append(
+            f"| {code(scenario['scenarioId'])} | {code(scenario['exitCode'])} "
+            f"| {code(scenario['result'])} | {code(blockers)} "
+            f"| {code(len(scenario.get('assertionLedger', [])))} "
+            f"| {code(result_file['path']) if result_file else 'none'} "
+            f"| {code(result_file['sha256']) if result_file else 'none'} |"
+        )
+    for scenario in record["scenarios"]:
+        lines.extend(
+            [
+                "",
+                f"### {markdown_code(scenario['scenarioId'])}",
+                "",
+                f"Command: {markdown_code(scenario['command'])}",
+                "",
+                "| Assertion | Subject | State |",
+                "| --- | --- | --- |",
+            ]
+        )
+        for entry in scenario.get("assertionLedger", []):
+            lines.append(
+                f"| {code(entry['id'])} | {code(entry['subject'])} | {code(entry['state'])} |"
+            )
+    lines.extend(["", "## Fault injection", ""])
+    faults = record["faultInjection"]["results"]
+    if faults:
+        lines.extend(["| Fault | Expected blocker |", "| --- | --- |"])
+        lines.extend(
+            f"| {code(item['id'])} | {code(item['expectedBlocker'])} |" for item in faults
+        )
+    else:
+        lines.append("No fault-injection result is bound to this record.")
+    lines.extend(
+        [
+            "",
+            "## Outputs",
+            "",
+            "| Output | Path |",
+            "| --- | --- |",
+            f"| JSON | {code(record['outputs']['json']['path'])} |",
+            f"| Markdown | {code(record['outputs']['markdown']['path'])} |",
+            "",
+            "## Rollback boundary",
+            "",
+            markdown_table_text(record["rollback"]["boundary"]),
+            "",
+            "## Summary",
+            "",
+            "| Required | Passed | Failed | Blocked | Skipped | Not run |",
+            "| --- | --- | --- | --- | --- | --- |",
+            "| "
+            + " | ".join(
+                code(record["summary"][key])
+                for key in ("required", "passed", "failed", "blocked", "skipped", "notRun")
+            )
+            + " |",
+        ]
+    )
+    return "\n".join(lines) + "\n"
+
+
+def v2_finalize(record: dict[str, Any]) -> tuple[dict[str, Any], bytes, bytes]:
+    """Cross-bind the JSON and Markdown digests.
+
+    The JSON content digest is the SHA-256 of the canonical JSON rendering with
+    `outputs.json.sha256`, `outputs.markdown.sha256`, and
+    `renderedMarkdownSha256` all zeroed; it is written into
+    `outputs.json.sha256` and into the Markdown. Both Markdown digest fields
+    carry the SHA-256 of the exact Markdown bytes.
+    """
+    draft = v2_zero_digests(record)
+    json_digest = v2_sha256(v2_render_json(draft))
+    markdown = v2_render_markdown(draft, json_digest).encode("utf-8")
+    markdown_digest = v2_sha256(markdown)
+    final = json.loads(json.dumps(draft))
+    final["outputs"]["json"]["sha256"] = json_digest
+    final["outputs"]["markdown"]["sha256"] = markdown_digest
+    final["renderedMarkdownSha256"] = markdown_digest
+    return final, v2_render_json(final), markdown
+
+
+def v2_verify_pair(json_bytes: bytes, markdown_bytes: bytes) -> list[str]:
+    """Independently re-derive every digest binding of one JSON/Markdown pair."""
+    problems: list[str] = []
+    try:
+        record = v2_parse_json(json_bytes)
+        draft = v2_zero_digests(record)
+    except (UnicodeDecodeError, ValueError, KeyError, TypeError):
+        return ["the JSON record is not parseable"]
+    if v2_render_json(record) != json_bytes:
+        problems.append("the JSON bytes are not the canonical rendering")
+    json_digest = v2_sha256(v2_render_json(draft))
+    if record["outputs"]["json"]["sha256"] != json_digest:
+        problems.append("outputs.json.sha256 is not the self-excluding JSON digest")
+    markdown_digest = v2_sha256(markdown_bytes)
+    if (
+        record["outputs"]["markdown"]["sha256"] != markdown_digest
+        or record["renderedMarkdownSha256"] != markdown_digest
+    ):
+        problems.append("the Markdown digests do not match the Markdown bytes")
+    if v2_render_markdown(draft, json_digest).encode("utf-8") != markdown_bytes:
+        problems.append("the Markdown is not the projection of the JSON record")
+    if b"\r" in json_bytes or b"\r" in markdown_bytes:
+        problems.append("the outputs are not LF-only")
+    return problems
+
+
+def v2_output_target(repository: Path, relative: str) -> Path:
+    """Lexically and physically contain one output path; never follow a symlinked leaf."""
+    target = repository / relative
+    parent = target.parent
+    existing = parent
+    while not existing.exists():
+        existing = existing.parent
+    existing.resolve(strict=True).relative_to(repository)
+    if target.is_symlink():
+        raise ValueError("output leaf is a symlink")
+    if target.exists() and not target.is_file():
+        raise ValueError("output leaf is not a regular file")
+    return target
+
+
+class V2OutputDrift(Exception):
+    """The installed output bytes differ from the generated bytes."""
+
+
+def v2_restore_outputs(replaced: list[Path], originals: dict[Path, bytes | None]) -> None:
+    """Best-effort atomic restore of every replaced target; never masks the caller's error."""
+    for target in reversed(replaced):
+        original = originals[target]
+        temporary = target.with_name(f".{target.name}.{os.getpid()}.restore")
+        try:
+            if original is None:
+                target.unlink(missing_ok=True)
+            else:
+                temporary.write_bytes(original)
+                os.replace(temporary, target)
+        except OSError:
+            pass
+        finally:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+def v2_write_outputs(targets: list[tuple[Path, bytes]]) -> None:
+    """Replace every output atomically and read each back.
+
+    Any failure after the first replacement, including a read-back that differs
+    from the generated bytes, restores every replaced target to its captured
+    original (or removes it when it did not exist) and re-raises the original
+    error: `OSError` for an I/O fault, `V2OutputDrift` for differing bytes.
+    """
+    staged: list[tuple[Path, Path]] = []
+    originals: dict[Path, bytes | None] = {}
+    replaced: list[Path] = []
+    try:
+        for target, content in targets:
+            target.parent.mkdir(parents=True, exist_ok=True)
+            originals[target] = target.read_bytes() if target.exists() else None
+            temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+            with temporary.open("wb") as handle:
+                handle.write(content)
+                handle.flush()
+                os.fsync(handle.fileno())
+            staged.append((temporary, target))
+        try:
+            for temporary, target in staged:
+                os.replace(temporary, target)
+                replaced.append(target)
+            for target, content in targets:
+                if target.read_bytes() != content:
+                    raise V2OutputDrift(str(target))
+        except (OSError, V2OutputDrift):
+            v2_restore_outputs(replaced, originals)
+            raise
+    finally:
+        for temporary, _ in staged:
+            try:
+                temporary.unlink(missing_ok=True)
+            except OSError:
+                pass
+
+
+def v2_self_ledger(scenario_id: str) -> list[dict[str, str]]:
+    """The generator's own evaluated assertions for the self-invocation scenario."""
+    subjects = (
+        "generator::contract-schema-and-identity",
+        "generator::authority-bundle-digest-recomputed",
+        "generator::raw-gitlinks-equal-root-gitmodules",
+        "generator::committed-candidate-worktree-clean",
+        "generator::predecessor-scenarios-pass-with-ledgers",
+        "generator::declared-output-paths",
+        "generator::record-schema-valid",
+        "generator::deterministic-rendering",
+        "generator::json-markdown-digest-cross-binding",
+    )
+    return [
+        {"id": f"{scenario_id}#{ordinal:04d}", "subject": subject, "state": "PASS"}
+        for ordinal, subject in enumerate(subjects, start=1)
+    ]
+
+
+def v2_generate(options: dict[str, str]) -> bytes:
+    """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
+    try:
+        repository = validate_repository(
+            Path(options.get("--repository") or default_repository()).expanduser()
+        )
+    except GateError as error:
+        if error.code == "GIT_UNAVAILABLE":
+            raise V2Stop([v2_finding("GIT_UNAVAILABLE", "git", "git is not available on PATH")])
+        raise V2Stop(
+            [
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "--repository",
+                    "--repository must name the root of an existing Git repository",
+                )
+            ]
+        ) from None
+
+    try:
+        contract_path = safe_relative_path(options["--contract"])
+        output_json = safe_relative_path(options["--output-json"])
+        output_markdown = safe_relative_path(options["--output-markdown"])
+    except GateError:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "argv",
+                    "--contract, --output-json, and --output-markdown must be normalized "
+                    "repository-relative paths",
+                )
+            ]
+        ) from None
+
+    _, validators = v2_load_schemas()
+
+    candidate = try_resolve_commit(repository, "HEAD")
+    if candidate is None:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "RECORD_NOT_DERIVED",
+                    "candidate",
+                    "HEAD does not resolve to a committed candidate; nothing can be derived",
+                ),
+                v2_finding(
+                    "ASSERTION_LEDGER_EMPTY",
+                    "candidate",
+                    "no assertion can execute without a committed candidate",
+                ),
+            ]
+        )
+
+    contract = v2_validate_contract(
+        v2_committed_blob(repository, candidate, contract_path),
+        contract_path,
+        validators["contract"],
+    )
+    story_id = contract["storyId"]
+    findings: list[dict[str, str]] = []
+
+    declared_json, declared_markdown = contract["finalRecord"]["paths"]
+    if (output_json, output_markdown) != (declared_json, declared_markdown):
+        findings.append(
+            v2_finding(
+                "CALLER_AUTHORED_FACT",
+                "--output-json/--output-markdown",
+                "the output paths differ from the contract's finalRecord.paths; output "
+                "paths are contract facts, not caller choices",
+            )
+        )
+
+    authority = v2_authority(
+        repository, candidate, contract, validators["bundle"], findings
+    )
+    gitlinks = v2_gitlinks(repository, candidate, findings)
+    gitlink_paths = [item["path"] for item in gitlinks]
+    if not gitlink_paths:
+        try:
+            gitlink_paths = root_submodule_paths(repository, candidate)
+        except GateError as error:
+            if error.code != "INVALID_SCOPE":
+                raise
+
+    # Classify every scenario command before touching a result file.
+    pytest_scenarios: list[tuple[dict[str, Any], dict[str, str | None]]] = []
+    self_scenarios: list[dict[str, Any]] = []
+    for position, scenario in enumerate(contract["scenarios"]):
+        try:
+            tokens = shlex.split(scenario["command"])
+        except ValueError:
+            tokens = []
+        pytest_command = v2_pytest_command(tokens)
+        generator_command = None if pytest_command else v2_generator_command(tokens)
+        if pytest_command is not None:
+            try:
+                safe_relative_path(str(pytest_command["junit"]))
+                safe_relative_path(str(pytest_command["target"]))
+                valid = not v2_below(str(pytest_command["junit"]), gitlink_paths)
+            except GateError:
+                valid = False
+            if not valid or v2_committed_blob(
+                repository, candidate, str(pytest_command["target"])
+            ) is None:
+                findings.append(
+                    v2_finding(
+                        "SCENARIO_COMMAND_UNSUPPORTED",
+                        scenario["id"],
+                        "the pytest target must be committed at the candidate and the "
+                        "JUnit path must be repository-relative outside every gitlink",
+                    )
+                )
+                continue
+            pytest_scenarios.append((scenario, pytest_command))
+        elif generator_command is not None:
+            if position != len(contract["scenarios"]) - 1 or self_scenarios:
+                findings.append(
+                    v2_finding(
+                        "SCENARIO_COMMAND_UNSUPPORTED",
+                        scenario["id"],
+                        "the generator self-invocation must be the single final scenario",
+                    )
+                )
+                continue
+            if (
+                generator_command.get("--contract") != contract_path
+                or generator_command.get("--output-json") != output_json
+                or generator_command.get("--output-markdown") != output_markdown
+                or generator_command.get("--format") != options["--format"]
+            ):
+                findings.append(
+                    v2_finding(
+                        "SCENARIO_RESULT_MISMATCH",
+                        scenario["id"],
+                        "this invocation is not the contract's declared self-invocation",
+                    )
+                )
+                continue
+            self_scenarios.append(scenario)
+        else:
+            findings.append(
+                v2_finding(
+                    "SCENARIO_COMMAND_UNSUPPORTED",
+                    scenario["id"],
+                    "the scenario command is neither a supported pytest JUnit command nor "
+                    "the generator self-invocation",
+                )
+            )
+    if not self_scenarios and not any(
+        item["code"] == "SCENARIO_COMMAND_UNSUPPORTED" for item in findings
+    ):
+        findings.append(
+            v2_finding(
+                "SCENARIO_COMMAND_UNSUPPORTED",
+                story_id,
+                "the contract declares no generator self-invocation scenario",
+            )
+        )
+    junit_paths = [str(command["junit"]) for _, command in pytest_scenarios]
+    if len(junit_paths) != len(set(junit_paths)):
+        findings.append(
+            v2_finding(
+                "SCENARIO_RESULT_MISMATCH",
+                story_id,
+                "two scenarios declare the same JUnit result path",
+            )
+        )
+
+    for label, path in (("--output-json", output_json), ("--output-markdown", output_markdown)):
+        if v2_below(path, gitlink_paths) or path in junit_paths or path == contract_path:
+            findings.append(
+                v2_finding(
+                    "OUTPUT_PATH_INVALID",
+                    label,
+                    "an output path may not lie below a gitlink or alias an input",
+                )
+            )
+
+    allowed_dirt = {output_json, output_markdown, *junit_paths}
+    dirt = sorted(set(worktree_path_status(repository)) - allowed_dirt)
+    if dirt:
+        findings.append(
+            v2_finding(
+                "WORKTREE_NOT_CLEAN",
+                "worktree",
+                "the working tree differs from the committed candidate outside the "
+                f"declared outputs and results: {v2_path_summary(dirt)}",
+            )
+        )
+
+    candidate_time = int(
+        decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()
+    )
+    scenario_records: dict[str, dict[str, Any]] = {}
+    categories: dict[str, str] = {}
+    parsed_results = 0
+    for scenario, command in pytest_scenarios:
+        scenario_record, category, scenario_findings = v2_scenario_from_results(
+            repository, scenario, command, candidate_time * 1_000_000_000
+        )
+        scenario_records[scenario["id"]] = scenario_record
+        categories[scenario["id"]] = category
+        findings.extend(scenario_findings)
+        if "resultFile" in scenario_record:
+            parsed_results += 1
+    ledger_rows = sum(
+        len(item.get("assertionLedger", [])) for item in scenario_records.values()
+    )
+    if pytest_scenarios and parsed_results == 0:
+        findings.append(
+            v2_finding(
+                "RECORD_NOT_DERIVED",
+                "scenarios",
+                "no declared JUnit result file was parsed; a run that derived nothing "
+                "proves nothing",
+            )
+        )
+    if ledger_rows == 0:
+        findings.append(
+            v2_finding(
+                "ASSERTION_LEDGER_EMPTY",
+                "scenarios",
+                "no executed assertion was derived from any scenario result",
+            )
+        )
+        if not any(item["code"] == "RECORD_NOT_DERIVED" for item in findings):
+            findings.append(
+                v2_finding(
+                    "RECORD_NOT_DERIVED",
+                    "scenarios",
+                    "the scenario results yield no derived assertion",
+                )
+            )
+
+    if findings or authority is None or not self_scenarios:
+        raise V2Stop(findings or [
+            v2_finding("RECORD_NOT_DERIVED", story_id, "the record could not be derived")
+        ], story_id)
+
+    self_scenario = self_scenarios[0]
+    scenario_records[self_scenario["id"]] = {
+        "scenarioId": self_scenario["id"],
+        "command": self_scenario["command"],
+        "exitCode": 0,
+        "result": "PASS",
+        "blockers": [],
+        "assertionLedger": v2_self_ledger(self_scenario["id"]),
+    }
+    categories[self_scenario["id"]] = "passed"
+    ordered = [scenario_records[scenario["id"]] for scenario in contract["scenarios"]]
+    summary = {
+        "required": len(ordered),
+        "passed": sum(1 for value in categories.values() if value == "passed"),
+        "failed": sum(1 for value in categories.values() if value == "failed"),
+        "blocked": 0,
+        "skipped": sum(1 for value in categories.values() if value == "skipped"),
+        "notRun": sum(1 for value in categories.values() if value == "notRun"),
+    }
+    record = {
+        "schemaVersion": V2_RECORD_SCHEMA_VERSION,
+        "storyId": story_id,
+        "authority": authority,
+        "candidate": {"commit": candidate, "gitlinks": gitlinks},
+        "predecessors": list(contract["predecessors"]),
+        "inventory": {
+            "id": contract["inventory"]["id"],
+            "sha256": contract["inventory"]["sha256"],
+        },
+        "scenarios": ordered,
+        "faultInjection": {"results": []},
+        "outputs": {
+            "json": {"path": output_json, "sha256": V2_ZERO_DIGEST},
+            "markdown": {"path": output_markdown, "sha256": V2_ZERO_DIGEST},
+        },
+        "rollback": {"boundary": contract["rollback"]["boundary"]},
+        "summary": summary,
+        "renderedMarkdownSha256": V2_ZERO_DIGEST,
+    }
+    if summary != contract["finalRecord"]["summary"]:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "RECORD_NOT_DERIVED",
+                    "summary",
+                    "the derived summary does not equal the contract's required summary",
+                )
+            ],
+            story_id,
+        )
+
+    final, json_bytes, markdown_bytes = v2_finalize(record)
+    _, json_again, markdown_again = v2_finalize(record)
+    if (json_bytes, markdown_bytes) != (json_again, markdown_again):
+        raise V2Stop(
+            [
+                v2_finding(
+                    "RECORD_CONTENT_DRIFT",
+                    "record",
+                    "two renderings of identical derived inputs differ",
+                )
+            ],
+            story_id,
+        )
+    schema_errors = v2_schema_errors(validators["record"], final)
+    if schema_errors:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "OUTPUT_SCHEMA_INVALID",
+                    "record",
+                    "the derived record violates the final-record schema at "
+                    + "; ".join(schema_errors[:10]),
+                )
+            ],
+            story_id,
+        )
+    problems = v2_verify_pair(json_bytes, markdown_bytes)
+    if problems:
+        raise V2Stop(
+            [v2_finding("RECORD_CONTENT_DRIFT", "record", "; ".join(problems))], story_id
+        )
+
+    try:
+        targets = [
+            (v2_output_target(repository, output_json), json_bytes),
+            (v2_output_target(repository, output_markdown), markdown_bytes),
+        ]
+    except (OSError, ValueError):
+        raise V2Stop(
+            [
+                v2_finding(
+                    "OUTPUT_PATH_INVALID",
+                    "outputs",
+                    "an output path escapes the repository or names a symlink or non-file",
+                )
+            ],
+            story_id,
+        ) from None
+    try:
+        v2_write_outputs(targets)
+    except OSError:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "OUTPUT_WRITE_FAILED",
+                    "outputs",
+                    "the outputs could not be written; every replaced output was restored",
+                )
+            ],
+            story_id,
+        ) from None
+    except V2OutputDrift:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "RECORD_CONTENT_DRIFT",
+                    "outputs",
+                    "the installed output bytes differ from the generated bytes; every "
+                    "replaced output was restored",
+                )
+            ],
+            story_id,
+        ) from None
+    return json_bytes
+
+
+def v2_failure_document(
+    findings: list[dict[str, str]], story_id: str | None
+) -> dict[str, Any]:
+    codes: list[str] = []
+    diagnostics: list[dict[str, str]] = []
+    for item in findings:
+        if item["code"] not in codes:
+            codes.append(item["code"])
+        if item not in diagnostics:
+            diagnostics.append(item)
+    blocked = any(V2_CODES[code] == "BLOCKED" for code in codes)
+    document: dict[str, Any] = {
+        "schemaVersion": V2_FAILURE_SCHEMA_VERSION,
+        "result": "BLOCKED" if blocked else "FAIL",
+        "exitCode": 2 if blocked else 1,
+    }
+    if story_id is not None:
+        document["storyId"] = story_id
+    document["blockers"] = codes
+    document["diagnostics"] = diagnostics
+    return document
+
+
+def v2_write_stdout(content: bytes) -> None:
+    buffer = getattr(sys.stdout, "buffer", None)
+    if buffer is None:  # pragma: no cover - exotic stdout
+        sys.stdout.write(content.decode("utf-8"))
+        sys.stdout.flush()
+        return
+    sys.stdout.flush()
+    buffer.write(content)
+    buffer.flush()
+
+
+def v2_main(raw_arguments: Sequence[str]) -> int:
+    """Run the v2 route: exit 0 PASS, 1 FAIL, 2 BLOCKED; stdout is always schema-valid."""
+    story_id: str | None = None
+    try:
+        options = v2_parse_arguments(raw_arguments)
+        json_bytes = v2_generate(options)
+    except V2Stop as stop:
+        findings, story_id = stop.findings, stop.story_id
+    except GateError as error:
+        code = error.code if error.code in ("GIT_UNAVAILABLE", "GIT_COMMAND_FAILED") else (
+            "INTERNAL_ERROR"
+        )
+        findings = [
+            v2_finding(code, "git", "a Git command failed while deriving the record")
+        ]
+    except Exception as error:  # noqa: BLE001 - always emit a schema-valid failure
+        findings = [
+            v2_finding(
+                "INTERNAL_ERROR",
+                "generator",
+                f"unexpected internal error ({type(error).__name__})",
+            )
+        ]
+    else:
+        v2_write_stdout(json_bytes)
+        return 0
+
+    document = v2_failure_document(findings, story_id)
+    v2_write_stdout(
+        (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode("utf-8")
+    )
+    return document["exitCode"]
+
+
+def is_v2_invocation(raw_arguments: Sequence[str]) -> bool:
+    """The exact `--contract` option selects v2; argparse prefixes never do."""
+    return any(
+        token == "--contract" or token.startswith("--contract=") for token in raw_arguments
+    )
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = GateArgumentParser(description=__doc__)
     parser.add_argument("--repository", default=str(default_repository()))
@@ -2724,6 +4292,8 @@ def pre_parse_output_format(raw_arguments: Sequence[str]) -> str:
 
 def main(arguments: Sequence[str] | None = None) -> int:
     raw_arguments = list(arguments) if arguments is not None else sys.argv[1:]
+    if is_v2_invocation(raw_arguments):
+        return v2_main(raw_arguments)
     output_format = pre_parse_output_format(raw_arguments)
     repository: Path | None = None
     try:

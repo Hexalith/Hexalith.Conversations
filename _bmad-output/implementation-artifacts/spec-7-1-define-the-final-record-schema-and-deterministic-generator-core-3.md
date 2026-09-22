@@ -2,8 +2,8 @@
 title: 'Define the final-record schema and deterministic generator core'
 type: 'feature'
 created: '2026-09-20'
-status: 'in-progress'
-baseline_commit: 'e0b098fa1c056385e28ee8ac0efd0c55dfab324f'
+status: 'in-review'
+baseline_commit: 'c744d818c66b7c97db9a78506cc32357dc1df411'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -16,66 +16,86 @@ context:
 
 ## Intent
 
-**Problem:** The four closed Story 7.1 contracts exist, but the generator is v1-only and cannot execute the six candidate-bound scenarios or emit the authoritative JSON/Markdown pair. Current V22 authority also fails closed and forbids implementation.
+**Problem:** The four closed Story 7.1 schemas and the `v2_schema_contract` tests exist, but the generator is v1-only. It cannot run the six scenarios in the story contract or emit the authoritative JSON/Markdown pair.
 
-**Approach:** After separate authority work makes the current resolver pass with Story 7.1 `EXECUTION_ALLOWED`, add an isolated v2 route that reuses hardened Git/evidence seams and preserves v1. Generate the final pair only from the committed story candidate and measured results.
+**Approach:** Add an isolated v2 route to `generate_story_record.py`, selected by `--contract`. It reuses the hardened v1 Git and evidence helpers and leaves v1 behavior unchanged. Generate the final pair only from the committed story candidate and measured JUnit results.
 
 ## Boundaries & Constraints
 
-**Always:** Before Story-owned edits, require the V22 resolver, current owner successor, holds, and operational-envelope gate to authorize the exact candidate; revalidate rather than trust historical V20/V21 lift fields. Derive candidates, paths, raw mode-`160000` root gitlinks, exits, digests, verdicts, and JUnit ledgers. For each direct testcase in the single direct pytest suite, emit `<scenarioId>#<four-digit ordinal>`, exact `classname::name`, and `PASS` only when no direct failure/error/skipped child exists. Preserve scenario order, deterministic UTF-8/LF output, the self-excluding JSON digest, Markdown-byte digests, and summary `6/6/0/0/0/0`.
+**Always:** Derive candidates, paths, raw mode-`160000` root gitlinks, exits, digests, verdicts, and JUnit ledgers from Git objects and result files. For each direct testcase in the single direct pytest suite, emit `<scenarioId>#<four-digit ordinal>`, the exact `classname::name`, and `PASS` only when no direct failure, error, or skipped child exists. Preserve scenario order, deterministic UTF-8/LF output, the self-excluding JSON digest, Markdown-byte digests, and summary `6/6/0/0/0/0`.
 
-**Never:** Repair/publish authority within 7.1; infer authorization from historical fields or sprint status; accept caller facts; weaken schemas; change v1 behavior, planning, sprint status, dependencies, product code, submodules, or gitlinks; traverse submodules; implement 7.2–7.4; or hand-author evidence.
+**Never:** Accept caller-authored facts; weaken schemas; change v1 behavior, dependencies, product code, submodules, or gitlinks; traverse submodules; implement 7.2–7.4; hand-author evidence; or write new planning-authority successor records.
 
 ## I/O & Edge-Case Matrix
 
 | Scenario | Input / State | Expected Output / Behavior | Error Handling |
 |----------|---------------|---------------------------|----------------|
-| Entry gate | Current authority/candidate | Start only on current `PASS` plus `EXECUTION_ALLOWED` | Preserve files; report exact `FAIL`/`BLOCKED` |
-| Bundle | Identical validated inputs | Byte-identical schema-valid JSON/Markdown | Stable content/digest blocker |
-| Bad evidence | Malformed input, caller facts, or empty derivation | Closed failure; outputs unchanged | Exact input, argument, caller, or anti-vacuity blocker |
+| Bundle | Identical validated inputs | Byte-identical, schema-valid JSON/Markdown | Stable content/digest blocker |
+| Caller facts | Counts, paths, commits, or verdict passed as caller text | Exit `1`, `FAIL`; no passing record | `CALLER_AUTHORED_FACT` |
+| Empty derivation | No parsed result, resolved candidate, derived path, or executed assertion | Exit `1`, `FAIL`; outputs unchanged | `RECORD_NOT_DERIVED` and `ASSERTION_LEDGER_EMPTY` |
+| Bad evidence | Malformed JSON, unknown schema identity, or invalid CLI arguments | Schema-valid failure output, exit `1`, no traceback | `INPUT_SCHEMA_INVALID` or `ARGUMENT_INVALID` |
 
 </frozen-after-approval>
 
 ## Code Map
 
-- `_bmad/scripts/resolve_current_planning_authority.py` -- V22 preflight; current `HEAD` is `FAIL / CANDIDATE_GRAPH_DRIFT`, hold active.
-- `_bmad/scripts/generate_story_record.py:225` -- reuse Git, containment, snapshot, commit, `.gitmodules`, raw-tree, and rendering helpers; dispatch exact `--contract` before the legacy parser at `:2688`.
-- `_bmad/schemas/story-final-record-v2.schema.json:291` and `_bmad/schemas/story-record-generator-failure-v1.schema.json` -- complete embedded results and add the absent pre-identity failure contract.
-- `_bmad/scripts/tests/test_generate_story_record.py:1458` -- retain schema tests; extend hermetic fixtures for all six scenarios, faults, restoration, and v1 regression.
-- `_bmad-output/planning-artifacts/v9/story-contracts/7.1.json:25` -- exact commands/order/outputs; V20 input inventory is historical until revalidated.
-- `docs/runbooks/story-final-record-generation.md` and `docs/release-evidence/story-7.1-final-record-v2.{json,md}` -- operator contract and generated outputs.
+- `_bmad/scripts/generate_story_record.py:225` -- reuse the Git, containment, snapshot, commit, `.gitmodules`, raw-tree, and rendering helpers. Dispatch on an exact `--contract` before the legacy parser at `:2688`.
+- `_bmad/schemas/story-final-record-v2.schema.json:291` and `_bmad/schemas/story-record-generator-failure-v1.schema.json` -- complete the embedded results and add the missing pre-identity failure contract.
+- `_bmad/scripts/tests/test_generate_story_record.py:1458` -- keep the `v2_schema_contract` tests, which pass today (7/7; 64/64 for the whole file). Add hermetic fixtures, reusing the `umbrella` fixture where practical, for AC-7.1-02 through AC-7.1-05, the faults, restoration, and a v1 regression check.
+- `_bmad-output/planning-artifacts/v9/story-contracts/7.1.json:25` -- exact commands, order, and outputs. The test `-k` selectors must match the scenario commands exactly.
+- `docs/runbooks/story-final-record-generation.md` and `docs/release-evidence/story-7.1-final-record-v2.{json,md}` -- the operator contract and the generated outputs.
 
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad/scripts/resolve_current_planning_authority.py` -- stop without Story edits unless every current entry gate passes.
-- [ ] `_bmad/schemas/story-final-record-v2.schema.json` and `_bmad/schemas/story-record-generator-failure-v1.schema.json` -- close complete result/failure shapes.
-- [ ] `_bmad/scripts/generate_story_record.py` -- implement isolated v2 parsing, measured JUnit derivation, deterministic validation/rendering/digests, and atomic outputs while preserving v1.
-- [ ] `_bmad/scripts/tests/test_generate_story_record.py` -- cover all frozen selectors, faults, anti-vacuity, restoration, deterministic reruns, and v1 regression.
-- [ ] `docs/runbooks/story-final-record-generation.md` and `docs/release-evidence/story-7.1-final-record-v2.{json,md}` -- document behavior, then generate AC-06 from the committed candidate after AC-01–05 pass.
+- [x] `_bmad/schemas/story-final-record-v2.schema.json` and `_bmad/schemas/story-record-generator-failure-v1.schema.json` -- close the complete result and failure shapes.
+- [x] `_bmad/scripts/generate_story_record.py` -- implement isolated v2 parsing, measured JUnit derivation, deterministic validation, rendering and digests, and atomic outputs, all while preserving v1.
+- [x] `_bmad/scripts/tests/test_generate_story_record.py` -- cover the `v2_deterministic_bundle`, `v2_rejects_caller_authored_facts`, `v2_rejects_empty_derivation`, and `v2_malformed_input_is_schema_valid_failure` selectors, plus fault restoration and v1 regression.
+- [x] `docs/runbooks/story-final-record-generation.md` -- document the v2 route, its blocker codes, and its exit semantics.
+- [ ] `docs/release-evidence/story-7.1-final-record-v2.{json,md}` -- generated by the orchestrator (not the implementation subagent) from the committed candidate after AC-7.1-01 through AC-7.1-05 pass.
 
 **Acceptance Criteria:**
-- Given authority is missing, stale, failing, or non-executing, when entry runs, then Story files stay unchanged and distinct `FAIL`/`BLOCKED` remains visible.
-- Given identical validated inputs, when v2 runs twice, then bytes match, validate, cross-bind digests, and include ten raw gitlinks in frozen order.
-- Given malformed, caller-authored, empty, failing, skipped, or not-run evidence, when tested, then no pass is possible, its stable blocker appears, and fixtures restore byte-identically.
-- Given AC-01–05 pass on one committed candidate, when AC-06 runs, then it embeds nonempty ordered ledgers and generates the authoritative pair with `6/6/0/0/0/0`.
+- Given identical validated inputs, when v2 runs twice, then the bytes match, validate, and cross-bind digests, and the output includes the ten raw gitlinks in frozen order.
+- Given malformed, caller-authored, empty, failing, skipped, or not-run evidence, when tested, then no pass is possible, the stable blocker appears, and the fixtures restore byte-identically.
+- Given the v1 test suite, when run after the change, then every pre-existing test still passes unchanged.
+- Given AC-7.1-01 through AC-7.1-05 pass on one committed candidate, when AC-7.1-06 runs, then it embeds nonempty ordered ledgers and generates the authoritative pair with `6/6/0/0/0/0`.
 
 ## Implementation Notes
 
 - 2026-09-20 entry preflight at baseline `e0b098fa1c056385e28ee8ac0efd0c55dfab324f`: resolver exit `1`, result `FAIL`, blocker `CANDIDATE_PARENT_DRIFT`, `executionAllowed: false`, and `implementationHold: ACTIVE`. No Story-owned implementation file was changed and no acceptance scenario was run.
+- 2026-09-22 owner waiver: the project owner waived the planning-authority entry gate for Story 7.1 ("over complicated … no ROI. Simplify, be pragmatic, bypass if needed"). The resolver `--check` preflight, the implementation hold, and the V27 protected-branch exception are no longer preconditions. Before the waiver, the preflight at `c744d818c66b7c97db9a78506cc32357dc1df411` was `BLOCKED V24_TOOLING_MANIFEST_DRIFT`, and `origin/main` (`2de5b4d62812ddd553bb27c0299e03b1e10d5cf0`) did not contain the V27 bootstrap.
 
 ## Spec Change Log
 
+- 2026-09-22 (owner renegotiation): removed the entry-gate requirement from the Intent, Always, and Never sections, the matrix, the tasks, the ACs, the Code Map, and Verification. Replaced the matrix's "Entry gate" row with the concrete AC-7.1-03, AC-7.1-04, and AC-7.1-05 rows, and added a v1-regression AC. Reset `baseline_commit` from `e0b098f…` to the current `HEAD` `c744d81…`, so review diffs cover only Story 7.1 work and not the V23–V27 authority commits in between. Kept the product intent, the constraints, and the six-scenario contract.
+
 ## Review Triage Log
+
+Iteration 0 (reviewers: blind hunter, edge-case hunter, verification gap). Routes: **P** = patch, **D** = defer, **R** = reject.
+
+- medium **P** — `v2_write_outputs`/post-write read-back: when the read-back fails or differs, it raises after both `os.replace` calls with no rollback, so a non-PASS result leaves the new outputs installed (confirmed at `generate_story_record.py:4125-4141`).
+- medium **P** (verification-gap, pre-verified) — the BLOCKED/exit-2 class is never exercised (`SCHEMA_UNAVAILABLE`, `GIT_COMMAND_FAILED`).
+- medium **P** (verification-gap) — the scenario-command checks have no test (self-invocation not last or mismatched, uncommitted target, shared JUnit path).
+- medium **P** (verification-gap) — the authority checks other than the digest have no test (`planningCandidate` drift, unsorted rows, missing bundle).
+- medium **P** (verification-gap) — no test covers output symlink containment or second-replace rollback.
+- low **P** — the runbook §9 has no operator procedure: run under `uv`, after the commit, results uncommitted/ignored under `artifacts/`.
+- medium **D** — results are bound to the candidate only by mtime ≥ committer time. Partial or interrupted runs, other checkouts, submodule worktree HEADs, and skip-worktree/ignored test inputs are not detected. Deriving measured test, candidate, and submodule facts is Story 7.2's scope.
+- medium **D** — the inventory digest and predecessors are copied from the contract rather than re-derived, and the bundle rows are not compared to the candidate blobs. This is derivation work for Story 7.2.
+- low **D** — contract `resultSemantics` exit-code classes (`failExitCodes`/`blockedExitCodes`) are not consulted when classifying exits.
+- low **R** — non-simple `-k` selectors skip the membership check: the frozen contract uses only simple selectors.
+- low **R** — the fault, v1-regression, and runbook tests fall outside the six contract selectors: they still run in the full file and in the CI `_bmad/scripts/tests` lane.
+- low **R** — the self-scenario ledger rows are constants: the record is written only on a full PASS, so every row holds by construction.
+- low **R** — outputs could alias tracked files, such as the bundle or a schema: this needs a malicious committed contract, and rejecting tracked outputs would break regeneration.
+- low **R** — rejected as unlikely in local operation, each needing added guards: UTF-16 DOCTYPE bypass, RecursionError/symlink-loop classed as INTERNAL_ERROR, temp-name symlink race, stdout BrokenPipe, `v2_verify_pair` raising on a tampered pair (no CLI entry), non-Git GateError message, loose failure-schema blocker enum, schema not requiring a ledger on PASS (the generator enforces it), HEAD race, case-insensitive `-k`, CR in contract text.
 
 ## Design Notes
 
-V22 is live. Its historical candidate PASS keeps the hold active, while current `HEAD` fails graph validation. Authority repair and owner authorization are separate work.
+The v2 route is additive: v1's CLI, output, and tests stay byte-for-byte compatible. Blocker codes and exit semantics follow the story contract (`0` PASS, `1` FAIL, `2` BLOCKED).
 
 ## Verification
 
 **Commands:**
-- `uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate HEAD --check` -- expected before edits: exit 0, `PASS`, nonempty assertions, and current Story 7.1 execution authorization.
-- Execute `scenarios[0]` through `scenarios[4]` `.command` values from `_bmad-output/planning-artifacts/v9/story-contracts/7.1.json` verbatim -- expected: five current, nonempty `PASS` JUnit files bound to one candidate.
-- `uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md` -- expected: exit 0 and deterministic `PASS` outputs only from the authorized committed candidate.
+- `TMPDIR=/var/tmp uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py` -- expected: every test passes, v1 and v2.
+- Run each `scenarios[0]` through `scenarios[4]` `.command` from `_bmad-output/planning-artifacts/v9/story-contracts/7.1.json` through `uv run --frozen --no-sync` -- expected: five nonempty `PASS` JUnit files in `artifacts/v9/7.1/`.
+- `uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json --format bundle --output-json docs/release-evidence/story-7.1-final-record-v2.json --output-markdown docs/release-evidence/story-7.1-final-record-v2.md` -- expected: exit 0 and deterministic `PASS` outputs from the committed candidate.
 - `git diff --check` -- expected: no whitespace errors.

@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/story-record-generator-failure-v1.schema.json",
+  "title": "Conversations Story Record Generator Failure V1",
+  "description": "Authority boundary: this schema validates the machine output of every non-PASS v2 story-record generator run, including runs that fail before a story identity is derived; it carries stable blocker codes and generator-authored diagnostics only, never a caller payload, traceback, or partial record.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "result",
+    "exitCode",
+    "blockers",
+    "diagnostics"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-record-generator-failure.v1"
+    },
+    "result": {
+      "enum": ["FAIL", "BLOCKED"]
+    },
+    "exitCode": {
+      "enum": [1, 2]
+    },
+    "storyId": {
+      "$ref": "#/$defs/storyId"
+    },
+    "blockers": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/blocker"
+      }
+    },
+    "diagnostics": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "$ref": "#/$defs/diagnostic"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "FAIL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exitCode": {
+            "const": 1
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "BLOCKED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exitCode": {
+            "const": 2
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "storyId": {
+      "type": "string",
+      "pattern": "^(?:[7-9]|1[0-6])\\.[1-4]$"
+    },
+    "blocker": {
+      "type": "string",
+      "pattern": "^[A-Z][A-Z0-9_]*$"
+    },
+    "diagnostic": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "subject",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "$ref": "#/$defs/blocker"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400,
+          "pattern": "^[^\\u0000-\\u001f]+$"
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "pattern": "^[^\\u0000-\\u001f]+$"
+        }
+      }
+    }
+  }
+}

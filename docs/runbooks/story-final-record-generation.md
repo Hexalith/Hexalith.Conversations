@@ -18,6 +18,10 @@ count, path, or commit that nobody measured.** Every field is derived by
 `_bmad/scripts/generate_story_record.py` from repository state. Nothing in the
 record is caller-authored text.
 
+Sections 1-8 govern the v1 route. The contract-bound v2 route, which Story 7.1
+uses to produce `hexalith.conversations.story-final-record.v2` records, is
+described in section 9.
+
 ## 1. Derivation sources
 
 Exactly four, and no others:
@@ -250,6 +254,165 @@ in either mode.
   `TEST_RESULTS_MISSING` with the parse failure in its message, because a project
   whose artifact yields no counters is not-run in the only sense a record can
   honestly claim.
+
+## 9. Contract-bound v2 route
+
+Sections 1-8 describe the v1 route. Passing the exact `--contract` option
+selects an isolated v2 route instead. The generator dispatches on that exact
+token before the legacy parser runs; an abbreviation such as `--contr` still
+reaches the v1 parser, and every v1 invocation, document, and exit code is
+unchanged.
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py \
+  --repository . \
+  --contract _bmad-output/planning-artifacts/v9/story-contracts/7.1.json \
+  --format bundle \
+  --output-json docs/release-evidence/story-7.1-final-record-v2.json \
+  --output-markdown docs/release-evidence/story-7.1-final-record-v2.md
+```
+
+### Accepted input
+
+The route accepts exactly `--repository`, `--contract`, `--format`,
+`--output-json`, and `--output-markdown`, each at most once, with no
+prefix abbreviation. `--format` supports only `bundle`. The two output paths
+must equal the contract's `finalRecord.paths`, because output paths are contract
+facts rather than caller choices. Any option that would supply a count, path,
+commit, gitlink, digest, exit, ledger, or verdict, such as `--candidate`,
+`--passed`, `--summary`, `--test-results`, `--changed-path`, `--gitlink`, or
+`--result`, is refused by name as `CALLER_AUTHORED_FACT` before anything is
+derived.
+
+The route requires the pinned `jsonschema` environment. It validates against
+the tooling's own schema copies in `_bmad/schemas/`, never the evaluated
+repository's: `story-final-record-v2.schema.json`,
+`story-record-generator-failure-v1.schema.json`,
+`v9-story-contract-v1.schema.json`, and `v9-authority-bundle-v1.schema.json`.
+
+### Derivation
+
+Every fact comes from Git objects of the committed candidate or from measured
+JUnit result files:
+
+1. **Candidate.** `HEAD` resolved to a commit. There is no `--candidate`
+   option. The working tree must equal the candidate everywhere except for the
+   two declared outputs and the declared JUnit result paths, detected without
+   traversing submodules.
+2. **Contract.** Read from the candidate blob at `--contract`, parsed as strict
+   UTF-8 JSON (duplicate keys and non-finite numbers are rejected), required to
+   carry `hexalith.conversations.story-contract.v1`, and validated against the
+   closed story-contract schema. Scenario IDs must be unique and belong to the
+   story, and `finalRecord.summary` must require and pass every scenario.
+3. **Authority.** Epic, architecture, and planning candidate come from the
+   contract. `bundleDigest` is recomputed from the candidate's
+   `_bmad-output/planning-artifacts/v9-authority-bundle-v1.json` as the
+   SHA-256 of one `<sha256>  <path>` LF line per ordinally sorted artifact
+   row. The bundle's planning candidate must equal the contract's.
+4. **Gitlinks.** Raw mode-`160000` entries of the candidate tree, sorted
+   ordinally, must equal the candidate's root `.gitmodules` path set exactly.
+   The final-record schema then pins the ten frozen paths in order.
+5. **Scenarios.** Each pytest scenario command must have the shape
+   `python3 -m pytest -q TARGET -k SELECTOR --junitxml=PATH`. The target must
+   be committed at the candidate, and the JUnit path must lie outside every
+   gitlink. The final scenario must be this generator's own invocation, with
+   the same contract, format, and output paths.
+6. **JUnit ledgers.** A result file must contain one `testsuites` root with
+   exactly one direct `testsuite`, no DTD or entity declaration, and suite
+   counters that equal its direct testcases. Each direct testcase becomes one
+   ledger row: `<scenarioId>#<four-digit ordinal>`, subject
+   `classname::name`, and `PASS` only when it has no direct `failure`, `error`,
+   or `skipped` child. Every testcase must belong to the command's target
+   module and contain its simple `-k` selector. A result file that predates the
+   candidate's commit time is stale.
+7. **Exit.** Each pytest scenario's exit is derived the way pytest reports
+   it: `5` for no testcase, `1` for any failure or error, and `0` otherwise. A
+   scenario passes only with a declared passing exit, a nonempty ledger, no
+   skip, and no blocker. The self-invocation scenario carries the generator's
+   own ordered assertion ledger.
+8. **Summary.** Counted from the derived scenario results, and required to
+   equal the contract's `finalRecord.summary` (`6/6/0/0/0/0` for Story 7.1).
+   `faultInjection.results` stays empty, because no fault result is a measured
+   input of this route.
+
+### Outputs and digests
+
+The JSON record is authoritative. It is rendered as `indent=2`, UTF-8, LF, with
+a terminal newline. The Markdown is a deterministic projection of the same
+record.
+
+- **JSON content digest (self-excluding).** SHA-256 of the canonical JSON with
+  `outputs.json.sha256`, `outputs.markdown.sha256`, and
+  `renderedMarkdownSha256` all set to 64 zeros. It is stored in
+  `outputs.json.sha256` and printed in the Markdown.
+- **Markdown digest.** SHA-256 of the exact Markdown bytes. It is stored in both
+  `outputs.markdown.sha256` and `renderedMarkdownSha256`.
+
+Before anything is written, the route renders the pair twice and requires
+identical bytes, validates the record against the final-record schema, and
+re-derives every digest binding. It then replaces both outputs atomically,
+restoring the first if the second replacement fails. Outputs are written only
+on `PASS`; every other result leaves them unchanged. On `PASS`, stdout carries
+the exact JSON record bytes. Otherwise stdout carries one
+`hexalith.conversations.story-record-generator-failure.v1` document with stable
+codes and generator-authored diagnostics. It never contains a traceback, a
+partial record, or caller payload.
+
+### Exit semantics
+
+- Exit `0`: `PASS`. Both outputs were written, and stdout is the JSON record.
+- Exit `1`: `FAIL`. A proven defect in the input or evidence was found, and the
+  outputs are unchanged.
+- Exit `2`: `BLOCKED`. The environment cannot support a trustworthy record, and
+  the outputs are unchanged.
+
+| Blocker | Exit | Condition |
+| --- | --- | --- |
+| `ARGUMENT_INVALID` | `1` | An unknown, repeated, valueless, empty, positional, or unsupported argument; a missing required option; a non-root `--repository`; or a contract path that is not a committed regular file |
+| `CALLER_AUTHORED_FACT` | `1` | A fact-bearing option was supplied, or the output paths differ from `finalRecord.paths` |
+| `INPUT_SCHEMA_INVALID` | `1` | The contract is malformed JSON, has an unknown schema identity, or violates its schema; or a result file is malformed, escapes the repository, or is not a single-suite JUnit document |
+| `RECORD_NOT_DERIVED` | `1` | No committed candidate, no parsed result file, no raw gitlink path, or no derived assertion |
+| `ASSERTION_LEDGER_EMPTY` | `1` | A scenario, or the whole run, yields no executed testcase |
+| `AUTHORITY_BINDING_INVALID` | `1` | The V9 bundle is missing, malformed, unsorted, digest-drifted, or bound to another planning candidate |
+| `GITLINK_INVENTORY_DRIFT` | `1` | Raw gitlinks and root `.gitmodules` differ, or `.gitmodules` declares a path outside `references/` |
+| `WORKTREE_NOT_CLEAN` | `1` | The working tree differs from the candidate outside the declared outputs and results |
+| `SCENARIO_COMMAND_UNSUPPORTED` | `1` | A scenario command has an unsupported shape, its target is not committed, or the self-invocation is missing or not final |
+| `SCENARIO_RESULT_MISMATCH` | `1` | Testcases do not belong to the scenario's target and selector, a testcase identity repeats, two scenarios share a result path, or this invocation is not the declared self-invocation |
+| `TEST_RESULTS_MISSING` | `1` | A declared result file does not exist, so the scenario was not run |
+| `TEST_RESULTS_STALE` | `1` | A result file predates the candidate commit |
+| `TEST_RESULTS_FAILED` | `1` | A testcase failed or errored, or the derived exit is not a declared passing exit |
+| `TEST_SKIP_NOT_ALLOWED` | `1` | A testcase was skipped; the v2 route allows no skip |
+| `TEST_COUNT_INCONSISTENT` | `1` | Suite counters disagree with the testcases the suite contains |
+| `OUTPUT_PATH_INVALID` | `1` | An output lies below a gitlink, aliases an input, escapes the repository, or names a symlink or non-file |
+| `OUTPUT_SCHEMA_INVALID` | `1` | The derived record violates the final-record schema |
+| `RECORD_CONTENT_DRIFT` | `1` | Two renderings differ, a digest binding does not re-derive, or the installed bytes differ from the generated bytes |
+| `GIT_UNAVAILABLE` | `2` | Git is not on `PATH` |
+| `GIT_COMMAND_FAILED` | `2` | A Git command failed while deriving the record |
+| `SCHEMA_UNAVAILABLE` | `2` | A tooling schema is missing, unreadable, or invalid |
+| `SCHEMA_VALIDATOR_UNAVAILABLE` | `2` | `jsonschema` is not installed; use the pinned `uv run --frozen --no-sync` environment |
+| `OUTPUT_WRITE_FAILED` | `2` | The outputs could not be written |
+| `INTERNAL_ERROR` | `2` | An unexpected generator error occurred; only its exception type is reported |
+
+Remediate the named condition and rerun the same command. Never hand-edit a
+result file, a count, a path, or a digest into agreement.
+
+### Operator procedure
+
+1. Commit the story candidate: every executable, test, schema, and
+   documentation change. `HEAD` is the candidate, and the working tree must be
+   clean.
+2. From the repository root, run each `scenarios[0]` through `scenarios[4]`
+   `.command` from the story contract through `uv run --frozen --no-sync`, for
+   example `uv run --frozen --no-sync python3 -m pytest -q ... --junitxml=...`.
+   That pinned environment supplies `jsonschema`. Each command must exit `0`.
+3. Leave the JUnit results uncommitted. They are written below the gitignored
+   `artifacts/` directory and are read from there, not from Git.
+4. Run the final generator scenario, the command at the top of this section,
+   through `uv run --frozen --no-sync`. It must exit `0`. On any other exit,
+   remediate and restart from step 1 if the candidate changed, otherwise from
+   step 2.
+5. Confirm that the two declared outputs are the only dirt, then commit exactly
+   those outputs in a separate commit that follows the candidate.
 
 ## Ordered checklist (copy per story)
 
