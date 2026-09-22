@@ -2,6 +2,11 @@
 
 Real findings that are not actionable in the story that surfaced them. Each entry records where it came from so a later sweep can verify it against the codebase before acting.
 
+## Deferred from: code review of spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md (2026-09-22)
+
+- Bind JUnit exits and test inputs to the exact committed candidate. `v2_scenario_from_results` infers exits from testcase children and uses result-file mtime for freshness, so partial runs or another checkout can appear passing. This is already assigned to Story 7.2 below.
+- Derive the inventory digest and predecessor facts from their source artifacts. `v2_generate` copies them from the contract; this is already assigned to Story 7.2 below.
+
 ## Deferred from: code review of spec-6-1-rebaseline-architecture-and-planning-authority (2026-07-26)
 
 - **The planning gate has no automated execution path.** Story 6.1's stated approach is to "enforce the resulting planning contract with focused conformance tests", but the repository has no `.github/workflows` directory and no pipeline definition anywhere outside `references/`. The story's Verification section lists hand-run binary invocations. Nothing causes `ArchitecturePlanningAuthorityValidationTest` (or the other 390 conformance facts) to run on any commit, and the artifacts it guards are markdown that later agents edit without triggering a build. Until this is wired into CI or a pre-commit hook, every authority assertion is advisory. Pre-existing repository condition, not caused by Story 6.1.

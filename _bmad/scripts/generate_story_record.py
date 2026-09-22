@@ -3937,7 +3937,8 @@ def v2_generate(options: dict[str, str]) -> bytes:
                 )
                 continue
             if (
-                generator_command.get("--contract") != contract_path
+                generator_command.get("--repository") != "."
+                or generator_command.get("--contract") != contract_path
                 or generator_command.get("--output-json") != output_json
                 or generator_command.get("--output-markdown") != output_markdown
                 or generator_command.get("--format") != options["--format"]

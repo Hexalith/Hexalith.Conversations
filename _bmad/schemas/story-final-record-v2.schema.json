@@ -291,6 +291,21 @@
     "scenario": {
       "type": "object",
       "additionalProperties": false,
+      "if": {
+        "properties": {
+          "result": {
+            "const": "PASS"
+          }
+        },
+        "required": [
+          "result"
+        ]
+      },
+      "then": {
+        "required": [
+          "assertionLedger"
+        ]
+      },
       "required": [
         "scenarioId",
         "command",

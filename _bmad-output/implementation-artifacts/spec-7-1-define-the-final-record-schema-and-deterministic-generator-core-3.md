@@ -60,6 +60,22 @@ context:
 - Given the v1 test suite, when run after the change, then every pre-existing test still passes unchanged.
 - Given AC-7.1-01 through AC-7.1-05 pass on one committed candidate, when AC-7.1-06 runs, then it embeds nonempty ordered ledgers and generates the authoritative pair with `6/6/0/0/0/0`.
 
+### Review Findings
+
+- [x] [Review][Patch] Bind the self-invocation repository to the evaluated checkout [_bmad/scripts/generate_story_record.py:3940] — require the contract command's `--repository .` and cover a committed alternate-checkout command.
+- [x] [Review][Patch] Require an assertion ledger for every passing scenario [_bmad/schemas/story-final-record-v2.schema.json:292] — require `assertionLedger` when `result` is `PASS` and cover omission in the schema test.
+- [x] [Review][Defer] Bind JUnit exits and test inputs to the candidate [_bmad/scripts/generate_story_record.py:3419] — deferred: Story 7.2 owns measured test and candidate derivation; mtime and testcase counts alone cannot prove the process exit or the tested checkout. Already recorded in the deferred-work ledger.
+- [x] [Review][Defer] Derive inventory and predecessor facts from their sources [_bmad/scripts/generate_story_record.py:4078] — deferred: Story 7.2 owns these fact bindings; the v2 core currently copies them from the contract. Already recorded in the deferred-work ledger.
+
+#### Rejected
+
+- The V9 bundle's V14 authority names and older gitlink commits differ from this record's historical contract authority and current candidate gitlinks. The bundle binds a different point in history; the current epic context says live authority is marker-driven, so equality is not required here.
+- Bundle artifact rows are not rehashed against current candidate blobs. That is part of the deferred Story 7.2 source-binding work; comparing a historical bundle directly to current blobs would reject legitimate later changes.
+- JUnit and output paths could alias unrelated tracked files only after changing the committed story contract. The frozen contract names dedicated artifact and final-record paths; extra generic guards add complexity to this scoped route.
+- An escaped unpaired surrogate can become `INTERNAL_ERROR` rather than `INPUT_SCHEMA_INVALID`, but the committed contract has none and accommodating this malformed edge case needs extra validation branches.
+- The two output files are replaced sequentially, so a concurrent reader could observe a mixed pair. Each file is atomically replaced and the pair is digest-bound; the contract does not require one atomic multi-file visibility point.
+- A selector matching a pytest class or module rather than the testcase name can be rejected. The frozen Story 7.1 commands use simple function-name selectors, so that broader selector support is outside this route.
+
 ## Implementation Notes
 
 - 2026-09-20 entry preflight at baseline `e0b098fa1c056385e28ee8ac0efd0c55dfab324f`: resolver exit `1`, result `FAIL`, blocker `CANDIDATE_PARENT_DRIFT`, `executionAllowed: false`, and `implementationHold: ACTIVE`. No Story-owned implementation file was changed and no acceptance scenario was run.

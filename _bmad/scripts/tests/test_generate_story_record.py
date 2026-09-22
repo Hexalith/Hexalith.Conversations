@@ -1712,6 +1712,9 @@ def v2_schema_contract_final_record() -> dict:
                 "exitCode": 0,
                 "result": "PASS",
                 "blockers": [],
+                "assertionLedger": [
+                    {"id": "AC-7.1-01#0001", "subject": "fixture::assertion", "state": "PASS"}
+                ],
             }
         ],
         "faultInjection": {
@@ -1974,6 +1977,10 @@ def test_v2_schema_contract_rejects_invalid_bindings() -> None:
 
         record = v2_schema_contract_final_record()
         record["predecessors"] = ["6.2", "6.2"]
+        assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+        record = v2_schema_contract_final_record()
+        record["scenarios"][0].pop("assertionLedger")
         assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
     finally:
         for fixture, original in before.items():
@@ -2875,6 +2882,12 @@ def v2_self_output_mismatch(scenarios: list[dict]) -> None:
     )
 
 
+def v2_self_repository_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        "--repository .", "--repository ../another-checkout"
+    )
+
+
 def v2_uncommitted_target(scenarios: list[dict]) -> None:
     scenarios[0]["command"] = scenarios[0]["command"].replace(
         V2_TARGET_PATH, "_bmad/scripts/tests/test_not_committed.py"
@@ -2973,6 +2986,10 @@ V2_FAULTS = {
     ),
     "self-invocation-output-mismatch": (
         v2_fault_commit(v2_mutate_contract(v2_self_output_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "self-invocation-repository-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_repository_mismatch)),
         "SCENARIO_RESULT_MISMATCH",
     ),
     "uncommitted-pytest-target": (
