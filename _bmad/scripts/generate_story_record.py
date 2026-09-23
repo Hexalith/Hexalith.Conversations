@@ -2714,6 +2714,9 @@ V2_SCHEMA_FILES = {
 }
 V2_AUTHORITY_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 V2_GENERATOR_PATH = "_bmad/scripts/generate_story_record.py"
+V2_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+V2_7_1_RECORD_PATH = "docs/release-evidence/story-7.1-final-record-v2.json"
+V2_7_1_MARKDOWN_PATH = "docs/release-evidence/story-7.1-final-record-v2.md"
 V2_ZERO_DIGEST = "0" * 64
 V2_MESSAGE_LIMIT = 1900
 V2_PATH_REPORT_LIMIT = 20
@@ -2790,11 +2793,21 @@ V2_CODES = {
     "ASSERTION_LEDGER_EMPTY": "FAIL",
     "AUTHORITY_BINDING_INVALID": "FAIL",
     "GITLINK_INVENTORY_DRIFT": "FAIL",
+    "GITLINK_SCOPE_MISMATCH": "FAIL",
+    "GITLINK_DRIFT": "FAIL",
     "WORKTREE_NOT_CLEAN": "FAIL",
+    "SOURCE_TREE_DIRTY": "FAIL",
+    "FILE_LIST_DRIFT": "FAIL",
+    "SUBMODULE_INTERNAL_PATH": "FAIL",
+    "BASELINE_NOT_TRUSTWORTHY": "FAIL",
+    "CANDIDATE_NOT_FINAL": "FAIL",
     "SCENARIO_COMMAND_UNSUPPORTED": "FAIL",
     "SCENARIO_RESULT_MISMATCH": "FAIL",
     "TEST_RESULTS_MISSING": "FAIL",
     "TEST_RESULTS_STALE": "FAIL",
+    "TEST_FAILED": "FAIL",
+    "TEST_SKIPPED": "FAIL",
+    "TEST_NOT_RUN": "FAIL",
     "TEST_RESULTS_FAILED": "FAIL",
     "TEST_SKIP_NOT_ALLOWED": "FAIL",
     "TEST_COUNT_INCONSISTENT": "FAIL",
@@ -3213,7 +3226,7 @@ def v2_authority(
 
 
 def v2_gitlinks(
-    repository: Path, candidate: str, findings: list[dict[str, str]]
+    repository: Path, candidate: str, findings: list[dict[str, str]], story_id: str = "7.1"
 ) -> list[dict[str, str]]:
     """Raw root gitlinks, required to equal the ordinal root `.gitmodules` inventory."""
     try:
@@ -3223,12 +3236,24 @@ def v2_gitlinks(
             raise
         findings.append(
             v2_finding(
-                "GITLINK_INVENTORY_DRIFT",
+                "GITLINK_SCOPE_MISMATCH" if story_id == "7.2" else "GITLINK_INVENTORY_DRIFT",
                 ".gitmodules",
                 "the candidate .gitmodules declares a path outside references/ or with no value",
             )
         )
         return []
+    if story_id == "7.2" and v2_committed_blob(repository, candidate, ".gitmodules") is not None:
+        raw_declarations = run_git(
+            repository, "config", "--null", "--blob", f"{candidate}:.gitmodules",
+            "--get-regexp", r"^submodule\..*\.path$", allowed_returncodes=(0, 1)
+        )
+        if raw_declarations.returncode == 0:
+            values = [decode(item).split("\n", 1)[-1]
+                      for item in raw_declarations.stdout.split(b"\0") if item]
+            if len(values) != len(set(values)):
+                findings.append(v2_finding("GITLINK_SCOPE_MISMATCH", ".gitmodules",
+                                           "root .gitmodules repeats a submodule path"))
+                return []
     raw = v2_raw_gitlinks(repository, candidate)
     raw_paths = [path for path, _ in raw]
     if not raw_paths and not declared:
@@ -3251,7 +3276,10 @@ def v2_gitlinks(
         if not details:
             details.append("a raw gitlink path repeats")
         findings.append(
-            v2_finding("GITLINK_INVENTORY_DRIFT", "candidate.gitlinks", "; ".join(details))
+            v2_finding(
+                "GITLINK_SCOPE_MISMATCH" if story_id == "7.2" else "GITLINK_INVENTORY_DRIFT",
+                "candidate.gitlinks", "; ".join(details)
+            )
         )
         return []
     return [{"path": path, "commit": commit, "mode": "160000"} for path, commit in raw]
@@ -3630,6 +3658,29 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
             lines.append(
                 f"| {code(entry['id'])} | {code(entry['subject'])} | {code(entry['state'])} |"
             )
+    if "measurements" in record:
+        measured = record["measurements"]
+        lines.extend([
+            "", "## Story 7.2 measurements", "",
+            f"- Baseline: {code(measured['baseline'])}",
+            f"- Predecessor record: {code(measured['predecessorRecord']['path'])}",
+            f"- Predecessor SHA-256: {code(measured['predecessorRecord']['sha256'])}",
+            "", "### Root test projects", "",
+            "| Project | Result file | Total | Executed | Passed | Failed | Skipped |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ])
+        for project in measured["testProjects"]:
+            counts = project["counts"]
+            lines.append("| " + " | ".join(code(value) for value in (
+                project["project"], project["resultFile"]["path"],
+                counts["total"], counts["executed"], counts["passed"],
+                counts["failed"], counts["skipped"])) + " |")
+        totals = measured["testTotals"]
+        lines.append("| " + " | ".join(code(value) for value in (
+            "TOTAL", "", totals["total"], totals["executed"], totals["passed"],
+            totals["failed"], totals["skipped"])) + " |")
+        lines.extend(["", "### Exact changed paths", ""])
+        lines.extend(f"- {code(path)}" for path in measured["changedPaths"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if faults:
@@ -3826,6 +3877,213 @@ def v2_self_ledger(scenario_id: str) -> list[dict[str, str]]:
     ]
 
 
+def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
+                           markdown_path: str, validator: Any) -> str:
+    """Retain a verified source candidate across a record-only successor commit."""
+    json_file = repository / json_path
+    markdown_file = repository / markdown_path
+    if not json_file.exists() and not markdown_file.exists():
+        return head
+    if not json_file.is_file() or not markdown_file.is_file():
+        raise V2Stop([v2_finding("RECORD_CONTENT_DRIFT", "outputs",
+                                 "a prior Story 7.2 output pair is incomplete")], "7.2")
+    try:
+        json_bytes = json_file.read_bytes()
+        markdown_bytes = markdown_file.read_bytes()
+        existing = v2_parse_json(json_bytes)
+        if (not isinstance(existing, dict) or existing.get("storyId") != "7.2"
+                or v2_schema_errors(validator, existing)
+                or v2_verify_pair(json_bytes, markdown_bytes)):
+            raise ValueError("prior Story 7.2 pair does not verify")
+        old = existing["candidate"]["commit"]
+        candidate = try_resolve_commit(repository, old)
+    except (OSError, ValueError, TypeError, KeyError, AttributeError):
+        raise V2Stop([v2_finding("RECORD_CONTENT_DRIFT", "outputs",
+                                 "the prior Story 7.2 output pair is invalid")], "7.2") from None
+    if candidate is None or not is_ancestor(repository, candidate, head):
+        raise V2Stop([v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
+                                 "the verified prior candidate is no longer an ancestor of HEAD")], "7.2")
+    changed = set(committed_path_status(repository, candidate, head))
+    moved = changed_gitlinks(repository, candidate, head)
+    if moved or changed - {json_path, markdown_path}:
+        findings = [v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
+                               "source or gitlinks changed after the verified candidate")]
+        if moved:
+            findings.append(v2_finding("GITLINK_DRIFT", "candidate.gitlinks",
+                                       f"root gitlinks moved: {v2_path_summary(moved)}"))
+        raise V2Stop(findings, "7.2")
+    return candidate
+
+
+def v2_story_7_2_measurements(
+    repository: Path,
+    candidate: str,
+    gitlinks: list[dict[str, str]],
+    output_paths: set[str],
+    validators: dict[str, Any],
+) -> dict[str, Any]:
+    """Bind Story 7.2 to root Git objects and current root-owned TRX results."""
+    findings: list[dict[str, str]] = []
+    spec_bytes = v2_committed_blob(repository, candidate, V2_7_2_SPEC_PATH)
+    if spec_bytes is None:
+        raise V2Stop([v2_finding("BASELINE_NOT_TRUSTWORTHY", V2_7_2_SPEC_PATH,
+                                 "the committed Story 7.2 spec is absent")], "7.2")
+    try:
+        spec_text = spec_bytes.decode("utf-8")
+        frontmatter = parse_frontmatter(spec_text)
+        baseline_value = frontmatter_scalar(frontmatter, "baseline_commit")
+    except (UnicodeDecodeError, GateError):
+        baseline_value = None
+        frontmatter = ""
+    baseline = try_resolve_commit(repository, baseline_value) if baseline_value and baseline_value != "NO_VCS" else None
+    if baseline is None or not is_ancestor(repository, baseline, candidate):
+        findings.append(v2_finding("BASELINE_NOT_TRUSTWORTHY", V2_7_2_SPEC_PATH,
+                                   "baseline_commit must resolve to an ancestor of the candidate"))
+
+    root_paths = [item["path"] for item in gitlinks]
+    changed_paths: list[str] = []
+    if baseline is not None:
+        try:
+            changed = committed_path_status(repository, baseline, candidate)
+            changed_paths = sorted(safe_relative_path(path) for path in changed)
+        except GateError:
+            findings.append(v2_finding("FILE_LIST_DRIFT", "measurements.changedPaths",
+                                       "the baseline-to-candidate path set cannot be normalized"))
+        internal = [path for path in changed_paths if any(path.startswith(root + "/") for root in root_paths)]
+        if internal:
+            findings.append(v2_finding("SUBMODULE_INTERNAL_PATH", "measurements.changedPaths",
+                                       f"paths below root gitlinks: {v2_path_summary(internal)}"))
+        # A gitlink is recorded in candidate.gitlinks, never as a root-owned file.
+        changed_paths = [path for path in changed_paths if path not in root_paths]
+        if not changed_paths:
+            findings.append(v2_finding("FILE_LIST_DRIFT", "measurements.changedPaths",
+                                       "the baseline-to-candidate root-owned path set is empty"))
+        # The two independently encoded Git diff forms must describe one exact set.
+        names = run_git(repository, "diff", "--name-only", "--no-renames", "-z",
+                        baseline, candidate, "--").stdout
+        raw_paths = sorted({safe_relative_path(decode(path)) for path in names.split(b"\0")
+                            if path and decode(path) not in root_paths})
+        if raw_paths != changed_paths:
+            findings.append(v2_finding("FILE_LIST_DRIFT", "measurements.changedPaths",
+                                       "raw and name-status baseline-to-candidate path sets differ"))
+
+    # A candidate is the current committed HEAD. Every later source or gitlink
+    # movement invalidates it, even when the caller retained old result files.
+    head = try_resolve_commit(repository, "HEAD")
+    if head != candidate and (set(committed_path_status(repository, candidate, head)) - output_paths):
+        findings.append(v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
+                                   "the candidate was superseded by another committed HEAD"))
+        if head is not None and changed_gitlinks(repository, candidate, head):
+            findings.append(v2_finding("GITLINK_DRIFT", "candidate.gitlinks",
+                                       "a root gitlink moved after the candidate"))
+
+    solution_tree = run_git(repository, "ls-tree", "-r", "--name-only", "-z", candidate).stdout
+    root_solutions = sorted(path for path in map(decode, solution_tree.split(b"\0"))
+                            if path.endswith(".slnx") and "/" not in path)
+    if len(root_solutions) != 1:
+        findings.append(v2_finding("TEST_NOT_RUN", "root solution",
+                                   "the candidate must contain exactly one root .slnx"))
+        projects: dict[str, str] = {}
+    else:
+        solution_blob = v2_committed_blob(repository, candidate, root_solutions[0])
+        try:
+            solution = ElementTree.fromstring(solution_blob or b"")
+            paths = [safe_relative_path(element.attrib["Path"])
+                     for element in solution.findall(".//{*}Project") if "Path" in element.attrib]
+            test_paths = [path for path in paths if path.startswith("tests/") and path.endswith(".csproj")
+                          and not v2_below(path, root_paths)]
+            projects = {PurePosixPath(path).stem: path for path in test_paths}
+            if len(projects) != len(test_paths) or not projects:
+                raise ValueError("duplicate or empty root test project inventory")
+            for path in projects.values():
+                if v2_committed_blob(repository, candidate, path) is None:
+                    raise ValueError(f"test project is not committed: {path}")
+        except (ElementTree.ParseError, GateError, ValueError) as error:
+            findings.append(v2_finding("TEST_NOT_RUN", root_solutions[0], str(error)))
+            projects = {}
+
+    try:
+        if re.search(r"^allowed_skipped_tests:\s*\[\]\s*$", frontmatter, re.MULTILINE):
+            allowed_skips: dict[str, str] = {}
+        else:
+            allowed_skips = frontmatter_allowed_skips(frontmatter)
+    except GateError:
+        findings.append(v2_finding("TEST_SKIPPED", V2_7_2_SPEC_PATH,
+                                   "the committed skip policy is malformed"))
+        allowed_skips = {}
+
+    newest_input_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    for path in changed_paths:
+        if path in output_paths:
+            continue
+        source = repository / path
+        if source.is_file() and not source.is_symlink():
+            newest_input_ns = max(newest_input_ns, source.stat().st_mtime_ns)
+    measured: list[dict[str, Any]] = []
+    for name, project_path in sorted(projects.items()):
+        result_path = f"artifacts/v9/7.2/test-results/{name}.trx"
+        result_file = repository / result_path
+        if not result_file.is_file() or result_file.is_symlink():
+            findings.append(v2_finding("TEST_RESULTS_MISSING", result_path,
+                                       f"no current TRX result for {name}"))
+            continue
+        try:
+            content, mtime_ns = read_file_snapshot(result_file)
+            parsed = parse_trx(content)
+        except (ElementTree.ParseError, ValueError, OSError):
+            findings.append(v2_finding("TEST_RESULTS_MISSING", result_path,
+                                       "TRX result is unreadable or has no valid counters"))
+            continue
+        if mtime_ns < newest_input_ns:
+            findings.append(v2_finding("TEST_RESULTS_STALE", result_path,
+                                       "TRX result predates the newest bound source input"))
+        counts = parsed["reported"]
+        if count_disagreements(parsed) or parsed["assemblies"] != [name]:
+            findings.append(v2_finding("TEST_FAILED", result_path,
+                                       "TRX counters or assembly identity disagree with recorded results"))
+        if counts["total"] == 0 or not parsed["results"]:
+            findings.append(v2_finding("TEST_NOT_RUN", result_path,
+                                       "the declared test project ran zero tests"))
+        if counts["failed"]:
+            findings.append(v2_finding("TEST_FAILED", result_path,
+                                       f"{counts['failed']} test(s) failed"))
+        unapproved = [row["test"] for row in parsed["results"]
+                      if row["outcome"] in TRX_SKIPPED_OUTCOMES and row["test"] not in allowed_skips]
+        if unapproved:
+            findings.append(v2_finding("TEST_SKIPPED", result_path,
+                                       f"unapproved skipped tests: {v2_path_summary(unapproved)}"))
+        measured.append({"project": name, "projectPath": project_path,
+                         "resultFile": {"path": result_path, "sha256": v2_sha256(content)},
+                         "counts": counts})
+    totals = {key: sum(row["counts"][key] for row in measured)
+              for key in ("total", "executed", "passed", "failed", "skipped")}
+    if not measured or totals["total"] == 0:
+        findings.append(v2_finding("TEST_NOT_RUN", "measurements.testTotals",
+                                   "no nonempty root test result was measured"))
+
+    predecessor_bytes = v2_committed_blob(repository, candidate, V2_7_1_RECORD_PATH)
+    predecessor_markdown = v2_committed_blob(repository, candidate, V2_7_1_MARKDOWN_PATH)
+    if predecessor_bytes is None or predecessor_markdown is None:
+        findings.append(v2_finding("AUTHORITY_BINDING_INVALID", "predecessor 7.1",
+                                   "the committed Story 7.1 record pair is missing"))
+        predecessor_digest = V2_ZERO_DIGEST
+    else:
+        predecessor_digest = v2_sha256(predecessor_bytes)
+        try:
+            predecessor = v2_parse_json(predecessor_bytes)
+            if predecessor.get("storyId") != "7.1" or v2_schema_errors(validators["record"], predecessor) or v2_verify_pair(predecessor_bytes, predecessor_markdown):
+                raise ValueError("predecessor pair does not verify")
+        except (ValueError, AttributeError):
+            findings.append(v2_finding("AUTHORITY_BINDING_INVALID", "predecessor 7.1",
+                                       "the committed Story 7.1 record digest or projection is invalid"))
+    if findings:
+        raise V2Stop(findings, "7.2")
+    return {"baseline": baseline, "changedPaths": changed_paths,
+            "testProjects": measured, "testTotals": totals,
+            "predecessorRecord": {"storyId": "7.1", "path": V2_7_1_RECORD_PATH,
+                                  "sha256": predecessor_digest}}
+
+
 def v2_generate(options: dict[str, str]) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
@@ -3883,6 +4141,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
             ]
         ) from None
 
+    if contract_path == "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json":
+        candidate = v2_story_7_2_candidate(repository, candidate, output_json, output_markdown,
+                                           validators["record"])
+
     contract = v2_validate_contract(
         v2_committed_blob(repository, candidate, contract_path),
         contract_path,
@@ -3905,7 +4167,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
     authority = v2_authority(
         repository, candidate, contract, validators["bundle"], findings
     )
-    gitlinks = v2_gitlinks(repository, candidate, findings)
+    gitlinks = v2_gitlinks(repository, candidate, findings, story_id)
     gitlink_paths = [item["path"] for item in gitlinks]
     if not gitlink_paths:
         try:
@@ -4014,7 +4276,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
     if dirt:
         findings.append(
             v2_finding(
-                "WORKTREE_NOT_CLEAN",
+                "SOURCE_TREE_DIRTY" if story_id == "7.2" else "WORKTREE_NOT_CLEAN",
                 "worktree",
                 "the working tree differs from the committed candidate outside the "
                 f"declared outputs and results: {v2_path_summary(dirt)}",
@@ -4109,6 +4371,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
         "summary": summary,
         "renderedMarkdownSha256": V2_ZERO_DIGEST,
     }
+    if story_id == "7.2":
+        record["measurements"] = v2_story_7_2_measurements(
+            repository, candidate, gitlinks, {output_json, output_markdown}, validators
+        )
     if summary != contract["finalRecord"]["summary"]:
         raise V2Stop(
             [

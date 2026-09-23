@@ -7,12 +7,14 @@
 import ast
 import builtins
 import hashlib
+import io
 import json
 import os
 import re
 import subprocess
 import sys
 import unicodedata
+from contextlib import redirect_stdout
 from copy import deepcopy
 from importlib import util as importlib_util
 from pathlib import Path
@@ -3494,6 +3496,352 @@ def test_v2_every_code_is_documented_in_the_runbook() -> None:
         STORY_CONTRACT_SCHEMA.name,
         "v9-authority-bundle-v1.schema.json",
     }
+
+
+STORY_7_2_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+STORY_7_2_SPEC = WORKSPACE / "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+STORY_7_2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+STORY_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+STORY_7_2_OUTPUT_JSON = "docs/release-evidence/story-7.2-final-record-v2.json"
+STORY_7_2_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.2-final-record-v2.md"
+STORY_7_2_PROJECTS = tuple(sorted(path.stem for path in WORKSPACE.glob("tests/*/*.csproj")))
+STORY_7_2_ACCEPTANCE_SCHEMA = WORKSPACE / "_bmad/schemas/v9-acceptance-result-v1.schema.json"
+
+
+def v2_7_2_arguments(repository: Path) -> list[str]:
+    return v2_arguments(repository, "--contract", STORY_7_2_CONTRACT_PATH,
+                        "--output-json", STORY_7_2_OUTPUT_JSON,
+                        "--output-markdown", STORY_7_2_OUTPUT_MARKDOWN, replace=True)
+
+
+def v2_7_2_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    json_bytes = (repository / STORY_7_2_OUTPUT_JSON).read_bytes()
+    markdown_bytes = (repository / STORY_7_2_OUTPUT_MARKDOWN).read_bytes()
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(record)
+    assert record["outputs"]["json"]["sha256"] == v2_json_digest(record)
+    assert record["outputs"]["markdown"]["sha256"] == hashlib.sha256(markdown_bytes).hexdigest()
+    assert load_generator().v2_verify_pair(json_bytes, markdown_bytes) == []
+    return record
+
+
+def v2_7_2_results(repository: Path) -> None:
+    contract = json.loads(STORY_7_2_CONTRACT.read_bytes())
+    for scenario in contract["scenarios"][:10]:
+        selector = re.search(r" -k (\S+) ", scenario["command"]).group(1)
+        junit = re.search(r"--junitxml=(\S+)$", scenario["command"]).group(1)
+        v2_write_result(repository, junit, v2_junit(selector))
+
+
+def v2_7_2_trx(repository: Path, name: str, *, passed: int = 2,
+               failed: int = 0, skipped: int = 0) -> Path:
+    path = repository / f"artifacts/v9/7.2/test-results/{name}.trx"
+    write_trx(path, passed=passed, failed=failed, skipped=skipped, project=name,
+              code_base=Path(f"/fixture/{name}.dll"))
+    current = max((repository / STORY_7_2_SPEC_PATH).stat().st_mtime_ns,
+                  (repository / STORY_7_2_CONTRACT_PATH).stat().st_mtime_ns)
+    os.utime(path, ns=(current + 10_000_000_000, current + 10_000_000_000))
+    return path
+
+
+def build_v2_7_2_repository(tmp_path: Path) -> dict[str, object]:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline = fixture["candidate"]
+    for relative, source in (
+        (STORY_7_2_CONTRACT_PATH, STORY_7_2_CONTRACT),
+        ("docs/release-evidence/story-7.1-final-record-v2.json",
+         WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json"),
+        ("docs/release-evidence/story-7.1-final-record-v2.md",
+         WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.md"),
+    ):
+        target = repository / relative
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(source.read_bytes())
+    spec = STORY_7_2_SPEC.read_text(encoding="utf-8")
+    spec = re.sub(r"^baseline_commit:.*$", f"baseline_commit: '{baseline}'", spec,
+                  count=1, flags=re.MULTILINE)
+    spec_path = repository / STORY_7_2_SPEC_PATH
+    spec_path.parent.mkdir(parents=True, exist_ok=True)
+    spec_path.write_text(spec, encoding="utf-8")
+    slnx = repository / "Hexalith.Conversations.slnx"
+    slnx.write_text("<Solution><Folder Name=\"/tests/\">" + "".join(
+        f'<Project Path="tests/{name}/{name}.csproj" />' for name in STORY_7_2_PROJECTS
+    ) + "</Folder></Solution>\n", encoding="utf-8")
+    for name in STORY_7_2_PROJECTS:
+        path = repository / f"tests/{name}/{name}.csproj"
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("<Project />\n", encoding="utf-8")
+    (repository / "docs/decoy-160000.txt").write_text(
+        "160000 is text, not a Git mode\n", encoding="utf-8")
+    v2_git(repository, "add", "--all")
+    v2_git(repository, "commit", "-m", "story 7.2 fixture candidate")
+    fixture["candidate"] = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    fixture["baseline"] = baseline
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    return fixture
+
+
+def v2_7_2_snapshot_and_fault(fixture: dict[str, object], mutate,
+                              expected: str) -> None:
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    before = v2_snapshot(repository)
+    outputs = tuple((repository / path).read_bytes() for path in
+                    (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+    try:
+        restore = mutate(repository)
+        document = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {expected})
+        assert document["blockers"] == [expected]
+        assert outputs == tuple((repository / path).read_bytes() for path in
+                                (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+    finally:
+        restore()
+    assert v2_snapshot(repository) == before
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert outputs == tuple((repository / path).read_bytes() for path in
+                            (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+
+
+def v2_7_2_replace(path: Path, content: bytes):
+    original = path.read_bytes()
+    modified = path.stat().st_mtime_ns
+    path.write_bytes(content)
+    os.utime(path, ns=(modified, modified))
+
+    def restore() -> None:
+        path.write_bytes(original)
+        os.utime(path, ns=(modified, modified))
+
+    return restore
+
+
+def test_v2_derives_required_test_totals(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    measured = record["measurements"]
+    assert [row["project"] for row in measured["testProjects"]] == list(STORY_7_2_PROJECTS)
+    assert measured["testTotals"] == {"total": 16, "executed": 16,
+                                      "passed": 16, "failed": 0, "skipped": 0}
+    assert all(row["counts"]["total"] == 2 for row in measured["testProjects"])
+    assert measured["baseline"] == fixture["baseline"]
+    assert measured["changedPaths"] == sorted(measured["changedPaths"])
+    assert measured["predecessorRecord"]["sha256"] == sha256_file(
+        repository / "docs/release-evidence/story-7.1-final-record-v2.json")
+    acceptance = {
+        "schemaVersion": "hexalith.conversations.acceptance-result.v1",
+        "storyId": "7.2", "scenarioId": "AC-7.2-01",
+        "command": json.loads(STORY_7_2_CONTRACT.read_bytes())["scenarios"][0]["command"],
+        "exitCode": 0, "result": "PASS", "blockers": [],
+        "candidate": fixture["candidate"],
+        "inputs": [row["resultFile"] for row in measured["testProjects"]],
+        "outputs": [record["outputs"]["json"], record["outputs"]["markdown"]],
+        "assertionLedger": [
+            {"id": f"AC-7.2-01#{index:04d}", "subject": row["project"], "state": "PASS"}
+            for index, row in enumerate(measured["testProjects"], 1)
+        ],
+    }
+    v2_schema_contract_validator(v2_schema_contract_load(STORY_7_2_ACCEPTANCE_SCHEMA)).validate(acceptance)
+
+
+def test_v2_blocks_missing_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = path.read_bytes()
+        modified = path.stat().st_mtime_ns
+        path.unlink()
+        def restore():
+            path.write_bytes(original)
+            os.utime(path, ns=(modified, modified))
+        return restore
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_MISSING")
+
+
+def test_v2_blocks_stale_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = path.stat().st_mtime_ns
+        os.utime(path, ns=(1, 1))
+        return lambda: os.utime(path, ns=(original, original))
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_STALE")
+
+
+def test_v2_blocks_failed_test(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="Failed"', 1)
+                                 .replace(b'passed="2"', b'passed="1"').replace(b'failed="0"', b'failed="1"')),
+        "TEST_FAILED")
+
+
+def test_v2_blocks_unapproved_skip(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="NotExecuted"', 1)
+                                 .replace(b'passed="2"', b'passed="1"').replace(b'notExecuted="0"', b'notExecuted="1"')
+                                 .replace(b'executed="2"', b'executed="1"')),
+        "TEST_SKIPPED")
+
+
+def test_v2_blocks_not_run(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            b'<UnitTestResult testName="' + STORY_7_2_PROJECTS[0].encode(), b'<Removed testName="' + STORY_7_2_PROJECTS[0].encode())
+            .replace(b'total="2"', b'total="0"').replace(b'executed="2"', b'executed="0"')
+            .replace(b'passed="2"', b'passed="0"')),
+        "TEST_NOT_RUN")
+
+
+def test_v2_derives_singular_file_list_and_blocks_dirt(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    changed = subprocess.run(["git", "-C", str(repository), "diff", "--name-only",
+                              "--no-renames", fixture["baseline"], fixture["candidate"]],
+                             check=True, capture_output=True, text=True).stdout.splitlines()
+    assert record["measurements"]["changedPaths"] == sorted(changed)
+    dirt = repository / "unrelated-source.txt"
+    def mutate(_):
+        dirt.write_text("dirty\n", encoding="utf-8")
+        return lambda: dirt.unlink()
+    v2_7_2_snapshot_and_fault(fixture, mutate, "SOURCE_TREE_DIRTY")
+    module = load_generator()
+    original = module.committed_path_status
+    before = v2_snapshot(repository)
+    def divergent(repository_arg, baseline_arg, candidate_arg):
+        return {**original(repository_arg, baseline_arg, candidate_arg),
+                "invented-path.txt": "A"}
+    module.committed_path_status = divergent
+    try:
+        with pytest.raises(module.V2Stop) as error:
+            module.v2_story_7_2_measurements(repository, fixture["candidate"],
+                record["candidate"]["gitlinks"],
+                {STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN},
+                module.v2_load_schemas()[1])
+        assert "FILE_LIST_DRIFT" in {row["code"] for row in error.value.findings}
+    finally:
+        module.committed_path_status = original
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_submodule_internal_path(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    module = load_generator()
+    before = v2_snapshot(repository)
+    original_status = module.committed_path_status
+    original_git = module.run_git
+    internal_path = ROOT_GITLINK_PATHS[0] + "/internal.txt"
+    def derived_internal_path(repository_arg, baseline_arg, candidate_arg):
+        paths = original_status(repository_arg, baseline_arg, candidate_arg)
+        if baseline_arg == fixture["baseline"] and candidate_arg == fixture["candidate"]:
+            return {**paths, internal_path: "A"}
+        return paths
+    def matching_raw_path(repository_arg, *arguments, **options):
+        result = original_git(repository_arg, *arguments, **options)
+        if (arguments[:3] == ("diff", "--name-only", "--no-renames")
+                and arguments[4:6] == (fixture["baseline"], fixture["candidate"])):
+            return subprocess.CompletedProcess(result.args, result.returncode,
+                                               result.stdout + internal_path.encode() + b"\0",
+                                               result.stderr)
+        return result
+    module.committed_path_status = derived_internal_path
+    module.run_git = matching_raw_path
+    try:
+        output = io.StringIO()
+        with redirect_stdout(output):
+            exit_code = module.v2_main(v2_7_2_arguments(repository))
+        failure = json.loads(output.getvalue())
+        v2_failure_validator().validate(failure)
+        assert exit_code == failure["exitCode"] == 1
+        assert failure["result"] == "FAIL"
+        assert failure["blockers"] == ["SUBMODULE_INTERNAL_PATH"]
+    finally:
+        module.committed_path_status = original_status
+        module.run_git = original_git
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert len(record["candidate"]["gitlinks"]) == 10
+    assert all(row["mode"] == "160000" for row in record["candidate"]["gitlinks"])
+    module = load_generator()
+    assert module.v2_raw_gitlinks(repository, fixture["candidate"]) == [
+        (row["path"], row["commit"]) for row in record["candidate"]["gitlinks"]]
+    assert "docs/decoy-160000.txt" in record["measurements"]["changedPaths"]
+    before = v2_snapshot(repository)
+    missing_path = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--force-remove", missing_path)
+    v2_git(repository, "commit", "-m", "remove gitlink")
+    findings = []
+    module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                       findings, "7.2")
+    assert "GITLINK_SCOPE_MISMATCH" in {row["code"] for row in findings}
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+    v2_git(repository, "update-index", "--add", "--cacheinfo",
+           f"160000,{'a' * 40},references/Extra")
+    v2_git(repository, "commit", "-m", "add extra gitlink")
+    findings = []
+    module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                       findings, "7.2")
+    assert {row["code"] for row in findings} == {"GITLINK_SCOPE_MISMATCH"}
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo",
+           f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move gitlink")
+    v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
+                      {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"})
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    before = v2_snapshot(repository)
+    target = repository / V2_TARGET_PATH
+    target.write_text(target.read_text(encoding="utf-8") + "# superseding source\n",
+                      encoding="utf-8")
+    v2_git(repository, "add", V2_TARGET_PATH)
+    v2_git(repository, "commit", "-m", "supersede candidate")
+    v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+    spec_path = repository / STORY_7_2_SPEC_PATH
+    original_time = spec_path.stat().st_mtime_ns
+    spec_path.write_text(spec_path.read_text(encoding="utf-8").replace(
+        fixture["baseline"], "0" * 40, 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "invalidate baseline")
+    # Remove the prior pair so the bad baseline is evaluated as a new candidate.
+    output_bytes = [(repository / path).read_bytes() for path in
+                    (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)]
+    for path in (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN):
+        (repository / path).unlink()
+    v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    os.utime(spec_path, ns=(original_time, original_time))
+    for path, content in zip((STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN), output_bytes):
+        (repository / path).write_bytes(content)
+    assert v2_snapshot(repository) == before
 
 
 if __name__ == "__main__":

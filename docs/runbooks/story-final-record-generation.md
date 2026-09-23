@@ -366,6 +366,52 @@ partial record, or caller payload.
 - Exit `2`: `BLOCKED`. The environment cannot support a trustworthy record, and
   the outputs are unchanged.
 
+### Story 7.2 measured inputs
+
+Story 7.2 uses the same strict v2 command envelope with
+`_bmad-output/planning-artifacts/v9/story-contracts/7.2.json` and the declared
+`docs/release-evidence/story-7.2-final-record-v2.{json,md}` outputs. Run each
+root-owned test project from the committed `Hexalith.Conversations.slnx`
+separately and retain its TRX at
+`artifacts/v9/7.2/test-results/<project-name>.trx`. The generator reads these
+files directly, recomputes their counters from direct `UnitTestResult` rows,
+applies the committed spec's skip policy, and sums all eight projects. Each TRX
+must be newer than the newest bound source input and describe its named
+assembly. The artifacts are ignored build evidence; they are never caller
+supplied CLI facts.
+
+The optional `measurements` record section is emitted for Story 7.2 only. It
+contains the committed spec's ancestor baseline, the exact normalized
+baseline-to-candidate root-owned changed paths, per-project result digests and
+counts, summed counts, and the SHA-256 of the committed, independently verified
+Story 7.1 JSON record. Gitlinks are bound separately by raw mode `160000` tree
+entries and must match the root `.gitmodules` inventory. Paths beneath a
+gitlink are never root-owned changed paths. Story 7.1's existing record bytes
+and v1 behavior are unchanged.
+
+After the ten contract selectors pass through pinned `uv`, run the declared
+self-invocation:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py \
+  --repository . \
+  --contract _bmad-output/planning-artifacts/v9/story-contracts/7.2.json \
+  --format bundle \
+  --output-json docs/release-evidence/story-7.2-final-record-v2.json \
+  --output-markdown docs/release-evidence/story-7.2-final-record-v2.md
+```
+
+The Story 7.2 result classes remain exit `0`/`PASS`, exit `1`/`FAIL`, and exit
+`2`/`BLOCKED`; an environmental inability never counts as a passing scenario.
+Specific fail codes are `TEST_RESULTS_MISSING`, `TEST_RESULTS_STALE`,
+`TEST_FAILED`, `TEST_SKIPPED`, `TEST_NOT_RUN`, `SOURCE_TREE_DIRTY`,
+`FILE_LIST_DRIFT`, `SUBMODULE_INTERNAL_PATH`, `GITLINK_SCOPE_MISMATCH`,
+`GITLINK_DRIFT`, `BASELINE_NOT_TRUSTWORTHY`, and `CANDIDATE_NOT_FINAL`.
+Rebuild or rerun a missing, stale, failed, skipped, or zero-run project; commit
+source before generating; restore exact root gitlink scope and candidate state;
+and regenerate both outputs from the same current candidate after correcting
+the named condition. Do not edit counts, paths, or digests in the pair.
+
 | Blocker | Exit | Condition |
 | --- | --- | --- |
 | `ARGUMENT_INVALID` | `1` | An unknown, repeated, valueless, empty, positional, or unsupported argument; a missing required option; a non-root `--repository`; or a contract path that is not a committed regular file |

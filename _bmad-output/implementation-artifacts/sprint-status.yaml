@@ -87,7 +87,7 @@ development_status:
   epic-6-retrospective: done
   epic-7: in-progress
   7-1-define-the-final-record-schema-and-deterministic-generator-core: done
-  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: backlog
+  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-progress
   7-3-integrate-generation-into-every-blocking-completion-transition: backlog
   7-4-verify-historical-mode-and-required-fault-injection-blockers: backlog
   epic-7-retrospective: optional

@@ -2,7 +2,7 @@
 title: 'Derive test, path, candidate, submodule, and gitlink facts'
 type: 'feature'
 created: '2026-09-23'
-status: 'ready-for-dev'
+status: 'in-progress'
 baseline_commit: 'c69334cb13a981c9112ad687427b1f43fafc2988'
 allowed_skipped_tests: []
 route: 'dispatch'
@@ -49,10 +49,10 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `_bmad/schemas/story-final-record-v2.schema.json` -- add closed optional Story 7.2 measurements; keep the committed Story 7.1 record valid.
-- [ ] `_bmad/scripts/generate_story_record.py` -- derive tests, paths, baseline/candidate, gitlinks, and predecessor binding; reject named faults; render and verify the new facts.
-- [ ] `_bmad/scripts/tests/test_generate_story_record.py` -- implement `AC-7.2-01` through `AC-7.2-10` selectors, one-fault fixtures, acceptance-result validation, and byte-identical restoration.
-- [ ] `docs/runbooks/story-final-record-generation.md` -- document Story 7.2 inputs, blocker codes, exit classes, and operator commands.
+- [x] `_bmad/schemas/story-final-record-v2.schema.json` -- add closed optional Story 7.2 measurements; keep the committed Story 7.1 record valid.
+- [x] `_bmad/scripts/generate_story_record.py` -- derive tests, paths, baseline/candidate, gitlinks, and predecessor binding; reject named faults; render and verify the new facts.
+- [x] `_bmad/scripts/tests/test_generate_story_record.py` -- implement `AC-7.2-01` through `AC-7.2-10` selectors, one-fault fixtures, acceptance-result validation, and byte-identical restoration.
+- [x] `docs/runbooks/story-final-record-generation.md` -- document Story 7.2 inputs, blocker codes, exit classes, and operator commands.
 - [ ] `docs/release-evidence/story-7.2-final-record-v2.{json,md}` -- generate from a committed candidate after the prerequisite results pass and verify identical rerun bytes.
 
 **Acceptance Criteria:**
