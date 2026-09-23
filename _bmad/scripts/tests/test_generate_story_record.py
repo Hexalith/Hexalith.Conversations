@@ -2029,6 +2029,18 @@ def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> N
     assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
 
 
+def test_v2_schema_contract_pass_requires_an_assertion_ledger() -> None:
+    v2_schema_contract_hold_is_lifted()
+    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
+    record = v2_schema_contract_final_record()
+    record["scenarios"][0]["assertionLedger"] = []
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+    record["scenarios"][0]["assertionLedger"] = [
+        {"id": "AC-7.1-01#1", "subject": "x", "state": "PASS"}
+    ]
+    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
+
+
 # --------------------------------------------------------------------------- #
 # Story 7.1 v2 generator route (`--contract`)
 # --------------------------------------------------------------------------- #
@@ -2398,6 +2410,23 @@ def test_v2_deterministic_bundle_is_byte_identical_schema_valid_and_cross_bound(
     assert record["faultInjection"] == {"results": []}
     assert load_generator().v2_verify_pair(*first_outputs) == []
 
+    # The digest only binds the Markdown to its own renderer; prove its content.
+    markdown_lines = first_outputs[1].decode("utf-8").splitlines()
+    for scenario in record["scenarios"]:
+        assert any(
+            line.startswith(
+                f"| `{scenario['scenarioId']}` | `0` | `PASS` | `none` "
+                f"| `{len(scenario['assertionLedger'])}` |"
+            )
+            for line in markdown_lines
+        ), scenario["scenarioId"]
+        for entry in scenario["assertionLedger"]:
+            assert (
+                f"| `{entry['id']}` | `{entry['subject']}` | `{entry['state']}` |"
+                in markdown_lines
+            ), entry["id"]
+    assert "| `6` | `6` | `0` | `0` | `0` | `0` |" in markdown_lines
+
 
 def test_v2_deterministic_bundle_is_identical_across_rebuilt_fixtures(
     tmp_path: Path,
@@ -2506,11 +2535,13 @@ def test_v2_rejects_caller_authored_facts_before_any_passing_record(tmp_path: Pa
     repository = fixture["repository"]
     v2_assert_pass(repository, v2_run(v2_arguments(repository)))
     passing = v2_outputs(repository)
+    before = v2_snapshot(repository)
     v2_assert_failure(
         v2_run(v2_arguments(repository, "--passed", "6", "--failed", "0")),
         {"CALLER_AUTHORED_FACT"},
     )
     assert v2_outputs(repository) == passing
+    assert v2_snapshot(repository) == before
 
 
 # ---- AC-7.1-04: v2_rejects_empty_derivation --------------------------------- #
@@ -2585,20 +2616,41 @@ def test_v2_rejects_empty_derivation_for_one_empty_scenario(tmp_path: Path) -> N
     repository = fixture["repository"]
     _, selector, junit = v2_pytest_scenarios()[2]
     original = (repository / junit).read_bytes()
+    before = v2_snapshot(repository)
     try:
         v2_write_result(repository, junit, v2_junit(selector, cases=[]))
         document = v2_assert_failure(
             v2_run(v2_arguments(repository)), {"ASSERTION_LEDGER_EMPTY"}
         )
         assert {item["subject"] for item in document["diagnostics"]} >= {"AC-7.1-03"}
+        assert v2_outputs(repository) == (None, None)
     finally:
         v2_write_result(repository, junit, original)
+    assert v2_snapshot(repository) == before
     v2_assert_pass(repository, v2_run(v2_arguments(repository)))
 
 
 # ---- AC-7.1-05: v2_malformed_input_is_schema_valid_failure ------------------ #
 
 V2_PAYLOAD_SENTINEL = "PAYLOAD-SENTINEL-4b1d"
+
+
+def v2_contract_bytes(mutate) -> bytes:
+    """A contract that still validates against its schema after `mutate`."""
+    contract = v2_contract()
+    mutate(contract)
+    v2_schema_contract_validator(v2_schema_contract_load(STORY_CONTRACT_SCHEMA)).validate(
+        contract
+    )
+    return (json.dumps(contract, indent=2) + "\n").encode("utf-8")
+
+
+def v2_foreign_scenario_id(contract: dict) -> None:
+    contract["scenarios"][4]["id"] = "AC-7.2-05"
+
+
+def v2_swapped_output_paths(contract: dict) -> None:
+    contract["finalRecord"]["paths"].reverse()
 
 
 def v2_commit_contract(repository: Path, content: bytes) -> None:
@@ -2617,8 +2669,17 @@ def v2_commit_contract(repository: Path, content: bytes) -> None:
         ).encode("utf-8"),
         json.dumps(v2_contract() | {"undeclared": V2_PAYLOAD_SENTINEL}).encode("utf-8"),
         b'{"storyId": "7.1", "storyId": "' + V2_PAYLOAD_SENTINEL.encode("ascii") + b'"}',
+        v2_contract_bytes(v2_foreign_scenario_id),
+        v2_contract_bytes(v2_swapped_output_paths),
     ),
-    ids=("malformed-json", "unknown-schema-identity", "closed-schema-violation", "duplicate-key"),
+    ids=(
+        "malformed-json",
+        "unknown-schema-identity",
+        "closed-schema-violation",
+        "duplicate-key",
+        "foreign-scenario-id",
+        "swapped-output-paths",
+    ),
 )
 def test_v2_malformed_input_is_schema_valid_failure_for_contracts(
     tmp_path: Path, content: bytes
@@ -2629,7 +2690,8 @@ def test_v2_malformed_input_is_schema_valid_failure_for_contracts(
     try:
         v2_commit_contract(repository, content)
         result = v2_run(v2_arguments(repository))
-        v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        document = v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert document["blockers"] == ["INPUT_SCHEMA_INVALID"]
         assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
         assert v2_outputs(repository) == (None, None)
     finally:
@@ -2664,7 +2726,8 @@ def test_v2_malformed_input_is_schema_valid_failure_for_arguments(
     repository = fixture["repository"]
     before = v2_snapshot(repository)
     result = v2_run(v2_arguments(repository, *arguments))
-    v2_assert_failure(result, {"ARGUMENT_INVALID"})
+    document = v2_assert_failure(result, {"ARGUMENT_INVALID"})
+    assert document["blockers"] == ["ARGUMENT_INVALID"]
     assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
     assert V2_PAYLOAD_SENTINEL.lower().encode("ascii") not in result.stdout
     assert v2_snapshot(repository) == before
@@ -2675,18 +2738,20 @@ def test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments(
 ) -> None:
     fixture = build_v2_repository(tmp_path)
     repository = fixture["repository"]
+    before = v2_snapshot(repository)
     arguments = v2_arguments(repository, "--contract", V2_CONTRACT_PATH, replace=True)
     document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+    assert document["blockers"] == ["ARGUMENT_INVALID"]
     assert {"--output-json", "--output-markdown"} <= {
         item["subject"] for item in document["diagnostics"]
     }
-    v2_assert_failure(
-        v2_run(v2_arguments(tmp_path / "missing-repository")), {"ARGUMENT_INVALID"}
-    )
-    v2_assert_failure(
-        v2_run(v2_arguments(repository, "--contract", "../escape.json", replace=True)),
-        {"ARGUMENT_INVALID"},
-    )
+    for arguments in (
+        v2_arguments(tmp_path / "missing-repository"),
+        v2_arguments(repository, "--contract", "../escape.json", replace=True),
+    ):
+        document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+        assert document["blockers"] == ["ARGUMENT_INVALID"]
+    assert v2_snapshot(repository) == before
 
 
 @pytest.mark.parametrize(
@@ -2712,7 +2777,8 @@ def test_v2_malformed_input_is_schema_valid_failure_for_results(
     try:
         v2_write_result(repository, junit, content)
         result = v2_run(v2_arguments(repository))
-        v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        document = v2_assert_failure(result, {"INPUT_SCHEMA_INVALID"})
+        assert document["blockers"] == ["INPUT_SCHEMA_INVALID"]
         assert V2_PAYLOAD_SENTINEL.encode("ascii") not in result.stdout + result.stderr
     finally:
         v2_write_result(repository, junit, original)
@@ -2749,14 +2815,6 @@ def test_v2_malformed_input_is_schema_valid_failure_schema_is_closed() -> None:
         {"diagnostics": [{"code": "X", "subject": "argv", "message": "line\nbreak"}]},
     ):
         assert v2_schema_contract_reject(schema, valid | mutation) == OUTPUT_SCHEMA_INVALID
-    record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
-    record = v2_schema_contract_final_record()
-    record["scenarios"][0]["assertionLedger"] = []
-    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
-    record["scenarios"][0]["assertionLedger"] = [
-        {"id": "AC-7.1-01#1", "subject": "x", "state": "PASS"}
-    ]
-    assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
 
 
 # ---- Fault injection and byte-identical restoration ------------------------- #
@@ -2901,6 +2959,30 @@ def v2_shared_junit(scenarios: list[dict]) -> None:
     )
 
 
+def v2_self_contract_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_CONTRACT_PATH, "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
+    )
+
+
+def v2_self_markdown_mismatch(scenarios: list[dict]) -> None:
+    scenarios[5]["command"] = scenarios[5]["command"].replace(
+        V2_OUTPUT_MARKDOWN, "docs/release-evidence/elsewhere.md"
+    )
+
+
+def v2_junit_below_gitlink(scenarios: list[dict]) -> None:
+    scenarios[0]["command"] = scenarios[0]["command"].replace(
+        "artifacts/v9/7.1/AC-7.1-01.xml", "references/Hexalith.Builds/AC-7.1-01.xml"
+    )
+
+
+def v2_fault_duplicate_testcase(repository: Path, fixture: dict) -> None:
+    _, selector, _ = v2_pytest_scenarios()[0]
+    name = f"test_{selector}_first"
+    v2_fault_result(repository, fixture, 0, v2_junit(selector, [(name, None), (name, None)]))
+
+
 V2_FAULTS = {
     "failing-testcase": (
         lambda repository, fixture: v2_fault_result(
@@ -3001,6 +3083,19 @@ V2_FAULTS = {
         v2_fault_commit(v2_mutate_contract(v2_shared_junit)),
         "SCENARIO_RESULT_MISMATCH",
     ),
+    "self-invocation-contract-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_contract_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "self-invocation-markdown-mismatch": (
+        v2_fault_commit(v2_mutate_contract(v2_self_markdown_mismatch)),
+        "SCENARIO_RESULT_MISMATCH",
+    ),
+    "junit-below-gitlink": (
+        v2_fault_commit(v2_mutate_contract(v2_junit_below_gitlink)),
+        "SCENARIO_COMMAND_UNSUPPORTED",
+    ),
+    "duplicate-testcase": (v2_fault_duplicate_testcase, "SCENARIO_RESULT_MISMATCH"),
 }
 
 
@@ -3034,7 +3129,68 @@ def test_v2_fault_injection_blocks_and_restores_byte_identically(
     assert v2_outputs(repository) == baseline_outputs
 
 
+def test_v2_fault_injection_shared_junit_path_is_a_story_level_mismatch(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_fault_commit(v2_mutate_contract(v2_shared_junit))(repository, fixture)
+    document = v2_assert_failure(
+        v2_run(v2_arguments(repository)), {"SCENARIO_RESULT_MISMATCH"}
+    )
+    # The shared file also fails AC-7.1-02's selector; require the story-level check.
+    assert {
+        "code": "SCENARIO_RESULT_MISMATCH",
+        "subject": "7.1",
+        "message": "two scenarios declare the same JUnit result path",
+    } in document["diagnostics"]
+
+
+@pytest.mark.parametrize(
+    "output_json",
+    (V2_CONTRACT_PATH, "references/Hexalith.Builds/story-7.1-final-record-v2.json"),
+    ids=("aliases-the-contract", "below-a-gitlink"),
+)
+def test_v2_fault_injection_rejects_an_output_path_that_aliases_an_input_or_a_gitlink(
+    tmp_path: Path, output_json: str
+) -> None:
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+
+    def redirect(contract: dict) -> None:
+        contract["finalRecord"]["paths"][0] = output_json
+        contract["scenarios"][5]["command"] = contract["scenarios"][5]["command"].replace(
+            V2_OUTPUT_JSON, output_json
+        )
+
+    (repository / V2_CONTRACT_PATH).write_bytes(v2_contract_bytes(redirect))
+    v2_git(repository, "add", V2_CONTRACT_PATH)
+    v2_fault_commit(lambda repository: None)(repository, fixture)
+    before = v2_snapshot(repository)
+    arguments = v2_arguments(
+        repository,
+        "--contract",
+        V2_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        output_json,
+        "--output-markdown",
+        V2_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+    document = v2_assert_failure(v2_run(arguments), {"OUTPUT_PATH_INVALID"})
+    assert [
+        item["subject"]
+        for item in document["diagnostics"]
+        if item["code"] == "OUTPUT_PATH_INVALID"
+    ] == ["--output-json"]
+    assert v2_snapshot(repository) == before
+
+
 # ---- BLOCKED class, output containment, and output rollback ---------------- #
+# These fall outside the AC-7.1-05 selector: its contract row covers only exit
+# `1` input failures. The read-back drift tests belong to AC-7.1-02.
 
 
 def v2_in_process(
@@ -3059,7 +3215,7 @@ def v2_seed_outputs(repository: Path) -> tuple[bytes, bytes]:
     return pair
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_schemas_are_unavailable(
+def test_v2_blocked_when_schemas_are_unavailable(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3074,7 +3230,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_schemas_are_unavailable
     assert v2_snapshot(repository) == before
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_git_fails(
+def test_v2_blocked_when_git_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3095,7 +3251,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_git_fails(
     assert v2_snapshot(repository) == before
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_head_resolution_git_fails(
+def test_v2_blocked_when_head_resolution_git_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3116,7 +3272,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_head_resolution_git_fai
     assert v2_snapshot(repository) == before
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_jsonschema_is_unavailable(
+def test_v2_blocked_when_jsonschema_is_unavailable(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3145,7 +3301,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_jsonschema_is_unavailab
     assert v2_snapshot(repository) == before
 
 
-def test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf(
+def test_v2_output_rejects_a_symlinked_leaf(
     tmp_path: Path,
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3167,7 +3323,7 @@ def test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf(
     assert v2_snapshot(repository) == before
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails(
+def test_v2_output_rolls_back_when_the_second_replace_fails(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3194,7 +3350,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fail
     assert "every replaced output was restored" in json.dumps(document)
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails_without_seeded_outputs(
+def test_v2_output_rolls_back_when_the_second_replace_fails_without_seeded_outputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3220,7 +3376,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fail
     assert "every replaced output was restored" in json.dumps(document)
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_output_restore_fails(
+def test_v2_output_reports_a_failed_restore(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3246,7 +3402,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_output_restore_fails(
     assert v2_outputs(repository)[0] is not None
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs_without_seeded_outputs(
+def test_v2_deterministic_bundle_read_back_drift_rolls_back_without_seeded_outputs(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)
@@ -3269,7 +3425,7 @@ def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs_witho
     assert "every replaced output was restored" in json.dumps(document)
 
 
-def test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs(
+def test_v2_deterministic_bundle_read_back_drift_rolls_back(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     fixture = build_v2_repository(tmp_path)

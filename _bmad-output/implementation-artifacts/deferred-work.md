@@ -346,3 +346,9 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md`
   summary: The v2 generator copies the inventory digest and predecessors from the contract, never compares bundle rows to the candidate blobs, and does not consult the contract's resultSemantics exit-code classes.
   evidence: Story 7.1 review (blind hunter). The `record["inventory"]` and `record["predecessors"]` fields are passed through from the contract, and `v2_authority` checks only that the bundle digest matches the bundle itself. Story 7.2 should derive these.
+
+## Deferred from: code review of spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md (2026-09-23)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md`
+  summary: No test exercises the v2 check that a scenario's derived exit code must be in the contract's `resultSemantics.passExitCodes`.
+  evidence: Chunk A+B review (verification gap). Removing the condition at `_bmad/scripts/generate_story_record.py:3517` still passes all 76 `v2_` tests, because every fixture uses the 7.1 contract, where `passExitCodes` is `[0]`. Add the test when the first contract with non-default `passExitCodes` lands.

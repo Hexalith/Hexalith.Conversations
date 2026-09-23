@@ -102,6 +102,42 @@ Chunk-1 review (generator + schemas, 2026-09-22):
 - low: authority artifact paths with newlines, complex `-k` selectors, substring `-k` matches, JUnit path aliases after resolve — frozen inputs do not present these; extra guards add complexity.
 - already deferred to Story 7.2: result mtime truncated to committer seconds, and dirty submodule worktrees hidden by `--ignore-submodules=all`.
 
+#### Chunk A+B review (generator, schemas, tests — `c744d818..46c2cd8`, 2026-09-23)
+
+Layers: blind hunter, edge-case hunter, verification gap, acceptance auditor. No layer failed. Every verification-gap finding below comes with a mutant of the generator that still passed all 76 `v2_` tests.
+
+- [x] [Review][Decision] AC-7.1-05's selector collects tests its contract row does not describe — resolved (owner, 2026-09-23): rename and re-home. The two read-back drift tests move to AC-7.1-02 (`test_v2_deterministic_bundle_read_back_drift_…`). The final-record ledger check moves to AC-7.1-01 (`test_v2_schema_contract_pass_requires_an_assertion_ledger`). The four BLOCKED-class tests (`test_v2_blocked_…`) and four output-containment and rollback tests (`test_v2_output_…`) leave every selector, like the fault-injection tests. AC-7.1-05 keeps the failure-schema closure check.
+- [x] [Review][Patch] Cover contract checks for foreign scenario IDs and swapped output paths [_bmad/scripts/generate_story_record.py:3106] — add schema-valid contract faults that expect `INPUT_SCHEMA_INVALID`. Mutants `foreign = []` and `valid_paths = True` both pass today.
+- [x] [Review][Patch] Cover a repeated testcase identity in one JUnit file [_bmad/scripts/generate_story_record.py:3495] — add a `duplicate-testcase` fault with consistent counters. The mutant `if foreign:` passes today.
+- [x] [Review][Patch] Cover output and JUnit paths below a gitlink, and an output that aliases the contract [_bmad/scripts/generate_story_record.py:4003] — also covers `:3931`. Mutants `if False:` at `:4003` and `valid = True` at `:3931` both pass today.
+- [x] [Review][Patch] Make the `shared-junit-path` fault reach its own check [_bmad/scripts/tests/test_generate_story_record.py:3000] — the shared file's cases fail the AC-7.1-02 selector, so `SCENARIO_RESULT_MISMATCH` comes from `:3495`. The mutant `if False:` at `:3993` passes today. Assert the story-level "same JUnit result path" diagnostic.
+- [x] [Review][Patch] Cover self-invocation mismatches in `--contract`, `--output-markdown`, and `--format` [_bmad/scripts/generate_story_record.py:3959] — only the `--repository` and `--output-json` mismatches have faults. Dropping the other three conditions passes today. Faults added for `--contract` and `--output-markdown`. `--format` cannot differ: `V2_FORMATS` is `("bundle",)`, so a non-bundle self-invocation is `SCENARIO_COMMAND_UNSUPPORTED` before this check.
+- [x] [Review][Patch] Assert the rendered Markdown's content, not only its digest [_bmad/scripts/generate_story_record.py:3547] — `v2_verify_pair` re-renders with the same function, so it agrees with itself. The mutant `for entry in []:` (which drops every ledger row) passes today. Assert every ledger row and the summary row in the Markdown bytes.
+- [x] [Review][Patch] Assert AC-7.1-05's blocker exactly, not as a subset [_bmad/scripts/tests/test_generate_story_record.py:2273] — `v2_assert_failure` checks `expected <= blockers`, while the row requires the "exact blocker". A probe showed every AC-7.1-05 fixture already emits only its expected code, so exact equality holds today.
+- [x] [Review][Patch] Assert byte-identical restoration in the remaining negative fixtures [_bmad/scripts/tests/test_generate_story_record.py:2583] — `..._for_one_empty_scenario`, `..._for_missing_arguments` (`:2673`), and `..._before_any_passing_record` (`:2504`, which compares only the output pair) take no `v2_snapshot`.
+- [x] [Review][Defer] Contract `passExitCodes` is never exercised [_bmad/scripts/generate_story_record.py:3517] — deferred: only a non-7.1 contract with non-default `passExitCodes` can reach it. Removing the condition passes today; add the test when that contract arrives.
+
+Applied 2026-09-23, test-only (`_bmad/scripts/tests/test_generate_story_record.py`). The whole file passes 143/143 (was 133). Rerunning the verification-gap mutants against a scratch copy, all nine now fail the suite: foreign ID, swapped paths, duplicate testcase, output alias (both cases), JUnit below a gitlink, shared JUnit, self `--contract`, self `--output-markdown`, and the Markdown ledger rows. Selector counts are now 8 / 6 / 11 / 5 / 17. The final-record pair must be regenerated from the committed candidate.
+
+##### Rejected (chunk A+B)
+
+- false: two empty-derivation fixtures emit a single blocker — the no-result, no-assertion, and no-candidate fixtures emit both `RECORD_NOT_DERIVED` and `ASSERTION_LEDGER_EMPTY`. The gitlink and one-empty-scenario fixtures emit the code for what is actually missing; claiming an empty ledger when assertions ran would be false.
+- false: "ten gitlinks in frozen order" is not enforced — the count comes from raw-tree equality with `.gitmodules`. Pinning ten inside the generator would be a caller-authored fact. The record's order is ordinal, which equals the raw tree order.
+- false: an existing `v2_schema_contract` fixture was edited — the unchanged-tests AC covers the v1 suite. Extending the v2 fixture for the PASS-requires-ledger rule was an earlier review patch.
+- false: skipped testcases get ledger state `FAIL` — a record is written only on a full PASS, so a `FAIL` row is never emitted.
+- false: no real pytest output is ever parsed — AC-7.1-06 at `8ff1a96` parsed five real pytest JUnit files into the committed record.
+- low: `faultInjection.results` is always `[]` — Story 7.4 owns fault-injection binding.
+- low: commands accept only a literal `python3` and `--junitxml=` — the frozen contract commands use exactly that form.
+- low: the same-process `RECORD_CONTENT_DRIFT` recheck proves little — the rebuilt-fixture determinism test is the real proof. The recheck is a cheap guard.
+- low: rollback leaves newly created output directories behind and does not restore file mode — `docs/release-evidence/` already exists, and tracking directories adds branches.
+- low: a non-Git `GateError` is reported as "a Git command failed" and drops the story ID — the exit class (`INTERNAL_ERROR`, BLOCKED) is still correct, and no reachable non-Git `GateError` was shown.
+- low: a corrupt HEAD ref (Git exit `128`) becomes `RECORD_NOT_DERIVED` — telling it apart from an unborn HEAD would need stderr parsing.
+- low: unlisted caller-fact options such as `--passed-count` get `ARGUMENT_INVALID` — the result is still exit `1`, `FAIL`, and no record.
+- low: `--contract` as the value of a v1 option routes to v2; a dangling-symlink output parent becomes BLOCKED, not FAIL; the `V2_LEDGER_LIMIT` and `.gitmodules` `INVALID_SCOPE` branches are untested — none of these is met in everyday use.
+- low: `WORKTREE_NOT_CLEAN` echoes untracked file names — these are local paths, not an input payload.
+- already rejected above: complex or case-insensitive `-k` selectors, UTF-16 DOCTYPE, control characters in `subject`, `v2_verify_pair` `KeyError`, the temporary-file symlink race, `BrokenPipe`/`KeyboardInterrupt`, a sequential (non-atomic) pair, failure documents not re-validated, the constant self ledger, the loose failure-schema enum and assertion schema, output or JUnit paths aliasing tracked files, bundle rows versus blobs, and the V10/V14 authority names.
+- already deferred to Story 7.2: mtime-only freshness (including same-second truncation), partial or narrower JUnit runs, hand-written JUnit files, submodule checkout HEADs and ignored test inputs, and result files not being kept for later audit.
+
 ## Implementation Notes
 
 - 2026-09-20 entry preflight at baseline `e0b098fa1c056385e28ee8ac0efd0c55dfab324f`: resolver exit `1`, result `FAIL`, blocker `CANDIDATE_PARENT_DRIFT`, `executionAllowed: false`, and `implementationHold: ACTIVE`. No Story-owned implementation file was changed and no acceptance scenario was run.
