@@ -25,8 +25,10 @@ V28 remains non-executable; the implementation hold is `ACTIVE`, and
 ## Frozen historical change
 
 The `11e7e4d` parent is `cc90e109f5903d5cde328d14e8264087e961e5ea`;
-its tree is `387df36d58577893764695d48b9fc8af33fbede3`.
-`11e7e4d` has tree `8d4639b43fc495fce6328b7fa3f20366eeb5418a`.
+its tree is `31a772ae8c706c655a69a346d57325cd690f70b2`.
+`11e7e4d` has tree `387df36d58577893764695d48b9fc8af33fbede3`.
+The approved starting candidate `1b01599` has tree
+`8d4639b43fc495fce6328b7fa3f20366eeb5418a`.
 Pin the complete raw parent diff below. Each entry is mode `160000` before and
 after; no other path changed in that commit.
 
@@ -126,3 +128,7 @@ Do not push, perform the exception, lift the hold, or call Story 7.1 accepted.
 ## Implementation Notes
 
 The final C0, C1, and C2 identities are recorded in the landing packet after local publication.
+
+## Spec Change Log
+
+- 2026-09-23: Corrected the transposed `cc90e10`/`11e7e4d` tree identities and named the `1b01599` tree. Raw `git rev-parse <commit>^{tree}` is the source of each value; the five approved gitlink tuples and transaction scope did not change.
