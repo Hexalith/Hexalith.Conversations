@@ -170,6 +170,27 @@ refused or concurrent publication, and an aliased publication parent are all `BL
 gitlink, a record that is not its deterministic projection, and a publication whose installed bytes
 do not match what was generated.
 
+## V28 five-root-gitlink authority
+
+V28 acknowledges the exact five root gitlink changes in `11e7e4dcfe8c7f2b57385225c0c79bfa81beadcf` while retaining V27's historical FAIL at the pre-V28 host. The protected resolver and evidence verifier select V28 before V27 only when the event-supplied protected base already contains V28 C1. An empty or pre-C1 base leaves V27 authoritative. Candidate content does not supply provenance.
+
+V28 C1 is the direct child of the corrected spec predecessor and changes exactly eleven mode-`100644` files. Its protected-base check remains red; with C1 as the protected base, C1 returns a nonempty `BLOCKED` result until the record-only C2 is published. C2 is C1's direct single-parent child and changes only `_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json`. Both hosts independently check the historical raw diff, the ten frozen root gitlinks, `.gitmodules`, C1 path and mode scope, and pinned schema and publisher bytes before importing the publisher. They recompute C1's complete blob manifest and canonical digest against C2. C2 and untouched single-parent descendants can return `PASS` with the true immediate-parent diff.
+
+All V28 results keep the implementation hold `ACTIVE`; `executionAllowed`, `ownerApprovalClaimed`, `releaseAuthorized`, and `pushAuthorized` remain false. History loss and merge candidates block. A later touch of a governed file, `.gitmodules`, root gitlink, or the record fails even if its bytes are restored. The one-time C1 landing exception is human-owned and must record actor, time, reason, and exact C1 hash; confirm protected `main == C1` before landing C2 through the ordinary protected workflow. Neither host grants that exception or lifts the hold.
+
+For local C2 publication, start at the committed C1 and verify the protected base is exactly that commit. Generate the record, validate and commit its single-path change, then check the committed C2 through both hosts:
+
+```bash
+c1="$(git rev-parse HEAD)"
+test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$c1"
+uv run --frozen --no-sync python3 _bmad/scripts/publish_v28_five_root_gitlink_authority.py --root . --write
+# Commit only _bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json after commitlint validation.
+c2="$(git rev-parse HEAD)"
+uv run --frozen --no-sync python3 _bmad/scripts/publish_v28_five_root_gitlink_authority.py --root . --verify "$c2" --trusted-host "$c1"
+uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate "$c2" --trusted-host "$c1" --check
+uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py --repository . --baseline "$c1" --candidate "$c2" --trusted-host "$c1"
+```
+
 ## Known limitations
 
 - This runbook does not install workflow gates or replace the verifier.

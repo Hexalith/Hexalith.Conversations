@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import sys
+import unicodedata
 from typing import Any, Callable, Sequence
 
 from jsonschema import Draft202012Validator
@@ -73,6 +74,72 @@ V27_WORKFLOW_SHA256 = "7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d
 V27_SCHEMA_SHA256 = "d8f6920c00821cab1f0d1e434ad6c8faf965e9bd9f60f5655e7c734683700399"
 V27_PUBLISHER_SHA256 = "a3c74b700ac8c3580629179868148b99ce4b7c113fe51936254a752e4c9ee522"
 V27_GITLINK_COUNT = 10
+V28_GITMODULES_PATH = ".gitmodules"
+V28_WORKFLOW_PATH = ".github/workflows/planning-authority-preflight.yml"
+V28_RECORD_PATH = "_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json"
+V28_SCHEMA_PATH = "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json"
+V28_PUBLISHER_PATH = "_bmad/scripts/publish_v28_five_root_gitlink_authority.py"
+V28_PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py"
+V28_BOOTSTRAP_PATHS = tuple(sorted((
+    ".github/workflows/planning-authority-preflight.yml",
+    V28_SCHEMA_PATH,
+    V28_PUBLISHER_PATH,
+    "_bmad/scripts/resolve_current_planning_authority.py",
+    V28_PUBLISHER_TEST_PATH,
+    "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+    "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+    "_bmad/scripts/verify_evidence_boundary.py",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+    "docs/runbooks/evidence-boundary-validation.md",
+)))
+V28_BOOTSTRAP_IDENTITY_PATHS = (V28_SCHEMA_PATH, V28_PUBLISHER_PATH, V28_PUBLISHER_TEST_PATH)
+V28_SCHEMA_SHA256 = "d3efd5fbddeb062d39a21e952ddc36cbbd57648e9068dde216863766a7e49245"
+V28_PUBLISHER_SHA256 = "a8ae593c04936822c7110d19af47e53933160f63a5f66a9eeff6dcdbac344a88"
+V28_WORKFLOW_SHA256 = "d29a9a50ff5f1ac9a200195dfc0851fc014920aadd26c666bc56350926cf2a66"
+V28_GITLINK_COUNT = 10
+V28_FROZEN_AUTHORITY_PATHS = (
+    "_bmad-output/implementation-artifacts/spec-v28-five-root-gitlink-authority-successor.md",
+    "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json",
+    "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json",
+    "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json",
+    "_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json",
+    "_bmad-output/planning-artifacts/v27-story-7.1-lifecycle-evidence-authority-v1.json",
+    "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json",
+    "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+    "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+    "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json",
+    "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json",
+    "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py",
+    "_bmad/scripts/publish_story_7_1_entry_authority.py",
+    "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py",
+    "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py",
+    "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+    "docs/release-evidence/story-7.1-final-record-v2.json",
+    "docs/release-evidence/story-7.1-final-record-v2.md",
+)
+V28_SPEC_PREDECESSOR = "31d5d4e94c345a01430dfe6c668f2cab64f8bbcb"
+V28_HISTORICAL_BASELINE = "1b01599ce16df03e44e83ca2edecac086f965ba7"
+V28_V27_RECORD_PUBLICATION = "f2817ef168b20b16fb1e85f226fec9a9cb689ae7"
+V28_HISTORICAL_COMMIT = "11e7e4dcfe8c7f2b57385225c0c79bfa81beadcf"
+V28_HISTORICAL_PARENT = "cc90e109f5903d5cde328d14e8264087e961e5ea"
+V28_HISTORICAL_TREE = "387df36d58577893764695d48b9fc8af33fbede3"
+V28_HISTORICAL_PARENT_TREE = "31a772ae8c706c655a69a346d57325cd690f70b2"
+V28_GITMODULES_SHA256 = "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c"
+V28_TRANSITIONS = (
+    ("references/Hexalith.EventStore", "4bc61d9a60fae13a65f23963c1cb731065222f2a", "d0291d0919c58e805b875e42a0a84e62c1c6e3e5"),
+    ("references/Hexalith.Folders", "b10971ae6e17d4fca2933908531f80a5f58b6e5a", "19c29e00eb6679bbf7a0d20a8b4dbf30182243cf"),
+    ("references/Hexalith.FrontComposer", "237b39e89cb50d8d37596f4da9ce3f6993260165", "b6ea7834591c9352b1c0ec338fb64e8fedd5db11"),
+    ("references/Hexalith.Projects", "ffa922d0f7a278da3bb02ee09769564df02d5f01", "3f12e4c329a8b46a8e69397635ba290388923c75"),
+    ("references/Hexalith.Tenants", "dfd84f4b9c93779f253672096fec5d717d6afc91", "850b321c38421bbeec903e74b548b8293b30a610"),
+)
+V28_OTHER_LINKS = (
+    ("references/Hexalith.AI.Tools", "5f93d2ec8239494852c97032c819cb1689939e36"),
+    ("references/Hexalith.Builds", "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab"),
+    ("references/Hexalith.Commons", "9f4809d37095e64e3732abc3e766535f9e836563"),
+    ("references/Hexalith.Memories", "8884933571e2738c406feea37e57f7124378b3e3"),
+    ("references/Hexalith.Parties", "14d249fde316b0002aec84351d7a7cdf953d1d30"),
+)
 V23_RESULT_SCHEMA_VERSION = "hexalith.conversations.current-planning-authority-result.v1"
 V23_TRUSTED_OWNER_IDENTITY = "Jerome Piquot <jpiquot@itaneo.com>"
 V23_TRUSTED_SSH_PRINCIPAL = "jpiquot@itaneo.com"
@@ -463,6 +530,8 @@ def candidate_blob(repository: Path, candidate: str, relative_path: str) -> byte
 def authority_route(repository: Path, candidate: str, trusted_host: str | None = None) -> str:
     """Choose authority from committed history while preventing a V24 route downgrade."""
 
+    if v28_route_selected(repository, candidate, trusted_host) is not None:
+        return "v28"
     if v27_route_selected(repository, candidate, trusted_host) is not None:
         return "v27"
     if candidate_history_has_path(repository, candidate, V24_CORRECTION_PATH):
@@ -1939,6 +2008,505 @@ def validate_v27_scope(root: Path, candidate: str, trusted_host: str | None) -> 
     )
 
 
+def v28_additions(root: Path, candidate: str, relative_path: str) -> tuple[str, ...]:
+    """Return every full-history commit that introduces one governed V28 path."""
+
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                root,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                candidate,
+                "--",
+                safe_relative_path(relative_path),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V28_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(re.fullmatch(r"[0-9a-f]{40}", row) is None for row in rows):
+        raise BoundaryError("EVIDENCE_V28_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v28_touching_commits(root: Path, since: str, candidate: str, paths: Sequence[str]) -> tuple[str, ...]:
+    """Return every full-history commit after `since` that touches one governed V28 path."""
+
+    if since == candidate:
+        return ()
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                root,
+                "rev-list",
+                "--full-history",
+                candidate,
+                f"^{since}",
+                "--",
+                *(safe_relative_path(path) for path in paths),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise BoundaryError("EVIDENCE_V28_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(re.fullmatch(r"[0-9a-f]{40}", row) is None for row in rows):
+        raise BoundaryError("EVIDENCE_V28_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v28_bootstrap_publication(root: Path, candidate: str) -> str | None:
+    """Discover the unique V28 bootstrap publication from committed history alone."""
+
+    discovered: set[str] = set()
+    absent = 0
+    for relative_path in V28_BOOTSTRAP_IDENTITY_PATHS:
+        rows = v28_additions(root, candidate, relative_path)
+        if not rows:
+            absent += 1
+            continue
+        if len(rows) != 1:
+            raise BoundaryError(
+                "EVIDENCE_V28_DUPLICATE_BOOTSTRAP_PUBLICATION",
+                f"{relative_path}: {rows!r}",
+                "BLOCKED",
+            )
+        discovered.add(rows[0])
+    if absent == len(V28_BOOTSTRAP_IDENTITY_PATHS):
+        return None
+    if absent or len(discovered) != 1:
+        raise BoundaryError("EVIDENCE_V28_BOOTSTRAP_PUBLICATION_SPLIT", repr(sorted(discovered)), "BLOCKED")
+    return discovered.pop()
+
+
+def require_v28_history(root: Path) -> None:
+    """Require complete history before any V28 fact is derived; partial history is never a pass."""
+
+    observed = run_git(root, "rev-parse", "--is-shallow-repository").stdout.strip()
+    if observed != b"false":
+        raise BoundaryError(
+            "EVIDENCE_V28_HISTORY_UNAVAILABLE",
+            f"repository is shallow or history availability is unknown: {observed!r}",
+            "BLOCKED",
+        )
+    promisor = run_git(
+        root,
+        "config",
+        "--get-regexp",
+        r"^(extensions\.partialclone|remote\..*\.promisor)$",
+        allowed=(0, 1),
+    )
+    if promisor.returncode == 0 and promisor.stdout.strip():
+        raise BoundaryError(
+            "EVIDENCE_V28_HISTORY_UNAVAILABLE",
+            "repository is a partial clone; object availability is unknown",
+            "BLOCKED",
+        )
+
+
+def v28_candidate_parent(root: Path, candidate: str) -> str:
+    """Return the one immediate parent; truncated and merge candidates are never evaluated."""
+
+    parents = commit_parents(root, candidate, "EVIDENCE_V28_HISTORY_UNAVAILABLE")
+    if not parents:
+        raise BoundaryError(
+            "EVIDENCE_V28_HISTORY_UNAVAILABLE",
+            f"{candidate} has no available parent; its ancestry is truncated",
+            "BLOCKED",
+        )
+    if len(parents) != 1:
+        raise BoundaryError(
+            "EVIDENCE_V28_CANDIDATE_PARENT_DRIFT",
+            f"{candidate} has {len(parents)} parents; V28 evaluates only single-parent candidates",
+            "BLOCKED",
+        )
+    return parents[0]
+
+
+def v28_changed_path_rows(root: Path, parent: str, candidate: str) -> list[dict[str, Any]]:
+    """Recompute the full identity of the truthful immediate-parent diff."""
+
+    content = run_git(
+        root,
+        "diff-tree",
+        "--no-commit-id",
+        "--no-renames",
+        "-r",
+        "-z",
+        "--raw",
+        parent,
+        candidate,
+    ).stdout
+    fields = [part for part in content.split(b"\0") if part]
+    if len(fields) % 2 != 0:
+        raise BoundaryError("EVIDENCE_V28_DIFF_MALFORMED", f"unpaired raw diff fields: {len(fields)}", "BLOCKED")
+    rows: list[dict[str, Any]] = []
+    for index in range(0, len(fields), 2):
+        try:
+            metadata = fields[index].decode("ascii", errors="strict")
+            relative_path = fields[index + 1].decode("utf-8", errors="strict")
+        except UnicodeError as error:
+            raise BoundaryError("EVIDENCE_V28_DIFF_MALFORMED", str(error), "BLOCKED") from error
+        parts = metadata[1:].split() if metadata.startswith(":") else []
+        if (
+            len(parts) != 5
+            or re.fullmatch(r"[0-7]{6}", parts[1]) is None
+            or re.fullmatch(r"[0-9a-f]{40}", parts[3]) is None
+        ):
+            raise BoundaryError("EVIDENCE_V28_DIFF_MALFORMED", repr(metadata), "BLOCKED")
+        target_mode, target_object = parts[1], parts[3]
+        digest: str | None = None
+        if target_mode not in ("000000", "160000"):
+            digest = sha256(run_git(root, "cat-file", "blob", target_object).stdout)
+        rows.append(
+            {
+                "path": safe_relative_path(relative_path),
+                "mode": target_mode,
+                "objectId": target_object,
+                "sha256": digest,
+            }
+        )
+    return sorted(rows, key=lambda row: row["path"])
+
+
+def evidence_v28_code(code: str) -> str:
+    """Fold one code into this host's single V28 namespace."""
+
+    if code.startswith("EVIDENCE_V28_"):
+        return code
+    return "EVIDENCE_V28_" + re.sub(r"^(EVIDENCE_)?(V2[0-9]_)?", "", code)
+
+
+def normalized_v28(error: BoundaryError) -> BoundaryError:
+    """Re-raise a helper's diagnostic inside the V28 namespace without losing its meaning."""
+
+    code = evidence_v28_code(error.code)
+    if code == error.code:
+        return error
+    return BoundaryError(code, error.message, error.state, error.path)
+
+
+def v28_route_selected(root: Path, candidate: str, trusted_host: str | None) -> str | None:
+    """Select V28 only when an externally authorized bootstrap precedes the protected host."""
+
+    # An event that supplies no protected base is absent provenance, never a synthesized anchor:
+    # V28 does not select and the existing V24 route stays authoritative.
+    if not trusted_host:
+        return None
+    bootstrap = v28_bootstrap_publication(root, candidate)
+    if bootstrap is None:
+        # A candidate carrying V28 content whose publication is unreachable is truncated history,
+        # not a V24 candidate. A candidate with no V28 content keeps the legacy route untouched,
+        # even in a shallow or partial clone.
+        if candidate_has_path(root, candidate, V28_PUBLISHER_PATH) or candidate_has_path(
+            root,
+            candidate,
+            V28_RECORD_PATH,
+        ):
+            require_v28_history(root)
+            raise BoundaryError(
+                "EVIDENCE_V28_HISTORY_UNAVAILABLE",
+                "V28 artifacts exist without a reachable bootstrap publication",
+                "BLOCKED",
+            )
+        return None
+    host = resolve_commit(root, trusted_host, "EVIDENCE_V28_PROTECTED_HOST_UNAVAILABLE")
+    if run_git(root, "merge-base", "--is-ancestor", bootstrap, host, allowed=(0, 1)).returncode != 0:
+        return None
+    if run_git(root, "merge-base", "--is-ancestor", bootstrap, candidate, allowed=(0, 1)).returncode != 0:
+        raise BoundaryError(
+            "EVIDENCE_V28_BOOTSTRAP_NOT_ANCESTOR",
+            f"{bootstrap} precedes no candidate history",
+            "BLOCKED",
+        )
+    require_v28_history(root)
+    return bootstrap
+
+
+def v28_governed_no_touch(root: Path, bootstrap: str, candidate: str) -> None:
+    """Reject governed drift from raw objects before any V28 code is imported."""
+
+    try:
+        v28_governed_no_touch_unnormalized(root, bootstrap, candidate)
+    except BoundaryError as error:
+        raise normalized_v28(error) from error
+
+
+def v28_governed_no_touch_unnormalized(root: Path, bootstrap: str, candidate: str) -> None:
+    """Derive the governed no-touch facts; shared helpers may raise their own codes."""
+
+    baseline_links = v24_root_gitlinks(root, bootstrap)
+    if len(baseline_links) != V28_GITLINK_COUNT:
+        raise BoundaryError("EVIDENCE_V28_ROOT_GITLINK_DRIFT", repr(len(baseline_links)), "FAIL")
+    governed = (*V28_BOOTSTRAP_PATHS, *V28_FROZEN_AUTHORITY_PATHS, V28_GITMODULES_PATH, *(row[0] for row in baseline_links))
+    touched = v28_touching_commits(root, bootstrap, candidate, governed)
+    if touched:
+        raise BoundaryError("EVIDENCE_V28_GOVERNED_PATH_TOUCHED", f"commits={sorted(touched)!r}", "FAIL")
+    for relative_path in (*V28_BOOTSTRAP_PATHS, *V28_FROZEN_AUTHORITY_PATHS):
+        if v23_tree_record(root, candidate, relative_path) != v23_tree_record(root, bootstrap, relative_path):
+            raise BoundaryError("EVIDENCE_V28_GOVERNED_ARTIFACT_DRIFT", relative_path, "FAIL")
+    if candidate_blob(root, candidate, V28_GITMODULES_PATH) != candidate_blob(root, bootstrap, V28_GITMODULES_PATH):
+        raise BoundaryError("EVIDENCE_V28_GITMODULES_DRIFT", V28_GITMODULES_PATH, "FAIL")
+    if v24_root_gitlinks(root, candidate) != baseline_links:
+        raise BoundaryError("EVIDENCE_V28_ROOT_GITLINK_DRIFT", "bootstrap and candidate gitlinks differ", "FAIL")
+    observed_workflow = sha256(candidate_blob(root, bootstrap, V28_WORKFLOW_PATH))
+    if observed_workflow != V28_WORKFLOW_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V28_WORKFLOW_IDENTITY_MISMATCH",
+            f"expected={V28_WORKFLOW_SHA256}; observed={observed_workflow}",
+            "BLOCKED",
+        )
+    publications = v28_additions(root, candidate, V28_RECORD_PATH)
+    if len(publications) > 1:
+        raise BoundaryError("EVIDENCE_V28_DUPLICATE_RECORD_PUBLICATION", repr(publications), "BLOCKED")
+    if publications:
+        parents = commit_parents(root, publications[0], "EVIDENCE_V28_HISTORY_UNAVAILABLE")
+        if parents != (bootstrap,):
+            raise BoundaryError("EVIDENCE_V28_RECORD_PARENT_DRIFT", repr(parents), "FAIL")
+        observed_scope = changed_paths(root, bootstrap, publications[0])
+        if observed_scope != (V28_RECORD_PATH,):
+            raise BoundaryError("EVIDENCE_V28_RECORD_SCOPE_DRIFT", repr(observed_scope), "FAIL")
+
+
+def v28_protected_preflight(repository: Path, bootstrap: str, candidate: str) -> None:
+    """Authenticate C1 and the frozen root-link transaction before importing V28 code."""
+
+    if v28_candidate_parent(repository, bootstrap) != V28_SPEC_PREDECESSOR:
+        raise BoundaryError("EVIDENCE_V28_BOOTSTRAP_PARENT_DRIFT", bootstrap, "FAIL")
+    if v28_candidate_parent(repository, V28_SPEC_PREDECESSOR) != "44964e68c34e16e47401051d39d367ffb19b0773":
+        raise BoundaryError("EVIDENCE_V28_SPEC_PREDECESSOR_DRIFT", V28_SPEC_PREDECESSOR, "FAIL")
+    if v28_candidate_parent(repository, "44964e68c34e16e47401051d39d367ffb19b0773") != V28_HISTORICAL_BASELINE:
+        raise BoundaryError("EVIDENCE_V28_SPEC_PREDECESSOR_DRIFT", V28_HISTORICAL_BASELINE, "FAIL")
+    if v28_candidate_parent(repository, V28_HISTORICAL_COMMIT) != V28_HISTORICAL_PARENT:
+        raise BoundaryError("EVIDENCE_V28_HISTORICAL_PARENT_DRIFT", V28_HISTORICAL_COMMIT, "FAIL")
+    if (commit_tree(repository, V28_HISTORICAL_COMMIT), commit_tree(repository, V28_HISTORICAL_PARENT)) != (
+        V28_HISTORICAL_TREE, V28_HISTORICAL_PARENT_TREE
+    ):
+        raise BoundaryError("EVIDENCE_V28_HISTORICAL_TREE_DRIFT", V28_HISTORICAL_COMMIT, "FAIL")
+    if changed_paths(repository, V28_HISTORICAL_PARENT, V28_HISTORICAL_COMMIT) != tuple(row[0] for row in V28_TRANSITIONS):
+        raise BoundaryError("EVIDENCE_V28_HISTORICAL_DIFF_DRIFT", V28_HISTORICAL_COMMIT, "FAIL")
+    for path, before, after in V28_TRANSITIONS:
+        if v23_tree_record(repository, V28_HISTORICAL_PARENT, path) != ("160000", "commit", before):
+            raise BoundaryError("EVIDENCE_V28_HISTORICAL_DIFF_DRIFT", f"before {path}", "FAIL")
+        if v23_tree_record(repository, V28_HISTORICAL_COMMIT, path) != ("160000", "commit", after):
+            raise BoundaryError("EVIDENCE_V28_HISTORICAL_DIFF_DRIFT", f"after {path}", "FAIL")
+    expected_links = tuple(sorted(
+        [(path, "160000", after) for path, _before, after in V28_TRANSITIONS]
+        + [(path, "160000", object_id) for path, object_id in V28_OTHER_LINKS]
+    ))
+    if any(v24_root_gitlinks(repository, revision) != expected_links for revision in (V28_HISTORICAL_BASELINE, V28_SPEC_PREDECESSOR, bootstrap)):
+        raise BoundaryError("EVIDENCE_V28_ROOT_GITLINK_DRIFT", "frozen ten-link inventory mismatch", "FAIL")
+    if any(sha256(candidate_blob(repository, revision, V28_GITMODULES_PATH)) != V28_GITMODULES_SHA256
+           for revision in (V28_HISTORICAL_BASELINE, V28_SPEC_PREDECESSOR, bootstrap)):
+        raise BoundaryError("EVIDENCE_V28_GITMODULES_DRIFT", V28_GITMODULES_PATH, "FAIL")
+    governed = (V28_GITMODULES_PATH, *(row[0] for row in expected_links))
+    if v28_touching_commits(repository, V28_HISTORICAL_BASELINE, bootstrap, governed):
+        raise BoundaryError("EVIDENCE_V28_GOVERNED_PATH_TOUCHED", "root links touched after frozen baseline", "FAIL")
+    if run_git(repository, "merge-base", "--is-ancestor", V28_V27_RECORD_PUBLICATION, V28_HISTORICAL_COMMIT, allowed=(0, 1)).returncode != 0:
+        raise BoundaryError("EVIDENCE_V28_HISTORICAL_LINEAGE_DRIFT", V28_V27_RECORD_PUBLICATION, "FAIL")
+    if v28_touching_commits(repository, V28_V27_RECORD_PUBLICATION, V28_HISTORICAL_BASELINE, governed) != (V28_HISTORICAL_COMMIT,):
+        raise BoundaryError("EVIDENCE_V28_HISTORICAL_TOUCH_DRIFT", "extra root-link or .gitmodules touch before frozen baseline", "FAIL")
+    observed_paths = changed_paths(repository, V28_SPEC_PREDECESSOR, bootstrap)
+    if observed_paths != V28_BOOTSTRAP_PATHS:
+        raise BoundaryError("EVIDENCE_V28_BOOTSTRAP_SCOPE_DRIFT", f"observed={observed_paths!r}", "BLOCKED")
+    manifest = []
+    for path in V28_BOOTSTRAP_PATHS:
+        mode, kind, object_id = v23_tree_record(repository, bootstrap, path)
+        if (mode, kind) != ("100644", "blob"):
+            raise BoundaryError("EVIDENCE_V28_BOOTSTRAP_MODE_DRIFT", f"{path}: {mode} {kind}", "BLOCKED")
+        content = candidate_blob(repository, bootstrap, path)
+        manifest.append({"path": path, "mode": mode, "objectId": object_id, "sha256": sha256(content), "bytes": len(content)})
+    manifest_material = "".join(
+        f"{unicodedata.normalize('NFC', row['path'])}\t{row['mode']}\t{row['objectId']}\t{row['sha256']}\t{row['bytes']}\n"
+        for row in manifest
+    ).encode("utf-8")
+    manifest_digest = sha256(manifest_material)
+    if candidate_has_path(repository, candidate, V28_RECORD_PATH):
+        try:
+            record = json.loads(candidate_blob(repository, candidate, V28_RECORD_PATH))
+            if not isinstance(record, dict):
+                raise TypeError("record must be an object")
+            declared = record["bootstrapTransaction"]
+            authorization = record["authorization"]
+            if not isinstance(declared, dict) or not isinstance(authorization, dict):
+                raise TypeError("record transaction and authorization must be objects")
+        except (ValueError, KeyError, TypeError) as error:
+            raise BoundaryError("EVIDENCE_V28_RECORD_INVALID", str(error), "FAIL") from error
+        if (declared.get("manifest") != manifest or declared.get("manifestSha256") != manifest_digest
+                or authorization.get("bootstrapCommit") != bootstrap
+                or authorization.get("bootstrapParent") != V28_SPEC_PREDECESSOR
+                or authorization.get("bootstrapTree") != commit_tree(repository, bootstrap)
+                or authorization.get("bootstrapParentTree") != commit_tree(repository, V28_SPEC_PREDECESSOR)):
+            raise BoundaryError("EVIDENCE_V28_MANIFEST_IDENTITY_MISMATCH", V28_RECORD_PATH, "FAIL")
+
+
+def load_v28_publisher(root: Path, bootstrap: str) -> tuple[Any, bytes]:
+    """Load pinned V28 publisher bytes only from the externally authorized bootstrap."""
+
+    for relative_path in (V28_SCHEMA_PATH, V28_PUBLISHER_PATH):
+        mode, kind, _object_id = v23_tree_record(root, bootstrap, relative_path)
+        if (mode, kind) != ("100644", "blob"):
+            raise BoundaryError("EVIDENCE_V28_BOOTSTRAP_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    schema_content = candidate_blob(root, bootstrap, V28_SCHEMA_PATH)
+    if sha256(schema_content) != V28_SCHEMA_SHA256:
+        raise BoundaryError("EVIDENCE_V28_SCHEMA_IDENTITY_MISMATCH", sha256(schema_content), "BLOCKED")
+    content = candidate_blob(root, bootstrap, V28_PUBLISHER_PATH)
+    if sha256(content) != V28_PUBLISHER_SHA256:
+        raise BoundaryError(
+            "EVIDENCE_V28_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V28_PUBLISHER_SHA256}; observed={sha256(content)}",
+            "BLOCKED",
+        )
+    spec = importlib.util.spec_from_loader("evidence_v28_lifecycle_evidence_authority", loader=None)
+    if spec is None:
+        raise BoundaryError("EVIDENCE_V28_PUBLISHER_LOAD_FAILED", V28_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{bootstrap}:{V28_PUBLISHER_PATH}"
+    try:
+        exec(compile(content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V28_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if not callable(getattr(module, "verify_revision", None)):
+        raise BoundaryError("EVIDENCE_V28_PUBLISHER_INTERFACE_INVALID", V28_PUBLISHER_PATH, "BLOCKED")
+    return module, schema_content
+
+
+def validate_v28_result(root: Path, document: Any, candidate: str, schema_content: bytes) -> dict[str, Any]:
+    """Require a closed, route-discriminated, truthful, non-executable V28 result."""
+
+    try:
+        return validate_v28_result_unnormalized(root, document, candidate, schema_content)
+    except BoundaryError as error:
+        raise normalized_v28(error) from error
+
+
+def validate_v28_result_unnormalized(
+    root: Path,
+    document: Any,
+    candidate: str,
+    schema_content: bytes,
+) -> dict[str, Any]:
+    """Check the returned result; shared helpers may raise their own codes."""
+
+    if not isinstance(document, dict):
+        raise BoundaryError("EVIDENCE_V28_RESULT_INVALID", "result is not a JSON object", "BLOCKED")
+    schema = load_v23_json(schema_content, "EVIDENCE_V28_SCHEMA_INVALID")
+    try:
+        Draft202012Validator.check_schema(schema)
+        Draft202012Validator(schema).validate(document)
+    except (SchemaError, ValidationError) as error:
+        raise BoundaryError("EVIDENCE_V28_RESULT_SCHEMA_INVALID", error.message, "BLOCKED") from error
+    exit_codes = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
+    result = document.get("result")
+    observed = document.get("observed")
+    if (
+        document.get("schemaVersion") != V23_RESULT_SCHEMA_VERSION
+        or result not in exit_codes
+        or document.get("exitCode") != exit_codes[result]
+        or document.get("effectiveHold") != "ACTIVE"
+        or document.get("implementationHold") != "ACTIVE"
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or not isinstance(document.get("assertionLedger"), list)
+        or not document["assertionLedger"]
+        or not isinstance(observed, dict)
+    ):
+        raise BoundaryError("EVIDENCE_V28_RESULT_INVALID", "closed non-executable result mismatch", "BLOCKED")
+    if result != "PASS":
+        if not document.get("blockers"):
+            raise BoundaryError("EVIDENCE_V28_RESULT_INVALID", "failing result without a blocker", "BLOCKED")
+        return document
+    if document.get("blockers") or any(row.get("state") != "PASS" for row in document["assertionLedger"]):
+        raise BoundaryError(
+            "EVIDENCE_V28_RESULT_INVALID",
+            "passing result carries a blocker or nonpassing row",
+            "BLOCKED",
+        )
+    parent = v28_candidate_parent(root, candidate)
+    truthful = v28_changed_path_rows(root, parent, candidate)
+    declared = observed.get("changedPaths")
+    if not isinstance(declared, list):
+        raise BoundaryError("EVIDENCE_V28_OBSERVED_DIFF_UNTRUTHFUL", "changedPaths is not a list", "BLOCKED")
+    declared = sorted(declared, key=lambda row: row.get("path") if isinstance(row, dict) else "")
+    expected_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in v24_root_gitlinks(root, candidate)
+    ]
+    if (
+        observed.get("candidateCommit") != candidate
+        or observed.get("candidateTree") != commit_tree(root, candidate)
+        or observed.get("parentCommit") != parent
+        or observed.get("parentTree") != commit_tree(root, parent)
+        or declared != truthful
+        or observed.get("candidateGitlinks") != expected_links
+        or observed.get("parentGitlinks")
+        != [
+            {"path": path, "mode": mode, "objectId": object_id}
+            for path, mode, object_id in v24_root_gitlinks(root, parent)
+        ]
+    ):
+        raise BoundaryError(
+            "EVIDENCE_V28_OBSERVED_DIFF_UNTRUTHFUL",
+            f"declared={[row.get('path') for row in declared]!r}; observed={[row['path'] for row in truthful]!r}",
+            "BLOCKED",
+        )
+    return document
+
+
+def validate_v28_scope(root: Path, candidate: str, trusted_host: str | None) -> dict[str, Any]:
+    """Validate the externally authorized V28 boundary from the independent evidence host."""
+
+    try:
+        bootstrap = v28_route_selected(root, candidate, trusted_host)
+    except BoundaryError as error:
+        raise normalized_v28(error) from error
+    if bootstrap is None:
+        raise BoundaryError(
+            "EVIDENCE_V28_BOOTSTRAP_NOT_PROTECTED",
+            "no externally authorized V28 bootstrap precedes the protected host",
+            "BLOCKED",
+        )
+    v28_candidate_parent(root, candidate)
+    v28_protected_preflight(root, bootstrap, candidate)
+    v28_governed_no_touch(root, bootstrap, candidate)
+    module, schema_content = load_v28_publisher(root, bootstrap)
+    assert trusted_host is not None
+    host = resolve_commit(root, trusted_host, "EVIDENCE_V28_PROTECTED_HOST_UNAVAILABLE")
+    try:
+        result = module.verify_revision(root, candidate, host)
+    except BoundaryError:
+        raise
+    except BaseException as error:
+        raise BoundaryError("EVIDENCE_V28_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+    document = validate_v28_result(root, result, candidate, schema_content)
+    if document["result"] != "PASS":
+        blocker = document["blockers"][0]
+        # Propagated publisher codes are normalized into this host's own namespace so a consumer
+        # filtering on EVIDENCE_V28_ never drops part of the set.
+        code = str(blocker["code"])
+        normalized = code if code.startswith("EVIDENCE_") else f"EVIDENCE_{code}"
+        raise BoundaryError(normalized, str(blocker["detail"]), str(document["result"]))
+    return assertion(
+        "V28-SCOPE-01",
+        "v28-lifecycle-evidence-authority-boundary",
+        "PASS",
+        route=str(document["assertionLedger"][0]["id"]),
+        bootstrap=bootstrap,
+        protectedHost=host,
+        count=len(V28_BOOTSTRAP_PATHS),
+        publisherSha256=V28_PUBLISHER_SHA256,
+        executionAllowed=False,
+    )
+
+
+
+
 def validate_v24_request_result(document: Any, publication: str) -> dict[str, Any]:
     """Map any contradictory corrected request result to the V24 host boundary."""
 
@@ -2169,6 +2737,7 @@ def verify(
         "v23-authority",
         "v24",
         "v27",
+        "v28",
     )
     gitlink_row = validate_gitlinks(root, baseline, candidate)
     ledger = [
@@ -2177,7 +2746,9 @@ def verify(
         gitlink_row,
         validate_publication_scope(root, baseline, candidate, paths, gitlink_row),
     ]
-    if route == "v27":
+    if route == "v28":
+        ledger.append(validate_v28_scope(root, candidate, trusted_host))
+    elif route == "v27":
         ledger.append(validate_v27_scope(root, candidate, trusted_host))
     elif route == "v24":
         ledger.append(
@@ -2239,7 +2810,7 @@ def verify(
             ),
         )
     )
-    if route not in ("v23-request", "v23-authority", "v24", "v27"):
+    if route not in ("v23-request", "v23-authority", "v24", "v27", "v28"):
         ledger.append(run_publication_check(root, route=route, candidate=candidate))
     if not ledger:
         raise BoundaryError("SCOPE_NOT_EVALUATED", "applicable scope produced an empty assertion ledger")
@@ -2304,7 +2875,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--trusted-host",
         default=None,
-        help="externally recorded protected-host provenance that may authorize the V27 route",
+        help="externally recorded protected-host provenance that may authorize the V28 or V27 route",
     )
     parser.add_argument("--output")
     return parser

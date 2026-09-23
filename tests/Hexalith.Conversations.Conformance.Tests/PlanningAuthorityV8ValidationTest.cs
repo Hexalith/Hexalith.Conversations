@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Diagnostics;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -25,6 +26,8 @@ public sealed class PlanningAuthorityV8ValidationTest
     private const string UxMapPath = "_bmad-output/planning-artifacts/ux-requirement-map.md";
     private const string UxSpecificationPath = "_bmad-output/planning-artifacts/ux-design-specification.md";
     private const string CompletedStoryRecordPath = "_bmad-output/implementation-artifacts/6-2-migrate-conversations-to-platform-owned-hosting.md";
+    private const string HistoricalSprintCandidate = "a1f907d31840d698acea1b7fb55f3b444b4b6b9d";
+    private const string HistoricalSprintDigest = "3ef082f8b11a9eb9b33e11516e72ac4b7b43d0d817da7d9f86a532ffcc190ee1";
     private const string OverlayVersion = "epic-6-authority-2026-08-01-v8";
     private const string ArchitectureVersion = "conversations-architecture-2026-08-01-v8";
     private const string BeginMarker = "<!-- EPIC-6-AUTHORITY-OVERLAY-AMENDMENT-V8:BEGIN version=epic-6-authority-2026-08-01-v8 supersedes=epic-6-authority-2026-08-01-v7 -->";
@@ -89,6 +92,9 @@ public sealed class PlanningAuthorityV8ValidationTest
         string block = ExtractInclusive(epics, BeginMarker, EndMarker);
         byte[] historicalEpics = PrefixBeforeAppendedOverlay(ReadBytes(EpicsPath), "<!-- EPIC-6-AUTHORITY-OVERLAY-V9:BEGIN");
         byte[] historicalArchitecture = PrefixBeforeAppendedOverlay(ReadBytes(ArchitecturePath), "<!-- ARCHITECTURE-EXECUTION-OVERLAY-V9:BEGIN");
+        byte[] historicalSprint = ReadCandidateBytes(HistoricalSprintCandidate, SprintPath);
+
+        Sha256(historicalSprint).ShouldBe(HistoricalSprintDigest);
 
         AssertYaml(frontmatter, "overlay_version", OverlayVersion);
         AssertYaml(frontmatter, "architecture_version", ArchitectureVersion);
@@ -97,7 +103,7 @@ public sealed class PlanningAuthorityV8ValidationTest
         AssertYaml(frontmatter, "source_epics_sha256", Sha256(historicalEpics));
         AssertYaml(frontmatter, "source_v8_block_sha256", Sha256(Encoding.UTF8.GetBytes(block)));
         AssertYaml(frontmatter, "source_architecture_sha256", Sha256(historicalArchitecture));
-        AssertYaml(frontmatter, "source_sprint_status_sha256", "3ef082f8b11a9eb9b33e11516e72ac4b7b43d0d817da7d9f86a532ffcc190ee1");
+        AssertYaml(frontmatter, "source_sprint_status_sha256", Sha256(historicalSprint));
         AssertYaml(frontmatter, "completed_story_6_2_record", CompletedStoryRecordPath);
         AssertYaml(frontmatter, "completed_story_6_2_record_sha256", Sha256(ReadBytes(CompletedStoryRecordPath)));
 
@@ -253,9 +259,10 @@ public sealed class PlanningAuthorityV8ValidationTest
     [Fact]
     public void SprintAndActiveGuidanceShouldPreserveStatusesAndEnforceTheHold()
     {
-        string sprint = Read(SprintPath);
-        sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
-        sprint.ShouldContain("IR-0 was not run");
+        byte[] sprintBytes = ReadCandidateBytes(HistoricalSprintCandidate, SprintPath);
+        Sha256(sprintBytes).ShouldBe(HistoricalSprintDigest);
+        string sprint = Encoding.UTF8.GetString(sprintBytes);
+        sprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD: AUTHORITY CORRECTION ONLY — NOT READY");
 
         Dictionary<string, string> statuses = Regex.Matches(
                 sprint,
@@ -265,12 +272,14 @@ public sealed class PlanningAuthorityV8ValidationTest
                 match => match.Groups["story"].Value,
                 match => match.Groups["status"].Value,
                 StringComparer.Ordinal);
-        statuses.Count.ShouldBe(3);
+        statuses.Count.ShouldBe(12);
         statuses["6-1-rebaseline-architecture-and-planning-authority"].ShouldBe("done");
         statuses["6-2-migrate-conversations-to-platform-owned-hosting"].ShouldBe("done");
         statuses["6-7-mechanically-block-incomplete-submodule-promotions-from-completion"].ShouldBe("done");
-        Regex.Matches(sprint, @"^  (?:[7-9]|1[0-6])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(30);
-        sprint.ShouldContain("epic-6: done");
+        statuses["6-3-create-complete-preservation-traceability-manifest"].ShouldBe("in-progress");
+        statuses["6-8-generate-the-final-story-record-mechanically-from-measured-state"].ShouldBe("in-progress");
+        statuses["6-12-version-projection-proofs-without-rewriting-completed-history"].ShouldBe("ready-for-dev");
+        sprint.ShouldContain("epic-6: in-progress");
 
         foreach (string path in new[]
         {
@@ -284,6 +293,13 @@ public sealed class PlanningAuthorityV8ValidationTest
             guidance.ShouldContain(ArchitectureVersion);
             guidance.ShouldContain("Global hold");
         }
+
+        string currentSprint = Read(SprintPath);
+        currentSprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
+        currentSprint.ShouldContain("IR-0 was not run");
+        currentSprint.ShouldContain("  epic-6: done");
+        currentSprint.ShouldContain("  7-1-define-the-final-record-schema-and-deterministic-generator-core: done");
+        Regex.IsMatch(currentSprint, @"^  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: (?:in-progress|in-review|done)$", RegexOptions.Multiline).ShouldBeTrue();
     }
 
     private static bool HasCycle(Dictionary<string, List<string>> graph)
@@ -395,6 +411,25 @@ public sealed class PlanningAuthorityV8ValidationTest
     }
 
     private static byte[] ReadBytes(string relativePath) => File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), relativePath));
+
+    private static byte[] ReadCandidateBytes(string candidate, string relativePath)
+    {
+        ProcessStartInfo startInfo = new("git")
+        {
+            WorkingDirectory = FindRepositoryRoot(),
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        startInfo.ArgumentList.Add("show");
+        startInfo.ArgumentList.Add($"{candidate}:{relativePath}");
+        using Process process = Process.Start(startInfo)!;
+        using MemoryStream output = new();
+        process.StandardOutput.BaseStream.CopyTo(output);
+        process.WaitForExit();
+        process.ExitCode.ShouldBe(0, process.StandardError.ReadToEnd());
+        return output.ToArray();
+    }
 
     private static string Read(string relativePath) => File.ReadAllText(Path.Combine(FindRepositoryRoot(), relativePath));
 

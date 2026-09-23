@@ -1663,6 +1663,16 @@ def v27_fixtures() -> Any:
     assert fixture_spec is not None and fixture_spec.loader is not None
     fixtures = importlib.util.module_from_spec(fixture_spec)
     fixture_spec.loader.exec_module(fixtures)
+    original_copy = fixtures.copy_bootstrap_inputs
+
+    def copy_historical_workflow(root: Path, extra: dict[str, bytes] | None = None) -> None:
+        original_copy(root, extra)
+        content = subprocess.check_output(
+            ["git", "-C", str(ROOT), "cat-file", "blob", f"188c5a33eaede168a04c8412380fc8d5c02e11a3:{verifier.V27_WORKFLOW_PATH}"]
+        )
+        (root / verifier.V27_WORKFLOW_PATH).write_bytes(content)
+
+    fixtures.copy_bootstrap_inputs = copy_historical_workflow
     return fixtures
 
 
@@ -2004,3 +2014,97 @@ def test_v27_evidence_host_recomputes_the_full_identity_of_the_parent_diff(
             verifier.validate_v27_scope(root, tip, bootstrap)
         assert failure.value.code == "EVIDENCE_V27_OBSERVED_DIFF_UNTRUTHFUL", field
         monkeypatch.undo()
+
+
+def v28_fixtures() -> Any:
+    """Load the production-shaped V28 publication fixtures."""
+
+    path = ROOT / "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py"
+    spec = importlib.util.spec_from_file_location("v28_evidence_fixtures", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_v28_evidence_host_requires_protected_c1_and_then_blocks(tmp_path: Path) -> None:
+    """The independent host retains the predecessor route before protected C1."""
+
+    fixtures = v28_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    assert verifier.v28_route_selected(root, bootstrap, fixtures.PREDECESSOR_COMMIT) is None
+    with pytest.raises(verifier.BoundaryError) as old:
+        verifier.validate_v27_scope(root, bootstrap, fixtures.PREDECESSOR_COMMIT)
+    assert old.value.code == "EVIDENCE_V27_GOVERNED_PATH_TOUCHED"
+    with pytest.raises(verifier.BoundaryError) as blocked:
+        verifier.validate_v28_scope(root, bootstrap, bootstrap)
+    assert blocked.value.code == "EVIDENCE_V28_C2_PUBLICATION_MISSING"
+
+
+def test_v28_evidence_host_passes_c2_and_untouched_descendant(tmp_path: Path) -> None:
+    """The evidence host independently authenticates the frozen C1 manifest."""
+
+    fixtures = v28_fixtures()
+    root, bootstrap, publication, tip = fixtures.descendant_repository(tmp_path)
+    for candidate in (publication, tip):
+        row = verifier.validate_v28_scope(root, candidate, bootstrap)
+        assert row["state"] == "PASS"
+        assert row["executionAllowed"] is False
+        document = verifier.verify(root, bootstrap, candidate, trusted_host=bootstrap)
+        assert document["result"] == "PASS"
+        assert document["assertionLedger"]
+        assert document["implementationHold"] == "ACTIVE"
+        assert all(document[key] is False for key in ("executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"))
+
+
+@pytest.mark.parametrize(
+    "scenario",
+    ("governed-restore", "frozen-story-json", "frozen-story-md", "frozen-v27-record", "frozen-v27-schema", "frozen-v27-publisher", "frozen-v28-spec"),
+)
+def test_v28_evidence_host_rejects_restored_governed_history(tmp_path: Path, scenario: str) -> None:
+    """The evidence host cannot accept a restored C1 or frozen authority artifact."""
+
+    fixtures = v28_fixtures()
+    assert verifier.V28_FROZEN_AUTHORITY_PATHS == fixtures.publisher.FROZEN_AUTHORITY_PATHS
+    root, bootstrap, _publication, tip = fixtures.drift_repository(tmp_path, scenario)
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v28_scope(root, tip, bootstrap)
+    assert failure.value.code == "EVIDENCE_V28_GOVERNED_PATH_TOUCHED"
+
+
+def test_v28_evidence_host_returns_record_invalid_for_nonobject_transaction(tmp_path: Path) -> None:
+    """A malformed C2 record gets a stable evidence diagnostic."""
+
+    fixtures = v28_fixtures()
+    root, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    target = root / fixtures.publisher.RECORD_PATH
+    target.write_text('{"bootstrapTransaction":[],"authorization":{}}\n', encoding="utf-8")
+    fixtures.git(root, "add", "--", fixtures.publisher.RECORD_PATH)
+    malformed = fixtures.commit(root, "test(planning): publish malformed V28 record")
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v28_scope(root, malformed, bootstrap)
+    assert failure.value.code == "EVIDENCE_V28_RECORD_INVALID"
+    assert failure.value.state == "FAIL"
+
+
+def test_v28_evidence_host_rejects_falsified_pass_diff_digest(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """This host recomputes the changed blob digest after publisher execution."""
+
+    fixtures = v28_fixtures()
+    root, bootstrap, publication = fixtures.published_repository(tmp_path)
+    module, schema_content = verifier.load_v28_publisher(root, bootstrap)
+    honest = module.verify_revision(root, publication, bootstrap)
+
+    class Fabricated:
+        @staticmethod
+        def verify_revision(repository: Path, candidate: str, trusted_host: str) -> dict[str, Any]:
+            document = json.loads(json.dumps(honest))
+            document["observed"]["changedPaths"][0]["sha256"] = "0" * 64
+            return document
+
+    monkeypatch.setattr(verifier, "load_v28_publisher", lambda repository, commit: (Fabricated, schema_content))
+    with pytest.raises(verifier.BoundaryError) as failure:
+        verifier.validate_v28_scope(root, publication, bootstrap)
+    assert failure.value.code == "EVIDENCE_V28_OBSERVED_DIFF_UNTRUTHFUL"

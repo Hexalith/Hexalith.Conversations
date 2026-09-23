@@ -1,0 +1,1517 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/v28-five-root-gitlink-authority-v1.schema.json",
+  "title": "V28 Story 7.1 Lifecycle Evidence Authority Successor",
+  "description": "Closed contracts for the externally authorized V28 bootstrap publication (C1), its deterministic record-only publication (C2), and the route-discriminated non-executable result envelope both protected hosts return.",
+  "oneOf": [
+    {
+      "$ref": "#/$defs/publicationRecord"
+    },
+    {
+      "$ref": "#/$defs/resultEnvelope"
+    }
+  ],
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "nullableCommit": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/commit"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "nullableSha256": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/sha256"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*\\\\)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*[\\x00-\\x1F\\x7F])[^/]+(?:/[^/]+)*$"
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "100644"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "gitlink": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "const": "160000"
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        }
+      }
+    },
+    "changedPath": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "mode",
+        "objectId",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "enum": [
+            "000000",
+            "100644",
+            "100755",
+            "120000",
+            "160000"
+          ]
+        },
+        "objectId": {
+          "$ref": "#/$defs/commit"
+        },
+        "sha256": {
+          "$ref": "#/$defs/nullableSha256"
+        }
+      }
+    },
+    "recordAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^V28\\.SUCCESSOR\\.[0-9]{2}$"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "const": "PASS"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "resultAssertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "subject",
+        "state",
+        "detail"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^V28(\\.(ROUTE\\.(C1|C2|DESCENDANT|DRIFT|BLOCKED)|SUCCESSOR\\.[0-9]{2})|_[A-Z0-9_]+)$"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "blocker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "detail"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^V28_[A-Z0-9_]+$"
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "observed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "candidateCommit",
+        "candidateTree",
+        "parentCommit",
+        "parentTree",
+        "changedPaths",
+        "parentGitlinks",
+        "candidateGitlinks"
+      ],
+      "properties": {
+        "candidateCommit": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "candidateTree": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "parentCommit": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "parentTree": {
+          "$ref": "#/$defs/nullableCommit"
+        },
+        "changedPaths": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/changedPath"
+          }
+        },
+        "parentGitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        },
+        "candidateGitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          }
+        }
+      }
+    },
+    "resultSemantics": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "states",
+        "exitCodes",
+        "ledgerRequired"
+      ],
+      "properties": {
+        "states": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "prefixItems": [
+            {
+              "const": "PASS"
+            },
+            {
+              "const": "FAIL"
+            },
+            {
+              "const": "BLOCKED"
+            }
+          ],
+          "items": false
+        },
+        "exitCodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ],
+          "properties": {
+            "PASS": {
+              "const": 0
+            },
+            "FAIL": {
+              "const": 1
+            },
+            "BLOCKED": {
+              "const": 2
+            }
+          }
+        },
+        "ledgerRequired": {
+          "const": true
+        }
+      }
+    },
+    "publicationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "recordType",
+        "successorId",
+        "authorization",
+        "bootstrapTransaction",
+        "recordTransaction",
+        "submoduleBinding",
+        "resultSemantics",
+        "assertionLedger",
+        "blockers",
+        "result",
+        "implementationHold",
+        "executionAllowed",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "historicalGitlinkTransaction"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.five-root-gitlink-authority.v1"
+        },
+        "recordType": {
+          "const": "FIVE_ROOT_GITLINK_AUTHORITY_SUCCESSOR"
+        },
+        "successorId": {
+          "const": "V28-FIVE-ROOT-GITLINK-AUTHORITY-v1"
+        },
+        "authorization": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "model",
+            "bootstrapCommit",
+            "bootstrapTree",
+            "bootstrapParent",
+            "bootstrapParentTree",
+            "externalExceptionRequired",
+            "selfAuthorized"
+          ],
+          "properties": {
+            "model": {
+              "const": "PROTECTED_HOST_ANCESTRY"
+            },
+            "bootstrapCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "bootstrapTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "bootstrapParent": {
+              "$ref": "#/$defs/commit"
+            },
+            "bootstrapParentTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "externalExceptionRequired": {
+              "const": true
+            },
+            "selfAuthorized": {
+              "const": false
+            }
+          }
+        },
+        "bootstrapTransaction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "exactChangedPaths",
+            "requiredMode",
+            "manifestSha256",
+            "manifest"
+          ],
+          "properties": {
+            "exactChangedPaths": {
+              "type": "array",
+              "minItems": 11,
+              "maxItems": 11,
+              "prefixItems": [
+                {
+                  "const": ".github/workflows/planning-authority-preflight.yml"
+                },
+                {
+                  "const": "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json"
+                },
+                {
+                  "const": "_bmad/scripts/publish_v28_five_root_gitlink_authority.py"
+                },
+                {
+                  "const": "_bmad/scripts/resolve_current_planning_authority.py"
+                },
+                {
+                  "const": "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py"
+                },
+                {
+                  "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py"
+                },
+                {
+                  "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py"
+                },
+                {
+                  "const": "_bmad/scripts/verify_evidence_boundary.py"
+                },
+                {
+                  "const": "docs/runbooks/evidence-boundary-validation.md"
+                },
+                {
+                  "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs"
+                },
+                {
+                  "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs"
+                }
+              ],
+              "items": false
+            },
+            "requiredMode": {
+              "const": "100644"
+            },
+            "manifestSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "manifest": {
+              "type": "array",
+              "minItems": 11,
+              "maxItems": 11,
+              "prefixItems": [
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": ".github/workflows/planning-authority-preflight.yml"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/publish_v28_five_root_gitlink_authority.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/resolve_current_planning_authority.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "_bmad/scripts/verify_evidence_boundary.py"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "docs/runbooks/evidence-boundary-validation.md"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs"
+                        }
+                      }
+                    }
+                  ]
+                },
+                {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/binding"
+                    },
+                    {
+                      "properties": {
+                        "path": {
+                          "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs"
+                        }
+                      }
+                    }
+                  ]
+                }
+              ],
+              "items": false
+            }
+          }
+        },
+        "recordTransaction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "parentCommit",
+            "parentTree",
+            "exactChangedPaths",
+            "requiredMode"
+          ],
+          "properties": {
+            "parentCommit": {
+              "$ref": "#/$defs/commit"
+            },
+            "parentTree": {
+              "$ref": "#/$defs/commit"
+            },
+            "exactChangedPaths": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "prefixItems": [
+                {
+                  "const": "_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json"
+                }
+              ],
+              "items": false
+            },
+            "requiredMode": {
+              "const": "100644"
+            }
+          }
+        },
+        "submoduleBinding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "gitmodulesPath",
+            "gitmodulesSha256",
+            "declaredPaths",
+            "rootGitlinks"
+          ],
+          "properties": {
+            "gitmodulesPath": {
+              "const": ".gitmodules"
+            },
+            "gitmodulesSha256": {
+              "$ref": "#/$defs/sha256"
+            },
+            "declaredPaths": {
+              "type": "array",
+              "minItems": 10,
+              "maxItems": 10,
+              "uniqueItems": true,
+              "items": {
+                "$ref": "#/$defs/path"
+              }
+            },
+            "rootGitlinks": {
+              "type": "array",
+              "minItems": 10,
+              "maxItems": 10,
+              "items": {
+                "$ref": "#/$defs/gitlink"
+              }
+            }
+          }
+        },
+        "resultSemantics": {
+          "$ref": "#/$defs/resultSemantics"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 10,
+          "maxItems": 10,
+          "items": {
+            "$ref": "#/$defs/recordAssertion"
+          }
+        },
+        "blockers": {
+          "type": "array",
+          "maxItems": 0
+        },
+        "result": {
+          "const": "PASS"
+        },
+        "implementationHold": {
+          "const": "ACTIVE"
+        },
+        "executionAllowed": {
+          "const": false
+        },
+        "ownerApprovalClaimed": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "historicalGitlinkTransaction": {
+          "const": {
+            "commit": "11e7e4dcfe8c7f2b57385225c0c79bfa81beadcf",
+            "parent": "cc90e109f5903d5cde328d14e8264087e961e5ea",
+            "tree": "387df36d58577893764695d48b9fc8af33fbede3",
+            "parentTree": "31a772ae8c706c655a69a346d57325cd690f70b2",
+            "baselineCommit": "1b01599ce16df03e44e83ca2edecac086f965ba7",
+            "gitmodulesSha256": "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c",
+            "transitions": [
+              {
+                "path": "references/Hexalith.EventStore",
+                "modeBefore": "160000",
+                "before": "4bc61d9a60fae13a65f23963c1cb731065222f2a",
+                "modeAfter": "160000",
+                "after": "d0291d0919c58e805b875e42a0a84e62c1c6e3e5"
+              },
+              {
+                "path": "references/Hexalith.Folders",
+                "modeBefore": "160000",
+                "before": "b10971ae6e17d4fca2933908531f80a5f58b6e5a",
+                "modeAfter": "160000",
+                "after": "19c29e00eb6679bbf7a0d20a8b4dbf30182243cf"
+              },
+              {
+                "path": "references/Hexalith.FrontComposer",
+                "modeBefore": "160000",
+                "before": "237b39e89cb50d8d37596f4da9ce3f6993260165",
+                "modeAfter": "160000",
+                "after": "b6ea7834591c9352b1c0ec338fb64e8fedd5db11"
+              },
+              {
+                "path": "references/Hexalith.Projects",
+                "modeBefore": "160000",
+                "before": "ffa922d0f7a278da3bb02ee09769564df02d5f01",
+                "modeAfter": "160000",
+                "after": "3f12e4c329a8b46a8e69397635ba290388923c75"
+              },
+              {
+                "path": "references/Hexalith.Tenants",
+                "modeBefore": "160000",
+                "before": "dfd84f4b9c93779f253672096fec5d717d6afc91",
+                "modeAfter": "160000",
+                "after": "850b321c38421bbeec903e74b548b8293b30a610"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "resultEnvelope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemaVersion",
+        "result",
+        "exitCode",
+        "effectiveHold",
+        "implementationHold",
+        "observed",
+        "assertionLedger",
+        "blockers",
+        "ownerApprovalClaimed",
+        "releaseAuthorized",
+        "pushAuthorized",
+        "executionAllowed"
+      ],
+      "properties": {
+        "schemaVersion": {
+          "const": "hexalith.conversations.current-planning-authority-result.v1"
+        },
+        "result": {
+          "enum": [
+            "PASS",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "exitCode": {
+          "enum": [
+            0,
+            1,
+            2
+          ]
+        },
+        "effectiveHold": {
+          "const": "ACTIVE"
+        },
+        "implementationHold": {
+          "const": "ACTIVE"
+        },
+        "observed": {
+          "$ref": "#/$defs/observed"
+        },
+        "assertionLedger": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/resultAssertion"
+          },
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/resultAssertion"
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "id"
+                  ],
+                  "properties": {
+                    "id": {
+                      "oneOf": [
+                        {
+                          "enum": [
+                            "V28.ROUTE.C1",
+                            "V28.ROUTE.C2",
+                            "V28.ROUTE.DESCENDANT",
+                            "V28.ROUTE.DRIFT",
+                            "V28.ROUTE.BLOCKED"
+                          ]
+                        },
+                        {
+                          "type": "string",
+                          "pattern": "^V28_[A-Z0-9_]+$"
+                        }
+                      ]
+                    }
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        "blockers": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
+        },
+        "ownerApprovalClaimed": {
+          "const": false
+        },
+        "releaseAuthorized": {
+          "const": false
+        },
+        "pushAuthorized": {
+          "const": false
+        },
+        "executionAllowed": {
+          "const": false
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "const": "V28.ROUTE.C1"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "BLOCKED"
+              },
+              "exitCode": {
+                "const": 2
+              },
+              "observed": {
+                "properties": {
+                  "changedPaths": {
+                    "type": "array",
+                    "minItems": 11,
+                    "maxItems": 11,
+                    "prefixItems": [
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": ".github/workflows/planning-authority-preflight.yml"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/publish_v28_five_root_gitlink_authority.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/resolve_current_planning_authority.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/tests/test_resolve_current_planning_authority.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/tests/test_verify_evidence_boundary.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad/scripts/verify_evidence_boundary.py"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "docs/runbooks/evidence-boundary-validation.md"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      },
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "items": false
+                  }
+                }
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 2,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "enum": [
+                            "PASS",
+                            "BLOCKED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "const": "BLOCKED"
+                    }
+                  }
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "minItems": 1,
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "code"
+                  ],
+                  "properties": {
+                    "code": {
+                      "const": "V28_C2_PUBLICATION_MISSING"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "const": "V28.ROUTE.C2"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "PASS"
+              },
+              "exitCode": {
+                "const": 0
+              },
+              "observed": {
+                "properties": {
+                  "changedPaths": {
+                    "type": "array",
+                    "minItems": 1,
+                    "maxItems": 1,
+                    "prefixItems": [
+                      {
+                        "allOf": [
+                          {
+                            "$ref": "#/$defs/changedPath"
+                          },
+                          {
+                            "properties": {
+                              "path": {
+                                "const": "_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json"
+                              },
+                              "mode": {
+                                "const": "100644"
+                              },
+                              "sha256": {
+                                "$ref": "#/$defs/sha256"
+                              }
+                            }
+                          }
+                        ]
+                      }
+                    ],
+                    "items": false
+                  },
+                  "parentGitlinks": {
+                    "minItems": 10,
+                    "maxItems": 10
+                  },
+                  "candidateGitlinks": {
+                    "minItems": 10,
+                    "maxItems": 10
+                  }
+                }
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 11,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "const": "PASS"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "const": "V28.ROUTE.DESCENDANT"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "PASS"
+              },
+              "exitCode": {
+                "const": 0
+              },
+              "observed": {
+                "properties": {
+                  "changedPaths": {
+                    "type": "array"
+                  },
+                  "parentGitlinks": {
+                    "minItems": 10,
+                    "maxItems": 10
+                  },
+                  "candidateGitlinks": {
+                    "minItems": 10,
+                    "maxItems": 10
+                  }
+                }
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 11,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "const": "PASS"
+                        }
+                      }
+                    }
+                  ]
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "maxItems": 0
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "const": "V28.ROUTE.DRIFT"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "FAIL"
+              },
+              "exitCode": {
+                "const": 1
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "enum": [
+                            "PASS",
+                            "FAIL"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "const": "FAIL"
+                    }
+                  }
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "pattern": "^V28_[A-Z0-9_]+$"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "enum": [
+                  "FAIL",
+                  "BLOCKED"
+                ]
+              },
+              "exitCode": {
+                "enum": [
+                  1,
+                  2
+                ]
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/resultAssertion"
+                },
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "enum": [
+                        "FAIL",
+                        "BLOCKED"
+                      ]
+                    }
+                  }
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "type": "object",
+            "required": [
+              "assertionLedger"
+            ],
+            "properties": {
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "prefixItems": [
+                  {
+                    "type": "object",
+                    "required": [
+                      "id"
+                    ],
+                    "properties": {
+                      "id": {
+                        "const": "V28.ROUTE.BLOCKED"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "result": {
+                "const": "BLOCKED"
+              },
+              "exitCode": {
+                "const": 2
+              },
+              "assertionLedger": {
+                "type": "array",
+                "minItems": 1,
+                "items": {
+                  "allOf": [
+                    {
+                      "$ref": "#/$defs/resultAssertion"
+                    },
+                    {
+                      "properties": {
+                        "state": {
+                          "enum": [
+                            "PASS",
+                            "BLOCKED"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                },
+                "contains": {
+                  "type": "object",
+                  "required": [
+                    "state"
+                  ],
+                  "properties": {
+                    "state": {
+                      "const": "BLOCKED"
+                    }
+                  }
+                }
+              },
+              "blockers": {
+                "type": "array",
+                "minItems": 1
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}

@@ -144,6 +144,17 @@ jobs:
           else
             printf 'v27-result-schema=absent\n'
           fi
+          v28_schema="_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json"
+          v28_schema_sha256="d3efd5fbddeb062d39a21e952ddc36cbbd57648e9068dde216863766a7e49245"
+          if trusted_git cat-file -e "$PROTECTED_HOST_COMMIT:$v28_schema"; then
+            trusted_git show "$PROTECTED_HOST_COMMIT:$v28_schema" > "$host_dir/${v28_schema##*/}"
+            observed_v28_schema="$(sha256sum "$host_dir/${v28_schema##*/}" | cut -d' ' -f1)"
+            test "$observed_v28_schema" = "$v28_schema_sha256"
+            chmod 0400 "$host_dir/${v28_schema##*/}"
+            printf 'v28-result-schema=%s\n' "$observed_v28_schema"
+          else
+            printf 'v28-result-schema=absent\n'
+          fi
 
       - name: Synchronize protected planning verifier environment
         shell: bash
@@ -199,6 +210,7 @@ jobs:
           result="$RUNNER_TEMP/current-planning-authority-result.json"
           protected_python="$RUNNER_TEMP/planning-authority-protected-host/.venv/bin/python"
           v27_schema="$RUNNER_TEMP/planning-authority-protected-host/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json"
+          v28_schema="$RUNNER_TEMP/planning-authority-protected-host/v28-five-root-gitlink-authority-v1.schema.json"
           host_script="$RUNNER_TEMP/planning-authority-protected-host/resolve_current_planning_authority.py"
           # The flag is offered only to a host that actually accepts it. The probe asks the host
           # itself: argparse lists exactly the arguments it registered, so a comment, docstring or
@@ -233,13 +245,14 @@ jobs:
           fi
           env -i PATH=/usr/bin:/bin HOME="$RUNNER_TEMP/planning-authority-protected-home" \
             TMPDIR="$RUNNER_TEMP" PYTHONSAFEPATH=1 PYTHONNOUSERSITE=1 \
-            "$protected_python" -I -P - "$result" "$resolver_exit" "$v27_schema" <<'PY'
+            "$protected_python" -I -P - "$result" "$resolver_exit" "$v27_schema" "$v28_schema" <<'PY'
           import json
           import pathlib
           import sys
           document = json.load(open(sys.argv[1], encoding="utf-8"))
           observed_exit = int(sys.argv[2])
           v27_schema_path = pathlib.Path(sys.argv[3])
+          v28_schema_path = pathlib.Path(sys.argv[4])
           expected_exit = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
           result = document.get("result")
           common_keys = {
@@ -295,6 +308,24 @@ jobs:
           # come from the protected host, so a candidate cannot declare or relax its own route.
           first = document["assertionLedger"][0]
           route = first.get("id", "") if isinstance(first, dict) else ""
+          if isinstance(route, str) and (route.startswith("V28.") or route.startswith("V28_")):
+              if not v28_schema_path.is_file():
+                  raise SystemExit("protected host returned a V28 route without the protected V28 schema")
+              import jsonschema
+              v28_schema = json.loads(v28_schema_path.read_text(encoding="utf-8"))
+              jsonschema.Draft202012Validator.check_schema(v28_schema)
+              jsonschema.Draft202012Validator(v28_schema).validate(document)
+              if "storyExecution" in document or document.get("effectiveHold") != "ACTIVE":
+                  raise SystemExit("protected V28 result claimed story execution")
+              if result == "PASS" and (
+                  document.get("executionAllowed") is not False
+                  or document.get("ownerApprovalClaimed") is not False
+                  or document["blockers"]
+                  or any(row.get("state") != "PASS" for row in document["assertionLedger"])
+              ):
+                  raise SystemExit("protected V28 result violated its non-executable PASS contract")
+              if result != "PASS" and not document["blockers"]:
+                  raise SystemExit("nonpassing protected V28 result carried no blocker")
           # Both discriminator forms are V27: a routed envelope names V27.ROUTE.*, while a
           # resolver-boundary failure names its V27_ blocker code as the first ledger id.
           if isinstance(route, str) and (route.startswith("V27.") or route.startswith("V27_")):

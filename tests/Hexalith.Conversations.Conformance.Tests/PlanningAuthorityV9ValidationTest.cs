@@ -26,6 +26,8 @@ public sealed class PlanningAuthorityV9ValidationTest
     private const string V12EpicAuthority = "epic-6-authority-2026-08-04-v12";
     private const string EpicsPath = "_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/epics.md";
     private const string GraphPath = "_bmad-output/planning-artifacts/v9-execution-graph-v1.json";
+    private const string HistoricalSprintCandidate = "1e9a61126d3b7a55b514b7c7c8942d5af03355e5";
+    private const string HistoricalSprintDigest = "3cb6d1e745d78b9c1b34eba3382e577e33af6179583299a0cb7e78c35f9a9833";
     private const string RemediationPath = "_bmad-output/planning-artifacts/v12-pre-ir0-remediation-authority-v1.json";
     private const string SlicePath = "_bmad-output/planning-artifacts/v11-story-7.1-schema-slice-v1.json";
     private const string SprintPath = "_bmad-output/implementation-artifacts/sprint-status.yaml";
@@ -160,6 +162,7 @@ public sealed class PlanningAuthorityV9ValidationTest
         JsonElement bundle = bundleDocument.RootElement;
         string candidate = bundle.GetProperty("planningCandidate").GetString()!;
         candidate.ShouldMatch("^[0-9a-f]{40}$");
+        candidate.ShouldBe(HistoricalSprintCandidate);
         bundle.GetProperty("authorities").GetProperty("epic").GetString().ShouldBe(EpicAuthority);
         bundle.GetProperty("authorities").GetProperty("architecture").GetString().ShouldBe(ArchitectureAuthority);
         bundle.GetProperty("implementationHold").GetString().ShouldBe("ACTIVE");
@@ -180,7 +183,9 @@ public sealed class PlanningAuthorityV9ValidationTest
             string path = artifact.GetProperty("path").GetString()!;
             byte[] expectedBytes = artifact.GetProperty("source").GetString() == "candidate"
                 ? ReadCandidateBytes(candidate, path)
-                : ReadBytes(path);
+                : path == SprintPath
+                    ? ReadHistoricalSprintBytes()
+                    : ReadBytes(path);
             artifact.GetProperty("sha256").GetString().ShouldBe(Sha256(expectedBytes), path);
             if (path.EndsWith(".json", StringComparison.Ordinal)
                 && (path.Contains("/story-contracts/", StringComparison.Ordinal)
@@ -535,7 +540,7 @@ public sealed class PlanningAuthorityV9ValidationTest
             });
         ux.ShouldContain("currentDisposition: preserved-not-activated");
 
-        string sprint = Read(SprintPath);
+        string sprint = Encoding.UTF8.GetString(ReadHistoricalSprintBytes());
         Regex.Matches(sprint, @"^  (?:[7-9]|1[0-6])-\d+-[^:]+: backlog$", RegexOptions.Multiline).Count.ShouldBe(30);
         Regex.Matches(sprint, @"^last_updated: [^\n]+$", RegexOptions.Multiline).Count.ShouldBe(1);
         Regex.IsMatch(sprint, @"^  [^:\n]*7\.1-SCHEMAS[^:\n]*:", RegexOptions.Multiline).ShouldBeFalse();
@@ -556,6 +561,11 @@ public sealed class PlanningAuthorityV9ValidationTest
             });
         string action = sprint[sprint.IndexOf("Promote the Story 5.3 evidence-boundary", StringComparison.Ordinal)..];
         action.ShouldContain("status: open");
+
+        string currentSprint = Read(SprintPath);
+        currentSprint.ShouldContain("GLOBAL IMPLEMENTATION HOLD remains ACTIVE");
+        currentSprint.ShouldContain("  7-1-define-the-final-record-schema-and-deterministic-generator-core: done");
+        Regex.IsMatch(currentSprint, @"^  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: (?:in-progress|in-review|done)$", RegexOptions.Multiline).ShouldBeTrue();
     }
 
     private static bool HasCycle(Dictionary<string, string[]> graph)
@@ -647,6 +657,13 @@ public sealed class PlanningAuthorityV9ValidationTest
     private static string Sha256(byte[] content) => Convert.ToHexStringLower(SHA256.HashData(content));
 
     private static byte[] ReadBytes(string relativePath) => File.ReadAllBytes(Path.Combine(FindRepositoryRoot(), relativePath));
+
+    private static byte[] ReadHistoricalSprintBytes()
+    {
+        byte[] bytes = ReadCandidateBytes(HistoricalSprintCandidate, SprintPath);
+        Sha256(bytes).ShouldBe(HistoricalSprintDigest);
+        return bytes;
+    }
 
     private static byte[] ReadCandidateBytes(string candidate, string relativePath)
     {
