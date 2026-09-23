@@ -8,7 +8,7 @@
     "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
   },
   "candidate": {
-    "commit": "8ff1a96c1628e7d4f25f84d7660f8482bf9215a2",
+    "commit": "99479e205df64d711abf2117329b5dc2ad37b972",
     "gitlinks": [
       {
         "path": "references/Hexalith.AI.Tools",
@@ -78,7 +78,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-01.xml",
-        "sha256": "f9a7080c19be4deb1dbdbe1486adec80a58a322394e289990bdbfba4927951f5"
+        "sha256": "80e474dc1845c910167fb6a8eb0e24e6b95a9b25b2e06d31e33109f5ffcdf523"
       },
       "assertionLedger": [
         {
@@ -115,6 +115,11 @@
           "id": "AC-7.1-01#0007",
           "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures",
           "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-01#0008",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_schema_contract_pass_requires_an_assertion_ledger",
+          "state": "PASS"
         }
       ]
     },
@@ -126,7 +131,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-02.xml",
-        "sha256": "384b160756d8c360caa0de7f501a108ef615affe50f451f01b5c47ee11876b23"
+        "sha256": "50468433aa66f3c2e53f562e927033875572409a0b8d8fa9eaa12a9d28c50d10"
       },
       "assertionLedger": [
         {
@@ -148,6 +153,16 @@
           "id": "AC-7.1-02#0004",
           "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_verifier_detects_tampered_pairs",
           "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-02#0005",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_read_back_drift_rolls_back_without_seeded_outputs",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.1-02#0006",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_deterministic_bundle_read_back_drift_rolls_back",
+          "state": "PASS"
         }
       ]
     },
@@ -159,7 +174,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-03.xml",
-        "sha256": "d4206549867988e45ba38285ac78dc33a3b0ac514fba2922d1dff2d79523e734"
+        "sha256": "e3da004a60ea67b249dc7147e01900741a5278899566d102ac97b32f846a8f36"
       },
       "assertionLedger": [
         {
@@ -227,7 +242,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-04.xml",
-        "sha256": "83068587e71749a8f815682695a5a42226da8f8e2c47b84414197242f07e05ef"
+        "sha256": "1708116bd212e8e373df1ac336daecb644fbe4e250881fd131367b9de4941601"
       },
       "assertionLedger": [
         {
@@ -265,7 +280,7 @@
       "blockers": [],
       "resultFile": {
         "path": "artifacts/v9/7.1/AC-7.1-05.xml",
-        "sha256": "f9579e12d502c7aa30af5bc164db024a7c186ed5be1ec7e7ef526ad50edacf04"
+        "sha256": "80cf7ad240f4df165fd1cbe0a69ace97e7f43be73ca54467306380c64c8851d5"
       },
       "assertionLedger": [
         {
@@ -290,107 +305,67 @@
         },
         {
           "id": "AC-7.1-05#0005",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unsupported-format]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[foreign-scenario-id]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0006",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unknown-option]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_contracts[swapped-output-paths]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0007",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[positional]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unsupported-format]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0008",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[duplicate-option]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[unknown-option]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0009",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[missing-value]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[positional]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0010",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[empty-value]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[duplicate-option]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0011",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[missing-value]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0012",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[malformed-xml]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_arguments[empty-value]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0013",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[doctype]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_missing_arguments",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0014",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[nested-suite]",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[malformed-xml]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0015",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_schema_is_closed",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[doctype]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0016",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_schemas_are_unavailable",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_results[nested-suite]",
           "state": "PASS"
         },
         {
           "id": "AC-7.1-05#0017",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_git_fails",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0018",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_head_resolution_git_fails",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0019",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_jsonschema_is_unavailable",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0020",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_for_a_symlinked_output_leaf",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0021",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0022",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_the_second_replace_fails_without_seeded_outputs",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0023",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_output_restore_fails",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0024",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs_without_seeded_outputs",
-          "state": "PASS"
-        },
-        {
-          "id": "AC-7.1-05#0025",
-          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_when_read_back_differs",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_malformed_input_is_schema_valid_failure_schema_is_closed",
           "state": "PASS"
         }
       ]
@@ -456,11 +431,11 @@
   "outputs": {
     "json": {
       "path": "docs/release-evidence/story-7.1-final-record-v2.json",
-      "sha256": "fee1dbcb001167a4a99aaf50187067dc60d465158ef1ad4377b4f3aae100e525"
+      "sha256": "85a48932459a72846577271834a9ee4608376121a9b609fbc9ffbb85c8c338af"
     },
     "markdown": {
       "path": "docs/release-evidence/story-7.1-final-record-v2.md",
-      "sha256": "2c80364e84b1bcb4c3ff187483925318aa5d281acd557444c1015c294763e1b2"
+      "sha256": "044ac80a72a2f58587dbd9a53463d75567a75ac99797028fa4cc9a413c3dab43"
     }
   },
   "rollback": {
@@ -474,5 +449,5 @@
     "skipped": 0,
     "notRun": 0
   },
-  "renderedMarkdownSha256": "2c80364e84b1bcb4c3ff187483925318aa5d281acd557444c1015c294763e1b2"
+  "renderedMarkdownSha256": "044ac80a72a2f58587dbd9a53463d75567a75ac99797028fa4cc9a413c3dab43"
 }
