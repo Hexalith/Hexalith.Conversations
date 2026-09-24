@@ -19,6 +19,28 @@
     "summary",
     "renderedMarkdownSha256"
   ],
+  "if": {
+    "properties": {
+      "storyId": {
+        "const": "7.2"
+      }
+    },
+    "required": [
+      "storyId"
+    ]
+  },
+  "then": {
+    "required": [
+      "measurements"
+    ]
+  },
+  "else": {
+    "not": {
+      "required": [
+        "measurements"
+      ]
+    }
+  },
   "properties": {
     "schemaVersion": {
       "const": "hexalith.conversations.story-final-record.v2"

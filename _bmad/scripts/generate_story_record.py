@@ -3677,7 +3677,7 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                 counts["failed"], counts["skipped"])) + " |")
         totals = measured["testTotals"]
         lines.append("| " + " | ".join(code(value) for value in (
-            "TOTAL", "", totals["total"], totals["executed"], totals["passed"],
+            "TOTAL", "none", totals["total"], totals["executed"], totals["passed"],
             totals["failed"], totals["skipped"])) + " |")
         lines.extend(["", "### Exact changed paths", ""])
         lines.extend(f"- {code(path)}" for path in measured["changedPaths"])

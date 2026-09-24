@@ -352,3 +352,12 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-1-define-the-final-record-schema-and-deterministic-generator-core-3.md`
   summary: No test exercises the v2 check that a scenario's derived exit code must be in the contract's `resultSemantics.passExitCodes`.
   evidence: Chunk A+B review (verification gap). Removing the condition at `_bmad/scripts/generate_story_record.py:3517` still passes all 76 `v2_` tests, because every fixture uses the 7.1 contract, where `passExitCodes` is `[0]`. Add the test when the first contract with non-default `passExitCodes` lands.
+
+## Deferred from: code review of spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md (2026-09-24)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Story 7.2 TRX freshness is mtime-only, so results from binaries not built from the candidate (for example `--no-build` runs or copied TRX files) are accepted.
+  evidence: Story 7.2 review (blind and edge-case hunters). `v2_story_7_2_measurements` compares TRX mtimes with the candidate commit time and bound source mtimes only; the v1 route's `derive_test_build_manifest` binary-revision check is not reused.
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Story 7.2 never compares initialized submodule worktree HEADs with the candidate gitlinks, so tests compiled against a different submodule checkout are accepted as candidate measurements.
+  evidence: Story 7.2 review (edge-case hunter). With `UseHexalithProjectReferences=true`, submodule worktrees are compile inputs. The story forbids traversing submodules, so an owner decision is needed on whether a read-only HEAD comparison is permitted.

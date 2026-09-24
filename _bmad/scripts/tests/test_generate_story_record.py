@@ -13,6 +13,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import unicodedata
 from contextlib import redirect_stdout
 from copy import deepcopy
@@ -3540,8 +3541,11 @@ def v2_7_2_trx(repository: Path, name: str, *, passed: int = 2,
     path = repository / f"artifacts/v9/7.2/test-results/{name}.trx"
     write_trx(path, passed=passed, failed=failed, skipped=skipped, project=name,
               code_base=Path(f"/fixture/{name}.dll"))
+    # Anchor after every fixture write and commit, not only the spec, so slow
+    # runners never read a freshly written result as stale.
     current = max((repository / STORY_7_2_SPEC_PATH).stat().st_mtime_ns,
-                  (repository / STORY_7_2_CONTRACT_PATH).stat().st_mtime_ns)
+                  (repository / STORY_7_2_CONTRACT_PATH).stat().st_mtime_ns,
+                  time.time_ns())
     os.utime(path, ns=(current + 10_000_000_000, current + 10_000_000_000))
     return path
 
@@ -3626,13 +3630,22 @@ def test_v2_derives_required_test_totals(tmp_path: Path) -> None:
     record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
     measured = record["measurements"]
     assert [row["project"] for row in measured["testProjects"]] == list(STORY_7_2_PROJECTS)
-    assert measured["testTotals"] == {"total": 16, "executed": 16,
-                                      "passed": 16, "failed": 0, "skipped": 0}
+    expected_total = 2 * len(STORY_7_2_PROJECTS)
+    assert measured["testTotals"] == {"total": expected_total, "executed": expected_total,
+                                      "passed": expected_total, "failed": 0, "skipped": 0}
     assert all(row["counts"]["total"] == 2 for row in measured["testProjects"])
     assert measured["baseline"] == fixture["baseline"]
     assert measured["changedPaths"] == sorted(measured["changedPaths"])
     assert measured["predecessorRecord"]["sha256"] == sha256_file(
         repository / "docs/release-evidence/story-7.1-final-record-v2.json")
+    markdown = (repository / STORY_7_2_OUTPUT_MARKDOWN).read_text(encoding="utf-8")
+    assert "## Story 7.2 measurements" in markdown
+    for row in measured["testProjects"]:
+        assert f"| `{row['project']}` | `{row['resultFile']['path']}` | `2` |" in markdown
+    assert f"| `TOTAL` | `none` | `{expected_total}` |" in markdown
+    assert "``" not in markdown
+    for path in measured["changedPaths"]:
+        assert f"- `{path}`" in markdown
     acceptance = {
         "schemaVersion": "hexalith.conversations.acceptance-result.v1",
         "storyId": "7.2", "scenarioId": "AC-7.2-01",
@@ -3729,7 +3742,7 @@ def test_v2_derives_singular_file_list_and_blocks_dirt(tmp_path: Path) -> None:
                 record["candidate"]["gitlinks"],
                 {STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN},
                 module.v2_load_schemas()[1])
-        assert "FILE_LIST_DRIFT" in {row["code"] for row in error.value.findings}
+        assert {row["code"] for row in error.value.findings} == {"FILE_LIST_DRIFT"}
     finally:
         module.committed_path_status = original
     assert v2_snapshot(repository) == before
@@ -3790,7 +3803,7 @@ def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
     findings = []
     module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
                        findings, "7.2")
-    assert "GITLINK_SCOPE_MISMATCH" in {row["code"] for row in findings}
+    assert {row["code"] for row in findings} == {"GITLINK_SCOPE_MISMATCH"}
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     assert v2_snapshot(repository) == before
     v2_git(repository, "update-index", "--add", "--cacheinfo",
@@ -3806,8 +3819,9 @@ def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
     v2_git(repository, "update-index", "--cacheinfo",
            f"160000,{'a' * 40},{moved}")
     v2_git(repository, "commit", "-m", "move gitlink")
-    v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
-                      {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"})
+    moved_failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
+                                      {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"})
+    assert set(moved_failure["blockers"]) == {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"}
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     assert v2_snapshot(repository) == before
 
@@ -3822,7 +3836,8 @@ def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
                       encoding="utf-8")
     v2_git(repository, "add", V2_TARGET_PATH)
     v2_git(repository, "commit", "-m", "supersede candidate")
-    v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    superseded = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert superseded["blockers"] == ["CANDIDATE_NOT_FINAL"]
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     assert v2_snapshot(repository) == before
     spec_path = repository / STORY_7_2_SPEC_PATH
@@ -3836,12 +3851,120 @@ def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
                     (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)]
     for path in (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN):
         (repository / path).unlink()
-    v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    untrusted = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    assert untrusted["blockers"] == ["BASELINE_NOT_TRUSTWORTHY"]
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     os.utime(spec_path, ns=(original_time, original_time))
     for path, content in zip((STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN), output_bytes):
         (repository / path).write_bytes(content)
     assert v2_snapshot(repository) == before
+
+
+
+def v2_7_2_outputs(repository: Path) -> tuple[bytes, bytes]:
+    return tuple((repository / path).read_bytes() for path in
+                 (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+
+
+def test_v2_retains_candidate_across_record_only_commit(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    outputs = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_git(repository, "rev-parse", "HEAD").stdout.strip() != fixture["candidate"]
+    assert v2_7_2_outputs(repository) == outputs
+
+
+def test_v2_blocks_invalid_prior_pair(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    before = v2_snapshot(repository)
+    outputs = v2_7_2_outputs(repository)
+    json_path = repository / STORY_7_2_OUTPUT_JSON
+    markdown_path = repository / STORY_7_2_OUTPUT_MARKDOWN
+    markdown_time = markdown_path.stat().st_mtime_ns
+    markdown_path.unlink()
+    try:
+        incomplete = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
+                                       {"RECORD_CONTENT_DRIFT"})
+        assert incomplete["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    finally:
+        markdown_path.write_bytes(outputs[1])
+        os.utime(markdown_path, ns=(markdown_time, markdown_time))
+    restore = v2_7_2_replace(json_path, outputs[0].replace(b'"storyId": "7.2"', b'"storyId": "7.1"', 1))
+    try:
+        tampered = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
+                                     {"RECORD_CONTENT_DRIFT"})
+        assert tampered["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    finally:
+        restore()
+    assert v2_7_2_outputs(repository) == outputs
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_repeated_gitmodules_path(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    gitmodules = repository / ".gitmodules"
+    gitmodules.write_text(gitmodules.read_text(encoding="utf-8")
+                          + f'[submodule "duplicate"]\n\tpath = {ROOT_GITLINK_PATHS[0]}\n'
+                          + "\turl = https://example.invalid/duplicate.git\n", encoding="utf-8")
+    v2_git(repository, "add", ".gitmodules")
+    v2_git(repository, "commit", "-m", "repeat a submodule path")
+    module = load_generator()
+    findings = []
+    assert module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
+                              findings, "7.2") == []
+    assert [row["code"] for row in findings] == ["GITLINK_SCOPE_MISMATCH"]
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_blocks_foreign_assembly_result(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    own, other = STORY_7_2_PROJECTS[0], STORY_7_2_PROJECTS[1]
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{own}.trx"
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            f"/fixture/{own}.dll".encode(), f"/fixture/{other}.dll".encode())),
+        "TEST_FAILED")
+
+
+def test_v2_blocks_header_row_disagreement(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    # The header still reports every test passed; only a result row disagrees.
+    v2_7_2_snapshot_and_fault(fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(
+            b'outcome="Passed"', b'outcome="Failed"', 1)),
+        "TEST_FAILED")
+
+
+@pytest.mark.parametrize("fault", ["tampered-json", "missing-markdown"])
+def test_v2_blocks_invalid_predecessor_record(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    if fault == "tampered-json":
+        target = repository / "docs/release-evidence/story-7.1-final-record-v2.json"
+        target.write_bytes(target.read_bytes().replace(b'"storyId": "7.1"', b'"storyId": "7.0"', 1))
+        v2_git(repository, "add", "docs/release-evidence/story-7.1-final-record-v2.json")
+    else:
+        v2_git(repository, "rm", "-q", "docs/release-evidence/story-7.1-final-record-v2.md")
+    v2_git(repository, "commit", "-m", "invalidate predecessor")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"AUTHORITY_BINDING_INVALID"})
+    assert failure["blockers"] == ["AUTHORITY_BINDING_INVALID"]
+    assert not (repository / STORY_7_2_OUTPUT_JSON).exists()
+    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
 
 
 if __name__ == "__main__":

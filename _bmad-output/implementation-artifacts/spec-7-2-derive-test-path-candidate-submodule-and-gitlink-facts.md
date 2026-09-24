@@ -2,7 +2,7 @@
 title: 'Derive test, path, candidate, submodule, and gitlink facts'
 type: 'feature'
 created: '2026-09-23'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: 'c69334cb13a981c9112ad687427b1f43fafc2988'
 allowed_skipped_tests: []
 route: 'dispatch'
@@ -66,10 +66,51 @@ context:
 - The committed candidate `60f23cb7057aee1ed58a2b032262de4bd15df9d1` generated the JSON/Markdown pair byte-identically on rerun. All ten prerequisite scenarios passed; eight root projects reported 2,026 executed/passed tests with no failures or skips; the final record reports `11/11/0/0/0/0`.
 - Review transition gate: `python3 _bmad/scripts/verify_submodule_promotion.py --repository /home/administrator/projects/hexalith/conversations --baseline c69334cb13a981c9112ad687427b1f43fafc2988 --candidate HEAD --format json` exited `0`/`pass`, with five `UNDECLARED_GITLINK_CHANGE` warnings. `python3 /home/administrator/projects/hexalith/conversations/_bmad/scripts/verify_evidence_boundary.py --repository /home/administrator/projects/hexalith/conversations --baseline c69334cb13a981c9112ad687427b1f43fafc2988 --candidate HEAD` exited `2`/`BLOCKED` with `EVIDENCE_V24_ROOT_GITLINK_DRIFT` and a nonempty assertion ledger. The review transition remains blocked; status stays `in-progress`.
 - The spec edits after the generated candidate are uncommitted. Regeneration against this working tree will require a new committed source candidate and current test results. Story 7.1 terminal `ACCEPTED` authority has not been established.
+- 2026-09-24 resume: the pair committed in `09b9bf4` binds `60f23cb`, a pre-rewrite V28 commit that is no longer an ancestor of `main`, and four later commits moved root gitlinks. AC-7.2-11 at `c6fc53bcfd1e94ea544d42109687a7792b8d2449` exited `1` with `CANDIDATE_NOT_FINAL`. The superseded pair is retracted with this candidate and regenerated from it as a record-only successor.
+- 2026-09-24 remeasurement at `c6fc53b` (Release, `UseHexalithProjectReferences=true`, `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true`): eight root projects executed and passed 2,026 tests, with no failures or skips. Without the AppHost boundary variable, AppHost reports one skip, which the v2 route rejects.
+- Lifecycle gates at `c6fc53b`: the promotion gate exited `0`/`pass` with seven `UNDECLARED_GITLINK_CHANGE` warnings. `verify_evidence_boundary.py` without a trusted host exited `2`/`BLOCKED` (`EVIDENCE_V24_ROOT_GITLINK_DRIFT`, one ledger row). With `--trusted-host c6fc53b` it exited `1`/`FAIL` (`EVIDENCE_V28_GOVERNED_PATH_TOUCHED`). Both results come from the frozen V24/V28 root-gitlink authority chain, which the later submodule bumps touch. They are recorded here, and the story proceeds under the owner's 2026-09-22 waiver of planning-authority ceremony. No hold lift is claimed.
+- Review patches: the schema requires `measurements` exactly for Story 7.2; the TOTAL row renders `none`; fixture TRX mtimes are anchored after every fixture write; exact-blocker assertions are used throughout; there are new tests for record-only retention, an invalid prior pair, a repeated `.gitmodules` path, foreign-assembly and header/row TRX faults, and an invalid Story 7.1 predecessor; the runbook adds the Story 7.2 blocker table and the superseded-pair recovery procedure. The generator suite reports 160 passed. The full `_bmad/scripts` lane adds no failures: its 76 failures and 52 errors occur in older authority suites, and all 76 failures also occur on the untouched `HEAD`.
 
 ## Spec Change Log
 
 ## Review Triage Log
+
+Review 2026-09-24 over the story-owned diff (`c69334c..c6fc53b`, six story paths; V28 authority commits and gitlink bumps excluded as not Story 7.2 work). Layers: blind hunter (B), edge-case hunter (E), verification gap (V).
+
+| ID | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| E13, V-o1 | Committed pair binds `60f23cb`, a dangling pre-rewrite V28 commit not reachable from `main` | high | patch | `git merge-base --is-ancestor 60f23cb HEAD` false; AC-7.2-11 at `c6fc53b` exits `1` `CANDIDATE_NOT_FINAL`. Regenerate from a new committed candidate. |
+| E6, V-o2 | No documented recovery once a prior pair's candidate is superseded | medium | patch | `v2_story_7_2_candidate` retains the prior pair's candidate; only deleting the pair clears it. Runbook documents the retraction step. |
+| V1 | Record-only successor retention and prior-pair corruption untested | medium | patch | Gap pre-verified; no test commits the pair alone or corrupts it. |
+| V2 | Duplicate `.gitmodules` path check untested | medium | patch | Gap pre-verified. |
+| V3 | TRX assembly-identity and header/row disagreement untested for 7.2 | medium | patch | Gap pre-verified. |
+| V4 | Story 7.1 predecessor verification untested | medium | patch | Gap pre-verified. |
+| V5 | Markdown measurements section only self-verified | medium | patch | Gap pre-verified. |
+| B1, E11 | Schema does not require `measurements` for Story 7.2 | low | patch | Top-level schema has no conditional; direct `if`/`then` correction. |
+| B12, E10 | TOTAL row renders an empty code span | low | patch | `code("")` at the TOTAL row yields literal backticks in the committed `.md`. |
+| B6 | AC-7.2-01 hardcodes total `16` over a workspace-derived project list | low | patch | `STORY_7_2_PROJECTS` globs the live workspace; direct correction to `2 * len`. |
+| E12 | Fixture TRX mtime anchored to spec write time plus 10 s | low | patch | Commit and `.slnx` writes follow the spec; slow runners can read fixtures as stale. Direct correction. |
+| E14 | AC-7.2-07/09/10 assert blocker membership, not the exact set | low | patch | `in`/subset checks; direct tightening to equality. |
+| B10 | Runbook v2 blocker table lacks the Story 7.2 codes | low | patch | Codes appear only in prose; direct doc addition. |
+| B3, E4 | Freshness is mtime-only; TRX not bound to binaries built from the candidate | medium | defer | Real; binary provenance is a new mechanism beyond this story's fix scope. |
+| E5 | Submodule worktree HEAD not compared with candidate gitlinks | medium | defer | Real (see TRX measured on re-checked-out submodules); reading submodule HEADs conflicts with the story's never-traverse boundary. |
+| B2 | Pair verification does not recompute count invariants | low | reject | Counts are re-derived from TRX on every run; hand-edit harm requires deliberate tampering and the fix adds checks. |
+| B4, E2 | Internal-path check exercised only by monkeypatch; removed gitlink path listed as a root path | low | reject | A gitlink-to-directory conversion makes paths genuinely root-owned; removed declarations still hit `GITLINK_SCOPE_MISMATCH`. |
+| B5 | Assorted untested branches | low | reject | Material branches are covered by V1–V4 patches; the rest are unlikely and need new fixtures. |
+| B7, E7 | Test projects selected by `tests/` prefix | low | reject | All eight root test projects live under `tests/`; `src/*.Testing` is a helper library. |
+| B8 | Story-specific synonym codes | false | reject | The frozen matrix mandates the 7.2 names and forbids changing Story 7.1 output. |
+| B9 | Dispatch keyed by contract path and story id | low | reject | The contract path is fixed by `finalRecord.paths`; unlikely divergence. |
+| B11 | `changedPaths` includes V28 work | false | reject | The record truthfully reports the frozen baseline-to-candidate set the spec defines. |
+| B12b | Header says JUnit though counts come from TRX | low | reject | Shared header; changing it alters Story 7.1 bytes, which the spec forbids. |
+| B13 | Runbook `uv run` vs contract `python3` | false | reject | The generator accepts the pinned-`uv` self-invocation; verified by the AC-7.2-11 run. |
+| B14 | AC-7.2-01 validates a test-built acceptance document | low | reject | Emitting acceptance documents from the generator adds public surface. |
+| B15 | Predecessor ancestry and rollback wording | low | reject | Rollback text is contract-frozen; ancestry adds guards for an unlikely case. |
+| E1 | `GateError` in the raw diff pass becomes `INTERNAL_ERROR` | low | reject | Requires control characters in tracked paths; the fix adds a guard. |
+| E3 | Malformed JSON-escaped `baseline_commit` becomes `INTERNAL_ERROR` | low | reject | Unlikely; the fix adds a guard. |
+| E8 | Backslash `.slnx` paths | low | reject | The committed `.slnx` uses forward slashes. |
+| E9 | Amended identical-tree candidate reads stale | low | reject | A new commit is a new candidate by design; rerun remediates. |
+| E15 | Unparseable TRX reported as missing | false | reject | Runbook §8 documents this mapping deliberately. |
+| V-o3 | Measurement-level supersession check unreachable | low | reject | Harmless duplicate guard. |
 
 ## Design Notes
 
