@@ -311,11 +311,11 @@
   "outputs": {
     "json": {
       "path": "docs/release-evidence/story-7.2-final-record-v2.json",
-      "sha256": "3dfd31bea90dd093ba97581b02ce8503860243b895c5b58add439b1992af184d"
+      "sha256": "29234569bcabb72bae2e3d762703ab5063a8a921754f200f7b345ec59452a1ad"
     },
     "markdown": {
       "path": "docs/release-evidence/story-7.2-final-record-v2.md",
-      "sha256": "d68a8ae3ebdf627e0209dfd25a201ef6a1bb15e176be31273b5835089a83ad02"
+      "sha256": "67fe6dfa3eea8f0e7321e55695ca9f67d275c719e189f703abc2d9022092459b"
     }
   },
   "rollback": {
@@ -329,7 +329,7 @@
     "skipped": 0,
     "notRun": 0
   },
-  "renderedMarkdownSha256": "d68a8ae3ebdf627e0209dfd25a201ef6a1bb15e176be31273b5835089a83ad02",
+  "renderedMarkdownSha256": "67fe6dfa3eea8f0e7321e55695ca9f67d275c719e189f703abc2d9022092459b",
   "measurements": {
     "baseline": "c69334cb13a981c9112ad687427b1f43fafc2988",
     "changedPaths": [
@@ -360,7 +360,7 @@
         "projectPath": "tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Admin.Web.Tests.trx",
-          "sha256": "db5327734830d1982e3c8ca9025bf403705aae4156300191c2c9383dbca6c48e"
+          "sha256": "d7aa62b75aaa3004acad450145cd1cda247f04aee19fdb0641c557ca3b487577"
         },
         "counts": {
           "total": 14,
@@ -375,7 +375,7 @@
         "projectPath": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.AppHost.Tests.trx",
-          "sha256": "a780c945f0ceb9caf89c2987221fd1a44f6b9db685d701c50463d72ce7ca7261"
+          "sha256": "6837e747908c49a70a836b34d3588829df3d0efafd42752073f671bd94f7dfd7"
         },
         "counts": {
           "total": 9,
@@ -390,7 +390,7 @@
         "projectPath": "tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Client.Tests.trx",
-          "sha256": "721a20f99099c91b20ef6ebcc12ee24127567aad7b7181fa7dacf2daaf657429"
+          "sha256": "8b907f8e313defb383800c7084bf990c27d50684e97a6099a4f68f35f46a0d15"
         },
         "counts": {
           "total": 29,
@@ -405,7 +405,7 @@
         "projectPath": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Conformance.Tests.trx",
-          "sha256": "0e7d445069b2d4179dccd2bc59b6d29e02bf8db5059a4a0ca0d889c1b8dde26f"
+          "sha256": "6b78bb1db53abe201e62335ceae9b39b3774267b9e520023a9d04fff489409e5"
         },
         "counts": {
           "total": 473,
@@ -420,7 +420,7 @@
         "projectPath": "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Contracts.Tests.trx",
-          "sha256": "cff16785b1b6f30b579fd0d810b661e69d2129ec1b0f4d5ba20b8ac31225c478"
+          "sha256": "3954712659d0e9231b3a3737c38209aab68687ce30cdb0f245bb94698a481407"
         },
         "counts": {
           "total": 618,
@@ -435,7 +435,7 @@
         "projectPath": "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.IntegrationTests.trx",
-          "sha256": "2bcb799f7cb5be8013da695c50ca7ed3cbc2ffb49c8b3e692abc27e100f14cb1"
+          "sha256": "0e62659f7a8b61018283c1fd0d0a4fee7ecd801fa2cc8c9ec1e8d9e3e2e2708f"
         },
         "counts": {
           "total": 14,
@@ -450,7 +450,7 @@
         "projectPath": "tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Server.Tests.trx",
-          "sha256": "cd4beaef5e679b17406a916c5224c03872419d7acb601ec7622a8420f28c605f"
+          "sha256": "a1d8ba1498cb3d14ae95037f6a0905c0d7d82cc4ec65fd0b96f72e67316529ef"
         },
         "counts": {
           "total": 684,
@@ -465,7 +465,7 @@
         "projectPath": "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
         "resultFile": {
           "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Tests.trx",
-          "sha256": "b77e8598d816165e5d13b8bb9b3aabbbb694f6e7a048bc08424d3b5c9f50e26f"
+          "sha256": "769bc1333f5aa152514ad4178ca4ce6e20156032a04a5c60d197df71dc51de96"
         },
         "counts": {
           "total": 185,
