@@ -361,3 +361,9 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
   summary: Story 7.2 never compares initialized submodule worktree HEADs with the candidate gitlinks, so tests compiled against a different submodule checkout are accepted as candidate measurements.
   evidence: Story 7.2 review (edge-case hunter). With `UseHexalithProjectReferences=true`, submodule worktrees are compile inputs. The story forbids traversing submodules, so an owner decision is needed on whether a read-only HEAD comparison is permitted.
+
+## Deferred from: code review of spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md (2026-09-25)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Story 7.2 test-project selection and approved-skip handling are exercised only on idealized fixtures.
+  evidence: Review pass 2 (verification gap). The fixture `.slnx` holds only `tests/` projects, while the real one also has seven `src/` projects and `File` entries. `allowed_skipped_tests` is always `[]`, and approved skips are tested only on the v1 route. Dropping the `startswith("tests/")` filter at `_bmad/scripts/generate_story_record.py:3993`, or mis-keying the skip lookup at `:4051`, would still pass every test. Add the fixtures when a contract first approves a skip.

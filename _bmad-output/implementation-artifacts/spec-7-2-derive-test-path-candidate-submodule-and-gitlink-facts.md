@@ -2,7 +2,7 @@
 title: 'Derive test, path, candidate, submodule, and gitlink facts'
 type: 'feature'
 created: '2026-09-23'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'c69334cb13a981c9112ad687427b1f43fafc2988'
 allowed_skipped_tests: []
 route: 'dispatch'
@@ -111,6 +111,54 @@ Review 2026-09-24 over the story-owned diff (`c69334c..c6fc53b`, six story paths
 | E9 | Amended identical-tree candidate reads stale | low | reject | A new commit is a new candidate by design; rerun remediates. |
 | E15 | Unparseable TRX reported as missing | false | reject | Runbook §8 documents this mapping deliberately. |
 | V-o3 | Measurement-level supersession check unreachable | low | reject | Harmless duplicate guard. |
+
+### Review Findings
+
+Review pass 2, 2026-09-25, over the story-owned diff `c69334c..f5a11e7` (the same six paths as pass 1). Layers: blind hunter, edge-case hunter, verification gap, and acceptance auditor, all completed.
+
+- [ ] [Review][Patch] (resolved from Decision, 2026-09-25: Jerome chose option 1, exempting `sprint-status.yaml` and the Story 7.2 spec as lifecycle bookkeeping in the record-only successor check, with a test and runbook text) A lifecycle commit after the record supersedes it, so AC-7.2-11 cannot be reproduced at HEAD — `f5a11e7` changes only the spec `status:` line and `sprint-status.yaml` after candidate `26da803`. `v2_story_7_2_candidate` allows only the two output paths to follow the candidate, so a rerun at `f5a11e7` exits `1` with `CANDIDATE_NOT_FINAL`. The runbook's retract-and-regenerate recovery never converges, because every later status move supersedes the new pair too. Measurements read the spec from the candidate commit, not from HEAD, so a later status edit cannot change any measured fact. (medium; blind+edge)
+- [ ] [Review][Patch] Candidate retention reads the pair from the working tree, but the runbook says a *committed* pair pins the candidate [_bmad/scripts/generate_story_record.py:3883]. A leftover uncommitted pair blocks every rerun after a source commit. Read the pair from `HEAD`, and commit the pair in the `test_v2_blocks_superseded_candidate` setup. (low; auditor)
+- [ ] [Review][Patch] No command-line test proves `story_id` reaches `v2_gitlinks`: the `GITLINK_SCOPE_MISMATCH` code and the repeated-path check are asserted only through direct calls [_bmad/scripts/generate_story_record.py:4170] (medium; verification-gap)
+- [ ] [Review][Patch] Gitlink exclusion from `changedPaths` is never exercised: no fixture moves a gitlink between baseline and candidate, although the real history moves seven [_bmad/scripts/generate_story_record.py:3957] (medium; verification-gap)
+- [ ] [Review][Patch] No test covers an orphaned prior candidate (not an ancestor of HEAD) raising `CANDIDATE_NOT_FINAL` [_bmad/scripts/generate_story_record.py:3903] (medium; verification-gap)
+- [ ] [Review][Patch] The staleness floor from changed-source mtimes is never exercised: no TRX is newer than the commit but older than a changed source [_bmad/scripts/generate_story_record.py:4016] (medium; verification-gap)
+- [ ] [Review][Patch] The schema's Story 7.2 `measurements` `if`/`then`/`else` is never tested with a rejection case (7.2 without `measurements`, 7.1 with them) [_bmad/schemas/story-final-record-v2.schema.json:22] (medium; verification-gap)
+- [ ] [Review][Patch] AC-7.2-10's "valid ancestry" half is untested: only an unresolvable all-zero baseline is tried, never a resolvable non-ancestor [_bmad/scripts/tests/test_generate_story_record.py:3845] (medium; auditor+blind)
+- [ ] [Review][Patch] `test_v2_blocks_invalid_predecessor_record` captures `before` but never asserts byte-identical restoration [_bmad/scripts/tests/test_generate_story_record.py:3953] (low; auditor+blind)
+- [ ] [Review][Patch] The `tampered-json` predecessor fault changes `storyId`, so the digest and projection check is never isolated; tamper with a non-identity field instead [_bmad/scripts/tests/test_generate_story_record.py:3955] (low; blind)
+- [ ] [Review][Patch] The second phase of `test_v2_blocks_superseded_candidate` commits after the fixture's TRX anchor (+10 s), so a slow runner adds `TEST_RESULTS_STALE` and the exact-blocker assertion fails. Rewrite the TRX after the commit [_bmad/scripts/tests/test_generate_story_record.py:3849] (low; edge)
+- [ ] [Review][Patch] A TRX naming another assembly is reported as `TEST_FAILED`; it is a missing result for that project (`TEST_RESULTS_MISSING`), per "keep result states distinct" [_bmad/scripts/generate_story_record.py:4044] (low; auditor)
+- [x] [Review][Defer] Test-project `tests/` filtering against a `.slnx` that has `src/` projects and `File` entries, and the approved-skip PASS path, run only on idealized fixtures [_bmad/scripts/generate_story_record.py:3993] — deferred: the current spec approves no skips and the live run passed
+- [x] [Review][Defer] TRX freshness is mtime-only, and submodule checkout HEADs are not compared with gitlinks [_bmad/scripts/generate_story_record.py:4015] — deferred: already recorded in `deferred-work.md` (2026-09-24, pass-1 B3/E4/E5); no new entry
+
+Rejected:
+- Gitlink baseline-to-candidate delta missing from the record — low: the baseline is bound, so the delta is derivable; the fix adds record surface.
+- `changedPaths` not story-scoped — false: pass-1 B11; the spec defines the frozen baseline-to-candidate set.
+- Test projects missing from `.slnx` go unnoticed — low: every `tests/*.csproj` is in the `.slnx` today; the fix adds a guard.
+- Skip allow-list not scoped by project — low: no skips are approved; the fix adds a branch.
+- Static self-invocation ledger omits Story 7.2 checks — low: PASS is unreachable unless every measurement check passes, and the facts are bound in `measurements`.
+- TRX not archived, run conditions not recorded — low: TRX digests are bound, and the skip gate catches the AppHost skip; the fix adds new surface.
+- Story-specific synonym codes; schema hard-codes `7.2` — false: pass-1 B8; the frozen matrix mandates these names.
+- Contract-path vs `story_id` gating diverge — false: `safe_relative_path` rejects non-normalized spellings (pass-1 B9).
+- `head` may be `None` in the measurement supersession check — false: HEAD already resolved in `v2_generate`; the duplicate check is pass-1 V-o3.
+- Repeated `.gitmodules` path checked only for 7.2 — false: the spec forbids changing Story 7.1 behavior.
+- Pair verification does not cross-check totals — low: pass-1 B2.
+- Absent-spec, `.slnx`-count, and unreadable-TRX branches untested — low: unlikely, and each needs new fixtures.
+- Tests lack `try`/`finally` cleanup — false: every test builds its own `tmp_path` fixture.
+- "JUnit" preamble, hard-coded "eight", `scenarios[:10]`, asserting 10 gitlinks — low: pass-1 B12b; the contract is frozen.
+- Control-character path or bad JSON escape becomes `INTERNAL_ERROR` — low: pass-1 E1/E3.
+- Symbolic-ref `baseline_commit` — low: the committed spec uses a 40-hex id; the fix adds a guard.
+- Removed baseline gitlink recorded as a root path — low: pass-1 E2.
+- Future-dated TRX mtime, symlinked prior output, `GateError` in `changed_gitlinks` — low: unlikely; each fix adds a guard.
+- Predecessor ancestry and passing state not checked — low: pass-1 B15; the committed 7.1 record is `PASS` and an ancestor; the fix adds guards.
+- Fixture project glob vs `.slnx` inventory — low: the two agree today.
+- Runbook overstates input binding and the fixed project count — low: wording only; binding is deferred above.
+- Path set compared against itself — false: epic-7 context requires one derived set from Git objects, with no declared list.
+- Recovery "rewrites history" — false: `09b9bf4` remains in history; the retraction is an additive commit.
+- AC-7.2-08 no-traversal assertion and monkeypatched fixture — low: pass-1 B4.
+- AC-7.2-01 validates a test-built acceptance document — low: pass-1 B14.
+- Committed pair not checked by any test — low: the generator rerun is the check.
+- Spec status and Implementation Notes contradict the record (notes say regenerated at `c6fc53b` and "status stays `in-progress`"; the record binds `26da803`) — rejected by rule: the fix edits the spec under review; owner to reconcile.
 
 ## Design Notes
 
