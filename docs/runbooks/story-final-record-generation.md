@@ -415,8 +415,10 @@ the named condition. Do not edit counts, paths, or digests in the pair.
 A committed Story 7.2 pair pins its candidate. An uncommitted pair does not pin
 it. Committing only the pair is a record-only successor: a rerun keeps the
 original candidate and reproduces the same bytes. Later commits may change only
-the Story 7.2 spec and `sprint-status.yaml` as lifecycle bookkeeping; a rerun
-still reads measurements from the pinned candidate and reproduces the pair.
+the Story 7.2 spec's frontmatter `status` value and `sprint-status.yaml` as
+lifecycle bookkeeping; a rerun still reads measurements from the pinned
+candidate and reproduces the pair.
+Their later working-tree mtimes do not make the candidate's test results stale.
 Any other later commit, including a root gitlink bump or a history
 rewrite that orphans the recorded candidate, makes every rerun stop with
 `CANDIDATE_NOT_FINAL` while the old pair is present. To recover, retract the

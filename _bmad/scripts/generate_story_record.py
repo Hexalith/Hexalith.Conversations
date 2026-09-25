@@ -3878,6 +3878,31 @@ def v2_self_ledger(scenario_id: str) -> list[dict[str, str]]:
     ]
 
 
+def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
+    """Accept only a frontmatter status change in the committed Story 7.2 spec."""
+    status = re.compile(
+        rb"(?m)^status: (?P<quote>['\"]?)(?P<value>draft|ready-for-dev|"
+        rb"in-progress|in-review|done)(?P=quote)$"
+    )
+
+    def without_status(content: bytes | None) -> bytes | None:
+        if content is None or not content.startswith(b"---\n"):
+            return None
+        end = content.find(b"\n---\n", 4)
+        if end < 0:
+            return None
+        frontmatter = content[4:end]
+        matches = list(status.finditer(frontmatter))
+        if len(matches) != 1:
+            return None
+        match = matches[0]
+        return content[:4 + match.start("value")] + b"<lifecycle>" + content[4 + match.end("value"):]
+
+    original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPEC_PATH))
+    updated = without_status(v2_committed_blob(repository, head, V2_7_2_SPEC_PATH))
+    return original is not None and original == updated
+
+
 def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                            markdown_path: str, validator: Any) -> str:
     """Retain a verified source candidate across a record-only successor commit."""
@@ -3904,7 +3929,9 @@ def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                                  "the verified prior candidate is no longer an ancestor of HEAD")], "7.2")
     changed = set(committed_path_status(repository, candidate, head))
     moved = changed_gitlinks(repository, candidate, head)
-    if moved or changed - {json_path, markdown_path} - V2_7_2_LIFECYCLE_PATHS:
+    invalid_spec_change = (V2_7_2_SPEC_PATH in changed
+                           and not v2_story_7_2_status_only_change(repository, candidate, head))
+    if moved or invalid_spec_change or changed - {json_path, markdown_path} - V2_7_2_LIFECYCLE_PATHS:
         findings = [v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                "source or gitlinks changed after the verified candidate")]
         if moved:
@@ -3969,7 +3996,13 @@ def v2_story_7_2_measurements(
     # A candidate is the current committed HEAD. Every later source or gitlink
     # movement invalidates it, even when the caller retained old result files.
     head = try_resolve_commit(repository, "HEAD")
-    if head != candidate and (set(committed_path_status(repository, candidate, head))
+    later_changes = set(committed_path_status(repository, candidate, head)) if head != candidate else set()
+    invalid_spec_change = (V2_7_2_SPEC_PATH in later_changes and head is not None
+                           and not v2_story_7_2_status_only_change(repository, candidate, head))
+    verified_lifecycle_changes = later_changes & V2_7_2_LIFECYCLE_PATHS
+    if invalid_spec_change:
+        verified_lifecycle_changes.discard(V2_7_2_SPEC_PATH)
+    if head != candidate and (invalid_spec_change or later_changes
                               - output_paths - V2_7_2_LIFECYCLE_PATHS):
         findings.append(v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                    "the candidate was superseded by another committed HEAD"))
@@ -4014,7 +4047,9 @@ def v2_story_7_2_measurements(
 
     newest_input_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
     for path in changed_paths:
-        if path in output_paths:
+        # Only verified lifecycle changes after the candidate can have newer
+        # working-tree mtimes without making the candidate's results stale.
+        if path in output_paths or path in verified_lifecycle_changes:
             continue
         source = repository / path
         if source.is_file() and not source.is_symlink():

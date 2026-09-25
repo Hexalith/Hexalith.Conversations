@@ -3689,7 +3689,7 @@ def test_v2_blocks_stale_result(tmp_path: Path) -> None:
 def test_v2_blocks_result_older_than_changed_source(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     repository = fixture["repository"]
-    source = repository / STORY_7_2_SPEC_PATH
+    source = repository / STORY_7_2_CONTRACT_PATH
     result = repository / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
     def mutate(_):
         original = source.stat().st_mtime_ns
@@ -3973,8 +3973,31 @@ def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> No
     sprint.write_text("7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-review\n", encoding="utf-8")
     v2_git(repository, "add", STORY_7_2_SPEC_PATH, "_bmad-output/implementation-artifacts/sprint-status.yaml")
     v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    latest_result_ns = max((repository / f"artifacts/v9/7.2/test-results/{name}.trx").stat().st_mtime_ns
+                           for name in STORY_7_2_PROJECTS)
+    lifecycle_ns = latest_result_ns + 1_000_000_000
+    os.utime(spec, ns=(lifecycle_ns, lifecycle_ns))
+    os.utime(sprint, ns=(lifecycle_ns, lifecycle_ns))
+    assert spec.stat().st_mtime_ns > latest_result_ns
+    assert sprint.stat().st_mtime_ns > latest_result_ns
     record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
     assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_blocks_non_status_spec_change_after_record(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8") + "\nLater source edit.\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "change story source")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
     assert v2_7_2_outputs(repository) == original
 
 
