@@ -3686,6 +3686,18 @@ def test_v2_blocks_stale_result(tmp_path: Path) -> None:
     v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_STALE")
 
 
+def test_v2_blocks_result_older_than_changed_source(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    source = repository / STORY_7_2_SPEC_PATH
+    result = repository / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    def mutate(_):
+        original = source.stat().st_mtime_ns
+        os.utime(source, ns=(result.stat().st_mtime_ns + 1_000_000_000, ) * 2)
+        return lambda: os.utime(source, ns=(original, original))
+    v2_7_2_snapshot_and_fault(fixture, mutate, "TEST_RESULTS_STALE")
+
+
 def test_v2_blocks_failed_test(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
@@ -3815,6 +3827,9 @@ def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
     assert {row["code"] for row in findings} == {"GITLINK_SCOPE_MISMATCH"}
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     assert v2_snapshot(repository) == before
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    record_only = v2_snapshot(repository)
     moved = ROOT_GITLINK_PATHS[0]
     v2_git(repository, "update-index", "--cacheinfo",
            f"160000,{'a' * 40},{moved}")
@@ -3822,14 +3837,30 @@ def test_v2_resolves_raw_gitlinks(tmp_path: Path) -> None:
     moved_failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
                                       {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"})
     assert set(moved_failure["blockers"]) == {"GITLINK_DRIFT", "CANDIDATE_NOT_FINAL"}
-    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
-    assert v2_snapshot(repository) == before
+    v2_git(repository, "reset", "--hard", "-q", record_only[0])
+    assert v2_snapshot(repository) == record_only
+
+
+def test_v2_excludes_changed_gitlink_from_root_paths(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move fixture gitlink")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert moved not in record["measurements"]["changedPaths"]
+    assert next(row for row in record["candidate"]["gitlinks"] if row["path"] == moved)["commit"] == "a" * 40
 
 
 def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     repository = fixture["repository"]
     v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
     before = v2_snapshot(repository)
     target = repository / V2_TARGET_PATH
     target.write_text(target.read_text(encoding="utf-8") + "# superseding source\n",
@@ -3838,7 +3869,7 @@ def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
     v2_git(repository, "commit", "-m", "supersede candidate")
     superseded = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
     assert superseded["blockers"] == ["CANDIDATE_NOT_FINAL"]
-    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    v2_git(repository, "reset", "--hard", "-q", before[0])
     assert v2_snapshot(repository) == before
     spec_path = repository / STORY_7_2_SPEC_PATH
     original_time = spec_path.stat().st_mtime_ns
@@ -3846,17 +3877,20 @@ def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
         fixture["baseline"], "0" * 40, 1), encoding="utf-8")
     v2_git(repository, "add", STORY_7_2_SPEC_PATH)
     v2_git(repository, "commit", "-m", "invalidate baseline")
-    # Remove the prior pair so the bad baseline is evaluated as a new candidate.
+    # Retract the committed pair so the bad baseline is evaluated as a new candidate.
     output_bytes = [(repository / path).read_bytes() for path in
                     (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)]
-    for path in (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN):
-        (repository / path).unlink()
+    v2_git(repository, "rm", "-q", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "retract prior pair")
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
     untrusted = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
     assert untrusted["blockers"] == ["BASELINE_NOT_TRUSTWORTHY"]
-    v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    v2_git(repository, "reset", "--hard", "-q", before[0])
     os.utime(spec_path, ns=(original_time, original_time))
     for path, content in zip((STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN), output_bytes):
         (repository / path).write_bytes(content)
+    v2_7_2_restore_result_mtimes(repository, before)
     assert v2_snapshot(repository) == before
 
 
@@ -3864,6 +3898,12 @@ def test_v2_blocks_superseded_candidate(tmp_path: Path) -> None:
 def v2_7_2_outputs(repository: Path) -> tuple[bytes, bytes]:
     return tuple((repository / path).read_bytes() for path in
                  (STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN))
+
+
+def v2_7_2_restore_result_mtimes(repository: Path, snapshot: tuple) -> None:
+    for relative, entry in snapshot[1].items():
+        if relative.startswith("artifacts/") and entry[0] == "file":
+            os.utime(repository / relative, ns=(entry[2], entry[2]))
 
 
 def test_v2_retains_candidate_across_record_only_commit(tmp_path: Path) -> None:
@@ -3883,28 +3923,89 @@ def test_v2_blocks_invalid_prior_pair(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     repository = fixture["repository"]
     v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
     before = v2_snapshot(repository)
     outputs = v2_7_2_outputs(repository)
     json_path = repository / STORY_7_2_OUTPUT_JSON
     markdown_path = repository / STORY_7_2_OUTPUT_MARKDOWN
-    markdown_time = markdown_path.stat().st_mtime_ns
-    markdown_path.unlink()
-    try:
-        incomplete = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
-                                       {"RECORD_CONTENT_DRIFT"})
-        assert incomplete["blockers"] == ["RECORD_CONTENT_DRIFT"]
-    finally:
-        markdown_path.write_bytes(outputs[1])
-        os.utime(markdown_path, ns=(markdown_time, markdown_time))
-    restore = v2_7_2_replace(json_path, outputs[0].replace(b'"storyId": "7.2"', b'"storyId": "7.1"', 1))
-    try:
-        tampered = v2_assert_failure(v2_run(v2_7_2_arguments(repository)),
-                                     {"RECORD_CONTENT_DRIFT"})
-        assert tampered["blockers"] == ["RECORD_CONTENT_DRIFT"]
-    finally:
-        restore()
+    v2_git(repository, "rm", "-q", STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "remove prior markdown")
+    incomplete = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"RECORD_CONTENT_DRIFT"})
+    assert incomplete["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_snapshot(repository) == before
+    json_path.write_bytes(outputs[0].replace(b'"storyId": "7.2"', b'"storyId": "7.1"', 1))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON)
+    v2_git(repository, "commit", "-m", "corrupt prior record")
+    tampered = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"RECORD_CONTENT_DRIFT"})
+    assert tampered["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "reset", "--hard", "-q", before[0])
     assert v2_7_2_outputs(repository) == outputs
     assert v2_snapshot(repository) == before
+
+
+def test_v2_uncommitted_prior_pair_does_not_pin_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    source = repository / V2_TARGET_PATH
+    source.write_text(source.read_text(encoding="utf-8") + "# new source\n", encoding="utf-8")
+    v2_git(repository, "add", V2_TARGET_PATH)
+    v2_git(repository, "commit", "-m", "source successor")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+
+
+def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'in-review'", 1), encoding="utf-8")
+    sprint = repository / "_bmad-output/implementation-artifacts/sprint-status.yaml"
+    sprint.write_text("7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-review\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH, "_bmad-output/implementation-artifacts/sprint-status.yaml")
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_blocks_orphaned_record_candidate(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    tree = v2_git(repository, "rev-parse", "HEAD^{tree}").stdout.strip()
+    rewritten = v2_git(repository, "commit-tree", tree, "-p", fixture["baseline"], "-m", "rewritten record").stdout.strip()
+    v2_git(repository, "reset", "--hard", "-q", rewritten)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+
+
+def test_v2_blocks_resolvable_nonancestor_baseline(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline_tree = v2_git(repository, "rev-parse", f"{fixture['baseline']}^{{tree}}").stdout.strip()
+    sibling = v2_git(repository, "commit-tree", baseline_tree, "-p", fixture["baseline"],
+                     "-m", "sibling baseline").stdout.strip()
+    spec = repository / STORY_7_2_SPEC_PATH
+    spec.write_text(spec.read_text(encoding="utf-8").replace(fixture["baseline"], sibling, 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "use nonancestor baseline")
+    v2_7_2_results(repository)
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"BASELINE_NOT_TRUSTWORTHY"})
+    assert failure["blockers"] == ["BASELINE_NOT_TRUSTWORTHY"]
 
 
 def test_v2_blocks_repeated_gitmodules_path(tmp_path: Path) -> None:
@@ -3922,6 +4023,8 @@ def test_v2_blocks_repeated_gitmodules_path(tmp_path: Path) -> None:
     assert module.v2_gitlinks(repository, v2_git(repository, "rev-parse", "HEAD").stdout.strip(),
                               findings, "7.2") == []
     assert [row["code"] for row in findings] == ["GITLINK_SCOPE_MISMATCH"]
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"GITLINK_SCOPE_MISMATCH"})
+    assert failure["blockers"] == ["GITLINK_SCOPE_MISMATCH"]
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
     assert v2_snapshot(repository) == before
 
@@ -3933,7 +4036,7 @@ def test_v2_blocks_foreign_assembly_result(tmp_path: Path) -> None:
     v2_7_2_snapshot_and_fault(fixture,
         lambda _: v2_7_2_replace(path, path.read_bytes().replace(
             f"/fixture/{own}.dll".encode(), f"/fixture/{other}.dll".encode())),
-        "TEST_FAILED")
+        "TEST_RESULTS_MISSING")
 
 
 def test_v2_blocks_header_row_disagreement(tmp_path: Path) -> None:
@@ -3953,7 +4056,9 @@ def test_v2_blocks_invalid_predecessor_record(tmp_path: Path, fault: str) -> Non
     before = v2_snapshot(repository)
     if fault == "tampered-json":
         target = repository / "docs/release-evidence/story-7.1-final-record-v2.json"
-        target.write_bytes(target.read_bytes().replace(b'"storyId": "7.1"', b'"storyId": "7.0"', 1))
+        predecessor = json.loads(target.read_bytes())
+        predecessor["rollback"]["boundary"] += " tampered"
+        target.write_text(json.dumps(predecessor, indent=2) + "\n", encoding="utf-8")
         v2_git(repository, "add", "docs/release-evidence/story-7.1-final-record-v2.json")
     else:
         v2_git(repository, "rm", "-q", "docs/release-evidence/story-7.1-final-record-v2.md")
@@ -3965,6 +4070,22 @@ def test_v2_blocks_invalid_predecessor_record(tmp_path: Path, fault: str) -> Non
     assert failure["blockers"] == ["AUTHORITY_BINDING_INVALID"]
     assert not (repository / STORY_7_2_OUTPUT_JSON).exists()
     v2_git(repository, "reset", "--hard", "-q", fixture["candidate"])
+    v2_7_2_restore_result_mtimes(repository, before)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_schema_requires_measurements_only_for_story_7_2() -> None:
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    for story, should_accept in (("7.1", True), ("7.2", False)):
+        record = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+        assert validator.is_valid(record)
+        without = dict(record)
+        without.pop("measurements", None)
+        assert validator.is_valid(without) == should_accept
+    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
+    story_7_2 = json.loads((WORKSPACE / "docs/release-evidence/story-7.2-final-record-v2.json").read_bytes())
+    story_7_1["measurements"] = story_7_2["measurements"]
+    assert not validator.is_valid(story_7_1)
 
 
 if __name__ == "__main__":

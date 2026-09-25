@@ -412,9 +412,12 @@ source before generating; restore exact root gitlink scope and candidate state;
 and regenerate both outputs from the same current candidate after correcting
 the named condition. Do not edit counts, paths, or digests in the pair.
 
-A committed Story 7.2 pair pins its candidate. Committing only the pair is a
-record-only successor: a rerun keeps the original candidate and reproduces the
-same bytes. Any other later commit, including a root gitlink bump or a history
+A committed Story 7.2 pair pins its candidate. An uncommitted pair does not pin
+it. Committing only the pair is a record-only successor: a rerun keeps the
+original candidate and reproduces the same bytes. Later commits may change only
+the Story 7.2 spec and `sprint-status.yaml` as lifecycle bookkeeping; a rerun
+still reads measurements from the pinned candidate and reproduces the pair.
+Any other later commit, including a root gitlink bump or a history
 rewrite that orphans the recorded candidate, makes every rerun stop with
 `CANDIDATE_NOT_FINAL` while the old pair is present. To recover, retract the
 superseded pair in its own commit (`git rm` both outputs), rebuild and rerun
@@ -424,7 +427,9 @@ Never restore the superseded pair; its candidate no longer describes the tree.
 
 | Story 7.2 blocker | Exit | Condition |
 | --- | --- | --- |
-| `TEST_FAILED` | `1` | A root project TRX reports a failed test, its counters disagree with its result rows, or it names another assembly |
+| `TEST_RESULTS_MISSING` | `1` | A root project TRX is absent, unreadable, or names another assembly |
+| `TEST_RESULTS_STALE` | `1` | A root project TRX predates the newest bound source input |
+| `TEST_FAILED` | `1` | A root project TRX reports a failed test or its counters disagree with its result rows |
 | `TEST_SKIPPED` | `1` | A root project TRX reports a skip that the committed spec's `allowed_skipped_tests` does not approve |
 | `TEST_NOT_RUN` | `1` | A root project reports zero tests, or the candidate lacks exactly one root `.slnx` |
 | `SOURCE_TREE_DIRTY` | `1` | The working tree differs from the candidate outside the declared outputs and results |

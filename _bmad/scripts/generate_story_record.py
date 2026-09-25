@@ -2715,6 +2715,7 @@ V2_SCHEMA_FILES = {
 V2_AUTHORITY_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 V2_GENERATOR_PATH = "_bmad/scripts/generate_story_record.py"
 V2_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+V2_7_2_LIFECYCLE_PATHS = {V2_7_2_SPEC_PATH, "_bmad-output/implementation-artifacts/sprint-status.yaml"}
 V2_7_1_RECORD_PATH = "docs/release-evidence/story-7.1-final-record-v2.json"
 V2_7_1_MARKDOWN_PATH = "docs/release-evidence/story-7.1-final-record-v2.md"
 V2_ZERO_DIGEST = "0" * 64
@@ -3880,16 +3881,14 @@ def v2_self_ledger(scenario_id: str) -> list[dict[str, str]]:
 def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                            markdown_path: str, validator: Any) -> str:
     """Retain a verified source candidate across a record-only successor commit."""
-    json_file = repository / json_path
-    markdown_file = repository / markdown_path
-    if not json_file.exists() and not markdown_file.exists():
+    json_bytes = v2_committed_blob(repository, head, json_path)
+    markdown_bytes = v2_committed_blob(repository, head, markdown_path)
+    if json_bytes is None and markdown_bytes is None:
         return head
-    if not json_file.is_file() or not markdown_file.is_file():
+    if json_bytes is None or markdown_bytes is None:
         raise V2Stop([v2_finding("RECORD_CONTENT_DRIFT", "outputs",
                                  "a prior Story 7.2 output pair is incomplete")], "7.2")
     try:
-        json_bytes = json_file.read_bytes()
-        markdown_bytes = markdown_file.read_bytes()
         existing = v2_parse_json(json_bytes)
         if (not isinstance(existing, dict) or existing.get("storyId") != "7.2"
                 or v2_schema_errors(validator, existing)
@@ -3905,7 +3904,7 @@ def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                                  "the verified prior candidate is no longer an ancestor of HEAD")], "7.2")
     changed = set(committed_path_status(repository, candidate, head))
     moved = changed_gitlinks(repository, candidate, head)
-    if moved or changed - {json_path, markdown_path}:
+    if moved or changed - {json_path, markdown_path} - V2_7_2_LIFECYCLE_PATHS:
         findings = [v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                "source or gitlinks changed after the verified candidate")]
         if moved:
@@ -3970,7 +3969,8 @@ def v2_story_7_2_measurements(
     # A candidate is the current committed HEAD. Every later source or gitlink
     # movement invalidates it, even when the caller retained old result files.
     head = try_resolve_commit(repository, "HEAD")
-    if head != candidate and (set(committed_path_status(repository, candidate, head)) - output_paths):
+    if head != candidate and (set(committed_path_status(repository, candidate, head))
+                              - output_paths - V2_7_2_LIFECYCLE_PATHS):
         findings.append(v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                    "the candidate was superseded by another committed HEAD"))
         if head is not None and changed_gitlinks(repository, candidate, head):
@@ -4038,9 +4038,12 @@ def v2_story_7_2_measurements(
             findings.append(v2_finding("TEST_RESULTS_STALE", result_path,
                                        "TRX result predates the newest bound source input"))
         counts = parsed["reported"]
-        if count_disagreements(parsed) or parsed["assemblies"] != [name]:
+        if parsed["assemblies"] != [name]:
+            findings.append(v2_finding("TEST_RESULTS_MISSING", result_path,
+                                       "TRX result does not name the declared project assembly"))
+        if count_disagreements(parsed):
             findings.append(v2_finding("TEST_FAILED", result_path,
-                                       "TRX counters or assembly identity disagree with recorded results"))
+                                       "TRX counters disagree with recorded results"))
         if counts["total"] == 0 or not parsed["results"]:
             findings.append(v2_finding("TEST_NOT_RUN", result_path,
                                        "the declared test project ran zero tests"))
