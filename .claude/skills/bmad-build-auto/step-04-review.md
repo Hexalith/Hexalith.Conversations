@@ -8,9 +8,9 @@
 
 ## INSTRUCTIONS
 
-### V12 lifecycle evidence gates
+### Current change validation
 
-Before the `in-review` lifecycle write, read `{baseline_revision}` and `submodule_promotions` from `{spec_file}`, capture the current committed revision, and run `_bmad/scripts/verify_submodule_promotion.py` plus `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py` against that fixed revision and exact declared scope. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when promotion exits `0` and evidence is `PASS` or `not-applicable` with a nonempty assertion ledger. Re-run both gates after review patches and before final `done` finalization. Use the authorized `{candidate_revision}` captured below for that rerun. Any missing, skipped, failed, blocked, or empty-ledger result preserves lifecycle state and HALTs.
+For new work under `docs/runbooks/current-change-validation.md`, run `python3 {project-root}/scripts/check-root-submodules.py --repository {project-root}` and focused tests for the change before `in-review` and after review patches. Record failures honestly and do not mark a failing change complete. Run historical promotion or evidence-boundary verifiers only when the spec explicitly requires them.
 
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 
@@ -100,13 +100,15 @@ Announce skipped layers first, then launch every active layer before handling an
 
 ### Prepare Committed Candidate
 
-The unattended route may proceed only when the invocation already carries explicit authorization for the exact story-owned candidate path set. General permission to run unattended or apply patches is not commit authorization. If exact authorization is absent, preserve `in-progress`, leave the paths uncommitted, record the blocker, and HALT without asking a question. When authorized, stage only that exact path set, create a validated Conventional Commit, require all other source paths clean, and resolve committed `HEAD` exactly once into `{candidate_revision}`.
+Only when the spec explicitly requires a generated final record, stage the exact story-owned candidate paths and create a validated Conventional Commit if the invocation authorizes a commit. Resolve committed `HEAD` once into `{candidate_revision}`. Never stage unrelated paths. If a required commit is not authorized, leave the work uncommitted and report its state without asking for repeat authorization.
 
-### Require Separately Preauthorized Completion Commit
+### Completion Scope
 
-Before generating or inserting a completion record, require the invocation to carry a second, separate preauthorization for the exact post-generation completion-record and lifecycle-status path set. Candidate-commit authorization never counts as completion-commit authorization. If the separate exact preauthorization is absent, preserve the spec and sprint lifecycle as `in-progress`, do not write or synchronize `done`, record the blocker, and HALT without asking a question. Freeze the separately preauthorized path set before continuing; no additional path may enter the completion commit.
+Identify the exact task-owned source, completion-record, and lifecycle-status paths. Use commit authorization already given for the task; do not demand separate preauthorization for each commit. Keep unrelated paths out of the commit.
 
 ### Final Record Generation Gate
+
+For new routine work, record the change and test results in the spec and skip this section unless the spec explicitly requires a generated final record. The procedure below applies only to that explicit requirement.
 
 Clean-rebuild the committed candidate with `dotnet build <root-solution> -c Release -t:Rebuild -p:SourceRevisionId={candidate_revision}` and rerun every root-owned test project into fresh TRX artifacts. Invoke `python3 {project-root}/_bmad/scripts/generate_story_record.py --repository {project-root} --story {spec_file} --candidate {candidate_revision} --format bundle`, with the trustworthy baseline, all declared test-result artifacts, and the exact submodule scope. Require `TEST_BUILD_NOT_BOUND` and `RECORD_NOT_DERIVED` to block the gate. Any nonzero exit or nested result other than `pass` returns lifecycle state to `in-progress`; Never write `done`, and HALT with the stable diagnostics.
 
@@ -124,11 +126,11 @@ Write the following details to `{spec_file}` under `## Auto Run Result`:
 
 Set `{spec_file}` frontmatter `followup_review_recommended` from the computation above.
 
-If version control is unavailable, preserve `{spec_file}` and sprint lifecycle as `in-progress` and HALT with blocking condition `completion commit unavailable`; an uncommitted completion record cannot authorize `done`.
+If version control is unavailable, report the limitation and leave changes uncommitted.
 
-If version control is available, write `status: done` into `{spec_file}` frontmatter only because the exact completion-record and lifecycle-status path set was separately preauthorized, then:
+If version control is available, write `status: done` into `{spec_file}` frontmatter when focused validation passes, then:
 
-1. Stage and commit only the separately preauthorized completion-record and lifecycle-status path set. Keep the candidate commit already created during this run. Verify every preauthorized completion path is committed and no other path entered that commit. Do not push. Any commit failure restores lifecycle state to `in-progress` and HALTs rather than completing.
-2. Verify the version-controlled working copy is clean. Otherwise HALT with status `blocked` and blocking condition `finalization left repository dirty`.
+1. When the invocation authorizes a commit, stage and commit only the identified task-owned paths with a validated Conventional Commit. Verify every intended path is committed and no unrelated path entered. A candidate commit exists only when an explicit final record required it. Any commit failure restores lifecycle state to `in-progress` and HALTs.
+2. Report any unrelated dirty paths without changing them. Push only when the invocation authorizes it.
 
 HALT with status `done`.

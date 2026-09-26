@@ -32,6 +32,23 @@ jobs:
       aspire-continue-on-error: false
       aspire-timeout-minutes: 20
 
+  repository:
+    name: ci / repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+          submodules: false
+
+      - name: Check root submodule declarations and gitlinks
+        run: python3 scripts/check-root-submodules.py --repository .
+
+      - name: Test root submodule check
+        run: python3 -m unittest discover -s tests/tooling -p 'test_check_root_submodules.py'
+
   admin-web:
     name: ci / admin-web
     runs-on: ubuntu-latest
@@ -106,7 +123,16 @@ jobs:
           set -euo pipefail
           mkdir -p TestResults/conformance
           assembly="tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll"
+          # These classes assert the retired authority and mandatory final-record policy.
+          # Keep them in Git for historical reproduction, outside current CI.
           dotnet "$assembly" \
+            -class- "Hexalith.Conversations.Conformance.Tests.ArchitecturePlanningAuthorityValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV8ValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PlanningAuthorityV9ValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PlanningToolingEnvironmentAuthorityV15ValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PlanningToolingLifecycleAuthorityV16ValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.PackageEnvironmentAuthorityV18ValidationTest" \
+            -class- "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful" \
             -method- "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod" \

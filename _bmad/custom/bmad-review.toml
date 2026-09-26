@@ -1,12 +1,12 @@
 [workflow]
 
 review_guidance = [
-  "file:{project-root}/docs/runbooks/evidence-boundary-validation.md",
+  "file:{project-root}/docs/runbooks/current-change-validation.md",
 ]
 
 [[workflow.lenses]]
 code = "evidence-boundary"
 name = "Evidence Boundary"
 applies_to = "any"
-when = "Evidence, planning authority, generated records, manifests, release artifacts, or tests that validate them changed."
-instruction = "Apply the canonical evidence-boundary runbook. Verify independently recomputed hashes and signable payloads, repository-contained paths, exact changed-path and frozen-inventory equality, raw-mode gitlink exclusion, pinned roots of trust, visible unavailable-history handling, non-vacuous execution, and red-capable named faults."
+when = "The user explicitly requests reproduction or review of a historical evidence-boundary result."
+instruction = "Apply the historical evidence-boundary runbook to the named result and report its actual state without converting FAIL or BLOCKED to PASS."

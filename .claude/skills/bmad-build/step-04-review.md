@@ -8,9 +8,9 @@
 
 ## INSTRUCTIONS
 
-### V12 lifecycle evidence gates
+### Current change validation
 
-Before any lifecycle status write, read `{baseline_commit}` and `submodule_promotions` from `{spec_file}` frontmatter. Run `_bmad/scripts/verify_submodule_promotion.py` with the repository root, that baseline, committed `HEAD`, and one `--submodule` / `--require-remote` argument for every declared row. Then run `python3 {project-root}/_bmad/scripts/verify_evidence_boundary.py --repository {project-root} --baseline {baseline_commit} --candidate HEAD`. Preserve `PASS`, `FAIL`, `BLOCKED`, and `not-applicable` as distinct results. Continue only when the promotion gate exits `0` and the evidence gate returns `PASS` or `not-applicable` with a nonempty assertion ledger. On `FAIL`, `BLOCKED`, missing inputs, skipped execution, or an empty ledger, leave lifecycle state unchanged, record the diagnostics, and HALT.
+For new work under `docs/runbooks/current-change-validation.md`, run `python3 {project-root}/scripts/check-root-submodules.py --repository {project-root}` and focused tests for the change. Record failures honestly and do not mark a failing change complete. Run historical promotion or evidence-boundary verifiers only when the spec explicitly requires them.
 
 Change `{spec_file}` status to `in-review` in the frontmatter before continuing.
 

@@ -1,9 +1,9 @@
 [workflow]
 
 activation_steps_append = [
-  "For applicable evidence or planning-authority changes, follow the canonical evidence-boundary runbook and preserve PASS, FAIL, BLOCKED, and not-applicable as distinct results before review or done transitions.",
+  "For new routine work, follow the current-change runbook and run focused checks. Reproduce historical evidence-boundary results only when the spec explicitly asks for them.",
 ]
 
 persistent_facts = [
-  "file:{project-root}/docs/runbooks/evidence-boundary-validation.md",
+  "file:{project-root}/docs/runbooks/current-change-validation.md",
 ]

@@ -1,9 +1,14 @@
 # Evidence-Boundary Validation
 
-Use this runbook for changes to planning authority, manifests, generated
-records, signed or release-facing evidence, evidence readers, or the tests and
-workflows that govern those artifacts. It is reusable guidance; the mechanical
-verifier and acceptance tests remain the enforcement boundary.
+> Historical V23–V29 verification guidance. For changes after the
+> [current-change policy](current-change-validation.md) is merged, use that
+> policy for CI and routine work. This file remains available to reproduce
+> earlier authority results; it no longer defines a required gate for new work.
+
+Use this runbook when reproducing historical planning authority, manifests,
+generated records, signed or release-facing evidence, evidence readers, or the
+tests and workflows that governed those artifacts. The mechanical verifier
+and acceptance tests describe that historical enforcement boundary.
 
 ## Invariants
 
