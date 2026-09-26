@@ -1,0 +1,437 @@
+{
+  "schemaVersion": "hexalith.conversations.post-v28-root-gitlink-authority.v1",
+  "recordType": "POST_V28_ROOT_GITLINK_AUTHORITY_SUCCESSOR",
+  "successorId": "V29-POST-V28-ROOT-GITLINK-AUTHORITY-v1",
+  "authorization": {
+    "model": "PROTECTED_HOST_ANCESTRY",
+    "bootstrapCommit": "6d2c73be7fcd690467cbed34eec500fdc6481c37",
+    "bootstrapTree": "a737e93ca21f031901dc2aeb3491b87e227d7ba6",
+    "bootstrapParent": "8c9b711e3990a6622c70a148b1b6fe151def2fc3",
+    "bootstrapParentTree": "1aaed65ef90917064b5f82f7764f6438c7b92834",
+    "externalExceptionRequired": true,
+    "selfAuthorized": false
+  },
+  "bootstrapTransaction": {
+    "exactChangedPaths": [
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad/schemas/v29-post-v28-root-gitlink-authority-v1.schema.json",
+      "_bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py",
+      "docs/runbooks/evidence-boundary-validation.md"
+    ],
+    "requiredMode": "100644",
+    "manifestSha256": "3baaf7b7d7d7b953a70c24513f2aa9051eda99f6f241c3546edccc95f98e0116",
+    "manifest": [
+      {
+        "path": ".github/workflows/planning-authority-preflight.yml",
+        "mode": "100644",
+        "objectId": "77b0bda42859b21ac440219ed8029e20145d26c7",
+        "sha256": "9af2005899988a029b1b3c551c39fc1bcd89987ae79a0b338841fe9ca034cd99",
+        "bytes": 36660
+      },
+      {
+        "path": "_bmad/schemas/v29-post-v28-root-gitlink-authority-v1.schema.json",
+        "mode": "100644",
+        "objectId": "aa39d2519fb0af51060c4dc23324b750c5bf257f",
+        "sha256": "7dd9d0e8814a96992d8f59392af6c8d3b57d92d3b60e07fea0f6cafa9fb95b1a",
+        "bytes": 47490
+      },
+      {
+        "path": "_bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py",
+        "mode": "100644",
+        "objectId": "07cc35c380597de29e201c1f052fe95f58f89d1d",
+        "sha256": "f5815ae3b07d83efad8a0b0873c036a9297eb3cc1861632deb2c69d3496e488f",
+        "bytes": 58951
+      },
+      {
+        "path": "_bmad/scripts/resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "080c9af07c3e5482b80f24db9cfbe780fa9b3e29",
+        "sha256": "d9a393094350e237cb678563b4f74db80c9c35ef669386ca0a923021b7ae6f48",
+        "bytes": 137668
+      },
+      {
+        "path": "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py",
+        "mode": "100644",
+        "objectId": "a6041399b58694b72230437884672fd004140262",
+        "sha256": "545067f9d515ed7f6c29ddfa7d5f26e7f21efcf6f7a76236eb2ab5d0c86373c5",
+        "bytes": 10078
+      },
+      {
+        "path": "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+        "mode": "100644",
+        "objectId": "2a2f64755d67515240e930fcbaee2f53c57ca350",
+        "sha256": "12a5db273a18b192b53e50ebb6528dca2a20f01edf4545317f153f564b6d02a3",
+        "bytes": 100367
+      },
+      {
+        "path": "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "d880f42b6aa7bd05a622a01a8a54ede800ada807",
+        "sha256": "24293536d95be173995b920c208c811dd95225c25b44af20dc67f91b5f25cd5e",
+        "bytes": 93721
+      },
+      {
+        "path": "_bmad/scripts/verify_evidence_boundary.py",
+        "mode": "100644",
+        "objectId": "acf208473fb5c2ec77ed106208e2021143d41a17",
+        "sha256": "b42dfbd8c11263688fe743281d91b075ab01f7fcde60d7e5535ccadbb000801c",
+        "bytes": 160695
+      },
+      {
+        "path": "docs/runbooks/evidence-boundary-validation.md",
+        "mode": "100644",
+        "objectId": "dddc78702ce0225c828431e42d64e7a5ed1b41c3",
+        "sha256": "9b7486ab57bdc8fbeb3f10cd930c5efa0ce287654a9f21692c589483403027b7",
+        "bytes": 16765
+      }
+    ]
+  },
+  "recordTransaction": {
+    "parentCommit": "6d2c73be7fcd690467cbed34eec500fdc6481c37",
+    "parentTree": "a737e93ca21f031901dc2aeb3491b87e227d7ba6",
+    "exactChangedPaths": [
+      "_bmad-output/planning-artifacts/v29-post-v28-root-gitlink-authority-v1.json"
+    ],
+    "requiredMode": "100644"
+  },
+  "submoduleBinding": {
+    "gitmodulesPath": ".gitmodules",
+    "gitmodulesSha256": "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c",
+    "declaredPaths": [
+      "references/Hexalith.AI.Tools",
+      "references/Hexalith.Builds",
+      "references/Hexalith.Commons",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Memories",
+      "references/Hexalith.Parties",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "rootGitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "mode": "160000",
+        "objectId": "5f93d2ec8239494852c97032c819cb1689939e36"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "mode": "160000",
+        "objectId": "0734e3177d82e42089547497bf961c6b7c478bbd"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "mode": "160000",
+        "objectId": "37455bbb258d30e3ee86aa4b09769ae6e5638f9f"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "mode": "160000",
+        "objectId": "8ac62359c1ffdd520488ecd03bd9689c217e3788"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "mode": "160000",
+        "objectId": "840e31d0e6f015b2b0ab90a7a21942205aeac176"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "mode": "160000",
+        "objectId": "05d122005d328ec8f15ecd276058be29730288c2"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "mode": "160000",
+        "objectId": "8884933571e2738c406feea37e57f7124378b3e3"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "mode": "160000",
+        "objectId": "14d249fde316b0002aec84351d7a7cdf953d1d30"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "mode": "160000",
+        "objectId": "7dfaaf81586820c1ec8f0c81a8edb9cd9549f86d"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "mode": "160000",
+        "objectId": "8431d9926ed655d32396f1f68973e0573ccc38e2"
+      }
+    ]
+  },
+  "historicalGitlinkTransaction": {
+    "baselineCommit": "e91e9da4796038a3499b8d0a79735649974a1603",
+    "lastTouchCommit": "819e45b2f8a493baf1fc92b62e59bdb8dd8696d6",
+    "gitmodulesSha256": "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c",
+    "pathListSha256": "fe037611de7434e615d8392ce5416e9c600d84079b12635a4dc39713db8f1ca0",
+    "rowListSha256": "32a9df6d61c31a0c2fad3cec23ec06a12da248f95a9533907ea3a08d699abcfe",
+    "paths": [
+      "references/Hexalith.Builds",
+      "references/Hexalith.Commons",
+      "references/Hexalith.EventStore",
+      "references/Hexalith.Folders",
+      "references/Hexalith.FrontComposer",
+      "references/Hexalith.Projects",
+      "references/Hexalith.Tenants"
+    ],
+    "commits": [
+      {
+        "commit": "83bc651a795173591ec7997a14e649b9bd424d5b",
+        "parent": "09b9bf4647b25b17194d1d3fd26b87cd3c6ba121",
+        "tree": "2ece3bb3e276a9b2b4acb18a150ee8e2f73d109f",
+        "parentTree": "0c8bc84b6ce3f8f42258f660a4f0822edb60e170",
+        "transitions": [
+          {
+            "path": "references/Hexalith.Commons",
+            "modeBefore": "160000",
+            "before": "9f4809d37095e64e3732abc3e766535f9e836563",
+            "modeAfter": "160000",
+            "after": "37455bbb258d30e3ee86aa4b09769ae6e5638f9f"
+          },
+          {
+            "path": "references/Hexalith.EventStore",
+            "modeBefore": "160000",
+            "before": "d0291d0919c58e805b875e42a0a84e62c1c6e3e5",
+            "modeAfter": "160000",
+            "after": "06aaf9505f9ed4278ae00a4a0cc4568926d27db6"
+          },
+          {
+            "path": "references/Hexalith.FrontComposer",
+            "modeBefore": "160000",
+            "before": "b6ea7834591c9352b1c0ec338fb64e8fedd5db11",
+            "modeAfter": "160000",
+            "after": "2e33757e191e91b9369ceeb1b25fa568b1e57c3b"
+          },
+          {
+            "path": "references/Hexalith.Tenants",
+            "modeBefore": "160000",
+            "before": "850b321c38421bbeec903e74b548b8293b30a610",
+            "modeAfter": "160000",
+            "after": "86c92f370da4467a7d811a0ec7fa19765f4568dc"
+          }
+        ]
+      },
+      {
+        "commit": "8442b0d360d93b7f543e80865bee109b632a1e37",
+        "parent": "83bc651a795173591ec7997a14e649b9bd424d5b",
+        "tree": "d30e3b8a78b689e3e37a0d7207cdd574c214f4aa",
+        "parentTree": "2ece3bb3e276a9b2b4acb18a150ee8e2f73d109f",
+        "transitions": [
+          {
+            "path": "references/Hexalith.Builds",
+            "modeBefore": "160000",
+            "before": "2fba3497043fe5ffcfe4dc44c51a09eae9b950ab",
+            "modeAfter": "160000",
+            "after": "754d2b4b6615c5004606ba837dd9c925c57e8d14"
+          }
+        ]
+      },
+      {
+        "commit": "dc30b020a1d4b21e511aaec12c575d400c62a24c",
+        "parent": "8442b0d360d93b7f543e80865bee109b632a1e37",
+        "tree": "b029618ac3bd9e0b5b2290c8bd7e92d6e21a6026",
+        "parentTree": "d30e3b8a78b689e3e37a0d7207cdd574c214f4aa",
+        "transitions": [
+          {
+            "path": "references/Hexalith.EventStore",
+            "modeBefore": "160000",
+            "before": "06aaf9505f9ed4278ae00a4a0cc4568926d27db6",
+            "modeAfter": "160000",
+            "after": "6e2f5199b8d718ce6fc81e35dace819d77926e32"
+          }
+        ]
+      },
+      {
+        "commit": "c6fc53bcfd1e94ea544d42109687a7792b8d2449",
+        "parent": "dc30b020a1d4b21e511aaec12c575d400c62a24c",
+        "tree": "e0f49cead92b528f65694a2bddc14e56dbc03703",
+        "parentTree": "b029618ac3bd9e0b5b2290c8bd7e92d6e21a6026",
+        "transitions": [
+          {
+            "path": "references/Hexalith.EventStore",
+            "modeBefore": "160000",
+            "before": "6e2f5199b8d718ce6fc81e35dace819d77926e32",
+            "modeAfter": "160000",
+            "after": "04682eac0464b6b18bc02a39187f244fec3ab9bd"
+          },
+          {
+            "path": "references/Hexalith.Projects",
+            "modeBefore": "160000",
+            "before": "3f12e4c329a8b46a8e69397635ba290388923c75",
+            "modeAfter": "160000",
+            "after": "a3127838cda406fd7e85e1ccf56195cb84a5eea5"
+          },
+          {
+            "path": "references/Hexalith.Tenants",
+            "modeBefore": "160000",
+            "before": "86c92f370da4467a7d811a0ec7fa19765f4568dc",
+            "modeAfter": "160000",
+            "after": "fc147e3efab879f0d5f8131a4ebfd178bf3a113c"
+          }
+        ]
+      },
+      {
+        "commit": "179b4844554dbbff49a173f54c5eabaa4141b843",
+        "parent": "28e6fa6af038fd1193a7ac82fdfa4366a569e74e",
+        "tree": "b878c6752733ced726f3d21fe55e9e640e64c0e5",
+        "parentTree": "3498be76bde630e2b78b3b87eeff6d544ebd3f08",
+        "transitions": [
+          {
+            "path": "references/Hexalith.Builds",
+            "modeBefore": "160000",
+            "before": "754d2b4b6615c5004606ba837dd9c925c57e8d14",
+            "modeAfter": "160000",
+            "after": "f485b37950096fbc50862cc8ffb07ca7adda2792"
+          },
+          {
+            "path": "references/Hexalith.EventStore",
+            "modeBefore": "160000",
+            "before": "04682eac0464b6b18bc02a39187f244fec3ab9bd",
+            "modeAfter": "160000",
+            "after": "0ba4b95a15b3e597ea63c5dbf956f32bb624d1eb"
+          },
+          {
+            "path": "references/Hexalith.Folders",
+            "modeBefore": "160000",
+            "before": "19c29e00eb6679bbf7a0d20a8b4dbf30182243cf",
+            "modeAfter": "160000",
+            "after": "840e31d0e6f015b2b0ab90a7a21942205aeac176"
+          },
+          {
+            "path": "references/Hexalith.FrontComposer",
+            "modeBefore": "160000",
+            "before": "2e33757e191e91b9369ceeb1b25fa568b1e57c3b",
+            "modeAfter": "160000",
+            "after": "05d122005d328ec8f15ecd276058be29730288c2"
+          },
+          {
+            "path": "references/Hexalith.Projects",
+            "modeBefore": "160000",
+            "before": "a3127838cda406fd7e85e1ccf56195cb84a5eea5",
+            "modeAfter": "160000",
+            "after": "7dfaaf81586820c1ec8f0c81a8edb9cd9549f86d"
+          }
+        ]
+      },
+      {
+        "commit": "819e45b2f8a493baf1fc92b62e59bdb8dd8696d6",
+        "parent": "179b4844554dbbff49a173f54c5eabaa4141b843",
+        "tree": "7ca1597b14c1ad098159eb6c2fa535347236c76f",
+        "parentTree": "b878c6752733ced726f3d21fe55e9e640e64c0e5",
+        "transitions": [
+          {
+            "path": "references/Hexalith.Builds",
+            "modeBefore": "160000",
+            "before": "f485b37950096fbc50862cc8ffb07ca7adda2792",
+            "modeAfter": "160000",
+            "after": "0734e3177d82e42089547497bf961c6b7c478bbd"
+          },
+          {
+            "path": "references/Hexalith.EventStore",
+            "modeBefore": "160000",
+            "before": "0ba4b95a15b3e597ea63c5dbf956f32bb624d1eb",
+            "modeAfter": "160000",
+            "after": "8ac62359c1ffdd520488ecd03bd9689c217e3788"
+          },
+          {
+            "path": "references/Hexalith.Tenants",
+            "modeBefore": "160000",
+            "before": "fc147e3efab879f0d5f8131a4ebfd178bf3a113c",
+            "modeAfter": "160000",
+            "after": "8431d9926ed655d32396f1f68973e0573ccc38e2"
+          }
+        ]
+      }
+    ]
+  },
+  "resultSemantics": {
+    "states": [
+      "PASS",
+      "FAIL",
+      "BLOCKED"
+    ],
+    "exitCodes": {
+      "PASS": 0,
+      "FAIL": 1,
+      "BLOCKED": 2
+    },
+    "ledgerRequired": true
+  },
+  "assertionLedger": [
+    {
+      "id": "V29.SUCCESSOR.01",
+      "subject": "bootstrap-publication-discovery",
+      "state": "PASS",
+      "detail": "full history introduces exactly one V29 bootstrap publication"
+    },
+    {
+      "id": "V29.SUCCESSOR.02",
+      "subject": "protected-host-authorization",
+      "state": "PASS",
+      "detail": "the bootstrap publication is contained in protected-host ancestry"
+    },
+    {
+      "id": "V29.SUCCESSOR.03",
+      "subject": "bootstrap-exact-scope",
+      "state": "PASS",
+      "detail": "the bootstrap declares exactly nine mode-100644 paths under one parent"
+    },
+    {
+      "id": "V29.SUCCESSOR.04",
+      "subject": "pinned-bootstrap-identities",
+      "state": "PASS",
+      "detail": "the pinned V29 schema digest matches the committed bootstrap blob"
+    },
+    {
+      "id": "V29.SUCCESSOR.05",
+      "subject": "submodule-binding",
+      "state": "PASS",
+      "detail": "the .gitmodules inventory binds exactly ten raw mode-160000 root gitlinks"
+    },
+    {
+      "id": "V29.SUCCESSOR.06",
+      "subject": "governed-no-touch-history",
+      "state": "PASS",
+      "detail": "no commit after the bootstrap touches a governed path, even when restored"
+    },
+    {
+      "id": "V29.SUCCESSOR.07",
+      "subject": "record-only-publication",
+      "state": "PASS",
+      "detail": "the record is a direct single-path mode-100644 child of the bootstrap"
+    },
+    {
+      "id": "V29.SUCCESSOR.08",
+      "subject": "deterministic-record-identity",
+      "state": "PASS",
+      "detail": "the committed record equals its deterministic canonical projection"
+    },
+    {
+      "id": "V29.SUCCESSOR.09",
+      "subject": "sticky-record-history",
+      "state": "PASS",
+      "detail": "the record remains byte-identical through the evaluated candidate"
+    },
+    {
+      "id": "V29.SUCCESSOR.10",
+      "subject": "non-executable-authority",
+      "state": "PASS",
+      "detail": "V29 grants no approval, execution, release, or push authority"
+    }
+  ],
+  "blockers": [],
+  "result": "PASS",
+  "implementationHold": "ACTIVE",
+  "executionAllowed": false,
+  "ownerApprovalClaimed": false,
+  "releaseAuthorized": false,
+  "pushAuthorized": false
+}
