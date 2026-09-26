@@ -130,6 +130,88 @@ V28_OTHER_LINKS = (
     ("references/Hexalith.Memories", "8884933571e2738c406feea37e57f7124378b3e3"),
     ("references/Hexalith.Parties", "14d249fde316b0002aec84351d7a7cdf953d1d30"),
 )
+V29_RECORD_PATH = "_bmad-output/planning-artifacts/v29-post-v28-root-gitlink-authority-v1.json"
+V29_SCHEMA_PATH = "_bmad/schemas/v29-post-v28-root-gitlink-authority-v1.schema.json"
+V29_PUBLISHER_PATH = "_bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py"
+V29_PUBLISHER_TEST_PATH = "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py"
+V29_BOOTSTRAP_PATHS = tuple(sorted((
+    ".github/workflows/planning-authority-preflight.yml",
+    V29_SCHEMA_PATH,
+    V29_PUBLISHER_PATH,
+    "_bmad/scripts/resolve_current_planning_authority.py",
+    V29_PUBLISHER_TEST_PATH,
+    "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+    "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+    "_bmad/scripts/verify_evidence_boundary.py",
+    "docs/runbooks/evidence-boundary-validation.md",
+)))
+V29_BOOTSTRAP_IDENTITY_PATHS = (V29_SCHEMA_PATH, V29_PUBLISHER_PATH, V29_PUBLISHER_TEST_PATH)
+V29_SCHEMA_SHA256 = "7dd9d0e8814a96992d8f59392af6c8d3b57d92d3b60e07fea0f6cafa9fb95b1a"
+V29_PUBLISHER_SHA256 = "f5815ae3b07d83efad8a0b0873c036a9297eb3cc1861632deb2c69d3496e488f"
+V29_WORKFLOW_SHA256 = "9af2005899988a029b1b3c551c39fc1bcd89987ae79a0b338841fe9ca034cd99"
+V29_GITLINK_COUNT = 10
+V29_FROZEN_AUTHORITY_PATHS = (
+    "_bmad-output/implementation-artifacts/spec-v29-post-v28-root-gitlink-authority-successor.md",
+    "_bmad-output/implementation-artifacts/spec-v28-five-root-gitlink-authority-successor.md",
+    "_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json",
+    "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json",
+    "_bmad/scripts/publish_v28_five_root_gitlink_authority.py",
+    "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py",
+    "_bmad-output/planning-artifacts/v23-story-7.1-entry-candidate-v1.json",
+    "_bmad-output/planning-artifacts/v24-story-7.1-entry-tooling-correction-v1.json",
+    "_bmad-output/planning-artifacts/v25-story-7.1-preservation-evidence-tooling-successor-v1.json",
+    "_bmad-output/planning-artifacts/v26-story-7.1-committed-candidate-test-correction-v1.json",
+    "_bmad-output/planning-artifacts/v27-story-7.1-lifecycle-evidence-authority-v1.json",
+    "_bmad/schemas/v23-story-7.1-entry-authority-v1.schema.json",
+    "_bmad/schemas/v24-story-7.1-entry-tooling-correction-v1.schema.json",
+    "_bmad/schemas/v25-story-7.1-preservation-evidence-tooling-successor-v1.schema.json",
+    "_bmad/schemas/v26-story-7.1-committed-candidate-test-correction-v1.schema.json",
+    "_bmad/schemas/v27-story-7.1-lifecycle-evidence-authority-v1.schema.json",
+    "_bmad/scripts/publish_story_7_1_committed_candidate_test_correction.py",
+    "_bmad/scripts/publish_story_7_1_entry_authority.py",
+    "_bmad/scripts/publish_story_7_1_lifecycle_evidence_authority.py",
+    "_bmad/scripts/publish_story_7_1_preservation_evidence_successor.py",
+    "_bmad/scripts/publish_story_7_1_successor_authorities.py",
+    "docs/release-evidence/story-7.1-final-record-v2.json",
+    "docs/release-evidence/story-7.1-final-record-v2.md",
+)
+V29_BASELINE_COMMIT = "c7eb9cdcd33be62f8dcb05948ff273f013596885"
+V29_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-v29-post-v28-root-gitlink-authority-successor.md"
+V29_V28_C2 = "e91e9da4796038a3499b8d0a79735649974a1603"
+V29_LAST_TOUCH = "819e45b2f8a493baf1fc92b62e59bdb8dd8696d6"
+V29_GITMODULES_SHA256 = "b6eb7403bbf90052886319705a7fd4b3bd163d745d2bf50a1896a5420c12758c"
+V29_PATH_LIST_SHA256 = "fe037611de7434e615d8392ce5416e9c600d84079b12635a4dc39713db8f1ca0"
+V29_ROW_LIST_SHA256 = "32a9df6d61c31a0c2fad3cec23ec06a12da248f95a9533907ea3a08d699abcfe"
+V29_COMMITS = (
+    "83bc651a795173591ec7997a14e649b9bd424d5b",
+    "8442b0d360d93b7f543e80865bee109b632a1e37",
+    "dc30b020a1d4b21e511aaec12c575d400c62a24c",
+    "c6fc53bcfd1e94ea544d42109687a7792b8d2449",
+    "179b4844554dbbff49a173f54c5eabaa4141b843",
+    "819e45b2f8a493baf1fc92b62e59bdb8dd8696d6",
+)
+V29_FINAL_LINKS = (
+    ('references/Hexalith.AI.Tools', '5f93d2ec8239494852c97032c819cb1689939e36'),
+    ('references/Hexalith.Builds', '0734e3177d82e42089547497bf961c6b7c478bbd'),
+    ('references/Hexalith.Commons', '37455bbb258d30e3ee86aa4b09769ae6e5638f9f'),
+    ('references/Hexalith.EventStore', '8ac62359c1ffdd520488ecd03bd9689c217e3788'),
+    ('references/Hexalith.Folders', '840e31d0e6f015b2b0ab90a7a21942205aeac176'),
+    ('references/Hexalith.FrontComposer', '05d122005d328ec8f15ecd276058be29730288c2'),
+    ('references/Hexalith.Memories', '8884933571e2738c406feea37e57f7124378b3e3'),
+    ('references/Hexalith.Parties', '14d249fde316b0002aec84351d7a7cdf953d1d30'),
+    ('references/Hexalith.Projects', '7dfaaf81586820c1ec8f0c81a8edb9cd9549f86d'),
+    ('references/Hexalith.Tenants', '8431d9926ed655d32396f1f68973e0573ccc38e2'),
+)
+V29_COMMIT_FACTS = (
+    ('83bc651a795173591ec7997a14e649b9bd424d5b', '09b9bf4647b25b17194d1d3fd26b87cd3c6ba121', '2ece3bb3e276a9b2b4acb18a150ee8e2f73d109f', '0c8bc84b6ce3f8f42258f660a4f0822edb60e170'),
+    ('8442b0d360d93b7f543e80865bee109b632a1e37', '83bc651a795173591ec7997a14e649b9bd424d5b', 'd30e3b8a78b689e3e37a0d7207cdd574c214f4aa', '2ece3bb3e276a9b2b4acb18a150ee8e2f73d109f'),
+    ('dc30b020a1d4b21e511aaec12c575d400c62a24c', '8442b0d360d93b7f543e80865bee109b632a1e37', 'b029618ac3bd9e0b5b2290c8bd7e92d6e21a6026', 'd30e3b8a78b689e3e37a0d7207cdd574c214f4aa'),
+    ('c6fc53bcfd1e94ea544d42109687a7792b8d2449', 'dc30b020a1d4b21e511aaec12c575d400c62a24c', 'e0f49cead92b528f65694a2bddc14e56dbc03703', 'b029618ac3bd9e0b5b2290c8bd7e92d6e21a6026'),
+    ('179b4844554dbbff49a173f54c5eabaa4141b843', '28e6fa6af038fd1193a7ac82fdfa4366a569e74e', 'b878c6752733ced726f3d21fe55e9e640e64c0e5', '3498be76bde630e2b78b3b87eeff6d544ebd3f08'),
+    ('819e45b2f8a493baf1fc92b62e59bdb8dd8696d6', '179b4844554dbbff49a173f54c5eabaa4141b843', '7ca1597b14c1ad098159eb6c2fa535347236c76f', 'b878c6752733ced726f3d21fe55e9e640e64c0e5'),
+)
+
+
 # The live protected workflow is republished by the V27 bootstrap. The immutable V23 blob
 # keeps its own historical digest above; this pin governs only the current tree.
 V27_WORKFLOW_SHA256 = "7bfd2a0699766f59b4025e127d641e8fadef124f4c00d2caba73a538d8bb775b"
@@ -604,6 +686,17 @@ def v28_error_result(code: str, detail: str, state: str) -> dict[str, Any]:
     route = "V28.ROUTE.DRIFT" if state == "FAIL" else "V28.ROUTE.BLOCKED"
     ledger = [
         {"id": route, "subject": "v28-five-root-gitlink-authority-route", "state": state, "detail": detail or code},
+        {"id": code, "subject": "current-authority-resolution", "state": state, "detail": detail or code},
+    ]
+    return result_document(state, empty_observed(), ledger, [{"code": code, "detail": detail or code}])
+
+
+def v29_error_result(code: str, detail: str, state: str) -> dict[str, Any]:
+    """Build one nonempty, non-executable V29 protected-host failure envelope."""
+
+    route = "V29.ROUTE.DRIFT" if state == "FAIL" else "V29.ROUTE.BLOCKED"
+    ledger = [
+        {"id": route, "subject": "v29-post-v28-root-gitlink-authority-route", "state": state, "detail": detail or code},
         {"id": code, "subject": "current-authority-resolution", "state": state, "detail": detail or code},
     ]
     return result_document(state, empty_observed(), ledger, [{"code": code, "detail": detail or code}])
@@ -2278,6 +2371,432 @@ def resolve_v28_authority(repository: Path, candidate: str, bootstrap: str, trus
 
 
 
+def v29_additions(repository: Path, candidate: str, relative_path: str) -> tuple[str, ...]:
+    """Return every full-history commit that introduces one governed V29 path."""
+
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                repository,
+                "log",
+                "--full-history",
+                "--format=%H",
+                "--diff-filter=A",
+                candidate,
+                "--",
+                safe_path(relative_path),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise ResolutionError("V29_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(_COMMIT.fullmatch(row) is None for row in rows):
+        raise ResolutionError("V29_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v29_touching_commits(
+    repository: Path,
+    since: str,
+    candidate: str,
+    paths: tuple[str, ...],
+) -> tuple[str, ...]:
+    """Return every full-history commit after `since` that touches one governed V29 path."""
+
+    if since == candidate:
+        return ()
+    try:
+        rows = tuple(
+            row
+            for row in run_git(
+                repository,
+                "rev-list",
+                "--full-history",
+                candidate,
+                f"^{since}",
+                "--",
+                *(safe_path(path) for path in paths),
+            ).stdout.decode("ascii", errors="strict").splitlines()
+            if row
+        )
+    except UnicodeError as error:
+        raise ResolutionError("V29_HISTORY_INVALID", str(error), "BLOCKED") from error
+    if any(_COMMIT.fullmatch(row) is None for row in rows):
+        raise ResolutionError("V29_HISTORY_INVALID", repr(rows), "BLOCKED")
+    return rows
+
+
+def v29_bootstrap_publication(repository: Path, candidate: str) -> str | None:
+    """Discover the unique V29 bootstrap publication from committed history alone."""
+
+    discovered: set[str] = set()
+    absent = 0
+    for relative_path in V29_BOOTSTRAP_IDENTITY_PATHS:
+        rows = v29_additions(repository, candidate, relative_path)
+        if not rows:
+            absent += 1
+            continue
+        if len(rows) != 1:
+            raise ResolutionError("V29_DUPLICATE_BOOTSTRAP_PUBLICATION", f"{relative_path}: {rows!r}", "BLOCKED")
+        discovered.add(rows[0])
+    if absent == len(V29_BOOTSTRAP_IDENTITY_PATHS):
+        return None
+    if absent or len(discovered) != 1:
+        raise ResolutionError("V29_BOOTSTRAP_PUBLICATION_SPLIT", repr(sorted(discovered)), "BLOCKED")
+    return discovered.pop()
+
+
+def require_v29_history(repository: Path) -> None:
+    """Require complete history before any V29 fact is derived; partial history is never a pass."""
+
+    observed = run_git(repository, "rev-parse", "--is-shallow-repository").stdout.strip()
+    if observed != b"false":
+        raise ResolutionError(
+            "V29_HISTORY_UNAVAILABLE",
+            f"repository is shallow or history availability is unknown: {observed!r}",
+            "BLOCKED",
+        )
+    promisor = run_git(
+        repository,
+        "config",
+        "--get-regexp",
+        r"^(extensions\.partialclone|remote\..*\.promisor)$",
+        allowed=(0, 1),
+    )
+    if promisor.returncode == 0 and promisor.stdout.strip():
+        raise ResolutionError(
+            "V29_HISTORY_UNAVAILABLE",
+            "repository is a partial clone; object availability is unknown",
+            "BLOCKED",
+        )
+
+
+def v29_candidate_parent(repository: Path, candidate: str) -> str:
+    """Return the one immediate parent; truncated and merge candidates are never evaluated."""
+
+    row = run_git(repository, "rev-list", "--parents", "-n", "1", candidate).stdout.decode(
+        "ascii", errors="strict"
+    ).split()
+    if not row or row[0] != candidate:
+        raise ResolutionError("V29_HISTORY_UNAVAILABLE", repr(row), "BLOCKED")
+    parents = row[1:]
+    if not parents:
+        raise ResolutionError(
+            "V29_HISTORY_UNAVAILABLE",
+            f"{candidate} has no available parent; its ancestry is truncated",
+            "BLOCKED",
+        )
+    if len(parents) != 1 or _COMMIT.fullmatch(parents[0]) is None:
+        raise ResolutionError(
+            "V29_CANDIDATE_PARENT_DRIFT",
+            f"{candidate} has {len(parents)} parents; V29 evaluates only single-parent candidates",
+            "BLOCKED",
+        )
+    return parents[0]
+
+
+def v29_changed_path_rows(repository: Path, parent: str, candidate: str) -> list[dict[str, Any]]:
+    """Recompute the full identity of the truthful immediate-parent diff."""
+
+    content = run_git(
+        repository,
+        "diff-tree",
+        "--no-commit-id",
+        "--no-renames",
+        "-r",
+        "-z",
+        "--raw",
+        parent,
+        candidate,
+    ).stdout
+    fields = [part for part in content.split(b"\0") if part]
+    if len(fields) % 2 != 0:
+        raise ResolutionError("V29_DIFF_MALFORMED", f"unpaired raw diff fields: {len(fields)}", "BLOCKED")
+    rows: list[dict[str, Any]] = []
+    for index in range(0, len(fields), 2):
+        try:
+            metadata = fields[index].decode("ascii", errors="strict")
+            relative_path = fields[index + 1].decode("utf-8", errors="strict")
+        except UnicodeDecodeError as error:
+            raise ResolutionError("V29_DIFF_MALFORMED", str(error), "BLOCKED") from error
+        parts = metadata[1:].split() if metadata.startswith(":") else []
+        if len(parts) != 5 or re.fullmatch(r"[0-7]{6}", parts[1]) is None or _COMMIT.fullmatch(parts[3]) is None:
+            raise ResolutionError("V29_DIFF_MALFORMED", repr(metadata), "BLOCKED")
+        target_mode, target_object = parts[1], parts[3]
+        digest: str | None = None
+        if target_mode not in ("000000", "160000"):
+            digest = sha256(run_git(repository, "cat-file", "blob", target_object).stdout)
+        rows.append(
+            {
+                "path": safe_path(relative_path),
+                "mode": target_mode,
+                "objectId": target_object,
+                "sha256": digest,
+            }
+        )
+    return sorted(rows, key=lambda row: row["path"])
+
+
+def v29_route_selected(repository: Path, candidate: str, trusted_host: str | None) -> str | None:
+    """Select V29 only when an externally authorized bootstrap precedes the protected host."""
+
+    # An event that supplies no protected base is absent provenance, never a synthesized anchor:
+    # V29 does not select and the existing V24 route stays authoritative.
+    if not trusted_host:
+        return None
+    bootstrap = v29_bootstrap_publication(repository, candidate)
+    if bootstrap is None:
+        # A candidate carrying V29 content whose publication is unreachable is truncated history,
+        # not a V24 candidate. A candidate with no V29 content keeps the legacy route untouched,
+        # even in a shallow or partial clone.
+        if candidate_has_path(repository, candidate, V29_PUBLISHER_PATH) or candidate_has_path(
+            repository,
+            candidate,
+            V29_RECORD_PATH,
+        ):
+            require_v29_history(repository)
+            raise ResolutionError(
+                "V29_HISTORY_UNAVAILABLE",
+                "V29 artifacts exist without a reachable bootstrap publication",
+                "BLOCKED",
+            )
+        return None
+    host = resolve_commit(repository, trusted_host)
+    if run_git(repository, "merge-base", "--is-ancestor", bootstrap, host, allowed=(0, 1)).returncode != 0:
+        return None
+    if run_git(repository, "merge-base", "--is-ancestor", bootstrap, candidate, allowed=(0, 1)).returncode != 0:
+        raise ResolutionError("V29_BOOTSTRAP_NOT_ANCESTOR", f"{bootstrap} precedes no candidate history", "BLOCKED")
+    require_v29_history(repository)
+    return bootstrap
+
+
+def v29_governed_no_touch(repository: Path, bootstrap: str, candidate: str) -> None:
+    """Reject governed drift from raw objects before any V29 code is imported."""
+
+    baseline_links = gitlinks(repository, bootstrap)
+    if len(baseline_links) != V29_GITLINK_COUNT:
+        raise ResolutionError("V29_ROOT_GITLINK_DRIFT", repr(len(baseline_links)), "FAIL")
+    governed = (*V29_BOOTSTRAP_PATHS, *V29_FROZEN_AUTHORITY_PATHS, GITMODULES_PATH, *(row[0] for row in baseline_links))
+    touched = v29_touching_commits(repository, bootstrap, candidate, governed)
+    if touched:
+        raise ResolutionError("V29_GOVERNED_PATH_TOUCHED", f"commits={sorted(touched)!r}", "FAIL")
+    for relative_path in (*V29_BOOTSTRAP_PATHS, *V29_FROZEN_AUTHORITY_PATHS):
+        if tree_entry(repository, candidate, relative_path) != tree_entry(repository, bootstrap, relative_path):
+            raise ResolutionError("V29_GOVERNED_ARTIFACT_DRIFT", relative_path, "FAIL")
+    if candidate_blob(repository, candidate, GITMODULES_PATH) != candidate_blob(repository, bootstrap, GITMODULES_PATH):
+        raise ResolutionError("V29_GITMODULES_DRIFT", GITMODULES_PATH, "FAIL")
+    if gitlinks(repository, candidate) != baseline_links:
+        raise ResolutionError("V29_ROOT_GITLINK_DRIFT", "bootstrap and candidate gitlinks differ", "FAIL")
+    observed_workflow = sha256(candidate_blob(repository, bootstrap, WORKFLOW_PATH))
+    if observed_workflow != V29_WORKFLOW_SHA256:
+        raise ResolutionError(
+            "V29_WORKFLOW_IDENTITY_MISMATCH",
+            f"expected={V29_WORKFLOW_SHA256}; observed={observed_workflow}",
+            "BLOCKED",
+        )
+    publications = v29_additions(repository, candidate, V29_RECORD_PATH)
+    if len(publications) > 1:
+        raise ResolutionError("V29_DUPLICATE_RECORD_PUBLICATION", repr(publications), "BLOCKED")
+    if publications:
+        row = run_git(repository, "rev-list", "--parents", "-n", "1", publications[0]).stdout.decode(
+            "ascii", errors="strict"
+        ).split()
+        if row != [publications[0], bootstrap]:
+            raise ResolutionError("V29_RECORD_PARENT_DRIFT", repr(row), "FAIL")
+        if changed_paths(repository, bootstrap, publications[0]) != (V29_RECORD_PATH,):
+            raise ResolutionError(
+                "V29_RECORD_SCOPE_DRIFT",
+                repr(changed_paths(repository, bootstrap, publications[0])),
+                "FAIL",
+            )
+
+
+def v29_protected_preflight(repository: Path, bootstrap: str, candidate: str) -> None:
+    """Independently authenticate C1 and the six frozen raw gitlink transactions."""
+
+    predecessor = v29_candidate_parent(repository, bootstrap)
+    if v29_candidate_parent(repository, predecessor) != V29_BASELINE_COMMIT:
+        raise ResolutionError("V29_BOOTSTRAP_PARENT_DRIFT", predecessor, "FAIL")
+    if changed_paths(repository, V29_BASELINE_COMMIT, predecessor) != (V29_SPEC_PATH,):
+        raise ResolutionError("V29_SPEC_PREDECESSOR_DRIFT", predecessor, "FAIL")
+    if run_git(repository, "merge-base", "--is-ancestor", V29_V28_C2, V29_COMMITS[0], allowed=(0, 1)).returncode != 0:
+        raise ResolutionError("V29_HISTORICAL_LINEAGE_DRIFT", V29_V28_C2, "FAIL")
+    if run_git(repository, "merge-base", "--is-ancestor", V29_LAST_TOUCH, V29_BASELINE_COMMIT, allowed=(0, 1)).returncode != 0:
+        raise ResolutionError("V29_HISTORICAL_LINEAGE_DRIFT", V29_LAST_TOUCH, "FAIL")
+    expected_links = tuple((path, "160000", oid) for path, oid in V29_FINAL_LINKS)
+    governed = (GITMODULES_PATH, *(path for path, _ in V29_FINAL_LINKS))
+    if v29_touching_commits(repository, V29_V28_C2, V29_LAST_TOUCH, governed) != tuple(reversed(V29_COMMITS)):
+        raise ResolutionError("V29_HISTORICAL_TOUCH_DRIFT", "governed touch set differs", "FAIL")
+    rows = []
+    for commit, expected_parent, expected_tree, expected_parent_tree in V29_COMMIT_FACTS:
+        parent = v29_candidate_parent(repository, commit)
+        if parent != expected_parent or commit_tree(repository, commit) != expected_tree or commit_tree(repository, parent) != expected_parent_tree:
+            raise ResolutionError("V29_HISTORICAL_PARENT_TREE_DRIFT", commit, "FAIL")
+        for observed in v29_changed_path_rows(repository, parent, commit):
+            path = observed["path"]
+            if path not in (p for p, _ in V29_FINAL_LINKS):
+                continue
+            before = tree_entry(repository, parent, path)
+            after = tree_entry(repository, commit, path)
+            if before[:2] != ("160000", "commit") or after[:2] != ("160000", "commit"):
+                raise ResolutionError("V29_HISTORICAL_DIFF_DRIFT", path, "FAIL")
+            rows.append((commit, path, before[2], after[2]))
+        if sha256(candidate_blob(repository, commit, GITMODULES_PATH)) != V29_GITMODULES_SHA256:
+            raise ResolutionError("V29_GITMODULES_DRIFT", commit, "FAIL")
+    paths = sorted({row[1] for row in rows})
+    path_digest = sha256("".join(unicodedata.normalize("NFC", path) + "\n" for path in paths).encode("utf-8"))
+    row_digest = sha256("".join("\t".join(row) + "\n" for row in rows).encode("utf-8"))
+    if len(rows) != 17 or path_digest != V29_PATH_LIST_SHA256 or row_digest != V29_ROW_LIST_SHA256:
+        raise ResolutionError("V29_HISTORICAL_DIFF_DRIFT", f"paths={path_digest}; rows={row_digest}", "FAIL")
+    if v29_touching_commits(repository, V29_LAST_TOUCH, bootstrap, governed):
+        raise ResolutionError("V29_GOVERNED_PATH_TOUCHED", "later root link or .gitmodules touch", "FAIL")
+    if any(gitlinks(repository, revision) != expected_links for revision in (V29_LAST_TOUCH, predecessor, bootstrap)):
+        raise ResolutionError("V29_ROOT_GITLINK_DRIFT", "frozen ten-link inventory mismatch", "FAIL")
+    if any(sha256(candidate_blob(repository, revision, GITMODULES_PATH)) != V29_GITMODULES_SHA256 for revision in (V29_V28_C2, V29_LAST_TOUCH, predecessor, bootstrap)):
+        raise ResolutionError("V29_GITMODULES_DRIFT", GITMODULES_PATH, "FAIL")
+    observed_paths = changed_paths(repository, predecessor, bootstrap)
+    if observed_paths != V29_BOOTSTRAP_PATHS:
+        raise ResolutionError("V29_BOOTSTRAP_SCOPE_DRIFT", f"observed={observed_paths!r}", "BLOCKED")
+    manifest = []
+    for path in V29_BOOTSTRAP_PATHS:
+        mode, kind, object_id = tree_entry(repository, bootstrap, path)
+        if (mode, kind) != ("100644", "blob"):
+            raise ResolutionError("V29_BOOTSTRAP_MODE_DRIFT", f"{path}: {mode} {kind}", "BLOCKED")
+        content = candidate_blob(repository, bootstrap, path)
+        manifest.append({"path": path, "mode": mode, "objectId": object_id, "sha256": sha256(content), "bytes": len(content)})
+    material = "".join(f"{unicodedata.normalize('NFC', row['path'])}\t{row['mode']}\t{row['objectId']}\t{row['sha256']}\t{row['bytes']}\n" for row in manifest).encode("utf-8")
+    if candidate_has_path(repository, candidate, V29_RECORD_PATH):
+        try:
+            record = json.loads(candidate_blob(repository, candidate, V29_RECORD_PATH))
+            declared = record["bootstrapTransaction"]
+            authorization = record["authorization"]
+        except (ValueError, KeyError, TypeError) as error:
+            raise ResolutionError("V29_RECORD_INVALID", str(error), "FAIL") from error
+        if (declared.get("manifest") != manifest or declared.get("manifestSha256") != sha256(material)
+                or authorization.get("bootstrapCommit") != bootstrap
+                or authorization.get("bootstrapParent") != predecessor
+                or authorization.get("bootstrapTree") != commit_tree(repository, bootstrap)
+                or authorization.get("bootstrapParentTree") != commit_tree(repository, predecessor)):
+            raise ResolutionError("V29_MANIFEST_IDENTITY_MISMATCH", V29_RECORD_PATH, "FAIL")
+
+
+def load_v29_publisher(repository: Path, bootstrap: str) -> tuple[Any, bytes]:
+    """Load pinned V29 publisher bytes only from the externally authorized bootstrap."""
+
+    for relative_path in (V29_SCHEMA_PATH, V29_PUBLISHER_PATH):
+        mode, kind, _object_id = tree_entry(repository, bootstrap, relative_path)
+        if (mode, kind) != ("100644", "blob"):
+            raise ResolutionError("V29_BOOTSTRAP_MODE_DRIFT", f"{relative_path}: {mode} {kind}", "BLOCKED")
+    schema_content = candidate_blob(repository, bootstrap, V29_SCHEMA_PATH)
+    if sha256(schema_content) != V29_SCHEMA_SHA256:
+        raise ResolutionError("V29_SCHEMA_IDENTITY_MISMATCH", sha256(schema_content), "BLOCKED")
+    content = candidate_blob(repository, bootstrap, V29_PUBLISHER_PATH)
+    if sha256(content) != V29_PUBLISHER_SHA256:
+        raise ResolutionError(
+            "V29_PUBLISHER_IDENTITY_MISMATCH",
+            f"expected={V29_PUBLISHER_SHA256}; observed={sha256(content)}",
+            "BLOCKED",
+        )
+    spec = importlib.util.spec_from_loader("trusted_v29_lifecycle_evidence_authority", loader=None)
+    if spec is None:
+        raise ResolutionError("V29_PUBLISHER_LOAD_FAILED", V29_PUBLISHER_PATH, "BLOCKED")
+    module = importlib.util.module_from_spec(spec)
+    module.__file__ = f"{bootstrap}:{V29_PUBLISHER_PATH}"
+    try:
+        exec(compile(content, module.__file__, "exec"), module.__dict__)
+    except BaseException as error:
+        raise ResolutionError("V29_PUBLISHER_LOAD_FAILED", str(error), "BLOCKED") from error
+    if not callable(getattr(module, "verify_revision", None)):
+        raise ResolutionError("V29_PUBLISHER_INTERFACE_INVALID", V29_PUBLISHER_PATH, "BLOCKED")
+    return module, schema_content
+
+
+def validate_v29_result(
+    repository: Path,
+    document: Any,
+    candidate: str,
+    schema_content: bytes,
+) -> dict[str, Any]:
+    """Require a closed, route-discriminated, truthful, non-executable V29 result."""
+
+    if not isinstance(document, dict):
+        raise ResolutionError("V29_RESULT_INVALID", "result is not a JSON object", "BLOCKED")
+    schema = load_json(schema_content, "V29_SCHEMA_INVALID")
+    validate_schema(schema, document, "V29_RESULT_SCHEMA_INVALID")
+    exit_codes = {"PASS": 0, "FAIL": 1, "BLOCKED": 2}
+    result = document.get("result")
+    observed = document.get("observed")
+    if (
+        document.get("schemaVersion") != V23_RESULT_SCHEMA_VERSION
+        or result not in exit_codes
+        or document.get("exitCode") != exit_codes[result]
+        or document.get("effectiveHold") != "ACTIVE"
+        or document.get("implementationHold") != "ACTIVE"
+        or document.get("ownerApprovalClaimed") is not False
+        or document.get("releaseAuthorized") is not False
+        or document.get("pushAuthorized") is not False
+        or document.get("executionAllowed") is not False
+        or not isinstance(document.get("assertionLedger"), list)
+        or not document["assertionLedger"]
+        or not isinstance(observed, dict)
+    ):
+        raise ResolutionError("V29_RESULT_INVALID", "closed non-executable result mismatch", "BLOCKED")
+    if result != "PASS":
+        if not document.get("blockers"):
+            raise ResolutionError("V29_RESULT_INVALID", "failing result without a blocker", "BLOCKED")
+        return document
+    if document.get("blockers") or any(row.get("state") != "PASS" for row in document["assertionLedger"]):
+        raise ResolutionError("V29_RESULT_INVALID", "passing result carries a blocker or nonpassing row", "BLOCKED")
+    parent = v29_candidate_parent(repository, candidate)
+    truthful = v29_changed_path_rows(repository, parent, candidate)
+    declared = observed.get("changedPaths")
+    if not isinstance(declared, list):
+        raise ResolutionError("V29_OBSERVED_DIFF_UNTRUTHFUL", "changedPaths is not a list", "BLOCKED")
+    declared = sorted(declared, key=lambda row: row.get("path") if isinstance(row, dict) else "")
+    expected_links = [
+        {"path": path, "mode": mode, "objectId": object_id}
+        for path, mode, object_id in gitlinks(repository, candidate)
+    ]
+    if (
+        observed.get("candidateCommit") != candidate
+        or observed.get("candidateTree") != commit_tree(repository, candidate)
+        or observed.get("parentCommit") != parent
+        or observed.get("parentTree") != commit_tree(repository, parent)
+        or declared != truthful
+        or observed.get("candidateGitlinks") != expected_links
+        or observed.get("parentGitlinks")
+        != [
+            {"path": path, "mode": mode, "objectId": object_id}
+            for path, mode, object_id in gitlinks(repository, parent)
+        ]
+    ):
+        raise ResolutionError(
+            "V29_OBSERVED_DIFF_UNTRUTHFUL",
+            f"declared={[row.get('path') for row in declared]!r}; observed={[row['path'] for row in truthful]!r}",
+            "BLOCKED",
+        )
+    return document
+
+
+def resolve_v29_authority(repository: Path, candidate: str, bootstrap: str, trusted_host: str) -> dict[str, Any]:
+    """Run the externally authorized V29 boundary and validate its complete result."""
+
+    v29_candidate_parent(repository, candidate)
+    v29_protected_preflight(repository, bootstrap, candidate)
+    v29_governed_no_touch(repository, bootstrap, candidate)
+    module, schema_content = load_v29_publisher(repository, bootstrap)
+    try:
+        document = module.verify_revision(repository, candidate, trusted_host)
+    except ResolutionError:
+        raise
+    except BaseException as error:
+        raise ResolutionError("V29_PUBLISHER_EXECUTION_FAILED", str(error), "BLOCKED") from error
+    return validate_v29_result(repository, document, candidate, schema_content)
+
+
+
+
 def resolve_authority(
     repository: Path,
     revision: str,
@@ -2289,6 +2808,9 @@ def resolve_authority(
 
     try:
         candidate = resolve_commit(repository, revision)
+        bootstrap = v29_route_selected(repository, candidate, trusted_host)
+        if bootstrap is not None:
+            return resolve_v29_authority(repository, candidate, bootstrap, resolve_commit(repository, trusted_host))
         bootstrap = v28_route_selected(repository, candidate, trusted_host)
         if bootstrap is not None:
             return resolve_v28_authority(repository, candidate, bootstrap, resolve_commit(repository, trusted_host))
@@ -2343,6 +2865,8 @@ def resolve_authority(
         # Only V27 owns a FAIL result state, and only V27 emits a route-discriminated envelope.
         # Every legacy code keeps the BLOCKED/2 semantics it had before the V27 route existed,
         # because ResolutionError defaults to FAIL.
+        if error.code.startswith("V29_"):
+            return v29_error_result(error.code, error.detail, error.state)
         if error.code.startswith("V28_"):
             return v28_error_result(error.code, error.detail, error.state)
         if error.code.startswith("V27_"):
@@ -2362,7 +2886,7 @@ def parse_args(arguments: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--trusted-host",
         default=None,
-        help="externally recorded protected-host provenance that may authorize the V28 or V27 route",
+        help="externally recorded protected-host provenance that may authorize the V29, V28, or V27 route",
     )
     return parser.parse_args(arguments)
 

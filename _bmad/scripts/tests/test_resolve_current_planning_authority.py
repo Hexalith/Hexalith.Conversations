@@ -320,7 +320,7 @@ def test_workflow_executes_authority_hosts_from_the_protected_event_base() -> No
     """The real PR entry point materializes both trust hosts from protected base bytes."""
 
     workflow = (ROOT / resolver.WORKFLOW_PATH).read_text(encoding="utf-8")
-    assert hashlib.sha256(workflow.encode("utf-8")).hexdigest() == resolver.V28_WORKFLOW_SHA256
+    assert hashlib.sha256(workflow.encode("utf-8")).hexdigest() == resolver.V29_WORKFLOW_SHA256
     v27_workflow = subprocess.check_output(
         ["git", "-C", str(ROOT), "cat-file", "blob", f"188c5a33eaede168a04c8412380fc8d5c02e11a3:{resolver.WORKFLOW_PATH}"]
     )
@@ -1605,7 +1605,7 @@ def test_workflow_anchor_comes_only_from_a_main_filtered_trigger_with_a_real_bas
 
 
 def materialize_host(
-    tmp_path: Path, name: str, *, advertises: bool, schema: bool, v28_schema: bool = False,
+    tmp_path: Path, name: str, *, advertises: bool, schema: bool, v28_schema: bool = False, v29_schema: bool = False,
 ) -> dict[str, str]:
     """Run the checked-in materialize block against a synthetic protected base."""
 
@@ -1637,6 +1637,11 @@ def materialize_host(
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((ROOT / resolver.V28_SCHEMA_PATH).read_bytes())
         paths.append(resolver.V28_SCHEMA_PATH)
+    if v29_schema:
+        target = root / resolver.V29_SCHEMA_PATH
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((ROOT / resolver.V29_SCHEMA_PATH).read_bytes())
+        paths.append(resolver.V29_SCHEMA_PATH)
     subprocess.run(["git", "-C", str(root), "add", *paths], check=True)
     protected_base = commit(root, "test: synthetic protected base")
 
@@ -1699,6 +1704,7 @@ def run_protected_checker(
     anchor: str = "b" * 40,
     legacy_host: bool = False,
     v28_schema: bool = False,
+    v29_schema: bool = False,
 ) -> subprocess.CompletedProcess[str]:
     """Run the checked-in protected resolver step against a controlled host."""
 
@@ -1712,6 +1718,8 @@ def run_protected_checker(
     (host / Path(resolver.V27_SCHEMA_PATH).name).write_bytes((ROOT / resolver.V27_SCHEMA_PATH).read_bytes())
     if v28_schema:
         (host / Path(resolver.V28_SCHEMA_PATH).name).write_bytes((ROOT / resolver.V28_SCHEMA_PATH).read_bytes())
+    if v29_schema:
+        (host / Path(resolver.V29_SCHEMA_PATH).name).write_bytes((ROOT / resolver.V29_SCHEMA_PATH).read_bytes())
     # A legacy host mentions the flag only in a comment, so a source grep would wrongly accept it.
     advertises = (
         "# this host does not accept --trusted-host\n"
@@ -2030,6 +2038,16 @@ def v28_fixtures() -> Any:
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    original_copy = module.copy_bootstrap_inputs
+
+    def copy_historical_workflow(root: Path, extra: dict[str, bytes] | None = None) -> None:
+        original_copy(root, extra)
+        content = subprocess.check_output(
+            ["git", "-C", str(ROOT), "cat-file", "blob", f"cb308c53ad78434699c2bf9ef9fbdbe63fa1b979:{resolver.WORKFLOW_PATH}"]
+        )
+        (root / resolver.WORKFLOW_PATH).write_bytes(content)
+
+    module.copy_bootstrap_inputs = copy_historical_workflow
     return module
 
 
@@ -2112,3 +2130,127 @@ def test_v28_resolver_rejects_falsified_pass_diff_digest(
     document = resolver.resolve_authority(root, publication, trusted_host=bootstrap)
     assert document["result"] == "BLOCKED"
     assert document["blockers"][0]["code"] == "V28_OBSERVED_DIFF_UNTRUTHFUL"
+
+
+def v29_fixtures() -> Any:
+    """Load the isolated post-V28 publication fixture without trusting its result."""
+
+    path = ROOT / "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py"
+    spec = importlib.util.spec_from_file_location("v29_resolver_fixtures", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_v29_resolver_preserves_v28_before_protected_bootstrap(tmp_path: Path) -> None:
+    """A protected predecessor cannot authorize its own later C1 publication."""
+
+    fixtures = v29_fixtures()
+    root, predecessor, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    result = resolver.resolve_authority(root, bootstrap, trusted_host=predecessor)
+    assert result["result"] == "FAIL"
+    assert result["blockers"][0]["code"] == "V28_GOVERNED_PATH_TOUCHED"
+
+
+def test_v29_resolver_c1_missing_c2_and_c2_pass(tmp_path: Path) -> None:
+    """Event-base routing produces a nonempty C1 BLOCKED and a valid C2 PASS."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+    missing = resolver.resolve_authority(root, bootstrap, trusted_host=bootstrap)
+    assert missing["result"] == "BLOCKED"
+    assert missing["blockers"][0]["code"] == "V29_C2_PUBLICATION_MISSING"
+    assert missing["assertionLedger"]
+    result = resolver.resolve_authority(root, c2, trusted_host=bootstrap)
+    assert result["result"] == "PASS"
+    assert result["implementationHold"] == "ACTIVE"
+    assert all(result[flag] is False for flag in ("executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"))
+    assert result["observed"]["parentCommit"] == bootstrap
+    assert result["observed"]["changedPaths"][0]["path"] == fixtures.publisher.RECORD_PATH
+    note = root / "v29-resolver-descendant.txt"
+    note.write_text("untouched descendant\n", encoding="utf-8")
+    fixtures.git(root, "add", "--", note.name)
+    descendant = fixtures.commit(root, "docs(v29): record resolver test descendant")
+    descendant_result = resolver.resolve_authority(root, descendant, trusted_host=bootstrap)
+    assert descendant_result["result"] == "PASS"
+    assert descendant_result["observed"]["parentCommit"] == c2
+    assert descendant_result["observed"]["changedPaths"][0]["path"] == note.name
+
+
+def test_v29_resolver_rejects_later_restored_gitlink(tmp_path: Path) -> None:
+    """A later touched gitlink fails even when a second commit restores its bytes."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, _c2 = fixtures.published_repository(tmp_path)
+    path = "references/Hexalith.EventStore"
+    original = dict(fixtures.publisher.FROZEN_FINAL_LINKS)[path]
+    changed = fixtures.publisher.APPROVED_ROWS[-1][2]
+    fixtures.git(root, "update-index", "--cacheinfo", f"160000,{changed},{path}")
+    fixtures.commit(root, "test(v29): touch frozen gitlink")
+    fixtures.git(root, "update-index", "--cacheinfo", f"160000,{original},{path}")
+    restored = fixtures.commit(root, "test(v29): restore frozen gitlink")
+    result = resolver.resolve_authority(root, restored, trusted_host=bootstrap)
+    assert result["result"] == "FAIL"
+    assert result["blockers"][0]["code"] == "V29_GOVERNED_PATH_TOUCHED"
+
+
+def test_v29_workflow_materializes_and_checks_pinned_schema(tmp_path: Path) -> None:
+    """Protected-base bytes supply the V29 schema, and a missing schema cannot validate PASS."""
+
+    present = materialize_host(tmp_path, "v29-present", advertises=True, schema=True, v29_schema=True)
+    assert f"v29-result-schema={resolver.V29_SCHEMA_SHA256}" in present["stdout"]
+    materialized = Path(present["host_dir"]) / Path(resolver.V29_SCHEMA_PATH).name
+    assert hashlib.sha256(materialized.read_bytes()).hexdigest() == resolver.V29_SCHEMA_SHA256
+    absent = materialize_host(tmp_path, "v29-absent", advertises=True, schema=True)
+    assert "v29-result-schema=absent" in absent["stdout"]
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+    document = resolver.resolve_authority(root, c2, trusted_host=bootstrap)
+    assert document["result"] == "PASS"
+    passing = run_protected_checker(tmp_path, "v29-pass", document, v29_schema=True)
+    assert passing.returncode == 0, passing.stderr
+    missing = run_protected_checker(tmp_path, "v29-missing", document)
+    assert missing.returncode != 0
+    assert "without the protected V29 schema" in missing.stderr
+    executable = json.loads(json.dumps(document))
+    executable["executionAllowed"] = True
+    rejected = run_protected_checker(tmp_path, "v29-executable", executable, v29_schema=True)
+    assert rejected.returncode != 0
+
+
+def test_v29_resolver_rejects_one_changed_raw_transition(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The protected resolver recomputes the pinned ledger before loading C1 code."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+    original = resolver.v29_changed_path_rows
+
+    def changed_row(repository: Path, parent: str, commit_id: str) -> list[dict[str, Any]]:
+        rows = original(repository, parent, commit_id)
+        if commit_id == resolver.V29_COMMITS[0]:
+            rows[0]["path"] = "references/Hexalith.Parties"
+        return rows
+
+    monkeypatch.setattr(resolver, "v29_changed_path_rows", changed_row)
+    result = resolver.resolve_authority(root, c2, trusted_host=bootstrap)
+    assert result["result"] == "FAIL"
+    assert result["blockers"][0]["code"] == "V29_HISTORICAL_DIFF_DRIFT"
+    assert result["assertionLedger"]
+
+
+def test_v29_resolver_blocks_unavailable_history(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Missing history in the independent host remains BLOCKED."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+
+    def unavailable(_repository: Path) -> None:
+        raise resolver.ResolutionError("V29_HISTORY_UNAVAILABLE", "missing raw object", "BLOCKED")
+
+    monkeypatch.setattr(resolver, "require_v29_history", unavailable)
+    result = resolver.resolve_authority(root, c2, trusted_host=bootstrap)
+    assert result["result"] == "BLOCKED"
+    assert result["blockers"][0]["code"] == "V29_HISTORY_UNAVAILABLE"
+    assert result["assertionLedger"]

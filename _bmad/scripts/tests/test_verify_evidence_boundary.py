@@ -2024,6 +2024,16 @@ def v28_fixtures() -> Any:
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
+    original_copy = module.copy_bootstrap_inputs
+
+    def copy_historical_workflow(root: Path, extra: dict[str, bytes] | None = None) -> None:
+        original_copy(root, extra)
+        content = subprocess.check_output(
+            ["git", "-C", str(ROOT), "cat-file", "blob", f"cb308c53ad78434699c2bf9ef9fbdbe63fa1b979:{verifier.V28_WORKFLOW_PATH}"]
+        )
+        (root / verifier.V28_WORKFLOW_PATH).write_bytes(content)
+
+    module.copy_bootstrap_inputs = copy_historical_workflow
     return module
 
 
@@ -2108,3 +2118,103 @@ def test_v28_evidence_host_rejects_falsified_pass_diff_digest(
     with pytest.raises(verifier.BoundaryError) as failure:
         verifier.validate_v28_scope(root, publication, bootstrap)
     assert failure.value.code == "EVIDENCE_V28_OBSERVED_DIFF_UNTRUTHFUL"
+
+
+def v29_fixtures() -> Any:
+    """Load the post-V28 fixture for independent evidence-host checks."""
+
+    path = ROOT / "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py"
+    spec = importlib.util.spec_from_file_location("v29_evidence_fixtures", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_v29_evidence_route_requires_protected_c1(tmp_path: Path) -> None:
+    """The verifier keeps the predecessor route until the event base contains C1."""
+
+    fixtures = v29_fixtures()
+    root, predecessor, bootstrap = fixtures.bootstrap_repository(tmp_path)
+    assert verifier.v29_route_selected(root, bootstrap, predecessor) is None
+    assert verifier.v29_route_selected(root, bootstrap, bootstrap) == bootstrap
+
+
+def test_v29_evidence_host_accepts_record_and_blocks_c1(tmp_path: Path) -> None:
+    """The independent host validates C2 and preserves a nonempty C1 blocker."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+    with pytest.raises(verifier.BoundaryError) as caught:
+        verifier.validate_v29_scope(root, bootstrap, bootstrap)
+    assert caught.value.code == "EVIDENCE_V29_C2_PUBLICATION_MISSING"
+    assert caught.value.state == "BLOCKED"
+    result = verifier.validate_v29_scope(root, c2, bootstrap)
+    assert result["state"] == "PASS"
+    assert result["route"] == "V29.ROUTE.C2"
+    full = verifier.verify(root, bootstrap, c2, trusted_host=bootstrap)
+    assert full["result"] == "PASS"
+    assert full["assertionLedger"]
+    assert full["implementationHold"] == "ACTIVE"
+    assert all(full[flag] is False for flag in ("executionAllowed", "ownerApprovalClaimed", "releaseAuthorized", "pushAuthorized"))
+    note = root / "v29-verifier-descendant.txt"
+    note.write_text("untouched descendant\n", encoding="utf-8")
+    fixtures.git(root, "add", "--", note.name)
+    descendant = fixtures.commit(root, "docs(v29): record verifier test descendant")
+    descendant_result = verifier.validate_v29_scope(root, descendant, bootstrap)
+    assert descendant_result["state"] == "PASS"
+    assert descendant_result["route"] == "V29.ROUTE.DESCENDANT"
+    full_descendant = verifier.verify(root, bootstrap, descendant, trusted_host=bootstrap)
+    assert full_descendant["result"] == "PASS"
+    assert note.name in full_descendant["changedPaths"]
+
+
+def test_v29_evidence_host_rejects_later_gitlink_touch(tmp_path: Path) -> None:
+    """The verifier independently rejects a later frozen root-gitlink change."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, _c2 = fixtures.published_repository(tmp_path)
+    path = "references/Hexalith.EventStore"
+    changed = fixtures.publisher.APPROVED_ROWS[-1][2]
+    fixtures.git(root, "update-index", "--cacheinfo", f"160000,{changed},{path}")
+    touched = fixtures.commit(root, "test(v29): touch frozen gitlink")
+    with pytest.raises(verifier.BoundaryError) as caught:
+        verifier.validate_v29_scope(root, touched, bootstrap)
+    assert caught.value.code == "EVIDENCE_V29_GOVERNED_PATH_TOUCHED"
+    assert caught.value.state == "FAIL"
+
+
+def test_v29_evidence_host_rejects_one_changed_raw_transition(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The evidence host derives the raw row digest independently of the publisher."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+    original = verifier.v29_changed_path_rows
+
+    def changed_row(repository: Path, parent: str, commit_id: str) -> list[dict[str, Any]]:
+        rows = original(repository, parent, commit_id)
+        if commit_id == verifier.V29_COMMITS[0]:
+            rows[0]["path"] = "references/Hexalith.Parties"
+        return rows
+
+    monkeypatch.setattr(verifier, "v29_changed_path_rows", changed_row)
+    with pytest.raises(verifier.BoundaryError) as caught:
+        verifier.validate_v29_scope(root, c2, bootstrap)
+    assert caught.value.code == "EVIDENCE_V29_HISTORICAL_DIFF_DRIFT"
+    assert caught.value.state == "FAIL"
+
+
+def test_v29_evidence_host_blocks_unavailable_history(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The verifier retains BLOCKED for missing raw history."""
+
+    fixtures = v29_fixtures()
+    root, _predecessor, bootstrap, c2 = fixtures.published_repository(tmp_path)
+
+    def unavailable(_repository: Path) -> None:
+        raise verifier.BoundaryError("EVIDENCE_V29_HISTORY_UNAVAILABLE", "missing raw object", "BLOCKED")
+
+    monkeypatch.setattr(verifier, "require_v29_history", unavailable)
+    with pytest.raises(verifier.BoundaryError) as caught:
+        verifier.validate_v29_scope(root, c2, bootstrap)
+    assert caught.value.code == "EVIDENCE_V29_HISTORY_UNAVAILABLE"
+    assert caught.value.state == "BLOCKED"

@@ -191,6 +191,27 @@ uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authori
 uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py --repository . --baseline "$c1" --candidate "$c2" --trusted-host "$c1"
 ```
 
+## V29 post-V28 root-gitlink authority
+
+V29 records the six approved post-V28 commits and their 17 raw mode-`160000` transitions. Its protected-host route is selected only when an event-supplied protected base already contains V29 C1. Earlier bases retain the V28 verdict. C1 is a nine-path, mode-`100644` bootstrap and fails its own pre-bootstrap gate; with C1 as the trusted base it returns `BLOCKED` and `V29_C2_PUBLICATION_MISSING` until its direct record-only C2 exists. C2 and untouched single-parent descendants may pass. The hold remains `ACTIVE`, and all four authority flags remain false.
+
+Publish the spec-only predecessor first. C1 must change exactly the V29 schema, publisher, resolver, verifier, their three test files, the protected workflow, and this runbook. The human-owned protected-branch exception for landing C1 must record actor, time, reason, the exact C1 commit, and its complete unpublished ancestry. Confirm protected `main` equals C1 before publishing C2. Local results grant no exception. Do not combine C1 and C2 or push them through this tooling.
+
+From a committed C1 that is already the protected base, publish and verify the one-path record:
+
+```bash
+c1="$(git rev-parse HEAD)"
+test "$(git ls-remote origin refs/heads/main | cut -f1)" = "$c1"
+uv run --frozen --no-sync python3 _bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py --root . --write
+# Commit only _bmad-output/planning-artifacts/v29-post-v28-root-gitlink-authority-v1.json after commitlint validation.
+c2="$(git rev-parse HEAD)"
+uv run --frozen --no-sync python3 _bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py --root . --verify "$c2" --trusted-host "$c1"
+uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate "$c2" --trusted-host "$c1" --check
+uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py --repository . --baseline "$c1" --candidate "$c2" --trusted-host "$c1"
+```
+
+The seven-path canonical list digest is `fe037611de7434e615d8392ce5416e9c600d84079b12635a4dc39713db8f1ca0`; the chronological 17-row digest is `32a9df6d61c31a0c2fad3cec23ec06a12da248f95a9533907ea3a08d699abcfe`. Both hosts recompute them from raw Git objects. A later governed touch fails even when a later commit restores the original bytes. Missing history blocks. Only a nonempty, schema-valid result may pass.
+
 ## Known limitations
 
 - This runbook does not install workflow gates or replace the verifier.
