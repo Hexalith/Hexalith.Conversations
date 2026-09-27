@@ -376,9 +376,10 @@ separately and retain its TRX at
 `artifacts/v9/7.2/test-results/<project-name>.trx`. The generator reads these
 files directly, recomputes their counters from direct `UnitTestResult` rows,
 applies the committed spec's skip policy, and sums all eight projects. Each TRX
-must be newer than the newest bound source input and describe its named
-assembly. The artifacts are ignored build evidence; they are never caller
-supplied CLI facts.
+must be newer than the newest bound source input, describe its named assembly,
+and bind every result ID to that assembly's test definitions. Its executed
+count must cover passing and failed result rows. The artifacts are ignored build
+evidence; they are never caller supplied CLI facts.
 
 The optional `measurements` record section is emitted for Story 7.2 only. It
 contains the committed spec's ancestor baseline, the exact normalized
@@ -415,8 +416,9 @@ the named condition. Do not edit counts, paths, or digests in the pair.
 A committed Story 7.2 pair pins its candidate. An uncommitted pair does not pin
 it. Committing only the pair is a record-only successor: a rerun keeps the
 original candidate and reproduces the same bytes. Later commits may change only
-the Story 7.2 spec's frontmatter `status` value and `sprint-status.yaml` as
-lifecycle bookkeeping; a rerun still reads measurements from the pinned
+the Story 7.2 spec's frontmatter `status` value, the corresponding Story 7.2
+row in `sprint-status.yaml`, and that file's `last_updated` date as lifecycle
+bookkeeping; a rerun still reads measurements from the pinned
 candidate and reproduces the pair.
 Their later working-tree mtimes do not make the candidate's test results stale.
 Any other later commit, including a root gitlink bump or a history
@@ -429,9 +431,9 @@ Never restore the superseded pair; its candidate no longer describes the tree.
 
 | Story 7.2 blocker | Exit | Condition |
 | --- | --- | --- |
-| `TEST_RESULTS_MISSING` | `1` | A root project TRX is absent, unreadable, or names another assembly |
+| `TEST_RESULTS_MISSING` | `1` | A root project TRX is absent, unreadable, names another assembly, or contains result IDs outside that assembly's definitions |
 | `TEST_RESULTS_STALE` | `1` | A root project TRX predates the newest bound source input |
-| `TEST_FAILED` | `1` | A root project TRX reports a failed test or its counters disagree with its result rows |
+| `TEST_FAILED` | `1` | A root project TRX reports a failed test, has fewer executed tests than passing and failed result rows, or has counters that disagree with its result rows |
 | `TEST_SKIPPED` | `1` | A root project TRX reports a skip that the committed spec's `allowed_skipped_tests` does not approve |
 | `TEST_NOT_RUN` | `1` | A root project reports zero tests, or the candidate lacks exactly one root `.slnx` |
 | `SOURCE_TREE_DIRTY` | `1` | The working tree differs from the candidate outside the declared outputs and results |
