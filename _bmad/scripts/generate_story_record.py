@@ -4139,7 +4139,7 @@ def v2_story_7_2_measurements(
         if counts["executed"] < parsed["recomputed"]["passed"] + parsed["recomputed"]["failed"]:
             findings.append(v2_finding("TEST_FAILED", result_path,
                                        "TRX executed count is lower than passed and failed result rows"))
-        if not v2_story_7_2_result_ids_match(content, name):
+        if parsed["results"] and not v2_story_7_2_result_ids_match(content, name):
             findings.append(v2_finding("TEST_RESULTS_MISSING", result_path,
                                        "TRX result IDs do not match this project's test definitions"))
         if counts["failed"]:

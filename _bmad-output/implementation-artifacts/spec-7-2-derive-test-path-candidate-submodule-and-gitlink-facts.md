@@ -186,6 +186,7 @@ The review used the full `c69334c..HEAD` diff required by this spec's baseline. 
 | B12 | Foreign TRX result IDs count toward this project | medium | patch | Result IDs are not matched to `TestDefinitions`, so a foreign result can count under the expected assembly's definition. |
 | B13 | Root test inventory filters on `tests/` | low | reject | carried: the prior review rejected this exact claim; all eight current root test projects are under `tests/`. |
 | R1 | Exact sprint comparison would reject valid `last_updated` metadata | medium | patch | `sync-sprint-status.md` updates `last_updated` with a lifecycle transition; the review patch now permits that date with Story 7.2's status while rejecting unrelated rows. |
+| R2 | A zero-run result gained an extra missing-ID blocker | medium | patch | The full generator suite caught `TEST_RESULTS_MISSING` beside the required `TEST_NOT_RUN`; the ID check now runs only when result rows exist. |
 
 ## Design Notes
 
