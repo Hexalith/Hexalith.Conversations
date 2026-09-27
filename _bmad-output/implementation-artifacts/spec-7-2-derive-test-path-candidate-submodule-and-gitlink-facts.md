@@ -2,7 +2,7 @@
 title: 'Derive test, path, candidate, submodule, and gitlink facts'
 type: 'feature'
 created: '2026-09-23'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: 'c69334cb13a981c9112ad687427b1f43fafc2988'
 allowed_skipped_tests: []
 route: 'dispatch'
@@ -159,6 +159,33 @@ Rejected:
 - AC-7.2-01 validates a test-built acceptance document — low: pass-1 B14.
 - Committed pair not checked by any test — low: the generator rerun is the check.
 - Spec status and Implementation Notes contradict the record (notes say regenerated at `c6fc53b` and "status stays `in-progress`"; the record binds `26da803`) — rejected by rule: the fix edits the spec under review; owner to reconcile.
+
+### Review pass 3, 2026-09-27
+
+The review used the full `c69334c..HEAD` diff required by this spec's baseline. Changes from the intervening current-change policy and root-submodule work are triaged separately from Story 7.2 changes.
+
+| ID | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| G1 | Root checker has no duplicate-declaration regression test | low | defer | The checker rejects duplicates, but none of its three tests supplies one; this checker predates the resumed Story 7.2 change. |
+| G2 | Unrelated sprint-status edits retain the old candidate | medium | patch | `V2_7_2_LIFECYCLE_PATHS` exempts the whole sprint file; the reviewer committed an unrelated row and the generator still passed. |
+| E1 | A symbolic baseline can move | low | reject | carried: the prior review rejected this exact symbolic-ref claim; the committed Story 7.2 spec uses a full 40-hex commit ID. |
+| E2 | Unrelated sprint-status edits retain the old candidate | medium | patch | The same whole-file exemption at `v2_story_7_2_candidate` accepts changes outside Story 7.2's row. |
+| E3 | Foreign TRX result IDs count toward this project | medium | patch | `parse_trx` derives assembly names from definitions but never relates `UnitTestResult.testId` to those definitions. |
+| E4 | Zero executed with a passing result is accepted | medium | patch | `count_disagreements` bounds `executed` by total but does not compare it with passed and failed outcomes. |
+| B1 | Current API and legal-rule checks are excluded with the architecture conformance class | medium | defer | CI excludes the entire class while it still contains `StillBindingReplayProjectionParticipantIdempotencyAndLegalRulesShouldRemain` and public API checks; this CI choice predates this Story 7.2 resume. |
+| B2 | Default Python and CI tooling lanes omit the Story 7.2 suite | medium | defer | `pyproject.toml` selects only `tests/tooling`; the generator suite ran locally for this story but is absent from routine CI. |
+| B3 | Whitespace-only pre-commit hook does not guard workflow text | low | defer | `.githooks/pre-commit` only runs `git diff --cached --check`; the proposed fix edits agent workflow context outside this story. |
+| B4 | Root checker compares worktree `.gitmodules` with index gitlinks | medium | defer | `check()` reads the file from disk and `git ls-files --stage` for gitlinks; a staged tree can differ from the validated tree. This checker predates this story. |
+| B5 | Root checker accepts a 40-hex gitlink whose object is unavailable | low | defer | The checker validates only mode and shape, so it cannot establish target availability; that current-tree checker is independent of Story 7.2. |
+| B6 | Routine BMad completion can rely on focused tests alone | medium | defer | The generic step-05 text permits completion after focused tests; a fix edits agent workflow context and does not change this story's full eight-project run. |
+| B7 | Unrelated sprint-status edits retain the old candidate | medium | patch | The same unrestricted lifecycle exemption at `_bmad/scripts/generate_story_record.py:3934` allows the demonstrated unrelated row. |
+| B8 | A symbolic baseline can move | low | reject | carried: same location and claim as the prior symbolic-ref review row; this story's committed baseline is immutable. |
+| B9 | TRX freshness does not bind tested binaries to the candidate | medium | defer | carried: the first review already deferred this exact mtime-only provenance issue to `deferred-work.md`. |
+| B10 | A filtered, nonempty test run can produce a passing record | medium | defer | The inherited TRX parser has no authoritative suite enumeration; the frozen Story 7.2 contract requires nonempty per-project results, and full suites were run for this candidate. |
+| B11 | Zero executed with a passing result is accepted | medium | patch | The reviewer reproduced `{total:1, executed:0, passed:1}` without a parser disagreement. |
+| B12 | Foreign TRX result IDs count toward this project | medium | patch | Result IDs are not matched to `TestDefinitions`, so a foreign result can count under the expected assembly's definition. |
+| B13 | Root test inventory filters on `tests/` | low | reject | carried: the prior review rejected this exact claim; all eight current root test projects are under `tests/`. |
+| R1 | Exact sprint comparison would reject valid `last_updated` metadata | medium | patch | `sync-sprint-status.md` updates `last_updated` with a lifecycle transition; the review patch now permits that date with Story 7.2's status while rejecting unrelated rows. |
 
 ## Design Notes
 

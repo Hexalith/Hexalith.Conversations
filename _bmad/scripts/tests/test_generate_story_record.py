@@ -118,6 +118,7 @@ def write_trx(
     skipped: int = 0,
     project: str = "Fixture",
     code_base: Path | None = None,
+    include_test_ids: bool = False,
 ) -> None:
     """Write a TRX whose summary agrees with the results it contains."""
     if code_base is None:
@@ -154,6 +155,19 @@ def write_trx(
         f'<UnitTestResult testName="{project}.S{index}" outcome="NotExecuted" />'
         for index in range(skipped)
     ]
+    if include_test_ids:
+        definitions = []
+        for index, result in enumerate(results):
+            test_id = f"{index:04d}"
+            test_name = re.search(r'testName="([^"]+)"', result).group(1)
+            results[index] = result.replace(' outcome=', f' testId="{test_id}" outcome=', 1)
+            definitions.append(
+                f'    <UnitTest name="{test_name}" id="{test_id}">'
+                f'<TestMethod codeBase="{code_base}" /></UnitTest>'
+            )
+        definition_rows = "\n".join(definitions) + "\n"
+    else:
+        definition_rows = f'    <UnitTest name="fixture"><TestMethod codeBase="{code_base}" /></UnitTest>\n'
     executed = passed + failed
     total = executed + skipped
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -162,7 +176,7 @@ def write_trx(
         f'<TestRun id="fixture" name="fixture" xmlns="{TRX_NAMESPACE}">\n'
         "  <Results>\n    " + "\n    ".join(results) + "\n  </Results>\n"
         "  <TestDefinitions>\n"
-        f'    <UnitTest name="fixture"><TestMethod codeBase="{code_base}" /></UnitTest>\n'
+        f"{definition_rows}"
         "  </TestDefinitions>\n"
         '  <ResultSummary outcome="Completed">\n'
         f'    <Counters total="{total}" executed="{executed}" passed="{passed}" '
@@ -3525,6 +3539,7 @@ STORY_7_2_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contr
 STORY_7_2_SPEC = WORKSPACE / "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
 STORY_7_2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json"
 STORY_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
+STORY_7_2_SPRINT_PATH = "_bmad-output/implementation-artifacts/sprint-status.yaml"
 STORY_7_2_OUTPUT_JSON = "docs/release-evidence/story-7.2-final-record-v2.json"
 STORY_7_2_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.2-final-record-v2.md"
 STORY_7_2_PROJECTS = tuple(sorted(path.stem for path in WORKSPACE.glob("tests/*/*.csproj")))
@@ -3562,7 +3577,7 @@ def v2_7_2_trx(repository: Path, name: str, *, passed: int = 2,
                failed: int = 0, skipped: int = 0) -> Path:
     path = repository / f"artifacts/v9/7.2/test-results/{name}.trx"
     write_trx(path, passed=passed, failed=failed, skipped=skipped, project=name,
-              code_base=Path(f"/fixture/{name}.dll"))
+              code_base=Path(f"/fixture/{name}.dll"), include_test_ids=True)
     # Anchor after every fixture write and commit, not only the spec, so slow
     # runners never read a freshly written result as stale.
     current = max((repository / STORY_7_2_SPEC_PATH).stat().st_mtime_ns,
@@ -3589,9 +3604,19 @@ def build_v2_7_2_repository(tmp_path: Path) -> dict[str, object]:
     spec = STORY_7_2_SPEC.read_text(encoding="utf-8")
     spec = re.sub(r"^baseline_commit:.*$", f"baseline_commit: '{baseline}'", spec,
                   count=1, flags=re.MULTILINE)
+    spec = re.sub(r"^status:.*$", "status: 'in-progress'", spec,
+                  count=1, flags=re.MULTILINE)
     spec_path = repository / STORY_7_2_SPEC_PATH
     spec_path.parent.mkdir(parents=True, exist_ok=True)
     spec_path.write_text(spec, encoding="utf-8")
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        "last_updated: 2026-09-25\n"
+        "development_status:\n"
+        "  epic-7: in-progress\n"
+        "  7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-progress\n",
+        encoding="utf-8",
+    )
     slnx = repository / "Hexalith.Conversations.slnx"
     slnx.write_text("<Solution><Folder Name=\"/tests/\">" + "".join(
         f'<Project Path="tests/{name}/{name}.csproj" />' for name in STORY_7_2_PROJECTS
@@ -3727,6 +3752,26 @@ def test_v2_blocks_failed_test(tmp_path: Path) -> None:
         lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="Failed"', 1)
                                  .replace(b'passed="2"', b'passed="1"').replace(b'failed="0"', b'failed="1"')),
         "TEST_FAILED")
+
+
+def test_v2_blocks_executed_count_below_passed_results(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(
+        fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'executed="2"', b'executed="0"', 1)),
+        "TEST_FAILED",
+    )
+
+
+def test_v2_blocks_foreign_result_test_id(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    path = fixture["repository"] / f"artifacts/v9/7.2/test-results/{STORY_7_2_PROJECTS[0]}.trx"
+    v2_7_2_snapshot_and_fault(
+        fixture,
+        lambda _: v2_7_2_replace(path, path.read_bytes().replace(b'testId="0000"', b'testId="foreign"', 1)),
+        "TEST_RESULTS_MISSING",
+    )
 
 
 def test_v2_blocks_unapproved_skip(tmp_path: Path) -> None:
@@ -3991,9 +4036,16 @@ def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> No
     v2_git(repository, "commit", "-m", "record-only successor")
     spec = repository / STORY_7_2_SPEC_PATH
     spec.write_text(spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'in-review'", 1), encoding="utf-8")
-    sprint = repository / "_bmad-output/implementation-artifacts/sprint-status.yaml"
-    sprint.write_text("7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-review\n", encoding="utf-8")
-    v2_git(repository, "add", STORY_7_2_SPEC_PATH, "_bmad-output/implementation-artifacts/sprint-status.yaml")
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            "7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-progress",
+            "7-2-derive-test-path-candidate-submodule-and-gitlink-facts: in-review",
+            1,
+        ).replace("last_updated: 2026-09-25", "last_updated: 2026-09-27", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH, STORY_7_2_SPRINT_PATH)
     v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
     latest_result_ns = max((repository / f"artifacts/v9/7.2/test-results/{name}.trx").stat().st_mtime_ns
                            for name in STORY_7_2_PROJECTS)
@@ -4005,6 +4057,26 @@ def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> No
     record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
     assert record["candidate"]["commit"] == fixture["candidate"]
     assert v2_7_2_outputs(repository) == original
+
+
+def test_v2_blocks_unrelated_sprint_status_change_after_record(tmp_path: Path) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    before = v2_snapshot(repository)
+    original = v2_7_2_outputs(repository)
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(sprint.read_text(encoding="utf-8").replace(
+        "epic-7: in-progress", "epic-7: done", 1), encoding="utf-8")
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "change unrelated sprint status")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_2_outputs(repository) == original
+    v2_git(repository, "reset", "--hard", "-q", before[0])
+    assert v2_snapshot(repository) == before
 
 
 def test_v2_blocks_non_status_spec_change_after_record(tmp_path: Path) -> None:

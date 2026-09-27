@@ -2715,7 +2715,8 @@ V2_SCHEMA_FILES = {
 V2_AUTHORITY_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
 V2_GENERATOR_PATH = "_bmad/scripts/generate_story_record.py"
 V2_7_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md"
-V2_7_2_LIFECYCLE_PATHS = {V2_7_2_SPEC_PATH, "_bmad-output/implementation-artifacts/sprint-status.yaml"}
+V2_7_2_SPRINT_PATH = "_bmad-output/implementation-artifacts/sprint-status.yaml"
+V2_7_2_LIFECYCLE_PATHS = {V2_7_2_SPEC_PATH, V2_7_2_SPRINT_PATH}
 V2_7_1_RECORD_PATH = "docs/release-evidence/story-7.1-final-record-v2.json"
 V2_7_1_MARKDOWN_PATH = "docs/release-evidence/story-7.1-final-record-v2.md"
 V2_ZERO_DIGEST = "0" * 64
@@ -3903,6 +3904,35 @@ def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str)
     return original is not None and original == updated
 
 
+def v2_story_7_2_sprint_status_only_change(repository: Path, candidate: str, head: str) -> bool:
+    """Accept only Story 7.2's status and the sprint update date changing."""
+    status = re.compile(
+        rb"(?m)^[ \t]*7-2-derive-test-path-candidate-submodule-and-gitlink-facts:[ \t]*"
+        rb"(?P<value>backlog|draft|ready-for-dev|in-progress|in-review|review|done)[ \t]*$"
+    )
+    update_date = re.compile(rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
+
+    def without_status(content: bytes | None) -> tuple[bytes, bytes] | None:
+        if content is None:
+            return None
+        matches = list(status.finditer(content))
+        if len(matches) != 1:
+            return None
+        match = matches[0]
+        value = match.group("value")
+        masked = content[:match.start("value")] + b"<lifecycle>" + content[match.end("value"):]
+        dates = list(update_date.finditer(masked))
+        if len(dates) != 1:
+            return None
+        date = dates[0]
+        masked = masked[:date.start("value")] + b"<updated>" + masked[date.end("value"):]
+        return masked, value
+
+    original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
+    latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
+    return original is not None and latest is not None and original[0] == latest[0] and original[1] != latest[1]
+
+
 def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                            markdown_path: str, validator: Any) -> str:
     """Retain a verified source candidate across a record-only successor commit."""
@@ -3931,7 +3961,10 @@ def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
     moved = changed_gitlinks(repository, candidate, head)
     invalid_spec_change = (V2_7_2_SPEC_PATH in changed
                            and not v2_story_7_2_status_only_change(repository, candidate, head))
-    if moved or invalid_spec_change or changed - {json_path, markdown_path} - V2_7_2_LIFECYCLE_PATHS:
+    invalid_sprint_change = (V2_7_2_SPRINT_PATH in changed
+                             and not v2_story_7_2_sprint_status_only_change(repository, candidate, head))
+    if (moved or invalid_spec_change or invalid_sprint_change
+            or changed - {json_path, markdown_path} - V2_7_2_LIFECYCLE_PATHS):
         findings = [v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                "source or gitlinks changed after the verified candidate")]
         if moved:
@@ -3939,6 +3972,23 @@ def v2_story_7_2_candidate(repository: Path, head: str, json_path: str,
                                        f"root gitlinks moved: {v2_path_summary(moved)}"))
         raise V2Stop(findings, "7.2")
     return candidate
+
+
+def v2_story_7_2_result_ids_match(content: bytes, project: str) -> bool:
+    """Require every TRX result ID to resolve to this project's test definitions."""
+    root = ElementTree.fromstring(content)
+    expected_ids = {
+        definition.get("id")
+        for definition in root.findall("./{*}TestDefinitions/{*}UnitTest")
+        for method in definition.findall("./{*}TestMethod")
+        if definition.get("id")
+        and (code_base := method.get("codeBase"))
+        and PurePosixPath(re.split(r"[\\/]", code_base)[-1]).stem == project
+    }
+    results = root.findall("./{*}Results/{*}UnitTestResult")
+    return bool(expected_ids) and bool(results) and all(
+        result.get("testId") in expected_ids for result in results
+    )
 
 
 def v2_story_7_2_measurements(
@@ -3999,10 +4049,14 @@ def v2_story_7_2_measurements(
     later_changes = set(committed_path_status(repository, candidate, head)) if head != candidate else set()
     invalid_spec_change = (V2_7_2_SPEC_PATH in later_changes and head is not None
                            and not v2_story_7_2_status_only_change(repository, candidate, head))
+    invalid_sprint_change = (V2_7_2_SPRINT_PATH in later_changes and head is not None
+                             and not v2_story_7_2_sprint_status_only_change(repository, candidate, head))
     verified_lifecycle_changes = later_changes & V2_7_2_LIFECYCLE_PATHS
     if invalid_spec_change:
         verified_lifecycle_changes.discard(V2_7_2_SPEC_PATH)
-    if head != candidate and (invalid_spec_change or later_changes
+    if invalid_sprint_change:
+        verified_lifecycle_changes.discard(V2_7_2_SPRINT_PATH)
+    if head != candidate and (invalid_spec_change or invalid_sprint_change or later_changes
                               - output_paths - V2_7_2_LIFECYCLE_PATHS):
         findings.append(v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                    "the candidate was superseded by another committed HEAD"))
@@ -4082,6 +4136,12 @@ def v2_story_7_2_measurements(
         if counts["total"] == 0 or not parsed["results"]:
             findings.append(v2_finding("TEST_NOT_RUN", result_path,
                                        "the declared test project ran zero tests"))
+        if counts["executed"] < parsed["recomputed"]["passed"] + parsed["recomputed"]["failed"]:
+            findings.append(v2_finding("TEST_FAILED", result_path,
+                                       "TRX executed count is lower than passed and failed result rows"))
+        if not v2_story_7_2_result_ids_match(content, name):
+            findings.append(v2_finding("TEST_RESULTS_MISSING", result_path,
+                                       "TRX result IDs do not match this project's test definitions"))
         if counts["failed"]:
             findings.append(v2_finding("TEST_FAILED", result_path,
                                        f"{counts['failed']} test(s) failed"))

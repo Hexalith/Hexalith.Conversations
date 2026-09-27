@@ -367,3 +367,35 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
   summary: Story 7.2 test-project selection and approved-skip handling are exercised only on idealized fixtures.
   evidence: Review pass 2 (verification gap). The fixture `.slnx` holds only `tests/` projects, while the real one also has seven `src/` projects and `File` entries. `allowed_skipped_tests` is always `[]`, and approved skips are tested only on the v1 route. Dropping the `startswith("tests/")` filter at `_bmad/scripts/generate_story_record.py:3993`, or mis-keying the skip lookup at `:4051`, would still pass every test. Add the fixtures when a contract first approves a skip.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Add a duplicate-path declaration regression test for the root submodule checker.
+  evidence: The checker rejects duplicate .gitmodules paths, but its three current tests do not exercise that guard; a future removal could let CI accept an ambiguous declaration.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Restore CI coverage for still-current API and legal-rule assertions in the archived architecture conformance class.
+  evidence: CI excludes the whole ArchitecturePlanningAuthorityValidationTest class although it still contains public API and legal-rule tests.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Add routine CI coverage for the current Story 7.2 generator tests.
+  evidence: The default Python selection and CI tooling job select tests/tooling, omitting _bmad/scripts/tests/test_generate_story_record.py even though the suite validates the current generator.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Add an automated guard for current BMad workflow validation instructions.
+  evidence: The pre-commit hook checks whitespace only, and the old conformance guard is excluded from CI, so removing current workflow instructions can escape those checks.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Validate staged .gitmodules and staged gitlinks from the same tree.
+  evidence: The root checker reads .gitmodules from the worktree but gitlinks from the index; the local check can pass a staged tree different from the one it inspected.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Decide how the root submodule checker should verify gitlink target availability.
+  evidence: Its current-tree check accepts any 40-hex mode-160000 index entry without proving that the referenced commit is available from the declared submodule.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Align generic BMad completion checks with the baseline requirement that all existing and new tests pass.
+  evidence: The routine step-05 workflow allows completion after focused tests; it can miss an unrelated failing test even though this Story 7.2 run measured all eight root projects.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Define a machine-checkable completeness rule for per-project test results.
+  evidence: The inherited TRX parser accepts a filtered nonempty run; Story 7.2's frozen contract requires nonempty results but supplies no authoritative full-suite enumeration.
