@@ -1773,6 +1773,14 @@ def v2_schema_contract_valid_pairs() -> list[tuple[Path, dict]]:
     ]
 
 
+def v2_restore_schema_fixture(path: Path, original: bytes, metadata: os.stat_result) -> None:
+    """Restore a tracked schema without making unrelated test results stale."""
+    if path.read_bytes() != original:
+        path.write_bytes(original)
+    if path.stat().st_mtime_ns != metadata.st_mtime_ns:
+        os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+
 def test_v2_schema_contract_hold_drift_is_blocked(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
@@ -1865,7 +1873,7 @@ def test_v2_schema_contract_rejects_missing_and_extra_fields() -> None:
             (("authority", "planningCandidate"), ("finalRecord", "summary", "passed")),
         ),
     )
-    before = {fixture: fixture.read_bytes() for fixture in NEW_SCHEMA_FIXTURES}
+    before = {fixture: (fixture.read_bytes(), fixture.stat()) for fixture in NEW_SCHEMA_FIXTURES}
     try:
         for path, instance in v2_schema_contract_valid_pairs():
             schema = v2_schema_contract_load(path)
@@ -1893,9 +1901,13 @@ def test_v2_schema_contract_rejects_missing_and_extra_fields() -> None:
                     == OUTPUT_SCHEMA_INVALID
                 )
     finally:
-        for fixture, original in before.items():
-            fixture.write_bytes(original)
-    assert all(fixture.read_bytes() == original for fixture, original in before.items())
+        for fixture, (original, metadata) in before.items():
+            v2_restore_schema_fixture(fixture, original, metadata)
+    assert all(
+        fixture.read_bytes() == original
+        and fixture.stat().st_mtime_ns == metadata.st_mtime_ns
+        for fixture, (original, metadata) in before.items()
+    )
 
 
 def test_v2_schema_contract_rejects_invalid_bindings() -> None:
@@ -1903,7 +1915,7 @@ def test_v2_schema_contract_rejects_invalid_bindings() -> None:
     acceptance_schema = v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA)
     inventory_schema = v2_schema_contract_load(FROZEN_INVENTORY_SCHEMA)
     record_schema = v2_schema_contract_load(FINAL_RECORD_SCHEMA)
-    before = {fixture: fixture.read_bytes() for fixture in NEW_SCHEMA_FIXTURES}
+    before = {fixture: (fixture.read_bytes(), fixture.stat()) for fixture in NEW_SCHEMA_FIXTURES}
     try:
         acceptance = v2_schema_contract_acceptance_result(with_ledger=True)
         acceptance["schemaVersion"] = "hexalith.conversations.v9-inventory.v1"
@@ -1991,9 +2003,13 @@ def test_v2_schema_contract_rejects_invalid_bindings() -> None:
         record["scenarios"][0].pop("assertionLedger")
         assert v2_schema_contract_reject(record_schema, record) == OUTPUT_SCHEMA_INVALID
     finally:
-        for fixture, original in before.items():
-            fixture.write_bytes(original)
-    assert all(fixture.read_bytes() == original for fixture, original in before.items())
+        for fixture, (original, metadata) in before.items():
+            v2_restore_schema_fixture(fixture, original, metadata)
+    assert all(
+        fixture.read_bytes() == original
+        and fixture.stat().st_mtime_ns == metadata.st_mtime_ns
+        for fixture, (original, metadata) in before.items()
+    )
 
 
 def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> None:
@@ -2017,6 +2033,7 @@ def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> N
     )
     for path, mutate in mutations:
         before = path.read_bytes()
+        metadata = path.stat()
         try:
             document = json.loads(before)
             mutate(document)
@@ -2030,8 +2047,9 @@ def test_v2_schema_contract_restores_permissive_and_inconsistent_fixtures() -> N
             except jsonschema.ValidationError:
                 assert OUTPUT_SCHEMA_INVALID == OUTPUT_SCHEMA_INVALID
         finally:
-            path.write_bytes(before)
+            v2_restore_schema_fixture(path, before, metadata)
         assert path.read_bytes() == before
+        assert path.stat().st_mtime_ns == metadata.st_mtime_ns
     assert STORY_CONTRACT_SCHEMA.read_bytes() == story_contract_before
     assert sha256_file(STORY_CONTRACT_SCHEMA) == FROZEN_STORY_CONTRACT_SCHEMA_DIGEST
 
