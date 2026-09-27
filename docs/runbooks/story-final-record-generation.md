@@ -429,6 +429,12 @@ all eight root test projects and the ten contract selectors against that new
 `HEAD`, then regenerate and commit the new pair as a record-only successor.
 Never restore the superseded pair; its candidate no longer describes the tree.
 
+That recovery changes the recorded candidate and requires a separately authorized
+successor task. It is not part of the 2026-09-27 completion repair: that repair
+preserves the committed pair and its result artifacts, keeps the later EventStore
+gitlink update, and reports `CANDIDATE_NOT_FINAL` at the current candidate without
+retracting or regenerating historical evidence.
+
 | Story 7.2 blocker | Exit | Condition |
 | --- | --- | --- |
 | `TEST_RESULTS_MISSING` | `1` | A root project TRX is absent, unreadable, names another assembly, or contains result IDs outside that assembly's definitions |
@@ -479,7 +485,131 @@ pair, or an invalid committed Story 7.1 predecessor pair, reports
 Remediate the named condition and rerun the same command. Never hand-edit a
 result file, a count, a path, or a digest into agreement.
 
+### Story 7.2 completion repair: historical reproduction
+
+Historical reproduction checks the existing pair at a revision compatible with
+its recorded candidate. It does not certify the current checkout, make old
+results current, or complete Story 7.2. The v2 route has no `--historical` option;
+section 8's v1 flag and `--verify-record-sha256` must never be passed to v2.
+
+1. Record the full historical revision and the pair's recorded candidate. For
+   this repair the historical checkout is
+   `28d7b6b677e5c5c652b58dab27278d7426222bb3`, and its committed pair binds
+   `170ac9d2e8afa686e4203c44ad5bef9414d19a89`. Read both output blobs with
+   `git show <historical-revision>:<contract-output-path>` and save their exact
+   bytes outside the working checkout. Snapshot the original pair and result
+   bytes and their access/modification timestamps as well.
+2. Create a disposable detached root-only worktree at the historical revision.
+   Do not initialize or traverse submodules. Leave the current worktree, its
+   uncommitted changes, and the later root gitlink update intact.
+3. Preserve actual filesystem metadata for byte-identical root-owned source
+   files when copying them into the disposable checkout; a fresh checkout's
+   newly assigned mtimes can otherwise make preserved results stale. Compare
+   each tracked regular file with its historical bytes before copying metadata,
+   and never enter a gitlink or follow a symlink. `shutil.copystat` can preserve
+   a matching existing file's real metadata, and `shutil.copy2` or `copytree`
+   can preserve the original result files under `artifacts/v9/7.2`. Do not
+   invent mtimes from commit dates, shift timestamps forward, or use `touch` to
+   make evidence appear current. If compatible original metadata or results
+   are unavailable, report the actual missing/stale blocker; do not manufacture
+   a historical passing run.
+4. Confirm the copied TRX and JUnit hashes equal their bindings in the
+   committed record before invoking the generator. Preserve the archived
+   artifacts; rerunning the selectors or .NET projects produces new evidence
+   and cannot reproduce the archived pair's bytes.
+5. In the disposable checkout, invoke its unchanged generator with the exact
+   five options in Story 7.2's `AC-7.2-11` command above. Use the pinned Python
+   environment; when the isolated checkout has no environment, the absolute
+   path to the existing pinned `.venv/bin/python3` supplies the same interpreter
+   and `jsonschema` dependency without modifying the checkout's dependencies.
+   Capture the command, exit, and stdout outside the evaluated tree.
+6. Require exit `0`. Validate stdout with the pinned `jsonschema` library and
+   `_bmad/schemas/story-final-record-v2.schema.json`; require the v2 schema
+   identity, `storyId == "7.2"`, and exact equality of `summary` with the frozen
+   contract's `finalRecord.summary`: `11/11/0/0/0/0` in required, passed,
+   failed, blocked, skipped, notRun order. Every scenario must be `PASS` with
+   a nonempty assertion ledger. The successful stdout is the record itself;
+   it has no legacy nested `result` or `markdown` bundle field.
+7. Compare stdout with the JSON output, and compare both output files
+   byte-for-byte with the two saved committed blobs. Run the identical command
+   again, require the same exit and schema/identity/summary checks, and compare
+   both files and stdout against the first run and committed blobs. Confirm all
+   copied result bytes and mtimes remain unchanged. After verification, restore
+   and verify both outputs' saved original bytes and access/modification
+   timestamps, even when generation replaced them with identical bytes. Compare
+   bytes before restoring and checking timestamps so reads do not leave changed
+   access times. Keep the original pair and result artifacts unchanged even if
+   verification fails; any unexpected generated bytes belong only in the
+   disposable checkout's audit.
+
+Record the historical revision and the actual result as **historical
+reproduction**, separately from the following current-candidate checks. Do not
+copy the reproduced outputs or artifacts back over the current worktree.
+
+### Story 7.2 completion repair: current gates
+
+The bounded repair to `bmad-build/step-05-present.md` selects the frozen Story
+7.2 v2 invocation before its legacy procedure. It leaves the other workflow
+routes for Story 7.3. At the current root checkout, run `AC-7.2-11` through
+`uv run --frozen --no-sync` with the five accepted options and both declared
+output paths. Preserve the committed pair and result artifacts before and after
+the run. A nonzero exit, schema/identity/summary mismatch, or byte mismatch
+blocks completion; never apply the legacy bundle parser or digest flags to
+recover from it. Retain any differing output bytes in the audit, then restore
+and verify both outputs' saved original bytes and access/modification timestamps
+after verification, even if generation replaced them with identical bytes.
+Compare bytes before restoring and checking timestamps so verification reads
+do not leave changed access times.
+
+Archived-byte equality and restoration apply to this bounded preservation
+repair. It grants no successor or regeneration authorization. A future successor
+requires its own explicit scope and current contract gates, rather than equality
+with an older archived pair. This repair adds no broader Story 7.3 routes.
+
+Resolve current `HEAD` once to its full commit ID for `{candidate_revision}`,
+and read `{baseline_revision}` from the Story 7.2 spec. Independently record
+both explicit gates, even if generation failed:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/verify_evidence_boundary.py --repository . --baseline {baseline_revision} --candidate {candidate_revision}
+uv run --frozen --no-sync python3 _bmad/scripts/resolve_current_planning_authority.py --repository . --candidate {candidate_revision} --check
+```
+
+Retain each exact command, exit, result state, stable blocker code, and assertion
+ledger. Boundary verification must return exit `0`/`PASS` with a nonempty
+applicable ledger. Authority resolution must return exit `0`/`PASS`, and Story
+7.1 must separately have verified terminal `ACCEPTED` authority binding its
+final-record digest and protected-main commit. A resolver `PASS` does not itself
+establish that publication. Its absence is a blocker, even when the Story 7.1
+sprint row says `done` or its raw record passes. A historical lift, a historical
+reproduction, or the current routine-change policy cannot satisfy these explicit
+Story 7.2 requirements.
+
+[Architecture AD-4](../../_bmad-output/planning-artifacts/architecture.md),
+"Story 7.1 Integration And Terminal Transition", requires a separate atomic
+terminal authority/pointer publication reaching `ACCEPTED` after the
+post-integration result and candidate-matched final record pass. The proof binds
+the Story candidate, verified merge tree and parent identities, admissible
+integration paths, every root gitlink, the final-record digest, and the actual
+protected-main commit. That accepted commit's in-scope tree and gitlinks must
+equal the verified integration result. The repository inspected for this
+2026-09-27 repair lacks a verified Story 7.1 terminal publication, so the
+prerequisite remains blocked. This runbook supplies neither an invented accepted
+artifact path nor a substitute checker.
+
+Do not supply `--trusted-host` unless an actual protected event supplies that
+provenance. `HEAD`, a parent commit, and a convenient historical passing host
+are not substitutes. Do not change planning authority or the implementation
+hold to obtain a pass. Any required failed, blocked, missing, stale, or
+unverified gate retains Story 7.2 `in-progress`; the repair does not authorize
+editing sprint status. Report the blockers. A separately authorized, validated
+workflow repair commit does not complete Story 7.2 or satisfy its missing gates.
+
 ### Operator procedure
+
+This regeneration procedure excludes the bounded Story 7.2
+historical-preservation repair. For that repair, follow only its historical
+reproduction and current-gate sections above; do not replace archived evidence.
 
 1. Commit the story candidate: every executable, test, schema, and
    documentation change. `HEAD` is the candidate, and the working tree must be
@@ -498,6 +628,10 @@ result file, a count, a path, or a digest into agreement.
    those outputs in a separate commit that follows the candidate.
 
 ## Ordered checklist (copy per story)
+
+This legacy v1 checklist does not apply to the bounded Story 7.2
+historical-preservation repair or its v2 invocation. Use the Story 7.2 sections
+above; do not regenerate evidence or apply legacy bundle/digest steps to it.
 
 1. [ ] Every executable, test, and documentation change complete and saved.
 2. [ ] Scoped commit created; committed `HEAD` resolved as the candidate.

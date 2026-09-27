@@ -63,6 +63,22 @@ context:
 
 ## Implementation Notes
 
+### Completion repair requested on 2026-09-27
+
+The current request resumes the completed implementation from `28d7b6b677e5c5c652b58dab27278d7426222bb3` and authorizes a bounded repair of `.agents/skills/bmad-build/step-05-present.md` and its byte-identical `.claude/skills/bmad-build/step-05-present.md` twin. Existing execution tasks above are implemented; do not regenerate or retract their historical record. Work on current `main`, preserving the later EventStore gitlink update. Do not push or change the hold, planning authority, predecessor record, generator, schemas, other workflow routes, or sprint status. Broader workflow integration remains Story 7.3.
+
+- [x] In step 05, select Story 7.2's frozen v2 `--contract` invocation before the legacy final-record procedure. Use only the five accepted v2 options, the pinned Python environment, and both contract-declared output paths. Check exit `0`, the final-record v2 schema, story identity, and the contract's exact summary; v2 success has no legacy nested `result` or `markdown` fields.
+- [x] Verify the JSON and Markdown bytes against the committed pair and against a second identical invocation. Preserve historical evidence and result artifacts. Document isolated historical reproduction separately from current-candidate completion in `docs/runbooks/story-final-record-generation.md`; a historical reproduction cannot pass a current gate. Do not use v1 digest flags with v2, synthesize result timestamps, or change candidate-retention rules.
+- [x] Before any terminal transition, require all explicit Story 7.2 gates, including boundary verification and separate terminal `ACCEPTED` authority for Story 7.1. A `done` row, raw passing record, historical lift, or routine-change policy cannot substitute for that authority. Record blockers and retain Story 7.2 `in-progress` when a required gate does not pass. Do not invent a trusted host.
+
+Verification: inspect a freshly rendered step 05, run the existing generator regression suite through pinned `uv`, and retain commands/results for the historical reproduction, current v2 invocation, evidence-boundary verifier, and authority resolver. The parent workflow records the audit and validates any commit with pinned commitlint after review. The implementation handoff must leave its bounded workflow/runbook repair uncommitted and preserve this spec's historical notes.
+
+The investigation results and exact validation evidence are retained in [the completion resume audit](story-7-2-completion-resume-2026-09-27.md). The historical pair reproduces twice at the requested revision, while current `main` fails `CANDIDATE_NOT_FINAL` / `GITLINK_DRIFT` after the preserved EventStore bump. Boundary and resolver both reproduce the V24 gitlink blocker with active hold. Separate Story 7.1 terminal `ACCEPTED` authority is not established. The story remains `in-progress`; no historical record or result artifact is replaced.
+
+- [ ] Current-candidate v2 and evidence-boundary completion gates pass, and Story 7.1 terminal `ACCEPTED` authority is verified. These required completion conditions remain blocked; passing repair verification is not story acceptance.
+
+### Earlier implementation and review history
+
 - The committed candidate `60f23cb7057aee1ed58a2b032262de4bd15df9d1` generated the JSON/Markdown pair byte-identically on rerun. All ten prerequisite scenarios passed; eight root projects reported 2,026 executed/passed tests with no failures or skips; the final record reports `11/11/0/0/0/0`.
 - Review transition gate: `python3 _bmad/scripts/verify_submodule_promotion.py --repository /home/administrator/projects/hexalith/conversations --baseline c69334cb13a981c9112ad687427b1f43fafc2988 --candidate HEAD --format json` exited `0`/`pass`, with five `UNDECLARED_GITLINK_CHANGE` warnings. `python3 /home/administrator/projects/hexalith/conversations/_bmad/scripts/verify_evidence_boundary.py --repository /home/administrator/projects/hexalith/conversations --baseline c69334cb13a981c9112ad687427b1f43fafc2988 --candidate HEAD` exited `2`/`BLOCKED` with `EVIDENCE_V24_ROOT_GITLINK_DRIFT` and a nonempty assertion ledger. The review transition remains blocked; status stays `in-progress`.
 - The spec edits after the generated candidate are uncommitted. Regeneration against this working tree will require a new committed source candidate and current test results. Story 7.1 terminal `ACCEPTED` authority has not been established.
@@ -187,6 +203,20 @@ The review used the full `c69334c..HEAD` diff required by this spec's baseline. 
 | B13 | Root test inventory filters on `tests/` | low | reject | carried: the prior review rejected this exact claim; all eight current root test projects are under `tests/`. |
 | R1 | Exact sprint comparison would reject valid `last_updated` metadata | medium | patch | `sync-sprint-status.md` updates `last_updated` with a lifecycle transition; the review patch now permits that date with Story 7.2's status while rejecting unrelated rows. |
 | R2 | A zero-run result gained an extra missing-ID blocker | medium | patch | The full generator suite caught `TEST_RESULTS_MISSING` beside the required `TEST_NOT_RUN`; the ID check now runs only when result rows exist. |
+
+### Completion repair review, 2026-09-27
+
+Reviewed the bounded repair diff from the current main commit, preserving the earlier full Story 7.2 reviews above. Three independent reviewers ran: blind hunter, edge-case hunter, and verification-gap reviewer. Edge-case and verification-gap reviews reported no findings. No lifecycle transition to review/done was made.
+
+| ID | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| C1 | Restoring changed outputs mentions bytes but omits their original timestamps | medium | patch | Restore and verify preserved bytes and metadata in both step-05 twins and runbook. |
+| C2 | Generic operator procedure and legacy checklist follow the preservation repair without an exclusion | medium | patch | Explicitly exclude this repair from those subsequent regeneration and legacy steps. |
+| C3 | Durable audit omits the generator regression result | low | patch | Record the full run's 170 passes and parity failure plus the corrected parity rerun, separately from historical reproduction. |
+| C4 | Durable audit omits rendered-step and twin-parity evidence | low | patch | Record the rendered step identity, contract-command comparison, and byte-identical twins. |
+| C5 | Audit summarizes blocked assertion ledgers without retaining exact rows | low | patch | Preserve both complete ledgers with their exact command/revision bindings. |
+| C6 | Terminal prerequisite needs all AD-4 publication/integration bindings and a clear missing-authority disposition | medium | patch | Include atomic authority/pointer publication and accepted tree/gitlink equality; explicitly retain the missing terminal publication blocker. |
+| C7 | Archived-byte comparison could incorrectly constrain a future authorized successor | low | patch | Limit that comparison to the present preservation repair; a future successor requires its own scope and current contract gates. |
 
 ## Design Notes
 
