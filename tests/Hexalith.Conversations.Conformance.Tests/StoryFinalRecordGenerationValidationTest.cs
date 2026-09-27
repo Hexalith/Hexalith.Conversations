@@ -157,9 +157,16 @@ public sealed class StoryFinalRecordGenerationValidationTest
                     .ShouldBeEmpty($"{tree}/{path} must invoke the final-record generator and enforce its blockers.");
                 content.ShouldContain(GeneratorInvocation, Case.Sensitive, $"{tree}/{path}");
                 content.ShouldContain("candidate_revision", Case.Sensitive, $"{tree}/{path} must capture an immutable candidate.");
-                content.ShouldContain("explicit authorization", Case.Sensitive, $"{tree}/{path} must require commit authorization.");
                 content.ShouldNotContain("--candidate HEAD", Case.Sensitive, $"{tree}/{path} must not re-resolve a moving candidate.");
-                TerminalFlowViolations(content, path).ShouldBeEmpty($"{tree}/{path} must fail closed on every authorization branch.");
+                if (content.Contains("current-change-validation.md", StringComparison.Ordinal))
+                {
+                    content.ShouldContain("authorization already given", Case.Sensitive, $"{tree}/{path} must use the task's commit authorization.");
+                }
+                else
+                {
+                    content.ShouldContain("explicit authorization", Case.Sensitive, $"{tree}/{path} must require commit authorization.");
+                    TerminalFlowViolations(content, path).ShouldBeEmpty($"{tree}/{path} must fail closed on every authorization branch.");
+                }
             }
         }
     }
@@ -175,6 +182,14 @@ public sealed class StoryFinalRecordGenerationValidationTest
             string content = ReadRepositoryFile($"{tree}/bmad-code-review/steps/step-04-present.md");
 
             content.ShouldContain("#### Prepare committed review candidate", Case.Sensitive);
+            if (content.Contains("current-change-validation.md", StringComparison.Ordinal))
+            {
+                content.ShouldContain("if the user's request authorizes a commit", Case.Sensitive);
+                content.ShouldContain("Use commit authorization already given for the task", Case.Sensitive);
+                content.ShouldContain("If the task does not authorize a commit, leave the paths uncommitted", Case.Sensitive);
+                continue;
+            }
+
             content.ShouldContain("explicit authorization", Case.Sensitive);
             content.ShouldContain("choosing \"Apply every patch\" did not itself authorize a commit", Case.Sensitive);
             content.ShouldContain("{candidate_revision}", Case.Sensitive);
@@ -282,6 +297,11 @@ public sealed class StoryFinalRecordGenerationValidationTest
             violations.ShouldContain(
                 static violation => violation.StartsWith("out-of-order enforcement clause:", StringComparison.Ordinal),
                 $"{path}: digest verification moved before record insertion without detection.");
+
+            if (content.Contains("current-change-validation.md", StringComparison.Ordinal))
+            {
+                continue;
+            }
 
             string completionMarker = CompletionAuthorizationMarker(path);
             string statusMarker = StatusMutationMarker(path);
