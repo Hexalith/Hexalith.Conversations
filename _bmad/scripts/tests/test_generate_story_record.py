@@ -858,7 +858,7 @@ def test_symlinked_result_artifact_cannot_escape_the_repository(
     umbrella: dict[str, object], tmp_path: Path
 ) -> None:
     outside = tmp_path / "outside.trx"
-    write_trx(outside)
+    write_trx(outside, code_base=Path("/fixture/Fixture.dll"))
     artifact = umbrella["repository"] / umbrella["artifact"]
     artifact.unlink()
     artifact.symlink_to(outside)
@@ -1421,7 +1421,11 @@ def test_v12_gate_span_does_not_absorb_story_record_enforcement() -> None:
             encoding="utf-8"
         )
         start, end = sibling.promotion_gate_span(content, markers)
-        assert start >= 0, relative_path
+        if start < 0:
+            # The current-change policy retired this historical V12 gate.
+            assert "current-change-validation.md" in content, relative_path
+            assert markers[0] not in content, relative_path
+            continue
         assert "generate_story_record.py" not in content[start:end], relative_path
 
 
@@ -4097,16 +4101,17 @@ def test_v2_blocks_invalid_predecessor_record(tmp_path: Path, fault: str) -> Non
     assert v2_snapshot(repository) == before
 
 
-def test_v2_schema_requires_measurements_only_for_story_7_2() -> None:
+def test_v2_schema_requires_measurements_only_for_story_7_2(tmp_path: Path) -> None:
     validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
-    for story, should_accept in (("7.1", True), ("7.2", False)):
-        record = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
+    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    story_7_2 = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    for record, should_accept in ((story_7_1, True), (story_7_2, False)):
         assert validator.is_valid(record)
         without = dict(record)
         without.pop("measurements", None)
         assert validator.is_valid(without) == should_accept
-    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
-    story_7_2 = json.loads((WORKSPACE / "docs/release-evidence/story-7.2-final-record-v2.json").read_bytes())
     story_7_1["measurements"] = story_7_2["measurements"]
     assert not validator.is_valid(story_7_1)
 
