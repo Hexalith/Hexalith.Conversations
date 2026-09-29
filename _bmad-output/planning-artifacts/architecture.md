@@ -52,9 +52,6 @@ date: '2026-05-14'
 
 # Architecture Decision Document
 
-**Approved McpCli course correction (2026-09-27):** `Hexalith.McpCli` is the target Hexalith-owned CLI/MCP surface for Conversations operations that pass contract enrollment and authorization. Any proprietary module CLI, MCP host, plug-in, or planned adapter described below is an obsolete migration source or historical design, not a new target. The module retains its domain, UI, and security semantics; replacement or approved withdrawal and parity evidence precede retirement. External development CLIs are unaffected.
-
-
 _This document builds collaboratively through step-by-step discovery. Sections are appended as we work through each architectural decision together._
 
 ## 2026-07-15 Authority Rebaseline
@@ -3330,3 +3327,13 @@ request after completed AR-15 is a separately owner-approved AD-4
 `EXECUTION_ALLOWED` successor.
 
 <!-- ARCHITECTURE-EXECUTION-OVERLAY-V22:END version=conversations-architecture-2026-09-20-v22 recovery-record=v22-current-authority-recovery-v1.json recovery-record-sha256=5b3bd599ce67977e0f82b5794329361402622b219ff60dc005acebab18597b8b hold=ACTIVE -->
+
+## 2026-09-27 Approved McpCli Course Correction
+
+`Hexalith.McpCli` is the target Hexalith-owned CLI/MCP surface for Conversations
+operations that pass contract enrollment and authorization. Any proprietary
+module CLI, MCP host, plug-in, or planned adapter described in this document is
+an obsolete migration source or historical design, not a new target. The module
+retains its domain, UI, and security semantics; replacement or approved
+withdrawal and parity evidence precede retirement. External development CLIs
+are unaffected.
