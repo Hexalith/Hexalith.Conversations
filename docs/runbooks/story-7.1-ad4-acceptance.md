@@ -85,6 +85,11 @@ the preserved bytes. No generator execution or record/result writes occur.
 | `story-7.2-final-record-v2.json` | `15212a33103bf36ccefb3778853d3e4a8875d1c9e82a0c3d3104dae54e361ef5` |
 | `story-7.2-final-record-v2.md` | `0821f9b934506a87104279e67f51441ae3e9bbbad7a71cf3f3c1ab0786770e81` |
 
+On 2026-09-29 the Story 7.2 pair was retracted and regenerated under the owner
+waiver, so later candidates report it as `AD4_EVIDENCE_ABSENT` or
+`AD4_RECORD_BYTES_CHANGED`; the pinned bytes remain in Git history (for example
+at `aefe4003cc94f49021e942adb9cbb8ca9ccf86cd`).
+
 Pair verification proves preserved structure and bytes. It does not remeasure
 their result artifacts, rerun tests, prove current candidate compatibility, or
 establish integration provenance. Prior audit observations remain attributed to

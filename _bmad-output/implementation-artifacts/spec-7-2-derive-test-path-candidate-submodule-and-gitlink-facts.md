@@ -2,7 +2,7 @@
 title: 'Derive test, path, candidate, submodule, and gitlink facts'
 type: 'feature'
 created: '2026-09-23'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: 'c69334cb13a981c9112ad687427b1f43fafc2988'
 allowed_skipped_tests: []
 route: 'dispatch'
@@ -55,13 +55,34 @@ context:
 - [x] `docs/runbooks/story-final-record-generation.md` -- document Story 7.2 inputs, blocker codes, exit classes, and operator commands.
 - [x] `docs/release-evidence/story-7.2-final-record-v2.{json,md}` -- generate from a committed candidate after the prerequisite results pass and verify identical rerun bytes.
 
+**Completion under the 2026-09-29 owner waiver** (see Implementation Notes):
+- [x] `docs/runbooks/story-final-record-generation.md:549` -- in "Story 7.2 completion repair: current gates", add one dated paragraph recording the waiver: boundary `PASS`, resolver `PASS`, and Story 7.1 terminal `ACCEPTED` are no longer Story 7.2 completion gates; they are still run and their actual results recorded, never reported as `PASS`; the current-candidate v2 gate stays mandatory. At `:432`, note that the same decision authorizes the superseded-pair recovery for this completion.
+- [x] `docs/release-evidence/story-7.2-final-record-v2.{json,md}` -- delete both files from the working tree; this retracts the pair pinned to `170ac9d`. Do not stage or commit.
+- [ ] Completion gate (parent, step 05, after review) -- run the procedure in Implementation Notes; AC-7.2-11 exits `0` with `11/11/0/0/0/0` at the new candidate. This box stays unticked in the committed spec. The generator freezes everything except the frontmatter `status` at the candidate. The regenerated pair and the `done` commit message carry the gate's evidence.
+
 **Acceptance Criteria:**
 - Given eight current root project results, when `AC-7.2-01` runs, then artifact-derived per-project and summed counts validate as acceptance-result v1.
 - Given each named fault, when `AC-7.2-02` through `AC-7.2-10` run, then each proves its exact blocker and restores its fixture byte-identically.
 - Given ten passing prerequisite scenarios and the verified Story 7.1 digest, when `AC-7.2-11` runs, then the pair binds every measured fact and reports `11/11/0/0/0/0`.
 - Given existing v1 and Story 7.1 tests, when rerun, then their behavior and Story 7.1's committed pair remain valid.
+- Given the committed retraction candidate, fresh TRX for all eight root projects, and passing `AC-7.2-01` through `AC-7.2-10`, when `AC-7.2-11` runs twice, then both runs exit `0` with identical bytes and `11/11/0/0/0/0`, and a rerun after the pair and lifecycle commits reproduces the same pair.
 
 ## Implementation Notes
+
+### Completion under owner waiver, 2026-09-29
+
+On 2026-09-29 the owner, Jerome Piquot, was asked explicitly and chose **waive and complete**. This decision supersedes the terminal-gate item of the 2026-09-27 completion repair below. The evidence-boundary `PASS`, the resolver `PASS`, and Story 7.1 terminal AD-4 `ACCEPTED` authority are waived as Story 7.2 completion gates. Run them anyway and record their actual exit, state, and blocker; never report them as `PASS`. Do not create a V30 successor, a trusted host, or any authority publication. The AD-4 inspector pins the old Story 7.2 pair's hashes, so it reports that pair changed at the new candidate. That is an expected consequence of the waiver, not a defect to fix. The mandatory gates are the current-candidate v2 record, the generator regression suite, and `python3 scripts/check-root-submodules.py --repository .`.
+
+At `76e113621b00028258041c20335372182f98d0a8`, `AC-7.2-11` exits `1` with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT`. After the recorded candidate `170ac9d`, nine root gitlinks moved (all except `Hexalith.Builds`). Recovery follows the runbook's superseded-pair procedure (`docs/runbooks/story-final-record-generation.md:416`).
+
+Implementation handoff (step 03): make the runbook edit and delete the old pair in the working tree. Verify with `uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py`, the root-submodule check, and `git diff --check`. Leave everything uncommitted.
+
+Completion procedure (parent, step 05, after review; submodule checkouts must match their gitlinks):
+1. Commit the candidate: the retraction, the runbook paragraph, and this spec with its final review notes. After this commit, only the spec's `status` value, the Story 7.2 sprint row, and `last_updated` may change.
+2. Copy the existing `artifacts/v9/7.2` results (`cp -p`) to `artifacts/v9/7.2-superseded-170ac9d/` before overwriting them.
+3. Run `dotnet build Hexalith.Conversations.slnx -c Release -p:UseHexalithProjectReferences=true`. Confirm DAPR ports 3500 and 50001 are free, then set `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true`. Run each of the eight `tests/*` executables under `bin/Release/net10.0/` with `-trx <abs>/artifacts/v9/7.2/test-results/<project>.trx`. All results must be nonempty and passing, with zero skips.
+4. Run `AC-7.2-01` through `AC-7.2-10` exactly as the contract declares them, through `uv run --frozen --no-sync`. Then run `AC-7.2-11` twice and require identical bytes. Commit only the pair (`docs(evidence): ...`).
+5. Set the spec `status` and the sprint row to `done`. Commit them, rerun `AC-7.2-11`, and confirm it reproduces the committed pair. Validate every commit message with the pinned commitlint. Do not push.
 
 ### Completion repair requested on 2026-09-27
 
@@ -75,7 +96,7 @@ Verification: inspect a freshly rendered step 05, run the existing generator reg
 
 The investigation results and exact validation evidence are retained in [the completion resume audit](story-7-2-completion-resume-2026-09-27.md). The historical pair reproduces twice at the requested revision, while current `main` fails `CANDIDATE_NOT_FINAL` / `GITLINK_DRIFT` after the preserved EventStore bump. Boundary and resolver both reproduce the V24 gitlink blocker with active hold. Separate Story 7.1 terminal `ACCEPTED` authority is not established. The story remains `in-progress`; no historical record or result artifact is replaced.
 
-- [ ] Current-candidate v2 and evidence-boundary completion gates pass, and Story 7.1 terminal `ACCEPTED` authority is verified. These required completion conditions remain blocked; passing repair verification is not story acceptance.
+- [ ] Current-candidate v2 and evidence-boundary completion gates pass, and Story 7.1 terminal `ACCEPTED` authority is verified. These required completion conditions remain blocked; passing repair verification is not story acceptance. *Superseded 2026-09-29 by the owner waiver above.*
 
 ### Earlier implementation and review history
 
@@ -217,6 +238,27 @@ Reviewed the bounded repair diff from the current main commit, preserving the ea
 | C5 | Audit summarizes blocked assertion ledgers without retaining exact rows | low | patch | Preserve both complete ledgers with their exact command/revision bindings. |
 | C6 | Terminal prerequisite needs all AD-4 publication/integration bindings and a clear missing-authority disposition | medium | patch | Include atomic authority/pointer publication and accepted tree/gitlink equality; explicitly retain the missing terminal publication blocker. |
 | C7 | Archived-byte comparison could incorrectly constrain a future authorized successor | low | patch | Limit that comparison to the present preservation repair; a future successor requires its own scope and current contract gates. |
+
+### Waiver completion review, 2026-09-29
+
+The review covered this round's uncommitted change against `76e1136` (runbook waiver text and the pair retraction). The spec was excluded from the blind and verification-gap inputs. Earlier `c69334c..HEAD` content was already triaged above, and the AD-4 tooling under its own spec. Layers: blind hunter (B), edge-case hunter (E), verification gap (V).
+
+| ID | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| B1, E1, E2 | Archive command `cp -p artifacts/v9/7.2 …/` cannot copy a directory; a rerun could nest into or overwrite the archive | medium | patch | Reproduced: GNU `cp -p` on a directory prints `-r not specified; omitting directory` and exits `1`. Use `cp -a` with no trailing slash, and refuse if the destination exists. |
+| B2, E3 | Historical-reproduction steps still copy inputs from `artifacts/v9/7.2`, which regeneration overwrites | low | patch | The reproduction section reads the live results path; after regeneration the `170ac9d` inputs exist only in the local ignored archive. |
+| B3, V3 | New text retracts the pair in the candidate commit; the older rule says "in its own commit" | low | patch | Wording conflict only: `v2_story_7_2_candidate` treats `HEAD` as the candidate once both outputs are absent. State the exception explicitly. |
+| B4, E7, V4a | Runbook says the AD-4 inspector reports the pair "changed" | low | patch | `inspect_story_7_1_acceptance.py:196` emits `AD4_EVIDENCE_ABSENT` while the pair is retracted, and `:297` raises `AD4_RECORD_BYTES_CHANGED` (`FAIL`) after regeneration. Name both. |
+| B6, V4b | `docs/runbooks/story-7.1-ad4-acceptance.md:85-86` still lists the retracted hashes as preserved bytes | low | patch | One explanatory sentence; the pinned bytes stay in Git history at `aefe400`. |
+| B5, E10, V1 | `test_actual_revision_preserves_all_existing_evidence_bytes_and_mtimes` reads the pair from the working tree and is run by no prescribed check | medium | patch | Reproduced as `FileNotFoundError` with the pair absent. CI runs only `test_check_root_submodules.py` from `tests/tooling`. Require the suite after the pair commit. |
+| B7 | Waived-gate results have no durable destination after the candidate commit | medium | patch | Only the spec `status`, the sprint row, and `last_updated` may change after the candidate. Record the results in the lifecycle commit message body. |
+| B8, E5 | "Check for the Story 7.1 terminal publication" names no command | low | patch | Name the AD-4 inspector `--check` invocation at the candidate. |
+| B9, E9 | Superseded gate text and the "do not regenerate/replace" preambles (`:636-638`, `:657-659`) are unqualified; the done transition is not explicitly authorized | low | patch | Add a pointer at the top of the current-gates section, qualify both preambles, and authorize the spec/sprint `done` transition. |
+| B10, E6 | The runbook lacks the Story 7.2 remeasurement procedure and the generator-suite command | medium | patch | Operator procedure covers only five scenarios. The AppHost env var, DAPR ports, and project-reference build flag appear only in the spec. |
+| E4 | "Never report a waived gate as `PASS`" conflicts with recording the actual result | low | patch | Direct wording correction: record what was observed; a waived gate is non-gating either way. |
+| B12 | The runbook omits the post-lifecycle rerun that the new spec AC requires | low | patch | Direct addition. |
+| E8, V2 | Both `bmad-build/step-05-present.md` twins still require the waived gates and forbid retraction | medium | defer | The fix edits agent-context skill files. For this run, the parent applies the owner waiver at step 05. |
+| B11 | Regeneration widens `changedPaths` to foreign commits with no disclosure, and the record shows no waiver | low | reject | carried: pass-1 B11 (the record reports the frozen baseline-to-candidate set). The closed schema admits no waiver field; disclosure goes in the lifecycle commit message. |
 
 ## Design Notes
 

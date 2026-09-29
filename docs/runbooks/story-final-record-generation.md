@@ -435,6 +435,23 @@ preserves the committed pair and its result artifacts, keeps the later EventStor
 gitlink update, and reports `CANDIDATE_NOT_FINAL` at the current candidate without
 retracting or regenerating historical evidence.
 
+On 2026-09-29 the repository owner's waive-and-complete decision, recorded in
+the Story 7.2 spec, authorizes this recovery for Story 7.2's completion. Here
+the retraction of the pair pinned to `170ac9d2e8afa686e4203c44ad5bef9414d19a89`
+does not get its own commit: it shares the completion candidate commit with that
+decision's runbook and spec changes. Once both outputs are absent at `HEAD`, the
+generator treats `HEAD` as the candidate. Before overwriting any result, archive
+the existing results; the command refuses an existing destination:
+
+```bash
+test ! -e artifacts/v9/7.2-superseded-170ac9d && cp -a artifacts/v9/7.2 artifacts/v9/7.2-superseded-170ac9d
+```
+
+Then regenerate the pair from that candidate as a record-only successor. After
+regeneration, reproducing the `170ac9d` pair copies its results from the local,
+gitignored `artifacts/v9/7.2-superseded-170ac9d` archive instead of
+`artifacts/v9/7.2`; they exist nowhere else.
+
 | Story 7.2 blocker | Exit | Condition |
 | --- | --- | --- |
 | `TEST_RESULTS_MISSING` | `1` | A root project TRX is absent, unreadable, names another assembly, or contains result IDs outside that assembly's definitions |
@@ -548,6 +565,9 @@ copy the reproduced outputs or artifacts back over the current worktree.
 
 ### Story 7.2 completion repair: current gates
 
+*The 2026-09-29 owner waiver at the end of this section supersedes its gate
+requirements for Story 7.2.*
+
 The bounded repair to `bmad-build/step-05-present.md` selects the frozen Story
 7.2 v2 invocation before its legacy procedure. It leaves the other workflow
 routes for Story 7.3. At the current root checkout, run `AC-7.2-11` through
@@ -605,11 +625,64 @@ unverified gate retains Story 7.2 `in-progress`; the repair does not authorize
 editing sprint status. Report the blockers. A separately authorized, validated
 workflow repair commit does not complete Story 7.2 or satisfy its missing gates.
 
+On 2026-09-29 the repository owner, Jerome Piquot, chose to waive these gates
+and complete Story 7.2. Boundary `PASS`, resolver `PASS`, and Story 7.1 terminal
+`ACCEPTED` authority are no longer Story 7.2 completion gates; this supersedes
+the gate requirements above for Story 7.2 only. The decision authorizes the
+Story 7.2 `done` transition of the spec `status` and the sprint row, and the
+superseded-pair recovery described above. That regeneration replaces the pair
+pinned to `170ac9d`, so this repair's preservation and archived-byte rules do
+not apply to it. The waiver creates no successor authority, trusted host, or
+authority publication, and it leaves the implementation hold and planning
+authority unchanged.
+
+Still run each waived gate at the completion candidate: the two commands above
+and the Story 7.1 terminal-publication check:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/inspect_story_7_1_acceptance.py --repository . --candidate {candidate_revision} --check
+```
+
+A waived gate is non-gating whatever it returns, and a non-`PASS` result is
+never relabeled `PASS`. After the candidate, only the spec `status`, the sprint
+row, and `last_updated` may change. Record each waived gate's exact command,
+exit, result state, and stable blocker code, as observed, in the body of the
+Story 7.2 lifecycle (`done`) commit message. The AD-4 inspector pins the old
+pair's hashes. As a consequence of the regeneration, it reports the Story 7.2
+pair as `AD4_EVIDENCE_ABSENT` (`BLOCKED`, exit `2`) while the pair is retracted
+and as `AD4_RECORD_BYTES_CHANGED` (`FAIL`, exit `1`) after regeneration.
+
+Complete the waived recovery in this order:
+
+1. Commit the candidate, including the retraction, and archive the old results
+   as described above. Every submodule checkout must match its root gitlink.
+2. Run `dotnet build Hexalith.Conversations.slnx -c Release -p:UseHexalithProjectReferences=true`.
+3. Confirm DAPR ports 3500 and 50001 are free and set
+   `HEXALITH_RUN_APPHOST_BOUNDARY_TESTS=true`. Run each of the eight `tests/*`
+   executables under `bin/Release/net10.0/` with
+   `-trx <absolute path>/artifacts/v9/7.2/test-results/<project>.trx`. Every
+   result must be nonempty and passing, with no skips.
+4. Run `AC-7.2-01` through `AC-7.2-10` exactly as the contract declares them,
+   through `uv run --frozen --no-sync`.
+5. Run `AC-7.2-11` through `uv run --frozen --no-sync`. It must exit `0` with
+   `11/11/0/0/0/0`, and a second run must produce identical bytes. Commit only
+   the pair.
+6. Run the waived gates above and retain their observed results. Require
+   `uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py`,
+   `python3 scripts/check-root-submodules.py --repository .`, and, after the
+   pair commit, `uv run --frozen --no-sync python3 -m pytest -q tests/tooling/test_ad4_acceptance_readiness.py`
+   to pass. The last reads the pair from the working tree and fails while the
+   pair is retracted.
+7. Commit the `done` lifecycle transition with the waived-gate results in its
+   message body. Rerun `AC-7.2-11` and require it to reproduce the committed
+   pair.
+
 ### Operator procedure
 
 This regeneration procedure excludes the bounded Story 7.2
 historical-preservation repair. For that repair, follow only its historical
-reproduction and current-gate sections above; do not replace archived evidence.
+reproduction and current-gate sections above; do not replace archived evidence,
+except the 2026-09-29 superseded-pair regeneration.
 
 1. Commit the story candidate: every executable, test, schema, and
    documentation change. `HEAD` is the candidate, and the working tree must be
@@ -631,7 +704,8 @@ reproduction and current-gate sections above; do not replace archived evidence.
 
 This legacy v1 checklist does not apply to the bounded Story 7.2
 historical-preservation repair or its v2 invocation. Use the Story 7.2 sections
-above; do not regenerate evidence or apply legacy bundle/digest steps to it.
+above; do not regenerate evidence, except the 2026-09-29 superseded-pair
+regeneration, or apply legacy bundle/digest steps to it.
 
 1. [ ] Every executable, test, and documentation change complete and saved.
 2. [ ] Scoped commit created; committed `HEAD` resolved as the candidate.

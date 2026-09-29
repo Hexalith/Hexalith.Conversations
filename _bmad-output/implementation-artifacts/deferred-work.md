@@ -399,3 +399,7 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
   summary: Define a machine-checkable completeness rule for per-project test results.
   evidence: The inherited TRX parser accepts a filtered nonempty run; Story 7.2's frozen contract requires nonempty results but supplies no authoritative full-suite enumeration.
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md`
+  summary: Align both `bmad-build/step-05-present.md` twins with the 2026-09-29 owner waiver of the Story 7.2 boundary, resolver, and Story 7.1 terminal `ACCEPTED` completion gates.
+  evidence: Both twins still HALT before Mark Spec Done when those gates are absent and forbid retracting the committed pair; the runbook now records the waiver. The fix edits agent-context skill files, so the 2026-09-29 completion applied the waiver at step 05 by owner instruction.
