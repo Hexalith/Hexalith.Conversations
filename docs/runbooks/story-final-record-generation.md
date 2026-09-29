@@ -20,7 +20,8 @@ record is caller-authored text.
 
 Sections 1-8 govern the v1 route. The contract-bound v2 route, which Story 7.1
 uses to produce `hexalith.conversations.story-final-record.v2` records, is
-described in section 9.
+described in section 9. Section 9 also describes how Story 7.3 makes every
+governed completion route run that v2 route before `review` or `done`.
 
 ## 1. Derivation sources
 
@@ -211,6 +212,10 @@ Each keeps or returns story and sprint state to `in-progress` and cannot write
 workflow record, resolve the named state, and rerun the same command. Never
 hand-edit a count, path, or commit into agreement with the record as remediation.
 
+Story 7.3 rebinds these frozen surfaces one-for-one to the current routes and adds
+the contract-bound v2 gate to each of them. See section 9, "Story 7.3
+completion-route integration".
+
 ## 8. Historical mode
 
 `--historical --story <closed-record>` verifies an already-closed record
@@ -246,7 +251,9 @@ in either mode.
   promotion gate but is **not** one of the four surfaces the frozen authority
   names, so it is not gated by this generator. That is a known bypass route to
   `done` without a generated record, recorded in `deferred-work.md` rather than
-  closed by widening frozen acceptance scope.
+  closed by widening frozen acceptance scope. `bmad-dev-auto` is retired: Story
+  7.3 governs its replacement, `bmad-build-auto/step-04-review.md`, for every
+  story that has a v9 story contract (section 9).
 - Staleness is an mtime comparison. A checkout or file copy that rewrites mtimes
   without changing content can produce a false `TEST_RESULTS_STALE`; re-running the
   tests is always a valid remediation and never a way to hide a real staleness.
@@ -276,7 +283,9 @@ uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py \
 
 The route accepts exactly `--repository`, `--contract`, `--format`,
 `--output-json`, and `--output-markdown`, each at most once, with no
-prefix abbreviation. `--format` supports only `bundle`. The two output paths
+prefix abbreviation. The separate `--verify-inserted-record` mode, described
+under Story 7.3 below, accepts exactly `--repository`, `--contract`, and
+`--verify-inserted-record`. `--format` supports only `bundle`. The two output paths
 must equal the contract's `finalRecord.paths`, because output paths are contract
 facts rather than caller choices. Any option that would supply a count, path,
 commit, gitlink, digest, exit, ledger, or verdict, such as `--candidate`,
@@ -313,7 +322,8 @@ JUnit result files:
    ordinally, must equal the candidate's root `.gitmodules` path set exactly.
    The final-record schema then pins the ten frozen paths in order.
 5. **Scenarios.** Each pytest scenario command must have the shape
-   `python3 -m pytest -q TARGET -k SELECTOR --junitxml=PATH`. The target must
+   `python3 -m pytest -q TARGET -k SELECTOR --junitxml=PATH`. An
+   acceptance-result scenario, used by Story 7.3, is described below. The target must
    be committed at the candidate, and the JUnit path must lie outside every
    gitlink. The final scenario must be this generator's own invocation, with
    the same contract, format, and output paths.
@@ -699,6 +709,254 @@ except the 2026-09-29 superseded-pair regeneration.
    step 2.
 5. Confirm that the two declared outputs are the only dirt, then commit exactly
    those outputs in a separate commit that follows the candidate.
+
+### Story 7.3 completion-route integration
+
+Story 7.3 makes every governed completion route run the v2 generator before it
+writes `review` or `done`, and proves that each route and its render twin carry
+the same gate.
+
+**Applicability.** A route must run the gate before `review` or `done` whenever
+`_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for
+the story. `<story-id>` is the story's dotted `<epic>.<story>` number, such as
+`7.3` for story key `7-3-integrate-generation-into-every-blocking-completion-transition`;
+both the gate introductions and the block define it that way, so a route cannot
+mistake the story key for a missing contract. The spec cannot opt out. Routine work without a contract skips the
+gate under [current change validation](current-change-validation.md).
+
+#### Governed surfaces and the rebinding
+
+The frozen Story 7.3 inventory names the retired `bmad-dev-story` and
+`bmad-quick-dev` routes. The repository owner rebound it one-for-one to the
+current routes
+(`_bmad-output/planning-artifacts/prds/prd-Conversations-2026-06-02/.memlog.md:166-167`):
+
+| Frozen surface | Governed route |
+| --- | --- |
+| `bmad-quick-dev/step-05-present` | `bmad-build/step-05-present.md` |
+| `bmad-quick-dev/step-oneshot` | `bmad-build/step-oneshot.md` |
+| `bmad-dev-story` step 9 | `bmad-build-auto/step-04-review.md` |
+| `bmad-code-review/step-04-present` | `bmad-code-review/steps/step-04-present.md` (unchanged) |
+
+Each route is installed in both `.agents/skills` and `.claude/skills`, for eight
+bodies. The render twins are the in-memory `render_skill.py` renders of the
+three routes that the renderer produces before use: `bmad-build` step 05,
+`bmad-build` one-shot, and `bmad-build-auto` step 04, rendered from
+`.claude/skills`. The verifier renders them in memory and compares the rendered
+bytes. It never publishes a render and never writes into `_bmad/render/`. The
+stale tracked `_bmad/render/bmad-quick-dev` and `_bmad/render/bmad-dev-auto`
+files are not governed and remain unchanged.
+
+#### The completion-gate block
+
+Every surface carries one byte-identical block between
+`<!-- STORY-COMPLETION-GATE:BEGIN v1 -->` and
+`<!-- STORY-COMPLETION-GATE:END v1 -->`. The block sits inside the route's
+existing final-record gate span, which is the span that
+`StoryFinalRecordGenerationValidationTest` bounds, after the legacy v1
+paragraphs and before the route's transition:
+
+| Route | Gate span | Transition |
+| --- | --- | --- |
+| `bmad-build/step-05-present.md` | `### Final Record Generation Gate` to `### Mark Spec Done` | ``Change `{spec_file}` status to `done` `` |
+| `bmad-build/step-oneshot.md` | `### Final Record Generation Gate` to `### Finalize Spec` | ``Set `status: 'done'` `` |
+| `bmad-build-auto/step-04-review.md` | `### Final Record Generation Gate` to `## Finalize` | ``write `status: done` `` |
+| `bmad-code-review/steps/step-04-present.md` | `#### Final record generation gate` to `#### Determine new status based on review outcome` | `` `record_gate_failed` is not true `` |
+
+The block states four things:
+
+1. When the gate applies, including the `<story-id>` definition above.
+2. The generator command, with the contract path and its two
+   `finalRecord.paths` entries:
+
+   ```bash
+   uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --format bundle --output-json <json> --output-markdown <md>
+   ```
+
+   It must exit `0`, and the record's `summary` must equal the contract's
+   `finalRecord.summary` exactly.
+3. The record-only commit of the pair, then the verbatim insertion of the
+   Markdown into the spec, then the inserted-record check. The commit is
+   conditional: when both outputs already equal their committed `HEAD` bytes,
+   as on a rerun that reproduced the pair, the route skips it instead of
+   attempting an empty commit:
+
+   ```bash
+   uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract <contract> --verify-inserted-record {spec_file}
+   ```
+
+4. The blocker branch. On any nonzero exit, summary mismatch, required commit
+   that is not authorized, commit failure, or verification failure, the route
+   keeps or returns the spec and the story's sprint-status row to `in-progress`
+   and never writes `review` or `done`. It reports the exact command, its exit,
+   and every stable blocker code, then HALTs. An unauthorized candidate or pair
+   commit is therefore a blocker, never a reason to treat the gate as skipped.
+
+After the record-only commit, the block forbids any source or gitlink change.
+**Retraction path:** a source change first requires a commit that removes both
+outputs (`git rm` the JSON and Markdown), then restarts the gate from the new
+candidate: rerun every scenario, regenerate, and commit the new pair as a
+record-only commit. While a committed pair is present, any later source or
+gitlink commit makes every rerun stop with `CANDIDATE_NOT_FINAL`; the retraction
+is the only recovery, and the superseded pair is never restored.
+
+The block avoids the `{{…}}`, `{workflow.…}`, and `[[bmad-snapshot:…]]` forms
+that `render_skill.py` resolves, so each twin carries the source bytes. The
+surfaces differ only outside the block, which is why the blocker branch is
+phrased to fit all four routes. Each route's gate introduction routes a
+contract-bound story to the block instead of the legacy procedure.
+
+#### Workflow verifier
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/verify_story_completion_workflows.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --scenario AC-7.3-01 --output artifacts/v9/7.3/AC-7.3-01.json
+```
+
+`AC-7.3-02` uses the same command with its own scenario and output. The
+verifier accepts exactly those four options, and they must match the contract's
+declared command. It reads the working tree, binds `HEAD` as the candidate,
+writes one `hexalith.conversations.acceptance-result.v1` document to the
+declared output, and prints the same bytes on stdout. Diagnostics go to stderr.
+
+- `AC-7.3-01` checks presence and placement on all eleven surfaces. Each surface
+  must carry exactly one complete block that contains the generator command,
+  lies inside the gate span, and precedes every occurrence of the transition.
+  Generator text anywhere outside the block never counts.
+- `AC-7.3-02` checks parity. The block bytes must be identical on every body, in
+  both trees, and on every twin. Each block must also state the whole gate
+  contract: the generator and verification commands, `finalRecord.paths`, the
+  exit and summary requirements, the record-only commit, both
+  `STORY-FINAL-RECORD` markers, the blocker branch, the HALT, and the no-CI
+  limitation. A block that claims CI enforcement drifts.
+
+A result's `inputs` are the eight bodies as ordinally sorted `{path, sha256}`
+rows, and its assertion ledger has per-surface rows. A `BLOCKED` result binds no
+input and asserts nothing, so it can never be read as a partial `PASS`. Run the
+verifier on a clean committed candidate. The generator rejects a result whose
+input digests differ from the candidate's committed bodies.
+
+| Verifier code | Exit | Condition |
+| --- | --- | --- |
+| `WORKFLOW_INTEGRATION_MISSING` | `1` | A surface has no complete block, or its block does not contain the generator command |
+| `WORKFLOW_INTEGRATION_DISPLACED` | `1` | The block lies outside the gate span, a transition precedes the end of the span, a span anchor or the transition is absent, or a second block exists |
+| `SURFACE_PARITY_DRIFT` | `1` | Block bytes differ between bodies, trees, or twins; a surface has no block to compare; a block lacks a required clause; or a block claims CI enforcement |
+| `ARGUMENT_INVALID` | `2` | An unknown, abbreviated, repeated, or valueless option; an unsupported scenario; or options that differ from the contract's declared command |
+| `CONTRACT_UNSUPPORTED` | `2` | The contract is unreadable, violates its schema, is not Story 7.3, or does not declare this verifier invocation |
+| `GIT_UNAVAILABLE` | `2` | Git is not on `PATH` or timed out |
+| `CANDIDATE_UNRESOLVABLE` | `2` | `HEAD` does not resolve to a commit |
+| `SURFACE_UNREADABLE` | `2` | A governed body is missing, a symlink, or not UTF-8 |
+| `RENDER_UNAVAILABLE` | `2` | The in-memory render of a governed route failed or was incomplete |
+| `SCHEMA_UNAVAILABLE` | `2` | A tooling schema is missing or invalid |
+| `SCHEMA_VALIDATOR_UNAVAILABLE` | `2` | `jsonschema` is not installed; use `uv run --frozen --no-sync` |
+| `OUTPUT_WRITE_FAILED` | `2` | The acceptance result could not be written |
+| `INTERNAL_ERROR` | `2` | An unexpected verifier error occurred; only its exception type is reported |
+
+Some failures leave no contract-bound scenario or candidate. These are argument,
+contract, Git, and schema failures. The verifier then writes no result and
+prints one `hexalith.conversations.story-completion-workflow-verifier-failure.v1`
+document instead.
+
+#### Generator additions for Story 7.3
+
+- **Acceptance-result scenarios.** A command of the shape
+  `python3 SCRIPT --repository . --contract CONTRACT --scenario ID --output PATH`
+  declares one acceptance-result v1 document at `PATH`. `SCRIPT` must be
+  committed at the candidate, the contract and scenario must be this contract
+  and scenario, and `PATH` must be a `.json` file outside every gitlink. The
+  generator validates the document against the tooling's own
+  `v9-acceptance-result-v1.schema.json`. It requires the story, scenario, and
+  exact declared command, and a result state and exit that agree with the
+  scenario's `resultSemantics`. It also requires the derived candidate, no
+  modification time before the candidate commit, input digests equal to the
+  candidate's committed blobs, and a nonempty ledger whose rows all pass. The
+  record re-keys the ledger rows as `<scenarioId>#<ordinal>`.
+- **`workflowIntegration`.** Story 7.3 records carry this closed section, and
+  the schema forbids it on every other story. It binds the contract path and
+  digest, and the eight governed bodies re-derived from the candidate's blobs.
+  These must equal the inputs of every acceptance result exactly. It also binds
+  the SHA-256 of the committed, verified Story 7.1 and Story 7.2 JSON records.
+  The Markdown projection adds a "Story 7.3 workflow integration" section, and
+  the self-invocation ledger adds three generator assertions. Story 7.1 and 7.2
+  output bytes are unchanged.
+- **`--verify-inserted-record SPEC`.** This mode takes `--repository` and
+  `--contract` and writes nothing. It reads the contract's pair from `HEAD` and
+  requires the working-tree copies to match. The JSON must validate against its
+  schema and digest bindings. `SPEC` may be absolute or repository-relative, and
+  must carry exactly one `<!-- STORY-FINAL-RECORD:BEGIN -->` line and one
+  `<!-- STORY-FINAL-RECORD:END -->` line. The bytes between them must equal the
+  Markdown output and hash to `renderedMarkdownSha256`. On success, stdout
+  carries the JSON record and the exit is `0`. A missing, uncommitted,
+  inconsistent, or foreign pair, a working-tree copy that differs from the
+  commit, and a missing, malformed, or differing region are
+  `RECORD_CONTENT_DRIFT`, exit `1`. The mode also reports the route's other
+  stable codes: `ARGUMENT_INVALID` for an invalid option or spec path,
+  `INPUT_SCHEMA_INVALID` for an invalid contract, and the exit `2` codes
+  `SCHEMA_UNAVAILABLE`, `SCHEMA_VALIDATOR_UNAVAILABLE`, `GIT_UNAVAILABLE`,
+  `GIT_COMMAND_FAILED`, and `INTERNAL_ERROR`.
+- **Candidate retention.** A committed Story 7.3 pair pins its candidate as the
+  Story 7.2 pair does. Later commits may change only the spec's frontmatter
+  `status`, its inserted record region, the Story 7.3 sprint-status row, and
+  that file's `last_updated` date. The region may be filled between a marker
+  pair that the candidate already carried, or appended after a blank line at
+  the end of the spec, and its END line must end with LF. Any other later change
+  is `CANDIDATE_NOT_FINAL`. Because those later commits are proven
+  lifecycle-only, an acceptance result rerun on one of them, which names that
+  commit rather than the retained candidate, is still accepted; its inputs are
+  still checked against the candidate's blobs. Its new bytes are rebound in the
+  regenerated pair, so commit that pair as another record-only commit.
+
+| Story 7.3 generator code | Exit | Condition |
+| --- | --- | --- |
+| `WORKFLOW_INTEGRATION_MISSING` | `1` | An acceptance result reports it, or a governed body is absent at the candidate |
+| `WORKFLOW_INTEGRATION_DISPLACED` | `1` | An acceptance result reports it |
+| `SURFACE_PARITY_DRIFT` | `1` | An acceptance result reports it |
+| `TEST_RESULTS_FAILED` | `1` | An acceptance result is not `PASS`, or its exit is not a declared passing exit |
+| `TEST_RESULTS_MISSING` | `1` | A declared acceptance result does not exist |
+| `TEST_RESULTS_STALE` | `1` | An acceptance result names a commit that is neither the candidate nor on its verified lifecycle-only path to `HEAD`, predates the candidate commit, or binds an input that differs from the candidate |
+| `SCENARIO_RESULT_MISMATCH` | `1` | An acceptance result carries another story, scenario, or command; its state and exit disagree with `resultSemantics`; a ledger subject repeats; or its inputs are not exactly the governed bodies |
+| `INPUT_SCHEMA_INVALID` | `1` | An acceptance result is malformed, escapes the repository, or violates its schema |
+| `SCENARIO_COMMAND_UNSUPPORTED` | `1` | A scenario command is neither a supported pytest command, the generator self-invocation, nor a valid acceptance-result command, or the contract declares no acceptance result that binds the workflow bodies |
+| `TEST_COUNT_INCONSISTENT` | `1` | A passing acceptance result carries a blocker or a non-passing ledger row |
+| `ASSERTION_LEDGER_EMPTY` | `1` | An acceptance result records no assertion |
+| `AUTHORITY_BINDING_INVALID` | `1` | The committed Story 7.1 or Story 7.2 record pair is missing or does not verify |
+| `RECORD_CONTENT_DRIFT` | `1` | The inserted region, the committed pair, or the working-tree pair differs |
+
+A failing acceptance result carries its verifier codes into the failure
+document, next to `TEST_RESULTS_FAILED`, so the route can report the exact
+cause.
+
+#### Story 7.3 operator procedure
+
+1. Commit the story candidate. `HEAD` is the candidate, and the tree must be
+   clean.
+2. Run `AC-7.3-01` through `AC-7.3-06` exactly as the contract declares them,
+   through `uv run --frozen --no-sync`. Each must exit `0`. The results are
+   written below the gitignored `artifacts/v9/7.3/` directory.
+3. Run `AC-7.3-07` through `uv run --frozen --no-sync`. It must exit `0` with
+   summary `7/7/0/0/0/0`. Run it a second time and require identical bytes.
+4. Commit exactly the two outputs as a record-only commit, unless both already
+   equal their committed `HEAD` bytes.
+5. Insert the Markdown verbatim into the spec's record region, and run the
+   `--verify-inserted-record` command. It must exit `0`.
+6. Commit the lifecycle transition: the spec `status`, the inserted region, and
+   the sprint-status row. Rerun `AC-7.3-07`, and require it to reproduce the
+   committed pair.
+
+#### Known limitation
+
+Nothing runs this gate automatically. No CI job or hook enforces it, and CI
+runs neither the verifier nor the generator. The gate is only as strong as the
+workflow prose that invokes it. The verifier and
+`StoryFinalRecordGenerationValidationTest` prove that the prose is present,
+placed, and identical. They do not prove that an agent followed it.
+
+The generator classifies only pytest JUnit commands, its own self-invocation,
+and acceptance-result commands. Every backlog contract, Story 7.4 through Story
+16.3, declares at least one scenario command outside those shapes, such as
+Story 7.4's `--historical --format json` invocation. For those stories the gate
+fails closed with `SCENARIO_COMMAND_UNSUPPORTED` until the story extends the
+generator to read its own scenarios. The gate never skips a contract-bound
+story for that reason.
 
 ## Ordered checklist (copy per story)
 

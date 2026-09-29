@@ -11,6 +11,7 @@ import io
 import json
 import os
 import re
+import shutil
 import subprocess
 import sys
 import time
@@ -4204,6 +4205,1278 @@ def test_v2_schema_requires_measurements_only_for_story_7_2(tmp_path: Path) -> N
         assert validator.is_valid(without) == should_accept
     story_7_1["measurements"] = story_7_2["measurements"]
     assert not validator.is_valid(story_7_1)
+
+
+
+# --------------------------------------------------------------------------- #
+# Story 7.3: generation gates every blocking completion transition
+# --------------------------------------------------------------------------- #
+#
+# The fixtures copy the governed skill trees, the render configuration, the
+# frozen Story 7.3 contract, and the committed Story 7.1/7.2 pairs into a
+# hermetic repository, so the verifier and the generator run against real route
+# bodies without ever mutating this checkout. Every fault restores the fixture
+# byte-identically, including its acceptance-result evidence.
+
+VERIFIER_SCRIPT = SCRIPT.parent / "verify_story_completion_workflows.py"
+STORY_7_3_CONTRACT = WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json"
+STORY_7_3_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.3.json"
+STORY_7_3_SPEC_PATH = (
+    "_bmad-output/implementation-artifacts/"
+    "spec-7-3-integrate-generation-into-every-blocking-completion-transition.md"
+)
+STORY_7_3_SPRINT_ROW = "7-3-integrate-generation-into-every-blocking-completion-transition"
+STORY_7_3_OUTPUT_JSON = "docs/release-evidence/story-7.3-final-record-v2.json"
+STORY_7_3_OUTPUT_MARKDOWN = "docs/release-evidence/story-7.3-final-record-v2.md"
+STORY_7_3_RESULTS = "artifacts/v9/7.3"
+STORY_7_3_SKILLS = ("bmad-build", "bmad-build-auto", "bmad-code-review")
+STORY_7_3_COPIED_FILES = (
+    STORY_7_3_CONTRACT_PATH,
+    "docs/release-evidence/story-7.1-final-record-v2.json",
+    "docs/release-evidence/story-7.1-final-record-v2.md",
+    "docs/release-evidence/story-7.2-final-record-v2.json",
+    "docs/release-evidence/story-7.2-final-record-v2.md",
+    "_bmad/scripts/verify_story_completion_workflows.py",
+    "_bmad/config.toml",
+    "_bmad/config.user.toml",
+    "_bmad/custom/config.toml",
+    "_bmad/custom/bmad-build.toml",
+    "_bmad/custom/bmad-build-auto.toml",
+)
+RECORD_BEGIN_LINE = b"<!-- STORY-FINAL-RECORD:BEGIN -->"
+RECORD_END_LINE = b"<!-- STORY-FINAL-RECORD:END -->"
+
+
+def load_completion_verifier():
+    spec = importlib_util.spec_from_file_location(
+        "verify_story_completion_workflows", VERIFIER_SCRIPT
+    )
+    module = importlib_util.module_from_spec(spec)
+    assert spec.loader is not None
+    spec.loader.exec_module(module)
+    return module
+
+
+COMPLETION_VERIFIER = load_completion_verifier()
+STORY_7_3_BODIES = COMPLETION_VERIFIER.BODY_PATHS
+STORY_7_3_TWINS = COMPLETION_VERIFIER.TWIN_LABELS
+
+
+def v2_7_3_route(label: str):
+    logical = label.split("/skills/", 1)[1]
+    return next(route for route in COMPLETION_VERIFIER.ROUTES if route.path == logical)
+
+
+def v2_7_3_affected(body: str) -> list[str]:
+    """A .claude body's render twin is rendered from it, so it carries the same fault."""
+    twin = f"{COMPLETION_VERIFIER.TWIN_PREFIX}{body}"
+    return [body, twin] if twin in STORY_7_3_TWINS else [body]
+
+
+def v2_7_3_block_span(text: str) -> tuple[int, int]:
+    start = text.index(COMPLETION_VERIFIER.BLOCK_BEGIN)
+    end = text.index(COMPLETION_VERIFIER.BLOCK_END) + len(COMPLETION_VERIFIER.BLOCK_END)
+    return start, end
+
+
+def v2_7_3_spec(baseline: str) -> str:
+    return (
+        "---\n"
+        "title: 'Fixture Story 7.3'\n"
+        "status: 'in-progress'\n"
+        f"baseline_commit: '{baseline}'\n"
+        "---\n\n"
+        "# Fixture Story 7.3\n\n"
+        "## Verification\n\n"
+        "Fixture verification notes.\n"
+    )
+
+
+def v2_7_3_verify(repository: Path, scenario_id: str, *overrides: str) -> subprocess.CompletedProcess[bytes]:
+    arguments = overrides or (
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--scenario",
+        scenario_id,
+        "--output",
+        f"{STORY_7_3_RESULTS}/{scenario_id}.json",
+    )
+    return subprocess.run(
+        [sys.executable, str(VERIFIER_SCRIPT), *arguments],
+        check=False,
+        capture_output=True,
+        env=GIT_ENV,
+        timeout=120,
+    )
+
+
+def v2_7_3_verify_in_process(
+    module, repository: Path, scenario_id: str, capsys: pytest.CaptureFixture[str]
+) -> tuple[int, dict]:
+    exit_code = module.main(
+        [
+            "--repository",
+            str(repository),
+            "--contract",
+            STORY_7_3_CONTRACT_PATH,
+            "--scenario",
+            scenario_id,
+            "--output",
+            f"{STORY_7_3_RESULTS}/{scenario_id}.json",
+        ]
+    )
+    captured = capsys.readouterr()
+    assert "Traceback" not in captured.out + captured.err
+    return exit_code, json.loads(captured.out)
+
+
+def v2_7_3_acceptance_validator() -> jsonschema.Draft202012Validator:
+    return v2_schema_contract_validator(v2_schema_contract_load(ACCEPTANCE_RESULT_SCHEMA))
+
+
+def v2_7_3_assert_verifier(
+    result: subprocess.CompletedProcess[bytes], exit_code: int, blockers: list[str]
+) -> dict:
+    """The verifier's stdout is the acceptance result it wrote; it is schema-valid."""
+    document = json.loads(result.stdout.decode("utf-8"))
+    assert result.returncode == exit_code, (document, result.stderr)
+    assert b"Traceback" not in result.stdout + result.stderr
+    v2_7_3_acceptance_validator().validate(document)
+    assert document["exitCode"] == exit_code
+    assert document["result"] == {0: "PASS", 1: "FAIL", 2: "BLOCKED"}[exit_code]
+    assert document["blockers"] == blockers
+    return document
+
+
+def v2_7_3_results(repository: Path) -> None:
+    """Measured evidence for every scenario before the self-invocation."""
+    contract = json.loads(STORY_7_3_CONTRACT.read_bytes())
+    for scenario in contract["scenarios"]:
+        command = scenario["command"]
+        if " -m pytest " in command:
+            selector = re.search(r" -k (\S+) ", command).group(1)
+            junit = re.search(r"--junitxml=(\S+)$", command).group(1)
+            v2_write_result(repository, junit, v2_junit(selector))
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+
+
+def build_v2_7_3_repository(
+    tmp_path: Path, *, results: bool = True, mutate=None
+) -> dict[str, object]:
+    """A hermetic committed Story 7.3 candidate carrying the real governed routes."""
+    fixture = build_v2_repository(tmp_path)
+    repository = fixture["repository"]
+    baseline = fixture["candidate"]
+    for relative in STORY_7_3_COPIED_FILES:
+        source = WORKSPACE / relative
+        if source.is_file():
+            target = repository / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(source.read_bytes())
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for skill in STORY_7_3_SKILLS:
+            shutil.copytree(
+                WORKSPACE / tree / skill,
+                repository / tree / skill,
+                ignore=shutil.ignore_patterns("__pycache__"),
+            )
+    spec_path = repository / STORY_7_3_SPEC_PATH
+    spec_path.parent.mkdir(parents=True, exist_ok=True)
+    spec_path.write_text(v2_7_3_spec(baseline), encoding="utf-8")
+    (repository / STORY_7_2_SPRINT_PATH).write_text(
+        "last_updated: 2026-09-29\n"
+        "development_status:\n"
+        "  epic-7: in-progress\n"
+        f"  {STORY_7_3_SPRINT_ROW}: in-progress\n",
+        encoding="utf-8",
+    )
+    if mutate is not None:
+        mutate(repository)
+    v2_git(repository, "add", "--all")
+    v2_git(repository, "commit", "-m", "story 7.3 fixture candidate")
+    fixture["candidate"] = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    fixture["baseline"] = baseline
+    if results:
+        v2_7_3_results(repository)
+    return fixture
+
+
+def v2_7_3_arguments(repository: Path) -> list[str]:
+    return v2_arguments(
+        repository,
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--format",
+        "bundle",
+        "--output-json",
+        STORY_7_3_OUTPUT_JSON,
+        "--output-markdown",
+        STORY_7_3_OUTPUT_MARKDOWN,
+        replace=True,
+    )
+
+
+def v2_7_3_verify_arguments(repository: Path, spec: str = STORY_7_3_SPEC_PATH) -> list[str]:
+    return [
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--verify-inserted-record",
+        spec,
+    ]
+
+
+def v2_7_3_outputs(repository: Path) -> tuple[bytes | None, bytes | None]:
+    return tuple(
+        (repository / path).read_bytes() if (repository / path).exists() else None
+        for path in (STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    )
+
+
+def v2_7_3_assert_pass(repository: Path, result: subprocess.CompletedProcess[bytes]) -> dict:
+    assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert result.stderr == b""
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    assert result.stdout == json_bytes
+    record = json.loads(json_bytes)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(record)
+    assert record["outputs"]["json"]["sha256"] == v2_json_digest(record)
+    assert record["renderedMarkdownSha256"] == hashlib.sha256(markdown_bytes).hexdigest()
+    assert load_generator().v2_verify_pair(json_bytes, markdown_bytes) == []
+    assert record["summary"] == json.loads(STORY_7_3_CONTRACT.read_bytes())["finalRecord"]["summary"]
+    return record
+
+
+def v2_7_3_lifecycle(repository: Path) -> tuple[bytes, bytes]:
+    return (
+        (repository / STORY_7_3_SPEC_PATH).read_bytes(),
+        (repository / STORY_7_2_SPRINT_PATH).read_bytes(),
+    )
+
+
+def v2_7_3_replace(path: Path, content: bytes):
+    """Replace one file and return a restore that puts back its bytes and mtime."""
+    original = path.read_bytes()
+    metadata = path.stat()
+    path.write_bytes(content)
+
+    def restore() -> None:
+        path.write_bytes(original)
+        os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+    return restore
+
+
+def v2_7_3_isolated(repository: Path, fault, check) -> None:
+    """Run one fault and restore the fixture, including result evidence, byte-identically."""
+    before = v2_snapshot(repository)
+    results = repository / STORY_7_3_RESULTS
+    saved = {
+        path.name: (path.read_bytes(), path.stat().st_mtime_ns)
+        for path in (results.iterdir() if results.is_dir() else ())
+        if path.is_file()
+    }
+    restore = fault(repository)
+    try:
+        check()
+    finally:
+        restore()
+        if results.is_dir():
+            for path in results.iterdir():
+                if path.name not in saved:
+                    path.unlink()
+        for name, (content, mtime) in saved.items():
+            (results / name).write_bytes(content)
+            os.utime(results / name, ns=(mtime, mtime))
+    assert v2_snapshot(repository) == before
+
+
+def v2_7_3_remove_block(repository: Path, label: str):
+    path = repository / label
+    text = path.read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    return v2_7_3_replace(path, (text[:start] + text[end + 1 :]).encode("utf-8"))
+
+
+def v2_7_3_insert_record(repository: Path, markdown: bytes):
+    spec = repository / STORY_7_3_SPEC_PATH
+    content = spec.read_bytes()
+    return v2_7_3_replace(
+        spec, content + b"\n" + RECORD_BEGIN_LINE + b"\n" + markdown + RECORD_END_LINE + b"\n"
+    )
+
+
+def v2_7_3_passing_pair(fixture: dict[str, object]) -> tuple[dict, bytes, bytes]:
+    """Generate the pair and commit it as the record-only successor."""
+    repository = fixture["repository"]
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    v2_git(repository, "add", STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    return record, json_bytes, markdown_bytes
+
+
+# ---- AC-7.3-03: v2_workflow_verifies_inserted_digest ------------------------ #
+
+
+def test_v2_workflow_verifies_inserted_digest_matching_bytes_pass_and_altered_bytes_fail(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    record, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = (repository / STORY_7_3_SPEC_PATH).read_bytes()
+    start = spec.index(RECORD_BEGIN_LINE) + len(RECORD_BEGIN_LINE) + 1
+    inserted = spec[start : spec.index(RECORD_END_LINE)]
+    assert inserted == markdown_bytes
+    assert hashlib.sha256(inserted).hexdigest() == record["renderedMarkdownSha256"]
+    verified = v2_run(v2_7_3_verify_arguments(repository))
+    assert verified.returncode == 0, verified.stdout
+    assert verified.stdout == json_bytes
+    assert verified.stderr == b""
+    absolute = v2_run(v2_7_3_verify_arguments(repository, str(repository / STORY_7_3_SPEC_PATH)))
+    assert absolute.returncode == 0, absolute.stdout
+
+    position = start + markdown_bytes.index(b"| `7` |")
+    altered = spec[:position] + b"| `8` |" + spec[position + len(b"| `7` |") :]
+
+    def fault(repository_path: Path):
+        return v2_7_3_replace(repository_path / STORY_7_3_SPEC_PATH, altered)
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_verify_arguments(repository)), {"RECORD_CONTENT_DRIFT"}
+        )
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+        assert document["storyId"] == "7.3"
+
+    v2_7_3_isolated(repository, fault, check)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+
+
+@pytest.mark.parametrize(
+    "fault",
+    (
+        "no-marker-pair",
+        "duplicated-marker-pair",
+        "truncated-region",
+        "trailing-byte-in-region",
+        "marker-not-on-its-own-line",
+        "end-marker-without-trailing-lf",
+        "uncommitted-pair",
+        "edited-working-tree-json",
+        "inconsistent-committed-json",
+        "foreign-story-committed-json",
+    ),
+)
+def test_v2_workflow_verifies_inserted_digest_rejects_malformed_insertions(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    if fault == "uncommitted-pair":
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        markdown_bytes = v2_7_3_outputs(repository)[1]
+    else:
+        _, _, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec_path = repository / STORY_7_3_SPEC_PATH
+    spec = spec_path.read_bytes()
+
+    def mutate(repository_path: Path):
+        if fault == "no-marker-pair":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_BEGIN_LINE, b"<!-- removed -->"))
+        if fault == "duplicated-marker-pair":
+            return v2_7_3_replace(spec_path, spec + RECORD_BEGIN_LINE + b"\n" + RECORD_END_LINE + b"\n")
+        if fault == "truncated-region":
+            return v2_7_3_replace(spec_path, spec.replace(markdown_bytes, markdown_bytes[:-40]))
+        if fault == "trailing-byte-in-region":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_END_LINE, b"\n" + RECORD_END_LINE))
+        if fault == "marker-not-on-its-own-line":
+            return v2_7_3_replace(spec_path, spec.replace(RECORD_BEGIN_LINE, b"x " + RECORD_BEGIN_LINE))
+        if fault == "end-marker-without-trailing-lf":
+            assert spec.endswith(RECORD_END_LINE + b"\n")
+            return v2_7_3_replace(spec_path, spec[:-1])
+        if fault == "uncommitted-pair":
+            return lambda: None
+        target = repository_path / STORY_7_3_OUTPUT_JSON
+        if fault == "edited-working-tree-json":
+            return v2_7_3_replace(target, target.read_bytes().replace(b'"7.3"', b'"7.3" ', 1))
+        # A canonically rendered but internally inconsistent, or foreign, JSON record
+        # committed with a matching working tree reaches the pair-validity check.
+        record = json.loads(target.read_bytes())
+        if fault == "inconsistent-committed-json":
+            record["rollback"]["boundary"] += " changed"
+        else:
+            record["storyId"] = "7.2"
+        head = v2_git(repository_path, "rev-parse", "HEAD").stdout.strip()
+        target.write_bytes((json.dumps(record, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        v2_git(repository_path, "add", STORY_7_3_OUTPUT_JSON)
+        v2_git(repository_path, "commit", "-q", "-m", "commit a record that does not verify")
+        return lambda: v2_git(repository_path, "reset", "-q", "--keep", head)
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_verify_arguments(repository)), {"RECORD_CONTENT_DRIFT"}
+        )
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+
+    v2_7_3_isolated(repository, mutate, check)
+
+
+def test_v2_workflow_verifies_inserted_digest_and_reproduces_the_pair_after_lifecycle_commits(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+    lifecycle = v2_snapshot(repository)
+
+    spec.write_text(spec.read_text(encoding="utf-8") + "\nLater source edit.\n", encoding="utf-8")
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "change story source")
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+    v2_git(repository, "reset", "--hard", "-q", lifecycle[0])
+    assert v2_snapshot(repository) == lifecycle
+
+
+def test_v2_workflow_verifies_inserted_digest_in_a_preseeded_marker_pair(tmp_path: Path) -> None:
+    def seed(repository: Path) -> None:
+        spec = repository / STORY_7_3_SPEC_PATH
+        spec.write_bytes(spec.read_bytes() + b"\n" + RECORD_BEGIN_LINE + b"\n" + RECORD_END_LINE + b"\n")
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=seed)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_bytes(spec.read_bytes().replace(RECORD_END_LINE, markdown_bytes + RECORD_END_LINE, 1))
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "insert record")
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+def test_v2_story_7_3_accepts_results_rerun_after_the_record_only_commit(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    heads = [v2_git(repository, "rev-parse", "HEAD").stdout.strip()]
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping")
+    heads.append(v2_git(repository, "rev-parse", "HEAD").stdout.strip())
+    original = json.loads(json_bytes)
+    for head in heads:
+        for path, content in zip((STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN),
+                                 (json_bytes, markdown_bytes)):
+            (repository / path).write_bytes(content)
+        v2_git(repository, "checkout", "-q", "--detach", head)
+        for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+            document = v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+            assert document["candidate"] == head != fixture["candidate"]
+        record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        # The retained candidate and every derived fact survive; only the two rerun
+        # results are rebound, because the record binds each result file's digest.
+        assert record["candidate"] == original["candidate"]
+        assert record["workflowIntegration"] == original["workflowIntegration"]
+        assert record["scenarios"][2:] == original["scenarios"][2:]
+        for scenario in record["scenarios"][:2]:
+            assert scenario["result"] == "PASS"
+            assert scenario["resultFile"]["sha256"] == sha256_file(
+                repository / scenario["resultFile"]["path"]
+            )
+        regenerated = v2_7_3_outputs(repository)
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+        assert v2_7_3_outputs(repository) == regenerated
+
+
+# ---- AC-7.3-04: v2_fault_removed_workflow_invocation ----------------------- #
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    original = (repository / body).read_text(encoding="utf-8")
+
+    def check() -> None:
+        mutated = (repository / body).read_text(encoding="utf-8")
+        assert COMPLETION_VERIFIER.BLOCK_BEGIN not in mutated
+        # The transition itself is untouched; only its gate is gone.
+        assert mutated.count(route.transition) == original.count(route.transition)
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        failed = {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"}
+        assert failed == {
+            f"{surface}::{check_name}"
+            for surface in v2_7_3_affected(body)
+            for check_name in (
+                "completion-gate-block-present",
+                "generator-invocation-in-block",
+                "block-in-gate-span-before-transition",
+            )
+        }
+
+    v2_7_3_isolated(repository, lambda path: v2_7_3_remove_block(path, body), check)
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation_inside_the_block(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    text = (repository / body).read_text(encoding="utf-8")
+    gutted = text.replace(COMPLETION_VERIFIER.GENERATOR_COMMAND, "the record is optional")
+    assert gutted != text
+
+    def check() -> None:
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::generator-invocation-in-block" for surface in v2_7_3_affected(body)
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, gutted.encode("utf-8")), check
+    )
+
+
+@pytest.mark.parametrize("twin", STORY_7_3_TWINS)
+def test_v2_fault_removed_workflow_invocation_in_a_render_twin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], twin: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+
+    def without_block(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        start, end = v2_7_3_block_span(twins[twin])
+        twins[twin] = twins[twin][:start] + twins[twin][end:]
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", without_block)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-01", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["WORKFLOW_INTEGRATION_MISSING"]
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{twin}::completion-gate-block-present",
+            f"{twin}::generator-invocation-in-block",
+            f"{twin}::block-in-gate-span-before-transition",
+        }
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+def test_v2_fault_removed_workflow_invocation_blocks_the_record(tmp_path: Path) -> None:
+    body = ".claude/skills/bmad-build/step-05-present.md"
+
+    def remove(repository: Path) -> None:
+        text = (repository / body).read_text(encoding="utf-8")
+        start, end = v2_7_3_block_span(text)
+        (repository / body).write_text(text[:start] + text[end + 1 :], encoding="utf-8")
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=remove)
+    repository = fixture["repository"]
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"])
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"])
+    lifecycle = v2_7_3_lifecycle(repository)
+    before = v2_snapshot(repository)
+    document = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)),
+        {"WORKFLOW_INTEGRATION_MISSING", "SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"},
+    )
+    assert "TEST_RESULTS_MISSING" in document["blockers"]  # AC-7.3-03..06 were not run here
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_7_3_lifecycle(repository) == lifecycle
+    assert v2_snapshot(repository) == before
+
+
+# ---- AC-7.3-05: v2_fault_displaced_workflow_invocation --------------------- #
+
+
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_displaced_workflow_invocation(tmp_path: Path, body: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    text = (repository / body).read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    decoy = f"Decoy text: `{COMPLETION_VERIFIER.GENERATOR_COMMAND}`"
+    displaced = text[:start] + decoy + text[end:] + "\n" + block + "\n"
+
+    def check() -> None:
+        mutated = (repository / body).read_text(encoding="utf-8")
+        gate = mutated.index(route.gate)
+        follower = mutated.index(route.follower, gate)
+        # Whole-file and in-span vocabulary are both still present: they cannot pass.
+        assert COMPLETION_VERIFIER.GENERATOR_COMMAND in mutated[gate:follower]
+        assert mutated.index(COMPLETION_VERIFIER.BLOCK_BEGIN) > mutated.index(route.transition)
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_DISPLACED"]
+        )
+        assert {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::block-in-gate-span-before-transition" for surface in v2_7_3_affected(body)
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, displaced.encode("utf-8")), check
+    )
+    v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+
+@pytest.mark.parametrize("twin", STORY_7_3_TWINS)
+def test_v2_fault_displaced_workflow_invocation_in_a_render_twin(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str], twin: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+
+    def displaced(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        start, end = v2_7_3_block_span(twins[twin])
+        block = twins[twin][start:end]
+        twins[twin] = twins[twin][:start] + twins[twin][end:] + "\n" + block + "\n"
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", displaced)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-01", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["WORKFLOW_INTEGRATION_DISPLACED"]
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+@pytest.mark.parametrize(
+    "variant",
+    (
+        "before-the-gate-heading",
+        "gate-heading-removed",
+        "transition-moved-into-the-span",
+        "second-block-after-the-transition",
+    ),
+)
+def test_v2_fault_displaced_workflow_invocation_variants(tmp_path: Path, variant: str) -> None:
+    body = ".agents/skills/bmad-code-review/steps/step-04-present.md"
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    route = v2_7_3_route(body)
+    text = (repository / body).read_text(encoding="utf-8")
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    if variant == "before-the-gate-heading":
+        without = text[:start] + text[end:]
+        gate = without.index(route.gate)
+        mutated = without[:gate] + block + "\n\n" + without[gate:]
+    elif variant == "gate-heading-removed":
+        mutated = text.replace(route.gate, "#### Removed gate", 1)
+    elif variant == "transition-moved-into-the-span":
+        mutated = text[:end] + f"\n{route.transition}\n" + text[end:]
+    else:
+        mutated = text + "\n" + block + "\n"
+
+    def check() -> None:
+        v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_DISPLACED"]
+        )
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, mutated.encode("utf-8")), check
+    )
+
+
+# ---- AC-7.3-06: v2_blocker_prevents_state_transition ----------------------- #
+
+
+def test_v2_blocker_prevents_state_transition_when_generation_fails(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    lifecycle = v2_7_3_lifecycle(repository)
+    result = repository / STORY_7_3_RESULTS / "AC-7.3-02.json"
+    failed = json.loads(result.read_bytes())
+    failed.update(
+        exitCode=1,
+        result="FAIL",
+        blockers=["SURFACE_PARITY_DRIFT"],
+        assertionLedger=[dict(failed["assertionLedger"][0], state="FAIL")],
+    )
+
+    def fault(repository_path: Path):
+        return v2_7_3_replace(result, (json.dumps(failed, indent=2) + "\n").encode("utf-8"))
+
+    def check() -> None:
+        document = v2_assert_failure(
+            v2_run(v2_7_3_arguments(repository)), {"SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"}
+        )
+        assert document["blockers"] == ["SURFACE_PARITY_DRIFT", "TEST_RESULTS_FAILED"]
+        assert all(item["subject"] == "AC-7.3-02" for item in document["diagnostics"])
+        assert v2_7_3_outputs(repository) == (None, None)
+        assert v2_7_3_lifecycle(repository) == lifecycle
+
+    v2_7_3_isolated(repository, fault, check)
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+@pytest.mark.parametrize("environment", ("schemas-unavailable", "git-fails"))
+def test_v2_blocker_prevents_state_transition_when_generation_is_blocked(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    environment: str,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    lifecycle = v2_7_3_lifecycle(repository)
+    before = v2_snapshot(repository)
+    module = load_generator()
+    if environment == "schemas-unavailable":
+        empty = tmp_path / "no-schemas"
+        empty.mkdir()
+        monkeypatch.setattr(module, "V2_SCHEMA_DIRECTORY", empty)
+        expected = ["SCHEMA_UNAVAILABLE"]
+    else:
+        original = module.run_git
+
+        def failing(repository_path: Path, *arguments: str, **options):
+            if arguments[:2] == ("ls-tree", "-r"):
+                raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+            return original(repository_path, *arguments, **options)
+
+        monkeypatch.setattr(module, "run_git", failing)
+        expected = ["GIT_COMMAND_FAILED"]
+    assert module.main(v2_7_3_arguments(repository)) == 2
+    captured = capsys.readouterr()
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == expected
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_7_3_lifecycle(repository) == lifecycle
+    assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize("surface", (*STORY_7_3_BODIES, *STORY_7_3_TWINS))
+def test_v2_blocker_prevents_state_transition_on_every_surface(surface: str) -> None:
+    """Each installed surface and render twin HALTs in progress and claims no CI gate."""
+    if surface.startswith(COMPLETION_VERIFIER.TWIN_PREFIX):
+        text = load_completion_verifier().render_twins(WORKSPACE)[surface]
+    else:
+        text = (WORKSPACE / surface).read_text(encoding="utf-8")
+    route = v2_7_3_route(surface)
+    start, end = v2_7_3_block_span(text)
+    block = text[start:end]
+    assert COMPLETION_VERIFIER.placement_problem(text, route, start, end) is None
+    branch = block.index("Blocker branch:")
+    assert branch > block.index(COMPLETION_VERIFIER.GENERATOR_COMMAND)
+    assert branch > block.index(COMPLETION_VERIFIER.VERIFY_COMMAND)
+    blocker_branch = block[branch:]
+    for clause in (
+        "on any nonzero exit, summary mismatch, required commit that is not authorized, "
+        "commit failure, or verification failure",
+        "keep or return `{spec_file}` and the story's sprint-status row to `in-progress`",
+        "never write `review` or `done`",
+        "Report the exact command, its exit, and every stable blocker code, then HALT",
+    ):
+        assert clause in blocker_branch, (surface, clause)
+    assert "no CI job or hook enforces it" in block
+    assert COMPLETION_VERIFIER.CI_CLAIM.search(block) is None
+    assert COMPLETION_VERIFIER.CI_CLAIM.search("this gate is enforced by CI") is not None
+
+
+# ---- Story 7.3 verifier matrix and generator bindings ----------------------- #
+
+
+def test_story_completion_verifier_passes_on_the_integrated_repository() -> None:
+    module = load_completion_verifier()
+    contract = json.loads(STORY_7_3_CONTRACT.read_bytes())
+    candidate = run_git(WORKSPACE, "rev-parse", "HEAD").stdout.strip()
+    expected_inputs = [
+        {"path": path, "sha256": sha256_file(WORKSPACE / path)} for path in STORY_7_3_BODIES
+    ]
+    for scenario in contract["scenarios"][:2]:
+        findings, rows, inputs = module.evaluate(WORKSPACE, candidate, scenario)
+        assert findings == [], findings
+        assert rows and all(state == "PASS" for _, state in rows)
+        assert len(rows) == (3 if scenario["id"] == "AC-7.3-01" else 2) * 11
+        assert inputs == expected_inputs
+
+
+def test_story_completion_verifier_emits_schema_valid_acceptance_results(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        result = v2_7_3_verify(repository, scenario_id)
+        document = v2_7_3_assert_verifier(result, 0, [])
+        assert result.stderr == b""
+        assert (repository / STORY_7_3_RESULTS / f"{scenario_id}.json").read_bytes() == result.stdout
+        assert document["candidate"] == fixture["candidate"]
+        assert document["command"] == next(
+            item["command"] for item in json.loads(STORY_7_3_CONTRACT.read_bytes())["scenarios"]
+            if item["id"] == scenario_id
+        )
+        assert [row["path"] for row in document["inputs"]] == sorted(STORY_7_3_BODIES)
+        assert all(
+            row["sha256"] == sha256_file(repository / row["path"]) for row in document["inputs"]
+        )
+        assert document["assertionLedger"]
+        assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+    # The twins are rendered in memory only: no render snapshot is ever published.
+    assert not (repository / "_bmad/render").exists()
+
+
+# Every clause the one block must state, written out here rather than imported, so
+# a clause the verifier stops requiring is caught instead of silently shared.
+STORY_7_3_REQUIRED_BLOCK_CLAUSES = (
+    "uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . "
+    "--contract <contract> --format bundle --output-json <json> --output-markdown <md>",
+    "`_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json`",
+    "the spec cannot opt out",
+    "`finalRecord.paths`",
+    "Require exit `0`",
+    "`finalRecord.summary`",
+    "record-only commit",
+    "`<!-- STORY-FINAL-RECORD:BEGIN -->`",
+    "`<!-- STORY-FINAL-RECORD:END -->`",
+    "uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . "
+    "--contract <contract> --verify-inserted-record {spec_file}",
+    "to `in-progress`",
+    "never write `review` or `done`",
+    "Report the exact command, its exit, and every stable blocker code",
+    "then HALT",
+    "no CI job or hook enforces it",
+)
+V2_7_3_DRIFTS = (
+    "one-body-byte",
+    "one-tree-only",
+    "uniform-ci-claim",
+    "uniform-render-token",
+    *(f"uniform-clause-loss-{index:02d}" for index in range(len(STORY_7_3_REQUIRED_BLOCK_CLAUSES))),
+)
+
+
+def test_story_completion_verifier_requires_exactly_the_listed_block_clauses() -> None:
+    required = {clause for _, clause in COMPLETION_VERIFIER.REQUIRED_CLAUSES}
+    assert set(STORY_7_3_REQUIRED_BLOCK_CLAUSES) == required | {COMPLETION_VERIFIER.GENERATOR_COMMAND}
+
+
+@pytest.mark.parametrize("drift", V2_7_3_DRIFTS)
+def test_story_completion_verifier_reports_surface_parity_drift(tmp_path: Path, drift: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    first = STORY_7_3_BODIES[0]
+    if drift in ("one-body-byte", "one-tree-only"):
+        targets = [first if drift == "one-body-byte" else ".claude/skills/bmad-build/step-oneshot.md"]
+        change = ("then HALT.", "then HALT!")
+    elif drift == "uniform-ci-claim":
+        targets = list(STORY_7_3_BODIES)
+        change = ("no CI job or hook enforces it.", "no CI job or hook enforces it; CI enforces it.")
+    elif drift == "uniform-render-token":
+        # A real render resolves this token, so only the twins' bytes change.
+        targets = list(STORY_7_3_BODIES)
+        change = ("then HALT.", "then HALT {{.implementation_artifacts}}.")
+    else:
+        targets = list(STORY_7_3_BODIES)
+        clause = STORY_7_3_REQUIRED_BLOCK_CLAUSES[int(drift.rsplit("-", 1)[1])]
+        change = (clause, "removed clause")
+
+    def in_block(text: str) -> str:
+        start, end = v2_7_3_block_span(text)
+        block = text[start:end]
+        assert change[0] in block
+        count = 1 if drift in ("one-body-byte", "one-tree-only") else -1
+        return text[:start] + block.replace(*change, count) + text[end:]
+
+    def fault(repository_path: Path):
+        restores = [
+            v2_7_3_replace(
+                repository_path / target,
+                in_block((repository_path / target).read_text(encoding="utf-8")).encode("utf-8"),
+            )
+            for target in targets
+        ]
+        return lambda: [restore() for restore in restores]
+
+    def check() -> None:
+        document = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"]
+        )
+        failed_rows = {
+            row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"
+        }
+        failed = {subject.split("::")[0] for subject in failed_rows}
+        if drift == "one-body-byte":
+            assert failed == {first}
+        elif drift == "one-tree-only":
+            # The twin renders from the .claude tree, so it drifts with its body.
+            assert failed == {targets[0], f"render:{targets[0]}"}
+        elif drift == "uniform-render-token":
+            assert failed_rows == {
+                f"{twin}::block-bytes-identical-across-surfaces" for twin in STORY_7_3_TWINS
+            }
+        elif drift == "uniform-ci-claim":
+            assert failed == {*STORY_7_3_BODIES, *STORY_7_3_TWINS}
+        else:
+            assert failed_rows == {
+                f"{surface}::block-states-gate-contract"
+                for surface in (*STORY_7_3_BODIES, *STORY_7_3_TWINS)
+            }
+        if change[0] != STORY_7_3_REQUIRED_BLOCK_CLAUSES[0]:
+            v2_7_3_assert_verifier(v2_7_3_verify(repository, "AC-7.3-01"), 0, [])
+
+    v2_7_3_isolated(repository, fault, check)
+
+
+def test_story_completion_verifier_reports_render_twin_drift(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    original = module.render_twins
+    twin = STORY_7_3_TWINS[0]
+
+    def drifted(repository_path: Path) -> dict[str, str]:
+        twins = original(repository_path)
+        twins[twin] = twins[twin].replace("then HALT.", "then HALT!", 1)
+        return twins
+
+    def check() -> None:
+        monkeypatch.setattr(module, "render_twins", drifted)
+        exit_code, document = v2_7_3_verify_in_process(module, repository, "AC-7.3-02", capsys)
+        monkeypatch.undo()
+        assert exit_code == 1
+        assert document["blockers"] == ["SURFACE_PARITY_DRIFT"]
+        failed = {row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"}
+        assert failed == {f"{twin}::block-bytes-identical-across-surfaces"}
+
+    v2_7_3_isolated(repository, lambda path: (lambda: None), check)
+
+
+@pytest.mark.parametrize(
+    "fault",
+    (
+        "contract-not-7.3",
+        "unknown-scenario",
+        "undeclared-output",
+        "abbreviated-option",
+        "unreadable-body",
+        "render-configuration-missing",
+        "output-escapes",
+    ),
+)
+def test_story_completion_verifier_blocks_unreadable_inputs(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    base = [
+        "--repository",
+        str(repository),
+        "--contract",
+        STORY_7_3_CONTRACT_PATH,
+        "--scenario",
+        "AC-7.3-01",
+        "--output",
+        f"{STORY_7_3_RESULTS}/AC-7.3-01.json",
+    ]
+    arguments = list(base)
+    mutate = lambda path: (lambda: None)  # noqa: E731
+    if fault == "contract-not-7.3":
+        arguments[3] = STORY_7_2_CONTRACT_PATH
+        target = repository / STORY_7_2_CONTRACT_PATH
+        target.parent.mkdir(parents=True, exist_ok=True)
+
+        def mutate(path: Path):
+            target.write_bytes(STORY_7_2_CONTRACT.read_bytes())
+            return target.unlink
+
+        expected = "CONTRACT_UNSUPPORTED"
+    elif fault == "unknown-scenario":
+        arguments[5] = "AC-7.3-03"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "undeclared-output":
+        arguments[7] = f"{STORY_7_3_RESULTS}/elsewhere.json"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "abbreviated-option":
+        arguments[6] = "--out"
+        expected = "ARGUMENT_INVALID"
+    elif fault == "unreadable-body":
+        mutate = lambda path: v2_7_3_replace(path / STORY_7_3_BODIES[0], b"\xff\xfe not utf-8\n")  # noqa: E731
+        expected = "SURFACE_UNREADABLE"
+    elif fault == "render-configuration-missing":
+        mutate = lambda path: v2_7_3_replace(path / "_bmad/config.toml", b"not = [valid toml\n")  # noqa: E731
+        expected = "RENDER_UNAVAILABLE"
+    else:
+        outside = tmp_path / "outside-results"
+        outside.mkdir()
+        results = repository / STORY_7_3_RESULTS
+
+        def mutate(path: Path):
+            results.parent.mkdir(parents=True, exist_ok=True)
+            results.symlink_to(outside, target_is_directory=True)
+            return results.unlink
+
+        expected = "OUTPUT_WRITE_FAILED"
+
+    def check() -> None:
+        result = v2_7_3_verify(repository, "AC-7.3-01", *arguments)
+        assert result.returncode == 2
+        assert b"Traceback" not in result.stdout + result.stderr
+        document = json.loads(result.stdout)
+        assert document["result"] == "BLOCKED"
+        assert document["exitCode"] == 2
+        assert document["blockers"] == [expected]
+        written = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+        if expected == "OUTPUT_WRITE_FAILED":
+            # The derived result is reported, but nothing is written outside the repository.
+            v2_7_3_acceptance_validator().validate(document)
+            assert document["inputs"] == [] and document["assertionLedger"] == []
+            assert list(outside.iterdir()) == []
+        elif expected in ("SURFACE_UNREADABLE", "RENDER_UNAVAILABLE"):
+            # A contract-bound blocked result is evidence: no input, no ledger, no PASS.
+            v2_7_3_acceptance_validator().validate(document)
+            assert document["inputs"] == [] and document["assertionLedger"] == []
+            assert written.read_bytes() == result.stdout
+        else:
+            assert document["schemaVersion"] != "hexalith.conversations.acceptance-result.v1"
+            assert not written.exists()
+
+    v2_7_3_isolated(repository, mutate, check)
+
+
+def test_story_completion_verifier_inventory_matches_the_generator() -> None:
+    module = load_generator()
+    assert tuple(COMPLETION_VERIFIER.BODY_PATHS) == module.V2_7_3_WORKFLOW_BODIES
+    assert len(STORY_7_3_BODIES) == 8 and len(STORY_7_3_TWINS) == 3
+    assert set(COMPLETION_VERIFIER.FAIL_CODES) == set(module.V2_PROPAGATED_ACCEPTANCE_CODES)
+    runbook = RUNBOOK.read_text(encoding="utf-8")
+    for code in (*COMPLETION_VERIFIER.FAIL_CODES, *COMPLETION_VERIFIER.BLOCKED_CODES):
+        assert f"`{code}`" in runbook, code
+
+
+def test_v2_story_7_3_record_binds_contract_bodies_and_predecessors(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    first = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    outputs = v2_7_3_outputs(repository)
+    second = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert first == second and v2_7_3_outputs(repository) == outputs
+    integration = first["workflowIntegration"]
+    assert integration["contract"] == {
+        "path": STORY_7_3_CONTRACT_PATH,
+        "sha256": sha256_file(STORY_7_3_CONTRACT),
+    }
+    assert integration["workflowBodies"] == [
+        {"path": path, "sha256": sha256_file(repository / path)} for path in STORY_7_3_BODIES
+    ]
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        result = json.loads((repository / STORY_7_3_RESULTS / f"{scenario_id}.json").read_bytes())
+        assert result["inputs"] == integration["workflowBodies"]
+    assert integration["predecessorRecords"] == [
+        {"storyId": story, "path": path, "sha256": sha256_file(WORKSPACE / path)}
+        for story, path in (
+            ("7.1", "docs/release-evidence/story-7.1-final-record-v2.json"),
+            ("7.2", "docs/release-evidence/story-7.2-final-record-v2.json"),
+        )
+    ]
+    assert [scenario["result"] for scenario in first["scenarios"]] == ["PASS"] * 7
+    assert first["scenarios"][0]["resultFile"]["path"] == f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    assert len(first["scenarios"][-1]["assertionLedger"]) == 12
+    assert "measurements" not in first
+    markdown = outputs[1].decode("utf-8")
+    assert "## Story 7.3 workflow integration" in markdown
+    for body in integration["workflowBodies"]:
+        assert f"| `{body['path']}` | `{body['sha256']}` |" in markdown
+    assert "## Story 7.2 measurements" not in markdown
+
+
+V2_7_3_ACCEPTANCE_FAULTS = {
+    "missing": ("TEST_RESULTS_MISSING",),
+    "stale-mtime": ("TEST_RESULTS_STALE",),
+    "other-candidate": ("TEST_RESULTS_STALE",),
+    "tampered-input-digest": ("TEST_RESULTS_STALE",),
+    "command-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "state-exit-disagree": ("SCENARIO_RESULT_MISMATCH",),
+    "inputs-not-governed-set": ("SCENARIO_RESULT_MISMATCH",),
+    "malformed-json": ("INPUT_SCHEMA_INVALID",),
+    "schema-violation": ("INPUT_SCHEMA_INVALID",),
+    "symlinked-result": ("INPUT_SCHEMA_INVALID",),
+    "passing-with-failed-row": ("TEST_COUNT_INCONSISTENT",),
+    "passing-without-ledger": ("ASSERTION_LEDGER_EMPTY",),
+    "failed-with-verifier-blocker": ("TEST_RESULTS_FAILED", "WORKFLOW_INTEGRATION_DISPLACED"),
+}
+
+
+@pytest.mark.parametrize("fault", sorted(V2_7_3_ACCEPTANCE_FAULTS))
+def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, fault: str) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+    document = json.loads(path.read_bytes())
+
+    def rewritten(**changes) -> bytes:
+        return (json.dumps(dict(document, **changes), indent=2) + "\n").encode("utf-8")
+
+    def mutate(repository_path: Path):
+        if fault == "missing":
+            original = path.read_bytes()
+            path.unlink()
+            return lambda: path.write_bytes(original)
+        if fault == "stale-mtime":
+            mtime = path.stat().st_mtime_ns
+            os.utime(path, ns=(1, 1))
+            return lambda: os.utime(path, ns=(mtime, mtime))
+        if fault == "symlinked-result":
+            outside = tmp_path / "outside-AC-7.3-01.json"
+            outside.write_bytes(path.read_bytes())
+            path.unlink()
+            path.symlink_to(outside)
+            return path.unlink
+        content = {
+            "other-candidate": lambda: rewritten(candidate=fixture["baseline"]),
+            "tampered-input-digest": lambda: rewritten(
+                inputs=[dict(document["inputs"][0], sha256="0" * 64), *document["inputs"][1:]]
+            ),
+            "command-mismatch": lambda: rewritten(command=document["command"] + " --extra"),
+            "state-exit-disagree": lambda: rewritten(exitCode=1),
+            "inputs-not-governed-set": lambda: rewritten(inputs=document["inputs"][1:]),
+            "malformed-json": lambda: b'{"schemaVersion": ',
+            "schema-violation": lambda: rewritten(undeclared=True),
+            "passing-with-failed-row": lambda: rewritten(
+                assertionLedger=[dict(document["assertionLedger"][0], state="FAIL")]
+            ),
+            "passing-without-ledger": lambda: rewritten(assertionLedger=[]),
+            "failed-with-verifier-blocker": lambda: rewritten(
+                exitCode=1, result="FAIL", blockers=["WORKFLOW_INTEGRATION_DISPLACED"]
+            ),
+        }[fault]()
+        return v2_7_3_replace(path, content)
+
+    def check() -> None:
+        expected = set(V2_7_3_ACCEPTANCE_FAULTS[fault])
+        failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), expected)
+        assert set(failure["blockers"]) == expected
+        assert v2_7_3_outputs(repository) == (None, None)
+
+    v2_7_3_isolated(repository, mutate, check)
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+@pytest.mark.parametrize("fault", ("tampered-7.2-json", "missing-7.1-markdown"))
+def test_v2_story_7_3_invalid_predecessor_records_block_the_record(tmp_path: Path, fault: str) -> None:
+    def mutate(repository: Path) -> None:
+        if fault == "tampered-7.2-json":
+            target = repository / "docs/release-evidence/story-7.2-final-record-v2.json"
+            record = json.loads(target.read_bytes())
+            record["rollback"]["boundary"] += " tampered"
+            target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+        else:
+            (repository / "docs/release-evidence/story-7.1-final-record-v2.md").unlink()
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=mutate)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"AUTHORITY_BINDING_INVALID"})
+    assert failure["blockers"] == ["AUTHORITY_BINDING_INVALID"]
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_story_7_3_verification_mode_accepts_only_its_own_options(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    for arguments in (
+        [*v2_7_3_verify_arguments(repository), "--output-json", STORY_7_3_OUTPUT_JSON],
+        [*v2_7_3_verify_arguments(repository), "--format", "bundle"],
+        [*v2_7_3_verify_arguments(repository), "--verify-inserted-record", STORY_7_3_SPEC_PATH],
+        v2_7_3_verify_arguments(repository, "../outside.md"),
+        v2_7_3_verify_arguments(repository, "missing-spec.md"),
+    ):
+        document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
+        assert document["blockers"] == ["ARGUMENT_INVALID"]
+    assert v2_snapshot(repository) == before
+
+
+def test_v2_story_7_3_schema_requires_workflow_integration_only_for_story_7_3() -> None:
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    story_7_1 = json.loads((WORKSPACE / "docs/release-evidence/story-7.1-final-record-v2.json").read_bytes())
+    story_7_2 = json.loads((WORKSPACE / "docs/release-evidence/story-7.2-final-record-v2.json").read_bytes())
+    integration = {
+        "contract": {"path": STORY_7_3_CONTRACT_PATH, "sha256": "a" * 64},
+        "workflowBodies": [{"path": path, "sha256": "b" * 64} for path in STORY_7_3_BODIES],
+        "predecessorRecords": [
+            {"storyId": "7.1", "path": "docs/release-evidence/story-7.1-final-record-v2.json", "sha256": "c" * 64},
+            {"storyId": "7.2", "path": "docs/release-evidence/story-7.2-final-record-v2.json", "sha256": "d" * 64},
+        ],
+    }
+    assert validator.is_valid(story_7_1) and validator.is_valid(story_7_2)
+    assert not validator.is_valid(dict(story_7_1, workflowIntegration=integration))
+    assert not validator.is_valid(dict(story_7_2, workflowIntegration=integration))
+    story_7_3 = dict(story_7_1, storyId="7.3", workflowIntegration=integration)
+    assert validator.is_valid(story_7_3)
+    assert not validator.is_valid({key: value for key, value in story_7_3.items() if key != "workflowIntegration"})
+    assert not validator.is_valid(
+        dict(story_7_3, workflowIntegration=dict(integration, workflowBodies=integration["workflowBodies"][1:]))
+    )
+    assert not validator.is_valid(dict(story_7_3, workflowIntegration=dict(integration, extra=True)))
+
+
+def test_v2_story_7_3_changes_leave_story_7_1_and_7_2_pairs_byte_identical() -> None:
+    """The committed predecessor pairs still re-render and re-verify byte for byte."""
+    module = load_generator()
+    for story in ("7.1", "7.2"):
+        json_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes()
+        markdown_bytes = (WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.md").read_bytes()
+        assert module.v2_verify_pair(json_bytes, markdown_bytes) == []
+        record = json.loads(json_bytes)
+        assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger(
+            record["scenarios"][-1]["scenarioId"], story
+        )
 
 
 if __name__ == "__main__":

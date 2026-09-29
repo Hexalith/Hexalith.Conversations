@@ -41,6 +41,32 @@
       ]
     }
   },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "7.3"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "workflowIntegration"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "workflowIntegration"
+          ]
+        }
+      }
+    }
+  ],
   "properties": {
     "schemaVersion": {
       "const": "hexalith.conversations.story-final-record.v2"
@@ -91,6 +117,9 @@
     },
     "measurements": {
       "$ref": "#/$defs/measurements"
+    },
+    "workflowIntegration": {
+      "$ref": "#/$defs/workflowIntegration"
     }
   },
   "$defs": {
@@ -349,6 +378,28 @@
         },
         "testTotals": {"$ref": "#/$defs/testCounts"},
         "predecessorRecord": {"$ref": "#/$defs/predecessorRecord"}
+      }
+    },
+    "workflowIntegration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "workflowBodies", "predecessorRecords"],
+      "properties": {
+        "contract": {"$ref": "#/$defs/outputFile"},
+        "workflowBodies": {
+          "type": "array",
+          "minItems": 8,
+          "maxItems": 8,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/outputFile"}
+        },
+        "predecessorRecords": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 2,
+          "uniqueItems": true,
+          "items": {"$ref": "#/$defs/predecessorRecord"}
+        }
       }
     },
     "inventory": {
