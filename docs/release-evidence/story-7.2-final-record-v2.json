@@ -1,0 +1,529 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "7.2",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "262d9545dd9215e0a43d4f4508aaf5428d995986",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "0610f7837221c9859e280f06f333d7452a40f5b1",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "53f7961b517becde5b84ed4d20fe696b849b5cd9",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "cc79c03a8926d890e6cd21f98e79c9721696b25f",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "b9dd03ee56907ca17c8f8e29df6e6af0d6170dc0",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "f86fb730b542a788c88eb0f66203c9dda30afd27",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "289773387e0c6b665b669031616c1e84cc079297",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "60b9836ea23151c5319dd06fd3deb80122f7abc3",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "1152c8397f35fed1580e20915833dd958e8dbe07",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "55f3dc63b6ce10bb0afdf929d026fa07cffd9105",
+        "mode": "160000"
+      }
+    ]
+  },
+  "predecessors": [
+    "7.1"
+  ],
+  "inventory": {
+    "id": "V9-7.2-ENTRY-v1",
+    "sha256": "7a35b9cb705f8a2a7559ef8216d77c8a90c78b96c24626cf98036db550fca842"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-7.2-01",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_required_test_totals --junitxml=artifacts/v9/7.2/AC-7.2-01.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-01.xml",
+        "sha256": "029396f5fe7519e3b326631e9f450a425e83af4a8c140a7ed9af41377d3df6f5"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-01#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_derives_required_test_totals",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_missing_result --junitxml=artifacts/v9/7.2/AC-7.2-02.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-02.xml",
+        "sha256": "0450e91978fc29fda9608a34a8c1fbc19d3fac06ac742867089d24e80b0a9a7c"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-02#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_missing_result",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-03",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_stale_result --junitxml=artifacts/v9/7.2/AC-7.2-03.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-03.xml",
+        "sha256": "bf3e69f7bca2fa89d1c8dbe35d28411b02a9f305dfb06cfa2707c5c7ee7ad594"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-03#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_stale_result",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_failed_test --junitxml=artifacts/v9/7.2/AC-7.2-04.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-04.xml",
+        "sha256": "d31268975ec7ba3112998d5e129f2a38063130dbd9212c6e87359f5fd4dfa379"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-04#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_failed_test",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_unapproved_skip --junitxml=artifacts/v9/7.2/AC-7.2-05.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-05.xml",
+        "sha256": "3d3285016d9228f077003f053d5e7ca35c35d0b4d3263776aef60302bc6170ea"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-05#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_unapproved_skip",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_not_run --junitxml=artifacts/v9/7.2/AC-7.2-06.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-06.xml",
+        "sha256": "dfa62cbae56fc6f4d07f24d1eb51ad487a0aa4ddc2eb4ab9a7cad04dfb46dc7c"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-06#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_not_run",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_derives_singular_file_list_and_blocks_dirt --junitxml=artifacts/v9/7.2/AC-7.2-07.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-07.xml",
+        "sha256": "3cf1959602197cd87c6eee1b7147e5b7c77cb052318c3b5f5835c507702776df"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-07#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_derives_singular_file_list_and_blocks_dirt",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-08",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_submodule_internal_path --junitxml=artifacts/v9/7.2/AC-7.2-08.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-08.xml",
+        "sha256": "1558206500a3558094c0967ac593d1aa96ffd11d88b574790c251a23a3c8f138"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-08#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_submodule_internal_path",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-09",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_resolves_raw_gitlinks --junitxml=artifacts/v9/7.2/AC-7.2-09.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-09.xml",
+        "sha256": "d72d29d5b1c75a1c901854cd35c5c3551dcde0e72aa0133e9c8f791744e8be32"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-09#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_resolves_raw_gitlinks",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-10",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py -k v2_blocks_superseded_candidate --junitxml=artifacts/v9/7.2/AC-7.2-10.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/7.2/AC-7.2-10.xml",
+        "sha256": "14f30d5bcdb758c1b80406297c5c486751875d25f31545e8866f3cea4ccd30e9"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-10#0001",
+          "subject": "_bmad.scripts.tests.test_generate_story_record::test_v2_blocks_superseded_candidate",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-7.2-11",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.2.json --format bundle --output-json docs/release-evidence/story-7.2-final-record-v2.json --output-markdown docs/release-evidence/story-7.2-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-7.2-11#0001",
+          "subject": "generator::contract-schema-and-identity",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0002",
+          "subject": "generator::authority-bundle-digest-recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0003",
+          "subject": "generator::raw-gitlinks-equal-root-gitmodules",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0004",
+          "subject": "generator::committed-candidate-worktree-clean",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0005",
+          "subject": "generator::predecessor-scenarios-pass-with-ledgers",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0006",
+          "subject": "generator::declared-output-paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0007",
+          "subject": "generator::record-schema-valid",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0008",
+          "subject": "generator::deterministic-rendering",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-7.2-11#0009",
+          "subject": "generator::json-markdown-digest-cross-binding",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": []
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-7.2-final-record-v2.json",
+      "sha256": "ecaa8cc5dbb5385c814668e3d0f5c9dce522adc3de0c5e02d258b8a7bc48b39f"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-7.2-final-record-v2.md",
+      "sha256": "bb33e690529acfc9b77d561b064d35037e95b1596b802b2a71067453bb9ebeea"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only Story 7.2 fact extractors, fixtures, results, and records; keep Story 7.1 and every historical artifact unchanged."
+  },
+  "summary": {
+    "required": 11,
+    "passed": 11,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "bb33e690529acfc9b77d561b064d35037e95b1596b802b2a71067453bb9ebeea",
+  "measurements": {
+    "baseline": "c69334cb13a981c9112ad687427b1f43fafc2988",
+    "changedPaths": [
+      ".agents/skills/bmad-build-auto/step-04-review.md",
+      ".agents/skills/bmad-build/step-04-review.md",
+      ".agents/skills/bmad-build/step-05-present.md",
+      ".agents/skills/bmad-build/step-oneshot.md",
+      ".agents/skills/bmad-code-review/steps/step-04-present.md",
+      ".claude/skills/bmad-build-auto/step-04-review.md",
+      ".claude/skills/bmad-build/step-04-review.md",
+      ".claude/skills/bmad-build/step-05-present.md",
+      ".claude/skills/bmad-build/step-oneshot.md",
+      ".claude/skills/bmad-code-review/steps/step-04-present.md",
+      ".githooks/pre-commit",
+      ".github/workflows/ci.yml",
+      ".github/workflows/planning-authority-preflight.yml",
+      "_bmad-output/implementation-artifacts/deferred-work.md",
+      "_bmad-output/implementation-artifacts/g6-2026-09-27-conversations-toolkit-pin-candidate.md",
+      "_bmad-output/implementation-artifacts/spec-7-2-derive-test-path-candidate-submodule-and-gitlink-facts.md",
+      "_bmad-output/implementation-artifacts/spec-ad4-acceptance-readiness.md",
+      "_bmad-output/implementation-artifacts/spec-v28-five-root-gitlink-authority-successor.md",
+      "_bmad-output/implementation-artifacts/spec-v29-post-v28-root-gitlink-authority-successor.md",
+      "_bmad-output/implementation-artifacts/sprint-status.yaml",
+      "_bmad-output/implementation-artifacts/story-7-1-ad4-approval-2026-09-27.md",
+      "_bmad-output/implementation-artifacts/story-7-1-terminal-acceptance-proposal-2026-09-27.md",
+      "_bmad-output/implementation-artifacts/story-7-2-completion-resume-2026-09-27.md",
+      "_bmad-output/implementation-artifacts/v29-c1-protected-branch-exception-attestation-v1.md",
+      "_bmad-output/planning-artifacts/architecture.md",
+      "_bmad-output/planning-artifacts/v28-five-root-gitlink-authority-v1.json",
+      "_bmad-output/planning-artifacts/v29-post-v28-root-gitlink-authority-v1.json",
+      "_bmad/custom/bmad-build-auto.toml",
+      "_bmad/custom/bmad-build.toml",
+      "_bmad/custom/bmad-review.toml",
+      "_bmad/schemas/story-7.1-ad4-readiness-result-v1.schema.json",
+      "_bmad/schemas/story-final-record-v2.schema.json",
+      "_bmad/schemas/v28-five-root-gitlink-authority-v1.schema.json",
+      "_bmad/schemas/v29-post-v28-root-gitlink-authority-v1.schema.json",
+      "_bmad/scripts/generate_story_record.py",
+      "_bmad/scripts/inspect_story_7_1_acceptance.py",
+      "_bmad/scripts/publish_v28_five_root_gitlink_authority.py",
+      "_bmad/scripts/publish_v29_post_v28_root_gitlink_authority.py",
+      "_bmad/scripts/resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_generate_story_record.py",
+      "_bmad/scripts/tests/test_publish_v28_five_root_gitlink_authority.py",
+      "_bmad/scripts/tests/test_publish_v29_post_v28_root_gitlink_authority.py",
+      "_bmad/scripts/tests/test_resolve_current_planning_authority.py",
+      "_bmad/scripts/tests/test_verify_evidence_boundary.py",
+      "_bmad/scripts/verify_evidence_boundary.py",
+      "docs/runbooks/current-change-validation.md",
+      "docs/runbooks/evidence-boundary-validation.md",
+      "docs/runbooks/story-7.1-ad4-acceptance.md",
+      "docs/runbooks/story-final-record-generation.md",
+      "pyproject.toml",
+      "scripts/check-root-submodules.py",
+      "src/Hexalith.Conversations.AppHost/Hexalith.Conversations.AppHost.csproj",
+      "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV9ValidationTest.cs",
+      "tests/Hexalith.Conversations.Conformance.Tests/StoryFinalRecordGenerationValidationTest.cs",
+      "tests/tooling/test_ad4_acceptance_readiness.py",
+      "tests/tooling/test_check_root_submodules.py"
+    ],
+    "testProjects": [
+      {
+        "project": "Hexalith.Conversations.Admin.Web.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Admin.Web.Tests/Hexalith.Conversations.Admin.Web.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Admin.Web.Tests.trx",
+          "sha256": "e36af7f9a42baaada264a0c6a2a38acca1308bbde41dfc9ba07729b7c26cc2f2"
+        },
+        "counts": {
+          "total": 14,
+          "executed": 14,
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.AppHost.Tests",
+        "projectPath": "tests/Hexalith.Conversations.AppHost.Tests/Hexalith.Conversations.AppHost.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.AppHost.Tests.trx",
+          "sha256": "e1fd3f8fd688dd3f93eff96f860b366cde3faf0a25dbd3f1f248eb35126fa4a7"
+        },
+        "counts": {
+          "total": 9,
+          "executed": 9,
+          "passed": 9,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.Client.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Client.Tests.trx",
+          "sha256": "a17ad12fb45efe9c0a47cf571a47138acd73f3d368566b6a827dd33a56076fe1"
+        },
+        "counts": {
+          "total": 29,
+          "executed": 29,
+          "passed": 29,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.Conformance.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Conformance.Tests.trx",
+          "sha256": "6f3a71e4d61edd49938dfb79c665fc1c5404c25850991a0083825aee8811f903"
+        },
+        "counts": {
+          "total": 473,
+          "executed": 473,
+          "passed": 473,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.Contracts.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Contracts.Tests/Hexalith.Conversations.Contracts.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Contracts.Tests.trx",
+          "sha256": "cd5fb344b17172ddd85a5b5c132dfbb9d75a700cd693aa75a36ea10fb2245b78"
+        },
+        "counts": {
+          "total": 618,
+          "executed": 618,
+          "passed": 618,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.IntegrationTests",
+        "projectPath": "tests/Hexalith.Conversations.IntegrationTests/Hexalith.Conversations.IntegrationTests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.IntegrationTests.trx",
+          "sha256": "83f0daaa6795cc6e16c1b23719058f8a9fa19617efe21625aac3f16b7ddfcb4f"
+        },
+        "counts": {
+          "total": 14,
+          "executed": 14,
+          "passed": 14,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.Server.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Server.Tests/Hexalith.Conversations.Server.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Server.Tests.trx",
+          "sha256": "b417512aec634efcaad6e3afe97a1c7d2b0c2d6b5037268576efc1a37e9748b2"
+        },
+        "counts": {
+          "total": 684,
+          "executed": 684,
+          "passed": 684,
+          "failed": 0,
+          "skipped": 0
+        }
+      },
+      {
+        "project": "Hexalith.Conversations.Tests",
+        "projectPath": "tests/Hexalith.Conversations.Tests/Hexalith.Conversations.Tests.csproj",
+        "resultFile": {
+          "path": "artifacts/v9/7.2/test-results/Hexalith.Conversations.Tests.trx",
+          "sha256": "2349cb836457b571d38863511b2ab1df21e346acb40a2e96016828eeebaf452f"
+        },
+        "counts": {
+          "total": 185,
+          "executed": 185,
+          "passed": 185,
+          "failed": 0,
+          "skipped": 0
+        }
+      }
+    ],
+    "testTotals": {
+      "total": 2026,
+      "executed": 2026,
+      "passed": 2026,
+      "failed": 0,
+      "skipped": 0
+    },
+    "predecessorRecord": {
+      "storyId": "7.1",
+      "path": "docs/release-evidence/story-7.1-final-record-v2.json",
+      "sha256": "0a4ede3074fca55853f2fd59f065677cacea3eb700491cbc87594e117557e2f9"
+    }
+  }
+}
