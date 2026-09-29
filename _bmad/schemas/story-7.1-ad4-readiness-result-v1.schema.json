@@ -1,0 +1,821 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://hexalith.io/schemas/conversations/story-7.1-ad4-readiness-result-v1.schema.json",
+  "title": "Non-authorizing Story 7.1 AD-4 readiness result",
+  "description": "Observed host-verified bytes only. No schema-valid result establishes acceptance or authority.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "stage",
+    "result",
+    "exitCode",
+    "diagnostic",
+    "effectiveHold",
+    "implementationHold",
+    "ownerApprovalClaimed",
+    "executionAllowed",
+    "releaseAuthorized",
+    "pushAuthorized",
+    "terminalVerification",
+    "terminalPublication",
+    "acceptance",
+    "acceptedMainCommit",
+    "candidate",
+    "gitlinks",
+    "gitmodules",
+    "prerequisites",
+    "preservedPairs",
+    "hostBindings",
+    "blockers",
+    "assertionLedger"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "hexalith.conversations.story-7.1-ad4-readiness-result.v1"
+    },
+    "stage": {
+      "const": "READINESS"
+    },
+    "result": {
+      "enum": [
+        "FAIL",
+        "BLOCKED"
+      ]
+    },
+    "exitCode": {
+      "enum": [
+        1,
+        2
+      ]
+    },
+    "diagnostic": {
+      "type": "string",
+      "pattern": "^AD4_[A-Z0-9_]+$"
+    },
+    "effectiveHold": {
+      "const": "ACTIVE"
+    },
+    "implementationHold": {
+      "const": "ACTIVE"
+    },
+    "ownerApprovalClaimed": {
+      "const": false
+    },
+    "executionAllowed": {
+      "const": false
+    },
+    "releaseAuthorized": {
+      "const": false
+    },
+    "pushAuthorized": {
+      "const": false
+    },
+    "terminalVerification": {
+      "const": "UNSUPPORTED"
+    },
+    "terminalPublication": {
+      "const": "UNSUPPORTED"
+    },
+    "acceptance": {
+      "const": "UNESTABLISHED"
+    },
+    "acceptedMainCommit": {
+      "type": "null"
+    },
+    "candidate": {
+      "anyOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "commit",
+            "tree",
+            "parents"
+          ],
+          "properties": {
+            "commit": {
+              "$ref": "#/$defs/commit"
+            },
+            "tree": {
+              "$ref": "#/$defs/commit"
+            },
+            "parents": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/commit"
+              }
+            }
+          }
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "gitlinks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "mode",
+          "objectId"
+        ],
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/path"
+          },
+          "mode": {
+            "const": "160000"
+          },
+          "objectId": {
+            "$ref": "#/$defs/commit"
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "gitmodules": {
+      "$ref": "#/$defs/pathBinding",
+      "properties": {
+        "path": {
+          "const": ".gitmodules"
+        }
+      }
+    },
+    "prerequisites": {
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/pathBinding"
+          },
+          "maxItems": 0
+        },
+        {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "items": false,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-commons-change-grant-effective-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-conversations-consumer-grant-effective-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-eventstore-change-grant-effective-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-10-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-11-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-12-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-13-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-14-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/oq-1-fr-15-approved-successor-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/production-operational-envelope-v1.md"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-entry-authority-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-landing-zone-gate-result-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-performance-gate-result-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "_bmad-output/planning-artifacts/v23-story-7.1-preservation-gate-result-v1.json"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/pathBinding",
+              "properties": {
+                "path": {
+                  "const": "docs/runbooks/story-7.1-production-recovery.md"
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "preservedPairs": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 2,
+      "items": false,
+      "prefixItems": [
+        {
+          "$ref": "#/$defs/pair",
+          "properties": {
+            "storyId": {
+              "const": "7.1"
+            },
+            "json": {
+              "properties": {
+                "path": {
+                  "const": "docs/release-evidence/story-7.1-final-record-v2.json"
+                }
+              }
+            },
+            "markdown": {
+              "properties": {
+                "path": {
+                  "const": "docs/release-evidence/story-7.1-final-record-v2.md"
+                }
+              }
+            },
+            "expectedJsonSha256": {
+              "const": "0a4ede3074fca55853f2fd59f065677cacea3eb700491cbc87594e117557e2f9"
+            },
+            "expectedMarkdownSha256": {
+              "const": "044ac80a72a2f58587dbd9a53463d75567a75ac99797028fa4cc9a413c3dab43"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "VERIFIED"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "json": {
+                    "properties": {
+                      "sha256": {
+                        "const": "0a4ede3074fca55853f2fd59f065677cacea3eb700491cbc87594e117557e2f9"
+                      }
+                    }
+                  },
+                  "markdown": {
+                    "properties": {
+                      "sha256": {
+                        "const": "044ac80a72a2f58587dbd9a53463d75567a75ac99797028fa4cc9a413c3dab43"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        },
+        {
+          "$ref": "#/$defs/pair",
+          "properties": {
+            "storyId": {
+              "const": "7.2"
+            },
+            "json": {
+              "properties": {
+                "path": {
+                  "const": "docs/release-evidence/story-7.2-final-record-v2.json"
+                }
+              }
+            },
+            "markdown": {
+              "properties": {
+                "path": {
+                  "const": "docs/release-evidence/story-7.2-final-record-v2.md"
+                }
+              }
+            },
+            "expectedJsonSha256": {
+              "const": "15212a33103bf36ccefb3778853d3e4a8875d1c9e82a0c3d3104dae54e361ef5"
+            },
+            "expectedMarkdownSha256": {
+              "const": "0821f9b934506a87104279e67f51441ae3e9bbbad7a71cf3f3c1ab0786770e81"
+            }
+          },
+          "allOf": [
+            {
+              "if": {
+                "properties": {
+                  "status": {
+                    "const": "VERIFIED"
+                  }
+                }
+              },
+              "then": {
+                "properties": {
+                  "json": {
+                    "properties": {
+                      "sha256": {
+                        "const": "15212a33103bf36ccefb3778853d3e4a8875d1c9e82a0c3d3104dae54e361ef5"
+                      }
+                    }
+                  },
+                  "markdown": {
+                    "properties": {
+                      "sha256": {
+                        "const": "0821f9b934506a87104279e67f51441ae3e9bbbad7a71cf3f3c1ab0786770e81"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    "hostBindings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "mode",
+          "sha256",
+          "source"
+        ],
+        "properties": {
+          "path": {
+            "$ref": "#/$defs/path"
+          },
+          "mode": {
+            "type": "string",
+            "pattern": "^[0-7]{4}$"
+          },
+          "sha256": {
+            "$ref": "#/$defs/sha256"
+          },
+          "source": {
+            "const": "HOST_WORKTREE_UNTRUSTED"
+          }
+        }
+      },
+      "uniqueItems": true
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assertion",
+        "properties": {
+          "state": {
+            "enum": [
+              "FAIL",
+              "BLOCKED"
+            ]
+          }
+        }
+      },
+      "minItems": 1
+    },
+    "assertionLedger": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/assertion"
+      },
+      "minItems": 1
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "FAIL"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exitCode": {
+            "const": 1
+          },
+          "assertionLedger": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "const": "FAIL"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            }
+          },
+          "blockers": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "const": "FAIL"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "BLOCKED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "exitCode": {
+            "const": 2
+          },
+          "assertionLedger": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "const": "BLOCKED"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            }
+          },
+          "blockers": {
+            "contains": {
+              "properties": {
+                "state": {
+                  "const": "BLOCKED"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "result": {
+            "const": "BLOCKED"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "assertionLedger": {
+            "items": {
+              "properties": {
+                "state": {
+                  "not": {
+                    "const": "FAIL"
+                  }
+                }
+              }
+            }
+          },
+          "blockers": {
+            "items": {
+              "properties": {
+                "state": {
+                  "not": {
+                    "const": "FAIL"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  ],
+  "$defs": {
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)(?!.*\\\\)(?!.*[\\u0000-\\u001f\\u007f])[^/].*(?<!/)$"
+    },
+    "assertion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "code",
+        "subject",
+        "state",
+        "detail"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^AD4_[A-Z0-9_]+$"
+        },
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "state": {
+          "enum": [
+            "OBSERVED",
+            "FAIL",
+            "BLOCKED"
+          ]
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "pathBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "status",
+        "mode",
+        "objectType",
+        "objectId",
+        "sha256"
+      ],
+      "properties": {
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "status": {
+          "enum": [
+            "NOT_INSPECTED",
+            "ABSENT",
+            "INVALID",
+            "UNAVAILABLE",
+            "PRESENT_UNVERIFIED"
+          ]
+        },
+        "mode": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9]{6}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objectType": {
+          "anyOf": [
+            {
+              "enum": [
+                "tree",
+                "blob",
+                "commit"
+              ]
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "objectId": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/commit"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "enum": [
+                  "ABSENT",
+                  "NOT_INSPECTED"
+                ]
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "type": "null"
+              },
+              "objectType": {
+                "type": "null"
+              },
+              "objectId": {
+                "type": "null"
+              },
+              "sha256": {
+                "type": "null"
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "PRESENT_UNVERIFIED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "mode": {
+                "const": "100644"
+              },
+              "objectType": {
+                "const": "blob"
+              },
+              "objectId": {
+                "$ref": "#/$defs/commit"
+              },
+              "sha256": {
+                "$ref": "#/$defs/sha256"
+              }
+            }
+          }
+        }
+      ]
+    },
+    "pair": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "status",
+        "json",
+        "markdown",
+        "expectedJsonSha256",
+        "expectedMarkdownSha256"
+      ],
+      "properties": {
+        "storyId": {
+          "enum": [
+            "7.1",
+            "7.2"
+          ]
+        },
+        "status": {
+          "enum": [
+            "NOT_INSPECTED",
+            "ABSENT",
+            "INVALID",
+            "UNAVAILABLE",
+            "UNVERIFIED",
+            "VERIFIED"
+          ]
+        },
+        "json": {
+          "$ref": "#/$defs/pathBinding"
+        },
+        "markdown": {
+          "$ref": "#/$defs/pathBinding"
+        },
+        "expectedJsonSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "expectedMarkdownSha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "status": {
+                "const": "VERIFIED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "json": {
+                "properties": {
+                  "status": {
+                    "const": "PRESENT_UNVERIFIED"
+                  }
+                }
+              },
+              "markdown": {
+                "properties": {
+                  "status": {
+                    "const": "PRESENT_UNVERIFIED"
+                  }
+                }
+              }
+            }
+          }
+        }
+      ]
+    }
+  }
+}
