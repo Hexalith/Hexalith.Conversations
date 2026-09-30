@@ -2,7 +2,7 @@
 title: 'Integrate generation into every blocking completion transition'
 type: 'feature'
 created: '2026-09-29'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '91bc1376bc433400186ed9404bd6541b86355f98'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -95,6 +95,30 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 - [x] `docs/runbooks/story-final-record-generation.md` -- cover the Story 7.3 surfaces, the rebinding, render twins, the block, the new codes, and the no-CI limitation.
 - [ ] `docs/release-evidence/story-7.3-final-record-v2.{json,md}` -- generate at step 05 from the committed candidate, following the Story 7.2 completion pattern.
   This box stays unticked in the committed spec. After the candidate commit, the generator allows only the frontmatter `status` and the inserted record region to change, so the inserted record and the lifecycle commit carry this task's evidence.
+
+### Review Findings
+
+- [ ] [Review][Patch] Allow route-owned post-gate lifecycle edits during candidate retention [_bmad/scripts/generate_story_record.py:4283]
+- [ ] [Review][Patch] Bind inserted-record verification to the designated story spec, retained candidate, and current contract [_bmad/scripts/generate_story_record.py:5184]
+- [ ] [Review][Patch] Propagate every verifier stable blocker code through generator failures [_bmad/scripts/generate_story_record.py:2771]
+- [ ] [Review][Patch] Validate every intervening retained-candidate commit instead of only the endpoint tree [_bmad/scripts/generate_story_record.py:4406]
+- [ ] [Review][Patch] Validate acceptance-ledger row IDs before re-keying them [_bmad/scripts/generate_story_record.py:3554]
+- [ ] [Review][Patch] Verify Story 7.2's predecessor link against the bound Story 7.1 record [_bmad/scripts/generate_story_record.py:4708]
+- [ ] [Review][Patch] Correct mode-aware operator diagnostics [_bmad/scripts/generate_story_record.py:2969]
+- [ ] [Review][Patch] Add a dirty working-tree Markdown verification case [_bmad/scripts/tests/test_generate_story_record.py:4563]
+- [ ] [Review][Patch] Add a duplicate acceptance-ledger subject regression case [_bmad/scripts/tests/test_generate_story_record.py:5337]
+
+#### Rejected
+
+- `false` — Later contracts stopping with `SCENARIO_COMMAND_UNSUPPORTED` is the story's documented fail-closed behavior until each story adds its reader, not an accidental rollout gap.
+- `false` — Candidate retention is intentionally implemented for Stories 7.2 and 7.3; later contracts cannot currently reach a passing committed pair because their unsupported scenarios fail first.
+- `false` — No governed route creates a date-only sprint update; each lifecycle path changes the story row, so rejecting an isolated date churn does not break the reviewed workflow.
+- `false` — Every Story 7.3 scenario forbids `not-applicable`; the cited generic behavior is unreachable for this story and future contracts using it remain unsupported by the current reader.
+- `false` — Normal render inputs are bound by the candidate commit and unexpected working-tree changes are rejected; the proposed transient-render attack requires replacing the workflow's measured-artifact trust model.
+- `false` — Acceptance-result files are deliberately treated as measured machine artifacts, as JUnit files are; cryptographic execution attestation is outside this story's contract.
+- `false` — The reviewed routes contain no alternate lifecycle transition, and the verifier uses the owner-frozen transition anchors rather than attempting semantic interpretation of arbitrary prose.
+- `low` — A post-replace readback I/O failure could leave a completed acceptance output, but the trigger is exceptional and transactional restoration would add disproportionate complexity.
+- `medium (rejected: spec change)` — The Python behavior suite is absent from CI, but Story 7.3 explicitly requires the gate to state that no CI job or hook enforces it; changing that policy requires owner renegotiation rather than a review patch.
 
 **Acceptance Criteria:**
 - Given the integrated tree, when AC-7.3-01 through AC-7.3-06 run as declared, then each exits `0` with `PASS`.
