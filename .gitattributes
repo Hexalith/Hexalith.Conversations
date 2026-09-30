@@ -15,6 +15,16 @@ _bmad-output/**/*.yml text eol=lf
 docs/release-evidence/**/*.md text eol=lf
 docs/release-evidence/**/*.json text eol=lf
 
+# Completion-gate body bytes must match the committed blobs and in-memory render twins.
+.agents/skills/bmad-build/step-05-present.md text eol=lf
+.agents/skills/bmad-build/step-oneshot.md text eol=lf
+.agents/skills/bmad-build-auto/step-04-review.md text eol=lf
+.agents/skills/bmad-code-review/steps/step-04-present.md text eol=lf
+.claude/skills/bmad-build/step-05-present.md text eol=lf
+.claude/skills/bmad-build/step-oneshot.md text eol=lf
+.claude/skills/bmad-build-auto/step-04-review.md text eol=lf
+.claude/skills/bmad-code-review/steps/step-04-present.md text eol=lf
+
 # Never line-ending-convert binary evidence.
 *.png binary
 *.jpg binary

@@ -98,15 +98,18 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 
 ### Review Findings
 
-- [ ] [Review][Patch] Allow route-owned post-gate lifecycle edits during candidate retention [_bmad/scripts/generate_story_record.py:4283]
-- [ ] [Review][Patch] Bind inserted-record verification to the designated story spec, retained candidate, and current contract [_bmad/scripts/generate_story_record.py:5184]
-- [ ] [Review][Patch] Propagate every verifier stable blocker code through generator failures [_bmad/scripts/generate_story_record.py:2771]
-- [ ] [Review][Patch] Validate every intervening retained-candidate commit instead of only the endpoint tree [_bmad/scripts/generate_story_record.py:4406]
-- [ ] [Review][Patch] Validate acceptance-ledger row IDs before re-keying them [_bmad/scripts/generate_story_record.py:3554]
-- [ ] [Review][Patch] Verify Story 7.2's predecessor link against the bound Story 7.1 record [_bmad/scripts/generate_story_record.py:4708]
-- [ ] [Review][Patch] Correct mode-aware operator diagnostics [_bmad/scripts/generate_story_record.py:2969]
-- [ ] [Review][Patch] Add a dirty working-tree Markdown verification case [_bmad/scripts/tests/test_generate_story_record.py:4563]
-- [ ] [Review][Patch] Add a duplicate acceptance-ledger subject regression case [_bmad/scripts/tests/test_generate_story_record.py:5337]
+- [x] [Review][Patch] Accept `followup_review_recommended` as the final frontmatter field [_bmad/scripts/generate_story_record.py:4386]
+- [x] [Review][Patch] Update frontmatter status in the code-review route when present [.agents/skills/bmad-code-review/steps/step-04-present.md:131]
+- [x] [Review][Patch] Pin the eight governed workflow bodies to LF for parity [.gitattributes]
+- [x] [Review][Patch] Allow route-owned post-gate lifecycle edits during candidate retention [_bmad/scripts/generate_story_record.py:4283]
+- [x] [Review][Patch] Bind inserted-record verification to the designated story spec, retained candidate, and current contract [_bmad/scripts/generate_story_record.py:5184]
+- [x] [Review][Patch] Propagate every verifier stable blocker code through generator failures [_bmad/scripts/generate_story_record.py:2771]
+- [x] [Review][Patch] Validate every intervening retained-candidate commit instead of only the endpoint tree [_bmad/scripts/generate_story_record.py:4406]
+- [x] [Review][Patch] Validate acceptance-ledger row IDs before re-keying them [_bmad/scripts/generate_story_record.py:3554]
+- [x] [Review][Patch] Verify Story 7.2's predecessor link against the bound Story 7.1 record [_bmad/scripts/generate_story_record.py:4708]
+- [x] [Review][Patch] Correct mode-aware operator diagnostics [_bmad/scripts/generate_story_record.py:2969]
+- [x] [Review][Patch] Add a dirty working-tree Markdown verification case [_bmad/scripts/tests/test_generate_story_record.py:4563]
+- [x] [Review][Patch] Add a duplicate acceptance-ledger subject regression case [_bmad/scripts/tests/test_generate_story_record.py:5337]
 
 #### Rejected
 
@@ -136,6 +139,9 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 - **Surprise.** `dataclasses` fails when a module is loaded through `spec_from_file_location` without registering it in `sys.modules`. The verifier therefore uses `NamedTuple`.
 - **Files.** `.agents/skills` and `.claude/skills`: `bmad-build/step-05-present.md`, `bmad-build/step-oneshot.md`, `bmad-build-auto/step-04-review.md`, and `bmad-code-review/steps/step-04-present.md`. Also `_bmad/scripts/verify_story_completion_workflows.py` (new), `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` (113 new tests), and `docs/runbooks/story-final-record-generation.md`.
 - **Review patch.** The block now defines `<story-id>` and makes the record-only commit conditional. It forbids only source and gitlink changes after that commit, with a retraction path, and counts an unauthorized required commit as a blocker. The generator accepts acceptance results rerun on the verified lifecycle-only path and requires an LF after the END marker. The build-auto Finalize sentence now names the v9-contract trigger. The runbook documents the backlog-contract fail-closed limitation.
+- **Review patch follow-up.** Retained candidates now validate every intervening commit while allowing the lifecycle fields and sections written by the governed routes. Inserted-record verification is bound to the retained contract and its designated spec. Acceptance evidence preserves the verifier's complete stable-code set and validates producer ledger IDs and subjects before re-keying. Story 7.2 must bind the exact verified Story 7.1 digest. Mode-specific diagnostics and dirty-Markdown, reverted-intermediate-change, predecessor-link, ledger-ID, and duplicate-subject regressions cover the repaired boundaries.
+- **Review pass 2 patch.** Record-pair commits are now isolated per commit, lifecycle rollback is accepted only through governed transitions, acceptance-result publication uses exclusive no-follow temporary files, and inserted-record verification rejects unrelated dirt or unmasked spec edits. The runbook now covers acceptance-result evidence and the v14 contract-schema prerequisite.
+- **Resumed implementation audit.** Acceptance-result cleanup now removes only a temporary file successfully created by this invocation. Exhausting all exclusive-name retries leaves pre-existing regular files and symlinks intact; two regression cases cover that failure path.
 - **Step 05 is not done here.** The Story 7.3 record pair is not generated yet. `AC-7.3-07` needs the committed candidate as `HEAD` and a clean tree, and every `artifacts/v9/7.3` result must be rerun after that commit. The results in the working tree bind the pre-commit `HEAD`, so the generator correctly rejects them as stale.
 
 ## Spec Change Log
@@ -181,6 +187,57 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 
 **Outcome.** No intent-gap or spec-defect finding, so no loopback. The implementation subagent applied all 18 patch findings. One requested assertion changed: rerunning AC-7.3-01/02 after the record-only commit rebinds those two result digests, so it yields a new pair that is itself reproducible, not the same bytes. The AC-7.3-07 rerun without new results still reproduces the pair.
 
+### 2026-09-30 — Review pass 2 (blind, edge-case, verification-gap)
+
+| # | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| 33 | Retention permits the first pair commit to include lifecycle files (verification-gap) | medium | patch | Pre-verified with a combined pair/spec commit that passed both generation and inserted-record verification. Require the first commit carrying the pair to change exactly the two output paths. |
+| 34 | A transition followed by blocker rollback to the candidate sprint value is rejected (edge) | medium | patch | `v2_sprint_status_only_change` compares every successor cumulatively to the candidate and requires a different final status, so a valid `in-progress → review → in-progress` sequence becomes `CANDIDATE_NOT_FINAL`. |
+| 35 | An acceptance output can alias a tracked file (edge) | low | reject | carried: review-pass-1 row 30 rejected the same live behavior because contract commands are owner-frozen and the additional guard is disproportionate. |
+| 36 | The verifier's predictable temporary path can be pre-created as a symlink (edge) | high | patch | `Path.open("wb")` follows an existing `.<name>.<pid>.tmp` symlink before `os.replace`, allowing an external target to be truncated. Use an exclusive no-follow temporary file in the destination directory. |
+| 37 | The task note understates the lifecycle fields retention masks (edge claim) | low | reject | The implementation and runbook accurately name the route-owned fields and sections. The remaining mismatch is in this build's spec, and review findings whose fix edits this spec are rejected. |
+| 38 | The existing committed pair is invalidated by later gitlink commits (blind) | false | reject | This resumed build deliberately leaves AC-7.3-07 and pair regeneration to step 05 after a new committed candidate; the old pair is not claimed as evidence for the uncommitted patch. |
+| 39 | The existing final record predates the current review patches (blind) | false | reject | The spec explicitly labels the patch as an uncommitted candidate and leaves the final-record task unticked until step 05, so the old pair is expected to predate it. |
+| 40 | Inserted-record verification ignores unrelated working-tree dirt (blind) | medium | patch | Verify mode checks only the pair copies and designated spec region. An uncommitted source or gitlink edit after the record-only commit can coexist with exit `0`; allow only the designated spec's expected lifecycle/record edit. |
+| 41 | Inserted-record verification accepts arbitrary edits elsewhere in the spec (blind) | medium | patch | The working spec is not compared with the committed lifecycle-masked spec, so tasks or constraints can change while the inserted bytes still pass. Reuse the retention mask for the working spec. |
+| 42 | Retention does not enforce a record-only first pair commit (blind) | medium | patch | Same reproduced root cause as row 33: cumulative allowed-path subtraction accepts a combined pair/lifecycle commit. |
+| 43 | Successor commits can replace the pair with another self-consistent pair (blind) | low | reject | Lifecycle-path acceptance results may intentionally be rerun and rebound into a new deterministic pair. A hand-refinalized forged pair violates the workflow's measured-artifact trust model; proving execution provenance is outside this story and requires more than a direct fix. |
+| 44 | Verify mode does not fully rederive Story 7.3 record semantics (blind) | low | reject | The frozen matrix scopes this mode to byte equality with the committed pair and `renderedMarkdownSha256`; the preceding generator invocation derives semantics. Full execution attestation is outside the accepted trust model and is not a direct correction. |
+| 45 | Predecessor verification does not reconstruct all predecessor history (blind) | low | reject | The story requires committed schema-valid, digest-bound predecessor pairs and the exact 7.2→7.1 link, which the code checks. Re-running prior stories' full derivations is outside this story's trust boundary. |
+| 46 | Acceptance-result `outputs` are not inspected (blind) | false | reject | Story 7.3 verifier results declare no measured outputs, and the generator neither copies nor consumes that generic field; it binds the result file, candidate inputs, and assertion ledger that this contract uses. |
+| 47 | Acceptance result paths may alias tracked inputs (blind) | low | reject | carried: review-pass-1 row 30 rejected the same live behavior because the frozen contract owns the paths and the guard would add complexity for an unreachable normal route. |
+| 48 | Uniform semantic negation can preserve parity substrings (blind) | low | reject | The verifier intentionally proves byte parity plus the owner-frozen required clauses, not arbitrary natural-language semantics. A canonical duplicate block would add a second source of truth for an unlikely malicious synchronized rewrite. |
+| 49 | The route block omits a second generator invocation (blind) | false | reject | carried: review-pass-1 row 11 established that the frozen block has four required elements; the twice-run determinism check is Story 7.3's AC-07 completion evidence, not a clause required in every route. |
+| 50 | Routes omit the Story 7.3 post-lifecycle rerun (blind) | false | reject | Runbook step 6 is the operator procedure for completing Story 7.3 itself. The governed route block must gate before transition and contains exactly the four frozen elements; post-transition evidence runs in step 05. |
+| 51 | The generic v2 derivation and schema prose omits acceptance results (blind) | low | patch | The early runbook section still says all facts and dirt exceptions are JUnit-only and omits the separately loaded acceptance schema. Correct the documentation to include Story 7.3 acceptance evidence. |
+| 52 | The backlog-contract limitation misstates v14 failures (blind) | low | patch | Contracts 12.1–16.3 carry `hexalith.conversations.v14-story-contract.v1`, while the generator first validates only the v9/v1 schema. Document that those contracts also need schema support before command readers. |
+
+**Outcome.** No intent-gap or bad-spec entry. Five patch groups remain: record-only commit enforcement, rollback-compatible sprint retention, symlink-safe result publication, working-tree/spec validation in inserted-record mode, and two runbook corrections.
+
+
+### 2026-09-30 — Resumed review (blind, edge-case, verification-gap)
+
+| # | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| 53 | Final-field `followup_review_recommended` edits fail retention (blind) | medium | patch | The regex requires LF, but the frontmatter search bound excludes the last field's LF. Include that delimiter LF and cover the final-field lifecycle edit. |
+| 54 | Code-review updates a body Status section that retention rejects (blind) | medium | patch | The route instructs a Status-section write while retained specs use frontmatter. Make both skill trees update frontmatter `status` when it exists, with the existing Status-section fallback for legacy stories. |
+| 55 | Only Claude render twins are inspected (blind) | low | reject | The approved inventory names three canonical in-memory twins and eight mirrored bodies. Broken Agents render configuration stops workflow activation before completion; adding another render inventory and configuration guards exceeds a direct correction and is unlikely in the synchronized installation. |
+| 56 | CRLF checkout breaks body/twin parity and committed-body digests (blind) | medium | patch | Body bytes preserve CRLF while renderer `read_text()` normalizes LF; the eight governed paths lack LF attributes. Pin those paths to LF and exercise an autocrlf checkout. |
+| 57 | Inline marker mentions plus a valid pair fail record-region parsing (blind) | low | reject | The fixed governed spec carries a single marker occurrence for each marker, and strict rejection is fail-closed. Supporting additional inline occurrences needs expanded marker/mask grammar for an exceptional input rather than a direct correction. |
+| 58 | A new Story 7.2 record insertion fails committed retention (blind) | low | reject | Confirmed by the two masks. Story 7.2 is already complete and its prior behavior and historical pair are explicitly preserved; reopening it through this gate would need additional retention support and its own record scope. That exceptional flow is not repaired by changing preserved 7.2 semantics here. |
+| 59 | Generator pair writes still follow predictable temporary symlinks (blind) | high | defer | Reproduced with `v2_write_outputs`: a pre-created PID temporary symlink overwrote an unrelated temporary file. The pair/restoration writer is unchanged from the story baseline, so this is a pre-existing issue separate from the new verifier publisher. |
+| 60 | Lifecycle-only retention ignores an executable-bit spec change (blind) | low | reject | Content masking does not compare modes, but an executable bit on this Markdown changes no reader or completion outcome. Adding mode guards for an exceptional cosmetic edit exceeds a direct correction. |
+| 61 | The 7.3 schema permits duplicate logical inventory identities (blind) | low | reject | Generation constructs the fixed eight paths and exact 7.1/7.2 links from tooling constants and rejects mismatched inputs. The preceding generator is the semantic derivation gate; duplicating its inventory in schema guards adds a second source of truth for a forged-pair case outside the accepted measured-artifact model. |
+| 62 | The review diff includes Builds/EventStore gitlink updates (blind) | false | reject | Those pointers were committed independently in `6183517f7d5983fd1bff25111d0f26f4926a0758` before this resumed run. The current story patch has no gitlink diff; preserving that user history is required. |
+| 63 | Story 7.1 cannot use mandatory inserted-record verification (edge) | low | reject | A fixture confirms `ARGUMENT_INVALID`, but Story 7.1 is already complete and its pair remains historical. Reopening it would require new candidate retention and separately scoped record support rather than a direct correction; unsupported contracts fail closed. |
+| 64 | Final-field `followup_review_recommended` edits fail retention (edge) | medium | patch | Same demonstrated boundary defect as row 53; retain this independent finding and fix the shared root cause once. |
+| 65 | A new Story 7.2 insertion fails committed retention (edge) | low | reject | Same demonstrated exceptional reopening flow as row 58; preserve Story 7.2 behavior and its completed historical pair. Adding retention support is more than a direct correction. |
+| 66 | The task note describes fewer lifecycle fields than retention permits (edge claim) | low | reject | carried: review-pass-2 row 37 rejected this exact spec-note mismatch. The implementation and runbook name the route-owned fields; the proposed fix edits this build's spec. |
+| 67 | Story 7.1 cannot use mandatory inserted-record verification (verification-gap Other) | low | reject | The filed fixture reproduces the same exceptional reopening flow as row 63. Supporting it adds retention/record scope to an already completed preserved predecessor; it is not an everyday completion path. |
+| 68 | Story 7.2 cannot retain a newly committed insertion (verification-gap Other) | low | reject | The filed fixture confirms row 58's mask discrepancy. This story intentionally preserves completed 7.2 behavior; reopening it needs separately scoped support and changes beyond a direct correction. |
+
+**Outcome.** No intent-gap or bad-spec entry. Patch three root causes: final-field lifecycle masking, frontmatter status writes in code-review, and LF checkout policy for the governed bodies. Record the pre-existing generator pair-writer issue in the deferred-work ledger. The verification-gap layer reported no separate coverage gap. AC-7.3-07 remains incomplete pending authorized record retraction, a clean committed replacement candidate, and regenerated evidence.
+
 ## Design Notes
 
 This is one gate with one byte-identical span everywhere. Parity is byte equality of the spans, and placement is judged inside the existing C# gate span, so decoy text outside that span never counts. Twins are compared as rendered bytes, never written. Surfaces differ only outside the block, which is why the blocker branch is phrased to fit all four routes.
@@ -200,6 +257,90 @@ This is one gate with one byte-identical span everywhere. Parity is byte equalit
 - `_bmad/scripts` lane: 1305 tests, 265 failed plus 86 errors (351), the same count as the pre-change baseline. All are in historical-authority modules, from the missing `.github/workflows/planning-authority-preflight.yml`, gitlink or architecture drift, and stale sprint projections. None is in a Story 7.3 test.
 - `check-root-submodules.py`: PASS. `git diff --check`: clean.
 - AC-7.3-07 runs at step 05 on the committed candidate; its record is inserted below.
+
+**Review-patch results (uncommitted candidate, 2026-09-30):**
+
+- Focused review-patch regressions: 36 passed.
+- Full generator suite: 290 passed, 0 failed, 0 skipped.
+- AC-7.3-01 and AC-7.3-02: exit `0`, `PASS`. AC-7.3-03…06 selectors: 14, 20, 15, and 14 passed, each exit `0`.
+- Release build: 0 warnings, 0 errors. Conformance executable: 473 total, 0 failed, 0 skipped.
+- `check-root-submodules.py`: PASS. Python compilation and `git diff --check`: clean.
+- AC-7.3-07 remains a post-candidate step; the existing pair and inserted record are not rewritten from an uncommitted tree.
+
+**Review-pass-2 patch results (uncommitted candidate, 2026-09-30):**
+
+- Full generator suite: 296 passed, 0 failed, 0 skipped.
+- AC-7.3-01 and AC-7.3-02: exit `0`, `PASS`. AC-7.3-03…06 selectors: 14, 20, 15, and 14 passed, each exit `0`.
+- Release build: 0 warnings, 0 errors. Conformance executable: 473 total, 0 failed, 0 skipped, 0 not run.
+- `check-root-submodules.py`: PASS. Python compilation and `git diff --check`: clean.
+- AC-7.3-07 and final-record regeneration remain blocked until a commit is authorized and a clean committed candidate exists.
+
+**Resumed implementation validation (2026-09-30):**
+
+- `TMPDIR=/var/tmp uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py`: 298 passed, 0 failed, 0 skipped, exit `0`.
+- AC-7.3-01 and AC-7.3-02: exit `0`, `PASS`, with 33 and 22 assertions. AC-7.3-03 through AC-7.3-06: exit `0`, with 14, 20, 15, and 14 passing tests. Every command ran exactly as declared through `uv run --frozen --no-sync` after the temporary-file cleanup fix.
+- `dotnet build Hexalith.Conversations.slnx -c Release -p:UseHexalithProjectReferences=true`: exit `0`, 0 warnings, 0 errors.
+- `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests -noLogo`: exit `0`, 473 total, 0 errors, 0 failed, 0 skipped, 0 not run.
+- `python3 scripts/check-root-submodules.py --repository .`: `PASS`; Python compilation and `git diff --check`: exit `0`.
+- Historical `_bmad/scripts` failures were not rerun; the baseline comparison above remains the evidence for that lane under the current-change policy.
+
+**Current AC-7.3-07 result (2026-09-30):**
+
+Exact command:
+
+```bash
+uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json --format bundle --output-json docs/release-evidence/story-7.3-final-record-v2.json --output-markdown docs/release-evidence/story-7.3-final-record-v2.md
+```
+
+Exit `1`. Exact stdout:
+
+```json
+{
+  "schemaVersion": "hexalith.conversations.story-record-generator-failure.v1",
+  "result": "FAIL",
+  "exitCode": 1,
+  "storyId": "7.3",
+  "blockers": [
+    "CANDIDATE_NOT_FINAL",
+    "GITLINK_DRIFT"
+  ],
+  "diagnostics": [
+    {
+      "code": "CANDIDATE_NOT_FINAL",
+      "subject": "candidate.commit",
+      "message": "commit 6183517f7d5983fd1bff25111d0f26f4926a0758 after the verified candidate changes source, gitlinks, or non-lifecycle state"
+    },
+    {
+      "code": "GITLINK_DRIFT",
+      "subject": "candidate.gitlinks",
+      "message": "root gitlinks moved: references/Hexalith.Builds, references/Hexalith.EventStore"
+    }
+  ]
+}
+```
+
+Both existing output files remained byte-identical. The committed pair pins candidate
+`450bd270a1fdb1a632cbda0cf271107de97fee69`; committing the current patches alone
+cannot rebaseline it. Recovery requires an authorized commit removing both Story 7.3
+outputs before a clean replacement candidate can be measured. Preserve the superseded
+pair and its evidence, rerun AC-7.3-01 through AC-7.3-06 at that candidate, run
+AC-7.3-07 twice with identical bytes, commit exactly the new pair, insert and verify
+the Markdown, then commit lifecycle bookkeeping and confirm reproduction. No commit
+authorization is present in this session, so the existing pair and lifecycle state
+remain unchanged and the final-record task remains incomplete.
+
+**Resumed review patch verification (2026-09-30):**
+
+- Review patches: the followup-field mask now includes the delimiter LF; both code-review trees prefer frontmatter `status`; the eight governed bodies are pinned to LF. The temporary publisher also preserves pre-existing collision paths when all retries are exhausted.
+- `TMPDIR=/var/tmp uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py`: exit `0`, 302 passed, 0 failed or skipped, 134.24 seconds.
+- AC-7.3-01/02 exact contract commands through pinned `uv`: exit `0`, `PASS`, 33/22 assertions. AC-7.3-03 through AC-7.3-06: exit `0`, 14/20/15/14 passing tests, with logs in `/tmp/bmad-7-3-final-checks-3ntfstx9`.
+- Release Conformance rerun: exit `0`, 473 total, 0 errors, failures, skipped, or not run. The earlier Release solution build remains passing with 0 warnings/errors; these patches change Python, workflow prose, and checkout metadata only.
+- `python3 scripts/check-root-submodules.py --repository .`: `PASS`. In-memory Python compilation and `git diff --check`: exit `0`.
+- Matrix audit: all integrated, removed, displaced, parity-drift, inserted-record, and unreadable-input tests ran in the 302-test suite. The exact contract scenarios additionally reran the insertion, removed/displaced invocation, and blocker-transition selectors. No matrix row is untested or skipped.
+- Final AC-7.3-07 retry uses the exact command recorded above and still exits `1`, `FAIL`, with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT`. Both existing record outputs remain byte-identical. Archived pair/results and command/stdout evidence: `/tmp/bmad-7-3-before-completion-saib54tt`.
+- All 16 resumed review findings are triaged above; three patch groups are fixed. The unchanged generator pair/restoration temporary-file vulnerability is recorded as pre-existing deferred work. No historical-authority lane was rerun under the current-change policy.
+- Commit preparation: exact full messages for retraction, candidate, record-only publication, and lifecycle commits all passed the pinned CLI (`node_modules/.bin/commitlint --config commitlint.config.mjs --edit <message-file>`), with evidence in `/tmp/bmad-7-3-commit-plan-o_p2ix07/commitlint-validation.txt`. No files are staged and no commit is created.
+- Completion remains `in-progress`: the required local commit sequence has not been authorized. First retract the superseded 7.3 pair in its own commit, then commit the nine reviewed patch paths, rerun the six scenarios on that clean candidate, generate AC-07 twice, commit only the replacement pair, insert/verify it, and commit the spec/sprint lifecycle update. The pending final-record task intentionally stays unticked before the candidate commit.
 
 <!-- STORY-FINAL-RECORD:BEGIN -->
 # Story 7.3 Final Record

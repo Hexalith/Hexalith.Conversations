@@ -4571,6 +4571,7 @@ def test_v2_workflow_verifies_inserted_digest_matching_bytes_pass_and_altered_by
         "end-marker-without-trailing-lf",
         "uncommitted-pair",
         "edited-working-tree-json",
+        "edited-working-tree-markdown",
         "inconsistent-committed-json",
         "foreign-story-committed-json",
     ),
@@ -4608,6 +4609,9 @@ def test_v2_workflow_verifies_inserted_digest_rejects_malformed_insertions(
         target = repository_path / STORY_7_3_OUTPUT_JSON
         if fault == "edited-working-tree-json":
             return v2_7_3_replace(target, target.read_bytes().replace(b'"7.3"', b'"7.3" ', 1))
+        if fault == "edited-working-tree-markdown":
+            target = repository_path / STORY_7_3_OUTPUT_MARKDOWN
+            return v2_7_3_replace(target, target.read_bytes() + b"dirty\n")
         # A canonically rendered but internally inconsistent, or foreign, JSON record
         # committed with a matching working tree reaches the pair-validity check.
         record = json.loads(target.read_bytes())
@@ -4640,7 +4644,19 @@ def test_v2_workflow_verifies_inserted_digest_and_reproduces_the_pair_after_life
     assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
     spec = repository / STORY_7_3_SPEC_PATH
     spec.write_text(
-        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        spec.read_text(encoding="utf-8")
+        .replace(
+            "status: 'in-progress'",
+            "status: 'done'\nfollowup_review_recommended: false",
+            1,
+        )
+        .replace(
+            "## Verification\n\nFixture verification notes.",
+            "## Verification\n\nFixture verification notes.\n\n"
+            "## Review Triage Log\n\n- `[false]` fixture review row.\n\n"
+            "## Auto Run Result\n\n- Fixture lifecycle summary.",
+            1,
+        ),
         encoding="utf-8",
     )
     sprint = repository / STORY_7_2_SPRINT_PATH
@@ -4666,6 +4682,144 @@ def test_v2_workflow_verifies_inserted_digest_and_reproduces_the_pair_after_life
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
     v2_git(repository, "reset", "--hard", "-q", lifecycle[0])
     assert v2_snapshot(repository) == lifecycle
+
+
+def test_v2_workflow_accepts_a_separate_blocker_rollback_to_the_candidate_status(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    spec = repository / STORY_7_3_SPEC_PATH
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "enter review")
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'done'", "status: 'in-progress'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: review", f"{STORY_7_3_SPRINT_ROW}: in-progress", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "roll back blocked review")
+
+    record = v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    assert record["candidate"]["commit"] == fixture["candidate"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+@pytest.mark.parametrize("original_value", (None, "false", "true"))
+def test_v2_workflow_accepts_followup_as_the_final_frontmatter_field(
+    tmp_path: Path, original_value: str | None,
+) -> None:
+    def seed(repository: Path) -> None:
+        if original_value is not None:
+            spec = repository / STORY_7_3_SPEC_PATH
+            spec.write_bytes(spec.read_bytes().replace(
+                b"\n---\n", f"\nfollowup_review_recommended: {original_value}\n---\n".encode(), 1,
+            ))
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=seed)
+    repository = fixture["repository"]
+    original = (repository / STORY_7_3_SPEC_PATH).read_bytes()
+    changed = original.replace(b"status: 'in-progress'", b"status: 'done'", 1)
+    if original_value is None:
+        changed = changed.replace(b"\n---\n", b"\nfollowup_review_recommended: true\n---\n", 1)
+    else:
+        replacement = "false" if original_value == "true" else "true"
+        changed = changed.replace(
+            f"followup_review_recommended: {original_value}\n---\n".encode(),
+            f"followup_review_recommended: {replacement}\n---\n".encode(), 1,
+        )
+
+    assert load_generator().v2_working_spec_lifecycle_only_change(
+        repository, fixture["candidate"], STORY_7_3_SPEC_PATH, changed,
+    )
+
+
+@pytest.mark.parametrize("phase", ("first-add", "replacement"))
+def test_v2_retained_candidate_requires_pair_changes_to_be_record_only(
+    tmp_path: Path, phase: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    if phase == "first-add":
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    else:
+        v2_7_3_passing_pair(fixture)
+        for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+            v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+        v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    v2_git(
+        repository,
+        "add",
+        STORY_7_3_OUTPUT_JSON,
+        STORY_7_3_OUTPUT_MARKDOWN,
+        STORY_7_3_SPEC_PATH,
+    )
+    v2_git(repository, "commit", "-m", "mix record and lifecycle changes")
+
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+
+
+def test_v2_retained_candidate_rejects_an_intermediate_source_commit_that_is_reverted(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    source = repository / STORY_7_3_BODIES[0]
+    original = source.read_bytes()
+    source.write_bytes(original + b"\nintermediate source change\n")
+    v2_git(repository, "add", STORY_7_3_BODIES[0])
+    v2_git(repository, "commit", "-m", "intermediate source change")
+    source.write_bytes(original)
+    v2_git(repository, "add", STORY_7_3_BODIES[0])
+    v2_git(repository, "commit", "-m", "revert intermediate source change")
+
+    failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+@pytest.mark.parametrize("fault", ("unrelated-dirt", "unrelated-spec-edit"))
+def test_v2_verify_inserted_rejects_changes_outside_the_designated_record(
+    tmp_path: Path, fault: str
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, _, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    if fault == "unrelated-dirt":
+        extra = repository / "unrelated.txt"
+        extra.write_text("dirty\n", encoding="utf-8")
+        expected = "WORKTREE_NOT_CLEAN"
+    else:
+        spec = repository / STORY_7_3_SPEC_PATH
+        spec.write_text(spec.read_text(encoding="utf-8") + "\nUnrelated spec edit.\n", encoding="utf-8")
+        expected = "RECORD_CONTENT_DRIFT"
+
+    document = v2_assert_failure(v2_run(v2_7_3_verify_arguments(repository)), {expected})
+    assert document["blockers"] == [expected]
 
 
 def test_v2_workflow_verifies_inserted_digest_in_a_preseeded_marker_pair(tmp_path: Path) -> None:
@@ -5070,6 +5224,86 @@ def test_story_completion_verifier_emits_schema_valid_acceptance_results(tmp_pat
     assert not (repository / "_bmad/render").exists()
 
 
+def test_story_completion_verifier_preserves_parity_after_autocrlf_checkout(tmp_path: Path) -> None:
+    def seed(repository: Path) -> None:
+        (repository / ".gitattributes").write_bytes((WORKSPACE / ".gitattributes").read_bytes())
+        (repository / "autocrlf-control.md").write_bytes(b"control\n")
+
+    fixture = build_v2_7_3_repository(tmp_path, results=False, mutate=seed)
+    repository = fixture["repository"]
+    v2_git(repository, "config", "core.autocrlf", "true")
+    for relative in ("autocrlf-control.md", *STORY_7_3_BODIES):
+        (repository / relative).unlink()
+    v2_git(repository, "checkout-index", "--force", "--", "autocrlf-control.md", *STORY_7_3_BODIES)
+    assert (repository / "autocrlf-control.md").read_bytes() == b"control\r\n"
+    for body in STORY_7_3_BODIES:
+        content = (repository / body).read_bytes()
+        assert b"\r" not in content, body
+        assert sha256_file(repository / body) == hashlib.sha256(
+            v2_git(repository, "show", f"HEAD:{body}").stdout.encode("utf-8")
+        ).hexdigest()
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        document = v2_7_3_assert_verifier(v2_7_3_verify(repository, scenario_id), 0, [])
+        assert all(row["state"] == "PASS" for row in document["assertionLedger"])
+    assert not (repository / "_bmad/render").exists()
+
+
+def test_story_completion_verifier_does_not_follow_the_predictable_temp_symlink(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_completion_verifier()
+    relative = f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    target = repository / relative
+    target.parent.mkdir(parents=True, exist_ok=True)
+    outside = tmp_path / "outside.json"
+    outside.write_bytes(b"outside\n")
+    predictable = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+    predictable.symlink_to(outside)
+    collision = target.with_name(f".{target.name}.collision.tmp")
+    collision.symlink_to(outside)
+    tokens = iter(("collision", "safe"))
+    monkeypatch.setattr(module.secrets, "token_hex", lambda _: next(tokens))
+
+    module.write_output(repository, relative, b"derived\n")
+
+    assert target.read_bytes() == b"derived\n"
+    assert outside.read_bytes() == b"outside\n"
+    assert predictable.is_symlink()
+    assert collision.is_symlink()
+
+
+@pytest.mark.parametrize("collision_kind", ("regular-file", "symlink"))
+def test_story_completion_verifier_preserves_collisions_when_temp_names_are_exhausted(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, collision_kind: str,
+) -> None:
+    repository = tmp_path / "repository"
+    repository.mkdir()
+    module = load_completion_verifier()
+    relative = f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
+    target = repository / relative
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"prior result\n")
+    outside = tmp_path / "outside.json"
+    outside.write_bytes(b"outside\n")
+    collision = target.with_name(f".{target.name}.collision.tmp")
+    if collision_kind == "symlink":
+        collision.symlink_to(outside)
+    else:
+        collision.write_bytes(b"occupied\n")
+    monkeypatch.setattr(module.secrets, "token_hex", lambda _: "collision")
+
+    with pytest.raises(module.Blocked) as stopped:
+        module.write_output(repository, relative, b"derived\n")
+
+    assert stopped.value.finding["code"] == "OUTPUT_WRITE_FAILED"
+    assert target.read_bytes() == b"prior result\n"
+    assert outside.read_bytes() == b"outside\n"
+    assert collision.is_symlink() == (collision_kind == "symlink")
+    assert collision.read_bytes() == (b"outside\n" if collision_kind == "symlink" else b"occupied\n")
+
+
 # Every clause the one block must state, written out here rather than imported, so
 # a clause the verifier stops requiring is caught instead of silently shared.
 STORY_7_3_REQUIRED_BLOCK_CLAUSES = (
@@ -5292,10 +5526,32 @@ def test_story_completion_verifier_inventory_matches_the_generator() -> None:
     module = load_generator()
     assert tuple(COMPLETION_VERIFIER.BODY_PATHS) == module.V2_7_3_WORKFLOW_BODIES
     assert len(STORY_7_3_BODIES) == 8 and len(STORY_7_3_TWINS) == 3
-    assert set(COMPLETION_VERIFIER.FAIL_CODES) == set(module.V2_PROPAGATED_ACCEPTANCE_CODES)
+    assert (
+        set(COMPLETION_VERIFIER.FAIL_CODES) | set(COMPLETION_VERIFIER.BLOCKED_CODES)
+        == set(module.V2_PROPAGATED_ACCEPTANCE_CODES)
+    )
     runbook = RUNBOOK.read_text(encoding="utf-8")
     for code in (*COMPLETION_VERIFIER.FAIL_CODES, *COMPLETION_VERIFIER.BLOCKED_CODES):
         assert f"`{code}`" in runbook, code
+
+
+def test_v2_story_7_3_propagates_every_stable_verifier_code(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / STORY_7_3_RESULTS / "AC-7.3-01.json"
+    document = json.loads(path.read_bytes())
+    codes = sorted(COMPLETION_VERIFIER.FAIL_CODES | COMPLETION_VERIFIER.BLOCKED_CODES)
+    path.write_text(
+        json.dumps(dict(document, exitCode=1, result="FAIL", blockers=codes), indent=2) + "\n",
+        encoding="utf-8",
+    )
+
+    failure = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)),
+        {"TEST_RESULTS_FAILED", *codes},
+        exit_code=2,
+    )
+    assert set(failure["blockers"]) == {"TEST_RESULTS_FAILED", *codes}
 
 
 def test_v2_story_7_3_record_binds_contract_bodies_and_predecessors(tmp_path: Path) -> None:
@@ -5345,6 +5601,8 @@ V2_7_3_ACCEPTANCE_FAULTS = {
     "malformed-json": ("INPUT_SCHEMA_INVALID",),
     "schema-violation": ("INPUT_SCHEMA_INVALID",),
     "symlinked-result": ("INPUT_SCHEMA_INVALID",),
+    "ledger-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "duplicate-ledger-subject": ("SCENARIO_RESULT_MISMATCH",),
     "passing-with-failed-row": ("TEST_COUNT_INCONSISTENT",),
     "passing-without-ledger": ("ASSERTION_LEDGER_EMPTY",),
     "failed-with-verifier-blocker": ("TEST_RESULTS_FAILED", "WORKFLOW_INTEGRATION_DISPLACED"),
@@ -5386,6 +5644,22 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
             "inputs-not-governed-set": lambda: rewritten(inputs=document["inputs"][1:]),
             "malformed-json": lambda: b'{"schemaVersion": ',
             "schema-violation": lambda: rewritten(undeclared=True),
+            "ledger-id-mismatch": lambda: rewritten(
+                assertionLedger=[
+                    dict(document["assertionLedger"][0], id="AC-7.3-01#9999"),
+                    *document["assertionLedger"][1:],
+                ]
+            ),
+            "duplicate-ledger-subject": lambda: rewritten(
+                assertionLedger=[
+                    document["assertionLedger"][0],
+                    dict(
+                        document["assertionLedger"][1],
+                        subject=document["assertionLedger"][0]["subject"],
+                    ),
+                    *document["assertionLedger"][2:],
+                ]
+            ),
             "passing-with-failed-row": lambda: rewritten(
                 assertionLedger=[dict(document["assertionLedger"][0], state="FAIL")]
             ),
@@ -5406,14 +5680,25 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
     v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
 
 
-@pytest.mark.parametrize("fault", ("tampered-7.2-json", "missing-7.1-markdown"))
+@pytest.mark.parametrize(
+    "fault",
+    ("tampered-7.2-json", "missing-7.1-markdown", "mismatched-7.2-predecessor"),
+)
 def test_v2_story_7_3_invalid_predecessor_records_block_the_record(tmp_path: Path, fault: str) -> None:
     def mutate(repository: Path) -> None:
-        if fault == "tampered-7.2-json":
+        if fault in ("tampered-7.2-json", "mismatched-7.2-predecessor"):
             target = repository / "docs/release-evidence/story-7.2-final-record-v2.json"
             record = json.loads(target.read_bytes())
-            record["rollback"]["boundary"] += " tampered"
-            target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+            if fault == "tampered-7.2-json":
+                record["rollback"]["boundary"] += " tampered"
+                target.write_text(json.dumps(record, indent=2) + "\n", encoding="utf-8")
+            else:
+                record["measurements"]["predecessorRecord"]["sha256"] = "0" * 64
+                _, json_bytes, markdown_bytes = load_generator().v2_finalize(record)
+                target.write_bytes(json_bytes)
+                (
+                    repository / "docs/release-evidence/story-7.2-final-record-v2.md"
+                ).write_bytes(markdown_bytes)
         else:
             (repository / "docs/release-evidence/story-7.1-final-record-v2.md").unlink()
 
@@ -5436,9 +5721,17 @@ def test_v2_story_7_3_verification_mode_accepts_only_its_own_options(tmp_path: P
         [*v2_7_3_verify_arguments(repository), "--verify-inserted-record", STORY_7_3_SPEC_PATH],
         v2_7_3_verify_arguments(repository, "../outside.md"),
         v2_7_3_verify_arguments(repository, "missing-spec.md"),
+        v2_7_3_verify_arguments(repository, STORY_7_3_BODIES[0]),
     ):
         document = v2_assert_failure(v2_run(arguments), {"ARGUMENT_INVALID"})
         assert document["blockers"] == ["ARGUMENT_INVALID"]
+    unknown = v2_assert_failure(
+        v2_run(["--unknown", "value", *v2_7_3_verify_arguments(repository)]),
+        {"ARGUMENT_INVALID"},
+    )
+    diagnostic = unknown["diagnostics"][0]["message"]
+    assert "--verify-inserted-record" in diagnostic
+    assert "--output-json" not in diagnostic
     assert v2_snapshot(repository) == before
 
 

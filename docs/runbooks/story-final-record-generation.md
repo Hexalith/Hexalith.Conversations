@@ -298,15 +298,17 @@ the tooling's own schema copies in `_bmad/schemas/`, never the evaluated
 repository's: `story-final-record-v2.schema.json`,
 `story-record-generator-failure-v1.schema.json`,
 `v9-story-contract-v1.schema.json`, and `v9-authority-bundle-v1.schema.json`.
+Contracts that declare acceptance-result scenarios additionally use
+`v9-acceptance-result-v1.schema.json`.
 
 ### Derivation
 
 Every fact comes from Git objects of the committed candidate or from measured
-JUnit result files:
+JUnit or acceptance-result evidence files:
 
 1. **Candidate.** `HEAD` resolved to a commit. There is no `--candidate`
    option. The working tree must equal the candidate everywhere except for the
-   two declared outputs and the declared JUnit result paths, detected without
+   two declared outputs and the declared evidence-result paths, detected without
    traversing submodules.
 2. **Contract.** Read from the candidate blob at `--contract`, parsed as strict
    UTF-8 JSON (duplicate keys and non-finite numbers are rejected), required to
@@ -327,14 +329,19 @@ JUnit result files:
    be committed at the candidate, and the JUnit path must lie outside every
    gitlink. The final scenario must be this generator's own invocation, with
    the same contract, format, and output paths.
-6. **JUnit ledgers.** A result file must contain one `testsuites` root with
+6. **Evidence ledgers.** A JUnit result file must contain one `testsuites` root with
    exactly one direct `testsuite`, no DTD or entity declaration, and suite
    counters that equal its direct testcases. Each direct testcase becomes one
    ledger row: `<scenarioId>#<four-digit ordinal>`, subject
    `classname::name`, and `PASS` only when it has no direct `failure`, `error`,
    or `skipped` child. Every testcase must belong to the command's target
    module and contain its simple `-k` selector. A result file that predates the
-   candidate's commit time is stale.
+   candidate's commit time is stale. An acceptance result must validate as
+   `hexalith.conversations.acceptance-result.v1`, bind the contract's story,
+   scenario, exact command, candidate, and output path, and carry an ordered
+   ledger whose IDs are exactly `<scenarioId>#<four-digit ordinal>`. Its input
+   paths and digests must bind the committed workflow surfaces required by the
+   contract; duplicate ledger subjects are rejected.
 7. **Exit.** Each pytest scenario's exit is derived the way pytest reports
    it: `5` for no testcase, `1` for any failure or error, and `0` otherwise. A
    scenario passes only with a declared passing exit, a nonempty ledger, no
@@ -868,8 +875,10 @@ document instead.
   exact declared command, and a result state and exit that agree with the
   scenario's `resultSemantics`. It also requires the derived candidate, no
   modification time before the candidate commit, input digests equal to the
-  candidate's committed blobs, and a nonempty ledger whose rows all pass. The
-  record re-keys the ledger rows as `<scenarioId>#<ordinal>`.
+  candidate's committed blobs, and a nonempty ledger whose rows all pass. Before
+  re-keying, the source ledger IDs must already be the exact ordered
+  `<scenarioId>#<four-digit ordinal>` sequence and its subjects must be unique.
+  The record then re-keys the validated ledger rows as `<scenarioId>#<ordinal>`.
 - **`workflowIntegration`.** Story 7.3 records carry this closed section, and
   the schema forbids it on every other story. It binds the contract path and
   digest, and the eight governed bodies re-derived from the candidate's blobs.
@@ -880,9 +889,13 @@ document instead.
   output bytes are unchanged.
 - **`--verify-inserted-record SPEC`.** This mode takes `--repository` and
   `--contract` and writes nothing. It reads the contract's pair from `HEAD` and
-  requires the working-tree copies to match. The JSON must validate against its
-  schema and digest bindings. `SPEC` may be absolute or repository-relative, and
-  must carry exactly one `<!-- STORY-FINAL-RECORD:BEGIN -->` line and one
+  requires the working-tree copies to match. The contract must be the current
+  retained-candidate contract, and `SPEC` must resolve to that contract's
+  designated story spec; another in-repository Markdown file is rejected. The
+  retained candidate and every successor commit are revalidated before the
+  inserted bytes are trusted. The JSON must validate against its schema and
+  digest bindings. `SPEC` may be absolute or repository-relative, and must carry
+  exactly one `<!-- STORY-FINAL-RECORD:BEGIN -->` line and one
   `<!-- STORY-FINAL-RECORD:END -->` line. The bytes between them must equal the
   Markdown output and hash to `renderedMarkdownSha256`. On success, stdout
   carries the JSON record and the exit is `0`. A missing, uncommitted,
@@ -894,16 +907,19 @@ document instead.
   `SCHEMA_UNAVAILABLE`, `SCHEMA_VALIDATOR_UNAVAILABLE`, `GIT_UNAVAILABLE`,
   `GIT_COMMAND_FAILED`, and `INTERNAL_ERROR`.
 - **Candidate retention.** A committed Story 7.3 pair pins its candidate as the
-  Story 7.2 pair does. Later commits may change only the spec's frontmatter
-  `status`, its inserted record region, the Story 7.3 sprint-status row, and
-  that file's `last_updated` date. The region may be filled between a marker
-  pair that the candidate already carried, or appended after a blank line at
-  the end of the spec, and its END line must end with LF. Any other later change
-  is `CANDIDATE_NOT_FINAL`. Because those later commits are proven
-  lifecycle-only, an acceptance result rerun on one of them, which names that
-  commit rather than the retained candidate, is still accepted; its inputs are
-  still checked against the candidate's blobs. Its new bytes are rebound in the
-  regenerated pair, so commit that pair as another record-only commit.
+  Story 7.2 pair does. Later commits may change only the spec's completion-route
+  lifecycle state (`status`, `followup_review_recommended`, `Review Triage Log`,
+  and `Auto Run Result`), its inserted record region, the Story 7.3 sprint-status
+  row, and that file's `last_updated` date. The region may be filled between a
+  marker pair that the candidate already carried, or appended after a blank line
+  at the end of the spec, and its END line must end with LF. Every intervening
+  commit is checked, so a forbidden source or gitlink edit cannot be hidden by a
+  later revert. Any other later change is `CANDIDATE_NOT_FINAL`. Because those
+  later commits are proven lifecycle-only, an acceptance result rerun on one of
+  them, which names that commit rather than the retained candidate, is still
+  accepted; its inputs are still checked against the candidate's blobs. Its new
+  bytes are rebound in the regenerated pair, so commit that pair as another
+  record-only commit.
 
 | Story 7.3 generator code | Exit | Condition |
 | --- | --- | --- |
@@ -918,8 +934,15 @@ document instead.
 | `SCENARIO_COMMAND_UNSUPPORTED` | `1` | A scenario command is neither a supported pytest command, the generator self-invocation, nor a valid acceptance-result command, or the contract declares no acceptance result that binds the workflow bodies |
 | `TEST_COUNT_INCONSISTENT` | `1` | A passing acceptance result carries a blocker or a non-passing ledger row |
 | `ASSERTION_LEDGER_EMPTY` | `1` | An acceptance result records no assertion |
-| `AUTHORITY_BINDING_INVALID` | `1` | The committed Story 7.1 or Story 7.2 record pair is missing or does not verify |
+| `AUTHORITY_BINDING_INVALID` | `1` | The committed Story 7.1 or Story 7.2 record pair is missing or does not verify, or Story 7.2 does not bind the verified Story 7.1 JSON digest |
 | `RECORD_CONTENT_DRIFT` | `1` | The inserted region, the committed pair, or the working-tree pair differs |
+
+The generator also carries every stable verifier diagnostic from a non-passing
+acceptance result: `ARGUMENT_INVALID`, `CONTRACT_UNSUPPORTED`, `GIT_UNAVAILABLE`,
+`CANDIDATE_UNRESOLVABLE`, `SURFACE_UNREADABLE`, `RENDER_UNAVAILABLE`,
+`SCHEMA_UNAVAILABLE`, `SCHEMA_VALIDATOR_UNAVAILABLE`, `OUTPUT_WRITE_FAILED`, and
+`INTERNAL_ERROR`, in addition to the three workflow-integration codes above.
+This preserves the exact operator-facing cause alongside `TEST_RESULTS_FAILED`.
 
 A failing acceptance result carries its verifier codes into the failure
 document, next to `TEST_RESULTS_FAILED`, so the route can report the exact
@@ -951,12 +974,14 @@ workflow prose that invokes it. The verifier and
 placed, and identical. They do not prove that an agent followed it.
 
 The generator classifies only pytest JUnit commands, its own self-invocation,
-and acceptance-result commands. Every backlog contract, Story 7.4 through Story
-16.3, declares at least one scenario command outside those shapes, such as
-Story 7.4's `--historical --format json` invocation. For those stories the gate
-fails closed with `SCENARIO_COMMAND_UNSUPPORTED` until the story extends the
-generator to read its own scenarios. The gate never skips a contract-bound
-story for that reason.
+and acceptance-result commands. Schema-compatible backlog contracts declare at
+least one scenario command outside those shapes, such as Story 7.4's
+`--historical --format json` invocation, and fail closed with
+`SCENARIO_COMMAND_UNSUPPORTED` until the generator reads those scenarios.
+Later v14-format contracts first require explicit contract-schema and generator
+support; without it they fail earlier with `INPUT_SCHEMA_INVALID` rather than
+reaching scenario-command classification. The gate never skips a
+contract-bound story for either reason.
 
 ## Ordered checklist (copy per story)
 

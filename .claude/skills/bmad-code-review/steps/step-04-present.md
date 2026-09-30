@@ -128,11 +128,11 @@ Identify the exact task-owned review-patch, completion-record, and lifecycle-sta
 
 #### Determine new status based on review outcome
 
-- If `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or rejected), AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`. Update the story file Status section to `done`.
-- If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`. Update the story file Status section to `in-progress`.
+- If `record_gate_failed` is not true, all `decision-needed` and `patch` findings were resolved (fixed or rejected), AND no unresolved `high`/`medium` findings remain: set `new_status` = `done`.
+- If `patch` findings were left as action items, or unresolved issues remain: set `new_status` = `in-progress`.
 - If `record_gate_failed` is true, preserve `new_status` = `in-progress`; never write or synchronize `done`.
 
-Save the story file.
+Set the story file's frontmatter `status` to `{new_status}` when that field exists. For a legacy story without frontmatter `status`, update its Status section to `{new_status}` instead. Save the story file.
 
 #### Sync sprint-status.yaml
 

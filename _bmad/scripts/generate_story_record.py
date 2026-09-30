@@ -2763,15 +2763,33 @@ V2_RETAINED_CANDIDATES = {
         True,
     ),
 }
+V2_RETAINED_OUTPUTS = {
+    "7.2": (V2_7_2_RECORD_PATH, V2_7_2_MARKDOWN_PATH),
+    "7.3": (
+        "docs/release-evidence/story-7.3-final-record-v2.json",
+        "docs/release-evidence/story-7.3-final-record-v2.md",
+    ),
+}
 V2_ACCEPTANCE_SCHEMA_FILE = "v9-acceptance-result-v1.schema.json"
 V2_ACCEPTANCE_SCHEMA_VERSION = "hexalith.conversations.acceptance-result.v1"
 V2_ACCEPTANCE_OPTIONS = ("--repository", "--contract", "--scenario", "--output")
-# Verifier blockers carried into a failure document when an acceptance result
-# reports them, so the completion surface can report the exact cause.
+# Every stable verifier code is carried into a failure document when an
+# acceptance result reports it, so the completion surface can report the exact
+# cause rather than only the generator's aggregate TEST_RESULTS_FAILED code.
 V2_PROPAGATED_ACCEPTANCE_CODES = (
-    "WORKFLOW_INTEGRATION_MISSING",
-    "WORKFLOW_INTEGRATION_DISPLACED",
+    "ARGUMENT_INVALID",
+    "CANDIDATE_UNRESOLVABLE",
+    "CONTRACT_UNSUPPORTED",
+    "GIT_UNAVAILABLE",
+    "INTERNAL_ERROR",
+    "OUTPUT_WRITE_FAILED",
+    "RENDER_UNAVAILABLE",
+    "SCHEMA_UNAVAILABLE",
+    "SCHEMA_VALIDATOR_UNAVAILABLE",
     "SURFACE_PARITY_DRIFT",
+    "SURFACE_UNREADABLE",
+    "WORKFLOW_INTEGRATION_DISPLACED",
+    "WORKFLOW_INTEGRATION_MISSING",
 )
 V2_VERIFY_OPTION = "--verify-inserted-record"
 V2_ZERO_DIGEST = "0" * 64
@@ -2874,6 +2892,10 @@ V2_CODES = {
     "WORKFLOW_INTEGRATION_MISSING": "FAIL",
     "WORKFLOW_INTEGRATION_DISPLACED": "FAIL",
     "SURFACE_PARITY_DRIFT": "FAIL",
+    "CONTRACT_UNSUPPORTED": "BLOCKED",
+    "CANDIDATE_UNRESOLVABLE": "BLOCKED",
+    "SURFACE_UNREADABLE": "BLOCKED",
+    "RENDER_UNAVAILABLE": "BLOCKED",
     "GIT_UNAVAILABLE": "BLOCKED",
     "GIT_COMMAND_FAILED": "BLOCKED",
     "SCHEMA_UNAVAILABLE": "BLOCKED",
@@ -2935,6 +2957,12 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
     findings: list[dict[str, str]] = []
     values: dict[str, str] = {}
     tokens = list(raw_arguments)
+    verify_mode = any(token.partition("=")[0] == V2_VERIFY_OPTION for token in tokens)
+    accepted_options = (
+        ("--repository", "--contract", V2_VERIFY_OPTION)
+        if verify_mode
+        else V2_ACCEPTED_OPTIONS
+    )
     index = 0
     while index < len(tokens):
         token = tokens[index]
@@ -2966,13 +2994,13 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
             if takes_following:
                 index += 1
             continue
-        if name not in V2_ACCEPTED_OPTIONS and name != V2_VERIFY_OPTION:
+        if name not in accepted_options:
             findings.append(
                 v2_finding(
                     "ARGUMENT_INVALID",
                     "argv",
                     "an unrecognized option was supplied; the v2 route accepts exactly "
-                    + ", ".join(V2_ACCEPTED_OPTIONS),
+                    + ", ".join(accepted_options),
                 )
             )
             if takes_following:
@@ -2998,7 +3026,7 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
             continue
         values[name] = value
 
-    if V2_VERIFY_OPTION in values or any(item["subject"] == V2_VERIFY_OPTION for item in findings):
+    if verify_mode:
         # Verification mode reads a committed pair; it derives and writes nothing.
         for name in ("--format", "--output-json", "--output-markdown"):
             if name in values:
@@ -3550,6 +3578,16 @@ def v2_scenario_from_acceptance(
             f"the result file {output} has more than {V2_LEDGER_LIMIT} ledger rows or a "
             "control character in a ledger subject",
             "failed",
+        )
+    expected_row_ids = [f"{scenario_id}#{ordinal:04d}" for ordinal in range(1, len(rows) + 1)]
+    if [row["id"] for row in rows] != expected_row_ids:
+        findings.append(
+            v2_finding(
+                "SCENARIO_RESULT_MISMATCH",
+                scenario_id,
+                f"the assertion ledger IDs in {output} are not the exact ordered "
+                f"{scenario_id}#<four-digit ordinal> sequence",
+            )
         )
     ledger = [
         {"id": f"{scenario_id}#{ordinal:04d}", "subject": row["subject"], "state": row["state"]}
@@ -4281,18 +4319,51 @@ def v2_record_region(content: bytes) -> tuple[int, int] | None:
 
 
 def v2_spec_lifecycle_only_change(
-    repository: Path, candidate: str, head: str, spec_path: str, record_region: bool = False
+    repository: Path, candidate: str, head: str, spec_path: str, record_region: bool = False,
+    updated_content: bytes | None = None,
 ) -> bool:
-    """Accept only a frontmatter status change in a committed story spec.
+    """Accept only completion-route-owned changes in a committed story spec.
 
     With `record_region`, the spec's inserted final-record region may also
     change: its content between an existing marker pair, or one marker pair
-    appended after a blank line at the end of a spec that carried none.
+    appended after a blank line at the end of a spec that carried none. Story
+    7.3 completion routes may additionally set `followup_review_recommended`
+    and write the `Review Triage Log` and `Auto Run Result` sections they own.
     """
     status = re.compile(
         rb"(?m)^status: (?P<quote>['\"]?)(?P<value>draft|ready-for-dev|"
         rb"in-progress|in-review|done)(?P=quote)$"
     )
+
+    followup = re.compile(rb"(?m)^followup_review_recommended:[ \t]*(?:true|false)[ \t]*\n")
+    route_sections = (b"## Review Triage Log", b"## Auto Run Result")
+
+    def without_route_sections(content: bytes) -> bytes | None:
+        for heading in route_sections:
+            pattern = re.compile(rb"(?m)^" + re.escape(heading) + rb"[ \t]*$")
+            matches = list(pattern.finditer(content))
+            if len(matches) > 1:
+                return None
+            if not matches:
+                continue
+            match = matches[0]
+            boundaries = [
+                position
+                for position in (
+                    content.find(b"\n## ", match.end()),
+                    content.find(b"\n" + RECORD_BEGIN_MARKER.encode("ascii"), match.end()),
+                )
+                if position >= 0
+            ]
+            start = match.start()
+            if boundaries:
+                end = min(boundaries) + 1
+            else:
+                end = len(content)
+            if not boundaries and start > 0 and content[start - 1 : start] == b"\n":
+                start -= 1
+            content = content[:start] + content[end:]
+        return content
 
     def without_status(content: bytes | None) -> bytes | None:
         if content is None or not content.startswith(b"---\n"):
@@ -4305,7 +4376,21 @@ def v2_spec_lifecycle_only_change(
         if len(matches) != 1:
             return None
         match = matches[0]
-        return content[:4 + match.start("value")] + b"<lifecycle>" + content[4 + match.end("value"):]
+        masked = (
+            content[:4 + match.start("value")]
+            + b"<lifecycle>"
+            + content[4 + match.end("value"):]
+        )
+        if record_region:
+            frontmatter_end = masked.find(b"\n---\n", 4)
+            followups = list(followup.finditer(masked, 4, frontmatter_end + 1))
+            if len(followups) > 1:
+                return None
+            if followups:
+                owned = followups[0]
+                masked = masked[:owned.start()] + masked[owned.end():]
+            masked = without_route_sections(masked)
+        return masked
 
     def without_record(content: bytes) -> tuple[bytes, bool] | None:
         markers = (RECORD_BEGIN_MARKER.encode("ascii"), RECORD_END_MARKER.encode("ascii"))
@@ -4317,7 +4402,11 @@ def v2_spec_lifecycle_only_change(
         return content[: region[0]] + b"<record>\n" + content[region[1]:], True
 
     original = without_status(v2_committed_blob(repository, candidate, spec_path))
-    updated = without_status(v2_committed_blob(repository, head, spec_path))
+    updated = without_status(
+        updated_content
+        if updated_content is not None
+        else v2_committed_blob(repository, head, spec_path)
+    )
     if not record_region or original is None or updated is None:
         return original is not None and original == updated
     masked_original = without_record(original)
@@ -4333,8 +4422,18 @@ def v2_spec_lifecycle_only_change(
     return masked_original[0] + appended == masked_updated[0]
 
 
+def v2_working_spec_lifecycle_only_change(
+    repository: Path, head: str, spec_path: str, working: bytes
+) -> bool:
+    """Apply the committed lifecycle/record mask to one working-tree spec."""
+    return v2_spec_lifecycle_only_change(
+        repository, head, head, spec_path, record_region=True, updated_content=working
+    )
+
+
 def v2_sprint_status_only_change(
-    repository: Path, candidate: str, head: str, sprint_key: str
+    repository: Path, candidate: str, head: str, sprint_key: str,
+    require_transition: bool = True,
 ) -> bool:
     """Accept only one story's sprint status and the sprint update date changing."""
     status = re.compile(
@@ -4361,7 +4460,12 @@ def v2_sprint_status_only_change(
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
     latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
-    return original is not None and latest is not None and original[0] == latest[0] and original[1] != latest[1]
+    return (
+        original is not None
+        and latest is not None
+        and original[0] == latest[0]
+        and (not require_transition or original[1] != latest[1])
+    )
 
 
 def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
@@ -4379,7 +4483,7 @@ def v2_story_7_2_sprint_status_only_change(repository: Path, candidate: str, hea
 def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_path: str,
                           validator: Any, story_id: str, spec_path: str, sprint_key: str,
                           record_region: bool) -> str:
-    """Retain a verified source candidate across a record-only successor commit."""
+    """Retain a verified source candidate across verified successor commits."""
     json_bytes = v2_committed_blob(repository, head, json_path)
     markdown_bytes = v2_committed_blob(repository, head, markdown_path)
     if json_bytes is None and markdown_bytes is None:
@@ -4403,20 +4507,71 @@ def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_
         raise V2Stop([v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
                                  "the verified prior candidate is no longer an ancestor of HEAD")],
                      story_id)
-    changed = set(committed_path_status(repository, candidate, head))
-    moved = changed_gitlinks(repository, candidate, head)
-    invalid_spec_change = (spec_path in changed and not v2_spec_lifecycle_only_change(
-        repository, candidate, head, spec_path, record_region))
-    invalid_sprint_change = (V2_7_2_SPRINT_PATH in changed and not v2_sprint_status_only_change(
-        repository, candidate, head, sprint_key))
-    if (moved or invalid_spec_change or invalid_sprint_change
-            or changed - {json_path, markdown_path} - {spec_path, V2_7_2_SPRINT_PATH}):
-        findings = [v2_finding("CANDIDATE_NOT_FINAL", "candidate.commit",
-                               "source or gitlinks changed after the verified candidate")]
-        if moved:
-            findings.append(v2_finding("GITLINK_DRIFT", "candidate.gitlinks",
-                                       f"root gitlinks moved: {v2_path_summary(moved)}"))
-        raise V2Stop(findings, story_id)
+    revisions = decode(
+        run_git(repository, "rev-list", "--reverse", "--topo-order", f"{candidate}..{head}").stdout
+    ).split()
+    pair_paths = {json_path, markdown_path}
+    lifecycle_paths = {spec_path, V2_7_2_SPRINT_PATH}
+    for revision in revisions:
+        parent = decode(run_git(repository, "rev-parse", f"{revision}^1").stdout).strip()
+        changed = set(committed_path_status(repository, candidate, revision))
+        delta = set(committed_path_status(repository, parent, revision))
+        moved = changed_gitlinks(repository, candidate, revision)
+        pair_delta_invalid = bool(delta & pair_paths) and delta != pair_paths
+        invalid_spec_change = (spec_path in changed and not v2_spec_lifecycle_only_change(
+            repository, candidate, revision, spec_path, record_region))
+        invalid_sprint_change = (
+            V2_7_2_SPRINT_PATH in changed
+            and not v2_sprint_status_only_change(
+                repository, candidate, revision, sprint_key, require_transition=False
+            )
+        )
+        invalid_lifecycle_delta = (
+            spec_path in delta
+            and not v2_spec_lifecycle_only_change(
+                repository, parent, revision, spec_path, record_region
+            )
+        ) or (
+            V2_7_2_SPRINT_PATH in delta
+            and not v2_sprint_status_only_change(repository, parent, revision, sprint_key)
+        )
+        revision_json = v2_committed_blob(repository, revision, json_path)
+        revision_markdown = v2_committed_blob(repository, revision, markdown_path)
+        pair_invalid = revision_json is None or revision_markdown is None
+        if not pair_invalid:
+            try:
+                revision_record = v2_parse_json(revision_json)
+                pair_invalid = (
+                    not isinstance(revision_record, dict)
+                    or revision_record.get("storyId") != story_id
+                    or revision_record.get("candidate", {}).get("commit") != candidate
+                    or v2_schema_errors(validator, revision_record)
+                    or bool(v2_verify_pair(revision_json, revision_markdown))
+                )
+            except (UnicodeDecodeError, ValueError, TypeError, KeyError, AttributeError):
+                pair_invalid = True
+        if (
+            moved
+            or pair_invalid
+            or pair_delta_invalid
+            or invalid_spec_change
+            or invalid_sprint_change
+            or invalid_lifecycle_delta
+            or changed - {json_path, markdown_path} - {spec_path, V2_7_2_SPRINT_PATH}
+            or delta - pair_paths - lifecycle_paths
+        ):
+            findings = [
+                v2_finding(
+                    "CANDIDATE_NOT_FINAL",
+                    "candidate.commit",
+                    f"commit {revision} after the verified candidate changes source, "
+                    "gitlinks, or non-lifecycle state",
+                )
+            ]
+            if moved:
+                findings.append(v2_finding("GITLINK_DRIFT", "candidate.gitlinks",
+                                           f"root gitlinks moved: {v2_path_summary(moved)}"))
+            raise V2Stop(findings, story_id)
     return candidate
 
 
@@ -4706,6 +4861,7 @@ def v2_story_7_3_workflow_integration(
             )
     contract_blob = v2_committed_blob(repository, candidate, contract_path) or b""
     predecessors = []
+    predecessor_digests: dict[str, str] = {}
     for story_id, json_path, markdown_path in V2_7_3_PREDECESSOR_RECORDS:
         digest = v2_verified_predecessor(
             repository, candidate, story_id, json_path, markdown_path, validators["record"]
@@ -4719,6 +4875,29 @@ def v2_story_7_3_workflow_integration(
                 )
             )
             continue
+        if story_id == "7.2":
+            try:
+                story_7_2 = v2_parse_json(
+                    v2_committed_blob(repository, candidate, json_path) or b""
+                )
+                expected_link = {
+                    "storyId": "7.1",
+                    "path": V2_7_1_RECORD_PATH,
+                    "sha256": predecessor_digests["7.1"],
+                }
+                if story_7_2["measurements"]["predecessorRecord"] != expected_link:
+                    raise ValueError("Story 7.2 does not bind the verified Story 7.1 record")
+            except (UnicodeDecodeError, ValueError, TypeError, KeyError, AttributeError):
+                findings.append(
+                    v2_finding(
+                        "AUTHORITY_BINDING_INVALID",
+                        "predecessor 7.2",
+                        "the committed Story 7.2 record does not bind the verified Story 7.1 "
+                        "record digest",
+                    )
+                )
+                continue
+        predecessor_digests[story_id] = digest
         predecessors.append({"storyId": story_id, "path": json_path, "sha256": digest})
     if findings:
         raise V2Stop(findings, "7.3")
@@ -5223,19 +5402,66 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             [v2_finding("RECORD_CONTENT_DRIFT", "HEAD", "no committed record pair can exist "
                         "without a committed HEAD")]
         ) from None
-    contract = v2_validate_contract(
-        v2_committed_blob(repository, head, contract_path), contract_path, validators["contract"]
-    )
+    head_contract_blob = v2_committed_blob(repository, head, contract_path)
+    contract = v2_validate_contract(head_contract_blob, contract_path, validators["contract"])
     story_id = contract["storyId"]
+    retained = V2_RETAINED_CANDIDATES.get(contract_path)
+    expected_outputs = V2_RETAINED_OUTPUTS.get(story_id)
+    if retained is None or retained[0] != story_id or expected_outputs is None:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "ARGUMENT_INVALID",
+                    "--contract",
+                    f"{V2_VERIFY_OPTION} requires a retained-candidate story contract",
+                )
+            ],
+            story_id,
+        )
     json_path, markdown_path = contract["finalRecord"]["paths"]
+    if (json_path, markdown_path) != expected_outputs:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "INPUT_SCHEMA_INVALID",
+                    "--contract",
+                    "the current contract's finalRecord.paths do not match the designated "
+                    "retained record pair",
+                )
+            ],
+            story_id,
+        )
+    candidate = v2_retained_candidate(
+        repository,
+        head,
+        json_path,
+        markdown_path,
+        validators["record"],
+        *retained,
+    )
+    candidate_contract_blob = v2_committed_blob(repository, candidate, contract_path)
+    if candidate_contract_blob != head_contract_blob:
+        raise V2Stop(
+            [
+                v2_finding(
+                    "RECORD_CONTENT_DRIFT",
+                    "--contract",
+                    "the current contract differs from the retained candidate's contract",
+                )
+            ],
+            story_id,
+        )
+    v2_validate_contract(candidate_contract_blob, contract_path, validators["contract"])
 
     spec_argument = Path(options[V2_VERIFY_OPTION])
     lexical = spec_argument if spec_argument.is_absolute() else repository / spec_argument
     try:
         resolved = lexical.resolve(strict=True)
-        resolved.relative_to(repository)
+        spec_relative = resolved.relative_to(repository).as_posix()
         if lexical.is_symlink() or not resolved.is_file():
             raise ValueError("not a regular file")
+        if spec_relative != retained[1]:
+            raise ValueError("not the contract's designated story spec")
         spec_bytes, _ = read_file_snapshot(resolved)
     except (OSError, ValueError):
         raise V2Stop(
@@ -5260,6 +5486,17 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
         installed = repository / path
         if installed.is_symlink() or not installed.is_file() or installed.read_bytes() != committed:
             drift(path, "the working-tree record output differs from the committed pair")
+    dirt = set(worktree_path_status(repository))
+    outside_spec = dirt - {spec_relative}
+    if outside_spec:
+        raise V2Stop(
+            [v2_finding("WORKTREE_NOT_CLEAN", "working-tree", "unrelated working-tree "
+                        f"changes are present: {v2_path_summary(outside_spec)}")],
+            story_id,
+        )
+    if not v2_working_spec_lifecycle_only_change(repository, head, spec_relative, spec_bytes):
+        drift(V2_VERIFY_OPTION, "the working spec changes content outside lifecycle-owned "
+              "fields, sections, or the final-record region")
     try:
         record = v2_parse_json(json_bytes)
         valid = (

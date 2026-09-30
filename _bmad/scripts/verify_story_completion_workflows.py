@@ -33,6 +33,7 @@ import importlib.util
 import json
 import os
 import re
+import secrets
 import shlex
 import subprocess
 import sys
@@ -729,15 +730,33 @@ def write_output(repository: Path, relative: str, content: bytes) -> None:
         if target.is_symlink() or (target.exists() and not target.is_file()):
             raise OSError("the output leaf is a symlink or not a regular file")
         parent.mkdir(parents=True, exist_ok=True)
-        temporary = target.with_name(f".{target.name}.{os.getpid()}.tmp")
+        temporary = None
+        descriptor = -1
         try:
-            with temporary.open("wb") as handle:
+            flags = os.O_WRONLY | os.O_CREAT | os.O_EXCL
+            if hasattr(os, "O_NOFOLLOW"):
+                flags |= os.O_NOFOLLOW
+            for _ in range(128):
+                proposed = target.with_name(f".{target.name}.{secrets.token_hex(16)}.tmp")
+                try:
+                    descriptor = os.open(proposed, flags, 0o600)
+                    temporary = proposed
+                    break
+                except FileExistsError:
+                    continue
+            if descriptor < 0:
+                raise OSError("no exclusive temporary output name is available")
+            with os.fdopen(descriptor, "wb") as handle:
+                descriptor = -1
                 handle.write(content)
                 handle.flush()
                 os.fsync(handle.fileno())
             os.replace(temporary, target)
         finally:
-            temporary.unlink(missing_ok=True)
+            if descriptor >= 0:
+                os.close(descriptor)
+            if temporary is not None:
+                temporary.unlink(missing_ok=True)
         if target.read_bytes() != content:
             raise OSError("the written result differs from the derived result")
     except (OSError, ValueError):
