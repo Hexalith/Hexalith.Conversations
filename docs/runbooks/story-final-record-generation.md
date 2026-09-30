@@ -701,9 +701,13 @@ historical-preservation repair. For that repair, follow only its historical
 reproduction and current-gate sections above; do not replace archived evidence,
 except the 2026-09-29 superseded-pair regeneration.
 
-1. Commit the story candidate: every executable, test, schema, and
-   documentation change. `HEAD` is the candidate, and the working tree must be
-   clean.
+1. If replacing a source candidate whose contract-declared output pair is
+   committed, first remove both files named by `finalRecord.paths` and commit
+   only those removals as a record-only retraction. Then commit the story
+   candidate: every executable, test, schema, and documentation change. `HEAD`
+   is the candidate, and the working tree must be clean. Use existing task
+   authorization for both commits; an unauthorized or failed required commit
+   blocks completion.
 2. From the repository root, run each `scenarios[0]` through `scenarios[4]`
    `.command` from the story contract through `uv run --frozen --no-sync`, for
    example `uv run --frozen --no-sync python3 -m pytest -q ... --junitxml=...`.
@@ -901,8 +905,11 @@ document instead.
   carries the JSON record and the exit is `0`. A missing, uncommitted,
   inconsistent, or foreign pair, a working-tree copy that differs from the
   commit, and a missing, malformed, or differing region are
-  `RECORD_CONTENT_DRIFT`, exit `1`. The mode also reports the route's other
-  stable codes: `ARGUMENT_INVALID` for an invalid option or spec path,
+  `RECORD_CONTENT_DRIFT`, exit `1`. Unrelated working-tree dirt is
+  `WORKTREE_NOT_CLEAN`; forbidden successor commits, even when later reverted,
+  are `CANDIDATE_NOT_FINAL`; moved root gitlinks are `GITLINK_DRIFT`. These also
+  exit `1`; their conditions and remedies are listed below. The mode also
+  reports the route's other stable codes: `ARGUMENT_INVALID` for an invalid option or spec path,
   `INPUT_SCHEMA_INVALID` for an invalid contract, and the exit `2` codes
   `SCHEMA_UNAVAILABLE`, `SCHEMA_VALIDATOR_UNAVAILABLE`, `GIT_UNAVAILABLE`,
   `GIT_COMMAND_FAILED`, and `INTERNAL_ERROR`.
@@ -920,6 +927,14 @@ document instead.
   accepted; its inputs are still checked against the candidate's blobs. Its new
   bytes are rebound in the regenerated pair, so commit that pair as another
   record-only commit.
+
+Inserted-record verification also reports these exit-`1` diagnostics:
+
+| Code | Condition | Remedy |
+| --- | --- | --- |
+| `WORKTREE_NOT_CLEAN` | Uncommitted paths other than the designated spec remain after the pair copies have been checked | Resolve unrelated dirt while preserving unrelated work. If the source candidate must change, retract the pair in a record-only commit before committing its replacement. |
+| `CANDIDATE_NOT_FINAL` | The retained candidate is no longer an ancestor of `HEAD`, or a successor commit changes source or non-lifecycle state, including a later-reverted source edit or a pair update mixed with other paths | Remove both contract-declared outputs in a record-only retraction commit before committing a replacement source candidate. Rerun every scenario, regenerate and commit only the pair, then insert and verify its Markdown. |
+| `GITLINK_DRIFT` | A root gitlink changed after the retained candidate | Preserve the intended dependency update. Retract both outputs in a record-only commit, then prepare the replacement source candidate, rerun every scenario, and regenerate, commit, insert, and verify the pair. |
 
 | Story 7.3 generator code | Exit | Condition |
 | --- | --- | --- |
@@ -950,8 +965,12 @@ cause.
 
 #### Story 7.3 operator procedure
 
-1. Commit the story candidate. `HEAD` is the candidate, and the tree must be
-   clean.
+1. If the contract's output pair is already committed and a replacement source
+   candidate is needed, first remove both `finalRecord.paths` files and commit
+   only those removals as a record-only retraction. Only then commit the
+   replacement story candidate. Use existing task authorization; an unauthorized
+   or failed required commit blocks completion. `HEAD` is the candidate, and the
+   tree must be clean.
 2. Run `AC-7.3-01` through `AC-7.3-06` exactly as the contract declares them,
    through `uv run --frozen --no-sync`. Each must exit `0`. The results are
    written below the gitignored `artifacts/v9/7.3/` directory.

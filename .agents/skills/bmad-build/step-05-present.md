@@ -12,6 +12,8 @@
 
 ### Prepare Committed Candidate
 
+When replacing a source candidate whose v9 contract output pair is already committed, first remove both files named by the contract's `finalRecord.paths` and commit only those removals as a record-only retraction. Use the task's existing commit authorization. If that required commit is not authorized or fails, follow the completion gate's blocker branch and HALT before staging or committing the replacement source candidate.
+
 Only when the spec explicitly requires a generated final record or the story's v9 contract exists, stage the exact story-owned candidate paths and create a validated Conventional Commit if the user's request authorizes a commit. Resolve committed `HEAD` once into `{candidate_revision}`. Never stage unrelated paths or pass a moving `HEAD` token to a completion gate. If a required commit is not authorized, leave the work uncommitted and report its state without asking for repeat authorization.
 
 ### Current change validation

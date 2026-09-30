@@ -4684,6 +4684,39 @@ def test_v2_workflow_verifies_inserted_digest_and_reproduces_the_pair_after_life
     assert v2_snapshot(repository) == lifecycle
 
 
+def test_v2_workflow_verifies_inserted_digest_rejects_committed_source_changes(
+    tmp_path: Path,
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    head = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    source = repository / STORY_7_3_BODIES[0]
+    original = source.read_bytes()
+
+    def fault(repository_path: Path):
+        source.write_bytes(original + b"\nforbidden source change\n")
+        v2_git(repository_path, "add", STORY_7_3_BODIES[0])
+        v2_git(repository_path, "commit", "-m", "test: commit forbidden source change")
+        return lambda: v2_git(repository_path, "reset", "-q", "--keep", head)
+
+    def check() -> None:
+        for phase in ("source-commit", "subsequent-revert"):
+            if phase == "subsequent-revert":
+                source.write_bytes(original)
+                v2_git(repository, "add", STORY_7_3_BODIES[0])
+                v2_git(repository, "commit", "-m", "test: revert forbidden source change")
+            document = v2_assert_failure(
+                v2_run(v2_7_3_verify_arguments(repository)), {"CANDIDATE_NOT_FINAL"}
+            )
+            assert document["blockers"] == ["CANDIDATE_NOT_FINAL"], phase
+            assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes), phase
+
+    v2_7_3_isolated(repository, fault, check)
+
+
 def test_v2_workflow_accepts_a_separate_blocker_rollback_to_the_candidate_status(
     tmp_path: Path,
 ) -> None:
