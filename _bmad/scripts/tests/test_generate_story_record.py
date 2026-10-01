@@ -4913,6 +4913,80 @@ def test_v2_retained_candidate_rejects_an_intermediate_source_commit_that_is_rev
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
 
 
+def test_v2_retained_candidate_rejects_a_lifecycle_commit_before_the_record_only_commit(
+    tmp_path: Path,
+) -> None:
+    """Every commit after the candidate must carry the pair, so lifecycle cannot come first."""
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+    json_bytes, markdown_bytes = v2_7_3_outputs(repository)
+    spec = repository / STORY_7_3_SPEC_PATH
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8")
+        .replace(f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: review", 1)
+        .replace("last_updated: 2026-09-29", "last_updated: 2026-09-30", 1),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle bookkeeping before the record")
+    lifecycle = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    v2_git(repository, "add", STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only commit after lifecycle")
+    v2_7_3_insert_record(repository, markdown_bytes)
+    before = v2_snapshot(repository)
+
+    for arguments in (v2_7_3_arguments(repository), v2_7_3_verify_arguments(repository)):
+        failure = v2_assert_failure(v2_run(arguments), {"CANDIDATE_NOT_FINAL"})
+        assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+        # The lifecycle commit is otherwise valid; it fails only because it lacks the pair.
+        assert lifecycle in failure["diagnostics"][0]["message"]
+        assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+        assert v2_snapshot(repository) == before
+
+
+@pytest.mark.parametrize(
+    ("heading", "route_owned"),
+    (("## Review Triage Log", True), ("## Auto Run Result", True), ("## Unowned Notes", False)),
+)
+def test_v2_retained_candidate_masks_a_route_section_that_trails_the_inserted_record(
+    tmp_path: Path, heading: str, route_owned: bool
+) -> None:
+    """A route-owned section appended after the record at end of file is lifecycle state."""
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    spec = repository / STORY_7_3_SPEC_PATH
+    content = spec.read_bytes().replace(b"status: 'in-progress'", b"status: 'done'", 1)
+    assert content.endswith(RECORD_END_LINE + b"\n")
+    spec.write_bytes(content + b"\n" + heading.encode("utf-8") + b"\n\n- Fixture row.\n")
+
+    verified = v2_run(v2_7_3_verify_arguments(repository))
+    if route_owned:
+        assert verified.returncode == 0, verified.stdout
+        assert verified.stdout == json_bytes
+    else:
+        document = v2_assert_failure(verified, {"RECORD_CONTENT_DRIFT"})
+        assert document["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "lifecycle with a trailing section")
+
+    result = v2_run(v2_7_3_arguments(repository))
+    if route_owned:
+        record = v2_7_3_assert_pass(repository, result)
+        assert record["candidate"]["commit"] == fixture["candidate"]
+    else:
+        failure = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL"})
+        assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
 @pytest.mark.parametrize("fault", ("unrelated-dirt", "unrelated-spec-edit"))
 def test_v2_verify_inserted_rejects_changes_outside_the_designated_record(
     tmp_path: Path, fault: str
@@ -5042,6 +5116,54 @@ def test_v2_fault_removed_workflow_invocation_inside_the_block(tmp_path: Path, b
 
     v2_7_3_isolated(
         repository, lambda path: v2_7_3_replace(path / body, gutted.encode("utf-8")), check
+    )
+
+
+@pytest.mark.parametrize("variant", ("end-removed", "stray-end", "end-before-begin"))
+@pytest.mark.parametrize("body", STORY_7_3_BODIES)
+def test_v2_fault_removed_workflow_invocation_marker_structure(
+    tmp_path: Path, body: str, variant: str
+) -> None:
+    """An incomplete or out-of-order marker pair is no block at all, never a partial one."""
+    fixture = build_v2_7_3_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    text = (repository / body).read_text(encoding="utf-8")
+    begin = COMPLETION_VERIFIER.BLOCK_BEGIN + "\n"
+    end = COMPLETION_VERIFIER.BLOCK_END + "\n"
+    assert text.count(begin) == 1 and text.count(end) == 1
+    if variant == "end-removed":
+        mutated = text.replace(end, "", 1)
+    elif variant == "stray-end":
+        mutated = text.replace(end, end + end, 1)
+    else:
+        mutated = text.replace(end, "", 1).replace(begin, end + begin, 1)
+    assert mutated != text
+    affected = v2_7_3_affected(body)
+
+    def check() -> None:
+        presence = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_MISSING"]
+        )
+        assert {row["subject"] for row in presence["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::{check_name}"
+            for surface in affected
+            for check_name in (
+                "completion-gate-block-present",
+                "generator-invocation-in-block",
+                "block-in-gate-span-before-transition",
+            )
+        }
+        parity = v2_7_3_assert_verifier(
+            v2_7_3_verify(repository, "AC-7.3-02"), 1, ["SURFACE_PARITY_DRIFT"]
+        )
+        assert {row["subject"] for row in parity["assertionLedger"] if row["state"] == "FAIL"} == {
+            f"{surface}::{check_name}"
+            for surface in affected
+            for check_name in ("block-bytes-identical-across-surfaces", "block-states-gate-contract")
+        }
+
+    v2_7_3_isolated(
+        repository, lambda path: v2_7_3_replace(path / body, mutated.encode("utf-8")), check
     )
 
 
@@ -5809,6 +5931,37 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
 
     v2_7_3_isolated(repository, mutate, check)
     v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+def test_v2_story_7_3_acceptance_command_requires_a_committed_script(tmp_path: Path) -> None:
+    """A verifier script present in the working tree but absent from the candidate cannot pass."""
+    script = "_bmad/scripts/verify_story_completion_workflows.py"
+
+    def keep_script_uncommitted(repository: Path) -> None:
+        exclude = repository / ".git/info/exclude"
+        exclude.parent.mkdir(parents=True, exist_ok=True)
+        existing = exclude.read_text(encoding="utf-8") if exclude.exists() else ""
+        exclude.write_text(f"{existing}/{script}\n", encoding="utf-8")
+
+    fixture = build_v2_7_3_repository(tmp_path, mutate=keep_script_uncommitted)
+    repository = fixture["repository"]
+    assert (repository / script).is_file()
+    assert v2_git(repository, "ls-files", "--", script).stdout == ""
+    for scenario_id in ("AC-7.3-01", "AC-7.3-02"):
+        assert (repository / STORY_7_3_RESULTS / f"{scenario_id}.json").is_file()
+    before = v2_snapshot(repository)
+
+    failure = v2_assert_failure(
+        v2_run(v2_7_3_arguments(repository)), {"SCENARIO_COMMAND_UNSUPPORTED"}
+    )
+    assert failure["blockers"] == ["SCENARIO_COMMAND_UNSUPPORTED"]
+    assert {
+        item["subject"]
+        for item in failure["diagnostics"]
+        if "must name a committed script" in item["message"]
+    } == {"AC-7.3-01", "AC-7.3-02"}
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
 
 
 def test_v2_story_7_3_git_failure_reading_an_acceptance_input_is_blocked(

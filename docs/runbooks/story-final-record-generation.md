@@ -438,9 +438,9 @@ A committed Story 7.2 pair pins its candidate. An uncommitted pair does not pin
 it. Committing only the pair is a record-only successor: a rerun keeps the
 original candidate and reproduces the same bytes. Later commits may change only
 the Story 7.2 spec's frontmatter `status` value, the corresponding Story 7.2
-row in `sprint-status.yaml`, and that file's `last_updated` date as lifecycle
-bookkeeping; a rerun still reads measurements from the pinned
-candidate and reproduces the pair.
+row in `sprint-status.yaml`, that file's `last_updated` date, and its
+`# last_updated:` header comment date as lifecycle bookkeeping; a rerun still
+reads measurements from the pinned candidate and reproduces the pair.
 Their later working-tree mtimes do not make the candidate's test results stale.
 Any other later commit, including a root gitlink bump or a history
 rewrite that orphans the recorded candidate, makes every rerun stop with
@@ -589,6 +589,10 @@ copy the reproduced outputs or artifacts back over the current worktree.
 *The 2026-09-29 owner waiver at the end of this section supersedes its gate
 requirements for Story 7.2.*
 
+*This section is historical. Story 7.3 removed the Story 7.2 route text from
+`bmad-build/step-05-present.md` and replaced it with the shared completion
+gate that every governed route now carries.*
+
 The bounded repair to `bmad-build/step-05-present.md` selects the frozen Story
 7.2 v2 invocation before its legacy procedure. It leaves the other workflow
 routes for Story 7.3. At the current root checkout, run `AC-7.2-11` through
@@ -734,10 +738,12 @@ the same gate.
 **Applicability.** A route must run the gate before `review` or `done` whenever
 `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for
 the story. `<story-id>` is the story's dotted `<epic>.<story>` number, such as
-`7.3` for story key `7-3-integrate-generation-into-every-blocking-completion-transition`;
-both the gate introductions and the block define it that way, so a route cannot
-mistake the story key for a missing contract. The spec cannot opt out. Routine work without a contract skips the
-gate under [current change validation](current-change-validation.md).
+`7.3` for story key
+`7-3-integrate-generation-into-every-blocking-completion-transition`; both the
+gate introductions and the block define it that way, so a route cannot mistake
+the story key for a missing contract. The spec cannot opt out. Routine work
+without a contract skips the gate under
+[current change validation](current-change-validation.md).
 
 #### Governed surfaces and the rebinding
 
@@ -814,6 +820,19 @@ candidate: rerun every scenario, regenerate, and commit the new pair as a
 record-only commit. While a committed pair is present, any later source or
 gitlink commit makes every rerun stop with `CANDIDATE_NOT_FINAL`; the retraction
 is the only recovery, and the superseded pair is never restored.
+
+**Code review retracts first.** `bmad-code-review` writes `### Review Findings`
+into the spec and appends `deferred-work.md` entries before its gate runs, and
+candidate retention masks neither. A findings-only commit after a committed pair
+therefore stops the gate with `CANDIDATE_NOT_FINAL` and returns the story to
+`in-progress`, just as a source patch does. The route makes the record-only
+retraction its first write: when the story's pair is committed, it removes and
+commits both outputs before it writes any finding, deferred-work entry, or
+source patch, and it never stages those writes while the pair is still
+committed. If that commit is not authorized or fails, it lists the findings in
+the conversation only, follows the blocker branch, and HALTs. A review that
+writes nothing keeps the pair, and its gate reruns against the retained
+candidate.
 
 The block avoids the `{{…}}`, `{workflow.…}`, and `[[bmad-snapshot:…]]` forms
 that `render_skill.py` resolves, so each twin carries the source bytes. The
@@ -965,10 +984,6 @@ acceptance result: `ARGUMENT_INVALID`, `CONTRACT_UNSUPPORTED`, `GIT_UNAVAILABLE`
 `INTERNAL_ERROR`, in addition to the three workflow-integration codes above.
 This preserves the exact operator-facing cause alongside `TEST_RESULTS_FAILED`.
 
-A failing acceptance result carries its verifier codes into the failure
-document, next to `TEST_RESULTS_FAILED`, so the route can report the exact
-cause.
-
 #### Story 7.3 operator procedure
 
 1. If the contract's output pair is already committed and a replacement source
@@ -994,9 +1009,31 @@ cause.
 
 Nothing runs this gate automatically. No CI job or hook enforces it, and CI
 runs neither the verifier nor the generator. The gate is only as strong as the
-workflow prose that invokes it. The verifier and
-`StoryFinalRecordGenerationValidationTest` prove that the prose is present,
-placed, and identical. They do not prove that an agent followed it.
+workflow prose that invokes it, and nothing proves that an agent followed it.
+
+Only the verifier, and the generator-suite tests that run it against the live
+checkout, check the completion-gate block, and CI runs neither.
+`StoryFinalRecordGenerationValidationTest` checks the legacy v1 gate prose of
+the four routes and that both skill trees carry identical bodies. It never
+checks that the block is present, placed, or rendered into a twin, and the CI
+Conformance job excludes the class, so it runs only in a local Conformance run.
+
+A BMAD upgrade reinstalls `.agents/skills` and `.claude/skills` and can erase
+or alter every Story 7.3 route edit without failing any check. The verifier
+checks only the completion-gate block: its bytes, its placement, and its
+clauses. It does not check the gate introductions that send a contract-bound
+story to the block, the candidate-preparation retraction sentences in all eight
+bodies, or the code-review section-2 retraction paragraph. Reinserting only the
+block therefore passes `AC-7.3-01` and `AC-7.3-02` while the introductions
+still skip the gate. After every BMAD version bump or skill reinstall, compare
+the eight bodies with the last commit where both scenarios passed, and reapply
+every Story 7.3 route edit from it (`git show <commit>:<path>`): the gate
+introductions, the candidate-preparation retraction sentences, the code-review
+section-2 retraction paragraph, and the block. Then rerun `AC-7.3-01` and
+`AC-7.3-02` exactly as the contract declares them before any contract-bound
+story completes. The verifier overwrites its declared results, so archive
+`artifacts/v9/7.3/` first when the committed Story 7.3 pair must stay
+reproducible.
 
 The generator classifies only pytest JUnit commands, its own self-invocation,
 and acceptance-result commands. Schema-compatible backlog contracts declare at
@@ -1007,6 +1044,17 @@ Later v14-format contracts first require explicit contract-schema and generator
 support; without it they fail earlier with `INPUT_SCHEMA_INVALID` rather than
 reaching scenario-command classification. The gate never skips a
 contract-bound story for either reason.
+
+Candidate retention and inserted-record verification also need per-story
+generator entries. `V2_RETAINED_CANDIDATES` and `V2_RETAINED_OUTPUTS` in
+`generate_story_record.py` name each retained contract's designated spec,
+sprint-status row, record-region mask, and output pair. Only Stories 7.2 and
+7.3 have entries, and only Story 7.3's entry masks the inserted record region.
+For any other contract, a committed pair does not pin its candidate, and
+`--verify-inserted-record` stops with `ARGUMENT_INVALID`. Each new contract
+therefore needs its own entries, with retention and insertion regressions, in
+its story's candidate before its gate can insert and verify a record. Until
+then the blocker branch keeps the story `in-progress`.
 
 ## Ordered checklist (copy per story)
 

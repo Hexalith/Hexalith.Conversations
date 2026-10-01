@@ -404,6 +404,8 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
   summary: Align both `bmad-build/step-05-present.md` twins with the 2026-09-29 owner waiver of the Story 7.2 boundary, resolver, and Story 7.1 terminal `ACCEPTED` completion gates.
   evidence: Both twins still HALT before Mark Spec Done when those gates are absent and forbid retracting the committed pair; the runbook now records the waiver. The fix edits agent-context skill files, so the 2026-09-29 completion applied the waiver at step 05 by owner instruction.
 
+## Deferred from: code review of spec-7-3-integrate-generation-into-every-blocking-completion-transition.md (2026-09-30)
+
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-3-integrate-generation-into-every-blocking-completion-transition.md`
   summary: Harden the pre-existing generator pair and restoration writers against predictable temporary-file symlinks.
   evidence: Resumed Story 7.3 review reproduced an unrelated file overwrite through v2_write_outputs using a pre-created .<name>.<pid>.tmp symlink. The pair writer and restoration writer predate this story; use exclusive no-follow temporary creation and regression coverage in separately scoped work.

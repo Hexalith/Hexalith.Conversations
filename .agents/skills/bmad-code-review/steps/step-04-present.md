@@ -7,7 +7,7 @@ deferred_work_file: '{implementation_artifacts}/deferred-work.md'
 ## RULES
 
 - YOU MUST ALWAYS SPEAK OUTPUT in your Agent communication style with the config `{communication_language}`
-- When `spec_file` is set, always write findings to the story file before offering action choices.
+- When `spec_file` is set, always write findings to the story file before offering action choices. Exception: when section 2's required record-only retraction is not authorized or fails, list the findings in the conversation without writing them and HALT.
 - `decision-needed` findings must be resolved before handling `patch` findings.
 
 ## INSTRUCTIONS
@@ -17,6 +17,8 @@ deferred_work_file: '{implementation_artifacts}/deferred-work.md'
 If zero findings remain after triage (all rejected or none raised): state that and proceed to section 6 (Sprint Status Update).
 
 ### 2. Write findings to the story file
+
+Before this step writes any finding, checkbox, or deferral reason to `{spec_file}`, any entry to `{deferred_work_file}`, or any source patch, in this section or in sections 4 and 5, retract a committed final record: when `_bmad-output/planning-artifacts/v9/story-contracts/<story-id>.json` exists for the story, where `<story-id>` is the story's dotted `<epic>.<story>` number, and both files named by its `finalRecord.paths` are already committed, remove both and commit only those removals as a record-only retraction. Candidate retention masks neither `### Review Findings` nor `{deferred_work_file}`, so even a findings-only commit after a committed pair stops the completion gate with `CANDIDATE_NOT_FINAL` and returns the story to `in-progress`. Use the task's existing commit authorization. If that required commit is not authorized or fails, list the findings in the conversation without writing them, follow the completion gate's blocker branch, and HALT.
 
 If `{spec_file}` exists and contains a Tasks/Subtasks section, append a `### Review Findings` subsection. Write all findings in this order:
 
@@ -88,9 +90,9 @@ Skip this section if `spec_file` is not set.
 
 #### Prepare committed review candidate
 
-When replacing a source candidate whose v9 contract output pair is already committed, first remove both files named by the contract's `finalRecord.paths` and commit only those removals as a record-only retraction. Use the task's existing commit authorization. If that required commit is not authorized or fails, follow the completion gate's blocker branch and HALT before staging or committing the replacement source candidate.
+When the story's v9 contract output pair is already committed, its record-only retraction must precede this review's first finding, ledger, or source write (section 2). Never stage or commit review findings, `{deferred_work_file}` entries, or source patches while that pair is still committed; if the retraction is still missing, first remove both files named by the contract's `finalRecord.paths` and commit only those removals as a record-only retraction. A review that wrote nothing keeps the committed pair, and the completion gate below reruns against its retained candidate. Use the task's existing commit authorization. If that required commit is not authorized or fails, follow the completion gate's blocker branch and HALT before staging or committing the replacement source candidate.
 
-Only when the spec explicitly requires a generated final record or the story's v9 contract exists, stage the exact review-patch candidate paths and create a validated Conventional Commit if the user's request authorizes a commit. Resolve committed `HEAD` once into `{candidate_revision}`. Never stage unrelated paths. If a required commit is not authorized, leave the patches uncommitted and report their state without asking for repeat authorization.
+Only when the spec explicitly requires a generated final record or the story's v9 contract exists, stage the exact review-patch candidate paths, including the review findings written to `{spec_file}` and the new `{deferred_work_file}` entries, and create a validated Conventional Commit if the user's request authorizes a commit. Resolve committed `HEAD` once into `{candidate_revision}`. Never stage unrelated paths. If a required commit is not authorized, leave the patches uncommitted and report their state without asking for repeat authorization.
 
 #### Current change validation
 
@@ -144,7 +146,7 @@ If `{sprint_status}` file exists:
 
 1. Load the FULL `{sprint_status}` file.
 2. Find the `development_status` entry matching `{story_key}`.
-3. If found: update `development_status[{story_key}]` to `{new_status}`. Update `last_updated` to current date. Save the file, preserving ALL comments and structure including STATUS DEFINITIONS.
+3. If found and its value already equals `{new_status}`, leave `{sprint_status}` unchanged, including `last_updated`. Otherwise, if found: update `development_status[{story_key}]` to `{new_status}`. Update `last_updated` to current date. Save the file, preserving ALL comments and structure including STATUS DEFINITIONS.
 4. If `{story_key}` not found in sprint status: warn the user that the story file was updated but sprint-status sync failed.
 
 If `{sprint_status}` file does not exist, note that story status was updated in the story file only.
