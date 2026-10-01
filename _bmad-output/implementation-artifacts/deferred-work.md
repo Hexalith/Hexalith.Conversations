@@ -407,3 +407,9 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-7-3-integrate-generation-into-every-blocking-completion-transition.md`
   summary: Harden the pre-existing generator pair and restoration writers against predictable temporary-file symlinks.
   evidence: Resumed Story 7.3 review reproduced an unrelated file overwrite through v2_write_outputs using a pre-created .<name>.<pid>.tmp symlink. The pair writer and restoration writer predate this story; use exclusive no-follow temporary creation and regression coverage in separately scoped work.
+
+## Deferred from: code review of spec-7-3-integrate-generation-into-every-blocking-completion-transition.md (2026-10-01)
+
+- source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-3-integrate-generation-into-every-blocking-completion-transition.md`
+  summary: Correct the stale V14 header comment in `sprint-status.yaml`, which still says the global implementation hold is active, IR-0 was not run, and all successor stories remain backlog.
+  evidence: Stories 7.1 and 7.2 are `done` and 7.3 is in `review` below that comment. The comment predates Story 7.3. Editing an unmasked sprint comment line after a committed pair makes candidate retention report `CANDIDATE_NOT_FINAL`, so correct it in separately scoped work or within a replacement candidate.

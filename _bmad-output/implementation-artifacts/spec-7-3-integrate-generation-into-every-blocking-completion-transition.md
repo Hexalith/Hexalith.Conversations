@@ -2,7 +2,7 @@
 title: 'Integrate generation into every blocking completion transition'
 type: 'feature'
 created: '2026-09-29'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '91bc1376bc433400186ed9404bd6541b86355f98'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -178,6 +178,38 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 - `false` — Acceptance results stay under gitignored `artifacts/v9/7.3/`. The record binds their digests, and the scratch logs under `/tmp` are not story evidence.
 - `false` — Pass-1 row 7 is rejected because its fix adds guards. That evidence column is the rejection reason.
 - `rejected: spec change` — The Files note still says 113 new tests. Correcting that snapshot edits this spec.
+
+#### Code review (2026-10-01)
+
+- [x] [Review][Decision] Dispose of the root gitlink moves inside Story 7.3 commits — `dbc7ed1` (five gitlinks) and `3824864` (four gitlinks) mix Story 7.3 source changes with moves of Builds, EventStore, FrontComposer, Projects, and Tenants, against the frozen "Never edit … gitlinks" rule. Triage row 62 attributes the moves only to `6183517`, and neither commit names the before and after IDs or the reason. Reverting those commits under the record's rollback boundary would also revert the bumps. Resolved by the owner (2026-10-01): owner-intended dependency bumps outside the story scope. Push CI run `36822427074` at `e935c27`, whose gitlinks equal `HEAD`'s, passed `build-and-test`, `aspire-tests`, `conformance`, and `repository`. Keep future gitlink bumps in separate `fix(references)` commits. (blind, acceptance, verification-gap Other)
+- [ ] [Review][Patch] Make code-review candidate preparation retract a committed pair before any findings, ledger, or source write [.agents/skills/bmad-code-review/steps/step-04-present.md:91] — owner decision (2026-10-01) for the retention-versus-review-writes finding: the route appends `### Review Findings` and `deferred-work.md` entries before its gate, retention masks neither, and the "replacing a source candidate" trigger does not clearly cover a findings-only write, so a findings-only commit returns `CANDIDATE_NOT_FINAL` and the story to `in-progress`. Fix the route wording in both trees and the runbook; leave the generator and the shared block unchanged. (blind, edge)
+- [ ] [Review][Patch] Add a retention regression for a lifecycle commit before the record-only commit [_bmad/scripts/generate_story_record.py:4563]
+- [ ] [Review][Patch] Cover a route-owned section that trails the inserted record at end of file [_bmad/scripts/generate_story_record.py:4369]
+- [ ] [Review][Patch] Fault-test an acceptance-result command whose script is not committed [_bmad/scripts/generate_story_record.py:5061]
+- [ ] [Review][Patch] Correct the known-limitation protection claim and require verifier reruns after BMAD upgrades [docs/runbooks/story-final-record-generation.md:997]
+- [ ] [Review][Patch] Document that each new contract needs retained-candidate generator entries before inserted verification [docs/runbooks/story-final-record-generation.md:1001]
+- [ ] [Review][Patch] File the Story 7.3 deferred entry under its own heading [_bmad-output/implementation-artifacts/deferred-work.md:406]
+- [ ] [Review][Patch] Remove the duplicated acceptance-code paragraph and rewrap the applicability line [docs/runbooks/story-final-record-generation.md:968]
+- [x] [Review][Defer] The sprint-status V14 header still says the hold is active and IR-0 was not run [_bmad-output/implementation-artifacts/sprint-status.yaml:40] — deferred: pre-existing, and an unmasked sprint comment edit would break Story 7.3 candidate retention
+- [x] [Review][Defer] The generator pair writer follows a predictable temporary symlink [_bmad/scripts/generate_story_record.py:4236] — deferred: pre-existing, already recorded in `deferred-work.md`
+
+##### Rejected (code review 2026-10-01)
+
+- `rejected: spec change` — Implementation Notes, the earlier `CANDIDATE_NOT_FINAL` log, the 113-test note, the 18-patch count, the empty Spec Change Log, and the unticked final-record task are stale. Correcting them edits this spec. (blind)
+- `low` — `render_in_memory` copies `render_skill.render()` statement for statement up to `_publish`. Divergence needs a renderer change, which arrives with a BMAD upgrade that also rewrites the governed bodies and fails `AC-7.3-01`. A parity harness is more than a direct correction. (blind)
+- `low` — Story 7.2 retention now shares the per-commit checks, the header-date mask, and the new `CANDIDATE_NOT_FINAL` message. Its real history (`262d954`, record-only `4011156`, lifecycle `55e76b1`) satisfies the stricter rules, and its bytes are unchanged. Only the spec's "unchanged" claim is false, and correcting it edits this spec. (blind, edge ×2, verification-gap Other, acceptance)
+- `low` — Results under gitignored `artifacts/` are bound by digest, the same measured-artifact model as Stories 7.1 and 7.2 (carried row 91). The `/tmp` archive citations are spec text. (blind)
+- `false` — The `v2_7_3_lifecycle` equality is a regression guard that fails if the generator ever writes lifecycle files on a `FAIL` or `BLOCKED` run. Prose refusal is covered by the clause checks (carried row 102). (blind)
+- `false` — `passing = not findings and …` keeps an out-of-order ledger from `PASS`, and any finding stops the run before categories count (carried row 142). (blind)
+- `low` — A route heading written directly after the END line with no blank line is not how the routes write Markdown; the blank-line layout passes. The fix adds a guard. (edge)
+- `low` — Spec templates and routes do not produce a spec without a trailing LF. Supporting one adds a branch. (edge)
+- `low` — A symlink loop under Python 3.11 still fails closed with exit `2` `INTERNAL_ERROR`. Naming it adds exception handling for a contrived input. (edge)
+- `low` — No other contract declares the acceptance-result command shape. The 16.x commands use `--candidate HEAD` without `--contract` and stop at `INPUT_SCHEMA_INVALID` as v14 contracts, so an empty-input `PASS` is unreachable. The guard adds a branch. (edge)
+- `low` — The acceptance auditor's rerun of `AC-7.3-07` at `c613f43` reproduced both outputs byte-identically. Recording it edits this spec. (acceptance)
+- `low` — A `_bmad/scripts` lane rerun gives identical failure counts at the baseline and `HEAD`. Recording it edits this spec. (acceptance)
+- `false` — Each cited fault test builds its own `tmp_path` repository through `build_v2_7_3_repository`, so no shared fixture or workspace file stays mutated. (acceptance)
+- `false` — The record binds the story contract path and SHA-256 in `workflowIntegration`, plus the `V9-7.3-ENTRY-v1` inventory digest, as the accepted Story 7.2 record does. (acceptance)
+- `false` — Push CI run `36822427074` at `e935c27`, whose root gitlinks equal `HEAD`'s, passed `ci / build-and-test` (Contracts, Client, core, Server, and Integration tests) and `ci / aspire-tests`, so the submodule-consuming test projects already ran against the moved gitlinks. (verification-gap)
 
 **Acceptance Criteria:**
 - Given the integrated tree, when AC-7.3-01 through AC-7.3-06 run as declared, then each exits `0` with `PASS`.
