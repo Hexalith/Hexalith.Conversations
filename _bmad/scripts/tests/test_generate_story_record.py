@@ -4106,6 +4106,7 @@ def test_v2_blocks_unrelated_sprint_status_change_after_record(tmp_path: Path) -
     v2_git(repository, "commit", "-m", "change unrelated sprint status")
     failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
     assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_2_SPRINT_PATH}")
     assert v2_7_2_outputs(repository) == original
     v2_git(repository, "reset", "--hard", "-q", before[0])
     assert v2_snapshot(repository) == before
@@ -4124,6 +4125,7 @@ def test_v2_blocks_non_status_spec_change_after_record(tmp_path: Path) -> None:
     v2_git(repository, "commit", "-m", "change story source")
     failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
     assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_2_SPEC_PATH}")
     assert v2_7_2_outputs(repository) == original
 
 
@@ -4891,6 +4893,9 @@ def test_v2_retained_candidate_requires_pair_changes_to_be_record_only(
 
     failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
     assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert failure["diagnostics"][0]["message"].endswith(
+        ": " + ", ".join(sorted((STORY_7_3_OUTPUT_JSON, STORY_7_3_OUTPUT_MARKDOWN)))
+    )
 
 
 def test_v2_retained_candidate_rejects_an_intermediate_source_commit_that_is_reverted(
@@ -4910,6 +4915,8 @@ def test_v2_retained_candidate_rejects_an_intermediate_source_commit_that_is_rev
 
     failure = v2_assert_failure(v2_run(v2_7_3_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
     assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    # The diagnostic names the path that broke retention, not only the commit.
+    assert failure["diagnostics"][0]["message"].endswith(f": {STORY_7_3_BODIES[0]}")
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
 
 
@@ -5288,6 +5295,8 @@ def test_v2_fault_displaced_workflow_invocation_in_a_render_twin(
         "decoy-gate-heading",
         "gate-heading-removed",
         "transition-moved-into-the-span",
+        "only-transition-moved-before-the-gate",
+        "only-transition-moved-into-the-span",
         "second-block-after-the-transition",
     ),
 )
@@ -5309,13 +5318,23 @@ def test_v2_fault_displaced_workflow_invocation_variants(tmp_path: Path, variant
         mutated = text.replace(route.gate, "#### Removed gate", 1)
     elif variant == "transition-moved-into-the-span":
         mutated = text[:end] + f"\n{route.transition}\n" + text[end:]
+    elif variant.startswith("only-transition-moved"):
+        # Relocate the single transition, so only the transition-before-span-end rule can fire.
+        assert text.count(route.transition) == 1 and text.index(route.transition) > end
+        without = text.replace(route.transition, "the review outcome", 1)
+        anchor = without.index(route.gate) if variant.endswith("before-the-gate") else start
+        mutated = without[:anchor] + route.transition + "\n\n" + without[anchor:]
     else:
         mutated = text + "\n" + block + "\n"
 
     def check() -> None:
-        v2_7_3_assert_verifier(
-            v2_7_3_verify(repository, "AC-7.3-01"), 1, ["WORKFLOW_INTEGRATION_DISPLACED"]
-        )
+        result = v2_7_3_verify(repository, "AC-7.3-01")
+        document = v2_7_3_assert_verifier(result, 1, ["WORKFLOW_INTEGRATION_DISPLACED"])
+        if variant.startswith("only-transition-moved"):
+            assert b"a lifecycle transition precedes the end of the gate span" in result.stderr
+            assert {
+                row["subject"] for row in document["assertionLedger"] if row["state"] == "FAIL"
+            } == {f"{body}::block-in-gate-span-before-transition"}
 
     v2_7_3_isolated(
         repository, lambda path: v2_7_3_replace(path / body, mutated.encode("utf-8")), check

@@ -4549,14 +4549,11 @@ def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_
                 repository, candidate, revision, sprint_key, require_transition=False
             )
         )
-        invalid_lifecycle_delta = (
-            spec_path in delta
-            and not v2_spec_lifecycle_only_change(
-                repository, parent, revision, spec_path, record_region
-            )
-        ) or (
-            V2_7_2_SPRINT_PATH in delta
-            and not v2_sprint_status_only_change(repository, parent, revision, sprint_key)
+        invalid_spec_delta = spec_path in delta and not v2_spec_lifecycle_only_change(
+            repository, parent, revision, spec_path, record_region
+        )
+        invalid_sprint_delta = V2_7_2_SPRINT_PATH in delta and not v2_sprint_status_only_change(
+            repository, parent, revision, sprint_key
         )
         revision_json = v2_committed_blob(repository, revision, json_path)
         revision_markdown = v2_committed_blob(repository, revision, markdown_path)
@@ -4579,16 +4576,29 @@ def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_
             or pair_delta_invalid
             or invalid_spec_change
             or invalid_sprint_change
-            or invalid_lifecycle_delta
+            or invalid_spec_delta
+            or invalid_sprint_delta
             or changed - {json_path, markdown_path} - {spec_path, V2_7_2_SPRINT_PATH}
             or delta - pair_paths - lifecycle_paths
         ):
+            # Name every path that broke retention so the operator need not diff the commit.
+            offending = sorted(
+                ((changed | delta) - pair_paths - lifecycle_paths)
+                | ({spec_path} if invalid_spec_change or invalid_spec_delta else set())
+                | (
+                    {V2_7_2_SPRINT_PATH}
+                    if invalid_sprint_change or invalid_sprint_delta
+                    else set()
+                )
+                | (pair_paths if pair_invalid or pair_delta_invalid else set())
+            )
             findings = [
                 v2_finding(
                     "CANDIDATE_NOT_FINAL",
                     "candidate.commit",
                     f"commit {revision} after the verified candidate changes source, "
-                    "gitlinks, or non-lifecycle state",
+                    "gitlinks, or non-lifecycle state"
+                    + (f": {v2_path_summary(offending)}" if offending else ""),
                 )
             ]
             if moved:

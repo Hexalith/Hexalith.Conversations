@@ -832,7 +832,18 @@ source patch, and it never stages those writes while the pair is still
 committed. If that commit is not authorized or fails, it lists the findings in
 the conversation only, follows the blocker branch, and HALTs. A review that
 writes nothing keeps the pair, and its gate reruns against the retained
-candidate.
+candidate. While any `decision-needed` or `patch` finding remains unresolved,
+the review cannot reach `done`, so the route skips its whole final-record
+section, including the gate: a review that ends `in-progress` generates,
+commits, and inserts no pair.
+
+**Build routes retract before any unmasked change.** `bmad-build` step-05 and
+oneshot and `bmad-build-auto` step-04 also retract a committed pair before they
+commit any change that candidate retention does not mask: a source or gitlink
+change, a review finding or `deferred` frontmatter entry in the spec, or a
+`deferred-work.md` entry. A follow-up pass that only defers findings therefore
+retracts first instead of stopping at `CANDIDATE_NOT_FINAL` and returning a
+`done` story to `in-progress`.
 
 The block avoids the `{{…}}`, `{workflow.…}`, and `[[bmad-snapshot:…]]` forms
 that `render_skill.py` resolves, so each twin carries the source bytes. The
@@ -986,12 +997,12 @@ This preserves the exact operator-facing cause alongside `TEST_RESULTS_FAILED`.
 
 #### Story 7.3 operator procedure
 
-1. If the contract's output pair is already committed and a replacement source
-   candidate is needed, first remove both `finalRecord.paths` files and commit
-   only those removals as a record-only retraction. Only then commit the
-   replacement story candidate. Use existing task authorization; an unauthorized
-   or failed required commit blocks completion. `HEAD` is the candidate, and the
-   tree must be clean.
+1. If the contract's output pair is already committed and the next candidate
+   changes anything that candidate retention does not mask, first remove both
+   `finalRecord.paths` files and commit only those removals as a record-only
+   retraction. Only then commit the replacement story candidate. Use existing
+   task authorization; an unauthorized or failed required commit blocks
+   completion. `HEAD` is the candidate, and the tree must be clean.
 2. Run `AC-7.3-01` through `AC-7.3-06` exactly as the contract declares them,
    through `uv run --frozen --no-sync`. Each must exit `0`. The results are
    written below the gitignored `artifacts/v9/7.3/` directory.

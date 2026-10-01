@@ -2,7 +2,7 @@
 title: 'Integrate generation into every blocking completion transition'
 type: 'feature'
 created: '2026-09-29'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '91bc1376bc433400186ed9404bd6541b86355f98'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -210,6 +210,45 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 - `false` — Each cited fault test builds its own `tmp_path` repository through `build_v2_7_3_repository`, so no shared fixture or workspace file stays mutated. (acceptance)
 - `false` — The record binds the story contract path and SHA-256 in `workflowIntegration`, plus the `V9-7.3-ENTRY-v1` inventory digest, as the accepted Story 7.2 record does. (acceptance)
 - `false` — Push CI run `36822427074` at `e935c27`, whose root gitlinks equal `HEAD`'s, passed `ci / build-and-test` (Contracts, Client, core, Server, and Integration tests) and `ci / aspire-tests`, so the submodule-consuming test projects already ran against the moved gitlinks. (verification-gap)
+
+#### Code review: code and routes chunk (2026-10-01)
+
+Scope: `git diff 91bc137..4e1d419` limited to `.agents/skills`, `.claude/skills`, `.gitattributes`, `_bmad/schemas`, and `_bmad/scripts`. The records, docs, sprint, and gitlink paths need a separate run. The pair committed at `f78b812` was retracted by `ea338bf` before these findings were written.
+
+- [x] [Review][Decision] Generate the final record only when the code-review outcome can be `done` — the code-review route runs the story completion gate before "Determine new status", so a review that leaves patches as action items still runs every scenario, commits a `PASS` pair, inserts it into the spec, and then sets `in-progress`. The in-progress story carries completion evidence, and the next fix must retract it again. Resolved by the owner (2026-10-01): skip the gate in the code-review intro, outside the shared block, while `decision-needed` or `patch` findings remain unresolved. (acceptance)
+- [x] [Review][Patch] Skip the code-review completion gate while `decision-needed` or `patch` findings remain unresolved [.agents/skills/bmad-code-review/steps/step-04-present.md:103]
+- [x] [Review][Patch] Retract a committed pair before any non-lifecycle write, not only before a replacement source candidate [.agents/skills/bmad-build-auto/step-04-review.md:103] — the `bmad-build/step-05-present.md:15`, `bmad-build/step-oneshot.md:74`, and `bmad-build-auto/step-04-review.md:103` triggers in both trees cover only "replacing a source candidate". A deferral-only follow-up pass writes the spec's `deferred` list or `deferred-work.md` while the pair is committed, so the gate stops with `CANDIDATE_NOT_FINAL` and returns a `done` story to `in-progress`. Mirror the owner-approved code-review wording. (acceptance, edge)
+- [x] [Review][Patch] Fault-test a lifecycle transition that precedes the end of the gate span [_bmad/scripts/verify_story_completion_workflows.py:591] — disabling the `transitions[0] < follower` check passes all 109 placement and verifier tests; the `transition-moved-into-the-span` variant trips the duplicate-transition check instead. Add variants that relocate the single transition before the gate heading and into the span before the block. (verification-gap)
+- [x] [Review][Patch] Name the offending paths in the retention `CANDIDATE_NOT_FINAL` message [_bmad/scripts/generate_story_record.py:4590] — the message names the commit but not the paths that broke retention, and concurrent sessions in this repository reach it routinely. (blind)
+
+##### Rejected (code and routes chunk 2026-10-01)
+
+- `false` — The gate failing closed for contracts without retained-candidate entries is documented, and the runbook names the per-contract entries they need (carried rejected rows and the 2026-10-01 runbook patch). (blind, edge, verification-gap Other)
+- `low` — Per-story schema, Markdown, ledger, and predecessor bindings are the documented extension model; moving them into contracts is a refactor. (blind)
+- `low` — Substring marker matching is carried from rows 16 and 57. (blind, edge)
+- `low` — Unbound render inputs are carried from rows 8, 128, and 139; the block has no render tokens, so overrides cannot change its bytes. (blind, edge)
+- `low` — Acceptance results are measured artifacts bound by digest, as JUnit results are (carried). (blind)
+- `low` — `render_in_memory` duplicating the renderer is carried from the 2026-10-01 review. (blind)
+- `low` — Retraction prose outside the verified block is carried from row 113 and fails closed with `CANDIDATE_NOT_FINAL`. (blind)
+- `low` — The stale inserted region after a retraction is carried from row 111. (blind)
+- `low` — The verifier failure document has no schema. Only the operator reads it, and a schema plus tests is more than a direct correction. (blind)
+- `false` — A `BLOCKED` acceptance result counted as `failed` never reaches a summary: any finding stops the run before categories count, and `not-applicable` is unreachable for this contract (carried). (blind)
+- `low` — "every other scenario" is carried from row 114. "Make the committed story candidate `HEAD`" was followed correctly in the retained 7.3 reruns, and rewording it changes the owner-frozen block on eight bodies. (blind, acceptance)
+- `false` — 28 of 32 `_bmad/scripts/*.py` files are mode `100644`, contracts invoke the verifier through `python3`, and the generator carries the same PEP 723 header. (blind)
+- `false` — The planted PID-named symlink guards against restoring the predictable temporary name that row 36 removed. (blind)
+- `false` — The fixture skips absent files for the gitignored `_bmad/config.user.toml`; a missing required file fails the tests loudly, and the fixtures intentionally measure the working tree. (blind)
+- `low` — Verify mode classes an I/O error on an existing spec as `ARGUMENT_INVALID` (exit `1`) instead of `BLOCKED`. The blocker branch treats every nonzero exit alike, and splitting the handler adds a branch for a rare failure. (acceptance)
+- `low` — The Story 7.2 retention change is carried from the 2026-10-01 review. (acceptance)
+- `false` — Each fault test builds its own `tmp_path` repository (carried). (acceptance)
+- `false` — The record binds the contract digest and the inventory, and this spec authorizes the route rebinding (carried). (acceptance)
+- `low` — A stale `PASS` left by a blocked verifier is carried from rows 26 and 129. (edge)
+- `low` — A trailing YAML comment on a lifecycle line is carried from row 126. (edge)
+- `false` — No governed route writes `status: blocked` to frontmatter; `blocked` is the run's HALT status. (edge)
+- `low` — A spec without a trailing LF is carried from the 2026-10-01 review. (edge)
+- `low` — A Story 7.2 sprint rollback with a newer date requires reopening completed Story 7.2. (edge)
+- `false` — A half-committed pair is carried from row 134. (edge)
+- `false` — Removing the Story 7.2 keep-historical-pair rule is carried from rows 89 and 135. (edge)
+- `low` — Verify mode's own pair-validity branch duplicates retention's identical check; reaching only its output-path clause needs a crafted pair that passes digest cross-binding. (verification-gap Other)
 
 **Acceptance Criteria:**
 - Given the integrated tree, when AC-7.3-01 through AC-7.3-06 run as declared, then each exits `0` with `PASS`.
