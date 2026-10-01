@@ -4096,6 +4096,54 @@ def test_v2_blocks_non_status_spec_change_after_record(tmp_path: Path) -> None:
     assert v2_7_2_outputs(repository) == original
 
 
+@pytest.mark.parametrize("edit", ("followup-field", "final-record-region"))
+def test_v2_story_7_2_retention_rejects_record_region_and_followup(
+    tmp_path: Path, edit: str
+) -> None:
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    spec = repository / STORY_7_2_SPEC_PATH
+    if edit == "followup-field":
+        spec.write_text(
+            spec.read_text(encoding="utf-8").replace(
+                "status: 'in-progress'\n",
+                "status: 'in-progress'\nfollowup_review_recommended: false\n",
+                1,
+            ),
+            encoding="utf-8",
+        )
+    else:
+        spec.write_bytes(
+            spec.read_bytes()
+            + b"\n"
+            + RECORD_BEGIN_LINE
+            + b"\n"
+            + original[1]
+            + RECORD_END_LINE
+            + b"\n"
+        )
+    v2_git(repository, "add", STORY_7_2_SPEC_PATH)
+    v2_git(repository, "commit", "-m", "story 7.2 lifecycle edit that retention must reject")
+    failure = v2_assert_failure(v2_run(v2_7_2_arguments(repository)), {"CANDIDATE_NOT_FINAL"})
+    assert failure["blockers"] == ["CANDIDATE_NOT_FINAL"]
+    assert v2_7_2_outputs(repository) == original
+    v2_git(repository, "reset", "--hard", "-q", "HEAD~1")
+    inserted = spec.read_bytes() + b"\n" + RECORD_BEGIN_LINE + b"\n" + original[1] + RECORD_END_LINE + b"\n"
+    spec.write_bytes(inserted)
+    verify = [
+        "--repository", str(repository),
+        "--contract", STORY_7_2_CONTRACT_PATH,
+        "--verify-inserted-record", STORY_7_2_SPEC_PATH,
+    ]
+    rejected = v2_assert_failure(v2_run(verify), {"RECORD_CONTENT_DRIFT"})
+    assert rejected["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    assert v2_7_2_outputs(repository) == original
+
+
 def test_v2_blocks_orphaned_record_candidate(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     repository = fixture["repository"]
@@ -4779,7 +4827,7 @@ def test_v2_workflow_accepts_followup_as_the_final_frontmatter_field(
         )
 
     assert load_generator().v2_working_spec_lifecycle_only_change(
-        repository, fixture["candidate"], STORY_7_3_SPEC_PATH, changed,
+        repository, fixture["candidate"], STORY_7_3_SPEC_PATH, changed, record_region=True,
     )
 
 
@@ -5084,6 +5132,7 @@ def test_v2_fault_displaced_workflow_invocation_in_a_render_twin(
     "variant",
     (
         "before-the-gate-heading",
+        "decoy-gate-heading",
         "gate-heading-removed",
         "transition-moved-into-the-span",
         "second-block-after-the-transition",
@@ -5101,6 +5150,8 @@ def test_v2_fault_displaced_workflow_invocation_variants(tmp_path: Path, variant
         without = text[:start] + text[end:]
         gate = without.index(route.gate)
         mutated = without[:gate] + block + "\n\n" + without[gate:]
+    elif variant == "decoy-gate-heading":
+        mutated = route.gate + "\n\n" + text
     elif variant == "gate-heading-removed":
         mutated = text.replace(route.gate, "#### Removed gate", 1)
     elif variant == "transition-moved-into-the-span":
@@ -5615,11 +5666,21 @@ def test_v2_story_7_3_record_binds_contract_bodies_and_predecessors(tmp_path: Pa
     assert [scenario["result"] for scenario in first["scenarios"]] == ["PASS"] * 7
     assert first["scenarios"][0]["resultFile"]["path"] == f"{STORY_7_3_RESULTS}/AC-7.3-01.json"
     assert len(first["scenarios"][-1]["assertionLedger"]) == 12
+    assert [row["subject"] for row in first["scenarios"][-1]["assertionLedger"][-3:]] == [
+        "generator::acceptance-results-bound-to-candidate",
+        "generator::workflow-bodies-equal-acceptance-inputs",
+        "generator::predecessor-records-7.1-7.2-verified",
+    ]
     assert "measurements" not in first
     markdown = outputs[1].decode("utf-8")
     assert "## Story 7.3 workflow integration" in markdown
+    assert "candidate, measured JUnit results, and acceptance results" in markdown
+    assert f"- Story contract: `{integration['contract']['path']}`" in markdown
+    assert f"- Story contract SHA-256: `{integration['contract']['sha256']}`" in markdown
     for body in integration["workflowBodies"]:
         assert f"| `{body['path']}` | `{body['sha256']}` |" in markdown
+    for item in integration["predecessorRecords"]:
+        assert f"| `{item['storyId']}` | `{item['path']}` | `{item['sha256']}` |" in markdown
     assert "## Story 7.2 measurements" not in markdown
 
 
@@ -5629,6 +5690,8 @@ V2_7_3_ACCEPTANCE_FAULTS = {
     "other-candidate": ("TEST_RESULTS_STALE",),
     "tampered-input-digest": ("TEST_RESULTS_STALE",),
     "command-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "story-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
+    "scenario-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
     "state-exit-disagree": ("SCENARIO_RESULT_MISMATCH",),
     "inputs-not-governed-set": ("SCENARIO_RESULT_MISMATCH",),
     "malformed-json": ("INPUT_SCHEMA_INVALID",),
@@ -5637,6 +5700,7 @@ V2_7_3_ACCEPTANCE_FAULTS = {
     "ledger-id-mismatch": ("SCENARIO_RESULT_MISMATCH",),
     "duplicate-ledger-subject": ("SCENARIO_RESULT_MISMATCH",),
     "passing-with-failed-row": ("TEST_COUNT_INCONSISTENT",),
+    "passing-with-blocker": ("TEST_COUNT_INCONSISTENT",),
     "passing-without-ledger": ("ASSERTION_LEDGER_EMPTY",),
     "failed-with-verifier-blocker": ("TEST_RESULTS_FAILED", "WORKFLOW_INTEGRATION_DISPLACED"),
 }
@@ -5673,6 +5737,8 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
                 inputs=[dict(document["inputs"][0], sha256="0" * 64), *document["inputs"][1:]]
             ),
             "command-mismatch": lambda: rewritten(command=document["command"] + " --extra"),
+            "story-id-mismatch": lambda: rewritten(storyId="7.1"),
+            "scenario-id-mismatch": lambda: rewritten(scenarioId="AC-7.3-02"),
             "state-exit-disagree": lambda: rewritten(exitCode=1),
             "inputs-not-governed-set": lambda: rewritten(inputs=document["inputs"][1:]),
             "malformed-json": lambda: b'{"schemaVersion": ',
@@ -5696,6 +5762,7 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
             "passing-with-failed-row": lambda: rewritten(
                 assertionLedger=[dict(document["assertionLedger"][0], state="FAIL")]
             ),
+            "passing-with-blocker": lambda: rewritten(blockers=["WORKFLOW_INTEGRATION_MISSING"]),
             "passing-without-ledger": lambda: rewritten(assertionLedger=[]),
             "failed-with-verifier-blocker": lambda: rewritten(
                 exitCode=1, result="FAIL", blockers=["WORKFLOW_INTEGRATION_DISPLACED"]
@@ -5711,6 +5778,33 @@ def test_v2_story_7_3_acceptance_result_faults_block_the_record(tmp_path: Path, 
 
     v2_7_3_isolated(repository, mutate, check)
     v2_7_3_assert_pass(repository, v2_run(v2_7_3_arguments(repository)))
+
+
+def test_v2_story_7_3_git_failure_reading_an_acceptance_input_is_blocked(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
+) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    before = v2_snapshot(repository)
+    module = load_generator()
+    original = module.run_git
+    body = STORY_7_3_BODIES[0]
+
+    def failing(repository_path: Path, *arguments: str, **options):
+        if arguments[:2] == ("ls-tree", "-z") and body in arguments:
+            raise module.GateError("GIT_COMMAND_FAILED", "forced fixture failure")
+        return original(repository_path, *arguments, **options)
+
+    monkeypatch.setattr(module, "run_git", failing)
+    assert module.main(v2_7_3_arguments(repository)) == 2
+    captured = capsys.readouterr()
+    document = json.loads(captured.out)
+    v2_failure_validator().validate(document)
+    assert document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert "forced fixture failure" not in json.dumps(document)
+    assert v2_7_3_outputs(repository) == (None, None)
+    assert v2_snapshot(repository) == before
 
 
 @pytest.mark.parametrize(

@@ -2,7 +2,7 @@
 title: 'Integrate generation into every blocking completion transition'
 type: 'feature'
 created: '2026-09-29'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '91bc1376bc433400186ed9404bd6541b86355f98'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -125,6 +125,59 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 - `false` — The reviewed routes contain no alternate lifecycle transition, and the verifier uses the owner-frozen transition anchors rather than attempting semantic interpretation of arbitrary prose.
 - `low` — A post-replace readback I/O failure could leave a completed acceptance output, but the trigger is exceptional and transactional restoration would add disproportionate complexity.
 - `medium (rejected: spec change)` — The Python behavior suite is absent from CI, but Story 7.3 explicitly requires the gate to state that no CI job or hook enforces it; changing that policy requires owner renegotiation rather than a review patch.
+
+#### Generator chunk (2026-09-30)
+
+- [x] [Review][Patch] Re-raise a git failure while reading an acceptance input instead of reporting the result stale [_bmad/scripts/generate_story_record.py:3683]
+- [x] [Review][Patch] Require one gate heading and one follower before accepting block placement [_bmad/scripts/verify_story_completion_workflows.py:566]
+- [x] [Review][Patch] Use each retained story's record-region flag during inserted-record verification [_bmad/scripts/generate_story_record.py:4429]
+- [x] [Review][Patch] Assert the Story 7.3 Markdown contract lines, predecessor rows, and acceptance-results sentence [_bmad/scripts/tests/test_generate_story_record.py:5619]
+- [x] [Review][Patch] Fault-test an acceptance result whose story id or scenario id does not match [_bmad/scripts/tests/test_generate_story_record.py:5625]
+- [x] [Review][Patch] Fault-test a passing acceptance result that still carries blockers [_bmad/scripts/tests/test_generate_story_record.py:5639]
+- [x] [Review][Patch] Pin Story 7.2 retention against a final-record region and a followup field [_bmad/scripts/tests/test_generate_story_record.py:4083]
+- [x] [Review][Patch] Assert the three Story 7.3 self-ledger subject strings [_bmad/scripts/tests/test_generate_story_record.py:5617]
+
+##### Rejected (generator chunk)
+
+- `false` — An out-of-order acceptance ledger leaves `category` as `passed`, but any finding raises before categories are counted or outputs are written, so that category cannot become a passing summary.
+- `false` — Every Story 7.3 scenario expects `PASS`. Any other state takes the failure branch and stops the run; a contract that expected `FAIL` is outside this story and would fail closed.
+- `false` — Acceptance freshness is measured against the retained candidate whose blobs are checked. A later lifecycle commit does not change those blobs, and a result older than the retained candidate is still rejected.
+- `false` — The generator writes workflow bodies and predecessors from the fixed Story 7.3 lists before schema validation, so the looser schema cannot publish a swapped or duplicated pair.
+- `false` — Masking `## Review Triage Log` and `## Auto Run Result` through the next heading is the retention rule for those route-owned sections.
+- `false` — The routes and the tests write unquoted `followup_review_recommended: true|false`. A quoted value fails closed instead of being treated as a lifecycle edit.
+- `false` — A sprint commit may change only this story's row and `last_updated`. Another row changing is `CANDIDATE_NOT_FINAL` by design.
+- `false` — Generation measures a clean candidate. The spec insertion is the later `--verify-inserted-record` step, so a dirty spec during generation is `WORKTREE_NOT_CLEAN`.
+- `false` — The appended-marker check matches the route's instruction to append one blank line, the begin line, the Markdown, and the end line.
+- `false` — The contract blob is validated from the same candidate before workflow integration runs, so the empty-hash fallback is not reachable.
+- `false` — `workflowIntegration` is specified as the contract, the eight bodies, and the 7.1/7.2 records. The verifier script must be committed; it is not a record field.
+- `low` — A missing Story 7.1 digest also emits the Story 7.1 binding finding, so the extra Story 7.2 wording does not hide the failed predecessor.
+- `low` — The empty-result and unrecognized-command sentences still name JUnit. The run already stops with the scenario's own blocker, and the wording does not let a bad result pass.
+- `low` — A CRLF spec fails marker parsing. Workflow bodies are pinned to LF, and CRLF normalization is more than a direct correction.
+- `low` — A result written earlier in the commit's own second can look fresh. Treating that whole second as stale would also reject a legitimate result written later in the same second.
+- `low` — A governed body that is a symlink is `SURFACE_UNREADABLE`. Closing the check-to-read race is extra hardening, not a defect the steady state reaches.
+- `low` — Required clauses are full phrases. Rejecting a phrase that is only a prefix of a longer token would add a second matcher the current phrases do not need.
+- `low` — The output writer resolves an existing ancestor inside the repository before creating parents. A symlink swap after that check is not an everyday write.
+- `low` — A read-back mismatch after replace is exceptional, and restoring the previous bytes would add a second write path for a case that already reports `OUTPUT_WRITE_FAILED`.
+
+#### Evidence chunk (2026-10-01)
+
+- [ ] [Review][Patch] State that a lifecycle-only successor commit is an accepted acceptance-result stamp [docs/runbooks/story-final-record-generation.md:339]
+
+##### Rejected (evidence chunk)
+
+- `rejected: spec change` — Implementation Notes still say the pair is not generated. The standing description is stale, and the correction edits this spec.
+- `rejected: spec change` — The Verification section still logs the earlier `CANDIDATE_NOT_FINAL` run. Replacing that log edits this spec.
+- `rejected: spec change` — The unticked final-record task understates the retention allowlist. The box stays open because ticking it is outside retention, and the correction edits this spec.
+- `rejected: spec change` — The Spec Change Log is empty. Filling it edits this spec.
+- `rejected: spec change` — The Code Map still describes the pre-7.3 generator. Correcting it edits this spec.
+- `rejected: spec change` — The pass-1 outcome says 18 patches; that table has 16 patch rows. Correcting the count edits this spec.
+- `false` — The known-limitations bullet states that `bmad-dev-auto` is retired and names `bmad-build-auto/step-04-review.md`. Neither skill tree contains that route. The older deferred-work sentence was already left in place on pass 1.
+- `low` — The acceptance writer already retries exclusive no-follow temporary names and reports `OUTPUT_WRITE_FAILED`. The pair-writer symlink is already the deferred-work entry in this diff, and restating that internal procedure is more than a direct correction.
+- `rejected: spec change` — Review-log line numbers have drifted. Updating them edits this spec.
+- `low` — The four extra displacement shapes run on one route, and the shared placement checker is already faulted on every body. The ledger names those tests; it does not claim the shapes ran on every route. Expanding the matrix is more than a direct correction.
+- `false` — Acceptance results stay under gitignored `artifacts/v9/7.3/`. The record binds their digests, and the scratch logs under `/tmp` are not story evidence.
+- `false` — Pass-1 row 7 is rejected because its fix adds guards. That evidence column is the rejection reason.
+- `rejected: spec change` — The Files note still says 113 new tests. Correcting that snapshot edits this spec.
 
 **Acceptance Criteria:**
 - Given the integrated tree, when AC-7.3-01 through AC-7.3-06 run as declared, then each exits `0` with `PASS`.

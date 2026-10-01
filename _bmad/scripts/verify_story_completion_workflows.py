@@ -562,19 +562,33 @@ def locate_block(text: str) -> tuple[str, int, int, str]:
 
 
 def placement_problem(text: str, route: Route, start: int, end: int) -> str | None:
-    """Why the block does not gate the route's transition, or None when it does."""
-    gate = text.find(route.gate)
-    if gate < 0:
+    """Why the block does not gate the route's transition, or None when it does.
+
+    Each span anchor must occur once. An earlier copy of the gate or follower
+    would otherwise widen the span and let a block outside the real gate pass.
+    """
+    gates = occurrences(text, route.gate)
+    if not gates:
         return f"the gate span marker {route.gate!r} is absent"
-    follower = text.find(route.follower, gate + len(route.gate))
-    if follower < 0:
+    if len(gates) != 1:
+        return f"the gate span marker {route.gate!r} occurs more than once"
+    followers = occurrences(text, route.follower)
+    if not followers:
         return f"the gate span follower {route.follower!r} is absent"
+    if len(followers) != 1:
+        return f"the gate span follower {route.follower!r} occurs more than once"
+    gate = gates[0]
+    follower = followers[0]
+    if follower <= gate:
+        return "the gate span follower does not follow the gate span marker"
     if not gate < start < end <= follower:
         return "the block lies outside the final-record gate span"
-    transition = text.find(route.transition)
-    if transition < 0:
+    transitions = occurrences(text, route.transition)
+    if not transitions:
         return f"the lifecycle transition {route.transition!r} is absent"
-    if transition < follower:
+    if len(transitions) != 1:
+        return f"the lifecycle transition {route.transition!r} occurs more than once"
+    if transitions[0] < follower:
         return "a lifecycle transition precedes the end of the gate span"
     return None
 

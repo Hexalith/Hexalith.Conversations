@@ -3680,7 +3680,13 @@ def v2_scenario_from_acceptance(
         try:
             path = safe_relative_path(row["path"])
             blob = v2_committed_blob(repository, candidate, path)
-        except GateError:
+        except GateError as error:
+            if error.code in ("GIT_UNAVAILABLE", "GIT_COMMAND_FAILED"):
+                return stop(
+                    error.code,
+                    "git failed while reading an acceptance input",
+                    "blocked",
+                )
             blob = None
         if blob is None or v2_sha256(blob) != row["sha256"]:
             stale_inputs.append(row["path"])
@@ -4423,11 +4429,11 @@ def v2_spec_lifecycle_only_change(
 
 
 def v2_working_spec_lifecycle_only_change(
-    repository: Path, head: str, spec_path: str, working: bytes
+    repository: Path, head: str, spec_path: str, working: bytes, *, record_region: bool
 ) -> bool:
-    """Apply the committed lifecycle/record mask to one working-tree spec."""
+    """Apply the committed lifecycle mask for one retained story to its working spec."""
     return v2_spec_lifecycle_only_change(
-        repository, head, head, spec_path, record_region=True, updated_content=working
+        repository, head, head, spec_path, record_region=record_region, updated_content=working
     )
 
 
@@ -5494,7 +5500,9 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
                         f"changes are present: {v2_path_summary(outside_spec)}")],
             story_id,
         )
-    if not v2_working_spec_lifecycle_only_change(repository, head, spec_relative, spec_bytes):
+    if not v2_working_spec_lifecycle_only_change(
+        repository, head, spec_relative, spec_bytes, record_region=retained[3]
+    ):
         drift(V2_VERIFY_OPTION, "the working spec changes content outside lifecycle-owned "
               "fields, sections, or the final-record region")
     try:
