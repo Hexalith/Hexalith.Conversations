@@ -240,6 +240,19 @@ def git_environment() -> dict[str, str]:
     return environment
 
 
+# Historical verification reuses legacy readers that turn a Git failure into a
+# finding. Each active observer list records every Git execution failure raised
+# below, so that caller can still report the failure as BLOCKED.
+GIT_FAILURE_OBSERVERS: list[list[GateError]] = []
+
+
+def git_failure(message: str) -> GateError:
+    error = GateError("GIT_COMMAND_FAILED", message)
+    for observer in GIT_FAILURE_OBSERVERS:
+        observer.append(error)
+    return error
+
+
 def run_git(
     repository: Path,
     *arguments: str,
@@ -260,15 +273,12 @@ def run_git(
             env=git_environment(),
         )
     except (OSError, subprocess.TimeoutExpired) as error:
-        raise GateError("GIT_COMMAND_FAILED", f"git command failed: {error}") from error
+        raise git_failure(f"git command failed: {error}") from error
 
     if result.returncode not in allowed_returncodes:
         rendered = " ".join(arguments)
         stderr = decode(result.stderr).strip() or "no stderr"
-        raise GateError(
-            "GIT_COMMAND_FAILED",
-            f"git {rendered} exited {result.returncode}: {stderr}",
-        )
+        raise git_failure(f"git {rendered} exited {result.returncode}: {stderr}")
     return result
 
 
@@ -3007,7 +3017,7 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
     values: dict[str, str] = {}
     tokens = list(raw_arguments)
     verify_mode = any(token.partition("=")[0] == V2_VERIFY_OPTION for token in tokens)
-    historical_mode = "--historical" in tokens
+    historical_mode = any(token.partition("=")[0] == "--historical" for token in tokens)
     accepted_options = (
         ("--repository", "--contract", V2_VERIFY_OPTION)
         if verify_mode
@@ -3712,7 +3722,7 @@ def v2_scenario_from_acceptance(
         category = "failed"
     if state != "PASS" or state != semantics["expected"]:
         propagated_codes = V2_PROPAGATED_ACCEPTANCE_CODES + (
-            ("HISTORICAL_BLOB_UNRESOLVED", "HISTORICAL_RECORD_DRIFT")
+            ("HISTORICAL_BLOB_UNRESOLVED", "HISTORICAL_RECORD_DRIFT", "GIT_COMMAND_FAILED")
             if story_id == "7.4" else ()
         )
         for code in propagated_codes:
@@ -4183,14 +4193,15 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                       "| Predecessor | Record | SHA-256 |", "| --- | --- | --- |"])
         lines.extend(f"| {code(row['storyId'])} | {code(row['path'])} | {code(row['sha256'])} |"
                      for row in history["predecessorRecords"])
-        lines.extend(["", "| Closed story | Classification | Closure | Recorded candidate | Bound blobs |",
-                      "| --- | --- | --- | --- | --- |"])
+        lines.extend(["", "| Closed story | Classification | Closure | Recorded candidate | Bound blobs "
+                      "| Retained warnings |", "| --- | --- | --- | --- | --- | --- |"])
         for row in history["records"]:
             recorded = row["recordedCandidate"]
             lines.append(f"| {code(row['storyId'])} | {code(row['classification'])} "
                          f"| {code(row['closure']['commit'])} "
                          f"| {code(recorded['commit']) if recorded else 'none recorded'} "
-                         f"| {code(len(row['boundBlobs']))} |")
+                         f"| {code(len(row['boundBlobs']))} "
+                         f"| {code(', '.join(row['warnings'])) if row['warnings'] else 'none'} |")
         lines.append("")
         lines.extend(f"- {limit}" for limit in history["limits"])
     lines.extend(["", "## Fault injection", ""])
@@ -5292,7 +5303,16 @@ def v2_history_facts(repository: Path, candidate: str, validators: dict[str, Any
         # Equality above makes the existing read-only verifier's worktree read
         # identical to the closure blob. Its pre-generator disposition is retained.
         v2_history_resolved_path(repository, path, roots)
-        document = verify_historical(repository, argparse.Namespace(story=path))
+        # The legacy verifier converts Git failures into findings; recover them
+        # so a timeout stays BLOCKED instead of reading as historical drift.
+        failures: list[GateError] = []
+        GIT_FAILURE_OBSERVERS.append(failures)
+        try:
+            document = verify_historical(repository, argparse.Namespace(story=path))
+        finally:
+            GIT_FAILURE_OBSERVERS.remove(failures)
+        if failures:
+            raise GateError("GIT_COMMAND_FAILED", "Git failed while the legacy verifier read a closed record")
         if v2_history_installed_snapshot(repository, path, roots) != installed:
             raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
                                     "closed-record bytes changed while the legacy verifier reopened them")], "7.4")
@@ -5308,7 +5328,8 @@ def v2_history_facts(repository: Path, candidate: str, validators: dict[str, Any
         subjects.extend([
             f"history::{story_id}::closure-record-bytes-modes-and-digest",
             f"history::{story_id}::root-commits-trees-and-gitlinks",
-            f"history::{story_id}::bound-blobs-and-commit-bound-evidence",
+            f"history::{story_id}::bound-blobs-and-commit-bound-evidence" if measured["evidenceIdentities"]
+            else f"history::{story_id}::bound-blobs-no-commit-bound-evidence",
             f"history::{story_id}::archived-declarations-recorded-only",
             f"history::{story_id}::disposition::{measured['classification']}",
         ])

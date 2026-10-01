@@ -1268,7 +1268,7 @@
           "$ref": "#/$defs/blockers"
         },
         "observedExitCode": {
-          "$ref": "#/$defs/exitCode"
+          "const": 1
         },
         "beforeSha256": {
           "$ref": "#/$defs/digest"
@@ -1282,7 +1282,282 @@
         "restoredExitCode": {
           "const": 0
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "COUNT"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_COUNT_INCONSISTENT"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_COUNT_INCONSISTENT"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "SUBMODULE_PATH"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "SUBMODULE_INTERNAL_PATH"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "SUBMODULE_INTERNAL_PATH"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "CANDIDATE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "CANDIDATE_NOT_FINAL"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "CANDIDATE_NOT_FINAL"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "GITLINK"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "GITLINK_SCOPE_MISMATCH"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "GITLINK_SCOPE_MISMATCH"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "RESULT_MISSING"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_RESULTS_MISSING"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_RESULTS_MISSING"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "RESULT_STALE"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_RESULTS_STALE"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_RESULTS_STALE"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "RESULT_FAILED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_FAILED"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_FAILED"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "RESULT_SKIPPED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_SKIPPED"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_SKIPPED"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "RESULT_NOT_RUN"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "TEST_NOT_RUN"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "TEST_NOT_RUN"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "LEDGER_EMPTY"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "ASSERTION_LEDGER_EMPTY"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "ASSERTION_LEDGER_EMPTY"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "WORKFLOW_REMOVED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "WORKFLOW_INTEGRATION_MISSING"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "WORKFLOW_INTEGRATION_MISSING"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "WORKFLOW_DISPLACED"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "WORKFLOW_INTEGRATION_DISPLACED"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "WORKFLOW_INTEGRATION_DISPLACED"
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "MARKDOWN_DIGEST"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "RECORD_CONTENT_DRIFT"
+              },
+              "observedBlockers": {
+                "contains": {
+                  "const": "RECORD_CONTENT_DRIFT"
+                }
+              }
+            }
+          }
+        }
+      ]
     },
     "evidenceIdentity": {
       "type": "object",

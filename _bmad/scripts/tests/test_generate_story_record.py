@@ -6136,6 +6136,12 @@ def v2_7_4_snapshot_hash(repository: Path) -> str:
     return digest.hexdigest()
 
 
+def v2_7_4_restore_file(target: Path, content: bytes, metadata: os.stat_result) -> None:
+    target.write_bytes(content)
+    os.chmod(target, metadata.st_mode & 0o7777)
+    os.utime(target, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+
+
 def v2_7_4_observe_fault(tmp_path: Path, fault_id: str) -> dict:
     """Execute one frozen mutation against PASS, restore, then prove PASS again."""
     module = load_generator()
@@ -6163,6 +6169,9 @@ def v2_7_4_observe_fault(tmp_path: Path, fault_id: str) -> dict:
     before_hash = v2_7_4_snapshot_hash(repository)
     saved = {relative: (entry[1], (repository / relative).stat())
              for relative, entry in before[1].items() if entry[0] == "file"}
+    # Only the observing runner's declared receipt is rolled back; every byte,
+    # mode and timestamp the mutation changed must come back through its undo.
+    receipts = [f"{STORY_7_3_RESULTS}/AC-7.3-01.json"] if runner is COMPLETION_VERIFIER else []
     undo = lambda: None
     observed = None
     try:
@@ -6197,9 +6206,13 @@ def v2_7_4_observe_fault(tmp_path: Path, fault_id: str) -> dict:
             v2_git(repository, "commit", "-m", "test(story): apply isolated frozen mutation")
             undo = lambda: v2_git(repository, "reset", "--hard", "-q", before[0])
         elif fault_id == "RESULT_MISSING":
+            content, metadata = saved[path.relative_to(repository).as_posix()]
             path.unlink()
+            undo = lambda: v2_7_4_restore_file(path, content, metadata)
         elif fault_id == "RESULT_STALE":
+            metadata = path.stat()
             os.utime(path, ns=(1, 1))
+            undo = lambda: os.utime(path, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
         elif fault_id == "RESULT_FAILED":
             undo = v2_7_2_replace(path, path.read_bytes().replace(b'outcome="Passed"', b'outcome="Failed"', 1)
                                     .replace(b'passed="2"', b'passed="1"').replace(b'failed="0"', b'failed="1"'))
@@ -6228,20 +6241,13 @@ def v2_7_4_observe_fault(tmp_path: Path, fault_id: str) -> dict:
             spec = repository / STORY_7_3_SPEC_PATH
             undo = v2_7_3_replace(spec, spec.read_bytes().replace(b"# Story 7.3 Final Record", b"# Altered Final Record"))
         observed_exit, observed = v2_7_4_call(runner, arguments)
-        assert observed_exit == observed["exitCode"] == 1
-        assert observed["result"] == "FAIL"
-        assert dict(STORY_7_4_FAULTS)[fault_id] in observed["blockers"]
+        assert observed_exit == observed["exitCode"] == 1, "FAULT_NOT_DETECTED"
+        assert observed["result"] == "FAIL", "FAULT_NOT_DETECTED"
+        assert dict(STORY_7_4_FAULTS)[fault_id] in observed["blockers"], "FAULT_NOT_DETECTED"
     finally:
         undo()
-        for relative, entry in v2_snapshot(repository)[1].items():
-            if relative not in before[1]:
-                (repository / relative).unlink()
-        for relative, (content, metadata) in saved.items():
-            target = repository / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(content)
-            os.chmod(target, metadata.st_mode & 0o7777)
-            os.utime(target, ns=(metadata.st_atime_ns, metadata.st_mtime_ns))
+        for relative in receipts:
+            v2_7_4_restore_file(repository / relative, *saved[relative])
     assert v2_snapshot(repository) == before, "FIXTURE_NOT_RESTORED"
     after_hash = v2_7_4_snapshot_hash(repository)
     assert before_hash == after_hash, "FIXTURE_NOT_RESTORED"
@@ -6364,15 +6370,19 @@ def test_v2_historical_mode_states_worktree_limit(tmp_path: Path) -> None:
 
 
 @pytest.mark.parametrize("fault, blocker", [("closed-worktree", "HISTORICAL_RECORD_DRIFT"),
-    ("closed-commit", "HISTORICAL_RECORD_DRIFT"), ("missing-object", "HISTORICAL_BLOB_UNRESOLVED"),
-    ("blob-digest", "HISTORICAL_RECORD_DRIFT")])
+    ("closed-commit", "HISTORICAL_RECORD_DRIFT"), ("closed-mode", "HISTORICAL_RECORD_DRIFT"),
+    ("missing-object", "HISTORICAL_BLOB_UNRESOLVED"), ("blob-digest", "HISTORICAL_RECORD_DRIFT")])
 def test_v2_story_7_4_historical_missing_or_drifted_objects(tmp_path: Path, monkeypatch,
                                                           fault: str, blocker: str) -> None:
     fixture = build_v2_7_4_repository(tmp_path, results=False)
     repository = fixture["repository"]
     module = load_generator()
     record = repository / f"_bmad-output/implementation-artifacts/{CLOSED_RECORDS[0]}"
-    if fault.startswith("closed-"):
+    if fault == "closed-mode":
+        # Identical bytes; only the committed path mode differs from the closure.
+        v2_git(repository, "update-index", "--chmod=+x", str(record.relative_to(repository)))
+        v2_git(repository, "commit", "-m", "test(story): alter closed record mode")
+    elif fault.startswith("closed-"):
         record.write_bytes(record.read_bytes() + b"\nchanged closed bytes\n")
         if fault == "closed-commit":
             v2_git(repository, "add", str(record.relative_to(repository)))
@@ -6398,7 +6408,9 @@ def test_v2_story_7_4_historical_missing_or_drifted_objects(tmp_path: Path, monk
     ("duplicate", "FAULT_NOT_DETECTED"), ("unknown", "FAULT_NOT_DETECTED"),
     ("wrong-blocker", "FAULT_NOT_DETECTED"), ("undetected", "FAULT_NOT_DETECTED"),
     ("restoration-drift", "FIXTURE_NOT_RESTORED"), ("lane-drift", "FIXTURE_NOT_RESTORED"),
-    ("metadata-missing", "FAULT_NOT_DETECTED")])
+    ("metadata-missing", "FAULT_NOT_DETECTED"), ("expected-blocker", "FAULT_NOT_DETECTED"),
+    ("swapped-parameter", "FAULT_NOT_DETECTED"), ("malformed-json", "FAULT_NOT_DETECTED"),
+    ("two-properties", "FAULT_NOT_DETECTED")])
 def test_v2_story_7_4_rejects_fault_metadata(tmp_path: Path, fault: str, blocker: str) -> None:
     fixture = build_v2_7_4_repository(tmp_path)
     repository = fixture["repository"]
@@ -6413,8 +6425,24 @@ def test_v2_story_7_4_rejects_fault_metadata(tmp_path: Path, fault: str, blocker
     elif fault == "undetected": rows[0]["observedExitCode"] = 0
     elif fault == "restoration-drift": rows[0]["afterSha256"] = "a" * 64
     elif fault == "lane-drift": rows[0]["beforeSha256"] = rows[0]["afterSha256"] = "a" * 64
+    elif fault == "expected-blocker": rows[0]["expectedBlocker"] = "RECORD_CONTENT_DRIFT"
     content = v2_junit(selector) if fault == "metadata-missing" else v2_7_4_fault_junit(selector, rows)
+    if fault in ("swapped-parameter", "malformed-json", "two-properties"):
+        from xml.etree import ElementTree
+        root = ElementTree.fromstring(content)
+        cases = root[0].findall("testcase")
+        first, second = (case.find("properties/property") for case in cases[:2])
+        if fault == "swapped-parameter":  # each testcase now carries the other's distinct row
+            first.attrib["value"], second.attrib["value"] = second.get("value"), first.get("value")
+        elif fault == "malformed-json":
+            first.set("value", "{")
+        else:
+            cases[0].find("properties").append(deepcopy(first))
+        content = ElementTree.tostring(root, encoding="utf-8")
     v2_write_result(repository, f"artifacts/v9/7.4/{scenario}.xml", content)
+    if fault == "expected-blocker":  # both lanes agree, so only the frozen mapping can reject it
+        v2_write_result(repository, "artifacts/v9/7.4/AC-7.4-04.xml",
+                        v2_7_4_fault_junit("v2_fault_fixtures_restore_byte_identically", rows))
     failure = v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {blocker})
     assert failure["result"] == "FAIL"
     if fault == "duplicate":
@@ -6439,6 +6467,19 @@ def test_v2_story_7_4_deterministic_record_retention_and_insertion(tmp_path: Pat
     )
     for limit in required_limits:
         assert ("- " + limit + "\n").encode("utf-8") in outputs[1]
+    markdown = outputs[1].decode("utf-8")
+    assert ("| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |"
+            in markdown)
+    for row in first["faultInjection"]["results"]:
+        assert (f"| `{row['id']}` | `{row['expectedBlocker']}` | `{row['observedExitCode']}` "
+                f"| `{', '.join(row['observedBlockers'])}` | `{row['beforeSha256']}` | `{row['afterSha256']}` |"
+                in markdown)
+    for row in first["historicalVerification"]["predecessorRecords"]:
+        assert f"| `{row['storyId']}` | `{row['path']}` | `{row['sha256']}` |" in markdown
+    for row in first["historicalVerification"]["records"]:
+        warnings = f"`{', '.join(row['warnings'])}`" if row["warnings"] else "none"
+        assert (f"| `{row['storyId']}` | `{row['classification']}` | `{row['closure']['commit']}` " in markdown
+                and f"| `{len(row['boundBlobs'])}` | {warnings} |" in markdown)
     assert module.v2_verify_pair(*outputs) == []
     v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(first)
     assert first["summary"] == {"required": 6, "passed": 6, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}
@@ -6537,6 +6578,10 @@ def test_v2_story_7_4_schema_requires_closed_history_and_observed_fault_fields(t
         branch["extra"] = True
         assert not validator.is_valid(record)
         branch.pop("extra")
+    bare = deepcopy(record)
+    bare["faultInjection"]["results"] = [{"id": row["id"], "expectedBlocker": row["expectedBlocker"]}
+                                         for row in record["faultInjection"]["results"]]
+    assert not validator.is_valid(bare)
     for story in ("7.1", "7.2", "7.3"):
         predecessor = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
         assert validator.is_valid(predecessor)
@@ -6792,11 +6837,95 @@ def test_v2_story_7_4_review_schema_enforces_exact_coverage_order_and_limits(tmp
     changed_limits = deepcopy(record)
     changed_limits["historicalVerification"]["limits"] = [f"replacement limitation {ordinal}" for ordinal in range(5)]
     mutations.append(changed_limits)
+    for field, value in (("observedExitCode", 0), ("observedBlockers", []), ("expectedBlocker", "TEST_FAILED")):
+        unobserved = deepcopy(record)
+        unobserved["faultInjection"]["results"][0][field] = value
+        mutations.append(unobserved)
     for mutated in mutations:
         assert not validator.is_valid(mutated)
     for story in ("7.1", "7.2", "7.3"):
         predecessor = json.loads((WORKSPACE / f"docs/release-evidence/story-{story}-final-record-v2.json").read_bytes())
         assert validator.is_valid(predecessor)
+        predecessor["faultInjection"]["results"] = record["faultInjection"]["results"]
+        assert not validator.is_valid(predecessor)
+
+
+def test_v2_story_7_4_review_git_failure_inside_legacy_verifier_stays_blocked(tmp_path: Path, monkeypatch) -> None:
+    fixture = build_v2_7_4_repository(tmp_path, results=False)
+    repository = fixture["repository"]
+    module = load_generator()
+    original_verify, original_run = module.verify_historical, module.subprocess.run
+    legacy = False
+    def verify(repo, args):
+        nonlocal legacy
+        legacy = True
+        try:
+            return original_verify(repo, args)
+        finally:
+            legacy = False
+    def timed_out(command, **kwargs):
+        # try_resolve_commit swallows this timeout into a missing-baseline finding.
+        if legacy and "rev-parse" in command and "--verify" in command:
+            raise subprocess.TimeoutExpired(command, 0.01)
+        return original_run(command, **kwargs)
+    monkeypatch.setattr(module, "verify_historical", verify)
+    monkeypatch.setattr(module.subprocess, "run", timed_out)
+    code, document = v2_7_4_call(module, v2_7_4_historical_arguments(repository))
+    assert code == document["exitCode"] == 2 and document["result"] == "BLOCKED"
+    assert document["blockers"] == ["GIT_COMMAND_FAILED"]
+    assert json.loads((repository / module.V2_HISTORY_OUTPUT_PATH).read_bytes()) == document
+    v2_7_3_acceptance_validator().validate(document)
+    assert module.GIT_FAILURE_OBSERVERS == []
+
+
+@pytest.mark.parametrize("code", ["HISTORICAL_BLOB_UNRESOLVED", "HISTORICAL_RECORD_DRIFT", "GIT_COMMAND_FAILED"])
+def test_v2_story_7_4_propagates_historical_receipt_codes(tmp_path: Path, code: str) -> None:
+    fixture = build_v2_7_4_repository(tmp_path)
+    repository = fixture["repository"]
+    path = repository / "artifacts/v9/7.4/AC-7.4-01.json"
+    blocked = code == "GIT_COMMAND_FAILED"
+    receipt = dict(json.loads(path.read_bytes()), exitCode=2 if blocked else 1,
+                   result="BLOCKED" if blocked else "FAIL", blockers=[code], assertionLedger=[])
+    v2_7_3_acceptance_validator().validate(receipt)
+    path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+    v2_assert_failure(v2_run(v2_7_4_arguments(repository)), {"TEST_RESULTS_FAILED", code},
+                      exit_code=2 if blocked else 1)
+    assert not (repository / STORY_7_4_OUTPUTS[0]).exists()
+
+
+@pytest.mark.parametrize("change", ["format-bundle", "output-markdown", "repeated-flag", "flag-value"])
+def test_v2_story_7_4_historical_mode_rejects_invalid_arguments(tmp_path: Path, change: str) -> None:
+    arguments = v2_7_4_historical_arguments(tmp_path)
+    if change == "format-bundle":
+        arguments[arguments.index("json")] = "bundle"
+    elif change == "output-markdown":
+        arguments += ["--output-markdown", "story.md"]
+    elif change == "repeated-flag":
+        arguments.append("--historical")
+    else:
+        arguments[arguments.index("--historical")] = "--historical=yes"
+    code, document = v2_7_4_call(load_generator(), arguments)
+    v2_failure_validator().validate(document)
+    assert code == document["exitCode"] == 1 and document["blockers"] == ["ARGUMENT_INVALID"]
+    if change in ("repeated-flag", "flag-value"):
+        assert any("--historical is a flag" in row["message"] for row in document["diagnostics"])
+    assert list(tmp_path.iterdir()) == []
+
+
+@pytest.mark.parametrize("defect, message", [("incomplete-undo", "FIXTURE_NOT_RESTORED"),
+                                             ("undetected", "FAULT_NOT_DETECTED")])
+def test_v2_story_7_4_fault_harness_reports_its_frozen_codes(tmp_path: Path, monkeypatch,
+                                                            defect: str, message: str) -> None:
+    if defect == "incomplete-undo":
+        original = v2_7_2_replace
+        def replace_without_restore(path: Path, content: bytes):
+            original(path, content)
+            return lambda: None
+        monkeypatch.setitem(globals(), "v2_7_2_replace", replace_without_restore)
+    else:
+        monkeypatch.setitem(globals(), "STORY_7_4_FAULTS", (("COUNT", "RECORD_CONTENT_DRIFT"),))
+    with pytest.raises(AssertionError, match=message):
+        v2_7_4_observe_fault(tmp_path, "COUNT")
 
 
 if __name__ == "__main__":

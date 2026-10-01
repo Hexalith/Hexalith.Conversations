@@ -1112,7 +1112,14 @@ is not reconstructed and is not claimed. Committed evidence bytes and identities
 can be bound; this does not prove former runtime state or CI enforcement.
 
 AC-03 and AC-04 each execute the same thirteen frozen mutations in isolated
-passing fixtures. Each testcase writes one JUnit property named
+passing fixtures. Twelve change fixture bytes, modes, timestamps, or commits.
+`SUBMODULE_PATH` cannot be committed, because Git never lists a path inside a
+gitlink, so it injects that path into the generator's Git diff output for one
+run; its fixture bytes do not change. Each fault's own undo must restore the
+fixture before the after-hash is taken; only the observing verifier's declared
+receipt is rolled back separately. A detection miss fails its testcase with
+`FAULT_NOT_DETECTED`, and a restoration miss with `FIXTURE_NOT_RESTORED`; AC-06
+then reports the failed lane. Each testcase writes one JUnit property named
 `hexalith.fault-injection-result.v1`, containing strict JSON with `id`,
 `expectedBlocker`, measured `observedBlockers` and `observedExitCode`,
 `beforeSha256`, `afterSha256`, and passing baseline/restored state and exit.
@@ -1135,6 +1142,12 @@ The existing Story 7.1–7.3 record shapes and bytes remain valid.
 | `HISTORICAL_RECORD_DRIFT` | `1` | Closed bytes differ from closure bytes, pinned facts drift, or historical acceptance facts differ from their remeasurement |
 | `FAULT_NOT_DETECTED` | `1` | Required fault metadata is absent, malformed, duplicated, unknown, incomplete, or does not observe its exact blocker with exit 1 |
 | `FIXTURE_NOT_RESTORED` | `1` | Before/after hashes differ or the restoration lane differs from the mutation lane |
+| `AUTHORITY_BINDING_INVALID` | `1` | A committed Story 7.1–7.3 pair does not verify, or Story 7.2 or 7.3 does not bind its verified predecessor digests |
+| `CALLER_AUTHORED_FACT` | `1` | AC-01's `--output-json` or the contract's AC-01 output differs from `artifacts/v9/7.4/AC-7.4-01.json` |
+| `OUTPUT_PATH_INVALID` | `1` | The AC-01 receipt path resolves into a root gitlink |
+| `TEST_RESULTS_STALE` | `1` | A bound AC-01, AC-03, or AC-04 result changed after its scenario digest was measured |
+| `GIT_COMMAND_FAILED` | `2` | Git failed or timed out in historical mode, including inside the legacy closed-record verifier; AC-06 propagates it from the AC-01 receipt |
+| `SURFACE_UNREADABLE` | `2` | A closed record or historical path could not be read or resolved stably |
 
 Completion follows the Story 7.3 operator procedure with Story 7.4 paths: review
 and commit the scoped implementation candidate while the spec and sprint row
@@ -1146,7 +1159,11 @@ insert the Markdown verbatim and run
 --verify-inserted-record _bmad-output/implementation-artifacts/spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md`;
 then commit only the lifecycle changes and require AC-06 to reproduce the pair.
 Any source change after a retained candidate requires a record-only retraction
-before the replacement source candidate. Run the focused Debug C# conformance
-class, workflow verifier with temporary outputs preserving archived Story 7.3
-evidence, root-submodule checker and whitespace check. V23–V29 current-authority
-gates are not required. This procedure includes no push and claims no CI gate.
+before the replacement source candidate. Build
+`tests/Hexalith.Conversations.Conformance.Tests` in Debug and run its built
+executable with `-class` for `StoryFinalRecordGenerationValidationTest`. Rerun
+the Story 7.3 `AC-7.3-01` and `AC-7.3-02` verifier commands only after archiving
+`artifacts/v9/7.3/`, because the verifier overwrites its declared results. Then
+run `python3 scripts/check-root-submodules.py --repository .` and
+`git diff --check`. V23–V29 current-authority gates are not required. This
+procedure includes no push and claims no CI gate.
