@@ -89,7 +89,7 @@ development_status:
   7-1-define-the-final-record-schema-and-deterministic-generator-core: done
   7-2-derive-test-path-candidate-submodule-and-gitlink-facts: done
   7-3-integrate-generation-into-every-blocking-completion-transition: done
-  7-4-verify-historical-mode-and-required-fault-injection-blockers: in-progress
+  7-4-verify-historical-mode-and-required-fault-injection-blockers: done
   epic-7-retrospective: optional
   epic-8: backlog
   8-1-generate-the-versioned-ux-disposition-contract: backlog
