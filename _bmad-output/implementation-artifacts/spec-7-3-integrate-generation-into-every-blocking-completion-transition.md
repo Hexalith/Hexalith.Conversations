@@ -161,7 +161,7 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 
 #### Evidence chunk (2026-10-01)
 
-- [ ] [Review][Patch] State that a lifecycle-only successor commit is an accepted acceptance-result stamp [docs/runbooks/story-final-record-generation.md:339]
+- [x] [Review][Patch] State that a lifecycle-only successor commit is an accepted acceptance-result stamp [docs/runbooks/story-final-record-generation.md:339]
 
 ##### Rejected (evidence chunk)
 
@@ -313,6 +313,28 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 | 81 | Inserted-verification's committed-history guard lacks a regression test (verification-gap) | medium | patch | Pre-verified: bypassing only that mode's retained-candidate call leaves its 17 selected tests passing and accepts a valid inserted record after a committed source edit. Add a hermetic verification test that rejects the source commit and its later revert with CANDIDATE_NOT_FINAL. |
 
 **Outcome.** No intent-gap or bad-spec entry. Patch candidate-preparation ordering, the inserted-verification diagnostic prose, and the missing committed-history regression. All thirteen findings retain individual verdicts; previously rejected predecessor and trust-model findings remain carried.
+
+### 2026-10-01 — Review pass (blind, edge-case, verification-gap)
+
+| # | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| 82 | Auto Run says the spec is `done` and the sprint row is `review`, while frontmatter is `in-review` and the row is `in-progress` (blind) | false | reject | carried: rows 2 and 50. `in-review` is this step-04 phase, Auto Run records the earlier completion, and runbook step 6 is the step-05 procedure. The correction edits this spec. |
+| 83 | A `# last_updated` comment change is an unmasked sprint edit and retention reports `CANDIDATE_NOT_FINAL` (blind) | medium | patch | The candidate comment is `2026-09-25` and HEAD's is `2026-10-01`, while `last_updated:` stays `2026-09-30`. `v2_sprint_status_only_change` masks only `^last_updated:`, so that comment-only delta returns false. |
+| 84 | The inserted record's gitlinks differ from the tree, so generation is `GITLINK_DRIFT` (blind) | false | reject | carried: rows 38, 62, and 72. The committed pair is the pre-regeneration record. Step 05 replaces it after a clean candidate; this patch does not claim those gitlinks are current. |
+| 85 | Implementation Notes, the Spec Change Log, the unticked final-record task, and the 113-test Files note disagree with the inserted record (blind) | low | reject | The mismatch is in this spec. The correction edits it. |
+| 86 | The code-review blocker never sets `record_gate_failed`, so a continued failure can set `done` (blind) | low | reject | The shared blocker already HALTs and forbids `review` or `done`. The flag is a safety net for continuing after HALT, which is not an everyday path, and adding that code-review variable to the byte-identical block is more than a direct correction. |
+| 87 | build-auto success writes spec `done` and does not update the sprint row (blind) | false | reject | Baseline build-auto never synced sprint. Its Finalize still only writes spec `done`. The shared gate constrains the blocker, not that pre-existing success transition. |
+| 88 | Code-review success writes sprint `done` while step-05 and oneshot write `review` (blind) | false | reject | Those targets pre-exist: code-review syncs `{new_status}`, and step-05 and oneshot sync `review`. This story did not change them. Runbook step 6 remains the Story 7.3 operator procedure. |
+| 89 | Pair retraction removes the Story 7.2 keep-historical-pair instruction (blind) | false | reject | The frozen task deletes the Story 7.2-only step-05 text. The retraction sentence names the current story's `finalRecord.paths`. Deferred-work entries stay in place. |
+| 90 | `workflowIntegration` does not pin the eight paths or the 7.1/7.2 identities (blind) | low | reject | carried: rows 61 and 77. Generation writes that fixed inventory. Extra schema guards target a forged pair outside the measured-artifact model. |
+| 91 | The PASS record binds gitignored acceptance-result files that the diff does not add (blind) | false | reject | `artifacts/` is gitignored. The record binds those measured digests the way it binds JUnit; they are not committed story bytes. |
+| 92 | The generator pair writer still follows a pre-created temporary symlink (blind) | high | defer | carried: row 59. `v2_write_outputs` still uses `Path.open("wb")`. The pair writer is the pre-existing deferred issue and is not patched or deferred again. |
+| 93 | Review-log line citations have drifted (blind) | low | reject | Updating those citations edits this spec. |
+| 94 | Deleting the record pair in a commit that also edits other paths returns HEAD and bypasses record-only retraction (edge) | false | reject | When both outputs are absent, `v2_retained_candidate` returns HEAD so the next run measures that tree. It does not keep the old record across the mixed deletion. |
+| 95 | An acceptance output path under a root gitlink is written into the submodule (edge) | low | reject | Story 7.3 outputs stay under `artifacts/`. The frozen contract does not name a gitlink path, and a prefix guard adds a branch for a path this story does not declare. |
+| 96 | No test checks that the workspace Story 7.3 record's gitlinks equal the tree (verification-gap) | false | reject | Pre-verified: no test compares them, and the five gitlink commits differ. That is the known pre-step-05 pair from rows 38 and 72. An equality assertion would fail the still-open final-record task, so the filed `patch` disposition is not taken. |
+
+**Outcome.** No intent-gap or bad-spec entry. Patch the sprint comment-date mask. Carried gitlink, schema, predecessor, and pair-writer findings stay rejected or deferred as already logged.
 
 ## Design Notes
 

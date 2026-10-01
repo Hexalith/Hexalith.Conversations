@@ -4060,6 +4060,37 @@ def test_v2_retains_candidate_across_lifecycle_bookkeeping(tmp_path: Path) -> No
     assert v2_7_2_outputs(repository) == original
 
 
+def test_v2_retains_candidate_across_a_sprint_header_date_comment(tmp_path: Path) -> None:
+    """A comment-only `# last_updated` date change remains lifecycle bookkeeping."""
+    fixture = build_v2_7_2_repository(tmp_path)
+    repository = fixture["repository"]
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        "# last_updated: 2026-09-25\n" + sprint.read_text(encoding="utf-8"),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "record sprint header date")
+    for name in STORY_7_2_PROJECTS:
+        v2_7_2_trx(repository, name)
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    original = v2_7_2_outputs(repository)
+    v2_git(repository, "add", STORY_7_2_OUTPUT_JSON, STORY_7_2_OUTPUT_MARKDOWN)
+    v2_git(repository, "commit", "-m", "record-only successor")
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            "# last_updated: 2026-09-25", "# last_updated: 2026-09-26", 1
+        ),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_2_SPRINT_PATH)
+    v2_git(repository, "commit", "-m", "refresh sprint header date")
+    record = v2_7_2_assert_pass(repository, v2_run(v2_7_2_arguments(repository)))
+    assert record["candidate"]["commit"] == candidate
+    assert v2_7_2_outputs(repository) == original
+
+
 def test_v2_blocks_unrelated_sprint_status_change_after_record(tmp_path: Path) -> None:
     fixture = build_v2_7_2_repository(tmp_path)
     repository = fixture["repository"]

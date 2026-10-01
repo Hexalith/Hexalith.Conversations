@@ -338,10 +338,14 @@ JUnit or acceptance-result evidence files:
    module and contain its simple `-k` selector. A result file that predates the
    candidate's commit time is stale. An acceptance result must validate as
    `hexalith.conversations.acceptance-result.v1`, bind the contract's story,
-   scenario, exact command, candidate, and output path, and carry an ordered
-   ledger whose IDs are exactly `<scenarioId>#<four-digit ordinal>`. Its input
-   paths and digests must bind the committed workflow surfaces required by the
-   contract; duplicate ledger subjects are rejected.
+   scenario, exact command, and output path, and carry an ordered ledger whose
+   IDs are exactly `<scenarioId>#<four-digit ordinal>`. A lifecycle-only
+   successor commit is an accepted acceptance-result stamp: the result may name
+   the derived candidate or a commit on the verified lifecycle-only path from
+   that candidate to `HEAD`, while its input digests are still checked against
+   the retained candidate's blobs. Its input paths and digests must bind the
+   committed workflow surfaces required by the contract; duplicate ledger
+   subjects are rejected.
 7. **Exit.** Each pytest scenario's exit is derived the way pytest reports
    it: `5` for no testcase, `1` for any failure or error, and `0` otherwise. A
    scenario passes only with a declared passing exit, a nonempty ledger, no

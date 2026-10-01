@@ -2747,8 +2747,8 @@ V2_7_3_PREDECESSOR_RECORDS = (
 )
 # A committed pair pins its candidate for these contracts. Later commits may
 # change only lifecycle bookkeeping: the story spec's frontmatter `status`, its
-# sprint-status row and `last_updated` date, and, for Story 7.3, the spec's
-# inserted final-record region.
+# sprint-status row, the `last_updated` date, the `# last_updated` header date,
+# and, for Story 7.3, the spec's inserted final-record region.
 V2_RETAINED_CANDIDATES = {
     "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json": (
         "7.2",
@@ -4441,37 +4441,54 @@ def v2_sprint_status_only_change(
     repository: Path, candidate: str, head: str, sprint_key: str,
     require_transition: bool = True,
 ) -> bool:
-    """Accept only one story's sprint status and the sprint update date changing."""
+    """Accept one story row, its `last_updated` date, and the header comment date."""
     status = re.compile(
         rb"(?m)^[ \t]*" + re.escape(sprint_key.encode("ascii")) + rb":[ \t]*"
         rb"(?P<value>backlog|draft|ready-for-dev|in-progress|in-review|review|done)[ \t]*$"
     )
     update_date = re.compile(rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
+    header_date = re.compile(rb"(?m)^# last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
 
-    def without_status(content: bytes | None) -> tuple[bytes, bytes] | None:
+    def without_status(content: bytes | None) -> tuple[bytes, bytes, bytes, bytes] | None:
         if content is None:
             return None
         matches = list(status.finditer(content))
         if len(matches) != 1:
             return None
         match = matches[0]
-        value = match.group("value")
-        masked = content[:match.start("value")] + b"<lifecycle>" + content[match.end("value"):]
-        dates = list(update_date.finditer(masked))
+        dates = list(update_date.finditer(content))
         if len(dates) != 1:
             return None
         date = dates[0]
-        masked = masked[:date.start("value")] + b"<updated>" + masked[date.end("value"):]
-        return masked, value
+        headers = list(header_date.finditer(content))
+        if len(headers) > 1:
+            return None
+        spans = [
+            (match.start("value"), match.end("value"), b"<lifecycle>"),
+            (date.start("value"), date.end("value"), b"<updated>"),
+        ]
+        header_value = b""
+        if headers:
+            header = headers[0]
+            header_value = header.group("value")
+            spans.append((header.start("value"), header.end("value"), b"<updated>"))
+        masked = content
+        for start, end, token in sorted(spans, reverse=True):
+            masked = masked[:start] + token + masked[end:]
+        return masked, match.group("value"), date.group("value"), header_value
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
     latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
-    return (
-        original is not None
-        and latest is not None
-        and original[0] == latest[0]
-        and (not require_transition or original[1] != latest[1])
+    if original is None or latest is None or original[0] != latest[0]:
+        return False
+    status_changed = original[1] != latest[1]
+    header_date_only = (
+        not status_changed
+        and original[2] == latest[2]
+        and original[3] != b""
+        and original[3] != latest[3]
     )
+    return not require_transition or status_changed or header_date_only
 
 
 def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
