@@ -2,7 +2,7 @@
 title: 'Verify historical mode and required fault-injection blockers'
 type: 'feature'
 created: '2026-10-01'
-status: 'done'
+status: 'in-progress'
 baseline_commit: 'fd0d4ed85734fba9aca7b246b2f52b4774dd776c'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -52,6 +52,60 @@ Verify committed bytes, trees, modes, gitlinks, and commit-bound evidence. Compa
 - [x] `_bmad/scripts/tests/test_generate_story_record.py` — add exact AC-02…05 selectors; emit measured fault metadata in JUnit properties. Cover incomplete/duplicate/unknown faults, wrong blockers, restoration drift, historical missing/drifted objects, deterministic output, retention/insertion, and unchanged 7.1–7.3 pairs.
 - [x] `docs/runbooks/story-final-record-generation.md` — document commands, verification limits, metadata, new blockers, and completion procedure.
 - [x] `docs/release-evidence/story-7.4-final-record-v2.{json,md}`, this spec, and `sprint-status.yaml` — implement and verify committed-candidate retention and insertion; completion execution is captured in the generated record region.
+
+### Review Findings
+
+#### Code review: code group (2026-10-01)
+
+Scope: `git diff fd0d4ed..0602e74` limited to `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py`, and `docs/runbooks/story-final-record-generation.md`. The generated record, history fixture, spec, sprint, and gitlink paths need a separate run. The pair committed at `5d55d57` was retracted by `783de1e` before these findings were written.
+
+- [x] [Review][Decision] Classify Git failures swallowed inside the legacy historical verifier — `v2_history_facts` calls `verify_historical`, whose `try_resolve_commit` and parse-section handlers turn `GateError` into findings. A Git timeout there changes the warnings or blockers and surfaces as `HISTORICAL_RECORD_DRIFT` exit `1`, while Implementation Notes require timeouts to keep `BLOCKED`/exit `2`. Resolved by the owner (2026-10-01): record every Git failure raised during the legacy call and convert it to `BLOCKED` `GIT_COMMAND_FAILED`. (edge)
+- [x] [Review][Patch] Re-raise Git failures swallowed during the legacy `verify_historical` call as `GIT_COMMAND_FAILED` [_bmad/scripts/generate_story_record.py:5295]
+- [x] [Review][Patch] Propagate `GIT_COMMAND_FAILED` from a `BLOCKED` AC-7.4-01 receipt so AC-06 reports `BLOCKED` exit `2`, not `TEST_RESULTS_FAILED` exit `1` [_bmad/scripts/generate_story_record.py:3714] — (edge, verification-gap Other)
+- [x] [Review][Patch] Measure restoration after each fault's own undo, before the safety-net rewrite, and give `RESULT_MISSING` and `RESULT_STALE` real undos [_bmad/scripts/tests/test_generate_story_record.py:6234] — the `finally` block rewrites every saved file's bytes, mode, and mtime before `after_hash`, so `FIXTURE_NOT_RESTORED` cannot fire for a file mutation. (acceptance, blind)
+- [x] [Review][Patch] Label the detection assertions `FAULT_NOT_DETECTED` as restoration already labels `FIXTURE_NOT_RESTORED` [_bmad/scripts/tests/test_generate_story_record.py:6231] — a genuinely undetected mutation fails a bare `assert`, and AC-06 then reports only `TEST_FAILED`. (acceptance)
+- [x] [Review][Patch] Constrain `observedFault` semantics: `observedExitCode` `1`, the frozen per-ID `expectedBlocker`, and `observedBlockers` containing it [_bmad/schemas/story-final-record-v2.schema.json:1225] — baseline and restored exits are constants, but a record with exit `0`, empty blockers, and a wrong mapping validates. (acceptance, blind)
+- [x] [Review][Patch] Test `HISTORICAL_*` propagation from a failing AC-7.4-01 receipt in bundle mode [_bmad/scripts/tests/test_generate_story_record.py:6559] — removing the 7.4 tuple passes all 43 Story 7.4 tests. (verification-gap)
+- [x] [Review][Patch] Test a committed mode-only change to a closed record [_bmad/scripts/tests/test_generate_story_record.py:6369] — removing the `tree_entry` clause returns `PASS`. (verification-gap)
+- [x] [Review][Patch] Test a fault row whose `expectedBlocker` disagrees with the frozen mapping in both lanes [_bmad/scripts/tests/test_generate_story_record.py:6402] — (verification-gap)
+- [x] [Review][Patch] Test fault metadata whose `id` disagrees with its testcase parameter [_bmad/scripts/tests/test_generate_story_record.py:6402] — swapping two cases' properties passes once the name check is disabled, because lanes are sorted by ID. (verification-gap, blind)
+- [x] [Review][Patch] Test historical-mode argument validation: `--format bundle`, `--output-markdown`, and a repeated `--historical` [_bmad/scripts/generate_story_record.py:3010] — (verification-gap, blind)
+- [x] [Review][Patch] Assert that Story 7.4 fault rows require the observed fields [_bmad/scripts/tests/test_generate_story_record.py:6526] — deleting the `then` branch `items` still accepts bare `{id, expectedBlocker}` rows. (verification-gap)
+- [x] [Review][Patch] Assert the Story 7.4 Markdown fault and historical tables [_bmad/scripts/generate_story_record.py:4198] — (verification-gap)
+- [x] [Review][Patch] Assert that Story 7.1–7.3 records still reject observed-fault rows [_bmad/scripts/tests/test_generate_story_record.py:6772] — (verification-gap)
+- [x] [Review][Patch] Stop claiming commit-bound evidence for closed stories that bind no evidence identities [_bmad/scripts/generate_story_record.py:5311] — 6.1 and 6.7 bind none, yet their ledger rows read `bound-blobs-and-commit-bound-evidence` `PASS`. (acceptance, blind)
+- [x] [Review][Patch] Disclose that `SUBMODULE_PATH` is injected at the Git-output boundary rather than written into the fixture [docs/runbooks/story-final-record-generation.md:1114] — (acceptance, blind)
+- [x] [Review][Patch] Detect `--historical=<value>` as historical mode so its flag-specific error is reachable [_bmad/scripts/generate_story_record.py:3010] — (blind)
+- [x] [Review][Patch] Cover malformed fault-metadata JSON and a testcase with two fault properties [_bmad/scripts/tests/test_generate_story_record.py:6402] — (blind)
+- [x] [Review][Patch] Complete the runbook's Story 7.4 blockers and name the completion checks it requires [docs/runbooks/story-final-record-generation.md:1132] — `AUTHORITY_BINDING_INVALID` now covers the 7.3 pair and chain; the conformance class and verifier commands are unnamed. (blind)
+- [x] [Review][Patch] Show retained warning codes in the Markdown closed-story table [_bmad/scripts/generate_story_record.py:4186] — the disposition limit refers to warnings the rendering omits. (blind)
+
+##### Rejected (code group 2026-10-01)
+
+- `false` — The test fault mapping is read from the generator, but every observation is single-blocker, so value drift fails the containment assertion; the schema's exact 13-ID coverage rejects added or removed IDs. (acceptance)
+- `false` — The spec's I/O row requires the observed required blocker; containment matches it, and the contract does not require exclusivity. (acceptance)
+- `low` — The schema does not pin per-story dispositions, but runtime fixture equality does; per-story branches guard a forged standalone record. (acceptance)
+- `low` — Remaining uncaught historical exceptions need an internal bug or corrupted immutable closure objects; argument and alias errors intentionally write nothing; the bundle re-derives facts and binds the candidate, so a stale receipt cannot pass. (acceptance, blind, edge)
+- `false` — The generator's lane-equality check binds AC-04 to AC-03's hashes, as the contract requires; AC-05's "a required lane" runs through the shared generator route. (blind)
+- `low` — The evidence-identity key regex is over-inclusive, but its output is pinned and deterministic; correcting it regenerates the fixture. (blind)
+- `false` — Limitation subjects are intentional AC-02 assertions, an omitted `acceptance-results-bound-to-candidate` subject under-claims, and no frozen anchor has an empty archived-declaration list. (blind)
+- `false` — Gitlinks come from two sources, but the anchors are frozen with immutable trees and the measured facts equal the pinned facts. (blind, edge)
+- `low` — Positional scenario selection and `shlex` errors need a forbidden change to the digest-bound contract. (blind, edge)
+- `false` — `run_git` raises `GIT_COMMAND_FAILED` for any exit outside its allowed codes, and the `gitmodules-permission` case covers the `root_submodule_paths` hardening. (blind)
+- `low` — `record_property` warns under xunit2, but the properties are written (13 in AC-7.4-03) and no `-W error` is configured; changing the JUnit family affects every lane. (blind)
+- `low` — The fixture tests use workspace objects to verify the real closure objects; committed evidence comes from a clean committed candidate. (blind)
+- `low` — The schema whitespace reformat is cosmetic, tree and blob IDs share the commit shape, and pinned story IDs are intentional (B8). (blind)
+- `low` — Declaration extraction runs on immutable anchor Markdown, and its output is pinned. (blind)
+- `low` — Repeated Git subprocesses cost only time; batching them is a refactor. (blind)
+- `low` — A bound result vanishing between its digest and re-read is a race that fails closed. (blind)
+- `low` — Running from the wrong directory reports `BLOCKED` `INTERNAL_ERROR` instead of `ARGUMENT_INVALID`, failing closed. (edge)
+- `low` — A closed record vanishing during the legacy reopen is a race that fails closed. (edge)
+- `low` — A FIFO or directory replacing a closed record is contrived. (edge)
+- `false` — Story 6.1 declares no path under `references/`, so `HEAD`'s `.gitmodules` cannot change its warnings. (edge)
+- `false` — The contract maps unresolvable objects to exit `1` `HISTORICAL_BLOB_UNRESOLVED`, and CI checks out with `fetch-depth: 0`. (edge)
+- `low` — A Story 7.2 pair without `measurements`, or a contract with other scenario IDs, needs a tampered pinned input and fails closed. (edge)
+- `low` — An output-parent symlink swap between the check and the write needs a concurrent local attacker. (edge)
+- `low` — The `root_submodule_paths` change raises only for an unborn `HEAD` in v1 historical mode. (edge)
 
 **Acceptance Criteria:**
 
