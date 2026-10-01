@@ -921,7 +921,9 @@ document instead.
   Story 7.2 pair does. Later commits may change only the spec's completion-route
   lifecycle state (`status`, `followup_review_recommended`, `Review Triage Log`,
   and `Auto Run Result`), its inserted record region, the Story 7.3 sprint-status
-  row, and that file's `last_updated` date. The region may be filled between a
+  row, and that file's `last_updated` date. The `# last_updated:` sprint header
+  comment is also masked; correcting its date may be accepted without a story-row
+  transition when `last_updated:` is unchanged. The region may be filled between a
   marker pair that the candidate already carried, or appended after a blank line
   at the end of the spec, and its END line must end with LF. Every intervening
   commit is checked, so a forbidden source or gitlink edit cannot be hidden by a

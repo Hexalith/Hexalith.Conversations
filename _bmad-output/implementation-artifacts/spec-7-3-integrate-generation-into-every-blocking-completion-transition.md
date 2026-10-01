@@ -2,7 +2,7 @@
 title: 'Integrate generation into every blocking completion transition'
 type: 'feature'
 created: '2026-09-29'
-status: 'in-progress'
+status: 'in-review'
 baseline_commit: '91bc1376bc433400186ed9404bd6541b86355f98'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -336,6 +336,26 @@ The render twins are the in-memory renders of the three `render_skill.py` routes
 
 **Outcome.** No intent-gap or bad-spec entry. Patch the sprint comment-date mask. Carried gitlink, schema, predecessor, and pair-writer findings stay rejected or deferred as already logged.
 
+### 2026-10-01 — Completion review (blind, edge-case, verification-gap)
+
+| # | Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- | --- |
+| 97 | A manually re-finalized failing predecessor pair passes integrity verification (blind) | low | reject | The normal v2 generator raises before output when any scenario fails or the summary differs from the contract. This reproduction hand-refinalizes a pair outside the accepted measured-artifact model; adding semantic guards to that exceptional forged-pair path exceeds a direct correction. |
+| 98 | Uniform summary negation preserves the verifier's required substrings (blind) | low | reject | carried: row 48 records the unchanged byte-parity and frozen-clause boundary. Arbitrary natural-language interpretation or a second canonical block would add scope for the same synchronized rewrite. |
+| 99 | Mandatory inserted verification rejects Story 7.1 (blind) | low | reject | carried: rows 63, 67, and 69 cover the same preserved completed predecessor and its exceptional reopening. No retained-candidate behavior changed. |
+| 100 | The shared insertion instruction conflicts with Story 7.2's preserved mask (blind) | low | reject | carried: rows 58, 65, 68, and 70 cover this unchanged completed predecessor. Supporting its reopening requires separately scoped retention support. |
+| 101 | Appending after malformed or partial markers still fails insertion verification (blind) | low | reject | Strict malformed-marker rejection is intentional and covered by the insertion faults. Expanding recovery grammar for an already corrupt spec adds guards beyond a direct correction; the fixed Story 7.3 spec carries one valid pair. |
+| 102 | AC-06 does not execute rollback from review/done or agent recovery after a commit failure (blind) | false | reject | AC-06 permits preservation of pre-review state, which the FAIL/BLOCKED fixtures assert byte-for-byte. Every surface checks the explicit commit/verification-failure HALT clause. The separate rollback regression executes done/review to in-progress commits; execution attestation for prose is outside the documented workflow boundary. |
+| 103 | Retention prose omits the newly permitted sprint header-date correction (blind) | low | patch | The mask accepts the header comment and an isolated correction when last_updated is unchanged. Add a direct sentence to the runbook naming that exact rule. |
+| 104 | The final-record task note understates retained lifecycle fields (blind) | low | reject | carried: rows 37, 66, and 80 reject the same spec-note mismatch. The runbook and implementation name the route-owned fields; the proposed fix edits this build's spec. |
+| 105 | Implementation Notes still say the pair is not generated yet (blind) | low | reject | carried: row 85 covers the historical spec-note mismatch. The current replacement remains a step-05 task; rewriting the note edits this build's spec. |
+| 106 | The historical Code Map describes pre-change entry points (blind) | low | reject | The map captured the approved starting tree. Implementation Notes describe the resulting entry points; the proposed correction edits this build's spec. |
+| 107 | Story 7.1's supported contract stops at inserted verification (edge) | low | reject | carried: rows 63, 67, and 69 cover the same preserved predecessor. The filed reproduction adds no changed boundary. |
+| 108 | Story 7.2's required insertion fails its retention mask (edge) | low | reject | carried: rows 58, 65, 68, and 70 cover the same unchanged completed predecessor flow. Its bytes and behavior remain explicitly preserved. |
+| 109 | The task claim permits fewer lifecycle fields than the mask (edge claim) | low | reject | carried: rows 37, 66, and 80 cover the same claim. Updating that note edits this build's spec. |
+
+**Outcome.** All thirteen findings are individually triaged. One direct runbook correction is applied; no implementation or spec loopback is needed. The verification-gap reviewer found no gaps. The existing deferred pair-writer issue is unchanged and is not deferred again.
+
 ## Design Notes
 
 This is one gate with one byte-identical span everywhere. Parity is byte equality of the spans, and placement is judged inside the existing C# gate span, so decoy text outside that span never counts. Twins are compared as rendered bytes, never written. Surfaces differ only outside the block, which is why the blocker branch is phrased to fit all four routes.
@@ -449,6 +469,16 @@ remain unchanged and the final-record task remains incomplete.
 - `python3 scripts/check-root-submodules.py --repository .`: `PASS`; `git diff --check`: exit `0`. Every frozen matrix row ran and passed. Historical-authority lanes were not rerun under the current-change policy.
 - All thirteen current review findings are individually triaged above. Three fixes were applied, no intent or spec loopback was needed, and the previously deferred pair-writer issue remains unchanged.
 - The superseded pair, committed spec/sprint bytes, and measured results are archived in `/tmp/bmad-7-3-completion-plan-_6ym3ov4`. The required Story 7.3 local completion sequence retracts only that pair, commits this reviewed candidate, reruns all six prerequisites, generates AC-07 twice, publishes only the replacement pair, inserts/verifies it, and records the lifecycle transition. No root gitlink or predecessor record changes belong to this sequence.
+
+**Current completion validation (2026-10-01):**
+
+- The implementation was already present. This resumed run reviewed all three lenses and recorded thirteen individual findings; one direct runbook correction documents the sprint header-date mask. No new deferred work or implementation loopback was required.
+- `TMPDIR=/var/tmp uv run --frozen --no-sync python3 -m pytest -q _bmad/scripts/tests/test_generate_story_record.py`: exit `0`, 311 passed, 0 failures or skips, 207.61 seconds after the runbook correction. All six matrix rows are covered by passing executed tests.
+- `dotnet build Hexalith.Conversations.slnx -c Release -p:UseHexalithProjectReferences=true /nr:false /m:1`: exit `0`, 0 warnings or errors. The built Conformance executable with `-noLogo`: exit `0`, 473 total, 0 errors, failures, skips, or not run.
+- `python3 scripts/check-root-submodules.py --repository .` and `git diff --check`: exit `0`. The focused runbook regression also passed.
+- Initial AC-7.3-01 through AC-7.3-06 all passed, with 33/22 verifier assertions and 15/20/16/14 selected tests. The old pair correctly failed AC-7.3-07 with `CANDIDATE_NOT_FINAL` and `GITLINK_DRIFT`; those old outputs were preserved before the required record-only retraction.
+- Every scenario must rerun on the clean replacement candidate. The final-record task remains intentionally unticked in that candidate; the generated region and lifecycle commit carry its completion evidence.
+- Prior pairs, acceptance artifacts, exact-message commitlint evidence, and verification logs are archived in `/tmp/bmad-7-3-finalize-lgwj5xvq`. Root gitlinks and the Story 7.1/7.2 pairs are preserved.
 
 ## Auto Run Result
 
