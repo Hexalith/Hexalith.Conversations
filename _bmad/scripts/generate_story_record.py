@@ -426,6 +426,8 @@ def root_submodule_paths(repository: Path, candidate: str) -> list[str]:
         allowed_returncodes=(0, 128),
     )
     if exists.returncode != 0:
+        if tree_entry(repository, candidate, ".gitmodules")[0] is not None:
+            raise GateError("GIT_COMMAND_FAILED", "Git could not probe the committed .gitmodules path")
         return []
 
     result = run_git(
@@ -2725,6 +2727,41 @@ V2_7_3_SPEC_PATH = (
     "_bmad-output/implementation-artifacts/"
     "spec-7-3-integrate-generation-into-every-blocking-completion-transition.md"
 )
+V2_7_4_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/7.4.json"
+V2_7_4_SPEC_PATH = (
+    "_bmad-output/implementation-artifacts/"
+    "spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md"
+)
+V2_HISTORY_FIXTURE_PATH = "_bmad/scripts/fixtures/story-7.4-history-v1.json"
+V2_HISTORY_OUTPUT_PATH = "artifacts/v9/7.4/AC-7.4-01.json"
+V2_HISTORY_ANCHORS = (
+    ("6.1", "spec-6-1-rebaseline-architecture-and-planning-authority.md", "16e3d3db4530719aa06129ba06b34bd78f7995eb"),
+    ("6.2", "6-2-migrate-conversations-to-platform-owned-hosting.md", "e480c3f3176cdc3d911baf91eb3e7a8cd38874aa"),
+    ("6.7", "6-7-mechanically-block-incomplete-submodule-promotions-from-completion.md", "29def441408becfbbbdc5c59b9af14a7717cb21f"),
+)
+V2_HISTORY_LIMITS = (
+    "A former uncommitted working tree is not reconstructed and is not claimed.",
+    "Original TRX, test binaries, and raw promotion results were uncommitted; archived declarations are recorded-only.",
+    "Story 6.1 has no recorded candidate; its closure commit is not a reconstructed candidate.",
+    "Pre-generator findings retain their approved warning disposition.",
+    "Only root Git objects are read; submodule contents, former runtime state, and CI enforcement are not verified.",
+)
+V2_REQUIRED_FAULTS = {
+    "COUNT": "TEST_COUNT_INCONSISTENT",
+    "SUBMODULE_PATH": "SUBMODULE_INTERNAL_PATH",
+    "CANDIDATE": "CANDIDATE_NOT_FINAL",
+    "GITLINK": "GITLINK_SCOPE_MISMATCH",
+    "RESULT_MISSING": "TEST_RESULTS_MISSING",
+    "RESULT_STALE": "TEST_RESULTS_STALE",
+    "RESULT_FAILED": "TEST_FAILED",
+    "RESULT_SKIPPED": "TEST_SKIPPED",
+    "RESULT_NOT_RUN": "TEST_NOT_RUN",
+    "LEDGER_EMPTY": "ASSERTION_LEDGER_EMPTY",
+    "WORKFLOW_REMOVED": "WORKFLOW_INTEGRATION_MISSING",
+    "WORKFLOW_DISPLACED": "WORKFLOW_INTEGRATION_DISPLACED",
+    "MARKDOWN_DIGEST": "RECORD_CONTENT_DRIFT",
+}
+V2_FAULT_PROPERTY = "hexalith.fault-injection-result.v1"
 # The governed Story 7.3 completion-route bodies, in ordinal order. The owner
 # rebound the frozen inventory one-for-one to these routes in both skill trees;
 # `verify_story_completion_workflows.py` proves them and this generator binds
@@ -2750,6 +2787,10 @@ V2_7_3_PREDECESSOR_RECORDS = (
 # sprint-status row, the `last_updated` date, the `# last_updated` header date,
 # and, for Story 7.3, the spec's inserted final-record region.
 V2_RETAINED_CANDIDATES = {
+    V2_7_4_CONTRACT_PATH: (
+        "7.4", V2_7_4_SPEC_PATH,
+        "7-4-verify-historical-mode-and-required-fault-injection-blockers", True,
+    ),
     "_bmad-output/planning-artifacts/v9/story-contracts/7.2.json": (
         "7.2",
         V2_7_2_SPEC_PATH,
@@ -2764,6 +2805,10 @@ V2_RETAINED_CANDIDATES = {
     ),
 }
 V2_RETAINED_OUTPUTS = {
+    "7.4": (
+        "docs/release-evidence/story-7.4-final-record-v2.json",
+        "docs/release-evidence/story-7.4-final-record-v2.md",
+    ),
     "7.2": (V2_7_2_RECORD_PATH, V2_7_2_MARKDOWN_PATH),
     "7.3": (
         "docs/release-evidence/story-7.3-final-record-v2.json",
@@ -2861,6 +2906,10 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "HISTORICAL_BLOB_UNRESOLVED": "FAIL",
+    "HISTORICAL_RECORD_DRIFT": "FAIL",
+    "FAULT_NOT_DETECTED": "FAIL",
+    "FIXTURE_NOT_RESTORED": "FAIL",
     "ARGUMENT_INVALID": "FAIL",
     "CALLER_AUTHORED_FACT": "FAIL",
     "INPUT_SCHEMA_INVALID": "FAIL",
@@ -2958,10 +3007,12 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
     values: dict[str, str] = {}
     tokens = list(raw_arguments)
     verify_mode = any(token.partition("=")[0] == V2_VERIFY_OPTION for token in tokens)
+    historical_mode = "--historical" in tokens
     accepted_options = (
         ("--repository", "--contract", V2_VERIFY_OPTION)
         if verify_mode
-        else V2_ACCEPTED_OPTIONS
+        else (("--repository", "--contract", "--historical", "--format", "--output-json")
+              if historical_mode else V2_ACCEPTED_OPTIONS)
     )
     index = 0
     while index < len(tokens):
@@ -3006,6 +3057,12 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
             if takes_following:
                 index += 1
             continue
+        if name == "--historical":
+            if separator or name in values:
+                findings.append(v2_finding("ARGUMENT_INVALID", name,
+                                           "--historical is a flag and may appear only once"))
+            values[name] = "true"
+            continue
         if separator:
             value = inline_value
         elif takes_following:
@@ -3046,25 +3103,27 @@ def v2_parse_arguments(raw_arguments: Sequence[str]) -> dict[str, str]:
             raise V2Stop(findings)
         return values
 
-    for required in ("--contract", "--output-json", "--output-markdown"):
+    for required in (("--contract", "--output-json") if historical_mode
+                     else ("--contract", "--output-json", "--output-markdown")):
         if required not in values and not any(
             item["subject"] == required for item in findings
         ):
             findings.append(
                 v2_finding("ARGUMENT_INVALID", required, f"{required} is required")
             )
-    output_format = values.get("--format", "bundle")
-    if output_format not in V2_FORMATS:
+    output_format = values.get("--format", "json" if historical_mode else "bundle")
+    if output_format not in (("json",) if historical_mode else V2_FORMATS):
         findings.append(
             v2_finding(
                 "ARGUMENT_INVALID",
                 "--format",
-                "the v2 route supports only --format bundle",
+                "historical mode requires --format json" if historical_mode
+                else "the v2 route supports only --format bundle",
             )
         )
     if findings:
         raise V2Stop(findings)
-    values.setdefault("--format", "bundle")
+    values.setdefault("--format", "json" if historical_mode else "bundle")
     return values
 
 
@@ -3430,7 +3489,8 @@ def v2_generator_command(tokens: list[str]) -> dict[str, str] | None:
     if tokens[:2] != ["python3", V2_GENERATOR_PATH]:
         return None
     try:
-        return v2_parse_arguments(tokens[2:])
+        options = v2_parse_arguments(tokens[2:])
+        return None if "--historical" in options else options
     except V2Stop:
         return None
 
@@ -3441,6 +3501,16 @@ def v2_acceptance_command(tokens: list[str]) -> dict[str, str] | None:
     The command's declared output is one acceptance-result v1 document. Each
     option appears exactly once, in any order; nothing else is accepted.
     """
+    if tokens[:2] == ["python3", V2_GENERATOR_PATH] and "--historical" in tokens:
+        try:
+            options = v2_parse_arguments(tokens[2:])
+        except V2Stop:
+            return None
+        if options.get("--contract") != V2_7_4_CONTRACT_PATH:
+            return None
+        return {"script": V2_GENERATOR_PATH, "repository": options.get("--repository", "."),
+                "contract": options["--contract"], "scenario": "AC-7.4-01",
+                "output": options["--output-json"]}
     if (
         len(tokens) != 2 + 2 * len(V2_ACCEPTANCE_OPTIONS)
         or tokens[0] != "python3"
@@ -3641,7 +3711,11 @@ def v2_scenario_from_acceptance(
         )
         category = "failed"
     if state != "PASS" or state != semantics["expected"]:
-        for code in V2_PROPAGATED_ACCEPTANCE_CODES:
+        propagated_codes = V2_PROPAGATED_ACCEPTANCE_CODES + (
+            ("HISTORICAL_BLOB_UNRESOLVED", "HISTORICAL_RECORD_DRIFT")
+            if story_id == "7.4" else ()
+        )
+        for code in propagated_codes:
             if code in document["blockers"]:
                 findings.append(
                     v2_finding(code, scenario_id, f"the acceptance result {output} reports {code}")
@@ -3753,6 +3827,9 @@ def v2_parse_junit(content: bytes) -> dict[str, Any]:
                 "failure": "failure" in children,
                 "error": "error" in children,
                 "skipped": "skipped" in children,
+                "properties": [(prop.get("name") or "", prop.get("value") or "")
+                               for group in element.findall("properties")
+                               for prop in group.findall("property")],
             }
         )
     return {"reported": reported, "cases": cases}
@@ -3965,7 +4042,7 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
     code = markdown_table_code
     sources = (
         "candidate, measured JUnit results, and acceptance results"
-        if "workflowIntegration" in record
+        if "workflowIntegration" in record or "historicalVerification" in record
         else "candidate and measured JUnit results"
     )
     lines = [
@@ -4097,9 +4174,35 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
             f"| {code(item['storyId'])} | {code(item['path'])} | {code(item['sha256'])} |"
             for item in integration["predecessorRecords"]
         )
+    if "historicalVerification" in record:
+        history = record["historicalVerification"]
+        lines.extend(["", "## Story 7.4 historical verification", "",
+                      f"- Contract SHA-256: {code(history['contract']['sha256'])}",
+                      f"- Historical fixture: {code(history['fixture']['path'])}",
+                      f"- Historical fixture SHA-256: {code(history['fixture']['sha256'])}", "",
+                      "| Predecessor | Record | SHA-256 |", "| --- | --- | --- |"])
+        lines.extend(f"| {code(row['storyId'])} | {code(row['path'])} | {code(row['sha256'])} |"
+                     for row in history["predecessorRecords"])
+        lines.extend(["", "| Closed story | Classification | Closure | Recorded candidate | Bound blobs |",
+                      "| --- | --- | --- | --- | --- |"])
+        for row in history["records"]:
+            recorded = row["recordedCandidate"]
+            lines.append(f"| {code(row['storyId'])} | {code(row['classification'])} "
+                         f"| {code(row['closure']['commit'])} "
+                         f"| {code(recorded['commit']) if recorded else 'none recorded'} "
+                         f"| {code(len(row['boundBlobs']))} |")
+        lines.append("")
+        lines.extend(f"- {limit}" for limit in history["limits"])
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if faults:
+    if faults and record["storyId"] == "7.4":
+        lines.extend(["| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |",
+                      "| --- | --- | --- | --- | --- | --- |"])
+        lines.extend("| " + " | ".join(code(value) for value in (
+            row["id"], row["expectedBlocker"], row["observedExitCode"],
+            ", ".join(row["observedBlockers"]), row["beforeSha256"], row["afterSha256"])) + " |"
+                     for row in faults)
+    elif faults:
         lines.extend(["| Fault | Expected blocker |", "| --- | --- |"])
         lines.extend(
             f"| {code(item['id'])} | {code(item['expectedBlocker'])} |" for item in faults
@@ -4292,6 +4395,13 @@ def v2_self_ledger(scenario_id: str, story_id: str | None = None) -> list[dict[s
             "generator::acceptance-results-bound-to-candidate",
             "generator::workflow-bodies-equal-acceptance-inputs",
             "generator::predecessor-records-7.1-7.2-verified",
+        )
+    if story_id == "7.4":
+        subjects += (
+            "generator::historical-closure-facts-equal-acceptance-result",
+            "generator::predecessor-records-7.1-7.3-and-chain-verified",
+            "generator::all-thirteen-required-fault-blockers-observed",
+            "generator::all-thirteen-fixtures-restored-byte-identically",
         )
     return [
         {"id": f"{scenario_id}#{ordinal:04d}", "subject": subject, "state": "PASS"}
@@ -4941,6 +5051,405 @@ def v2_story_7_3_workflow_integration(
     }
 
 
+def v2_history_require_object(repository: Path, object_id: str, subject: str) -> None:
+    """Distinguish Git's explicit missing-object result from execution/environment errors."""
+    result = run_git(repository, "cat-file", "-e", object_id, allowed_returncodes=(0, 1, 128))
+    if result.returncode == 1 and not result.stderr.strip():
+        raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", subject,
+                                "a recorded historical Git object is missing")], "7.4")
+    if result.returncode != 0:
+        raise GateError("GIT_COMMAND_FAILED", "Git could not inspect a historical object")
+
+
+def v2_history_require_trees(repository: Path, tree: str) -> None:
+    """On a failed tree read, locate a missing root/nested tree without opening gitlinks."""
+    v2_history_require_object(repository, tree, tree)
+    entries = run_git(repository, "ls-tree", "-z", tree).stdout.split(b"\0")
+    for entry in entries:
+        if not entry:
+            continue
+        metadata, _, _ = entry.partition(b"\t")
+        fields = metadata.split()
+        if len(fields) != 3:
+            raise GateError("GIT_COMMAND_FAILED", "Git returned an invalid historical tree entry")
+        if fields[1] == b"tree":
+            v2_history_require_trees(repository, decode(fields[2]))
+
+
+def v2_history_committed_blob(repository: Path, revision: str, path: str) -> bytes | None:
+    """Read a historical blob; reclassify only an explicitly absent object as FAIL."""
+    try:
+        return v2_committed_blob(repository, revision, path)
+    except GateError as error:
+        if error.code == "GIT_COMMAND_FAILED":
+            _, object_id = tree_entry(repository, revision, path)
+            if object_id is not None:
+                v2_history_require_object(repository, object_id, path)
+        raise
+
+
+def v2_history_revision(repository: Path, revision: str) -> dict[str, Any]:
+    """Read a root commit's tree and gitlinks without opening submodule objects."""
+    # The legacy try-resolver swallows all Git errors. Historical verification
+    # must preserve execution/environment failures as BLOCKED instead.
+    v2_history_require_object(repository, revision, revision)
+    try:
+        commit = resolve_commit(repository, revision, "HISTORICAL_BLOB_UNRESOLVED")
+    except GateError as error:
+        if error.code == "HISTORICAL_BLOB_UNRESOLVED":
+            object_type = decode(run_git(repository, "cat-file", "-t", revision).stdout).strip()
+            if object_type != "commit":
+                raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", revision,
+                                        "a historical root revision is not a commit")], "7.4") from None
+            raise GateError("GIT_COMMAND_FAILED", "Git could not resolve an existing historical commit") from error
+        raise
+    if commit != revision:
+        raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", revision,
+                                "a recorded historical root commit cannot be resolved")], "7.4")
+    commit_bytes = run_git(repository, "cat-file", "commit", commit).stdout
+    header = re.match(rb"tree ([0-9a-f]{40})\n", commit_bytes)
+    if header is None:
+        raise GateError("GIT_COMMAND_FAILED", "a historical commit has no valid tree header")
+    tree = decode(header.group(1))
+    try:
+        links = v2_raw_gitlinks(repository, commit)
+    except GateError as error:
+        if error.code == "GIT_COMMAND_FAILED":
+            v2_history_require_trees(repository, tree)
+        raise
+    # The legacy historical verifier reads each recorded root .gitmodules blob.
+    # Detect an absent object before that legacy reader would classify it as a
+    # generic Git failure. Absence of the path remains the verifier's concern.
+    v2_history_committed_blob(repository, commit, ".gitmodules")
+    return {
+        "commit": commit,
+        "tree": tree,
+        "gitlinks": [{"path": path, "mode": "160000", "commit": oid}
+                     for path, oid in links],
+    }
+
+
+def v2_history_blob(repository: Path, revision: str, path: str,
+                    roots: Sequence[str] | None = None) -> dict[str, str]:
+    """Bind an ordinary committed blob, including its path mode and object ID."""
+    path = safe_relative_path(path)
+    if v2_below(path, roots if roots is not None else root_submodule_paths(repository, revision)):
+        raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                "historical blob bindings must remain outside submodules")], "7.4")
+    mode, oid = tree_entry(repository, revision, path)
+    content = v2_history_committed_blob(repository, revision, path)
+    if mode not in ("100644", "100755") or oid is None or content is None:
+        raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", path,
+                                "a historical path does not resolve to an ordinary committed blob")], "7.4")
+    return {"revision": revision, "path": path, "mode": mode, "blob": oid,
+            "sha256": v2_sha256(content)}
+
+
+def v2_history_record(repository: Path, story_id: str, path: str, closure: str,
+                      document: dict[str, Any]) -> dict[str, Any]:
+    """Derive the fixture facts from closed bytes and root objects, never transient results."""
+    closure_revision = v2_history_revision(repository, closure)
+    baseline = document["baseline"]
+    candidate = document["candidate"]
+    revisions = list(dict.fromkeys(value for value in (candidate or closure, baseline, closure)
+                                   if value is not None))
+    roots = set().union(*(root_submodule_paths(repository, revision) for revision in revisions))
+    blobs = []
+    for listed in sorted(set(document["record"]["declared_file_list"])):
+        if listed in roots or v2_below(listed, sorted(roots)):
+            continue  # pre-generator warnings are preserved; no submodule traversal
+        revision = next((rev for rev in revisions if tree_entry(repository, rev, listed)[0]), None)
+        if revision is None:
+            raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", listed,
+                                    "a recorded root path resolves at none of the recorded revisions")], "7.4")
+        blobs.append(v2_history_blob(repository, revision, listed, sorted(roots)))
+    content = (v2_history_committed_blob(repository, closure, path) or b"").decode("utf-8")
+    archived = []
+    # These are declarations archived in committed Markdown, not original TRX,
+    # binaries, or live promotion-checker results. Preserve the literal sections.
+    for heading in ("Test Results", "Test Build Manifest", "Promotion Completion Gate"):
+        match = re.search(rf"^### {heading}\n(.*?)(?=^### |^<!-- STORY-FINAL-RECORD:END -->|\Z)",
+                          content, re.MULTILINE | re.DOTALL)
+        if match:
+            archived.append({"kind": heading, "status": "recorded-only",
+                             "declaration": match.group(1).strip()})
+    if not archived:
+        for heading in ("Verification", "Completion Notes List"):
+            match = re.search(rf"^#{{2,3}} {heading}\n(.*?)(?=^#{{2,3}} |\Z)",
+                              content, re.MULTILINE | re.DOTALL)
+            if match and match.group(1).strip():
+                archived.append({"kind": heading, "status": "recorded-only",
+                                 "declaration": match.group(1).strip()})
+    identities = []
+    def evidence_identity(value: Any, pointer: str) -> None:
+        if isinstance(value, dict):
+            for key, child in sorted(value.items()):
+                location = pointer + "/" + key.replace("~", "~0").replace("/", "~1")
+                if (isinstance(child, (str, int, bool))
+                        and re.search(r"(?:run|result|gate|candidate|baseline|commit|revision)", key, re.IGNORECASE)):
+                    identities.append({"subject": location, "value": str(child)})
+                else:
+                    evidence_identity(child, location)
+        elif isinstance(value, list):
+            for ordinal, child in enumerate(value):
+                evidence_identity(child, pointer + f"/{ordinal}")
+    for blob in blobs:
+        if blob["path"].startswith("docs/release-evidence/") and blob["path"].endswith(".json"):
+            evidence = v2_parse_json(v2_history_committed_blob(repository, blob["revision"], blob["path"]))
+            evidence_identity(evidence, blob["path"] + "#")
+    return {
+        "storyId": story_id, "classification": document["classification"],
+        "closure": closure_revision,
+        "baseline": v2_history_revision(repository, baseline) if baseline else None,
+        "recordedCandidate": v2_history_revision(repository, candidate) if candidate else None,
+        "record": v2_history_blob(repository, closure, path),
+        "boundBlobs": blobs,
+        "archivedDeclarations": archived,
+        "evidenceIdentities": identities,
+        "warnings": sorted({row["code"] for row in document["warnings"]}),
+    }
+
+
+def v2_history_resolved_path(repository: Path, relative: str, roots: Sequence[str],
+                             *, output: bool = False) -> Path:
+    """Reject a lexical or resolved historical path that crosses a root gitlink."""
+    code = "OUTPUT_PATH_INVALID" if output else "HISTORICAL_RECORD_DRIFT"
+    try:
+        relative = safe_relative_path(relative)
+        resolved = (repository / relative).resolve(strict=False)
+        physical = resolved.relative_to(repository).as_posix()
+    except OSError:
+        raise V2Stop([v2_finding("SURFACE_UNREADABLE", relative,
+                                "the historical path could not be resolved")], "7.4") from None
+    except (GateError, ValueError, RuntimeError):
+        raise V2Stop([v2_finding(code, relative,
+                                "the historical path must remain inside the root repository")], "7.4") from None
+    if relative in roots or physical in roots or v2_below(relative, roots) or v2_below(physical, roots):
+        raise V2Stop([v2_finding(code, relative,
+                                "the historical path resolves into a root gitlink")], "7.4")
+    return resolved
+
+
+def v2_history_installed_snapshot(repository: Path, path: str, roots: Sequence[str]
+                                   ) -> tuple[bytes, int] | None:
+    """Read closed bytes stably, preserving environmental read errors as BLOCKED."""
+    resolved = v2_history_resolved_path(repository, path, roots)
+    if (repository / path).is_symlink():
+        return None
+    try:
+        return read_file_snapshot(resolved)
+    except FileNotFoundError:
+        return None
+    except OSError:
+        raise V2Stop([v2_finding("SURFACE_UNREADABLE", path,
+                                "the installed closed record could not be read stably")], "7.4") from None
+
+
+def v2_history_facts(repository: Path, candidate: str, validators: dict[str, Any]
+                     ) -> tuple[dict[str, Any], list[dict[str, str]], list[dict[str, str]]]:
+    """Verify frozen closures, recorded roots, modes and blob bindings read-only."""
+    fixture_bytes = v2_committed_blob(repository, candidate, V2_HISTORY_FIXTURE_PATH)
+    try:
+        fixture = v2_parse_json(fixture_bytes or b"")
+        valid = (isinstance(fixture, dict)
+                 and set(fixture) == {"schemaVersion", "records", "limits"}
+                 and fixture["schemaVersion"] == "hexalith.conversations.story-history-fixture.v1"
+                 and fixture["limits"] == list(V2_HISTORY_LIMITS)
+                 and len(fixture["records"]) == len(V2_HISTORY_ANCHORS))
+        historical_validator = validators["record"].evolve(schema={
+            "$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/historicalRecord"})
+        valid = valid and all(not v2_schema_errors(historical_validator, row)
+                              for row in fixture["records"])
+    except (UnicodeError, ValueError, KeyError, TypeError):
+        valid = False
+    if not valid:
+        raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", V2_HISTORY_FIXTURE_PATH,
+                                "the committed historical fixture is missing or malformed")], "7.4")
+    inputs = [{"path": V2_HISTORY_FIXTURE_PATH, "sha256": v2_sha256(fixture_bytes)}]
+    roots = [path for path, _ in v2_raw_gitlinks(repository, candidate)]
+    records = []
+    subjects = ["history::" + limit for limit in V2_HISTORY_LIMITS]
+    for pinned, (story_id, name, closure) in zip(fixture["records"], V2_HISTORY_ANCHORS):
+        path = "_bmad-output/implementation-artifacts/" + name
+        if (pinned["storyId"] != story_id or pinned["closure"]["commit"] != closure
+                or pinned["record"]["path"] != path):
+            raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                    "historical records must bind the three frozen closure anchors in order")], "7.4")
+        v2_history_revision(repository, closure)
+        for revision in (pinned["baseline"], pinned["recordedCandidate"]):
+            if revision is not None:
+                v2_history_revision(repository, revision["commit"])
+        closed = v2_history_committed_blob(repository, closure, path)
+        current = v2_committed_blob(repository, candidate, path)
+        installed = v2_history_installed_snapshot(repository, path, roots)
+        if closed is None:
+            raise V2Stop([v2_finding("HISTORICAL_BLOB_UNRESOLVED", path,
+                                    "the closure commit does not contain its closed record")], "7.4")
+        if (current != closed or installed is None or installed[0] != closed
+                or tree_entry(repository, candidate, path) != tree_entry(repository, closure, path)):
+            raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                    "current closed-record bytes differ from the closure commit")], "7.4")
+        # Equality above makes the existing read-only verifier's worktree read
+        # identical to the closure blob. Its pre-generator disposition is retained.
+        v2_history_resolved_path(repository, path, roots)
+        document = verify_historical(repository, argparse.Namespace(story=path))
+        if v2_history_installed_snapshot(repository, path, roots) != installed:
+            raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                    "closed-record bytes changed while the legacy verifier reopened them")], "7.4")
+        if document["blockers"]:
+            raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                    "the closed record's committed claims do not verify")], "7.4")
+        measured = v2_history_record(repository, story_id, path, closure, document)
+        if measured != pinned:
+            raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", path,
+                                    "historical committed facts differ from their pinned fixture bindings")], "7.4")
+        records.append(measured)
+        inputs.append({"path": path, "sha256": v2_sha256(closed)})
+        subjects.extend([
+            f"history::{story_id}::closure-record-bytes-modes-and-digest",
+            f"history::{story_id}::root-commits-trees-and-gitlinks",
+            f"history::{story_id}::bound-blobs-and-commit-bound-evidence",
+            f"history::{story_id}::archived-declarations-recorded-only",
+            f"history::{story_id}::disposition::{measured['classification']}",
+        ])
+    return ({"fixture": inputs[0], "records": records, "limits": list(V2_HISTORY_LIMITS)},
+            inputs, [{"id": f"AC-7.4-01#{ordinal:04d}", "subject": subject, "state": "PASS"}
+                     for ordinal, subject in enumerate(subjects, 1)])
+
+
+def v2_historical(options: dict[str, str]) -> tuple[bytes, int]:
+    """Execute the frozen Story 7.4 historical command and emit acceptance-result v1."""
+    repository = validate_repository(Path(options.get("--repository") or default_repository()))
+    candidate = resolve_commit(repository, "HEAD", "CANDIDATE_UNRESOLVABLE")
+    _, validators = v2_load_schemas()
+    if options["--contract"] != V2_7_4_CONTRACT_PATH:
+        raise V2Stop([v2_finding("ARGUMENT_INVALID", "--contract",
+                                "contract historical mode is supported only for Story 7.4")])
+    contract = v2_validate_contract(v2_committed_blob(repository, candidate, V2_7_4_CONTRACT_PATH),
+                                    V2_7_4_CONTRACT_PATH, validators["contract"])
+    scenario = contract["scenarios"][0]
+    command = v2_acceptance_command(shlex.split(scenario["command"]))
+    if (contract["storyId"] != "7.4" or command is None
+            or command["output"] != V2_HISTORY_OUTPUT_PATH
+            or options["--output-json"] != V2_HISTORY_OUTPUT_PATH):
+        raise V2Stop([v2_finding("CALLER_AUTHORED_FACT", "--output-json",
+                                "the historical output must equal the frozen scenario output")], "7.4")
+    roots = [path for path, _ in v2_raw_gitlinks(repository, candidate)]
+    v2_history_resolved_path(repository, command["output"], roots, output=True)
+    try:
+        target = v2_output_target(repository, command["output"])
+    except (OSError, ValueError):
+        raise V2Stop([v2_finding("OUTPUT_PATH_INVALID", "--output-json",
+                                "the historical receipt output is not a safe regular root path")], "7.4") from None
+    acceptance_validator = v2_load_acceptance_validator()
+    document = {"schemaVersion": V2_ACCEPTANCE_SCHEMA_VERSION, "storyId": "7.4",
+                "scenarioId": scenario["id"], "command": scenario["command"],
+                "candidate": candidate, "inputs": [], "outputs": [],
+                "exitCode": 0, "result": "PASS", "blockers": [], "assertionLedger": []}
+    try:
+        _, inputs, ledger = v2_history_facts(repository, candidate, validators)
+        document["inputs"] = inputs
+        document["assertionLedger"] = ledger
+    except V2Stop as stop:
+        failure = v2_failure_document(stop.findings, "7.4")
+        document.update(exitCode=failure["exitCode"], result=failure["result"],
+                        blockers=failure["blockers"])
+    except GateError as error:
+        code = error.code if error.code in ("GIT_UNAVAILABLE", "GIT_COMMAND_FAILED") else "INTERNAL_ERROR"
+        document.update(exitCode=2, result="BLOCKED", blockers=[code])
+    except OSError:
+        document.update(exitCode=2, result="BLOCKED", blockers=["SURFACE_UNREADABLE"])
+    acceptance_validator.validate(document)
+    content = v2_render_json(document)
+    try:
+        v2_history_resolved_path(repository, command["output"], roots, output=True)
+        target = v2_output_target(repository, command["output"])
+        v2_write_outputs([(target, content)])
+    except (OSError, ValueError, V2OutputDrift):
+        raise V2Stop([v2_finding("OUTPUT_WRITE_FAILED", "--output-json",
+                                "the historical acceptance output could not be installed")], "7.4") from None
+    return content, document["exitCode"]
+
+
+def v2_story_7_4_verification(repository: Path, candidate: str, contract_path: str,
+                             scenarios: dict[str, dict[str, Any]], validators: dict[str, Any]
+                             ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Bind historical measurements, the predecessor chain, and all observed faults."""
+    history, inputs, ledger = v2_history_facts(repository, candidate, validators)
+    def bound_result(scenario_id: str) -> bytes:
+        binding = scenarios[scenario_id]["resultFile"]
+        try:
+            content, _ = read_file_snapshot(contained_file(repository, binding["path"], "result"))
+        except (GateError, OSError):
+            content = b""
+        if v2_sha256(content) != binding["sha256"]:
+            raise V2Stop([v2_finding("TEST_RESULTS_STALE", scenario_id,
+                                    "the result bytes changed after their scenario digest was measured")], "7.4")
+        return content
+    historical = v2_parse_json(bound_result("AC-7.4-01"))
+    if historical["inputs"] != inputs or historical.get("assertionLedger") != ledger:
+        raise V2Stop([v2_finding("HISTORICAL_RECORD_DRIFT", "AC-7.4-01",
+                                "the historical acceptance facts do not equal the remeasured closure facts")], "7.4")
+    predecessors = []
+    for story_id, json_path, markdown_path in (*V2_7_3_PREDECESSOR_RECORDS,
+                                               ("7.3", *V2_RETAINED_OUTPUTS["7.3"])):
+        digest = v2_verified_predecessor(repository, candidate, story_id, json_path,
+                                         markdown_path, validators["record"])
+        if digest is None:
+            raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", story_id,
+                                    "the committed predecessor pair does not verify")], "7.4")
+        predecessor = v2_parse_json(v2_committed_blob(repository, candidate, json_path))
+        if ((story_id == "7.2" and predecessor["measurements"]["predecessorRecord"] != predecessors[0])
+                or (story_id == "7.3" and predecessor["workflowIntegration"]["predecessorRecords"] != predecessors)):
+            raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", story_id,
+                                    "the predecessor does not bind the verified predecessor chain")], "7.4")
+        predecessors.append({"storyId": story_id, "path": json_path, "sha256": digest})
+    observed_validator = validators["record"].evolve(schema={
+        "$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/observedFault"})
+    lanes = []
+    for scenario_id in ("AC-7.4-03", "AC-7.4-04"):
+        content = bound_result(scenario_id)
+        parsed = v2_parse_junit(content)
+        rows = []
+        for case in parsed["cases"]:
+            metadata = [value for name, value in case["properties"] if name == V2_FAULT_PROPERTY]
+            if len(metadata) != 1:
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id,
+                                        "every required fault testcase must carry exactly one observed result")], "7.4")
+            try:
+                row = v2_parse_json(metadata[0].encode("utf-8"))
+                valid = not v2_schema_errors(observed_validator, row)
+            except (ValueError, UnicodeError):
+                valid = False
+            if not valid:
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id,
+                                        "an observed fault result is malformed")], "7.4")
+            rows.append(row)
+            if not case["name"].endswith(f"[{row['id']}]"):
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id,
+                                        "a fault result does not identify its executed testcase parameter")], "7.4")
+        if (len(rows) != len(V2_REQUIRED_FAULTS)
+                or {row["id"] for row in rows} != set(V2_REQUIRED_FAULTS)):
+            raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id,
+                                    "the observed fault set is incomplete, duplicated, or unknown")], "7.4")
+        for row in rows:
+            required = V2_REQUIRED_FAULTS[row["id"]]
+            if (row["expectedBlocker"] != required or required not in row["observedBlockers"]
+                    or row["observedExitCode"] != 1):
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", row["id"],
+                                        "the mutation did not observe its exact required blocker with exit 1")], "7.4")
+            if row["beforeSha256"] != row["afterSha256"]:
+                raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", row["id"],
+                                        "the before and after fixture hashes differ")], "7.4")
+        lanes.append(sorted(rows, key=lambda row: list(V2_REQUIRED_FAULTS).index(row["id"])))
+    if lanes[0] != lanes[1]:
+        raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", "AC-7.4-04",
+                                "the restoration lane does not reproduce the mutation lane measurements")], "7.4")
+    return ({"contract": {"path": contract_path, "sha256": v2_sha256(
+                v2_committed_blob(repository, candidate, contract_path))},
+             **history, "predecessorRecords": predecessors}, lanes[0])
+
+
 def v2_generate(options: dict[str, str]) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
@@ -5305,6 +5814,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
         record["workflowIntegration"] = v2_story_7_3_workflow_integration(
             repository, candidate, contract_path, acceptance_inputs, validators
         )
+    if story_id == "7.4":
+        record["historicalVerification"], record["faultInjection"]["results"] = (
+            v2_story_7_4_verification(repository, candidate, contract_path, scenario_records, validators)
+        )
     if summary != contract["finalRecord"]["summary"]:
         raise V2Stop(
             [
@@ -5603,6 +6116,10 @@ def v2_main(raw_arguments: Sequence[str]) -> int:
         options = v2_parse_arguments(raw_arguments)
         if V2_VERIFY_OPTION in options:
             json_bytes = v2_verify_inserted(options)
+        elif "--historical" in options:
+            json_bytes, historical_exit = v2_historical(options)
+            v2_write_stdout(json_bytes)
+            return historical_exit
         else:
             json_bytes = v2_generate(options)
     except V2Stop as stop:

@@ -65,6 +65,239 @@
           ]
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "7.4"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "historicalVerification"
+        ],
+        "properties": {
+          "faultInjection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "results"
+            ],
+            "properties": {
+              "results": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/$defs/observedFault"
+                },
+                "minItems": 13,
+                "maxItems": 13,
+                "uniqueItems": true,
+                "allOf": [
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "COUNT"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "SUBMODULE_PATH"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "CANDIDATE"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "GITLINK"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "RESULT_MISSING"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "RESULT_STALE"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "RESULT_FAILED"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "RESULT_SKIPPED"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "RESULT_NOT_RUN"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "LEDGER_EMPTY"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "WORKFLOW_REMOVED"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "WORKFLOW_DISPLACED"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  },
+                  {
+                    "contains": {
+                      "properties": {
+                        "id": {
+                          "const": "MARKDOWN_DIGEST"
+                        }
+                      },
+                      "required": [
+                        "id"
+                      ]
+                    },
+                    "minContains": 1,
+                    "maxContains": 1
+                  }
+                ]
+              }
+            }
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "historicalVerification"
+          ]
+        },
+        "properties": {
+          "faultInjection": {
+            "$ref": "#/$defs/faultInjection"
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -101,7 +334,27 @@
       }
     },
     "faultInjection": {
-      "$ref": "#/$defs/faultInjection"
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "items": {
+            "anyOf": [
+              {
+                "$ref": "#/$defs/fault"
+              },
+              {
+                "$ref": "#/$defs/observedFault"
+              }
+            ]
+          },
+          "uniqueItems": true
+        }
+      }
     },
     "outputs": {
       "$ref": "#/$defs/outputs"
@@ -120,6 +373,9 @@
     },
     "workflowIntegration": {
       "$ref": "#/$defs/workflowIntegration"
+    },
+    "historicalVerification": {
+      "$ref": "#/$defs/historicalVerification"
     }
   },
   "$defs": {
@@ -151,7 +407,12 @@
       "maximum": 5
     },
     "result": {
-      "enum": ["PASS", "FAIL", "BLOCKED", "not-applicable"]
+      "enum": [
+        "PASS",
+        "FAIL",
+        "BLOCKED",
+        "not-applicable"
+      ]
     },
     "blocker": {
       "type": "string",
@@ -312,93 +573,179 @@
       "maxItems": 10,
       "uniqueItems": true,
       "prefixItems": [
-        { "$ref": "#/$defs/gitlinkAiTools" },
-        { "$ref": "#/$defs/gitlinkBuilds" },
-        { "$ref": "#/$defs/gitlinkCommons" },
-        { "$ref": "#/$defs/gitlinkEventStore" },
-        { "$ref": "#/$defs/gitlinkFolders" },
-        { "$ref": "#/$defs/gitlinkFrontComposer" },
-        { "$ref": "#/$defs/gitlinkMemories" },
-        { "$ref": "#/$defs/gitlinkParties" },
-        { "$ref": "#/$defs/gitlinkProjects" },
-        { "$ref": "#/$defs/gitlinkTenants" }
+        {
+          "$ref": "#/$defs/gitlinkAiTools"
+        },
+        {
+          "$ref": "#/$defs/gitlinkBuilds"
+        },
+        {
+          "$ref": "#/$defs/gitlinkCommons"
+        },
+        {
+          "$ref": "#/$defs/gitlinkEventStore"
+        },
+        {
+          "$ref": "#/$defs/gitlinkFolders"
+        },
+        {
+          "$ref": "#/$defs/gitlinkFrontComposer"
+        },
+        {
+          "$ref": "#/$defs/gitlinkMemories"
+        },
+        {
+          "$ref": "#/$defs/gitlinkParties"
+        },
+        {
+          "$ref": "#/$defs/gitlinkProjects"
+        },
+        {
+          "$ref": "#/$defs/gitlinkTenants"
+        }
       ],
       "items": false
     },
     "testCounts": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["total", "executed", "passed", "failed", "skipped"],
+      "required": [
+        "total",
+        "executed",
+        "passed",
+        "failed",
+        "skipped"
+      ],
       "properties": {
-        "total": {"$ref": "#/$defs/count"},
-        "executed": {"$ref": "#/$defs/count"},
-        "passed": {"$ref": "#/$defs/count"},
-        "failed": {"$ref": "#/$defs/count"},
-        "skipped": {"$ref": "#/$defs/count"}
+        "total": {
+          "$ref": "#/$defs/count"
+        },
+        "executed": {
+          "$ref": "#/$defs/count"
+        },
+        "passed": {
+          "$ref": "#/$defs/count"
+        },
+        "failed": {
+          "$ref": "#/$defs/count"
+        },
+        "skipped": {
+          "$ref": "#/$defs/count"
+        }
       }
     },
     "measuredProject": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["project", "projectPath", "resultFile", "counts"],
+      "required": [
+        "project",
+        "projectPath",
+        "resultFile",
+        "counts"
+      ],
       "properties": {
-        "project": {"type": "string", "minLength": 1},
-        "projectPath": {"$ref": "#/$defs/path"},
-        "resultFile": {"$ref": "#/$defs/outputFile"},
-        "counts": {"$ref": "#/$defs/testCounts"}
+        "project": {
+          "type": "string",
+          "minLength": 1
+        },
+        "projectPath": {
+          "$ref": "#/$defs/path"
+        },
+        "resultFile": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "counts": {
+          "$ref": "#/$defs/testCounts"
+        }
       }
     },
     "predecessorRecord": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["storyId", "path", "sha256"],
+      "required": [
+        "storyId",
+        "path",
+        "sha256"
+      ],
       "properties": {
-        "storyId": {"$ref": "#/$defs/storyId"},
-        "path": {"$ref": "#/$defs/path"},
-        "sha256": {"$ref": "#/$defs/digest"}
+        "storyId": {
+          "$ref": "#/$defs/storyId"
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
       }
     },
     "measurements": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["baseline", "changedPaths", "testProjects", "testTotals", "predecessorRecord"],
+      "required": [
+        "baseline",
+        "changedPaths",
+        "testProjects",
+        "testTotals",
+        "predecessorRecord"
+      ],
       "properties": {
-        "baseline": {"$ref": "#/$defs/commit"},
+        "baseline": {
+          "$ref": "#/$defs/commit"
+        },
         "changedPaths": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/path"}
+          "items": {
+            "$ref": "#/$defs/path"
+          }
         },
         "testProjects": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/measuredProject"}
+          "items": {
+            "$ref": "#/$defs/measuredProject"
+          }
         },
-        "testTotals": {"$ref": "#/$defs/testCounts"},
-        "predecessorRecord": {"$ref": "#/$defs/predecessorRecord"}
+        "testTotals": {
+          "$ref": "#/$defs/testCounts"
+        },
+        "predecessorRecord": {
+          "$ref": "#/$defs/predecessorRecord"
+        }
       }
     },
     "workflowIntegration": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["contract", "workflowBodies", "predecessorRecords"],
+      "required": [
+        "contract",
+        "workflowBodies",
+        "predecessorRecords"
+      ],
       "properties": {
-        "contract": {"$ref": "#/$defs/outputFile"},
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
         "workflowBodies": {
           "type": "array",
           "minItems": 8,
           "maxItems": 8,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/outputFile"}
+          "items": {
+            "$ref": "#/$defs/outputFile"
+          }
         },
         "predecessorRecords": {
           "type": "array",
           "minItems": 2,
           "maxItems": 2,
           "uniqueItems": true,
-          "items": {"$ref": "#/$defs/predecessorRecord"}
+          "items": {
+            "$ref": "#/$defs/predecessorRecord"
+          }
         }
       }
     },
@@ -611,6 +958,347 @@
         },
         "notRun": {
           "$ref": "#/$defs/count"
+        }
+      }
+    },
+    "historicalRevision": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "tree",
+        "gitlinks"
+      ],
+      "properties": {
+        "commit": {
+          "$ref": "#/$defs/commit"
+        },
+        "tree": {
+          "$ref": "#/$defs/commit"
+        },
+        "gitlinks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/gitlink"
+          },
+          "uniqueItems": true
+        }
+      }
+    },
+    "historicalBlob": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "revision",
+        "path",
+        "mode",
+        "blob",
+        "sha256"
+      ],
+      "properties": {
+        "revision": {
+          "$ref": "#/$defs/commit"
+        },
+        "path": {
+          "$ref": "#/$defs/path"
+        },
+        "mode": {
+          "enum": [
+            "100644",
+            "100755"
+          ]
+        },
+        "blob": {
+          "$ref": "#/$defs/commit"
+        },
+        "sha256": {
+          "$ref": "#/$defs/digest"
+        }
+      }
+    },
+    "archivedDeclaration": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "status",
+        "declaration"
+      ],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "status": {
+          "const": "recorded-only"
+        },
+        "declaration": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "historicalRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "storyId",
+        "classification",
+        "closure",
+        "baseline",
+        "recordedCandidate",
+        "record",
+        "boundBlobs",
+        "archivedDeclarations",
+        "warnings",
+        "evidenceIdentities"
+      ],
+      "properties": {
+        "storyId": {
+          "enum": [
+            "6.1",
+            "6.2",
+            "6.7"
+          ]
+        },
+        "classification": {
+          "enum": [
+            "generated",
+            "pre-generator"
+          ]
+        },
+        "closure": {
+          "$ref": "#/$defs/historicalRevision"
+        },
+        "baseline": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/historicalRevision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "recordedCandidate": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/historicalRevision"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "record": {
+          "$ref": "#/$defs/historicalBlob"
+        },
+        "boundBlobs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/historicalBlob"
+          },
+          "minItems": 1,
+          "uniqueItems": true
+        },
+        "archivedDeclarations": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/archivedDeclaration"
+          },
+          "uniqueItems": true
+        },
+        "warnings": {
+          "$ref": "#/$defs/blockers"
+        },
+        "evidenceIdentities": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/evidenceIdentity"
+          }
+        }
+      }
+    },
+    "historicalVerification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "fixture",
+        "predecessorRecords",
+        "records",
+        "limits"
+      ],
+      "properties": {
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "fixture": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorRecords": {
+          "type": "array",
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/predecessorRecord",
+              "properties": {
+                "storyId": {
+                  "const": "7.1"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessorRecord",
+              "properties": {
+                "storyId": {
+                  "const": "7.2"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/predecessorRecord",
+              "properties": {
+                "storyId": {
+                  "const": "7.3"
+                }
+              }
+            }
+          ]
+        },
+        "records": {
+          "type": "array",
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3,
+          "uniqueItems": true,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/historicalRecord",
+              "properties": {
+                "storyId": {
+                  "const": "6.1"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/historicalRecord",
+              "properties": {
+                "storyId": {
+                  "const": "6.2"
+                }
+              }
+            },
+            {
+              "$ref": "#/$defs/historicalRecord",
+              "properties": {
+                "storyId": {
+                  "const": "6.7"
+                }
+              }
+            }
+          ]
+        },
+        "limits": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "minItems": 5,
+          "uniqueItems": true,
+          "maxItems": 5,
+          "const": [
+            "A former uncommitted working tree is not reconstructed and is not claimed.",
+            "Original TRX, test binaries, and raw promotion results were uncommitted; archived declarations are recorded-only.",
+            "Story 6.1 has no recorded candidate; its closure commit is not a reconstructed candidate.",
+            "Pre-generator findings retain their approved warning disposition.",
+            "Only root Git objects are read; submodule contents, former runtime state, and CI enforcement are not verified."
+          ]
+        }
+      }
+    },
+    "observedFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "expectedBlocker",
+        "baselineResult",
+        "baselineExitCode",
+        "observedBlockers",
+        "observedExitCode",
+        "beforeSha256",
+        "afterSha256",
+        "restoredResult",
+        "restoredExitCode"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "COUNT",
+            "SUBMODULE_PATH",
+            "CANDIDATE",
+            "GITLINK",
+            "RESULT_MISSING",
+            "RESULT_STALE",
+            "RESULT_FAILED",
+            "RESULT_SKIPPED",
+            "RESULT_NOT_RUN",
+            "LEDGER_EMPTY",
+            "WORKFLOW_REMOVED",
+            "WORKFLOW_DISPLACED",
+            "MARKDOWN_DIGEST"
+          ]
+        },
+        "expectedBlocker": {
+          "$ref": "#/$defs/blocker"
+        },
+        "baselineResult": {
+          "const": "PASS"
+        },
+        "baselineExitCode": {
+          "const": 0
+        },
+        "observedBlockers": {
+          "$ref": "#/$defs/blockers"
+        },
+        "observedExitCode": {
+          "$ref": "#/$defs/exitCode"
+        },
+        "beforeSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "afterSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "restoredResult": {
+          "const": "PASS"
+        },
+        "restoredExitCode": {
+          "const": 0
+        }
+      }
+    },
+    "evidenceIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "subject",
+        "value"
+      ],
+      "properties": {
+        "subject": {
+          "type": "string",
+          "minLength": 1
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1
         }
       }
     }

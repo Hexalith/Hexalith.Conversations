@@ -1046,11 +1046,11 @@ story completes. The verifier overwrites its declared results, so archive
 `artifacts/v9/7.3/` first when the committed Story 7.3 pair must stay
 reproducible.
 
-The generator classifies only pytest JUnit commands, its own self-invocation,
-and acceptance-result commands. Schema-compatible backlog contracts declare at
-least one scenario command outside those shapes, such as Story 7.4's
-`--historical --format json` invocation, and fail closed with
-`SCENARIO_COMMAND_UNSUPPORTED` until the generator reads those scenarios.
+The generator classifies pytest JUnit commands, its own self-invocation,
+acceptance-result commands, and Story 7.4's frozen
+`--historical --format json` invocation. Other schema-compatible backlog
+commands outside those shapes fail closed with `SCENARIO_COMMAND_UNSUPPORTED`
+until the generator reads their scenarios.
 Later v14-format contracts first require explicit contract-schema and generator
 support; without it they fail earlier with `INPUT_SCHEMA_INVALID` rather than
 reaching scenario-command classification. The gate never skips a
@@ -1059,8 +1059,8 @@ contract-bound story for either reason.
 Candidate retention and inserted-record verification also need per-story
 generator entries. `V2_RETAINED_CANDIDATES` and `V2_RETAINED_OUTPUTS` in
 `generate_story_record.py` name each retained contract's designated spec,
-sprint-status row, record-region mask, and output pair. Only Stories 7.2 and
-7.3 have entries, and only Story 7.3's entry masks the inserted record region.
+sprint-status row, record-region mask, and output pair. Stories 7.2, 7.3, and
+7.4 have entries; Stories 7.3 and 7.4 mask the inserted record region.
 For any other contract, a committed pair does not pin its candidate, and
 `--verify-inserted-record` stops with `ARGUMENT_INVALID`. Each new contract
 therefore needs its own entries, with retention and insertion regressions, in
@@ -1085,3 +1085,68 @@ regeneration, or apply legacy bundle/digest steps to it.
 9. [ ] Inserted block verified with `--verify-record-sha256 <markdown_sha256> --format json`; exit `0`, result `pass`.
 10. [ ] Sprint-status comment references the generated record without restating any count, path total, promotion total, or commit.
 11. [ ] No count, path, or commit anywhere in completion narrative was typed by hand.
+
+### Story 7.4 historical verification and observed faults
+
+Story 7.4 runs the six commands in
+`_bmad-output/planning-artifacts/v9/story-contracts/7.4.json` unchanged, each
+prefixed with `uv run --frozen --no-sync`. AC-01 accepts `--historical --format
+json` and its contract-declared `--output-json`; it emits acceptance-result v1
+with a nonempty assertion ledger. It reads root Git objects and closed record
+bytes and writes only `artifacts/v9/7.4/AC-7.4-01.json`. Resolved input and
+output paths must stay outside root gitlinks, including parent symlink targets.
+It never runs a live promotion checker or opens a submodule repository. Once the
+safe receipt path is established, historical failures replace any prior receipt
+with acceptance-result v1 FAIL or BLOCKED: absent/drifted historical content uses
+exit 1; Git execution and environmental read failures use exit 2.
+
+The committed fixture `_bmad/scripts/fixtures/story-7.4-history-v1.json` pins the
+closure references for Stories 6.1, 6.2, and 6.7. The verifier compares current
+closed bytes to each closure commit, checks recorded root commits, trees,
+gitlinks and ordinary blob modes, and re-derives every pinned root blob binding.
+Story 6.1 has no recorded candidate; its closure is never relabelled as one.
+Pre-generator findings preserve their approved warning disposition. Original
+TRX, test binaries, and raw promotion results were uncommitted; their archived
+Markdown declarations are **recorded-only**. A former uncommitted working tree
+is not reconstructed and is not claimed. Committed evidence bytes and identities
+can be bound; this does not prove former runtime state or CI enforcement.
+
+AC-03 and AC-04 each execute the same thirteen frozen mutations in isolated
+passing fixtures. Each testcase writes one JUnit property named
+`hexalith.fault-injection-result.v1`, containing strict JSON with `id`,
+`expectedBlocker`, measured `observedBlockers` and `observedExitCode`,
+`beforeSha256`, `afterSha256`, and passing baseline/restored state and exit.
+The hash binds the fixture HEAD and sorted relative file bytes, symlink targets
+and modes; restoration additionally checks result-file modification times.
+The two lanes must reproduce the same measurements. Missing, duplicate, unknown,
+unobserved, or wrong-blocker fault entries fail; equal hashes cannot excuse a
+mutation that failed to observe its required blocker. AC-05 proves required
+lanes cannot pass with missing, skipped, not-run, or empty evidence.
+
+Story 7.4 alone requires the closed `historicalVerification` section and observed
+fault fields. Its record binds the story contract, inventory, historical fixture,
+closure facts and limits, verified Story 7.1–7.3 pairs and their digest chain,
+historical acceptance result, complete fault ledger and restoration hashes.
+The existing Story 7.1–7.3 record shapes and bytes remain valid.
+
+| Story 7.4 blocker | Exit | Condition |
+| --- | --- | --- |
+| `HISTORICAL_BLOB_UNRESOLVED` | `1` | A frozen closure, recorded root revision, or bound ordinary blob cannot be resolved |
+| `HISTORICAL_RECORD_DRIFT` | `1` | Closed bytes differ from closure bytes, pinned facts drift, or historical acceptance facts differ from their remeasurement |
+| `FAULT_NOT_DETECTED` | `1` | Required fault metadata is absent, malformed, duplicated, unknown, incomplete, or does not observe its exact blocker with exit 1 |
+| `FIXTURE_NOT_RESTORED` | `1` | Before/after hashes differ or the restoration lane differs from the mutation lane |
+
+Completion follows the Story 7.3 operator procedure with Story 7.4 paths: review
+and commit the scoped implementation candidate while the spec and sprint row
+remain `in-progress`; run all six frozen commands; run AC-06 twice and require
+identical bytes and summary `6/6/0/0/0/0`; commit only the JSON/Markdown pair;
+insert the Markdown verbatim and run
+`uv run --frozen --no-sync python3 _bmad/scripts/generate_story_record.py
+--repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/7.4.json
+--verify-inserted-record _bmad-output/implementation-artifacts/spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md`;
+then commit only the lifecycle changes and require AC-06 to reproduce the pair.
+Any source change after a retained candidate requires a record-only retraction
+before the replacement source candidate. Run the focused Debug C# conformance
+class, workflow verifier with temporary outputs preserving archived Story 7.3
+evidence, root-submodule checker and whitespace check. V23–V29 current-authority
+gates are not required. This procedure includes no push and claims no CI gate.
