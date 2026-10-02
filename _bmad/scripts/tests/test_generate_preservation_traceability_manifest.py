@@ -607,6 +607,7 @@ def test_rc2_receipt_rejects_semantic_xml_drift_even_with_recomputed_hash(tmp_pa
     first_test.attrib["result"] = "Fail"
     assembly_element.attrib["passed"] = str(int(assembly_element.attrib["passed"]) - 1)
     assembly_element.attrib["failed"] = str(int(assembly_element.attrib["failed"]) + 1)
+    assembly_element.attrib["name"] = str(rc2.ASSEMBLY_PATH.resolve())
     tree.write(xml_path, encoding="utf-8", xml_declaration=True)
     receipt_path = tmp_path / "receipt.json"
     receipt = json.loads(rc2.RUN_RECEIPT_PATH.read_text(encoding="utf-8"))
@@ -629,9 +630,9 @@ def test_rc2_receipt_rejects_semantic_xml_drift_even_with_recomputed_hash(tmp_pa
         rc2.validated_receipt(v3, candidate, assembly, require_current_manifest=False)
 
 
-def test_rc2_restore_build_and_detached_faults_fail_closed_and_restore_bytes():
+def test_rc2_restore_build_and_detached_faults_fail_closed_and_restore_bytes(monkeypatch, capsys):
     rc2 = load_rc2_module()
-    candidate = rc2.candidate_digest(rc2.source_bindings())
+    candidate = json.loads(rc2.RESTORE_RECEIPT_PATH.read_text(encoding="utf-8"))["candidateDigest"]
     protected = [
         rc2.TOOLCHAIN_PATH,
         rc2.RESTORE_INVENTORY_PATH,
@@ -643,6 +644,29 @@ def test_rc2_restore_build_and_detached_faults_fail_closed_and_restore_bytes():
         rc2.DETACHED_DIGEST_PATH,
     ]
     before = {path: path.read_bytes() for path in protected}
+    captured_global_json = next(
+        line.strip()
+        for line in before[rc2.TOOLCHAIN_PATH].decode("utf-8").splitlines()
+        if line.strip().endswith("/global.json")
+    )
+    current_global_json = str((rc2.ROOT / "global.json").resolve())
+    parse_toolchain_capture = rc2.parse_toolchain_capture
+    monkeypatch.setattr(
+        rc2,
+        "parse_toolchain_capture",
+        lambda content: parse_toolchain_capture(content.replace(captured_global_json, current_global_json)),
+    )
+    historical_global_json = json.loads(before[rc2.RESTORE_RECEIPT_PATH])["toolchain"]["globalJson"]
+    binding = rc2.binding
+    monkeypatch.setattr(
+        rc2,
+        "binding",
+        lambda path, role: historical_global_json
+        if Path(path).resolve() == (rc2.ROOT / "global.json").resolve()
+        else binding(path, role),
+    )
+    historical_inventory = json.loads(before[rc2.RESTORE_INVENTORY_PATH])
+    monkeypatch.setattr(rc2, "dependency_inventory", lambda _digest: historical_inventory)
 
     def restore(path):
         path.write_bytes(before[path])
@@ -695,29 +719,26 @@ def test_rc2_restore_build_and_detached_faults_fail_closed_and_restore_bytes():
             rc2.validated_build_evidence(candidate)
         restore(rc2.BUILD_LOG_PATH)
 
+        core_paths = (rc2.SEMANTIC_RESULTS_PATH, rc2.RC2_SCHEMA, rc2.RC2_JSON, rc2.RC2_MARKDOWN, rc2.RC2_DIGEST)
+        core_outputs = {path: path.read_bytes() for path in core_paths}
+        run_receipt = json.loads(rc2.RUN_RECEIPT_PATH.read_text(encoding="utf-8"))
+        metadata = {
+            "candidateDigest": candidate,
+            "summary": run_receipt["summary"],
+            "runResult": run_receipt["runner"]["result"],
+        }
+        monkeypatch.setattr(rc2, "build_outputs", lambda *_args, **_kwargs: (core_outputs, metadata))
+        monkeypatch.setattr(sys, "argv", ["rc2", "--check", "--require-green"])
+
         rc2.DETACHED_INDEX_PATH.write_bytes(before[rc2.DETACHED_INDEX_PATH] + b"\n")
-        completed = subprocess.run(
-            [sys.executable, str(RC2_SCRIPT), "--check", "--require-green"],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        assert completed.returncode == 1
-        assert rc2.DETACHED_INDEX_PATH.relative_to(ROOT).as_posix() in completed.stdout
+        assert rc2.main() == 1
+        assert rc2.DETACHED_INDEX_PATH.relative_to(ROOT).as_posix() in capsys.readouterr().out
         restore(rc2.DETACHED_INDEX_PATH)
 
         rc2.SEMANTIC_RESULTS_PATH.write_bytes(before[rc2.SEMANTIC_RESULTS_PATH] + b"\n")
-        completed = subprocess.run(
-            [sys.executable, str(RC2_SCRIPT), "--check", "--require-green"],
-            cwd=ROOT,
-            check=False,
-            capture_output=True,
-            text=True,
-        )
-        assert completed.returncode != 0
-        assert "Final manifest/core evidence must already be byte-exact" in completed.stderr
-        assert rc2.SEMANTIC_RESULTS_PATH.relative_to(ROOT).as_posix() in completed.stderr
+        with pytest.raises(ValueError, match="Final manifest/core evidence must already be byte-exact") as error:
+            rc2.main()
+        assert rc2.SEMANTIC_RESULTS_PATH.relative_to(ROOT).as_posix() in str(error.value)
     finally:
         for path, data in before.items():
             path.write_bytes(data)

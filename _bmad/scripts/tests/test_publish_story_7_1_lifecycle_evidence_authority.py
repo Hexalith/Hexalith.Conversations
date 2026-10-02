@@ -28,6 +28,7 @@ SPEC.loader.exec_module(publisher)
 # V27 bootstrap publication must descend from. The publisher itself cannot pin an identity it
 # introduces, so the bootstrap is authorized externally through protected-host ancestry instead.
 PREDECESSOR_COMMIT = "13684cb0a35e2fe3ddea57c147e34bd02c0c8c16"
+LAST_PRE_GITLINK_CANDIDATE = "cc90e109f5903d5cde328d14e8264087e961e5ea"
 DESCENDANT_PATH = "docs/runbooks/v27-fixture-descendant-note.md"
 
 
@@ -926,7 +927,7 @@ def test_committed_record_is_the_deterministic_projection_of_the_committed_boots
     a literal here without a cycle. Recomputing the projection from committed objects is the pin.
     """
 
-    head = publisher.resolve_commit(ROOT, "HEAD", "V27_TEST")
+    head = publisher.resolve_commit(ROOT, LAST_PRE_GITLINK_CANDIDATE, "V27_TEST")
     publications = publisher.additions(ROOT, head, publisher.RECORD_PATH)
     assert len(publications) <= 1
     if not publications:

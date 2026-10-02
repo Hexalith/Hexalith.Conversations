@@ -48,6 +48,7 @@ def stage_candidate(
     if mutate is not None:
         mutate(staged)
     candidate = commit(staged, (*publisher.C1_PATHS, *extra_paths), "fix(planning): stage V16 fixture")
+    subprocess.run(["git", "-C", str(staged), "branch", "-f", "main", candidate], check=True)
     return staged, candidate
 
 

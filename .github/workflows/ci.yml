@@ -35,11 +35,13 @@ jobs:
   repository:
     name: ci / repository
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 40
     steps:
       - name: Check out source
         uses: actions/checkout@v7.0.1
         with:
+          # The story-record tests read closed records from earlier commits.
+          fetch-depth: 0
           persist-credentials: false
           submodules: false
 
@@ -48,6 +50,37 @@ jobs:
 
       - name: Test root submodule check
         run: python3 -m unittest discover -s tests/tooling -p 'test_check_root_submodules.py'
+
+      - name: Set up Python
+        uses: actions/setup-python@v7.0.0
+        with:
+          python-version: '3.11'
+
+      - name: Install locked Python tooling
+        run: |
+          python -m pip install --disable-pip-version-check uv==0.11.16
+          uv sync --frozen --python 3.11
+
+      # Fails when a governed route loses, moves, or alters its STORY-COMPLETION-GATE block.
+      - name: Verify story completion gate surfaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          for scenario in AC-7.3-01 AC-7.3-02; do
+            uv run --frozen --no-sync python3 _bmad/scripts/verify_story_completion_workflows.py \
+              --repository . \
+              --contract _bmad-output/planning-artifacts/v9/story-contracts/7.3.json \
+              --scenario "$scenario" \
+              --output "artifacts/v9/7.3/$scenario.json"
+          done
+
+      # The Epic 6 supersession suite reads gitlink commit objects, which need
+      # initialized submodules; it stays in the local lane only.
+      - name: Test BMAD repository tooling
+        run: >-
+          uv run --frozen --no-sync python3 -m pytest -q -p no:cacheprovider
+          _bmad/scripts/tests
+          --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py
 
   admin-web:
     name: ci / admin-web

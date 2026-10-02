@@ -942,6 +942,11 @@ def test_safe_relative_path_rejects_embedded_control_characters() -> None:
 # follower; without naming the new section here, the span would silently widen
 # to swallow it, keeping the positive test green while weakening
 # test_workflow_contract_rejects_enforcement_clause_outside_gate.
+#
+# Commit 0db6207 retired these V12 gates from the live routes; the current routes
+# carry the Story 7.3 completion gate instead. The contract checks below therefore
+# read the last routes that carried the V12 gates, from the commit before 0db6207.
+V12_ROUTES_REVISION = "0bb017e641eb7bd03864466526c4918f9c55ef70"
 COMMON_V12_GATE_CLAUSES = (
     "verify_submodule_promotion.py",
     "verify_evidence_boundary.py",
@@ -977,6 +982,10 @@ WORKFLOW_GATE_CONTRACTS = {
 }
 
 
+def v12_route(tree: str, relative_path: str) -> str:
+    return run_git(WORKSPACE, "show", f"{V12_ROUTES_REVISION}:{tree}/{relative_path}").stdout
+
+
 def promotion_gate_span(content: str, markers: tuple[str, ...]) -> tuple[int, int]:
     gate_index = next(
         index
@@ -1009,8 +1018,8 @@ def gate_contract_violations(
 
 def test_completion_workflows_gate_before_success_status_writes() -> None:
     for relative_path, (markers, clauses) in WORKFLOW_GATE_CONTRACTS.items():
-        agent_content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
-        claude_content = (WORKSPACE / ".claude/skills" / relative_path).read_text(encoding="utf-8")
+        agent_content = v12_route(".agents/skills", relative_path)
+        claude_content = v12_route(".claude/skills", relative_path)
         assert agent_content == claude_content, relative_path
         assert gate_contract_violations(agent_content, markers, clauses) == [], relative_path
 
@@ -1019,7 +1028,7 @@ def test_completion_workflows_gate_before_success_status_writes() -> None:
 def test_workflow_contract_check_catches_removed_gate(relative_path: str) -> None:
     """Every gated workflow -- not just dev-auto -- must fail when its gate heading goes."""
     markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
-    content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
+    content = v12_route(".agents/skills", relative_path)
     gate_marker = next(marker for marker in markers if "lifecycle evidence gates" in marker.lower())
     mutated = content.replace(gate_marker, "### Removed Gate", 1)
 
@@ -1034,7 +1043,7 @@ def test_workflow_contract_check_catches_gutted_gate(relative_path: str) -> None
     body with "the gate is advisory" while keeping every heading in place.
     """
     markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
-    content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
+    content = v12_route(".agents/skills", relative_path)
 
     for clause in clauses:
         gutted = content.replace(clause, "the gate is advisory")
@@ -1050,10 +1059,9 @@ def test_workflow_contract_check_catches_removed_post_review_rerun_clause_and_re
 ) -> None:
     """The automated review route cannot reuse stale pre-patch gate evidence."""
     relative_path = "bmad-build-auto/step-04-review.md"
-    source = WORKSPACE / ".agents/skills" / relative_path
     fixture = tmp_path / relative_path
     fixture.parent.mkdir(parents=True)
-    before = source.read_bytes()
+    before = v12_route(".agents/skills", relative_path).encode("utf-8")
     fixture.write_bytes(before)
 
     try:
@@ -1085,7 +1093,7 @@ def test_workflow_contract_check_catches_removed_post_review_rerun_clause_and_re
 def test_workflow_contract_rejects_enforcement_clause_outside_gate(relative_path: str) -> None:
     """Matching prose elsewhere in a skill must not satisfy the gate contract."""
     markers, clauses = WORKFLOW_GATE_CONTRACTS[relative_path]
-    content = (WORKSPACE / ".agents/skills" / relative_path).read_text(encoding="utf-8")
+    content = v12_route(".agents/skills", relative_path)
     start, end = promotion_gate_span(content, markers)
     assert start >= 0
 

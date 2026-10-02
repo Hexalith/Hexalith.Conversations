@@ -5,7 +5,6 @@ from __future__ import annotations
 import importlib.util
 import json
 from pathlib import Path
-import shutil
 import subprocess
 from typing import Callable
 
@@ -18,6 +17,8 @@ SPEC = importlib.util.spec_from_file_location("publish_v18_package_environment_a
 assert SPEC is not None and SPEC.loader is not None
 publisher = importlib.util.module_from_spec(SPEC)
 SPEC.loader.exec_module(publisher)
+HISTORICAL_C1 = "5aef27014170e1ed971aed4c49eeb723d3912c4c"
+HISTORICAL_BUILDS = "cf52f74c983bf88496cf0280cd9788b5ebcf50de"
 
 
 def git(path: Path, *arguments: str) -> str:
@@ -40,6 +41,8 @@ def stage_candidate(
 ) -> tuple[Path, str, str]:
     """Create one exact candidate with an initialized synthetic Builds gitlink."""
 
+    assert git(ROOT, "show", "-s", "--format=%P", HISTORICAL_C1) == publisher.BASELINE_COMMIT
+    assert git(ROOT, "ls-tree", HISTORICAL_C1, publisher.BUILDS_PATH).split()[2] == HISTORICAL_BUILDS
     staged = tmp_path / "repository"
     subprocess.run(["git", "clone", "--shared", "-q", str(ROOT), str(staged)], check=True)
     subprocess.run(["git", "-C", str(staged), "checkout", "-q", publisher.BASELINE_COMMIT], check=True)
@@ -47,10 +50,9 @@ def stage_candidate(
     subprocess.run(["git", "-C", str(staged), "config", "user.email", "v18@example.invalid"], check=True)
 
     for relative in publisher.CANDIDATE_FILE_PATHS:
-        source = ROOT / relative
         target = staged / relative
         target.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copyfile(source, target)
+        target.write_bytes(subprocess.check_output(["git", "-C", str(ROOT), "show", f"{HISTORICAL_C1}:{relative}"]))
 
     builds = staged / publisher.BUILDS_PATH
     builds.mkdir(parents=True, exist_ok=True)
@@ -59,7 +61,11 @@ def stage_candidate(
     subprocess.run(["git", "-C", str(builds), "config", "user.email", "v18-builds@example.invalid"], check=True)
     catalog = builds / publisher.BUILDS_CATALOG_PATH
     catalog.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copyfile(ROOT / publisher.BUILDS_PATH / publisher.BUILDS_CATALOG_PATH, catalog)
+    catalog.write_bytes(
+        subprocess.check_output(
+            ["git", "-C", str(ROOT / publisher.BUILDS_PATH), "show", f"{HISTORICAL_BUILDS}:{publisher.BUILDS_CATALOG_PATH}"]
+        )
+    )
 
     if mutate is not None:
         mutate(staged, builds)

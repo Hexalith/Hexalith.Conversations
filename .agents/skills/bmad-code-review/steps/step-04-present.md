@@ -153,6 +153,8 @@ If `{sprint_status}` file does not exist, note that story status was updated in 
 
 When the task authorizes a commit, stage and commit only the identified task-owned paths with a validated Conventional Commit. Verify every intended path is committed and no unrelated path entered. Any commit failure restores story and sprint state to `in-progress` and HALTs before completion.
 
+After that commit, when `{new_status}` is `done` and the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, commit the story file and its sprint-status row back to `in-progress`, report the exact command, its exit, and every stable blocker code, then HALT.
+
 #### Completion summary
 
 > **Review Complete!**

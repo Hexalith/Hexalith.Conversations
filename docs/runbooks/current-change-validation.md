@@ -13,7 +13,11 @@ updates. It does not change the meaning or bytes of earlier V23–V29 records.
    The `ci / repository` job checks that
    each root `.gitmodules` declaration has exactly one mode-`160000` gitlink in
    the checked-out index and that no undeclared path appears under `references/`.
-   It reads neither nested submodules nor historical authority records.
+   It also runs the Story 7.3 workflow verifier (`AC-7.3-01` and `AC-7.3-02`),
+   which fails when a governed route loses, moves, or alters its
+   `STORY-COMPLETION-GATE` block, and the default `_bmad/scripts/tests` lane
+   except the Epic 6 supersession suite, which needs initialized submodules.
+   It never initializes or reads a submodule.
 3. For a gitlink update, review the before and after commit IDs in the staged
    Git diff and explain the affected paths and reason in the commit message.
 4. Check CI after the push. Fix a failed product or repository check before the
@@ -37,6 +41,8 @@ pushes, CI, or routine lifecycle transitions. Do not create another
 authority successor solely because a new commit touches a path they governed.
 The default Python test selection is current repository tooling; invoke a
 historical authority test file explicitly when reproducing its result.
+`_bmad/scripts/tests/conftest.py` lists the suites this policy retired, so a
+directory run leaves them out and naming a file still runs it.
 The V29 result for `0bb017e641eb7bd03864466526c4918f9c55ef70` remains a
 historical `FAIL`; this policy makes no retroactive `PASS` or authorization claim.
 The recorded V29 hold remains `ACTIVE`, with all four authority flags false.

@@ -4798,6 +4798,49 @@ def test_v2_workflow_verifies_inserted_digest_rejects_committed_source_changes(
     v2_7_3_isolated(repository, fault, check)
 
 
+@pytest.mark.parametrize("sprint_status", ("review", "done"))
+@pytest.mark.parametrize("moves_gitlink", (False, True), ids=("lifecycle-only", "moves-gitlink"))
+def test_v2_done_commit_moving_a_gitlink_fails_inserted_record_verification(
+    tmp_path: Path, moves_gitlink: bool, sprint_status: str
+) -> None:
+    """Every gate route reruns `--verify-inserted-record` after its done commit (Epic 7 retro F-6).
+
+    A lifecycle-only done commit keeps the record final; one that also stages a gitlink
+    must fail that rerun.
+    """
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    v2_7_3_insert_record(repository, markdown_bytes)
+    assert v2_run(v2_7_3_verify_arguments(repository)).returncode == 0
+    spec = repository / STORY_7_3_SPEC_PATH
+    spec.write_text(
+        spec.read_text(encoding="utf-8").replace("status: 'in-progress'", "status: 'done'", 1),
+        encoding="utf-8",
+    )
+    sprint = repository / STORY_7_2_SPRINT_PATH
+    sprint.write_text(
+        sprint.read_text(encoding="utf-8").replace(
+            f"{STORY_7_3_SPRINT_ROW}: in-progress", f"{STORY_7_3_SPRINT_ROW}: {sprint_status}", 1
+        ),
+        encoding="utf-8",
+    )
+    v2_git(repository, "add", STORY_7_3_SPEC_PATH, STORY_7_2_SPRINT_PATH)
+    if moves_gitlink:
+        moved = ROOT_GITLINK_PATHS[0]
+        v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "done commit")
+
+    result = v2_run(v2_7_3_verify_arguments(repository))
+    if moves_gitlink:
+        document = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"})
+        assert document["blockers"] == ["CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"]
+        assert all(item["message"].endswith(moved) for item in document["diagnostics"]), document
+    else:
+        assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
 def test_v2_workflow_accepts_a_separate_blocker_rollback_to_the_candidate_status(
     tmp_path: Path,
 ) -> None:

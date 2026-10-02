@@ -2907,8 +2907,7 @@ print(json.dumps(document))
     hostile_imports.mkdir()
     (hostile_imports / "json.py").write_text("raise SystemExit('hostile json')\n", encoding="utf-8")
     base_python = subprocess.check_output(
-        [str(ROOT / ".venv/bin/python"), "-c", "import sys; print(sys._base_executable)"],
-        text=True,
+        [shutil.which("uv") or "uv", "python", "find", "3.11.15"], text=True
     ).strip()
     range_output = runner_temp / "range-output"
     environment = {
