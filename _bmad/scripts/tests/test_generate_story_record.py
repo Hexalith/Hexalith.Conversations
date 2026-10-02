@@ -7010,12 +7010,15 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path)
     module = load_generator()
     result_path = tmp_path / "artifacts/v9/8.1/AC-8.1-02.trx"
     result_path.parent.mkdir(parents=True)
+    binary_path = tmp_path / module.V2_8_1_TEST_ASSEMBLY
+    binary_path.parent.mkdir(parents=True)
+    binary_path.write_bytes(b"test assembly fixture")
     method = ("Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
               "SourcesShouldBindCanonicalPathsVersionsAndHashes")
     template = ("<TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\">"
                 "<Results><UnitTestResult testName=\"{method}\" outcome=\"{outcome}\" />"
                 "</Results><TestDefinitions><UnitTest><TestMethod "
-                "codeBase=\"Hexalith.Conversations.Conformance.Tests.dll\" />"
+                f"codeBase=\"{module.V2_8_1_TEST_ASSEMBLY}\" />"
                 "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" executed=\"1\" "
                 "passed=\"{passed}\" failed=\"{failed}\" /></ResultSummary></TestRun>")
     scenario = {"id": "AC-8.1-02", "command": "exact command"}

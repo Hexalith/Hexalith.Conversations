@@ -4241,6 +4241,7 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                       f"- Contract: {code(ux['contract']['path'])}",
                       f"- Contract SHA-256: {code(ux['contract']['sha256'])}",
                       f"- Story 7.4 record SHA-256: {code(ux['predecessorRecord']['sha256'])}",
+                      f"- Build SourceRevisionId: {code(ux['sourceRevisionId'])}",
                       f"- Test assembly SHA-256: {code(ux['testAssembly']['sha256'])}",
                       "", "| Bound input/output | Path | SHA-256 |", "| --- | --- | --- |"])
         lines.extend(f"| Source | {code(row['path'])} | {code(row['sha256'])} |" for row in ux["sources"])
@@ -5687,10 +5688,13 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
     candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
     if mtime_ns < candidate_ns:
         stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY)
+    if dotnet_source_revisions(binary) != [candidate]:
+        stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY)
     return {"contract": {"path": contract_path, "sha256": v2_sha256(v2_committed_blob(repository, candidate, contract_path))},
             "predecessorRecord": {"storyId": predecessor_id, "path": predecessor_path, "sha256": predecessor_sha},
             "sources": sources, "outputs": outputs,
             "testAssembly": {"path": V2_8_1_TEST_ASSEMBLY, "sha256": v2_sha256(binary)},
+            "sourceRevisionId": candidate,
             "testAssemblyMtimeNs": mtime_ns}
 
 
@@ -5723,8 +5727,15 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
         return record, "failed", findings
     record["resultFile"] = {"path": command["output"], "sha256": v2_sha256(content)}
     rows = parsed["results"]
+    binary_paths = []
+    for code_base in parsed["code_bases"]:
+        try:
+            binary_paths.append(test_binary_path(repository, code_base)[0])
+        except ValueError:
+            binary_paths.append("invalid")
     if (len(rows) != 1 or rows[0]["test"] != command["method"]
             or parsed["assemblies"] != ["Hexalith.Conversations.Conformance.Tests"]
+            or binary_paths != [V2_8_1_TEST_ASSEMBLY]
             or parsed["reported"] != {"total": 1, "executed": 1, "passed": 1, "failed": 0, "skipped": 0}
             or parsed["recomputed"] != {"total": 1, "passed": 1, "failed": 0, "skipped": 0}
             or count_disagreements(parsed)):

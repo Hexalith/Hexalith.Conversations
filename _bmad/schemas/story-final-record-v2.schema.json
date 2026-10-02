@@ -695,7 +695,7 @@
     "uxDisposition": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["contract", "predecessorRecord", "sources", "outputs", "testAssembly"],
+      "required": ["contract", "predecessorRecord", "sources", "outputs", "testAssembly", "sourceRevisionId"],
       "properties": {
         "contract": { "$ref": "#/$defs/outputFile" },
         "predecessorRecord": { "$ref": "#/$defs/predecessorRecord" },
@@ -719,7 +719,8 @@
             "markdown": { "$ref": "#/$defs/outputFile" }
           }
         },
-        "testAssembly": { "$ref": "#/$defs/outputFile" }
+        "testAssembly": { "$ref": "#/$defs/outputFile" },
+        "sourceRevisionId": { "$ref": "#/$defs/commit" }
       }
     },
     "measurements": {
