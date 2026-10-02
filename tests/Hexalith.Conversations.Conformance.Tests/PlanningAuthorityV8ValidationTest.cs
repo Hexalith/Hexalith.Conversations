@@ -251,8 +251,19 @@ public sealed class PlanningAuthorityV8ValidationTest
             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs",
         })
         {
-            File.Exists(Path.Combine(FindRepositoryRoot(), futureStoryDeliverable))
-                .ShouldBeFalse($"{futureStoryDeliverable} belongs to future Story 6.4 implementation, not v8 publication.");
+            ProcessStartInfo startInfo = new("git")
+            {
+                WorkingDirectory = FindRepositoryRoot(),
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+            };
+            startInfo.ArgumentList.Add("cat-file");
+            startInfo.ArgumentList.Add("-e");
+            startInfo.ArgumentList.Add($"{HistoricalSprintCandidate}:{futureStoryDeliverable}");
+            using Process process = Process.Start(startInfo)!;
+            process.WaitForExit();
+            process.ExitCode.ShouldNotBe(0, $"{futureStoryDeliverable} belongs to future Story 6.4 implementation, not the historical v8 candidate.");
         }
     }
 

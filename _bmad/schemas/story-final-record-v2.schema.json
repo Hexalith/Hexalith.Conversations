@@ -298,6 +298,16 @@
           }
         }
       }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": { "const": "8.1" }
+        },
+        "required": ["storyId"]
+      },
+      "then": { "required": ["uxDisposition"] },
+      "else": { "not": { "required": ["uxDisposition"] } }
     }
   ],
   "properties": {
@@ -376,6 +386,9 @@
     },
     "historicalVerification": {
       "$ref": "#/$defs/historicalVerification"
+    },
+    "uxDisposition": {
+      "$ref": "#/$defs/uxDisposition"
     }
   },
   "$defs": {
@@ -677,6 +690,36 @@
         "sha256": {
           "$ref": "#/$defs/digest"
         }
+      }
+    },
+    "uxDisposition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract", "predecessorRecord", "sources", "outputs", "testAssembly"],
+      "properties": {
+        "contract": { "$ref": "#/$defs/outputFile" },
+        "predecessorRecord": { "$ref": "#/$defs/predecessorRecord" },
+        "sources": {
+          "type": "array",
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            { "$ref": "#/$defs/outputFile" },
+            { "$ref": "#/$defs/outputFile" }
+          ]
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schema", "json", "markdown"],
+          "properties": {
+            "schema": { "$ref": "#/$defs/outputFile" },
+            "json": { "$ref": "#/$defs/outputFile" },
+            "markdown": { "$ref": "#/$defs/outputFile" }
+          }
+        },
+        "testAssembly": { "$ref": "#/$defs/outputFile" }
       }
     },
     "measurements": {

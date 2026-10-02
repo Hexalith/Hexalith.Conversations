@@ -1,0 +1,1483 @@
+{
+  "schemaVersion": "hexalith.conversations.ux-preservation-disposition.v1",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055",
+    "inventoryId": "V9-8.1-ENTRY-v1",
+    "inventorySha256": "6c61eb92078755496c73506419112026e3e9b7f63bb314b1028d4e9c7bb41ef9",
+    "contractPath": "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json",
+    "contractSha256": "51daf31859c8bf01c6bb7960b1ff3ba7c3e47eb121ed6da7966e59a285d3ed28"
+  },
+  "candidate": {
+    "storyId": "8.1",
+    "bindingRule": "SC-8.1 is HEAD^{commit} at final-record generation",
+    "predecessorPath": "docs/release-evidence/story-7.4-final-record-v2.json",
+    "predecessorSha256": "1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290"
+  },
+  "sources": [
+    {
+      "path": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "version": "ux-preservation-planning-2026-08-01-v1",
+      "sha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18"
+    },
+    {
+      "path": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "version": "ux-preservation-planning-2026-08-18-v4",
+      "sha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f"
+    }
+  ],
+  "status": "preserved-not-activated",
+  "preservationBanner": "Preservation only: these UX obligations are not activated for product UI implementation. Historical story mappings are non-current provenance; release activation requires separate approved authority.",
+  "decisions": [
+    {
+      "id": "UX-DR1",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Use FrontComposer and Fluent UI Blazor as the baseline design system.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Design system foundation",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR2",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Add custom Conversations UI only where trust interpretation demands it.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Core experience / component strategy",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR3",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Render trust states and action enablement only from Conversations-owned outputs.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust as a contract",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1, 3.2, 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR4",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Prevent the admin UI from browsing raw EventStore streams as the primary experience.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Generated-first boundaries",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.3",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR5",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve reusable state treatments for trust, freshness, denial, degradation, and redaction.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Visual design foundation",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR6",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve redaction notices that never expose original values through any surface.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Redaction safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 2.4.2, 3.3, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR7",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve audit markers, evidence anchors, and chain-of-custody cues.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence cues",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.3, 3.4",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR8",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve safe participant resolution and degraded hydration states.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Participant identity",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 1.3, 3.2, 3.3",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR9",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve server-owned command availability and blocked reasons.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Command availability",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.5, 4.4",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR10",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve stable citation and temporal-reconstruction affordances.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Citation and temporal reconstruction",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.4, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR11",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve generated-first search, list, detail, form, loading, and empty states.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Generated surfaces",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1, 3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR12",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve the custom evidence, citation, redaction, audit, freshness, and command-gate boundary.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Custom trust-critical surfaces",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.2-3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR13",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve explicit inputs, fail-closed behavior, and tests for trust-critical components.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust component contracts",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.2-3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR14",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve proof that gated actions disable on absent or stale metadata.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Gated action tests",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR15",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve degraded handling for missing or deleted evidence.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence timeline tests",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.2, 3.4",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR16",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve keyboard and screen-reader accessibility for evidence and audit surfaces.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Accessibility tests",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.3, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR17",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve Trust Fact, SafeReason, Freshness Marker, and Citation Control primitives.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust primitives",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR18",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve Find Pane, Trust Preview, Governed Header, Evidence Timeline, and related composites.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Investigation composites",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.7",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR19",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve one shared trust model for trust-bearing components.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence trust model",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1, 3.2, 4.4",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR20",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve independent drawer authorization and close-on-downgrade behavior.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Detail authorization",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.2, 3.3, 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR21",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve permission-safe counts, facets, autocomplete, pagination, and timing.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Search disclosure safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.1",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR22",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve projection version, timestamp, or freshness source on trust-bearing components.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Freshness evidence",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 1.7, 3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR23",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve content-safe, bounded trust-workflow telemetry.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safe telemetry",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.6, 6.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR24",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve trust primitives before higher-order components with safety tests.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust primitive test suite",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR25",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve Find -> Open -> Verify -> Cite, Act, or Stop.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Core investigation flow",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1-3.7",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR26",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve citation, audit, participant, freshness, and command-reason details.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence detail components",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.2-3.6",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR27",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve forensic timeline, acceptance, waiver, and responsive-find designs.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Review and enhancement flows",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.6, 3.7",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR28",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve the canonical trust-state fixture set.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Canonical fixtures",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.7, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR29",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve deterministic conservative trust precedence.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust precedence",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1, 3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR30",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve distinct empty, loading, denied, unavailable, stale, redacted, degraded, and no-access states.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safe states",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.1, 3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR31",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve tenant-scoped, permission-filtered, trust-previewed search.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Tenant-scoped search",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.1",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR32",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve tenant scope, identity, freshness, completeness, citation, participant, and command state before timeline reliance.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust summary band",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.2",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR33",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve drawers for evidence details and dialogs for governance-changing confirmation.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Drawers and dialogs",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.3, 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR34",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve intent-only governance forms with no editable authority context.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Governance form safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR35",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve authorization-rechecked, permission-safe copy and export DTOs.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Copy/export safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.4, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR36",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve safe clearing and closure on permission or metadata downgrade.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust transitions",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.5",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR37",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve AC-SAFE-001 through AC-SAFE-008.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safety AC set",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.7, 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR38",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve leakage, tenant-isolation, trust-provenance, and command-safety gates.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:UX quality gates",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Stories 3.6-3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR39",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve desktop-first governance workflows with safe mobile triage.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive strategy",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR40",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve every responsive variant as an independent disclosure surface.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive disclosure surfaces",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR41",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve scope, identity, trust, completeness, and command eligibility before reliance.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Breakpoint trust order",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR42",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve the default block on narrow-screen governance mutations.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Mobile mutation default",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR43",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve mobile, tablet, desktop, and wide-desktop breakpoints.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Breakpoints",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR44",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve WCAG 2.1 AA for operator/admin web surfaces.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:WCAG 2.1 AA",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR45",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve tenant, permission, and redaction safety in assistive output.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Assistive output safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR46",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve safe microcopy for redacted, unavailable, restricted, loading, and partial states.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Accessibility microcopy",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR47",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve trust metadata loading before or with trust-bearing content.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust metadata loading",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR48",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve order, navigation, and redaction semantics in virtualized timelines.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Virtualized timeline safety",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR49",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve permission-safe identifiers and temporal cursors in handoff links.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Mobile handoff links",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR50",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve responsive and accessibility testing across breakpoints and trust states.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive/accessibility matrix",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR51",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve DOM, ARIA, title, clipboard, telemetry, screenshot, and accessibility-snapshot scanning.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Leak Sentinel",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "UX-DR52",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Preserve the canonical responsive/accessibility fixtures.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+      "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Canonical responsive fixtures",
+      "historicalMappings": [
+        {
+          "reference": "Historical: Story 3.8",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved obligation; future activation requires separate authorization.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    }
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-SAFE-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Unauthorized conversation IDs return a fail-closed UI state with no title, preview, participant names, snippets, timestamps, tags, or inferred existence.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-002",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Redacted fields are absent from rendered DOM, tooltip text, aria labels, clipboard payloads, telemetry payloads, browser title, route metadata, and responsive duplicate layouts.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-002",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-003",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Evidence drawer authorization is checked independently from the parent timeline view.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-003",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-004",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Every command rechecks tenant, role, trust state, and source-owned command metadata immediately before execution.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-004",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-005",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Trust posture is displayed only from projection or command metadata, never inferred client-side.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-005",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-006",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Trust precedence is deterministic and tested.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-006",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-007",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Search results never reveal inaccessible records through counts, pagination totals, empty-state wording, filter chips, recent searches, or sort gaps.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-007",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-SAFE-008",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Loading, empty, error, denied, redacted, and stale-projection states each have distinct components and test snapshots.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-008",
+      "historicalMappings": [
+        {
+          "reference": "Historical UX safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Tenant scope, record identity, trust posture, evidence completeness, and command eligibility appear before timeline reliance at every breakpoint.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-002",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Mobile and tablet layouts do not introduce protected content through duplicated cards, summaries, sticky headers, drawer titles, skeletons, or browser titles.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-002",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-003",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Mobile governance-changing actions are blocked unless explicitly designed, authorized, confirmed, and tested for narrow screens.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-003",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-004",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Screen reader output contains no redacted or unauthorized content in accessible names, descriptions, live regions, landmarks, table summaries, or focus announcements.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-004",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-005",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Keyboard-only users can complete Find -> Read -> Trust, including citation copy and safe stop, without pointer-only interactions.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-005",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-006",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Permission downgrade closes authorized drawers, clears protected content, announces a safe state change, and preserves only safe operator-entered intent.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-006",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-007",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Browser zoom, high contrast, reduced motion, and narrow viewport behavior preserve trust ordering and do not hide blocked-action reasons.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-007",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-008",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Leak Sentinel checks run against desktop, tablet, and mobile states before release.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-008",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-009",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Each breakpoint renders from the same permission-safe view model contract; forbidden fields are absent from serialized payloads and rendered DOM before layout adaptation.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-009",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-010",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Responsive duplicate markup for trust-bearing content is forbidden unless both copies are generated from the same authorized/redacted component and covered by Leak Sentinel.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-010",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-011",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Mobile blocked actions return explicit unavailable state, not hidden optimistic affordances.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-011",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-012",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Screen reader disclosure order is tested; trust metadata is announced before message content, attachments, citations, exports, approvals, and provenance-sensitive labels.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-012",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-013",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Focus after navigation, filtering, modal close, timeline virtualization, and handoff-link generation lands on a safe summary region, not directly on sensitive content.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-013",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-014",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Skeletons, empty states, error states, and partial-load placeholders use generic copy only unless details are explicitly authorized.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-014",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-RESP-015",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Viewport-specific telemetry must not include redacted content, unauthorized identifiers, hidden column names, filter terms, or assistive-technology-only labels.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-015",
+      "historicalMappings": [
+        {
+          "reference": "Historical responsive contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-A11Y-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Redacted or unauthorized content has safe accessible names and descriptions verified by accessibility-tree inspection.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-A11Y-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical accessibility contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-A11Y-002",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Keyboard and screen-reader flows preserve Find -> Read -> Trust order.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-A11Y-002",
+      "historicalMappings": [
+        {
+          "reference": "Historical accessibility contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-LEAK-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Leak Sentinel scans DOM, accessibility tree, URL/query state, clipboard actions, and viewport-specific menus across desktop, tablet, and mobile.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-LEAK-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical leakage contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-MOB-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Mobile governance actions are disabled or absent by default unless covered by explicit tests and product acceptance.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-MOB-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical mobile contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    },
+    {
+      "id": "AC-PERF-001",
+      "status": "preserved-not-activated",
+      "owner": "Stories 8.1-8.2 preservation contract",
+      "rationale": "Skeleton, lazy-load, virtualized, and error states use generic placeholders and never expose restricted metadata during loading transitions.",
+      "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
+      "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-PERF-001",
+      "historicalMappings": [
+        {
+          "reference": "Historical loading/performance-safety contract",
+          "classification": "historical-provenance",
+          "current": false
+        }
+      ],
+      "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
+      "disclosureSafety": "No product disclosure or UI implementation is authorized."
+    }
+  ],
+  "historicalProvenance": {
+    "classification": "non-current",
+    "currentImplementationOwner": false,
+    "note": "Historical story references are navigation only; they cannot authorize implementation."
+  },
+  "renderedMarkdownSha256": "91e202f743486150b1191b6fc7a645afdd3084cc5cc716789f7ab03955449495"
+}

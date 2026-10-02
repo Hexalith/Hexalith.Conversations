@@ -1167,3 +1167,22 @@ the Story 7.3 `AC-7.3-01` and `AC-7.3-02` verifier commands only after archiving
 run `python3 scripts/check-root-submodules.py --repository .` and
 `git diff --check`. V23–V29 current-authority gates are not required. This
 procedure includes no push and claims no CI gate.
+
+### Story 8.1 UX disposition blockers
+
+Story 8.1 binds the canonical UX specification and requirement map, the closed
+disposition schema/JSON/Markdown bundle, Story 7.4's verified final record,
+and five exact-method xUnit TRX results. The disposition remains preservation
+evidence and does not activate product UI delivery.
+
+| Blocker | Exit | Condition |
+| --- | --- | --- |
+| `UX_SOURCE_UNBOUND` | `1` | A canonical UX source is absent from the candidate or predecessor. |
+| `UX_SOURCE_DRIFT` | `1` | Source bytes differ from the candidate, predecessor, or disposition binding. |
+| `UX_DECISION_INVENTORY_DRIFT` | `1` | Decision IDs differ from the ordered 52-ID inventory. |
+| `UX_ACCEPTANCE_INVENTORY_DRIFT` | `1` | Acceptance IDs differ from the ordered 28-ID inventory. |
+| `UX_ACTIVATION_UNAUTHORIZED` | `1` | Preservation status, banner, or historical non-current state is lost. |
+| `UX_CURRENT_STORY_INVALID` | `1` | A row assigns current implementation ownership outside the preservation contract. |
+| `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The Story 8.1 candidate changes a production source path. |
+| `UX_SCHEMA_INVALID` | `1` | The disposition schema or authoritative JSON is absent, malformed, or invalid. |
+| `UX_RENDER_DRIFT` | `1` | Markdown or installed disposition bytes differ from their digest-bound candidate. |

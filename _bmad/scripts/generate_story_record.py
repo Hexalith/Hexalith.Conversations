@@ -2742,6 +2742,28 @@ V2_7_4_SPEC_PATH = (
     "_bmad-output/implementation-artifacts/"
     "spec-7-4-verify-historical-mode-and-required-fault-injection-blockers.md"
 )
+V2_8_1_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json"
+V2_8_1_SPEC_PATH = (
+    "_bmad-output/implementation-artifacts/"
+    "spec-8-1-generate-the-versioned-ux-disposition-contract.md"
+)
+V2_8_1_DISPOSITION_PATHS = (
+    "docs/release-evidence/ux-preservation-disposition-v1.schema.json",
+    "docs/release-evidence/ux-preservation-disposition-v1.json",
+    "docs/release-evidence/ux-preservation-disposition-v1.md",
+)
+V2_8_1_SOURCES = (
+    "_bmad-output/planning-artifacts/ux-design-specification.md",
+    "_bmad-output/planning-artifacts/ux-requirement-map.md",
+)
+V2_8_1_PREDECESSOR = (
+    "7.4", "docs/release-evidence/story-7.4-final-record-v2.json",
+    "docs/release-evidence/story-7.4-final-record-v2.md",
+)
+V2_8_1_TEST_ASSEMBLY = (
+    "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/"
+    "Hexalith.Conversations.Conformance.Tests.dll"
+)
 V2_HISTORY_FIXTURE_PATH = "_bmad/scripts/fixtures/story-7.4-history-v1.json"
 V2_HISTORY_OUTPUT_PATH = "artifacts/v9/7.4/AC-7.4-01.json"
 V2_HISTORY_ANCHORS = (
@@ -2916,6 +2938,15 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "UX_SOURCE_UNBOUND": "FAIL",
+    "UX_SOURCE_DRIFT": "FAIL",
+    "UX_DECISION_INVENTORY_DRIFT": "FAIL",
+    "UX_ACCEPTANCE_INVENTORY_DRIFT": "FAIL",
+    "UX_ACTIVATION_UNAUTHORIZED": "FAIL",
+    "UX_CURRENT_STORY_INVALID": "FAIL",
+    "UX_PRODUCTION_CHANGE_FORBIDDEN": "FAIL",
+    "UX_SCHEMA_INVALID": "FAIL",
+    "UX_RENDER_DRIFT": "FAIL",
     "HISTORICAL_BLOB_UNRESOLVED": "FAIL",
     "HISTORICAL_RECORD_DRIFT": "FAIL",
     "FAULT_NOT_DETECTED": "FAIL",
@@ -4204,6 +4235,17 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                          f"| {code(', '.join(row['warnings'])) if row['warnings'] else 'none'} |")
         lines.append("")
         lines.extend(f"- {limit}" for limit in history["limits"])
+    if "uxDisposition" in record:
+        ux = record["uxDisposition"]
+        lines.extend(["", "## Story 8.1 UX disposition", "",
+                      f"- Contract: {code(ux['contract']['path'])}",
+                      f"- Contract SHA-256: {code(ux['contract']['sha256'])}",
+                      f"- Story 7.4 record SHA-256: {code(ux['predecessorRecord']['sha256'])}",
+                      f"- Test assembly SHA-256: {code(ux['testAssembly']['sha256'])}",
+                      "", "| Bound input/output | Path | SHA-256 |", "| --- | --- | --- |"])
+        lines.extend(f"| Source | {code(row['path'])} | {code(row['sha256'])} |" for row in ux["sources"])
+        lines.extend(f"| {code(role)} | {code(row['path'])} | {code(row['sha256'])} |"
+                     for role, row in ux["outputs"].items())
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
     if faults and record["storyId"] == "7.4":
@@ -4414,6 +4456,13 @@ def v2_self_ledger(scenario_id: str, story_id: str | None = None) -> list[dict[s
             "generator::all-thirteen-required-fault-blockers-observed",
             "generator::all-thirteen-fixtures-restored-byte-identically",
         )
+    if story_id == "8.1":
+        subjects += (
+            "generator::ux-disposition-schema-sources-and-output-digests",
+            "generator::story-7.4-predecessor-pair-verified",
+            "generator::five-exact-xunit-selectors-passed",
+            "generator::candidate-build-and-production-scope-bound",
+        )
     return [
         {"id": f"{scenario_id}#{ordinal:04d}", "subject": subject, "state": "PASS"}
         for ordinal, subject in enumerate(subjects, start=1)
@@ -4447,7 +4496,7 @@ def v2_record_region(content: bytes) -> tuple[int, int] | None:
 
 def v2_spec_lifecycle_only_change(
     repository: Path, candidate: str, head: str, spec_path: str, record_region: bool = False,
-    updated_content: bytes | None = None,
+    updated_content: bytes | None = None, task_checkboxes: bool = False,
 ) -> bool:
     """Accept only completion-route-owned changes in a committed story spec.
 
@@ -4517,6 +4566,14 @@ def v2_spec_lifecycle_only_change(
                 owned = followups[0]
                 masked = masked[:owned.start()] + masked[owned.end():]
             masked = without_route_sections(masked)
+        if task_checkboxes and masked is not None:
+            start = masked.find(b"## Tasks & Acceptance\n")
+            end = masked.find(b"## Implementation Notes\n", start + 1) if start >= 0 else -1
+            if start < 0 or end < 0:
+                return None
+            task_section = masked[start:end]
+            task_section = re.sub(rb"(?m)^- \[[ x]\] ", b"- [<task>] ", task_section)
+            masked = masked[:start] + task_section + masked[end:]
         return masked
 
     def without_record(content: bytes) -> tuple[bytes, bool] | None:
@@ -4550,11 +4607,13 @@ def v2_spec_lifecycle_only_change(
 
 
 def v2_working_spec_lifecycle_only_change(
-    repository: Path, head: str, spec_path: str, working: bytes, *, record_region: bool
+    repository: Path, head: str, spec_path: str, working: bytes, *, record_region: bool,
+    task_checkboxes: bool = False,
 ) -> bool:
     """Apply the committed lifecycle mask for one retained story to its working spec."""
     return v2_spec_lifecycle_only_change(
-        repository, head, head, spec_path, record_region=record_region, updated_content=working
+        repository, head, head, spec_path, record_region=record_region,
+        updated_content=working, task_checkboxes=task_checkboxes,
     )
 
 
@@ -4570,7 +4629,7 @@ def v2_sprint_status_only_change(
     update_date = re.compile(rb"(?m)^last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
     header_date = re.compile(rb"(?m)^# last_updated:[ \t]*(?P<value>\d{4}-\d{2}-\d{2})[ \t]*$")
 
-    def without_status(content: bytes | None) -> tuple[bytes, bytes, bytes, bytes] | None:
+    def without_status(content: bytes | None) -> tuple[bytes, bytes, bytes, bytes, tuple[bytes, ...]] | None:
         if content is None:
             return None
         matches = list(status.finditer(content))
@@ -4593,15 +4652,33 @@ def v2_sprint_status_only_change(
             header = headers[0]
             header_value = header.group("value")
             spans.append((header.start("value"), header.end("value"), b"<updated>"))
+        retro_values: list[bytes] = []
+        if sprint_key.startswith("8-1-"):
+            for number in (30, 31, 32):
+                start = re.search(rb'(?m)^  - id: "epic-7-retro-item-' + str(number).encode("ascii") + rb'-[^\n]+$', content)
+                if start is None:
+                    return None
+                next_item = content.find(b"\n  - id:", start.end())
+                block_end = next_item if next_item >= 0 else len(content)
+                block = content[start.end():block_end]
+                matches = list(re.finditer(rb"(?m)^    status: (?P<value>open|done)$", block))
+                if len(matches) != 1:
+                    return None
+                match = matches[0]
+                retro_values.append(match.group("value"))
+                spans.append((start.end() + match.start("value"), start.end() + match.end("value"), b"<retro>"))
         masked = content
         for start, end, token in sorted(spans, reverse=True):
             masked = masked[:start] + token + masked[end:]
-        return masked, match.group("value"), date.group("value"), header_value
+        return masked, match.group("value"), date.group("value"), header_value, tuple(retro_values)
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
     latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
     if original is None or latest is None or original[0] != latest[0]:
         return False
+    if any(before == b"done" and after != b"done" for before, after in zip(original[4], latest[4])):
+        return False
+    retro_changed = original[4] != latest[4]
     status_changed = original[1] != latest[1]
     header_date_only = (
         not status_changed
@@ -4609,7 +4686,7 @@ def v2_sprint_status_only_change(
         and original[3] != b""
         and original[3] != latest[3]
     )
-    return not require_transition or status_changed or header_date_only
+    return not require_transition or status_changed or header_date_only or retro_changed
 
 
 def v2_story_7_2_status_only_change(repository: Path, candidate: str, head: str) -> bool:
@@ -4622,6 +4699,25 @@ def v2_story_7_2_sprint_status_only_change(repository: Path, candidate: str, hea
     return v2_sprint_status_only_change(
         repository, candidate, head, "7-2-derive-test-path-candidate-submodule-and-gitlink-facts"
     )
+
+
+def v2_retention_config(repository: Path, contract_path: str) -> tuple[str, str, str, bool] | None:
+    """Resolve a successor story's lifecycle paths from its contract identity."""
+    historical = V2_RETAINED_CANDIDATES.get(contract_path)
+    if historical is not None:
+        return historical
+    match = re.fullmatch(r"_bmad-output/planning-artifacts/v9/story-contracts/(\d+)\.(\d+)\.json", contract_path)
+    if match is None or int(match.group(1)) < 8:
+        return None
+    story_id = f"{match.group(1)}.{match.group(2)}"
+    prefix = f"spec-{match.group(1)}-{match.group(2)}-"
+    candidates = sorted((repository / "_bmad-output/implementation-artifacts").glob(prefix + "*.md"))
+    if len(candidates) != 1:
+        raise V2Stop([v2_finding("BASELINE_NOT_TRUSTWORTHY", contract_path,
+                                 "the successor contract must resolve to one story spec")], story_id)
+    spec_path = candidates[0].relative_to(repository).as_posix()
+    sprint_key = candidates[0].stem.removeprefix("spec-")
+    return story_id, spec_path, sprint_key, True
 
 
 def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_path: str,
@@ -4662,8 +4758,10 @@ def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_
         delta = set(committed_path_status(repository, parent, revision))
         moved = changed_gitlinks(repository, candidate, revision)
         pair_delta_invalid = bool(delta & pair_paths) and delta != pair_paths
+        successor = int(story_id.split(".")[0]) >= 8
         invalid_spec_change = (spec_path in changed and not v2_spec_lifecycle_only_change(
-            repository, candidate, revision, spec_path, record_region))
+            repository, candidate, revision, spec_path, record_region,
+            task_checkboxes=successor))
         invalid_sprint_change = (
             V2_7_2_SPRINT_PATH in changed
             and not v2_sprint_status_only_change(
@@ -4671,7 +4769,8 @@ def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_
             )
         )
         invalid_spec_delta = spec_path in delta and not v2_spec_lifecycle_only_change(
-            repository, parent, revision, spec_path, record_region
+            repository, parent, revision, spec_path, record_region,
+            task_checkboxes=successor,
         )
         invalid_sprint_delta = V2_7_2_SPRINT_PATH in delta and not v2_sprint_status_only_change(
             repository, parent, revision, sprint_key
@@ -5471,6 +5570,176 @@ def v2_story_7_4_verification(repository: Path, candidate: str, contract_path: s
              **history, "predecessorRecords": predecessors}, lanes[0])
 
 
+def v2_ux_command(tokens: list[str], scenario_id: str) -> dict[str, str] | None:
+    """Recognize Story 8.1's exact frozen Python and xUnit commands."""
+    if scenario_id == "AC-8.1-01":
+        expected = ["python3", "_bmad/scripts/generate_ux_preservation_disposition.py",
+                    "--repository", ".", "--contract", V2_8_1_CONTRACT_PATH,
+                    "--output-schema", V2_8_1_DISPOSITION_PATHS[0],
+                    "--output-json", V2_8_1_DISPOSITION_PATHS[1],
+                    "--output-markdown", V2_8_1_DISPOSITION_PATHS[2]]
+        return {"kind": "bundle", "output": V2_8_1_DISPOSITION_PATHS[1]} if tokens == expected else None
+    methods = {
+        "AC-8.1-02": "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+        "AC-8.1-03": "DecisionsShouldProjectTheFrozenInventory",
+        "AC-8.1-04": "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+        "AC-8.1-05": "DispositionsShouldRemainPreservedAndHistorical",
+        "AC-8.1-06": "CandidateShouldContainNoProductionUiChange",
+    }
+    if scenario_id not in methods:
+        return None
+    method = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest." + methods[scenario_id]
+    result = f"artifacts/v9/8.1/{scenario_id}.trx"
+    expected = ["dotnet", V2_8_1_TEST_ASSEMBLY, "-automated", "sync", "-failSkips",
+                "-method", method, "-trx", result]
+    return {"kind": "trx", "output": result, "method": method} if tokens == expected else None
+
+
+def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
+                contract: dict[str, Any], record_validator: Any) -> dict[str, Any]:
+    """Independently bind the committed disposition, sources, predecessor, and build."""
+    import jsonschema  # noqa: PLC0415 - v2_load_schemas already checked availability
+
+    def stop(code: str, subject: str) -> NoReturn:
+        raise V2Stop([v2_finding(code, subject, "Story 8.1 disposition binding failed")], "8.1")
+
+    sources = []
+    for path in V2_8_1_SOURCES:
+        committed = v2_committed_blob(repository, candidate, path)
+        installed = repository / path
+        if committed is None or not installed.is_file() or installed.is_symlink():
+            stop("UX_SOURCE_UNBOUND", path)
+        if installed.read_bytes() != committed:
+            stop("UX_SOURCE_DRIFT", path)
+        sources.append({"path": path, "sha256": v2_sha256(committed)})
+    predecessor_id, predecessor_path, predecessor_markdown = V2_8_1_PREDECESSOR
+    predecessor_sha = v2_verified_predecessor(repository, candidate, predecessor_id,
+                                              predecessor_path, predecessor_markdown, record_validator)
+    if predecessor_sha is None:
+        stop("AUTHORITY_BINDING_INVALID", predecessor_path)
+    predecessor = v2_parse_json(v2_committed_blob(repository, candidate, predecessor_path))
+    for source in sources:
+        original = v2_committed_blob(repository, predecessor["candidate"]["commit"], source["path"])
+        if original is None:
+            stop("UX_SOURCE_UNBOUND", source["path"])
+        if v2_sha256(original) != source["sha256"]:
+            stop("UX_SOURCE_DRIFT", source["path"])
+    outputs = {}
+    output_bytes = {}
+    for role, path in zip(("schema", "json", "markdown"), V2_8_1_DISPOSITION_PATHS):
+        committed = v2_committed_blob(repository, candidate, path)
+        installed = repository / path
+        if committed is None or not installed.is_file() or installed.is_symlink():
+            stop("UX_SCHEMA_INVALID", path)
+        if installed.read_bytes() != committed:
+            stop("UX_RENDER_DRIFT", path)
+        output_bytes[role] = committed
+        outputs[role] = {"path": path, "sha256": v2_sha256(committed)}
+    try:
+        schema = v2_parse_json(output_bytes["schema"])
+        disposition = v2_parse_json(output_bytes["json"])
+        jsonschema.Draft202012Validator.check_schema(schema)
+        if v2_schema_errors(jsonschema.Draft202012Validator(schema), disposition):
+            stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    except (UnicodeDecodeError, ValueError, jsonschema.SchemaError):
+        stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[0])
+    if disposition.get("renderedMarkdownSha256") != outputs["markdown"]["sha256"]:
+        stop("UX_RENDER_DRIFT", V2_8_1_DISPOSITION_PATHS[2])
+    if disposition.get("status") != "preserved-not-activated" or "not activated" not in disposition.get("preservationBanner", ""):
+        stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
+    decisions = disposition.get("decisions", [])
+    acceptance = disposition.get("acceptanceCriteria", [])
+    expected_acceptance = [*(f"AC-SAFE-{i:03d}" for i in range(1, 9)),
+                           *(f"AC-RESP-{i:03d}" for i in range(1, 16)),
+                           "AC-A11Y-001", "AC-A11Y-002", "AC-LEAK-001", "AC-MOB-001", "AC-PERF-001"]
+    if [row.get("id") for row in decisions] != [f"UX-DR{i}" for i in range(1, 53)]:
+        stop("UX_DECISION_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
+    if [row.get("id") for row in acceptance] != expected_acceptance:
+        stop("UX_ACCEPTANCE_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
+    if [(row.get("path"), row.get("sha256")) for row in disposition.get("sources", [])] != [
+        (row["path"], row["sha256"]) for row in sources]:
+        stop("UX_SOURCE_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
+    if any(row.get("status") != "preserved-not-activated" for row in decisions + acceptance):
+        stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
+    if any(row.get("owner") != "Stories 8.1-8.2 preservation contract" for row in decisions + acceptance):
+        stop("UX_CURRENT_STORY_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    if (disposition.get("candidate", {}).get("predecessorSha256") != predecessor_sha
+            or disposition.get("candidate", {}).get("bindingRule") != "SC-8.1 is HEAD^{commit} at final-record generation"
+            or disposition.get("authority", {}).get("inventorySha256") != contract["inventory"]["sha256"]
+            or disposition.get("authority", {}).get("contractSha256") != v2_sha256(v2_committed_blob(repository, candidate, contract_path))):
+        stop("AUTHORITY_BINDING_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    spec = v2_committed_blob(repository, candidate, V2_8_1_SPEC_PATH)
+    if spec is None:
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
+    try:
+        baseline_value = frontmatter_scalar(parse_frontmatter(spec.decode("utf-8")), "baseline_commit")
+    except (UnicodeDecodeError, GateError):
+        baseline_value = None
+    baseline = try_resolve_commit(repository, baseline_value) if baseline_value else None
+    if baseline is None or not is_ancestor(repository, baseline, candidate):
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
+    if any(path.startswith("src/") for path in committed_path_status(repository, baseline, candidate)):
+        stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate")
+    assembly = repository / V2_8_1_TEST_ASSEMBLY
+    if not assembly.is_file() or assembly.is_symlink():
+        stop("TEST_RESULTS_MISSING", V2_8_1_TEST_ASSEMBLY)
+    binary, mtime_ns = read_file_snapshot(assembly)
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    if mtime_ns < candidate_ns:
+        stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY)
+    return {"contract": {"path": contract_path, "sha256": v2_sha256(v2_committed_blob(repository, candidate, contract_path))},
+            "predecessorRecord": {"storyId": predecessor_id, "path": predecessor_path, "sha256": predecessor_sha},
+            "sources": sources, "outputs": outputs,
+            "testAssembly": {"path": V2_8_1_TEST_ASSEMBLY, "sha256": v2_sha256(binary)},
+            "testAssemblyMtimeNs": mtime_ns}
+
+
+def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], command: dict[str, str],
+                                candidate_ns: int, assembly_ns: int,
+                                facts: dict[str, Any]) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
+    """Measure one exact-method TRX or the committed generator bundle."""
+    scenario_id = scenario["id"]
+    if command["kind"] == "bundle":
+        subjects = ("schema::closed-valid", "sources::path-version-hash", "inventory::52-28",
+                    "status::preserved", "provenance::non-current", "markdown::digest", "predecessor::7.4")
+        return ({"scenarioId": scenario_id, "command": scenario["command"], "exitCode": 0,
+                 "result": "PASS", "blockers": [], "resultFile": facts["outputs"]["json"],
+                 "assertionLedger": [{"id": f"{scenario_id}#{i:04d}", "subject": item, "state": "PASS"}
+                                      for i, item in enumerate(subjects, 1)]}, "passed", [])
+    findings: list[dict[str, str]] = []
+    record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
+                              "exitCode": 1, "result": "FAIL", "blockers": []}
+    result = repository / command["output"]
+    if not result.is_file() or result.is_symlink():
+        findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id, "the exact-method TRX is absent"))
+        record["blockers"] = ["TEST_RESULTS_MISSING"]
+        return record, "notRun", findings
+    try:
+        content, mtime_ns = read_file_snapshot(result)
+        parsed = parse_trx(content)
+    except (OSError, ValueError, ElementTree.ParseError):
+        findings.append(v2_finding("INPUT_SCHEMA_INVALID", scenario_id, "the exact-method TRX is invalid"))
+        record["blockers"] = ["INPUT_SCHEMA_INVALID"]
+        return record, "failed", findings
+    record["resultFile"] = {"path": command["output"], "sha256": v2_sha256(content)}
+    rows = parsed["results"]
+    if (len(rows) != 1 or rows[0]["test"] != command["method"]
+            or parsed["assemblies"] != ["Hexalith.Conversations.Conformance.Tests"]
+            or parsed["reported"] != {"total": 1, "executed": 1, "passed": 1, "failed": 0, "skipped": 0}
+            or parsed["recomputed"] != {"total": 1, "passed": 1, "failed": 0, "skipped": 0}
+            or count_disagreements(parsed)):
+        findings.append(v2_finding("TEST_FAILED", scenario_id, "the exact-method TRX is empty, skipped, failed, or mismatched"))
+    if mtime_ns < max(candidate_ns, assembly_ns):
+        findings.append(v2_finding("TEST_RESULTS_STALE", scenario_id, "the TRX predates the candidate or test build"))
+    if rows:
+        record["assertionLedger"] = [{"id": f"{scenario_id}#0001", "subject": rows[0]["test"],
+                                      "state": "FAIL" if findings else "PASS"}]
+    if not findings:
+        record.update({"exitCode": 0, "result": "PASS"})
+    record["blockers"] = sorted({item["code"] for item in findings})
+    return record, "failed" if findings else "passed", findings
+
+
 def v2_generate(options: dict[str, str]) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
@@ -5529,7 +5798,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
         ) from None
 
     head = candidate
-    retained = V2_RETAINED_CANDIDATES.get(contract_path)
+    retained = v2_retention_config(repository, contract_path)
     if retained is not None:
         candidate = v2_retained_candidate(repository, candidate, output_json, output_markdown,
                                           validators["record"], *retained)
@@ -5574,18 +5843,22 @@ def v2_generate(options: dict[str, str]) -> bytes:
     # Classify every scenario command before touching a result file.
     pytest_scenarios: list[tuple[dict[str, Any], dict[str, str | None]]] = []
     acceptance_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
+    ux_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
     self_scenarios: list[dict[str, Any]] = []
     for position, scenario in enumerate(contract["scenarios"]):
         try:
             tokens = shlex.split(scenario["command"])
         except ValueError:
             tokens = []
+        ux_command = v2_ux_command(tokens, scenario["id"]) if story_id == "8.1" else None
         pytest_command = v2_pytest_command(tokens)
         generator_command = None if pytest_command else v2_generator_command(tokens)
         acceptance_command = (
             None if pytest_command or generator_command else v2_acceptance_command(tokens)
         )
-        if acceptance_command is not None:
+        if ux_command is not None:
+            ux_scenarios.append((scenario, ux_command))
+        elif acceptance_command is not None:
             try:
                 safe_relative_path(acceptance_command["script"])
                 safe_relative_path(acceptance_command["output"])
@@ -5687,8 +5960,9 @@ def v2_generate(options: dict[str, str]) -> bytes:
             )
         )
     acceptance_paths = [command["output"] for _, command in acceptance_scenarios]
-    result_paths = [*junit_paths, *acceptance_paths]
-    if acceptance_paths and len(result_paths) != len(set(result_paths)):
+    ux_result_paths = [command["output"] for _, command in ux_scenarios if command["kind"] == "trx"]
+    result_paths = [*junit_paths, *acceptance_paths, *ux_result_paths]
+    if (acceptance_paths or ux_result_paths) and len(result_paths) != len(set(result_paths)):
         findings.append(
             v2_finding(
                 "SCENARIO_RESULT_MISMATCH",
@@ -5754,10 +6028,27 @@ def v2_generate(options: dict[str, str]) -> bytes:
             acceptance_inputs[scenario["id"]] = inputs
             if "resultFile" in scenario_record:
                 parsed_results += 1
+    ux_facts = None
+    if story_id == "8.1" and not findings:
+        if [scenario["id"] for scenario, _ in ux_scenarios] != [f"AC-8.1-0{i}" for i in range(1, 7)]:
+            findings.append(v2_finding("SCENARIO_COMMAND_UNSUPPORTED", story_id,
+                                       "Story 8.1 requires its six exact ordered commands"))
+        else:
+            ux_facts = v2_ux_facts(repository, candidate, contract_path, contract, validators["record"])
+            assembly_ns = ux_facts.pop("testAssemblyMtimeNs")
+            for scenario, command in ux_scenarios:
+                scenario_record, category, scenario_findings = v2_ux_scenario_from_results(
+                    repository, scenario, command, candidate_time * 1_000_000_000, assembly_ns, ux_facts
+                )
+                scenario_records[scenario["id"]] = scenario_record
+                categories[scenario["id"]] = category
+                findings.extend(scenario_findings)
+                if "resultFile" in scenario_record:
+                    parsed_results += 1
     ledger_rows = sum(
         len(item.get("assertionLedger", [])) for item in scenario_records.values()
     )
-    if (pytest_scenarios or acceptance_scenarios) and parsed_results == 0:
+    if (pytest_scenarios or acceptance_scenarios or ux_scenarios) and parsed_results == 0:
         findings.append(
             v2_finding(
                 "RECORD_NOT_DERIVED",
@@ -5839,6 +6130,8 @@ def v2_generate(options: dict[str, str]) -> bytes:
         record["historicalVerification"], record["faultInjection"]["results"] = (
             v2_story_7_4_verification(repository, candidate, contract_path, scenario_records, validators)
         )
+    if story_id == "8.1":
+        record["uxDisposition"] = ux_facts
     if summary != contract["finalRecord"]["summary"]:
         raise V2Stop(
             [
@@ -5972,8 +6265,10 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
     head_contract_blob = v2_committed_blob(repository, head, contract_path)
     contract = v2_validate_contract(head_contract_blob, contract_path, validators["contract"])
     story_id = contract["storyId"]
-    retained = V2_RETAINED_CANDIDATES.get(contract_path)
+    retained = v2_retention_config(repository, contract_path)
     expected_outputs = V2_RETAINED_OUTPUTS.get(story_id)
+    if expected_outputs is None and retained is not None and int(story_id.split(".")[0]) >= 8:
+        expected_outputs = tuple(contract["finalRecord"]["paths"])
     if retained is None or retained[0] != story_id or expected_outputs is None:
         raise V2Stop(
             [
@@ -6062,7 +6357,8 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             story_id,
         )
     if not v2_working_spec_lifecycle_only_change(
-        repository, head, spec_relative, spec_bytes, record_region=retained[3]
+        repository, head, spec_relative, spec_bytes, record_region=retained[3],
+        task_checkboxes=int(story_id.split(".")[0]) >= 8,
     ):
         drift(V2_VERIFY_OPTION, "the working spec changes content outside lifecycle-owned "
               "fields, sections, or the final-record region")

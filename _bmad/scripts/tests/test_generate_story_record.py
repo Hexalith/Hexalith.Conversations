@@ -6990,5 +6990,52 @@ def test_v2_story_7_4_fault_harness_reports_its_frozen_codes(tmp_path: Path, mon
         v2_7_4_observe_fault(tmp_path, "COUNT")
 
 
+def test_v2_story_8_1_requires_exact_python_and_xunit_commands() -> None:
+    """The gate accepts only the six frozen commands, with no selector drift."""
+    import shlex
+
+    module = load_generator()
+    contract = json.loads((WORKSPACE / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    for scenario in contract["scenarios"][:-1]:
+        tokens = shlex.split(scenario["command"])
+        recognized = module.v2_ux_command(tokens, scenario["id"])
+        assert recognized is not None
+        assert recognized["kind"] == ("bundle" if scenario["id"] == "AC-8.1-01" else "trx")
+        assert module.v2_ux_command(tokens + ["--unexpected"], scenario["id"]) is None
+    assert module.v2_ux_command(["dotnet"], "AC-8.1-07") is None
+
+
+def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path) -> None:
+    """A stale, skipped, or foreign xUnit result cannot close the scenario."""
+    module = load_generator()
+    result_path = tmp_path / "artifacts/v9/8.1/AC-8.1-02.trx"
+    result_path.parent.mkdir(parents=True)
+    method = ("Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+              "SourcesShouldBindCanonicalPathsVersionsAndHashes")
+    template = ("<TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\">"
+                "<Results><UnitTestResult testName=\"{method}\" outcome=\"{outcome}\" />"
+                "</Results><TestDefinitions><UnitTest><TestMethod "
+                "codeBase=\"Hexalith.Conversations.Conformance.Tests.dll\" />"
+                "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" executed=\"1\" "
+                "passed=\"{passed}\" failed=\"{failed}\" /></ResultSummary></TestRun>")
+    scenario = {"id": "AC-8.1-02", "command": "exact command"}
+    command = {"kind": "trx", "output": "artifacts/v9/8.1/AC-8.1-02.trx", "method": method}
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "passed" and record["result"] == "PASS" and not findings
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, result_path.stat().st_mtime_ns + 1, 0, {})
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    result_path.write_text(template.format(method="OtherMethod", outcome="Passed", passed=1, failed=0))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    result_path.write_text(template.format(method=method, outcome="Failed", passed=0, failed=1))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-q"]))
