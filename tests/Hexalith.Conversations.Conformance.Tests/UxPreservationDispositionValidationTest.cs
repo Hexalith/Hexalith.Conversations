@@ -177,7 +177,10 @@ public sealed class UxPreservationDispositionValidationTest
         string baseline = Regex.Match(spec, @"^baseline_commit:\s*'?([0-9a-f]{40})'?\s*$", RegexOptions.Multiline).Groups[1].Value;
         baseline.Length.ShouldBe(40);
         string candidate = "HEAD";
-        if (File.Exists(Path.Combine(FindRoot(), RecordPath)) || File.Exists(Path.Combine(FindRoot(), RecordMarkdownPath)))
+        bool jsonCommitted = Git("ls-tree", "--name-only", "HEAD", "--", RecordPath).Trim() == RecordPath;
+        bool markdownCommitted = Git("ls-tree", "--name-only", "HEAD", "--", RecordMarkdownPath).Trim() == RecordMarkdownPath;
+        jsonCommitted.ShouldBe(markdownCommitted, "A partial committed Story 8.1 record pair is invalid.");
+        if (jsonCommitted)
         {
             using JsonDocument record = LoadJson(RecordPath);
             JsonElement root = record.RootElement;
