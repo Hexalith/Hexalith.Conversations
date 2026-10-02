@@ -23,7 +23,9 @@ ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "_bmad/scripts/inspect_story_7_1_acceptance.py"
 SCHEMA = json.loads((ROOT / "_bmad/schemas/story-7.1-ad4-readiness-result-v1.schema.json").read_bytes())
 VALIDATOR = Draft202012Validator(SCHEMA)
-BASELINE = "aefe4003cc94f49021e942adb9cbb8ca9ccf86cd"
+# The unpublished child aefe4003 has the same record and gitlink blobs;
+# pin its reachable parent so a full checkout can reproduce the fixture.
+BASELINE = "30fffc2cd427e837c719b87cb33475e34a6fc8de"
 # Validated with the owning repository's pinned commitlint 21.2.2 before use.
 FIXTURE_MESSAGE = "test(tooling): create AD-4 readiness fixture\n"
 PAIR_PATHS = [f"docs/release-evidence/story-{story}-final-record-v2.{suffix}"
