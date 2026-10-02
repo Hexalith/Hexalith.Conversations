@@ -415,3 +415,12 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `/home/administrator/projects/hexalith/conversations/_bmad-output/implementation-artifacts/spec-7-3-integrate-generation-into-every-blocking-completion-transition.md`
   summary: Correct the stale V14 header comment in `sprint-status.yaml`, which still says the global implementation hold is active, IR-0 was not run, and all successor stories remain backlog.
   evidence: Stories 7.1 and 7.2 are `done` and 7.3 is in `review` below that comment. The comment predates Story 7.3. Editing an unmasked sprint comment line after a committed pair makes candidate retention report `CANDIDATE_NOT_FINAL`, so correct it in separately scoped work or within a replacement candidate.
+
+## Deferred from: review of spec-epic-7-retro-items-31-32-ci-completion-gate-and-green-scripts-lane.md (2026-10-02)
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-7-retro-items-31-32-ci-completion-gate-and-green-scripts-lane.md`
+  summary: Bring the submodule-independent tests of `test_verify_epic_6_completion_supersession.py` back into the `ci / repository` lane with a registered marker and `-m` deselection, instead of ignoring the whole file.
+  evidence: In a no-submodule clone, 11 of the suite's 41 tests fail with `E6_GITLINK_OBJECT_UNAVAILABLE`, so CI passes `--ignore` for the file. The other 30, such as the monkeypatched unavailable-object and inventory-equality faults, need no submodule objects but now run only locally.
+- source_spec: `_bmad-output/implementation-artifacts/spec-epic-7-retro-items-31-32-ci-completion-gate-and-green-scripts-lane.md`
+  summary: As part of Epic 7 retro item 34, document how to reproduce the `ci / repository` lane locally, and mention the routes' post-done-commit `--verify-inserted-record` rerun in `current-change-validation.md`.
+  evidence: The runbook still says generated final records run only when a spec requires them, which item 34 (F-8) already owns. It does not give the CI-shaped command (`uv sync --locked`, the `--ignore`d Epic 6 suite, `TMPDIR` on WSL) or its roughly 7-minute duration.

@@ -153,7 +153,7 @@ If version control is unavailable, report the limitation and leave changes uncom
 If version control is available, write `status: done` into `{spec_file}` frontmatter when focused validation passes, then:
 
 1. When the invocation authorizes a commit, stage and commit only the identified task-owned paths with a validated Conventional Commit. Verify every intended path is committed and no unrelated path entered. A candidate commit exists only when an explicit final record or the story's v9 contract required it. Any commit failure restores lifecycle state to `in-progress` and HALTs.
-2. After that commit, when the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, commit `{spec_file}` and the story's sprint-status row back to `in-progress`, report the exact command, its exit, and every stable blocker code, then HALT.
+2. After that commit, when the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, apply the gate's blocker branch, committing the return to `in-progress` as a new validated Conventional Commit, and HALT with status `blocked` and blocking condition `done commit failed inserted-record verification`.
 3. Report any unrelated dirty paths without changing them. Push only when the invocation authorizes it.
 
 HALT with status `done`.

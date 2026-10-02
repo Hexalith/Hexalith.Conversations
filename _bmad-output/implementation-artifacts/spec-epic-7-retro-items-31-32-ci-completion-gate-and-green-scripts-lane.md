@@ -2,7 +2,7 @@
 title: 'Epic 7 retro items 31-32: green _bmad/scripts lane and CI-enforced completion gate'
 type: 'chore'
 created: '2026-10-02'
-status: 'in-progress'
+status: 'done'
 route: 'oneshot'
 ---
 
@@ -28,3 +28,28 @@ route: 'oneshot'
 - Item 31: `ci / repository` now uses full history (the generator tests read closed 7.x records), Python 3.11 through `actions/setup-python@v7.0.0`, and the locked `uv` environment. It runs AC-7.3-01/02 and the lane, minus the Epic 6 supersession suite, which needs initialized submodules. The timeout went from 5 to 40 minutes. The 7.3 block text ("no CI job or hook enforces it") stays true: CI enforces that the gate is present, not that it is run, so no block bytes changed.
 - F-6: each of the four routes now has a post-done-commit `--verify-inserted-record` rerun outside the block, without repeating any verifier span or transition marker. Each `.agents/.claude` twin was copied byte for byte. The new test `test_v2_done_commit_moving_a_gitlink_fails_inserted_record_verification` (4 cases, named outside every 7.x `-k` selector) shows that a lifecycle-only done commit verifies, while one that also moves a gitlink fails with `CANDIDATE_NOT_FINAL` + `GITLINK_DRIFT`.
 - Surprise: concurrent tooling rebased `main` onto `origin/main` (`1687354`) mid-run, staged this work, and staged unrelated `references/Hexalith.Projects` and `references/Hexalith.Tenants` gitlink moves. The commits use a pathspec, so those gitlinks stay staged and are not committed.
+- Second surprise: `/pushall` committed the pre-review state as `23e27a5`, linearized it into `04abe68` (adding the owner's `fd2c74b` pins to four suites that are already retired), and pushed it with `66da9cb` and `46fa94e`. Uncommitted route rewording was lost and has been reapplied. The owner then asked to "check and fix any missing items", so the review fixes land as one follow-up commit on top.
+- GitHub CI on `66da9cb` (run 36973689869), `ci / repository`: CPython 3.11.16, AC-7.3-01 and AC-7.3-02 `PASS`, `594 passed in 508.34s`, job 8m40s.
+- Review fixes:
+  - The rerun clause now applies the gate's blocker branch, with a validated rollback commit. In bmad-build-auto it halts `blocked` instead of falling through to `HALT with status done`.
+  - `test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit` pins that clause on all 8 surfaces, after the block and the done transition. It is probed red for both a dropped and a displaced clause.
+  - The preservation-traceability rc2 suite is retired instead of pinned. It rebinds published Epic 6 evidence to the live routes and the `global.json` SDK pin, so any SDK bump would turn it red. The test file keeps its `HEAD` bytes.
+  - CI uses `uv sync --locked`, `-ra`, and JUnit output, and uploads the lane XML and verifier JSON.
+  - Runbook wording now matches what the verifier actually detects.
+- Final lane: 15 retired suites (collected only when named). The local directory lane and the CI lane (minus Epic 6 supersession) results are in the follow-up commit message.
+
+## Review Triage Log
+
+- `[false]` Staged index differs from the worktree, so a commit would carry stale `ci.yml` and runbook content. Commits here use a pathspec (`git commit -- <paths>`), which records worktree content. The concurrent `/pushall` commit also captured the worktree state.
+- `[medium]` Nothing guards the post-done-commit rerun clause, which sits outside the gate block. Patched: the new route guard test, probed red for a dropped and a displaced clause.
+- `[low]` In bmad-build-auto, the failure branch says "then HALT" right before "HALT with status `done`". Patched: it now halts with status `blocked` and blocking condition `done commit failed inserted-record verification`.
+- `[low]` The four rollback clauses restated the blocker branch, had drifted from each other, and did not require a validated commit. Patched: one shared clause that applies the gate's blocker branch with a validated Conventional Commit.
+- `[medium]` The rc2 preservation test pin is brittle on the next SDK bump and weakens what the test checks. Verified that `parse_toolchain_capture` compares against the live `global.json` SDK. Patched by retiring the suite (`conftest.py`), not by pinning it.
+- `[low]` CI ignores the whole Epic 6 supersession suite, although 30 of its 41 tests need no submodule objects. Deferred to `deferred-work.md` (marker plus `-m` deselection).
+- `[low]` `collect_ignore` has no guard, and the docstring misstated the CI exclusions. Patched the docstring, which now lists each retirement reason. A pin test was rejected: it would only duplicate the list, and edits are visible in review.
+- `[low]` CI keeps no evidence and runs pytest without `-ra`. Patched: `-ra`, JUnit output, and an upload with `if: always()`. Skip prevention stays with the in-lane `test_static_anti_skip_guard.py`.
+- `[low]` `uv sync --frozen` cannot detect lock drift. Patched to `--locked`.
+- `[false]` No evidence the CI lane passes without submodules. A local no-submodule clone gave 594 passed, and GitHub run 36973689869 gave 594 passed. The notes were not empty; they were written before review.
+- `[low]` The runbook called this the "default" lane and overstated what "alters" detects. Patched the wording.
+- `[low]` The runbook lacks local reproduction steps and does not mention the route rerun. Deferred to item 34 (`deferred-work.md`).
+- `[low]` The V12 route tests keep live-sounding names. Rejected: the comment block above them names the pinned revision, and renaming would churn node IDs for no behavioural gain.

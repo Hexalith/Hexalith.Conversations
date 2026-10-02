@@ -59,9 +59,10 @@ jobs:
       - name: Install locked Python tooling
         run: |
           python -m pip install --disable-pip-version-check uv==0.11.16
-          uv sync --frozen --python 3.11
+          uv sync --locked --python 3.11
 
-      # Fails when a governed route loses, moves, or alters its STORY-COMPLETION-GATE block.
+      # Fails when a governed route loses or misplaces its STORY-COMPLETION-GATE block,
+      # or when a block drifts from the other surfaces or drops a required clause.
       - name: Verify story completion gate surfaces
         shell: bash
         run: |
@@ -78,9 +79,20 @@ jobs:
       # initialized submodules; it stays in the local lane only.
       - name: Test BMAD repository tooling
         run: >-
-          uv run --frozen --no-sync python3 -m pytest -q -p no:cacheprovider
+          uv run --frozen --no-sync python3 -m pytest -q -ra -p no:cacheprovider
           _bmad/scripts/tests
           --ignore=_bmad/scripts/tests/test_verify_epic_6_completion_supersession.py
+          --junitxml=TestResults/bmad-scripts/bmad-scripts.xml
+
+      - name: Upload repository tooling evidence
+        if: always()
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: repository-tooling-results
+          path: |
+            TestResults/bmad-scripts/*.xml
+            artifacts/v9/7.3/*.json
+          retention-days: 7
 
   admin-web:
     name: ci / admin-web

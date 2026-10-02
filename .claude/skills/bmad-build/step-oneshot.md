@@ -124,7 +124,7 @@ If `{story_key}` is not empty and `{{.implementation_artifacts}}/sprint-status.y
 
 When the task authorizes a commit, stage only the identified task-owned paths, create a validated Conventional Commit, and verify that every intended path is committed. Any commit failure returns the spec and sprint lifecycle to `in-progress` and HALTs.
 
-After that commit, when the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, commit `{spec_file}` and the story's sprint-status row back to `in-progress`, report the exact command, its exit, and every stable blocker code, then HALT.
+After that commit, when the story completion gate ran, rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. On any other exit, apply the gate's blocker branch, committing the return to `in-progress` as a new validated Conventional Commit.
 
 ### Present
 

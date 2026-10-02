@@ -4803,7 +4803,7 @@ def test_v2_workflow_verifies_inserted_digest_rejects_committed_source_changes(
 def test_v2_done_commit_moving_a_gitlink_fails_inserted_record_verification(
     tmp_path: Path, moves_gitlink: bool, sprint_status: str
 ) -> None:
-    """Every gate route reruns `--verify-inserted-record` after its done commit (Epic 7 retro F-6).
+    """The generator side of each gate route's post-done-commit rerun (Epic 7 retro F-6).
 
     A lifecycle-only done commit keeps the record final; one that also stages a gitlink
     must fail that rerun.
@@ -4839,6 +4839,25 @@ def test_v2_done_commit_moving_a_gitlink_fails_inserted_record_verification(
     else:
         assert result.returncode == 0, result.stdout.decode("utf-8", "replace")
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+DONE_COMMIT_RERUN_CLAUSE = (
+    "rerun its `--verify-inserted-record` command at the new `HEAD` and require exit `0`. "
+    "On any other exit, apply the gate's blocker branch, committing the return to `in-progress` "
+    "as a new validated Conventional Commit"
+)
+
+
+def test_every_gate_route_reruns_inserted_record_verification_after_its_done_commit() -> None:
+    """The rerun sits outside the Story 7.3 block, so AC-7.3-01/02 cannot see it; pin it here."""
+    for tree in COMPLETION_VERIFIER.SKILL_TREES:
+        for route in COMPLETION_VERIFIER.ROUTES:
+            surface = f"{tree}/{route.path}"
+            text = (WORKSPACE / surface).read_text(encoding="utf-8")
+            assert text.count(DONE_COMMIT_RERUN_CLAUSE) == 1, surface
+            clause = text.index(DONE_COMMIT_RERUN_CLAUSE)
+            assert clause > text.index(COMPLETION_VERIFIER.BLOCK_END), surface
+            assert clause > text.index(route.transition), surface
 
 
 def test_v2_workflow_accepts_a_separate_blocker_rollback_to_the_candidate_status(
