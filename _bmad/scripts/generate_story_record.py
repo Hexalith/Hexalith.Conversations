@@ -2713,6 +2713,7 @@ def write_output(document: dict[str, Any], output_format: str) -> None:
 V2_RECORD_SCHEMA_VERSION = "hexalith.conversations.story-final-record.v2"
 V2_FAILURE_SCHEMA_VERSION = "hexalith.conversations.story-record-generator-failure.v1"
 V2_CONTRACT_SCHEMA_VERSION = "hexalith.conversations.story-contract.v1"
+V2_V14_CONTRACT_SCHEMA_VERSION = "hexalith.conversations.v14-story-contract.v1"
 V2_BUNDLE_SCHEMA_VERSION = "hexalith.conversations.v9-authority-bundle.v1"
 
 # Roots of trust: the tooling's own schema copies, never the evaluated
@@ -2722,6 +2723,7 @@ V2_SCHEMA_FILES = {
     "record": "story-final-record-v2.schema.json",
     "failure": "story-record-generator-failure-v1.schema.json",
     "contract": "v9-story-contract-v1.schema.json",
+    "contract_v14": "v14-story-contract-v1.schema.json",
     "bundle": "v9-authority-bundle-v1.schema.json",
 }
 V2_AUTHORITY_BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
@@ -3268,7 +3270,7 @@ def v2_below(path: str, roots: Sequence[str]) -> bool:
 
 
 def v2_validate_contract(
-    content: bytes | None, contract_path: str, validator: Any
+    content: bytes | None, contract_path: str, validator: Any, v14_validator: Any = None
 ) -> dict[str, Any]:
     if content is None:
         raise V2Stop(
@@ -3292,20 +3294,22 @@ def v2_validate_contract(
                 )
             ]
         ) from None
-    if not isinstance(contract, dict) or contract.get("schemaVersion") != (
-        V2_CONTRACT_SCHEMA_VERSION
-    ):
+    schema_version = contract.get("schemaVersion") if isinstance(contract, dict) else None
+    if schema_version not in (V2_CONTRACT_SCHEMA_VERSION, V2_V14_CONTRACT_SCHEMA_VERSION):
         raise V2Stop(
             [
                 v2_finding(
                     "INPUT_SCHEMA_INVALID",
                     contract_path,
-                    "the story contract does not carry the known schema identity "
-                    f"{V2_CONTRACT_SCHEMA_VERSION}",
+                    "the story contract does not carry a known schema identity",
                 )
             ]
         )
-    errors = v2_schema_errors(validator, contract)
+    selected_validator = v14_validator if schema_version == V2_V14_CONTRACT_SCHEMA_VERSION else validator
+    if selected_validator is None:
+        raise V2Stop([v2_finding("SCHEMA_UNAVAILABLE", contract_path,
+                                 "the V14 contract schema validator is unavailable")])
+    errors = v2_schema_errors(selected_validator, contract)
     if errors:
         raise V2Stop(
             [
@@ -3418,6 +3422,13 @@ def v2_authority(
         problems.append("the declared bundle digest differs from the recomputed row digest")
     if bundle["planningCandidate"] != authority["planningCandidate"]:
         problems.append("the bundle planning candidate differs from the contract's")
+    if int(contract["storyId"].split(".")[0]) >= 8:
+        contract_path = f"_bmad-output/planning-artifacts/v9/story-contracts/{contract['storyId']}.json"
+        contract_bytes = v2_committed_blob(repository, candidate, contract_path)
+        contract_rows = [row for row in rows if row["path"] == contract_path]
+        if (contract_bytes is None or len(contract_rows) != 1
+                or contract_rows[0]["sha256"] != v2_sha256(contract_bytes)):
+            problems.append("the committed contract bytes differ from the authority bundle row")
     if problems:
         findings.append(
             v2_finding(
@@ -4084,7 +4095,9 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
     sources = (
         "candidate, measured JUnit results, and acceptance results"
         if "workflowIntegration" in record or "historicalVerification" in record
-        else "candidate and measured JUnit results"
+        else ("candidate and measured scenario results"
+              if int(record["storyId"].split(".")[0]) >= 8
+              else "candidate and measured JUnit results")
     )
     lines = [
         f"# Story {record['storyId']} Final Record",
@@ -4161,10 +4174,14 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
                 "",
                 f"Command: {markdown_code(scenario['command'])}",
                 "",
-                "| Assertion | Subject | State |",
-                "| --- | --- | --- |",
             ]
         )
+        if scenario.get("outputFiles"):
+            lines.extend(["| Bound output | SHA-256 |", "| --- | --- |"])
+            lines.extend(f"| {code(row['path'])} | {code(row['sha256'])} |"
+                         for row in scenario["outputFiles"])
+            lines.append("")
+        lines.extend(["| Assertion | Subject | State |", "| --- | --- | --- |"])
         for entry in scenario.get("assertionLedger", []):
             lines.append(
                 f"| {code(entry['id'])} | {code(entry['subject'])} | {code(entry['state'])} |"
@@ -5596,6 +5613,270 @@ def v2_ux_command(tokens: list[str], scenario_id: str) -> dict[str, str] | None:
     return {"kind": "trx", "output": result, "method": method} if tokens == expected else None
 
 
+def v2_successor_command(tokens: list[str], contract_path: str) -> dict[str, Any] | None:
+    """Classify the command forms declared by successor contracts 8 through 16."""
+    if len(tokens) < 3:
+        return None
+    try:
+        if tokens[0] == "dotnet" and tokens[1].endswith(".dll"):
+            assembly = safe_relative_path(tokens[1])
+            if tokens[2:5] != ["-automated", "sync", "-failSkips"]:
+                return None
+            selector = None
+            selector_kind = None
+            result = None
+            index = 5
+            while index < len(tokens):
+                flag = tokens[index]
+                if flag in ("-showLiveOutput", "-noColor"):
+                    index += 1
+                    continue
+                if flag not in ("-method", "-class", "-parallel", "-maxThreads", "-reporter", "-trx") or index + 1 >= len(tokens):
+                    return None
+                value = tokens[index + 1]
+                if flag in ("-method", "-class"):
+                    if selector is not None or not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_.]*", value):
+                        return None
+                    selector, selector_kind = value, flag
+                elif flag == "-trx":
+                    if result is not None:
+                        return None
+                    result = safe_relative_path(value)
+                index += 2
+            return ({"kind": "xunit", "assembly": assembly, "output": result,
+                     "selector": selector, "selectorKind": selector_kind}
+                    if result is not None and result.endswith(".trx") else None)
+        if tokens[:2] in (["dotnet", "build"], ["dotnet", "restore"]):
+            project = safe_relative_path(tokens[2])
+            if not project.endswith((".csproj", ".slnx")):
+                return None
+            allowed = {"--configuration", "-c", "--no-restore", "--locked-mode", "--no-cache", "--force-evaluate"}
+            index = 3
+            while index < len(tokens):
+                flag = tokens[index]
+                if flag not in allowed:
+                    return None
+                if flag in ("--configuration", "-c") and index + 1 >= len(tokens):
+                    return None
+                index += 1 if flag.startswith("--no-") or flag in ("--locked-mode", "--force-evaluate") else 2
+            return {"kind": tokens[1], "project": project}
+        if tokens[0] == "python3" and tokens[1].startswith("_bmad/scripts/") and tokens[1].endswith(".py"):
+            script = safe_relative_path(tokens[1])
+            options: dict[str, str] = {}
+            flags = {"--inventory-only", "--require-approval", "--require-review-decision",
+                     "--require-oq2-decision", "--verify-workflows", "--no-current-head",
+                     "--rerun"}
+            index = 2
+            while index < len(tokens):
+                flag = tokens[index]
+                if not flag.startswith("--") or flag in options:
+                    return None
+                if flag in flags or (flag == "--check" and script == "_bmad/scripts/publish_v9_planning_authority.py"):
+                    options[flag] = "true"
+                    index += 1
+                elif index + 1 < len(tokens) and not tokens[index + 1].startswith("--"):
+                    options[flag] = tokens[index + 1]
+                    index += 2
+                else:
+                    return None
+            if options.get("--repository") != "." or options.get("--contract", contract_path) != contract_path:
+                return None
+            outputs = [safe_relative_path(options[flag]) for flag in
+                       ("--output", "--output-schema", "--output-json", "--output-markdown")
+                       if flag in options]
+            if not outputs and script == "_bmad/scripts/publish_v9_planning_authority.py" and options == {"--repository": ".", "--check": "true"}:
+                return {"kind": "python_check", "script": script, "outputs": [], "options": options}
+            if not outputs or len(outputs) != len(set(outputs)):
+                return None
+            return {"kind": "python", "script": script, "outputs": outputs,
+                    "options": options}
+    except GateError:
+        return None
+    return None
+
+
+def v2_successor_scenario_from_results(
+    repository: Path, scenario: dict[str, Any], command: dict[str, Any],
+    candidate: str, candidate_ns: int, gitlink_paths: Sequence[str],
+) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
+    """Derive successor scenario facts from current outputs and candidate-stamped builds."""
+    scenario_id = scenario["id"]
+    record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
+                              "exitCode": 1, "result": "FAIL", "blockers": []}
+    findings: list[dict[str, str]] = []
+    subjects: list[str] = []
+    outputs: list[tuple[str, bytes, int]] = []
+    bound_files: list[dict[str, str]] = []
+
+    def fail(code: str, detail: str) -> None:
+        findings.append(v2_finding(code, scenario_id, detail))
+
+    def read_output(path: str) -> tuple[bytes, int] | None:
+        if v2_below(path, gitlink_paths):
+            fail("OUTPUT_PATH_INVALID", f"the output lies below a root gitlink: {path}")
+            return None
+        target = repository / path
+        if not target.is_file() or target.is_symlink() or not target.resolve().is_relative_to(repository):
+            fail("TEST_RESULTS_MISSING", f"the declared output is absent: {path}")
+            return None
+        try:
+            content, modified = read_file_snapshot(target)
+        except OSError:
+            fail("TEST_RESULTS_MISSING", f"the declared output is unreadable: {path}")
+            return None
+        if not content:
+            fail("ASSERTION_LEDGER_EMPTY", f"the declared output is empty: {path}")
+        committed = v2_committed_blob(repository, candidate, path)
+        if committed is not None and committed != content:
+            fail("TEST_RESULTS_STALE", f"the output differs from the candidate: {path}")
+        if committed is None and modified < candidate_ns:
+            fail("TEST_RESULTS_STALE", f"the declared output predates the candidate: {path}")
+        outputs.append((path, content, modified))
+        bound_files.append({"path": path, "sha256": v2_sha256(content)})
+        return content, modified
+
+    kind = command["kind"]
+    if kind == "xunit":
+        result = read_output(command["output"])
+        assembly_path = command["assembly"]
+        assembly = repository / assembly_path
+        if not assembly.is_file() or assembly.is_symlink():
+            fail("TEST_RESULTS_MISSING", f"the test assembly is absent: {assembly_path}")
+        elif result is not None:
+            binary, binary_time = read_file_snapshot(assembly)
+            bound_files.append({"path": assembly_path, "sha256": v2_sha256(binary)})
+            if dotnet_source_revisions(binary) != [candidate] or binary_time > result[1]:
+                fail("TEST_RESULTS_STALE", "the test result is not bound to a candidate-stamped assembly")
+            try:
+                parsed = parse_trx(result[0])
+                code_bases = [test_binary_path(repository, item)[0] for item in parsed["code_bases"]]
+                if code_bases != [assembly_path] or count_disagreements(parsed):
+                    raise ValueError("TRX assembly or counters mismatch")
+                rows = parsed["results"]
+                if not rows or parsed["reported"]["failed"] or parsed["reported"]["skipped"]:
+                    raise ValueError("TRX has no passing execution or contains failures/skips")
+                if parsed["reported"]["passed"] != len(rows):
+                    raise ValueError("TRX pass count differs from result rows")
+                selector = command["selector"]
+                if selector is not None and any(
+                    row["test"] != selector if command["selectorKind"] == "-method"
+                    else not row["test"].startswith(selector + ".") for row in rows
+                ):
+                    raise ValueError("TRX contains a foreign selected test")
+                subjects.extend(row["test"] for row in rows)
+            except (ValueError, ElementTree.ParseError):
+                fail("TEST_FAILED", "the xUnit TRX does not prove the declared passing selector")
+    elif kind == "python_check":
+        script = command["script"]
+        committed = v2_committed_blob(repository, candidate, script)
+        script_file = repository / script
+        try:
+            current = script_file.read_bytes() if script_file.is_file() and not script_file.is_symlink() else None
+        except OSError:
+            current = None
+        if committed is None or current != committed:
+            fail("SCENARIO_COMMAND_UNSUPPORTED", "the check script differs from the candidate")
+        else:
+            try:
+                process = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
+                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                         timeout=120, check=False)
+                if process.returncode:
+                    fail("TEST_RESULTS_FAILED", f"the authority check exited {process.returncode}")
+                else:
+                    subjects.append(f"python-check::{script}")
+            except (OSError, subprocess.TimeoutExpired):
+                fail("TEST_RESULTS_FAILED", "the authority check did not complete")
+    elif kind == "python":
+        script = command["script"]
+        if v2_committed_blob(repository, candidate, script) is None:
+            fail("SCENARIO_COMMAND_UNSUPPORTED", f"the Python script is not committed: {script}")
+        if command["options"].get("--scenario", scenario_id) != scenario_id:
+            fail("SCENARIO_RESULT_MISMATCH", "the Python command names another scenario")
+        json_documents = []
+        for path in command["outputs"]:
+            result = read_output(path)
+            if result is None:
+                continue
+            content, _ = result
+            if path.endswith(".json"):
+                try:
+                    document = v2_parse_json(content)
+                    if not isinstance(document, dict):
+                        raise ValueError("JSON output is not an object")
+                    json_documents.append(document)
+                    state = document.get("result", document.get("status"))
+                    if state is not None and str(state).upper() not in ("PASS", "PASSED", "SUCCESS"):
+                        raise ValueError("the machine result is non-passing")
+                    if PurePosixPath(script).name.startswith("verify_") and state is None:
+                        raise ValueError("the verifier output has no passing result")
+                    if document.get("exitCode", 0) != 0:
+                        raise ValueError("the machine result carries a nonzero exit code")
+                    if document.get("blockers"):
+                        raise ValueError("the machine result carries blockers")
+                    if "candidate" in document and isinstance(document["candidate"], str) and document["candidate"] != candidate:
+                        raise ValueError("the machine result names another candidate")
+                    candidate_value = document.get("candidate")
+                    if (isinstance(candidate_value, dict) and "commit" in candidate_value
+                            and candidate_value["commit"] != candidate):
+                        raise ValueError("the machine result names another candidate")
+                except (UnicodeDecodeError, ValueError):
+                    fail("TEST_RESULTS_FAILED", f"the Python output is malformed or non-passing: {path}")
+            subjects.append(f"python-output::{path}")
+        for document in json_documents:
+            rendered_digest = document.get("renderedMarkdownSha256")
+            if rendered_digest is not None:
+                markdown_rows = [content for path, content, _ in outputs if path.endswith(".md")]
+                if len(markdown_rows) != 1 or v2_sha256(markdown_rows[0]) != rendered_digest:
+                    fail("RECORD_CONTENT_DRIFT", "the Python output Markdown digest differs")
+    elif kind in ("build", "restore"):
+        project = command["project"]
+        if v2_committed_blob(repository, candidate, project) is None:
+            fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target is not committed: {project}")
+        elif kind == "build":
+            if not project.endswith(".csproj"):
+                fail("SCENARIO_COMMAND_UNSUPPORTED", "the build target is not a project")
+            else:
+                name = PurePosixPath(project).stem
+                binary_path = str(PurePosixPath(project).parent / "bin/Release/net10.0" / f"{name}.dll")
+                result = read_output(binary_path)
+                if result is not None and dotnet_source_revisions(result[0]) != [candidate]:
+                    fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
+                subjects.append(f"build::{project}")
+        else:
+            if not project.endswith(".slnx"):
+                fail("SCENARIO_COMMAND_UNSUPPORTED", "the restore target is not a solution")
+            else:
+                try:
+                    solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, project))
+                    projects = [item.attrib["Path"] for item in solution.findall(".//{*}Project")]
+                except (ElementTree.ParseError, KeyError, TypeError):
+                    projects = []
+                if not projects:
+                    fail("ASSERTION_LEDGER_EMPTY", "the solution has no restore projects")
+                for item in projects:
+                    assets = str(PurePosixPath(project).parent / PurePosixPath(item).parent / "obj/project.assets.json")
+                    if read_output(assets) is not None:
+                        subjects.append(f"restore::{item}")
+    if outputs:
+        path, content, _ = outputs[0]
+        record["resultFile"] = {"path": path, "sha256": v2_sha256(content)}
+    if bound_files:
+        record["outputFiles"] = bound_files
+    if subjects:
+        record["assertionLedger"] = [
+            {"id": f"{scenario_id}#{ordinal:04d}", "subject": subject,
+             "state": "FAIL" if findings else "PASS"}
+            for ordinal, subject in enumerate(subjects, 1)
+        ]
+    else:
+        fail("ASSERTION_LEDGER_EMPTY", "the successor command yielded no assertion")
+    if not findings:
+        record.update({"exitCode": 0, "result": "PASS"})
+    record["blockers"] = sorted({item["code"] for item in findings})
+    return record, "passed" if not findings else "failed", findings
+
+
 def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
                 contract: dict[str, Any], record_validator: Any) -> dict[str, Any]:
     """Independently bind the committed disposition, sources, predecessor, and build."""
@@ -5824,6 +6105,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
         v2_committed_blob(repository, candidate, contract_path),
         contract_path,
         validators["contract"],
+        validators["contract_v14"],
     )
     story_id = contract["storyId"]
     findings: list[dict[str, str]] = []
@@ -5855,6 +6137,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
     pytest_scenarios: list[tuple[dict[str, Any], dict[str, str | None]]] = []
     acceptance_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
     ux_scenarios: list[tuple[dict[str, Any], dict[str, str]]] = []
+    successor_scenarios: list[tuple[dict[str, Any], dict[str, Any]]] = []
     self_scenarios: list[dict[str, Any]] = []
     for position, scenario in enumerate(contract["scenarios"]):
         try:
@@ -5864,11 +6147,42 @@ def v2_generate(options: dict[str, str]) -> bytes:
         ux_command = v2_ux_command(tokens, scenario["id"]) if story_id == "8.1" else None
         pytest_command = v2_pytest_command(tokens)
         generator_command = None if pytest_command else v2_generator_command(tokens)
+        successor_command = (
+            v2_successor_command(tokens, contract_path)
+            if int(story_id.split(".")[0]) >= 8 and pytest_command is None
+            and ux_command is None and generator_command is None else None
+        )
         acceptance_command = (
             None if pytest_command or generator_command else v2_acceptance_command(tokens)
         )
         if ux_command is not None:
             ux_scenarios.append((scenario, ux_command))
+        elif generator_command is not None:
+            try:
+                final_tokens = shlex.split(contract["scenarios"][-1]["command"])
+            except ValueError:
+                final_tokens = []
+            final_route = v2_successor_command(final_tokens, contract_path)
+            permitted_early = (int(story_id.split(".")[0]) >= 8
+                               and final_route is not None
+                               and final_route["kind"] == "python_check")
+            if self_scenarios or (position != len(contract["scenarios"]) - 1 and not permitted_early):
+                findings.append(v2_finding("SCENARIO_COMMAND_UNSUPPORTED", scenario["id"],
+                                           "the generator invocation must be single and final unless a declared read-only authority check follows"))
+                continue
+            if (
+                generator_command.get("--repository") != "."
+                or generator_command.get("--contract") != contract_path
+                or generator_command.get("--output-json") != output_json
+                or generator_command.get("--output-markdown") != output_markdown
+                or generator_command.get("--format") != options["--format"]
+            ):
+                findings.append(v2_finding("SCENARIO_RESULT_MISMATCH", scenario["id"],
+                                           "this invocation is not the contract's declared self-invocation"))
+                continue
+            self_scenarios.append(scenario)
+        elif successor_command is not None:
+            successor_scenarios.append((scenario, successor_command))
         elif acceptance_command is not None:
             try:
                 safe_relative_path(acceptance_command["script"])
@@ -5916,32 +6230,6 @@ def v2_generate(options: dict[str, str]) -> bytes:
                 )
                 continue
             pytest_scenarios.append((scenario, pytest_command))
-        elif generator_command is not None:
-            if position != len(contract["scenarios"]) - 1 or self_scenarios:
-                findings.append(
-                    v2_finding(
-                        "SCENARIO_COMMAND_UNSUPPORTED",
-                        scenario["id"],
-                        "the generator self-invocation must be the single final scenario",
-                    )
-                )
-                continue
-            if (
-                generator_command.get("--repository") != "."
-                or generator_command.get("--contract") != contract_path
-                or generator_command.get("--output-json") != output_json
-                or generator_command.get("--output-markdown") != output_markdown
-                or generator_command.get("--format") != options["--format"]
-            ):
-                findings.append(
-                    v2_finding(
-                        "SCENARIO_RESULT_MISMATCH",
-                        scenario["id"],
-                        "this invocation is not the contract's declared self-invocation",
-                    )
-                )
-                continue
-            self_scenarios.append(scenario)
         else:
             findings.append(
                 v2_finding(
@@ -5972,8 +6260,12 @@ def v2_generate(options: dict[str, str]) -> bytes:
         )
     acceptance_paths = [command["output"] for _, command in acceptance_scenarios]
     ux_result_paths = [command["output"] for _, command in ux_scenarios if command["kind"] == "trx"]
-    result_paths = [*junit_paths, *acceptance_paths, *ux_result_paths]
-    if (acceptance_paths or ux_result_paths) and len(result_paths) != len(set(result_paths)):
+    successor_result_paths = [
+        path for _, command in successor_scenarios
+        for path in ([command["output"]] if command["kind"] == "xunit" else command.get("outputs", []))
+    ]
+    result_paths = [*junit_paths, *acceptance_paths, *ux_result_paths, *successor_result_paths]
+    if len(result_paths) != len(set(result_paths)):
         findings.append(
             v2_finding(
                 "SCENARIO_RESULT_MISMATCH",
@@ -6056,10 +6348,20 @@ def v2_generate(options: dict[str, str]) -> bytes:
                 findings.extend(scenario_findings)
                 if "resultFile" in scenario_record:
                     parsed_results += 1
+    for scenario, command in successor_scenarios:
+        scenario_record, category, scenario_findings = v2_successor_scenario_from_results(
+            repository, scenario, command, candidate, candidate_time * 1_000_000_000,
+            gitlink_paths,
+        )
+        scenario_records[scenario["id"]] = scenario_record
+        categories[scenario["id"]] = category
+        findings.extend(scenario_findings)
+        if "resultFile" in scenario_record:
+            parsed_results += 1
     ledger_rows = sum(
         len(item.get("assertionLedger", [])) for item in scenario_records.values()
     )
-    if (pytest_scenarios or acceptance_scenarios or ux_scenarios) and parsed_results == 0:
+    if (pytest_scenarios or acceptance_scenarios or ux_scenarios or successor_scenarios) and parsed_results == 0:
         findings.append(
             v2_finding(
                 "RECORD_NOT_DERIVED",
@@ -6274,7 +6576,8 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
                         "without a committed HEAD")]
         ) from None
     head_contract_blob = v2_committed_blob(repository, head, contract_path)
-    contract = v2_validate_contract(head_contract_blob, contract_path, validators["contract"])
+    contract = v2_validate_contract(head_contract_blob, contract_path, validators["contract"],
+                                    validators["contract_v14"])
     story_id = contract["storyId"]
     retained = v2_retention_config(repository, contract_path)
     expected_outputs = V2_RETAINED_OUTPUTS.get(story_id)
@@ -6324,7 +6627,8 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             ],
             story_id,
         )
-    v2_validate_contract(candidate_contract_blob, contract_path, validators["contract"])
+    v2_validate_contract(candidate_contract_blob, contract_path, validators["contract"],
+                         validators["contract_v14"])
 
     spec_argument = Path(options[V2_VERIFY_OPTION])
     lexical = spec_argument if spec_argument.is_absolute() else repository / spec_argument

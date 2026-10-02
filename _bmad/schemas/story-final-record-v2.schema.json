@@ -855,6 +855,12 @@
         "resultFile": {
           "$ref": "#/$defs/outputFile"
         },
+        "outputFiles": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/outputFile" }
+        },
         "assertionLedger": {
           "$ref": "#/$defs/assertionLedger"
         }

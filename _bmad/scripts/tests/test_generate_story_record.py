@@ -3533,6 +3533,7 @@ def test_v2_every_code_is_documented_in_the_runbook() -> None:
         V2_FAILURE_SCHEMA.name,
         STORY_CONTRACT_SCHEMA.name,
         "v9-authority-bundle-v1.schema.json",
+        "v14-story-contract-v1.schema.json",
     }
 
 
@@ -7038,6 +7039,160 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path)
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
+
+
+def test_v2_successor_command_inventory_recognizes_epics_8_through_16() -> None:
+    """Every frozen successor command has a conservative evidence route."""
+    import shlex
+
+    module = load_generator()
+    contracts = sorted((WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts").glob("*.json"))
+    unsupported = []
+    for path in contracts:
+        contract = json.loads(path.read_bytes())
+        if int(contract["storyId"].split(".")[0]) < 8:
+            continue
+        relative = path.relative_to(WORKSPACE).as_posix()
+        for scenario in contract["scenarios"]:
+            tokens = shlex.split(scenario["command"])
+            if module.v2_pytest_command(tokens) is not None or module.v2_generator_command(tokens) is not None:
+                continue
+            if module.v2_successor_command(tokens, relative) is None:
+                unsupported.append((contract["storyId"], scenario["id"]))
+    assert not unsupported
+
+
+def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    assembly = "tests/Example/bin/Release/net10.0/Example.dll"
+    result = "artifacts/v9/9.2/example.trx"
+    binary = tmp_path / assembly
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    output = tmp_path / result
+    output.parent.mkdir(parents=True)
+    method = "Example.Tests.Proof.ShouldPass"
+    def trx(name: str) -> bytes:
+        return ("<TestRun xmlns=\"http://microsoft.com/schemas/VisualStudio/TeamTest/2010\">"
+                f"<Results><UnitTestResult testName=\"{name}\" outcome=\"Passed\" /></Results>"
+                f"<TestDefinitions><UnitTest><TestMethod codeBase=\"{assembly}\" />"
+                "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" "
+                "executed=\"1\" passed=\"1\" failed=\"0\" /></ResultSummary></TestRun>").encode()
+    output.write_bytes(trx(method))
+    scenario = {"id": "AC-9.2-02", "command": "xunit fixture"}
+    command = {"kind": "xunit", "assembly": assembly, "output": result,
+               "selector": method, "selectorKind": "-method"}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: None)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and record["result"] == "PASS"
+    assert {row["path"] for row in record["outputFiles"]} == {assembly, result}
+    output.write_bytes(trx("Example.Tests.Other.ShouldPass"))
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    output.write_bytes(trx(method))
+    binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+
+
+def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    script = "_bmad/scripts/generate_example.py"
+    json_path = "docs/release-evidence/example.json"
+    markdown_path = "docs/release-evidence/example.md"
+    markdown = b"# Example\n"
+    document = {"result": "PASS", "exitCode": 0,
+                "renderedMarkdownSha256": module.v2_sha256(markdown), "candidate": candidate}
+    for path, content in ((json_path, (json.dumps(document) + "\n").encode()),
+                          (markdown_path, markdown)):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"script" if path == script else None)
+    scenario = {"id": "AC-9.1-01", "command": "python fixture"}
+    command = {"kind": "python", "script": script, "outputs": [json_path, markdown_path],
+               "options": {"--repository": "."}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and len(record["outputFiles"]) == 2
+    document["candidate"] = "b" * 40
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    project = "tests/Example/Example.csproj"
+    solution = "tests/Fixture/Fixture.slnx"
+    blobs = {project: b"<Project />", solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: blobs.get(path))
+    binary = tmp_path / "tests/Example/bin/Release/net10.0/Example.dll"
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    assets = tmp_path / "tests/Fixture/App/obj/project.assets.json"
+    assets.parent.mkdir(parents=True)
+    assets.write_text('{"version":3}')
+    for scenario_id, command in (("AC-9.2-01", {"kind": "build", "project": project}),
+                                 ("AC-11.2-02", {"kind": "restore", "project": solution})):
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, {"id": scenario_id, "command": "dotnet fixture"}, command,
+            candidate, 0, [])
+        assert category == "passed" and not findings and record["assertionLedger"]
+    binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": "dotnet fixture"},
+        {"kind": "build", "project": project}, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+
+
+def test_v2_successor_contract_schemas_and_bundle_rows_bind_committed_bytes(monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=WORKSPACE, text=True).strip()
+    contracts = sorted((WORKSPACE / "_bmad-output/planning-artifacts/v9/story-contracts").glob("*.json"))
+    for path in contracts:
+        contract_path = path.relative_to(WORKSPACE).as_posix()
+        raw = module.v2_committed_blob(WORKSPACE, head, contract_path)
+        contract = json.loads(raw)
+        if int(contract["storyId"].split(".")[0]) < 8:
+            continue
+        validated = module.v2_validate_contract(raw, contract_path, validators["contract"],
+                                                validators["contract_v14"])
+        findings = []
+        assert module.v2_authority(WORKSPACE, head, validated, validators["bundle"], findings)
+        assert not findings
+    story_path = "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json"
+    contract = json.loads((WORKSPACE / story_path).read_bytes())
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda repo, commit, path: b"changed" if path == story_path
+                        else original(repo, commit, path))
+    findings = []
+    assert module.v2_authority(WORKSPACE, head, contract, validators["bundle"], findings) is None
+    assert [item["code"] for item in findings] == ["AUTHORITY_BINDING_INVALID"]
+
+
+def test_v2_retained_candidate_rejects_gitlink_only_followup(tmp_path: Path) -> None:
+    fixture = build_v2_7_3_repository(tmp_path)
+    repository = fixture["repository"]
+    _, json_bytes, markdown_bytes = v2_7_3_passing_pair(fixture)
+    moved = ROOT_GITLINK_PATHS[0]
+    v2_git(repository, "update-index", "--cacheinfo", f"160000,{'a' * 40},{moved}")
+    v2_git(repository, "commit", "-m", "move only a gitlink")
+    result = v2_run(v2_7_3_arguments(repository))
+    document = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"})
+    assert document["blockers"] == ["CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"]
+    assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
 
 
 if __name__ == "__main__":
