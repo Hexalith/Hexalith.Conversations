@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -22,7 +24,8 @@ specification.loader.exec_module(module)
 def source_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
     """Copy authority inputs so mutations never touch canonical source bytes."""
     paths = (module.SPEC_PATH, module.MAP_PATH, module.CONTRACT_PATH,
-             module.PREDECESSOR_PATH, "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json")
+             module.PREDECESSOR_PATH, module.PREDECESSOR_MARKDOWN_PATH,
+             "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json")
     originals = {}
     for relative in paths:
         destination = tmp_path / relative
@@ -108,3 +111,73 @@ def test_activation_banner_status_and_current_owner(source_fixture: Path) -> Non
             b"activated; Stories 8.1-8.2 preservation contract", "UX_ACTIVATION_UNAUTHORIZED")
     _mutate(source_fixture, module.MAP_PATH, b"preserved-not-activated; Stories 8.1-8.2 preservation contract",
             b"preserved-not-activated; Story 3.8 implementation", "UX_CURRENT_STORY_INVALID")
+
+
+def test_malformed_authority_and_predecessor_are_rejected(source_fixture: Path) -> None:
+    """A parseable missing authority or false predecessor PASS cannot generate a bundle."""
+    contract = source_fixture / module.CONTRACT_PATH
+    original = contract.read_bytes()
+    try:
+        document = json.loads(original)
+        del document["authority"]
+        contract.write_text(json.dumps(document))
+        _reject(source_fixture, "UX_SCHEMA_INVALID")
+    finally:
+        contract.write_bytes(original)
+    bundle = source_fixture / module.BUNDLE_PATH
+    original = bundle.read_bytes()
+    try:
+        document = json.loads(original)
+        document["bundleDigest"] = "0" * 64
+        bundle.write_text(json.dumps(document))
+        _reject(source_fixture, "UX_SCHEMA_INVALID")
+    finally:
+        bundle.write_bytes(original)
+    predecessor = source_fixture / module.PREDECESSOR_PATH
+    original = predecessor.read_bytes()
+    try:
+        document = json.loads(original)
+        document["summary"]["passed"] = 5
+        predecessor.write_text(json.dumps(document))
+        _reject(source_fixture, "UX_SCHEMA_INVALID")
+    finally:
+        predecessor.write_bytes(original)
+    assert module.generate(source_fixture, module.CONTRACT_PATH)
+
+
+def test_bundle_write_failure_restores_every_output(source_fixture: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """A failure after the first replacement restores all three original byte streams."""
+    targets = [source_fixture / relative for relative in module.OUTPUT_PATHS]
+    originals = [b"old schema\n", b"old json\n", b"old markdown\n"]
+    for target, content in zip(targets, originals):
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    real_replace = os.replace
+    calls = 0
+
+    def fail_second(source: Path, destination: Path) -> None:
+        nonlocal calls
+        calls += 1
+        if calls == 2:
+            raise OSError("injected replacement failure")
+        real_replace(source, destination)
+
+    monkeypatch.setattr(module.os, "replace", fail_second)
+    with pytest.raises(module.DispositionError, match="coherently") as failure:
+        module.write_bundle(source_fixture, module.OUTPUT_PATHS,
+                            module.generate(source_fixture, module.CONTRACT_PATH))
+    assert failure.value.code == "UX_RENDER_DRIFT"
+    assert [target.read_bytes() for target in targets] == originals
+
+
+def test_exact_cli_arguments_write_three_expected_bytes(source_fixture: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """The declared CLI shape exits zero and emits the derivation's exact three files."""
+    (source_fixture / ".git").mkdir()
+    expected = module.generate(source_fixture, module.CONTRACT_PATH)
+    monkeypatch.setattr(sys, "argv", [str(SCRIPT), "--repository", str(source_fixture),
+                                     "--contract", module.CONTRACT_PATH,
+                                     "--output-schema", module.OUTPUT_PATHS[0],
+                                     "--output-json", module.OUTPUT_PATHS[1],
+                                     "--output-markdown", module.OUTPUT_PATHS[2]])
+    assert module.main() == 0
+    assert tuple((source_fixture / path).read_bytes() for path in module.OUTPUT_PATHS) == expected

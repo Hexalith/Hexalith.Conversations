@@ -27,6 +27,25 @@ public sealed class UxPreservationDispositionValidationTest
     private const string MapPath = "_bmad-output/planning-artifacts/ux-requirement-map.md";
     private const string SpecPath = "_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md";
     private const string Status = "preserved-not-activated";
+    private static readonly HashSet<string> AllowedCandidatePaths = new(StringComparer.Ordinal)
+    {
+        SpecPath,
+        "_bmad-output/implementation-artifacts/epic-8-context.md",
+        "_bmad-output/implementation-artifacts/sprint-status.yaml",
+        "_bmad/schemas/story-final-record-v2.schema.json",
+        "_bmad/scripts/generate_story_record.py",
+        "_bmad/scripts/generate_ux_preservation_disposition.py",
+        "_bmad/scripts/tests/test_generate_story_record.py",
+        "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+        "docs/runbooks/story-final-record-generation.md",
+        "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+        "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs",
+        SchemaPath,
+        DispositionPath,
+        MarkdownPath,
+        "docs/release-evidence/story-8.1-final-record-v2.json",
+        "docs/release-evidence/story-8.1-final-record-v2.md",
+    };
 
     /// <summary>
     /// Proves the two source paths, versions, and exact current byte digests.
@@ -70,13 +89,16 @@ public sealed class UxPreservationDispositionValidationTest
         using JsonDocument disposition = LoadJson(DispositionPath);
         JsonElement[] rows = disposition.RootElement.GetProperty("decisions").EnumerateArray().ToArray();
         string[] expected = Enumerable.Range(1, 52).Select(number => $"UX-DR{number}").ToArray();
-        string[] source = Regex.Matches(Read(MapPath), @"^\| (UX-DR\d+) \|", RegexOptions.Multiline)
-            .Select(match => match.Groups[1].Value).ToArray();
-        source.ShouldBe(expected);
+        Match[] source = Regex.Matches(Read(MapPath), @"^\| (UX-DR\d+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$", RegexOptions.Multiline)
+            .Cast<Match>().ToArray();
+        source.Select(match => match.Groups[1].Value).ShouldBe(expected);
         rows.Select(row => row.GetProperty("id").GetString()).ShouldBe(expected);
-        foreach (JsonElement row in rows)
+        for (int index = 0; index < rows.Length; index++)
         {
-            AssertRow(row, MapPath);
+            AssertRow(rows[index], MapPath);
+            rows[index].GetProperty("rationale").GetString().ShouldBe(source[index].Groups[3].Value.Trim());
+            rows[index].GetProperty("evidenceOrControl").GetString().ShouldBe($"{MapPath}#ux-decision-inventory");
+            AssertMapping(rows[index], source[index].Groups[5].Value.Trim());
         }
     }
 
@@ -101,9 +123,18 @@ public sealed class UxPreservationDispositionValidationTest
         map.ShouldBe(expected);
         source.ShouldBe(expected);
         rows.Select(row => row.GetProperty("id").GetString()).ShouldBe(expected);
-        foreach (JsonElement row in rows)
+        Match[] requirements = Regex.Matches(Read(SpecificationPath), @"^- \*\*(AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3}):\*\* (.+)$", RegexOptions.Multiline)
+            .Cast<Match>().ToArray();
+        Match[] mapRows = Regex.Matches(Read(MapPath), @"^\| (AC-(?:SAFE|RESP|A11Y|LEAK|MOB|PERF)-\d{3}) \| ([^|]+) \| ([^|]+) \| ([^|]+) \|$", RegexOptions.Multiline)
+            .Cast<Match>().ToArray();
+        mapRows.Select(match => match.Groups[1].Value).ShouldBe(expected);
+        for (int index = 0; index < rows.Length; index++)
         {
-            AssertRow(row, SpecificationPath);
+            AssertRow(rows[index], SpecificationPath);
+            rows[index].GetProperty("rationale").GetString().ShouldBe(requirements[index].Groups[2].Value);
+            string heading = mapRows[index].Groups[2].Value.Trim().ToLowerInvariant().Replace(' ', '-');
+            rows[index].GetProperty("evidenceOrControl").GetString().ShouldBe($"{SpecificationPath}#{heading}");
+            AssertMapping(rows[index], mapRows[index].Groups[4].Value.Trim());
         }
     }
 
@@ -144,11 +175,9 @@ public sealed class UxPreservationDispositionValidationTest
         string baseline = Regex.Match(spec, @"^baseline_commit:\s*'?([0-9a-f]{40})'?\s*$", RegexOptions.Multiline).Groups[1].Value;
         baseline.Length.ShouldBe(40);
         string[] committed = Git("diff", "--name-only", $"{baseline}..HEAD").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        string[] changed = Git("diff", "--name-only", "HEAD").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        string[] untracked = Git("ls-files", "--others", "--exclude-standard").Split('\n', StringSplitOptions.RemoveEmptyEntries);
-        foreach (string path in committed.Concat(changed).Concat(untracked).Distinct(StringComparer.Ordinal))
+        foreach (string path in committed)
         {
-            path.StartsWith("src/", StringComparison.Ordinal).ShouldBeFalse($"UX_PRODUCTION_CHANGE_FORBIDDEN: {path}");
+            AllowedCandidatePaths.Contains(path).ShouldBeTrue($"UX_PRODUCTION_CHANGE_FORBIDDEN: {path}");
         }
     }
 
@@ -163,6 +192,19 @@ public sealed class UxPreservationDispositionValidationTest
         row.GetProperty("sourceSha256").GetString().ShouldBe(Sha256(ReadBytes(sourcePath)));
         row.GetProperty("rationale").GetString().ShouldNotBeNullOrWhiteSpace();
         row.GetProperty("owner").GetString().ShouldNotBeNullOrWhiteSpace();
+        row.GetProperty("compatibility").GetString().ShouldBe(sourcePath == MapPath
+            ? "Preserved obligation; future activation requires separate authorization."
+            : "Preserved acceptance obligation; no feature-delivery claim.");
+        row.GetProperty("disclosureSafety").GetString().ShouldBe("No product disclosure or UI implementation is authorized.");
+    }
+
+    private static void AssertMapping(JsonElement row, string expected)
+    {
+        JsonElement[] mappings = row.GetProperty("historicalMappings").EnumerateArray().ToArray();
+        mappings.Length.ShouldBe(1);
+        mappings[0].GetProperty("reference").GetString().ShouldBe(expected);
+        mappings[0].GetProperty("classification").GetString().ShouldBe("historical-provenance");
+        mappings[0].GetProperty("current").GetBoolean().ShouldBeFalse();
     }
 
     private static JsonDocument LoadJson(string relativePath) => JsonDocument.Parse(ReadBytes(relativePath));

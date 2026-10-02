@@ -1174,6 +1174,11 @@ Story 8.1 binds the canonical UX specification and requirement map, the closed
 disposition schema/JSON/Markdown bundle, Story 7.4's verified final record,
 and five exact-method xUnit TRX results. The disposition remains preservation
 evidence and does not activate product UI delivery.
+The gate executes `AC-8.1-01` exactly and compares all three committed output
+byte streams with a fresh derivation from the committed contract, authority,
+predecessor, and source inputs. It checks every row and rendered Markdown byte,
+and limits the baseline-to-candidate path set to the Story 8.1 planning,
+tooling, tests, and evidence files named in the implementation spec.
 
 | Blocker | Exit | Condition |
 | --- | --- | --- |
@@ -1183,6 +1188,6 @@ evidence and does not activate product UI delivery.
 | `UX_ACCEPTANCE_INVENTORY_DRIFT` | `1` | Acceptance IDs differ from the ordered 28-ID inventory. |
 | `UX_ACTIVATION_UNAUTHORIZED` | `1` | Preservation status, banner, or historical non-current state is lost. |
 | `UX_CURRENT_STORY_INVALID` | `1` | A row assigns current implementation ownership outside the preservation contract. |
-| `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The Story 8.1 candidate changes a production source path. |
+| `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The Story 8.1 candidate changes any path outside the explicit planning, tooling, tests, and evidence set. |
 | `UX_SCHEMA_INVALID` | `1` | The disposition schema or authoritative JSON is absent, malformed, or invalid. |
 | `UX_RENDER_DRIFT` | `1` | Markdown or installed disposition bytes differ from their digest-bound candidate. |

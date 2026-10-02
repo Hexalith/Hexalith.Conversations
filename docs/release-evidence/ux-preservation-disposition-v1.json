@@ -38,7 +38,7 @@
       "rationale": "Use FrontComposer and Fluent UI Blazor as the baseline design system.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Design system foundation",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.8",
@@ -56,7 +56,7 @@
       "rationale": "Add custom Conversations UI only where trust interpretation demands it.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Core experience / component strategy",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.8",
@@ -74,7 +74,7 @@
       "rationale": "Render trust states and action enablement only from Conversations-owned outputs.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust as a contract",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1, 3.2, 3.5",
@@ -92,7 +92,7 @@
       "rationale": "Prevent the admin UI from browsing raw EventStore streams as the primary experience.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Generated-first boundaries",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.3",
@@ -110,7 +110,7 @@
       "rationale": "Preserve reusable state treatments for trust, freshness, denial, degradation, and redaction.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Visual design foundation",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.8",
@@ -128,7 +128,7 @@
       "rationale": "Preserve redaction notices that never expose original values through any surface.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Redaction safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 2.4.2, 3.3, 3.8",
@@ -146,7 +146,7 @@
       "rationale": "Preserve audit markers, evidence anchors, and chain-of-custody cues.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence cues",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.3, 3.4",
@@ -164,7 +164,7 @@
       "rationale": "Preserve safe participant resolution and degraded hydration states.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Participant identity",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 1.3, 3.2, 3.3",
@@ -182,7 +182,7 @@
       "rationale": "Preserve server-owned command availability and blocked reasons.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Command availability",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.5, 4.4",
@@ -200,7 +200,7 @@
       "rationale": "Preserve stable citation and temporal-reconstruction affordances.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Citation and temporal reconstruction",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.4, 3.8",
@@ -218,7 +218,7 @@
       "rationale": "Preserve generated-first search, list, detail, form, loading, and empty states.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Generated surfaces",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1, 3.2",
@@ -236,7 +236,7 @@
       "rationale": "Preserve the custom evidence, citation, redaction, audit, freshness, and command-gate boundary.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Custom trust-critical surfaces",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.2-3.5",
@@ -254,7 +254,7 @@
       "rationale": "Preserve explicit inputs, fail-closed behavior, and tests for trust-critical components.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust component contracts",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.2-3.5",
@@ -272,7 +272,7 @@
       "rationale": "Preserve proof that gated actions disable on absent or stale metadata.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Gated action tests",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.5",
@@ -290,7 +290,7 @@
       "rationale": "Preserve degraded handling for missing or deleted evidence.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence timeline tests",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.2, 3.4",
@@ -308,7 +308,7 @@
       "rationale": "Preserve keyboard and screen-reader accessibility for evidence and audit surfaces.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Accessibility tests",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.3, 3.8",
@@ -326,7 +326,7 @@
       "rationale": "Preserve Trust Fact, SafeReason, Freshness Marker, and Citation Control primitives.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust primitives",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.5",
@@ -344,7 +344,7 @@
       "rationale": "Preserve Find Pane, Trust Preview, Governed Header, Evidence Timeline, and related composites.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Investigation composites",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.7",
@@ -362,7 +362,7 @@
       "rationale": "Preserve one shared trust model for trust-bearing components.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence trust model",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1, 3.2, 4.4",
@@ -380,7 +380,7 @@
       "rationale": "Preserve independent drawer authorization and close-on-downgrade behavior.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Detail authorization",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.2, 3.3, 3.5",
@@ -398,7 +398,7 @@
       "rationale": "Preserve permission-safe counts, facets, autocomplete, pagination, and timing.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Search disclosure safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.1",
@@ -416,7 +416,7 @@
       "rationale": "Preserve projection version, timestamp, or freshness source on trust-bearing components.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Freshness evidence",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 1.7, 3.2",
@@ -434,7 +434,7 @@
       "rationale": "Preserve content-safe, bounded trust-workflow telemetry.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safe telemetry",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.6, 6.8",
@@ -452,7 +452,7 @@
       "rationale": "Preserve trust primitives before higher-order components with safety tests.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust primitive test suite",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.2",
@@ -470,7 +470,7 @@
       "rationale": "Preserve Find -> Open -> Verify -> Cite, Act, or Stop.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Core investigation flow",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1-3.7",
@@ -488,7 +488,7 @@
       "rationale": "Preserve citation, audit, participant, freshness, and command-reason details.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Evidence detail components",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.2-3.6",
@@ -506,7 +506,7 @@
       "rationale": "Preserve forensic timeline, acceptance, waiver, and responsive-find designs.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Review and enhancement flows",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.6, 3.7",
@@ -524,7 +524,7 @@
       "rationale": "Preserve the canonical trust-state fixture set.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Canonical fixtures",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.7, 3.8",
@@ -542,7 +542,7 @@
       "rationale": "Preserve deterministic conservative trust precedence.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust precedence",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1, 3.2",
@@ -560,7 +560,7 @@
       "rationale": "Preserve distinct empty, loading, denied, unavailable, stale, redacted, degraded, and no-access states.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safe states",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.1, 3.2",
@@ -578,7 +578,7 @@
       "rationale": "Preserve tenant-scoped, permission-filtered, trust-previewed search.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Tenant-scoped search",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.1",
@@ -596,7 +596,7 @@
       "rationale": "Preserve tenant scope, identity, freshness, completeness, citation, participant, and command state before timeline reliance.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust summary band",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.2",
@@ -614,7 +614,7 @@
       "rationale": "Preserve drawers for evidence details and dialogs for governance-changing confirmation.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Drawers and dialogs",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.3, 3.5",
@@ -632,7 +632,7 @@
       "rationale": "Preserve intent-only governance forms with no editable authority context.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Governance form safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.5",
@@ -650,7 +650,7 @@
       "rationale": "Preserve authorization-rechecked, permission-safe copy and export DTOs.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Copy/export safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.4, 3.8",
@@ -668,7 +668,7 @@
       "rationale": "Preserve safe clearing and closure on permission or metadata downgrade.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust transitions",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.5",
@@ -686,7 +686,7 @@
       "rationale": "Preserve AC-SAFE-001 through AC-SAFE-008.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Safety AC set",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.7, 3.8",
@@ -704,7 +704,7 @@
       "rationale": "Preserve leakage, tenant-isolation, trust-provenance, and command-safety gates.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:UX quality gates",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Stories 3.6-3.8",
@@ -722,7 +722,7 @@
       "rationale": "Preserve desktop-first governance workflows with safe mobile triage.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive strategy",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -740,7 +740,7 @@
       "rationale": "Preserve every responsive variant as an independent disclosure surface.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive disclosure surfaces",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -758,7 +758,7 @@
       "rationale": "Preserve scope, identity, trust, completeness, and command eligibility before reliance.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Breakpoint trust order",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -776,7 +776,7 @@
       "rationale": "Preserve the default block on narrow-screen governance mutations.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Mobile mutation default",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -794,7 +794,7 @@
       "rationale": "Preserve mobile, tablet, desktop, and wide-desktop breakpoints.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Breakpoints",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -812,7 +812,7 @@
       "rationale": "Preserve WCAG 2.1 AA for operator/admin web surfaces.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:WCAG 2.1 AA",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -830,7 +830,7 @@
       "rationale": "Preserve tenant, permission, and redaction safety in assistive output.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Assistive output safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -848,7 +848,7 @@
       "rationale": "Preserve safe microcopy for redacted, unavailable, restricted, loading, and partial states.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Accessibility microcopy",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -866,7 +866,7 @@
       "rationale": "Preserve trust metadata loading before or with trust-bearing content.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Trust metadata loading",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -884,7 +884,7 @@
       "rationale": "Preserve order, navigation, and redaction semantics in virtualized timelines.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Virtualized timeline safety",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -902,7 +902,7 @@
       "rationale": "Preserve permission-safe identifiers and temporal cursors in handoff links.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Mobile handoff links",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -920,7 +920,7 @@
       "rationale": "Preserve responsive and accessibility testing across breakpoints and trust states.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Responsive/accessibility matrix",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -938,7 +938,7 @@
       "rationale": "Preserve DOM, ARIA, title, clipboard, telemetry, screenshot, and accessibility-snapshot scanning.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Leak Sentinel",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -956,7 +956,7 @@
       "rationale": "Preserve the canonical responsive/accessibility fixtures.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-requirement-map.md",
       "sourceSha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#UX-Decision-Inventory:Canonical responsive fixtures",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-requirement-map.md#ux-decision-inventory",
       "historicalMappings": [
         {
           "reference": "Historical: Story 3.8",
@@ -976,7 +976,7 @@
       "rationale": "Unauthorized conversation IDs return a fail-closed UI state with no title, preview, participant names, snippets, timestamps, tags, or inferred existence.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -994,7 +994,7 @@
       "rationale": "Redacted fields are absent from rendered DOM, tooltip text, aria labels, clipboard payloads, telemetry payloads, browser title, route metadata, and responsive duplicate layouts.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-002",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1012,7 +1012,7 @@
       "rationale": "Evidence drawer authorization is checked independently from the parent timeline view.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-003",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1030,7 +1030,7 @@
       "rationale": "Every command rechecks tenant, role, trust state, and source-owned command metadata immediately before execution.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-004",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1048,7 +1048,7 @@
       "rationale": "Trust posture is displayed only from projection or command metadata, never inferred client-side.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-005",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1066,7 +1066,7 @@
       "rationale": "Trust precedence is deterministic and tested.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-006",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1084,7 +1084,7 @@
       "rationale": "Search results never reveal inaccessible records through counts, pagination totals, empty-state wording, filter chips, recent searches, or sort gaps.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-007",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1102,7 +1102,7 @@
       "rationale": "Loading, empty, error, denied, redacted, and stale-projection states each have distinct components and test snapshots.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Safety Acceptance Criteria:AC-SAFE-008",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#safety-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical UX safety contract",
@@ -1120,7 +1120,7 @@
       "rationale": "Tenant scope, record identity, trust posture, evidence completeness, and command eligibility appear before timeline reliance at every breakpoint.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1138,7 +1138,7 @@
       "rationale": "Mobile and tablet layouts do not introduce protected content through duplicated cards, summaries, sticky headers, drawer titles, skeletons, or browser titles.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-002",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1156,7 +1156,7 @@
       "rationale": "Mobile governance-changing actions are blocked unless explicitly designed, authorized, confirmed, and tested for narrow screens.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-003",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1174,7 +1174,7 @@
       "rationale": "Screen reader output contains no redacted or unauthorized content in accessible names, descriptions, live regions, landmarks, table summaries, or focus announcements.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-004",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1192,7 +1192,7 @@
       "rationale": "Keyboard-only users can complete Find -> Read -> Trust, including citation copy and safe stop, without pointer-only interactions.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-005",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1210,7 +1210,7 @@
       "rationale": "Permission downgrade closes authorized drawers, clears protected content, announces a safe state change, and preserves only safe operator-entered intent.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-006",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1228,7 +1228,7 @@
       "rationale": "Browser zoom, high contrast, reduced motion, and narrow viewport behavior preserve trust ordering and do not hide blocked-action reasons.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-007",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1246,7 +1246,7 @@
       "rationale": "Leak Sentinel checks run against desktop, tablet, and mobile states before release.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-008",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1264,7 +1264,7 @@
       "rationale": "Each breakpoint renders from the same permission-safe view model contract; forbidden fields are absent from serialized payloads and rendered DOM before layout adaptation.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-009",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1282,7 +1282,7 @@
       "rationale": "Responsive duplicate markup for trust-bearing content is forbidden unless both copies are generated from the same authorized/redacted component and covered by Leak Sentinel.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-010",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1300,7 +1300,7 @@
       "rationale": "Mobile blocked actions return explicit unavailable state, not hidden optimistic affordances.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-011",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1318,7 +1318,7 @@
       "rationale": "Screen reader disclosure order is tested; trust metadata is announced before message content, attachments, citations, exports, approvals, and provenance-sensitive labels.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-012",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1336,7 +1336,7 @@
       "rationale": "Focus after navigation, filtering, modal close, timeline virtualization, and handoff-link generation lands on a safe summary region, not directly on sensitive content.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-013",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1354,7 +1354,7 @@
       "rationale": "Skeletons, empty states, error states, and partial-load placeholders use generic copy only unless details are explicitly authorized.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-014",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1372,7 +1372,7 @@
       "rationale": "Viewport-specific telemetry must not include redacted content, unauthorized identifiers, hidden column names, filter terms, or assistive-technology-only labels.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-RESP-015",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical responsive contract",
@@ -1390,7 +1390,7 @@
       "rationale": "Redacted or unauthorized content has safe accessible names and descriptions verified by accessibility-tree inspection.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-A11Y-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical accessibility contract",
@@ -1408,7 +1408,7 @@
       "rationale": "Keyboard and screen-reader flows preserve Find -> Read -> Trust order.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-A11Y-002",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical accessibility contract",
@@ -1426,7 +1426,7 @@
       "rationale": "Leak Sentinel scans DOM, accessibility tree, URL/query state, clipboard actions, and viewport-specific menus across desktop, tablet, and mobile.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-LEAK-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical leakage contract",
@@ -1444,7 +1444,7 @@
       "rationale": "Mobile governance actions are disabled or absent by default unless covered by explicit tests and product acceptance.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-MOB-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical mobile contract",
@@ -1462,7 +1462,7 @@
       "rationale": "Skeleton, lazy-load, virtualized, and error states use generic placeholders and never expose restricted metadata during loading transitions.",
       "sourcePath": "_bmad-output/planning-artifacts/ux-design-specification.md",
       "sourceSha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18",
-      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#Responsive Acceptance Criteria:AC-PERF-001",
+      "evidenceOrControl": "_bmad-output/planning-artifacts/ux-design-specification.md#responsive-acceptance-criteria",
       "historicalMappings": [
         {
           "reference": "Historical loading/performance-safety contract",
@@ -1479,5 +1479,5 @@
     "currentImplementationOwner": false,
     "note": "Historical story references are navigation only; they cannot authorize implementation."
   },
-  "renderedMarkdownSha256": "91e202f743486150b1191b6fc7a645afdd3084cc5cc716789f7ab03955449495"
+  "renderedMarkdownSha256": "330aff37565e46b3bbe5435c0c6c9ecabc814e54220f2102b7dc234de5abcbc1"
 }

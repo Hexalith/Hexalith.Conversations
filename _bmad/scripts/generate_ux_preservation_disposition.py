@@ -6,9 +6,12 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
+import tempfile
+from importlib import util as importlib_util
 from pathlib import Path
 from typing import Any
 
@@ -24,6 +27,11 @@ SPEC_PATH = "_bmad-output/planning-artifacts/ux-design-specification.md"
 MAP_PATH = "_bmad-output/planning-artifacts/ux-requirement-map.md"
 CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json"
 PREDECESSOR_PATH = "docs/release-evidence/story-7.4-final-record-v2.json"
+PREDECESSOR_MARKDOWN_PATH = "docs/release-evidence/story-7.4-final-record-v2.md"
+BUNDLE_PATH = "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"
+OUTPUT_PATHS = ("docs/release-evidence/ux-preservation-disposition-v1.schema.json",
+                "docs/release-evidence/ux-preservation-disposition-v1.json",
+                "docs/release-evidence/ux-preservation-disposition-v1.md")
 EXPECTED_DECISIONS = [f"UX-DR{number}" for number in range(1, 53)]
 EXPECTED_ACCEPTANCE = [
     *(f"AC-SAFE-{number:03d}" for number in range(1, 9)),
@@ -183,7 +191,7 @@ def inventory(root: Path, spec: str, requirement_map: str, source_hashes: dict[s
                           "owner": disposition(state, "UX_CURRENT_STORY_INVALID"),
                           "rationale": summary, "sourcePath": MAP_PATH,
                           "sourceSha256": source_hashes[MAP_PATH],
-                          "evidenceOrControl": f"{MAP_PATH}#UX-Decision-Inventory:{section}",
+                          "evidenceOrControl": f"{MAP_PATH}#ux-decision-inventory",
                           "historicalMappings": mapping(historical, "UX_CURRENT_STORY_INVALID"),
                           "compatibility": "Preserved obligation; future activation requires separate authorization.",
                           "disclosureSafety": "No product disclosure or UI implementation is authorized."})
@@ -193,7 +201,7 @@ def inventory(root: Path, spec: str, requirement_map: str, source_hashes: dict[s
                            "owner": disposition(state, "UX_CURRENT_STORY_INVALID"),
                            "rationale": requirement, "sourcePath": SPEC_PATH,
                            "sourceSha256": source_hashes[SPEC_PATH],
-                           "evidenceOrControl": f"{SPEC_PATH}#{section}:{identifier}",
+                           "evidenceOrControl": f"{SPEC_PATH}#{section.lower().replace(' ', '-')}",
                            "historicalMappings": mapping(historical, "UX_CURRENT_STORY_INVALID"),
                            "compatibility": "Preserved acceptance obligation; no feature-delivery claim.",
                            "disclosureSafety": "No product disclosure or UI implementation is authorized."})
@@ -208,13 +216,15 @@ def markdown(document: dict[str, Any]) -> bytes:
     for source in document["sources"]:
         lines.append(f"| `{source['path']}` | `{source['version']}` | `{source['sha256']}` |")
     for title, rows in (("Decisions", document["decisions"]), ("Acceptance criteria", document["acceptanceCriteria"])):
-        lines.extend(["", f"## {title}", "", "| ID | Disposition | Owner | Rationale | Source | Historical mapping |",
-                      "| --- | --- | --- | --- | --- | --- |"])
+        lines.extend(["", f"## {title}", "", "| ID | Disposition | Owner | Rationale | Source | Evidence or control | Historical mapping | Compatibility | Disclosure safety |",
+                      "| --- | --- | --- | --- | --- | --- | --- | --- | --- |"])
         for row in rows:
             safe = lambda value: str(value).replace("|", "\\|").replace("\n", " ")
             lines.append(f"| `{row['id']}` | `{row['status']}` | {safe(row['owner'])} | {safe(row['rationale'])} | "
                          f"`{row['sourcePath']}` (`{row['sourceSha256']}`) | "
-                         f"{safe(row['historicalMappings'][0]['reference'])} (non-current) |")
+                         f"{safe(row['evidenceOrControl'])} | "
+                         f"{safe(row['historicalMappings'][0]['reference'])} (non-current) | "
+                         f"{safe(row['compatibility'])} | {safe(row['disclosureSafety'])} |")
     lines.extend(["", "Historical mappings are non-current provenance and carry no implementation ownership.", ""])
     return "\n".join(lines).encode("utf-8")
 
@@ -230,19 +240,61 @@ def generate(root: Path, contract_path: str) -> tuple[bytes, bytes, bytes]:
         contract = json.loads(contract_bytes)
         predecessor_bytes = file_bytes(root, PREDECESSOR_PATH)
         predecessor = json.loads(predecessor_bytes)
-        bundle = json.loads(file_bytes(root, "_bmad-output/planning-artifacts/v9-authority-bundle-v1.json"))
-    except (UnicodeError, ValueError) as error:
+        predecessor_markdown = file_bytes(root, PREDECESSOR_MARKDOWN_PATH)
+        bundle = json.loads(file_bytes(root, BUNDLE_PATH))
+    except (UnicodeError, ValueError, TypeError) as error:
         raise DispositionError("UX_SCHEMA_INVALID", "an authority input is malformed or the candidate is unresolved") from error
-    if (contract.get("storyId") != "8.1" or contract.get("predecessors") != ["7.4"]
-            or predecessor.get("storyId") != "7.4"
-            or bundle.get("planningCandidate") != contract["authority"]["planningCandidate"]):
+    if not all(isinstance(value, dict) for value in (contract, predecessor, bundle)):
+        raise DispositionError("UX_SCHEMA_INVALID", "an authority input is not an object")
+    authority = contract.get("authority")
+    entry = contract.get("inventory")
+    bundle_authorities = bundle.get("authorities")
+    artifacts = bundle.get("artifacts")
+    if not (isinstance(authority, dict) and isinstance(entry, dict)
+            and isinstance(bundle_authorities, dict) and isinstance(artifacts, list)
+            and all(isinstance(row, dict) and isinstance(row.get("path"), str)
+                    and re.fullmatch(r"[0-9a-f]{64}", str(row.get("sha256", ""))) for row in artifacts)):
+        raise DispositionError("UX_SCHEMA_INVALID", "the authority bundle or contract has an invalid shape")
+    artifact_paths = [row["path"] for row in artifacts]
+    bundle_digest = digest("".join(f"{row['sha256']}  {row['path']}\n" for row in artifacts).encode())
+    contract_rows = [row for row in artifacts if row["path"] == CONTRACT_PATH]
+    if (contract.get("schemaVersion") != "hexalith.conversations.story-contract.v1"
+            or contract.get("storyId") != "8.1" or contract.get("predecessors") != ["7.4"]
+            or authority.get("epic") != "epic-6-authority-2026-08-03-v10"
+            or authority.get("architecture") != "conversations-architecture-2026-08-03-v10"
+            or authority.get("planningCandidate") != bundle.get("planningCandidate")
+            or entry != {"id": "V9-8.1-ENTRY-v1", "sha256": "6c61eb92078755496c73506419112026e3e9b7f63bb314b1028d4e9c7bb41ef9"}
+            or bundle.get("schemaVersion") != "hexalith.conversations.v9-authority-bundle.v1"
+            or bundle.get("bundleDigest") != bundle_digest
+            or artifact_paths != sorted(set(artifact_paths))
+            or len(contract_rows) != 1 or contract_rows[0]["sha256"] != digest(contract_bytes)
+            or bundle_authorities.get("epic") != "epic-6-authority-2026-08-18-v14"
+            or bundle_authorities.get("architecture") != "conversations-architecture-2026-08-18-v14"):
         raise DispositionError("UX_SCHEMA_INVALID", "the Story 8.1 authority or predecessor binding is invalid")
+    if (predecessor.get("storyId") != "7.4"
+            or predecessor.get("summary") != {"required": 6, "passed": 6, "failed": 0,
+                                               "blocked": 0, "skipped": 0, "notRun": 0}
+            or not isinstance(predecessor.get("scenarios"), list)
+            or len(predecessor["scenarios"]) != 6
+            or any(not isinstance(row, dict) or row.get("result") != "PASS" or row.get("exitCode") != 0
+                   for row in predecessor["scenarios"])
+            or predecessor.get("renderedMarkdownSha256") != digest(predecessor_markdown)):
+        raise DispositionError("UX_SCHEMA_INVALID", "the Story 7.4 predecessor is not a passing pair")
+    record_module_spec = importlib_util.spec_from_file_location(
+        "story_record_pair_verifier", Path(__file__).with_name("generate_story_record.py"))
+    if record_module_spec is None or record_module_spec.loader is None:
+        raise DispositionError("UX_SCHEMA_INVALID", "the predecessor pair verifier is unavailable")
+    record_module = importlib_util.module_from_spec(record_module_spec)
+    record_module_spec.loader.exec_module(record_module)
+    if record_module.v2_verify_pair(predecessor_bytes, predecessor_markdown):
+        raise DispositionError("UX_SCHEMA_INVALID", "the Story 7.4 predecessor pair does not verify")
     for source_path, content in source_text.items():
         if "> **Preservation-only UX authority.**" not in content:
             raise DispositionError("UX_ACTIVATION_UNAUTHORIZED", f"preservation banner is missing: {source_path}")
     hashes = {path: digest(data) for path, data in source_bytes.items()}
     decisions, acceptance = inventory(root, source_text[SPEC_PATH], source_text[MAP_PATH], hashes)
-    predecessor_candidate = predecessor.get("candidate", {}).get("commit")
+    predecessor_candidate = predecessor.get("candidate")
+    predecessor_candidate = predecessor_candidate.get("commit") if isinstance(predecessor_candidate, dict) else None
     if not isinstance(predecessor_candidate, str) or not re.fullmatch(r"[0-9a-f]{40}", predecessor_candidate):
         raise DispositionError("UX_SCHEMA_INVALID", "the predecessor candidate is invalid")
     for source_path, current_bytes in source_bytes.items():
@@ -263,7 +315,7 @@ def generate(root: Path, contract_path: str) -> tuple[bytes, bytes, bytes]:
         "authority": {"epic": contract["authority"]["epic"],
                       "architecture": contract["authority"]["architecture"],
                       "planningCandidate": contract["authority"]["planningCandidate"],
-                      "bundleDigest": bundle["bundleDigest"],
+                      "bundleDigest": bundle_digest,
                       "inventoryId": contract["inventory"]["id"],
                       "inventorySha256": contract["inventory"]["sha256"],
                       "contractPath": CONTRACT_PATH, "contractSha256": digest(contract_bytes)},
@@ -304,21 +356,49 @@ def main() -> int:
         if not (root / ".git").exists():
             raise DispositionError("UX_SCHEMA_INVALID", "repository is not a Git checkout")
         outputs = (args.output_schema, args.output_json, args.output_markdown)
-        expected = ("docs/release-evidence/ux-preservation-disposition-v1.schema.json",
-                    "docs/release-evidence/ux-preservation-disposition-v1.json",
-                    "docs/release-evidence/ux-preservation-disposition-v1.md")
-        if outputs != expected:
+        if outputs != OUTPUT_PATHS:
             raise DispositionError("UX_SCHEMA_INVALID", "output paths differ from the canonical bundle")
         generated = generate(root, args.contract)
-        for relative, content in zip(outputs, generated):
-            target = root / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            target.write_bytes(content)
+        write_bundle(root, outputs, generated)
         print("PASS: UX preservation disposition bundle generated")
         return 0
     except DispositionError as error:
         print(f"FAIL: {error.code}: {error}", file=sys.stderr)
         return 1
+
+
+def write_bundle(root: Path, outputs: tuple[str, ...], generated: tuple[bytes, ...]) -> None:
+    """Replace all outputs, restoring the prior bytes if any replacement fails."""
+    staged: list[Path] = []
+    original: list[bytes | None] = []
+    targets = [root / relative for relative in outputs]
+    try:
+        for target, content in zip(targets, generated):
+            target.parent.mkdir(parents=True, exist_ok=True)
+            if not target.parent.resolve(strict=True).is_relative_to(root) or target.is_symlink():
+                raise OSError("unsafe output path")
+            original.append(target.read_bytes() if target.exists() else None)
+            with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+                staged.append(Path(handle.name))
+                handle.write(content)
+        for temporary, target in zip(staged, targets):
+            os.replace(temporary, target)
+    except OSError as error:
+        for target, content in zip(targets, original):
+            try:
+                if content is None:
+                    target.unlink(missing_ok=True)
+                else:
+                    with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
+                        handle.write(content)
+                        recovery = Path(handle.name)
+                    os.replace(recovery, target)
+            except OSError:
+                pass
+        raise DispositionError("UX_RENDER_DRIFT", "the disposition bundle could not be written coherently") from error
+    finally:
+        for temporary in staged:
+            temporary.unlink(missing_ok=True)
 
 
 if __name__ == "__main__":

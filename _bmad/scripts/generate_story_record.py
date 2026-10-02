@@ -2766,6 +2766,22 @@ V2_8_1_TEST_ASSEMBLY = (
     "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/"
     "Hexalith.Conversations.Conformance.Tests.dll"
 )
+V2_8_1_ALLOWED_PATHS = frozenset({
+    V2_8_1_SPEC_PATH,
+    "_bmad-output/implementation-artifacts/epic-8-context.md",
+    "_bmad-output/implementation-artifacts/sprint-status.yaml",
+    "_bmad/schemas/story-final-record-v2.schema.json",
+    "_bmad/scripts/generate_story_record.py",
+    "_bmad/scripts/generate_ux_preservation_disposition.py",
+    "_bmad/scripts/tests/test_generate_story_record.py",
+    "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+    "docs/runbooks/story-final-record-generation.md",
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+    "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs",
+    *V2_8_1_DISPOSITION_PATHS,
+    "docs/release-evidence/story-8.1-final-record-v2.json",
+    "docs/release-evidence/story-8.1-final-record-v2.md",
+})
 V2_HISTORY_FIXTURE_PATH = "_bmad/scripts/fixtures/story-7.4-history-v1.json"
 V2_HISTORY_OUTPUT_PATH = "artifacts/v9/7.4/AC-7.4-01.json"
 V2_HISTORY_ANCHORS = (
@@ -4654,6 +4670,7 @@ def v2_sprint_status_only_change(
         if len(matches) != 1:
             return None
         match = matches[0]
+        story_value = match.group("value")
         dates = list(update_date.finditer(content))
         if len(dates) != 1:
             return None
@@ -4688,7 +4705,7 @@ def v2_sprint_status_only_change(
         masked = content
         for start, end, token in sorted(spans, reverse=True):
             masked = masked[:start] + token + masked[end:]
-        return masked, match.group("value"), date.group("value"), header_value, tuple(retro_values)
+        return masked, story_value, date.group("value"), header_value, tuple(retro_values)
 
     original = without_status(v2_committed_blob(repository, candidate, V2_7_2_SPRINT_PATH))
     latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
@@ -5753,7 +5770,8 @@ def v2_successor_scenario_from_results(
                 if code_bases != [assembly_path] or count_disagreements(parsed):
                     raise ValueError("TRX assembly or counters mismatch")
                 rows = parsed["results"]
-                if not rows or parsed["reported"]["failed"] or parsed["reported"]["skipped"]:
+                if (not rows or parsed["reported"]["executed"] == 0
+                        or parsed["reported"]["failed"] or parsed["reported"]["skipped"]):
                     raise ValueError("TRX has no passing execution or contains failures/skips")
                 if parsed["reported"]["passed"] != len(rows):
                     raise ValueError("TRX pass count differs from result rows")
@@ -5808,8 +5826,8 @@ def v2_successor_scenario_from_results(
                     state = document.get("result", document.get("status"))
                     if state is not None and str(state).upper() not in ("PASS", "PASSED", "SUCCESS"):
                         raise ValueError("the machine result is non-passing")
-                    if PurePosixPath(script).name.startswith("verify_") and state is None:
-                        raise ValueError("the verifier output has no passing result")
+                    if state is None and "exitCode" not in document:
+                        raise ValueError("the Python output has no explicit passing verdict")
                     if document.get("exitCode", 0) != 0:
                         raise ValueError("the machine result carries a nonzero exit code")
                     if document.get("blockers"):
@@ -5834,15 +5852,23 @@ def v2_successor_scenario_from_results(
         if v2_committed_blob(repository, candidate, project) is None:
             fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target is not committed: {project}")
         elif kind == "build":
-            if not project.endswith(".csproj"):
-                fail("SCENARIO_COMMAND_UNSUPPORTED", "the build target is not a project")
-            else:
-                name = PurePosixPath(project).stem
-                binary_path = str(PurePosixPath(project).parent / "bin/Release/net10.0" / f"{name}.dll")
+            projects = [project]
+            if project.endswith(".slnx"):
+                try:
+                    solution = ElementTree.fromstring(v2_committed_blob(repository, candidate, project))
+                    projects = [str(PurePosixPath(project).parent / item.attrib["Path"])
+                                for item in solution.findall(".//{*}Project")]
+                except (ElementTree.ParseError, KeyError, TypeError):
+                    projects = []
+            if not projects:
+                fail("ASSERTION_LEDGER_EMPTY", "the solution has no build projects")
+            for item in projects:
+                name = PurePosixPath(item).stem
+                binary_path = str(PurePosixPath(item).parent / "bin/Release/net10.0" / f"{name}.dll")
                 result = read_output(binary_path)
                 if result is not None and dotnet_source_revisions(result[0]) != [candidate]:
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
-                subjects.append(f"build::{project}")
+                subjects.append(f"build::{item}")
         else:
             if not project.endswith(".slnx"):
                 fail("SCENARIO_COMMAND_UNSUPPORTED", "the restore target is not a solution")
@@ -5877,6 +5903,30 @@ def v2_successor_scenario_from_results(
     return record, "passed" if not findings else "failed", findings
 
 
+def v2_ux_parity_code(output_bytes: dict[str, bytes], canonical: tuple[bytes, bytes, bytes]) -> str | None:
+    """Return the owning blocker for a disposition bundle that differs from derivation."""
+    if output_bytes["schema"] != canonical[0]:
+        return "UX_SCHEMA_INVALID"
+    try:
+        disposition = v2_parse_json(output_bytes["json"])
+        expected = v2_parse_json(canonical[1])
+    except (UnicodeDecodeError, ValueError):
+        return "UX_SCHEMA_INVALID"
+    if not isinstance(disposition, dict):
+        return "UX_SCHEMA_INVALID"
+    if disposition.get("authority") != expected["authority"] or disposition.get("candidate") != expected["candidate"]:
+        return "AUTHORITY_BINDING_INVALID"
+    if disposition.get("decisions") != expected["decisions"]:
+        return "UX_DECISION_INVENTORY_DRIFT"
+    if disposition.get("acceptanceCriteria") != expected["acceptanceCriteria"]:
+        return "UX_ACCEPTANCE_INVENTORY_DRIFT"
+    if output_bytes["markdown"] != canonical[2]:
+        return "UX_RENDER_DRIFT"
+    if output_bytes["json"] != canonical[1]:
+        return "UX_SCHEMA_INVALID"
+    return None
+
+
 def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
                 contract: dict[str, Any], record_validator: Any) -> dict[str, Any]:
     """Independently bind the committed disposition, sources, predecessor, and build."""
@@ -5906,6 +5956,18 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
             stop("UX_SOURCE_UNBOUND", source["path"])
         if v2_sha256(original) != source["sha256"]:
             stop("UX_SOURCE_DRIFT", source["path"])
+    spec = v2_committed_blob(repository, candidate, V2_8_1_SPEC_PATH)
+    if spec is None:
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
+    try:
+        baseline_value = frontmatter_scalar(parse_frontmatter(spec.decode("utf-8")), "baseline_commit")
+    except (UnicodeDecodeError, GateError):
+        baseline_value = None
+    baseline = try_resolve_commit(repository, baseline_value) if baseline_value else None
+    if baseline is None or not is_ancestor(repository, baseline, candidate):
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
+    if any(path not in V2_8_1_ALLOWED_PATHS for path in committed_path_status(repository, baseline, candidate)):
+        stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate")
     outputs = {}
     output_bytes = {}
     for role, path in zip(("schema", "json", "markdown"), V2_8_1_DISPOSITION_PATHS):
@@ -5950,18 +6012,24 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
             or disposition.get("authority", {}).get("inventorySha256") != contract["inventory"]["sha256"]
             or disposition.get("authority", {}).get("contractSha256") != v2_sha256(v2_committed_blob(repository, candidate, contract_path))):
         stop("AUTHORITY_BINDING_INVALID", V2_8_1_DISPOSITION_PATHS[1])
-    spec = v2_committed_blob(repository, candidate, V2_8_1_SPEC_PATH)
-    if spec is None:
-        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
+    for path in (contract_path, V2_AUTHORITY_BUNDLE_PATH, predecessor_path, predecessor_markdown):
+        committed = v2_committed_blob(repository, candidate, path)
+        installed = repository / path
+        if committed is None or not installed.is_file() or installed.is_symlink() or installed.read_bytes() != committed:
+            stop("AUTHORITY_BINDING_INVALID", path)
+    module_path = Path(__file__).with_name("generate_ux_preservation_disposition.py")
+    module_spec = importlib_util.spec_from_file_location("story81_disposition_derivation", module_path)
+    if module_spec is None or module_spec.loader is None:
+        stop("UX_SCHEMA_INVALID", str(module_path))
+    ux_module = importlib_util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(ux_module)
     try:
-        baseline_value = frontmatter_scalar(parse_frontmatter(spec.decode("utf-8")), "baseline_commit")
-    except (UnicodeDecodeError, GateError):
-        baseline_value = None
-    baseline = try_resolve_commit(repository, baseline_value) if baseline_value else None
-    if baseline is None or not is_ancestor(repository, baseline, candidate):
-        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_1_SPEC_PATH)
-    if any(path.startswith("src/") for path in committed_path_status(repository, baseline, candidate)):
-        stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate")
+        canonical = ux_module.generate(repository, contract_path)
+    except ux_module.DispositionError as error:
+        stop(error.code, contract_path)
+    parity_code = v2_ux_parity_code(output_bytes, canonical)
+    if parity_code is not None:
+        stop(parity_code, V2_8_1_DISPOSITION_PATHS[1])
     assembly = repository / V2_8_1_TEST_ASSEMBLY
     if not assembly.is_file() or assembly.is_symlink():
         stop("TEST_RESULTS_MISSING", V2_8_1_TEST_ASSEMBLY)
@@ -5985,6 +6053,28 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
     """Measure one exact-method TRX or the committed generator bundle."""
     scenario_id = scenario["id"]
     if command["kind"] == "bundle":
+        findings: list[dict[str, str]] = []
+        record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
+                                  "exitCode": 1, "result": "FAIL", "blockers": []}
+        try:
+            run = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
+                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 timeout=120, check=False)
+        except (OSError, subprocess.TimeoutExpired):
+            findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                       "the exact disposition command did not complete"))
+        else:
+            if run.returncode != 0:
+                findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                           f"the exact disposition command exited {run.returncode}"))
+            for role, path in zip(("schema", "json", "markdown"), V2_8_1_DISPOSITION_PATHS):
+                target = repository / path
+                if not target.is_file() or target.is_symlink() or v2_sha256(target.read_bytes()) != facts["outputs"][role]["sha256"]:
+                    findings.append(v2_finding("UX_RENDER_DRIFT", path,
+                                               "the exact command did not reproduce the committed output"))
+        if findings:
+            record["blockers"] = sorted({item["code"] for item in findings})
+            return record, "failed", findings
         subjects = ("schema::closed-valid", "sources::path-version-hash", "inventory::52-28",
                     "status::preserved", "provenance::non-current", "markdown::digest", "predecessor::7.4")
         return ({"scenarioId": scenario_id, "command": scenario["command"], "exitCode": 0,

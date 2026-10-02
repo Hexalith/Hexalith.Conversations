@@ -7006,6 +7006,56 @@ def test_v2_story_8_1_requires_exact_python_and_xunit_commands() -> None:
     assert module.v2_ux_command(["dotnet"], "AC-8.1-07") is None
 
 
+def test_v2_story_8_1_bundle_requires_exact_command_execution(tmp_path: Path, monkeypatch) -> None:
+    """AC-01 cannot pass from committed outputs if its declared CLI fails."""
+    module = load_generator()
+    scenario = {"id": "AC-8.1-01", "command": "python3 exact-generator.py"}
+    command = {"kind": "bundle", "output": module.V2_8_1_DISPOSITION_PATHS[1]}
+    contents = (b"schema", b"json", b"markdown")
+    facts = {"outputs": {role: {"path": path, "sha256": module.v2_sha256(content)}
+                         for role, path, content in zip(("schema", "json", "markdown"),
+                                                        module.V2_8_1_DISPOSITION_PATHS, contents)}}
+    for path, content in zip(module.V2_8_1_DISPOSITION_PATHS, contents):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 1, b"", b"failed"))
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 0, b"PASS", b""))
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "passed" and record["result"] == "PASS" and not findings
+    (tmp_path / module.V2_8_1_DISPOSITION_PATHS[2]).write_bytes(b"changed")
+    record, category, findings = module.v2_ux_scenario_from_results(tmp_path, scenario, command, 0, 0, facts)
+    assert category == "failed" and "UX_RENDER_DRIFT" in record["blockers"]
+
+
+def test_v2_story_8_1_full_bundle_parity_rejects_plausible_drift() -> None:
+    """Valid-looking schema, rows, authority, and Markdown still need canonical bytes."""
+    module = load_generator()
+    canonical = tuple((WORKSPACE / path).read_bytes() for path in module.V2_8_1_DISPOSITION_PATHS)
+    original = {role: content for role, content in zip(("schema", "json", "markdown"), canonical)}
+    assert module.v2_ux_parity_code(original, canonical) is None
+
+    def changed_document(edit):
+        document = json.loads(canonical[1])
+        edit(document)
+        return (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode()
+
+    fixtures = [
+        ({**original, "schema": canonical[0].replace(b'"minItems": 1', b'"minItems": 0', 1)}, "UX_SCHEMA_INVALID"),
+        ({**original, "json": changed_document(lambda doc: doc["decisions"][0].update(rationale="Plausible but false"))}, "UX_DECISION_INVENTORY_DRIFT"),
+        ({**original, "json": changed_document(lambda doc: doc["acceptanceCriteria"][0]["historicalMappings"][0].update(reference="Historical false mapping"))}, "UX_ACCEPTANCE_INVENTORY_DRIFT"),
+        ({**original, "json": changed_document(lambda doc: doc["authority"].update(bundleDigest="0" * 64))}, "AUTHORITY_BINDING_INVALID"),
+        ({**original, "markdown": canonical[2] + b"Altered row\n",
+          "json": changed_document(lambda doc: doc.update(renderedMarkdownSha256=module.v2_sha256(canonical[2] + b"Altered row\n")))}, "UX_RENDER_DRIFT"),
+    ]
+    for output, code in fixtures:
+        assert module.v2_ux_parity_code(output, canonical) == code
+
+
 def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path) -> None:
     """A stale, skipped, or foreign xUnit result cannot close the scenario."""
     module = load_generator()
@@ -7035,13 +7085,21 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path)
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0).replace('executed="1"', 'executed="0"'))
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
     result_path.write_text(template.format(method=method, outcome="Failed", passed=0, failed=1))
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
 
 
-def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path) -> None:
+@pytest.mark.parametrize("production_path", [
+    "src/Hexalith.Conversations.Web/Story81InjectedGuard.cs",
+    ".github/workflows/story81-injected.yml",
+])
+def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path, production_path: str) -> None:
     """A real candidate with a production path must hit the frozen UI blocker."""
     module = load_generator()
     repository = tmp_path / "candidate"
@@ -7054,7 +7112,6 @@ def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path) ->
         ["git", "-C", str(repository), "checkout", "--quiet", "--detach", "HEAD"],
         check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
-    production_path = "src/Hexalith.Conversations.Web/Story81InjectedGuard.cs"
     injected = repository / production_path
     injected.parent.mkdir(parents=True, exist_ok=True)
     injected.write_text("// Disposable production-path fault fixture.\n", encoding="utf-8")
@@ -7140,6 +7197,11 @@ def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path:
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    output.write_bytes(trx(method).replace(b'executed="1"', b'executed="0"'))
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
 
 
 def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, monkeypatch) -> None:
@@ -7169,6 +7231,13 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    document.pop("result")
+    document.pop("exitCode")
+    document["candidate"] = candidate
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
 
 
 def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, monkeypatch) -> None:
@@ -7176,7 +7245,9 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
     candidate = "a" * 40
     project = "tests/Example/Example.csproj"
     solution = "tests/Fixture/Fixture.slnx"
-    blobs = {project: b"<Project />", solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
+    solution_project = "tests/Fixture/App/App.csproj"
+    blobs = {project: b"<Project />", solution_project: b"<Project />",
+             solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
     monkeypatch.setattr(module, "v2_committed_blob",
                         lambda _repo, _candidate, path: blobs.get(path))
     binary = tmp_path / "tests/Example/bin/Release/net10.0/Example.dll"
@@ -7185,8 +7256,12 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
     assets = tmp_path / "tests/Fixture/App/obj/project.assets.json"
     assets.parent.mkdir(parents=True)
     assets.write_text('{"version":3}')
+    solution_binary = tmp_path / "tests/Fixture/App/bin/Release/net10.0/App.dll"
+    solution_binary.parent.mkdir(parents=True)
+    solution_binary.write_bytes(b"1.0.0+" + candidate.encode())
     for scenario_id, command in (("AC-9.2-01", {"kind": "build", "project": project}),
-                                 ("AC-11.2-02", {"kind": "restore", "project": solution})):
+                                 ("AC-11.2-02", {"kind": "restore", "project": solution}),
+                                 ("AC-11.2-03", {"kind": "build", "project": solution})):
         record, category, findings = module.v2_successor_scenario_from_results(
             tmp_path, {"id": scenario_id, "command": "dotnet fixture"}, command,
             candidate, 0, [])
