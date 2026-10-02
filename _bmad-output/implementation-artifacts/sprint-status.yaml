@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 2026-10-01
+# last_updated: 2026-10-02
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -92,7 +92,7 @@ development_status:
   7-4-verify-historical-mode-and-required-fault-injection-blockers: done
   epic-7-retrospective: done
   epic-8: in-progress
-  8-1-generate-the-versioned-ux-disposition-contract: in-progress
+  8-1-generate-the-versioned-ux-disposition-contract: done
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: backlog
   epic-8-retrospective: optional
   epic-9: backlog
@@ -275,19 +275,19 @@ action_items:
     epic: 7
     action: "Generalize the v2 story-record generator so the mandatory completion gate can pass for Epics 8-16: derive test/path/baseline/submodule facts for every contract, recognize the xUnit v3 -automated route, replace hard-coded V2_RETAINED_* tables with contract-declared retention, bind contract bytes to the bundle row, and reuse SourceRevisionId build binding (prerequisite for Story 8.1)."
     owner: "Dev workflow"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
   - id: "epic-7-retro-item-31-ci-enforce-the-completion-gate-run-verif"
     epic: 7
     action: "CI-enforce the completion gate: run verify_story_completion_workflows.py AC-7.3-01/02 and test_generate_story_record.py in the ci / repository job, and rerun --verify-inserted-record after each route's done commit (prerequisite for Story 8.1)."
     owner: "Dev workflow"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
   - id: "epic-7-retro-item-32-retire-or-re-point-the-authority-tooling"
     epic: 7
     action: "Retire or re-point the authority-tooling suites broken by 0db6207 so the full _bmad/scripts/tests lane is green (0 failed/0 errors) and stays green in CI (prerequisite for Story 8.1)."
     owner: "Dev workflow / Quality"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
   - id: "epic-7-retro-item-33-make-historical-mode-flag-post-candidate"
     epic: 7
