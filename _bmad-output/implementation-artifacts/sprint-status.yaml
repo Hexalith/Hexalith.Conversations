@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-10-01
+last_updated: 2026-10-02
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -90,7 +90,7 @@ development_status:
   7-2-derive-test-path-candidate-submodule-and-gitlink-facts: done
   7-3-integrate-generation-into-every-blocking-completion-transition: done
   7-4-verify-historical-mode-and-required-fault-injection-blockers: done
-  epic-7-retrospective: optional
+  epic-7-retrospective: done
   epic-8: backlog
   8-1-generate-the-versioned-ux-disposition-contract: backlog
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: backlog
@@ -139,7 +139,7 @@ action_items:
   - epic: 3
     action: "Make final story record generation mechanical from final test counts, file list, submodule state, and root gitlink state."
     owner: "Dev workflow"
-    status: in-progress
+    status: done
   - epic: 3
     action: "Add a blocking completion gate for submodule promotions so dirty submodules or uncaptured root gitlinks cannot reach done."
     owner: "Dev workflow"
@@ -218,9 +218,7 @@ action_items:
     decision_record: "docs/release-evidence/conformance-oracle-tiering-decision-v2.json"
     approval_reference: "_bmad-output/planning-artifacts/sprint-change-proposal-2026-07-28-conformance-oracle-tiering.md"
     execution: "Story 6.9 (epic-6-authority-2026-07-28-v5)"
-    note: "The action was to DECIDE. The decision is recorded and approved; the
-      physical tiering is Story 6.9 and is tracked there, not here. This item is
-      not closed on the basis of work performed."
+    note: "The action was to DECIDE. The decision is recorded and approved; the physical tiering is Story 6.9 and is tracked there, not here. This item is not closed on the basis of work performed."
   - epic: 5
     action: "Promote the Story 5.3 evidence-boundary validation pattern into reusable dev/review guidance."
     owner: "Dev workflow"
@@ -273,3 +271,51 @@ action_items:
     owner: "Test / AppHost owner"
     status: open
     ref: "_bmad-output/implementation-artifacts/epic-6-retro-2026-08-03.md"
+  - id: "epic-7-retro-item-30-generalize-the-v2-story-record-generator"
+    epic: 7
+    action: "Generalize the v2 story-record generator so the mandatory completion gate can pass for Epics 8-16: derive test/path/baseline/submodule facts for every contract, recognize the xUnit v3 -automated route, replace hard-coded V2_RETAINED_* tables with contract-declared retention, bind contract bytes to the bundle row, and reuse SourceRevisionId build binding (prerequisite for Story 8.1)."
+    owner: "Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-31-ci-enforce-the-completion-gate-run-verif"
+    epic: 7
+    action: "CI-enforce the completion gate: run verify_story_completion_workflows.py AC-7.3-01/02 and test_generate_story_record.py in the ci / repository job, and rerun --verify-inserted-record after each route's done commit (prerequisite for Story 8.1)."
+    owner: "Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-32-retire-or-re-point-the-authority-tooling"
+    epic: 7
+    action: "Retire or re-point the authority-tooling suites broken by 0db6207 so the full _bmad/scripts/tests lane is green (0 failed/0 errors) and stays green in CI (prerequisite for Story 8.1)."
+    owner: "Dev workflow / Quality"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-33-make-historical-mode-flag-post-candidate"
+    epic: 7
+    action: "Make historical mode flag post-candidate gitlink/path movement (6.2: 7 gitlinks, 6.7: 2) via an additive fixture version, and add the 7.1-7.4 closures to historical verification, before Story 13.1 consumes it."
+    owner: "Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-34-reconcile-gate-documentation-and-routes"
+    epic: 7
+    action: "Reconcile gate documentation and routes: current-change-validation.md and the ci.yml comment, in-review placement, record_gate_failed in the v9 blocker branch, step-05 twin waiver alignment, and the stale V14 sprint-status header comment."
+    owner: "Dev workflow / Tech writer"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-35-reconcile-epic-7-planning-authority-and"
+    epic: 7
+    action: "Reconcile Epic 7 planning authority and epic-7-context.md with the owner waivers (7.1 entry gates 2026-09-22, 7.1 ACCEPTED lock 2026-09-29, epic exit clause 2026-10-02) so Epic 8+ specs stop re-importing waived ceremony."
+    owner: "Product / Release owner"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-36-reduce-the-completion-protocol-s-commit"
+    epic: 7
+    action: "Reduce the completion protocol's commit cost: let candidate retention mask review-findings sections or freeze the candidate after review, and batch root-gitlink refreshes between stories."
+    owner: "Dev workflow"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
+  - id: "epic-7-retro-item-37-keep-an-independent-mutation-style-revie"
+    epic: 7
+    action: "Keep an independent mutation-style review before done for every gate or evidence story, with at least one can-this-guard-fail probe per new blocker; never mark done while the suite result is unconfirmed."
+    owner: "Dev workflow / Reviewer"
+    status: open
+    ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
