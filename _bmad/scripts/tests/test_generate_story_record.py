@@ -7041,6 +7041,49 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path)
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
 
 
+def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path) -> None:
+    """A real candidate with a production path must hit the frozen UI blocker."""
+    module = load_generator()
+    repository = tmp_path / "candidate"
+    environment = fixture_git_environment()
+    subprocess.run(
+        ["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    subprocess.run(
+        ["git", "-C", str(repository), "checkout", "--quiet", "--detach", "HEAD"],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    production_path = "src/Hexalith.Conversations.Web/Story81InjectedGuard.cs"
+    injected = repository / production_path
+    injected.parent.mkdir(parents=True, exist_ok=True)
+    injected.write_text("// Disposable production-path fault fixture.\n", encoding="utf-8")
+    subprocess.run(
+        ["git", "-C", str(repository), "add", "--", production_path],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    subprocess.run(
+        ["git", "-C", str(repository), "commit", "--quiet", "-m", "test: inject production src path"],
+        check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+    )
+    candidate = subprocess.check_output(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"], env=environment, text=True,
+    ).strip()
+    spec = (repository / module.V2_8_1_SPEC_PATH).read_text(encoding="utf-8")
+    baseline = re.search(r"(?m)^baseline_commit: '([0-9a-f]{40})'$", spec)
+    assert baseline is not None
+    assert production_path in module.committed_path_status(repository, baseline.group(1), candidate)
+    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    _, validators = module.v2_load_schemas()
+    with pytest.raises(module.V2Stop) as error:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert error.value.story_id == "8.1"
+    assert [finding["code"] for finding in error.value.findings] == [
+        "UX_PRODUCTION_CHANGE_FORBIDDEN"
+    ]
+
+
 def test_v2_successor_command_inventory_recognizes_epics_8_through_16() -> None:
     """Every frozen successor command has a conservative evidence route."""
     import shlex
