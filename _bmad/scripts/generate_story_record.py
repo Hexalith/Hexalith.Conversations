@@ -5753,6 +5753,15 @@ def v2_successor_scenario_from_results(
         return content, modified
 
     kind = command["kind"]
+    if kind in ("python", "build", "restore"):
+        try:
+            executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      timeout=600, check=False)
+            if executed.returncode != 0:
+                fail("TEST_RESULTS_FAILED", f"the exact command exited {executed.returncode}")
+        except (OSError, ValueError, subprocess.TimeoutExpired):
+            fail("TEST_RESULTS_FAILED", "the exact command did not complete")
     if kind == "xunit":
         result = read_output(command["output"])
         assembly_path = command["assembly"]
@@ -5826,12 +5835,27 @@ def v2_successor_scenario_from_results(
                     state = document.get("result", document.get("status"))
                     if state is not None and str(state).upper() not in ("PASS", "PASSED", "SUCCESS"):
                         raise ValueError("the machine result is non-passing")
-                    if state is None and "exitCode" not in document:
+                    is_schema = (path == command["options"].get("--output-schema")
+                                 or path.endswith(".schema.json"))
+                    if state is None and "exitCode" not in document and not is_schema:
                         raise ValueError("the Python output has no explicit passing verdict")
                     if document.get("exitCode", 0) != 0:
                         raise ValueError("the machine result carries a nonzero exit code")
                     if document.get("blockers"):
                         raise ValueError("the machine result carries blockers")
+                    summary = document.get("summary")
+                    if summary is not None:
+                        if not isinstance(summary, dict):
+                            raise ValueError("the machine result summary is malformed")
+                        counts = ("required", "passed", "failed", "blocked", "skipped", "notRun")
+                        if any(name in summary and (not isinstance(summary[name], int)
+                                or isinstance(summary[name], bool) or summary[name] < 0)
+                               for name in counts):
+                            raise ValueError("the machine result summary has invalid counts")
+                        if (any(summary.get(name, 0) != 0 for name in ("failed", "blocked", "skipped", "notRun"))
+                                or ("required" in summary and summary.get("passed") != summary["required"])
+                                or ("passed" in summary and summary["passed"] == 0)):
+                            raise ValueError("the machine result summary is non-passing")
                     if "candidate" in document and isinstance(document["candidate"], str) and document["candidate"] != candidate:
                         raise ValueError("the machine result names another candidate")
                     candidate_value = document.get("candidate")
@@ -5852,6 +5876,11 @@ def v2_successor_scenario_from_results(
         if v2_committed_blob(repository, candidate, project) is None:
             fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target is not committed: {project}")
         elif kind == "build":
+            tokens = shlex.split(scenario["command"])
+            configuration = "Debug"
+            for index, token in enumerate(tokens[:-1]):
+                if token in ("--configuration", "-c"):
+                    configuration = tokens[index + 1]
             projects = [project]
             if project.endswith(".slnx"):
                 try:
@@ -5864,7 +5893,7 @@ def v2_successor_scenario_from_results(
                 fail("ASSERTION_LEDGER_EMPTY", "the solution has no build projects")
             for item in projects:
                 name = PurePosixPath(item).stem
-                binary_path = str(PurePosixPath(item).parent / "bin/Release/net10.0" / f"{name}.dll")
+                binary_path = str(PurePosixPath(item).parent / f"bin/{configuration}/net10.0" / f"{name}.dll")
                 result = read_output(binary_path)
                 if result is not None and dotnet_source_revisions(result[0]) != [candidate]:
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
@@ -6084,6 +6113,19 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
     findings: list[dict[str, str]] = []
     record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
                               "exitCode": 1, "result": "FAIL", "blockers": []}
+    try:
+        executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
+                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                  timeout=120, check=False)
+        if executed.returncode != 0:
+            findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                       f"the exact selector exited {executed.returncode}"))
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                   "the exact selector did not complete"))
+    if findings:
+        record["blockers"] = ["TEST_RESULTS_FAILED"]
+        return record, "failed", findings
     result = repository / command["output"]
     if not result.is_file() or result.is_symlink():
         findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id, "the exact-method TRX is absent"))

@@ -7056,7 +7056,7 @@ def test_v2_story_8_1_full_bundle_parity_rejects_plausible_drift() -> None:
         assert module.v2_ux_parity_code(output, canonical) == code
 
 
-def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path) -> None:
+def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path, monkeypatch) -> None:
     """A stale, skipped, or foreign xUnit result cannot close the scenario."""
     module = load_generator()
     result_path = tmp_path / "artifacts/v9/8.1/AC-8.1-02.trx"
@@ -7074,10 +7074,18 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path)
                 "passed=\"{passed}\" failed=\"{failed}\" /></ResultSummary></TestRun>")
     scenario = {"id": "AC-8.1-02", "command": "exact command"}
     command = {"kind": "trx", "output": "artifacts/v9/8.1/AC-8.1-02.trx", "method": method}
+    command_exit = [0]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
     result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})
     assert category == "passed" and record["result"] == "PASS" and not findings
+    command_exit[0] = 1
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {})
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, result_path.stat().st_mtime_ns + 1, 0, {})
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
@@ -7220,12 +7228,20 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
         target.write_bytes(content)
     monkeypatch.setattr(module, "v2_committed_blob",
                         lambda _repo, _candidate, path: b"script" if path == script else None)
+    command_exit = [0]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
     scenario = {"id": "AC-9.1-01", "command": "python fixture"}
     command = {"kind": "python", "script": script, "outputs": [json_path, markdown_path],
                "options": {"--repository": "."}}
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "passed" and not findings and len(record["outputFiles"]) == 2
+    command_exit[0] = 1
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
     document["candidate"] = "b" * 40
     (tmp_path / json_path).write_text(json.dumps(document) + "\n")
     record, category, findings = module.v2_successor_scenario_from_results(
@@ -7238,6 +7254,37 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    document["result"] = "PASS"
+    document["exitCode"] = 0
+    document["summary"] = {"required": 2, "passed": 2, "failed": 0,
+                           "blocked": 0, "skipped": 1, "notRun": 0}
+    (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+
+
+def test_v2_successor_python_schema_output_needs_no_verdict(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    script = "_bmad/scripts/generate_example.py"
+    schema = "docs/release-evidence/example.schema.json"
+    result_path = "docs/release-evidence/example.json"
+    for path, document in ((schema, {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object"}),
+                           (result_path, {"result": "PASS", "exitCode": 0})):
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(document) + "\n")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"script" if path == script else None)
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], 0, b"", b""))
+    scenario = {"id": "AC-9.1-01", "command": "python3 _bmad/scripts/generate_example.py"}
+    command = {"kind": "python", "script": script, "outputs": [schema, result_path],
+               "options": {"--repository": ".", "--output-schema": schema}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "passed" and not findings and record["result"] == "PASS"
 
 
 def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, monkeypatch) -> None:
@@ -7250,6 +7297,9 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
              solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
     monkeypatch.setattr(module, "v2_committed_blob",
                         lambda _repo, _candidate, path: blobs.get(path))
+    command_exit = [0]
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
+                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
     binary = tmp_path / "tests/Example/bin/Release/net10.0/Example.dll"
     binary.parent.mkdir(parents=True)
     binary.write_bytes(b"1.0.0+" + candidate.encode())
@@ -7259,16 +7309,32 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
     solution_binary = tmp_path / "tests/Fixture/App/bin/Release/net10.0/App.dll"
     solution_binary.parent.mkdir(parents=True)
     solution_binary.write_bytes(b"1.0.0+" + candidate.encode())
-    for scenario_id, command in (("AC-9.2-01", {"kind": "build", "project": project}),
-                                 ("AC-11.2-02", {"kind": "restore", "project": solution}),
-                                 ("AC-11.2-03", {"kind": "build", "project": solution})):
+    routes = (("AC-9.2-01", {"kind": "build", "project": project}, f"dotnet build {project} -c Release"),
+              ("AC-11.2-02", {"kind": "restore", "project": solution}, f"dotnet restore {solution}"),
+              ("AC-11.2-03", {"kind": "build", "project": solution}, f"dotnet build {solution} --configuration Release"))
+    for scenario_id, command, exact in routes:
         record, category, findings = module.v2_successor_scenario_from_results(
-            tmp_path, {"id": scenario_id, "command": "dotnet fixture"}, command,
+            tmp_path, {"id": scenario_id, "command": exact}, command,
             candidate, 0, [])
         assert category == "passed" and not findings and record["assertionLedger"]
+    command_exit[0] = 1
+    for scenario_id, command, exact in routes:
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, {"id": scenario_id, "command": exact}, command,
+            candidate, 0, [])
+        assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    command_exit[0] = 0
+    debug_binary = tmp_path / "tests/Example/bin/Debug/net10.0/Example.dll"
+    debug_binary.parent.mkdir(parents=True)
+    debug_binary.write_bytes(b"1.0.0+" + candidate.encode())
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Debug"},
+        {"kind": "build", "project": project}, candidate, 0, [])
+    assert category == "passed" and not findings
+    assert any(row["path"] == "tests/Example/bin/Debug/net10.0/Example.dll" for row in record["outputFiles"])
     binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
     record, category, findings = module.v2_successor_scenario_from_results(
-        tmp_path, {"id": "AC-9.2-01", "command": "dotnet fixture"},
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"},
         {"kind": "build", "project": project}, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
 

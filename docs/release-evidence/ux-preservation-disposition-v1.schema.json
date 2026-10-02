@@ -60,7 +60,7 @@
         },
         "contractPath": {
           "type": "string",
-          "pattern": "^[^/][^\\\\]*$",
+          "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$",
           "minLength": 1
         },
         "contractSha256": {
@@ -111,7 +111,7 @@
           "properties": {
             "path": {
               "type": "string",
-              "pattern": "^[^/][^\\\\]*$",
+              "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$",
               "minLength": 1
             },
             "version": {
@@ -135,7 +135,7 @@
           "properties": {
             "path": {
               "type": "string",
-              "pattern": "^[^/][^\\\\]*$",
+              "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$",
               "minLength": 1
             },
             "version": {
@@ -191,7 +191,7 @@
           },
           "sourcePath": {
             "type": "string",
-            "pattern": "^[^/][^\\\\]*$",
+            "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$",
             "minLength": 1
           },
           "sourceSha256": {
@@ -275,7 +275,7 @@
           },
           "sourcePath": {
             "type": "string",
-            "pattern": "^[^/][^\\\\]*$",
+            "pattern": "^(?!.*(?:^|/)\\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$",
             "minLength": 1
           },
           "sourceSha256": {

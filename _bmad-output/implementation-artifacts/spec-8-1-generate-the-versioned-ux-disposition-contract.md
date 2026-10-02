@@ -2,7 +2,7 @@
 title: 'Generate the versioned UX disposition contract'
 type: 'feature'
 created: '2026-10-02'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '92638b8a2d48f12626db13afcb1f45554cbf3683'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -109,6 +109,32 @@ Review 1 (2026-10-02; baseline `92638b8`; candidate `5c9afe8`). Each reviewer fi
 
 Surviving bad-spec groups: exact scenario measurement (B1/G1/E8, E6), canonical disposition and schema parity (B3/B4/G2/E2/E3), full authority/predecessor binding (B7/B12/G3/E4), candidate path boundary (B9), coherent bundle writes (B6), and declared successor build support (G5). These precede patch groups under the review workflow.
 
+Review 2 (2026-10-02; candidate `76a3c30`). All three layers reported before triage. `B2`, `G2`, and `E2` below name this review's reviewers, independent of Review 1 IDs.
+
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| B2-1 — Story 8.2 reruns a HEAD-based Story 8.1 scope check | medium | patch | AC-8.2-01 selects the whole class, and the current AC-8.1-06 method diffs baseline to HEAD; future Story 8.2 files would fail. Pin the check to Story 8.1's recorded candidate once available. |
+| B2-2 — generic successor lacks predecessor record digests | medium | reject: future-story scope | The generic route records only contract predecessor IDs; Story 8.1's own 7.4 pair is verified and bound by `uxDisposition`. Story 8.2's separate final-record binding belongs to its explicit successor work, which the frozen Story 8.1 scope excludes. |
+| B2-3 — generic pytest route does not inspect Story 8.2 mutation blockers | medium | reject: future-story scope | The route parses JUnit pass and nonempty assertions; the exact Story 8.2 mutation matrix is expressly excluded from this build's frozen intent and will need Story 8.2-specific result validation. |
+| B2-4 — generic successor Python command is not executed | medium | patch | `v2_successor_scenario_from_results` accepts a stale PASS JSON without running the declared script; the new route should require its actual zero exit. |
+| B2-5 — generic Python PASS ignores failing counts | medium | patch | The route checks top-level verdict but does not reject failed, skipped or not-run counts in a reported summary, allowing a contradictory PASS. |
+| B2-6 — build can pass from an old Release DLL | medium | patch | The generic build branch reads `bin/Release` without executing the declared command or honoring configuration; a failed or Debug build can be mislabeled PASS. |
+| B2-7 — restore can pass from old assets | medium | patch | The generic restore branch reads assets without executing the locked restore; an old asset file can mask exit 1. Same root as B2-6. |
+| B2-8 — copied old TRX can look current | medium | patch | AC-8.1-02–06 rely on assembly identity and file times; rerunning each exact selector at record generation closes the copied-result case. |
+| B2-9 — TRX and binary are untracked | false | reject | The final-record runbook explicitly allows declared TRX inputs outside Git and binds their hashes plus candidate-stamped assembly; a fresh checkout reproduces rather than inherits test artifacts. |
+| B2-10 — rollback can also fail | low | reject | A persistent filesystem failure can prevent restoration after a replacement error; final-record parity rejects any mixed bundle, and adding another recovery path for persistent I/O failure is disproportionate for normal use. |
+| B2-11 — generated files become mode 0600 | low | patch | `NamedTemporaryFile` is installed by `os.replace`, and the three local evidence files are currently mode 0600; set normal readable mode before replacement. |
+| B2-12 — schema pattern accepts `../` | low | patch | The `path` regex admits parent traversal even though only normalized repository-relative paths are intended; tighten the schema directly. |
+| G2-1 — failed build/restore can retain PASS | medium | patch | Pre-verified: fixture artifacts satisfy the generic gate without the exact command's exit result; same root as B2-6/7. |
+| G2-2 — failed Python verifier can retain PASS | medium | patch | Pre-verified: the generic Python branch reads a prior PASS receipt without executing the declared verifier; same root as B2-4. |
+| E2-1 — restoration errors are swallowed | low | reject | The `except OSError: pass` path can leave mixed local files under persistent I/O failure; same rare condition as B2-10, while the final gate still fails closed. |
+| E2-2 — schema JSON has no verdict | medium | patch | Story 9.1's declared generator emits a `.schema.json` without result/exitCode, but the generic Python branch currently requires one; exempt schema documents while verifying the exact command and its substantive result. |
+| E2-3 — failed successor Python command retains PASS | medium | patch | A prior JSON receipt is sufficient in the current generic branch; same root as B2-4. |
+| E2-4 — failed successor build retains PASS | medium | patch | Prior candidate-stamped DLLs are sufficient in the current generic branch; same root as B2-6. |
+| E2-5 — candidateBinding and sectionSha256 are unchecked | false | reject | Those descriptive fields are inside the immutable published contract, whose entire bytes must match its authority-bundle artifact hash; this Story 8.1 candidate cannot alter the contract path under its allowed-path guard. |
+
+Patch groups: pin Story 8.1 conformance to its candidate (B2-1); execute exact successor Python/build/restore commands and inspect their outcomes (B2-4–7, G2-1/2, E2-2–4); rerun exact Story 8.1 xUnit selectors (B2-8); preserve generated file permissions and normalize schema paths (B2-11/12). No intent-gap or bad-spec entry survives this review.
+
 ## Verification
 
 **Commands:**
@@ -119,174 +145,3 @@ Surviving bad-spec groups: exact scenario measurement (B1/G1/E8, E6), canonical 
 - The seven exact commands in `8.1.json` — each exits `0` with nonempty passing evidence; run the generator twice and compare output bytes.
 - Negative fixtures must prove wrong row text/mapping, weakened schema, wrong authority digest, altered Markdown with recomputed digest, malformed authority, partial write failure, zero-executed TRX, missing Python verdict, and non-`src/` forbidden candidate path are rejected. CLI and all fixture restoration tests run and pass.
 - `python3 scripts/check-root-submodules.py --repository .` — root declaration and gitlink invariants pass.
-
-<!-- STORY-FINAL-RECORD:BEGIN -->
-# Story 8.1 Final Record
-
-<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
-
-Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
-
-- Schema: `hexalith.conversations.story-final-record.v2`
-- Result: `PASS`
-- Story: `8.1`
-- Candidate: `76a3c30515c9998dfb252852cd35682fbbecdc43`
-- JSON content SHA-256 (all three digest fields zeroed): `6fd3232426474d63982925c2465339d24a15f97fbbe2fb58f00636d39cb6481e`
-
-## Authority
-
-| Field | Value |
-| --- | --- |
-| Epic | `epic-6-authority-2026-08-03-v10` |
-| Architecture | `conversations-architecture-2026-08-03-v10` |
-| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
-| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
-
-## Root gitlinks
-
-| Path | Mode | Commit |
-| --- | --- | --- |
-| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
-| `references/Hexalith.Builds` | `160000` | `3734acbb14d30d06cea401bb26f40b0017702620` |
-| `references/Hexalith.Commons` | `160000` | `c13dc6679aa91144b6d541078f3f20019d79c2eb` |
-| `references/Hexalith.EventStore` | `160000` | `2c58ffda41759e895ace4b9625c9bd931a217672` |
-| `references/Hexalith.Folders` | `160000` | `e88aca956ff24cd6371a5fe3446034c45c70e644` |
-| `references/Hexalith.FrontComposer` | `160000` | `bad341fe2b02ed11f982b3dadfbf516d011870f3` |
-| `references/Hexalith.Memories` | `160000` | `ece4edc4c9a37a62b34d3b7c8aa901fc363c038c` |
-| `references/Hexalith.Parties` | `160000` | `937cb2a343aaa74963db9bb867a2c3a01ff48677` |
-| `references/Hexalith.Projects` | `160000` | `10aba2537c097b6d60906f279775a533f2a72f3a` |
-| `references/Hexalith.Tenants` | `160000` | `9bad98d93f3fff34351ed95fe07c7bc0eb7c54be` |
-
-## Inventory
-
-| Inventory | SHA-256 |
-| --- | --- |
-| `V9-8.1-ENTRY-v1` | `6c61eb92078755496c73506419112026e3e9b7f63bb314b1028d4e9c7bb41ef9` |
-
-## Predecessors
-
-- `7.4`
-
-## Scenarios
-
-| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
-| --- | --- | --- | --- | --- | --- | --- |
-| `AC-8.1-01` | `0` | `PASS` | `none` | `7` | `docs/release-evidence/ux-preservation-disposition-v1.json` | `e359a97e19d3f021792006a4c14ba3d1ff42249c05e5c76fba0e43302aa4461f` |
-| `AC-8.1-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.1/AC-8.1-02.trx` | `899028d9d7687f62c4664408ea5442ba604e2ce5fe2b9ee7eef4fd67cc7b8733` |
-| `AC-8.1-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.1/AC-8.1-03.trx` | `2751d705a793d92305507de4678520f04d34a228e67e205079475f058f91a6f7` |
-| `AC-8.1-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.1/AC-8.1-04.trx` | `292564cfce842b7efdca119a0e94d160145eb63a92595172c9d5982ce21c2145` |
-| `AC-8.1-05` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.1/AC-8.1-05.trx` | `c7019b884d30c3a7fe75ac61e0f97315fe41e77f77a37d2bb5dfd58fb1ace209` |
-| `AC-8.1-06` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.1/AC-8.1-06.trx` | `98f5daff61464fc60e776b0538be169c22357f91c44219e87fca6565a78a4504` |
-| `AC-8.1-07` | `0` | `PASS` | `none` | `13` | none | none |
-
-### `AC-8.1-01`
-
-Command: `python3 _bmad/scripts/generate_ux_preservation_disposition.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --output-schema docs/release-evidence/ux-preservation-disposition-v1.schema.json --output-json docs/release-evidence/ux-preservation-disposition-v1.json --output-markdown docs/release-evidence/ux-preservation-disposition-v1.md`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-01#0001` | `schema::closed-valid` | `PASS` |
-| `AC-8.1-01#0002` | `sources::path-version-hash` | `PASS` |
-| `AC-8.1-01#0003` | `inventory::52-28` | `PASS` |
-| `AC-8.1-01#0004` | `status::preserved` | `PASS` |
-| `AC-8.1-01#0005` | `provenance::non-current` | `PASS` |
-| `AC-8.1-01#0006` | `markdown::digest` | `PASS` |
-| `AC-8.1-01#0007` | `predecessor::7.4` | `PASS` |
-
-### `AC-8.1-02`
-
-Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes -trx artifacts/v9/8.1/AC-8.1-02.trx`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-02#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes` | `PASS` |
-
-### `AC-8.1-03`
-
-Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-03.trx`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-03#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory` | `PASS` |
-
-### `AC-8.1-04`
-
-Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory -trx artifacts/v9/8.1/AC-8.1-04.trx`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-04#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory` | `PASS` |
-
-### `AC-8.1-05`
-
-Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical -trx artifacts/v9/8.1/AC-8.1-05.trx`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-05#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical` | `PASS` |
-
-### `AC-8.1-06`
-
-Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -method Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange -trx artifacts/v9/8.1/AC-8.1-06.trx`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-06#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange` | `PASS` |
-
-### `AC-8.1-07`
-
-Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json --format bundle --output-json docs/release-evidence/story-8.1-final-record-v2.json --output-markdown docs/release-evidence/story-8.1-final-record-v2.md`
-
-| Assertion | Subject | State |
-| --- | --- | --- |
-| `AC-8.1-07#0001` | `generator::contract-schema-and-identity` | `PASS` |
-| `AC-8.1-07#0002` | `generator::authority-bundle-digest-recomputed` | `PASS` |
-| `AC-8.1-07#0003` | `generator::raw-gitlinks-equal-root-gitmodules` | `PASS` |
-| `AC-8.1-07#0004` | `generator::committed-candidate-worktree-clean` | `PASS` |
-| `AC-8.1-07#0005` | `generator::predecessor-scenarios-pass-with-ledgers` | `PASS` |
-| `AC-8.1-07#0006` | `generator::declared-output-paths` | `PASS` |
-| `AC-8.1-07#0007` | `generator::record-schema-valid` | `PASS` |
-| `AC-8.1-07#0008` | `generator::deterministic-rendering` | `PASS` |
-| `AC-8.1-07#0009` | `generator::json-markdown-digest-cross-binding` | `PASS` |
-| `AC-8.1-07#0010` | `generator::ux-disposition-schema-sources-and-output-digests` | `PASS` |
-| `AC-8.1-07#0011` | `generator::story-7.4-predecessor-pair-verified` | `PASS` |
-| `AC-8.1-07#0012` | `generator::five-exact-xunit-selectors-passed` | `PASS` |
-| `AC-8.1-07#0013` | `generator::candidate-build-and-production-scope-bound` | `PASS` |
-
-## Story 8.1 UX disposition
-
-- Contract: `_bmad-output/planning-artifacts/v9/story-contracts/8.1.json`
-- Contract SHA-256: `51daf31859c8bf01c6bb7960b1ff3ba7c3e47eb121ed6da7966e59a285d3ed28`
-- Story 7.4 record SHA-256: `1739a8daf93955fe31050b659151f1d45a8555ff58fe3a130b8a389c049d8290`
-- Build SourceRevisionId: `76a3c30515c9998dfb252852cd35682fbbecdc43`
-- Test assembly SHA-256: `723109304b9d32823afff84d9d583c8d34bf1b2e4c62154483afd9d63c08a438`
-
-| Bound input/output | Path | SHA-256 |
-| --- | --- | --- |
-| Source | `_bmad-output/planning-artifacts/ux-design-specification.md` | `948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18` |
-| Source | `_bmad-output/planning-artifacts/ux-requirement-map.md` | `5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f` |
-| `schema` | `docs/release-evidence/ux-preservation-disposition-v1.schema.json` | `0fa2494b76fe8b0f87e1bb4b16554e3e4fcbefe3d8c9437b2bf6063aad8905ab` |
-| `json` | `docs/release-evidence/ux-preservation-disposition-v1.json` | `e359a97e19d3f021792006a4c14ba3d1ff42249c05e5c76fba0e43302aa4461f` |
-| `markdown` | `docs/release-evidence/ux-preservation-disposition-v1.md` | `330aff37565e46b3bbe5435c0c6c9ecabc814e54220f2102b7dc234de5abcbc1` |
-
-## Fault injection
-
-No fault-injection result is bound to this record.
-
-## Outputs
-
-| Output | Path |
-| --- | --- |
-| JSON | `docs/release-evidence/story-8.1-final-record-v2.json` |
-| Markdown | `docs/release-evidence/story-8.1-final-record-v2.md` |
-
-## Rollback boundary
-
-remove only the Story 8.1 generator, schema, results, three disposition outputs, and final record; preserve both UX sources, historical mappings, product/UI code, and the v1-v8 prefix.
-
-## Summary
-
-| Required | Passed | Failed | Blocked | Skipped | Not run |
-| --- | --- | --- | --- | --- | --- |
-| `7` | `7` | `0` | `0` | `0` | `0` |
-<!-- STORY-FINAL-RECORD:END -->

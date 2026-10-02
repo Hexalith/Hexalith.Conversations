@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import re
 import subprocess
 import sys
 from pathlib import Path
@@ -168,6 +169,31 @@ def test_bundle_write_failure_restores_every_output(source_fixture: Path, monkey
                             module.generate(source_fixture, module.CONTRACT_PATH))
     assert failure.value.code == "UX_RENDER_DRIFT"
     assert [target.read_bytes() for target in targets] == originals
+
+
+def test_bundle_outputs_are_readable_and_preserve_existing_mode(source_fixture: Path) -> None:
+    """Atomic staging keeps a normal new-file mode and an existing file's mode."""
+    existing = source_fixture / module.OUTPUT_PATHS[0]
+    existing.parent.mkdir(parents=True, exist_ok=True)
+    existing.write_bytes(b"old")
+    existing.chmod(0o640)
+    private = source_fixture / module.OUTPUT_PATHS[1]
+    private.write_bytes(b"old")
+    private.chmod(0o600)
+    module.write_bundle(source_fixture, module.OUTPUT_PATHS,
+                        module.generate(source_fixture, module.CONTRACT_PATH))
+    assert existing.stat().st_mode & 0o777 == 0o640
+    assert private.stat().st_mode & 0o777 == 0o644
+    for relative in module.OUTPUT_PATHS[2:]:
+        assert (source_fixture / relative).stat().st_mode & 0o777 == 0o644
+
+
+def test_schema_paths_must_be_normalized_repository_relative() -> None:
+    """Closed schema paths exclude traversal, absolute paths, and empty segments."""
+    pattern = module.schema()["properties"]["authority"]["properties"]["contractPath"]["pattern"]
+    assert re.fullmatch(pattern, module.CONTRACT_PATH)
+    for path in ("../outside", "a/../outside", "a/./inside", "/absolute", "a//double", "a\\outside"):
+        assert not re.fullmatch(pattern, path)
 
 
 def test_exact_cli_arguments_write_three_expected_bytes(source_fixture: Path, monkeypatch: pytest.MonkeyPatch) -> None:

@@ -13,6 +13,7 @@ import sys
 import tempfile
 from importlib import util as importlib_util
 from pathlib import Path
+from stat import S_IMODE
 from typing import Any
 
 import jsonschema
@@ -81,7 +82,7 @@ def schema() -> dict[str, Any]:
     """Return the one closed disposition schema."""
     string = {"type": "string", "minLength": 1}
     sha = {"type": "string", "pattern": "^[0-9a-f]{64}$"}
-    path = {"type": "string", "pattern": "^[^/][^\\\\]*$", "minLength": 1}
+    path = {"type": "string", "pattern": r"^(?!.*(?:^|/)\.{1,2}(?:/|$))(?!.*//)[A-Za-z0-9_](?:[A-Za-z0-9_./-]*[A-Za-z0-9_])?$", "minLength": 1}
     mapping = {
         "type": "object", "additionalProperties": False,
         "required": ["reference", "classification", "current"],
@@ -371,6 +372,7 @@ def write_bundle(root: Path, outputs: tuple[str, ...], generated: tuple[bytes, .
     """Replace all outputs, restoring the prior bytes if any replacement fails."""
     staged: list[Path] = []
     original: list[bytes | None] = []
+    original_modes: list[int] = []
     targets = [root / relative for relative in outputs]
     try:
         for target, content in zip(targets, generated):
@@ -378,13 +380,16 @@ def write_bundle(root: Path, outputs: tuple[str, ...], generated: tuple[bytes, .
             if not target.parent.resolve(strict=True).is_relative_to(root) or target.is_symlink():
                 raise OSError("unsafe output path")
             original.append(target.read_bytes() if target.exists() else None)
+            original_modes.append(S_IMODE(target.stat().st_mode) if target.exists() else 0o644)
             with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
                 staged.append(Path(handle.name))
                 handle.write(content)
+            mode = original_modes[-1]
+            os.chmod(staged[-1], mode if mode & 0o044 else 0o644)
         for temporary, target in zip(staged, targets):
             os.replace(temporary, target)
     except OSError as error:
-        for target, content in zip(targets, original):
+        for target, content, mode in zip(targets, original, original_modes):
             try:
                 if content is None:
                     target.unlink(missing_ok=True)
@@ -392,6 +397,7 @@ def write_bundle(root: Path, outputs: tuple[str, ...], generated: tuple[bytes, .
                     with tempfile.NamedTemporaryFile(dir=target.parent, delete=False) as handle:
                         handle.write(content)
                         recovery = Path(handle.name)
+                    os.chmod(recovery, mode)
                     os.replace(recovery, target)
             except OSError:
                 pass

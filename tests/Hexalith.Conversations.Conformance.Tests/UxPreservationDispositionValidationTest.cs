@@ -26,6 +26,8 @@ public sealed class UxPreservationDispositionValidationTest
     private const string SpecificationPath = "_bmad-output/planning-artifacts/ux-design-specification.md";
     private const string MapPath = "_bmad-output/planning-artifacts/ux-requirement-map.md";
     private const string SpecPath = "_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md";
+    private const string RecordPath = "docs/release-evidence/story-8.1-final-record-v2.json";
+    private const string RecordMarkdownPath = "docs/release-evidence/story-8.1-final-record-v2.md";
     private const string Status = "preserved-not-activated";
     private static readonly HashSet<string> AllowedCandidatePaths = new(StringComparer.Ordinal)
     {
@@ -174,7 +176,35 @@ public sealed class UxPreservationDispositionValidationTest
         string spec = Read(SpecPath);
         string baseline = Regex.Match(spec, @"^baseline_commit:\s*'?([0-9a-f]{40})'?\s*$", RegexOptions.Multiline).Groups[1].Value;
         baseline.Length.ShouldBe(40);
-        string[] committed = Git("diff", "--name-only", $"{baseline}..HEAD").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        string candidate = "HEAD";
+        if (File.Exists(Path.Combine(FindRoot(), RecordPath)) || File.Exists(Path.Combine(FindRoot(), RecordMarkdownPath)))
+        {
+            using JsonDocument record = LoadJson(RecordPath);
+            JsonElement root = record.RootElement;
+            root.GetProperty("storyId").GetString().ShouldBe("8.1");
+            JsonElement summary = root.GetProperty("summary");
+            summary.GetProperty("required").GetInt32().ShouldBe(7);
+            summary.GetProperty("passed").GetInt32().ShouldBe(7);
+            foreach (string name in new[] { "failed", "blocked", "skipped", "notRun" })
+            {
+                summary.GetProperty(name).GetInt32().ShouldBe(0);
+            }
+
+            JsonElement[] scenarios = root.GetProperty("scenarios").EnumerateArray().ToArray();
+            scenarios.Length.ShouldBe(7);
+            scenarios.All(row => row.GetProperty("result").GetString() == "PASS" && row.GetProperty("exitCode").GetInt32() == 0)
+                .ShouldBeTrue("The recorded Story 8.1 scenarios must all pass.");
+            string markdownSha256 = Sha256(ReadBytes(RecordMarkdownPath));
+            root.GetProperty("renderedMarkdownSha256").GetString().ShouldBe(markdownSha256);
+            root.GetProperty("outputs").GetProperty("markdown").GetProperty("sha256").GetString().ShouldBe(markdownSha256);
+            Git("show", $"HEAD:{RecordPath}").ShouldBe(Read(RecordPath));
+            Git("show", $"HEAD:{RecordMarkdownPath}").ShouldBe(Read(RecordMarkdownPath));
+            candidate = root.GetProperty("candidate").GetProperty("commit").GetString()!;
+            Regex.IsMatch(candidate, "^[0-9a-f]{40}$").ShouldBeTrue();
+            Git("merge-base", "--is-ancestor", candidate, "HEAD");
+        }
+
+        string[] committed = Git("diff", "--name-only", $"{baseline}..{candidate}").Split('\n', StringSplitOptions.RemoveEmptyEntries);
         foreach (string path in committed)
         {
             AllowedCandidatePaths.Contains(path).ShouldBeTrue($"UX_PRODUCTION_CHANGE_FORBIDDEN: {path}");
