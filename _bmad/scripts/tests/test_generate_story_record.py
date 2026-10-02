@@ -7075,12 +7075,36 @@ def test_v2_story_8_1_trx_requires_current_nonempty_exact_method(tmp_path: Path,
     scenario = {"id": "AC-8.1-02", "command": "exact command"}
     command = {"kind": "trx", "output": "artifacts/v9/8.1/AC-8.1-02.trx", "method": method}
     command_exit = [0]
-    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs:
-                        subprocess.CompletedProcess([], command_exit[0], b"", b""))
+    executions = []
+    def execute(*_args, **_kwargs):
+        executions.append(1)
+        return subprocess.CompletedProcess([], command_exit[0], b"", b"")
+    monkeypatch.setattr(module.subprocess, "run", execute)
     result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})
-    assert category == "passed" and record["result"] == "PASS" and not findings
+    assert category == "passed" and record["result"] == "PASS" and not findings and len(executions) == 1
+    pinned_digest = record["resultFile"]["sha256"]
+    pinned_record = {"candidate": {"commit": "a" * 40}, "scenarios": [
+        {"scenarioId": f"AC-8.1-0{number}",
+         "resultFile": {"path": f"artifacts/v9/8.1/AC-8.1-0{number}.trx", "sha256": pinned_digest}}
+        for number in range(2, 7)]}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda *_: json.dumps(pinned_record).encode())
+    assert module.v2_ux_pinned_trx_digests(tmp_path, "a" * 40, "a" * 40, "record.json") is None
+    pinned = module.v2_ux_pinned_trx_digests(tmp_path, "b" * 40, "a" * 40, "record.json")
+    assert pinned is not None and pinned[scenario["id"]] == pinned_digest
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "passed" and record["result"] == "PASS" and not findings and len(executions) == 1
+    result_path.write_bytes(result_path.read_bytes() + b"\n")
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"] and len(executions) == 1
+    result_path.unlink()
+    record, category, findings = module.v2_ux_scenario_from_results(
+        tmp_path, scenario, command, 0, 0, {}, pinned[scenario["id"]])
+    assert category == "notRun" and "TEST_RESULTS_MISSING" in record["blockers"] and len(executions) == 1
+    result_path.write_text(template.format(method=method, outcome="Passed", passed=1, failed=0))
     command_exit[0] = 1
     record, category, findings = module.v2_ux_scenario_from_results(
         tmp_path, scenario, command, 0, 0, {})

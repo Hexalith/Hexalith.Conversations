@@ -6076,9 +6076,36 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
             "testAssemblyMtimeNs": mtime_ns}
 
 
+def v2_ux_pinned_trx_digests(repository: Path, head: str, candidate: str,
+                             record_path: str) -> dict[str, str] | None:
+    """Read exact-method result digests only from an already verified committed pair."""
+    if candidate == head:
+        return None
+    content = v2_committed_blob(repository, head, record_path)
+    try:
+        record = v2_parse_json(content)
+        if record["candidate"]["commit"] != candidate:
+            raise ValueError("the retained candidate differs")
+        scenarios = record["scenarios"]
+        digests = {}
+        for ordinal in range(2, 7):
+            scenario_id = f"AC-8.1-0{ordinal}"
+            rows = [row for row in scenarios if row["scenarioId"] == scenario_id]
+            expected_path = f"artifacts/v9/8.1/{scenario_id}.trx"
+            if (len(rows) != 1 or rows[0].get("resultFile", {}).get("path") != expected_path
+                    or not re.fullmatch(r"[0-9a-f]{64}", rows[0]["resultFile"].get("sha256", ""))):
+                raise ValueError("a pinned TRX digest is missing")
+            digests[scenario_id] = rows[0]["resultFile"]["sha256"]
+        return digests
+    except (UnicodeDecodeError, ValueError, KeyError, TypeError, AttributeError):
+        raise V2Stop([v2_finding("RECORD_CONTENT_DRIFT", record_path,
+                                 "the committed Story 8.1 pair lacks a pinned TRX digest")], "8.1") from None
+
+
 def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], command: dict[str, str],
                                 candidate_ns: int, assembly_ns: int,
-                                facts: dict[str, Any]) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
+                                facts: dict[str, Any], pinned_trx_sha256: str | None = None
+                                ) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
     """Measure one exact-method TRX or the committed generator bundle."""
     scenario_id = scenario["id"]
     if command["kind"] == "bundle":
@@ -6113,19 +6140,20 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
     findings: list[dict[str, str]] = []
     record: dict[str, Any] = {"scenarioId": scenario_id, "command": scenario["command"],
                               "exitCode": 1, "result": "FAIL", "blockers": []}
-    try:
-        executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
-                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                  timeout=120, check=False)
-        if executed.returncode != 0:
+    if pinned_trx_sha256 is None:
+        try:
+            executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
+                                      stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                      timeout=120, check=False)
+            if executed.returncode != 0:
+                findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
+                                           f"the exact selector exited {executed.returncode}"))
+        except (OSError, ValueError, subprocess.TimeoutExpired):
             findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
-                                       f"the exact selector exited {executed.returncode}"))
-    except (OSError, ValueError, subprocess.TimeoutExpired):
-        findings.append(v2_finding("TEST_RESULTS_FAILED", scenario_id,
-                                   "the exact selector did not complete"))
-    if findings:
-        record["blockers"] = ["TEST_RESULTS_FAILED"]
-        return record, "failed", findings
+                                       "the exact selector did not complete"))
+        if findings:
+            record["blockers"] = ["TEST_RESULTS_FAILED"]
+            return record, "failed", findings
     result = repository / command["output"]
     if not result.is_file() or result.is_symlink():
         findings.append(v2_finding("TEST_RESULTS_MISSING", scenario_id, "the exact-method TRX is absent"))
@@ -6139,6 +6167,9 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
         record["blockers"] = ["INPUT_SCHEMA_INVALID"]
         return record, "failed", findings
     record["resultFile"] = {"path": command["output"], "sha256": v2_sha256(content)}
+    if pinned_trx_sha256 is not None and record["resultFile"]["sha256"] != pinned_trx_sha256:
+        findings.append(v2_finding("TEST_RESULTS_STALE", scenario_id,
+                                   "the TRX differs from the verified committed Story 8.1 pair"))
     rows = parsed["results"]
     binary_paths = []
     for code_base in parsed["code_bases"]:
@@ -6471,9 +6502,11 @@ def v2_generate(options: dict[str, str]) -> bytes:
         else:
             ux_facts = v2_ux_facts(repository, candidate, contract_path, contract, validators["record"])
             assembly_ns = ux_facts.pop("testAssemblyMtimeNs")
+            pinned_ux_trx = v2_ux_pinned_trx_digests(repository, head, candidate, output_json)
             for scenario, command in ux_scenarios:
                 scenario_record, category, scenario_findings = v2_ux_scenario_from_results(
-                    repository, scenario, command, candidate_time * 1_000_000_000, assembly_ns, ux_facts
+                    repository, scenario, command, candidate_time * 1_000_000_000, assembly_ns,
+                    ux_facts, pinned_ux_trx.get(scenario["id"]) if pinned_ux_trx else None,
                 )
                 scenario_records[scenario["id"]] = scenario_record
                 categories[scenario["id"]] = category

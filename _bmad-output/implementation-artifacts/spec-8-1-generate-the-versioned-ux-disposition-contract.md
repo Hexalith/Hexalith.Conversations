@@ -135,6 +135,8 @@ Review 2 (2026-10-02; candidate `76a3c30`). All three layers reported before tri
 
 Patch groups: pin Story 8.1 conformance to its candidate (B2-1); execute exact successor Python/build/restore commands and inspect their outcomes (B2-4–7, G2-1/2, E2-2–4); rerun exact Story 8.1 xUnit selectors (B2-8); preserve generated file permissions and normalize schema paths (B2-11/12). No intent-gap or bad-spec entry survives this review.
 
+Post-review verification (2026-10-02): rerunning AC-8.1-07 after generation produced new TRX bytes and changed both final-record files even though the candidate and test outcomes were unchanged. This is a medium patch to the B2-8 implementation: first generation executes the exact selectors, while a valid committed pair reuses only its matching TRX evidence for a stable record-only successor rerun; missing or changed pinned evidence fails. The generator and focused tests were patched before the final gate.
+
 ## Verification
 
 **Commands:**
