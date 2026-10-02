@@ -92,7 +92,7 @@ development_status:
   7-4-verify-historical-mode-and-required-fault-injection-blockers: done
   epic-7-retrospective: done
   epic-8: in-progress
-  8-1-generate-the-versioned-ux-disposition-contract: in-progress
+  8-1-generate-the-versioned-ux-disposition-contract: done
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: backlog
   epic-8-retrospective: optional
   epic-9: backlog
@@ -275,7 +275,7 @@ action_items:
     epic: 7
     action: "Generalize the v2 story-record generator so the mandatory completion gate can pass for Epics 8-16: derive test/path/baseline/submodule facts for every contract, recognize the xUnit v3 -automated route, replace hard-coded V2_RETAINED_* tables with contract-declared retention, bind contract bytes to the bundle row, and reuse SourceRevisionId build binding (prerequisite for Story 8.1)."
     owner: "Dev workflow"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-7-retro-2026-10-01.md"
   - id: "epic-7-retro-item-31-ci-enforce-the-completion-gate-run-verif"
     epic: 7
