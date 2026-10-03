@@ -36,10 +36,11 @@ def source_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         originals[relative] = content
 
     def git_show(arguments: list[str], **kwargs: object) -> subprocess.CompletedProcess[bytes]:
-        assert arguments[:2] == ["git", "show"]
-        return subprocess.CompletedProcess(arguments, 0, originals[arguments[2].split(":", 1)[1]], b"")
+        assert arguments[0] == "git" and "show" in arguments
+        revision_path = arguments[arguments.index("show") + 1]
+        return subprocess.CompletedProcess(arguments, 0, originals[revision_path.split(":", 1)[1]], b"")
 
-    monkeypatch.setattr(module.subprocess, "run", git_show)
+    monkeypatch.setattr(subprocess, "run", git_show)
     return tmp_path
 
 

@@ -8,7 +8,6 @@ import hashlib
 import json
 import os
 import re
-import subprocess
 import sys
 import tempfile
 from importlib import util as importlib_util
@@ -299,12 +298,10 @@ def generate(root: Path, contract_path: str) -> tuple[bytes, bytes, bytes]:
     if not isinstance(predecessor_candidate, str) or not re.fullmatch(r"[0-9a-f]{40}", predecessor_candidate):
         raise DispositionError("UX_SCHEMA_INVALID", "the predecessor candidate is invalid")
     for source_path, current_bytes in source_bytes.items():
-        original = subprocess.run(
-            ["git", "show", f"{predecessor_candidate}:{source_path}"],
-            cwd=root, capture_output=True, check=False,
-        )
-        if original.returncode != 0:
-            raise DispositionError("UX_SOURCE_UNBOUND", f"predecessor source is unavailable: {source_path}")
+        try:
+            original = record_module.run_git(root, "show", f"{predecessor_candidate}:{source_path}")
+        except record_module.GateError:
+            raise DispositionError("UX_SOURCE_UNBOUND", f"predecessor source is unavailable: {source_path}") from None
         if original.stdout != current_bytes:
             raise DispositionError("UX_SOURCE_DRIFT", f"canonical source changed: {source_path}")
     sources = [

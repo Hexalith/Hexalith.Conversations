@@ -5980,6 +5980,8 @@ def v2_ux_parity_code(output_bytes: dict[str, bytes], canonical: tuple[bytes, by
         return "UX_SCHEMA_INVALID"
     if disposition.get("authority") != expected["authority"] or disposition.get("candidate") != expected["candidate"]:
         return "AUTHORITY_BINDING_INVALID"
+    if disposition.get("sources") != expected["sources"]:
+        return "UX_SOURCE_DRIFT"
     if disposition.get("decisions") != expected["decisions"]:
         return "UX_DECISION_INVENTORY_DRIFT"
     if disposition.get("acceptanceCriteria") != expected["acceptanceCriteria"]:
@@ -6043,6 +6045,12 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
             stop("UX_RENDER_DRIFT", path)
         output_bytes[role] = committed
         outputs[role] = {"path": path, "sha256": v2_sha256(committed)}
+    module_path = Path(__file__).with_name("generate_ux_preservation_disposition.py")
+    module_spec = importlib_util.spec_from_file_location("story81_disposition_derivation", module_path)
+    if module_spec is None or module_spec.loader is None:
+        stop("UX_SCHEMA_INVALID", str(module_path))
+    ux_module = importlib_util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(ux_module)
     try:
         schema = v2_parse_json(output_bytes["schema"])
         disposition = v2_parse_json(output_bytes["json"])
@@ -6052,8 +6060,7 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
     if not isinstance(disposition, dict):
         stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
     if (disposition.get("status") != "preserved-not-activated"
-            or not isinstance(disposition.get("preservationBanner"), str)
-            or "not activated" not in disposition["preservationBanner"]):
+            or disposition.get("preservationBanner") != ux_module.BANNER):
         stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
     decisions = disposition.get("decisions")
     acceptance = disposition.get("acceptanceCriteria")
@@ -6072,11 +6079,17 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
         stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
     if any(row.get("owner") != "Stories 8.1-8.2 preservation contract" for row in decisions + acceptance):
         stop("UX_CURRENT_STORY_INVALID", V2_8_1_DISPOSITION_PATHS[1])
-    if any(isinstance(mapping, dict) and mapping.get("current") is True
+    if any(isinstance(mapping, dict)
+           and (mapping.get("current") is True
+                or mapping.get("classification", "historical-provenance") != "historical-provenance")
            for row in decisions + acceptance
            for mapping in (row.get("historicalMappings")
                            if isinstance(row.get("historicalMappings"), list) else [])):
-        stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
+        stop("UX_CURRENT_STORY_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    provenance = disposition.get("historicalProvenance")
+    if isinstance(provenance, dict) and (provenance.get("currentImplementationOwner") is True
+                                         or provenance.get("classification", "non-current") != "non-current"):
+        stop("UX_CURRENT_STORY_INVALID", V2_8_1_DISPOSITION_PATHS[1])
     if v2_schema_errors(jsonschema.Draft202012Validator(schema), disposition):
         stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
     if disposition.get("renderedMarkdownSha256") != outputs["markdown"]["sha256"]:
@@ -6094,12 +6107,6 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
         installed = repository / path
         if committed is None or not installed.is_file() or installed.is_symlink() or installed.read_bytes() != committed:
             stop("AUTHORITY_BINDING_INVALID", path)
-    module_path = Path(__file__).with_name("generate_ux_preservation_disposition.py")
-    module_spec = importlib_util.spec_from_file_location("story81_disposition_derivation", module_path)
-    if module_spec is None or module_spec.loader is None:
-        stop("UX_SCHEMA_INVALID", str(module_path))
-    ux_module = importlib_util.module_from_spec(module_spec)
-    module_spec.loader.exec_module(ux_module)
     try:
         canonical = ux_module.generate(repository, contract_path)
     except ux_module.DispositionError as error:

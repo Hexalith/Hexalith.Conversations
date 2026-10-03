@@ -1183,21 +1183,22 @@ tooling, tests, and evidence files named in the implementation spec.
 | Blocker | Exit | Condition |
 | --- | --- | --- |
 | `UX_SOURCE_UNBOUND` | `1` | A canonical UX source is absent from the candidate or predecessor. |
-| `UX_SOURCE_DRIFT` | `1` | Source bytes differ from the candidate, predecessor, or disposition binding. |
+| `UX_SOURCE_DRIFT` | `1` | Source bytes or bound versions differ from the candidate, predecessor, or disposition binding. |
 | `UX_DECISION_INVENTORY_DRIFT` | `1` | Decision IDs differ from the ordered 52-ID inventory. |
 | `UX_ACCEPTANCE_INVENTORY_DRIFT` | `1` | Acceptance IDs differ from the ordered 28-ID inventory. |
-| `UX_ACTIVATION_UNAUTHORIZED` | `1` | Preservation status, banner, row status, or historical non-current state is lost. |
-| `UX_CURRENT_STORY_INVALID` | `1` | A row assigns current implementation ownership outside the preservation contract. |
+| `UX_ACTIVATION_UNAUTHORIZED` | `1` | The preservation status, exact banner, or a row status is lost. |
+| `UX_CURRENT_STORY_INVALID` | `1` | A row owner, historical mapping, or the historical provenance block claims current implementation ownership. |
 | `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The Story 8.1 candidate changes any path outside the explicit planning, tooling, tests, and evidence set. |
 | `UX_SCHEMA_INVALID` | `1` | The disposition schema or authoritative JSON is absent, malformed, or invalid. |
 | `UX_RENDER_DRIFT` | `1` | Markdown or installed disposition bytes differ from their digest-bound candidate. |
 
 ### Story 8.1 and successor procedure
 
-Complete the Story 8.1 implementation, run focused Python tests and a Release
-build of `Hexalith.Conversations.Conformance.Tests`, then commit the source
-candidate while the story stays `in-progress`. The Release test assembly must
-carry that candidate's `SourceRevisionId`. Run the six exact commands in
+Complete the Story 8.1 implementation and run focused Python tests, then commit
+the source candidate while the story stays `in-progress`. Only after that
+commit, build `Hexalith.Conversations.Conformance.Tests` in Release so the test
+assembly carries the candidate's `SourceRevisionId`; a build made before the
+commit fails with `TEST_RESULTS_STALE`. Run the six exact commands in
 `8.1.json`, then run `AC-8.1-07` to produce the final-record pair. The gate
 runs the disposition generator again and compares its schema, JSON, and Markdown
 bytes with the committed disposition bundle. It runs each of the five exact

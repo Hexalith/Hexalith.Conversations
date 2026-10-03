@@ -7142,7 +7142,7 @@ def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path, pr
     )
     subprocess.run(
         ["git", "-C", str(repository), "checkout", "--quiet", "--detach",
-         "b9859097d6bca9e9ed315313a4ffaa5e2cef157f"],
+         _story_8_1_published_candidate()],
         check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
     source_candidate = subprocess.check_output(
@@ -7202,6 +7202,75 @@ def test_v2_successor_command_inventory_recognizes_epics_8_through_16() -> None:
     assert not unsupported
 
 
+def _successor_contract_command(story_id: str, scenario_id: str) -> tuple[list[str], str]:
+    """Return one frozen successor command's tokens and its contract path."""
+    import shlex
+
+    relative = f"_bmad-output/planning-artifacts/v9/story-contracts/{story_id}.json"
+    contract = json.loads((WORKSPACE / relative).read_bytes())
+    command = next(item["command"] for item in contract["scenarios"] if item["id"] == scenario_id)
+    return shlex.split(command), relative
+
+
+def test_v2_successor_command_returns_exact_routes_and_rejects_foreign_tokens() -> None:
+    """A classified route carries the exact selector, outputs, and options the gate checks."""
+    module = load_generator()
+    method, method_contract = _successor_contract_command("10.1", "AC-10.1-02")
+    assert module.v2_successor_command(method, method_contract) == {
+        "kind": "xunit",
+        "assembly": "tests/Hexalith.Conversations.TestSupport.Tests/bin/Release/net10.0/"
+                    "Hexalith.Conversations.TestSupport.Tests.dll",
+        "output": "artifacts/v9/10.1/AC-10.1-02.trx",
+        "selector": "Hexalith.Conversations.TestSupport.Tests.TestSupportSurfaceTests."
+                    "RequiredHelpersShouldExistExactlyOnce",
+        "selectorKind": "-method",
+    }
+    selected_class, class_contract = _successor_contract_command("12.3", "AC-12.3-03")
+    assert module.v2_successor_command(selected_class, class_contract) == {
+        "kind": "xunit",
+        "assembly": "tests/Hexalith.Conversations.IntegrationTests/bin/Release/net10.0/"
+                    "Hexalith.Conversations.IntegrationTests.dll",
+        "output": "artifacts/v9/12.3/integration.trx",
+        "selector": "Hexalith.Conversations.IntegrationTests.Projections.DerivedKeyLifecycleTests",
+        "selectorKind": "-class",
+    }
+    generator, generator_contract = _successor_contract_command("11.1", "AC-11.1-02")
+    assert module.v2_successor_command(generator, generator_contract) == {
+        "kind": "python",
+        "script": "_bmad/scripts/generate_thin_authoring_guidance.py",
+        "outputs": ["docs/release-evidence/thin-authoring-guidance-v2.json",
+                    "docs/release-evidence/thin-authoring-guidance-v2.md"],
+        "options": {
+            "--repository": ".",
+            "--contract": generator_contract,
+            "--schema": "docs/release-evidence/thin-authoring-guidance-v2.schema.json",
+            "--output-json": "docs/release-evidence/thin-authoring-guidance-v2.json",
+            "--output-markdown": "docs/release-evidence/thin-authoring-guidance-v2.md",
+        },
+    }
+    check, check_contract = _successor_contract_command("10.4", "AC-10.4-09")
+    assert module.v2_successor_command(check, check_contract) == {
+        "kind": "python_check",
+        "script": "_bmad/scripts/publish_v9_planning_authority.py",
+        "outputs": [],
+        "options": {"--repository": ".", "--check": "true"},
+    }
+    trx = method.index("-trx")
+    rejected = [
+        ([*method, "-class", "Hexalith.Conversations.TestSupport.Tests.Other"], method_contract),
+        (method[:trx], method_contract),
+        ([*method, "-trx", "artifacts/v9/10.1/second.trx"], method_contract),
+        ([*method[:trx + 1], "artifacts/v9/10.1/AC-10.1-02.xml"], method_contract),
+        ([*generator[:2], "--repository", "elsewhere", *generator[4:]], generator_contract),
+        (generator, check_contract),
+        (["python3", "_bmad/scripts/verify_story_candidate.py", "--repository", ".", "--check"],
+         check_contract),
+    ]
+    assert [module.v2_successor_command(tokens, contract) for tokens, contract in rejected] == [
+        None
+    ] * len(rejected)
+
+
 def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path: Path, monkeypatch) -> None:
     module = load_generator()
     candidate = "a" * 40
@@ -7220,6 +7289,13 @@ def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path:
                 "</UnitTest></TestDefinitions><ResultSummary><Counters total=\"1\" "
                 "executed=\"1\" passed=\"1\" failed=\"0\" /></ResultSummary></TestRun>").encode()
     output.write_bytes(trx(method))
+
+    def pin_binary(offset_ns: int = 0) -> None:
+        """Make the assembly's age relative to the TRX explicit instead of write-order luck."""
+        result_ns = output.stat().st_mtime_ns
+        os.utime(binary, ns=(result_ns + offset_ns,) * 2)
+
+    pin_binary()
     scenario = {"id": "AC-9.2-02", "command": "xunit fixture"}
     command = {"kind": "xunit", "assembly": assembly, "output": result,
                "selector": method, "selectorKind": "-method"}
@@ -7245,12 +7321,17 @@ def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path:
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
     output.write_bytes(trx(method))
     binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    pin_binary()
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
     assert category == "passed" and not findings
+    pin_binary(1_000_000_000)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "failed" and record["blockers"] == ["TEST_RESULTS_STALE"]
     binary.write_bytes(b"1.0.0+" + candidate.encode())
     output.write_bytes(trx(method).replace(b'executed="1"', b'executed="0"'))
     record, category, findings = module.v2_successor_scenario_from_results(
@@ -7458,14 +7539,32 @@ def test_v2_retained_candidate_rejects_gitlink_only_followup(tmp_path: Path) -> 
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
 
 
+STORY_8_1_PAIR_PATHS = ("docs/release-evidence/story-8.1-final-record-v2.json",
+                        "docs/release-evidence/story-8.1-final-record-v2.md")
+# The last published pair, used only while a review retracts the pair from HEAD.
+STORY_8_1_HISTORICAL_PAIR_REVISION = "35121cab6bfc963fb2a8d411a51800f6ef5a2a70"
+
+
+def _story_8_1_published_pair() -> tuple[bytes, bytes]:
+    """Read the Story 8.1 pair committed at HEAD, or the pinned pair while it is retracted."""
+    for revision in ("HEAD", STORY_8_1_HISTORICAL_PAIR_REVISION):
+        shown = [subprocess.run(["git", "show", f"{revision}:{path}"], cwd=WORKSPACE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+                 for path in STORY_8_1_PAIR_PATHS]
+        if all(result.returncode == 0 for result in shown):
+            return shown[0].stdout, shown[1].stdout
+    raise AssertionError("no committed Story 8.1 final-record pair is available")
+
+
+def _story_8_1_published_candidate() -> str:
+    """Return the source candidate bound by the published Story 8.1 pair."""
+    return json.loads(_story_8_1_published_pair()[0])["candidate"]["commit"]
+
+
 def test_v2_story_8_1_published_pair_verifies_and_schema_requires_ux_disposition() -> None:
     """The published Story 8.1 pair retains its self-ledger and exclusive UX shape."""
     module = load_generator()
-    revision = "35121cab6bfc963fb2a8d411a51800f6ef5a2a70"
-    pair = tuple(
-        subprocess.check_output(["git", "show", f"{revision}:docs/release-evidence/story-8.1-final-record-v2.{extension}"], cwd=WORKSPACE)
-        for extension in ("json", "md")
-    )
+    pair = _story_8_1_published_pair()
     assert module.v2_verify_pair(*pair) == []
     record = json.loads(pair[0])
     validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
@@ -7475,6 +7574,23 @@ def test_v2_story_8_1_published_pair_verifies_and_schema_requires_ux_disposition
     successor = deepcopy(record)
     successor["storyId"] = "8.2"
     assert not validator.is_valid(successor)
+
+
+def test_v2_render_projects_scenario_output_files_in_a_schema_valid_record() -> None:
+    """Bound scenario outputs reach the Markdown projection of a schema-valid pair."""
+    module = load_generator()
+    record = json.loads(_story_8_1_published_pair()[0])
+    scenario = record["scenarios"][1]
+    bound = [scenario["resultFile"],
+             {"path": "tests/Example/bin/Release/net10.0/Example.dll", "sha256": "c" * 64}]
+    scenario["outputFiles"] = bound
+    final, json_bytes, markdown = module.v2_finalize(record)
+    v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA)).validate(final)
+    section = markdown.decode("utf-8").split(f"### `{scenario['scenarioId']}`", 1)[1].split("\n### ", 1)[0]
+    assert "| Bound output | SHA-256 |" in section
+    for row in bound:
+        assert f"| `{row['path']}` | `{row['sha256']}` |" in section
+    assert module.v2_verify_pair(json_bytes, markdown) == []
 
 
 def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path) -> None:
@@ -7537,7 +7653,7 @@ def _story_8_1_candidate_clone(tmp_path: Path) -> tuple[Path, str, dict, dict]:
     environment = fixture_git_environment()
     subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
                    check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    candidate = "b9859097d6bca9e9ed315313a4ffaa5e2cef157f"
+    candidate = _story_8_1_published_candidate()
     subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
                    check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
@@ -7548,8 +7664,14 @@ def _story_8_1_candidate_clone(tmp_path: Path) -> tuple[Path, str, dict, dict]:
 @pytest.mark.parametrize("fault,blocker", [
     ("active-row", "UX_ACTIVATION_UNAUTHORIZED"),
     ("missing-banner", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("reworded-banner", "UX_ACTIVATION_UNAUTHORIZED"),
     ("missing-decision", "UX_DECISION_INVENTORY_DRIFT"),
-    ("current-mapping", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("wrong-owner", "UX_CURRENT_STORY_INVALID"),
+    ("current-mapping", "UX_CURRENT_STORY_INVALID"),
+    ("current-mapping-classification", "UX_CURRENT_STORY_INVALID"),
+    ("current-provenance-owner", "UX_CURRENT_STORY_INVALID"),
+    ("source-version", "UX_SOURCE_DRIFT"),
+    ("source-edit", "UX_SOURCE_DRIFT"),
     ("wrong-rationale", "UX_DECISION_INVENTORY_DRIFT"),
 ])
 def test_v2_story_8_1_committed_disposition_faults_have_owning_blockers(
@@ -7563,13 +7685,28 @@ def test_v2_story_8_1_committed_disposition_faults_have_owning_blockers(
         document["decisions"][0]["status"] = "activated"
     elif fault == "missing-banner":
         document.pop("preservationBanner")
+    elif fault == "reworded-banner":
+        document["preservationBanner"] = "Activated for UI delivery; formerly not activated."
     elif fault == "missing-decision":
         document["decisions"].pop()
+    elif fault == "wrong-owner":
+        document["decisions"][0]["owner"] = "Story 3.8 implementation"
     elif fault == "current-mapping":
         document["decisions"][0]["historicalMappings"][0]["current"] = True
+    elif fault == "current-mapping-classification":
+        document["decisions"][0]["historicalMappings"][0]["classification"] = "current-implementation"
+    elif fault == "current-provenance-owner":
+        document["historicalProvenance"]["currentImplementationOwner"] = True
+    elif fault == "source-version":
+        document["sources"][0]["version"] = "ux-preservation-planning-2099-01-01-v9"
+    elif fault == "source-edit":
+        target = repository / module.V2_8_1_SOURCES[-1]
     else:
         document["decisions"][0]["rationale"] = "Incorrect rationale"
-    target.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    if fault == "source-edit":
+        target.write_bytes(target.read_bytes() + b"\nInjected source drift.\n")
+    else:
+        target.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
     environment = fixture_git_environment()
     subprocess.run(["git", "-C", str(repository), "add", target.relative_to(repository).as_posix()],
                    check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
