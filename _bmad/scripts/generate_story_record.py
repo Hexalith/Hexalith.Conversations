@@ -6385,7 +6385,7 @@ def v2_8_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
         blob = v2_committed_blob(repository, predecessor_candidate, row["path"])
         if blob is None or v2_sha256(blob) != row["sha256"]:
             stop("AUTHORITY_BINDING_INVALID", row["path"])
-    module_spec = importlib_util.spec_from_file_location("story82_ux_verifier", Path(__file__).with_name("generate_ux_preservation_disposition.py"))
+    module_spec = importlib_util.spec_from_file_location("story82_ux_verifier", repository / "_bmad/scripts/generate_ux_preservation_disposition.py")
     ux_module = importlib_util.module_from_spec(module_spec)
     module_spec.loader.exec_module(ux_module)
     try:
@@ -6458,12 +6458,16 @@ def v2_8_2_faults(repository: Path, candidate: str, scenarios: dict[str, dict[st
         rows = []
         for case in parsed["cases"]:
             metadata = [value for name, value in case["properties"] if name == V2_8_2_FAULT_PROPERTY]
+            row = None
             try:
                 row = v2_parse_json(metadata[0].encode()) if len(metadata) == 1 else None
                 valid = isinstance(row, dict) and not v2_schema_errors(observed_validator, row)
             except (ValueError, UnicodeError):
                 valid = False
             if not valid:
+                if (isinstance(row, dict) and "restoredExitCode" in row and "restoredBlockers" in row
+                        and (row["restoredExitCode"] != 0 or row["restoredBlockers"] != [])):
+                    raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", scenario_id, "restored PASS differs")], "8.2")
                 raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id, "exactly one measured fault property is required per executed case")], "8.2")
             if (case["classname"] != "_bmad.scripts.tests.test_generate_ux_preservation_disposition"
                     or case["name"] != v2_8_2_case_name(scenario_id, row["id"])):

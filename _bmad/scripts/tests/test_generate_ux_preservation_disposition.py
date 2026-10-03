@@ -303,7 +303,7 @@ def _measured_fault(root: Path, fault_id: str) -> dict[str, object]:
             lines = originals[module.OUTPUT_PATHS[2]].decode().splitlines(keepends=True)
             positions = [index for index, line in enumerate(lines) if line.startswith("| `UX-DR")]
             lines[positions[0]], lines[positions[1]] = lines[positions[1]], lines[positions[0]]
-            (root / module.OUTPUT_PATHS[2]).write_text("".join(lines))
+            (root / module.OUTPUT_PATHS[2]).write_bytes("".join(lines).encode("utf-8"))
         else:
             (root / module.OUTPUT_PATHS[1]).write_bytes((json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode())
         mutated = _fixture_digest(root, paths)
@@ -387,12 +387,15 @@ def test_verification_cli_rejects_malformed_nested_mappings(preservation_fixture
     ("map-byte", "UX_SOURCE_DRIFT"), ("mapping-current", "UX_CURRENT_STORY_INVALID"),
     ("mapping-classification", "UX_CURRENT_STORY_INVALID"), ("provenance-current", "UX_CURRENT_STORY_INVALID"),
     ("provenance-classification", "UX_CURRENT_STORY_INVALID"),
-], ids=[f"branch-{number:02d}" for number in range(1, 10)])
+    ("schema-changed", "UX_SCHEMA_INVALID"),
+], ids=[f"branch-{number:02d}" for number in range(1, 11)])
 def test_verifier_additional_semantics(preservation_fixture: Path, branch: str, blocker: str) -> None:
     path = preservation_fixture / module.OUTPUT_PATHS[1]
     original = path.read_bytes()
     map_path = preservation_fixture / module.MAP_PATH
     map_original = map_path.read_bytes()
+    schema_path = preservation_fixture / module.OUTPUT_PATHS[0]
+    schema_original = schema_path.read_bytes()
     document = json.loads(original)
     row = document["acceptanceCriteria"][0]
     try:
@@ -404,12 +407,14 @@ def test_verifier_additional_semantics(preservation_fixture: Path, branch: str, 
         elif branch == "mapping-current": row["historicalMappings"][0]["current"] = True
         elif branch == "mapping-classification": row["historicalMappings"][0]["classification"] = "current"
         elif branch == "provenance-current": document["historicalProvenance"]["currentImplementationOwner"] = True
+        elif branch == "schema-changed": schema_path.write_bytes(b"{}\n")
         else: document["historicalProvenance"]["classification"] = "current"
         path.write_bytes((json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode())
         assert _verification_cli(preservation_fixture) == (1, [blocker])
     finally:
         path.write_bytes(original)
         map_path.write_bytes(map_original)
+        schema_path.write_bytes(schema_original)
     assert _verification_cli(preservation_fixture) == (0, [])
 
 

@@ -1859,10 +1859,15 @@
           "$ref": "#/$defs/blocker"
         },
         "observedExitCode": {
-          "$ref": "#/$defs/exitCode"
+          "const": 1
         },
         "observedBlockers": {
-          "$ref": "#/$defs/blockers"
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 1,
+          "items": {
+            "$ref": "#/$defs/blocker"
+          }
         },
         "beforeSha256": {
           "$ref": "#/$defs/digest"
@@ -1874,18 +1879,335 @@
           "$ref": "#/$defs/digest"
         },
         "baselineExitCode": {
-          "$ref": "#/$defs/exitCode"
+          "const": 0
         },
         "baselineBlockers": {
-          "$ref": "#/$defs/blockers"
+          "const": []
         },
         "restoredExitCode": {
-          "$ref": "#/$defs/exitCode"
+          "const": 0
         },
         "restoredBlockers": {
-          "$ref": "#/$defs/blockers"
+          "const": []
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "decision-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_DECISION_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_DECISION_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "decision-duplicate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_DECISION_DUPLICATE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_DECISION_DUPLICATE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "decision-unknown"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_DECISION_UNKNOWN"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_DECISION_UNKNOWN"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "acceptance-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ACCEPTANCE_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ACCEPTANCE_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "acceptance-duplicate"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ACCEPTANCE_DUPLICATE"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ACCEPTANCE_DUPLICATE"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "acceptance-unknown"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ACCEPTANCE_UNKNOWN"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ACCEPTANCE_UNKNOWN"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "owner-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_OWNER_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_OWNER_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "hash-missing"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_HASH_MISSING"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_HASH_MISSING"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "source-changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_SOURCE_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_SOURCE_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "render-changed"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_RENDER_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_RENDER_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "json-order"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ORDER_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ORDER_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "markdown-order"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ORDER_DRIFT"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ORDER_DRIFT"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "row-activated"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_ACTIVATION_UNAUTHORIZED"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_ACTIVATION_UNAUTHORIZED"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "historical-owner"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_CURRENT_STORY_INVALID"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_CURRENT_STORY_INVALID"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "id": {
+                "const": "nonexistent-owner"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "expectedBlocker": {
+                "const": "UX_CURRENT_STORY_INVALID"
+              },
+              "observedBlockers": {
+                "const": [
+                  "UX_CURRENT_STORY_INVALID"
+                ]
+              }
+            }
+          }
+        }
+      ]
     },
     "uxFaultInjection": {
       "type": "object",

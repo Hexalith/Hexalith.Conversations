@@ -1277,6 +1277,10 @@ The hashes bind sorted fixture paths and exact bytes across authority inputs,
 sources, and the output bundle. Every baseline and restored CLI run must PASS
 with exit 0 and no blockers; each mutation must change bytes and fail with exit
 1 and exactly its expected blocker. Restoration runs in `finally`.
+The final-record schema pins these outcomes and each fault ID's sole blocker,
+so later stories cannot accept a digest-bound pair with different outcomes.
+The record generator executes the verifier from `--repository` after checking
+that its installed bytes equal the candidate's committed verifier.
 
 Finish and commit the implementation candidate while both lifecycle states stay
 `in-progress`. Preserve `baseline_commit`. If that baseline precedes the commit

@@ -7872,6 +7872,62 @@ def test_v2_story_8_2_observed_fault_matrix_is_exact_and_restored(tmp_path: Path
     assert len({row["expectedBlocker"] for row in rows}) == 13
 
 
+def _story_8_2_published_pair() -> tuple[bytes, bytes]:
+    """Read the published pair, retaining its last accepted bytes during retraction."""
+    for revision in ("HEAD", "e7b524f71eff42fda5d29252192b482d734da90f"):
+        shown = [subprocess.run(["git", "show", f"{revision}:{path}"], cwd=WORKSPACE,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=False)
+                 for path in load_generator().v2_designated_successor_outputs("8.2")]
+        if all(result.returncode == 0 for result in shown):
+            return shown[0].stdout, shown[1].stdout
+    raise AssertionError("no committed Story 8.2 final-record pair is available")
+
+
+def test_v2_story_8_2_published_pair_requires_exclusive_binding_and_ordered_faults() -> None:
+    module = load_generator()
+    pair = _story_8_2_published_pair()
+    assert module.v2_verify_pair(*pair) == []
+    record = json.loads(pair[0])
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    validator.validate(record)
+    assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger("AC-8.2-11", "8.2")
+    assert not validator.is_valid({key: value for key, value in record.items() if key != "uxValidation"})
+    for rows in (record["faultInjection"]["results"][:-1], list(reversed(record["faultInjection"]["results"]))):
+        changed = deepcopy(record)
+        changed["faultInjection"]["results"] = rows
+        assert not validator.is_valid(changed)
+    predecessor = json.loads(_story_8_1_published_pair()[0])
+    predecessor["uxValidation"] = record["uxValidation"]
+    assert not validator.is_valid(predecessor)
+
+
+@pytest.mark.parametrize("field,value", [
+    ("baselineExitCode", 1), ("baselineBlockers", ["UX_DECISION_MISSING"]),
+    ("observedExitCode", 0), ("observedBlockers", []),
+    ("observedBlockers", ["UX_DECISION_MISSING", "UX_ACCEPTANCE_MISSING"]),
+    ("observedBlockers", ["UX_ACCEPTANCE_MISSING"]), ("expectedBlocker", "UX_ACCEPTANCE_MISSING"),
+    ("restoredExitCode", 1), ("restoredBlockers", ["UX_DECISION_MISSING"]),
+])
+def test_v2_story_8_2_schema_pins_measured_fault_outcomes(field: str, value: object) -> None:
+    record = json.loads(_story_8_2_published_pair()[0])
+    record["faultInjection"]["results"][0][field] = value
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    assert not validator.is_valid(record)
+
+
+@pytest.mark.parametrize("identifier", list(load_generator().V2_8_2_REQUIRED_FAULTS))
+def test_v2_story_8_2_schema_pins_each_faults_exact_blocker(identifier: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    validator = validators["record"].evolve(schema={"$defs": validators["record"].schema["$defs"],
+                                                   "$ref": "#/$defs/uxObservedFault"})
+    row = next(row for row in json.loads(_story_8_2_published_pair()[0])["faultInjection"]["results"]
+               if row["id"] == identifier)
+    validator.validate(row)
+    wrong_blocker = "UX_ACCEPTANCE_MISSING" if row["expectedBlocker"] != "UX_ACCEPTANCE_MISSING" else "UX_DECISION_MISSING"
+    assert not validator.is_valid(dict(row, expectedBlocker=wrong_blocker, observedBlockers=[wrong_blocker]))
+
+
 @pytest.mark.parametrize("mutation,blocker", [
     ("property-missing", "FAULT_NOT_DETECTED"), ("property-duplicate", "FAULT_NOT_DETECTED"),
     ("exit", "FAULT_NOT_DETECTED"), ("blocker", "FAULT_NOT_DETECTED"),
@@ -7882,6 +7938,8 @@ def test_v2_story_8_2_observed_fault_matrix_is_exact_and_restored(tmp_path: Path
     ("empty", "TEST_RESULTS_FAILED"), ("skip", "TEST_RESULTS_FAILED"),
     ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"),
     ("unrelated-hashes", "FIXTURE_NOT_RESTORED"),
+    ("lane-missing", "FAULT_NOT_DETECTED"), ("lane-duplicate", "FAULT_NOT_DETECTED"),
+    ("lane-reordered", "FAULT_NOT_DETECTED"),
 ])
 def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str, blocker: str) -> None:
     module = load_generator()
@@ -7889,7 +7947,7 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     candidate = "a" * 40
     monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
     scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
-    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-02"
+    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-05" if mutation.startswith("lane-") else "AC-8.2-02"
     binding = scenarios[scenario_id]["resultFile"]
     target = tmp_path / binding["path"]
     root = ElementTree.fromstring(target.read_bytes())
@@ -7914,6 +7972,15 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     elif mutation == "restored-exit": row["restoredExitCode"] = 1
     elif mutation == "rerun-drift": row["mutatedSha256"] = "b" * 64
     elif mutation == "identity": row["id"] = "decision-duplicate"
+    elif mutation == "lane-missing":
+        suite.remove(suite.findall("testcase")[-1])
+        suite.set("tests", "2")
+    elif mutation == "lane-duplicate":
+        suite.remove(suite.findall("testcase")[-1])
+        suite.append(deepcopy(case))
+    elif mutation == "lane-reordered":
+        suite.remove(case)
+        suite.append(case)
     prop.set("value", json.dumps(row))
     content = ElementTree.tostring(root)
     target.write_bytes(content)
@@ -7977,6 +8044,7 @@ def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_invento
     ("output", "UX_RENDER_DRIFT"), ("wrong-build", "TEST_RESULTS_STALE"),
     ("missing-build", "TEST_RESULTS_MISSING"), ("production", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
     ("predecessor-binding", "AUTHORITY_BINDING_INVALID"),
+    ("predecessor-disposition", "AUTHORITY_BINDING_INVALID"),
     ("gitlink", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
 ])
 def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
@@ -7991,6 +8059,14 @@ def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch,
             return rows + [("references/Injected", "b" * 40)] if len(calls) == 1 else rows
         monkeypatch.setattr(module, "v2_raw_gitlinks", changed_gitlinks)
     elif fault == "predecessor-binding": monkeypatch.setattr(module, "is_ancestor", lambda *_: False)
+    elif fault == "predecessor-disposition":
+        path = module.V2_8_1_DISPOSITION_PATHS[1]
+        target = repository / path
+        changed = target.read_bytes() + b"\n"
+        target.write_bytes(changed)
+        original = module.v2_committed_blob
+        monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, relative:
+                            changed if revision == candidate and relative == path else original(repo, revision, relative))
     elif fault == "wrong-build": (repository / module.V2_8_1_TEST_ASSEMBLY).write_bytes(b"1.0.0+" + ("b" * 40).encode())
     elif fault == "missing-build": (repository / module.V2_8_1_TEST_ASSEMBLY).unlink()
     else:
@@ -8001,6 +8077,34 @@ def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch,
     with pytest.raises(module.V2Stop) as failure:
         module.v2_8_2_facts(repository, candidate, contract, validators["record"])
     assert [finding["code"] for finding in failure.value.findings] == [blocker]
+    if fault == "predecessor-disposition":
+        assert failure.value.findings[0]["subject"] == "predecessor disposition"
+
+
+@pytest.mark.parametrize("path", [
+    load_generator().V2_8_1_SPEC_PATH, *load_generator().V2_8_1_DISPOSITION_PATHS,
+    *STORY_8_1_PAIR_PATHS, "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+])
+def test_v2_story_8_2_scope_rejects_each_protected_story_8_1_path(tmp_path: Path, monkeypatch, path: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["UX_PRODUCTION_CHANGE_FORBIDDEN"]
+
+
+def test_v2_story_8_2_executes_the_committed_candidate_verifier(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    path = "_bmad/scripts/generate_ux_preservation_disposition.py"
+    target = repository / path
+    content = target.read_bytes() + b'\ndef verify(_repository):\n    raise DispositionError("UX_SCHEMA_INVALID", "candidate verifier marker")\n'
+    target.write_bytes(content)
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, relative:
+                        content if revision == candidate and relative == path else original(repo, revision, relative))
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["UX_SCHEMA_INVALID"]
 
 
 def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_path: Path, monkeypatch) -> None:
@@ -8128,9 +8232,16 @@ def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tm
     repository = tmp_path / "cli-repository"
     subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
                    check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    frontmatter = module.parse_frontmatter((WORKSPACE / module.V2_8_2_SPEC_PATH).read_text(encoding="utf-8"))
+    v2_git(repository, "checkout", "--quiet", "--detach", module.frontmatter_scalar(frontmatter, "implementation_start_commit"))
     paths = ["_bmad/scripts/generate_story_record.py", "_bmad/scripts/generate_ux_preservation_disposition.py",
-             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py"]
-    for path in paths: (repository / path).write_bytes((WORKSPACE / path).read_bytes())
+             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+             "_bmad/schemas/story-final-record-v2.schema.json",
+             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
+    for path in paths:
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes((WORKSPACE / path).read_bytes())
     _story_8_2_cli_commit(repository, paths, "test: prepare Story 8.2 CLI fixture")
     candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
     binary = repository / module.V2_8_1_TEST_ASSEMBLY
