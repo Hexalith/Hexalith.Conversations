@@ -372,6 +372,46 @@ def test_verification_cli_preserves_every_bundle_byte(preservation_fixture: Path
     assert before == {path: (preservation_fixture / path).read_bytes() for path in module.OUTPUT_PATHS}
 
 
+@pytest.mark.parametrize("group", ["decisions", "acceptanceCriteria"])
+def test_verification_cli_rejects_coherently_rerendered_rationale(preservation_fixture: Path, group: str) -> None:
+    """Digest-correct JSON and Markdown must still equal canonical source derivation."""
+    originals = {path: (preservation_fixture / path).read_bytes() for path in module.OUTPUT_PATHS}
+    assert _verification_cli(preservation_fixture) == (0, [])
+    document = json.loads(originals[module.OUTPUT_PATHS[1]])
+    try:
+        document[group][0]["rationale"] = "Changed preserved rationale."
+        rendered = module.markdown(document)
+        document["renderedMarkdownSha256"] = module.digest(rendered)
+        (preservation_fixture / module.OUTPUT_PATHS[1]).write_bytes(
+            (json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode("utf-8"))
+        (preservation_fixture / module.OUTPUT_PATHS[2]).write_bytes(rendered)
+        assert module.markdown(document) == rendered
+        assert _verification_cli(preservation_fixture) == (1, ["UX_RENDER_DRIFT"])
+    finally:
+        for path, content in originals.items():
+            (preservation_fixture / path).write_bytes(content)
+    assert originals == {path: (preservation_fixture / path).read_bytes() for path in module.OUTPUT_PATHS}
+    assert _verification_cli(preservation_fixture) == (0, [])
+
+
+def test_file_bytes_and_verification_cli_normalize_symlink_loop(preservation_fixture: Path) -> None:
+    """Python 3.11 path-resolution loops remain a named failure through the CLI."""
+    path = preservation_fixture / module.OUTPUT_PATHS[0]
+    original = path.read_bytes()
+    try:
+        path.unlink()
+        path.symlink_to(path.name)
+        with pytest.raises(module.DispositionError) as failure:
+            module.file_bytes(preservation_fixture, module.OUTPUT_PATHS[0])
+        assert failure.value.code == "UX_SOURCE_UNBOUND"
+        assert _verification_cli(preservation_fixture) == (1, ["UX_SOURCE_UNBOUND"])
+    finally:
+        path.unlink()
+        path.write_bytes(original)
+    assert path.read_bytes() == original
+    assert _verification_cli(preservation_fixture) == (0, [])
+
+
 @pytest.mark.parametrize("mapping", [1, "invalid", {}, [None], [1]])
 def test_verification_cli_rejects_malformed_nested_mappings(preservation_fixture: Path, mapping: object) -> None:
     path = preservation_fixture / module.OUTPUT_PATHS[1]

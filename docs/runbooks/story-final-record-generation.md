@@ -1327,9 +1327,10 @@ Retain the accepted ignored evidence durably under an immutable archive key
 equal to `uxValidation.sourceRevisionId`, alongside the accepted JSON/Markdown
 pair. Archive the complete Release test output directory (including DLLs,
 runtime/dependency files and symbols), all ten `artifacts/v9/8.2/` TRX/JUnit
-receipts, and a manifest recording their repository-relative paths and exact
-SHA-256 values. Store the archive outside the working tree in durable artifact
-storage before deleting build outputs or receipts. Verify the archived test
+receipts, and a manifest recording each file's repository-relative path, exact
+SHA-256, and original nanosecond modification time (`st_mtime_ns`). Store the
+archive outside the working tree in durable artifact storage before deleting
+build outputs or receipts. Verify the archived test
 assembly and each receipt against the digests in the accepted record; preserve
 the original file modification times needed by the freshness guards.
 

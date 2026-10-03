@@ -119,6 +119,11 @@ it does not restate the baseline delta. The four gitlink moves in the spec-add
 commit are the owner's acknowledged bumps (Review 2), and the validator requires
 the task-entry and candidate gitlink identities to match.
 
+Review 3 local patches also passed: 618 tests in the required two-file suite
+with zero failures or skips, and eight focused tests under Python 3.11.15.
+Isolated mutation checks proved the new tests fail when canonical equality
+(two failures) or exact testcase attribution (three failures) is removed.
+
 ## Spec Change Log
 
 ## Review Triage Log
@@ -141,6 +146,22 @@ the task-entry and candidate gitlink identities to match.
 | EC-03 | high | patch | Matching fault lanes can carry unrelated fixture hashes; the same committed-fixture binding gap as BH-01. |
 | EC-04 | high | patch | Rehashed scenario output bindings and summary are not compared with frozen measurements; the same completion remeasurement gap as BH-03. |
 | VG-01 | medium | patch | Direct helper tests do not cover the Story 8.2 inserted-record CLI seam. Add baseline success and changed-result rejection through that command. |
+
+
+| R3-B1 | high | pending remote | Fresh origin checkouts lack Story 7.4 candidate ba1b47622ad8d72e0ea70f01e4e695e49413c1ee. This is the existing Review 2 tag-publication task, which remains open under the no-remote build rule. |
+| R3-B2 | maybe-false | pending CI | The conformance job does not explicitly install jsonschema; no runner import failure has been demonstrated. The existing Review 2 first-CI check must confirm the system Python import before closing that task. |
+| R3-B3 | low | reject | Shared checkout tests exercise the local real-Git CLI; fresh-origin reachability is separately tracked by the tag/CI task. Adding network access to the unit fixture would add a separate external dependency without resolving that known task. |
+| R3-B4 | low | reject | A deliberately rewritten and re-finalized pair can carry arbitrary binding paths. Normal generation and inserted-record verification rederive those paths; changing the generic predecessor threat model would add new validation branches for fabricated committed evidence. |
+| R3-B5 | low | reject | A deliberately re-finalized pair can carry inconsistent candidate fields. The current completion verifier rejects this through full candidate rederivation; this repeats Review 2's rejected fabricated-evidence concern for the generic predecessor consumer. |
+| R3-B6 | low | reject | A deliberately re-finalized pair can carry unequal restoration hashes. Current generation and inserted verification reject it against measured, committed fixture bytes; expanding generic predecessor verification adds guards for the same rejected fabricated-evidence scenario. |
+| R3-B7 | low | patch | Python 3.11 Path.resolve raises RuntimeError on a symlink loop, which escapes file_bytes. Fixed: the existing blocker now normalizes this path error, with a Python 3.11 CLI regression. |
+| R3-B8 | low | patch | Recovery requires exact modification times, but the manifest instructions name only paths and hashes. Fixed: the runbook explicitly requires original nanosecond modification times, and the archive manifest preserves them. |
+| R3-B9 | medium | patch | Changing fault identity also invalidates its blocker and stops at schema validation. Fixed: independent XML name, parameter, and classname mutations keep valid metadata; deleting the guard now fails all three new tests. |
+| R3-B10 | medium | patch | Missing/wrong-stamp assembly cases do not pin the correctly stamped but old assembly branch. Fixed: a correctly stamped assembly older than the candidate produces TEST_RESULTS_STALE in its new regression. |
+| R3-E1 | high | pending remote | The origin clone reproduces UX_SOURCE_UNBOUND for ba1b476. Same root cause as R3-B1 and the existing Review 2 tag/CI task. |
+| R3-V1 | medium | patch | Deleting canonical JSON/Markdown equality leaves all 58 verifier and 84 Story 8.2 generator tests green. Fixed: self-consistent decision and acceptance-row fixtures require UX_RENDER_DRIFT; removing canonical equality fails both new tests. |
+| R3-V2 | medium | patch | Deleting exact testcase attribution leaves all 84 Story 8.2 generator tests green. Same root cause as R3-B9; fixed and independently proved by the three failing guard-deletion probes. |
+| R3-V3 | high | pending remote | A fresh main-only clone cannot derive the preserved source at ba1b476. Same root cause as R3-B1 and the existing Review 2 tag/CI task. |
 
 ## Verification
 

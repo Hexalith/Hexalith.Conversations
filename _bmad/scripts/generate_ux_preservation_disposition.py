@@ -62,7 +62,7 @@ def file_bytes(root: Path, relative: str) -> bytes:
         if not path.resolve(strict=True).is_relative_to(root) or not path.is_file():
             raise OSError("unsafe source")
         return path.read_bytes()
-    except OSError as error:
+    except (OSError, RuntimeError) as error:
         raise DispositionError("UX_SOURCE_UNBOUND", f"source is missing or unreadable: {relative}") from error
 
 

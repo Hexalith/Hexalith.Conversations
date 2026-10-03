@@ -7940,6 +7940,8 @@ def test_v2_story_8_2_schema_pins_each_faults_exact_blocker(identifier: str) -> 
     ("unrelated-hashes", "FIXTURE_NOT_RESTORED"),
     ("lane-missing", "FAULT_NOT_DETECTED"), ("lane-duplicate", "FAULT_NOT_DETECTED"),
     ("lane-reordered", "FAULT_NOT_DETECTED"),
+    ("wrong-name", "FAULT_NOT_DETECTED"), ("wrong-parameter", "FAULT_NOT_DETECTED"),
+    ("wrong-classname", "FAULT_NOT_DETECTED"),
 ])
 def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str, blocker: str) -> None:
     module = load_generator()
@@ -7947,7 +7949,7 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     candidate = "a" * 40
     monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
     scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
-    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-05" if mutation.startswith("lane-") else "AC-8.2-02"
+    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-05" if mutation.startswith("lane-") or mutation == "wrong-parameter" else "AC-8.2-02"
     binding = scenarios[scenario_id]["resultFile"]
     target = tmp_path / binding["path"]
     root = ElementTree.fromstring(target.read_bytes())
@@ -7972,6 +7974,9 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     elif mutation == "restored-exit": row["restoredExitCode"] = 1
     elif mutation == "rerun-drift": row["mutatedSha256"] = "b" * 64
     elif mutation == "identity": row["id"] = "decision-duplicate"
+    elif mutation == "wrong-name": case.set("name", "test_unrelated")
+    elif mutation == "wrong-parameter": case.set("name", "test_acceptance_identity_faults[acceptance-duplicate]")
+    elif mutation == "wrong-classname": case.set("classname", "unrelated.tests")
     elif mutation == "lane-missing":
         suite.remove(suite.findall("testcase")[-1])
         suite.set("tests", "2")
@@ -7982,6 +7987,10 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
         suite.remove(case)
         suite.append(case)
     prop.set("value", json.dumps(row))
+    if mutation.startswith("wrong-"):
+        observed_validator = validators["record"].evolve(
+            schema={"$defs": validators["record"].schema["$defs"], "$ref": "#/$defs/uxObservedFault"})
+        observed_validator.validate(row)
     content = ElementTree.tostring(root)
     target.write_bytes(content)
     binding["sha256"] = module.v2_sha256(content)
@@ -8043,6 +8052,7 @@ def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_invento
     ("predecessor", "AUTHORITY_BINDING_INVALID"), ("source", "UX_SOURCE_DRIFT"),
     ("output", "UX_RENDER_DRIFT"), ("wrong-build", "TEST_RESULTS_STALE"),
     ("missing-build", "TEST_RESULTS_MISSING"), ("production", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
+    ("stale-build", "TEST_RESULTS_STALE"),
     ("predecessor-binding", "AUTHORITY_BINDING_INVALID"),
     ("predecessor-disposition", "AUTHORITY_BINDING_INVALID"),
     ("gitlink", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
@@ -8068,6 +8078,11 @@ def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch,
         monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, relative:
                             changed if revision == candidate and relative == path else original(repo, revision, relative))
     elif fault == "wrong-build": (repository / module.V2_8_1_TEST_ASSEMBLY).write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    elif fault == "stale-build":
+        assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+        assert module.dotnet_source_revisions(assembly.read_bytes()) == [candidate]
+        stale_ns = int(v2_git(repository, "show", "-s", "--format=%ct", candidate).stdout.strip()) * 1_000_000_000 - 1
+        os.utime(assembly, ns=(stale_ns, stale_ns))
     elif fault == "missing-build": (repository / module.V2_8_1_TEST_ASSEMBLY).unlink()
     else:
         path = {"predecessor": module.V2_8_2_PREDECESSOR[1], "source": module.V2_8_1_SOURCES[0],
