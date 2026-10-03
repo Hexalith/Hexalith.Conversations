@@ -348,6 +348,7 @@ def main() -> int:
     parser.add_argument("--output-schema", required=True)
     parser.add_argument("--output-json", required=True)
     parser.add_argument("--output-markdown", required=True)
+    parser.add_argument("--verify", action="store_true", help="Verify the existing bundle without writing any file")
     args = parser.parse_args()
     root = Path(args.repository).resolve()
     try:
@@ -356,13 +357,103 @@ def main() -> int:
         outputs = (args.output_schema, args.output_json, args.output_markdown)
         if outputs != OUTPUT_PATHS:
             raise DispositionError("UX_SCHEMA_INVALID", "output paths differ from the canonical bundle")
-        generated = generate(root, args.contract)
-        write_bundle(root, outputs, generated)
-        print("PASS: UX preservation disposition bundle generated")
+        if args.verify:
+            verify(root, args.contract)
+            print("PASS: UX preservation disposition verified; 52 decisions, 28 acceptance criteria")
+        else:
+            generated = generate(root, args.contract)
+            write_bundle(root, outputs, generated)
+            print("PASS: UX preservation disposition bundle generated")
         return 0
     except DispositionError as error:
         print(f"FAIL: {error.code}: {error}", file=sys.stderr)
         return 1
+
+
+def verify(root: Path, contract_path: str = CONTRACT_PATH) -> dict[str, Any]:
+    """Verify existing bytes read-only, reporting semantic faults before schema errors."""
+    schema_bytes, json_bytes, rendered = (file_bytes(root, path) for path in OUTPUT_PATHS)
+    try:
+        document = json.loads(json_bytes)
+        installed_schema = json.loads(schema_bytes)
+    except (ValueError, UnicodeError) as error:
+        raise DispositionError("UX_SCHEMA_INVALID", "the disposition bundle is malformed") from error
+    if not isinstance(document, dict):
+        raise DispositionError("UX_SCHEMA_INVALID", "the disposition is not an object")
+    groups = (("decisions", EXPECTED_DECISIONS, "DECISION"),
+              ("acceptanceCriteria", EXPECTED_ACCEPTANCE, "ACCEPTANCE"))
+    all_rows = []
+    for name, expected, category in groups:
+        rows = document.get(name)
+        if not isinstance(rows, list) or any(not isinstance(row, dict) for row in rows):
+            raise DispositionError("UX_SCHEMA_INVALID", f"invalid {name} rows")
+        identifiers = [row.get("id") for row in rows]
+        if any(identifier not in expected for identifier in identifiers):
+            raise DispositionError(f"UX_{category}_UNKNOWN", f"an unknown {category.lower()} identity is present")
+        if len(identifiers) != len(set(identifiers)):
+            raise DispositionError(f"UX_{category}_DUPLICATE", f"a {category.lower()} identity appears more than once")
+        if set(identifiers) != set(expected):
+            raise DispositionError(f"UX_{category}_MISSING", f"a frozen {category.lower()} identity is missing")
+        if identifiers != expected:
+            raise DispositionError("UX_ORDER_DRIFT", f"{name} differ from canonical source order")
+        all_rows.extend(rows)
+    if any(not isinstance(row.get("owner"), str) or not row["owner"].strip() for row in all_rows):
+        raise DispositionError("UX_OWNER_MISSING", "a disposition owner is missing")
+    sources = document.get("sources")
+    if not isinstance(sources, list) or any(not isinstance(row, dict) for row in sources):
+        raise DispositionError("UX_SCHEMA_INVALID", "the source bindings are invalid")
+    if (any(not row.get("sourceSha256") for row in all_rows)
+            or any(not row.get("sha256") for row in sources)):
+        raise DispositionError("UX_HASH_MISSING", "a source SHA-256 binding is missing")
+    if (document.get("status") != STATUS or document.get("preservationBanner") != BANNER
+            or any(row.get("status") != STATUS for row in all_rows)):
+        raise DispositionError("UX_ACTIVATION_UNAUTHORIZED", "a preservation disposition was activated")
+    if any(not isinstance(row.get("historicalMappings"), list)
+           or any(not isinstance(mapping, dict) for mapping in row["historicalMappings"]) for row in all_rows):
+        raise DispositionError("UX_SCHEMA_INVALID", "historical mappings must be arrays of objects")
+    provenance = document.get("historicalProvenance")
+    if (any(row["owner"] != "Stories 8.1-8.2 preservation contract" for row in all_rows)
+            or any(isinstance(mapping, dict) and
+                   (mapping.get("current") is True or mapping.get("classification") != "historical-provenance")
+                   for row in all_rows for mapping in (row.get("historicalMappings") or []))
+            or (isinstance(provenance, dict) and
+                (provenance.get("currentImplementationOwner") is True or provenance.get("classification") != "non-current"))):
+        raise DispositionError("UX_CURRENT_STORY_INVALID", "historical or invalid current implementation ownership")
+    hashes = {}
+    if any(not isinstance(row.get("sourcePath"), str) for row in all_rows):
+        raise DispositionError("UX_SCHEMA_INVALID", "row source paths must be strings")
+    for path in (SPEC_PATH, MAP_PATH):
+        try:
+            hashes[path] = digest(file_bytes(root, path))
+        except DispositionError as error:
+            raise DispositionError("UX_SOURCE_DRIFT", f"canonical source is unavailable: {path}") from error
+    if ([(row.get("path"), row.get("sha256")) for row in sources] != list(hashes.items())
+            or any(row.get("sourcePath") not in hashes
+                   or row["sourceSha256"] != hashes[row["sourcePath"]] for row in all_rows)):
+        raise DispositionError("UX_SOURCE_DRIFT", "canonical source bytes or source bindings changed")
+    for name, expected, _ in groups:
+        title = "Decisions" if name == "decisions" else "Acceptance criteria"
+        try:
+            section = re.search(rf"^## {title}\n(.*?)(?=^## |\Z)", rendered.decode("utf-8"), re.M | re.S)
+        except UnicodeError as error:
+            raise DispositionError("UX_RENDER_DRIFT", "Markdown is not UTF-8") from error
+        identities = re.findall(r"^\| `([^`]+)` \|", section.group(1), re.M) if section else []
+        if identities != expected and sorted(identities) == sorted(expected):
+            raise DispositionError("UX_ORDER_DRIFT", f"Markdown {name} differ from canonical source order")
+    canonical = generate(root, contract_path)
+    if schema_bytes != canonical[0]:
+        raise DispositionError("UX_SCHEMA_INVALID", "the disposition schema differs from canonical derivation")
+    try:
+        jsonschema.validate(document, installed_schema)
+    except (jsonschema.ValidationError, jsonschema.SchemaError) as error:
+        raise DispositionError("UX_SCHEMA_INVALID", "the disposition violates its closed schema") from error
+    expected_document = json.loads(canonical[1])
+    if document.get("authority") != expected_document["authority"] or document.get("candidate") != expected_document["candidate"]:
+        raise DispositionError("UX_SCHEMA_INVALID", "the disposition authority or candidate binding changed")
+    if (rendered != markdown(document) or document["renderedMarkdownSha256"] != digest(rendered)
+            or rendered != canonical[2] or json_bytes != canonical[1]):
+        raise DispositionError("UX_RENDER_DRIFT", "the disposition differs from its deterministic rendering or source derivation")
+    return document
 
 
 def write_bundle(root: Path, outputs: tuple[str, ...], generated: tuple[bytes, ...]) -> None:

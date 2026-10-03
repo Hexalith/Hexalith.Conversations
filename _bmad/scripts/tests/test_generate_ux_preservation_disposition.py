@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import importlib.util
+import contextlib
+import io
 import json
 import os
 import re
@@ -14,6 +16,7 @@ import pytest
 
 
 ROOT = Path(__file__).resolve().parents[3]
+CANDIDATE = subprocess.check_output(["git", "-C", str(ROOT), "rev-parse", "HEAD"]).decode().strip()
 SCRIPT = ROOT / "_bmad/scripts/generate_ux_preservation_disposition.py"
 specification = importlib.util.spec_from_file_location("ux_disposition", SCRIPT)
 assert specification is not None and specification.loader is not None
@@ -86,7 +89,7 @@ def test_committed_bundle_matches_fresh_derivation() -> None:
     assert expected == tuple((ROOT / path).read_bytes() for path in paths)
 
 
-def test_missing_source_and_source_drift(source_fixture: Path) -> None:
+def test_generator_source_unbound_and_changed_bytes(source_fixture: Path) -> None:
     """A missing source and a changed source byte fail independently."""
     path = source_fixture / module.SPEC_PATH
     before = path.read_bytes()
@@ -212,3 +215,167 @@ def test_exact_cli_arguments_write_three_expected_bytes(source_fixture: Path, mo
                                      "--output-markdown", module.OUTPUT_PATHS[2]])
     assert module.main() == 0
     assert tuple((source_fixture / path).read_bytes() for path in module.OUTPUT_PATHS) == expected
+
+
+FAULTS = {
+    "decision-missing": "UX_DECISION_MISSING",
+    "decision-duplicate": "UX_DECISION_DUPLICATE",
+    "decision-unknown": "UX_DECISION_UNKNOWN",
+    "acceptance-missing": "UX_ACCEPTANCE_MISSING",
+    "acceptance-duplicate": "UX_ACCEPTANCE_DUPLICATE",
+    "acceptance-unknown": "UX_ACCEPTANCE_UNKNOWN",
+    "owner-missing": "UX_OWNER_MISSING",
+    "hash-missing": "UX_HASH_MISSING",
+    "source-changed": "UX_SOURCE_DRIFT",
+    "render-changed": "UX_RENDER_DRIFT",
+    "json-order": "UX_ORDER_DRIFT",
+    "markdown-order": "UX_ORDER_DRIFT",
+    "row-activated": "UX_ACTIVATION_UNAUTHORIZED",
+    "historical-owner": "UX_CURRENT_STORY_INVALID",
+    "nonexistent-owner": "UX_CURRENT_STORY_INVALID",
+}
+FAULT_PROPERTY = "story82ObservedFault"
+
+
+@pytest.fixture
+def preservation_fixture(source_fixture: Path) -> Path:
+    """Install the preserved bundle in an isolated checkout for read-only verification."""
+    (source_fixture / ".git").mkdir()
+    module.write_bundle(source_fixture, module.OUTPUT_PATHS,
+                        module.generate(source_fixture, module.CONTRACT_PATH))
+    return source_fixture
+
+
+def _verification_cli(root: Path) -> tuple[int, list[str]]:
+    """Measure the actual verification CLI's return code and reported blockers."""
+    arguments = [str(SCRIPT), "--repository", str(root), "--contract", module.CONTRACT_PATH,
+                 "--output-schema", module.OUTPUT_PATHS[0], "--output-json", module.OUTPUT_PATHS[1],
+                 "--output-markdown", module.OUTPUT_PATHS[2], "--verify"]
+    output, error = io.StringIO(), io.StringIO()
+    with pytest.MonkeyPatch.context() as patch:
+        patch.setattr(sys, "argv", arguments)
+        with contextlib.redirect_stdout(output), contextlib.redirect_stderr(error):
+            code = module.main()
+    blockers = re.findall(r"^FAIL: ([A-Z0-9_]+):", error.getvalue(), re.M)
+    if code == 0:
+        assert "PASS:" in output.getvalue() and not error.getvalue()
+    return code, blockers
+
+
+def _fixture_digest(root: Path, paths: list[str]) -> str:
+    """Hash every exact fixture stream, bound to its ordered relative path."""
+    return module.digest(b"".join(path.encode() + b"\0" + (root / path).read_bytes() + b"\0" for path in paths))
+
+
+def _measured_fault(root: Path, fault_id: str) -> dict[str, object]:
+    """Prove a baseline PASS, exact rejection, finally restoration, and restored PASS."""
+    paths = sorted([module.SPEC_PATH, module.MAP_PATH, module.CONTRACT_PATH,
+                    module.PREDECESSOR_PATH, module.PREDECESSOR_MARKDOWN_PATH,
+                    module.BUNDLE_PATH, *module.OUTPUT_PATHS])
+    originals = {path: (root / path).read_bytes() for path in paths}
+    baseline_exit, baseline_blockers = _verification_cli(root)
+    assert (baseline_exit, baseline_blockers) == (0, [])
+    before = _fixture_digest(root, paths)
+    document = json.loads(originals[module.OUTPUT_PATHS[1]])
+    try:
+        rows = document["acceptanceCriteria"] if fault_id.startswith("acceptance-") else document["decisions"]
+        if fault_id.endswith("-missing") and fault_id.startswith(("decision-", "acceptance-")):
+            rows.pop()
+        elif fault_id.endswith("-duplicate"):
+            rows.append(dict(rows[-1]))
+        elif fault_id.endswith("-unknown"):
+            rows.append(dict(rows[-1], id="UX-DR999" if fault_id.startswith("decision-") else "AC-SAFE-999"))
+        elif fault_id == "owner-missing":
+            del rows[0]["owner"]
+        elif fault_id == "hash-missing":
+            del rows[0]["sourceSha256"]
+        elif fault_id == "row-activated":
+            rows[0]["status"] = "activated"
+        elif fault_id.endswith("-owner"):
+            rows[0]["owner"] = "Story 3.8 implementation" if fault_id == "historical-owner" else "Story 99.99 implementation"
+        elif fault_id == "json-order":
+            rows[0], rows[1] = rows[1], rows[0]
+        if fault_id == "source-changed":
+            (root / module.SPEC_PATH).write_bytes(originals[module.SPEC_PATH] + b"\n")
+        elif fault_id == "render-changed":
+            (root / module.OUTPUT_PATHS[2]).write_bytes(originals[module.OUTPUT_PATHS[2]] + b"changed rendering\n")
+        elif fault_id == "markdown-order":
+            lines = originals[module.OUTPUT_PATHS[2]].decode().splitlines(keepends=True)
+            positions = [index for index, line in enumerate(lines) if line.startswith("| `UX-DR")]
+            lines[positions[0]], lines[positions[1]] = lines[positions[1]], lines[positions[0]]
+            (root / module.OUTPUT_PATHS[2]).write_text("".join(lines))
+        else:
+            (root / module.OUTPUT_PATHS[1]).write_bytes((json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode())
+        mutated = _fixture_digest(root, paths)
+        assert mutated != before
+        observed_exit, observed_blockers = _verification_cli(root)
+        assert observed_exit == 1
+        assert observed_blockers == [FAULTS[fault_id]]
+    finally:
+        for path, content in originals.items():
+            (root / path).write_bytes(content)
+    after = _fixture_digest(root, paths)
+    restored_exit, restored_blockers = _verification_cli(root)
+    assert after == before
+    assert (restored_exit, restored_blockers) == (0, [])
+    return {"id": fault_id, "candidateCommit": CANDIDATE, "expectedBlocker": FAULTS[fault_id],
+            "observedExitCode": observed_exit, "observedBlockers": observed_blockers,
+            "beforeSha256": before, "mutatedSha256": mutated, "afterSha256": after,
+            "baselineExitCode": baseline_exit, "baselineBlockers": baseline_blockers,
+            "restoredExitCode": restored_exit, "restoredBlockers": restored_blockers}
+
+
+def test_missing_decision(preservation_fixture: Path, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, "decision-missing"), sort_keys=True))
+
+
+def test_duplicate_decision(preservation_fixture: Path, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, "decision-duplicate"), sort_keys=True))
+
+
+def test_unknown_decision(preservation_fixture: Path, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, "decision-unknown"), sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", ["acceptance-missing", "acceptance-duplicate", "acceptance-unknown"])
+def test_acceptance_identity_faults(preservation_fixture: Path, fault_id: str, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, fault_id), sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", ["owner-missing", "hash-missing"])
+def test_ownership_and_hash_faults(preservation_fixture: Path, fault_id: str, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, fault_id), sort_keys=True))
+
+
+def test_source_drift(preservation_fixture: Path, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, "source-changed"), sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", ["render-changed", "json-order", "markdown-order"])
+def test_rendering_and_order_drift(preservation_fixture: Path, fault_id: str, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, fault_id), sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", ["row-activated", "historical-owner", "nonexistent-owner"])
+def test_activation_and_story_binding_faults(preservation_fixture: Path, fault_id: str, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, fault_id), sort_keys=True))
+
+
+@pytest.mark.parametrize("fault_id", list(FAULTS))
+def test_fixtures_restore_byte_identically(preservation_fixture: Path, fault_id: str, record_property) -> None:
+    record_property(FAULT_PROPERTY, json.dumps(_measured_fault(preservation_fixture, fault_id), sort_keys=True))
+
+
+def test_verification_cli_preserves_every_bundle_byte(preservation_fixture: Path) -> None:
+    before = {path: (preservation_fixture / path).read_bytes() for path in module.OUTPUT_PATHS}
+    assert _verification_cli(preservation_fixture) == (0, [])
+    assert before == {path: (preservation_fixture / path).read_bytes() for path in module.OUTPUT_PATHS}
+
+
+@pytest.mark.parametrize("mapping", [1, "invalid", {}, [None], [1]])
+def test_verification_cli_rejects_malformed_nested_mappings(preservation_fixture: Path, mapping: object) -> None:
+    path = preservation_fixture / module.OUTPUT_PATHS[1]
+    document = json.loads(path.read_bytes())
+    document["decisions"][0]["historicalMappings"] = mapping
+    path.write_text(json.dumps(document))
+    assert _verification_cli(preservation_fixture) == (1, ["UX_SCHEMA_INVALID"])

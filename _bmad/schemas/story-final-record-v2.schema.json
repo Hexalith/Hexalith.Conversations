@@ -293,21 +293,77 @@
           ]
         },
         "properties": {
-          "faultInjection": {
-            "$ref": "#/$defs/faultInjection"
-          }
+          "faultInjection": {}
         }
       }
     },
     {
       "if": {
         "properties": {
-          "storyId": { "const": "8.1" }
+          "storyId": {
+            "const": "8.1"
+          }
         },
-        "required": ["storyId"]
+        "required": [
+          "storyId"
+        ]
       },
-      "then": { "required": ["uxDisposition"] },
-      "else": { "not": { "required": ["uxDisposition"] } }
+      "then": {
+        "required": [
+          "uxDisposition"
+        ]
+      },
+      "else": {
+        "not": {
+          "required": [
+            "uxDisposition"
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "storyId": {
+            "const": "8.2"
+          }
+        },
+        "required": [
+          "storyId"
+        ]
+      },
+      "then": {
+        "required": [
+          "uxValidation"
+        ],
+        "properties": {
+          "faultInjection": {
+            "$ref": "#/$defs/uxFaultInjection"
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "uxValidation"
+          ]
+        },
+        "if": {
+          "properties": {
+            "storyId": {
+              "const": "7.4"
+            }
+          }
+        },
+        "then": {},
+        "else": {
+          "properties": {
+            "faultInjection": {
+              "$ref": "#/$defs/faultInjection"
+            }
+          }
+        }
+      }
     }
   ],
   "properties": {
@@ -359,6 +415,9 @@
               },
               {
                 "$ref": "#/$defs/observedFault"
+              },
+              {
+                "$ref": "#/$defs/uxObservedFault"
               }
             ]
           },
@@ -389,6 +448,9 @@
     },
     "uxDisposition": {
       "$ref": "#/$defs/uxDisposition"
+    },
+    "uxValidation": {
+      "$ref": "#/$defs/uxValidation"
     }
   },
   "$defs": {
@@ -695,32 +757,61 @@
     "uxDisposition": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["contract", "predecessorRecord", "sources", "outputs", "testAssembly", "sourceRevisionId"],
+      "required": [
+        "contract",
+        "predecessorRecord",
+        "sources",
+        "outputs",
+        "testAssembly",
+        "sourceRevisionId"
+      ],
       "properties": {
-        "contract": { "$ref": "#/$defs/outputFile" },
-        "predecessorRecord": { "$ref": "#/$defs/predecessorRecord" },
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorRecord": {
+          "$ref": "#/$defs/predecessorRecord"
+        },
         "sources": {
           "type": "array",
           "items": false,
           "minItems": 2,
           "maxItems": 2,
           "prefixItems": [
-            { "$ref": "#/$defs/outputFile" },
-            { "$ref": "#/$defs/outputFile" }
+            {
+              "$ref": "#/$defs/outputFile"
+            },
+            {
+              "$ref": "#/$defs/outputFile"
+            }
           ]
         },
         "outputs": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["schema", "json", "markdown"],
+          "required": [
+            "schema",
+            "json",
+            "markdown"
+          ],
           "properties": {
-            "schema": { "$ref": "#/$defs/outputFile" },
-            "json": { "$ref": "#/$defs/outputFile" },
-            "markdown": { "$ref": "#/$defs/outputFile" }
+            "schema": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "json": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "markdown": {
+              "$ref": "#/$defs/outputFile"
+            }
           }
         },
-        "testAssembly": { "$ref": "#/$defs/outputFile" },
-        "sourceRevisionId": { "$ref": "#/$defs/commit" }
+        "testAssembly": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        }
       }
     },
     "measurements": {
@@ -859,7 +950,9 @@
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": { "$ref": "#/$defs/outputFile" }
+          "items": {
+            "$ref": "#/$defs/outputFile"
+          }
         },
         "assertionLedger": {
           "$ref": "#/$defs/assertionLedger"
@@ -1624,6 +1717,400 @@
         "value": {
           "type": "string",
           "minLength": 1
+        }
+      }
+    },
+    "uxValidation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "contract",
+        "predecessorRecord",
+        "sources",
+        "outputs",
+        "testAssembly",
+        "sourceRevisionId",
+        "bindingRule",
+        "predecessorCandidate",
+        "inventorySha256",
+        "decisionCount",
+        "acceptanceCount",
+        "implementationStartCommit"
+      ],
+      "properties": {
+        "contract": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "predecessorRecord": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/predecessorRecord"
+            },
+            {
+              "properties": {
+                "storyId": {
+                  "const": "8.1"
+                }
+              }
+            }
+          ]
+        },
+        "sources": {
+          "type": "array",
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2,
+          "prefixItems": [
+            {
+              "$ref": "#/$defs/outputFile"
+            },
+            {
+              "$ref": "#/$defs/outputFile"
+            }
+          ]
+        },
+        "outputs": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "schema",
+            "json",
+            "markdown"
+          ],
+          "properties": {
+            "schema": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "json": {
+              "$ref": "#/$defs/outputFile"
+            },
+            "markdown": {
+              "$ref": "#/$defs/outputFile"
+            }
+          }
+        },
+        "testAssembly": {
+          "$ref": "#/$defs/outputFile"
+        },
+        "sourceRevisionId": {
+          "$ref": "#/$defs/commit"
+        },
+        "bindingRule": {
+          "const": "SC-8.2 is HEAD^{commit} at final-record generation"
+        },
+        "predecessorCandidate": {
+          "$ref": "#/$defs/commit"
+        },
+        "inventorySha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "decisionCount": {
+          "const": 52
+        },
+        "acceptanceCount": {
+          "const": 28
+        },
+        "implementationStartCommit": {
+          "$ref": "#/$defs/commit"
+        }
+      }
+    },
+    "uxObservedFault": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "candidateCommit",
+        "expectedBlocker",
+        "observedExitCode",
+        "observedBlockers",
+        "beforeSha256",
+        "mutatedSha256",
+        "afterSha256",
+        "baselineExitCode",
+        "baselineBlockers",
+        "restoredExitCode",
+        "restoredBlockers"
+      ],
+      "properties": {
+        "id": {
+          "enum": [
+            "decision-missing",
+            "decision-duplicate",
+            "decision-unknown",
+            "acceptance-missing",
+            "acceptance-duplicate",
+            "acceptance-unknown",
+            "owner-missing",
+            "hash-missing",
+            "source-changed",
+            "render-changed",
+            "json-order",
+            "markdown-order",
+            "row-activated",
+            "historical-owner",
+            "nonexistent-owner"
+          ]
+        },
+        "candidateCommit": {
+          "$ref": "#/$defs/commit"
+        },
+        "expectedBlocker": {
+          "$ref": "#/$defs/blocker"
+        },
+        "observedExitCode": {
+          "$ref": "#/$defs/exitCode"
+        },
+        "observedBlockers": {
+          "$ref": "#/$defs/blockers"
+        },
+        "beforeSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "mutatedSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "afterSha256": {
+          "$ref": "#/$defs/digest"
+        },
+        "baselineExitCode": {
+          "$ref": "#/$defs/exitCode"
+        },
+        "baselineBlockers": {
+          "$ref": "#/$defs/blockers"
+        },
+        "restoredExitCode": {
+          "$ref": "#/$defs/exitCode"
+        },
+        "restoredBlockers": {
+          "$ref": "#/$defs/blockers"
+        }
+      }
+    },
+    "uxFaultInjection": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "results"
+      ],
+      "properties": {
+        "results": {
+          "type": "array",
+          "minItems": 15,
+          "maxItems": 15,
+          "items": false,
+          "prefixItems": [
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "decision-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "decision-duplicate"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "decision-unknown"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "acceptance-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "acceptance-duplicate"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "acceptance-unknown"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "owner-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "hash-missing"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "source-changed"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "render-changed"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "json-order"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "markdown-order"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "row-activated"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "historical-owner"
+                    }
+                  }
+                }
+              ]
+            },
+            {
+              "allOf": [
+                {
+                  "$ref": "#/$defs/uxObservedFault"
+                },
+                {
+                  "properties": {
+                    "id": {
+                      "const": "nonexistent-owner"
+                    }
+                  }
+                }
+              ]
+            }
+          ]
         }
       }
     }

@@ -93,7 +93,7 @@ development_status:
   epic-7-retrospective: done
   epic-8: in-progress
   8-1-generate-the-versioned-ux-disposition-contract: done
-  8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: backlog
+  8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: in-progress
   epic-8-retrospective: optional
   epic-9: backlog
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: backlog

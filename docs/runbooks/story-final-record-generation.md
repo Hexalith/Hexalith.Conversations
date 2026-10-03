@@ -1225,3 +1225,94 @@ DLLs must carry the candidate or a verified lifecycle-descendant revision;
 restore assets may retain their earlier modification time after a successful
 locked no-op restore. Before a retained successor rerun, rebuild and rerun
 every declared command at the current `HEAD`, then regenerate the record pair.
+
+### Story 8.2 zero-gap preservation validation
+
+Story 8.2 verifies the accepted Story 8.1 bundle read-only. Use the existing
+generator's canonical arguments with `--verify`:
+
+```bash
+python3 _bmad/scripts/generate_ux_preservation_disposition.py \
+  --repository . \
+  --contract _bmad-output/planning-artifacts/v9/story-contracts/8.1.json \
+  --output-schema docs/release-evidence/ux-preservation-disposition-v1.schema.json \
+  --output-json docs/release-evidence/ux-preservation-disposition-v1.json \
+  --output-markdown docs/release-evidence/ux-preservation-disposition-v1.md \
+  --verify
+```
+
+Exit 0 proves the ordered, unique 52-decision/28-acceptance inventories,
+source bindings, owner and historical provenance, non-activation, closed schema,
+canonical derivation, and deterministic JSON/Markdown parity. The verifier
+writes no file. Semantic identity, ownership, hash, activation, and ordering
+failures precede generic schema failures so each isolated fixture has one exact
+blocker.
+
+| Story 8.2 blocker | Exit | Condition |
+| --- | --- | --- |
+| `UX_DECISION_MISSING`, `UX_ACCEPTANCE_MISSING` | `1` | A frozen inventory ID is absent. |
+| `UX_DECISION_DUPLICATE`, `UX_ACCEPTANCE_DUPLICATE` | `1` | An inventory ID appears more than once. |
+| `UX_DECISION_UNKNOWN`, `UX_ACCEPTANCE_UNKNOWN` | `1` | An ID is outside the frozen inventory. |
+| `UX_OWNER_MISSING` | `1` | A row owner is missing or blank. |
+| `UX_HASH_MISSING` | `1` | A source or row source SHA-256 is missing. |
+| `UX_SOURCE_DRIFT` | `1` | Canonical source bytes or their bound hashes drift. |
+| `UX_RENDER_DRIFT` | `1` | Existing output bytes differ from canonical derivation or deterministic Markdown. |
+| `UX_ORDER_DRIFT` | `1` | JSON or Markdown inventory order differs from source order. |
+| `UX_ACTIVATION_UNAUTHORIZED` | `1` | The bundle or a row activates a preserved obligation. |
+| `UX_CURRENT_STORY_INVALID` | `1` | An owner or provenance mapping claims historical or nonexistent current ownership. |
+| `FAULT_NOT_DETECTED` | `1` | A measured baseline/fault property or exact ordered fault set is invalid, absent, duplicated, or fails to observe its sole blocker with exit 1. |
+| `FIXTURE_NOT_RESTORED` | `1` | A mutation made no byte change, restoration hashes differ, restored verification fails, or AC-10 differs from AC-02–09. |
+| `AUTHORITY_BINDING_INVALID` | `1` | Story 8.1's committed pair, candidate ancestry, or recorded source/output digests are incompatible. |
+| `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The implementation-start-to-candidate path set changes protected outputs, UX sources, planning, production, or gitlinks. |
+| `TEST_RESULTS_STALE` | `1` | JUnit properties name another candidate, evidence predates the candidate/build, or measured result digests change. |
+
+The fault selectors execute fifteen isolated mutations covering all thirteen
+required blocker categories, including historical and nonexistent owners and
+both JSON and Markdown ordering. AC-10 repeats the entire matrix. Each testcase
+exports exactly one `story82ObservedFault` JUnit property containing strict JSON:
+`id`, `candidateCommit`, `expectedBlocker`, measured `observedExitCode` and
+`observedBlockers`, `beforeSha256`, `mutatedSha256`, `afterSha256`,
+`baselineExitCode`, `baselineBlockers`, `restoredExitCode`, and `restoredBlockers`.
+The hashes bind sorted fixture paths and exact bytes across authority inputs,
+sources, and the output bundle. Every baseline and restored CLI run must PASS
+with exit 0 and no blockers; each mutation must change bytes and fail with exit
+1 and exactly its expected blocker. Restoration runs in `finally`.
+
+Finish and commit the implementation candidate while both lifecycle states stay
+`in-progress`. Preserve `baseline_commit`. If that baseline precedes the commit
+that added the spec, `implementation_start_commit` identifies the task-entry
+tree separately: the gate derives the unique spec-add commit between baseline
+and candidate and requires it to equal this field. It verifies baseline ≤ start
+≤ candidate ancestry, permits only scoped paths after the start, and requires
+candidate gitlinks to equal the start's gitlinks. The original baseline and its
+inherited dependency changes remain visible; the final record binds the separate
+start in `uxValidation.implementationStartCommit`. With no separate field, the
+scope start falls back to the baseline. Clean-rebuild the conformance project
+for the frozen Release lane:
+
+```bash
+story82_candidate=$(git rev-parse HEAD)
+dotnet build tests/Hexalith.Conversations.Conformance.Tests/Hexalith.Conversations.Conformance.Tests.csproj \
+  --configuration Release -t:Rebuild -m:1 \
+  -p:SourceRevisionId="$story82_candidate"
+```
+
+If needed, use only the documented environment pins `-p:NuGetAudit=false` and
+`-p:MinVerVersionOverride=1.0.0` for first-failure triage. Then run all eleven
+`8.2.json` commands verbatim. AC-01 must execute all six preservation facts
+exactly once, and AC-02–10 must emit current, nonempty, passing JUnit evidence
+without skipped/not-run cases. AC-11 requires `11/11/0/0/0/0` and binds the
+Story 8.2 contract/inventory, candidate, verified Story 8.1 record and candidate,
+disposition/source/output digests, inventory digest, build, scenario results,
+and observed fault ledger in the Story 8.2-only closed `uxValidation` shape.
+Other stories retain their previous record shapes.
+
+Run AC-11 twice and require identical bytes. Commit only its JSON/Markdown pair,
+insert the Markdown verbatim into the spec, and run `--verify-inserted-record`
+with the Story 8.2 contract and spec paths before completing the lifecycle.
+This verification remeasures the UX binding and all declared evidence. Keep
+the exact candidate-stamped build and result bytes for retained reruns; rebuilding
+against a record or lifecycle commit cannot replace `SC-8.2`. A source change
+requires the existing record-only retraction/replacement procedure. The record
+authorizes no product UX activation or release; rollback removes only Story 8.2
+validation, fixtures, results, and its record.

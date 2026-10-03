@@ -20,6 +20,7 @@ from contextlib import redirect_stdout
 from copy import deepcopy
 from importlib import util as importlib_util
 from pathlib import Path
+from xml.etree import ElementTree
 
 import jsonschema
 import pytest
@@ -7829,6 +7830,218 @@ def test_v2_early_generator_requires_immediately_following_python_check() -> Non
     assert not module.v2_early_generator_permitted("8.2", 0, scenarios, contract)
     assert not module.v2_early_generator_permitted("7.4", 1, scenarios, contract)
     assert not module.v2_early_generator_permitted("8.2", 1, scenarios[:-1], contract)
+
+
+
+def _story_8_2_fault_results(tmp_path: Path, module, candidate: str) -> dict:
+    """Create complete measured-property JUnit lanes for parser fault tests."""
+    scenarios = {}
+    for scenario_id, identifiers in module.V2_8_2_FAULT_LANES.items():
+        root = ElementTree.Element("testsuites")
+        suite = ElementTree.SubElement(root, "testsuite", tests=str(len(identifiers)), failures="0", errors="0", skipped="0")
+        for identifier in identifiers:
+            row = {"id": identifier, "candidateCommit": candidate,
+                   "expectedBlocker": module.V2_8_2_REQUIRED_FAULTS[identifier],
+                   "observedExitCode": 1, "observedBlockers": [module.V2_8_2_REQUIRED_FAULTS[identifier]],
+                   "beforeSha256": module.v2_sha256(b"baseline"), "mutatedSha256": module.v2_sha256(identifier.encode()),
+                   "afterSha256": module.v2_sha256(b"baseline"), "baselineExitCode": 0, "baselineBlockers": [],
+                   "restoredExitCode": 0, "restoredBlockers": []}
+            case = ElementTree.SubElement(suite, "testcase", classname="_bmad.scripts.tests.test_generate_ux_preservation_disposition", name=module.v2_8_2_case_name(scenario_id, identifier))
+            properties = ElementTree.SubElement(case, "properties")
+            ElementTree.SubElement(properties, "property", name=module.V2_8_2_FAULT_PROPERTY, value=json.dumps(row))
+        path = f"artifacts/v9/8.2/{scenario_id}.xml"
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        content = ElementTree.tostring(root)
+        target.write_bytes(content)
+        scenarios[scenario_id] = {"resultFile": {"path": path, "sha256": module.v2_sha256(content)}}
+    return scenarios
+
+
+def test_v2_story_8_2_observed_fault_matrix_is_exact_and_restored(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    rows = module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [row["id"] for row in rows] == list(module.V2_8_2_REQUIRED_FAULTS)
+    assert len({row["expectedBlocker"] for row in rows}) == 13
+
+
+@pytest.mark.parametrize("mutation,blocker", [
+    ("property-missing", "FAULT_NOT_DETECTED"), ("property-duplicate", "FAULT_NOT_DETECTED"),
+    ("exit", "FAULT_NOT_DETECTED"), ("blocker", "FAULT_NOT_DETECTED"),
+    ("extra-blocker", "FAULT_NOT_DETECTED"), ("baseline", "FAULT_NOT_DETECTED"),
+    ("candidate", "TEST_RESULTS_STALE"), ("after-hash", "FIXTURE_NOT_RESTORED"),
+    ("unchanged-mutation", "FIXTURE_NOT_RESTORED"), ("restored-exit", "FIXTURE_NOT_RESTORED"),
+    ("rerun-drift", "FIXTURE_NOT_RESTORED"), ("identity", "FAULT_NOT_DETECTED"),
+    ("empty", "TEST_RESULTS_FAILED"), ("skip", "TEST_RESULTS_FAILED"),
+    ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"),
+])
+def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str, blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    scenario_id = "AC-8.2-10" if mutation == "rerun-drift" else "AC-8.2-02"
+    binding = scenarios[scenario_id]["resultFile"]
+    target = tmp_path / binding["path"]
+    root = ElementTree.fromstring(target.read_bytes())
+    suite = root.find("testsuite")
+    case = suite.find("testcase")
+    group = case.find("properties")
+    prop = group.find("property")
+    row = json.loads(prop.get("value"))
+    if mutation == "property-missing": group.remove(prop)
+    elif mutation == "property-duplicate": group.append(deepcopy(prop))
+    elif mutation == "empty": suite.remove(case); suite.set("tests", "0")
+    elif mutation == "skip": ElementTree.SubElement(case, "skipped"); suite.set("skipped", "1")
+    elif mutation == "failed": ElementTree.SubElement(case, "failure"); suite.set("failures", "1")
+    elif mutation == "exit": row["observedExitCode"] = 0
+    elif mutation == "blocker": row["observedBlockers"] = ["UX_ACCEPTANCE_MISSING"]
+    elif mutation == "extra-blocker": row["observedBlockers"].append("UX_ACCEPTANCE_MISSING")
+    elif mutation == "baseline": row["baselineExitCode"] = 1
+    elif mutation == "candidate": row["candidateCommit"] = "b" * 40
+    elif mutation == "after-hash": row["afterSha256"] = "0" * 64
+    elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
+    elif mutation == "restored-exit": row["restoredExitCode"] = 1
+    elif mutation == "rerun-drift": row["mutatedSha256"] = "b" * 64
+    elif mutation == "identity": row["id"] = "decision-duplicate"
+    prop.set("value", json.dumps(row))
+    content = ElementTree.tostring(root)
+    target.write_bytes(content)
+    binding["sha256"] = module.v2_sha256(content)
+    if mutation == "stale":
+        monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"9999999999", b""))
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+
+
+def _story_8_2_binding_fixture(tmp_path: Path, monkeypatch):
+    """Use a root-only shared checkout and snapshot the current candidate input bytes."""
+    module = load_generator()
+    repository = tmp_path / "story82"
+    subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = subprocess.check_output(["git", "-C", str(repository), "rev-parse", "HEAD"], text=True).strip()
+    paths = [module.V2_8_2_SPEC_PATH, "_bmad/scripts/generate_ux_preservation_disposition.py",
+             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+             "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"]
+    snapshots = {}
+    for path in paths:
+        content = (WORKSPACE / path).read_bytes()
+        target = repository / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
+        snapshots[path] = content
+    original = module.v2_committed_blob
+    monkeypatch.setattr(module, "v2_committed_blob", lambda repo, revision, path:
+                        snapshots[path] if revision == candidate and path in snapshots else original(repo, revision, path))
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M" for path in snapshots})
+    assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+    assembly.parent.mkdir(parents=True)
+    assembly.write_bytes(b"1.0.0+" + candidate.encode())
+    _, validators = module.v2_load_schemas()
+    contract = json.loads((repository / module.V2_8_2_CONTRACT_PATH).read_bytes())
+    return module, repository, candidate, contract, validators
+
+
+def test_v2_story_8_2_binds_the_accepted_predecessor_sources_outputs_and_inventory(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    facts = module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert facts["sourceRevisionId"] == candidate
+    assert facts["predecessorRecord"]["sha256"] == module.v2_sha256(_story_8_1_published_pair()[0])
+    assert facts["outputs"]["json"]["sha256"] == module.v2_sha256((repository / module.V2_8_1_DISPOSITION_PATHS[1]).read_bytes())
+    assert facts["decisionCount"] == 52 and facts["acceptanceCount"] == 28
+    disposition = json.loads((repository / module.V2_8_1_DISPOSITION_PATHS[1]).read_bytes())
+    inventories = {"decisions": [row["id"] for row in disposition["decisions"]],
+                   "acceptanceCriteria": [row["id"] for row in disposition["acceptanceCriteria"]]}
+    assert facts["inventorySha256"] == module.v2_sha256(module.v2_render_json(inventories))
+    schema = validators["record"].schema
+    validators["record"].evolve(schema={"$defs": schema["$defs"], "$ref": "#/$defs/uxValidation"}).validate(facts)
+    for field in facts:
+        incomplete = deepcopy(facts); incomplete.pop(field)
+        assert not validators["record"].evolve(schema={"$defs": schema["$defs"], "$ref": "#/$defs/uxValidation"}).is_valid(incomplete)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("predecessor", "AUTHORITY_BINDING_INVALID"), ("source", "UX_SOURCE_DRIFT"),
+    ("output", "UX_RENDER_DRIFT"), ("wrong-build", "TEST_RESULTS_STALE"),
+    ("missing-build", "TEST_RESULTS_MISSING"), ("production", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
+    ("predecessor-binding", "AUTHORITY_BINDING_INVALID"),
+    ("gitlink", "UX_PRODUCTION_CHANGE_FORBIDDEN"),
+])
+def test_v2_story_8_2_rejects_incompatible_bindings(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    if fault == "production": monkeypatch.setattr(module, "committed_path_status", lambda *_: {"src/Injected.cs": "M"})
+    elif fault == "gitlink":
+        original_gitlinks = module.v2_raw_gitlinks
+        calls = []
+        def changed_gitlinks(repo, revision):
+            rows = original_gitlinks(repo, revision)
+            calls.append(revision)
+            return rows + [("references/Injected", "b" * 40)] if len(calls) == 1 else rows
+        monkeypatch.setattr(module, "v2_raw_gitlinks", changed_gitlinks)
+    elif fault == "predecessor-binding": monkeypatch.setattr(module, "is_ancestor", lambda *_: False)
+    elif fault == "wrong-build": (repository / module.V2_8_1_TEST_ASSEMBLY).write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    elif fault == "missing-build": (repository / module.V2_8_1_TEST_ASSEMBLY).unlink()
+    else:
+        path = {"predecessor": module.V2_8_2_PREDECESSOR[1], "source": module.V2_8_1_SOURCES[0],
+                "output": module.V2_8_1_DISPOSITION_PATHS[1]}[fault]
+        target = repository / path
+        target.write_bytes(target.read_bytes() + b"changed")
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+
+
+def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_path: Path, monkeypatch) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    original = module.run_git
+    def no_unique_spec_add(repo, *arguments, **kwargs):
+        if arguments[:3] == ("log", "--no-renames", "--diff-filter=A"):
+            return subprocess.CompletedProcess([], 0, ("b" * 40).encode(), b"")
+        return original(repo, *arguments, **kwargs)
+    monkeypatch.setattr(module, "run_git", no_unique_spec_add)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+
+
+@pytest.mark.parametrize("missing", [False, True])
+def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, monkeypatch, missing: bool) -> None:
+    module = load_generator()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    binary = tmp_path / module.V2_8_1_TEST_ASSEMBLY
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    methods = ["PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+               "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+               "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange"]
+    if missing: methods.pop()
+    prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+    results = "".join(f'<UnitTestResult testName="{prefix}{method}" outcome="Passed" />' for method in methods)
+    count = len(methods)
+    content = (f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{results}</Results>'
+               f'<TestDefinitions><UnitTest><TestMethod codeBase="{module.V2_8_1_TEST_ASSEMBLY}" />'
+               f'</UnitTest></TestDefinitions><ResultSummary><Counters total="{count}" executed="{count}" '
+               f'passed="{count}" failed="0" /></ResultSummary></TestRun>').encode()
+    path = "artifacts/v9/8.2/AC-8.2-01.trx"
+    target = tmp_path / path
+    target.parent.mkdir(parents=True)
+    target.write_bytes(content)
+    command = json.loads((WORKSPACE / module.V2_8_2_CONTRACT_PATH).read_bytes())["scenarios"][0]["command"]
+    scenario = {"command": command, "resultFile": {"path": path, "sha256": module.v2_sha256(content)}}
+    if missing:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_8_2_positive(tmp_path, candidate, scenario)
+        assert [finding["code"] for finding in failure.value.findings] == ["TEST_NOT_RUN"]
+    else:
+        module.v2_8_2_positive(tmp_path, candidate, scenario)
 
 
 if __name__ == "__main__":

@@ -20,6 +20,45 @@ namespace Hexalith.Conversations.Conformance.Tests;
 /// </summary>
 public sealed class UxPreservationDispositionValidationTest
 {
+    /// <summary>
+    /// Proves exact source derivation, rendering, inventory order, and non-activation read-only.
+    /// </summary>
+    [Fact]
+    public void PreservedBundleShouldPassZeroGapVerification()
+    {
+        byte[][] before = new[] { SchemaPath, DispositionPath, MarkdownPath }.Select(ReadBytes).ToArray();
+        ProcessStartInfo start = new("python3")
+        {
+            WorkingDirectory = FindRoot(),
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            UseShellExecute = false,
+        };
+        foreach (string argument in new[]
+        {
+            "_bmad/scripts/generate_ux_preservation_disposition.py", "--repository", ".",
+            "--contract", "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json",
+            "--output-schema", SchemaPath, "--output-json", DispositionPath,
+            "--output-markdown", MarkdownPath, "--verify",
+        })
+        {
+            start.ArgumentList.Add(argument);
+        }
+
+        using Process process = Process.Start(start)!;
+        string output = process.StandardOutput.ReadToEnd();
+        string error = process.StandardError.ReadToEnd();
+        process.WaitForExit();
+        process.ExitCode.ShouldBe(0, error);
+        output.ShouldContain("PASS:");
+        output.ShouldContain("52 decisions, 28 acceptance criteria");
+        string[] paths = [SchemaPath, DispositionPath, MarkdownPath];
+        for (int index = 0; index < paths.Length; index++)
+        {
+            ReadBytes(paths[index]).ShouldBe(before[index]);
+        }
+    }
+
     private const string DispositionPath = "docs/release-evidence/ux-preservation-disposition-v1.json";
     private const string MarkdownPath = "docs/release-evidence/ux-preservation-disposition-v1.md";
     private const string SchemaPath = "docs/release-evidence/ux-preservation-disposition-v1.schema.json";

@@ -2782,6 +2782,35 @@ V2_8_1_ALLOWED_PATHS = frozenset({
     "docs/release-evidence/story-8.1-final-record-v2.json",
     "docs/release-evidence/story-8.1-final-record-v2.md",
 })
+V2_8_2_CONTRACT_PATH = "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json"
+V2_8_2_SPEC_PATH = "_bmad-output/implementation-artifacts/spec-8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator.md"
+V2_8_2_PREDECESSOR = ("8.1", "docs/release-evidence/story-8.1-final-record-v2.json",
+                      "docs/release-evidence/story-8.1-final-record-v2.md")
+V2_8_2_ALLOWED_PATHS = (V2_8_1_ALLOWED_PATHS - {
+    V2_8_1_SPEC_PATH, *V2_8_1_DISPOSITION_PATHS, V2_8_2_PREDECESSOR[1], V2_8_2_PREDECESSOR[2],
+    "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
+}) | {V2_8_2_SPEC_PATH, "docs/release-evidence/story-8.2-final-record-v2.json",
+      "docs/release-evidence/story-8.2-final-record-v2.md"}
+V2_8_2_FAULT_PROPERTY = "story82ObservedFault"
+V2_8_2_REQUIRED_FAULTS = {
+    "decision-missing": "UX_DECISION_MISSING", "decision-duplicate": "UX_DECISION_DUPLICATE",
+    "decision-unknown": "UX_DECISION_UNKNOWN", "acceptance-missing": "UX_ACCEPTANCE_MISSING",
+    "acceptance-duplicate": "UX_ACCEPTANCE_DUPLICATE", "acceptance-unknown": "UX_ACCEPTANCE_UNKNOWN",
+    "owner-missing": "UX_OWNER_MISSING", "hash-missing": "UX_HASH_MISSING",
+    "source-changed": "UX_SOURCE_DRIFT", "render-changed": "UX_RENDER_DRIFT",
+    "json-order": "UX_ORDER_DRIFT", "markdown-order": "UX_ORDER_DRIFT",
+    "row-activated": "UX_ACTIVATION_UNAUTHORIZED", "historical-owner": "UX_CURRENT_STORY_INVALID",
+    "nonexistent-owner": "UX_CURRENT_STORY_INVALID",
+}
+V2_8_2_FAULT_LANES = {
+    "AC-8.2-02": ["decision-missing"], "AC-8.2-03": ["decision-duplicate"],
+    "AC-8.2-04": ["decision-unknown"],
+    "AC-8.2-05": ["acceptance-missing", "acceptance-duplicate", "acceptance-unknown"],
+    "AC-8.2-06": ["owner-missing", "hash-missing"], "AC-8.2-07": ["source-changed"],
+    "AC-8.2-08": ["render-changed", "json-order", "markdown-order"],
+    "AC-8.2-09": ["row-activated", "historical-owner", "nonexistent-owner"],
+    "AC-8.2-10": list(V2_8_2_REQUIRED_FAULTS),
+}
 V2_HISTORY_FIXTURE_PATH = "_bmad/scripts/fixtures/story-7.4-history-v1.json"
 V2_HISTORY_OUTPUT_PATH = "artifacts/v9/7.4/AC-7.4-01.json"
 V2_HISTORY_ANCHORS = (
@@ -4280,9 +4309,21 @@ def v2_render_markdown(record: dict[str, Any], json_digest: str) -> str:
         lines.extend(f"| Source | {code(row['path'])} | {code(row['sha256'])} |" for row in ux["sources"])
         lines.extend(f"| {code(role)} | {code(row['path'])} | {code(row['sha256'])} |"
                      for role, row in ux["outputs"].items())
+    if "uxValidation" in record:
+        ux = record["uxValidation"]
+        lines.extend(["", "## Story 8.2 zero-gap UX validation", "",
+                      f"- Candidate: {code(ux['sourceRevisionId'])}",
+                      f"- Story 8.1 candidate: {code(ux['predecessorCandidate'])}",
+                      f"- Story 8.1 record SHA-256: {code(ux['predecessorRecord']['sha256'])}",
+                      f"- Inventory SHA-256: {code(ux['inventorySha256'])}",
+                      "- Preserved decisions: 52; acceptance criteria: 28; no activation authorized.",
+                      "", "| Binding | Path | SHA-256 |", "| --- | --- | --- |"])
+        lines.extend(f"| Source | {code(row['path'])} | {code(row['sha256'])} |" for row in ux["sources"])
+        lines.extend(f"| {code(role)} | {code(row['path'])} | {code(row['sha256'])} |"
+                     for role, row in ux["outputs"].items())
     lines.extend(["", "## Fault injection", ""])
     faults = record["faultInjection"]["results"]
-    if faults and record["storyId"] == "7.4":
+    if faults and record["storyId"] in ("7.4", "8.2"):
         lines.extend(["| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |",
                       "| --- | --- | --- | --- | --- | --- |"])
         lines.extend("| " + " | ".join(code(value) for value in (
@@ -4496,6 +4537,15 @@ def v2_self_ledger(scenario_id: str, story_id: str | None = None) -> list[dict[s
             "generator::story-7.4-predecessor-pair-verified",
             "generator::five-exact-xunit-selectors-passed",
             "generator::candidate-build-and-production-scope-bound",
+        )
+    if story_id == "8.2":
+        subjects += (
+            "generator::ordered-unique-52-decisions-and-28-acceptance-ids",
+            "generator::story-8.1-pair-candidate-and-disposition-compatible",
+            "generator::source-output-and-inventory-digests-bound",
+            "generator::all-thirteen-fault-categories-measured",
+            "generator::all-fifteen-fixtures-restored-with-pass-and-matching-hashes",
+            "generator::candidate-stamped-nonempty-results",
         )
     return [
         {"id": f"{scenario_id}#{ordinal:04d}", "subject": subject, "state": "PASS"}
@@ -6250,6 +6300,178 @@ def v2_ux_scenario_from_results(repository: Path, scenario: dict[str, Any], comm
     return record, "failed" if findings else "passed", findings
 
 
+def v2_8_2_facts(repository: Path, candidate: str, contract: dict[str, Any], validator: Any) -> dict[str, Any]:
+    """Bind Story 8.2 to committed preservation inputs and a compatible accepted predecessor."""
+    def stop(code: str, subject: str) -> NoReturn:
+        raise V2Stop([v2_finding(code, subject, "Story 8.2 zero-gap binding failed")], "8.2")
+
+    def committed_input(path: str, code: str) -> bytes:
+        blob = v2_committed_blob(repository, candidate, path)
+        installed = repository / path
+        if blob is None or not installed.is_file() or installed.is_symlink() or installed.read_bytes() != blob:
+            stop(code, path)
+        return blob
+
+    predecessor_id, predecessor_path, predecessor_markdown = V2_8_2_PREDECESSOR
+    predecessor_digest = v2_verified_predecessor(repository, candidate, predecessor_id,
+                                                 predecessor_path, predecessor_markdown, validator)
+    if predecessor_digest is None:
+        stop("AUTHORITY_BINDING_INVALID", predecessor_path)
+    predecessor = v2_parse_json(committed_input(predecessor_path, "AUTHORITY_BINDING_INVALID"))
+    committed_input(predecessor_markdown, "AUTHORITY_BINDING_INVALID")
+    predecessor_candidate = predecessor["candidate"]["commit"]
+    if not is_ancestor(repository, predecessor_candidate, candidate) or predecessor_candidate == candidate:
+        stop("AUTHORITY_BINDING_INVALID", "predecessor candidate")
+    if predecessor["summary"] != {"required": 7, "passed": 7, "failed": 0, "blocked": 0, "skipped": 0, "notRun": 0}:
+        stop("AUTHORITY_BINDING_INVALID", "predecessor summary")
+    spec = v2_committed_blob(repository, candidate, V2_8_2_SPEC_PATH)
+    if spec is None:
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_2_SPEC_PATH)
+    try:
+        frontmatter = parse_frontmatter(spec.decode())
+        baseline = frontmatter_scalar(frontmatter, "baseline_commit")
+        baseline = try_resolve_commit(repository, baseline) if baseline else None
+        scope_start_value = frontmatter_scalar(frontmatter, "implementation_start_commit")
+        scope_start = try_resolve_commit(repository, scope_start_value) if scope_start_value else baseline
+    except (UnicodeError, GateError):
+        baseline = None
+        scope_start = None
+    if (baseline is None or scope_start is None or not is_ancestor(repository, baseline, scope_start)
+            or not is_ancestor(repository, scope_start, candidate)):
+        stop("BASELINE_NOT_TRUSTWORTHY", V2_8_2_SPEC_PATH)
+    if scope_start != baseline:
+        additions = decode(run_git(repository, "log", "--no-renames", "--diff-filter=A", "--format=%H",
+                                   f"{baseline}..{candidate}", "--", V2_8_2_SPEC_PATH).stdout).split()
+        if additions != [scope_start]:
+            stop("BASELINE_NOT_TRUSTWORTHY", "implementation_start_commit")
+    if any(path not in V2_8_2_ALLOWED_PATHS for path in committed_path_status(repository, scope_start, candidate)):
+        stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate")
+    if v2_raw_gitlinks(repository, candidate) != v2_raw_gitlinks(repository, scope_start):
+        stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate gitlinks")
+    committed_input(V2_8_2_CONTRACT_PATH, "AUTHORITY_BINDING_INVALID")
+    committed_input(V2_8_1_CONTRACT_PATH, "AUTHORITY_BINDING_INVALID")
+    committed_input(V2_AUTHORITY_BUNDLE_PATH, "AUTHORITY_BINDING_INVALID")
+    for path in ("_bmad/scripts/generate_ux_preservation_disposition.py",
+                 "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py",
+                 "tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs"):
+        committed_input(path, "TEST_RESULTS_STALE")
+    sources = [{"path": path, "sha256": v2_sha256(committed_input(path, "UX_SOURCE_DRIFT"))}
+               for path in V2_8_1_SOURCES]
+    outputs = {role: {"path": path, "sha256": v2_sha256(committed_input(path, "UX_RENDER_DRIFT"))}
+               for role, path in zip(("schema", "json", "markdown"), V2_8_1_DISPOSITION_PATHS)}
+    prior_binding = predecessor.get("uxDisposition", {})
+    if prior_binding.get("sources") != sources or prior_binding.get("outputs") != outputs:
+        stop("AUTHORITY_BINDING_INVALID", "predecessor disposition")
+    for row in [*sources, *outputs.values()]:
+        blob = v2_committed_blob(repository, predecessor_candidate, row["path"])
+        if blob is None or v2_sha256(blob) != row["sha256"]:
+            stop("AUTHORITY_BINDING_INVALID", row["path"])
+    module_spec = importlib_util.spec_from_file_location("story82_ux_verifier", Path(__file__).with_name("generate_ux_preservation_disposition.py"))
+    ux_module = importlib_util.module_from_spec(module_spec)
+    module_spec.loader.exec_module(ux_module)
+    try:
+        disposition = ux_module.verify(repository)
+    except ux_module.DispositionError as error:
+        stop(error.code, "disposition")
+    inventories = {"decisions": [row["id"] for row in disposition["decisions"]],
+                   "acceptanceCriteria": [row["id"] for row in disposition["acceptanceCriteria"]]}
+    inventory_digest = v2_sha256(v2_render_json(inventories))
+    assembly = repository / V2_8_1_TEST_ASSEMBLY
+    if not assembly.is_file() or assembly.is_symlink():
+        stop("TEST_RESULTS_MISSING", V2_8_1_TEST_ASSEMBLY)
+    binary, modified = read_file_snapshot(assembly)
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    if modified < candidate_ns or dotnet_source_revisions(binary) != [candidate]:
+        stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY)
+    return {"bindingRule": "SC-8.2 is HEAD^{commit} at final-record generation",
+            "implementationStartCommit": scope_start,
+            "contract": {"path": V2_8_2_CONTRACT_PATH, "sha256": v2_sha256(v2_committed_blob(repository, candidate, V2_8_2_CONTRACT_PATH))},
+            "predecessorRecord": {"storyId": "8.1", "path": predecessor_path, "sha256": predecessor_digest},
+            "predecessorCandidate": predecessor_candidate, "sources": sources, "outputs": outputs,
+            "inventorySha256": inventory_digest, "decisionCount": 52, "acceptanceCount": 28,
+            "testAssembly": {"path": V2_8_1_TEST_ASSEMBLY, "sha256": v2_sha256(binary)},
+            "sourceRevisionId": candidate}
+
+
+def v2_8_2_faults(repository: Path, candidate: str, scenarios: dict[str, dict[str, Any]], validator: Any) -> list[dict[str, Any]]:
+    """Consume measured, candidate-stamped exact faults and their restoration rerun."""
+    observed_validator = validator.evolve(schema={"$defs": validator.schema["$defs"], "$ref": "#/$defs/uxObservedFault"})
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    lanes = {}
+    for scenario_id, expected in V2_8_2_FAULT_LANES.items():
+        binding = scenarios[scenario_id]["resultFile"]
+        content, modified = read_file_snapshot(repository / binding["path"])
+        if v2_sha256(content) != binding["sha256"] or modified < candidate_ns:
+            raise V2Stop([v2_finding("TEST_RESULTS_STALE", scenario_id, "JUnit bytes changed after measurement")], "8.2")
+        parsed = v2_parse_junit(content)
+        if (parsed["reported"] != {"tests": len(parsed["cases"]), "failures": 0, "errors": 0, "skipped": 0}
+                or not parsed["cases"] or any(case["failure"] or case["error"] or case["skipped"] for case in parsed["cases"])):
+            raise V2Stop([v2_finding("TEST_RESULTS_FAILED", scenario_id, "fault evidence is empty, failed, skipped, or has inconsistent counters")], "8.2")
+        rows = []
+        for case in parsed["cases"]:
+            metadata = [value for name, value in case["properties"] if name == V2_8_2_FAULT_PROPERTY]
+            try:
+                row = v2_parse_json(metadata[0].encode()) if len(metadata) == 1 else None
+                valid = isinstance(row, dict) and not v2_schema_errors(observed_validator, row)
+            except (ValueError, UnicodeError):
+                valid = False
+            if not valid:
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id, "exactly one measured fault property is required per executed case")], "8.2")
+            if (case["classname"] != "_bmad.scripts.tests.test_generate_ux_preservation_disposition"
+                    or case["name"] != v2_8_2_case_name(scenario_id, row["id"])):
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id, "fault metadata does not identify its exact executed testcase")], "8.2")
+            if row["candidateCommit"] != candidate:
+                raise V2Stop([v2_finding("TEST_RESULTS_STALE", scenario_id, "fault evidence names another candidate")], "8.2")
+            if (row["expectedBlocker"] != V2_8_2_REQUIRED_FAULTS.get(row["id"])
+                    or row["observedBlockers"] != [row["expectedBlocker"]] or row["observedExitCode"] != 1
+                    or row["baselineExitCode"] != 0 or row["baselineBlockers"]):
+                raise V2Stop([v2_finding("FAULT_NOT_DETECTED", row["id"], "the mutation did not measure baseline PASS and its sole exact blocker with exit 1")], "8.2")
+            if (row["beforeSha256"] != row["afterSha256"] or row["beforeSha256"] == row["mutatedSha256"]
+                    or row["restoredExitCode"] != 0 or row["restoredBlockers"]):
+                raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", row["id"], "fixture restoration or restored PASS differs")], "8.2")
+            rows.append(row)
+        if [row["id"] for row in rows] != expected:
+            raise V2Stop([v2_finding("FAULT_NOT_DETECTED", scenario_id, "the exact ordered fault set is missing, duplicated, unknown, or reordered")], "8.2")
+        lanes[scenario_id] = rows
+    mutations = [row for scenario_id, rows in lanes.items() if scenario_id != "AC-8.2-10" for row in rows]
+    if mutations != lanes["AC-8.2-10"]:
+        raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", "AC-8.2-10", "restoration matrix differs from measured mutation lanes")], "8.2")
+    return mutations
+
+
+def v2_8_2_case_name(scenario_id: str, identifier: str) -> str:
+    """Return the frozen selector's sole test name or exact parameter identity."""
+    selectors = {"AC-8.2-02": "missing_decision", "AC-8.2-03": "duplicate_decision",
+                 "AC-8.2-04": "unknown_decision", "AC-8.2-05": "acceptance_identity_faults",
+                 "AC-8.2-06": "ownership_and_hash_faults", "AC-8.2-07": "source_drift",
+                 "AC-8.2-08": "rendering_and_order_drift", "AC-8.2-09": "activation_and_story_binding_faults",
+                 "AC-8.2-10": "fixtures_restore_byte_identically"}
+    suffix = "" if scenario_id in ("AC-8.2-02", "AC-8.2-03", "AC-8.2-04", "AC-8.2-07") else f"[{identifier}]"
+    return f"test_{selectors[scenario_id]}{suffix}"
+
+
+def v2_8_2_positive(repository: Path, candidate: str, scenario: dict[str, Any]) -> None:
+    """Require the six complete preservation facts in current candidate-stamped TRX."""
+    command = v2_successor_command(shlex.split(scenario["command"]), V2_8_2_CONTRACT_PATH)
+    binding = scenario["resultFile"]
+    content = (repository / binding["path"]).read_bytes()
+    if binding["path"] != command["output"] or v2_sha256(content) != binding["sha256"]:
+        raise V2Stop([v2_finding("TEST_RESULTS_STALE", "AC-8.2-01", "the positive result differs from its measured binding")], "8.2")
+    scenario_contract = {"id": "AC-8.2-01", "command": scenario["command"]}
+    candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    _, _, findings = v2_successor_scenario_from_results(repository, scenario_contract, command, candidate, candidate_ns, [])
+    if findings:
+        raise V2Stop(findings, "8.2")
+    prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+    expected = {prefix + name for name in (
+        "PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+        "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+        "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange")}
+    rows = parse_trx(content)["results"]
+    if len(rows) != len(expected) or {row["test"] for row in rows} != expected:
+        raise V2Stop([v2_finding("TEST_NOT_RUN", "AC-8.2-01", "the TRX must execute all six preservation facts exactly once")], "8.2")
+
+
 def v2_generate(options: dict[str, str]) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
@@ -6662,6 +6884,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
         )
     if story_id == "8.1":
         record["uxDisposition"] = ux_facts
+    if story_id == "8.2":
+        v2_8_2_positive(repository, candidate, scenario_records["AC-8.2-01"])
+        record["uxValidation"] = v2_8_2_facts(repository, candidate, contract, validators["record"])
+        record["faultInjection"]["results"] = v2_8_2_faults(repository, candidate, scenario_records, validators["record"])
     if summary != contract["finalRecord"]["summary"]:
         raise V2Stop(
             [
@@ -6921,6 +7147,13 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             "the inserted record region differs from the committed Markdown and its "
             "renderedMarkdownSha256",
         )
+    if story_id == "8.2":
+        if record["uxValidation"] != v2_8_2_facts(repository, candidate, contract, validators["record"]):
+            drift("uxValidation", "the inserted record's UX bindings differ from committed measurements")
+        scenarios = {row["scenarioId"]: row for row in record["scenarios"]}
+        v2_8_2_positive(repository, candidate, scenarios["AC-8.2-01"])
+        if record["faultInjection"]["results"] != v2_8_2_faults(repository, candidate, scenarios, validators["record"]):
+            drift("faultInjection", "the inserted record's observed faults differ from scenario evidence")
     return json_bytes
 
 
