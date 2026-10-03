@@ -56,7 +56,7 @@ context:
 - [x] `tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs` — prove rendering and zero-gap parity through the verifier; retain Story 8.1 checks.
 - [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` — add an 8.2-only closed UX binding and observed ledger. Verify predecessor pair/candidate compatibility, committed inputs/inventories, exact faults, measured exit/blockers, restoration parity, and stamped nonempty results. Reject missing/stale/failed/empty evidence and altered bindings; preserve other stories.
 - [x] `docs/runbooks/story-final-record-generation.md` — document verification, Story 8.2 blockers, result properties, and candidate/build prerequisites.
-- [ ] `docs/release-evidence/story-8.2-final-record-v2.json`, `docs/release-evidence/story-8.2-final-record-v2.md`, this spec, `_bmad-output/implementation-artifacts/sprint-status.yaml` — run acceptance commands; generate, insert, and verify the record before done.
+- [x] `docs/release-evidence/story-8.2-final-record-v2.json`, `docs/release-evidence/story-8.2-final-record-v2.md`, this spec, `_bmad-output/implementation-artifacts/sprint-status.yaml` — run acceptance commands; generate, insert, and verify the record before done.
 
 **Acceptance Criteria:**
 
@@ -71,7 +71,7 @@ Review 2 (2026-10-03; baseline `8f2594d`; reviewed the full `8f2594d..d562ade` d
 
 - [x] [Review][Decision] Spec-add commit sits outside the Story 8.2 scope guard, and its four gitlink moves are neither checked nor disclosed — resolved (acknowledge, 2026-10-03): the four moves are the owner's own pushed gitlink bumps, the guard already proves the implementation moved no gitlink, and Implementation Notes now state what the record binds; no code change. `v2_8_2_facts` starts both `committed_path_status` and the gitlink equality at the spec-add commit `f415298`, so that commit's own changes are never examined. It moves `references/Hexalith.Folders` `a20127c→92da4b0`, `Parties` `937cb2a→5388884`, `Projects` `049d24f→0f03582`, and `Tenants` `bfc10cb→c0afce2`. The record names neither `baseline_commit` `8f2594d` nor this delta, although Implementation Notes say "the final record retains the full planning-baseline delta". [_bmad/scripts/generate_story_record.py:6366] (B1, B2, E3, A2, A3)
 - [ ] [Review][Patch] The new CI-run conformance fact cannot pass in the CI checkout — resolved from decision (publish a tag, 2026-10-03): push `ba1b476` to `refs/tags/evidence/story-7.4-candidate` on origin, which CI's checkout fetches with every other tag, then confirm on the first CI run that both lanes find it and that the conformance job's `python3` imports `jsonschema`. `PreservedBundleShouldPassZeroGapVerification` runs `verify()`, whose `generate()` reads sources at the Story 7.4 candidate `ba1b476`. No ref on origin reaches that commit (the backup branch is gone), and a main-only clone exits `1` with `UX_SOURCE_UNBOUND` (reproduced). `ci / conformance` does not exclude this class. The same missing object already fails 15 `ci / repository` tests since `f415298`, and the new real-Git pytest will join them. Whether the conformance job's unprovisioned system `python3` has `jsonschema` remains unverified. [tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs:27] (B3, E10, V7)
-- [ ] [Review][Patch] The accepted-evidence archive that the runbook requires was never made — resolved from decision (archive at the replacement candidate, 2026-10-03): once the new pair is accepted, copy the Release output directory and the ten receipts with preserved modification times to `~/hexalith-evidence/conversations/story-8.2/<sourceRevisionId>/`, with a SHA-256 manifest, and verify it against the record. the runbook requires archiving the Release output, the ten receipts, and a manifest under `uxValidation.sourceRevisionId`, outside the working tree. No archive exists, and both locations are gitignored, so the next conformance build overwrites the bound DLL (`34bfb89e…`) and the record can no longer be reverified. [docs/runbooks/story-final-record-generation.md:1322] (B12)
+- [x] [Review][Patch] The accepted-evidence archive that the runbook requires was never made — resolved from decision (archive at the replacement candidate, 2026-10-03): once the new pair is accepted, copy the Release output directory and the ten receipts with preserved modification times to `~/hexalith-evidence/conversations/story-8.2/<sourceRevisionId>/`, with a SHA-256 manifest, and verify it against the record. the runbook requires archiving the Release output, the ten receipts, and a manifest under `uxValidation.sourceRevisionId`, outside the working tree. No archive exists, and both locations are gitignored, so the next conformance build overwrites the bound DLL (`34bfb89e…`) and the record can no longer be reverified. [docs/runbooks/story-final-record-generation.md:1322] (B12)
 - [x] [Review][Patch] Story 8.2 CLI integration test fails on every clean checkout — it clones `HEAD` and commits workspace copies that already equal `HEAD`, so `git commit` exits `1` (reproduced: 1 failed, 46 passed). With dirt it would stop at `CANDIDATE_NOT_FINAL`, because `HEAD` now carries the 8.2 pair and the done spec. It is the only coverage of the `verify_spec` rederivation and the 8.2 record wiring; `ci / repository` turns red, and the Verification "no failures" claim does not hold. Build the fixture from `implementation_start_commit` with the candidate implementation files overlaid [_bmad/scripts/tests/test_generate_story_record.py:8134] (E1, V1, A1)
 - [x] [Review][Patch] Story 8.2 record-schema conditional is untested — add a published-pair test modeled on the Story 8.1 one, rejecting a record without `uxValidation`, a truncated or reordered `faultInjection.results`, and a non-8.2 record carrying `uxValidation` [_bmad/schemas/story-final-record-v2.schema.json:328] (V2)
 - [x] [Review][Patch] Story 8.1 disposition-compatibility check is untested — add a `predecessor-disposition` case where committed and installed bytes agree but differ from `predecessor.uxDisposition`, expecting `AUTHORITY_BINDING_INVALID` [_bmad/scripts/generate_story_record.py:6381] (V3)
@@ -168,3 +168,253 @@ Isolated mutation checks proved the new tests fail when canonical equality
 - Run all eleven contract commands verbatim; first build conformance with the required candidate stamp for its Release acceptance lane.
 - Run `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py _bmad/scripts/tests/test_generate_story_record.py`; require no failures or skips.
 - Pass completion and `--verify-inserted-record` gates; independently probe every new blocker and confirm protected bytes remain identical.
+
+<!-- STORY-FINAL-RECORD:BEGIN -->
+# Story 8.2 Final Record
+
+<!-- hexalith.conversations.story-final-record.v2 markdown projection -->
+
+Generated by `_bmad/scripts/generate_story_record.py` from the committed candidate and measured scenario results. The JSON record is authoritative; this rendering is bound to it by digest.
+
+- Schema: `hexalith.conversations.story-final-record.v2`
+- Result: `PASS`
+- Story: `8.2`
+- Candidate: `93e53b2091099f768369f7a4c4d812de2fc837d2`
+- JSON content SHA-256 (all three digest fields zeroed): `f7305c10c1f54a32b2faff2de5bf961d7364bd393a12ad96088d3c7da5f3583f`
+
+## Authority
+
+| Field | Value |
+| --- | --- |
+| Epic | `epic-6-authority-2026-08-03-v10` |
+| Architecture | `conversations-architecture-2026-08-03-v10` |
+| Planning candidate | `1e9a61126d3b7a55b514b7c7c8942d5af03355e5` |
+| Bundle digest | `159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055` |
+
+## Root gitlinks
+
+| Path | Mode | Commit |
+| --- | --- | --- |
+| `references/Hexalith.AI.Tools` | `160000` | `3f194e17174994d308ec84af9ee2b5aa68674d0d` |
+| `references/Hexalith.Builds` | `160000` | `688eec9a4333245cc0ff7772115c769094471863` |
+| `references/Hexalith.Commons` | `160000` | `116d26815eb81e35b3c161e1799e5ee12805fc0a` |
+| `references/Hexalith.EventStore` | `160000` | `2c58ffda41759e895ace4b9625c9bd931a217672` |
+| `references/Hexalith.Folders` | `160000` | `92da4b01352448cb06296776097e2da4383d9340` |
+| `references/Hexalith.FrontComposer` | `160000` | `bf40099f81fcaeac324b7b4377513ac7d49cead4` |
+| `references/Hexalith.Memories` | `160000` | `42995692634af9ba35982ec0e1aedec4f5576e71` |
+| `references/Hexalith.Parties` | `160000` | `5388884eec84b16545fdc008b2fc04547b0ed5b6` |
+| `references/Hexalith.Projects` | `160000` | `0f03582b3457a6d9212d60e2f9146a6043af5f7e` |
+| `references/Hexalith.Tenants` | `160000` | `c0afce2e9704efa6a8c5ebe8d275a8b987141c8b` |
+
+## Inventory
+
+| Inventory | SHA-256 |
+| --- | --- |
+| `V9-8.2-ENTRY-v1` | `d07cee1556fa039169ca2cfa6cfecbd123909b9da56ea729866c7a0591fd26e6` |
+
+## Predecessors
+
+- `8.1`
+
+## Scenarios
+
+| Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
+| --- | --- | --- | --- | --- | --- | --- |
+| `AC-8.2-01` | `0` | `PASS` | `none` | `6` | `artifacts/v9/8.2/AC-8.2-01.trx` | `5782ca1f2f7d610eec34f51ec3eec6786198cd421c22a5feb7a0af98cc45b214` |
+| `AC-8.2-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-02.xml` | `e67779f2942b0666d514bcf26838ca4179105c0bdc13069a46c369f378ee6e5a` |
+| `AC-8.2-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-03.xml` | `e02be7c18cc97decfa8bce5176977cdea3211e45e0c2e0f47308baee9ac3058f` |
+| `AC-8.2-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-04.xml` | `6d8a15ead1f5dcf5c5b16c1bb6c12e8a633b8a0a61e9d52f55fd8000ef019bed` |
+| `AC-8.2-05` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-05.xml` | `34b8b2bb853d00eecf3a27acbd70db2dc673243476963df2c8605096a1ddf6a1` |
+| `AC-8.2-06` | `0` | `PASS` | `none` | `2` | `artifacts/v9/8.2/AC-8.2-06.xml` | `5ef5f225f1968389ae69dc2a36a8a451e98fed1dbf77fe79eec5ebba6005cbf2` |
+| `AC-8.2-07` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-07.xml` | `0a91e1a402dc122fac3f4144ce3f66d6f2236f4b9174a23ac99c3de88044c471` |
+| `AC-8.2-08` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-08.xml` | `d4d7fc88b08d8d4c7126b6bdbc7c4d6454ffd16cdba5d91021cc0fe66ba9605b` |
+| `AC-8.2-09` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-09.xml` | `bc99ae9142558b76c98438bca8c51850fe2072a078bd70509a2f1e97cefe477e` |
+| `AC-8.2-10` | `0` | `PASS` | `none` | `15` | `artifacts/v9/8.2/AC-8.2-10.xml` | `e047b0a1fca4fc8211e874f6045e067c5cd27f1bceea435bbd2036b8ebb7dd9b` |
+| `AC-8.2-11` | `0` | `PASS` | `none` | `15` | none | none |
+
+### `AC-8.2-01`
+
+Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest -trx artifacts/v9/8.2/AC-8.2-01.trx`
+
+| Bound output | SHA-256 |
+| --- | --- |
+| `artifacts/v9/8.2/AC-8.2-01.trx` | `5782ca1f2f7d610eec34f51ec3eec6786198cd421c22a5feb7a0af98cc45b214` |
+| `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll` | `20f30e435e70aa56b201f1e61acf3e79fb33f8230f6d5c49b63362759927d678` |
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-01#0001` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.PreservedBundleShouldPassZeroGapVerification` | `PASS` |
+| `AC-8.2-01#0002` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory` | `PASS` |
+| `AC-8.2-01#0003` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory` | `PASS` |
+| `AC-8.2-01#0004` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes` | `PASS` |
+| `AC-8.2-01#0005` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical` | `PASS` |
+| `AC-8.2-01#0006` | `Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange` | `PASS` |
+
+### `AC-8.2-02`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k missing_decision --junitxml=artifacts/v9/8.2/AC-8.2-02.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-02#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_missing_decision` | `PASS` |
+
+### `AC-8.2-03`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k duplicate_decision --junitxml=artifacts/v9/8.2/AC-8.2-03.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-03#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_duplicate_decision` | `PASS` |
+
+### `AC-8.2-04`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k unknown_decision --junitxml=artifacts/v9/8.2/AC-8.2-04.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-04#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_unknown_decision` | `PASS` |
+
+### `AC-8.2-05`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k acceptance_identity_faults --junitxml=artifacts/v9/8.2/AC-8.2-05.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-05#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-missing]` | `PASS` |
+| `AC-8.2-05#0002` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-duplicate]` | `PASS` |
+| `AC-8.2-05#0003` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-unknown]` | `PASS` |
+
+### `AC-8.2-06`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k ownership_and_hash_faults --junitxml=artifacts/v9/8.2/AC-8.2-06.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-06#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_ownership_and_hash_faults[owner-missing]` | `PASS` |
+| `AC-8.2-06#0002` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_ownership_and_hash_faults[hash-missing]` | `PASS` |
+
+### `AC-8.2-07`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k source_drift --junitxml=artifacts/v9/8.2/AC-8.2-07.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-07#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_source_drift` | `PASS` |
+
+### `AC-8.2-08`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k rendering_and_order_drift --junitxml=artifacts/v9/8.2/AC-8.2-08.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-08#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[render-changed]` | `PASS` |
+| `AC-8.2-08#0002` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[json-order]` | `PASS` |
+| `AC-8.2-08#0003` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[markdown-order]` | `PASS` |
+
+### `AC-8.2-09`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k activation_and_story_binding_faults --junitxml=artifacts/v9/8.2/AC-8.2-09.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-09#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[row-activated]` | `PASS` |
+| `AC-8.2-09#0002` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[historical-owner]` | `PASS` |
+| `AC-8.2-09#0003` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[nonexistent-owner]` | `PASS` |
+
+### `AC-8.2-10`
+
+Command: `python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k fixtures_restore_byte_identically --junitxml=artifacts/v9/8.2/AC-8.2-10.xml`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-10#0001` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-missing]` | `PASS` |
+| `AC-8.2-10#0002` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-duplicate]` | `PASS` |
+| `AC-8.2-10#0003` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-unknown]` | `PASS` |
+| `AC-8.2-10#0004` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-missing]` | `PASS` |
+| `AC-8.2-10#0005` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-duplicate]` | `PASS` |
+| `AC-8.2-10#0006` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-unknown]` | `PASS` |
+| `AC-8.2-10#0007` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[owner-missing]` | `PASS` |
+| `AC-8.2-10#0008` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[hash-missing]` | `PASS` |
+| `AC-8.2-10#0009` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[source-changed]` | `PASS` |
+| `AC-8.2-10#0010` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[render-changed]` | `PASS` |
+| `AC-8.2-10#0011` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[json-order]` | `PASS` |
+| `AC-8.2-10#0012` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[markdown-order]` | `PASS` |
+| `AC-8.2-10#0013` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[row-activated]` | `PASS` |
+| `AC-8.2-10#0014` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[historical-owner]` | `PASS` |
+| `AC-8.2-10#0015` | `_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[nonexistent-owner]` | `PASS` |
+
+### `AC-8.2-11`
+
+Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.2.json --format bundle --output-json docs/release-evidence/story-8.2-final-record-v2.json --output-markdown docs/release-evidence/story-8.2-final-record-v2.md`
+
+| Assertion | Subject | State |
+| --- | --- | --- |
+| `AC-8.2-11#0001` | `generator::contract-schema-and-identity` | `PASS` |
+| `AC-8.2-11#0002` | `generator::authority-bundle-digest-recomputed` | `PASS` |
+| `AC-8.2-11#0003` | `generator::raw-gitlinks-equal-root-gitmodules` | `PASS` |
+| `AC-8.2-11#0004` | `generator::committed-candidate-worktree-clean` | `PASS` |
+| `AC-8.2-11#0005` | `generator::predecessor-scenarios-pass-with-ledgers` | `PASS` |
+| `AC-8.2-11#0006` | `generator::declared-output-paths` | `PASS` |
+| `AC-8.2-11#0007` | `generator::record-schema-valid` | `PASS` |
+| `AC-8.2-11#0008` | `generator::deterministic-rendering` | `PASS` |
+| `AC-8.2-11#0009` | `generator::json-markdown-digest-cross-binding` | `PASS` |
+| `AC-8.2-11#0010` | `generator::ordered-unique-52-decisions-and-28-acceptance-ids` | `PASS` |
+| `AC-8.2-11#0011` | `generator::story-8.1-pair-candidate-and-disposition-compatible` | `PASS` |
+| `AC-8.2-11#0012` | `generator::source-output-and-inventory-digests-bound` | `PASS` |
+| `AC-8.2-11#0013` | `generator::all-thirteen-fault-categories-measured` | `PASS` |
+| `AC-8.2-11#0014` | `generator::all-fifteen-fixtures-restored-with-pass-and-matching-hashes` | `PASS` |
+| `AC-8.2-11#0015` | `generator::candidate-stamped-nonempty-results` | `PASS` |
+
+## Story 8.2 zero-gap UX validation
+
+- Candidate: `93e53b2091099f768369f7a4c4d812de2fc837d2`
+- Story 8.1 candidate: `7f91d33ea366edca7aca8fa0a31b386409126799`
+- Story 8.1 record SHA-256: `ba23b3b94d75d030532c538beb0807d82d5f45b9fc6635478cda6399f095f18a`
+- Inventory SHA-256: `ea18b1f65c4077c1f91a7f8bd65e4b17def20f26336d53c1325c5ee574c29196`
+- Preserved decisions: 52; acceptance criteria: 28; no activation authorized.
+
+| Binding | Path | SHA-256 |
+| --- | --- | --- |
+| Source | `_bmad-output/planning-artifacts/ux-design-specification.md` | `948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18` |
+| Source | `_bmad-output/planning-artifacts/ux-requirement-map.md` | `5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f` |
+| `schema` | `docs/release-evidence/ux-preservation-disposition-v1.schema.json` | `d189f4dd1b1e701f683a4ff2ce7be54a1dba57290162555b9dd141bb832fe5dc` |
+| `json` | `docs/release-evidence/ux-preservation-disposition-v1.json` | `e359a97e19d3f021792006a4c14ba3d1ff42249c05e5c76fba0e43302aa4461f` |
+| `markdown` | `docs/release-evidence/ux-preservation-disposition-v1.md` | `330aff37565e46b3bbe5435c0c6c9ecabc814e54220f2102b7dc234de5abcbc1` |
+
+## Fault injection
+
+| Fault | Expected blocker | Observed exit | Observed blockers | Before SHA-256 | After SHA-256 |
+| --- | --- | --- | --- | --- | --- |
+| `decision-missing` | `UX_DECISION_MISSING` | `1` | `UX_DECISION_MISSING` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `decision-duplicate` | `UX_DECISION_DUPLICATE` | `1` | `UX_DECISION_DUPLICATE` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `decision-unknown` | `UX_DECISION_UNKNOWN` | `1` | `UX_DECISION_UNKNOWN` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `acceptance-missing` | `UX_ACCEPTANCE_MISSING` | `1` | `UX_ACCEPTANCE_MISSING` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `acceptance-duplicate` | `UX_ACCEPTANCE_DUPLICATE` | `1` | `UX_ACCEPTANCE_DUPLICATE` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `acceptance-unknown` | `UX_ACCEPTANCE_UNKNOWN` | `1` | `UX_ACCEPTANCE_UNKNOWN` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `owner-missing` | `UX_OWNER_MISSING` | `1` | `UX_OWNER_MISSING` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `hash-missing` | `UX_HASH_MISSING` | `1` | `UX_HASH_MISSING` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `source-changed` | `UX_SOURCE_DRIFT` | `1` | `UX_SOURCE_DRIFT` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `render-changed` | `UX_RENDER_DRIFT` | `1` | `UX_RENDER_DRIFT` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `json-order` | `UX_ORDER_DRIFT` | `1` | `UX_ORDER_DRIFT` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `markdown-order` | `UX_ORDER_DRIFT` | `1` | `UX_ORDER_DRIFT` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `row-activated` | `UX_ACTIVATION_UNAUTHORIZED` | `1` | `UX_ACTIVATION_UNAUTHORIZED` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `historical-owner` | `UX_CURRENT_STORY_INVALID` | `1` | `UX_CURRENT_STORY_INVALID` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+| `nonexistent-owner` | `UX_CURRENT_STORY_INVALID` | `1` | `UX_CURRENT_STORY_INVALID` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` | `2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2` |
+
+## Outputs
+
+| Output | Path |
+| --- | --- |
+| JSON | `docs/release-evidence/story-8.2-final-record-v2.json` |
+| Markdown | `docs/release-evidence/story-8.2-final-record-v2.md` |
+
+## Rollback boundary
+
+remove only Story 8.2 validator/fault fixtures/results and final record; retain accepted Story 8.1 outputs and all source UX bytes.
+
+## Summary
+
+| Required | Passed | Failed | Blocked | Skipped | Not run |
+| --- | --- | --- | --- | --- | --- |
+| `11` | `11` | `0` | `0` | `0` | `0` |
+<!-- STORY-FINAL-RECORD:END -->
