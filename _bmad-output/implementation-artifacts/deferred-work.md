@@ -424,3 +424,26 @@ re-deriving it. Conversations consumes the fix by advancing the EventStore gitli
 - source_spec: `_bmad-output/implementation-artifacts/spec-epic-7-retro-items-31-32-ci-completion-gate-and-green-scripts-lane.md`
   summary: As part of Epic 7 retro item 34, document how to reproduce the `ci / repository` lane locally, and mention the routes' post-done-commit `--verify-inserted-record` rerun in `current-change-validation.md`.
   evidence: The runbook still says generated final records run only when a spec requires them, which item 34 (F-8) already owns. It does not give the CI-shaped command (`uv sync --locked`, the `--ignore`d Epic 6 suite, `TMPDIR` on WSL) or its roughly 7-minute duration.
+
+## Deferred from: code review of spec-8-1-generate-the-versioned-ux-disposition-contract.md (2026-10-03)
+
+Transferred after Story 8.1 reached `done`; the Story 8.1 candidate path set excluded this ledger until then.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: The successor xUnit `-method` selector rejects a `[Theory]` whose TRX `testName` carries an argument suffix (`generate_story_record.py`, successor xUnit route).
+  evidence: Review 3, unverified medium. Settle by checking whether any declared `-method` selector in contracts 8–16 targets a `[Theory]` once those tests exist.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: The successor Python verdict falls back to a domain `status` field and treats non-verdict values as failure.
+  evidence: Reviews 3 and 4 (E13/B14, B4-4), unverified medium. Settle by checking whether any successor generator's declared JSON output carries a non-verdict `status` once those generators exist.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: Solution build output paths assume a forward-slash `Path`, the default `AssemblyName`, and `net10.0`.
+  evidence: Review 3 (E15), unverified medium. Settle against Story 11.2's fixture solution once it exists.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: A partial successor Python summary that omits failure counters defaults them to zero.
+  evidence: Review 4 (E4-3), unverified. Inspect concrete successor output shapes before requiring a universal summary shape.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: Gate-executed successor builds may re-stamp assemblies, invalidating same-record TRX evidence or exceeding the 600 s command timeout (AC-9.2-03 rebuilds Conformance).
+  evidence: Review 5 (B8, B3), unverified medium. Settle at Story 9.2's first gate run by confirming the gate's `dotnet build` is an incremental no-op after the documented prebuild. On a memory-starved host, a shared `VBCSCompiler` can stall builds; `-p:UseSharedCompilation=false -nr:false` bypassed it on 2026-10-03.
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
+  summary: The retained sprint-status mask hard-codes the `8-1-` key and Epic 7 retro items 30–32, so a successor lifecycle commit that closes other retro items is rejected with `CANDIDATE_NOT_FINAL`.
+  evidence: Review 5 (E12), unverified medium. Settle when a successor spec requires closing retro items after its record commit.
