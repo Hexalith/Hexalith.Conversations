@@ -77,6 +77,25 @@ validator requires their task-entry and candidate identities to match.
 
 ## Review Triage Log
 
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| BH-01 | high | patch | Synthetic agreeing hashes pass the consumer without binding the committed fixture; derive and require the candidate fixture baseline. |
+| BH-02 | false | reject | The spec-add revision is the measured task-entry tree. Its four inherited gitlink changes preceded this task and are retained explicitly; implementation changes after that tree remain governed. |
+| BH-03 | high | patch | Inserted verification trusts recorded scenario commands and ledgers. Rederive the complete Story 8.2 scenarios from frozen commands and current artifacts. |
+| BH-04 | medium | patch | The new completion branch omits remeasurement of top-level authority, inventory and gitlinks. Compare those Story 8.2 facts with candidate objects and contract. |
+| BH-05 | medium | patch | Nine forwarded UX codes are absent from V2_CODES and raise ValueError. Register the required semantic blockers and verify failure receipts. |
+| BH-06 | medium | patch | Retained receipt deletion and malformed XML can escape as raw exceptions. Return named missing or malformed-evidence failures. |
+| BH-07 | medium | patch | Retained receipt reads omit physical containment checks. Reject symlinks and paths outside the repository before reading. |
+| BH-08 | medium | patch | Mutation tests invoke main with mocked Git; add a real isolated Git checkout and executable CLI baseline, semantic fault and restoration test. |
+| BH-09 | low | patch | Exact ignored build and result bytes are needed on later verification. Document archiving and recovery limits at the recorded source candidate. |
+| BH-10 | low | reject | A deliberately stalled child would hang, but legitimate verifier output is one bounded line and no stall or pipe exhaustion was reproduced. Timeout/process-management guards for this uncommon condition exceed a direct correction. |
+| BH-11 | medium | patch | Acceptance-row fields, requirement-map drift and provenance-current branches lack negative coverage. Add focused tests for their exact semantic blockers. |
+| EC-01 | high | patch | A candidate-owned baseline set to HEAD can make the inspected range empty. Preserve the original spec-add baseline and derive the scope start independently from Git. |
+| EC-02 | medium | patch | The forwarded identity/owner/hash/order codes are undocumented in V2_CODES; the same root cause as BH-05. |
+| EC-03 | high | patch | Matching fault lanes can carry unrelated fixture hashes; the same committed-fixture binding gap as BH-01. |
+| EC-04 | high | patch | Rehashed scenario output bindings and summary are not compared with frozen measurements; the same completion remeasurement gap as BH-03. |
+| VG-01 | medium | patch | Direct helper tests do not cover the Story 8.2 inserted-record CLI seam. Add baseline success and changed-result rejection through that command. |
+
 ## Verification
 
 - Run all eleven contract commands verbatim; first build conformance with the required candidate stamp for its Release acceptance lane.

@@ -12,6 +12,7 @@ import json
 import os
 import re
 import shutil
+import shlex
 import subprocess
 import sys
 import time
@@ -7835,6 +7836,8 @@ def test_v2_early_generator_requires_immediately_following_python_check() -> Non
 
 def _story_8_2_fault_results(tmp_path: Path, module, candidate: str) -> dict:
     """Create complete measured-property JUnit lanes for parser fault tests."""
+    module.v2_committed_blob = lambda _repo, _candidate, path: (WORKSPACE / path).read_bytes()
+    fixture_digest = module.v2_8_2_fixture_digest(tmp_path, candidate)
     scenarios = {}
     for scenario_id, identifiers in module.V2_8_2_FAULT_LANES.items():
         root = ElementTree.Element("testsuites")
@@ -7843,8 +7846,8 @@ def _story_8_2_fault_results(tmp_path: Path, module, candidate: str) -> dict:
             row = {"id": identifier, "candidateCommit": candidate,
                    "expectedBlocker": module.V2_8_2_REQUIRED_FAULTS[identifier],
                    "observedExitCode": 1, "observedBlockers": [module.V2_8_2_REQUIRED_FAULTS[identifier]],
-                   "beforeSha256": module.v2_sha256(b"baseline"), "mutatedSha256": module.v2_sha256(identifier.encode()),
-                   "afterSha256": module.v2_sha256(b"baseline"), "baselineExitCode": 0, "baselineBlockers": [],
+                   "beforeSha256": fixture_digest, "mutatedSha256": module.v2_sha256(identifier.encode()),
+                   "afterSha256": fixture_digest, "baselineExitCode": 0, "baselineBlockers": [],
                    "restoredExitCode": 0, "restoredBlockers": []}
             case = ElementTree.SubElement(suite, "testcase", classname="_bmad.scripts.tests.test_generate_ux_preservation_disposition", name=module.v2_8_2_case_name(scenario_id, identifier))
             properties = ElementTree.SubElement(case, "properties")
@@ -7878,6 +7881,7 @@ def test_v2_story_8_2_observed_fault_matrix_is_exact_and_restored(tmp_path: Path
     ("rerun-drift", "FIXTURE_NOT_RESTORED"), ("identity", "FAULT_NOT_DETECTED"),
     ("empty", "TEST_RESULTS_FAILED"), ("skip", "TEST_RESULTS_FAILED"),
     ("failed", "TEST_RESULTS_FAILED"), ("stale", "TEST_RESULTS_STALE"),
+    ("unrelated-hashes", "FIXTURE_NOT_RESTORED"),
 ])
 def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, monkeypatch, mutation: str, blocker: str) -> None:
     module = load_generator()
@@ -7905,6 +7909,7 @@ def test_v2_story_8_2_rejects_unmeasured_or_unrestored_faults(tmp_path: Path, mo
     elif mutation == "baseline": row["baselineExitCode"] = 1
     elif mutation == "candidate": row["candidateCommit"] = "b" * 40
     elif mutation == "after-hash": row["afterSha256"] = "0" * 64
+    elif mutation == "unrelated-hashes": row["beforeSha256"] = row["afterSha256"] = "b" * 64
     elif mutation == "unchanged-mutation": row["mutatedSha256"] = row["beforeSha256"]
     elif mutation == "restored-exit": row["restoredExitCode"] = 1
     elif mutation == "rerun-drift": row["mutatedSha256"] = "b" * 64
@@ -8003,7 +8008,7 @@ def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_p
     original = module.run_git
     def no_unique_spec_add(repo, *arguments, **kwargs):
         if arguments[:3] == ("log", "--no-renames", "--diff-filter=A"):
-            return subprocess.CompletedProcess([], 0, ("b" * 40).encode(), b"")
+            return subprocess.CompletedProcess([], 0, candidate.encode(), b"")
         return original(repo, *arguments, **kwargs)
     monkeypatch.setattr(module, "run_git", no_unique_spec_add)
     with pytest.raises(module.V2Stop) as failure:
@@ -8042,6 +8047,156 @@ def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, 
         assert [finding["code"] for finding in failure.value.findings] == ["TEST_NOT_RUN"]
     else:
         module.v2_8_2_positive(tmp_path, candidate, scenario)
+
+
+
+@pytest.mark.parametrize("code", [
+    "UX_DECISION_MISSING", "UX_DECISION_DUPLICATE", "UX_DECISION_UNKNOWN",
+    "UX_ACCEPTANCE_MISSING", "UX_ACCEPTANCE_DUPLICATE", "UX_ACCEPTANCE_UNKNOWN",
+    "UX_OWNER_MISSING", "UX_HASH_MISSING", "UX_ORDER_DRIFT",
+])
+def test_v2_story_8_2_semantic_blockers_emit_fail_receipts(monkeypatch, code: str) -> None:
+    module = load_generator()
+    def reject(_options):
+        raise module.V2Stop([module.v2_finding(code, "fixture", "semantic rejection")], "8.2")
+    monkeypatch.setattr(module, "v2_generate", reject)
+    result, document = v2_7_4_call(module, ["--repository", ".", "--contract", module.V2_8_2_CONTRACT_PATH,
+                                            "--format", "bundle", "--output-json", "record.json",
+                                            "--output-markdown", "record.md"])
+    assert result == document["exitCode"] == 1 and document["result"] == "FAIL"
+    assert document["blockers"] == [code]
+    v2_failure_validator().validate(document)
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("missing", "TEST_RESULTS_MISSING"), ("malformed", "INPUT_SCHEMA_INVALID"),
+    ("symlink", "INPUT_SCHEMA_INVALID"), ("outside", "INPUT_SCHEMA_INVALID"),
+    ("unreadable", "TEST_RESULTS_MISSING"),
+])
+def test_v2_story_8_2_receipt_guards_are_stable(tmp_path: Path, monkeypatch, fault: str, blocker: str) -> None:
+    module = load_generator()
+    _, validators = module.v2_load_schemas()
+    candidate = "a" * 40
+    monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
+    scenarios = _story_8_2_fault_results(tmp_path, module, candidate)
+    binding = scenarios["AC-8.2-02"]["resultFile"]
+    target = tmp_path / binding["path"]
+    if fault == "unreadable":
+        def unreadable(_path): raise PermissionError("fixture receipt denied")
+        monkeypatch.setattr(module, "read_file_snapshot", unreadable)
+    elif fault == "missing": target.unlink()
+    elif fault == "malformed":
+        target.write_bytes(b"<invalid")
+        binding["sha256"] = module.v2_sha256(target.read_bytes())
+    else:
+        original = target.read_bytes()
+        target.unlink()
+        destination = tmp_path / "receipt.xml" if fault == "symlink" else tmp_path.parent / (tmp_path.name + "-receipt.xml")
+        destination.write_bytes(original)
+        target.symlink_to(destination)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_faults(tmp_path, candidate, scenarios, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == [blocker]
+
+
+@pytest.mark.parametrize("field", ["baseline_commit", "implementation_start_commit"])
+def test_v2_story_8_2_rejects_candidate_owned_scope_metadata(tmp_path: Path, monkeypatch, field: str) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    original = module.v2_committed_blob
+    def changed_spec(repo, revision, path):
+        blob = original(repo, revision, path)
+        if revision == candidate and path == module.V2_8_2_SPEC_PATH:
+            return re.sub(rb"(?m)^" + field.encode() + rb":.*$", field.encode() + b": '" + candidate.encode() + b"'", blob)
+        return blob
+    monkeypatch.setattr(module, "v2_committed_blob", changed_spec)
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+    assert [row["code"] for row in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
+
+
+def _story_8_2_cli_commit(repository: Path, paths: list[str], message: str) -> None:
+    """Commit only synthetic fixture paths with an already validated Conventional message."""
+    message_file = repository / ".git/fixture-message"
+    message_file.write_text(message + "\n")
+    v2_git(repository, "add", "--", *paths)
+    v2_git(repository, "commit", "--quiet", "-F", str(message_file))
+
+
+def test_v2_story_8_2_inserted_cli_rederives_receipts_and_all_record_bindings(tmp_path: Path) -> None:
+    """Exercise real Git and the executable CLI while preserving the shared checkout."""
+    module = load_generator()
+    repository = tmp_path / "cli-repository"
+    subprocess.run(["git", "clone", "--shared", "--quiet", str(WORKSPACE), str(repository)],
+                   check=True, env=fixture_git_environment(), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    paths = ["_bmad/scripts/generate_story_record.py", "_bmad/scripts/generate_ux_preservation_disposition.py",
+             "_bmad/scripts/tests/test_generate_ux_preservation_disposition.py"]
+    for path in paths: (repository / path).write_bytes((WORKSPACE / path).read_bytes())
+    _story_8_2_cli_commit(repository, paths, "test: prepare Story 8.2 CLI fixture")
+    candidate = v2_git(repository, "rev-parse", "HEAD").stdout.strip()
+    binary = repository / module.V2_8_1_TEST_ASSEMBLY
+    binary.parent.mkdir(parents=True)
+    binary.write_bytes(b"1.0.0+" + candidate.encode())
+    methods = ["PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
+               "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
+               "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange"]
+    prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
+    results = "".join(f'<UnitTestResult testName="{prefix}{method}" outcome="Passed" />' for method in methods)
+    trx_path = repository / "artifacts/v9/8.2/AC-8.2-01.trx"
+    trx_path.parent.mkdir(parents=True)
+    trx_path.write_text(f'<TestRun xmlns="{TRX_NAMESPACE}"><Results>{results}</Results>'
+                       f'<TestDefinitions><UnitTest><TestMethod codeBase="{module.V2_8_1_TEST_ASSEMBLY}" />'
+                       '</UnitTest></TestDefinitions><ResultSummary><Counters total="6" executed="6" '
+                       'passed="6" failed="0" /></ResultSummary></TestRun>')
+    contract = json.loads((repository / module.V2_8_2_CONTRACT_PATH).read_bytes())
+    for scenario in contract["scenarios"][1:10]:
+        result = subprocess.run(shlex.split(scenario["command"]), cwd=repository, env=fixture_git_environment(), capture_output=True)
+        assert result.returncode == 0, result.stdout.decode() + result.stderr.decode()
+    outputs = list(module.v2_designated_successor_outputs("8.2"))
+    arguments = ["--repository", str(repository), "--contract", module.V2_8_2_CONTRACT_PATH, "--format", "bundle",
+                 "--output-json", outputs[0], "--output-markdown", outputs[1]]
+    generated = v2_run(arguments)
+    assert generated.returncode == 0, generated.stdout.decode()
+    accepted = (repository / outputs[0]).read_bytes()
+    _story_8_2_cli_commit(repository, outputs, "test: record Story 8.2 CLI evidence")
+    spec_path = repository / module.V2_8_2_SPEC_PATH
+    original_spec = spec_path.read_bytes()
+    spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + (repository / outputs[1]).read_bytes() + module.RECORD_END_MARKER.encode() + b"\n")
+    verify = ["--repository", str(repository), "--contract", module.V2_8_2_CONTRACT_PATH,
+              "--verify-inserted-record", module.V2_8_2_SPEC_PATH]
+    before = {path: (repository / path).read_bytes() for path in [*outputs, module.V2_8_2_SPEC_PATH]}
+    assert v2_run(verify).returncode == 0
+    assert before == {path: (repository / path).read_bytes() for path in before}
+    receipt = repository / "artifacts/v9/8.2/AC-8.2-02.xml"
+    receipt_bytes = receipt.read_bytes()
+    receipt.write_bytes(receipt_bytes + b"\n")
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"]
+    receipt.unlink()
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["TEST_RESULTS_MISSING"]
+    receipt.write_bytes(b"<invalid")
+    assert json.loads(v2_run(verify).stdout)["blockers"] == ["INPUT_SCHEMA_INVALID"]
+    receipt.write_bytes(receipt_bytes)
+    for binding in ("inventory", "authority", "rollback", "predecessors", "summary", "scenario", "command", "gitlinks", "ux", "fault"):
+        record = json.loads(accepted)
+        if binding == "inventory": record["inventory"]["sha256"] = "b" * 64
+        elif binding == "authority": record["authority"]["bundleDigest"] = "b" * 64
+        elif binding == "rollback": record["rollback"]["boundary"] = "Altered rollback"
+        elif binding == "predecessors": record["predecessors"] = ["7.4"]
+        elif binding == "summary": record["summary"]["passed"] = 10
+        elif binding == "command": record["scenarios"][0]["command"] = "Unrelated command"
+        elif binding == "gitlinks": record["candidate"]["gitlinks"][0]["commit"] = "b" * 40
+        elif binding == "ux": record["uxValidation"]["inventorySha256"] = "b" * 64
+        elif binding == "fault": record["faultInjection"]["results"][0]["mutatedSha256"] = "b" * 64
+        else:
+            record["scenarios"][0]["assertionLedger"][0]["subject"] = "Altered claim"
+            record["scenarios"][0]["outputFiles"][0]["sha256"] = "b" * 64
+        _, json_bytes, markdown = module.v2_finalize(record)
+        (repository / outputs[0]).write_bytes(json_bytes)
+        (repository / outputs[1]).write_bytes(markdown)
+        spec_path.write_bytes(original_spec)
+        _story_8_2_cli_commit(repository, outputs, "test: alter Story 8.2 CLI evidence")
+        spec_path.write_bytes(original_spec + b"\n" + module.RECORD_BEGIN_MARKER.encode() + b"\n" + markdown + module.RECORD_END_MARKER.encode() + b"\n")
+        result = v2_run(verify)
+        assert result.returncode == 1 and json.loads(result.stdout)["blockers"] == ["RECORD_CONTENT_DRIFT"], result.stdout.decode()
 
 
 if __name__ == "__main__":

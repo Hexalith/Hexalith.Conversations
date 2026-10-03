@@ -379,3 +379,62 @@ def test_verification_cli_rejects_malformed_nested_mappings(preservation_fixture
     document["decisions"][0]["historicalMappings"] = mapping
     path.write_text(json.dumps(document))
     assert _verification_cli(preservation_fixture) == (1, ["UX_SCHEMA_INVALID"])
+
+
+@pytest.mark.parametrize("branch,blocker", [
+    ("acceptance-owner", "UX_OWNER_MISSING"), ("acceptance-hash", "UX_HASH_MISSING"),
+    ("acceptance-activation", "UX_ACTIVATION_UNAUTHORIZED"), ("acceptance-order", "UX_ORDER_DRIFT"),
+    ("map-byte", "UX_SOURCE_DRIFT"), ("mapping-current", "UX_CURRENT_STORY_INVALID"),
+    ("mapping-classification", "UX_CURRENT_STORY_INVALID"), ("provenance-current", "UX_CURRENT_STORY_INVALID"),
+    ("provenance-classification", "UX_CURRENT_STORY_INVALID"),
+], ids=[f"branch-{number:02d}" for number in range(1, 10)])
+def test_verifier_additional_semantics(preservation_fixture: Path, branch: str, blocker: str) -> None:
+    path = preservation_fixture / module.OUTPUT_PATHS[1]
+    original = path.read_bytes()
+    map_path = preservation_fixture / module.MAP_PATH
+    map_original = map_path.read_bytes()
+    document = json.loads(original)
+    row = document["acceptanceCriteria"][0]
+    try:
+        if branch == "acceptance-owner": del row["owner"]
+        elif branch == "acceptance-hash": del row["sourceSha256"]
+        elif branch == "acceptance-activation": row["status"] = "activated"
+        elif branch == "acceptance-order": document["acceptanceCriteria"].reverse()
+        elif branch == "map-byte": map_path.write_bytes(map_original + b"\n")
+        elif branch == "mapping-current": row["historicalMappings"][0]["current"] = True
+        elif branch == "mapping-classification": row["historicalMappings"][0]["classification"] = "current"
+        elif branch == "provenance-current": document["historicalProvenance"]["currentImplementationOwner"] = True
+        else: document["historicalProvenance"]["classification"] = "current"
+        path.write_bytes((json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode())
+        assert _verification_cli(preservation_fixture) == (1, [blocker])
+    finally:
+        path.write_bytes(original)
+        map_path.write_bytes(map_original)
+    assert _verification_cli(preservation_fixture) == (0, [])
+
+
+def test_verifier_executable_cli_restores_real_repository(tmp_path: Path) -> None:
+    """Use real Git and a subprocess to measure baseline, semantic fault, and restoration."""
+    repository = tmp_path / "real-repository"
+    subprocess.run(["git", "clone", "--shared", "--quiet", str(ROOT), str(repository)],
+                   check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    command = [sys.executable, str(SCRIPT), "--repository", str(repository), "--contract", module.CONTRACT_PATH,
+               "--output-schema", module.OUTPUT_PATHS[0], "--output-json", module.OUTPUT_PATHS[1],
+               "--output-markdown", module.OUTPUT_PATHS[2], "--verify"]
+    paths = [*module.OUTPUT_PATHS, module.SPEC_PATH, module.MAP_PATH]
+    before = {path: (repository / path).read_bytes() for path in paths}
+    baseline = subprocess.run(command, capture_output=True)
+    assert baseline.returncode == 0 and b"PASS:" in baseline.stdout
+    path = repository / module.OUTPUT_PATHS[1]
+    document = json.loads(path.read_bytes())
+    try:
+        document["acceptanceCriteria"][0]["owner"] = "Story 99.99 implementation"
+        path.write_text(json.dumps(document, indent=2))
+        rejected = subprocess.run(command, capture_output=True)
+        assert rejected.returncode == 1
+        assert re.findall(rb"FAIL: ([A-Z0-9_]+):", rejected.stderr) == [b"UX_CURRENT_STORY_INVALID"]
+    finally:
+        path.write_bytes(before[module.OUTPUT_PATHS[1]])
+    restored = subprocess.run(command, capture_output=True)
+    assert restored.returncode == 0 and b"PASS:" in restored.stdout
+    assert before == {path: (repository / path).read_bytes() for path in paths}

@@ -1281,13 +1281,15 @@ with exit 0 and no blockers; each mutation must change bytes and fail with exit
 Finish and commit the implementation candidate while both lifecycle states stay
 `in-progress`. Preserve `baseline_commit`. If that baseline precedes the commit
 that added the spec, `implementation_start_commit` identifies the task-entry
-tree separately: the gate derives the unique spec-add commit between baseline
-and candidate and requires it to equal this field. It verifies baseline ≤ start
+tree separately: the gate derives the unique spec-add commit from candidate
+history independently of candidate-owned metadata, requires the
+baseline field to equal the original spec-add blob's value, and binds the start
+to that unique add commit. It verifies baseline ≤ start
 ≤ candidate ancestry, permits only scoped paths after the start, and requires
 candidate gitlinks to equal the start's gitlinks. The original baseline and its
 inherited dependency changes remain visible; the final record binds the separate
 start in `uxValidation.implementationStartCommit`. With no separate field, the
-scope start falls back to the baseline. Clean-rebuild the conformance project
+scope start is derived from the original spec-add commit. Clean-rebuild the conformance project
 for the frozen Release lane:
 
 ```bash
@@ -1316,3 +1318,22 @@ against a record or lifecycle commit cannot replace `SC-8.2`. A source change
 requires the existing record-only retraction/replacement procedure. The record
 authorizes no product UX activation or release; rollback removes only Story 8.2
 validation, fixtures, results, and its record.
+
+Retain the accepted ignored evidence durably under an immutable archive key
+equal to `uxValidation.sourceRevisionId`, alongside the accepted JSON/Markdown
+pair. Archive the complete Release test output directory (including DLLs,
+runtime/dependency files and symbols), all ten `artifacts/v9/8.2/` TRX/JUnit
+receipts, and a manifest recording their repository-relative paths and exact
+SHA-256 values. Store the archive outside the working tree in durable artifact
+storage before deleting build outputs or receipts. Verify the archived test
+assembly and each receipt against the digests in the accepted record; preserve
+the original file modification times needed by the freshness guards.
+
+For recovery, restore those original byte streams at their original paths and
+restore their recorded modification times, then check every record-bound digest
+before running read-only inserted-record verification. A rebuild or test rerun
+creates new evidence, including new receipt timestamps and often new binary
+digests; it does not recover the accepted bytes. If the original archive is
+unavailable or mismatched, the accepted record cannot be reproduced. Follow the
+record-only retraction, replacement candidate, fresh acceptance, and new record
+procedure instead of assigning the old digests to regenerated evidence.

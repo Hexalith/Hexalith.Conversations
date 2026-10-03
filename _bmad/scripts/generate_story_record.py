@@ -2985,6 +2985,15 @@ V2_CALLER_FACT_OPTIONS = frozenset(
 # codes describe an environment that cannot support a trustworthy record;
 # everything else is a proven `FAIL`.
 V2_CODES = {
+    "UX_DECISION_MISSING": "FAIL",
+    "UX_DECISION_DUPLICATE": "FAIL",
+    "UX_DECISION_UNKNOWN": "FAIL",
+    "UX_ACCEPTANCE_MISSING": "FAIL",
+    "UX_ACCEPTANCE_DUPLICATE": "FAIL",
+    "UX_ACCEPTANCE_UNKNOWN": "FAIL",
+    "UX_OWNER_MISSING": "FAIL",
+    "UX_HASH_MISSING": "FAIL",
+    "UX_ORDER_DRIFT": "FAIL",
     "UX_SOURCE_UNBOUND": "FAIL",
     "UX_SOURCE_DRIFT": "FAIL",
     "UX_DECISION_INVENTORY_DRIFT": "FAIL",
@@ -6327,23 +6336,33 @@ def v2_8_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     spec = v2_committed_blob(repository, candidate, V2_8_2_SPEC_PATH)
     if spec is None:
         stop("BASELINE_NOT_TRUSTWORTHY", V2_8_2_SPEC_PATH)
+    frontmatter = {}
+    scope_start_value = None
     try:
         frontmatter = parse_frontmatter(spec.decode())
         baseline = frontmatter_scalar(frontmatter, "baseline_commit")
         baseline = try_resolve_commit(repository, baseline) if baseline else None
         scope_start_value = frontmatter_scalar(frontmatter, "implementation_start_commit")
-        scope_start = try_resolve_commit(repository, scope_start_value) if scope_start_value else baseline
+        scope_start = try_resolve_commit(repository, scope_start_value) if scope_start_value else None
     except (UnicodeError, GateError):
         baseline = None
         scope_start = None
-    if (baseline is None or scope_start is None or not is_ancestor(repository, baseline, scope_start)
+    additions = decode(run_git(repository, "log", "--no-renames", "--diff-filter=A", "--format=%H",
+                               candidate, "--", V2_8_2_SPEC_PATH).stdout).split()
+    if len(additions) != 1:
+        stop("BASELINE_NOT_TRUSTWORTHY", "original spec-add commit")
+    original_spec = v2_committed_blob(repository, additions[0], V2_8_2_SPEC_PATH)
+    try:
+        original_baseline = frontmatter_scalar(parse_frontmatter(original_spec.decode()), "baseline_commit")
+    except (AttributeError, UnicodeError, GateError):
+        original_baseline = None
+    if not scope_start_value:
+        scope_start = additions[0]
+    if (baseline is None or scope_start is None or scope_start != additions[0]
+            or frontmatter_scalar(frontmatter, "baseline_commit") != original_baseline
+            or not is_ancestor(repository, baseline, scope_start)
             or not is_ancestor(repository, scope_start, candidate)):
         stop("BASELINE_NOT_TRUSTWORTHY", V2_8_2_SPEC_PATH)
-    if scope_start != baseline:
-        additions = decode(run_git(repository, "log", "--no-renames", "--diff-filter=A", "--format=%H",
-                                   f"{baseline}..{candidate}", "--", V2_8_2_SPEC_PATH).stdout).split()
-        if additions != [scope_start]:
-            stop("BASELINE_NOT_TRUSTWORTHY", "implementation_start_commit")
     if any(path not in V2_8_2_ALLOWED_PATHS for path in committed_path_status(repository, scope_start, candidate)):
         stop("UX_PRODUCTION_CHANGE_FORBIDDEN", "candidate")
     if v2_raw_gitlinks(repository, candidate) != v2_raw_gitlinks(repository, scope_start):
@@ -6376,10 +6395,7 @@ def v2_8_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
     inventories = {"decisions": [row["id"] for row in disposition["decisions"]],
                    "acceptanceCriteria": [row["id"] for row in disposition["acceptanceCriteria"]]}
     inventory_digest = v2_sha256(v2_render_json(inventories))
-    assembly = repository / V2_8_1_TEST_ASSEMBLY
-    if not assembly.is_file() or assembly.is_symlink():
-        stop("TEST_RESULTS_MISSING", V2_8_1_TEST_ASSEMBLY)
-    binary, modified = read_file_snapshot(assembly)
+    binary, modified = v2_8_2_evidence(repository, V2_8_1_TEST_ASSEMBLY)
     candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
     if modified < candidate_ns or dotnet_source_revisions(binary) != [candidate]:
         stop("TEST_RESULTS_STALE", V2_8_1_TEST_ASSEMBLY)
@@ -6393,17 +6409,49 @@ def v2_8_2_facts(repository: Path, candidate: str, contract: dict[str, Any], val
             "sourceRevisionId": candidate}
 
 
+def v2_8_2_fixture_digest(repository: Path, candidate: str) -> str:
+    """Derive the ordered fixture-byte hash from the candidate's committed inputs."""
+    paths = sorted([*V2_8_1_SOURCES, V2_8_1_CONTRACT_PATH, V2_AUTHORITY_BUNDLE_PATH,
+                    V2_8_1_PREDECESSOR[1], V2_8_1_PREDECESSOR[2], *V2_8_1_DISPOSITION_PATHS])
+    streams = []
+    for path in paths:
+        blob = v2_committed_blob(repository, candidate, path)
+        if blob is None:
+            raise V2Stop([v2_finding("AUTHORITY_BINDING_INVALID", path, "a committed fixture input is missing")], "8.2")
+        streams.append(path.encode() + b"\0" + blob + b"\0")
+    return v2_sha256(b"".join(streams))
+
+
+def v2_8_2_evidence(repository: Path, relative: str) -> tuple[bytes, int]:
+    """Read a contained regular receipt without following any symlink."""
+    try:
+        lexical = repository / safe_relative_path(relative)
+        resolved = lexical.resolve(strict=True)
+        if (resolved != lexical or not resolved.is_relative_to(repository) or not resolved.is_file()
+                or any(parent.is_symlink() for parent in [lexical, *lexical.parents] if parent.is_relative_to(repository))):
+            raise ValueError("receipt must be a contained regular file")
+        return read_file_snapshot(resolved)
+    except (FileNotFoundError, OSError):
+        raise V2Stop([v2_finding("TEST_RESULTS_MISSING", relative, "receipt is missing or unreadable")], "8.2") from None
+    except (GateError, ValueError, RuntimeError):
+        raise V2Stop([v2_finding("INPUT_SCHEMA_INVALID", relative, "receipt path is outside the repository or names a symlink/non-file")], "8.2") from None
+
+
 def v2_8_2_faults(repository: Path, candidate: str, scenarios: dict[str, dict[str, Any]], validator: Any) -> list[dict[str, Any]]:
     """Consume measured, candidate-stamped exact faults and their restoration rerun."""
     observed_validator = validator.evolve(schema={"$defs": validator.schema["$defs"], "$ref": "#/$defs/uxObservedFault"})
     candidate_ns = int(decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()) * 1_000_000_000
+    fixture_digest = v2_8_2_fixture_digest(repository, candidate)
     lanes = {}
     for scenario_id, expected in V2_8_2_FAULT_LANES.items():
         binding = scenarios[scenario_id]["resultFile"]
-        content, modified = read_file_snapshot(repository / binding["path"])
+        content, modified = v2_8_2_evidence(repository, binding["path"])
         if v2_sha256(content) != binding["sha256"] or modified < candidate_ns:
             raise V2Stop([v2_finding("TEST_RESULTS_STALE", scenario_id, "JUnit bytes changed after measurement")], "8.2")
-        parsed = v2_parse_junit(content)
+        try:
+            parsed = v2_parse_junit(content)
+        except (ValueError, ElementTree.ParseError):
+            raise V2Stop([v2_finding("INPUT_SCHEMA_INVALID", scenario_id, "receipt is malformed JUnit XML")], "8.2") from None
         if (parsed["reported"] != {"tests": len(parsed["cases"]), "failures": 0, "errors": 0, "skipped": 0}
                 or not parsed["cases"] or any(case["failure"] or case["error"] or case["skipped"] for case in parsed["cases"])):
             raise V2Stop([v2_finding("TEST_RESULTS_FAILED", scenario_id, "fault evidence is empty, failed, skipped, or has inconsistent counters")], "8.2")
@@ -6426,7 +6474,7 @@ def v2_8_2_faults(repository: Path, candidate: str, scenarios: dict[str, dict[st
                     or row["observedBlockers"] != [row["expectedBlocker"]] or row["observedExitCode"] != 1
                     or row["baselineExitCode"] != 0 or row["baselineBlockers"]):
                 raise V2Stop([v2_finding("FAULT_NOT_DETECTED", row["id"], "the mutation did not measure baseline PASS and its sole exact blocker with exit 1")], "8.2")
-            if (row["beforeSha256"] != row["afterSha256"] or row["beforeSha256"] == row["mutatedSha256"]
+            if (row["beforeSha256"] != fixture_digest or row["afterSha256"] != fixture_digest or row["beforeSha256"] == row["mutatedSha256"]
                     or row["restoredExitCode"] != 0 or row["restoredBlockers"]):
                 raise V2Stop([v2_finding("FIXTURE_NOT_RESTORED", row["id"], "fixture restoration or restored PASS differs")], "8.2")
             rows.append(row)
@@ -6454,7 +6502,7 @@ def v2_8_2_positive(repository: Path, candidate: str, scenario: dict[str, Any]) 
     """Require the six complete preservation facts in current candidate-stamped TRX."""
     command = v2_successor_command(shlex.split(scenario["command"]), V2_8_2_CONTRACT_PATH)
     binding = scenario["resultFile"]
-    content = (repository / binding["path"]).read_bytes()
+    content, _ = v2_8_2_evidence(repository, binding["path"])
     if binding["path"] != command["output"] or v2_sha256(content) != binding["sha256"]:
         raise V2Stop([v2_finding("TEST_RESULTS_STALE", "AC-8.2-01", "the positive result differs from its measured binding")], "8.2")
     scenario_contract = {"id": "AC-8.2-01", "command": scenario["command"]}
@@ -6472,7 +6520,7 @@ def v2_8_2_positive(repository: Path, candidate: str, scenario: dict[str, Any]) 
         raise V2Stop([v2_finding("TEST_NOT_RUN", "AC-8.2-01", "the TRX must execute all six preservation facts exactly once")], "8.2")
 
 
-def v2_generate(options: dict[str, str]) -> bytes:
+def v2_generate(options: dict[str, str], *, verify_spec: str | None = None) -> bytes:
     """Derive, validate, and atomically write the v2 pair; return the JSON bytes."""
     try:
         repository = validate_repository(
@@ -6720,6 +6768,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
             )
 
     allowed_dirt = {output_json, output_markdown, *result_paths}
+    if verify_spec is not None:
+        if story_id != "8.2" or verify_spec != V2_8_2_SPEC_PATH:
+            raise V2Stop([v2_finding("ARGUMENT_INVALID", "verification", "read-only rederivation belongs only to Story 8.2")], story_id)
+        allowed_dirt.add(verify_spec)
     dirt = sorted(set(worktree_path_status(repository)) - allowed_dirt)
     if dirt:
         findings.append(
@@ -6734,6 +6786,9 @@ def v2_generate(options: dict[str, str]) -> bytes:
     candidate_time = int(
         decode(run_git(repository, "show", "-s", "--format=%ct", candidate).stdout).strip()
     )
+    if story_id == "8.2":
+        for path in result_paths:
+            v2_8_2_evidence(repository, path)
     scenario_records: dict[str, dict[str, Any]] = {}
     categories: dict[str, str] = {}
     parsed_results = 0
@@ -6931,6 +6986,9 @@ def v2_generate(options: dict[str, str]) -> bytes:
         raise V2Stop(
             [v2_finding("RECORD_CONTENT_DRIFT", "record", "; ".join(problems))], story_id
         )
+
+    if verify_spec is not None:
+        return json_bytes
 
     try:
         targets = [
@@ -7148,12 +7206,11 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
             "renderedMarkdownSha256",
         )
     if story_id == "8.2":
-        if record["uxValidation"] != v2_8_2_facts(repository, candidate, contract, validators["record"]):
-            drift("uxValidation", "the inserted record's UX bindings differ from committed measurements")
-        scenarios = {row["scenarioId"]: row for row in record["scenarios"]}
-        v2_8_2_positive(repository, candidate, scenarios["AC-8.2-01"])
-        if record["faultInjection"]["results"] != v2_8_2_faults(repository, candidate, scenarios, validators["record"]):
-            drift("faultInjection", "the inserted record's observed faults differ from scenario evidence")
+        rederived = v2_generate({"--repository": str(repository), "--contract": contract_path,
+                                "--format": "bundle", "--output-json": json_path,
+                                "--output-markdown": markdown_path}, verify_spec=spec_relative)
+        if rederived != json_bytes:
+            drift("record", "the inserted record differs from the full frozen-contract and receipt rederivation")
     return json_bytes
 
 
