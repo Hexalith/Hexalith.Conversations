@@ -92,7 +92,7 @@ development_status:
   7-4-verify-historical-mode-and-required-fault-injection-blockers: done
   epic-7-retrospective: done
   epic-8: in-progress
-  8-1-generate-the-versioned-ux-disposition-contract: in-progress
+  8-1-generate-the-versioned-ux-disposition-contract: review
   8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: backlog
   epic-8-retrospective: optional
   epic-9: backlog

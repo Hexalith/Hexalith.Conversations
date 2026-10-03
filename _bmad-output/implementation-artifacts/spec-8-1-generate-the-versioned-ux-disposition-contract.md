@@ -2,7 +2,7 @@
 title: 'Generate the versioned UX disposition contract'
 type: 'feature'
 created: '2026-10-02'
-status: 'in-review'
+status: 'done'
 baseline_commit: '92638b8a2d48f12626db13afcb1f45554cbf3683'
 route: 'dispatch'
 review_loop_iteration: 1
