@@ -1,0 +1,790 @@
+{
+  "schemaVersion": "hexalith.conversations.story-final-record.v2",
+  "storyId": "8.2",
+  "authority": {
+    "epic": "epic-6-authority-2026-08-03-v10",
+    "architecture": "conversations-architecture-2026-08-03-v10",
+    "planningCandidate": "1e9a61126d3b7a55b514b7c7c8942d5af03355e5",
+    "bundleDigest": "159eec0cb13d2af422c46e9490e51432495ea61c0d034832a502c9598ff4f055"
+  },
+  "candidate": {
+    "commit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+    "gitlinks": [
+      {
+        "path": "references/Hexalith.AI.Tools",
+        "commit": "3f194e17174994d308ec84af9ee2b5aa68674d0d",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Builds",
+        "commit": "688eec9a4333245cc0ff7772115c769094471863",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Commons",
+        "commit": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.EventStore",
+        "commit": "2c58ffda41759e895ace4b9625c9bd931a217672",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Folders",
+        "commit": "92da4b01352448cb06296776097e2da4383d9340",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.FrontComposer",
+        "commit": "bf40099f81fcaeac324b7b4377513ac7d49cead4",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Memories",
+        "commit": "42995692634af9ba35982ec0e1aedec4f5576e71",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Parties",
+        "commit": "5388884eec84b16545fdc008b2fc04547b0ed5b6",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Projects",
+        "commit": "0f03582b3457a6d9212d60e2f9146a6043af5f7e",
+        "mode": "160000"
+      },
+      {
+        "path": "references/Hexalith.Tenants",
+        "commit": "c0afce2e9704efa6a8c5ebe8d275a8b987141c8b",
+        "mode": "160000"
+      }
+    ]
+  },
+  "predecessors": [
+    "8.1"
+  ],
+  "inventory": {
+    "id": "V9-8.2-ENTRY-v1",
+    "sha256": "d07cee1556fa039169ca2cfa6cfecbd123909b9da56ea729866c7a0591fd26e6"
+  },
+  "scenarios": [
+    {
+      "scenarioId": "AC-8.2-01",
+      "command": "dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll -automated sync -failSkips -class Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest -trx artifacts/v9/8.2/AC-8.2-01.trx",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-01.trx",
+        "sha256": "abde691d1b1b342753edaf9b3c9ccac1da7b670b05485a293fac7e77f8d18664"
+      },
+      "outputFiles": [
+        {
+          "path": "artifacts/v9/8.2/AC-8.2-01.trx",
+          "sha256": "abde691d1b1b342753edaf9b3c9ccac1da7b670b05485a293fac7e77f8d18664"
+        },
+        {
+          "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+          "sha256": "34bfb89eb9104951b15f3a5cc6704480340f39dc5001c67e0063b71bc55ba6bb"
+        }
+      ],
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-01#0001",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.PreservedBundleShouldPassZeroGapVerification",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-01#0002",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.AcceptanceCriteriaShouldProjectTheFrozenInventory",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-01#0003",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DecisionsShouldProjectTheFrozenInventory",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-01#0004",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.SourcesShouldBindCanonicalPathsVersionsAndHashes",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-01#0005",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.DispositionsShouldRemainPreservedAndHistorical",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-01#0006",
+          "subject": "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest.CandidateShouldContainNoProductionUiChange",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-02",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k missing_decision --junitxml=artifacts/v9/8.2/AC-8.2-02.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-02.xml",
+        "sha256": "f18f4e908307e1dd2a2a75b0146977a3b5cd6d39ab3032ff191be5f4f6681286"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-02#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_missing_decision",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-03",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k duplicate_decision --junitxml=artifacts/v9/8.2/AC-8.2-03.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-03.xml",
+        "sha256": "93b70c2e86cd6d11ee43acf5cda1e64db22844af545527d145f6aa2d8f1c2126"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-03#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_duplicate_decision",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-04",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k unknown_decision --junitxml=artifacts/v9/8.2/AC-8.2-04.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-04.xml",
+        "sha256": "ec6d63ca7560bbb6456af5c33fa1adb3d059c9d51ea8aeb74e1be38a0303f933"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-04#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_unknown_decision",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-05",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k acceptance_identity_faults --junitxml=artifacts/v9/8.2/AC-8.2-05.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-05.xml",
+        "sha256": "e594d80282598d0a3129e3d8e3336a3d4361c3ac0ada08688557669a8349d0d7"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-05#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-05#0002",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-duplicate]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-05#0003",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_acceptance_identity_faults[acceptance-unknown]",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-06",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k ownership_and_hash_faults --junitxml=artifacts/v9/8.2/AC-8.2-06.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-06.xml",
+        "sha256": "b35723f24621f9d4d0b2aa9104332aa8dcaa4edfd00dfa49ef275a9676ba75ee"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-06#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_ownership_and_hash_faults[owner-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-06#0002",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_ownership_and_hash_faults[hash-missing]",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-07",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k source_drift --junitxml=artifacts/v9/8.2/AC-8.2-07.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-07.xml",
+        "sha256": "b387a652d41dec2cca47827dc18965336e36a06f5a8c4d08b67ef66aeaca5f21"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-07#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_source_drift",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-08",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k rendering_and_order_drift --junitxml=artifacts/v9/8.2/AC-8.2-08.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-08.xml",
+        "sha256": "2b9a4de8e024e8f7ba7d2d792ae41582d932870f27c776a8d6dd22123df1125b"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-08#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[render-changed]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-08#0002",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[json-order]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-08#0003",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_rendering_and_order_drift[markdown-order]",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-09",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k activation_and_story_binding_faults --junitxml=artifacts/v9/8.2/AC-8.2-09.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-09.xml",
+        "sha256": "9b0c83fe58b1a9773fe0ffa7b64b8aa7f2d52cda9f5a3e0696852806a649edc6"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-09#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[row-activated]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-09#0002",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[historical-owner]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-09#0003",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_activation_and_story_binding_faults[nonexistent-owner]",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-10",
+      "command": "python3 -m pytest -q _bmad/scripts/tests/test_generate_ux_preservation_disposition.py -k fixtures_restore_byte_identically --junitxml=artifacts/v9/8.2/AC-8.2-10.xml",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "resultFile": {
+        "path": "artifacts/v9/8.2/AC-8.2-10.xml",
+        "sha256": "9d0f459b1c6cae91d4fa93b1069194e86d8bce0ed99084cdc9e52a2d4cfe10d6"
+      },
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-10#0001",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0002",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-duplicate]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0003",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[decision-unknown]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0004",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0005",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-duplicate]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0006",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[acceptance-unknown]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0007",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[owner-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0008",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[hash-missing]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0009",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[source-changed]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0010",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[render-changed]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0011",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[json-order]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0012",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[markdown-order]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0013",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[row-activated]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0014",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[historical-owner]",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-10#0015",
+          "subject": "_bmad.scripts.tests.test_generate_ux_preservation_disposition::test_fixtures_restore_byte_identically[nonexistent-owner]",
+          "state": "PASS"
+        }
+      ]
+    },
+    {
+      "scenarioId": "AC-8.2-11",
+      "command": "python3 _bmad/scripts/generate_story_record.py --repository . --contract _bmad-output/planning-artifacts/v9/story-contracts/8.2.json --format bundle --output-json docs/release-evidence/story-8.2-final-record-v2.json --output-markdown docs/release-evidence/story-8.2-final-record-v2.md",
+      "exitCode": 0,
+      "result": "PASS",
+      "blockers": [],
+      "assertionLedger": [
+        {
+          "id": "AC-8.2-11#0001",
+          "subject": "generator::contract-schema-and-identity",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0002",
+          "subject": "generator::authority-bundle-digest-recomputed",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0003",
+          "subject": "generator::raw-gitlinks-equal-root-gitmodules",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0004",
+          "subject": "generator::committed-candidate-worktree-clean",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0005",
+          "subject": "generator::predecessor-scenarios-pass-with-ledgers",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0006",
+          "subject": "generator::declared-output-paths",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0007",
+          "subject": "generator::record-schema-valid",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0008",
+          "subject": "generator::deterministic-rendering",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0009",
+          "subject": "generator::json-markdown-digest-cross-binding",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0010",
+          "subject": "generator::ordered-unique-52-decisions-and-28-acceptance-ids",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0011",
+          "subject": "generator::story-8.1-pair-candidate-and-disposition-compatible",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0012",
+          "subject": "generator::source-output-and-inventory-digests-bound",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0013",
+          "subject": "generator::all-thirteen-fault-categories-measured",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0014",
+          "subject": "generator::all-fifteen-fixtures-restored-with-pass-and-matching-hashes",
+          "state": "PASS"
+        },
+        {
+          "id": "AC-8.2-11#0015",
+          "subject": "generator::candidate-stamped-nonempty-results",
+          "state": "PASS"
+        }
+      ]
+    }
+  ],
+  "faultInjection": {
+    "results": [
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_DECISION_MISSING",
+        "id": "decision-missing",
+        "mutatedSha256": "f4848507e35f7d9f3cfaa287a98d47363c8ccf1b0d7936f487583115bea1e766",
+        "observedBlockers": [
+          "UX_DECISION_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_DECISION_DUPLICATE",
+        "id": "decision-duplicate",
+        "mutatedSha256": "a8c60266fa90bec88e06a74b74d3758308554ab56924abb302b79a5408e8abe0",
+        "observedBlockers": [
+          "UX_DECISION_DUPLICATE"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_DECISION_UNKNOWN",
+        "id": "decision-unknown",
+        "mutatedSha256": "4a3a5682463b6c2e011edea19c1b7eaebf072d0d7800444b16afd64a701b3d60",
+        "observedBlockers": [
+          "UX_DECISION_UNKNOWN"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ACCEPTANCE_MISSING",
+        "id": "acceptance-missing",
+        "mutatedSha256": "c332c2dfd7a23697bb8df89b5d63c14b5c6000d157d61f64826c9eb326ca7b86",
+        "observedBlockers": [
+          "UX_ACCEPTANCE_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ACCEPTANCE_DUPLICATE",
+        "id": "acceptance-duplicate",
+        "mutatedSha256": "e1ca6376fcc861fb36e97ac405f83d31353c105672083e9934cab1f0c3d23b36",
+        "observedBlockers": [
+          "UX_ACCEPTANCE_DUPLICATE"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ACCEPTANCE_UNKNOWN",
+        "id": "acceptance-unknown",
+        "mutatedSha256": "ba83238154d1ecb42c2434865fe6dddb77e4db6775aaf9de7323fe7b8ad7cb1d",
+        "observedBlockers": [
+          "UX_ACCEPTANCE_UNKNOWN"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_OWNER_MISSING",
+        "id": "owner-missing",
+        "mutatedSha256": "a852b24d4ea4fb060fef320c8511faf498623b9800c1182ecc7cfc8cab6dea2d",
+        "observedBlockers": [
+          "UX_OWNER_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_HASH_MISSING",
+        "id": "hash-missing",
+        "mutatedSha256": "3421931d9b4ed970f3d297fea83e2dc67a6c66169cc995fa0b629dae5a9813ca",
+        "observedBlockers": [
+          "UX_HASH_MISSING"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_SOURCE_DRIFT",
+        "id": "source-changed",
+        "mutatedSha256": "42083990450791173e8ebfe5e33573335a1f03135209f4d3ef24f51409070a7c",
+        "observedBlockers": [
+          "UX_SOURCE_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_RENDER_DRIFT",
+        "id": "render-changed",
+        "mutatedSha256": "f829e6185f0e18ccfee02bbb1782fcfeb68c98cd2931972e93350e2a11465bb8",
+        "observedBlockers": [
+          "UX_RENDER_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ORDER_DRIFT",
+        "id": "json-order",
+        "mutatedSha256": "0c50a0c39426d34dd9be01c1b836bb25ba69adbfc13d3e56fad192d7c4b5aa26",
+        "observedBlockers": [
+          "UX_ORDER_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ORDER_DRIFT",
+        "id": "markdown-order",
+        "mutatedSha256": "bee04937d46734e2bcc817625b24c27abc3378fe5a7ec61590b9502697d53c1e",
+        "observedBlockers": [
+          "UX_ORDER_DRIFT"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_ACTIVATION_UNAUTHORIZED",
+        "id": "row-activated",
+        "mutatedSha256": "6418a76b194563c5fa19d6b0d8deea52e1c37a73db86703ba32900727c8e09aa",
+        "observedBlockers": [
+          "UX_ACTIVATION_UNAUTHORIZED"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_CURRENT_STORY_INVALID",
+        "id": "historical-owner",
+        "mutatedSha256": "8c642f53c1cd725d2377159ee16ae24dbe6fdcdc4906c56fbc5d42aa298676dd",
+        "observedBlockers": [
+          "UX_CURRENT_STORY_INVALID"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      },
+      {
+        "afterSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "baselineBlockers": [],
+        "baselineExitCode": 0,
+        "beforeSha256": "2d9959916ef0aed28ed4f651f7e57195cf65305f265e11dfbf9cc3dd047229b2",
+        "candidateCommit": "fdc7b8793d320f81124c0e30eebcbdb020715140",
+        "expectedBlocker": "UX_CURRENT_STORY_INVALID",
+        "id": "nonexistent-owner",
+        "mutatedSha256": "c644dbcfabea03f7da7b372f0382a9a48455bd52b2149ffdd05604cc1565f8b4",
+        "observedBlockers": [
+          "UX_CURRENT_STORY_INVALID"
+        ],
+        "observedExitCode": 1,
+        "restoredBlockers": [],
+        "restoredExitCode": 0
+      }
+    ]
+  },
+  "outputs": {
+    "json": {
+      "path": "docs/release-evidence/story-8.2-final-record-v2.json",
+      "sha256": "e2cb05df7a52e87176b69ff8c2bbb9dd7a8a6d5e2803626bc7b02edc7f0f9360"
+    },
+    "markdown": {
+      "path": "docs/release-evidence/story-8.2-final-record-v2.md",
+      "sha256": "718e9f02cad7e3c9eb820b0bdf263a7757c679fc19c1d1c85b5e1b3b52d4a5e7"
+    }
+  },
+  "rollback": {
+    "boundary": "remove only Story 8.2 validator/fault fixtures/results and final record; retain accepted Story 8.1 outputs and all source UX bytes."
+  },
+  "summary": {
+    "required": 11,
+    "passed": 11,
+    "failed": 0,
+    "blocked": 0,
+    "skipped": 0,
+    "notRun": 0
+  },
+  "renderedMarkdownSha256": "718e9f02cad7e3c9eb820b0bdf263a7757c679fc19c1d1c85b5e1b3b52d4a5e7",
+  "uxValidation": {
+    "bindingRule": "SC-8.2 is HEAD^{commit} at final-record generation",
+    "implementationStartCommit": "f415298801097caa5f745e6976d67a79e4e2aab4",
+    "contract": {
+      "path": "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json",
+      "sha256": "045b018bc82b11adbd62df2af64d4df7f3aa6f25a18d10f6bdc821ce6d78bfa2"
+    },
+    "predecessorRecord": {
+      "storyId": "8.1",
+      "path": "docs/release-evidence/story-8.1-final-record-v2.json",
+      "sha256": "ba23b3b94d75d030532c538beb0807d82d5f45b9fc6635478cda6399f095f18a"
+    },
+    "predecessorCandidate": "7f91d33ea366edca7aca8fa0a31b386409126799",
+    "sources": [
+      {
+        "path": "_bmad-output/planning-artifacts/ux-design-specification.md",
+        "sha256": "948a5ac40a05fce510bffdd6818e3fcf3c871874b8779468954de57e452d8f18"
+      },
+      {
+        "path": "_bmad-output/planning-artifacts/ux-requirement-map.md",
+        "sha256": "5965394e662a3b708896f5df85d2b981798bc590ea68feb3a974f66300c2751f"
+      }
+    ],
+    "outputs": {
+      "schema": {
+        "path": "docs/release-evidence/ux-preservation-disposition-v1.schema.json",
+        "sha256": "d189f4dd1b1e701f683a4ff2ce7be54a1dba57290162555b9dd141bb832fe5dc"
+      },
+      "json": {
+        "path": "docs/release-evidence/ux-preservation-disposition-v1.json",
+        "sha256": "e359a97e19d3f021792006a4c14ba3d1ff42249c05e5c76fba0e43302aa4461f"
+      },
+      "markdown": {
+        "path": "docs/release-evidence/ux-preservation-disposition-v1.md",
+        "sha256": "330aff37565e46b3bbe5435c0c6c9ecabc814e54220f2102b7dc234de5abcbc1"
+      }
+    },
+    "inventorySha256": "ea18b1f65c4077c1f91a7f8bd65e4b17def20f26336d53c1325c5ee574c29196",
+    "decisionCount": 52,
+    "acceptanceCount": 28,
+    "testAssembly": {
+      "path": "tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll",
+      "sha256": "34bfb89eb9104951b15f3a5cc6704480340f39dc5001c67e0063b71bc55ba6bb"
+    },
+    "sourceRevisionId": "fdc7b8793d320f81124c0e30eebcbdb020715140"
+  }
+}
