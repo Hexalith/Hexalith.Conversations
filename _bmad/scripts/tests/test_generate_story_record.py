@@ -7232,6 +7232,17 @@ def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path:
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_FAILED" in record["blockers"]
+    two_passed = (trx(method)
+                  .replace(b"</Results>",
+                           f'<UnitTestResult testName="{method}" outcome="Passed" /></Results>'.encode())
+                  .replace(b'total="1"', b'total="2"')
+                  .replace(b'passed="1"', b'passed="2"'))
+    assert any("executed 1 is not passed 2 plus failed 0" in item
+               for item in module.count_disagreements(module.parse_trx(two_passed)))
+    output.write_bytes(two_passed)
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [])
+    assert category == "failed" and "TEST_FAILED" in record["blockers"]
     output.write_bytes(trx(method))
     binary.write_bytes(b"1.0.0+" + ("b" * 40).encode())
     record, category, findings = module.v2_successor_scenario_from_results(
@@ -7288,6 +7299,12 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
     assert category == "passed" and not findings
+    for unsupported in ([], {}, {"revision": candidate}, None):
+        document["candidate"] = unsupported
+        (tmp_path / json_path).write_text(json.dumps(document) + "\n")
+        record, category, findings = module.v2_successor_scenario_from_results(
+            tmp_path, scenario, command, candidate, 0, [])
+        assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
     document.pop("result")
     document.pop("exitCode")
     document["candidate"] = candidate
@@ -7507,6 +7524,10 @@ def test_v2_story_8_1_lifecycle_masks_tasks_and_retro_status(monkeypatch) -> Non
     blobs[("a", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)]
     blobs[("b", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)].replace(b"status: done", b"status: open", 1)
     assert not module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = blobs[("a", module.V2_7_2_SPRINT_PATH)].replace(
+        b"8-1-story: done", b"8-1-story: in-progress"
+    )
+    assert not module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
 
 
 def _story_8_1_candidate_clone(tmp_path: Path) -> tuple[Path, str, dict, dict]:
@@ -7591,8 +7612,13 @@ def test_v2_successor_python_check_preconditions_and_exit(tmp_path: Path, monkey
                         lambda _repo, _candidate, path: b"committed script" if path == script else None)
     exits = [0]
     executions: list[int] = []
+    dirty_on_run = [False]
+    rogue = tmp_path / "runtime/rogue.json"
     def execute(*_args, **_kwargs):
         executions.append(1)
+        if dirty_on_run[0]:
+            rogue.parent.mkdir(parents=True, exist_ok=True)
+            rogue.write_text("changed")
         return subprocess.CompletedProcess([], exits[0], b"", b"")
     monkeypatch.setattr(module.subprocess, "run", execute)
     scenario = {"id": "AC-9.1-02", "command": f"python3 {script} --repository . --check"}
@@ -7610,6 +7636,15 @@ def test_v2_successor_python_check_preconditions_and_exit(tmp_path: Path, monkey
         tmp_path, scenario, command, "a" * 40, 0, [])
     assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
     assert len(executions) == 2
+    target.write_bytes(b"committed script")
+    exits[0] = 0
+    dirty_on_run[0] = True
+    monkeypatch.setattr(module, "worktree_path_status",
+                        lambda _repo: ["runtime/rogue.json"] if rogue.exists() else [])
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [], allowed_dirt={"declared/output.json"})
+    assert category == "failed" and "WORKTREE_NOT_CLEAN" in record["blockers"]
+    assert len(executions) == 3
 
 
 def test_v2_successor_python_scenario_mismatch_does_not_execute(tmp_path: Path, monkeypatch) -> None:

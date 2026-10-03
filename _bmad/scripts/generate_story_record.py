@@ -975,9 +975,9 @@ def count_disagreements(parsed: dict[str, Any]) -> list[str]:
                 **reported
             )
         )
-    if not 0 <= reported["executed"] <= reported["total"]:
+    if reported["executed"] != reported["passed"] + reported["failed"]:
         disagreements.append(
-            "executed {executed} is outside zero through total {total}".format(
+            "executed {executed} is not passed {passed} plus failed {failed}".format(
                 **reported
             )
         )
@@ -4715,6 +4715,8 @@ def v2_sprint_status_only_change(
     latest = without_status(v2_committed_blob(repository, head, V2_7_2_SPRINT_PATH))
     if original is None or latest is None or original[0] != latest[0]:
         return False
+    if original[1] == b"done" and latest[1] != b"done":
+        return False
     if any(before == b"done" and after != b"done" for before, after in zip(original[4], latest[4])):
         return False
     retro_changed = original[4] != latest[4]
@@ -5726,6 +5728,7 @@ def v2_successor_scenario_from_results(
     repository: Path, scenario: dict[str, Any], command: dict[str, Any],
     candidate: str, candidate_ns: int, gitlink_paths: Sequence[str],
     stamped: frozenset[str] = frozenset(),
+    allowed_dirt: set[str] | None = None,
 ) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
     """Derive successor scenario facts from current outputs and candidate-stamped builds."""
     scenario_id = scenario["id"]
@@ -5872,12 +5875,12 @@ def v2_successor_scenario_from_results(
                                 or ("required" in summary and summary.get("passed") != summary["required"])
                                 or ("passed" in summary and summary["passed"] == 0)):
                             raise ValueError("the machine result summary is non-passing")
-                    if "candidate" in document and isinstance(document["candidate"], str) and document["candidate"] not in stamped | {candidate}:
-                        raise ValueError("the machine result names another candidate")
-                    candidate_value = document.get("candidate")
-                    if (isinstance(candidate_value, dict) and "commit" in candidate_value
-                            and candidate_value["commit"] not in stamped | {candidate}):
-                        raise ValueError("the machine result names another candidate")
+                    if "candidate" in document:
+                        candidate_value = document["candidate"]
+                        if isinstance(candidate_value, dict):
+                            candidate_value = candidate_value.get("commit")
+                        if not isinstance(candidate_value, str) or candidate_value not in stamped | {candidate}:
+                            raise ValueError("the machine result names another candidate")
                 except (UnicodeDecodeError, ValueError):
                     fail("TEST_RESULTS_FAILED", f"the Python output is malformed or non-passing: {path}")
             subjects.append(f"python-output::{path}")
@@ -5940,6 +5943,10 @@ def v2_successor_scenario_from_results(
         ]
     else:
         fail("ASSERTION_LEDGER_EMPTY", "the successor command yielded no assertion")
+    if allowed_dirt is not None:
+        dirt = sorted(set(worktree_path_status(repository)) - allowed_dirt)
+        if dirt:
+            fail("WORKTREE_NOT_CLEAN", f"the command changed undeclared paths: {v2_path_summary(dirt)}")
     if not findings:
         record.update({"exitCode": 0, "result": "PASS"})
     record["blockers"] = sorted({item["code"] for item in findings})
@@ -6550,9 +6557,11 @@ def v2_generate(options: dict[str, str]) -> bytes:
                 if "resultFile" in scenario_record:
                     parsed_results += 1
     for scenario, command in (successor_scenarios if not findings else ()):
+        if findings:
+            break
         scenario_record, category, scenario_findings = v2_successor_scenario_from_results(
             repository, scenario, command, candidate, candidate_time * 1_000_000_000,
-            gitlink_paths, stamped,
+            gitlink_paths, stamped, allowed_dirt,
         )
         scenario_records[scenario["id"]] = scenario_record
         categories[scenario["id"]] = category
