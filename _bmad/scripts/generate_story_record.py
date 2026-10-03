@@ -3393,6 +3393,7 @@ def v2_validate_contract(
 def v2_authority(
     repository: Path,
     candidate: str,
+    contract_path: str,
     contract: dict[str, Any],
     validator: Any,
     findings: list[dict[str, str]],
@@ -3439,7 +3440,6 @@ def v2_authority(
     if bundle["planningCandidate"] != authority["planningCandidate"]:
         problems.append("the bundle planning candidate differs from the contract's")
     if int(contract["storyId"].split(".")[0]) >= 8:
-        contract_path = f"_bmad-output/planning-artifacts/v9/story-contracts/{contract['storyId']}.json"
         contract_bytes = v2_committed_blob(repository, candidate, contract_path)
         contract_rows = [row for row in rows if row["path"] == contract_path]
         if (contract_bytes is None or len(contract_rows) != 1
@@ -4606,7 +4606,11 @@ def v2_spec_lifecycle_only_change(
             if start < 0 or end < 0:
                 return None
             task_section = masked[start:end]
-            task_section = re.sub(rb"(?m)^- \[[ x]\] ", b"- [<task>] ", task_section)
+            task_section = re.sub(
+                rb"(?m)^([ \t]*- \[)[ xX](\] )",
+                rb"\1<task>\2",
+                task_section,
+            )
             masked = masked[:start] + task_section + masked[end:]
         return masked
 
@@ -4753,6 +4757,12 @@ def v2_retention_config(repository: Path, contract_path: str) -> tuple[str, str,
     spec_path = candidates[0].relative_to(repository).as_posix()
     sprint_key = candidates[0].stem.removeprefix("spec-")
     return story_id, spec_path, sprint_key, True
+
+
+def v2_designated_successor_outputs(story_id: str) -> tuple[str, str]:
+    """Derive the retained pair independently of the contract being verified."""
+    prefix = f"docs/release-evidence/story-{story_id}-final-record-v2"
+    return prefix + ".json", prefix + ".md"
 
 
 def v2_retained_candidate(repository: Path, head: str, json_path: str, markdown_path: str,
@@ -5715,6 +5725,7 @@ def v2_successor_command(tokens: list[str], contract_path: str) -> dict[str, Any
 def v2_successor_scenario_from_results(
     repository: Path, scenario: dict[str, Any], command: dict[str, Any],
     candidate: str, candidate_ns: int, gitlink_paths: Sequence[str],
+    stamped: frozenset[str] = frozenset(),
 ) -> tuple[dict[str, Any], str, list[dict[str, str]]]:
     """Derive successor scenario facts from current outputs and candidate-stamped builds."""
     scenario_id = scenario["id"]
@@ -5728,7 +5739,11 @@ def v2_successor_scenario_from_results(
     def fail(code: str, detail: str) -> None:
         findings.append(v2_finding(code, scenario_id, detail))
 
-    def read_output(path: str) -> tuple[bytes, int] | None:
+    def stamped_binary(content: bytes) -> bool:
+        revisions = dotnet_source_revisions(content)
+        return len(revisions) == 1 and revisions[0] in stamped | {candidate}
+
+    def read_output(path: str, *, require_current_mtime: bool = True) -> tuple[bytes, int] | None:
         if v2_below(path, gitlink_paths):
             fail("OUTPUT_PATH_INVALID", f"the output lies below a root gitlink: {path}")
             return None
@@ -5746,18 +5761,40 @@ def v2_successor_scenario_from_results(
         committed = v2_committed_blob(repository, candidate, path)
         if committed is not None and committed != content:
             fail("TEST_RESULTS_STALE", f"the output differs from the candidate: {path}")
-        if committed is None and modified < candidate_ns:
+        if committed is None and require_current_mtime and modified < candidate_ns:
             fail("TEST_RESULTS_STALE", f"the declared output predates the candidate: {path}")
         outputs.append((path, content, modified))
         bound_files.append({"path": path, "sha256": v2_sha256(content)})
         return content, modified
 
     kind = command["kind"]
-    if kind in ("python", "build", "restore"):
+    if kind in ("python", "python_check"):
+        script = command["script"]
+        committed = v2_committed_blob(repository, candidate, script)
+        script_file = repository / script
+        try:
+            current = script_file.read_bytes() if script_file.is_file() and not script_file.is_symlink() else None
+        except OSError:
+            current = None
+        if committed is None or current != committed:
+            fail("SCENARIO_COMMAND_UNSUPPORTED", "the script differs from the candidate")
+        if kind == "python" and command["options"].get("--scenario", scenario_id) != scenario_id:
+            fail("SCENARIO_RESULT_MISMATCH", "the Python command names another scenario")
+    elif kind in ("build", "restore"):
+        project = command["project"]
+        committed = v2_committed_blob(repository, candidate, project)
+        project_file = repository / project
+        try:
+            current = project_file.read_bytes() if project_file.is_file() and not project_file.is_symlink() else None
+        except OSError:
+            current = None
+        if committed is None or current != committed:
+            fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target differs from the candidate: {project}")
+    if kind in ("python", "python_check", "build", "restore") and not findings:
         try:
             executed = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                      timeout=600, check=False)
+                                      timeout=120 if kind == "python_check" else 600, check=False)
             if executed.returncode != 0:
                 fail("TEST_RESULTS_FAILED", f"the exact command exited {executed.returncode}")
         except (OSError, ValueError, subprocess.TimeoutExpired):
@@ -5771,7 +5808,7 @@ def v2_successor_scenario_from_results(
         elif result is not None:
             binary, binary_time = read_file_snapshot(assembly)
             bound_files.append({"path": assembly_path, "sha256": v2_sha256(binary)})
-            if dotnet_source_revisions(binary) != [candidate] or binary_time > result[1]:
+            if not stamped_binary(binary) or binary_time > result[1]:
                 fail("TEST_RESULTS_STALE", "the test result is not bound to a candidate-stamped assembly")
             try:
                 parsed = parse_trx(result[0])
@@ -5795,31 +5832,10 @@ def v2_successor_scenario_from_results(
                 fail("TEST_FAILED", "the xUnit TRX does not prove the declared passing selector")
     elif kind == "python_check":
         script = command["script"]
-        committed = v2_committed_blob(repository, candidate, script)
-        script_file = repository / script
-        try:
-            current = script_file.read_bytes() if script_file.is_file() and not script_file.is_symlink() else None
-        except OSError:
-            current = None
-        if committed is None or current != committed:
-            fail("SCENARIO_COMMAND_UNSUPPORTED", "the check script differs from the candidate")
-        else:
-            try:
-                process = subprocess.run(shlex.split(scenario["command"]), cwd=repository,
-                                         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                         timeout=120, check=False)
-                if process.returncode:
-                    fail("TEST_RESULTS_FAILED", f"the authority check exited {process.returncode}")
-                else:
-                    subjects.append(f"python-check::{script}")
-            except (OSError, subprocess.TimeoutExpired):
-                fail("TEST_RESULTS_FAILED", "the authority check did not complete")
+        if not findings:
+            subjects.append(f"python-check::{script}")
     elif kind == "python":
         script = command["script"]
-        if v2_committed_blob(repository, candidate, script) is None:
-            fail("SCENARIO_COMMAND_UNSUPPORTED", f"the Python script is not committed: {script}")
-        if command["options"].get("--scenario", scenario_id) != scenario_id:
-            fail("SCENARIO_RESULT_MISMATCH", "the Python command names another scenario")
         json_documents = []
         for path in command["outputs"]:
             result = read_output(path)
@@ -5856,11 +5872,11 @@ def v2_successor_scenario_from_results(
                                 or ("required" in summary and summary.get("passed") != summary["required"])
                                 or ("passed" in summary and summary["passed"] == 0)):
                             raise ValueError("the machine result summary is non-passing")
-                    if "candidate" in document and isinstance(document["candidate"], str) and document["candidate"] != candidate:
+                    if "candidate" in document and isinstance(document["candidate"], str) and document["candidate"] not in stamped | {candidate}:
                         raise ValueError("the machine result names another candidate")
                     candidate_value = document.get("candidate")
                     if (isinstance(candidate_value, dict) and "commit" in candidate_value
-                            and candidate_value["commit"] != candidate):
+                            and candidate_value["commit"] not in stamped | {candidate}):
                         raise ValueError("the machine result names another candidate")
                 except (UnicodeDecodeError, ValueError):
                     fail("TEST_RESULTS_FAILED", f"the Python output is malformed or non-passing: {path}")
@@ -5873,9 +5889,7 @@ def v2_successor_scenario_from_results(
                     fail("RECORD_CONTENT_DRIFT", "the Python output Markdown digest differs")
     elif kind in ("build", "restore"):
         project = command["project"]
-        if v2_committed_blob(repository, candidate, project) is None:
-            fail("SCENARIO_COMMAND_UNSUPPORTED", f"the build target is not committed: {project}")
-        elif kind == "build":
+        if kind == "build":
             tokens = shlex.split(scenario["command"])
             configuration = "Debug"
             for index, token in enumerate(tokens[:-1]):
@@ -5895,7 +5909,7 @@ def v2_successor_scenario_from_results(
                 name = PurePosixPath(item).stem
                 binary_path = str(PurePosixPath(item).parent / f"bin/{configuration}/net10.0" / f"{name}.dll")
                 result = read_output(binary_path)
-                if result is not None and dotnet_source_revisions(result[0]) != [candidate]:
+                if result is not None and not stamped_binary(result[0]):
                     fail("TEST_RESULTS_STALE", "the built assembly lacks the candidate SourceRevisionId")
                 subjects.append(f"build::{item}")
         else:
@@ -5911,7 +5925,7 @@ def v2_successor_scenario_from_results(
                     fail("ASSERTION_LEDGER_EMPTY", "the solution has no restore projects")
                 for item in projects:
                     assets = str(PurePosixPath(project).parent / PurePosixPath(item).parent / "obj/project.assets.json")
-                    if read_output(assets) is not None:
+                    if read_output(assets, require_current_mtime=False) is not None:
                         subjects.append(f"restore::{item}")
     if outputs:
         path, content, _ = outputs[0]
@@ -5930,6 +5944,20 @@ def v2_successor_scenario_from_results(
         record.update({"exitCode": 0, "result": "PASS"})
     record["blockers"] = sorted({item["code"] for item in findings})
     return record, "passed" if not findings else "failed", findings
+
+
+def v2_early_generator_permitted(
+    story_id: str, position: int, scenarios: Sequence[dict[str, Any]], contract_path: str,
+) -> bool:
+    """Permit the self-invocation immediately before a declared read-only check."""
+    if int(story_id.split(".")[0]) < 8 or position != len(scenarios) - 2:
+        return False
+    try:
+        final_tokens = shlex.split(scenarios[-1]["command"])
+    except ValueError:
+        return False
+    final_route = v2_successor_command(final_tokens, contract_path)
+    return final_route is not None and final_route["kind"] == "python_check"
 
 
 def v2_ux_parity_code(output_bytes: dict[str, bytes], canonical: tuple[bytes, bytes, bytes]) -> str | None:
@@ -6012,16 +6040,20 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
         schema = v2_parse_json(output_bytes["schema"])
         disposition = v2_parse_json(output_bytes["json"])
         jsonschema.Draft202012Validator.check_schema(schema)
-        if v2_schema_errors(jsonschema.Draft202012Validator(schema), disposition):
-            stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
     except (UnicodeDecodeError, ValueError, jsonschema.SchemaError):
         stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[0])
-    if disposition.get("renderedMarkdownSha256") != outputs["markdown"]["sha256"]:
-        stop("UX_RENDER_DRIFT", V2_8_1_DISPOSITION_PATHS[2])
-    if disposition.get("status") != "preserved-not-activated" or "not activated" not in disposition.get("preservationBanner", ""):
+    if not isinstance(disposition, dict):
+        stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    if (disposition.get("status") != "preserved-not-activated"
+            or not isinstance(disposition.get("preservationBanner"), str)
+            or "not activated" not in disposition["preservationBanner"]):
         stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
-    decisions = disposition.get("decisions", [])
-    acceptance = disposition.get("acceptanceCriteria", [])
+    decisions = disposition.get("decisions")
+    acceptance = disposition.get("acceptanceCriteria")
+    if not isinstance(decisions, list) or any(not isinstance(row, dict) for row in decisions):
+        stop("UX_DECISION_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
+    if not isinstance(acceptance, list) or any(not isinstance(row, dict) for row in acceptance):
+        stop("UX_ACCEPTANCE_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
     expected_acceptance = [*(f"AC-SAFE-{i:03d}" for i in range(1, 9)),
                            *(f"AC-RESP-{i:03d}" for i in range(1, 16)),
                            "AC-A11Y-001", "AC-A11Y-002", "AC-LEAK-001", "AC-MOB-001", "AC-PERF-001"]
@@ -6029,13 +6061,22 @@ def v2_ux_facts(repository: Path, candidate: str, contract_path: str,
         stop("UX_DECISION_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
     if [row.get("id") for row in acceptance] != expected_acceptance:
         stop("UX_ACCEPTANCE_INVENTORY_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
-    if [(row.get("path"), row.get("sha256")) for row in disposition.get("sources", [])] != [
-        (row["path"], row["sha256"]) for row in sources]:
-        stop("UX_SOURCE_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
     if any(row.get("status") != "preserved-not-activated" for row in decisions + acceptance):
         stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
     if any(row.get("owner") != "Stories 8.1-8.2 preservation contract" for row in decisions + acceptance):
         stop("UX_CURRENT_STORY_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    if any(isinstance(mapping, dict) and mapping.get("current") is True
+           for row in decisions + acceptance
+           for mapping in (row.get("historicalMappings")
+                           if isinstance(row.get("historicalMappings"), list) else [])):
+        stop("UX_ACTIVATION_UNAUTHORIZED", V2_8_1_DISPOSITION_PATHS[1])
+    if v2_schema_errors(jsonschema.Draft202012Validator(schema), disposition):
+        stop("UX_SCHEMA_INVALID", V2_8_1_DISPOSITION_PATHS[1])
+    if disposition.get("renderedMarkdownSha256") != outputs["markdown"]["sha256"]:
+        stop("UX_RENDER_DRIFT", V2_8_1_DISPOSITION_PATHS[2])
+    if [(row.get("path"), row.get("sha256")) for row in disposition.get("sources", [])] != [
+        (row["path"], row["sha256"]) for row in sources]:
+        stop("UX_SOURCE_DRIFT", V2_8_1_DISPOSITION_PATHS[1])
     if (disposition.get("candidate", {}).get("predecessorSha256") != predecessor_sha
             or disposition.get("candidate", {}).get("bindingRule") != "SC-8.1 is HEAD^{commit} at final-record generation"
             or disposition.get("authority", {}).get("inventorySha256") != contract["inventory"]["sha256"]
@@ -6285,7 +6326,7 @@ def v2_generate(options: dict[str, str]) -> bytes:
         )
 
     authority = v2_authority(
-        repository, candidate, contract, validators["bundle"], findings
+        repository, candidate, contract_path, contract, validators["bundle"], findings
     )
     gitlinks = v2_gitlinks(repository, candidate, findings, story_id)
     gitlink_paths = [item["path"] for item in gitlinks]
@@ -6321,14 +6362,9 @@ def v2_generate(options: dict[str, str]) -> bytes:
         if ux_command is not None:
             ux_scenarios.append((scenario, ux_command))
         elif generator_command is not None:
-            try:
-                final_tokens = shlex.split(contract["scenarios"][-1]["command"])
-            except ValueError:
-                final_tokens = []
-            final_route = v2_successor_command(final_tokens, contract_path)
-            permitted_early = (int(story_id.split(".")[0]) >= 8
-                               and final_route is not None
-                               and final_route["kind"] == "python_check")
+            permitted_early = v2_early_generator_permitted(
+                story_id, position, contract["scenarios"], contract_path,
+            )
             if self_scenarios or (position != len(contract["scenarios"]) - 1 and not permitted_early):
                 findings.append(v2_finding("SCENARIO_COMMAND_UNSUPPORTED", scenario["id"],
                                            "the generator invocation must be single and final unless a declared read-only authority check follows"))
@@ -6513,10 +6549,10 @@ def v2_generate(options: dict[str, str]) -> bytes:
                 findings.extend(scenario_findings)
                 if "resultFile" in scenario_record:
                     parsed_results += 1
-    for scenario, command in successor_scenarios:
+    for scenario, command in (successor_scenarios if not findings else ()):
         scenario_record, category, scenario_findings = v2_successor_scenario_from_results(
             repository, scenario, command, candidate, candidate_time * 1_000_000_000,
-            gitlink_paths,
+            gitlink_paths, stamped,
         )
         scenario_records[scenario["id"]] = scenario_record
         categories[scenario["id"]] = category
@@ -6747,7 +6783,7 @@ def v2_verify_inserted(options: dict[str, str]) -> bytes:
     retained = v2_retention_config(repository, contract_path)
     expected_outputs = V2_RETAINED_OUTPUTS.get(story_id)
     if expected_outputs is None and retained is not None and int(story_id.split(".")[0]) >= 8:
-        expected_outputs = tuple(contract["finalRecord"]["paths"])
+        expected_outputs = v2_designated_successor_outputs(story_id)
     if retained is None or retained[0] != story_id or expected_outputs is None:
         raise V2Stop(
             [

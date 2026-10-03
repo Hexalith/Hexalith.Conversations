@@ -35,15 +35,10 @@ def source_fixture(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> Path:
         destination.write_bytes(content)
         originals[relative] = content
 
-    def git_output(arguments: list[str], **kwargs: object) -> str:
-        assert arguments == ["git", "rev-parse", "HEAD^{commit}"]
-        return "a" * 40 + "\n"
-
     def git_show(arguments: list[str], **kwargs: object) -> subprocess.CompletedProcess[bytes]:
         assert arguments[:2] == ["git", "show"]
         return subprocess.CompletedProcess(arguments, 0, originals[arguments[2].split(":", 1)[1]], b"")
 
-    monkeypatch.setattr(module.subprocess, "check_output", git_output)
     monkeypatch.setattr(module.subprocess, "run", git_show)
     return tmp_path
 
@@ -79,6 +74,15 @@ def test_deterministic_closed_bundle(source_fixture: Path) -> None:
     assert document["renderedMarkdownSha256"] == module.digest(rendered)
     assert len(document["decisions"]) == 52
     assert len(document["acceptanceCriteria"]) == 28
+
+
+def test_committed_bundle_matches_fresh_derivation() -> None:
+    """The published bundle is exactly the deterministic derivation of its sources."""
+    expected = module.generate(ROOT, module.CONTRACT_PATH)
+    paths = ("docs/release-evidence/ux-preservation-disposition-v1.schema.json",
+             "docs/release-evidence/ux-preservation-disposition-v1.json",
+             "docs/release-evidence/ux-preservation-disposition-v1.md")
+    assert expected == tuple((ROOT / path).read_bytes() for path in paths)
 
 
 def test_missing_source_and_source_drift(source_fixture: Path) -> None:

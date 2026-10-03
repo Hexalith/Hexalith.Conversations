@@ -1051,21 +1051,21 @@ acceptance-result commands, and Story 7.4's frozen
 `--historical --format json` invocation. Other schema-compatible backlog
 commands outside those shapes fail closed with `SCENARIO_COMMAND_UNSUPPORTED`
 until the generator reads their scenarios.
-Later v14-format contracts first require explicit contract-schema and generator
-support; without it they fail earlier with `INPUT_SCHEMA_INVALID` rather than
-reaching scenario-command classification. The gate never skips a
-contract-bound story for either reason.
+The generator now accepts the published V14 contract shape for Stories 8–16
+and classifies its declared successor commands. An unsupported command still
+fails with `SCENARIO_COMMAND_UNSUPPORTED`. The gate never skips a
+contract-bound story for that reason.
 
 Candidate retention and inserted-record verification also need per-story
 generator entries. `V2_RETAINED_CANDIDATES` and `V2_RETAINED_OUTPUTS` in
 `generate_story_record.py` name each retained contract's designated spec,
 sprint-status row, record-region mask, and output pair. Stories 7.2, 7.3, and
 7.4 have entries; Stories 7.3 and 7.4 mask the inserted record region.
-For any other contract, a committed pair does not pin its candidate, and
-`--verify-inserted-record` stops with `ARGUMENT_INVALID`. Each new contract
-therefore needs its own entries, with retention and insertion regressions, in
-its story's candidate before its gate can insert and verify a record. Until
-then the blocker branch keeps the story `in-progress`.
+For Stories 8–16, the contract path resolves exactly one `spec-<epic>-<story>-*.md`
+file, and the designated output pair follows
+`docs/release-evidence/story-<id>-final-record-v2.{json,md}`. Zero or multiple
+matching specs fail closed. Other contracts still need explicit retained-candidate
+entries before insertion can be verified.
 
 ## Ordered checklist (copy per story)
 
@@ -1186,8 +1186,41 @@ tooling, tests, and evidence files named in the implementation spec.
 | `UX_SOURCE_DRIFT` | `1` | Source bytes differ from the candidate, predecessor, or disposition binding. |
 | `UX_DECISION_INVENTORY_DRIFT` | `1` | Decision IDs differ from the ordered 52-ID inventory. |
 | `UX_ACCEPTANCE_INVENTORY_DRIFT` | `1` | Acceptance IDs differ from the ordered 28-ID inventory. |
-| `UX_ACTIVATION_UNAUTHORIZED` | `1` | Preservation status, banner, or historical non-current state is lost. |
+| `UX_ACTIVATION_UNAUTHORIZED` | `1` | Preservation status, banner, row status, or historical non-current state is lost. |
 | `UX_CURRENT_STORY_INVALID` | `1` | A row assigns current implementation ownership outside the preservation contract. |
 | `UX_PRODUCTION_CHANGE_FORBIDDEN` | `1` | The Story 8.1 candidate changes any path outside the explicit planning, tooling, tests, and evidence set. |
 | `UX_SCHEMA_INVALID` | `1` | The disposition schema or authoritative JSON is absent, malformed, or invalid. |
 | `UX_RENDER_DRIFT` | `1` | Markdown or installed disposition bytes differ from their digest-bound candidate. |
+
+### Story 8.1 and successor procedure
+
+Complete the Story 8.1 implementation, run focused Python tests and a Release
+build of `Hexalith.Conversations.Conformance.Tests`, then commit the source
+candidate while the story stays `in-progress`. The Release test assembly must
+carry that candidate's `SourceRevisionId`. Run the six exact commands in
+`8.1.json`, then run `AC-8.1-07` to produce the final-record pair. The gate
+runs the disposition generator again and compares its schema, JSON, and Markdown
+bytes with the committed disposition bundle. It runs each of the five exact
+xUnit selectors and checks a nonempty passing TRX ledger with no skips or
+not-run rows. Commit only the final-record JSON/Markdown pair, insert the
+Markdown verbatim into the story spec, and verify it with
+`--verify-inserted-record`. A clean review rerun at the retained Story 8.1
+candidate reuses the five TRX digests pinned by that verified pair. Do not
+rebuild the Conformance assembly between the record commit and that rerun;
+doing so changes the assembly and TRX evidence bound by the record.
+
+For a successor story, build and run every declared command at `HEAD` before
+the first final-record generation. The generic route supports selected xUnit
+TRX, Python output generation, read-only Python checks (`python_check`),
+`.csproj` or `.slnx` builds, and locked solution restores. The gate executes
+each declared Python, build, and restore command only after its script or target
+matches committed bytes and its options identify the declared scenario. A
+nonzero exit fails even if an old output remains. It binds each declared output
+under `outputFiles` by path and SHA-256; the first output also appears under
+`resultFile`. Python JSON results need an explicit passing machine verdict
+with zero failure, blocked, skipped, and not-run counts when a summary is
+present. A generated `.schema.json` is exempt from the verdict field. Build
+DLLs must carry the candidate or a verified lifecycle-descendant revision;
+restore assets may retain their earlier modification time after a successful
+locked no-op restore. Before a retained successor rerun, rebuild and rerun
+every declared command at the current `HEAD`, then regenerate the record pair.

@@ -207,7 +207,7 @@ public sealed class UxPreservationDispositionValidationTest
             Git("merge-base", "--is-ancestor", candidate, "HEAD");
         }
 
-        string[] committed = Git("diff", "--name-only", $"{baseline}..{candidate}").Split('\n', StringSplitOptions.RemoveEmptyEntries);
+        string[] committed = Git("diff", "--no-renames", "--name-only", $"{baseline}..{candidate}").Split('\n', StringSplitOptions.RemoveEmptyEntries);
         foreach (string path in committed)
         {
             AllowedCandidatePaths.Contains(path).ShouldBeTrue($"UX_PRODUCTION_CHANGE_FORBIDDEN: {path}");

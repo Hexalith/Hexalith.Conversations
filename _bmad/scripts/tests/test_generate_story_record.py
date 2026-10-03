@@ -7141,9 +7141,19 @@ def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path, pr
         check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
     subprocess.run(
-        ["git", "-C", str(repository), "checkout", "--quiet", "--detach", "HEAD"],
+        ["git", "-C", str(repository), "checkout", "--quiet", "--detach",
+         "b9859097d6bca9e9ed315313a4ffaa5e2cef157f"],
         check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
+    source_candidate = subprocess.check_output(
+        ["git", "-C", str(repository), "rev-parse", "HEAD"], env=environment, text=True,
+    ).strip()
+    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    _, validators = module.v2_load_schemas()
+    with pytest.raises(module.V2Stop) as control:
+        module.v2_ux_facts(repository, source_candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in control.value.findings] == ["TEST_RESULTS_MISSING"]
     injected = repository / production_path
     injected.parent.mkdir(parents=True, exist_ok=True)
     injected.write_text("// Disposable production-path fault fixture.\n", encoding="utf-8")
@@ -7162,8 +7172,6 @@ def test_v2_story_8_1_rejects_committed_production_src_change(tmp_path: Path, pr
     baseline = re.search(r"(?m)^baseline_commit: '([0-9a-f]{40})'$", spec)
     assert baseline is not None
     assert production_path in module.committed_path_status(repository, baseline.group(1), candidate)
-    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
-    _, validators = module.v2_load_schemas()
     with pytest.raises(module.V2Stop) as error:
         module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
                            contract, validators["record"])
@@ -7229,6 +7237,9 @@ def test_v2_successor_xunit_facts_require_candidate_build_and_selector(tmp_path:
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
     binary.write_bytes(b"1.0.0+" + candidate.encode())
     output.write_bytes(trx(method).replace(b'executed="1"', b'executed="0"'))
     record, category, findings = module.v2_successor_scenario_from_results(
@@ -7240,6 +7251,9 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
     module = load_generator()
     candidate = "a" * 40
     script = "_bmad/scripts/generate_example.py"
+    script_file = tmp_path / script
+    script_file.parent.mkdir(parents=True)
+    script_file.write_bytes(b"script")
     json_path = "docs/release-evidence/example.json"
     markdown_path = "docs/release-evidence/example.md"
     markdown = b"# Example\n"
@@ -7271,6 +7285,9 @@ def test_v2_successor_python_facts_bind_all_outputs_and_verdict(tmp_path: Path, 
     record, category, findings = module.v2_successor_scenario_from_results(
         tmp_path, scenario, command, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
     document.pop("result")
     document.pop("exitCode")
     document["candidate"] = candidate
@@ -7292,6 +7309,9 @@ def test_v2_successor_python_schema_output_needs_no_verdict(tmp_path: Path, monk
     module = load_generator()
     candidate = "a" * 40
     script = "_bmad/scripts/generate_example.py"
+    script_file = tmp_path / script
+    script_file.parent.mkdir(parents=True)
+    script_file.write_bytes(b"script")
     schema = "docs/release-evidence/example.schema.json"
     result_path = "docs/release-evidence/example.json"
     for path, document in ((schema, {"$schema": "https://json-schema.org/draft/2020-12/schema", "type": "object"}),
@@ -7319,6 +7339,10 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
     solution_project = "tests/Fixture/App/App.csproj"
     blobs = {project: b"<Project />", solution_project: b"<Project />",
              solution: b'<Solution><Project Path="App/App.csproj" /></Solution>'}
+    for path, content in blobs.items():
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_bytes(content)
     monkeypatch.setattr(module, "v2_committed_blob",
                         lambda _repo, _candidate, path: blobs.get(path))
     command_exit = [0]
@@ -7341,6 +7365,11 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
             tmp_path, {"id": scenario_id, "command": exact}, command,
             candidate, 0, [])
         assert category == "passed" and not findings and record["assertionLedger"]
+    restore_scenario, restore_command, restore_exact = routes[1]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": restore_scenario, "command": restore_exact}, restore_command,
+        candidate, assets.stat().st_mtime_ns + 1_000_000_000, [])
+    assert category == "passed" and not findings
     command_exit[0] = 1
     for scenario_id, command, exact in routes:
         record, category, findings = module.v2_successor_scenario_from_results(
@@ -7361,6 +7390,10 @@ def test_v2_successor_build_and_restore_bind_candidate_outputs(tmp_path: Path, m
         tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"},
         {"kind": "build", "project": project}, candidate, 0, [])
     assert category == "failed" and "TEST_RESULTS_STALE" in record["blockers"]
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"},
+        {"kind": "build", "project": project}, candidate, 0, [], frozenset({"b" * 40}))
+    assert category == "passed" and not findings
 
 
 def test_v2_successor_contract_schemas_and_bundle_rows_bind_committed_bytes(monkeypatch) -> None:
@@ -7377,7 +7410,7 @@ def test_v2_successor_contract_schemas_and_bundle_rows_bind_committed_bytes(monk
         validated = module.v2_validate_contract(raw, contract_path, validators["contract"],
                                                 validators["contract_v14"])
         findings = []
-        assert module.v2_authority(WORKSPACE, head, validated, validators["bundle"], findings)
+        assert module.v2_authority(WORKSPACE, head, contract_path, validated, validators["bundle"], findings)
         assert not findings
     story_path = "_bmad-output/planning-artifacts/v9/story-contracts/8.1.json"
     contract = json.loads((WORKSPACE / story_path).read_bytes())
@@ -7386,7 +7419,12 @@ def test_v2_successor_contract_schemas_and_bundle_rows_bind_committed_bytes(monk
                         lambda repo, commit, path: b"changed" if path == story_path
                         else original(repo, commit, path))
     findings = []
-    assert module.v2_authority(WORKSPACE, head, contract, validators["bundle"], findings) is None
+    assert module.v2_authority(WORKSPACE, head, story_path, contract, validators["bundle"], findings) is None
+    assert [item["code"] for item in findings] == ["AUTHORITY_BINDING_INVALID"]
+    findings = []
+    assert module.v2_authority(
+        WORKSPACE, head, "docs/other-contract.json", contract, validators["bundle"], findings
+    ) is None
     assert [item["code"] for item in findings] == ["AUTHORITY_BINDING_INVALID"]
 
 
@@ -7401,6 +7439,224 @@ def test_v2_retained_candidate_rejects_gitlink_only_followup(tmp_path: Path) -> 
     document = v2_assert_failure(result, {"CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"})
     assert document["blockers"] == ["CANDIDATE_NOT_FINAL", "GITLINK_DRIFT"]
     assert v2_7_3_outputs(repository) == (json_bytes, markdown_bytes)
+
+
+def test_v2_story_8_1_published_pair_verifies_and_schema_requires_ux_disposition() -> None:
+    """The published Story 8.1 pair retains its self-ledger and exclusive UX shape."""
+    module = load_generator()
+    revision = "35121cab6bfc963fb2a8d411a51800f6ef5a2a70"
+    pair = tuple(
+        subprocess.check_output(["git", "show", f"{revision}:docs/release-evidence/story-8.1-final-record-v2.{extension}"], cwd=WORKSPACE)
+        for extension in ("json", "md")
+    )
+    assert module.v2_verify_pair(*pair) == []
+    record = json.loads(pair[0])
+    validator = v2_schema_contract_validator(v2_schema_contract_load(FINAL_RECORD_SCHEMA))
+    validator.validate(record)
+    assert record["scenarios"][-1]["assertionLedger"] == module.v2_self_ledger("AC-8.1-07", "8.1")
+    assert not validator.is_valid({key: value for key, value in record.items() if key != "uxDisposition"})
+    successor = deepcopy(record)
+    successor["storyId"] = "8.2"
+    assert not validator.is_valid(successor)
+
+
+def test_v2_successor_retention_config_resolves_exactly_one_spec(tmp_path: Path) -> None:
+    module = load_generator()
+    contract = "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json"
+    folder = tmp_path / "_bmad-output/implementation-artifacts"
+    folder.mkdir(parents=True)
+    with pytest.raises(module.V2Stop) as absent:
+        module.v2_retention_config(tmp_path, contract)
+    assert absent.value.findings[0]["code"] == "BASELINE_NOT_TRUSTWORTHY"
+    first = folder / "spec-8-2-enforce-the-validator.md"
+    first.write_text("# Fixture\n")
+    assert module.v2_retention_config(tmp_path, contract) == (
+        "8.2", first.relative_to(tmp_path).as_posix(), "8-2-enforce-the-validator", True
+    )
+    (folder / "spec-8-2-second.md").write_text("# Fixture\n")
+    with pytest.raises(module.V2Stop) as ambiguous:
+        module.v2_retention_config(tmp_path, contract)
+    assert ambiguous.value.findings[0]["code"] == "BASELINE_NOT_TRUSTWORTHY"
+    assert module.v2_designated_successor_outputs("8.2") == (
+        "docs/release-evidence/story-8.2-final-record-v2.json",
+        "docs/release-evidence/story-8.2-final-record-v2.md",
+    )
+
+
+def test_v2_story_8_1_lifecycle_masks_tasks_and_retro_status(monkeypatch) -> None:
+    module = load_generator()
+    spec_path = "spec.md"
+    original_spec = (b"---\nstatus: 'in-progress'\n---\n\n## Tasks & Acceptance\n"
+                     b"- [ ] first\n  - [X] nested\n\n## Implementation Notes\nkeep\n")
+    finished_spec = (original_spec.replace(b"in-progress", b"done")
+                     .replace(b"- [ ] first", b"- [x] first")
+                     .replace(b"  - [X] nested", b"  - [ ] nested"))
+    blobs = {("a", spec_path): original_spec, ("b", spec_path): finished_spec}
+    monkeypatch.setattr(module, "v2_committed_blob", lambda _repo, revision, path: blobs.get((revision, path)))
+    assert module.v2_spec_lifecycle_only_change(Path("."), "a", "b", spec_path, task_checkboxes=True)
+    blobs[("b", spec_path)] = finished_spec.replace(b"keep", b"changed")
+    assert not module.v2_spec_lifecycle_only_change(Path("."), "a", "b", spec_path, task_checkboxes=True)
+    retro = b"".join(
+        f'  - id: "epic-7-retro-item-{number}-fixture"\n    status: open\n'.encode()
+        for number in (30, 31, 32)
+    )
+    sprint = b"# last_updated: 2026-10-02\nlast_updated: 2026-10-02\ndevelopment_status:\n  8-1-story: in-progress\n" + retro
+    blobs[("a", module.V2_7_2_SPRINT_PATH)] = sprint
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = sprint.replace(b"in-progress", b"done").replace(b"status: open", b"status: done")
+    assert module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+    blobs[("a", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)]
+    blobs[("b", module.V2_7_2_SPRINT_PATH)] = blobs[("b", module.V2_7_2_SPRINT_PATH)].replace(b"status: done", b"status: open", 1)
+    assert not module.v2_sprint_status_only_change(Path("."), "a", "b", "8-1-story")
+
+
+def _story_8_1_candidate_clone(tmp_path: Path) -> tuple[Path, str, dict, dict]:
+    """Check out the published Story 8.1 source candidate for committed faults."""
+    module = load_generator()
+    repository = tmp_path / "story-8-1-candidate"
+    environment = fixture_git_environment()
+    subprocess.run(["git", "clone", "--shared", "--quiet", "--no-checkout", str(WORKSPACE), str(repository)],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = "b9859097d6bca9e9ed315313a4ffaa5e2cef157f"
+    subprocess.run(["git", "-C", str(repository), "checkout", "--quiet", "--detach", candidate],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    contract = json.loads((repository / module.V2_8_1_CONTRACT_PATH).read_bytes())
+    _, validators = module.v2_load_schemas()
+    return repository, candidate, contract, validators
+
+
+@pytest.mark.parametrize("fault,blocker", [
+    ("active-row", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("missing-banner", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("missing-decision", "UX_DECISION_INVENTORY_DRIFT"),
+    ("current-mapping", "UX_ACTIVATION_UNAUTHORIZED"),
+    ("wrong-rationale", "UX_DECISION_INVENTORY_DRIFT"),
+])
+def test_v2_story_8_1_committed_disposition_faults_have_owning_blockers(
+    tmp_path: Path, fault: str, blocker: str,
+) -> None:
+    module = load_generator()
+    repository, _, contract, validators = _story_8_1_candidate_clone(tmp_path)
+    target = repository / module.V2_8_1_DISPOSITION_PATHS[1]
+    document = json.loads(target.read_bytes())
+    if fault == "active-row":
+        document["decisions"][0]["status"] = "activated"
+    elif fault == "missing-banner":
+        document.pop("preservationBanner")
+    elif fault == "missing-decision":
+        document["decisions"].pop()
+    elif fault == "current-mapping":
+        document["decisions"][0]["historicalMappings"][0]["current"] = True
+    else:
+        document["decisions"][0]["rationale"] = "Incorrect rationale"
+    target.write_text(json.dumps(document, indent=2) + "\n", encoding="utf-8")
+    environment = fixture_git_environment()
+    subprocess.run(["git", "-C", str(repository), "add", target.relative_to(repository).as_posix()],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    subprocess.run(["git", "-C", str(repository), "commit", "--quiet", "-m", "test: mutate disposition"],
+                   check=True, env=environment, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    candidate = subprocess.check_output(["git", "-C", str(repository), "rev-parse", "HEAD"],
+                                        env=environment, text=True).strip()
+    with pytest.raises(module.V2Stop) as failure:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in failure.value.findings] == [blocker]
+
+
+def test_v2_story_8_1_assembly_must_match_candidate_and_be_current(tmp_path: Path) -> None:
+    module = load_generator()
+    repository, candidate, contract, validators = _story_8_1_candidate_clone(tmp_path)
+    assembly = repository / module.V2_8_1_TEST_ASSEMBLY
+    assembly.parent.mkdir(parents=True, exist_ok=True)
+    assembly.write_bytes(b"1.0.0+" + ("b" * 40).encode())
+    with pytest.raises(module.V2Stop) as wrong:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in wrong.value.findings] == ["TEST_RESULTS_STALE"]
+    assembly.write_bytes(b"1.0.0+" + candidate.encode())
+    candidate_time = int(subprocess.check_output(["git", "-C", str(repository), "show", "-s", "--format=%ct", candidate], text=True).strip())
+    os.utime(assembly, ns=((candidate_time - 1) * 1_000_000_000,) * 2)
+    with pytest.raises(module.V2Stop) as old:
+        module.v2_ux_facts(repository, candidate, module.V2_8_1_CONTRACT_PATH,
+                           contract, validators["record"])
+    assert [finding["code"] for finding in old.value.findings] == ["TEST_RESULTS_STALE"]
+
+
+def test_v2_successor_python_check_preconditions_and_exit(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    script = "_bmad/scripts/publish_v9_planning_authority.py"
+    target = tmp_path / script
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"committed script")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"committed script" if path == script else None)
+    exits = [0]
+    executions: list[int] = []
+    def execute(*_args, **_kwargs):
+        executions.append(1)
+        return subprocess.CompletedProcess([], exits[0], b"", b"")
+    monkeypatch.setattr(module.subprocess, "run", execute)
+    scenario = {"id": "AC-9.1-02", "command": f"python3 {script} --repository . --check"}
+    command = {"kind": "python_check", "script": script, "outputs": [],
+               "options": {"--repository": ".", "--check": "true"}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "passed" and not findings and len(executions) == 1
+    exits[0] = 1
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "TEST_RESULTS_FAILED" in record["blockers"] and len(executions) == 2
+    target.write_bytes(b"working edit")
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert len(executions) == 2
+
+
+def test_v2_successor_python_scenario_mismatch_does_not_execute(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    script = "_bmad/scripts/generate_example.py"
+    target = tmp_path / script
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"committed script")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"committed script" if path == script else None)
+    executions: list[int] = []
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: executions.append(1))
+    scenario = {"id": "AC-9.1-01", "command": f"python3 {script} --scenario AC-9.1-02"}
+    command = {"kind": "python", "script": script, "outputs": [],
+               "options": {"--scenario": "AC-9.1-02"}}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, command, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_RESULT_MISMATCH" in record["blockers"]
+    assert not executions
+
+
+def test_v2_successor_build_target_mismatch_does_not_execute(tmp_path: Path, monkeypatch) -> None:
+    module = load_generator()
+    project = "tests/Example/Example.csproj"
+    target = tmp_path / project
+    target.parent.mkdir(parents=True)
+    target.write_bytes(b"working edit")
+    monkeypatch.setattr(module, "v2_committed_blob",
+                        lambda _repo, _candidate, path: b"<Project />" if path == project else None)
+    executions: list[int] = []
+    monkeypatch.setattr(module.subprocess, "run", lambda *_args, **_kwargs: executions.append(1))
+    scenario = {"id": "AC-9.2-01", "command": f"dotnet build {project} -c Release"}
+    record, category, findings = module.v2_successor_scenario_from_results(
+        tmp_path, scenario, {"kind": "build", "project": project}, "a" * 40, 0, [])
+    assert category == "failed" and "SCENARIO_COMMAND_UNSUPPORTED" in record["blockers"]
+    assert not executions
+
+
+def test_v2_early_generator_requires_immediately_following_python_check() -> None:
+    module = load_generator()
+    contract = "_bmad-output/planning-artifacts/v9/story-contracts/8.2.json"
+    check = "python3 _bmad/scripts/publish_v9_planning_authority.py --repository . --check"
+    scenarios = [{"command": "first"}, {"command": "generator"}, {"command": check}]
+    assert module.v2_early_generator_permitted("8.2", 1, scenarios, contract)
+    assert not module.v2_early_generator_permitted("8.2", 0, scenarios, contract)
+    assert not module.v2_early_generator_permitted("7.4", 1, scenarios, contract)
+    assert not module.v2_early_generator_permitted("8.2", 1, scenarios[:-1], contract)
 
 
 if __name__ == "__main__":
