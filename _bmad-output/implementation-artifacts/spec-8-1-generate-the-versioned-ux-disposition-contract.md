@@ -2,7 +2,7 @@
 title: 'Generate the versioned UX disposition contract'
 type: 'feature'
 created: '2026-10-02'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '92638b8a2d48f12626db13afcb1f45554cbf3683'
 route: 'dispatch'
 review_loop_iteration: 1
@@ -62,6 +62,58 @@ context:
 - Given frozen inventories, when AC-8.1-02–04 run, then source bindings and ordered 52/28 complete rows pass.
 - Given preserved rows and `SC-8.1`, when AC-8.1-05–06 run, then mappings stay non-current and UI changes fail.
 - Given six passing results and Story 7.4, when AC-8.1-07 runs, then the record binds all required inputs with `7/7/0/0/0/0`.
+
+### Review Findings
+
+Review 3 (2026-10-02; baseline `92638b8`; reviewed `92638b8..35121ca`, scoped to the generators, both pytest suites, both C# tests, both schemas, and the runbook; record pair retracted in `518df28`). Layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor; none failed.
+
+- [ ] [Review][Patch] Successor routes reject lifecycle-only descendants on retained reruns — resolved from decision (Option 1, 2026-10-03): pass `stamped` into `v2_successor_scenario_from_results` and accept `{candidate} ∪ stamped` for the xUnit assembly stamp, built-DLL stamp, and Python output `candidate`; leave Story 8.1's pinned-TRX route unchanged. A clean review reruns the gate at the retained candidate, so 9.2/10.1/11.2 builds and 10.3–16.3 `--candidate HEAD` outputs otherwise fail deterministically [_bmad/scripts/generate_story_record.py:5774,5859,5896] (A9, E6, E7, E16, B8)
+- [ ] [Review][Patch] Final gate reports `UX_SCHEMA_INVALID` instead of the owning blocker for an activated row, missing banner, 51-row inventory, or current mapping — the candidate-schema check runs before the activation/inventory checks, which the closed schema makes unreachable; the runbook's `UX_ACTIVATION_UNAUTHORIZED` row also promises the non-current case. Classify activation/inventory/ownership before generic schema failure, test through `v2_ux_facts` with committed mutations, and align the runbook row [_bmad/scripts/generate_story_record.py:6014] (A1, E28)
+- [ ] [Review][Patch] Production-path pytest is bound to live HEAD — it clones `HEAD`, so after Story 8.2's first commit the path guard fires without the injected file, and a later UX-source edit stops it at `UX_SOURCE_DRIFT`; there is no no-injection control. Check out the recorded Story 8.1 candidate and add a control run [_bmad/scripts/tests/test_generate_story_record.py:7134] (B13, A2)
+- [ ] [Review][Patch] Successor lifecycle retention is untested — no test covers `v2_retention_config` (0/1/2 specs), the task-checkbox mask (flip accepted, other Tasks edit rejected), or the 8-1 retro mask (open→done accepted, done→open rejected) [_bmad/scripts/generate_story_record.py:4739,4603,4690] (G1, B9)
+- [ ] [Review][Patch] The Story 8.1 record pair is never re-verified by a test — nothing asserts `v2_verify_pair == []`, record-schema validity, the AC-8.1-07 self-ledger, or the `storyId == 8.1 ⇔ uxDisposition` rule; Story 8.2's predecessor check depends on all four [_bmad/schemas/story-final-record-v2.schema.json:301] (G2)
+- [ ] [Review][Patch] `v2_ux_facts` assembly binding and derivation parity are never exercised — the only caller test stops at the path guard; add other-commit/older assembly (`TEST_RESULTS_STALE`) and edited committed row (parity code) cases [_bmad/scripts/generate_story_record.py:6056] (G3)
+- [ ] [Review][Patch] No test ties the committed disposition bundle to a fresh derivation — add `generate(ROOT, CONTRACT_PATH)` equals the three committed files; the parity test passes committed bytes as both inputs [_bmad/scripts/tests/test_generate_ux_preservation_disposition.py:70] (G4, B12)
+- [ ] [Review][Patch] Successor commands execute after the gate has already failed and before their own preconditions — the successor loop lacks the Story 8.1 `not findings` guard, and `subprocess.run` precedes the committed-script/project and `--scenario` checks, so a dirty tree still runs builds and uncommitted scripts [_bmad/scripts/generate_story_record.py:6516,5756] (B1)
+- [ ] [Review][Patch] `--verify-inserted-record` designated-pair check is tautological for stories ≥ 8 — `expected_outputs` is read from the same `finalRecord.paths` it is compared with; derive it from the `docs/release-evidence/story-<id>-final-record-v2.{json,md}` convention [_bmad/scripts/generate_story_record.py:6750] (B3, G6)
+- [ ] [Review][Patch] `v2_authority` binds a reconstructed contract path instead of the evaluated `--contract` bytes [_bmad/scripts/generate_story_record.py:3441] (B4, E1)
+- [ ] [Review][Patch] C# AC-8.1-06 diff uses rename detection — add `--no-renames` to match `committed_path_status` [tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs:210] (B6, A3, E24)
+- [ ] [Review][Patch] `permitted_early` accepts the generator at any position when the last scenario is `python_check`; require `position == len(scenarios) - 2` as its message states [_bmad/scripts/generate_story_record.py:6329] (B10, E17)
+- [ ] [Review][Patch] Task-checkbox mask misses `[X]` and indented sub-task checkboxes [_bmad/scripts/generate_story_record.py:4609] (E3, B9)
+- [ ] [Review][Patch] Runbook documents Story 8.1 blockers but not its procedure or the generic successor routes — add the candidate-stamped build prerequisite, pinned-TRX rerun behavior, `xunit`/`python`/`python_check`/`build`/`restore` routes, `outputFiles`, V14 contract acceptance, and the rerun rule (successors: rebuild and rerun every command at HEAD before a retained rerun; Story 8.1: no Conformance rebuild between the record commit and a clean-review rerun) [docs/runbooks/story-final-record-generation.md:1171] (B16)
+- [ ] [Review][Patch] Dead `subprocess.check_output` stub in `source_fixture` — `generate()` never calls it [_bmad/scripts/tests/test_generate_ux_preservation_disposition.py:38] (B12)
+- [ ] [Review][Patch] Locked no-op restore leaves `project.assets.json` older than the candidate, so Story 11.2's `AC-11.2-02` reports `TEST_RESULTS_STALE` after a successful exact restore; the zero-exit execution, not the asset mtime, should prove currency [_bmad/scripts/generate_story_record.py:5913] (E14)
+- [ ] [Review][Patch] `python_check` route and the story-≥8 early-generator exception are untested — add committed-script mismatch, nonzero exit, and misplaced-generator cases [_bmad/scripts/generate_story_record.py:5796] (G5)
+- [x] [Review][Defer] xUnit `-method` selector rejects a `[Theory]` whose TRX `testName` carries an argument suffix [_bmad/scripts/generate_story_record.py:5789] — deferred: unverified medium; settle by checking whether any declared `-method` selector in contracts 8–16 targets a `[Theory]` once those tests exist
+- [x] [Review][Defer] Successor Python verdict falls back to a domain `status` field and treats non-verdict values as failure [_bmad/scripts/generate_story_record.py:5835] — deferred: unverified medium; settle by checking whether any successor generator's declared JSON output carries a non-verdict `status` once those generators exist (E13, B14)
+- [x] [Review][Defer] Solution build output paths assume forward-slash `Path`, default `AssemblyName`, and `net10.0` [_bmad/scripts/generate_story_record.py:5896] — deferred: unverified medium; settle against Story 11.2's fixture solution once it exists (E15)
+
+Ledger transfer pending: `_bmad-output/implementation-artifacts/deferred-work.md` is outside the Story 8.1 candidate path set (`V2_8_1_ALLOWED_PATHS`, `AllowedCandidatePaths`). Committing it before the record fails AC-8.1-06 and the final gate with `UX_PRODUCTION_CHANGE_FORBIDDEN`, and committing it after the record breaks candidate retention. Append the three deferrals above to that ledger once Story 8.1 reaches `done`.
+
+Rejected:
+
+- `false` E5 — the spec template always carries both `Tasks & Acceptance` and `Implementation Notes` headings, so the fail-closed branch is unreachable for template specs.
+- `false` E10 — the gate executes the exact declared `python3` command, and the gate itself is declared as `python3 …`, so both resolve the same interpreter.
+- `false` E20, E21, E25 — both sources are byte-pinned to the Story 7.4 candidate before versions are read; their single, unquoted, non-empty version keys cannot change without `UX_SOURCE_DRIFT`.
+- `false` B12 (mock) — `source_fixture` stubs only the `git show` call; the drift comparison still runs and the mutation tests reach `UX_SOURCE_DRIFT`.
+- `false` B9 (retro and record region) — the spec requires Story 8.1 to close retro items 30–32, and successor records are inserted into their specs as Story 8.1's is.
+- `low` B2, E9 — the gate leaves rewritten evidence after a failed rerun; for Story 8.1 this needs an interpreter mismatch after parity passed, successor outputs are declared dirt so the real `STALE` repeats, and snapshot/restore adds complexity.
+- `low` B5, A4 — moving `baseline_commit` forward requires a deliberate frontmatter edit; pinning it adds a guard.
+- `low` B6 (triplicated allowlist) — the three lists are frozen for this story; a sync test adds machinery.
+- `low` A3 (C# negative test) — the Python gate proves both forbidden-path kinds; a C# fixture repository adds machinery.
+- `low` B7, A5, E27 — CI uses `fetch-depth: 0`, sibling tests read the same commit through `ReadCandidateBytes`, and CI excludes the class.
+- `low` B8, E8 — missing pinned TRX fails by spec design; no consumer regenerates the record from a fresh clone (CI does not run AC-8.1-07 and `--verify-inserted-record` verifies the pair only).
+- `low` B9, E4 — unchecking a completed task after the candidate is unlikely; rejecting it adds state tracking.
+- `low` B9, E2 — a second untracked `spec-<m>-<n>-*.md` draft is unlikely; listing the committed tree adds plumbing.
+- `low` B11 — the schemas do not pin inventory content, but the gate's byte parity and the C# row checks do, Story 8.2 owns the zero-gap validator, and a schema change forces evidence regeneration.
+- `low` A10 — Markdown renders only the first mapping, but derivation always emits exactly one and byte parity enforces it.
+- `low` B15, E11, E19, E23 — tracebacks need unreadable files, missing `git`, or a missing Story 7.4 candidate object; the double module load costs only time; rollback swallowing was already rejected in Review 2.
+- `low` A6 — authority-input and write-failure blocker labels and the unused exit `2` matter only when canonical inputs are missing or the disk fails.
+- `low` A7 — the process-level AC-8.1-01 run is measured by the final gate; a subprocess test needs a real Git fixture.
+- `low` A8 — the C# selectors fail generically only on failure, which the record maps to `TEST_FAILED`; adding codes touches every assertion.
+- `low` E18 — the extra `RECORD_NOT_DERIVED` blocker is accurate, and the primary blocker is still reported.
+- `low` E22 — output paths are fixed constants under an existing `docs/release-evidence`.
+- `low` E26 — the Git commands used write little to stderr.
 
 ## Implementation Notes
 
