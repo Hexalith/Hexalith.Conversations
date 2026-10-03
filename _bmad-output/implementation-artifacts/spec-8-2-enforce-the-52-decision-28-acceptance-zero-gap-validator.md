@@ -2,7 +2,7 @@
 title: 'Enforce the 52-decision/28-acceptance zero-gap validator'
 type: 'feature'
 created: '2026-10-03'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '8f2594db2f6e29e6eb98e2fea90467d615674dd0'
 implementation_start_commit: 'f415298801097caa5f745e6976d67a79e4e2aab4'
 route: 'dispatch'
@@ -65,13 +65,52 @@ context:
 - Given all mutations, when AC-10 runs, then every before/after hash matches and coverage is complete.
 - Given current PASS results and compatible Story 8.1, when AC-11 runs, then the record binds required facts with `11/11/0/0/0/0`.
 
+### Review Findings
+
+Review 2 (2026-10-03; baseline `8f2594d`; reviewed the full `8f2594d..d562ade` diff, 15 files, +3,032/−29; record pair `e7b524f` retracted in `5bf53d7`). Layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor; none failed. Before the retraction, the pair verified with `--verify-inserted-record` at `d562ade` against candidate `fdc7b87`, and the DLL and ten receipts matched their recorded digests.
+
+- [x] [Review][Decision] Spec-add commit sits outside the Story 8.2 scope guard, and its four gitlink moves are neither checked nor disclosed — resolved (acknowledge, 2026-10-03): the four moves are the owner's own pushed gitlink bumps, the guard already proves the implementation moved no gitlink, and Implementation Notes now state what the record binds; no code change. `v2_8_2_facts` starts both `committed_path_status` and the gitlink equality at the spec-add commit `f415298`, so that commit's own changes are never examined. It moves `references/Hexalith.Folders` `a20127c→92da4b0`, `Parties` `937cb2a→5388884`, `Projects` `049d24f→0f03582`, and `Tenants` `bfc10cb→c0afce2`. The record names neither `baseline_commit` `8f2594d` nor this delta, although Implementation Notes say "the final record retains the full planning-baseline delta". [_bmad/scripts/generate_story_record.py:6366] (B1, B2, E3, A2, A3)
+- [ ] [Review][Patch] The new CI-run conformance fact cannot pass in the CI checkout — resolved from decision (publish a tag, 2026-10-03): push `ba1b476` to `refs/tags/evidence/story-7.4-candidate` on origin, which CI's checkout fetches with every other tag, then confirm on the first CI run that both lanes find it and that the conformance job's `python3` imports `jsonschema`. `PreservedBundleShouldPassZeroGapVerification` runs `verify()`, whose `generate()` reads sources at the Story 7.4 candidate `ba1b476`. No ref on origin reaches that commit (the backup branch is gone), and a main-only clone exits `1` with `UX_SOURCE_UNBOUND` (reproduced). `ci / conformance` does not exclude this class. The same missing object already fails 15 `ci / repository` tests since `f415298`, and the new real-Git pytest will join them. Whether the conformance job's unprovisioned system `python3` has `jsonschema` remains unverified. [tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs:27] (B3, E10, V7)
+- [ ] [Review][Patch] The accepted-evidence archive that the runbook requires was never made — resolved from decision (archive at the replacement candidate, 2026-10-03): once the new pair is accepted, copy the Release output directory and the ten receipts with preserved modification times to `~/hexalith-evidence/conversations/story-8.2/<sourceRevisionId>/`, with a SHA-256 manifest, and verify it against the record. the runbook requires archiving the Release output, the ten receipts, and a manifest under `uxValidation.sourceRevisionId`, outside the working tree. No archive exists, and both locations are gitignored, so the next conformance build overwrites the bound DLL (`34bfb89e…`) and the record can no longer be reverified. [docs/runbooks/story-final-record-generation.md:1322] (B12)
+- [ ] [Review][Patch] Story 8.2 CLI integration test fails on every clean checkout — it clones `HEAD` and commits workspace copies that already equal `HEAD`, so `git commit` exits `1` (reproduced: 1 failed, 46 passed). With dirt it would stop at `CANDIDATE_NOT_FINAL`, because `HEAD` now carries the 8.2 pair and the done spec. It is the only coverage of the `verify_spec` rederivation and the 8.2 record wiring; `ci / repository` turns red, and the Verification "no failures" claim does not hold. Build the fixture from `implementation_start_commit` with the candidate implementation files overlaid [_bmad/scripts/tests/test_generate_story_record.py:8134] (E1, V1, A1)
+- [ ] [Review][Patch] Story 8.2 record-schema conditional is untested — add a published-pair test modeled on the Story 8.1 one, rejecting a record without `uxValidation`, a truncated or reordered `faultInjection.results`, and a non-8.2 record carrying `uxValidation` [_bmad/schemas/story-final-record-v2.schema.json:328] (V2)
+- [ ] [Review][Patch] Story 8.1 disposition-compatibility check is untested — add a `predecessor-disposition` case where committed and installed bytes agree but differ from `predecessor.uxDisposition`, expecting `AUTHORITY_BINDING_INVALID` [_bmad/scripts/generate_story_record.py:6381] (V3)
+- [ ] [Review][Patch] Protected Story 8.1 paths removed from `V2_8_2_ALLOWED_PATHS` are unpinned — parametrize scope faults over the 8.1 spec, disposition outputs, 8.1 record pair, and `PlanningAuthorityV8ValidationTest.cs`, expecting `UX_PRODUCTION_CHANGE_FORBIDDEN` [_bmad/scripts/generate_story_record.py:2789] (V4)
+- [ ] [Review][Patch] Observed-fault schema does not pin outcomes — `uxObservedFault` uses generic exit codes and blockers, while successors accept an 8.2 predecessor by schema and pair digest alone. Pin baseline and restored exit `0` with empty blockers, observed exit `1` with one blocker, and each id's expected blocker, as Story 7.4's `observedFault` does [_bmad/schemas/story-final-record-v2.schema.json:1818] (B10, A4)
+- [ ] [Review][Patch] Per-lane fault-set check is unpinned — add lane-missing, lane-duplicate, and lane-reordered mutations, expecting `FAULT_NOT_DETECTED` rather than the later `FIXTURE_NOT_RESTORED` [_bmad/scripts/generate_story_record.py:6481] (V5)
+- [ ] [Review][Patch] Verifier schema-bytes check is untested — a loosened installed schema verifies when it is removed; add a `schema-changed` branch expecting `UX_SCHEMA_INVALID` [_bmad/scripts/generate_ux_preservation_disposition.py:444] (V6)
+- [ ] [Review][Patch] Executed verifier is not bound to the candidate — load `generate_ux_preservation_disposition.py` from `--repository` (already checked by `committed_input`), not from `Path(__file__)` [_bmad/scripts/generate_story_record.py:6388] (B11, E2)
+- [ ] [Review][Patch] `markdown-order` fixture writes text with platform newlines and locale encoding — write UTF-8 bytes so CRLF cannot turn `UX_ORDER_DRIFT` into `UX_RENDER_DRIFT` [_bmad/scripts/tests/test_generate_ux_preservation_disposition.py:306] (E8)
+
+Rejected (Review 2):
+
+- `false` B5 — `verify()` prints PASS only after both inventories equal the frozen 52/28 lists, so the literals cannot misstate a passing count.
+- `false` B6 — an `N/A` owner or hash still exits `1` (`UX_CURRENT_STORY_INVALID` or `UX_SOURCE_DRIFT`); nothing accepts N/A.
+- `false` B8 — first-failure precedence is the documented contract: semantic failures precede schema failures so each fixture has one exact blocker.
+- `false` B9 — the spec maps historical and nonexistent ownership to the same `UX_CURRENT_STORY_INVALID`, and every non-canonical owner is rejected.
+- `false` B16 — AC-8.2-08's "or order is changed" covers JSON order, `markdown-order` keeps JSON unchanged, and the task names JSON/Markdown ordering.
+- `false` E4 — needs a hand-written invalid double-quoted escape in tool-written frontmatter, and still fails loudly as `BLOCKED`.
+- `false` E9 — the module lives in the repository; local and CI runs always have Git and a work tree.
+- `false` V8 — frozen AC-01 runs the whole class, the ledger lists only executed tests, and the generator scope check owns the 8.2 boundary.
+- `false` A6 — the runbook's general tables already document every listed code.
+- `low` B4 — the verifier writes one line, so stderr cannot fill the pipe; async reads and timeouts add machinery.
+- `low` B7 — a missing output or a missing status still fails closed with exit `1`; reclassifying them adds branches.
+- `low` B13 — the `DispositionError` pass-through is a one-line wrapper over 57 verifier tests, both Markdown sections share one loop, and the mocked receipt test is superseded by the CLI-test patch.
+- `low` B14 — recording counts in the spec is a spec edit; the false "no failures" claim is carried by the CLI-test patch.
+- `low` B15 — the unused parameter, repeated `git show`, hard-coded selectors, and duplicated fault map mirror a frozen, digest-bound contract; equality tests add machinery.
+- `low` E5 — accumulated findings are dropped only when a receipt is also missing, and the run still fails closed with a valid blocker.
+- `low` E6, E7 — need deliberate measurement against dirty code or fabricated digests; rederivation adds machinery.
+- `low` A5 — the frozen selectors call the real `main()`, and the real-process test exists; switching fixtures to real Git adds machinery.
+
 ## Implementation Notes
 
 The preserved planning baseline predates the commit that added this spec and
 updated four root gitlinks. `implementation_start_commit` records the task-entry
-revision for the Story 8.2 no-production-change boundary. The final record retains
-the full planning-baseline delta; inherited gitlinks remain visible, while the
-validator requires their task-entry and candidate identities to match.
+revision for the Story 8.2 no-production-change boundary. The final record binds
+that start in `uxValidation.implementationStartCommit` and the candidate gitlinks;
+it does not restate the baseline delta. The four gitlink moves in the spec-add
+commit are the owner's acknowledged bumps (Review 2), and the validator requires
+the task-entry and candidate gitlink identities to match.
 
 ## Spec Change Log
 
