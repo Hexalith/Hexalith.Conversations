@@ -2,7 +2,7 @@
 title: 'Enforce the 52-decision/28-acceptance zero-gap validator'
 type: 'feature'
 created: '2026-10-03'
-status: 'done'
+status: 'in-progress'
 baseline_commit: '8f2594db2f6e29e6eb98e2fea90467d615674dd0'
 implementation_start_commit: 'f415298801097caa5f745e6976d67a79e4e2aab4'
 route: 'dispatch'
