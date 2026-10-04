@@ -2,7 +2,7 @@
 title: 'Enforce the 52-decision/28-acceptance zero-gap validator'
 type: 'feature'
 created: '2026-10-03'
-status: 'in-progress'
+status: 'done'
 baseline_commit: '8f2594db2f6e29e6eb98e2fea90467d615674dd0'
 implementation_start_commit: 'f415298801097caa5f745e6976d67a79e4e2aab4'
 route: 'dispatch'
@@ -57,7 +57,7 @@ context:
 - [x] `tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs` — prove rendering and zero-gap parity through the verifier; retain Story 8.1 checks.
 - [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` — add an 8.2-only closed UX binding and observed ledger. Verify predecessor pair/candidate compatibility, committed inputs/inventories, exact faults, measured exit/blockers, restoration parity, and stamped nonempty results. Reject missing/stale/failed/empty evidence and altered bindings; preserve other stories.
 - [x] `docs/runbooks/story-final-record-generation.md` — document verification, Story 8.2 blockers, result properties, and candidate/build prerequisites.
-- [ ] `.github/workflows/ci.yml`, `_bmad/scripts/generate_story_record.py`, `_bmad/scripts/tests/test_generate_story_record.py` — exclude the historical fixed-446 assertion comparison from current CI, permit that exact workflow path in Story 8.2 scope, and prove other workflows and product paths remain forbidden. Confirm both current validation lanes pass.
+- [x] `.github/workflows/ci.yml`, `_bmad/scripts/generate_story_record.py`, `_bmad/scripts/tests/test_generate_story_record.py` — exclude the historical fixed-446 assertion comparison from current CI, permit that exact workflow path in Story 8.2 scope, and prove other workflows and product paths remain forbidden. Confirm both current validation lanes pass.
 - [x] `docs/release-evidence/story-8.2-final-record-v2.json`, `docs/release-evidence/story-8.2-final-record-v2.md`, this spec, `_bmad-output/implementation-artifacts/sprint-status.yaml` — run acceptance commands; generate, insert, and verify the record before done.
 
 **Acceptance Criteria:**
@@ -72,7 +72,7 @@ context:
 Review 2 (2026-10-03; baseline `8f2594d`; reviewed the full `8f2594d..d562ade` diff, 15 files, +3,032/−29; record pair `e7b524f` retracted in `5bf53d7`). Layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor; none failed. Before the retraction, the pair verified with `--verify-inserted-record` at `d562ade` against candidate `fdc7b87`, and the DLL and ten receipts matched their recorded digests.
 
 - [x] [Review][Decision] Spec-add commit sits outside the Story 8.2 scope guard, and its four gitlink moves are neither checked nor disclosed — resolved (acknowledge, 2026-10-03): the four moves are the owner's own pushed gitlink bumps, the guard already proves the implementation moved no gitlink, and Implementation Notes now state what the record binds; no code change. `v2_8_2_facts` starts both `committed_path_status` and the gitlink equality at the spec-add commit `f415298`, so that commit's own changes are never examined. It moves `references/Hexalith.Folders` `a20127c→92da4b0`, `Parties` `937cb2a→5388884`, `Projects` `049d24f→0f03582`, and `Tenants` `bfc10cb→c0afce2`. The record names neither `baseline_commit` `8f2594d` nor this delta, although Implementation Notes say "the final record retains the full planning-baseline delta". [_bmad/scripts/generate_story_record.py:6366] (B1, B2, E3, A2, A3)
-- [ ] [Review][Patch] The new CI-run conformance fact cannot pass in the CI checkout — resolved from decision (publish a tag, 2026-10-03): push `ba1b476` to `refs/tags/evidence/story-7.4-candidate` on origin, which CI's checkout fetches with every other tag, then confirm on the first CI run that both lanes find it and that the conformance job's `python3` imports `jsonschema`. `PreservedBundleShouldPassZeroGapVerification` runs `verify()`, whose `generate()` reads sources at the Story 7.4 candidate `ba1b476`. No ref on origin reaches that commit (the backup branch is gone), and a main-only clone exits `1` with `UX_SOURCE_UNBOUND` (reproduced). `ci / conformance` does not exclude this class. The same missing object already fails 15 `ci / repository` tests since `f415298`, and the new real-Git pytest will join them. Whether the conformance job's unprovisioned system `python3` has `jsonschema` remains unverified. [tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs:27] (B3, E10, V7)
+- [x] [Review][Patch] The new CI-run conformance fact cannot pass in the CI checkout — resolved from decision (publish a tag, 2026-10-03): push `ba1b476` to `refs/tags/evidence/story-7.4-candidate` on origin, which CI's checkout fetches with every other tag, then confirm on the first CI run that both lanes find it and that the conformance job's `python3` imports `jsonschema`. `PreservedBundleShouldPassZeroGapVerification` runs `verify()`, whose `generate()` reads sources at the Story 7.4 candidate `ba1b476`. No ref on origin reaches that commit (the backup branch is gone), and a main-only clone exits `1` with `UX_SOURCE_UNBOUND` (reproduced). `ci / conformance` does not exclude this class. The same missing object already fails 15 `ci / repository` tests since `f415298`, and the new real-Git pytest will join them. Whether the conformance job's unprovisioned system `python3` has `jsonschema` remains unverified. [tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs:27] (B3, E10, V7)
 - [x] [Review][Patch] The accepted-evidence archive that the runbook requires was never made — resolved from decision (archive at the replacement candidate, 2026-10-03): once the new pair is accepted, copy the Release output directory and the ten receipts with preserved modification times to `~/hexalith-evidence/conversations/story-8.2/<sourceRevisionId>/`, with a SHA-256 manifest, and verify it against the record. the runbook requires archiving the Release output, the ten receipts, and a manifest under `uxValidation.sourceRevisionId`, outside the working tree. No archive exists, and both locations are gitignored, so the next conformance build overwrites the bound DLL (`34bfb89e…`) and the record can no longer be reverified. [docs/runbooks/story-final-record-generation.md:1322] (B12)
 - [x] [Review][Patch] Story 8.2 CLI integration test fails on every clean checkout — it clones `HEAD` and commits workspace copies that already equal `HEAD`, so `git commit` exits `1` (reproduced: 1 failed, 46 passed). With dirt it would stop at `CANDIDATE_NOT_FINAL`, because `HEAD` now carries the 8.2 pair and the done spec. It is the only coverage of the `verify_spec` rederivation and the 8.2 record wiring; `ci / repository` turns red, and the Verification "no failures" claim does not hold. Build the fixture from `implementation_start_commit` with the candidate implementation files overlaid [_bmad/scripts/tests/test_generate_story_record.py:8134] (E1, V1, A1)
 - [x] [Review][Patch] Story 8.2 record-schema conditional is untested — add a published-pair test modeled on the Story 8.1 one, rejecting a record without `uxValidation`, a truncated or reordered `faultInjection.results`, and a non-8.2 record carrying `uxValidation` [_bmad/schemas/story-final-record-v2.schema.json:328] (V2)
@@ -181,6 +181,20 @@ edge-case, and verification-gap reviews found no actionable issues in this
 correction. The replacement candidate requires a fresh Release build, all
 eleven frozen commands, and the exact current conformance selection.
 
+Completion validation (2026-10-04): the corrected candidate
+`28bc212f9831efe577c5f4cd7feb3c63b08663c2` passed 621 Python tests and the
+exact current conformance selection (415 passed, zero failures/skips/not-run)
+in an isolated checkout with root-declared module repositories. All eleven
+frozen acceptance commands passed with `11/11/0/0/0/0`; repeated generation
+produced identical pair bytes. The inserted record verified successfully.
+The complete 263-file archive, including the bound assembly and ten receipts,
+was copied with original nanosecond modification times to
+`~/hexalith-evidence/conversations/story-8.2/28bc212f9831efe577c5f4cd7feb3c63b08663c2/`
+and verified against its manifest and record. The first GitHub repository job
+passed 755 tests; product, Admin Web, Aspire, release-tooling, CodeQL, and
+commit-message checks also passed. CI-01 corrects the sole remaining historical
+inventory failure. No Story 8.2 review finding is deferred.
+
 ## Verification
 
 - Run all eleven contract commands verbatim; first build conformance with the required candidate stamp for its Release acceptance lane.
@@ -197,8 +211,8 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 - Schema: `hexalith.conversations.story-final-record.v2`
 - Result: `PASS`
 - Story: `8.2`
-- Candidate: `93e53b2091099f768369f7a4c4d812de2fc837d2`
-- JSON content SHA-256 (all three digest fields zeroed): `f7305c10c1f54a32b2faff2de5bf961d7364bd393a12ad96088d3c7da5f3583f`
+- Candidate: `28bc212f9831efe577c5f4cd7feb3c63b08663c2`
+- JSON content SHA-256 (all three digest fields zeroed): `ce196d71d48e0ddc40d189344b8f7748697370136ac7fa3e286671f089f3edc7`
 
 ## Authority
 
@@ -238,16 +252,16 @@ Generated by `_bmad/scripts/generate_story_record.py` from the committed candida
 
 | Scenario | Exit | Result | Blockers | Assertions | Result file | Result file SHA-256 |
 | --- | --- | --- | --- | --- | --- | --- |
-| `AC-8.2-01` | `0` | `PASS` | `none` | `6` | `artifacts/v9/8.2/AC-8.2-01.trx` | `5782ca1f2f7d610eec34f51ec3eec6786198cd421c22a5feb7a0af98cc45b214` |
-| `AC-8.2-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-02.xml` | `e67779f2942b0666d514bcf26838ca4179105c0bdc13069a46c369f378ee6e5a` |
-| `AC-8.2-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-03.xml` | `e02be7c18cc97decfa8bce5176977cdea3211e45e0c2e0f47308baee9ac3058f` |
-| `AC-8.2-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-04.xml` | `6d8a15ead1f5dcf5c5b16c1bb6c12e8a633b8a0a61e9d52f55fd8000ef019bed` |
-| `AC-8.2-05` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-05.xml` | `34b8b2bb853d00eecf3a27acbd70db2dc673243476963df2c8605096a1ddf6a1` |
-| `AC-8.2-06` | `0` | `PASS` | `none` | `2` | `artifacts/v9/8.2/AC-8.2-06.xml` | `5ef5f225f1968389ae69dc2a36a8a451e98fed1dbf77fe79eec5ebba6005cbf2` |
-| `AC-8.2-07` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-07.xml` | `0a91e1a402dc122fac3f4144ce3f66d6f2236f4b9174a23ac99c3de88044c471` |
-| `AC-8.2-08` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-08.xml` | `d4d7fc88b08d8d4c7126b6bdbc7c4d6454ffd16cdba5d91021cc0fe66ba9605b` |
-| `AC-8.2-09` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-09.xml` | `bc99ae9142558b76c98438bca8c51850fe2072a078bd70509a2f1e97cefe477e` |
-| `AC-8.2-10` | `0` | `PASS` | `none` | `15` | `artifacts/v9/8.2/AC-8.2-10.xml` | `e047b0a1fca4fc8211e874f6045e067c5cd27f1bceea435bbd2036b8ebb7dd9b` |
+| `AC-8.2-01` | `0` | `PASS` | `none` | `6` | `artifacts/v9/8.2/AC-8.2-01.trx` | `bc8b69b316b077bb30a001c42b87836d546bbd7285de82a8d0b1960316590b1f` |
+| `AC-8.2-02` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-02.xml` | `6b000dd9dfb306f162b654f255f4546b370b9090123df62b492fb777c187ffc8` |
+| `AC-8.2-03` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-03.xml` | `3e3fb2618303174497bca470fa86f5009ce7243b2fb766ca70adab76e57fc56f` |
+| `AC-8.2-04` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-04.xml` | `4d6ce78d4663d65d050e2a81b26539b09774500d0a766ead4cb2c1f6c29d95f6` |
+| `AC-8.2-05` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-05.xml` | `791d8eaef001119271d41dd6ad1da1c0cab77a6e75b316e5a13e788c4688a02e` |
+| `AC-8.2-06` | `0` | `PASS` | `none` | `2` | `artifacts/v9/8.2/AC-8.2-06.xml` | `52408d79015d25e34fcefb85b44460d5d43bc498b180546c7fd6450496ce57e6` |
+| `AC-8.2-07` | `0` | `PASS` | `none` | `1` | `artifacts/v9/8.2/AC-8.2-07.xml` | `4ed795454ee26a64c6b53ff2d93b3e6293d8bea97978255be12fdee57fc7151c` |
+| `AC-8.2-08` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-08.xml` | `b6533b85dc776410cfb1dcc93363c1a16596d30b8c3bc3ab1f17ca641744ec9e` |
+| `AC-8.2-09` | `0` | `PASS` | `none` | `3` | `artifacts/v9/8.2/AC-8.2-09.xml` | `f2dfbcdcb2f22c9c4cfc8f011649fde6912650d3ead4b8aaf0108a10163523ed` |
+| `AC-8.2-10` | `0` | `PASS` | `none` | `15` | `artifacts/v9/8.2/AC-8.2-10.xml` | `edcb6d55286cf6ccc2b8ea5fd8927123a6b77499627c549d57abf5ded9a15eed` |
 | `AC-8.2-11` | `0` | `PASS` | `none` | `15` | none | none |
 
 ### `AC-8.2-01`
@@ -256,8 +270,8 @@ Command: `dotnet tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net1
 
 | Bound output | SHA-256 |
 | --- | --- |
-| `artifacts/v9/8.2/AC-8.2-01.trx` | `5782ca1f2f7d610eec34f51ec3eec6786198cd421c22a5feb7a0af98cc45b214` |
-| `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll` | `20f30e435e70aa56b201f1e61acf3e79fb33f8230f6d5c49b63362759927d678` |
+| `artifacts/v9/8.2/AC-8.2-01.trx` | `bc8b69b316b077bb30a001c42b87836d546bbd7285de82a8d0b1960316590b1f` |
+| `tests/Hexalith.Conversations.Conformance.Tests/bin/Release/net10.0/Hexalith.Conversations.Conformance.Tests.dll` | `5a8f9ab50d50b5dc60b6a8bc4b23d4d1cb39f9f7088d7c88a47757ec57848555` |
 
 | Assertion | Subject | State |
 | --- | --- | --- |
@@ -385,7 +399,7 @@ Command: `python3 _bmad/scripts/generate_story_record.py --repository . --contra
 
 ## Story 8.2 zero-gap UX validation
 
-- Candidate: `93e53b2091099f768369f7a4c4d812de2fc837d2`
+- Candidate: `28bc212f9831efe577c5f4cd7feb3c63b08663c2`
 - Story 8.1 candidate: `7f91d33ea366edca7aca8fa0a31b386409126799`
 - Story 8.1 record SHA-256: `ba23b3b94d75d030532c538beb0807d82d5f45b9fc6635478cda6399f095f18a`
 - Inventory SHA-256: `ea18b1f65c4077c1f91a7f8bd65e4b17def20f26336d53c1325c5ee574c29196`
