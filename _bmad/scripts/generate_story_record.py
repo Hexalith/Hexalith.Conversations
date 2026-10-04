@@ -2789,7 +2789,7 @@ V2_8_2_PREDECESSOR = ("8.1", "docs/release-evidence/story-8.1-final-record-v2.js
 V2_8_2_ALLOWED_PATHS = (V2_8_1_ALLOWED_PATHS - {
     V2_8_1_SPEC_PATH, *V2_8_1_DISPOSITION_PATHS, V2_8_2_PREDECESSOR[1], V2_8_2_PREDECESSOR[2],
     "tests/Hexalith.Conversations.Conformance.Tests/PlanningAuthorityV8ValidationTest.cs",
-}) | {V2_8_2_SPEC_PATH, "docs/release-evidence/story-8.2-final-record-v2.json",
+}) | {V2_8_2_SPEC_PATH, ".github/workflows/ci.yml", "docs/release-evidence/story-8.2-final-record-v2.json",
       "docs/release-evidence/story-8.2-final-record-v2.md"}
 V2_8_2_FAULT_PROPERTY = "story82ObservedFault"
 V2_8_2_REQUIRED_FAULTS = {

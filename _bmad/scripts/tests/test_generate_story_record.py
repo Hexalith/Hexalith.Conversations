@@ -8108,6 +8108,24 @@ def test_v2_story_8_2_scope_rejects_each_protected_story_8_1_path(tmp_path: Path
     assert [finding["code"] for finding in failure.value.findings] == ["UX_PRODUCTION_CHANGE_FORBIDDEN"]
 
 
+@pytest.mark.parametrize("path,allowed", [
+    (".github/workflows/ci.yml", True),
+    (".github/workflows/release.yml", False),
+    ("src/Injected.cs", False),
+])
+def test_v2_story_8_2_scope_allows_current_ci_without_allowing_other_workflows_or_product(
+    tmp_path: Path, monkeypatch, path: str, allowed: bool,
+) -> None:
+    module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
+    monkeypatch.setattr(module, "committed_path_status", lambda *_: {path: "M"})
+    if allowed:
+        assert module.v2_8_2_facts(repository, candidate, contract, validators["record"])["sourceRevisionId"] == candidate
+    else:
+        with pytest.raises(module.V2Stop) as failure:
+            module.v2_8_2_facts(repository, candidate, contract, validators["record"])
+        assert [finding["code"] for finding in failure.value.findings] == ["UX_PRODUCTION_CHANGE_FORBIDDEN"]
+
+
 def test_v2_story_8_2_executes_the_committed_candidate_verifier(tmp_path: Path, monkeypatch) -> None:
     module, repository, candidate, contract, validators = _story_8_2_binding_fixture(tmp_path, monkeypatch)
     path = "_bmad/scripts/generate_ux_preservation_disposition.py"

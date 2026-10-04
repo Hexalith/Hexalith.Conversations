@@ -44,6 +44,7 @@ context:
 - `_bmad-output/planning-artifacts/v9/story-contracts/8.2.json`: frozen commands and inventory; its bytes match the authority bundle.
 - `_bmad/scripts/generate_ux_preservation_disposition.py`: reuse schema, frozen IDs, derivation, renderer, and predecessor verification.
 - `tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs`: five positive facts; preserve source/row/provenance and Story 8.1 candidate checks.
+- `.github/workflows/ci.yml`: current conformance excludes retired historical inventory comparisons; all six UX facts remain enabled.
 - `_bmad/scripts/generate_story_record.py`: pytest/xUnit routes exist; reuse Story 7.4's observed JUnit properties. Its closed schema reserves UX binding for 8.1 and observed faults for 7.4.
 - `docs/release-evidence/story-8.1-final-record-v2.json`: immutable predecessor; completed 8.1 spec supplies continuity.
 
@@ -56,6 +57,7 @@ context:
 - [x] `tests/Hexalith.Conversations.Conformance.Tests/UxPreservationDispositionValidationTest.cs` — prove rendering and zero-gap parity through the verifier; retain Story 8.1 checks.
 - [x] `_bmad/scripts/generate_story_record.py`, `_bmad/schemas/story-final-record-v2.schema.json`, `_bmad/scripts/tests/test_generate_story_record.py` — add an 8.2-only closed UX binding and observed ledger. Verify predecessor pair/candidate compatibility, committed inputs/inventories, exact faults, measured exit/blockers, restoration parity, and stamped nonempty results. Reject missing/stale/failed/empty evidence and altered bindings; preserve other stories.
 - [x] `docs/runbooks/story-final-record-generation.md` — document verification, Story 8.2 blockers, result properties, and candidate/build prerequisites.
+- [ ] `.github/workflows/ci.yml`, `_bmad/scripts/generate_story_record.py`, `_bmad/scripts/tests/test_generate_story_record.py` — exclude the historical fixed-446 assertion comparison from current CI, permit that exact workflow path in Story 8.2 scope, and prove other workflows and product paths remain forbidden. Confirm both current validation lanes pass.
 - [x] `docs/release-evidence/story-8.2-final-record-v2.json`, `docs/release-evidence/story-8.2-final-record-v2.md`, this spec, `_bmad-output/implementation-artifacts/sprint-status.yaml` — run acceptance commands; generate, insert, and verify the record before done.
 
 **Acceptance Criteria:**
@@ -108,8 +110,15 @@ Review 2 local patches were implemented and verified on 2026-10-03. The required
 two-file Python suite passed all 611 tests with zero failures or skips; the
 focused regression selection passed 94 tests. The replacement record and exact
 evidence archive will be generated from the committed replacement candidate.
-Historical candidate tag publication and first-CI confirmation remain pending
-because the governing build step forbids remote operations.
+The owner authorized remote publication on 2026-10-04. The historical candidate
+tag now resolves on origin to `ba1b47622ad8d72e0ea70f01e4e695e49413c1ee`.
+The first CI run passed all six UX conformance facts, proving both historical
+source reachability and the runner's system Python `jsonschema` import. The sole
+conformance failure was the retired rc.2 comparison of the current assembly with
+its frozen 446-assertion inventory: six additive UX facts, no removed assertions.
+The current-change policy puts that historical comparison outside current CI.
+The accepted pair was retracted in `bd3a3f8` before the CI correction and exact
+workflow scope allowance; a replacement record will bind the corrected candidate.
 
 The preserved planning baseline predates the commit that added this spec and
 updated four root gitlinks. `implementation_start_commit` records the task-entry
@@ -146,10 +155,8 @@ Isolated mutation checks proved the new tests fail when canonical equality
 | EC-03 | high | patch | Matching fault lanes can carry unrelated fixture hashes; the same committed-fixture binding gap as BH-01. |
 | EC-04 | high | patch | Rehashed scenario output bindings and summary are not compared with frozen measurements; the same completion remeasurement gap as BH-03. |
 | VG-01 | medium | patch | Direct helper tests do not cover the Story 8.2 inserted-record CLI seam. Add baseline success and changed-result rejection through that command. |
-
-
-| R3-B1 | high | pending remote | Fresh origin checkouts lack Story 7.4 candidate ba1b47622ad8d72e0ea70f01e4e695e49413c1ee. This is the existing Review 2 tag-publication task, which remains open under the no-remote build rule. |
-| R3-B2 | maybe-false | pending CI | The conformance job does not explicitly install jsonschema; no runner import failure has been demonstrated. The existing Review 2 first-CI check must confirm the system Python import before closing that task. |
+| R3-B1 | high | patch | Published `evidence/story-7.4-candidate` on origin at ba1b47622ad8d72e0ea70f01e4e695e49413c1ee with the owner's 2026-10-04 authorization. All six UX conformance facts passed in CI run 37178164948, including the verifier that reads the historical sources. |
+| R3-B2 | false | reject | The runner's existing system Python imports jsonschema: PreservedBundleShouldPassZeroGapVerification passed in CI run 37178164948. No dependency change is needed. |
 | R3-B3 | low | reject | Shared checkout tests exercise the local real-Git CLI; fresh-origin reachability is separately tracked by the tag/CI task. Adding network access to the unit fixture would add a separate external dependency without resolving that known task. |
 | R3-B4 | low | reject | A deliberately rewritten and re-finalized pair can carry arbitrary binding paths. Normal generation and inserted-record verification rederive those paths; changing the generic predecessor threat model would add new validation branches for fabricated committed evidence. |
 | R3-B5 | low | reject | A deliberately re-finalized pair can carry inconsistent candidate fields. The current completion verifier rejects this through full candidate rederivation; this repeats Review 2's rejected fabricated-evidence concern for the generic predecessor consumer. |
@@ -158,10 +165,21 @@ Isolated mutation checks proved the new tests fail when canonical equality
 | R3-B8 | low | patch | Recovery requires exact modification times, but the manifest instructions name only paths and hashes. Fixed: the runbook explicitly requires original nanosecond modification times, and the archive manifest preserves them. |
 | R3-B9 | medium | patch | Changing fault identity also invalidates its blocker and stops at schema validation. Fixed: independent XML name, parameter, and classname mutations keep valid metadata; deleting the guard now fails all three new tests. |
 | R3-B10 | medium | patch | Missing/wrong-stamp assembly cases do not pin the correctly stamped but old assembly branch. Fixed: a correctly stamped assembly older than the candidate produces TEST_RESULTS_STALE in its new regression. |
-| R3-E1 | high | pending remote | The origin clone reproduces UX_SOURCE_UNBOUND for ba1b476. Same root cause as R3-B1 and the existing Review 2 tag/CI task. |
+| R3-E1 | high | patch | Same root cause as R3-B1; the published historical tag and first-CI UX success prove the correction. |
 | R3-V1 | medium | patch | Deleting canonical JSON/Markdown equality leaves all 58 verifier and 84 Story 8.2 generator tests green. Fixed: self-consistent decision and acceptance-row fixtures require UX_RENDER_DRIFT; removing canonical equality fails both new tests. |
 | R3-V2 | medium | patch | Deleting exact testcase attribution leaves all 84 Story 8.2 generator tests green. Same root cause as R3-B9; fixed and independently proved by the three failing guard-deletion probes. |
-| R3-V3 | high | pending remote | A fresh main-only clone cannot derive the preserved source at ba1b476. Same root cause as R3-B1 and the existing Review 2 tag/CI task. |
+| R3-V3 | high | patch | Same root cause as R3-B1; complete-history CI now derives the preserved historical source successfully. |
+
+CI followup (2026-10-04): [first run](https://github.com/Hexalith/Hexalith.Conversations/actions/runs/37178164948). Conformance: 416 tests, 415 passed, one historical fixed-inventory comparison failed, zero skips/not-run. The uploaded TRX proves all six UX facts passed.
+
+| Finding | Verdict | Route | Evidence |
+| --- | --- | --- | --- |
+| CI-01 | high | patch | The retired rc.2 assertion-inventory comparison is still selected by current CI and rejects all six additive UX facts. Exclude that one historical method under the current-change policy, keeping its source and frozen records for reproduction. Permit only ci.yml in the Story 8.2 scope; positive CI-path and negative release-workflow/product-path regressions exercise the guard. |
+
+The CI followup passed all ten focused scope regressions. Independent blind,
+edge-case, and verification-gap reviews found no actionable issues in this
+correction. The replacement candidate requires a fresh Release build, all
+eleven frozen commands, and the exact current conformance selection.
 
 ## Verification
 

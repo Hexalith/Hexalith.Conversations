@@ -180,6 +180,7 @@ jobs:
             -class- "Hexalith.Conversations.Conformance.Tests.StoryFinalRecordGenerationValidationTest" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.BindingsClosuresAndFrozenV1BytesShouldValidateIndependently" \
             -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.CurrentControlsAndTierPrerequisiteShouldStayTruthful" \
+            -method- "Hexalith.Conversations.Conformance.Tests.PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap" \
             -method- "Hexalith.Conversations.Conformance.Tests.SmC2BaselineReconstructionValidationTest.BaselineShouldRecordAnAuditableReconstructionMethod" \
             -parallelMode none \
             -result-trx TestResults/conformance/conformance-results.trx \
