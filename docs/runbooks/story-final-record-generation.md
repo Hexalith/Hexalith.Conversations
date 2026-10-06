@@ -1277,8 +1277,13 @@ The hashes bind sorted fixture paths and exact bytes across authority inputs,
 sources, and the output bundle. Every baseline and restored CLI run must PASS
 with exit 0 and no blockers; each mutation must change bytes and fail with exit
 1 and exactly its expected blocker. Restoration runs in `finally`.
-The final-record schema pins these outcomes and each fault ID's sole blocker,
-so later stories cannot accept a digest-bound pair with different outcomes.
+The final-record schema pins the baseline, observed, and restored exit codes and
+blockers, and each fault ID's sole blocker, so later stories cannot accept a
+digest-bound pair with different exit or blocker outcomes. JSON Schema cannot
+compare fields: equal before/after hashes, a changed mutated hash, and the
+candidate binding are enforced only by generation and inserted-record
+verification, so a consumer that checks only the schema and pair digest does not
+re-prove restoration.
 The record generator executes the verifier from `--repository` after checking
 that its installed bytes equal the candidate's committed verifier.
 
@@ -1342,3 +1347,13 @@ digests; it does not recover the accepted bytes. If the original archive is
 unavailable or mismatched, the accepted record cannot be reproduced. Follow the
 record-only retraction, replacement candidate, fresh acceptance, and new record
 procedure instead of assigning the old digests to regenerated evidence.
+
+The AC-8.2-01 TRX records the test assembly's absolute `codeBase`, and
+verification resolves it against `--repository`. Restore into a clean checkout
+at the same absolute repository path as the accepted run; elsewhere the receipt
+fails `TEST_FAILED` and `ASSERTION_LEDGER_EMPTY`. When that working tree is in
+use, mount a clean clone with its own object store at that path in a private
+mount namespace, such as `unshare --mount --map-root-user`, instead of editing
+the receipt. Copy the archive in a format that keeps nanosecond times, such as
+`tar --format=pax`, or reapply each manifest `st_mtime_ns` after restoring it.
+NTFS and the default GNU tar format round these times.
