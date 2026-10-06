@@ -2,8 +2,8 @@
 title: 'Freeze the conformance assertion inventory, tier decisions, digest, and approvals'
 type: 'feature'
 created: '2026-10-06'
-status: 'draft'
-baseline_commit: 'e6611b2c6a2f5e3270122bd3515d43f7645be9c4'
+status: 'ready-for-dev'
+baseline_commit: '602f6f52f283f72213826e44f6cd87de05d0d948'
 route: 'dispatch'
 review_loop_iteration: 0
 context:
@@ -26,6 +26,8 @@ context:
 
 **Never:** Split projects (Story 9.2), change production/public APIs or dependencies, weaken/rename/remove assertions, edit protected v1 or accepted records, or treat historical approval as approval of unseen rows. Historical checks excluded from CI cannot be counted as currently passed.
 
+**Decision:** Use the current supported CI execution lane, retain every source/discovery identity, and bind the historical exclusions explicitly. Retired definitions remain preserved without a current pass claim.
+
 ## I/O & Edge-Case Matrix
 
 | Scenario | Input / State | Expected Output / Behavior | Error Handling |
@@ -36,10 +38,6 @@ context:
 | Preservation violation | Denominator, public shape, or v1 mutation | Reject; restore isolated fixtures exactly | `FR20_DENOMINATOR_DRIFT`, `PUBLIC_CONTRACT_WIDENED`, `V1_ARTIFACT_DRIFT` |
 
 </frozen-after-approval>
-
-## Open Questions
-
-1. Which baseline should the inventory bind? **Current lane:** supported CI execution plus complete source/discovery identities and explicit historical exclusions. **Full historical lane:** every conformance case, including retired validators whose failures block completion. The contract requires every pre-split identity; current policy excludes historical validators. Neither filtered TRX nor old full results represent all current definitions.
 
 ## Code Map
 
