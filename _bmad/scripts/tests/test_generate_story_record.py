@@ -8153,8 +8153,11 @@ def test_v2_story_8_2_cannot_move_the_scope_start_past_the_spec_add_commit(tmp_p
     assert [finding["code"] for finding in failure.value.findings] == ["BASELINE_NOT_TRUSTWORTHY"]
 
 
-@pytest.mark.parametrize("missing", [False, True])
-def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, monkeypatch, missing: bool) -> None:
+@pytest.mark.parametrize("fault,blocker", [
+    (None, None), ("missing", "TEST_NOT_RUN"), ("duplicate", "TEST_NOT_RUN"), ("binding", "TEST_RESULTS_STALE"),
+])
+def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, monkeypatch, fault: str | None,
+                                                                blocker: str | None) -> None:
     module = load_generator()
     candidate = "a" * 40
     monkeypatch.setattr(module, "run_git", lambda *_: subprocess.CompletedProcess([], 0, b"0", b""))
@@ -8164,7 +8167,8 @@ def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, 
     methods = ["PreservedBundleShouldPassZeroGapVerification", "SourcesShouldBindCanonicalPathsVersionsAndHashes",
                "DecisionsShouldProjectTheFrozenInventory", "AcceptanceCriteriaShouldProjectTheFrozenInventory",
                "DispositionsShouldRemainPreservedAndHistorical", "CandidateShouldContainNoProductionUiChange"]
-    if missing: methods.pop()
+    if fault == "missing": methods.pop()
+    elif fault == "duplicate": methods.append(methods[0])
     prefix = "Hexalith.Conversations.Conformance.Tests.UxPreservationDispositionValidationTest."
     results = "".join(f'<UnitTestResult testName="{prefix}{method}" outcome="Passed" />' for method in methods)
     count = len(methods)
@@ -8177,11 +8181,12 @@ def test_v2_story_8_2_positive_requires_every_preservation_fact(tmp_path: Path, 
     target.parent.mkdir(parents=True)
     target.write_bytes(content)
     command = json.loads((WORKSPACE / module.V2_8_2_CONTRACT_PATH).read_bytes())["scenarios"][0]["command"]
-    scenario = {"command": command, "resultFile": {"path": path, "sha256": module.v2_sha256(content)}}
-    if missing:
+    digest = "b" * 64 if fault == "binding" else module.v2_sha256(content)
+    scenario = {"command": command, "resultFile": {"path": path, "sha256": digest}}
+    if blocker:
         with pytest.raises(module.V2Stop) as failure:
             module.v2_8_2_positive(tmp_path, candidate, scenario)
-        assert [finding["code"] for finding in failure.value.findings] == ["TEST_NOT_RUN"]
+        assert [finding["code"] for finding in failure.value.findings] == [blocker]
     else:
         module.v2_8_2_positive(tmp_path, candidate, scenario)
 

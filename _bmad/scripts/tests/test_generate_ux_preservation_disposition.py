@@ -427,8 +427,9 @@ def test_verification_cli_rejects_malformed_nested_mappings(preservation_fixture
     ("map-byte", "UX_SOURCE_DRIFT"), ("mapping-current", "UX_CURRENT_STORY_INVALID"),
     ("mapping-classification", "UX_CURRENT_STORY_INVALID"), ("provenance-current", "UX_CURRENT_STORY_INVALID"),
     ("provenance-classification", "UX_CURRENT_STORY_INVALID"),
-    ("schema-changed", "UX_SCHEMA_INVALID"),
-], ids=[f"branch-{number:02d}" for number in range(1, 11)])
+    ("schema-changed", "UX_SCHEMA_INVALID"), ("sources-hash", "UX_HASH_MISSING"),
+    ("bundle-status", "UX_ACTIVATION_UNAUTHORIZED"), ("bundle-banner", "UX_ACTIVATION_UNAUTHORIZED"),
+], ids=[f"branch-{number:02d}" for number in range(1, 14)])
 def test_verifier_additional_semantics(preservation_fixture: Path, branch: str, blocker: str) -> None:
     path = preservation_fixture / module.OUTPUT_PATHS[1]
     original = path.read_bytes()
@@ -448,6 +449,9 @@ def test_verifier_additional_semantics(preservation_fixture: Path, branch: str, 
         elif branch == "mapping-classification": row["historicalMappings"][0]["classification"] = "current"
         elif branch == "provenance-current": document["historicalProvenance"]["currentImplementationOwner"] = True
         elif branch == "schema-changed": schema_path.write_bytes(b"{}\n")
+        elif branch == "sources-hash": del document["sources"][0]["sha256"]
+        elif branch == "bundle-status": document["status"] = "activated"
+        elif branch == "bundle-banner": document["preservationBanner"] = "Activated for delivery."
         else: document["historicalProvenance"]["classification"] = "current"
         path.write_bytes((json.dumps(document, indent=2, ensure_ascii=False) + "\n").encode())
         assert _verification_cli(preservation_fixture) == (1, [blocker])
