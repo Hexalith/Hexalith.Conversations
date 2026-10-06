@@ -1,5 +1,5 @@
 # generated: 2026-06-02
-# last_updated: 2026-10-04
+# last_updated: 2026-10-06
 # project: Conversations
 # project_key: NOKEY
 # tracking_system: file-system
@@ -37,7 +37,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-06-02
-last_updated: 2026-10-04
+last_updated: 2026-10-06
 # V14 PLANNING PUBLICATION: authorities epic-6-authority-2026-08-18-v14 and conversations-architecture-2026-08-18-v14 are candidate-bound by v9-authority-bundle-v1.json. GLOBAL IMPLEMENTATION HOLD remains ACTIVE; IR-0 was not run, A2 and A3 are done, A4-A6 remain open, and all successor stories including Epic 16 remain backlog.
 # PROVENANCE LEDGER: the 90 lifecycle-transition comments previously recorded here are preserved byte-exact in _bmad-output/implementation-artifacts/sprint-status-provenance-v1.md (sha256 pinned by v14-current-candidate-authority-v1.json). That relocation changed no lifecycle or action-item status value.
 project: Conversations
@@ -93,7 +93,7 @@ development_status:
   epic-7-retrospective: done
   epic-8: in-progress
   8-1-generate-the-versioned-ux-disposition-contract: done
-  8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: review
+  8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator: done
   epic-8-retrospective: optional
   epic-9: backlog
   9-1-freeze-the-conformance-assertion-inventory-tier-decisions-digest-and-approvals: backlog
