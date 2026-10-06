@@ -447,3 +447,11 @@ Transferred after Story 8.1 reached `done`; the Story 8.1 candidate path set exc
 - source_spec: `_bmad-output/implementation-artifacts/spec-8-1-generate-the-versioned-ux-disposition-contract.md`
   summary: The retained sprint-status mask hard-codes the `8-1-` key and Epic 7 retro items 30–32, so a successor lifecycle commit that closes other retro items is rejected with `CANDIDATE_NOT_FINAL`.
   evidence: Review 5 (E12), unverified medium. Settle when a successor spec requires closing retro items after its record commit.
+
+## Deferred from: code review of spec-8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator.md (2026-10-06)
+
+Recorded after Story 8.2 reached `done` at `5a7c422`; the Story 8.2 candidate path set excluded this ledger until then.
+
+- source_spec: `_bmad-output/implementation-artifacts/spec-8-2-enforce-the-52-decision-28-acceptance-zero-gap-validator.md`
+  summary: No current CI check compares the exported `Hexalith.Conversations.Client` types with a reviewed inventory. CI-01 (`28bc212`) excluded all of `PreservationTraceabilityManifestValidationTest.PublicSurfacesAndConformanceAssertionsShouldHaveZeroGap`, which also held the rc.2 public-contract and public-client checks. `PublicContractShapeSnapshotGenerationTest` still covers Contracts.
+  evidence: Review 4 (VG-1, AA-1, BH-1, BH-2, EC-4, EC-5), medium. The owner chose a current Client public-surface snapshot test modeled on the Contracts one, deferred until the in-flight Agents Client work is committed so its baseline captures the reviewed surface. `329e019` already pins the conformance exclusion list.

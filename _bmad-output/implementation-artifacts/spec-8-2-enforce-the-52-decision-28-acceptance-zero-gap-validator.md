@@ -104,6 +104,34 @@ Rejected (Review 2):
 - `low` E6, E7 — need deliberate measurement against dirty code or fabricated digests; rederivation adds machinery.
 - `low` A5 — the frozen selectors call the real `main()`, and the real-process test exists; switching fixtures to real Git adds machinery.
 
+Review 4 (2026-10-06; baseline `8f2594d`; reviewed the full `8f2594d..9938aa8` diff, 16 files, +3,655/−32). Layers: Blind Hunter, Edge Case Hunter, Verification Gap, Acceptance Auditor; none failed. Of 28 findings, triage kept 2 decisions and 4 patches and rejected 17; all four acceptance criteria hold. Upstream `90c1fc8` changes `Directory.Packages.props`, which is outside `V2_8_2_ALLOWED_PATHS`, so no replacement candidate could pass the scope guard on linear `main`. The owner therefore kept the accepted pair for `28bc212` and closed the story at `5a7c422`. The fixes landed as routine follow-ups (`2c300fb`, `1b98f9d`, `329e019`) that the record does not bind. Before closure, `--verify-inserted-record` exited `0` at `5a7c422` with output identical to the committed JSON. That run used a clean clone, mounted at the accepted repository path, with the 263-file archive restored at its manifest digests and nanosecond times.
+
+- [x] [Review][Decision] CI-01 retired more than the fixed-446 comparison — resolved (owner, 2026-10-06: pin the exclusion now; defer a current Client snapshot test until the in-flight Agents Client work is committed). The excluded method first compares the exported Contracts and Client types with the rc.2 manifest, and both checks passed in run 37178164948. `PublicContractShapeSnapshotGenerationTest` still covers Contracts; Client exports keep only weak checks. `329e019` pins the exclusion list and the UX class's selection; the snapshot test is in the deferred-work ledger. [.github/workflows/ci.yml:183] (VG-1, AA-1, BH-1, BH-2, EC-4, EC-5)
+- [x] [Review][Decision] The accepted evidence archive had one copy — resolved (owner, 2026-10-06: copy to a Windows host drive). `D:\hexalith-evidence\conversations\story-8.2\28bc212f9831efe577c5f4cd7feb3c63b08663c2.tar` is a pax tar that keeps nanosecond times (SHA-256 `4590ac211fbf27760fc45a2bb1aa2a9b9fcc341c038f7691804f55ff8daec277`, sidecar alongside). Extracting it matched all 263 manifest digests and times. [docs/runbooks/story-final-record-generation.md:1331] (BH-10)
+- [x] [Review][Patch] No verifier case deletes a bundle `sources[].sha256` and expects `UX_HASH_MISSING` [_bmad/scripts/tests/test_generate_ux_preservation_disposition.py:424] (VG-2)
+- [x] [Review][Patch] No verifier case activates the bundle `status` or `preservationBanner` and expects `UX_ACTIVATION_UNAUTHORIZED` [_bmad/scripts/tests/test_generate_ux_preservation_disposition.py:424] (VG-3)
+- [x] [Review][Patch] The positive-fact test misses a duplicated execution and a stale result binding [_bmad/scripts/tests/test_generate_story_record.py:8156] (BH-9)
+- [x] [Review][Patch] The runbook said the schema pins all fault outcomes; it pins exit codes and blockers only [docs/runbooks/story-final-record-generation.md:1280] (EC-6)
+
+Removing each guarded check fails exactly its new case, and the frozen lanes still select 1/1/1/3/2/1/3/3/15 tests. The required two-file suite passed 626 tests and `tests/tooling/test_release_tooling.py` passed 22, with no failures or skips. Gate observation: the AC-8.2-01 TRX records the absolute assembly `codeBase`, so the accepted receipt verifies only at the accepted repository path. Elsewhere it fails `TEST_FAILED` and `ASSERTION_LEDGER_EMPTY`; `1b98f9d` documents this for recovery.
+
+Rejected (Review 4):
+
+- `false` BH-4 — the fallback pair `e7b524f` still validates against the current schema, and those tests check schema behavior; inserted-record verification owns the current pair.
+- `false` BH-15 — inserted-record verification compares the whole rederived JSON byte for byte, so neither altered field can mask the other.
+- `false` E2 (EC-2) — every verifier code, including the `UX_{category}_*` family, is registered in `V2_CODES`; any other exception fails closed.
+- `low` AA-2 — the `ci.yml` change is an explicit spec task, and the rollback wording is frozen contract text.
+- `low` AA-3, BH-11 — `f415298`'s message omits the gitlink paths and reason, but it is pushed and Review 2 acknowledged the moves.
+- `low` AA-4 — owner-missing and hash-missing are separate fixtures, and N/A values hit branches that other faults already pin (Review 2, B6).
+- `low` BH-3 — the scope guard admits any `ci.yml` edit; only a deliberate edit to a reviewed file triggers it, and `329e019` now pins the selection.
+- `low` BH-5 — a selector overlap fails closed at generation as `FAULT_NOT_DETECTED`.
+- `low` BH-6, BH-7, BH-8 — Markdown-only omissions and labels; the JSON is authoritative, and the 52/28 counts are schema constants.
+- `low` BH-12 — possibly false: CI builds Release conformance in package mode, and `-m:1` serializes `-t:Rebuild`.
+- `low` BH-13 — citing the green CI run would edit the spec.
+- `low` BH-14 — a new verifier code would surface as `INTERNAL_ERROR` on its first fault test.
+- `low` E1 (EC-1) — a rebuild mid-generation is rejected by the full rederivation.
+- `low` E3 (EC-3) — a symlink loop maps to `INPUT_SCHEMA_INVALID` on Python 3.11 and `TEST_RESULTS_MISSING` on 3.14; both fail closed, and CI and `.venv` pin 3.11.
+
 ## Implementation Notes
 
 Review 2 local patches were implemented and verified on 2026-10-03. The required
