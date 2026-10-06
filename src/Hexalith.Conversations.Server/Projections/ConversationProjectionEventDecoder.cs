@@ -27,6 +27,12 @@ internal static class ConversationProjectionEventDecoder
     [
         typeof(ConversationCreated),
         typeof(MessageAppended),
+        typeof(AgentParticipantRemoved),
+        typeof(MessageEdited),
+        typeof(MessageDeleted),
+        typeof(ConversationDeletionApproved),
+        typeof(ConversationDeletionDeliveryRecorded),
+
         typeof(ParticipantAdded),
         typeof(FileReferenceAttached),
         typeof(ConversationMetadataUpdated),
@@ -44,6 +50,13 @@ internal static class ConversationProjectionEventDecoder
     [
         (typeof(ConversationCreatedDomainEvent), typeof(ConversationCreated)),
         (typeof(ParticipantAddedDomainEvent), typeof(ParticipantAdded)),
+        (typeof(MessageAppendedDomainEvent), typeof(MessageAppended)),
+        (typeof(AgentParticipantRemovedDomainEvent), typeof(AgentParticipantRemoved)),
+        (typeof(MessageEditedDomainEvent), typeof(MessageEdited)),
+        (typeof(MessageDeletedDomainEvent), typeof(MessageDeleted)),
+        (typeof(ConversationDeletionApprovedDomainEvent), typeof(ConversationDeletionApproved)),
+        (typeof(ConversationDeletionDeliveryRecordedDomainEvent), typeof(ConversationDeletionDeliveryRecorded)),
+
         (typeof(ConversationProjectChangedDomainEvent), typeof(ConversationProjectChanged)),
         (typeof(RetentionPolicySetDomainEvent), typeof(RetentionPolicySet)),
         (typeof(RetentionPolicyReplacedDomainEvent), typeof(RetentionPolicyReplaced)),
@@ -159,8 +172,8 @@ internal static class ConversationProjectionEventDecoder
     /// members verbatim and only adds the domain-side idempotency key, which the public type ignores.
     /// <para>
     /// These aliases are deliberately a separate registry rather than extra entries in the public one:
-    /// <see cref="PublicEventTypeEntries"/> remains the module's 13-name public event vocabulary, while this
-    /// registry contains only the seven domain-event types the aggregate actually persists and projects.
+    /// <see cref="PublicEventTypeEntries"/> remains the module's public event vocabulary, while this
+    /// registry contains only the explicit domain-event types the aggregate actually persists and projects.
     /// </para>
     /// </remarks>
     private static PolymorphicTypeRegistry BuildDurableEventTypeRegistry()

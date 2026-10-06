@@ -1518,6 +1518,7 @@ internal static class ContractSamples
             null,
             null,
             new DateTimeOffset(2027, 9, 1, 0, 0, 0, TimeSpan.Zero)),
+        .. ConversationAgentContractSamples.All,
     ];
 
     internal static GovernanceAuditEvidence GovernanceEvidence(GovernanceOperationKind operationKind, GovernanceOutcome outcome)

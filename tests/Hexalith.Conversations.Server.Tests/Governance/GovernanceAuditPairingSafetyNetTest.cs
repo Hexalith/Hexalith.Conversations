@@ -6,6 +6,8 @@
 using Hexalith.Conversations.Aggregates;
 using Hexalith.Conversations.Commands;
 using Hexalith.Conversations.Contracts.Governance;
+using Hexalith.Conversations.Contracts.Agents;
+using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Events;
 using Hexalith.Conversations.Server.Api;
 using Hexalith.Conversations.Server.CommandHandlers;
@@ -48,6 +50,8 @@ public sealed class GovernanceAuditPairingSafetyNetTest
                 typeof(RedactMessageContent),
                 typeof(MessageContentRedactedDomainEvent),
                 GovernanceOperationKind.RedactMessageContent),
+            new(typeof(ConversationAgentAdmissionStage), typeof(ApproveConversationDeletion),
+                typeof(ConversationDeletionApprovedDomainEvent), GovernanceOperationKind.LogicallyDeleteConversation),
         };
 
         paths.Select(path => path.HandlerType).Distinct().ShouldBe(new[]
@@ -55,12 +59,14 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             typeof(SetConversationRetentionPolicyCommandHandler),
             typeof(MarkConversationContentSensitiveCommandHandler),
             typeof(RedactMessageContentCommandHandler),
+            typeof(ConversationAgentAdmissionStage),
         }, ignoreOrder: true);
         paths.Select(path => path.AggregateCommandType).Distinct().ShouldBe(new[]
         {
             typeof(SetConversationRetentionPolicy),
             typeof(MarkConversationContentSensitive),
             typeof(RedactMessageContent),
+            typeof(ApproveConversationDeletion),
         }, ignoreOrder: true);
         paths.Select(path => path.MutationEventType).ShouldBe(new[]
         {
@@ -68,6 +74,7 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             typeof(RetentionPolicyReplacedDomainEvent),
             typeof(ConversationContentMarkedSensitiveDomainEvent),
             typeof(MessageContentRedactedDomainEvent),
+            typeof(ConversationDeletionApprovedDomainEvent),
         }, ignoreOrder: true);
         paths.Select(path => path.OperationKind).ShouldBe(new[]
         {
@@ -75,6 +82,7 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             GovernanceOperationKind.ReplaceRetentionPolicy,
             GovernanceOperationKind.MarkContentSensitive,
             GovernanceOperationKind.RedactMessageContent,
+            GovernanceOperationKind.LogicallyDeleteConversation,
         }, ignoreOrder: true);
 
         Type[] implementedGovernanceCommands = paths.Select(path => path.AggregateCommandType).Distinct().ToArray();
@@ -101,11 +109,11 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             GovernanceOperationKind.MarkContentSensitive,
             GovernanceOperationKind.RedactMessageContent,
             GovernanceOperationKind.RecordPrivilegedJustification,
+            GovernanceOperationKind.LogicallyDeleteConversation,
         };
         GovernanceOperationKind[] futureOnly =
         {
             GovernanceOperationKind.ArchiveConversation,
-            GovernanceOperationKind.LogicallyDeleteConversation,
             GovernanceOperationKind.DeferForLegalHold,
             GovernanceOperationKind.GovernAuditRecord,
         };
@@ -150,6 +158,8 @@ public sealed class GovernanceAuditPairingSafetyNetTest
             typeof(CreateConversation),
             typeof(AddParticipant),
             typeof(ReassignConversationProject),
+            typeof(AddAgentParticipant), typeof(RemoveAgentParticipant), typeof(AppendAgentMessage),
+            typeof(EditConversationMessageCommand), typeof(DeleteConversationMessageCommand), typeof(RecordConversationDeletionDelivery),
         }, ignoreOrder: true);
 
         typeof(AddParticipantCommandHandler).GetConstructors()

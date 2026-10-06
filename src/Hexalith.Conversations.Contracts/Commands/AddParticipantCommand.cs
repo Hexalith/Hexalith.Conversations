@@ -3,6 +3,8 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Participants;
 
@@ -17,10 +19,13 @@ namespace Hexalith.Conversations.Contracts.Commands;
 /// <param name="participantType">The supported participant type.</param>
 /// <param name="participantRole">The supported participant role.</param>
 /// <param name="providerCorrelation">Optional provider correlation metadata that is never authority.</param>
+/// <param name="OperationTimestamp">Deterministic timestamp required for restricted membership.</param>
 public sealed record AddParticipantCommand(
     ConversationCommandMetadata Metadata,
     ConversationId ConversationId,
     PartyId ParticipantPartyId,
     ParticipantType ParticipantType,
     ParticipantRole ParticipantRole,
-    ProviderCorrelationMetadata? ProviderCorrelation = null);
+    ProviderCorrelationMetadata? ProviderCorrelation = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    DateTimeOffset? OperationTimestamp = null);

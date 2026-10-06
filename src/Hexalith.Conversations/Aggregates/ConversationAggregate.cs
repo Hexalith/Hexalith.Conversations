@@ -27,7 +27,7 @@ namespace Hexalith.Conversations.Aggregates;
 /// <summary>
 /// Handles tenant-scoped conversation domain commands.
 /// </summary>
-public sealed class ConversationAggregate : EventStoreAggregate<ConversationState>
+public sealed partial class ConversationAggregate : EventStoreAggregate<ConversationState>
 {
     /// <summary>
     /// Creates a conversation when the command is valid and the state has not already been created.

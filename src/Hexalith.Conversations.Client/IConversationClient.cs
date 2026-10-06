@@ -4,6 +4,7 @@
 // </copyright>
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Queries;
 using Hexalith.Conversations.Contracts.Results;
 
@@ -63,4 +64,60 @@ public interface IConversationClient
     Task<ConversationClientResult<ConversationListResult>> ListConversationsAsync(
         ListConversationsQuery query,
         CancellationToken cancellationToken = default);
+
+    /// <summary>Executes the restricted AddParticipantAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentCommandResult> AddParticipantAsync(AddParticipantCommand request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentCommandResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted RemoveAgentParticipantAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentCommandResult> RemoveAgentParticipantAsync(RemoveAgentParticipantCommand request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentCommandResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted PostAgentMessageAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentCommandResult> PostAgentMessageAsync(AppendMessageCommand request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentCommandResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted GetAgentConversationAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentReadResult> GetAgentConversationAsync(ConversationAgentReadQuery request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentReadResult>(new(ConversationAgentsOutcome.Unavailable, request.TenantId, request.ConversationId));
+
+    /// <summary>Executes the restricted GetActiveConversationCountAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationActiveCountResult> GetActiveConversationCountAsync(ConversationActiveCountQuery request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationActiveCountResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted ApproveConversationDeletionAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentCommandResult> ApproveConversationDeletionAsync(ApproveConversationDeletionCommand request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentCommandResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted RecordConversationDeletionDeliveryAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationAgentCommandResult> RecordConversationDeletionDeliveryAsync(RecordConversationDeletionDeliveryCommand request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationAgentCommandResult>(new(ConversationAgentsOutcome.Unavailable));
+
+    /// <summary>Executes the restricted GetConversationDeletionSourceAsync owner seam through the existing gateway.</summary>
+    /// <param name="request">Exact portable intent or current source query.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>A safe typed outcome; default implementors fail closed.</returns>
+    Task<ConversationDeletionSourceResult> GetConversationDeletionSourceAsync(ConversationDeletionSourceQuery request, CancellationToken cancellationToken = default)
+        => Task.FromResult<ConversationDeletionSourceResult>(new(ConversationAgentsOutcome.Unavailable));
 }

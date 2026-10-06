@@ -91,6 +91,7 @@ public static class ConversationReplayVerifier
                 if (record.Event is ParticipantAddedDomainEvent or ParticipantAdded
                     or ConversationProjectChangedDomainEvent or ConversationProjectChanged)
                 {
+                    Apply(state, record.Event);
                     expectedPosition++;
                     continue;
                 }
@@ -186,6 +187,24 @@ public static class ConversationReplayVerifier
             case ConversationLifecycleChanged lifecycle:
                 state.Apply(lifecycle);
                 break;
+            case AgentParticipantRemovedDomainEvent value0:
+                state.Apply(value0);
+                break;
+            case MessageAppendedDomainEvent value1:
+                state.Apply(value1);
+                break;
+            case MessageEditedDomainEvent value2:
+                state.Apply(value2);
+                break;
+            case MessageDeletedDomainEvent value3:
+                state.Apply(value3);
+                break;
+            case ConversationDeletionApprovedDomainEvent value4:
+                state.Apply(value4);
+                break;
+            case ConversationDeletionDeliveryRecordedDomainEvent value5:
+                state.Apply(value5);
+                break;
             default:
                 throw new ArgumentException("Unsupported conversation replay event.", nameof(e));
         }
@@ -209,6 +228,12 @@ public static class ConversationReplayVerifier
             ConversationClosed => eventType == ConversationEventType.ConversationClosed,
             ConversationArchived => eventType == ConversationEventType.ConversationArchived,
             ConversationLifecycleChanged => eventType == ConversationEventType.ConversationLifecycleChanged,
+            AgentParticipantRemovedDomainEvent => eventType == ConversationEventType.AgentParticipantRemoved,
+            MessageAppendedDomainEvent => eventType == ConversationEventType.MessageAppended,
+            MessageEditedDomainEvent => eventType == ConversationEventType.MessageEdited,
+            MessageDeletedDomainEvent => eventType == ConversationEventType.MessageDeleted,
+            ConversationDeletionApprovedDomainEvent => eventType == ConversationEventType.ConversationDeletionApproved,
+            ConversationDeletionDeliveryRecordedDomainEvent => eventType == ConversationEventType.ConversationDeletionDeliveryRecorded,
             _ => false,
         };
 
@@ -235,6 +260,12 @@ public static class ConversationReplayVerifier
             ConversationClosed closed => closed.Metadata,
             ConversationArchived archived => archived.Metadata,
             ConversationLifecycleChanged lifecycle => lifecycle.Metadata,
+            AgentParticipantRemovedDomainEvent value0 => value0.Metadata,
+            MessageAppendedDomainEvent value1 => value1.Metadata,
+            MessageEditedDomainEvent value2 => value2.Metadata,
+            MessageDeletedDomainEvent value3 => value3.Metadata,
+            ConversationDeletionApprovedDomainEvent value4 => value4.Metadata,
+            ConversationDeletionDeliveryRecordedDomainEvent value5 => value5.Metadata,
             _ => null,
         };
 }

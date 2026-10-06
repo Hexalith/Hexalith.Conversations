@@ -3,6 +3,7 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using Hexalith.Conversations.Server.Agents;
 using Hexalith.Conversations.Server.Hydration;
 using Hexalith.Conversations.Server.Projections;
 using Hexalith.EventStore.Client.Registration;
@@ -85,6 +86,7 @@ public static class ConversationQueryServiceCollectionExtensions
 
     private static IServiceCollection AddConversationQueriesCore(this IServiceCollection services)
     {
+        services.AddConversationAgentServices();
         // Platform protected-cursor codec (Data Protection backed). TryAddSingleton-keyed by the codec so a
         // host that already registered it (or a test composition) is not overwritten.
         services.AddEventStoreQueryCursorCodec(CursorCodecPurpose);

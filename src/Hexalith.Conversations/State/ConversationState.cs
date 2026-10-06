@@ -23,7 +23,7 @@ namespace Hexalith.Conversations.State;
 /// would be misleading over private collection fields, and the synthesized <c>with</c> copy
 /// constructor would share a mutable backing list across clones.
 /// </remarks>
-public sealed class ConversationState
+public sealed partial class ConversationState
 {
     private readonly Dictionary<string, string> _attributes = new(StringComparer.Ordinal);
     private ImmutableArray<ConversationFileReference> _fileReferences = ImmutableArray<ConversationFileReference>.Empty;
@@ -35,87 +35,155 @@ public sealed class ConversationState
     /// <summary>
     /// Gets a value indicating whether the conversation was created.
     /// </summary>
-    public bool IsCreated { get; private set; }
+    public bool IsCreated
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the current lifecycle state.
     /// </summary>
-    public ConversationLifecycleState Lifecycle { get; private set; } = ConversationLifecycleState.NotCreated;
+    public ConversationLifecycleState Lifecycle
+    {
+        get;
+        private set;
+    } = ConversationLifecycleState.NotCreated;
 
     /// <summary>
     /// Gets the tenant binding copied from persisted event data.
     /// </summary>
-    public TenantId? TenantId { get; private set; }
+    public TenantId? TenantId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the internal Conversations-owned identity copied from persisted event data.
     /// </summary>
-    public ConversationId? ConversationId { get; private set; }
+    public ConversationId? ConversationId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the creator Party attribution copied from persisted event data.
     /// </summary>
-    public PartyId? CreatorPartyId { get; private set; }
+    public PartyId? CreatorPartyId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the deterministic creation timestamp copied from persisted event data.
     /// </summary>
-    public DateTimeOffset? CreatedAt { get; private set; }
+    public DateTimeOffset? CreatedAt
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the schema version copied from persisted event data.
     /// </summary>
-    public SchemaVersion? SchemaVersion { get; private set; }
+    public SchemaVersion? SchemaVersion
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the correlation identifier copied from persisted event data.
     /// </summary>
-    public string? CorrelationId { get; private set; }
+    public string? CorrelationId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the causation identifier copied from persisted event data.
     /// </summary>
-    public string? CausationId { get; private set; }
+    public string? CausationId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the idempotency key copied from command metadata when supplied.
     /// </summary>
-    public string? IdempotencyKey { get; private set; }
+    public string? IdempotencyKey
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the optional adopter-owned business reference.
     /// </summary>
-    public BusinessReference? BusinessReference { get; private set; }
+    public BusinessReference? BusinessReference
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the optional stable project reference.
     /// </summary>
-    public ProjectId? ProjectId { get; private set; }
+    public ProjectId? ProjectId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the optional stable folder reference.
     /// </summary>
-    public FolderId? FolderId { get; private set; }
+    public FolderId? FolderId
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the optional UI label that is not identity.
     /// </summary>
-    public string? Label { get; private set; }
+    public string? Label
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the deterministic timestamp of the most recently applied event, when any.
     /// </summary>
-    public DateTimeOffset? LastEventAt { get; private set; }
+    public DateTimeOffset? LastEventAt
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets optional provider correlation metadata that is never authority.
     /// </summary>
-    public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
+    public ProviderCorrelationMetadata? ProviderCorrelation
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets the replayed active retention policy state, when a governed policy has been accepted.
     /// </summary>
-    public ConversationRetentionPolicyState? ActiveRetentionPolicy { get; private set; }
+    public ConversationRetentionPolicyState? ActiveRetentionPolicy
+    {
+        get;
+        private set;
+    }
 
     /// <summary>
     /// Gets replayed sensitivity marks keyed by deterministic governed target reference.
@@ -214,6 +282,7 @@ public sealed class ConversationState
     public void Apply(ConversationCreatedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (IsCreated)
         {
@@ -222,6 +291,7 @@ public sealed class ConversationState
                 + "Duplicate creation in event history violates the replay invariant.");
         }
 
+        _prefixCreated = true;
         IsCreated = true;
         Lifecycle = ConversationLifecycleState.Open;
         TenantId = e.Metadata.TenantId;
@@ -253,6 +323,7 @@ public sealed class ConversationState
     public void Apply(ParticipantAddedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (HasParticipant(e.ParticipantPartyId, e.ParticipantType, e.ParticipantRole))
         {
@@ -280,6 +351,7 @@ public sealed class ConversationState
     public void Apply(ConversationProjectChangedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (ProjectId == e.CurrentProjectId)
         {
@@ -302,6 +374,7 @@ public sealed class ConversationState
     public void Apply(RetentionPolicySetDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (ActiveRetentionPolicy is not null
             && ActiveRetentionPolicy.PolicyReference == e.PolicyReference
@@ -327,6 +400,7 @@ public sealed class ConversationState
     public void Apply(RetentionPolicyReplacedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (ActiveRetentionPolicy is not null
             && ActiveRetentionPolicy.PolicyReference == e.PolicyReference
@@ -353,6 +427,7 @@ public sealed class ConversationState
     public void Apply(ConversationContentMarkedSensitiveDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         string targetKey = SensitivityTargetKey(e.Target);
         if (_sensitivityMarks.TryGetValue(targetKey, out ConversationSensitivityMarkState? existing)
@@ -382,6 +457,7 @@ public sealed class ConversationState
     public void Apply(MessageContentRedactedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         string targetKey = RedactionTargetKey(e.Target);
         if (_redactions.TryGetValue(targetKey, out ConversationRedactionState? existing)
@@ -515,6 +591,7 @@ public sealed class ConversationState
     public void Apply(MessageAppended e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
         ArgumentException.ThrowIfNullOrWhiteSpace(e.Text);
 
         if (_messages.Any(m => m.MessageId == e.MessageId))
@@ -527,7 +604,8 @@ public sealed class ConversationState
             e.AuthorPartyId,
             e.Text,
             e.Metadata.CommittedAt,
-            e.ProviderCorrelation));
+            e.ProviderCorrelation, e.AgentProvenance, e.IdempotencyKey,
+            OriginalText: e.Text, OriginalProvenance: e.AgentProvenance));
         LastEventAt = e.Metadata.CommittedAt;
     }
 
@@ -538,6 +616,7 @@ public sealed class ConversationState
     public void Apply(FileReferenceAttached e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (_fileReferences.Any(f => f.FileId == e.FileId))
         {
@@ -555,6 +634,7 @@ public sealed class ConversationState
     public void Apply(ConversationMetadataUpdated e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
 
         if (e.Label is not null)
         {
@@ -585,6 +665,7 @@ public sealed class ConversationState
     public void Apply(ConversationClosed e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
         if (Lifecycle != ConversationLifecycleState.Archived)
         {
             Lifecycle = ConversationLifecycleState.Closed;
@@ -600,6 +681,7 @@ public sealed class ConversationState
     public void Apply(ConversationArchived e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
         Lifecycle = ConversationLifecycleState.Archived;
         LastEventAt = e.Metadata.CommittedAt;
     }
@@ -611,6 +693,7 @@ public sealed class ConversationState
     public void Apply(ConversationLifecycleChanged e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
         Lifecycle = e.CurrentState.Value switch
         {
             "Open" => ConversationLifecycleState.Open,
@@ -628,6 +711,7 @@ public sealed class ConversationState
     public void Apply(ConversationRejectedDomainEvent e)
     {
         ArgumentNullException.ThrowIfNull(e);
+        _sourceRevision++;
         // Keep this as an instance replay overload so event dispatchers can route it uniformly.
         _ = IsCreated;
     }

@@ -142,6 +142,11 @@ public sealed class ConversationProjectionMaterializer
             state = ProjectionTrustState.Unavailable;
             reason = ProjectionFreshnessReasonCode.MetadataWriteFailed;
         }
+        else if (builder.SourceDeleted)
+        {
+            state = ProjectionTrustState.Unavailable;
+            reason = ProjectionFreshnessReasonCode.Unavailable;
+        }
         else if (builder.Poisoned)
         {
             state = ProjectionTrustState.Unavailable;
@@ -550,11 +555,20 @@ public sealed class ConversationProjectionMaterializer
                 _attributes.OrderBy(attribute => attribute.Key, StringComparer.Ordinal),
                 StringComparer.Ordinal);
 
-        public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy { get; private set; }
+        public ConversationRetentionPolicyProjectionV1? ActiveRetentionPolicy
+        {
+            get; private set;
+        }
 
-        public long? ActiveRetentionPolicyPosition { get; private set; }
+        public long? ActiveRetentionPolicyPosition
+        {
+            get; private set;
+        }
 
-        public BusinessReference? BusinessReference { get; private set; }
+        public BusinessReference? BusinessReference
+        {
+            get; private set;
+        }
 
         public ConversationId ConversationId => conversationId;
 
@@ -564,22 +578,46 @@ public sealed class ConversationProjectionMaterializer
                 .OrderBy(reference => reference.FileId.Value, StringComparer.Ordinal)
                 .ToArray();
 
-        public FolderId? FolderId { get; private set; }
+        public FolderId? FolderId
+        {
+            get; private set;
+        }
 
-        public bool HasGap { get; private set; }
+        public bool HasGap
+        {
+            get; private set;
+        }
+
+        /// <summary>Gets whether logical source deletion hides legacy public content.</summary>
+        public bool SourceDeleted
+        {
+            get; private set;
+        }
 
         public bool HasAuditEvidence
-            => ActiveRetentionPolicy?.AuditEvidence is not null
+            => SourceDeleted || ActiveRetentionPolicy?.AuditEvidence is not null
                 || Redactions.Any(redaction => redaction.AuditEvidence is not null)
                 || SensitivityMarks.Any(mark => mark.AuditEvidence is not null);
 
-        public bool HasOutOfOrderEvent { get; private set; }
+        public bool HasOutOfOrderEvent
+        {
+            get; private set;
+        }
 
-        public long LastAppliedPosition { get; private set; }
+        public long LastAppliedPosition
+        {
+            get; private set;
+        }
 
-        public DateTimeOffset? LastAppliedTimestamp { get; private set; }
+        public DateTimeOffset? LastAppliedTimestamp
+        {
+            get; private set;
+        }
 
-        public string? Label { get; private set; }
+        public string? Label
+        {
+            get; private set;
+        }
 
         public string LifecycleState => _lifecycleState;
 
@@ -603,11 +641,20 @@ public sealed class ConversationProjectionMaterializer
                 .OrderBy(participant => participant.ParticipantPartyId.Value, StringComparer.Ordinal)
                 .ToArray();
 
-        public bool Poisoned { get; private set; }
+        public bool Poisoned
+        {
+            get; private set;
+        }
 
-        public ProjectId? ProjectId { get; private set; }
+        public ProjectId? ProjectId
+        {
+            get; private set;
+        }
 
-        public ProviderCorrelationMetadata? ProviderCorrelation { get; private set; }
+        public ProviderCorrelationMetadata? ProviderCorrelation
+        {
+            get; private set;
+        }
 
         public TenantId TenantId => tenantId;
 
@@ -623,9 +670,15 @@ public sealed class ConversationProjectionMaterializer
                 .OrderBy(mark => mark.Target.ToTargetKey(), StringComparer.Ordinal)
                 .ToArray();
 
-        public bool UnsupportedVersion { get; private set; }
+        public bool UnsupportedVersion
+        {
+            get; private set;
+        }
 
-        public bool WasCreated { get; private set; }
+        public bool WasCreated
+        {
+            get; private set;
+        }
 
         public void Apply(ConversationProjectionEventRecord record)
         {
@@ -713,6 +766,51 @@ public sealed class ConversationProjectionMaterializer
                 case ConversationCreated created:
                     Apply(created);
                     break;
+                case AgentParticipantRemoved removed:
+                    _participants.Remove(removed.ParticipantPartyId);
+                    _participantPositions.Remove(removed.ParticipantPartyId);
+                    break;
+                case MessageEdited edited:
+                    if (!_messages.TryGetValue(edited.MessageId, out var original))
+                    {
+                        Poisoned = true;
+                        break;
+                    }
+                    var existingRedaction = _redactions.Values.FirstOrDefault(r => r.Target.Kind == GovernedTargetKind.Conversation
+                        || r.Target.Kind == GovernedTargetKind.ContentSegment || r.Target.MessageId == edited.MessageId);
+                    _messages[edited.MessageId] = (original.Position, new ConversationTimelineMessageProjectionV1(
+                        original.Message.MessageId, original.Message.AuthorPartyId, existingRedaction?.Placeholder ?? edited.Text,
+                        original.Message.CreatedAt, original.Message.ProviderCorrelation));
+                    break;
+                case MessageDeleted deleted:
+                    if (!_messages.Remove(deleted.MessageId))
+                    {
+                        Poisoned = true;
+                    }
+                    break;
+                case ConversationDeletionApproved approved:
+                    if (approved.AuditEvidence is null || approved.Signal.TenantId != TenantId
+                        || approved.Signal.ConversationId != conversationId || approved.Signal.SourceRevision != record.Position)
+                    {
+                        Poisoned = true;
+                        break;
+                    }
+                    SourceDeleted = true;
+                    _lifecycleState = ClosedState;
+                    _messages.Clear();
+                    _fileReferences.Clear();
+                    _participants.Clear();
+                    _attributes.Clear();
+                    Label = null;
+                    BusinessReference = null;
+                    ProviderCorrelation = null;
+                    break;
+                case ConversationDeletionDeliveryRecorded delivery:
+                    if (!SourceDeleted || delivery.Signal.TenantId != TenantId || delivery.Signal.ConversationId != conversationId)
+                    {
+                        Poisoned = true;
+                    }
+                    break;
                 case ParticipantAdded participant:
                     Apply(participant, record.Position);
                     break;
@@ -764,6 +862,12 @@ public sealed class ConversationProjectionMaterializer
             {
                 ConversationCreated created => created.Metadata,
                 ParticipantAdded participant => participant.Metadata,
+                AgentParticipantRemoved event0 => event0.Metadata,
+                MessageEdited event1 => event1.Metadata,
+                MessageDeleted event2 => event2.Metadata,
+                ConversationDeletionApproved event3 => event3.Metadata,
+                ConversationDeletionDeliveryRecorded event4 => event4.Metadata,
+
                 MessageAppended message => message.Metadata,
                 FileReferenceAttached file => file.Metadata,
                 ConversationMetadataUpdated update => update.Metadata,

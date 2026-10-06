@@ -78,7 +78,7 @@ public sealed class ConversationAggregateBaseClassDispatchTest
         DomainResult direct = DirectHandle(command);
 
         CommandEnvelope envelope = Envelope(command.GetType().FullName!, JsonSerializer.SerializeToUtf8Bytes(command, command.GetType(), CommandOptions));
-        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: null);
+        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: null, cancellationToken: TestContext.Current.CancellationToken);
 
         ShouldMatchOutcome(dispatched, direct);
     }
@@ -93,7 +93,7 @@ public sealed class ConversationAggregateBaseClassDispatchTest
         CreateConversation command = CreateDomainCommand();
 
         CommandEnvelope envelope = Envelope(typeof(CreateConversation).FullName!, JsonSerializer.SerializeToUtf8Bytes(command, CommandOptions));
-        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: null);
+        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: null, cancellationToken: TestContext.Current.CancellationToken);
 
         dispatched.IsSuccess.ShouldBeTrue();
         ConversationCreatedDomainEvent created = dispatched.Events.Single().ShouldBeOfType<ConversationCreatedDomainEvent>();
@@ -113,7 +113,10 @@ public sealed class ConversationAggregateBaseClassDispatchTest
     {
         CommandEnvelope envelope = Envelope(
             "Hexalith.Conversations.Commands.DefinitelyNotAConversationCommand",
-            JsonSerializer.SerializeToUtf8Bytes(new { ignored = true }, CommandOptions));
+            JsonSerializer.SerializeToUtf8Bytes(new
+            {
+                ignored = true
+            }, CommandOptions));
 
         InvalidOperationException ex = await Should.ThrowAsync<InvalidOperationException>(
             async () => await new ConversationAggregate().ProcessAsync(envelope, currentState: null).ConfigureAwait(true)).ConfigureAwait(true);
@@ -161,7 +164,10 @@ public sealed class ConversationAggregateBaseClassDispatchTest
             new ReplayEventEnvelope(
                 SequenceNumber: 1,
                 EventTypeName: "DefinitelyNotAConversationEvent",
-                Payload: JsonSerializer.SerializeToUtf8Bytes(new { ignored = true }, ReplayOptions),
+                Payload: JsonSerializer.SerializeToUtf8Bytes(new
+                {
+                    ignored = true
+                }, ReplayOptions),
                 SerializationFormat: "json",
                 MetadataVersion: 1,
                 MessageId: "message-replay-1",
@@ -194,7 +200,7 @@ public sealed class ConversationAggregateBaseClassDispatchTest
         DomainResult direct = ConversationAggregate.Handle(command, created);
 
         CommandEnvelope envelope = Envelope(typeof(AddParticipant).FullName!, JsonSerializer.SerializeToUtf8Bytes(command, CommandOptions));
-        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: created);
+        DomainResult dispatched = await new ConversationAggregate().ProcessAsync(envelope, currentState: created, cancellationToken: TestContext.Current.CancellationToken);
 
         // Guard against a silently-rejecting fixture that would make the success assertion vacuous:
         // the direct handler must genuinely succeed against the created state.

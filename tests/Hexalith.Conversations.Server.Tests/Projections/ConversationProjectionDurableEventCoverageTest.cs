@@ -143,6 +143,16 @@ public sealed class ConversationProjectionDurableEventCoverageTest
                 "message-redacted",
                 evidence,
                 "idempotency-redacted"),
+            new AgentParticipantRemovedDomainEvent(Metadata(ConversationEventType.AgentParticipantRemoved), actor),
+            new MessageAppendedDomainEvent(Metadata(ConversationEventType.MessageAppended), new("agent-message"), actor,
+                "local-agent-text", new("opaque-trace", true, false), "post-key", "intent-fingerprint"),
+            new MessageEditedDomainEvent(Metadata(ConversationEventType.MessageEdited), new("agent-message"), "edited-local-text", actor),
+            new MessageDeletedDomainEvent(Metadata(ConversationEventType.MessageDeleted), new("agent-message")),
+            new ConversationDeletionApprovedDomainEvent(Metadata(ConversationEventType.ConversationDeletionApproved),
+                new("signal", tenantId, conversationId, "tenant-durable-001:conversations:conversation-durable-001", 8, "approval"), evidence),
+            new ConversationDeletionDeliveryRecordedDomainEvent(Metadata(ConversationEventType.ConversationDeletionDeliveryRecorded),
+                new("signal", tenantId, conversationId, "tenant-durable-001:conversations:conversation-durable-001", 8, "approval"),
+                Contracts.Agents.ConversationDeletionDeliveryAction.Attempt, "attempt", "target", 0),
         ];
 
         foreach (object durable in durableEvents)
@@ -233,7 +243,7 @@ public sealed class ConversationProjectionDurableEventCoverageTest
         IReadOnlyDictionary<string, Type> publicEntries = ConversationProjectionEventDecoder.PublicEventTypeEntries;
         IReadOnlyDictionary<string, Type> durableEntries = ConversationProjectionEventDecoder.DurableEventTypeEntries;
 
-        publicEntries.Count.ShouldBe(13);
+        publicEntries.Count.ShouldBe(18);
         durableEntries.Count.ShouldBe(DurableProjectedEventTypes.Count);
         publicEntries.Keys.ShouldAllBe(name => !name.EndsWith("DomainEvent", StringComparison.Ordinal));
         durableEntries.Keys.ShouldAllBe(name => name.EndsWith("DomainEvent", StringComparison.Ordinal));

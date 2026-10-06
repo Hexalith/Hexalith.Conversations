@@ -8,6 +8,7 @@ using System.Text.Json;
 
 using Hexalith.Commons.Serialization;
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Errors;
 using Hexalith.Conversations.Contracts.Identifiers;
 using Hexalith.Conversations.Contracts.Results;
@@ -36,6 +37,7 @@ public static class ConversationCommandApi
         RouteGroupBuilder group = endpoints.MapGroup("/api/v1/conversations").RequireAuthorization();
         group.MapPost("/", CreateConversationAsync);
         group.MapPost("/{conversationId}/messages", AppendMessageAsync);
+        group.MapPost("/{conversationId}/participants", AddParticipantAsync);
         group.MapPost("/{conversationId}/project", ReassignConversationProjectAsync);
         return endpoints;
     }
@@ -83,6 +85,24 @@ public static class ConversationCommandApi
         ConversationCommandApiOutcome<ConversationCommandAcceptedResult> outcome = await handler
             .ReassignConversationProjectAsync(command, cancellationToken)
             .ConfigureAwait(false);
+        return ToHttpResult(outcome);
+    }
+
+    private static async Task<IResult> AddParticipantAsync(string conversationId, HttpContext context,
+        IConversationCommandApiHandler handler, CancellationToken cancellationToken)
+    {
+        AddParticipantCommand? command = await ReadBodyAsync<AddParticipantCommand>(context, cancellationToken).ConfigureAwait(false);
+        if (!TryValidateCommandContext(context, command?.Metadata, out IResult? rejection))
+        {
+            return rejection;
+        }
+        if (command?.ConversationId is null || command.ConversationId.Value != conversationId)
+        {
+            return ErrorResult(ConversationErrorCode.CommandValidationFailed, command?.Metadata.CorrelationId ?? CorrelationIdFrom(context),
+            StatusCodes.Status400BadRequest, "Route and command conversation identity must match.");
+        }
+        var outcome = await handler.AddParticipantAsync(command, cancellationToken).ConfigureAwait(false);
+        cancellationToken.ThrowIfCancellationRequested();
         return ToHttpResult(outcome);
     }
 
@@ -230,6 +250,15 @@ public static class ConversationCommandApi
 /// </summary>
 public interface IConversationCommandApiHandler
 {
+    /// <summary>Forwards restricted membership through the admitted EventStore gateway in an opt-in host.</summary>
+    /// <param name="command">Exact portable membership intent.</param>
+    /// <param name="cancellationToken">Cancellation.</param>
+    /// <returns>Unavailable unless the host supplies the admitted gateway binding.</returns>
+    ValueTask<ConversationCommandApiOutcome<ConversationAgentCommandResult>> AddParticipantAsync(
+        AddParticipantCommand command, CancellationToken cancellationToken = default)
+        => ValueTask.FromResult(ConversationCommandApiOutcome<ConversationAgentCommandResult>.Success(
+            new(ConversationAgentsOutcome.Unavailable), StatusCodes.Status503ServiceUnavailable));
+
     /// <summary>
     /// Executes a create-conversation command.
     /// </summary>
@@ -283,17 +312,26 @@ public sealed record ConversationCommandApiOutcome<T>
     /// <summary>
     /// Gets the success result when present.
     /// </summary>
-    public T? Value { get; }
+    public T? Value
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the typed error result when present.
     /// </summary>
-    public ConversationErrorResult? Error { get; }
+    public ConversationErrorResult? Error
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets the HTTP status code to emit.
     /// </summary>
-    public int StatusCode { get; }
+    public int StatusCode
+    {
+        get;
+    }
 
     /// <summary>
     /// Creates a success outcome.

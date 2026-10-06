@@ -3,6 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Security.Cryptography;
+using Hexalith.Conversations.Contracts.Agents;
+using Hexalith.EventStore.Contracts.Commands;
+using Hexalith.EventStore.Contracts.Queries;
 using System.Globalization;
 using System.Net;
 using System.Net.Http.Json;
@@ -23,11 +27,17 @@ namespace Hexalith.Conversations.Client;
 /// </summary>
 public sealed class ConversationClient : IConversationClient
 {
+    /// <summary>Correlation identity header.</summary>
     internal const string CorrelationIdHeaderName = "X-Correlation-Id";
+    /// <summary>Causation identity header.</summary>
     internal const string CausationIdHeaderName = "X-Causation-Id";
+    /// <summary>Opaque idempotency identity header.</summary>
     internal const string IdempotencyKeyHeaderName = "Idempotency-Key";
+    /// <summary>Exact tenant identity header.</summary>
     internal const string TenantIdHeaderName = "X-Tenant-Id";
+    /// <summary>Actor Party attribution header, never authority.</summary>
     internal const string ActorPartyIdHeaderName = "X-Actor-Party-Id";
+    /// <summary>Caller principal attribution header, never authority.</summary>
     internal const string CallerPrincipalIdHeaderName = "X-Caller-Principal-Id";
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web)
@@ -327,4 +337,262 @@ public sealed class ConversationClient : IConversationClient
     private static bool IsReadResult<T>()
         => typeof(T) == typeof(ConversationDetailResult)
             || typeof(T) == typeof(ConversationListResult);
+
+    /// <inheritdoc />
+    public Task<ConversationAgentCommandResult> AddParticipantAsync(AddParticipantCommand request, CancellationToken cancellationToken = default)
+        => request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
+            "AddAgentParticipant", new
+            {
+                PublicCommand = request,
+                AddedAt = occurrence,
+                EventId = IntentId(request.Metadata, request.ConversationId, "membership")
+            },
+            null, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
+
+    /// <inheritdoc />
+    public Task<ConversationAgentCommandResult> RemoveAgentParticipantAsync(RemoveAgentParticipantCommand request, CancellationToken cancellationToken = default)
+        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RemoveAgentParticipant",
+            new
+            {
+                PublicCommand = request,
+                EventId = IntentId(request.Metadata, request.ConversationId, "removal")
+            }, null, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<ConversationAgentCommandResult> PostAgentMessageAsync(AppendMessageCommand request, CancellationToken cancellationToken = default)
+        => request.OperationTimestamp is { } occurrence ? SubmitAgentCommandAsync(request.Metadata, request.ConversationId,
+            "AppendAgentMessage", new
+            {
+                PublicCommand = request,
+                PostedAt = occurrence,
+                EventId = IntentId(request.Metadata, request.ConversationId, "posting")
+            },
+            request.MessageId, cancellationToken) : Task.FromResult(new ConversationAgentCommandResult(ConversationAgentsOutcome.Invalid));
+
+    /// <inheritdoc />
+    public Task<ConversationAgentReadResult> GetAgentConversationAsync(ConversationAgentReadQuery request, CancellationToken cancellationToken = default)
+        => SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-agent-read", request,
+            new ConversationAgentReadResult(ConversationAgentsOutcome.Unavailable, request.TenantId, request.ConversationId), cancellationToken);
+
+    /// <inheritdoc />
+    public Task<ConversationActiveCountResult> GetActiveConversationCountAsync(ConversationActiveCountQuery request, CancellationToken cancellationToken = default)
+        => SubmitAgentQueryAsync(request.TenantId, request.TenantId.Value, "conversation-active-count", request,
+            new ConversationActiveCountResult(ConversationAgentsOutcome.Unavailable), cancellationToken);
+
+    /// <inheritdoc />
+    public Task<ConversationAgentCommandResult> ApproveConversationDeletionAsync(ApproveConversationDeletionCommand request, CancellationToken cancellationToken = default)
+        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "ApproveConversationDeletion",
+            new
+            {
+                PublicCommand = request,
+                EventId = IntentId(request.Metadata, request.ConversationId, "approval")
+            }, null, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<ConversationAgentCommandResult> RecordConversationDeletionDeliveryAsync(RecordConversationDeletionDeliveryCommand request, CancellationToken cancellationToken = default)
+        => SubmitAgentCommandAsync(request.Metadata, request.ConversationId, "RecordConversationDeletionDelivery",
+            new
+            {
+                PublicCommand = request,
+                EventId = IntentId(request.Metadata, request.ConversationId, "delivery")
+            }, null, cancellationToken);
+
+    /// <inheritdoc />
+    public Task<ConversationDeletionSourceResult> GetConversationDeletionSourceAsync(ConversationDeletionSourceQuery request, CancellationToken cancellationToken = default)
+        => SubmitAgentQueryAsync(request.TenantId, request.ConversationId.Value, "conversation-deletion-source", request,
+            new ConversationDeletionSourceResult(ConversationAgentsOutcome.Unavailable), cancellationToken);
+
+    private async Task<ConversationAgentCommandResult> SubmitAgentCommandAsync<T>(ConversationCommandMetadata metadata,
+        ConversationId conversation, string commandType, T intent, MessageId? requestedMessageId, CancellationToken cancellationToken)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        if (string.IsNullOrWhiteSpace(metadata.IdempotencyKey) || metadata.SchemaVersion.Value != 1)
+        {
+            return new(ConversationAgentsOutcome.Invalid);
+        }
+        var command = new SubmitCommandRequest(IntentId(metadata, conversation, commandType), metadata.TenantId.Value,
+            "conversations", conversation.Value, commandType, JsonSerializer.SerializeToElement(intent, JsonOptions),
+            metadata.CorrelationId, IdempotencyKey: metadata.IdempotencyKey);
+        try
+        {
+            using var request = CreateJsonRequest(HttpMethod.Post, "api/v1/commands", command);
+            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!response.IsSuccessStatusCode)
+            {
+                return new(AgentHttpOutcome(response.StatusCode));
+            }
+            var result = await response.Content.ReadFromJsonAsync<SubmitCommandResponse>(JsonOptions, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (string.IsNullOrWhiteSpace(result?.MessageId))
+            {
+                return new(ConversationAgentsOutcome.Unavailable);
+            }
+            if (result.ResultPayload is { } payload)
+            {
+                if (payload.ValueKind != JsonValueKind.Object || !payload.TryGetProperty("outcome", out _))
+                {
+                    return new(ConversationAgentsOutcome.Unavailable);
+                }
+                var outcome = payload.Deserialize<ConversationAgentCommandResult>(JsonOptions);
+                if (outcome is null || !Enum.IsDefined(outcome.Outcome)
+                    || (requestedMessageId is not null && (outcome.MessageId is not null && outcome.MessageId != requestedMessageId
+                        || outcome.Outcome == ConversationAgentsOutcome.Available && outcome.MessageId != requestedMessageId)))
+                {
+                    return new(ConversationAgentsOutcome.Conflict, result.MessageId);
+                }
+                // A response cannot independently establish persisted completion; current source lookup does.
+                return outcome with
+                {
+                    CommandMessageId = result.MessageId,
+                    Persisted = false
+                };
+            }
+            return new(ConversationAgentsOutcome.Available, result.MessageId, requestedMessageId);
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested
+            && exception is HttpRequestException or JsonException or TaskCanceledException or InvalidOperationException or IOException)
+        {
+            return new(ConversationAgentsOutcome.Unavailable);
+        }
+    }
+
+    private async Task<TResult> SubmitAgentQueryAsync<TRequest, TResult>(TenantId tenant, string aggregate,
+        string queryType, TRequest payload, TResult unavailable, CancellationToken cancellationToken) where TResult : class
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var query = new SubmitQueryRequest(tenant.Value, "conversations", aggregate, queryType,
+            Payload: JsonSerializer.SerializeToElement(payload, JsonOptions))
+        {
+            Freshness = new(RequireFresh: true)
+        };
+        try
+        {
+            using var request = CreateJsonRequest(HttpMethod.Post, "api/v1/queries", query);
+            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (!response.IsSuccessStatusCode)
+            {
+                return unavailable;
+            }
+            var result = await response.Content.ReadFromJsonAsync<SubmitQueryResponse>(JsonOptions, cancellationToken).ConfigureAwait(false);
+            cancellationToken.ThrowIfCancellationRequested();
+            if (result is not { Success: true } || result.Metadata is { IsStale: true } or { IsDegraded: true }
+                || result.Metadata?.Paging is { HasMore: true } || result.Metadata?.Paging?.NextCursor is not null)
+            {
+                return unavailable;
+            }
+            if (result.Payload.ValueKind != JsonValueKind.Object || !result.Payload.TryGetProperty("outcome", out _))
+            {
+                return unavailable;
+            }
+            if (payload is ConversationAgentReadQuery or ConversationActiveCountQuery
+                && !result.Payload.TryGetProperty("sourceContractVersion", out _))
+            {
+                return unavailable;
+            }
+            if (payload is ConversationDeletionSourceQuery && result.Payload.TryGetProperty("signal", out var signal)
+                && signal.ValueKind == JsonValueKind.Object && !signal.TryGetProperty("sourceContractVersion", out _))
+            {
+                return unavailable;
+            }
+            TResult? value = result.Payload.Deserialize<TResult>(JsonOptions);
+            return value is not null && ValidAgentQueryResult(payload, value) ? value : unavailable;
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested
+            && exception is HttpRequestException or JsonException or TaskCanceledException or InvalidOperationException or IOException)
+        {
+            return unavailable;
+        }
+    }
+
+    private static bool ValidAgentQueryResult<TRequest, TResult>(TRequest query, TResult value)
+    {
+        switch (query, value)
+        {
+            case (ConversationAgentReadQuery request, ConversationAgentReadResult result):
+                if (!Enum.IsDefined(result.Outcome) || result.SourceContractVersion != 1 || result.TenantId != request.TenantId
+                    || result.ConversationId != request.ConversationId)
+                {
+                    return false;
+                }
+                if (result.Outcome is ConversationAgentsOutcome.Denied or ConversationAgentsOutcome.Unavailable or ConversationAgentsOutcome.Invalid
+                    or ConversationAgentsOutcome.Conflict or ConversationAgentsOutcome.Quarantined)
+                {
+                    return result.Participants is null && result.Messages is null && !result.AgentParticipantPresent;
+                }
+                if (result.SourceRevision is null or < 0 || result.ObservedAt is null || result.ObservedAt == DateTimeOffset.MinValue
+                    || string.IsNullOrWhiteSpace(result.ObservationId))
+                {
+                    return false;
+                }
+                if (result.Outcome != ConversationAgentsOutcome.Available)
+                {
+                    return result.Messages is null && result.Participants is null;
+                }
+                if (!result.AgentParticipantPresent)
+                {
+                    return false;
+                }
+                if (request.ParticipantStateOnly || request.AccessibilityOnly)
+                {
+                    return result.Messages is null && result.Participants is null;
+                }
+                if (result.Messages is null || result.Participants is null || result.Messages.Any(m => m is null || m.MessageId is null
+                    || m.AuthorPartyId is null || (m.Deleted || m.Redacted) && m.Text is not null)
+                    || result.Participants.Any(p => p is null || p.ParticipantPartyId is null
+                        || p.ParticipantType is null || p.ParticipantRole is null)
+                    || result.Messages.Select(m => m.MessageId).Distinct().Count() != result.Messages.Count)
+                {
+                    return false;
+                }
+                return request.MessageId is null || result.Messages.Count == 1 && result.Messages[0].MessageId == request.MessageId;
+            case (ConversationActiveCountQuery request, ConversationActiveCountResult result):
+                if (!Enum.IsDefined(result.Outcome) || result.SourceContractVersion != 1)
+                {
+                    return false;
+                }
+                return result.Outcome == ConversationAgentsOutcome.Available
+                    ? result.Count is >= 0 && !string.IsNullOrWhiteSpace(result.CatalogCheckpoint) && result.ObservedAt is not null && result.ObservedAt != DateTimeOffset.MinValue
+                        && result.TenantId == request.TenantId && result.CreatedFromInclusive == request.CreatedFromInclusive
+                        && result.CreatedToExclusive == request.CreatedToExclusive
+                    : result.Count is null && result.CatalogCheckpoint is null;
+            case (ConversationDeletionSourceQuery request, ConversationDeletionSourceResult result):
+                if (!Enum.IsDefined(result.Outcome) || result.DeliveryRevision < 0 || result.AcknowledgedSourceRevision < 0)
+                {
+                    return false;
+                }
+                if (result.Signal is not { } signal)
+                {
+                    return result.Outcome != ConversationAgentsOutcome.Available && result.Outcome != ConversationAgentsOutcome.Quarantined
+                    && result.Acknowledgement is null && result.AcknowledgedSourceRevision == 0;
+                }
+                if (result.Outcome is not (ConversationAgentsOutcome.Available or ConversationAgentsOutcome.Quarantined)
+                    || signal.SourceContractVersion != 1 || signal.TenantId != request.TenantId || signal.ConversationId != request.ConversationId
+                    || signal.SourceRevision <= 0 || string.IsNullOrWhiteSpace(signal.ConversationDeletionSignalId)
+                    || string.IsNullOrWhiteSpace(signal.ApprovalReference)
+                    || signal.SourceStream != $"{request.TenantId.Value}:conversations:{request.ConversationId.Value}"
+                    || request.SourceRevision is not null && request.SourceRevision != signal.SourceRevision
+                    || request.SignalId is not null && request.SignalId != signal.ConversationDeletionSignalId)
+                {
+                    return false;
+                }
+                return result.AcknowledgedSourceRevision == 0 ? result.Acknowledgement is null
+                    : result.AcknowledgedSourceRevision == signal.SourceRevision && result.Acknowledgement is { } acknowledgement
+                        && acknowledgement.SignalId == signal.ConversationDeletionSignalId && acknowledgement.SourceRevision == signal.SourceRevision
+                        && acknowledgement.ProtectedDeletionRevision > 0 && !string.IsNullOrWhiteSpace(acknowledgement.TargetVersion)
+                        && !string.IsNullOrWhiteSpace(acknowledgement.Evidence);
+            default:
+                return false;
+        }
+    }
+
+    private static string IntentId(ConversationCommandMetadata metadata, ConversationId conversation, string purpose)
+        => Convert.ToHexString(SHA256.HashData(JsonSerializer.SerializeToUtf8Bytes(
+            new[] { metadata.TenantId.Value, conversation.Value, metadata.ActorPartyId.Value, purpose, metadata.IdempotencyKey })));
+
+    private static ConversationAgentsOutcome AgentHttpOutcome(HttpStatusCode status)
+        => status is HttpStatusCode.Forbidden or HttpStatusCode.Unauthorized ? ConversationAgentsOutcome.Denied
+            : status == HttpStatusCode.Conflict ? ConversationAgentsOutcome.Conflict
+            : status == HttpStatusCode.BadRequest ? ConversationAgentsOutcome.Invalid : ConversationAgentsOutcome.Unavailable;
 }

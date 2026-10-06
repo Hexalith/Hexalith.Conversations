@@ -3,7 +3,10 @@
 // Licensed under the MIT License.
 // </copyright>
 
+using System.Text.Json.Serialization;
+
 using Hexalith.Conversations.Contracts.Identifiers;
+using Hexalith.Conversations.Contracts.Agents;
 
 namespace Hexalith.Conversations.Contracts.Events;
 
@@ -19,9 +22,15 @@ namespace Hexalith.Conversations.Contracts.Events;
 /// <param name="authorPartyId">The stable Party reference for the author.</param>
 /// <param name="text">The message text supplied by the caller.</param>
 /// <param name="providerCorrelation">Optional provider correlation metadata.</param>
+/// <param name="AgentProvenance">Durable original posting provenance.</param>
+/// <param name="IdempotencyKey">Durable opaque posting intent identity.</param>
 public sealed record MessageAppended(
     ConversationEventMetadata Metadata,
     MessageId MessageId,
     PartyId AuthorPartyId,
     string Text,
-    ProviderCorrelationMetadata? ProviderCorrelation = null);
+    ProviderCorrelationMetadata? ProviderCorrelation = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    AgentMessageProvenance? AgentProvenance = null,
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    string? IdempotencyKey = null);

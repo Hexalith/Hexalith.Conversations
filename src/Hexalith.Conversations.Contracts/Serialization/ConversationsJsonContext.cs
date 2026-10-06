@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 
 using Hexalith.Conversations.Contracts.Commands;
+using Hexalith.Conversations.Contracts.Agents;
 using Hexalith.Conversations.Contracts.Conformance;
 using Hexalith.Conversations.Contracts.Diagnostics;
 using Hexalith.Conversations.Contracts.Errors;
@@ -26,6 +27,24 @@ namespace Hexalith.Conversations.Contracts.Serialization;
 /// Source-generated JSON metadata for the public Conversations contract surface.
 /// </summary>
 [JsonSourceGenerationOptions(JsonSerializerDefaults.Web)]
+[JsonSerializable(typeof(ConversationAgentsOutcome))]
+[JsonSerializable(typeof(ConversationDeletionSourceResult))]
+[JsonSerializable(typeof(ConversationDeletionSignal))]
+[JsonSerializable(typeof(ConversationActiveCountQuery))]
+[JsonSerializable(typeof(ConversationActiveCountResult))]
+[JsonSerializable(typeof(ConversationAgentReadQuery))]
+[JsonSerializable(typeof(ApproveConversationDeletionCommand))]
+[JsonSerializable(typeof(RecordConversationDeletionDeliveryCommand))]
+[JsonSerializable(typeof(ConversationAgentMessage))]
+[JsonSerializable(typeof(ConversationAgentReadResult))]
+[JsonSerializable(typeof(DeleteConversationMessageCommand))]
+[JsonSerializable(typeof(RemoveAgentParticipantCommand))]
+[JsonSerializable(typeof(ConversationAgentCommandResult))]
+[JsonSerializable(typeof(ConversationDeletionSourceQuery))]
+[JsonSerializable(typeof(EditConversationMessageCommand))]
+[JsonSerializable(typeof(ConversationDeletionAcknowledgement))]
+[JsonSerializable(typeof(ConversationDeletionDeliveryAction))]
+[JsonSerializable(typeof(AgentMessageProvenance))]
 [JsonSerializable(typeof(AddParticipantCommand))]
 [JsonSerializable(typeof(AppendMessageCommand))]
 [JsonSerializable(typeof(ArchiveConversationCommand))]
@@ -82,6 +101,11 @@ namespace Hexalith.Conversations.Contracts.Serialization;
 [JsonSerializable(typeof(ConversationProjectChanged))]
 [JsonSerializable(typeof(FileReferenceAttached))]
 [JsonSerializable(typeof(MessageAppended))]
+[JsonSerializable(typeof(AgentParticipantRemoved))]
+[JsonSerializable(typeof(MessageEdited))]
+[JsonSerializable(typeof(MessageDeleted))]
+[JsonSerializable(typeof(ConversationDeletionApproved))]
+[JsonSerializable(typeof(ConversationDeletionDeliveryRecorded))]
 [JsonSerializable(typeof(MessageContentRedacted))]
 [JsonSerializable(typeof(ParticipantAdded))]
 [JsonSerializable(typeof(RetentionPolicyReplaced))]
