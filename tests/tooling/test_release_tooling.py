@@ -529,6 +529,8 @@ class ReleaseToolingTests(unittest.TestCase):
         tooling_job = ci.split("  tooling:", maxsplit=1)[1]
         self.assertIn("domain-ci.yml@main", ci)
         self.assertIn("run-consumer-validation: true", ci)
+        unit_projects = ci.split("      unit-test-projects: |", maxsplit=1)[1].split("      integration-test-projects:", maxsplit=1)[0]
+        self.assertIn("tests/Hexalith.Conversations.Client.Tests", [line.strip() for line in unit_projects.splitlines()])
         self.assertIn("npm audit signatures", ci)
         self.assertIn("uses: Hexalith/Hexalith.Builds/Github/initialize-build@main", tooling_job)
         self.assertIn("uses: actions/setup-dotnet@v6.0.0", tooling_job)

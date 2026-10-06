@@ -1,0 +1,64 @@
+# Conversations owner implementation evidence — 2026-10-06
+
+EXT-CONV-AI-1 has a partial implementation with passing local evidence. It remains unavailable for the complete external record. Story 5.4 acceptance and dependency availability have not been changed. `Live` is unconditionally closed before any build, test or provider calls, including when a caller-authored manifest claims committed acceptance and available providers.
+
+The implementation follows the sole-source [owner spec](../../../agents/_bmad-output/implementation-artifacts/spec-5-4-conversations-owner-implementation.md). The original Conversations baseline remains `9938aa8aa5cfc082de6be3d28eede22957b14a26`. The earlier completed Local verifier recorded HEAD `34481251cd0bbcc23b3d65dc571349c9a105e1a7`. Later observed HEADs were `ca9ff63849f47515624022c9781f78eefb28c4dd` and `e6611b2c6a2f5e3270122bd3515d43f7645be9c4` from concurrent external commits. The implementation agent performed no staging, commits, resets, merges, fetches, pushes or submodule changes. Those commits are preserved. No claim is made that the complete later HEAD was executed. The client cancellation review fix executed selected working-tree bytes at observed HEAD `e6611b2c6a2f5e3270122bd3515d43f7645be9c4`; its Client-only evidence does not qualify the whole later HEAD or rerun the full solution. Exact current selected source hashes, separate earlier and review-fix results, observed dependency revisions, commands and artifact hashes are in [the source evidence manifest](ext-conv-ai-1-source-evidence-2026-10-06.json).
+
+## Implemented behavior
+
+- Existing pure aggregate, replay and durable state paths support immutable Organization Party AiAgent membership, retry-safe add/removal tombstones, deterministic message identity and original posting provenance. Human edit/delete commands change current content without rewriting original intent. Approval, delivery attempts, exact acknowledgements and poison/quarantine transitions persist as source events.
+- Existing SDK/client/query paths carry the restricted contracts. Transport uses the SDK-discovered singular `conversation` domain; existing HTTP routes retain their paths. Exact supported command names and assembly aliases are normalized before classification. A human GeneralCommand grant cannot bypass restricted actor/operation checks through an alias. Default production providers deny or return Unavailable.
+- Command admission certifies a complete SDK-supplied source prefix through the narrow authenticated `IConversationCommandSourceVerifier` port. It does not query the owning actor during `/process`, avoiding circular actor re-entry. Caller-authored revisions and snapshots are insufficient. A production authenticated SDK proof and owning-actor comparison/append binding are still absent, so the default command path is closed. Query operations retain complete authoritative source reads and current authorization checks.
+- Current read results include complete participant state and Facilitator visibility; stale, degraded, paged or malformed evidence is refused. Client validation binds the exact tenant, Conversation, requested MessageId, known outcome, contract version and complete source checkpoint. Count evidence echoes the exact tenant and requested UTC window. A missing, partial, malformed, null-entry or duplicate catalogue produces Unavailable without an inferred count.
+- Approved logical deletion reuses `GovernanceAuditEvidenceReference`; pure handling requires it, and the independent verifier contract binds the exact approval, policy, source, approver and operation time. Fixtures use synthetic evidence only. Durable/public inventories are extended additively, retain all legacy entries and keep aliases disjoint with unknown-type rejection. Existing projections fold removed participants, edits and message deletions. Approved Conversation deletion closes lifecycle, removes current content/roster and marks freshness unavailable; the existing public read gate then refuses disclosure.
+- Authenticated deletion-source workers can receive a distinct exact operation grant without an invented human or Agent Party. Membership and posting still require the relevant immutable Party. New authority, catalogue, source-proof, approval, receipt and source awaits use caller cancellation through `WaitAsync(cancellationToken)` plus entry/terminal checks. A never-completing-provider watchdog covers all six provider roles.
+- The two restricted client submission helpers bound HTTP headers and JSON response waits with `WaitAsync(cancellationToken)`. A small private helper observes abandoned operations and disposes late owned responses; JSON cancellation disposes the already owned response/body. Existing terminal cancellation checks, exception handling and exact response validation remain in place. Legacy client operations are unchanged.
+- The owning formatting conventions are applied to 74 selected C# files: Allman, four spaces, CRLF and documented new visible members. The two new legacy-read test helpers are separate internal files. Existing API multi-type layout is preserved. Three existing aggregate test calls now pass the xUnit cancellation token. Only the three redundant Commons package versions and their stale comment were removed after the owning Builds import promoted them; no analyzer or package warning is suppressed.
+
+The approach reuses the aggregate, SDK, current query/projection gates and existing persistence contracts. This keeps the change small and replayable without adding storage or infrastructure. Its tradeoff is that real provider bindings and a full delivery pump must be supplied and qualified before production admission can open.
+
+## Verification
+
+Earlier owner execution used Debug source references to the sibling EventStore, Commons and Tenants checkouts and isolated build evidence under `/tmp/hexalith-agents54-conversations-artifacts`. `NuGetAudit=false` avoided an unrelated network audit during this source qualification; warning-as-error compilation remained enabled. At execution-recorded HEAD `34481251cd0bbcc23b3d65dc571349c9a105e1a7`, the full solution build completed with zero warnings and zero errors and all 1,535 tests across the four unit assemblies passed. Integration tests were compiled but no live integration assembly or AppHost was run.
+
+| Earlier executed evidence | Passed | Failed/skipped |
+| --- | ---: | ---: |
+| Focused six-seam server class | 14 | 0 |
+| Focused client transport class | 5 | 0 |
+| Full Contracts unit suite | 618 | 0 |
+| Full Domain unit suite | 185 | 0 |
+| Full Server unit suite | 698 | 0 |
+| Full Client unit suite | 34 | 0 |
+
+The earlier Local verifier checked non-empty executed XML, every Pass result, zero assembly errors/skips/not-run, and exact named membership, posting, Facilitator, count, current-read, approved-deletion/manual-delivery and cross-tenant lanes. Its focused tests exercised real SDK discovery, forged restricted aliases, default production denial, governance inventory, durable/public payloads and current legacy reads after deletion. Original documentation-boundary unit tests executed copies of exact built bytes under the ignored repository artifacts path, with matching DLL SHA256, because they locate the checkout through AppContext.BaseDirectory. Their expectations were preserved.
+
+The earlier normal solution build and Local verifier exited 0. Live negative checks exited 1 as expected; a manifest with `AcceptedStatus=Committed`, `LiveReady=true`, `AllOwnersAccepted=true` and `ProvidersAvailable=true` still failed before any calls. That script and all selected Contracts, Domain and Server source bytes are unchanged by this client-only fix, so their earlier passing results and live closure are reused explicitly. They were not rerun and do not establish full-solution qualification of the later source or HEAD.
+
+The [client review-fix spec](../../../agents/_bmad-output/implementation-artifacts/spec-5-4-conversations-client-review-fix.md) was then verified with a normal Debug source-reference build of `Hexalith.Conversations.Client.Tests`, retaining the same explicit sibling roots, `NuGetAudit=false`, `MinVerVersionOverride=1.0.0` and `-m:1`. The build exited 0 with zero warnings and zero errors.
+
+| Client review-fix executed evidence | Passed | Failed/skipped/errors/not-run |
+| --- | ---: | ---: |
+| Focused `ConversationAgentClientTests` | 9 | 0 |
+| Full Client assembly | 39 | 0 |
+
+Four new theory cases exercise both restricted command and query paths. Each waits until a transport send or JSON body read is demonstrably blocked and ignores its cancellation token, cancels the caller, then requires caller cancellation within a five-second watchdog. Send cases also deliver a late response and require its owned body to be disposed; JSON cases require owned response/body disposal and remain canceled after the abandoned read completes. No accepted/persisted command result or protected query content is released. The five existing focused valid/malformed response tests remain unchanged and pass. The full assembly also includes the existing unrelated working-tree public API snapshot test, which was preserved; the four new cancellation cases account for the remaining increase from the earlier 34-test suite.
+
+The full Client assembly ran from exact copied build bytes under `.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Client.Tests/debug/run`, with matching built/staged DLL SHA256. New XML was checked for non-empty executed tests, every Pass result, zero errors/failures/skips/not-run and the exact focused class. Selected-path whitespace and CRLF checks pass. All 75 unchanged entries from the earlier 77-file source manifest retain their original hashes; the two changed source files have refreshed hashes and the two new fixtures extend the current list to 79 paths. Earlier build, XML and log evidence is retained separately in the manifest.
+
+Exact new build, staging and execution commands are recorded under `ClientReviewFix` in the source manifest. New evidence uses unique `client-reviewfix-build.log`, `client-reviewfix-focused.xml/.log`, `client-reviewfix-full-client.xml/.log` and `client-reviewfix-staging.log` files in `/tmp/hexalith-agents54-conversations-artifacts`. The full solution, Contracts, Domain and Server suites were not rerun for this fix. These Client-only results do not establish availability, complete C4 delivery, live storage behavior or qualification of all bytes at the later HEAD.
+
+## Complete-record gaps
+
+C4 presently supports event-atomic source publication and manually exercised persisted delivery/receipt transitions. It does **not** install automatic publication discovery, an ordered tenant feed/backfill, an automatic delivery pump, worker binding, a real authenticated Agents receiver or independent remote receipt lookup. Manual fixture transitions do not establish that the complete external record was delivered.
+
+Production remains closed pending:
+
+1. Actual current operation authority and immutable Organization Party evidence, including EXT-PARTIES-1 prerequisites.
+2. Authenticated SDK complete-prefix transport/source attestation, the owning actor's source-revision comparison and append binding, and current authority at append. An arbitrary supplied revision cannot replace this primitive.
+3. A complete authenticated tenant catalogue and an owner-accepted count-window contract. The implemented proposal counts currently active/open undeleted Conversations whose creation is in the UTC half-open interval `[CreatedFromInclusive, CreatedToExclusive)`, including zero Agent Calls; owner acceptance is still missing.
+4. Independent current deletion approval with real policy/source-bound logical-deletion audit evidence. No production audit reference is fabricated.
+5. C4 publication discovery, ordered backfill and automatic worker/pump binding; accepted exact source/receiver targets; an authenticated receiver and independent remote acknowledgement lookup.
+6. Real storage lost-acknowledgement, restart/crash, replica, concurrent-writer, receiver-outage and rollover evidence. Local fixtures serialize/replay fresh state and simulate compare-winner ordering; they prove neither real storage nor cross-replica behavior.
+7. A complete owner target/date/command/evidence/prerequisite acceptance record. Future complete execution requires actual Available owner records or the separately and explicitly accepted all-owner qualification cohort. Caller manifest booleans cannot override missing installed code.
+
+Approved logical deletion changes current visibility; production payload protection, retention, erasure and physical destruction are not delivered by these fixtures. No live infrastructure, token authority, external receiver or full qualification cohort was exercised. The Agents acceptance/dependency registers and original baseline were not edited.

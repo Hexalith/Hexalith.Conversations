@@ -416,13 +416,15 @@ public sealed class ConversationClient : IConversationClient
         try
         {
             using var request = CreateJsonRequest(HttpMethod.Post, "api/v1/commands", command);
-            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            using var response = await WaitForAgentResponseAsync(
+                _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken), cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             if (!response.IsSuccessStatusCode)
             {
                 return new(AgentHttpOutcome(response.StatusCode));
             }
-            var result = await response.Content.ReadFromJsonAsync<SubmitCommandResponse>(JsonOptions, cancellationToken).ConfigureAwait(false);
+            var result = await WaitForAgentResponseAsync(
+                response.Content.ReadFromJsonAsync<SubmitCommandResponse>(JsonOptions, cancellationToken), cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             if (string.IsNullOrWhiteSpace(result?.MessageId))
             {
@@ -469,13 +471,15 @@ public sealed class ConversationClient : IConversationClient
         try
         {
             using var request = CreateJsonRequest(HttpMethod.Post, "api/v1/queries", query);
-            using var response = await _httpClient.SendAsync(request, cancellationToken).ConfigureAwait(false);
+            using var response = await WaitForAgentResponseAsync(
+                _httpClient.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, cancellationToken), cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             if (!response.IsSuccessStatusCode)
             {
                 return unavailable;
             }
-            var result = await response.Content.ReadFromJsonAsync<SubmitQueryResponse>(JsonOptions, cancellationToken).ConfigureAwait(false);
+            var result = await WaitForAgentResponseAsync(
+                response.Content.ReadFromJsonAsync<SubmitQueryResponse>(JsonOptions, cancellationToken), cancellationToken).ConfigureAwait(false);
             cancellationToken.ThrowIfCancellationRequested();
             if (result is not { Success: true } || result.Metadata is { IsStale: true } or { IsDegraded: true }
                 || result.Metadata?.Paging is { HasMore: true } || result.Metadata?.Paging?.NextCursor is not null)
@@ -503,6 +507,34 @@ public sealed class ConversationClient : IConversationClient
             && exception is HttpRequestException or JsonException or TaskCanceledException or InvalidOperationException or IOException)
         {
             return unavailable;
+        }
+    }
+
+    private static async Task<T> WaitForAgentResponseAsync<T>(Task<T> pending, CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await pending.WaitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            _ = ObserveCompletionAsync();
+            throw;
+        }
+
+        async Task ObserveCompletionAsync()
+        {
+            try
+            {
+                if (await pending.ConfigureAwait(false) is IDisposable response)
+                {
+                    response.Dispose();
+                }
+            }
+            catch (Exception)
+            {
+                // Observe failures after cancellation; an eventual response cannot be released to the caller.
+            }
         }
     }
 

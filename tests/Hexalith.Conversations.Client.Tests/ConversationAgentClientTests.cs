@@ -139,6 +139,71 @@ public sealed class ConversationAgentClientTests
         (await client.GetConversationDeletionSourceAsync(query, TestContext.Current.CancellationToken)).Signal.ShouldBe(signal);
     }
 
+    /// <summary>Verifies cancellation ends a blocked send and disposes its eventual response without releasing a result.</summary>
+    /// <param name="command">Whether to exercise command submission instead of a protected query.</param>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NeverCompletingHttpSendsRespectCallerCancellationAndDisposeLateResponse(bool command)
+    {
+        using var fixture = new NonCooperativeAgentHttpFixture();
+        using var http = new HttpClient(fixture) { BaseAddress = new("https://local.invalid/") };
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+        var client = new ConversationClient(http);
+        Task pending = StartAgentOperation(client, command, cancellation.Token);
+        await fixture.SendStarted.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        pending.IsCompleted.ShouldBeFalse();
+        cancellation.Cancel();
+        var exception = await Should.ThrowAsync<OperationCanceledException>(
+            () => pending.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+        exception.CancellationToken.ShouldBe(cancellation.Token);
+        pending.IsCanceled.ShouldBeTrue();
+
+        using var body = new NonCooperativeAgentResponseStream();
+        fixture.Complete(new(System.Net.HttpStatusCode.OK) { Content = new StreamContent(body) });
+        await body.Disposed.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        pending.IsCanceled.ShouldBeTrue();
+    }
+
+    /// <summary>Verifies cancellation ends a JSON read that ignores its token and disposes the owned response body.</summary>
+    /// <param name="command">Whether to exercise command submission instead of a protected query.</param>
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task NeverCompletingJsonBodiesRespectCallerCancellationAndDisposeOwnedResponse(bool command)
+    {
+        using var fixture = new ConversationAgentHttpFixture();
+        using var body = new NonCooperativeAgentResponseStream();
+        fixture.Responses.Enqueue(new(System.Net.HttpStatusCode.OK) { Content = new StreamContent(body) });
+        using var http = new HttpClient(fixture) { BaseAddress = new("https://local.invalid/") };
+        using var cancellation = CancellationTokenSource.CreateLinkedTokenSource(TestContext.Current.CancellationToken);
+        var client = new ConversationClient(http);
+        Task pending = StartAgentOperation(client, command, cancellation.Token);
+        try
+        {
+            await body.ReadStarted.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+            pending.IsCompleted.ShouldBeFalse();
+            cancellation.Cancel();
+            var exception = await Should.ThrowAsync<OperationCanceledException>(
+                () => pending.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken));
+            exception.CancellationToken.ShouldBe(cancellation.Token);
+            pending.IsCanceled.ShouldBeTrue();
+            await body.Disposed.WaitAsync(TimeSpan.FromSeconds(5), TestContext.Current.CancellationToken);
+        }
+        finally
+        {
+            body.CompleteRead();
+        }
+        pending.IsCanceled.ShouldBeTrue();
+    }
+
+    private static Task StartAgentOperation(ConversationClient client, bool command, CancellationToken cancellationToken)
+        => command
+            ? client.PostAgentMessageAsync(new AppendMessageCommand(
+                new(SchemaVersion.Current, Tenant, Agent, "correlation", IdempotencyKey: "post-key"),
+                Conversation, Message, Agent, "text", AgentProvenance: new("agent-call", true, false), OperationTimestamp: At), cancellationToken)
+            : client.GetAgentConversationAsync(new(Tenant, Conversation, Message), cancellationToken);
+
     private static ConversationAgentReadResult Current()
         => new(ConversationAgentsOutcome.Available, Tenant, Conversation, 3, At, "checkpoint",
             [new(Agent, ParticipantType.AiAgent, ParticipantRole.Member)],

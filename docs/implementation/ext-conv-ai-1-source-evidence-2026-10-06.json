@@ -1,0 +1,1518 @@
+{
+  "SchemaVersion": 1,
+  "RecordedAtUtc": "2026-10-06T12:43:24.257872+00:00",
+  "Owner": "Conversations",
+  "Dependency": "EXT-CONV-AI-1",
+  "Status": "PartialImplementationLocalEvidenceOnly",
+  "LiveReady": false,
+  "DependencyAvailable": false,
+  "InitialBaselineRevision": "9938aa8aa5cfc082de6be3d28eede22957b14a26",
+  "ExecutionRecordedSourceRevision": "34481251cd0bbcc23b3d65dc571349c9a105e1a7",
+  "PriorObservedConversationsHead": "ca9ff63849f47515624022c9781f78eefb28c4dd",
+  "ObservedHeads": {
+    "conversations": "e6611b2c6a2f5e3270122bd3515d43f7645be9c4",
+    "eventstore": "a6fc951e2c01c1c816aed1d03c851c0639f12cdd",
+    "commons": "b8ad13c83c334b03d1465cfbd43de8b0a975b3ea",
+    "tenants": "f92bf34159c40b6f7fe12eb746565868422dc035",
+    "parties": "b3794a4dcbe2fff3e9ea5c420a3c4695e2d1a8ca",
+    "frontcomposer": "c561b3210f15206a90c39c82c58f2e5b1005cd60",
+    "conversations/references/Hexalith.Builds": "ba4ca78c3868a4757cb92d912a54c8a237871b54",
+    "conversations/references/Hexalith.Commons": "116d26815eb81e35b3c161e1799e5ee12805fc0a",
+    "conversations/references/Hexalith.EventStore": "d24a03569ed0c8e4d773e24e630a2eab2ec9f074",
+    "conversations/references/Hexalith.Tenants": "5a519cd73018067d9b444dd777034dc91f9bd4b2"
+  },
+  "ConcurrentExternalCommitsObserved": true,
+  "GitMutationsPerformedByImplementationAgent": false,
+  "RevisionLimit": "ExecutionRecordedSourceRevision, Commands and TestResults retain earlier owner execution evidence (1,535 full-suite unit tests). SourceFiles now bind current selected bytes. ClientReviewFix separately binds the later uncommitted client source and Client-only build/execution at its observed HEAD; the full solution and unchanged Contracts/Domain/Server suites were not rerun and no whole later HEAD qualification is claimed.",
+  "SourceRoots": {
+    "Conversations": "/home/administrator/projects/hexalith/conversations",
+    "EventStore": "/home/administrator/projects/hexalith/eventstore",
+    "Commons": "/home/administrator/projects/hexalith/commons",
+    "Tenants": "/home/administrator/projects/hexalith/tenants"
+  },
+  "Commands": [
+    {
+      "Purpose": "Full Debug source-reference solution build",
+      "Command": "dotnet build Hexalith.Conversations.slnx -c Debug --artifacts-path /tmp/hexalith-agents54-conversations-artifacts -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants",
+      "ExitCode": 0,
+      "Warnings": 0,
+      "Errors": 0
+    },
+    {
+      "Purpose": "Local verifier; four source-reference builds, exact six-seam class and all four unit assemblies",
+      "Command": "pwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Local -ArtifactsPath /tmp/hexalith-agents54-conversations-artifacts",
+      "ExitCode": 0
+    },
+    {
+      "Purpose": "Focused client transport validation",
+      "Command": "dotnet /tmp/hexalith-agents54-conversations-artifacts/bin/Hexalith.Conversations.Client.Tests/debug/Hexalith.Conversations.Client.Tests.dll -class Hexalith.Conversations.Client.Tests.ConversationAgentClientTests -result-xml /tmp/hexalith-agents54-conversations-artifacts/local-agent-client.xml",
+      "ExitCode": 0
+    },
+    {
+      "Purpose": "Live gate cannot be overridden by caller metadata",
+      "Command": "pwsh -NoProfile -File eng/verify-ext-conv-ai-1.ps1 -Mode Live -LiveManifest /tmp/caller-authored-live-manifest.json",
+      "ExitCode": 1,
+      "Expected": true,
+      "Manifest": {
+        "AcceptedStatus": "Committed",
+        "LiveReady": true,
+        "AllOwnersAccepted": true,
+        "ProvidersAvailable": true
+      },
+      "ProviderCalls": 0
+    }
+  ],
+  "TestResults": [
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/local-six-seam.xml",
+      "Total": 14,
+      "Passed": 14,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "c0064997786092e67099d5521257c09bb571ac1723df6902330260606b8254ea"
+    },
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/local-agent-client.xml",
+      "Total": 5,
+      "Passed": 5,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "388aba7f4bec1aeea9f359540f9a40baa5a7e4c53162e75e7b42d5de21f46507"
+    },
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Contracts.Tests.xml",
+      "Total": 618,
+      "Passed": 618,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "b26cf0f9e6760ca4ee7ae50e52cecd90b977a9bea5ea457c6df1666e1a47400a"
+    },
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Tests.xml",
+      "Total": 185,
+      "Passed": 185,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "b3d79fcef3eab695b7a2cb0b9dbc78d68fdba5407f4a9cbb9ef6fa0606fcaf05"
+    },
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Server.Tests.xml",
+      "Total": 698,
+      "Passed": 698,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "8a610f9c23a2e0e1f40531d87bb218422fcc45b1ad259634a9a97013f4b85492"
+    },
+    {
+      "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Client.Tests.xml",
+      "Total": 34,
+      "Passed": 34,
+      "Failed": 0,
+      "Skipped": 0,
+      "Sha256": "79d444b1f0797530a5fa36ae4b3e9be07e6968f5672b80608b3e41960825c659"
+    }
+  ],
+  "SourceFiles": [
+    {
+      "Path": "src/Hexalith.Conversations.Client/ConversationClient.cs",
+      "Sha256": "2a80c15a1308c005b17778766a1726151c70567b84f6d1b9b46b07d092df51f2"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Client/IConversationClient.cs",
+      "Sha256": "c04a8e8e5b43baa0d6d8221e4659672c317c9cb92f5d7b08269afb327b5a8f95"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Commands/AddParticipantCommand.cs",
+      "Sha256": "cc988ad4cd8ebe0fdb0b6890c583abae5001abce7db63ec50f78f4baeb138bee"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Commands/AppendMessageCommand.cs",
+      "Sha256": "a5b39c6fb7da2eebb4167a1a70b35cec0fda110df6ba6647174766136035922c"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/ConversationEventType.cs",
+      "Sha256": "35512d463aab3d3087d4cfb01f0233e10e2ee9cecf485231def80800d5921f4f"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/MessageAppended.cs",
+      "Sha256": "2840508cec8ebe3e7b022bad69b1043cd7c405f55c16778ca211e5f0b5831c89"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Serialization/ConversationsJsonContext.cs",
+      "Sha256": "671b28dfb0d5181c5647fdc941412d32e0e6756b88f9aff5a52b4316893a4a81"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Api/ConversationCommandApi.cs",
+      "Sha256": "8c69f659c86bd5c650bda1f5718e2ed7d8959e58acd4c04176445d55183f99b4"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Program.cs",
+      "Sha256": "c5155b67f8478d4d74ec731161157d7e6d980ec1cfcd226e21409a1c4fef9ed9"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.cs",
+      "Sha256": "59ed1792790438b123c5db8da88c776625cb65d77d5468bc4bacf95f3a69b290"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Replay/ConversationReplayVerifier.cs",
+      "Sha256": "a8227602df2cff448008016a113170741a869fb48cde7a656c45b3bca28d68d0"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/State/ConversationMessage.cs",
+      "Sha256": "c8e6f99b3846f3701d7bc55399c3482660d3fd273f890a9ae820194b182a2a60"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/State/ConversationState.cs",
+      "Sha256": "6beb379327f7a7d4737c475389c94a415755315fae192a714c5c02244df60c85"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Tests/Aggregates/ConversationAggregateBaseClassDispatchTest.cs",
+      "Sha256": "c01f7b247868887c0be9437384ed7777e758e9fc7a9f1093f276305c9cf8937d"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/ConversationActiveCountResult.cs",
+      "Sha256": "f6909c00598fb17f01612f65a7577b4993b1d7b582cfc2043729dedee6145433"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentReadQuery.cs",
+      "Sha256": "7e6dda99cfd4e92efde75dc09928d620e767794dd05c76c6a98628706c429723"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/ConversationAgentReadResult.cs",
+      "Sha256": "223d802ff26f02018d74b9f1843ac0025ccf2248f54c9aed23c7b86629d17443"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/ConversationDeletionSourceQuery.cs",
+      "Sha256": "2797e6e7affdfb6bfe41d7ecbc6ed149a5c88a73f96cd2fe124d04f19d6022ff"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/DeleteConversationMessageCommand.cs",
+      "Sha256": "e7e86cf9495d5f2a4a24af9faa9b3344bec349e1d068b82a8ce2a0ba3f33797d"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/EditConversationMessageCommand.cs",
+      "Sha256": "5c81f289b278e053f39892ff28d7ed008bb543205f2a8e05b173811b79c1ea2f"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationActiveCountQueryHandler.cs",
+      "Sha256": "84f0a8152df35e5a0537eed888ad30423dff23126a3b9992191b821643170afb"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentAdmissionStage.cs",
+      "Sha256": "b7bdeaad1aa0cb1f64de82b79f469b9898756182c9e9ce04563e510fc9a985f0"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentAuthorization.cs",
+      "Sha256": "27a8ae2433c443d7278cf98de3bd40a370720396d05e9d28db72eee6b2636882"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentQueryService.cs",
+      "Sha256": "a9402b866ad6cbd162a4e05d181c89df306db1d2c8edc4b7732558046ea98c09"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentReadQueryHandler.cs",
+      "Sha256": "fe1cd978e99a61b3ce474090e7d5c046529b921d12e480fadb76c5d0a5d4228e"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentServiceCollectionExtensions.cs",
+      "Sha256": "cf26a74a54fafee591a02fc37504a232be4ecb6f9b39f63709e9bccbe5ac1f68"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationAgentSourceReader.cs",
+      "Sha256": "d1c822cea6808c90e10204412e94dd86a1473e30cd7f6cb794e553e61211ac5b"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationDeletionSourceQueryHandler.cs",
+      "Sha256": "956d9fb04a0bad57a3ede482439d847ef7cc5a45e44a43f65a0441a152eac754"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationTenantCatalogueEntry.cs",
+      "Sha256": "31247cd6979f1b293d6bdb4b910d16bd60185308e92a915169aa7d99903c5d24"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/ConversationTenantCatalogueResult.cs",
+      "Sha256": "8012b5f3e1fcb46dcaf2e41f6555bac2d37d0cac662e4bcb5d820aee1ffd0b79"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/IConversationAgentAuthority.cs",
+      "Sha256": "f3b6013d708e06b57acf27d664ca9c79c496ae2b4e75c6ee5163d5198e18f700"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/IConversationCommandSourceVerifier.cs",
+      "Sha256": "7c05a21d663a59b52dc75508a49461531a7ac05e2f35f5ff9a7517e4b0f274df"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/IConversationDeletionApprovalVerifier.cs",
+      "Sha256": "0e42bd41227ddfb0db52fc1538a20de6ce457536ce43db74e334f9e581f47e9e"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/IConversationDeletionReceiptVerifier.cs",
+      "Sha256": "1eaf8a37b95ec3ba4d14c5a8b3b2ab5620f61ec5aeb45b699988153c3946674a"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/IConversationTenantCatalogue.cs",
+      "Sha256": "eac254cb806f7b0fde1ba4066b63876e1d0b9cbfc89c4af5812f098a1d1de2c0"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationAgentAuthority.cs",
+      "Sha256": "00735a11b01de59f8092365057678748a4cd0cfd00accfb21b8eb1b6b43a688e"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationAgentStreamReader.cs",
+      "Sha256": "3a03d38bcb6c3e2830c454d4cd55c3318b36c24f9339e2d2d31925e9386bb62e"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationCommandSourceVerifier.cs",
+      "Sha256": "e6dd342b1d850769973101afaf44ef4ce01a3d74e1eed196d2290c965aaa5bf1"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationDeletionApprovalVerifier.cs",
+      "Sha256": "a3b1cbbbd26f9f153a900f718797fcdea71c38e0d71041596ba3a1786878a38b"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationDeletionReceiptVerifier.cs",
+      "Sha256": "7aff11ae0e1857250e60666ac1cb81e58020ad6b85e9b55fca9ae2348a7f4996"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Agents/UnavailableConversationTenantCatalogue.cs",
+      "Sha256": "6d14813cff64c2ace21c900f6807419592a52bf14a89f82a62251134e7aaadc9"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Aggregates/ConversationAggregate.Agents.cs",
+      "Sha256": "ab12583e35b48956a653471ab18d2a31b2f99c0c0753db214cfa0545aa37b477"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Commands/AddAgentParticipant.cs",
+      "Sha256": "ec9baf85b8794604594fba09dd72a89d87c8f98ae810da668045954368fa8858"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Commands/AppendAgentMessage.cs",
+      "Sha256": "5de5d44bb7e8d43e94a8121b145f088333d4315f439e44234b47d936c75fc0c7"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Commands/ApproveConversationDeletion.cs",
+      "Sha256": "20561a4c3961cb524d76e1b401ba26b2743c2285e113bc6bd8c6466f56cf60fa"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Commands/RecordConversationDeletionDelivery.cs",
+      "Sha256": "cd50f11ca015e10a1898ee1a69b6e88882e7101d7f4e344eedae619d1b2f0d40"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Commands/RemoveAgentParticipant.cs",
+      "Sha256": "0e2800cfe25dae2b3f964d930da830ab98be866ad063f35d285e74e4e86eb0fe"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/AgentParticipantRemovedDomainEvent.cs",
+      "Sha256": "8b292345d02f594a4575c4440f3300b3f38eab4b5b6d819025b4363f3ee2aaa0"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/ConversationDeletionApprovedDomainEvent.cs",
+      "Sha256": "c40566034e61305dc72ae98dc54b75682d5783885c485a32da7f4eb17e146efa"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/ConversationDeletionDeliveryRecordedDomainEvent.cs",
+      "Sha256": "385f515da147b32c1ff7583e18124edd0efc0287d08a4b49f4b4819ab6237341"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/MessageAppendedDomainEvent.cs",
+      "Sha256": "bfadf3b2242773462bb947a9a4cc86c943ed851ebf5f47b868949ffa5f5ad3cf"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/MessageDeletedDomainEvent.cs",
+      "Sha256": "05513d9202003fb6a3c41b8163c3c06d64d43cddfd8bf30a9715152cab879390"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/Events/MessageEditedDomainEvent.cs",
+      "Sha256": "86ac1d7bf24e129109d6fc0481f438fe3b90abc6aad4d7609bfbec325d85743f"
+    },
+    {
+      "Path": "src/Hexalith.Conversations/State/ConversationState.Agents.cs",
+      "Sha256": "08daea7fc10c68cbc58e0c6cb736909406ebf053fba2693133730a24e7b06e2c"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Client.Tests/ConversationAgentClientTests.cs",
+      "Sha256": "fc70fa99b46be6d63d92d5f76cf08ea2ab0f604c687c6b9d6f5ba9485ea14131"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Client.Tests/ConversationAgentHttpFixture.cs",
+      "Sha256": "26112d878ff1931603f6a062eb20fbfd94d21c8686ff298d62a16c308000ad4e"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentLocalFixture.cs",
+      "Sha256": "6770645734f95d7e4f3a04e9b444c6344c0e557af273d9a99ba7f425bc0c5fc0"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Agents/ConversationAgentSixSeamTests.cs",
+      "Sha256": "33e571f5908b8a4a72661735e20d75ad47d05ae59d7d215b2ae03499579f8bf2"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Contracts.Tests/ContractSamples.cs",
+      "Sha256": "bd83ca7764cf4bbb12fe50f97df9979cadcb6f08f212849e4dc22beed3330777"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Contracts.Tests/ConversationAgentContractSamples.cs",
+      "Sha256": "94f7307aca4637e24e2860451d11abe50d949624a63b9baa531660af7fed2cfc"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Queries/ConversationQueryServiceCollectionExtensions.cs",
+      "Sha256": "3845669dd33fad2be28ca5344391377a6551021b685170fd10d07bfce82e7717"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Agents/ApproveConversationDeletionCommand.cs",
+      "Sha256": "ca8368363387ec3437b26b617b300a64cdbd9d36b63e3d2de7e70f4a4f431aeb"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/AgentParticipantRemoved.cs",
+      "Sha256": "711bc5efd1a8adc2510783e0f012e2342420afc5eddf1e9d9dd6971dfd2646dc"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/MessageEdited.cs",
+      "Sha256": "d9d60a73bdd4450ed0f681ed41f1ab44b990a5ab4080ed3ac3c45d9213a4dca1"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/MessageDeleted.cs",
+      "Sha256": "0b69005dc85fed2d59b5ece091fc33c4d845af87aa5af4a11e52b589fcb1a0cb"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/ConversationDeletionApproved.cs",
+      "Sha256": "8b4a641c56627a5c17d92d1c70aee8ecbb951bba721026ebdd52b2281b0c5c44"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Contracts/Events/ConversationDeletionDeliveryRecorded.cs",
+      "Sha256": "8b7efcd2711cb01169ae32d928dc3513ff76bc7411c845d16502e03ef18b98f5"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionEventDecoder.cs",
+      "Sha256": "df35c39b99843a76e718410e891c94e64ade210f2621ea7dea68faeaabb6a451"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Server/Projections/ConversationProjectionMaterializer.cs",
+      "Sha256": "492d3b6711aa8f3b95934511796fdc5695b9b0c191058848f51077531ef5510b"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Governance/GovernanceAuditPairingSafetyNetTest.cs",
+      "Sha256": "6b8b35d841c300a9b2f6091f62f6bb2ac665f2877ec6ef294631de06b0c37012"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionDurableEventCoverageTest.cs",
+      "Sha256": "cda5c055839f3ba6a4024568d81b48b2081a4404ba883140407335f5fa106061"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Projections/ConversationProjectionHandlerTest.cs",
+      "Sha256": "f3f458a685831f47428d793154096b8705f3ab12fe1ace6066906e8aa68e4b68"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Agents/LegacyLocalReadAccess.cs",
+      "Sha256": "5ee97cd05d0f1e89cb51a9c9c770962fad3d4e7ed62de6cd7401c7b336934005"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Server.Tests/Agents/LegacyLocalReadStore.cs",
+      "Sha256": "e4df7ccaf6b76927dbbd3809fa0c903c80052d95cdb1f4840335f9b2defd87e4"
+    },
+    {
+      "Path": "src/Hexalith.Conversations.Client/Hexalith.Conversations.Client.csproj",
+      "Sha256": "0ec0e869a796e5ff11136620f4f2c87548d36b6db5eb6de680632f44a7339967"
+    },
+    {
+      "Path": "Directory.Packages.props",
+      "Sha256": "3ef8efc82a412b90a82b89e1cb809af1459e675dbd11f811a495eaf1354269b0"
+    },
+    {
+      "Path": "eng/verify-ext-conv-ai-1.ps1",
+      "Sha256": "3934603317c7a57817c038046eb97afe51c2772fa0be8ac22ec3550dc057bd19"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Client.Tests/NonCooperativeAgentHttpFixture.cs",
+      "Sha256": "8ec79e3d3503fc17db670739241f8b4293b02bcddf747364040743b67ebd4cd2"
+    },
+    {
+      "Path": "tests/Hexalith.Conversations.Client.Tests/NonCooperativeAgentResponseStream.cs",
+      "Sha256": "410b2463f6b26c9b272d60da07287c032b018959e08010ae92527eaaaa7d7dee"
+    }
+  ],
+  "Artifacts": [
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/solution-build.log",
+      "Sha256": "046b6532481dead8152a23fb209fd540b82b72fabccc53f40c39396e49ba1493"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/local-verifier.log",
+      "Sha256": "00fcf948ff627184e6ce5e0f24c4b77cc88ba6cb7d0567998efe3dbe44a659f1"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/local-six-seam.log",
+      "Sha256": "5e97221820edef9a4686f53d7e50ffd400774b0b7d3bcfda6100852131cd9bb3"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/local-agent-client.log",
+      "Sha256": "4d40bae1d5b4b0363ff02472e673cf514bfbed2c21c35f6dac2d6562dcd36418"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/local-evidence.json",
+      "Sha256": "64599e106d42ec8e5a26b2535a3c6f30ead32d90531f1b57dc33fc091b55cf05"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/live-closed.log",
+      "Sha256": "c0c023e500cc15240d026fd10d58e342b6b1773989ad26d457b6c43e9766e3ee"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/live-manifest-closed.log",
+      "Sha256": "c0c023e500cc15240d026fd10d58e342b6b1773989ad26d457b6c43e9766e3ee"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Contracts.Tests-build.log",
+      "Sha256": "e2045067ca047722fabb03dc03b5bc35a1d73621d0aacf5ab00c33bc38065d8b"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Contracts.Tests.log",
+      "Sha256": "aca4d430ad7cb84b1f4a2196e3ccee9cd450eded676accb48d501152ac07fbc7"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Tests-build.log",
+      "Sha256": "838327d8acdd28692885582c80b9c56d5c9fb20e494bf6524776fa98caca9bd3"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Tests.log",
+      "Sha256": "5dd344ca68b9bfdb11f5939cde8ad0692fe058d47d04246a7f5620fa6766d0c6"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Server.Tests-build.log",
+      "Sha256": "92bea784cdfc1e3792ecbf5db87a4868c64f19d9589084831722b858a720c79b"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Server.Tests.log",
+      "Sha256": "458eca728d9d7858d5d9da78dc2fdc7fc4a2a15e860e81258cc106eb99ae06aa"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Client.Tests-build.log",
+      "Sha256": "9bf8ce0c8089fc7e61881ac6a3f0042e30b4633fb93c53468224c74f2f8753ff"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Client.Tests.log",
+      "Sha256": "5e8f5c7ebcf5ebcb309074776287af4735566a90d39616eaafec33cdc399e6ea"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-build.log",
+      "Sha256": "57723f277e81d9bccb91472afadca66ec17f4f0cd29dc6e9c638135f91425ee7"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-focused.xml",
+      "Sha256": "fcfd79d60a9f572e14af46f5bebb1ab2268cfba4b6097a7b10bba1058cc782a7"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-focused.log",
+      "Sha256": "bd35f2a5ab010ef8528042950040eae9f2ad6ff7d42d4542ff7a2ebfce1755b9"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-full-client.xml",
+      "Sha256": "39ac073a03277bfaf4df5518605f0ecf0141372bd5b5817cf2d6c1356dbd069b"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-full-client.log",
+      "Sha256": "1135f1d3c278cf6bbc33723c2de086c79c1700fab4f2943a0cbbdaabf63ba1fe"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-staging.log",
+      "Sha256": "78f11f2bd8f87d87151050808a4d1edd40a942f345c488d4f62a5fbe9c5a4364"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-whitespace.log",
+      "Sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-validate.py",
+      "Sha256": "0d089792d56ef9835ea579acb8de20c36083ea7f44f8099f0f7941a7723ddcaf"
+    },
+    {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-validation.log",
+      "Sha256": "4665536006eb99cf6d61cc0782354e9682df882b74fb82f16c97a36859c2b37c"
+    }
+  ],
+  "RemainingGates": [
+    "Owner full target/date/command acceptance",
+    "Real current authority and immutable Party",
+    "Authenticated SDK complete command-source attestation and actor compare/append",
+    "Complete authenticated tenant catalogue and accepted window",
+    "Independent deletion approval with authentic policy/source-bound logical-deletion audit evidence",
+    "Publication discovery, ordered source backfill and automatic worker/pump binding",
+    "Authenticated receiver, independent remote receipt lookup and accepted exact target",
+    "Live storage/restart/replica/race evidence"
+  ],
+  "ReportArtifacts": [
+    "docs/implementation/ext-conv-ai-1-owner-implementation-2026-10-06.md",
+    "docs/implementation/ext-conv-ai-1-source-evidence-2026-10-06.json"
+  ],
+  "CurrentSourceHashesRecordedAtUtc": "2026-10-06T13:02:16.512450+00:00",
+  "EarlierVerification": {
+    "ExecutionRecordedSourceRevision": "34481251cd0bbcc23b3d65dc571349c9a105e1a7",
+    "FullUnitSuitePassed": 1535,
+    "EvidenceScope": "Earlier normal full solution Debug/source-reference build and Local verifier; preserved Commands, TestResults and earlier Artifacts.",
+    "FullUnitSuiteBreakdown": {
+      "Contracts": 618,
+      "Domain": 185,
+      "Server": 698,
+      "Client": 34
+    },
+    "CurrentQualificationLimit": "Reuse unchanged Contracts/Domain/Server/script evidence only; do not apply earlier full solution or 34-test Client results to the changed client bytes."
+  },
+  "ClientReviewFix": {
+    "Spec": "/home/administrator/projects/hexalith/agents/_bmad-output/implementation-artifacts/spec-5-4-conversations-client-review-fix.md",
+    "RecordedAtUtc": "2026-10-06T13:02:16.512450+00:00",
+    "ObservedHeads": {
+      "conversations": "e6611b2c6a2f5e3270122bd3515d43f7645be9c4",
+      "eventstore": "12aa5d3a0b7b6b760e339cd9319e49123d4222a7",
+      "commons": "b8ad13c83c334b03d1465cfbd43de8b0a975b3ea",
+      "tenants": "f92bf34159c40b6f7fe12eb746565868422dc035"
+    },
+    "WorkingTreeSourceModified": true,
+    "EvidenceScope": "Selected restricted client working-tree bytes, normal Debug source-reference Client test project build, exact focused class and full Client assembly only.",
+    "FullSolutionRerun": false,
+    "LiveGateRerun": false,
+    "ProductionAndAvailabilityState": "Unchanged; partial implementation, unavailable, Live unconditionally closed, no full C4 qualification.",
+    "PriorChangedSourceHashes": [
+      {
+        "Path": "src/Hexalith.Conversations.Client/ConversationClient.cs",
+        "Sha256": "ed5c95f54654d4bbf421fe42443993686a10415f77b7cf5d8745a5b8148b546e"
+      },
+      {
+        "Path": "tests/Hexalith.Conversations.Client.Tests/ConversationAgentClientTests.cs",
+        "Sha256": "7451944b319df73e200ce2f898c41bb77bc2b911244ce6b5613c81fc5211038b"
+      }
+    ],
+    "ChangedSourceFiles": [
+      {
+        "Path": "src/Hexalith.Conversations.Client/ConversationClient.cs",
+        "Sha256": "2a80c15a1308c005b17778766a1726151c70567b84f6d1b9b46b07d092df51f2"
+      },
+      {
+        "Path": "tests/Hexalith.Conversations.Client.Tests/ConversationAgentClientTests.cs",
+        "Sha256": "fc70fa99b46be6d63d92d5f76cf08ea2ab0f604c687c6b9d6f5ba9485ea14131"
+      },
+      {
+        "Path": "tests/Hexalith.Conversations.Client.Tests/NonCooperativeAgentHttpFixture.cs",
+        "Sha256": "8ec79e3d3503fc17db670739241f8b4293b02bcddf747364040743b67ebd4cd2"
+      },
+      {
+        "Path": "tests/Hexalith.Conversations.Client.Tests/NonCooperativeAgentResponseStream.cs",
+        "Sha256": "410b2463f6b26c9b272d60da07287c032b018959e08010ae92527eaaaa7d7dee"
+      }
+    ],
+    "NewCancellationCases": 4,
+    "ExistingFocusedCasesUnchanged": 5,
+    "ExistingUnrelatedWorkingTreePublicApiSnapshotTestPreserved": true,
+    "Commands": [
+      {
+        "Purpose": "Normal Debug source-reference Client test project build",
+        "WorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+        "Command": "set -e\nTASK_ARTIFACTS=/tmp/hexalith-agents54-conversations-artifacts\ndotnet build tests/Hexalith.Conversations.Client.Tests/Hexalith.Conversations.Client.Tests.csproj -c Debug --artifacts-path \"$TASK_ARTIFACTS\" -m:1 -p:UseHexalithProjectReferences=true -p:NuGetAudit=false -p:MinVerVersionOverride=1.0.0 -p:HexalithEventStoreRoot=/home/administrator/projects/hexalith/eventstore -p:HexalithCommonsRoot=/home/administrator/projects/hexalith/commons -p:HexalithTenantsRoot=/home/administrator/projects/hexalith/tenants > \"$TASK_ARTIFACTS/client-reviewfix-build.log\" 2>&1",
+        "ExitCode": 0,
+        "Warnings": 0,
+        "Errors": 0
+      },
+      {
+        "Purpose": "Focused exact restricted-client class, including command/query send/body cancellation and existing validation behavior",
+        "WorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+        "Command": "set -e\nTASK_ARTIFACTS=/tmp/hexalith-agents54-conversations-artifacts\ndotnet \"$TASK_ARTIFACTS/bin/Hexalith.Conversations.Client.Tests/debug/Hexalith.Conversations.Client.Tests.dll\" -class Hexalith.Conversations.Client.Tests.ConversationAgentClientTests -result-xml \"$TASK_ARTIFACTS/client-reviewfix-focused.xml\" > \"$TASK_ARTIFACTS/client-reviewfix-focused.log\" 2>&1",
+        "ExitCode": 0
+      },
+      {
+        "Purpose": "Stage exact built bytes for documentation-boundary tests and run full Client assembly",
+        "WorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+        "Command": "set -e\nTASK_ARTIFACTS=/tmp/hexalith-agents54-conversations-artifacts\nTASK_CLIENT_RUN=/home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Client.Tests/debug/run\nmkdir -p \"$TASK_CLIENT_RUN\"\ncp -a \"$TASK_ARTIFACTS/bin/Hexalith.Conversations.Client.Tests/debug/.\" \"$TASK_CLIENT_RUN/\"\ncmp \"$TASK_ARTIFACTS/bin/Hexalith.Conversations.Client.Tests/debug/Hexalith.Conversations.Client.Tests.dll\" \"$TASK_CLIENT_RUN/Hexalith.Conversations.Client.Tests.dll\"\nsha256sum \"$TASK_ARTIFACTS/bin/Hexalith.Conversations.Client.Tests/debug/Hexalith.Conversations.Client.Tests.dll\" \"$TASK_CLIENT_RUN/Hexalith.Conversations.Client.Tests.dll\" > \"$TASK_ARTIFACTS/client-reviewfix-staging.log\"\ndotnet \"$TASK_CLIENT_RUN/Hexalith.Conversations.Client.Tests.dll\" -result-xml \"$TASK_ARTIFACTS/client-reviewfix-full-client.xml\" > \"$TASK_ARTIFACTS/client-reviewfix-full-client.log\" 2>&1",
+        "ExitCode": 0
+      },
+      {
+        "Purpose": "Selected tracked source whitespace check",
+        "WorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+        "Command": "set -e\ngit diff --check -- src/Hexalith.Conversations.Client/ConversationClient.cs tests/Hexalith.Conversations.Client.Tests/ConversationAgentClientTests.cs > /tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-whitespace.log 2>&1",
+        "ExitCode": 0
+      },
+      {
+        "Purpose": "Check executed XML, exact focused class, unchanged earlier source/artifact hashes, all staged build bytes and owning CRLF/whitespace",
+        "WorkingDirectory": "/home/administrator/projects/hexalith/conversations",
+        "Command": "python3 /tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-validate.py > /tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-validation.log",
+        "ExitCode": 0
+      }
+    ],
+    "TestResults": [
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-focused.xml",
+        "Total": 9,
+        "Passed": 9,
+        "Failed": 0,
+        "Skipped": 0,
+        "Errors": 0,
+        "NotRun": 0,
+        "Sha256": "fcfd79d60a9f572e14af46f5bebb1ab2268cfba4b6097a7b10bba1058cc782a7",
+        "ExecutedClass": "Hexalith.Conversations.Client.Tests.ConversationAgentClientTests"
+      },
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/client-reviewfix-full-client.xml",
+        "Total": 39,
+        "Passed": 39,
+        "Failed": 0,
+        "Skipped": 0,
+        "Errors": 0,
+        "NotRun": 0,
+        "Sha256": "39ac073a03277bfaf4df5518605f0ecf0141372bd5b5817cf2d6c1356dbd069b"
+      }
+    ],
+    "ExactBuiltByteStaging": {
+      "BuiltDirectory": "/tmp/hexalith-agents54-conversations-artifacts/bin/Hexalith.Conversations.Client.Tests/debug",
+      "RunDirectory": "/home/administrator/projects/hexalith/conversations/.artifacts/ext-conv-ai-1-tests/Hexalith.Conversations.Client.Tests/debug/run",
+      "MatchedFiles": 200,
+      "Files": [
+        {
+          "Path": ".msCoverageSourceRootsMapping_Hexalith.Conversations.Client.Tests",
+          "Sha256": "4af5c9ecf14fabf41f7288318c4d09052d6a2467ed86dff820eb750293647614"
+        },
+        {
+          "Path": "ByteAether.Ulid.dll",
+          "Sha256": "6fcf380ea234091dd7c28b7f18898bee1446829d7665044cc87f7d948e66e950"
+        },
+        {
+          "Path": "CoverletSourceRootsMapping_Hexalith.Conversations.Client.Tests",
+          "Sha256": "4af5c9ecf14fabf41f7288318c4d09052d6a2467ed86dff820eb750293647614"
+        },
+        {
+          "Path": "DiffEngine.dll",
+          "Sha256": "0c6b99a47c609a4263b80feaed95a357e30be3ad5a1cda79355663e407682aa7"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.7z",
+          "Sha256": "5bc3a0638e7c9286a5b28dd5f32cd096bf5dd9c56e2c45afbd5e27d5353ce4ba"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.bz2",
+          "Sha256": "d3dda84eb03b9738d118eb2be78e246106900493c0ae07819ad60815134a8058"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.gz",
+          "Sha256": "721818a5358287b923b584f2fc40e756d867dab67632f26912638ac0b65f4c80"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.tar",
+          "Sha256": "3e0dbcf2dd77ba10ca350b3068dddeb4e8fda6e7849493437f838589111aaa2e"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.xz",
+          "Sha256": "42552ae5ec08bdd8101b2057524a81cd8355474226603ac9829be426170ae731"
+        },
+        {
+          "Path": "EmptyFiles/archive/empty.zip",
+          "Sha256": "8739c76e681f900923b900c9df0ef75cf421d39cabb54650c4b9ad19b6a76d85"
+        },
+        {
+          "Path": "EmptyFiles/document/empty.docx",
+          "Sha256": "4c85ea10c89ecbfcae49669465d8578762087e9cc8cb28e5979c34c857645a75"
+        },
+        {
+          "Path": "EmptyFiles/document/empty.odt",
+          "Sha256": "51f5a469bc8368fe9fe042b42daa19748ed5c3386bfa2bed89ecb6eaeb7db65d"
+        },
+        {
+          "Path": "EmptyFiles/document/empty.pdf",
+          "Sha256": "a3476660c7148bfe44df124b8a556d4be0b0fa8bdaa2aa20ceca367a2d2757d2"
+        },
+        {
+          "Path": "EmptyFiles/document/empty.rtf",
+          "Sha256": "ea2c6a47452bfa1fff60bf4605a5917fd59c5387a8d09c4cc3950105412f3294"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.avif",
+          "Sha256": "12e3e3266f2885e89dee163366532fa9eda90fb3a4fb7c736308fdba11a6f52b"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.bmp",
+          "Sha256": "436228099d535011a36681e14967e5489e3f6038b232fee5f6cda97ed8a6e1f0"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.dds",
+          "Sha256": "67b53de44308b57b05ad0accb9af2aabf31c0a832f8ecfac813351ac16da7332"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.dib",
+          "Sha256": "436228099d535011a36681e14967e5489e3f6038b232fee5f6cda97ed8a6e1f0"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.emf",
+          "Sha256": "a397f4ff5195a7d004ccbabad60aacd0402dcb8f6a3bdc6540ca370b17844555"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.exif",
+          "Sha256": "a8e344a77b38b16871b80d24dc19ba87e42f6c774ac0b29b63a93095705081cd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.gif",
+          "Sha256": "0029eb3d509a5c7867e768e2843bd6a79cd0bed2a035e702a2c7ee00d0979a43"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.heic",
+          "Sha256": "a091827557f04de65153072446bdeff8896721487fc98f0bcc14b8d079fefad8"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.heif",
+          "Sha256": "2320949852a2ca44aabedf8ff91678db17874c792e16eb1ed28d4197959fa3dd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.ico",
+          "Sha256": "784d06eb26e5a5f5853ee73c4499f582ddfe8296cf0959fc63933733e631d43f"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.j2c",
+          "Sha256": "223f5c6b1ec965c5351e0097dc1578f3e5bab94a27149979ee5bfc65857fdceb"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jfif",
+          "Sha256": "a8e344a77b38b16871b80d24dc19ba87e42f6c774ac0b29b63a93095705081cd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jp2",
+          "Sha256": "b20cd0b40378175c942e8df73e0d24dbd109e89b0de496ef8c784e5e19337287"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jpc",
+          "Sha256": "223f5c6b1ec965c5351e0097dc1578f3e5bab94a27149979ee5bfc65857fdceb"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jpe",
+          "Sha256": "a8e344a77b38b16871b80d24dc19ba87e42f6c774ac0b29b63a93095705081cd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jpg",
+          "Sha256": "a8e344a77b38b16871b80d24dc19ba87e42f6c774ac0b29b63a93095705081cd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.jxr",
+          "Sha256": "a3c258fc17e42ab82e8b79e59692ac3a442a840ae264938be2c8d82d3532cb58"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.pbm",
+          "Sha256": "a293aabff7eae7f96579e5e6bec8665d16b608f2a66a4d7053f7d6b432224291"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.pcx",
+          "Sha256": "81510445deefa73363def32574465c74aabd6f4754d7bc8c4367ab1d0037cda1"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.pgm",
+          "Sha256": "c562b0556e17c4350801ae74c04e04e921db5117692e0a6f5d42fb9798b5edcd"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.png",
+          "Sha256": "4f8c6d416f09671777934e57bc67fb52ccc97145dc6f1869e628d9ffd7d8f6e7"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.ppm",
+          "Sha256": "3ff6c5463ace13c0f26a735ac1af2bb96ab8a9ba1cb4398359cf2466f63a4d1b"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.rle",
+          "Sha256": "436228099d535011a36681e14967e5489e3f6038b232fee5f6cda97ed8a6e1f0"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.tga",
+          "Sha256": "451dd43c57c1a8559e879771fbb20f48dfb3155f393c43b79100cce43174161a"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.tif",
+          "Sha256": "4b59d7f8f3ee217f331950ffa87d3e475c31036f4a3d9488c8201d126d265a75"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.wdp",
+          "Sha256": "a3c258fc17e42ab82e8b79e59692ac3a442a840ae264938be2c8d82d3532cb58"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.webp",
+          "Sha256": "1155bdc21ee5c00af3bd1ca7d2bfd635b0f4407cb0f10f05dde3c9a2b45663c4"
+        },
+        {
+          "Path": "EmptyFiles/image/empty.wmp",
+          "Sha256": "a3c258fc17e42ab82e8b79e59692ac3a442a840ae264938be2c8d82d3532cb58"
+        },
+        {
+          "Path": "EmptyFiles/sheet/empty.ods",
+          "Sha256": "5aa266f2ce25df2034ccf35051e7d41c66dd71bce37530bb6c08d252c81c8ef9"
+        },
+        {
+          "Path": "EmptyFiles/sheet/empty.xlsx",
+          "Sha256": "13714a504a613b4b3c8714e7293ac18714bd0d4a5668c21cbf3aab4f9e222681"
+        },
+        {
+          "Path": "EmptyFiles/slide/empty.odp",
+          "Sha256": "4e3a1ab970ba0b670c5f99edc83d021628e5773c79aa66a67503753b32451dc5"
+        },
+        {
+          "Path": "EmptyFiles/slide/empty.pptx",
+          "Sha256": "7bb69a9c435ce36090a1562237eb7251230f4e367d7788dc2e8a9959ab14475a"
+        },
+        {
+          "Path": "EmptyFiles.dll",
+          "Sha256": "d5b63e68b8966567f73df025b449e1a2e3b2306c8cec364fd240310c757b3adc"
+        },
+        {
+          "Path": "Hexalith.Commons.Http.dll",
+          "Sha256": "227322719760259e367c22b1836f00d63c15fbf60de42cdb09056c3754ef5556"
+        },
+        {
+          "Path": "Hexalith.Commons.Http.pdb",
+          "Sha256": "72cd4c5e5f0cecf769e878c2962b6087c97c597f18495c9c6c8325d87569bfb3"
+        },
+        {
+          "Path": "Hexalith.Commons.Http.xml",
+          "Sha256": "a84c07aaff08c24cdde7201efdaa877200cbcdc063deea47e1755a02ef22371d"
+        },
+        {
+          "Path": "Hexalith.Commons.Serialization.dll",
+          "Sha256": "6df82113419e497029156ac5e7eff9f5335b94a7d3c30f530d8b89807d9d1246"
+        },
+        {
+          "Path": "Hexalith.Commons.Serialization.pdb",
+          "Sha256": "af1ef2f88bde80214182f7e824301f62a1f494e3e35c52cfc2c2ae1021197b93"
+        },
+        {
+          "Path": "Hexalith.Commons.Serialization.xml",
+          "Sha256": "6fc81592d437a44b8d7f86ce13629b99b2efbb4009fd3ebbeb5f68af8c64d4cd"
+        },
+        {
+          "Path": "Hexalith.Commons.UniqueIds.dll",
+          "Sha256": "77ec3131a7d2a48f41e498e2e9e070779336a528cd96a3f1c68739fb6291ae63"
+        },
+        {
+          "Path": "Hexalith.Commons.UniqueIds.pdb",
+          "Sha256": "9600e03767189eccb07734719980b3c60800faf5fb1fe282d0ea877091b08b5b"
+        },
+        {
+          "Path": "Hexalith.Commons.UniqueIds.xml",
+          "Sha256": "de4a35af5894ccf3e66237fae90db58cf74d4fe5e8cbc07a1a6ae28c274e2ea3"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.Tests",
+          "Sha256": "a006397752951cb692a367e0128400055f1a10e2dc7c52cc5be414c48abe23cc"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.Tests.deps.json",
+          "Sha256": "44018bff2905c37c29c71a7b05300b18ed2df88391997de029fadf31ebac66e2"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.Tests.dll",
+          "Sha256": "e5ed01b05d01cd332ed7f94df0be5e0233ad6f489d2d6aeaf4fa29d6b07a8b48"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.Tests.pdb",
+          "Sha256": "cce60c857fff2e302860d3a357800099755ee2f3d56dc51c76107a44534b5aea"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.Tests.runtimeconfig.json",
+          "Sha256": "4761a312947a31a30aec259d9ee6f10407d89806d812cd102f3b3aec250dc8b4"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.dll",
+          "Sha256": "bef6d044dbde1b4b31363c0a796510de3be231cf665f2f45eb7bbd2e8ae78688"
+        },
+        {
+          "Path": "Hexalith.Conversations.Client.pdb",
+          "Sha256": "932792191762fce8e5e700c4b461b23a59bdb47bc688a2c0b86be4a23e457521"
+        },
+        {
+          "Path": "Hexalith.Conversations.Contracts.dll",
+          "Sha256": "fb429d13dbde88f55030072c7c50395d71901017c7b979e886b291034eb8f030"
+        },
+        {
+          "Path": "Hexalith.Conversations.Contracts.pdb",
+          "Sha256": "d8e44ccd454120444c2e80044b402ca65616194e8336ae16ec0b5a24456fddd3"
+        },
+        {
+          "Path": "Hexalith.EventStore.Contracts.dll",
+          "Sha256": "1b93e24159a91f7851c59cb7172b00583fe5542ac83bf2af1b2e388765c0f8de"
+        },
+        {
+          "Path": "Hexalith.EventStore.Contracts.pdb",
+          "Sha256": "42f4ec810652db9ed32dfecd08eed47b6209b8c39310859f63bb49805e4392ae"
+        },
+        {
+          "Path": "Hexalith.EventStore.Contracts.xml",
+          "Sha256": "14959c311ca55dbdea54b579a574b777b1c738dfa31ce2848a437a70694a9c6a"
+        },
+        {
+          "Path": "Microsoft.ApplicationInsights.dll",
+          "Sha256": "bf9a4b88c7f94267e1cc7ed0700c575d3eb3266ff25bcb76e4f40f1b0fba022d"
+        },
+        {
+          "Path": "Microsoft.Bcl.AsyncInterfaces.dll",
+          "Sha256": "5705d245072d3eb78400547b32147dbb6e2c8b02ba8bda76729798f5efdeaecb"
+        },
+        {
+          "Path": "Microsoft.TestPlatform.CommunicationUtilities.dll",
+          "Sha256": "24c3b9f2710340c328db8bc9c37797d15e2cf32e4fca37f60f6f01bd35b6e0ff"
+        },
+        {
+          "Path": "Microsoft.TestPlatform.CoreUtilities.dll",
+          "Sha256": "ca8cd4a0c394af3cc03c8e83b0377ecf14e6a8c68e4b0b50f732b1370950d7df"
+        },
+        {
+          "Path": "Microsoft.TestPlatform.CrossPlatEngine.dll",
+          "Sha256": "9cde8a3ed9b3d2bc95f6c351af59ac943ee3495d3c1312950eedf6176a489b5a"
+        },
+        {
+          "Path": "Microsoft.TestPlatform.PlatformAbstractions.dll",
+          "Sha256": "8bc7faec348a71336af3bfbeecad564ad0f97a8216835ed90cd2ceff621a3697"
+        },
+        {
+          "Path": "Microsoft.TestPlatform.Utilities.dll",
+          "Sha256": "29d176ae1f87dac87c8064dddf30a5e2439e4f48e28417e8604d71cc9d920ce8"
+        },
+        {
+          "Path": "Microsoft.Testing.Extensions.MSBuild.dll",
+          "Sha256": "d2f6d65e5883d5c534540ea7fda74a73945a28b6eb0c8307a47d9ca27b85c512"
+        },
+        {
+          "Path": "Microsoft.Testing.Extensions.Telemetry.dll",
+          "Sha256": "7f27ea7e6eff81e1b8f78878d279302e0ee1368d3db7190c5556bc922352e578"
+        },
+        {
+          "Path": "Microsoft.Testing.Extensions.TrxReport.Abstractions.dll",
+          "Sha256": "4abda24b56302b93f256e857a9a242e75446827dec4509bdf206db7c3a0974f0"
+        },
+        {
+          "Path": "Microsoft.Testing.Platform.dll",
+          "Sha256": "80b828cafbc7a1e80b42c868139aed3f91dfecfbe0a84d0052f7d53c2c58c6fb"
+        },
+        {
+          "Path": "Microsoft.VisualStudio.CodeCoverage.Shim.dll",
+          "Sha256": "8d4e1668a9f141d80a2615b946e43a2d64fe3528a1f54c79624a6c217019a646"
+        },
+        {
+          "Path": "Microsoft.VisualStudio.TestPlatform.Common.dll",
+          "Sha256": "c38efb5cfcceb4cdf0f1fb04eea0b1d17310c6eda839dd3ae31e658e91cc7de6"
+        },
+        {
+          "Path": "Microsoft.VisualStudio.TestPlatform.ObjectModel.dll",
+          "Sha256": "ff730c68bebe827f74e2bdcfb571400ab328c00be11c7fe3a1fe01143b483bc6"
+        },
+        {
+          "Path": "Shouldly.dll",
+          "Sha256": "498dad657f324ab068e800d5711ae36feb4af4ba9a572eb941197e2fb677549d"
+        },
+        {
+          "Path": "System.CodeDom.dll",
+          "Sha256": "bfb75074ac26c7632bbe9ffc1063ceca9a56aae86ac4913481d6bba88c4c4a34"
+        },
+        {
+          "Path": "System.Management.dll",
+          "Sha256": "4dc4d6846a3142087bf258e5923abf303c0a4c19e4bb212b066ad7ab8e6de859"
+        },
+        {
+          "Path": "cs/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "7a2f0d7b97536a3853064193ec92ce9f1200ae669b82a84281de44471dafb21c"
+        },
+        {
+          "Path": "cs/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "5f5501b18f65687cebd354196f563c520b4575e58eca474f3b3d1bd3247b9b46"
+        },
+        {
+          "Path": "cs/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "15f05b004d8f9a90650efa62f29f1ac576b91a3f21ae65beb80a6fb318fbeab2"
+        },
+        {
+          "Path": "cs/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "210180d247bce042f75e0a5811c776475765a2dfa041286f6d96dd49a2d9e91e"
+        },
+        {
+          "Path": "cs/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "52e92807806088de609733c402bbefd5c2d84c936e9240795437b3ed4b9f4df8"
+        },
+        {
+          "Path": "cs/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "0808840f4260514cd94170590c465ab77f5b82d2bb93c56ce57d367b02db16ce"
+        },
+        {
+          "Path": "cs/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "6b2deb5bd9ac08a364bd64bb503104725c2bdc562fa5a19d99463b9dfedc0544"
+        },
+        {
+          "Path": "cs/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "a24d277e98d3dc7986741ff0c72e628aca9814556d6d64b5e3992bacf07c6f17"
+        },
+        {
+          "Path": "de/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "45572aefbfd158340f1ea4ed40d2d2f9300ebddf024060cdda3bebb35854b2e2"
+        },
+        {
+          "Path": "de/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "cf94a0635173d6d868a90161757cb9484e559fedfde6e7ea50dd935e1d9b6666"
+        },
+        {
+          "Path": "de/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "417e53c758220679b7c850d893ec5754b168e8b95f2e9547eab9233a27799b85"
+        },
+        {
+          "Path": "de/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "5c1f7ed180cb362fe7a6f84ae12a5abf07edf208cf2a1a42b8418ba8b7c61096"
+        },
+        {
+          "Path": "de/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "4530d04884d24f948248699c4f28cb6c3ed61f4a6e9b1341e35e986597c448d8"
+        },
+        {
+          "Path": "de/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "a19022061c7932722b7546e385090c35975a30d03032950e29d5e89978197fbd"
+        },
+        {
+          "Path": "de/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "f44082da024f2dbb37936b1a8f8c5683564716089b6389b892cc90088acb48ff"
+        },
+        {
+          "Path": "de/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "edfdf3cb64553da8e229463948aa7b962e96e4037d510fb7fad4f26da9e7c8b5"
+        },
+        {
+          "Path": "es/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "91ffbfdbe6b9d134565fd001c8b432ed0570e4f1b64e56b812dac5a1f931c7c0"
+        },
+        {
+          "Path": "es/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "6de8b0fd082756f612d4c8b3b06e3558e2321bcb910d5a70769050f308b96641"
+        },
+        {
+          "Path": "es/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "b4ff391fe91eae0d4eba06bc9c09b4ef3fb583fdbcee0b8a49ef7d5d358a6af8"
+        },
+        {
+          "Path": "es/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "0aa2956acb6f39789420c9c1dde9a8584306a39e2573ce4d297851e85618c477"
+        },
+        {
+          "Path": "es/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "9ff1066a7376155e9903b0f55edb39c438cc40681fa8463b48e33bd8feaba6ed"
+        },
+        {
+          "Path": "es/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "0323d6d55d87ebe8dde647b895c2e977dec048cd8913738383d893f844aadd1e"
+        },
+        {
+          "Path": "es/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "7afd57a2f8e63f9d0a7c39d6c467aa45a791e29815f806b5751fb5ab375cacca"
+        },
+        {
+          "Path": "es/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "eb966be23882a9e11459d283241a67e7c0265f271e98603f13cabaadd8f7ee64"
+        },
+        {
+          "Path": "fr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "6d4123a175657dec7e6a82f787be5adbe459656bdfb874cb622fe9ea39daf7e3"
+        },
+        {
+          "Path": "fr/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "bec57046f616616913fd1416f013635a41a06c1c4d8ad67a8ee31f6098a3444b"
+        },
+        {
+          "Path": "fr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "522befbf13ace67d8d17f6b77715cf01c59e21688b84be3c8373065f6e485de5"
+        },
+        {
+          "Path": "fr/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "8abb5b1b2338f6ece80c5e762c75fe3d159922702bd8309b47f72654a9c90ce4"
+        },
+        {
+          "Path": "fr/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "f5e96f5dfc1c5b0e3170699fd47cacd147d461e05054cf71f90db06e2f904cc5"
+        },
+        {
+          "Path": "fr/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "e943e1adab6f9d55d98572ab1bd3cf07bc4bd4abfd882283f704513ae2090d62"
+        },
+        {
+          "Path": "fr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "67ab307dd61f2bbb841051e7f68318b5b75c510040f50bf6f3174287c1af3d33"
+        },
+        {
+          "Path": "fr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "07614b2d790a3b6ad93b41961566b84e4ad56cc86f5bf39658c06a13f2613db4"
+        },
+        {
+          "Path": "it/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "3a9b5440682910f99a4d3b51b3ac32f4d0c0f9cfeb959a9e26de085d45ad7cac"
+        },
+        {
+          "Path": "it/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "2af9b70d68f3ab2bbaa609e5e556811c7f68869ce2c3cc6d7209b3d6722e0968"
+        },
+        {
+          "Path": "it/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "63abe8199bd651d7c9418148c9cec7d09877a13a2b95927bc62f476f1fb796ec"
+        },
+        {
+          "Path": "it/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "17ab0407beeeb6f0aa52c170c2c9558cb994bbee6f53200ed6f6086044d28371"
+        },
+        {
+          "Path": "it/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "05060e9930f9a76e9650d91d256d698d6bd996a9d8c5909294a0cda3cd7b2a66"
+        },
+        {
+          "Path": "it/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "e46ee6c62b2455315293deabeea1a67052d4a482fb6a79cc08c175f2a9750c43"
+        },
+        {
+          "Path": "it/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "fa43b5a74e50b89b243dcb10d9ac32a6a2db3ff1cdc4b884c01223f2f78c96c7"
+        },
+        {
+          "Path": "it/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "5202a294a2b02c741ba292ba802f12b9473836a81ce61cb42f462eead6dc4dfa"
+        },
+        {
+          "Path": "ja/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "eff24e7eeef7e342289b5953b470225ff6eec51db64f3fbe1f62c44ed80da824"
+        },
+        {
+          "Path": "ja/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "63d61001cdf7c501e253adeace734b32023cf617c04785937525fc0f202c3e21"
+        },
+        {
+          "Path": "ja/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "7b52b294fe2a7aed68b8b772cf63bce00e994e3a82d275419ee97eeb76543e36"
+        },
+        {
+          "Path": "ja/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "5cbea6ef1637b296784346b6c496b0e89faa415f4db86339718de9d60ddd7c96"
+        },
+        {
+          "Path": "ja/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "7ed8522020f7b345dfea321cd224c97765c0488e0dd2b0f507d2b74b19da2dc7"
+        },
+        {
+          "Path": "ja/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "8896ab3c060d2b4fc81a22e2889e3a4be0292d603cf8e4c5228998d0905ef5af"
+        },
+        {
+          "Path": "ja/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "3ad8c259cf7b1b82b1402100f2b5b1530e4d4cefae3a91e1ab4783a803c4dcf1"
+        },
+        {
+          "Path": "ja/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "d2a679cc9cf0b0e5c865bd937ec90e45ecb434289c6b017992f417e34bae646c"
+        },
+        {
+          "Path": "ko/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "9c4d8a39201e8071fabfc83391ee90d4947b8df91d06f173eb50ac70b53cbd55"
+        },
+        {
+          "Path": "ko/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "e7528a92a6ec0e1684537dd550cdb016ecc8df62a55c85294e608358e28a560d"
+        },
+        {
+          "Path": "ko/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "e25583d01cb6e19de1c8daf050cfc5df71b3e6792bafda95a68529ce24e18005"
+        },
+        {
+          "Path": "ko/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "c948a6173bdcd7c4ff57df478a6b4d7c70b1d0df287310df0439a7982422de06"
+        },
+        {
+          "Path": "ko/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "61e4af52e4994e11c10cc3eb01cae8df7044136e81f188a7aed61771eaafaba7"
+        },
+        {
+          "Path": "ko/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "88ccdfd2eb5083e73df436086ccab64449e79d72dc2f4d52dbf6a3e1879893cb"
+        },
+        {
+          "Path": "ko/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "3850eb61e6d5cb46e3daa9666c099e2a1e11dc5223d792eb4c7f4a143e0302a9"
+        },
+        {
+          "Path": "ko/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "dc7b27e609e842eeea5da50ea172f288479b652ea779072e5dbbde045418819d"
+        },
+        {
+          "Path": "pl/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "8cee907bab9068f30a6c0740b49ce3d4c9be887b7c5f6a8240954afe46e233a3"
+        },
+        {
+          "Path": "pl/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "cb997c46356be42b346682b3a1b6825cb6f70a30c92403048f7dbdf25065f6ab"
+        },
+        {
+          "Path": "pl/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "1e084c594a6f9d405bd817d7e21b1d7e50d472d5d09a853e99b9732da5b6a7be"
+        },
+        {
+          "Path": "pl/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "aa99c0eb74a27945f15ac4f8ffc803aa0e157992a6849a639fc2e15fd8c7bbf0"
+        },
+        {
+          "Path": "pl/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "fbd3c623d1a74fbd549ddbf821e4412b8ad043e96b6362808738f8a8b2313ff5"
+        },
+        {
+          "Path": "pl/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "35384cb127bb489b7e5573d431f8f236e22fdd7f4b9d1f9e5250cb8c5a11734d"
+        },
+        {
+          "Path": "pl/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "687771c2ad91e5b705e5bb9f15d4d485c60ff93c56de869886b1f6d2831606c3"
+        },
+        {
+          "Path": "pl/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "48f6bb8c551179da07d5e136a0c781dd6433f23312f3ce9241dcec29d8412f3e"
+        },
+        {
+          "Path": "pt-BR/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "436dc88d1317cdedf7f82795a42af0929c8310b6228b4ff8eb1a82432821a3c5"
+        },
+        {
+          "Path": "pt-BR/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "2bb0340569343f0c3288f35a5cfa947d9495de55d04e93f2c380b75b45d681a9"
+        },
+        {
+          "Path": "pt-BR/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "d1865dd55afbd39ea0902a49e243f7c85e4a587134d31737b7fd764157fa74fb"
+        },
+        {
+          "Path": "pt-BR/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "ac5634ad166fbc997d259a24771a0175abfea7fbd33fc163051eb86628278542"
+        },
+        {
+          "Path": "pt-BR/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "456bd62893994aa35c93e533bf99ccaf66d760459bb54c69cef4ab748986d571"
+        },
+        {
+          "Path": "pt-BR/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "2ee0bb2d7fc2d819f5aef68328d69cc0424c7738a1d567d1545e523ec13973cb"
+        },
+        {
+          "Path": "pt-BR/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "e0e34b02d8496f5466f85a1580e9113118eee9d1c0a71dad1e372d87465f157f"
+        },
+        {
+          "Path": "pt-BR/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "3944adc8b9c09a7007aaea3c86ee7666ddf3e7328b16edcc72f7e6dcc1ff1de8"
+        },
+        {
+          "Path": "ru/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "f3fcd583ff53d3f2145a7a4418a8145db1f1f088908fb92cbab848b815e91dc2"
+        },
+        {
+          "Path": "ru/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "089d9052b2fa1ef63f2bd1f0f0f8161fe6d1d02721fc39d4b48c333d26826306"
+        },
+        {
+          "Path": "ru/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "945c4a1304189209c1cada1b8279608df188595b09bd012e28473ab329080aa1"
+        },
+        {
+          "Path": "ru/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "158d4a312082ec06db4a2a51fbcf9ef6405409d173013bd929c42e998813d42f"
+        },
+        {
+          "Path": "ru/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "3f2f6ef5012e31b92beb53f60470069cb8cb1977c48112d54472d2325d23d1c2"
+        },
+        {
+          "Path": "ru/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "12c00de94665b3b3f7e3d00bcd7d8324bac52462a73596ac540d6831f4010a85"
+        },
+        {
+          "Path": "ru/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "0a616270492b4d944980509c794e819825c9217a050520994aa5ed9583702b7c"
+        },
+        {
+          "Path": "ru/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "515c96257715a3ccd56af8acd9460e72e57dda825ff16824d2912271beca0749"
+        },
+        {
+          "Path": "runtimes/win/lib/net6.0/System.Management.dll",
+          "Sha256": "a7bcdf99ab1ddff27a018123ef8d960c03feab75fa005ab0d7bcf94e2cdc5605"
+        },
+        {
+          "Path": "testhost.dll",
+          "Sha256": "ad339a6279013d6af52dde6bcb8b90a19a395a54c6fcf085ff5a42435c60c4c5"
+        },
+        {
+          "Path": "tr/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "ecc813c1626c6d2a7ff4166a9ba1b390022069c7b6894ad387c9e8870f831099"
+        },
+        {
+          "Path": "tr/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "1fee9a7a6af5ef00d7fdd4f3bf265645c7984224352e95347c2f082f64d8ade2"
+        },
+        {
+          "Path": "tr/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "aa9ab1c2a40b4eb91b1535121310d9ef379f3ac89efa5a15513a8af3eb1e2cc8"
+        },
+        {
+          "Path": "tr/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "f0d8a9c9a4c0ba2f682965b21ae1df0dcfca2964f3ad2c4c9837033db4c016e1"
+        },
+        {
+          "Path": "tr/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "60d989d2a144ba113ae95b1a79b4914a7db388d254e109a9ad949d4353d7e2d2"
+        },
+        {
+          "Path": "tr/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "4cc44ea9a11950bbd0c9e0f55f2a16c5d169f05f501ccd9b23c2ad34100edeb9"
+        },
+        {
+          "Path": "tr/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "29fad6dbd21edfe8d8bfc9878bdd18d330c5a258ae8d13e695d0cd9854f64bba"
+        },
+        {
+          "Path": "tr/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "5b39c999ccf72eb01ba387c8a0d72814d68a7120e623accbd2da544ee04ba5dc"
+        },
+        {
+          "Path": "xunit.abstractions.dll",
+          "Sha256": "3166dc70323fb30ccf1cedb0fe86f2ad122c46d254542342d90386efc4c9285c"
+        },
+        {
+          "Path": "xunit.runner.visualstudio.testadapter.dll",
+          "Sha256": "a5dd2a0765f3891208189261cfe09171f875ff44fd5af99ea56e890085fb7f30"
+        },
+        {
+          "Path": "xunit.v3.assert.dll",
+          "Sha256": "2ed4cbd3fe285091a936eaf67698f2bd060bc432d97f1605ad880725a970396e"
+        },
+        {
+          "Path": "xunit.v3.common.dll",
+          "Sha256": "59172544bb8113a6f6b43892ac1b9d8928708c90696c1bdb7e451c764626b88a"
+        },
+        {
+          "Path": "xunit.v3.core.dll",
+          "Sha256": "b87e6b8a7807c03bc40598acef451fa36491f282f9379867c68e5927b7762ef3"
+        },
+        {
+          "Path": "xunit.v3.mtp-v2.dll",
+          "Sha256": "b8135b5eec4257c6aea52bc7136832a45b2bfec730b817ed24a30138ff8b51d1"
+        },
+        {
+          "Path": "xunit.v3.runner.common.dll",
+          "Sha256": "65de30123f02a8632610d37ebd01fc7e85dcac6a30092faf77e4e370b56d9085"
+        },
+        {
+          "Path": "xunit.v3.runner.inproc.console.dll",
+          "Sha256": "76d1b132bd68d5f3b78cf2a5c96548054d0958810b5eb8e930e36fd85ae15e7e"
+        },
+        {
+          "Path": "xunit.v3.runner.utility.netcore.dll",
+          "Sha256": "a0dd5c0be8d901d0353a53d9dc897be2c98ad469a0dc75e0fb291c3eb1ce3d48"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "64c3d59ac2ff9780732c1eb5bad7c18bd2ac03c722a9fed5511de8f25d316f23"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "db896ac2579f5d5773f940bd278852c689799a3e0acc51bb30e46eef99fc76fb"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "abc3c11d9779f4f19a3feedce14c138c3143d189ba1055e034c48a90187075c5"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "74111bc1511881e41d7b8cbb19c2f54514b520fb5345df3ec3af48c52ebf0b70"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "883f01e689fb57d66d5332d4963948e61314ade26f404e60ccf61f3944589796"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "ec62d3bf8eea8e184dffc4b3ceba52ab52f5fb6cd5a7759d42af095668c6a097"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "1f034335ddc71adce1aa1df8c7254b97c77bddbaf5d862bab75b520fdd293d45"
+        },
+        {
+          "Path": "zh-Hans/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "3f370c15663359c40bcee2a7d15cd386f01980be753f7ab1505783649d70dcaf"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.TestPlatform.CommunicationUtilities.resources.dll",
+          "Sha256": "a159e3fd80ab34839b62b2cdf0a3f7ae4b188dc7155769379e94e1333b84ce0f"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.TestPlatform.CoreUtilities.resources.dll",
+          "Sha256": "fe732572a93c216282c0ef0a8762246735c8885873e03ffe9fd287d202f0d806"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.TestPlatform.CrossPlatEngine.resources.dll",
+          "Sha256": "2c3d9a8e06973943d45dcd5cbb9c18dec563f42e2ac0c16ebd7d98fa91f6ca70"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.Testing.Extensions.MSBuild.resources.dll",
+          "Sha256": "e393894b87b36223cb4ea3123d2989cb70cc7ad30792b2a0aaa97e310ad226af"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.Testing.Extensions.Telemetry.resources.dll",
+          "Sha256": "adc8de3dcf4e4ae0207b91da884dbed81aa711fd0847f0bc13691d90f44761b1"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.Testing.Platform.resources.dll",
+          "Sha256": "adfa98adf7a80a1cb0dea5f233dbb667ee067420322d8eda65d09bbefae95e39"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.VisualStudio.TestPlatform.Common.resources.dll",
+          "Sha256": "d2b8fd8f98eda57c047e1cef1cb43d8cb0d066cc052cb172d696973c8b92cc06"
+        },
+        {
+          "Path": "zh-Hant/Microsoft.VisualStudio.TestPlatform.ObjectModel.resources.dll",
+          "Sha256": "335d5fa4c5575ceb8f4ffb58fda53c1813a0c725a17f68219d012d390ddf978f"
+        }
+      ]
+    },
+    "ClientAssembly": {
+      "Path": "/tmp/hexalith-agents54-conversations-artifacts/bin/Hexalith.Conversations.Client/debug/Hexalith.Conversations.Client.dll",
+      "Sha256": "bef6d044dbde1b4b31363c0a796510de3be231cf665f2f45eb7bbd2e8ae78688"
+    },
+    "ReusedEarlierEvidence": [
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/local-six-seam.xml",
+        "Total": 14,
+        "Passed": 14,
+        "Failed": 0,
+        "Skipped": 0,
+        "Sha256": "c0064997786092e67099d5521257c09bb571ac1723df6902330260606b8254ea"
+      },
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Contracts.Tests.xml",
+        "Total": 618,
+        "Passed": 618,
+        "Failed": 0,
+        "Skipped": 0,
+        "Sha256": "b26cf0f9e6760ca4ee7ae50e52cecd90b977a9bea5ea457c6df1666e1a47400a"
+      },
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Tests.xml",
+        "Total": 185,
+        "Passed": 185,
+        "Failed": 0,
+        "Skipped": 0,
+        "Sha256": "b3d79fcef3eab695b7a2cb0b9dbc78d68fdba5407f4a9cbb9ef6fa0606fcaf05"
+      },
+      {
+        "Artifact": "/tmp/hexalith-agents54-conversations-artifacts/Hexalith.Conversations.Server.Tests.xml",
+        "Total": 698,
+        "Passed": 698,
+        "Failed": 0,
+        "Skipped": 0,
+        "Sha256": "8a610f9c23a2e0e1f40531d87bb218422fcc45b1ad259634a9a97013f4b85492"
+      }
+    ],
+    "UnchangedEarlierSelectedSourcePaths": 75,
+    "PreservedEarlierArtifactCount": 15,
+    "RemainingGates": [
+      "Owner full target/date/command acceptance",
+      "Real current authority and immutable Party",
+      "Authenticated SDK complete command-source attestation and actor compare/append",
+      "Complete authenticated tenant catalogue and accepted window",
+      "Independent deletion approval with authentic policy/source-bound logical-deletion audit evidence",
+      "Publication discovery, ordered source backfill and automatic worker/pump binding",
+      "Authenticated receiver, independent remote receipt lookup and accepted exact target",
+      "Live storage/restart/replica/race evidence"
+    ]
+  }
+}

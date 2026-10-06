@@ -323,7 +323,7 @@ action_items:
     epic: 8
     action: "After the authorized Agents Client work is committed and reviewed, add a current exported-Client API snapshot to the active CI lane, retain the exclusion-list guard, and prove an unapproved export change fails it."
     owner: "Client developer / Quality"
-    status: open
+    status: done
     ref: "_bmad-output/implementation-artifacts/epic-8-retro-2026-10-06.md"
   - id: "epic-8-retro-item-39-successor-gate-compatibility"
     epic: 8
